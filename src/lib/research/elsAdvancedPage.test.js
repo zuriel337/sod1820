@@ -52,6 +52,14 @@ test("only a canonical page yields selectable occurrences and continuation", () 
   assert.match(projectElsAdvancedPage(incomplete).error, /לא השלים/);
 });
 
+test("a 503 timeout is incomplete, never an empty canonical result", () => {
+  const failed = projectElsAdvancedPage({ data: { error: "backend_error" }, error: {
+    message: "Edge Function returned a non-2xx status code", context: { status: 503 },
+  } });
+  assert.match(failed.error, /לא.*נמצא/);
+  assert.equal(failed.projection, undefined);
+});
+
 test("exact skip uses canonical matrix load without the paged bridge's 500 ceiling", () => {
   const first = buildElsExactSkipProbe({ term: "תורה קדשה", scope: "torah", skip: "10065" }, 1);
   assert.deepEqual(first.request, { term: "תורה קדשה", scope: "torah", skip: 10065, requestId: 1 });

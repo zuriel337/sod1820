@@ -74,6 +74,25 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     assert.equal(await page.evaluate(() => window.__advancedCalls.at(-1).body.skip_max), 10065);
     await page.getByLabel("צורת כתיבה לחיפוש").selectOption("reverse_last");
     await page.getByText("יחופש בפועל: סוד למשחה").waitFor();
+    await page.getByLabel("מונח לחיפוש מתקדם").fill("חשפד");
+    await page.getByLabel("מילות המשך למחקר").fill("משיח");
+    await page.getByLabel("מונחים למחקר הצורות").selectOption("secondary");
+    await page.evaluate(() => { window.__advancedHoldTerm = 'משיח'; });
+    const beforeSecondary = await page.evaluate(() => window.__advancedCalls.length);
+    await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
+    await page.getByText("סורק עכשיו: משיח").waitFor();
+    assert.equal(await page.getByLabel("תוצאות משיח").getByText("הצורה הזאת נסרקת כעת…").count(), 1);
+    assert.equal(await page.getByLabel("תוצאות חשפד").count(), 0, "secondary-only research does not scan the primary term");
+    await page.evaluate(() => { window.__advancedHoldTerm = null; window.__releaseAdvanced(); });
+    await page.getByText(/צורות שונות · .* הושלמו/).waitFor();
+    await page.waitForFunction(index => window.__advancedCalls.slice(index).some(call => call.body.term === 'משיח'), beforeSecondary);
+    assert.ok(!(await page.evaluate(index => window.__advancedCalls.slice(index).some(call => call.body.term === 'חשפד'), beforeSecondary)));
+    await page.getByLabel("מונחים למחקר הצורות").selectOption("primary");
+    await page.evaluate(() => { window.__advancedFailTerm = 'חשפד'; });
+    await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
+    await page.getByLabel("תוצאות חשפד").getByRole("heading", { name: /הבדיקה לא הושלמה/ }).waitFor();
+    assert.equal(await page.getByLabel("תוצאות חשפד").getByText(/לא נמצאו מופעים/).count(), 0);
+    assert.equal(await page.getByText(/הטווח פתוח גם מעל 500/).count(), 0);
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();

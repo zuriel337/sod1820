@@ -69,12 +69,13 @@ export function prepareElsAutomaticResearchPlan({ expressions, scope = "torah", 
 }
 
 /** One bounded slice over the existing scanner and canonical page bridge. Offset is replayable. */
-export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePage, now = () => Date.now() } = {}) {
+export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePage, onProgress, now = () => Date.now() } = {}) {
   if (plan?.contract !== ELS_AUTOMATIC_PLAN_CONTRACT || !Number.isSafeInteger(offset) || offset < 0 || offset > plan.candidates.length || typeof invokePage !== "function")
     return { error: "תוכנית המחקר או נקודת ההמשך אינן תקינות." };
   const candidates = plan.candidates.slice(offset, offset + ELS_AUTOMATIC_SLICE_SIZE);
   if (!candidates.length) return Object.freeze({ contract: "els_automatic_research_slice_v1", offset, nextOffset: offset, hasMoreCandidates: false, scan: null, rows: Object.freeze([]) });
   const projections = new Map();
+  const candidateByTerm = new Map(candidates.map(candidate => [candidate.term, candidate]));
   const scan = await runElsAdaptiveScan({
     candidates: candidates.map(row => ({ term: row.term, userRequested: true, preRegistered: true })),
     scope: plan.scope, stage: "SEED", selectionProtocol: "POST_HOC_EXPLORATORY", now,
@@ -84,11 +85,25 @@ export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePag
       maxWallMs: 15_000, maxPagesPerCandidate: 1,
     },
     invokePage: async request => {
-      const response = await invokePage(request);
-      const page = projectElsAdvancedPage(response);
-      if (page.error) throw new Error(page.error);
-      projections.set(request.term, page);
-      return response?.data?.result ?? response?.result;
+      onProgress?.({ phase: "searching", term: request.term });
+      try {
+        const response = await invokePage(request);
+        const page = projectElsAdvancedPage(response);
+        if (page.error) throw new Error(page.error);
+        projections.set(request.term, page);
+        const count = page.projection.occurrences.length;
+        onProgress?.({ phase: "done", term: request.term, row: {
+          ...candidateByTerm.get(request.term), state: count ? "OK" : "EXECUTED_EMPTY", count,
+          partial: page.cursor != null, error: null, projection: page.projection, cursor: page.cursor,
+        } });
+        return response?.data?.result ?? response?.result;
+      } catch (error) {
+        onProgress?.({ phase: "done", term: request.term, row: {
+          ...candidateByTerm.get(request.term), state: "FAILED", count: 0, partial: true,
+          error: String(error?.message || error), projection: null, cursor: null,
+        } });
+        throw error;
+      }
     },
   });
   const outcomes = new Map(scan.outcomes.map(row => [row.term, row]));
@@ -109,7 +124,7 @@ export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePag
         ...candidate,
         state: outcome?.state || "NOT_SCANNED",
         count: outcome?.hit_count || 0,
-        partial: outcome?.partial === true || outcome?.truncated === true,
+        partial: outcome?.partial === true || outcome?.truncated === true || outcome?.state === "FAILED",
         error: outcome?.pages?.find(item => item.error)?.error || null,
         projection: page?.projection || null,
         cursor: page?.cursor || null,

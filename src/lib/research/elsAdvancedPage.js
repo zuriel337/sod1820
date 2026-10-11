@@ -36,7 +36,13 @@ export function buildElsAdvancedPageRequest(form, cursor = null) {
 }
 
 export function projectElsAdvancedPage(response) {
-  if (response?.error) return { error: String(response.error.message || response.error) };
+  if (response?.error) {
+    const status = response.error.context?.status;
+    const code = response.data?.error;
+    if (status === 503 || code === "backend_error") return { error: "השרת עצר את הבדיקה לפני שהושלמה (503). אין זו תשובת ׳לא נמצא׳; נסו טווח קטן יותר או חזרו לבדיקה בהמשך." };
+    if (code === "budget_exceeded") return { error: "הבקשה חרגה מתקציב החיפוש של השרת. הטווח הזה לא נבדק עד הסוף." };
+    return { error: status ? `השרת לא השלים את החיפוש (שגיאה ${status}). אין זו תשובת ׳לא נמצא׳.` : "החיבור למנוע החיפוש נכשל. הטווח הזה לא נבדק עד הסוף." };
+  }
   const result = response?.data?.result ?? response?.result;
   if (result?.contract !== "els_search_page_v1" || !["OK", "EXECUTED_EMPTY"].includes(result?.status))
     return { error: result?.reason || result?.status || "תשובת החיפוש אינה תקינה." };
