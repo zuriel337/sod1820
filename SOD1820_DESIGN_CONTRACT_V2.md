@@ -1,7 +1,7 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026  
-**Owner:** experience_governance_foundation_v1_law v8 → canonical_colors_law / canonical_ui_components_law / Brand Core  
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026
+**Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
 ## 1. Product goal
@@ -15,7 +15,7 @@ There is one canonical theme store and one semantic palette owner.
 User presets:
 - **☀ Modern Day** — cool, bright, contemporary.
 - **📜 Parchment** — warm editorial / ancient-book atmosphere.
-- **☾ Night** — deep navy spatial environment.
+- **☾ Night / אור הכתר** — deep black, warm black-brown surfaces and restrained Crown gold.
 
 These are three projections of the same semantic roles, not three design systems.
 
@@ -27,7 +27,7 @@ Primary identity colors:
 - **Violet** — depth, secondary focus, spatial glow.
 - **Cyan** — discovery, focus, live research affordance.
 
-Warm gold/brown is permitted as a restrained Parchment/environment accent and protected brand-artwork exception. It is **not** the default 2029 control/accent color.
+ZURIEL's 11.10.2026 selection supersedes the navy Night canvas and the earlier restriction of warm brown to Parchment: Night uses the approved “שחור · אור הכתר” atmosphere, including its warm brown surfaces. Royal blue/Violet/Cyan retain their interaction roles. Gold frames, identity accents and warmth do not encode quality, verification or Truth.
 
 Semantic roles, not literal colors, are consumed by components:
 canvas/page, surface, surfaceSoft, surfaceRaised, textPrimary, textSecondary, accentPrimary, accentSecondary, accentDiscovery, focusRing, border, borderStrong, onAccent, building/success/warning/danger/info.
@@ -42,7 +42,14 @@ Background #F4F7FC · Surface #FFFFFF · Primary #315DD5 · Action text #2454B8 
 Background #F4EDDE · Surface #FFF9EE · Primary #315DD5 · Action text #284E9F · Secondary #764B87 · Discovery #176965 · Text #312B23.
 
 ### Night
-Background #080F1C · Surface #122036 · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F1F5FC.
+Background #0B0B0C · Surface #171719 · Raised/soft #202023 · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F5F5F0 · Secondary text #C6C6C1. Bounded content surfaces may mix Crown gold into the surface at 6% to preserve the selected black-brown warmth.
+
+### Selected Day and shared finishing · ZURIEL 11.10.2026
+Modern Day follows the light color treatment of review option 7, with cool white surfaces and restrained turquoise tint. This selects colors only; it does not move the global tools above the content. Parchment remains available through the same theme store.
+
+Across Home, World, Post, Calculator, ELS, Heichal and personal panels: thin polished borders, restrained translucency, readable cream/white text in Night, and short transform/opacity feedback respecting reduced motion. The original full Crown lockup and sapphire/gold artwork remain unchanged. Purple supplies depth and Raziel presence; cyan supplies discovery/focus. Status colors remain owned semantic roles.
+
+This refinement extends this existing contract and `palette.js`, without a new theme store, page palette or primary plan. Legacy palettes remain intact. Branch/Preview acceptance does not imply a production cutover.
 
 Exact component mixtures come from the palette owner; page-local copies are forbidden.
 
@@ -110,6 +117,8 @@ Because SOD1820 carries dense information:
 - no duplicate Page Map / Context / Workspace information;
 - decoration yields to reading;
 - empty/rest states remain useful but quiet.
+
+ZURIEL-approved density refinement, 11 October 2026: compactness applies to all surfaces. Post titles are slim, naturally wrapping live text; author/category/date and research metadata use a compact row with expandable details. Do not truncate the article title or remove source, method, journey, quality or future capability slots to gain space. Contextual research opens in place when requested or when arrival carries meaningful context. A gematria expression itself is actionable and opens the existing Number window with its expression/method context and exact reading return. Quality consumes existing assessment sources; no invented score or “AI verified” substitute. Controls remain at least 44px and meaningful metadata at least 14px.
 
 Global Chrome placement and mobile projection are locked in §11. Desktop Adaptive Dual Rail depth/choreography continues in the same System Frame owner.
 

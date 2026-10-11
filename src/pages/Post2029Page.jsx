@@ -94,6 +94,14 @@ function PostReadingBody() {
 
   useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
+    // Existing authored gematria markings remain the actionable unit. Make
+    // non-link legacy markings keyboard reachable without rewriting the source.
+    for (const node of sourceRef.current.querySelectorAll("[data-gem]")) {
+      if (!node.matches("a,button") && !node.closest("a,button")) {
+        node.setAttribute("role", "button");
+        node.tabIndex = 0;
+      }
+    }
     const headings = [...sourceRef.current.querySelectorAll("[data-source-heading='true']"),
       ...(connectionsHeadingRef.current ? [connectionsHeadingRef.current] : [])];
     const mapped = [];
@@ -494,7 +502,7 @@ function PostReadingBody() {
       },
       returnTo: exactReturnForRegion(targetRegion),
     });
-    shell.openInspect?.({
+    shell.openNumber?.({
       id: `post:${post.id}:${targetRegion.id}`,
       type: "phrase",
       label: cleanExpression,
@@ -522,13 +530,25 @@ function PostReadingBody() {
       return;
     }
 
-    if (isFz1073Master) {
-      const legacyNumber = event.target?.closest?.(".sod-numlink[data-gem]");
+    {
+      const legacyNumber = event.target?.closest?.("[data-gem]");
       if (legacyNumber && sourceRef.current?.contains(legacyNumber)) {
-        const numericValue = Number(String(legacyNumber.dataset.gem || "").replace(/,/g, ""));
+        const term = String(legacyNumber.dataset.gem || "").trim();
+        if (!term || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        const numericValue = /^\d[\d,]*$/.test(term) ? Number(term.replace(/,/g, "")) : null;
         if (Number.isSafeInteger(numericValue)) {
-          event.preventDefault();
           openHeroNumber(numericValue);
+        } else {
+          const locator = activeFocus ? `#source-region-${activeFocus.id}` : "#post-story";
+          research.updateResearchContext?.({
+            subject: { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` },
+            selection: { entityId: activeFocus?.id || String(post.id), entityType: "gematria_expression", locator, expression: term },
+            lens: "gematria",
+            returnTo: exactReturnForRegion(activeFocus),
+          });
+          shell.openNumber?.({ id: `post:${post.id}:${term}`, type: "phrase", label: term, expression: term,
+            source: "post-authored-gematria", locator, sourceLabel: projection.sourceLabel });
         }
       }
     }
@@ -569,7 +589,7 @@ function PostReadingBody() {
         },
       });
     }
-    shell.openInspect?.({
+    shell.openNumber?.({
       id: String(number),
       type: "number",
       label: String(number),
@@ -597,18 +617,24 @@ function PostReadingBody() {
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
-          <div className="sod29-reading-source-badge">{visibleSourceLabel}</div>
-          <h1>{humanContentTitle(post.title)}</h1>
-          <p className="sod29-reading-source-line">{projection.sourceLine}</p>
-          <p className="sod29-reading-deck">{projection.excerpt}</p>
-          <div className="sod29-reading-meta-line">
-            {heroDate ? <span>{heroDate}</span> : null}
-            {heroCategories.map((category) => <span key={category}>{category}</span>)}
-          </div>
-          {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <div className="sod29-reading-integrity">
-            <span>המקור נשמר כלשונו</span>
-            <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
-          </div> : null}
+          <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+          <details className="sod29-post-details">
+            <summary>
+              <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
+              {heroCategories[0] ? <span className="sod29-post-category">{heroCategories[0]}</span> : null}
+              <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
+            </summary>
+            <div className="sod29-post-details-body">
+              <p className="sod29-reading-source-line">{projection.sourceLine}</p>
+              {heroDate ? <p>תאריך הפוסט: <time>{heroDate}</time></p> : null}
+              <div className="sod29-reading-meta-line">
+                {(Array.isArray(post.categories) ? post.categories : []).map((category) => <span key={category}>{category}</span>)}
+              </div>
+              {projection.excerpt ? <p>{projection.excerpt}</p> : null}
+              {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
+              {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
+            </div>
+          </details>
         </div>
 
         {heroNumbers.length ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
@@ -650,6 +676,12 @@ function PostReadingBody() {
         className="sod29-reading-source"
         aria-label="טקסט המקור"
         onClick={handleSourceContextualFocus}
+        onKeyDown={(event) => {
+          if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"]')) {
+            event.preventDefault();
+            handleSourceContextualFocus(event);
+          }
+        }}
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
@@ -727,6 +759,8 @@ export default function Post2029Page() {
 
   return <Sod2029Shell
     surface="post"
+    title="פוסט"
+    introVariant="none"
     symbol="✦"
     status="פוסט"
   >

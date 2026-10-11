@@ -1354,8 +1354,7 @@ function IntroResearchContext2029({ context }) {
     {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
     {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
   </div>;
-  const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
-    && /^[1-8]$/.test(new URLSearchParams(window.location.search).get("visual") || "");
+  const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   if (!review) return strip;
   const arrivingWithContext = Boolean(context.selection?.locator || context.journey || context.returnTo?.href);
   const arrivalKey = [context.subject?.id, context.selection?.locator, context.journey?.position, context.returnTo?.href].join("|");

@@ -21,8 +21,8 @@ test("elections regions put 631 first and keep secondary axes navigable", () => 
 test("source is preserved; axes tagged; only verified equalities become triggers", () => {
   const all = I.markElectionsChain(SOURCE, verifiedRows(I.ELECTIONS_EQUALITIES.map((e) => e.phrase)));
   assert.equal((all.match(/data-source-heading="true"/g) || []).length, 6);
-  assert.match(all, /הבחירות = <button[^>]*data-result="631"/);
-  assert.match(all, /בן דוד = <button[^>]*data-region-id="elections-66"/);
+  assert.match(all, /data-focus-part="expression"[^>]*data-expression="הבחירות"[^>]*data-result="631"[^>]*>הבחירות<\/button> = <button/);
+  assert.match(all, /data-focus-part="expression"[^>]*data-region-id="elections-66"[^>]*>בן דוד<\/button> = <button/);
   const none = I.markElectionsChain(SOURCE, { verified: false, rows: [] });
   assert.doesNotMatch(none, /data-contextual-number-focus/);
   assert.match(none, /הבחירות = 631/);

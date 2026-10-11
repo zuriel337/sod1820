@@ -44,6 +44,7 @@ function PostIndexCard({ post, index }) {
 
       <div className="sod29-post-index-copy">
         <div className="sod29-post-index-meta">
+          {post.author ? <span>{post.author}</span> : null}
           <span>{post?.modified ? "עודכן " : "פורסם "}{formatDateHe(post?.modified || post?.date)}</span>
           {categories.map((category) => <span key={category}>{category}</span>)}
         </div>
@@ -100,22 +101,22 @@ export default function Posts2029Page() {
     document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
   };
 
-  return <Sod2029Shell surface="post" symbol="✦" status="פוסטים">
+  return <Sod2029Shell surface="post" title="פוסטים" introVariant="none" symbol="✦" status="פוסטים">
     <main className="sod29-posts-index" data-experience-surface="posts-index">
       <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
         <div className="sod29-posts-index-eyebrow">אירועים · סיפורים · רמזים</div>
         <div className="sod29-posts-index-hero-grid">
           <div>
             <h1>הפוסטים</h1>
-            <p>
+            <details className="sod29-post-details sod29-post-index-about">
+              <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
+              <p>אירועים · סיפורים · רמזים</p>
+              <p>
               סיפור אחד יכול לפתוח כמה כיווני גילוי: אנשים, מקומות, מספרים ומקורות.
               בוחרים חיבור וממשיכים ממנו.
-            </p>
-          </div>
-          <div className="sod29-posts-index-orbit" aria-label="פוסטים זמינים">
-            <strong>{state.total || "—"}</strong>
-            <span>פוסטים זמינים</span>
-            <small>התצוגה כאן היא מבט על הפוסטים; התוכן נשאר של כותביו.</small>
+              </p>
+              <p>התצוגה כאן היא מבט על הפוסטים; התוכן נשאר של כותביו.</p>
+            </details>
           </div>
         </div>
       </header>

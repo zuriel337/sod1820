@@ -366,9 +366,9 @@ function buildBennettGoldenBody(verification) {
     ${verified ? `
       <button type="button" class="sod29-gematria-value sod29-gematria-hero"${focusAttrs("נפתלי בנט")}>631</button>
       <div class="sod29-bennett-equalities" data-contextual-number-focus-group="true">
-        <p>נפתלי בנט = <button type="button" class="sod29-gematria-value"${focusAttrs("נפתלי בנט")}>631</button></p>
-        <p>הבחירות = <button type="button" class="sod29-gematria-value"${focusAttrs("הבחירות")}>631</button></p>
-        <p>מלך ישראל = <button type="button" class="sod29-gematria-value"${focusAttrs("מלך ישראל")}>631</button></p>
+        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("נפתלי בנט")}>נפתלי בנט</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("נפתלי בנט")}>631</button></p>
+        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("הבחירות")}>הבחירות</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("הבחירות")}>631</button></p>
+        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("מלך ישראל")}>מלך ישראל</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("מלך ישראל")}>631</button></p>
       </div>
     ` : `<p class="sod29-state warn">החישוב הקנוני אינו זמין כרגע; השוויונות אינם מוצגים עד לאימות.</p>`}
     <p>את ציר 631 פתחנו בפוסט הבחירות. האירוע הזה מצטרף אליו: אותו מספר, אדם אחד נוסף. חיבורים נוספים סביב האירוע זמינים בהקשר הצדדי.</p>
@@ -457,7 +457,8 @@ function markElectionsChain(content = "", verification = null) {
     if (!verified.has(eq.phrase)) continue;
     const pattern = new RegExp("(<p\\b[^>]*>\\s*)(" + escapeRegExp(eq.phrase) + ")\\s*=\\s*" + eq.value + "(\\s*<\\/p>)", "i");
     const button = `<button type="button" class="sod29-gematria-value" data-contextual-number-focus="true" data-focus-part="result" data-region-id="${eq.regionId}" data-expression="${eq.phrase}" data-method="רגיל" data-result="${eq.value}">${eq.value}</button>`;
-    html = html.replace(pattern, `$1$2 = ${button}$3`);
+    const phraseButton = `<button type="button" class="sod29-gematria-expression" data-contextual-number-focus="true" data-focus-part="expression" data-region-id="${eq.regionId}" data-expression="${eq.phrase}" data-method="רגיל" data-result="${eq.value}">${eq.phrase}</button>`;
+    html = html.replace(pattern, `$1${phraseButton} = ${button}$3`);
   }
   // Parent relation: the 631 axis opened here continues in the Bennett post (link only, no copy).
   const card = `
@@ -465,7 +466,7 @@ function markElectionsChain(content = "", verification = null) {
   <span><small>הציר הזה ממשיך</small><br><strong>בנט בתוך ציר 631</strong><br><small>פוסט ההמשך מוסיף אירוע חדש לאותו ציר · המידע הקודם נשאר כאן</small></span>
   <b>פתח ←</b>
 </a>`;
-  return html.replace(/(נס נתניהו\s*=\s*(?:<button[\s\S]*?<\/button>|631)\s*<\/p>)/, `$1${card}`);
+  return html.replace(/(נס נתניהו(?:<\/button>)?\s*=\s*(?:<button[\s\S]*?<\/button>|631)\s*<\/p>)/, `$1${card}`);
 }
 
 function buildElectionsExperience(post) {

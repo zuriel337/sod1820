@@ -16,12 +16,36 @@ export const VISUAL_REVIEW_OPTIONS = Object.freeze([
   { id: "8", name: "שחור · אור הכתר", preset: "dark", detail: "שחור עמוק, כתב מואר; זהב, ספיר וטורקיז בתפקידים נפרדים." },
 ]);
 const reviewPages = [
+  { label: "פוסטים", href: "/2029/posts" },
   { label: "דילוגים", href: "/els" },
   { label: "מחשבון", href: "/2029/gematria" },
   { label: "פוסט", href: "/post/mah-kore-nza-hasoara" },
 ];
 const fromUrl = () => new URLSearchParams(location.search).get("visual");
 const valid = (id) => VISUAL_REVIEW_OPTIONS.some((option) => option.id === id);
+
+function SelectedPreview() {
+  const preset = useThemePreset();
+  const [explanations, setExplanations] = useState(false);
+  const palette = resolve2029Palette(preset);
+  useEffect(() => {
+    document.documentElement.dataset.sodSelectedPreview = "true";
+    document.documentElement.dataset.sodVisualOption = preset === "light" ? "7" : preset === "parchment" ? "5" : "8";
+  }, [preset]);
+  useEffect(() => {
+    document.documentElement.dataset.sodReviewExplanations = String(explanations);
+  }, [explanations]);
+  return <aside className="sod29-visual-review sod29-selected-preview" dir="rtl" aria-label="פריוויו העיצוב שנבחר"
+    style={{ "--vr-page": palette.cardRaised, "--vr-ink": palette.ink, "--vr-muted": palette.inkSoft,
+      "--vr-line": palette.borderStrong, "--vr-accent": palette.accentText, "--vr-focus": palette.focusRing }}>
+    <nav aria-label="דפים בפריוויו">
+      {reviewPages.map((page) => <a key={page.href} href={page.href}>{page.label}</a>)}
+      <button type="button" aria-pressed={preset === "dark"} onClick={() => setThemePreset("dark")}>אור הכתר</button>
+      <button type="button" aria-pressed={preset === "light"} onClick={() => setThemePreset("light")}>יום</button>
+      <button type="button" aria-pressed={explanations} onClick={() => setExplanations((value) => !value)}>{explanations ? "קפל פתיחים" : "הצג פתיחים"}</button>
+    </nav>
+  </aside>;
+}
 
 function VisualReview({ initial }) {
   const [selected, setSelected] = useState(initial);
@@ -64,11 +88,11 @@ function VisualReview({ initial }) {
 }
 export function mountPreviewVisualReview2029() {
   const initial = fromUrl();
-  if (!valid(initial) || document.getElementById("sod29-visual-review-host")) return;
+  if (document.getElementById("sod29-visual-review-host")) return;
   const host = document.createElement("div");
   host.id = "sod29-visual-review-host";
   document.getElementById("root").before(host);
-  createRoot(host).render(<VisualReview initial={initial} />);
+  createRoot(host).render(valid(initial) ? <VisualReview initial={initial} /> : <SelectedPreview />);
   // The comparison controls are outside the product frame. Keep its existing
   // fixed rails below them, including when the review toolbar wraps on mobile.
   const observer = new ResizeObserver(() => {

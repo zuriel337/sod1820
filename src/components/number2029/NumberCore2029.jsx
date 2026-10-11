@@ -1,7 +1,6 @@
 import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
 import SignatureResearchIcon from "../SignatureResearchIcon.jsx";
 import React, { useEffect, useId, useMemo, useState } from "react";
-import { PALETTES } from "../../lib/palette.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
@@ -10,23 +9,7 @@ import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
 import "./numberCore2029.css";
 
-const LAB = PALETTES.lab;
-const NUMBER_CORE_PALETTE = Object.freeze({
-  "--s29-page": LAB.pageBg,
-  "--s29-panel": LAB.card,
-  "--s29-panel-soft": LAB.cardSoft,
-  "--s29-panel-grad": LAB.cardGrad,
-  "--s29-line": LAB.border,
-  "--s29-line-strong": LAB.borderStrong,
-  "--s29-ink": LAB.ink,
-  "--s29-muted": LAB.inkSoft,
-  "--s29-accent": LAB.accent,
-  "--s29-hero": LAB.heroNum,
-  "--s29-glow": LAB.glow,
-  "--s29-accent-btn": LAB.accentBtn,
-  "--s29-on-accent": LAB.onAccent,
-});
-
+// The embedded Number window inherits the same semantic palette as its Frame.
 const TABS = Object.freeze([
   { key: "calc", label: "חישוב" },
   { key: "learn", label: "למד" },
@@ -328,7 +311,7 @@ export default function NumberCore2029({
   const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
   const lifeAria = `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
-  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root} style={compact ? NUMBER_CORE_PALETTE : undefined}>
+  return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root}>
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
