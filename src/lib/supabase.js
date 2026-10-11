@@ -6,6 +6,7 @@ import { isReadable } from './nameMask.js';
 import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
 import { METHOD_DB_COLS } from './gematria.js';
+import { postCategoryFilterNames } from './postCategoryIdentity.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -28,7 +29,7 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
 
   if (stableOrder && orderBy !== 'id') query = query.order('id', { ascending });
 
-  if (category) query = query.contains('categories', [category]);
+  if (category) query = query.overlaps('categories', postCategoryFilterNames(category));
   if (tag) query = query.contains('tags', [tag]);
   else query = query.not('tags', 'cs', '{טיוטה}').not('tags', 'cs', '{פורום}');   // טיוטות + פוסטים שנותבו לפורום (tag 'פורום') מוסתרים מפידי-הפוסטים הציבוריים — חיים רק בפורום (getForumFeed)
   if (author) query = query.eq('author', author);
