@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import '../../pages/home-world-story2029.css';
+import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
 
 function date(value) {
   if (!value || !Number.isFinite(Date.parse(value))) return 'לא צוין';
@@ -9,8 +10,10 @@ function date(value) {
 }
 
 /** One consumer of the existing public arrivals, shared by Home and World. */
-export default function SourceArrivalList2029({ items = [], loading, availability, onOpen, surface = 'world', limit = 6 }) {
+export default function SourceArrivalList2029({ items = [], loading, availability, onOpen, surface = 'world', limit = 6, showNew = false }) {
   const [filter, setFilter] = useState('all');
+  const [seen, setSeen] = useState(readSeen);
+  const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
   const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, limit);
   return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות">
     <header><div className="sod29-kicker">קולות מן המקור</div><h2>מה מגיע עכשיו</h2>
@@ -21,19 +24,21 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
     {!loading && !sources.length ? <p role="status">אין כרגע מקורות זמינים בזרם הזה.</p> : null}
     {sources.map(item => {
       const group = item.sourceKind === 'group_message';
+      const newKey = `source:${item.id}`;
+      const isNew = showNew && recentSource(group ? item.arrivalAt : item.sourcePublishedAt || item.at) && !seen[newKey];
       const copy = <><span className="sod29-source-arrival-icon"><NavigationIcon2029 name="source" /></span><span className="sod29-source-arrival-copy">
-        <span className="sod29-source-arrival-label">{group ? 'מהמקור · טרם נבדק' : 'פוסט מקור'}</span>
+        <span className="sod29-source-arrival-label">{isNew ? <><i className="sod29-source-arrival-dot" aria-hidden="true" /><span className="sod29-sr-only">חדש · </span></> : null}{group ? 'מהמקור · טרם נבדק' : 'פוסט מקור'}</span>
         <strong>{item.label}</strong><span>{item.creator || 'שם הכותב לא צוין'}</span>
         <small>{group ? 'נשמר במערכת' : 'פרסום המקור'} · {date(group ? item.arrivalAt : item.sourcePublishedAt || item.at)}</small>
       </span><span className="sod29-source-arrival-open" aria-hidden="true">{group ? '↓' : '←'}</span></>;
       return group ? <details key={item.id} id={surface === 'world' ? `group-source-${item.id.slice(6)}` : undefined}
         className="sod29-world-group-source sod29-source-arrival" data-source-arrival={item.sourceRef}>
-        <summary>{copy}</summary><div className="sod29-source-arrival-body"><p>{item.fullText}</p>
+        <summary onClick={() => { if (isNew) see(newKey); }}>{copy}</summary><div className="sod29-source-arrival-body"><p>{item.fullText}</p>
           <p className="sod29-source-arrival-label">מאת: {item.creator || 'שם הכותב לא צוין'}</p>
           <p className="sod29-source-arrival-label">מועד המקור ומועד גילוי חיבור: לא תועדו בנתונים הזמינים.</p>
           <button className="sod29-action" onClick={() => onOpen(item)}>{surface === 'home' ? 'פתיחה בעולם' : 'שמירת ההקשר לקריאה'}</button>
         </div></details> : <article className="sod29-source-arrival" key={item.id} data-source-arrival={item.sourceRef}>
-        <button className="sod29-source-arrival-link" onClick={() => onOpen(item)}>{copy}</button>
+        <button className="sod29-source-arrival-link" onClick={() => { if (isNew) see(newKey); onOpen(item); }}>{copy}</button>
         {item.researchUpdatedAt ? <small className="sod29-source-arrival-update">המחקר התעדכן · {date(item.researchUpdatedAt)}</small> : null}
       </article>;
     })}

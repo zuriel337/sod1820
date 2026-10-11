@@ -4,12 +4,16 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
-import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase } from "../../lib/supabase.js";
+import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
+import { useReveal } from "./useReveal2029.js";
+import { realUpdate } from "../../lib/heroUpdate2029.js";
+import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
+import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -44,13 +48,23 @@ function useHomeCompositionData() {
       getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }),
       getPostsFromSupabase({ limit: 8 }),
       fetchExplorerFacetPage("topic", { limit: 4 }),
-    ]).then(([posts, ciphers, videos, dimension, tagged, notable]) => {
+    ]).then(async ([posts, ciphers, videos, dimension, tagged, notable]) => {
       if (!live) return;
       const value = (result, fallback) => (result.status === "fulfilled" && result.value) || fallback;
+      // Real update marks come from the post rows themselves (modified more than a day after publishing).
+      const slugs = (value(posts, [])).map((post) => post.slug).filter(Boolean);
+      let rowsBySlug = {};
+      try {
+        if (supabase && slugs.length) {
+          const { data: rows } = await supabase.from("posts").select("slug,date,modified").in("slug", slugs);
+          rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
+        }
+      } catch (_) { /* the cards simply show no mark */ }
+      if (!live) return;
       const numberByTitle = new Map((value(tagged, {}).posts || []).map((post) => [clean(post.title), titleNumber(post.title, post.tags)]));
       setState({
         loading: false,
-        posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null })),
+        posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null, update: realUpdate(rowsBySlug[post.slug]) })),
         ciphers: value(ciphers, []),
         videos: value(videos, []),
         dimensionPost: (value(dimension, {}).posts || [])[0] || null,
@@ -68,8 +82,14 @@ function Media({ src, fallback, className = "" }) {
     : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;
 }
 
+function Reveal({ id, children }) {
+  const [ref, reveal] = useReveal(`home:${id}`);
+  return <div ref={ref} data-reveal={reveal} className="k29-reveal k29-rv-self">{children}</div>;
+}
+
 function Section({ title, link, label, children, className = "" }) {
-  return <section className={`h29-sec ${className}`} aria-label={label || title}>
+  const [ref, reveal] = useReveal(`home:${label || title}`);
+  return <section ref={ref} data-reveal={reveal} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>
     {title ? <div className="h29-sec-h"><h2>{title}</h2>{link}</div> : null}
     {children}
   </section>;
@@ -84,19 +104,27 @@ export default function HomeComposition2029({
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
   const lead = data.posts[0] || null;
+  const [seen, setSeen] = useState(readSeen);
+  const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
   return <div className="h29" data-experience-capability="home-composition">
     {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} /> : <section className="h29-hero is-loading" aria-busy="true"><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>טוען את מה שחי עכשיו…</h1></div></section>)}
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
       <div className="h29-updates">
-        {data.posts.map((post) => <article key={post.slug} className={`h29-card${selectedSlug === post.slug ? " is-selected" : ""}`}>
-          <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => onSelectPost?.(post)}>
-            <Media src={post.poster} fallback={post.number || "✦"} />
-            <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{shortDate(post.modified)}{post.number ? ` · ${post.number}` : ""}</span></span>
-          </button>
-          <Link className="h29-card-open" to={postHref(post.slug)}>לקריאה ←</Link>
-        </article>)}
+        {data.posts.map((post, index) => {
+          const unseen = Boolean(post.update) && !seen[post.update.key];
+          // One pulse at a time: the first card repeats the main item (which pulses itself), so only the first other unseen update pulses.
+          const pulses = unseen && index === data.posts.findIndex((item, i) => i > 0 && item.update && !seen[item.update.key]);
+          return <article key={post.slug} style={{ "--i": index }} className={`h29-card k29-rv${selectedSlug === post.slug ? " is-selected" : ""}${pulses ? " is-pulse" : ""}`}>
+            <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>
+              <Media src={post.poster} fallback={post.number || "✦"} />
+              <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{shortDate(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>
+                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {shortDate(post.update.at)}</span> : null}</span>
+            </button>
+            <Link className="h29-card-open" to={postHref(post.slug)}>לקריאה ←</Link>
+          </article>;
+        })}
         {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}
       </div>
     </Section>
@@ -104,21 +132,27 @@ export default function HomeComposition2029({
     {data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
       <div className="h29-notable">
-        {data.notable.map((card, index) => <article className="h29-notable-card" key={card.id}>
-          <Link className="h29-notable-main" to={card.href}>
+        {data.notable.map((card, index) => {
+          const fresh = recentConvergence(card.approvedAt);
+          const freshKey = `topic:${card.id}:approved:${card.approvedAt}`;
+          const unseen = fresh && !seen[freshKey];
+          return <article className={`h29-notable-card k29-rv${unseen ? " is-pulse" : ""}`} style={{ "--i": index }} key={card.id}>
+          <Link className="h29-notable-main" to={card.href} onClick={() => { if (unseen) see(freshKey); }}>
             <span className="h29-card-t">{clean(card.label)}</span>
             {card.numbers?.length ? <span className="h29-notable-nums">{levelNumbers(card.numbers, card.highlightNumbers, 4).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</span> : null}
           </Link>
+          {fresh ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />אושרה לאחרונה</span> : null}
           <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={index < 4} />
-        </article>)}
+        </article>;
+        })}
       </div>
     </Section> : null}
 
-    {story}
+    {story ? <Reveal id="story">{story}</Reveal> : null}
 
     <Section label="צפנים וסרטים">
       <div className="h29-strips">
-        <div className="h29-strip">
+        <div className="h29-strip k29-rv">
           <div className="h29-sec-h"><h2>הצפנים האחרונים בתורה</h2><Link to="/els">כל הצפנים ←</Link></div>
           <div className="h29-strip-row">
             {data.ciphers.map((cipher) => <Link key={cipher.id} className="h29-tile" to={postHref(cipher.link_url)}>
@@ -127,7 +161,7 @@ export default function HomeComposition2029({
             {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
           </div>
         </div>
-        <div className="h29-strip">
+        <div className="h29-strip k29-rv">
           <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><a href="/archive">כל הסרטים ←</a></div>
           <div className="h29-strip-row">
             {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? `/${video.slug}` : "/archive"}>
@@ -140,15 +174,15 @@ export default function HomeComposition2029({
       </div>
     </Section>
 
-    {arrivals}
+    {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
 
     <Section label="מוקדי זהות">
       <div className="h29-anchors">
-        <Link className="h29-anchor" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
+        <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
-        <Link className="h29-anchor" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/2029/posts"}><span className="h29-glyph is-dim"><NavigationIcon2029 name="cosmos" /></span>
+        <Link className="h29-anchor k29-rv" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/2029/posts"}><span className="h29-glyph is-dim"><NavigationIcon2029 name="cosmos" /></span>
           <span><b>מימד חמש</b><small>{data.dimensionPost ? clean(data.dimensionPost.title) : "עשר הספירות, מפת ישראל ותודעה"}</small></span></Link>
-        <a className="h29-anchor" href="/or-geula"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
+        <a className="h29-anchor k29-rv" href="/or-geula"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>אור הגאולה</b><small>רמזי הגאולה לאורך השנים</small></span></a>
       </div>
     </Section>
@@ -156,11 +190,11 @@ export default function HomeComposition2029({
     <Section label="כלים וכניסות">
       <div className="h29-portions">
         {calculator}
-        {now ? <Link className="h29-portion" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
+        {now ? <Link className="h29-portion k29-rv" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
           <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
-        <a className="h29-portion" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>
-        <Link className="h29-portion" to="/2029/journey"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>
-        <a className="h29-portion" href="/community"><span className="h29-portion-h"><NavigationIcon2029 name="community" />קהילה</span><small>מחקר משותף ותרומות</small></a>
+        <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>
+        <Link className="h29-portion k29-rv" to="/2029/journey"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>
+        <a className="h29-portion k29-rv" href="/community"><span className="h29-portion-h"><NavigationIcon2029 name="community" />קהילה</span><small>מחקר משותף ותרומות</small></a>
       </div>
     </Section>
 

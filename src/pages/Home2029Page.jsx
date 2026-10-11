@@ -469,7 +469,7 @@ function HomeBody() {
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={<div className="h29-stream">
-      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4}
+      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
         items={worldPreview?.arrivals || worldPreview?.items || []}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>

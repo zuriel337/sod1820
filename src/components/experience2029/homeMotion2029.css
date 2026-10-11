@@ -1,0 +1,37 @@
+/* Home motion for the items below the main item: a staged reveal when a section scrolls into view (once),
+   a static mark for real new items, one short light pulse only for a REAL update. No loops.
+   Reduced motion: no reveal and no pulse (state is 'static'; the pulse rule is removed). Tokens only. */
+@keyframes h29-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes h29-light { 0% { opacity: 0; transform: translateX(40%); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateX(-40%); } }
+
+.k29-reveal[data-reveal="pre"] .k29-rv,
+.k29-reveal[data-reveal="pre"].k29-rv-self,
+.k29-reveal[data-reveal="pre"] .h29-stream .sod29-source-arrival { opacity: 0; }
+.k29-reveal[data-reveal="anim"] .k29-rv,
+.k29-reveal[data-reveal="anim"].k29-rv-self,
+.k29-reveal[data-reveal="anim"] .h29-stream .sod29-source-arrival { animation: h29-rise 420ms cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 80ms); }
+.k29-reveal[data-reveal="anim"] .k29-rv:nth-child(1) { --i: 0; } .k29-reveal[data-reveal="anim"] .k29-rv:nth-child(2) { --i: 1; }
+.k29-reveal[data-reveal="anim"] .k29-rv:nth-child(3) { --i: 2; } .k29-reveal[data-reveal="anim"] .k29-rv:nth-child(4) { --i: 3; }
+.k29-reveal[data-reveal="anim"] .h29-stream .sod29-source-arrival:nth-of-type(1) { animation-delay: 0ms; }
+.k29-reveal[data-reveal="anim"] .h29-stream .sod29-source-arrival:nth-of-type(2) { animation-delay: 80ms; }
+.k29-reveal[data-reveal="anim"] .h29-stream .sod29-source-arrival:nth-of-type(3) { animation-delay: 160ms; }
+.k29-reveal[data-reveal="anim"] .h29-stream .sod29-source-arrival:nth-of-type(4) { animation-delay: 240ms; }
+
+/* A real update/new item: static gold dot + a statement; one light pulse once the card has appeared. */
+.h29-upd { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--s29-font-ui); color: var(--s29-ink); }
+.h29-card, .h29-notable-card { position: relative; }
+.h29-card.is-pulse::after, .h29-notable-card.is-pulse::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--s29-brand-gold) 22%, transparent) 50%, transparent 70%);
+}
+.k29-reveal[data-reveal="anim"] .is-pulse::after,
+.k29-reveal[data-reveal="static"] .is-pulse::after { animation: h29-light 1100ms ease-out 700ms 1 both; }
+.k29-reveal[data-reveal="static"] .is-pulse::after { animation-delay: 300ms; }
+
+.sod29-source-arrival-dot { display: inline-block; inline-size: 7px; block-size: 7px; margin-inline-end: 6px; border-radius: 50%; background: var(--s29-brand-gold); vertical-align: middle; }
+.sod29-sr-only { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .k29-reveal .k29-rv, .k29-reveal.k29-rv-self, .k29-reveal .h29-stream .sod29-source-arrival { animation: none !important; opacity: 1 !important; }
+  .h29-card.is-pulse::after, .h29-notable-card.is-pulse::after { display: none; }
+}
