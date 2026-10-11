@@ -391,3 +391,61 @@ Return one AFTER with exact evidence. Manual history cleanup stays held
 until G4 closure. The next phase follows the existing Roadmap after the
 shared frame and World are accepted; no competing frame or task registry.
 
+
+## Approved-plan snapshot v1 · entity connections, convergence strength, update pulse, follow (CLAUDE original design session, 2026-10-11)
+
+Status vocabulary: ACCEPTED = answered by ZURIEL (Human Gate); PROPOSED = recommended by CLAUDE, not yet answered;
+IMPLEMENTED = exists in a pushed branch; none of this is DEPLOYED/LIVE/VERIFIED in production. Linked requirement map:
+full27 record c29a9f97-9a0b-46c2-97cd-ce7b4a50d75a. Visual reference (private artifact, not the record):
+https://claude.ai/artifact/LXitMoMjU19eVCWrNSEQiD (v5). Coordination memos: 196f6c55-dd79-47a9-a805-9b1c0de7183d,
+c3bd91e6-1c20-45d4-9a46-31789d00673a, 140dc283-be39-4609-b5c0-b391fc0ff2cb, 3b11113a-58cc-4455-ad12-83b2d625ab84,
+d9a3b47b-5aeb-4672-8601-e7b9cd76fe25, d8b879d7-52d5-48ca-b592-87d16b2da138.
+
+### Approval wording and date
+ZURIEL answered multiple-choice questions on 2026-10-11 (all chosen options were the recommended ones) and approved the
+follow-notification rules with "כן". After the Home compact-stream AFTER (d8b879d7) he wrote "אני מאשר הכל" (2026-10-11).
+That last wording is recorded as approval of the Home compact stream and of writing this snapshot; it is NOT recorded as an
+individual answer to the five connection-path questions in the first preview (section "Proposed" below).
+
+### ACCEPTED decisions
+1. Convergence strength is a split meter of separate components, never one score: gold/diamond anchors, connection to time,
+   exact verse or source, independent sources, verified expressions (after de-duplication). Strength is not proof.
+2. A strong convergence rises in its own context (to the top of related connections) and into the Home "now" area. It is not first everywhere.
+3. New-post connections are created automatically from shared numbers/tags and marked "derived"; ZURIEL approves only the important ones.
+4. New gold numbers (example 787) are proposed by the system with reasons; ZURIEL approves with one click (golden_entity_law v4: AI recommends, never assigns).
+5. Update pulse triggers: new/changed text or segment; new image or video; new number or connection. A rank/strength change alone is NOT a trigger of the general pulse.
+6. Pulse placement: item cards BLINK on Home (three gentle pulses, then a static dot). World items, side rail, Now tab and trail chip show a static dot only. Post/topic head shows the full "what changed". "Seen" or opening clears it everywhere for that user.
+7. Three intensity levels shown by color + short text + shape (never color alone): regular = small dim-gold dot; strong = full gold with ring; very strong = shared discovery color with double ring, only with a Diamond or Crown (1820) anchor. Level is derived from the split meter, not a hidden score. Thresholds belong to GPT with the meter fields; colors only from src/lib/palette.js tokens.
+8. Topic levels: "level 1" = highlighted numbers, "level 2" = regular numbers inside a topic (already topic_cards_public.highlight_numbers). No topic tree (no parent field in data).
+9. General "what is new" board: everyone sees approved new items; ZURIEL sees a deeper version (suggestions, approval queue, unapproved community uploads). Contents: new convergences (even with no event), new strong gematrias, uploads of approved writers, pending community uploads (ZURIEL version only). Sort: strong first, inside each group newest first.
+10. Personal follow: a person may follow a subject or strong convergences; changes enter their tracking center. Rules: one notification per published content update listing what changed; add of segment/media/number/connection enters; typo or formatting-only creates none; "seen" clears for that user only; a strength-rise notification belongs only to a follow the person chose. Extends the existing engine, no parallel system, in-app only (Follow v19).
+11. Home reality stream: four one-line source rows, full text opens deliberately, route to the full stream in World (a427469e).
+
+### PROPOSED, not answered (first preview, five questions with CLAUDE recommendations)
+a. Show the link kind on every card (approved / derived / computed / tag): recommended yes.
+b. Optional desktop map view as a second, non-default view: recommended yes, later.
+c. "Strength" = count of shared anchors, no popularity: now superseded by accepted decision 1 for the meter; shared-anchor count stays a ranking signal only.
+d. Trail saved only on request, with a save offer after several steps: recommended.
+e. Who approves a new explicit link post->unit: policy decision for ZURIEL; explicit links enter as proposals until approved.
+Also open: definition of "connection to time" (same Hebrew year such as 787 = תשפ״ז only, or also holidays/event dates); "Research Lab" environment colors for Number/ELS/Heichal (black-brown vs the contract navy); bottom-bar button set.
+
+### IMPLEMENTED (branch-only, presentation) on origin/ccr-b9fd9245-z14usv
+Shared frame bar and rails 4c66cb83/fabcb8b4; Home composition 4154395b; World stage 1 6ccabb07; Home stream rows 5b707bec and a427469e.
+Concept demos only (artifact): split meter, pulse levels, board, follow/tracking center. No code for meter, pulse, board or follow exists yet.
+
+### Affected paths (when built)
+src/components/experience2029/HomeComposition2029.jsx and homeComposition2029.css; src/pages/Home2029Page.jsx, World2029Page.jsx, worldComposition2029.css;
+src/components/research/SourceArrivalList2029.jsx (shared); src/lib/palette.js (read-only tokens); future shared kit for cards/strips/why-line/path ribbon.
+
+### Existing owners and readers to compose (no new graph, store or engine)
+Follow/watch: src/lib/followSubject.js, followIdentity.js, notifications.js; RPC follow_subject_toggle, follow_subject_state, canonical_follow_subject, watch_toggle, notify_topic; user_notifications; notification_prefs. Producers today: notify_on_post_publish, notify_on_cipher_publish, notify_on_or_geula_update, notify_on_stream_image, notify_on_contribution. Convergence/topic data: topic_cards_public (205 cards, numbers, highlight_numbers, meter_score 13-95), convergences, research_paths, gematria_words; canonical fn_ragil for any numeric claim. Gold anchors today: 14, 45, 358, 424, 604, 776, 1202; Crown Anchor 1820 (2 Diamond signatures). A consumer adapter must compose existing authorized readers and canonical scoring and must not expose inaccessible neighbors or counts. Approval status and derivation method are separate axes. Shared-number association is discovery evidence, not causal proof.
+
+### GPT data contract needed
+Per convergence/unit: gold and diamond anchor counts; time-link flag and exact-verse flag (after the time-link definition is decided); verified-expression count after de-duplication; independent-source count (posts.author is empty today, so not computable and must show "no data", never zero); last_updated + what_changed + a safe way to mark the updated part; approval queue for proposed gold candidates and derived connections; a stable follow identity for a topic card/convergence in canonical_follow_subject; a producer for topic/convergence change and for tier entry/rise with per-update batching; explicit post->unit links (none exist today).
+
+### Acceptance cases
+1. Plane post (4 gold anchors 424/604/776/1202 + 787 = תשפ״ז + "ושמחת בחגך" = 787) shows the strongest meter of the checked posts; elections post shows Crown 1820 + gold 45 with time link not verified; independent sources show "no data".
+2. Publishing three changes together yields one notification for a follower; a typo fix yields none; a non-follower gets no notification but the general pulse still shows.
+3. Pulse blinks on Home only, static elsewhere, cleared everywhere by "seen"; no color-only signal; reduced motion respected.
+4. Exact back/forward restore along a connection path (scroll and the originating card).
+5. 320/390/1440, night/day/parchment, keyboard and RTL, real data.
