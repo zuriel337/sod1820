@@ -17,6 +17,7 @@ import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Sele
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
 import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.js";
+import { lifeAdvancedElsRequest, readLifePersonInput } from "../lib/research/lifeJourneyResearch.js";
 import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
@@ -82,6 +83,11 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
   />;
 }
 
+function LifeElsReturn() {
+  const shell = use2029Shell();
+  return <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>חזרה למסע החיים</button>;
+}
+
 export default function Els2029Page() {
   const research = useResearch();
   const { user, loading: authLoading } = useAuth();
@@ -114,6 +120,27 @@ export default function Els2029Page() {
   }, [recordKey]);
   const elsState = useFeatureState("lock_els");
   const context = research.context || null;
+  const lifeRequest = lifeAdvancedElsRequest(context);
+  const lifeRequestKey = lifeRequest ? `${user?.id || "guest"}|${lifeRequest.personRef}|${lifeRequest.form}|${lifeRequest.scope}` : null;
+  const [lifeSeedState, setLifeSeedState] = useState({ key: null, term: null, error: null });
+  useEffect(() => { setResearchLoad(null); setResearchProbe(null); setAutomaticSummary(null); }, [lifeRequestKey]);
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!lifeRequestKey || !user?.id || authLoading) return () => controller.abort();
+    setLifeSeedState({ key: lifeRequestKey, term: null, error: null });
+    readLifePersonInput(supabase, lifeRequest.ownerId, lifeRequest.personRef, "research", controller.signal)
+      .then(person => {
+        if (!controller.signal.aborted) setLifeSeedState({ key: lifeRequestKey,
+          term: lifeRequest.form === "first" ? person.first : person.name, error: null });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setLifeSeedState({ key: lifeRequestKey, term: null,
+          error: "לא ניתן לקרוא את פרטי האדם שנבחר. חזרו למסע ובדקו את ההרשאה והפרטים השמורים." });
+      });
+    return () => controller.abort();
+  }, [lifeRequestKey, authLoading]);
+  const lifeSeed = lifeRequestKey && lifeSeedState.key === lifeRequestKey && !authLoading && user?.id
+    ? lifeSeedState.term ? { term: lifeSeedState.term, scope: lifeRequest.scope } : null : null;
   const subject = context?.subject || null;
   const selection = context?.selection || null;
   const elsSelection = selection?.entityType === "els";
@@ -178,7 +205,8 @@ export default function Els2029Page() {
   };
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
-  const [classicSeed] = useState(() => clean(selection?.term || subject?.label || ""));
+  const [classicSeed] = useState(() => context?.lens === "els" && subject?.type === "person"
+    ? "" : clean(selection?.term || subject?.label || ""));
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -274,7 +302,8 @@ export default function Els2029Page() {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
+    {lifeRequest ? <div className="sod29-actions"><LifeElsReturn />{lifeSeedState.key === lifeRequestKey && lifeSeedState.error ? <p role="alert">{lifeSeedState.error}</p> : !user && !authLoading ? <p role="alert">יש להתחבר לחשבון כדי להמשיך במחקר הפרטי.</p> : !lifeSeed ? <p role="status">טוען את הביטוי הפרטי אחרי בדיקת הרשאה…</p> : <p role="status">הביטוי נטען למחקר המתקדם. התחילו חיפוש או חקרו את כל הצורות.</p>}</div> : null}
+    <div hidden={!researchProfile}>{!lifeRequest || lifeSeed ? <ElsAdvancedSearch2029 key={lifeRequestKey || "general"} lifeSeed={lifeSeed} exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /> : null}</div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
@@ -306,9 +335,9 @@ export default function Els2029Page() {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+        {lifeRequest && !lifeSeed ? <FrameState kind="loading" title="בודק גישה למחקר הפרטי">המטריצה תיפתח אחרי בדיקת ההרשאה והפרטים השמורים.</FrameState> : <ElsNativeClassic2029 key={lifeRequest ? `private:${user?.id}:${lifeRequest.personRef}` : "general"} initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} privateResearch={!!lifeRequest} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
-          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
+          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />}
       </section>
 
       {researchProfile ? <ElsResearchBarConnected

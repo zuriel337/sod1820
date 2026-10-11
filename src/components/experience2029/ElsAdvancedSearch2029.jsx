@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
@@ -6,7 +6,7 @@ import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summariz
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
-export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle" }) {
+export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, lifeSeed = null, exactStatus = "idle" }) {
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
   const [pages, setPages] = useState([]);
@@ -21,6 +21,14 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
   const [notice, setNotice] = useState("");
   const revision = useRef(0);
   const exactRequestId = useRef(0);
+  useEffect(() => {
+    if (!lifeSeed?.term) return;
+    revision.current += 1;
+    setForm({ ...initialForm, term: lifeSeed.term, scope: lifeSeed.scope });
+    setRelated(""); setQuery(null); setPages([]); setCursor(null);
+    setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({});
+    onPlanSummary?.(null); setNotice(""); setBusy(false); setSelecting(null);
+  }, [lifeSeed?.term, lifeSeed?.scope]); // explicit private launch; edits after arrival remain local
   const edit = (field, value) => {
     revision.current += 1;
     setForm(current => ({ ...current, [field]: value }));

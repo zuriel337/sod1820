@@ -4,15 +4,23 @@ import fs from "node:fs";
 
 const source = (path) => fs.readFileSync(path, "utf8");
 
-test("public opening message and Home branding never expose internal project year", () => {
-  const countdown = source("src/components/WorldOpeningCountdown.jsx");
+test("homepage no longer renders the opening countdown or announcement", () => {
+  const legacyHome = source("src/pages/HomeNewPage.jsx");
+  const map = source("src/pages/NavigationCenterPage.jsx");
+  assert.doesNotMatch(legacyHome, /WorldOpeningCountdown|sod-world-opening|העולם החדש עומד להיפתח/);
+  assert.equal(fs.existsSync("src/components/WorldOpeningCountdown.jsx"), false);
+  assert.match(legacyHome, /<LatestUpdatesRail /);
+  assert.match(legacyHome, /to="\/map"/);
+  assert.doesNotMatch(map, /שעון ההכרזה/);
+  assert.match(map, /מצב הבנייה של SOD1820/);
+});
+
+test("new Home branding still hides the internal version from public titles", () => {
   const home = source("src/pages/Home2029Page.jsx");
-  assert.doesNotMatch(countdown, /SOD1820 2029/);
-  assert.match(countdown, /העולם החדש של SOD1820/);
   assert.doesNotMatch(home, /title="SOD1820 2029"/);
   assert.doesNotMatch(home, /title: "SOD1820 · 2029"/);
   assert.match(home, /title="SOD1820 · העולם החדש"/);
-  assert.match(home, /path: "\/2029"/); // Keep internal routes stable.
+  assert.match(home, /path: "\/2029"/);
 });
 
 test("public build model and core page SEO do not brand as 2029", () => {

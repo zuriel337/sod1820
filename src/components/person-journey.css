@@ -293,3 +293,45 @@
   .person-journey-actions button{width:100%}
   .person-journey-next>span{display:none}
 }
+
+/* Existing journey tokens also cover the bounded engine consumer. */
+.person-journey :is(button,summary,a):focus-visible{outline:3px solid var(--pj-accent);outline-offset:3px}
+.person-journey :is(p,small,summary,label>span){font-size:14px;line-height:1.65}
+.person-journey-panel,.life-engine-result{min-width:0;overflow-wrap:anywhere}
+.life-research fieldset{border:1px solid var(--pj-line);border-radius:16px;padding:16px;margin:18px 0;min-width:0}
+.life-research legend{padding:0 8px;font-weight:800}
+.life-engine-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+.person-journey .life-engine-options label,.person-journey .life-checkbox{display:flex;align-items:flex-start;gap:10px;padding:10px;cursor:pointer}
+.person-journey input[type=checkbox]{width:22px;height:22px;min-height:22px;flex:0 0 22px;margin-top:4px;accent-color:var(--pj-accent)}
+.life-engine-options label>span{display:grid;gap:5px}
+.life-engine-options small,.life-note{color:var(--pj-soft);font-weight:400}
+.life-results{display:grid;gap:18px;margin-top:20px}
+.life-engine-result{border:1px solid var(--pj-line);border-radius:18px;padding:clamp(12px,2vw,22px);background:var(--pj-panel-soft)}
+.life-methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px}
+.life-methods button{display:grid;gap:6px;border-radius:16px}
+.life-methods strong{font-size:28px;color:var(--pj-accent-text)}
+.life-methods small{font-weight:400}
+.life-research details{border-top:1px solid var(--pj-line);padding:12px 0;margin-top:10px}
+.life-research summary{cursor:pointer;font-weight:700;min-height:32px}
+.life-research dl{margin:10px 0}
+.life-research dl>div{border-inline-start:2px solid var(--pj-line);padding-inline-start:12px;margin-block:8px}
+.life-research dt{font-weight:700;color:var(--pj-soft)}
+.life-research dd{margin:4px 0}
+.life-research pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.life-research ul{padding-inline-start:22px}
+.life-research li{margin-block:8px}
+.person-journey-family-form{margin-top:18px}
+.person-journey-family-list article{flex-wrap:wrap}
+#life-intake,#life-research,#life-family{scroll-margin-top:100px}
+.life-event-form{margin-block:18px}
+.life-event-form fieldset{border:1px solid var(--pj-line);border-radius:16px;padding:16px;min-width:0}
+.life-event-form textarea{box-sizing:border-box;width:100%;resize:vertical;border:1px solid var(--pj-line);border-radius:14px;padding:12px;background:var(--pj-panel-soft);color:var(--pj-ink);font:inherit}
+.life-event-form textarea:focus-visible{outline:3px solid var(--pj-accent);outline-offset:3px}
+.life-event-form>fieldset>label{margin-top:12px}
+.life-saved-list{list-style:none;padding:0!important;display:grid;gap:10px}
+.life-saved-list li{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.life-preserve-lines{white-space:pre-wrap;overflow-wrap:anywhere}
+.life-events-list{display:grid;gap:14px;margin-block:20px}
+.life-reflection-result .life-methods article{border:1px solid var(--pj-line);border-radius:16px;padding:14px}
+.life-research>.life-engine-result{margin-top:20px}
+#life-events{scroll-margin-top:100px}

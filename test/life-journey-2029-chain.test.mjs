@@ -24,13 +24,14 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /upsertFamilyMember/);
   assert.match(journey, /upsertFamilyRelation/);
   assert.match(journey, /birthdate_iso/);
-  assert.match(journey, /getNameMulti/);
-  assert.match(journey, /runPersonalDateResearch/);
-  assert.match(journey, /CanonicalProgress/);
-  assert.match(journey, /birthdate:\s*null/);
-  assert.match(journey, /createSupabasePersonalDateCrossProvider/);
-  assert.match(journey, /buildAccessDescriptor/);
-  assert.match(journey, /verified_authority:\s*\{ source: "supabase_auth", subject_verified: true \}/);
+  const consumer = read("src/lib/research/lifeJourneyResearch.js");
+  assert.match(journey, /<LifeJourneyResearch/);
+  assert.match(consumer, /fn_name_research_graded/);
+  assert.match(consumer, /runPersonalDateResearch/);
+  assert.match(consumer, /p_birthdate: null/);
+  assert.match(consumer, /fn_cross_research/);
+  assert.match(consumer, /buildAccessDescriptor/);
+  assert.match(consumer, /verified_authority: \{ source: "supabase_auth", subject_verified: true \}/);
   assert.doesNotMatch(journey, /fn_cross_name_date/);
   assert.doesNotMatch(journey, /\.from\(["'](?:nodes|edges)["']\)/);
 

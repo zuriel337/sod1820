@@ -68,7 +68,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, privateResearch = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -116,6 +116,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const [addedToast, setAddedToast] = useState(false);
   const workspace = useUniversalWorkspace();
   const addAxisFinding = useCallback(() => {
+    if (privateResearch) return;
     const d = lastStateRef.current;
     if (!d) return;
     const findings = elsStateToUniversalFindings(d, { inputRef: d?.axis?.hitId || null });
@@ -129,7 +130,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     workspace.upsertFinding(axisFinding);
     setAddedToast(true);
     onWorkspaceAdded?.();
-  }, [workspace, onWorkspaceAdded]);
+  }, [workspace, onWorkspaceAdded, privateResearch]);
   useEffect(() => { if (!addedToast) return; const t = setTimeout(() => setAddedToast(false), 3200); return () => clearTimeout(t); }, [addedToast]);
 
   const src =
@@ -212,6 +213,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (native && (!user || savedState?.axis?.hitId !== saveRequest.axisHitId)) {
       completeNative({ ok: false, error: user ? "selection_changed" : "auth_required" }); return;
     }
+    if (privateResearch && native && saveRequest.isPublic === true) {
+      completeNative({ ok: false, error: "private_context" }); return;
+    }
     // G3 one-engine: a governed save needs the tool's last state to carry a canonical MATCH (defense in depth;
     // the tool already refuses to post `save` for an unverified occurrence).
     if (savedState?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
@@ -243,8 +247,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       // Switching to Classic is not consent to publish private research. Include
       // newly saved native rows, explicit edit targets and non-public contexts.
       const privateClassic = !native && [...classicContexts, editMatrix].some(row => row && row.visibility !== "public");
-      const privateSave = privateNative || privateClassic;
+      const privateSave = privateResearch || privateNative || privateClassic;
       if (privateSave && !user) throw new Error("auth_required");
+      if (privateResearch && editMatrix?.visibility === "public") throw new Error("private_context_changed");
       if (editMatrix && classicContexts.some(row => row.id !== editMatrix.id
         && row.visibility !== "public" && !row.self_published && row.status !== "published")) {
         throw new Error("private_context_changed");
@@ -320,7 +325,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       postToTool({ type: "saved", ok: false });
       if (native) completeNative({ ok: false, error: "save_failed" });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix, experience2029, saveRequest, onSaveResult]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix, experience2029, saveRequest, onSaveResult, privateResearch]);
 
   // Keep the listener registered through synchronous Research Bus renders during dispatch.
   // Read current props/callbacks without removing a listener before it receives that same event.
@@ -674,7 +679,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
 
       {/* 🔗 Research Bus — מסלול-Finding יחיד: המופע המדויק המוצג עכשיו → adapter → תיק-המחקר (cart).
           לא state-tick פסיבי — פעולת-משתמש מפורשת בלבד (research_bus_reconciliation, Pass 1). */}
-      {(!hiddenBridge || (showResearchBusWhenHiddenBridge && !engineOnly)) && hasAxisFinding && !gate && (
+      {!privateResearch && (!hiddenBridge || (showResearchBusWhenHiddenBridge && !engineOnly)) && hasAxisFinding && !gate && (
         <button
           type="button"
           onClick={addAxisFinding}
