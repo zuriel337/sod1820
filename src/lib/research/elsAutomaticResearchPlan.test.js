@@ -91,6 +91,21 @@ test("a series longer than one slice continues through the same plan without a s
   assert.equal(summarizeElsAutomaticPlan(plan, [first, second]).hasPending, false);
 });
 
+test("automatic scan reports each active form and keeps a failed form distinct from no matches", async () => {
+  const plan = prepareElsAutomaticResearchPlan({ ...base, expressions: "חשפד" });
+  const progress = [];
+  const result = await runElsAutomaticResearchSlice({ plan, onProgress: event => progress.push(event), invokePage: async () => ({
+    data: { error: "backend_error" }, error: { message: "Edge Function returned a non-2xx status code", context: { status: 503 } },
+  }) });
+  assert.equal(progress[0].phase, "searching");
+  assert.equal(progress[1].phase, "done");
+  assert.equal(progress[1].row.state, "FAILED");
+  assert.match(progress[1].row.error, /לא.*נמצא/);
+  assert.equal(result.rows[0].state, "FAILED");
+  assert.equal(result.rows[0].partial, true);
+  assert.equal(summarizeElsAutomaticPlan(plan, [result]).failedCount > 0, true);
+});
+
 test("Raziel coverage stops calling a variant partial after its keyset continuation finishes", () => {
   const plan = prepareElsAutomaticResearchPlan({ ...base, expressions: "אמת" });
   const row = { canonicalTerm: "אמת", state: "OK", count: 2, partial: true, cursor: { skip: 8, start: 10, dir: 1 } };

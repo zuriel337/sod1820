@@ -11,6 +11,8 @@ window.__libraryRows=[];window.__libraryCalls=[];window.__libraryViewer='owner-a
 window.__advancedCalls=[];
 export const supabase={functions:{async invoke(name,{body}){
  window.__advancedCalls.push({name,body});
+ if(body.op==='page'&&window.__advancedHoldTerm===body.term)await new Promise(resolve=>{window.__releaseAdvanced=resolve;});
+ if(body.op==='page'&&window.__advancedFailTerm===body.term)return {data:{error:'backend_error'},error:{message:'Edge Function returned a non-2xx status code',context:{status:503}}};
  if(body.op==='page'&&body.term==='דפדוף'){
   const index=body.after_skip==null?0:body.after_skip-85;
   const skip=86+index,more=index<2;
