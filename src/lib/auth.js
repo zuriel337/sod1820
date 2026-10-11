@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js';
 import { signupAttribution, visitorId } from './acquisition.js';
+import { googleOAuthRequest } from './oauthReturn.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -7,11 +8,13 @@ const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, created_at';
 
 // ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
-export function signInWithGoogle() {
-  return supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: SITE_URL + '/' },
+export function signInWithGoogle({ returnTo = '/' } = {}) {
+  const request = googleOAuthRequest({
+    origin: SITE_URL,
+    returnTo,
+    integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true',
   });
+  return supabase.auth.signInWithOAuth(request);
 }
 
 export function signInWithFacebook() {

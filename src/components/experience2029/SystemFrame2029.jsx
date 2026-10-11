@@ -1031,8 +1031,7 @@ function AccountConnection2029({ user, profile, signOut }) {
     }
   };
 
-  // Google sign-in through the existing auth capability. The current helper returns to the site root; the bounded return
-  // target below is passed as an argument the helper ignores today, so GPT can wire the safe return without touching this UI.
+  // The auth capability validates this local path and gates unverified preview redirects.
   const continueWithGoogle = async () => {
     if (busy) return;
     setBusy(true);
@@ -1043,7 +1042,9 @@ function AccountConnection2029({ user, profile, signOut }) {
       if (result?.error) throw result.error;
     } catch (error) {
       setBusy(false);
-      setMessage({ kind: "error", text: "לא הצלחנו לפתוח את הכניסה עם Google. אפשר לנסות שוב או להיכנס עם מייל." });
+      setMessage({ kind: "error", text: error?.code === "OAUTH_PREVIEW_UNVERIFIED"
+        ? "הכניסה עם Google עדיין לא פעילה בפריוויו הזה. אפשר להיכנס עם מייל."
+        : "לא הצלחנו לפתוח את הכניסה עם Google. אפשר לנסות שוב או להיכנס עם מייל." });
     }
   };
 

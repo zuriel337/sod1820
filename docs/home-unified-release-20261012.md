@@ -26,3 +26,20 @@ Added independent `VITE_HOME_2029_ENABLED=true` switch for the adopted Home. Do 
 5. ELS advanced and Life Journey are independently owned. Life PR1032/1028 exact reviewed head b3df89b9 is branch-only and requires its ownership-gated migration BEFORE client activation, final main-target CI and deployed authenticated tests. Do not silently fold it into this Home release or label it live. Existing frame already links ELS and has a Life Journey workspace entry; that does not prove the latest versions are connected.
 
 Passive handoff only, through user relay. Original Claude may resume only the specifically coordinated next scope after integration receipt. Shared styling remains frozen during release verification. Mail thread/media producer remains a separate unfinished branch.
+# Google handoff and release triage follow-up
+
+Integrated original Claude `7abcdd9fd853873407d185e6cfa491d119e463ee`, a direct child of the unified `8f4aee20` base. The UI remains Claude's; GPT completed the existing auth helper's local return path validation. Paths preserve the query, drop fragments and reject external/protocol-relative/malformed/control-character targets. Unverified integrated/Vercel previews stop before the Supabase OAuth call and explain that email login remains available. No provider, allow-list, identity, permission or database changes.
+
+The helper's `SITE_URL` already uses `window.location.origin`, not a hard-coded production host. A server-side redirect fallback remains possible if Supabase does not allow the requested return URL. Production redirect configuration and a real Google account round trip still require verification; neither is claimed here.
+
+Validation: integrated legacy + 2029 build, five acceptance scripts, and 15 date/feed/category/OAuth tests passed. This does not constitute a real Google sign-in or a browser pass on this exact commit.
+
+Precise divergence at `8f4aee20`: **0 commits behind / 190 ahead**, 349 changed files. File count is not a release blocker and does not mean 300 commits behind. Mail, split meter and separately owned ELS/Life expansions need not delay a dependency-clean Home release.
+
+Concrete GitHub CI failures on that unified base, to close before release:
+
+- `els-core-compatibility`: 66/67 passed. `test/els-native-ui-browser.test.mjs:608` finds a 40x46 dock target at 320px; minimum is 44x44. Original Claude owns the responsive fix; preserve the approved dock.
+- `Mobile + Accessibility Acceptance`: 17/19 passed. Both post flow cases expect three context-map entries but see four. The workflow also expects contextual inspection before lazy calculation. The current Post page opens the number drawer directly, so updating only the entry count is insufficient. Resolve intended behavior with original Claude and retain meaningful expression/method/result, lazy trace and exact-return coverage.
+- `hard-isolation`: stops at `test-entry-contextual-learn-2029.mjs`, whose expected `shell.openInspect` call is absent from Post. Same interaction contract must be reconciled; do not delete the assertion merely to turn CI green.
+
+Release remains blocked by these concrete checks; no main merge/production release performed. Earlier broad release concerns below are historical triage, not proof that every unfinished workstream blocks Home. After the focused fixes, refresh current production canary, exact candidate CI and live dependencies as required by `deploy_on_request` v3.
