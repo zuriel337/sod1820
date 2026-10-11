@@ -3,7 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
-import { stripHtml, formatDateHe } from "../lib/format.js";
+import { stripHtml } from "../lib/format.js";
+import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import "./posts2029.css";
 
@@ -45,7 +46,7 @@ function PostIndexCard({ post, index }) {
       <div className="sod29-post-index-copy">
         <div className="sod29-post-index-meta">
           {post.author ? <span>{post.author}</span> : null}
-          <span>{post?.modified ? "עודכן " : "פורסם "}{formatDateHe(post?.modified || post?.date)}</span>
+          <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
           {categories.map((category) => <span key={category}>{category}</span>)}
         </div>
         <h2>{title || "פוסט"}</h2>

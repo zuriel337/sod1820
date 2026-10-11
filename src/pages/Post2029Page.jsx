@@ -11,6 +11,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
+import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -650,7 +651,7 @@ function PostReadingBody() {
             <div className="sod29-post-details-body">
               {post.author ? <p>מאת {post.author}</p> : null}
               <p className="sod29-reading-source-line">{projection.sourceLine}</p>
-              {heroDate ? <p>תאריך הפוסט: <time>{heroDate}</time></p> : null}
+              {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
               <div className="sod29-reading-meta-line">
                 {(Array.isArray(post.categories) ? post.categories : []).map((category) => <span key={category}>{category}</span>)}
               </div>

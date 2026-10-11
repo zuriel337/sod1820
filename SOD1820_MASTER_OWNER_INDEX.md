@@ -92,7 +92,7 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 | Human curation Gold/Signature/Anchor family | `golden_entity_law` under Truth Axes |
 | signal vs curation boundary | `signal_vs_curation` under Truth Axes |
 | manual verification seal | `verify_seal_manual_only` under Truth Axes |
-| display of record times: relative "לפני X" everywhere, never a calendar date (enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` v1 (child of Truth Axes time context); canonical zone stays `israel_time_law` |
+| display of record times: relative "לפני X" only on Home and World; everywhere else Hebrew + Gregorian date together (enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` v2 (child of Truth Axes time context); canonical zone stays `israel_time_law` |
 
 Interpretive research theses are Research OS/provenance, not global governance laws.
 
