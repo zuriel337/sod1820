@@ -2,18 +2,20 @@ import React, { useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
-import { prepareElsAdvancedBatch, runElsAdvancedBatch } from "../../lib/research/elsAdvancedBatch.js";
+import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
-export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus = "idle" }) {
+export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle" }) {
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
   const [pages, setPages] = useState([]);
   const [cursor, setCursor] = useState(null);
   const [related, setRelated] = useState("");
   const [exactSkip, setExactSkip] = useState("");
-  const [batch, setBatch] = useState(null);
+  const [automaticPlan, setAutomaticPlan] = useState(null);
+  const [automaticSlices, setAutomaticSlices] = useState([]);
+  const [automaticPages, setAutomaticPages] = useState({});
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(null);
   const [notice, setNotice] = useState("");
@@ -22,7 +24,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
   const edit = (field, value) => {
     revision.current += 1;
     setForm(current => ({ ...current, [field]: value }));
-    setQuery(null); setPages([]); setCursor(null); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
+    setQuery(null); setPages([]); setCursor(null); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); onPlanSummary?.(null); setNotice(""); setBusy(false); setSelecting(null);
   };
   const search = async (more = false) => {
     const source = more ? query : form;
@@ -30,7 +32,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
     if (built.error) { setNotice(built.error); return; }
     const seq = ++revision.current;
     setBusy(true); setNotice("");
-    if (!more) { setQuery({ ...form }); setPages([]); setCursor(null); setBatch(null); }
+    if (!more) { setQuery({ ...form }); setPages([]); setCursor(null); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); onPlanSummary?.(null); }
     try {
       const response = await supabase.functions.invoke("els-search-bridge", { body: built.request });
       if (seq !== revision.current) return;
@@ -58,23 +60,85 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       if (seq === revision.current) setBusy(false);
     }
   };
-  const searchBatch = async () => {
-    const plan = prepareElsAdvancedBatch({ axis: elsSearchSpelling(form.term, form.spelling), related, scope: form.scope,
+  const searchAutomatic = async () => {
+    const input = [form.term, related].filter(Boolean).join("\n");
+    const preflight = prepareElsAutomaticResearchPlan({ expressions: input, scope: form.scope,
       skipMin: form.skipMin, skipMax: form.skipMax, pageSize: form.pageSize });
-    if (plan.error) { setNotice(plan.error); return; }
+    if (preflight.error) { setNotice(preflight.error); return; }
     const seq = ++revision.current;
-    setBusy(true); setNotice(""); setBatch(null); setPages([]); setCursor(null); setQuery({ ...form });
+    setBusy(true); setNotice(""); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setPages([]); setCursor(null); setQuery({ ...form });
     try {
-      const result = await runElsAdvancedBatch({ plan, invokePage: async request => {
+      let canonicalForms = [];
+      try { canonicalForms = await deriveCanonicalForms?.(preflight.sources) || []; }
+      catch { if (seq === revision.current) setNotice("צורות FORMS לא נטענו מהמנוע. שאר הצורות מוכנות; אפשר לנסות שוב בהמשך."); }
+      if (seq !== revision.current) return;
+      const plan = prepareElsAutomaticResearchPlan({ expressions: input, scope: form.scope,
+        skipMin: form.skipMin, skipMax: form.skipMax, pageSize: form.pageSize, canonicalForms });
+      if (plan.error) { setNotice(plan.error); return; }
+      setAutomaticPlan(plan);
+      onPlanSummary?.(summarizeElsAutomaticPlan(plan));
+      const result = await runElsAutomaticResearchSlice({ plan, invokePage: async request => {
         if (seq !== revision.current) throw new Error("cancelled");
         return supabase.functions.invoke("els-search-bridge", { body: request });
       } });
       if (seq !== revision.current) return;
       if (result.error) { setNotice(result.error); return; }
-      setBatch(result);
-      if (result.scan.stop !== "COMPLETE") setNotice(`הסריקה נעצרה בתקציב ${result.scan.stop}; מוצגות רק התוצאות שהושלמו.`);
+      setAutomaticSlices([result]);
+      onPlanSummary?.(summarizeElsAutomaticPlan(plan, [result]));
+      if (result.scan?.stop !== "COMPLETE") setNotice(`הסריקה נעצרה בתקציב ${result.scan?.stop}; אפשר להמשיך מהצורה שלא הושלמה.`);
     } catch (error) {
-      if (seq === revision.current) setNotice(`חיפוש המונחים לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
+      if (seq === revision.current) setNotice(`תוכנית המחקר לא הושלמה: ${error?.message || "שגיאת תקשורת"}`);
+    } finally {
+      if (seq === revision.current) setBusy(false);
+    }
+  };
+  const continueAutomatic = async () => {
+    const offset = automaticSlices.at(-1)?.nextOffset ?? 0;
+    if (!automaticPlan || offset >= automaticPlan.candidates.length) return;
+    const seq = ++revision.current;
+    setBusy(true); setNotice("");
+    try {
+      const result = await runElsAutomaticResearchSlice({ plan: automaticPlan, offset, invokePage: async request => {
+        if (seq !== revision.current) throw new Error("cancelled");
+        return supabase.functions.invoke("els-search-bridge", { body: request });
+      } });
+      if (seq !== revision.current) return;
+      if (result.error) { setNotice(result.error); return; }
+      setAutomaticSlices(current => [...current, result]);
+      onPlanSummary?.(summarizeElsAutomaticPlan(automaticPlan, [...automaticSlices, result]));
+      if (result.nextOffset === offset) setNotice("לא ניתן היה להתקדם בסריקה. נסו טווח דילוגים קטן יותר.");
+    } catch (error) {
+      if (seq === revision.current) setNotice(`המשך התוכנית לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
+    } finally {
+      if (seq === revision.current) setBusy(false);
+    }
+  };
+  const continueVariant = async row => {
+    const prior = automaticPages[row.canonicalTerm];
+    const cursorForTerm = prior ? prior.cursor : row.cursor;
+    if (!cursorForTerm || !automaticPlan) return;
+    const seq = ++revision.current;
+    setBusy(true); setNotice("");
+    try {
+      const built = buildElsAdvancedPageRequest({ term: row.term, scope: automaticPlan.scope,
+        skipMin: automaticPlan.skipMin, skipMax: automaticPlan.skipMax, pageSize: automaticPlan.pageSize }, cursorForTerm);
+      if (built.error) { setNotice(built.error); return; }
+      const response = await supabase.functions.invoke("els-search-bridge", { body: built.request });
+      if (seq !== revision.current) return;
+      const page = projectElsAdvancedPage(response);
+      if (page.error) { setNotice(`המשך הצורה לא הושלם: ${page.error}`); return; }
+      if (page.cursor && page.cursor.skip === cursorForTerm.skip && page.cursor.start === cursorForTerm.start && page.cursor.dir === cursorForTerm.dir) {
+        setNotice("סמן ההמשך לא התקדם. נסו שוב מאוחר יותר."); return;
+      }
+      const seen = new Set([...(row.projection?.occurrences || []), ...(prior?.pages || []).flatMap(item => item.projection.occurrences)].map(hit => hit.occurrenceId));
+      if (page.projection.occurrences.some(hit => seen.has(hit.occurrenceId))) { setNotice("השרת החזיר מופעים כפולים; ההמשך לא צורף."); return; }
+      const nextPages = { ...automaticPages, [row.canonicalTerm]: {
+        pages: [...(prior?.pages || []), page], cursor: page.cursor,
+      } };
+      setAutomaticPages(nextPages);
+      onPlanSummary?.(summarizeElsAutomaticPlan(automaticPlan, automaticSlices, nextPages));
+    } catch (error) {
+      if (seq === revision.current) setNotice(`המשך הצורה לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
       if (seq === revision.current) setBusy(false);
     }
@@ -103,12 +167,13 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
   };
   const count = pages.reduce((total, page) => total + page.projection.occurrences.length, 0);
   const spellingPreview = elsSearchSpelling(form.term, form.spelling);
+  const automaticRows = [...new Map(automaticSlices.flatMap(slice => slice.rows).map(row => [row.canonicalTerm, row])).values()];
   return <section className="sod29-section" aria-label="חיפוש דילוגים מתקדם" data-els-advanced-search="v1">
     <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר דילוגים</div><h3>חיפוש אחד, כל המופעים</h3></div></div>
     <form onSubmit={event => { event.preventDefault(); search(false); }} className="els29-advanced-form">
       <label>מונח <input aria-label="מונח לחיפוש מתקדם" value={form.term} onChange={event => edit("term", event.target.value)} /></label>
       <label>טקסט <select aria-label="טקסט לחיפוש מתקדם" value={form.scope} onChange={event => edit("scope", event.target.value)}><option value="torah">תורה</option><option value="tanakh">תנ״ך</option></select></label>
-      <label>צורת כתיבה <select aria-label="צורת כתיבה לחיפוש" value={form.spelling} onChange={event => edit("spelling", event.target.value)}>
+      <label>צורת כתיבה לחיפוש יחיד <select aria-label="צורת כתיבה לחיפוש" value={form.spelling} onChange={event => edit("spelling", event.target.value)}>
         <option value="regular">כפי שהוקלד</option><option value="reverse_all">היפוך כל הביטוי</option>
         <option value="reverse_words">היפוך כל מילה בנפרד</option><option value="reverse_last">היפוך המילה האחרונה</option>
       </select></label>
@@ -121,12 +186,12 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchExactSkip}>פתח דילוג מדויק</button>
       <label>מילות המשך, אחת בשורה או מופרדות בפסיק
         <textarea aria-label="מילות המשך למחקר" value={related} onChange={event => {
-          revision.current += 1; setRelated(event.target.value); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
+          revision.current += 1; setRelated(event.target.value); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); onPlanSummary?.(null); setNotice(""); setBusy(false); setSelecting(null);
         }} rows={3} placeholder="אמת, חסד" />
       </label>
-      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchBatch}>בדוק מילות המשך</button>
+      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchAutomatic}>חקור את כל הצורות אוטומטית</button>
     </form>
-    <p className="sod29-muted els29-advanced-note">הטווח פתוח גם מעל 500: כל לחיצה טוענת דף מוגבל, וממשיכים לפי דרישה. טווח גדול או מונח קצר עשויים להימשך זמן, והשרת עשוי לעצור בקשה כבדה. דילוג מדויק פותח מופע אחד; מילות המשך מציגות דף אחד לכל מילה, בלי להסיק מכך על הצלבה.</p>
+    <p className="sod29-muted els29-advanced-note">הטווח פתוח גם מעל 500; שדה „עד” ריק פירושו עד סוף הטווח האפשרי. מחקר הצורות גוזר היפוכים אוטומטית, מציג את הכלל לכל צורה וטוען דפים נוספים לפי דרישה. טווח גדול או מונח קצר עשויים להימשך זמן, והשרת עשוי לעצור בקשה כבדה. דילוג מדויק פותח מופע אחד.</p>
     {notice ? <p role="status">{notice}</p> : null}
     {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
@@ -140,20 +205,26 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       </li>))}</ol>
       {cursor ? <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => search(true)}>טען תוצאות נוספות</button> : null}
     </div> : null}
-    {batch ? <div aria-label="תוצאות מחקר רב־מונחי">
-      {batch.rows.map(row => <section key={row.term} aria-label={`תוצאות ${row.term}`}>
-        <h4><bdi>{row.term}</bdi> · {row.count} מופעים בדף</h4>
+    {automaticPlan ? <div aria-label="תוכנית צורות אוטומטית">
+      <p>{automaticPlan.sources.length} ביטויים · {automaticPlan.candidates.length} צורות שונות · {summarizeElsAutomaticPlan(automaticPlan, automaticSlices)?.scannedCount || 0} נסרקו</p>
+      {automaticPlan.canonicalFormsPending ? <p className="sod29-muted">צורות FORMS של המנוע עדיין לא נטענו לכל הביטויים; המופעים המוצגים מתייחסים לצורות שנסרקו בלבד.</p> : null}
+      {automaticRows.map(row => <section key={row.canonicalTerm} aria-label={`תוצאות ${row.term}`}>
+        <h4><bdi>{row.term}</bdi> · {row.count + (automaticPages[row.canonicalTerm]?.pages || []).reduce((total, page) => total + page.projection.occurrences.length, 0)} מופעים נטענו</h4>
+        <p className="sod29-muted">{row.derivations.map(item => `״${item.source}״ ← ${item.ruleLabel}`).join(" · ")}</p>
         <p className="sod29-muted">{row.error ? `החיפוש נכשל: ${row.error}`
-          : row.truncated ? "יש עוד תוצאות למונח הזה; נבדק דף אחד בלבד."
-            : row.count === 0 ? "לא נמצאו מופעים בטווח שנבדק."
-              : "החיפוש הושלם בטווח שנבדק."}</p>
-        {row.projection?.occurrences.length ? <ol>{row.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
-          <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, row.projection)}>
-            דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
-          </button>
-        </li>)}</ol> : null}
+          : row.state === "NOT_SCANNED" || row.state === "BUDGET_STOPPED" ? "הצורה ממתינה להמשך הסריקה."
+            : (automaticPages[row.canonicalTerm] ? automaticPages[row.canonicalTerm].cursor != null : row.cursor != null) ? "יש עוד מופעים לצורה זו."
+              : row.partial && !automaticPages[row.canonicalTerm] ? "הסריקה נעצרה או שיש עוד דפים לבדיקה."
+              : row.count === 0 ? "לא נמצאו מופעים בטווח שנבדק."
+                : "הדף הראשון הושלם בטווח שנבדק."}</p>
+        {[...(row.projection ? [row.projection] : []), ...(automaticPages[row.canonicalTerm]?.pages || []).map(page => page.projection)].flatMap(projection => projection.occurrences.map(hit => <button
+          key={hit.occurrenceId} type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, projection)}>
+          דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
+        </button>))}
+        {(automaticPages[row.canonicalTerm]?.cursor || (automaticPages[row.canonicalTerm] ? null : row.cursor)) ? <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => continueVariant(row)}>טען עוד מופעים לצורה זו</button> : null}
       </section>)}
-      <p className="sod29-muted">השוואה זו מציגה מופעים נפרדים. לבדיקת הצטלבות במטריצה בחרו ציר ואז השתמשו בכלי ההצלבה הקיים.</p>
+      {automaticSlices.at(-1)?.hasMoreCandidates ? <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={continueAutomatic}>המשך לסרוק צורות</button> : null}
+      <p className="sod29-muted">צורות של אותו ביטוי הן ניסויים תלויים. קרבה או ריבוי התאמות אינם הוכחת הצלבה; בחרו מופע מאומת לפתיחה במטריצה.</p>
     </div> : null}
   </section>;
 }

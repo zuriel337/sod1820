@@ -33,13 +33,13 @@ function StateRow({ label, value, state = "ready" }) {
 }
 
 
-function ElsRazielEntry({ researchContext, projection, layers, ready }) {
+function ElsRazielEntry({ researchContext, projection, layers, planSummary, ready }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
     () => ready
-      ? buildElsRazielSurfaceContext({ researchContext, projection, layers })
+      ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary })
       : null,
-    [ready, researchContext, projection, layers]
+    [ready, researchContext, projection, layers, planSummary]
   );
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
 
@@ -63,11 +63,11 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
   </button>;
 }
 
-function ElsResearchBarConnected({ researchContext, projection, layers, replay, ready, subject, locator, onLibrary, profileSwitch }) {
+function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary, profileSwitch }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
-    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers }) : null,
-    [ready, researchContext, projection, layers]
+    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null,
+    [ready, researchContext, projection, layers, planSummary]
   );
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
   return <ElsResearchBar2029
@@ -132,8 +132,34 @@ export default function Els2029Page() {
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
+  const [automaticSummary, setAutomaticSummary] = useState(null);
   const pendingProbeRef = useRef(null);
-  useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
+  const [formsPreviewRequest, setFormsPreviewRequest] = useState(null);
+  const formsRequestSeq = useRef(0);
+  const pendingFormsRef = useRef(new Map());
+  useEffect(() => () => {
+    for (const pending of pendingFormsRef.current.values()) { clearTimeout(pending.timer); pending.reject(new Error("forms_preview_cancelled")); }
+    pendingFormsRef.current.clear();
+  }, []);
+  const deriveCanonicalForms = expressions => new Promise((resolve, reject) => {
+    const requestId = ++formsRequestSeq.current;
+    const timer = setTimeout(() => {
+      pendingFormsRef.current.delete(requestId);
+      setFormsPreviewRequest(current => current?.requestId === requestId ? null : current);
+      reject(new Error("forms_preview_timeout"));
+    }, 6000);
+    pendingFormsRef.current.set(requestId, { resolve, reject, timer });
+    setFormsPreviewRequest({ requestId, expressions });
+  });
+  const receiveFormsPreview = result => {
+    const pending = pendingFormsRef.current.get(result?.requestId);
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pendingFormsRef.current.delete(result.requestId);
+    setFormsPreviewRequest(null);
+    pending.resolve(Array.isArray(result.rows) ? result.rows : []);
+  };
+  useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); setAutomaticSummary(null); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
   const requestExactSkip = request => {
     pendingProbeRef.current = request.requestId;
     setExactStatus("probing");
@@ -248,7 +274,7 @@ export default function Els2029Page() {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
+    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
@@ -281,6 +307,7 @@ export default function Els2029Page() {
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
       </section>
 
@@ -288,6 +315,7 @@ export default function Els2029Page() {
         researchContext={context}
         projection={replayProjection}
         layers={replayLayers}
+        planSummary={automaticSummary}
         replay={replay}
         ready={replayMatched && layeredReady}
         subject={subject}
@@ -375,6 +403,7 @@ export default function Els2029Page() {
             researchContext={context}
             projection={replayProjection}
             layers={replayLayers}
+            planSummary={automaticSummary}
             ready={replayMatched && layeredReady}
           />
           <span className="sod29-chip">Neighborhood · BUILDING</span>

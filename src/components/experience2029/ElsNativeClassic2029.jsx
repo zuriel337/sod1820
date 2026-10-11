@@ -601,7 +601,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -1167,6 +1167,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           journeyLoad={researchLoad}
           exactSkipProbe={researchProbe}
           onExactSkipProbeResult={onResearchProbeResult}
+          formsPreviewRequest={formsPreviewRequest}
+          onFormsPreviewResult={onFormsPreviewResult}
           full={classicOpen}
           hiddenBridge
           experience2029

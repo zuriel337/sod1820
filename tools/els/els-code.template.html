@@ -2238,6 +2238,16 @@
   // הודעות מהאתר-העוטף: עדכון דרגת-המשתמש (anon/registered/admin)
   window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host"||e.source!==window.parent)return;   // G3: every host command must come from the exact parent window
     if(d.type==="engine-result"){const f=_engPending.get(d.requestId);if(f){_engPending.delete(d.requestId);f(d);}return;}   // 🧬 G3: תשובת מנוע-השרת (verify_batch)
+    if(d.type==="preview-forms-batch"){
+      const expressions=Array.isArray(d.expressions)?d.expressions.slice(0,40):[];
+      const rows=[];
+      for(const source of expressions){
+        if(typeof source!=="string"||source.length>200)continue;
+        for(const form of formsOf("splitjoin",source))rows.push({source,term:form.w,derivation:form.derivation});
+      }
+      postHost({type:"forms-preview-result",requestId:d.requestId,rows});
+      return;
+    }
     if(d.type==="probe-exact-skip"){
       const r=d.request||{},requestId=r.requestId,scope=r.scope==="tanakh"?"tanakh":"torah";
       const skip=r.skip,term=typeof r.term==="string"?r.term:"",t=norm(term);

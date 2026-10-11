@@ -16,6 +16,7 @@ export function buildElsRazielSurfaceContext({
   researchContext = null,
   projection = null,
   layers = null,
+  planSummary = null,
   includeText = false,
 } = {}) {
   const subject = researchContext?.subject || null;
@@ -75,6 +76,19 @@ export function buildElsRazielSurfaceContext({
           revisionNo: safeInt(researchContext.journey.revisionNo),
         }
       : null,
+    plan: planSummary?.contract === "els_automatic_plan_summary_v1"
+      ? {
+          contract: planSummary.contract,
+          sourceCount: safeInt(planSummary.sourceCount),
+          variantCount: safeInt(planSummary.variantCount),
+          scannedCount: safeInt(planSummary.scannedCount),
+          partialCount: safeInt(planSummary.partialCount),
+          failedCount: safeInt(planSummary.failedCount),
+          hasPending: planSummary.hasPending === true,
+          scope: planSummary.scope === "tanakh" ? "tanakh" : "torah",
+          evidencePromotion: false,
+        }
+      : null,
     privacy: {
       includeText: includeText === true,
       rawPrivatePayloadLogged: false,
@@ -117,9 +131,11 @@ export function buildElsRazielGuidance(surfaceContext) {
 
   const lead = `אתה מסתכל על מופע ELS שאומת מול המנוע הקנוני. הוא עובר ${skipText} ${direction}, ${spanText}, דרך ${pointsText}.`;
   const boundary = "הציר שמודגש כאן עוזר לראות את המופע שבחרת; ההדגשה והקרבה על המסך אינן מוסיפות לו חוזק ראייתי.";
+  const plan = surfaceContext?.plan;
+  const planLine = plan ? `בתוכנית שהזנת יש ${plan.sourceCount} ביטויים ו־${plan.variantCount} צורות; ${plan.scannedCount} צורות נסרקו${plan.hasPending ? ", ועוד צורות או דפים ממתינים להמשך" : ""}. אלו בדיקות תלויות של אותם ביטויים, לא ראיות עצמאיות.` : null;
   const inactive = "כרגע אני מסביר רק את מה שאומת ואת צורת ההצגה. בדיקת הסביבה, המשך הציר והמשמעות המחקרית עדיין אינן פעילות בשכבה הזאת.";
   const question = "מה מסקרן אותך להבין מכאן — איך הדילוג בנוי, מה משמעות הכיוון, או מה עדיין חסר כדי להעמיק?";
-  const spokenScript = [lead, boundary, inactive, question].join(" ");
+  const spokenScript = [lead, planLine, boundary, inactive, question].filter(Boolean).join(" ");
 
   return Object.freeze({
     contract: "els_raziel_guidance_v1",
@@ -133,7 +149,8 @@ export function buildElsRazielGuidance(surfaceContext) {
       presentationPolicy: clean(result.presentationPolicy),
     }),
     title: "מה אתה רואה כאן?",
-    lead,
+    lead: planLine ? `${lead} ${planLine}` : lead,
+    planLine,
     boundary,
     inactive,
     question,

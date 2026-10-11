@@ -68,7 +68,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -325,12 +325,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // Keep the listener registered through synchronous Research Bus renders during dispatch.
   // Read current props/callbacks without removing a listener before it receives that same event.
   const messageContextRef = useRef(null);
-  messageContextRef.current = { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult };
+  messageContextRef.current = { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult };
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
     async function onMsg(e) {
-      const { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult } = messageContextRef.current;
+      const { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult } = messageContextRef.current;
       if (e.origin !== window.location.origin) return;
       // G3: origin alone is not enough — any same-origin window (other tab/iframe/script) could spoof the tool.
       // Accept only messages whose source is this component's own iframe window.
@@ -338,6 +338,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (!toolWin || e.source !== toolWin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
+      if (d.type === "forms-preview-result") { onFormsPreviewResult?.(d); return; }
       if (d.type === "exact-skip-probe-result") { onExactSkipProbeResult?.(d); return; }
       if (d.type === "engine-cancel") {
         for (const id of Array.isArray(d.requestIds) ? d.requestIds : []) engineRequestsRef.current.get(id)?.abort();
@@ -390,6 +391,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         if (journeyLoad) postToTool({ type: "load-matrix", item: journeyLoad });
         else if (matrix) postToTool({ type: "load-matrix", item: rowToItem(matrix) });   // 🔗 עמוד-צופן קנוני
         if (exactSkipProbe) postToTool({ type: "probe-exact-skip", request: exactSkipProbe });
+        if (formsPreviewRequest) postToTool({ type: "preview-forms-batch", requestId: formsPreviewRequest.requestId, expressions: formsPreviewRequest.expressions });
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
         if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
@@ -555,6 +557,11 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     exactProbeKeyRef.current = key;
     postToTool({ type: "probe-exact-skip", request: exactSkipProbe });
   }, [exactSkipProbe, postToTool]);
+
+  useEffect(() => {
+    if (!formsPreviewRequest) return;
+    postToTool({ type: "preview-forms-batch", requestId: formsPreviewRequest.requestId, expressions: formsPreviewRequest.expressions });
+  }, [formsPreviewRequest, postToTool]);
 
   // 🎯 ממצאים עודכנו בפאנל-הניהול (הוסר/נוסף ממצא) — מרעננים את הצביעה בכלי בלי לטעון-מחדש 2.2MB.
   //    דילוג על הטעינה-הראשונה של כל צופן (load-matrix כבר צובע); שולחים רק כשהחתימה משתנה על אותו id.
