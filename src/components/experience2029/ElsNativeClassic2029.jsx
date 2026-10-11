@@ -16,7 +16,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, overview }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
@@ -46,7 +46,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         ? a.bottom - viewport.top - el.clientHeight + 24
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
-  }, [visible, readingView, overview, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
+  }, [visible, readingView, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
 
   const markMap = useMemo(() => {
     const map = new Map();
@@ -177,7 +177,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
       רצף המקור בשורות רחבות · {state?.axis?.direction === "back" ? "קוראים את הסימון משמאל לימין, מלמטה למעלה" : "קוראים את הסימון מימין לשמאל, מלמעלה למטה"}
     </p> : null}
     <div
-      className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${overview ? " is-overview" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
+      className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
       aria-hidden="true"
       style={{ "--els29-cols": matrix.cw || geometry.cw || 1, "--els29-cell": `${cellPx}px` }}
     >
@@ -615,7 +615,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
-  const [overview, setOverview] = useState(false);
   const [verseRead, setVerseRead] = useState(false);
   const verseReadRef = useRef(false);
   const [verseHighlight, setVerseHighlight] = useState(null);
@@ -741,7 +740,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [crossTerm, setCrossTerm] = useState("");
   const [crossRadius, setCrossRadius] = useState(18);
   const [windowSize, setWindowSize] = useState("small");
-  const [optionsOpen, setOptionsOpen] = useState(false);
   const crossRadiusDraftRef = useRef({ edited: false, revision: 0, submitted: null });
   const [lensRequest, setLensRequest] = useState(null);
   const lensSeqRef = useRef(0);
@@ -755,7 +753,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSearchRequest(null);setFindingsRequest(null);setOperations({ search: null, findings: null });
     setSaveResult(null);
     const view = matrix.positions?.view || {};
-    setOverview(view.overview === true);setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
+    setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
     setShortSkipView(view.shortSkipView === "columns" ? "columns" : "reading");
   }, [matrix?.id]);
 
@@ -806,7 +804,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setOperations((current) => ({ ...current, [kind]: { ...current[kind], ...operation, startedAt: current[kind]?.startedAt || Date.now() - (operation.elapsedMs || 0) } }));
     if (kind === "search" && operation.status === "error") setNotice(operation.message || "החיפוש לא הושלם. נסו שוב.");
     if (kind === "search" && operation.status === "empty") setNotice("לא נמצאו מופעים בסריקה הזאת. אפשר לשנות את המונח ולנסות שוב.");
-    if (kind === "search" && searchRequest?.kind !== "window" && ["done", "empty", "error", "cancelled"].includes(operation.status)) {
+    if (kind === "search" && ["done", "empty", "error", "cancelled"].includes(operation.status)) {
       openTool("results");
       requestAnimationFrame(() => {
         if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -918,7 +916,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (savePending) return;
     setSaveResult(null);setSavePending(true);
     setSaveRequest({ ...draft, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
-      view: { classicGlyphs, heightExpanded, shortSkipView, overview } });
+      view: { classicGlyphs, heightExpanded, shortSkipView } });
   };
 
   const addLineFinding = (term) => {
@@ -960,25 +958,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setOperations((current) => ({ ...current, [kind]: { ...current[kind], status: "cancelled" } }));
   };
   const advancedCrossActive = matrixActive && !["regular", "cross-simple"].includes(engineState?.search?.mode);
-  const resizeWindow = (size, centerAxis = engineStateRef.current?.ui?.centerAxis === true, recenter = false) => {
-    const current = engineStateRef.current;
-    if (!current?.axis?.hitId || searchPending || ["searching", "verifying"].includes(operations.findings?.status)) return;
-    const seq = ++searchSeqRef.current;
-    setNotice("");
-    setOperations((previous) => ({ ...previous, search: { kind: "search", searchKind: "window", requestId: seq, status: "searching", startedAt: Date.now() } }));
-    setSearchRequest({ kind: "window", windowSize: size, centerAxis, recenter, axisHitId: current.axis.hitId, seq });
-  };
   const changeWindowSize = (size) => {
-    if (!matrixActive) { setWindowSize(size); return; }
-    if (advancedCrossActive) return;
+    setWindowSize(size);
+    if (!matrixActive || advancedCrossActive) return;
     const current = engineStateRef.current;
     if (current.search?.mode === "cross-simple") requestSearch("cross", { axis: current.search.crossA, term: current.search.crossB, scope: current.scope, radius: current.search.crossRadius, windowSize: size });
-    else resizeWindow(size);
+    else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
-  const windowPending = searchPending || ["searching", "verifying"].includes(operations.findings?.status);
-  const regularWindow = !engineState?.search?.mode || engineState.search.mode === "regular";
-  const nextWindow = engineState?.ui?.windowSize === "small" ? "medium" : "large";
-
 
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
@@ -1069,45 +1055,30 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <div className="els29-native-stage-status">
               <span>{scopeLabel(engineState?.scope)}</span>
               {engineState?.axis?.skip != null ? <span>דילוג <bdi>{engineState.axis.direction === "back" ? "−" : ""}{engineState.axis.skip}</bdi></span> : null}
-              {engineState?.search?.zones ? <span>מפגש {engineState.search.zoneIndex + 1}/{engineState.search.zones}</span> : engineState?.occurrence?.count ? <span>מופע {engineState.search?.occurrences?.selectedOrdinal || (engineState.occurrence.index || 0) + 1}/{engineState.search?.occurrences?.total || engineState.occurrence.count}</span> : null}
-
-            </div>
-          </div>
-          <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={!overview && readingView} overview={overview} />
-        </main>
-        <div className="els29-native-window-summary" role="group" aria-label="אזור החיפוש במטריצה">
-          {matrixActive ? <>
-            <span>{engineState?.ui?.windowSize === "small" ? "נבדק אזור מצומצם סביב הציר" : "נבדק האזור המוצג סביב הציר"}</span>
-            {regularWindow && engineState?.ui?.windowSize !== "large" ? <button type="button" disabled={windowPending}
-              onClick={() => resizeWindow(nextWindow)}>הרחב את החיפוש</button> : null}
-          </> : null}
-        </div>
-        <details className="els29-native-options" open={optionsOpen} onToggle={(event) => setOptionsOpen(event.currentTarget.open)}>
-          <summary>אפשרויות נוספות</summary>
-          <div className="els29-native-window-options">
               {shortSkip ? <label className="els29-native-window-size">תצוגה
                 <select aria-label="תצוגת דילוג קטן" value={shortSkipView} onChange={(event) => setShortSkipView(event.target.value)}>
                   <option value="reading">רצף רחב</option><option value="columns">עמודות הדילוג</option>
                 </select>
               </label> : null}
+              {engineState?.search?.zones ? <span>מפגש {engineState.search.zoneIndex + 1}/{engineState.search.zones}</span> : engineState?.occurrence?.count ? <span>מופע {engineState.search?.occurrences?.selectedOrdinal || (engineState.occurrence.index || 0) + 1}/{engineState.search?.occurrences?.total || engineState.occurrence.count}</span> : null}
               <button type="button" className="els29-native-niqqud" aria-pressed={!!engineState?.ui?.niqqud} disabled={!matrixActive}
                 title="הוסף ניקוד מנתוני התורה; בשאר התנ״ך האותיות נשארות ללא ניקוד" onClick={() => requestControl("niqqud-toggle")}>ניקוד</button>
-              <label className="els29-native-window-size">חלון חיפוש
-                <select aria-label="גודל חלון החיפוש" value={matrixActive && engineState?.ui?.windowRequested === "legacy" ? "legacy" : windowSize} disabled={searchPending || advancedCrossActive || ["searching", "verifying"].includes(operations.findings?.status)}
-                  title={advancedCrossActive ? "את חלון ההצלבה המתקדמת משנים בכלים המתקדמים" : (regularWindow ? "שינוי האזור סביב אותו ציר; הממצאים שבחרתם נשמרים" : "שינוי הגודל מפעיל חיפוש הצלבה חדש")}
+              <label className="els29-native-window-size">{engineState?.ui?.windowRequested === "legacy" ? "החיפוש הבא" : "חלון חיפוש"}
+                <select aria-label="גודל חלון החיפוש" value={windowSize} disabled={searchPending || advancedCrossActive || ["searching", "verifying"].includes(operations.findings?.status)}
+                  title={advancedCrossActive ? "את חלון ההצלבה המתקדמת משנים בכלים המתקדמים" : "שינוי הגודל מפעיל חיפוש חדש באותם מונחים"}
                   onChange={(event) => changeWindowSize(event.target.value)}>
-                  {matrixActive && engineState?.ui?.windowRequested === "legacy" ? <option value="legacy" disabled>חלון שמור</option> : null}
                   <option value="small">קטן · מהיר</option><option value="medium">רגיל</option><option value="large">גדול</option>
                 </select>
               </label>
               {engineState?.ui?.windowRequested === "small" && (["medium", "large"].includes(engineState?.ui?.windowSize) || engineState?.ui?.ctxR > 1)
                 ? <small>החלון הורחב כדי להכיל את הציר והמרחק</small> : null}
-              {matrixActive && engineState?.ui?.windowRequested === "legacy" ? <small>ממדי החלון השמור</small> : null}
+              {matrixActive && engineState?.ui?.windowRequested === "legacy" ? <small>מוצג החלון המקורי</small> : null}
               {engineState?.ui?.niqqud && activeScope === "tanakh" ? <span>ניקוד לתורה בלבד</span> : null}
-            {matrixActive && regularWindow && !engineState?.ui?.centerAxis ? <button type="button" disabled={windowPending}
-              onClick={() => resizeWindow(windowSize, true, true)}>מרכז את הציר וחפש סביבו</button> : null}
+            </div>
           </div>
+          <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
+          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
+        </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
             {heightExpanded ? "חזור לגובה הרגיל" : "הגדל גובה ב־50%"}
@@ -1120,7 +1091,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             disabled={!matrixActive} onClick={() => requestControl("axis-visibility")}>
             {engineState?.ui?.hideMain ? "הצג ציר" : "סימון הציר"}
           </button>
-          <button type="button" aria-pressed={overview} disabled={!matrixActive} onClick={() => setOverview((value) => !value)}>מבט על כל המטריצה</button>
           <button type="button" aria-pressed={classicGlyphs} onClick={() => setClassicGlyphs((value) => !value)}>אותיות קלאסיות</button>
           <button type="button" aria-label="הדגש פסוק במטריצה" aria-pressed={verseRead} disabled={!matrixActive} onClick={toggleVerseRead}>הדגש פסוק</button>
           <button type="button" aria-pressed={!!activePresentation} disabled={!matrixActive || searchPending || !presentationPlan.steps.length}
@@ -1128,7 +1098,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           {verseRead ? <small role="status">{verseHighlight ? `${verseHighlight.ref} — המילים מודגשות לסירוגין בתכלת ובכתום.` : "געו באות במטריצה כדי להדגיש את הפסוק שלה."}</small> : null}
           {engineState?.ui?.heat ? <small>מפת החום מציגה צפיפות סביב האותיות המסומנות.</small> : null}
         </footer>
-        </details>
         {activePresentation ? <section className="els29-native-presenter" aria-label="מצב מצלמה" onKeyDown={(event) => {
           if (event.key === "Escape") { event.stopPropagation();setPresentation(null); }
         }}>

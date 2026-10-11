@@ -125,13 +125,13 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
   assert.match(nativeClassic, /onLens=\{handleLens\}/);
 
   assert.match(template, /async function letterContextLens\(target\)/);
-  assert.match(template, /const b=blockOf\(\),\[r,c\]=matrixRC\(i,b\.S,b\.c0\)/);
+  assert.match(template, /const b=blockOf\(\),r=Math\.floor\(i\/b\.S\)/);
   assert.match(template, /i>=scopeN\(\)/);
   assert.match(template, /await ensureVerseText\(\)/);
   assert.match(template, /const loc=locateLetter\(i\)/);
   assert.match(template, /lens:"letter-context"/);
   assert.match(template, /d\.type==="request-lens"&&d\.lens==="letter-context"/);
-  assert.doesNotMatch(template.slice(template.indexOf("async function letterContextLens"), template.indexOf("function updateNativeFindings(")), /findAll|verifyBatch|crossFind|els_search/);
+  assert.doesNotMatch(template.slice(template.indexOf("async function letterContextLens"), template.indexOf("const isAnon")), /findAll|verifyBatch|crossFind|els_search/);
 });
 
 test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
