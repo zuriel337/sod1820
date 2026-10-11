@@ -80,6 +80,31 @@ export function lifeNumberContext(context, value) {
   };
 }
 
+// Reference-only navigation. The ELS surface must re-read the selected Person through
+// fn_person_life_input_v1; a Context snapshot never authorizes access to a name.
+export function lifeAdvancedElsContext(context) {
+  const personRef = context?.dimensions?.lifePersonRef;
+  if (context?.subject?.type !== "person" || context.subject.id !== personRef ||
+    context?.access?.scope !== "private" || !/^person:[^:]+:(self|p:[^:]+)$/.test(personRef || "")) {
+    throw new Error("invalid_person_scope");
+  }
+  return { ...context, lens: "els", selection: { entityId: personRef, entityType: "person" },
+    dimensions: { ...context.dimensions, lifeElsAdvancedLaunch: true, surfaceFocus: null, surfaceSections: [] },
+    returnTo: { href: LIFE_HREF, label: "חזרה למסע החיים", subject: context.subject,
+      selection: context.selection, lens: context.lens, dimensions: context.dimensions, journey: context.journey },
+  };
+}
+
+export function lifeAdvancedElsRequest(context) {
+  const ref = context?.dimensions?.lifePersonRef;
+  if (context?.lens !== "els" || context?.dimensions?.lifeElsAdvancedLaunch !== true ||
+    context?.access?.scope !== "private" || context?.subject?.id !== ref ||
+    !/^person:[^:]+:(self|p:[^:]+)$/.test(ref || "")) return null;
+  return { ownerId: ref.split(":")[1], personRef: ref,
+    scope: context.dimensions.lifeElsScope === "tanakh" ? "tanakh" : "torah",
+    form: context.dimensions.lifeElsForm === "first" ? "first" : "full" };
+}
+
 export async function lifeRpc(client, name, args, signal) {
   if (signal?.aborted) throw new Error("cancelled");
   let request = client.rpc(name, args);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { savedMatrixMatchesAxis, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 import "./elsSavedLibrary2029.css";
 
-export default function ElsSavePanel2029({ visible, state, matrix, user, pending, busy, result, onSave, onWorkspace, onAccount }) {
+export default function ElsSavePanel2029({ visible, state, matrix, user, pending, busy, result, onSave, onWorkspace, onAccount, privateResearch = false }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const ready = state?.verification?.state === "MATCH";
@@ -34,7 +34,8 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
     <div className="els29-native-hit-actions">
       <a className="sod29-action" href="/els?library=mine">הצפנים שלי</a>
       <a className="sod29-action" href="/els?library=public">צפנים שפורסמו</a>
-      <button type="button" disabled={!ready || busy} onClick={onWorkspace}>הוסף למחקר</button>
+      <button type="button" disabled={!ready || busy || privateResearch} onClick={onWorkspace}>הוסף למחקר</button>
+      {privateResearch ? <small>ממצא ממסע חיים נשאר במסלול הפרטי; אין העברה לתיק המחקר הכללי.</small> : null}
     </div>
   </div>;
 }

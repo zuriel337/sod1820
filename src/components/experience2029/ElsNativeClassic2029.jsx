@@ -601,7 +601,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, privateResearch = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -1134,7 +1134,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
-        <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
+        <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user} privateResearch={privateResearch}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
@@ -1162,6 +1162,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
       <div className={classicOpen ? "els29-classic-fallback is-open" : "els29-classic-fallback"}>
         <TzofenEmbed
+          privateResearch={privateResearch}
           seed={engineSeed || undefined}
           matrix={matrix}
           journeyLoad={researchLoad}

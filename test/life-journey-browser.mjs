@@ -35,9 +35,11 @@ if(fn==='fn_tarot_sos')return {data:{tarot:{cards:['המצב','האתגר','הע
 if(fixture.delay)await new Promise(r=>setTimeout(r,fixture.delay));if(fn==='fn_name_research_graded')return fixture.failName?{data:null,error:{message:'synthetic'}}:{data:{graded:true,combo:{tracks:[{id:'combo_gem',status:'ok',value:583,words:['אור','שלום']},{id:'literal',label:'ביטוי במקור',status:'ok',sample:{ref:'בראשית א:ג',text:'יהי אור'}}]},sources:[]}};if(fn==='fn_all_methods')return {data:{רגיל:583,סידורי:79,מהמאגר:false}};return {data:{meeting_points:[]}};},functions:{invoke:async(fn,{body})=>{fixture.calls.push([fn,body]);if(fn==='ai-analyze')return fixture.failAi?{data:{error:'quota'}}:{data:{reflection_interpretation:{message:'מסר פרשני לבדיקה',motifs:[]}}};return {data:{result:{contract:'els_search_page_v1',status:'EXECUTED_EMPTY',input:{normalized:'אורשלום'},corpus_id:'torah',completion:{executed:true,returned_hits:0},hits:[]}}};}}};
 `;
 const entry = `
-import React from 'react';import {createRoot} from 'react-dom/client';import {MemoryRouter,Routes,Route,Link} from 'react-router-dom';
-import PersonJourney from '/src/components/PersonJourney.jsx';import {Watch} from '__life_mock';
-function App(){const [,tick]=React.useState(0);window.__life.remount=()=>tick(v=>v+1);return <Watch><MemoryRouter initialEntries={['/2029/journey']}><Routes><Route path='/2029/journey' element={<PersonJourney variant='2029'/>}/><Route path='/2029/number/:value' element={<div><h1>מספר לבדיקה</h1><Link to='/2029/journey'>חזרה למסע החיים</Link></div>}/></Routes></MemoryRouter></Watch>}
+import React from 'react';import {createRoot} from 'react-dom/client';import {MemoryRouter,Routes,Route,Link,useNavigate} from 'react-router-dom';
+import PersonJourney from '/src/components/PersonJourney.jsx';import {Watch,useResearch,supabase} from '__life_mock';
+import {lifeAdvancedElsRequest,readLifePersonInput} from '/src/lib/research/lifeJourneyResearch.js';
+function ElsLanding(){const research=useResearch(),navigate=useNavigate(),request=lifeAdvancedElsRequest(research.context);const [term,setTerm]=React.useState('');React.useEffect(()=>{if(request)readLifePersonInput(supabase,request.ownerId,request.personRef,'research').then(person=>setTerm(person.name));},[request?.personRef]);return <div><h1>מחקר צופן מתקדם</h1><p data-life-els-seed={term}>{term}</p><button onClick={()=>{const c=research.context;research.setResearchContext({...c.returnTo,access:{scope:'private',tier:'personal'},returnTo:null});navigate('/2029/journey');}}>חזרה למסע החיים</button></div>}
+function App(){const [,tick]=React.useState(0);window.__life.remount=()=>tick(v=>v+1);return <Watch><MemoryRouter initialEntries={['/2029/journey']}><Routes><Route path='/2029/journey' element={<PersonJourney variant='2029'/>}/><Route path='/els' element={<ElsLanding/>}/><Route path='/2029/number/:value' element={<div><h1>מספר לבדיקה</h1><Link to='/2029/journey'>חזרה למסע החיים</Link></div>}/></Routes></MemoryRouter></Watch>}
 createRoot(document.getElementById('root')).render(<App/>);
 `;
 const server=await createServer({configFile:false,root:process.cwd(),server:{port:0,host:'127.0.0.1'},plugins:[{
@@ -47,7 +49,7 @@ const server=await createServer({configFile:false,root:process.cwd(),server:{por
  configureServer(s){s.middlewares.use((req,res,next)=>{if(req.url!=='/__life_test')return next();res.setHeader('Content-Type','text/html');res.end(`<html lang="he" dir="rtl"><style>:root{--ink:#f1f4ff;--muted:#c5cee5;--bg:#142243;--line:#536381;--accent:#a4b5ff}body{margin:16px;background:var(--bg);font-family:Arial}*{box-sizing:border-box}</style><div id="root"></div><script type="module" src="/@id/__life_entry"></script></html>`);});}
 }]});
 await server.listen();
-const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+const browser=await chromium.launch({headless:true,args:['--no-sandbox'],...(process.env.CHROMIUM_EXECUTABLE?{executablePath:process.env.CHROMIUM_EXECUTABLE}:{})});
 try{
  const page=await browser.newPage({viewport:{width:1280,height:900}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
@@ -126,6 +128,20 @@ try{
  await page.setViewportSize({width:390,height:844});
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'mobile overflow');
  await page.screenshot({path:'/tmp/life-journey-mobile.png',fullPage:true});
+ // Explicit family selection enters advanced ELS with a ref-only Context; the destination rechecks input.
+ const familyRef=await page.evaluate(()=>window.__life.members.find(m=>m.source_ref.includes(':p:')).source_ref);
+ await page.getByLabel('על מי חוקרים?').selectOption(familyRef);
+ await page.getByRole('button',{name:'פתח מחקר צופן מתקדם לאדם שנבחר'}).click();
+ await page.getByRole('heading',{name:'מחקר צופן מתקדם'}).waitFor();
+ await page.locator('[data-life-els-seed]').getByText(/.+/).waitFor();
+ assert.equal(await page.evaluate(()=>window.__life.context.dimensions.lifePersonRef),familyRef);
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__life.context).includes('2000-01-01')),false);
+ assert.ok(await page.evaluate(()=>window.__life.calls.some(([fn,args])=>fn==='fn_person_life_input_v1'&&args.p_person_ref===window.__life.context.dimensions.lifePersonRef)));
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'ELS handoff mobile overflow');
+ await page.getByRole('button',{name:'חזרה למסע החיים',exact:true}).click();
+ await page.getByLabel('על מי חוקרים?').waitFor();
+ assert.equal(await page.getByLabel('על מי חוקרים?').inputValue(),familyRef);
+ await page.getByLabel('על מי חוקרים?').selectOption('person:11111111-1111-4111-8111-111111111111:self');
  // Explicit reflection consent and failed AI; no logging RPC is allowed.
  await page.getByRole('checkbox',{name:'אני מאשר לשלוח ל־AI',exact:false}).check();
  await page.getByRole('button',{name:'צור מסר והשתקפות',exact:true}).click();

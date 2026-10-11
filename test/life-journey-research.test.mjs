@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runLifeJourneyResearch, lifeJourneyContext, lifeNumberContext, resolveLifePerson, projectLifeName } from '../src/lib/research/lifeJourneyResearch.js';
+import { runLifeJourneyResearch, lifeAdvancedElsContext, lifeAdvancedElsRequest, lifeJourneyContext, lifeNumberContext, readLifePersonInput, resolveLifePerson, projectLifeName } from '../src/lib/research/lifeJourneyResearch.js';
 import { normalizeResearchContext } from '../src/lib/research/researchContext.js';
 const ownerId='synthetic-owner';
 const personRef=`person:${ownerId}:self`;
@@ -51,6 +51,26 @@ test('saved navigation and numeric return survive normalization without raw pers
  assert.equal(number.returnTo.dimensions.lifePersonRef,personRef);
  assert.deepEqual(number.returnTo.dimensions.lifeFamilyRefs,[familyRef]);
  assert.equal(number.subject.href,'/2029/number/583');
+});
+test('advanced ELS launch retains a reference-only exact return and current selected person',()=>{
+ const life=lifeJourneyContext({...input,personRef:familyRef,engines:['els','name'],scope:'tanakh',form:'first'});
+ const advanced=normalizeResearchContext(lifeAdvancedElsContext(life));
+ const request=lifeAdvancedElsRequest(advanced);
+ assert.deepEqual(request,{ownerId,personRef:familyRef,scope:'tanakh',form:'first'});
+ assert.equal(advanced.returnTo.dimensions.lifePersonRef,familyRef);
+ assert.equal(advanced.returnTo.href,'/2029/journey');
+ assert.equal(JSON.stringify(advanced).includes('טל בדיקה'),false);
+ assert.equal(lifeAdvancedElsRequest({...advanced,access:{scope:'public'}}),null);
+ assert.equal(lifeAdvancedElsRequest({...advanced,subject:{id:'person:other:self'}}),null);
+ assert.throws(()=>lifeAdvancedElsContext({...life,access:{scope:'public'}}),/invalid_person_scope/);
+});
+test('advanced ELS private input is resolved only through the owned Person RPC',async()=>{
+ const calls=[];
+ const client={rpc:async(fn,args)=>{calls.push([fn,args]);return {data:{ok:true,person:{ref:familyRef,first:'טל',name:'טל בדיקה'}}};}};
+ const person=await readLifePersonInput(client,ownerId,familyRef,'research');
+ assert.equal(person.name,'טל בדיקה');
+ assert.deepEqual(calls,[['fn_person_life_input_v1',{p_owner:ownerId,p_person_ref:familyRef,p_purpose:'research'}]]);
+ await assert.rejects(readLifePersonInput({rpc:async()=>({data:{ok:false}})},ownerId,familyRef,'research'),/person_unavailable/);
 });
 test('normalization retains source groups and malformed name responses fail closed',()=>{
  assert.equal(projectLifeName(name).groups[0].tracks[0].sample.text,'יהי אור');

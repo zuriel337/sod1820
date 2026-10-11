@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { listFamily, supabase } from "../lib/supabase.js";
-import { LIFE_ENGINES, LIFE_HREF, isEngineNumber, lifeJourneyContext, lifeNumberContext, resolveLifePerson, runLifeJourneyResearch } from "../lib/research/lifeJourneyResearch.js";
+import { LIFE_ENGINES, LIFE_HREF, isEngineNumber, lifeAdvancedElsContext, lifeJourneyContext, lifeNumberContext, resolveLifePerson, runLifeJourneyResearch } from "../lib/research/lifeJourneyResearch.js";
 import { verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
@@ -177,6 +177,15 @@ export default function LifeJourneyResearch({ ownerId, userId, members, startReq
     navigate(`/2029/number/${value}`);
   }
 
+
+  function openAdvancedEls() {
+    if (!selected || running || pathBusy) return;
+    invalidate();
+    const ctx = lifeAdvancedElsContext(contextFor(config, "els"));
+    research.setResearchContext(ctx);
+    navigate("/els");
+  }
+
   async function verifyOccurrence(occurrence) {
     const epoch = runRef.current.epoch;
     setReplay({ state: "loading" });
@@ -211,6 +220,7 @@ export default function LifeJourneyResearch({ ownerId, userId, members, startReq
     <div className="person-journey-actions">
       <button type="button" className="person-journey-primary" disabled={!selected || !engines.length || running || pathBusy} onClick={() => run()}>{running ? "בודק את המסלולים…" : personRef === selfRef ? "המשך למחקר על עצמי" : "התחל מחקר על האדם שנבחר"}</button>
       {running ? <button type="button" onClick={() => { runRef.current.epoch++; runRef.current.controller?.abort(); setRunning(false); setResults((prev) => Object.fromEntries(Object.entries(prev).map(([id, out]) => [id, out.state === "loading" ? { state: "unavailable", data: { unavailable: "הבדיקה בוטלה." } } : out]))); setNotice("הבדיקה נעצרה. אפשר לבחור מסלולים ולנסות שוב."); }}>עצור בדיקה</button> : null}
+      {engines.includes("els") ? <button type="button" disabled={!selected || running || pathBusy} onClick={openAdvancedEls}>פתח מחקר צופן מתקדם לאדם שנבחר</button> : null}
       {canResume ? <button type="button" disabled={running || pathBusy} onClick={() => resumePath()}>חדש את המסלול השמור</button> : null}
     </div>
     <p className="life-note">שם ותאריך הם קלט למחקר. התאמה מספרית או לשונית אינה אבחון, תחזית או קביעה על חייך. מסלול מחודש משתמש בפרטים העדכניים שבחשבון.</p>
