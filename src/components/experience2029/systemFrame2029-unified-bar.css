@@ -220,3 +220,12 @@
   .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button b { font-size: 13px; }
   .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button:hover { transform: none; }
 }
+
+/* Slim rail: the logo sits exactly in the middle of its coin (no gap beside the hidden name) and the active item is no wider than the rail's inner width. */
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-logo-toggle { gap: 0; }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-nav { padding: 0; }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-nav-link,
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-sidebar-workspace,
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-rail-utilities button { inline-size: 100%; min-inline-size: 0; padding-inline: 4px; box-sizing: border-box; }
+}
