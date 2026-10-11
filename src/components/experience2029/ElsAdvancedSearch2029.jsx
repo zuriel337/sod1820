@@ -35,7 +35,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       const response = await supabase.functions.invoke("els-search-bridge", { body: built.request });
       if (seq !== revision.current) return;
       if (response.error && built.request.skip_max > 500) {
-        setNotice("החיפוש בטווח הגבוה לא הושלם. ייתכן ששירות החיפוש הפעיל עדיין מגביל דילוגים מעל 500, או שהבקשה הייתה כבדה מדי. אפשר לנסות טווח קטן יותר או דילוג מדויק.");
+        setNotice("החיפוש בטווח הגבוה לא הושלם. ייתכן שהבקשה הייתה כבדה מדי או שהשירות אינו זמין כרגע. אפשר לנסות טווח קטן יותר או דילוג מדויק.");
         return;
       }
       const page = projectElsAdvancedPage(response);
@@ -126,7 +126,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus
       </label>
       <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchBatch}>בדוק מילות המשך</button>
     </form>
-    <p className="sod29-muted els29-advanced-note">הטווח פתוח גם מעל 500: כל לחיצה טוענת דף מוגבל, וממשיכים לפי דרישה. טווח גדול או מונח קצר עשויים להימשך זמן; שירות החיפוש צריך לקבל את העדכון כדי לטפל בטווחים הגבוהים. דילוג מדויק פותח מופע אחד; מילות המשך מציגות דף אחד לכל מילה, בלי להסיק מכך על הצלבה.</p>
+    <p className="sod29-muted els29-advanced-note">הטווח פתוח גם מעל 500: כל לחיצה טוענת דף מוגבל, וממשיכים לפי דרישה. טווח גדול או מונח קצר עשויים להימשך זמן, והשרת עשוי לעצור בקשה כבדה. דילוג מדויק פותח מופע אחד; מילות המשך מציגות דף אחד לכל מילה, בלי להסיק מכך על הצלבה.</p>
     {notice ? <p role="status">{notice}</p> : null}
     {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
