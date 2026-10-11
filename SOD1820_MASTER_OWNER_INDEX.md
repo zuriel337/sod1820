@@ -53,9 +53,11 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v13 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v14 ACTIVE** |
 
-**G3 runtime state:** `inter_agent_coordination_law v13` owns the LIVE event-driven GPT↔CLAUDE assignment/claim/lease/result transport over `work_log`. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
+**G3 runtime state:** `inter_agent_coordination_law v14` owns the LIVE event-driven assignment/claim/lease/result transport over `work_log`. Since v14 (11.10.2026) dispatch is one-directional: GPT dispatches CLAUDE; CLAUDE closes with an AFTER that GPT discovers on its next scan, without RESULT_WAKE. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
+
+**Writer lanes (v14 §89–§92):** CLAUDE writes the 2029 visual layer (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
