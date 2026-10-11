@@ -10,6 +10,7 @@ import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.
 import { applySeo } from "../lib/seo.js";
 import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
+import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
 
 
 function TemporalTreasures({ item }) {
@@ -309,6 +310,8 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
   </section>;
 }
 
+const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+
 function HomeBody() {
   const navigate = useNavigate();
   const research = useResearch();
@@ -422,21 +425,66 @@ function HomeBody() {
     navigate(`/researcher/${encodeURIComponent(slug)}`);
   };
 
-  // Visual review consumes the same public readers and Frame. Include/Publish is unchanged.
-  if (import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") return <>
-    <WorldFlightStory2029 surface="home" research={research} shell={shell} />
-    <SourceArrivalList2029 surface="home" loading={homeState.loading}
-      items={worldPreview?.arrivals || worldPreview?.items || []}
-      availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
-    <section className="sod29-home-review-entry" aria-label="התחלה משלך">
-      <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
-      <form className="sod29-command-bar" onSubmit={start}>
-        <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או נושא" aria-label="חיפוש או התחלת גילוי" />
-        <button className="sod29-action primary" type="submit">לגלות בעולם</button>
-      </form>
-      {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
+  const continuity = (
+    <section className="sod29-home-continuity" aria-label="רציפות אישית">
+      <article className="sod29-home-lane">
+        <div className="sod29-kicker">המשך</div>
+        <h2>להמשיך מהמקום האחרון</h2>
+        {context?.subject ? <>
+          <div className="sod29-muted">{context.subject.label || context.subject.id} · {context.subject.type} · {context.lens || "ללא עדשה"}</div>
+          <div className="sod29-actions">
+            <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
+            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
+          </div>
+        </> : <>
+          <div className="sod29-muted">כשתתחיל לגלות משהו, הבית יידע להחזיר אותך בדיוק לשם.</div>
+          <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>האזור שלי</button></div>
+        </>}
+      </article>
+
+      <article className="sod29-home-lane">
+        <div className="sod29-kicker">בשבילי</div>
+        <h2>מה השתנה בשבילי</h2>
+        <div className="sod29-muted">כאן יופיע רק שינוי שבאמת נוגע למה ששמרת או פתחת. עד שאין שינוי מוכח — לא ממציאים התראה.</div>
+        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>פתח תשומת־לב אישית</button></div>
+      </article>
     </section>
-  </>;
+  );
+
+  const selectPost = (post) => {
+    research.setResearchContext?.({
+      subject: { id: String(post.slug), type: "post", label: post.title, href: `/post/${post.slug}` },
+      selection: { entityId: String(post.slug), entityType: "post" },
+      lens: "home",
+      returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
+    });
+  };
+
+  // Approved composition (reference fa0e26f) on the same public readers and the single Frame.
+  // Include/Publish is unchanged; production keeps its current body until release.
+  if (HOME_COMPOSED) return <HomeComposition2029
+    projection={homeState.projection}
+    loading={homeState.loading}
+    nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
+    story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    arrivals={<SourceArrivalList2029 surface="home" loading={homeState.loading}
+      items={(worldPreview?.arrivals || worldPreview?.items || []).slice(0, 12)}
+      availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />}
+    calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
+    entry={
+    <section className="sod29-home-review-entry" aria-label="התחלה משלך">
+        <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
+        <form className="sod29-command-bar" onSubmit={start}>
+          <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או נושא" aria-label="חיפוש או התחלת גילוי" />
+          <button className="sod29-action primary" type="submit">לגלות בעולם</button>
+        </form>
+        {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
+      </section>
+    }
+    continuity={continuity}
+    selectedSlug={context?.subject?.type === "post" ? context.subject.id : null}
+    onSelectPost={selectPost}
+  />;
 
   return <>
     <section className="sod29-global-now-stage sod29-home-now-first" id="global-now">
@@ -497,29 +545,7 @@ function HomeBody() {
       onOpenWorld={() => navigate("/world")}
     />
 
-    <section className="sod29-home-continuity" aria-label="רציפות אישית">
-      <article className="sod29-home-lane">
-        <div className="sod29-kicker">המשך</div>
-        <h2>להמשיך מהמקום האחרון</h2>
-        {context?.subject ? <>
-          <div className="sod29-muted">{context.subject.label || context.subject.id} · {context.subject.type} · {context.lens || "ללא עדשה"}</div>
-          <div className="sod29-actions">
-            <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
-            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
-          </div>
-        </> : <>
-          <div className="sod29-muted">כשתתחיל לגלות משהו, הבית יידע להחזיר אותך בדיוק לשם.</div>
-          <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>האזור שלי</button></div>
-        </>}
-      </article>
-
-      <article className="sod29-home-lane">
-        <div className="sod29-kicker">בשבילי</div>
-        <h2>מה השתנה בשבילי</h2>
-        <div className="sod29-muted">כאן יופיע רק שינוי שבאמת נוגע למה ששמרת או פתחת. עד שאין שינוי מוכח — לא ממציאים התראה.</div>
-        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>פתח תשומת־לב אישית</button></div>
-      </article>
-    </section>
+    {continuity}
   </>;
 }
 
@@ -527,5 +553,5 @@ export default function Home2029Page() {
   useEffect(() => {
     applySeo({ title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
 }
