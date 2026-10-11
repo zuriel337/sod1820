@@ -63,7 +63,7 @@ export function lifeJourneyContext({ ownerId, personRef, engines, familyRefs = [
       lifeElsScope: scope === "tanakh" ? "tanakh" : "torah", lifeElsForm: form === "first" ? "first" : "full",
       lifeStep: ["results", "methods", "name", "date", "family", "els"].includes(step) ? step : "results",
       journey2029Active: true, journey2029Kind: "person_life", journey2029Mode: "organic", journey2029SourceSurface: "journey",
-      surfaceSections: [{ id: "life-intake", label: "הפרטים שלי" }, { id: "life-research", label: "המחקר שלי" }, { id: "life-family", label: "המשפחה שלי" }],
+      surfaceSections: [{ id: "life-intake", label: "הפרטים שלי" }, { id: "life-research", label: "המחקר שלי" }, { id: "life-family", label: "המשפחה שלי" }, { id: "life-events", label: "האירועים שלי" }],
       surfaceFocus: { id: personRef, type: "person", label: "מסע חיים פרטי", primary: "המחקר האישי", reason: "בחירת מנועים, בדיקת ממצאים והמשך מאותו הקשר" },
     },
   };
@@ -90,10 +90,17 @@ export async function lifeRpc(client, name, args, signal) {
   return data;
 }
 
+export async function readLifePersonInput(client, ownerId, personRef, purpose, signal) {
+  const data = await lifeRpc(client, "fn_person_life_input_v1", { p_owner: ownerId, p_person_ref: personRef, p_purpose: purpose }, signal);
+  if (data.ok !== true || data.person?.ref !== personRef || !clean(data.person?.first)) throw new Error("person_unavailable");
+  return data.person;
+}
+
 export async function runLifeJourneyResearch({ client, userId, ownerId, members, personRef, engines,
   familyRefs = [], scope = "torah", form = "full", signal, onResult = () => {} }) {
-  const person = resolveLifePerson(members, ownerId, personRef);
-  if (!userId || !person) throw new Error("person_unavailable");
+  const savedPerson = resolveLifePerson(members, ownerId, personRef);
+  if (!userId || !savedPerson) throw new Error("person_unavailable");
+  const person = await readLifePersonInput(client, ownerId, personRef, "research", signal);
   const selected = [...new Set(engines)].filter((id) => engineIds.has(id));
   const accessDescriptor = buildAccessDescriptor({ user_ref: userId, authenticated: true,
     verified_authority: { source: "supabase_auth", subject_verified: true } }, "authenticated_user");
@@ -122,9 +129,10 @@ export async function runLifeJourneyResearch({ client, userId, ownerId, members,
     family: async () => {
       const refs = [...new Set([personRef, ...familyRefs])];
       if (refs.length > 6) return { unavailable: "בחרו עד שישה אנשים בכל השוואה." };
-      const people = refs.map((ref) => resolveLifePerson(members, ownerId, ref));
-      if (people.some((p) => !p)) throw new Error("person_unavailable");
-      if (people.length < 2) return { unavailable: "בחרו לפחות אדם נוסף להשוואה." };
+      const savedPeople = refs.map((ref) => resolveLifePerson(members, ownerId, ref));
+      if (savedPeople.some((p) => !p)) throw new Error("person_unavailable");
+      if (savedPeople.length < 2) return { unavailable: "בחרו לפחות אדם נוסף להשוואה." };
+      const people = await Promise.all(refs.map((ref) => ref === personRef ? person : readLifePersonInput(client, ownerId, ref, "research", signal)));
       return { people: people.map((p) => ({ ref: p.ref, name: p.name })),
         result: await rpc("fn_cross_research", { p_items: people.map((p) => p.name) }) };
     },

@@ -10,6 +10,7 @@ import {
 } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
 import LifeJourneyResearch from "./LifeJourneyResearch.jsx";
+import { LifeJourneyEvents } from "./LifeJourneyContinuity.jsx";
 import "./person-journey.css";
 
 const RELATIONS = Object.freeze([
@@ -327,5 +328,6 @@ function PersonJourneyContent({ variant = "legacy" }) {
       </div> : null}
     </section>
 
+    {personId ? <LifeJourneyEvents key={`events:${user.id}:${personId}`} ownerId={personId} userId={user.id} members={members} /> : null}
   </div>;
 }
