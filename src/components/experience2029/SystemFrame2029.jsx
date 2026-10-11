@@ -37,6 +37,9 @@ import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
+import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import { useSystemFeed2029 } from "./useSystemFeed2029.js";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
 import {
@@ -1405,6 +1408,25 @@ export default function SystemFrame2029({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
+  // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
+  const feed = useSystemFeed2029({ enabled: surface !== "control" });
+  const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
+  const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
+  const [companionPeek, setCompanionPeek] = useState(false);
+  const [companionTab, setCompanionTab] = useState("feed");
+  const companionTimer = useRef(null);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return undefined;
+    const query = window.matchMedia("(min-width: 981px)");
+    const onChange = () => setCompanionWide(query.matches);
+    query.addEventListener?.("change", onChange);
+    return () => query.removeEventListener?.("change", onChange);
+  }, []);
+  const toggleCompanionPin = useCallback((pinned) => {
+    const next = pinned ? "slim" : "pinned";
+    setCompanionPref(next); setCompanionPeek(false);
+    try { window.localStorage.setItem("sod-companion", next); } catch (_) { /* optional */ }
+  }, []);
   // Slim rail by default; hover or keyboard focus opens it over the content, "pin" keeps it open and moves the content.
   const [railPeek, setRailPeek] = useState(false);
   const railPeekTimer = useRef(null);
@@ -1891,6 +1913,21 @@ export default function SystemFrame2029({
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
+  const companionActive = companionWide && surface !== "control";
+  const companionHasContext = showContextRail && !numberPageRoute;
+  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
+  const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
+  const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
+  useEffect(() => {
+    if (!companionHasContext) { setCompanionTab("feed"); return; }
+    setCompanionTab("ctx");
+    if (contextSubjectKey) setCompanionPeek(true);
+  }, [contextSubjectKey, companionHasContext]);
+  const peekCompanion = (open) => {
+    if (typeof window === "undefined" || !window.matchMedia?.("(hover: hover)").matches) return;
+    clearTimeout(companionTimer.current);
+    if (open) setCompanionPeek(true); else companionTimer.current = setTimeout(() => setCompanionPeek(false), 200);
+  };
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
@@ -1946,7 +1983,7 @@ export default function SystemFrame2029({
     <ShellContext.Provider value={shellApi}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed && !railPeek ? " sidebar-collapsed" : ""}${sidebarCollapsed && railPeek ? " rail-peek" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed && !railPeek ? " sidebar-collapsed" : ""}${sidebarCollapsed && railPeek ? " rail-peek" : ""}${activeToolDock ? " has-tool-dock" : ""}${companionMode ? ` has-companion companion-${companionMode}` : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -2038,7 +2075,7 @@ export default function SystemFrame2029({
               ) : null}
               {children}
             </main>
-            {showContextRail ? <SurfaceContextRail2029
+            {showContextRail && !(companionActive && !numberPageRoute) ? <SurfaceContextRail2029
               surface={surface}
               context={context}
               focus={surfaceFocus || activeTarget}
@@ -2084,6 +2121,26 @@ export default function SystemFrame2029({
         </> : null}
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
+
+        {companionActive ? <CompanionPanel2029
+          feed={feed} mode={companionMode} tab={companionHasContext ? companionTab : "feed"} onTab={setCompanionTab}
+          onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
+          pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
+          hasContext={companionHasContext}
+          contextNode={companionHasContext ? <SurfaceContextRail2029
+            surface={surface} context={context} focus={surfaceFocus || activeTarget}
+            onOpenNumber={(target) => openNumber(target || activeTarget)}
+            onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+            onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
+            onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
+            onNeedHelp={openIssueReport}
+            suppressLearn
+          /> : null}
+          onOpenHref={(href) => go(href)}
+          onAsk={(row) => openRaziel({ readingFocus: { label: row.title, primary: row.typeLabel } })}
+          hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
+        /> : null}
+        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`מה נכנס למערכת: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context">
