@@ -122,9 +122,17 @@
   .sod29-root.native-frame .sod29-command-island.has-context-trail > .sod29-bar-zone.is-actions { grid-column: 3; grid-row: 2; }
 }
 @media (max-width: 380px) {
+  /* Touch targets stay at least 44px wide at 320px: the bar spends its spare room on gaps and padding instead of on the buttons. */
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar { gap: 4px; padding-inline: 4px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-bar-zone { gap: 2px; }
   .sod29-root.native-frame .sod29-bar-zone > button,
-  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button { min-width: 40px; width: 40px; }
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button { min-width: 44px; width: 44px; }
   .sod29-root.native-frame .sod29-now-tab { min-width: 36px; width: 36px; }
+}
+@media (max-width: 340px) {
+  /* 320px: the 44px targets only fit beside the centre button if its box is a little smaller and the side padding smaller. */
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar { padding-inline: 2px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact { min-width: 48px; width: 48px; height: 48px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sod29-root.native-frame .sod29-now-tab { transition: none; }
