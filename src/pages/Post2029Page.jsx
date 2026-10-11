@@ -13,6 +13,7 @@ import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
+import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -662,6 +663,8 @@ function PostReadingBody() {
             </div>
           </details>
         </div>
+
+        <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
 
         {heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
