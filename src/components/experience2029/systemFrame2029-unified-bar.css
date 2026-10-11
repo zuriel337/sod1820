@@ -1,0 +1,128 @@
+/* SOD1820 2029 · Unified frame projection of the approved Home composition (reference fa0e26f).
+   Presentation only, on the single System Frame: full-width bottom bar (context / Raziel at the
+   physical center / typed Now), visible account entry in the top bar, and the approved Night/Day
+   atmosphere. Colors come only from the palette owner through --s29-* variables. */
+
+.sod29-root.native-frame { --s29-bar-height: 72px; --s29-island-clearance: 100px; --s29-bar-hue: var(--s29-brand-gold); }
+.sod29-root.native-frame[data-frame-theme-preset="light"] { --s29-bar-hue: var(--s29-discovery); }
+
+/* Approved atmosphere: warm gold light over the black Night, discovery tint over Day. */
+.sod29-root.closed-shell.native-frame {
+  background:
+    radial-gradient(ellipse at 92% 0, color-mix(in srgb, var(--s29-bar-hue) 8%, transparent), transparent 46%),
+    var(--s29-page);
+}
+.sod29-root.native-frame :is(.sod29-header, .sod29-sidebar, .sod29-mobile-drawer) {
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--s29-bar-hue) 9%, transparent), transparent 62%),
+    color-mix(in srgb, var(--s29-panel) 94%, transparent);
+}
+
+/* Bottom bar */
+.sod29-root.native-frame .sod29-command-island.is-unified-bar {
+  inset-inline: 0; inset-block-end: 0; transform: none; width: auto; max-width: none;
+  min-height: var(--s29-bar-height);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px;
+  padding: 6px clamp(8px, 2vw, 22px) calc(6px + env(safe-area-inset-bottom, 0px));
+  border: 0; border-top: 1px solid var(--s29-line-strong); border-radius: 0;
+  background: color-mix(in srgb, var(--s29-panel) 97%, transparent);
+  box-shadow: 0 -10px 30px color-mix(in srgb, var(--s29-page) 55%, transparent);
+}
+.sod29-root.number-page-route.native-frame .sod29-command-island.is-unified-bar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.sod29-root.native-frame .sod29-bar-zone { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.sod29-root.native-frame .sod29-bar-zone.is-context { justify-content: flex-start; }
+.sod29-root.native-frame .sod29-bar-zone.is-actions { justify-content: flex-end; }
+.sod29-root.native-frame .sod29-bar-zone.is-context .sod29-command-trail { flex: 1 1 auto; max-width: none; }
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions { display: flex; align-items: center; gap: 4px; direction: inherit; }
+
+.sod29-root.native-frame .sod29-bar-zone > button,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button,
+.sod29-root.number-page-route .sod29-bar-zone .sod29-number-island-action {
+  min-width: 52px; height: 52px; padding: 3px 8px; border: 0; border-radius: 16px; background: transparent;
+  color: var(--s29-muted); display: grid; place-items: center; align-content: center; gap: 1px; cursor: pointer; flex: 0 0 auto;
+}
+.sod29-root.native-frame .sod29-bar-zone > button > span,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button > span { font-size: 15px; font-weight: 900; line-height: 1; }
+.sod29-root.native-frame .sod29-bar-zone > button > small,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button > small {
+  position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: nowrap;
+  font-size: var(--s29-type-micro, 14px); font-weight: 800; line-height: 1.1;
+}
+.sod29-root.native-frame .sod29-bar-zone > button:hover,
+.sod29-root.native-frame .sod29-bar-zone > button[aria-pressed="true"],
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button:hover,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button[aria-pressed="true"] {
+  color: var(--s29-ink); background: color-mix(in srgb, var(--s29-accent) 9%, transparent); transform: none;
+}
+
+/* Raziel: physical center of the bar, raised slightly above it. */
+.sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact {
+  margin-block: -16px 0; box-shadow: 0 0 0 4px var(--s29-panel);
+}
+
+/* Typed Now */
+.sod29-root.native-frame .sod29-now { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--s29-panel-soft); flex: 0 0 auto; }
+.sod29-root.native-frame .sod29-now-tab {
+  min-width: 0; width: auto; height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px;
+  border: 0; border-radius: 999px; background: transparent; color: var(--s29-muted); cursor: pointer; white-space: nowrap;
+  font: 700 14px var(--s29-font-ui);
+}
+.sod29-root.native-frame .sod29-now-tab:hover { color: var(--s29-ink); background: transparent; }
+.sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] { background: var(--s29-panel); color: var(--s29-ink); box-shadow: 0 0 0 1px var(--s29-line-strong); }
+.sod29-root.native-frame .sod29-now-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.sod29-root.native-frame .sod29-now-tab.is-world .sod29-now-dot { background: var(--s29-discovery); }
+.sod29-root.native-frame .sod29-now-tab.is-me .sod29-now-dot { background: var(--s29-brand-gold); }
+.sod29-root.native-frame .sod29-now-tab.is-rz .sod29-now-dot { background: var(--s29-raziel-indigo); }
+
+/* The rail stops above the bar so nothing in it is covered. */
+@media (min-width: 981px) {
+  .sod29-root.native-frame .sod29-sidebar { height: calc(100vh - var(--s29-bar-height)); height: calc(100dvh - var(--s29-bar-height)); }
+}
+
+/* Top bar: visible account entry */
+.sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out {
+  width: auto; min-width: 44px; padding: 0 14px 0 10px !important; display: inline-flex; align-items: center; gap: 8px;
+  border-radius: 999px; border-color: var(--s29-line-strong);
+  background: color-mix(in srgb, var(--s29-brand-gold) 12%, transparent);
+}
+.sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out .workspace-label { display: inline; font-weight: 800; color: var(--s29-ink); white-space: nowrap; }
+@media (min-width: 1100px) {
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace:not(.is-signed-out) { width: auto; padding: 0 12px 0 8px !important; display: inline-flex; align-items: center; gap: 8px; }
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace:not(.is-signed-out) .workspace-label { display: inline; font-weight: 700; white-space: nowrap; }
+}
+@media (max-width: 420px) {
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out { width: 44px; padding: 0 !important; gap: 0; }
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out .workspace-label { display: none; }
+}
+
+@media (max-width: 620px) {
+  .sod29-root.native-frame { --s29-bar-height: 66px; --s29-island-clearance: 96px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar { gap: 6px; padding-inline: 8px; }
+  .sod29-root.native-frame .sod29-bar-zone > button,
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button { min-width: 44px; width: 44px; height: 46px; padding: 2px; }
+  .sod29-root.native-frame .sod29-bar-zone > button > small,
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button > small { display: none; }
+  .sod29-root.native-frame .sod29-now-label { display: none; }
+  .sod29-root.native-frame .sod29-now-tab { min-width: 40px; width: 40px; justify-content: center; padding: 0; }
+  .sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] { width: auto; padding: 0 10px; }
+  .sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] .sod29-now-label { display: inline; font-size: 13px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact { min-width: 56px; width: 56px; height: 56px; }
+}
+/* Research-trail pages on phones: the trail gets its own full-width row above the bar. */
+@media (max-width: 620px) {
+  .sod29-root.native-frame:has(.sod29-command-island.has-context-trail) { --s29-bar-height: 104px; --s29-island-clearance: 132px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar.has-context-trail { grid-template-rows: auto auto; row-gap: 4px; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-bar-zone.is-context { display: contents; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-command-trail { grid-column: 1 / -1; grid-row: 1; max-width: none; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-command-actions { grid-column: 1; grid-row: 2; justify-self: start; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail > .sod29-raziel-orb { grid-column: 2; grid-row: 2; margin-block: 0; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail > .sod29-bar-zone.is-actions { grid-column: 3; grid-row: 2; }
+}
+@media (max-width: 380px) {
+  .sod29-root.native-frame .sod29-bar-zone > button,
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button { min-width: 40px; width: 40px; }
+  .sod29-root.native-frame .sod29-now-tab { min-width: 36px; width: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sod29-root.native-frame .sod29-now-tab { transition: none; }
+}

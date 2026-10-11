@@ -74,11 +74,13 @@ assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
 // follow list sits after research section; summary count near top
 assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
-// bottom personal affordance lives in the single existing command island and opens WORKSPACE
+// Personal entry: the single existing command bar reaches WORKSPACE through the typed Now "for me" tab,
+// and the top bar carries a visible sign-in / name control. No separate avatar button in the bar.
 assert.equal((frame.match(/className=\{`sod29-command-island/g) || []).length, 1);
-assert.match(frame, /className="sod29-island-personal" onClick=\{openWorkspace\}/);
-assert.equal((frame.match(/sod29-island-personal/g) || []).length, 2); // one per island layout, mutually exclusive branches
-assert.match(frame, /small>אישי</);
+assert.match(frame, /onMe=\{openWorkspace\}/);
+assert.equal((frame.match(/sod29-island-personal/g) || []).length, 0);
+assert.match(frame, /sod29-header-workspace\$\{user \? "" : " is-signed-out"\}`\} onClick=\{openWorkspace\}/);
+assert.match(frame, /accountShortName\(user, profile\)/);
 
 
 // Saved / research state — ResearchProvider snapshot only, explicit action semantics.
