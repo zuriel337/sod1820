@@ -469,7 +469,7 @@ function HomeBody() {
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={<SourceArrivalList2029 surface="home" loading={homeState.loading}
-      items={(worldPreview?.arrivals || worldPreview?.items || []).slice(0, 12)}
+      items={(worldPreview?.arrivals || worldPreview?.items || []).slice(0, 5)}
       availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
     entry={
