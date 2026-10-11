@@ -12,7 +12,7 @@ import { extractElsVectorGeometry } from "./els2029VectorGeometry.js";
  */
 
 export const ELS_SCANNER_CONTRACT = "els_adaptive_scanner_v1";
-export const ELS_SCANNER_SKIP_CEILING = 500; // mirrors els-search-bridge PAGE_SKIP_MAX_CEILING
+export const ELS_SCANNER_SKIP_CEILING = 2_147_483_647; // Postgres integer bound; each scan still has hard trial/page/time budgets
 export const ELS_SCANNER_STAGES = Object.freeze(["SEED", "EXPAND", "VERIFY"]);
 
 export const ELS_SCANNER_STOP = Object.freeze({

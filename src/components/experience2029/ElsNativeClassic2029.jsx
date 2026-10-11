@@ -601,7 +601,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, onSearchStart, onSaved }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -1164,6 +1164,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
+          journeyLoad={researchLoad}
+          exactSkipProbe={researchProbe}
+          onExactSkipProbeResult={onResearchProbeResult}
+          formsPreviewRequest={formsPreviewRequest}
+          onFormsPreviewResult={onFormsPreviewResult}
           full={classicOpen}
           hiddenBridge
           experience2029
@@ -1183,7 +1188,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           contextRequest={contextRequest}
           saveRequest={saveRequest}
           onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(); }}
-          onLoadError={(error) => { setLoadError(error);setNotice("לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
+          onLoadError={(error) => { setLoadError(error); if (researchLoad) onResearchLoadError?.(error); setNotice(researchLoad
+            ? "לא הצלחנו למצוא או לאמת מופע בדילוג שביקשתם. אפשר לשנות דילוג או מונח ולנסות שוב."
+            : "לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
         />

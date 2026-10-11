@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildElsRazielSurfaceContext } from "../src/lib/research/elsRazielContext.js";
+import { buildElsRazielSurfaceContext, buildElsRazielGuidance } from "../src/lib/research/elsRazielContext.js";
 
 const researchContext = {
   lens: "els",
@@ -85,6 +85,21 @@ test("Raziel adapter keeps absent exact fields null instead of inventing zero", 
   assert.deepEqual(out.occurrence.positions, [50, 68]);
   assert.equal(out.result.totalHits, null);
   assert.equal(out.journey.position, null);
+});
+
+test("Raziel receives only bounded automatic-plan coverage beside an exact verified occurrence", () => {
+  const exact = { ...projection, presentation: { policy: "exact_replay_v1", representative: true } };
+  const out = buildElsRazielSurfaceContext({ researchContext, projection: exact, planSummary: {
+    contract: "els_automatic_plan_summary_v1", sourceCount: 2, variantCount: 9,
+    scannedCount: 4, partialCount: 1, failedCount: 0, hasPending: true, scope: "torah",
+    privateTerm: "טקסט פרטי",
+  } });
+  assert.equal(out.plan.variantCount, 9);
+  assert.equal(JSON.stringify(out).includes("טקסט פרטי"), false);
+  const guidance = buildElsRazielGuidance(out);
+  assert.match(guidance.lead, /9 צורות/);
+  assert.match(guidance.lead, /לא ראיות עצמאיות/);
+  assert.equal(guidance.evidencePromotion, false);
 });
 
 console.log("ELS Raziel surface context adapter: PASS");
