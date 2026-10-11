@@ -1,23 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
-  getNameMulti,
   getOrCreateMyPersonId,
   listFamily,
-  supabase,
   upsertFamilyMember,
   upsertFamilyRelation,
   upsertSelfProfile,
 } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
-import {
-  createSupabasePersonalDateCrossProvider,
-  gregorianToHebrewDateRepresentation,
-  runPersonalDateResearch,
-} from "../lib/research/personalDateResearch.js";
-import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
-import CanonicalProgress from "./CanonicalProgress.jsx";
+import LifeJourneyResearch from "./LifeJourneyResearch.jsx";
 import "./person-journey.css";
 
 const RELATIONS = Object.freeze([
@@ -30,26 +22,12 @@ const clean = (value) => String(value || "").trim();
 const metaObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 const joinName = (first, last) => [clean(first), clean(last)].filter(Boolean).join(" ");
 
-function researchSummary(nameResult, dateBundle, dateRepresentation) {
-  const values = nameResult?.input?.components?.values || {};
-  const parts = values?.parts && typeof values.parts === "object" ? values.parts : {};
-  const crossValues = [...new Set((Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
-    .filter((finding) => finding?.kind === "date_cross")
-    .map((finding) => Number(finding?.subject?.value))
-    .filter(Number.isSafeInteger))];
-
-  return Object.freeze({
-    fullValue: Number.isSafeInteger(Number(values.full)) ? Number(values.full) : null,
-    partValues: Object.entries(parts)
-      .map(([label, value]) => ({ label, value: Number(value) }))
-      .filter((item) => Number.isSafeInteger(item.value)),
-    hebrewDate: dateRepresentation?.hebrew?.pretty || null,
-    crossValues,
-    tracksWithResults: Number(nameResult?.combo?.tracks_with_results ?? nameResult?.tracks_with_results ?? 0) || 0,
-  });
+export default function PersonJourney(props) {
+  const { user } = useAuth();
+  return <PersonJourneyContent key={user?.id || "signed-out"} {...props} />;
 }
 
-export default function PersonJourney({ variant = "legacy" }) {
+function PersonJourneyContent({ variant = "legacy" }) {
   const { user, loading: authLoading } = useAuth();
   const research = useResearch();
   const [personId, setPersonId] = useState(null);
@@ -58,7 +36,13 @@ export default function PersonJourney({ variant = "legacy" }) {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
+  const [startRequest, setStartRequest] = useState(0);
+  const [familyOpen, setFamilyOpen] = useState(false);
+  const [editingRef, setEditingRef] = useState(null);
+  const [allowSameName, setAllowSameName] = useState(false);
+  const [memberNotice, setMemberNotice] = useState("");
+  const aliveRef = useRef(true);
+  useEffect(() => { aliveRef.current = true; return () => { aliveRef.current = false; }; }, []);
 
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
@@ -80,6 +64,7 @@ export default function PersonJourney({ variant = "legacy" }) {
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
+    if (!aliveRef.current) return;
     const nextMembers = Array.isArray(data?.members) ? data.members : [];
     setMembers(nextMembers);
     setRelations(Array.isArray(data?.relations) ? data.relations : []);
@@ -116,7 +101,7 @@ export default function PersonJourney({ variant = "legacy" }) {
         setPersonId(pid);
         await refresh(pid);
       } catch (error) {
-        if (alive) setErr(error?.message || String(error));
+        if (alive && aliveRef.current) setErr("לא ניתן לטעון את הפרטים. בדקו את החיבור ונסו שוב.");
       } finally {
         if (alive) setLoading(false);
       }
@@ -128,64 +113,20 @@ export default function PersonJourney({ variant = "legacy" }) {
 
   useEffect(() => {
     if (!selfRef || !user) return;
-    const persistedName = clean(persistedSelf?.name);
     const personSubject = {
       id: selfRef,
       type: "person",
-      label: persistedName || "מסע החיים שלי",
+      label: "מסע חיים פרטי",
       href: variant === "2029" ? "/2029/journey" : "/research?tool=journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
     if (!currentResearchSubjectId) {
-      research.setResearchContext?.({ subject: personSubject, selection, lens: "person" });
+      research.setResearchContext?.({ subject: personSubject, selection, lens: "person", access: { tier: "personal", scope: "private" } });
       return;
-    }
-    if (currentResearchSubjectId !== selfRef) {
-      research.updateResearchContext?.({ selection, lens: "person" });
     }
     // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentResearchSubjectId, persistedSelf?.name, selfRef, user?.id, variant]);
-
-  const runInitialResearch = useCallback(async ({ first, last, date }) => {
-    if (!user || !clean(first)) return null;
-    setAnalysis({ state: "loading", data: null, error: null });
-    try {
-      const accessDescriptor = buildAccessDescriptor({
-        user_ref: user.id,
-        authenticated: true,
-        verified_authority: { source: "supabase_auth", subject_verified: true },
-      }, "authenticated_user");
-
-      const dateRepresentation = date ? gregorianToHebrewDateRepresentation(date) : null;
-      const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
-      const [nameResult, dateBundle] = await Promise.all([
-        getNameMulti(clean(first), {
-          surname: clean(last) || null,
-          birthdate: null,
-          question: null,
-        }),
-        date
-          ? runPersonalDateResearch({
-              name: clean(first),
-              surname: clean(last) || null,
-              birthdateIso: clean(date),
-              crossProvider,
-              accessDescriptor,
-            })
-          : Promise.resolve(null),
-      ]);
-
-      const data = researchSummary(nameResult, dateBundle, dateRepresentation);
-      setAnalysis({ state: "ready", data, error: null });
-      track("journey_person", null, "initial_research");
-      return data;
-    } catch (error) {
-      const message = error?.message || String(error);
-      setAnalysis({ state: "error", data: null, error: message });
-      return null;
-    }
-  }, [user]);
 
   const beginJourney = async () => {
     const first = clean(firstName);
@@ -207,39 +148,62 @@ export default function PersonJourney({ variant = "legacy" }) {
       });
       await refresh(personId);
       track("journey_person", null, "save_self");
-      await runInitialResearch({ first, last, date });
+      if (aliveRef.current) setStartRequest((value) => value + 1);
     } catch (error) {
-      setErr(error?.message || String(error));
+      if (aliveRef.current) setErr("הפעולה לא הושלמה. בדקו את החיבור ונסו שוב.");
     } finally {
-      setBusy(false);
+      if (aliveRef.current) setBusy(false);
     }
   };
 
   const addMember = async () => {
     const name = clean(newMemberName);
     if (!personId || !name) return;
+    if (!editingRef && members.some((m) => m.name === name) && !allowSameName) {
+      setMemberNotice("השם כבר מופיע ברשימה. אפשר לערוך את האדם הקיים, או לסמן שזה אדם נוסף בעל אותו שם.");
+      return;
+    }
     setBusy(true);
     setErr(null);
+    setMemberNotice("");
+    const writeRef = editingRef || `person:${personId}:p:${crypto.randomUUID()}`;
+    setEditingRef(writeRef);
+    let savedMemberRef = null;
     try {
-      const member = await upsertFamilyMember(personId, null, name, {
+      const existing = members.find((m) => m.source_ref === editingRef);
+      const member = await upsertFamilyMember(personId, writeRef.slice(`person:${personId}:p:`.length), name, {
+        ...metaObject(existing?.meta),
+        first_name: name.split(/\s+/)[0],
+        surname: name.split(/\s+/).slice(1).join(" ") || null,
         birthdate_iso: clean(newMemberBirthdate) || null,
         profile_version: "life_journey_2029_v1",
       });
+      if (!aliveRef.current) return;
       const memberRef = clean(member?.source_ref);
+      if (!memberRef.startsWith(`person:${personId}:p:`)) throw new Error("invalid_member_response");
+      savedMemberRef = memberRef;
+      setEditingRef(memberRef);
       if (memberRef && selfRef && newMemberRelation !== "none") {
         const parentRef = newMemberRelation === "parent_of_me" ? memberRef : selfRef;
         const childRef = newMemberRelation === "parent_of_me" ? selfRef : memberRef;
         await upsertFamilyRelation(personId, parentRef, childRef, "parent_of");
       }
+      await refresh(personId);
+      if (!aliveRef.current) return;
       setNewMemberName("");
       setNewMemberBirthdate("");
       setNewMemberRelation("none");
-      await refresh(personId);
+      setEditingRef(null);
+      setAllowSameName(false);
+      if (aliveRef.current) { setFamilyOpen(false); setMemberNotice("הפרטים נשמרו. אפשר להמשיך במחקר על עצמך או לבחור אדם מהמשפחה."); }
       track("journey_person", null, "add_member");
-    } catch (error) {
-      setErr(error?.message || String(error));
+    } catch {
+      if (aliveRef.current) {
+        setErr(savedMemberRef ? "האדם נשמר, אך שמירת הקשר או רענון הרשימה לא הושלמו. ניסיון נוסף יעדכן את אותו אדם." : "הפעולה לא הושלמה. בדקו את החיבור ונסו שוב.");
+        if (savedMemberRef) await refresh(personId).catch(() => {});
+      }
     } finally {
-      setBusy(false);
+      if (aliveRef.current) setBusy(false);
     }
   };
 
@@ -262,8 +226,6 @@ export default function PersonJourney({ variant = "legacy" }) {
     </section>;
   }
 
-  const analysisData = analysis.data;
-
   return <div
     className={`person-journey ${variant === "2029" ? "is-2029" : ""}`}
     data-experience-surface="life-journey"
@@ -276,13 +238,13 @@ export default function PersonJourney({ variant = "legacy" }) {
       <div className="person-journey-hero-copy">
         <div className="person-journey-kicker">מסע חיים · פרטי</div>
         <h1>מתחילים ממך.<br />ומשם מחברים את הסיפור.</h1>
-        <p>שם ותאריך פותחים את המסע הראשון. אחר כך אפשר להוסיף בני משפחה ואירועים — בלי לפתוח כלי חדש בכל פעם.</p>
+        <p>שם ותאריך פותחים את המסע הראשון. אחר כך אפשר להוסיף בני משפחה ולבחור מנועי מחקר — בלי לפתוח כלי חדש בכל פעם.</p>
       </div>
     </section>
 
     {err ? <div className="person-journey-error" role="alert">{err}</div> : null}
 
-    <section className="person-journey-panel" data-experience-capability="life-journey-intake">
+    <section id="life-intake" className="person-journey-panel" data-experience-capability="life-journey-intake">
       <div className="person-journey-section-head">
         <div><small>01</small><h2>מי אני</h2></div>
         <span>נשמר פרטי</span>
@@ -290,71 +252,28 @@ export default function PersonJourney({ variant = "legacy" }) {
       <div className="person-journey-fields">
         <label>
           <span>שם פרטי</span>
-          <input value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
+          <input disabled={busy} value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
         </label>
         <label>
           <span>שם משפחה</span>
-          <input value={surname} onChange={(event) => setSurname(event.target.value)} placeholder="שם משפחה" dir="rtl" autoComplete="family-name" />
+          <input disabled={busy} value={surname} onChange={(event) => setSurname(event.target.value)} placeholder="שם משפחה" dir="rtl" autoComplete="family-name" />
         </label>
         <label>
           <span>תאריך לידה</span>
-          <input value={birthdate} onChange={(event) => setBirthdate(event.target.value)} type="date" dir="ltr" autoComplete="bday" />
+          <input disabled={busy} value={birthdate} onChange={(event) => setBirthdate(event.target.value)} type="date" dir="ltr" autoComplete="bday" />
         </label>
       </div>
       <div className="person-journey-actions">
         <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
-          {busy ? "פותח את המסע…" : persistedSelf ? "עדכן וחבר מחדש" : "פתח את מסע החיים"}
+          {busy ? "פותח את המסע…" : persistedSelf ? "שמור פרטים והמשך למחקר" : "שמור ופתח את מסע החיים"}
         </button>
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
     </section>
 
-    <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
-      <div className="person-journey-section-head">
-        <div><small>02</small><h2>החיבורים הראשונים</h2></div>
-        <span>{analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
-      </div>
+    {personId ? <LifeJourneyResearch key={`${user.id}:${personId}`} ownerId={personId} userId={user.id} members={members} startRequest={startRequest} /> : null}
 
-      {analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
-      {analysis.state === "loading" ? <CanonicalProgress
-        title="מחבר את המסע הראשון"
-        detail="בודק את השם, ממיר את התאריך ומחפש נקודות מפגש דרך המנועים הקנוניים."
-        phase="מחקר אישי"
-        compact
-      /> : null}
-      {analysis.state === "error" ? <div className="person-journey-error" role="alert">{analysis.error}</div> : null}
-      {analysis.state === "ready" && analysisData ? <div className="person-journey-findings">
-        <div className="person-journey-focal">
-          <small>השם המלא</small>
-          <strong>{analysisData.fullValue ?? "—"}</strong>
-          <span>גימטריה רגילה · תוצאת מנוע</span>
-        </div>
-        <div className="person-journey-fact-grid">
-          {analysisData.partValues.map((item) => <article key={item.label}>
-            <small>{item.label}</small>
-            <strong>{item.value}</strong>
-            <span>ערך רכיב</span>
-          </article>)}
-          {analysisData.hebrewDate ? <article>
-            <small>התאריך העברי</small>
-            <strong className="is-text">{analysisData.hebrewDate}</strong>
-            <span>המרה דטרמיניסטית</span>
-          </article> : null}
-          <article>
-            <small>מסלולים עם תוצאה</small>
-            <strong>{analysisData.tracksWithResults}</strong>
-            <span>כיסוי, לא ציון אמת</span>
-          </article>
-        </div>
-        {analysisData.crossValues.length ? <div className="person-journey-crosses">
-          <small>נקודות מפגש שם ↔ תאריך</small>
-          <div>{analysisData.crossValues.map((value) => <span key={value}>{value}</span>)}</div>
-          <p>נקודת מפגש היא עובדה מחושבת. המשמעות שלה נשארת שאלה למחקר.</p>
-        </div> : null}
-      </div> : null}
-    </section>
-
-    <section className="person-journey-panel" data-experience-capability="life-journey-family">
+    <section id="life-family" className="person-journey-panel" data-experience-capability="life-journey-family">
       <div className="person-journey-section-head">
         <div><small>03</small><h2>המשפחה שלי</h2></div>
         <span>{familyMembers.length ? `${familyMembers.length} אנשים` : "אפשר להתחיל מאדם אחד"}</span>
@@ -365,28 +284,39 @@ export default function PersonJourney({ variant = "legacy" }) {
           const memberMeta = metaObject(member.meta);
           return <article key={member.source_ref}>
             <div><strong>{member.name}</strong>{memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}</div>
-            <span>פרטי</span>
+            <button type="button" disabled={busy} onClick={() => {
+              setEditingRef(member.source_ref); setNewMemberName(member.name); setNewMemberBirthdate(memberMeta.birthdate_iso || "");
+              setNewMemberRelation("none"); setMemberNotice(""); setFamilyOpen(true);
+            }}>ערוך פרטים</button>
           </article>;
         })}
       </div> : <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div>}
 
-      <div className="person-journey-family-form">
+      <p>הוספת משפחה היא רשות. אפשר להמשיך למחקר על עצמך בלי למלא דבר נוסף.</p>
+      <div className="person-journey-actions">
+        <button type="button" aria-expanded={familyOpen} aria-controls="life-family-form" onClick={() => setFamilyOpen(!familyOpen)}>{familyOpen ? "סגור את הטופס" : editingRef ? "המשך עריכת בן משפחה" : "הוסף בן משפחה"}</button>
+        <button type="button" onClick={() => { setFamilyOpen(false); document.getElementById("life-research")?.scrollIntoView({ block: "start" }); }}>חזרה למחקר שלי</button>
+      </div>
+      {memberNotice ? <p role="status">{memberNotice}</p> : null}
+      {familyOpen ? <div id="life-family-form" className="person-journey-family-form">
         <label>
           <span>שם בן/בת משפחה</span>
-          <input value={newMemberName} onChange={(event) => setNewMemberName(event.target.value)} placeholder="שם מלא" dir="rtl" />
+          <input disabled={busy} value={newMemberName} onChange={(event) => setNewMemberName(event.target.value)} placeholder="שם מלא" dir="rtl" />
         </label>
         <label>
           <span>תאריך לידה</span>
-          <input value={newMemberBirthdate} onChange={(event) => setNewMemberBirthdate(event.target.value)} type="date" dir="ltr" />
+          <input disabled={busy} value={newMemberBirthdate} onChange={(event) => setNewMemberBirthdate(event.target.value)} type="date" dir="ltr" />
         </label>
         <label>
-          <span>הקשר אליי</span>
-          <select value={newMemberRelation} onChange={(event) => setNewMemberRelation(event.target.value)}>
+          <span>הוסף קשר אליי (רשות)</span>
+          <select aria-label="הוסף קשר אליי (רשות)" disabled={busy} value={newMemberRelation} onChange={(event) => setNewMemberRelation(event.target.value)}>
             {RELATIONS.map((relation) => <option key={relation.id} value={relation.id}>{relation.label}</option>)}
           </select>
         </label>
-        <button type="button" disabled={busy || !clean(newMemberName)} onClick={addMember}>הוסף למסע</button>
-      </div>
+        {!editingRef && members.some((m) => m.name === clean(newMemberName)) ? <label className="life-checkbox"><input type="checkbox" checked={allowSameName} onChange={(event) => setAllowSameName(event.target.checked)} /><span>זה אדם נוסף בעל אותו שם</span></label> : null}
+        <button type="button" disabled={busy || !clean(newMemberName)} onClick={addMember}>{busy ? "שומר…" : editingRef ? "שמור את השינויים" : "שמור בן משפחה"}</button>
+        <button type="button" disabled={busy} onClick={() => { setFamilyOpen(false); setEditingRef(null); setNewMemberName(""); setNewMemberBirthdate(""); setNewMemberRelation("none"); setAllowSameName(false); }}>ביטול</button>
+      </div> : null}
 
       {relations.length ? <div className="person-journey-relations" aria-label="קשרים משפחתיים">
         {relations.map((relation) => <div key={relation.source_ref}>
@@ -397,13 +327,5 @@ export default function PersonJourney({ variant = "legacy" }) {
       </div> : null}
     </section>
 
-    <section className="person-journey-next" data-experience-capability="life-journey-next">
-      <div>
-        <small>השלב הבא</small>
-        <h2>המסע גדל איתך</h2>
-        <p>אירועי חיים, מקומות וממצאים שנוגעים לאנשים האלה יוכלו להצטרף בהמשך לאותו Person context — לא לעוד מערכת.</p>
-      </div>
-      <span aria-hidden="true">→</span>
-    </section>
   </div>;
 }
