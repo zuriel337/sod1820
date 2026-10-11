@@ -719,3 +719,20 @@
  .els29-native-classic button:active:not(:disabled){opacity:1;transition:none!important}
 }
 .sod29-root[data-frame-reduced-motion="true"] .els29-native-classic button:active:not(:disabled){opacity:1;transition:none!important}
+
+/* Classic starts quiet; optional controls never trigger research on disclosure. */
+.els29-native-window-summary,
+.els29-native-window-options { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:8px 12px; }
+.els29-native-window-summary { color:var(--s29-muted); font-size:var(--s29-type-micro); }
+.els29-native-options { border-top:1px solid var(--s29-line); }
+.els29-native-options > summary { cursor:pointer; min-height:44px; padding:12px; font-size:var(--s29-type-body); color:var(--s29-ink); }
+.els29-native-options > summary:focus-visible { outline:2px solid var(--s29-focus-ring); outline-offset:-2px; }
+.els29-native-window-summary button,
+.els29-native-window-options button { min-height:44px; padding:8px 12px; border:1px solid var(--s29-line-strong); border-radius:10px; background:var(--s29-panel); color:var(--s29-accent-text); font:inherit; cursor:pointer; }
+.els29-native-window-summary button:disabled,
+.els29-native-window-options button:disabled { opacity:.55; cursor:default; }
+
+/* Explicit overview scales the same indexed cells; it never expands or rescans the window. */
+.els29-native-matrix.is-overview { width:100%; min-width:0; gap:0; container-type:inline-size; }
+.els29-native-matrix.is-overview .els29-native-matrix-row { width:100%; min-width:0; gap:0; grid-template-columns:repeat(var(--els29-cols),minmax(0,1fr)); }
+.els29-native-matrix.is-overview .els29-native-cell { width:100%; min-width:0; min-height:0; height:clamp(6px,calc(100cqw / var(--els29-cols) * 1.35),32px); padding:0; font-size:clamp(4px,calc(100cqw / var(--els29-cols) * .9),22px); line-height:1; border-radius:2px; }

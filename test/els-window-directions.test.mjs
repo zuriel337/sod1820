@@ -27,7 +27,7 @@ function load(text, scopeLength) {
     'const st={ctxR:1,windowColumns:40}; const scopeN=()=>scopeLength; const _spaceCache=new Map();',
     'const norm=s=>s.replace(/[^א-ת]/g,""); const gem=()=>0; const bookOf=()=>"fixture"; const isGov=h=>h?.v==="MATCH";',
     ...constants,
-    ...['researchGeometry','searchSpace','distanceToAnchors','crossFindMultiHit','isSourceHit','isInspectableHit'].map(functionSource),
+    ...['matrixRC','researchGeometry','searchSpace','distanceToAnchors','crossFindMultiHit','isSourceHit','isInspectableHit'].map(functionSource),
     'this.api={crossFindMultiHit,researchGeometry,isSourceHit,isInspectableHit};',
   ].join('\n'), context);
   return context.api;

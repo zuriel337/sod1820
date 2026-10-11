@@ -1557,9 +1557,9 @@
     const neededRows=half+radius,neededCols=2*radius+4;
     const actual=Object.keys(NATIVE_WINDOWS).find(k=>{const w=NATIVE_WINDOWS[k];return w.windowColumns>=base.windowColumns&&w.windowColumns>=neededCols;})||"large";
     const ctxR=Math.min(8,Math.max(NATIVE_WINDOWS[actual].ctxR,Math.ceil((neededRows-18)/5)));
-    return {...NATIVE_WINDOWS[actual],ctxR,windowSize:actual,windowRequested:requested};
+    return {...NATIVE_WINDOWS[actual],ctxR,windowSize:actual,windowRequested:requested,centerAxis:true};
   }
-  function searchWindowSnapshot(){return {ctxR:st.ctxR,windowColumns:st.windowColumns,windowSize:st.windowSize,windowRequested:st.windowRequested};}
+  function searchWindowSnapshot(){return {ctxR:st.ctxR,windowColumns:st.windowColumns,windowSize:st.windowSize,windowRequested:st.windowRequested,centerAxis:st.centerAxis===true};}
   // Selected occurrences retain showN and explicit choices; radius is a reversible display filter only.
   function selectedHitsOf(w){
     if(!w.hits||!w.hits.length)return [];
@@ -1905,7 +1905,7 @@
     }
     const {colorMap,startSet}=colorSets(true),marks=[],gov=governedCells();
     colorMap.forEach((kind,idx)=>{
-      const r=Math.floor(idx/b.S),c=((idx%b.S)+b.S)%b.S;
+      const [r,c]=matrixRC(idx,b.S,b.c0);
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw)return;   // רק בתוך החלון המשודר (rows/geometry)
       if(!gov.has(idx))return;   // 🧬 G3: רק תאי-ממצא שאומתו canonical יוצאים כ-governed state
       const m={i:idx,type:kind==="main"?"main":"finding"};
@@ -1916,7 +1916,7 @@
     const snapshot={S:b.S,r0:b.r0,r1:b.r1,c0:b.c0,cw:b.cw,rows,marks,v:1,lenses:["cells","marks"]};
     const sourceMarks=[];
     st.words.forEach(w=>shownHitsOf(w).filter(h=>isSourceHit(h,w.t)).forEach(h=>h.positions.forEach(i=>{
-      const r=Math.floor(i/b.S),c=i%b.S;
+      const [r,c]=matrixRC(i,b.S,b.c0);
       if(r>=b.r0&&r<=b.r1&&c>=b.c0&&c<b.c0+b.cw)sourceMarks.push({i,color:w.color,term:w.t,kind:"source-sequence",start:i===h.start});
     })));
     snapshot.sourceMarks=sourceMarks;snapshot.lenses.push("source-text");
@@ -2016,7 +2016,7 @@
       matrix:matrixSnapshot(b),
       findings:st.words.map(nativeFindingResults),
       ui:{expand:st.expand,swOpen:st.swOpen,lineFor:st.lineFor,selCells:(st.selCells||[]).slice(0,64),windowSize:st.windowSize,windowRequested:st.windowRequested,
-        showN:st.showN,findingRadius:st.findingRadius,ctxR:st.ctxR,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
+        showN:st.showN,findingRadius:st.findingRadius,ctxR:st.ctxR,centerAxis:st.centerAxis===true,hideMain:!!st.hideMain,zoom:st.zoom,fit:!!st.fit,
         heat:!!st.heat,niqqud:!!st.niqqud,selMode:!!st.selMode,verseRead:!!st.verseRead},
       search:{mode:st.crossSimple?"cross-simple":st.crossBridge?"bridge":st.crossFree?"cross-free":(st.crossMeetings?"cross":"regular"),
         crossA:st.crossPairA||"",crossB:st.crossPairB||st.crossB||"",
@@ -2112,7 +2112,7 @@
     const t=target||{},i=Number(t.i);
     try{
       if(!Number.isInteger(i)||i<0||i>=scopeN()){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
-      const b=blockOf(),r=Math.floor(i/b.S),c=((i%b.S)+b.S)%b.S;
+      const b=blockOf(),[r,c]=matrixRC(i,b.S,b.c0);
       if(r<b.r0||r>b.r1||c<b.c0||c>=b.c0+b.cw){postHost({type:"lens",lens:"letter-context",ok:false,target:t});return;}
       await ensureVerseText();
       const loc=locateLetter(i);
@@ -2153,7 +2153,9 @@
     if(operation.status===status&&!progress)return;operation.status=status;
     if(status==="done"||status==="empty"||status==="error"||status==="cancelled")operation.terminal=true;
     if(operation.kind==="search"&&operation.terminal&&!operation.committed&&operation.previousScope){
-      st.scope=operation.previousScope;updateScopeUI();emitState();
+      st.scope=operation.previousScope;
+      if(operation.previousWindow){Object.assign(st,operation.previousWindow);st.words=operation.previousWords;}
+      updateScopeUI();emitState();
     }
     postHost({type:"operation",kind:operation.kind,requestId:operation.requestId,status,...(message?{message}:{} ),
       elapsedMs:Math.max(0,Date.now()-operation.startedAt),progress:progress||null});
@@ -2202,6 +2204,36 @@
       const failed=st.words.some(w=>selectedHitsOf(w).some(h=>Math.abs(h.skip)>=2&&h.v==="CANDIDATE"));
       operationStatus(operation,failed?"error":"done",failed?"האימות לא הושלם. המועמדים נשארו ללא אישור.":null);
     }catch(e){operationStatus(operation,"error","חיפוש הממצאים לא הושלם. אפשר לנסות שוב.");}
+  }
+  async function resizeNativeWindow(req,operation){
+    if(!operation||!EXPR2029||st.crossMeetings||st.crossSimple||st.crossFree||st.crossBridge||!hasGov(st.res)||req.axisHitId!==hitKey(occ())||!NATIVE_WINDOWS[req.windowSize]){
+      operationStatus(operation,"error","בחרו ציר מאומת לפני שינוי החלון.");return;
+    }
+    operation.previousWindow=searchWindowSnapshot();operation.previousWords=st.words;
+    const epoch=_matrixRequestSeq,axis=hitKey(occ());
+    const current=()=>epoch===_matrixRequestSeq&&operation===_nativeSearchOperation&&!operation.terminal&&hasGov(st.res)&&hitKey(occ())===axis;
+    try{
+      await paintOperation();if(!current())return;
+      const win=req.recenter===true?searchWindowSnapshot():nativeWindow(req.windowSize,0,[st.res.t]);
+      // Existing saved layouts keep their row seam until an explicit recenter action.
+      win.centerAxis=req.centerAxis===true||st.centerAxis===true;
+      st.words=st.words.map(w=>({...w,off:new Set(w.off||[]),extra:new Set(w.extra||[]),
+        ...(w.hits?.length?{_savedShown:selectedHitsOf(w).map(hitKey)}:{})}));
+      Object.assign(st,win);recomputeWords();
+      for(const w of st.words){
+        const hits=selectedHitsOf(w).filter(h=>Math.abs(h.skip)>=2&&!isGov(h));
+        if(!hits.length)continue;
+        operationStatus(operation,"verifying");
+        const vr=await verifyBatch(w.t,hits,{policy:"WINDOW_CANDIDATE_V1"},operation,st.scope);
+        if(!current())return;
+        if(!vr.ok)throw new Error("verification_failed");
+        hits.forEach(h=>{h.v=vr.verified.has(hitKey(h))?"MATCH":"MISMATCH";});
+      }
+      if(!current())return;
+      st.mc=null;st.zoneSig="";
+      if(st.crossMeetings)st.crossMeetings.forEach(z=>{delete z._mc;delete z._chain;});
+      operation.committed=true;render(true);operationStatus(operation,"done");
+    }catch(e){if(current())operationStatus(operation,"error","הרחבת החיפוש לא הושלמה. החלון הקודם נשמר.");}
   }
   function nativeFindingControl(d){
     if(searchUncommitted()||!hasGov(st.res))return;
@@ -2331,6 +2363,7 @@
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
       if(operation&&EXPR2029)operation.windowSize=NATIVE_WINDOWS[req.windowSize]?req.windowSize:"small";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
+      if(kind==="window"){resizeNativeWindow(req,operation);return;}
       if(kind==="continue"){continueNativeSearch(req,operation);return;}
       if(kind==="cross-continue"){continueNativeCross(req,operation);return;}
       if(kind==="regular"){
@@ -2474,9 +2507,9 @@
   const gapF=s=>s<=1?1:s<=2?.55:s<=3?.35:s<=4?.22:s<=6?.14:s<=8?.09:.05;    // פער בין אותיות
   const proxF=c=>c<=0?1:c<=2?.8:c<=5?.55:c<=10?.3:.12;                       // מרחק מהציר
   // Same cylindrical Manhattan metric used by finding ranking and cross cutoffs.
-  function distanceToAnchors(positions,anchors,S){
+  function distanceToAnchors(positions,anchors,S,c0=0){
     let m=1e9;
-    for(const p of positions){const r=Math.floor(p/S),c=((p%S)+S)%S;
+    for(const p of positions){const [r,c]=matrixRC(p,S,c0);
       for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));
         const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}}
     return m;
@@ -2522,8 +2555,8 @@
     const rows=ah.positions.map(p=>Math.floor(p/S)),mr=Math.round((Math.min(...rows)+Math.max(...rows))/2);
     // 🌍 Geometry Contract (Pass 2): מקור-אמת יחיד עם blockOf/zoneMonteCarlo — לא עוד RH=30/c0=-40 מקומי.
     const SN=window.scopeLength||scopeN(),_g=researchGeometry(S,mainCol,mr,window),CW=_g.cw,c0=_g.c0,r0=_g.r0,r1=_g.r1;
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c0+CW;};
-    const rc=p=>[Math.floor(p/S),((p%S)+S)%S],anchorCells=ah.positions.map(rc);
+    const inWin=p=>{const [r,c]=matrixRC(p,S,c0);return r>=r0&&r<=r1&&c>=c0&&c<c0+CW;};
+    const rc=p=>matrixRC(p,S,c0),anchorCells=ah.positions.map(rc);
     const _geo={S:S,c0:c0,cw:CW,r0:r0,r1:r1};
     const byChar=new Map();
     for(let r=r0;r<=r1;r++)for(let c=c0;c<c0+CW;c++){const idx=r*S+c;if(idx<0||idx>=SN)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
@@ -2531,7 +2564,7 @@
     for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;const skips=searchSpace(_geo,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=SN)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-        if(!ok)continue;const cc=distanceToAnchors(pos,anchorCells,S);
+        if(!ok)continue;const cc=distanceToAnchors(pos,anchorCells,S,c0);
         if(cc<bc){bc=cc;bsk=sk;bdir=d;bs0=s0;}}
       if(bc<=pure){const step=gridStep(bsk,S),gf=gapF(step),pf=proxF(bc),rf=rarF(rar.get(t));
         detail.push({t,skip:bsk,dir:bdir,cost:bc,gem:gem(t),rar:rar.get(t),step,p0:bs0,p1:bs0+bdir*bsk*(L-1)});   // p0/p1 = תאי-קצה (לשרשרת-צופן)
@@ -2672,7 +2705,7 @@
       const useA=norm(axis)===norm(A),R=useA?r1:r2,other=useA?B:A;
       if(operation)operation.committed=true;
       st.editId=null;st.editTerm=null;
-      Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
+      Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested,centerAxis:window.centerAxis===true});
       st.res=R.resA;st.crossMeetings=merged.zones;st.crossResCache=merged.cache;st.crossCoverage=merged.coverage;st.crossIdx=0;st.crossTerms=[other];st.crossTotal=1;st.crossSimple=true;st.crossFree=false;st.crossBridge=false;st.crossB=norm(other);st.raw=axis;
       // 🧾 הפרדה בין *מה שהמשתמש הזין* לבין *מי נבחר כציר*: הציר נבחר אוטומטית (לפי מספר
       //    אזורי-המפגש), ולכן הוא עלול להיות המונח השני. שומרים את שני המונחים המקוריים
@@ -2732,7 +2765,7 @@
         "const hitKey=h=>h.skip+\"_\"+h.dir+\"_\"+h.start;\n"+
         vdc.toString()+"\n"+fwdLaneScan.toString()+"\n"+stratProbeInit.toString()+"\n"+probeAdd.toString()+"\n"+laneDone.toString()+"\n"+stratProbeRun.toString()+"\n"+stratCollect.toString()+"\n"+adChoose.toString()+"\n"+routedDiscover.toString()+"\n"+
         "async function findAllAdaptive(raw,cap){return findAll(raw,cap);}\n"+
-        researchGeometry.toString()+"\n"+
+        matrixRC.toString()+"\n"+researchGeometry.toString()+"\n"+
         lb.toString()+"\nfunction scopeN(){return SN;}\n"+
         fwdSetup.toString()+"\n"+fwdScan.toString()+"\n"+fwd.toString()+"\n"+
         "const DISPERSE_SEG="+DISPERSE_SEG+";\nconst DISPERSE_RESERVE_FRAC="+DISPERSE_RESERVE_FRAC+";\nconst DISPERSE_RESERVE_MAX="+DISPERSE_RESERVE_MAX+";\n"+
@@ -2744,7 +2777,7 @@
         "const proxF="+proxF.toString()+";\nconst lenF="+lenF.toString()+";\n"+
         "const rarF="+rarF.toString()+";\nconst starsFromTq="+starsFromTq.toString()+";\n"+
         "const _spaceCache=new Map();\n"+searchSpace.toString()+"\n"+distanceToAnchors.toString()+"\n"+crossFindMultiHit.toString()+"\n"+crossFindMulti.toString()+"\n"+
-        "onmessage=async function(e){var d=e.data;if(d.geometry){st.ctxR=d.geometry.ctxR;st.windowColumns=d.geometry.windowColumns;}"+
+        "onmessage=async function(e){var d=e.data;if(d.geometry){st.ctxR=d.geometry.ctxR;st.windowColumns=d.geometry.windowColumns;st.centerAxis=d.geometry.centerAxis===true;}"+
         "if(d.scope)st.scope=d.scope;"+
         "if(d.type===\"routed-discover\"){var result=await routedDiscover(d.raw,d.cap);postMessage({type:\"discoverResult\",reqId:d.reqId,result});return;}"+
         "if(d.type===\"init\"){T=d.T;N=d.N;SN=d.SN;BOOKS=d.BOOKS;postMessage({type:\"ready\",reqId:d.reqId});return;}"+
@@ -2785,7 +2818,7 @@
       const timer=setTimeout(()=>onErr(new Error("ELS worker timed out")),60000);
       _xfPending.set(reqId,onErr);
       w.addEventListener("message",onMsg);w.addEventListener("error",onErr);
-      w.postMessage({...msg,geometry:msg.geometry||{ctxR:st.ctxR,windowColumns:st.windowColumns}});
+      w.postMessage({...msg,geometry:msg.geometry||searchWindowSnapshot()});
     });
     promise.catch(()=>{});return promise;
   }
@@ -3211,8 +3244,8 @@
   // חיפוש מילה בתוך החלון-הנראה הנוכחי (blockOf) — מחזיר את המופע הקרוב-ביותר לציר, או null
   function findInBlock(t){
     t=norm(t);if(!hasGov(st.res)||t.length<2)return null;
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw,L=t.length,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    const b=blockOf(),S=b.S,c1=b.c0+b.cw,L=t.length,rc=p=>matrixRC(p,S,b.c0);
+    const inWin=p=>{const [r,c]=matrixRC(p,S,b.c0);return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions);let best=null;   // mainSet = תאי-הציר (לפסילת חפיפה טריוויאלית, כמו היפוך על אותן אותיות)
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=scopeN()||T[s0]!==t[0])continue;
@@ -3245,8 +3278,8 @@
   // 🌌 עדשת חיפוש-סביבתי — סורקת את המאגר ומחזירה כל מילה שצפה כדילוג ברדיוס R מהציר (לא רק על הקו)
   function scanNeighborhood(R){
     if(!hasGov(st.res))return [];
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>matrixRC(p,S,b.c0);
+    const inWin=p=>{const [r,c]=matrixRC(p,S,b.c0);return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const existing=new Set(st.words.map(w=>w.t)),out=[];
@@ -3284,8 +3317,8 @@
   function scanPattern(pat){
     if(!hasGov(st.res))return [];
     const P=pat.split(""),L=P.length;if(L<2||P.filter(c=>c!=="?").length<1)return [];
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>matrixRC(p,S,b.c0);
+    const inWin=p=>{const [r,c]=matrixRC(p,S,b.c0);return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const skips=searchSpace(b,L);
     const anchors=occ().positions.map(rc),mainSet=new Set(occ().positions),p0=P[0],out=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const s0=r*S+c;if(s0<0||s0>=N)continue;if(p0!=="?"&&T[s0]!==p0)continue;
@@ -3463,8 +3496,8 @@
   // 🧭 עדשת מסלול-גילוי — מסע מממצא לממצא בתוך החלון, עם **סיבה על כל חץ** (מראה/גימטריה/עוגן/קרבה).
   function scanCandidates(){
     if(!hasGov(st.res))return [];
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>matrixRC(p,S,b.c0);
+    const inWin=p=>{const [r,c]=matrixRC(p,S,b.c0);return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
@@ -3481,7 +3514,7 @@
     box.innerHTML='<div class="lens-title">🧭 מסלול-גילוי — מסע מממצא לממצא <span class="lens-note">כל חץ מסביר למה עברנו · עדות, לא ניבוי</span></div><button class="dir-go path-go">🧭 בנה מסלול</button><div class="path-out"></div>';
     const out=box.querySelector(".path-out");
     box.querySelector(".path-go").onclick=()=>{
-      const S=Math.abs(occ().skip),rc=p=>[Math.floor(p/S),((p%S)+S)%S],cands=scanCandidates();
+      const b=blockOf(),S=b.S,rc=p=>matrixRC(p,S,b.c0),cands=scanCandidates();
       const axisRC=rc(occ().positions[Math.floor(occ().positions.length/2)]),used=new Set();
       let curWord=norm(st.raw),curRC=axisRC,curGem=gem(st.raw);
       const path=[{term:st.raw,axis:true}];
@@ -3716,8 +3749,8 @@
     if(requestSeq!==_matrixRequestSeq)return;
     const win=item.searchWindow;
     Object.assign(st,win&&Number.isInteger(win.ctxR)&&win.ctxR>=1&&win.ctxR<=8&&Number.isInteger(win.windowColumns)&&win.windowColumns>=1&&win.windowColumns<=80
-      ? {ctxR:win.ctxR,windowColumns:win.windowColumns,windowSize:NATIVE_WINDOWS[win.windowSize]?win.windowSize:"legacy",windowRequested:NATIVE_WINDOWS[win.windowRequested]?win.windowRequested:"legacy"}
-      : {ctxR:3,windowColumns:80,windowSize:"legacy",windowRequested:"legacy"});
+      ? {ctxR:win.ctxR,windowColumns:win.windowColumns,windowSize:NATIVE_WINDOWS[win.windowSize]?win.windowSize:"legacy",windowRequested:NATIVE_WINDOWS[win.windowRequested]?win.windowRequested:"legacy",centerAxis:win.centerAxis===true}
+      : {ctxR:3,windowColumns:80,windowSize:"legacy",windowRequested:"legacy",centerAxis:false});
     st.crossMeetings=null;st.crossSimple=false;st.crossFree=false;st.crossBridge=false;st.crossPairA="";st.crossPairB="";st.crossB="";st.zoneStars=null;st.zoneSig="";
     st.res=discovered;   // 🧬 G3: שחזור צופן שמור = אותו גילוי + אימות canonical (replay parity)
     if(!hasGov(st.res)){st.res=null;postHost({type:"load-error",term:item.term,reason:exact?"anchor-not-found":"not-found"});updGem();render();return;}
@@ -4082,11 +4115,19 @@
   // חלון-מחקר (לא geometry נפרד), ו-fwdDisperseTopUp (Pass 1) הוא sampling policy לתוצאה capped —
   // לא Geometry ולא הוכחת-כיסוי-ממצה של מרחב-החיפוש.
   const GEOMETRY_CTXR_MIN=1,GEOMETRY_CTXR_MAX=8;
+  // Unwrapped columns keep an axis at a row seam centered without changing corpus indices.
+  // index = row*S+column; legacy c0>=0 windows retain their original mapping.
+  function matrixRC(index,S,c0=0){
+    const c=c0+((index-c0)%S+S)%S;
+    return [(index-c)/S,c];
+  }
   function researchGeometry(S,mainCol,mr,window=st){
-    const totalRows=Math.ceil((window.scopeLength||scopeN())/S);
     const RH=18+window.ctxR*5,CW=Math.min(S,window.windowColumns||80);
-    const c0=Math.max(0,Math.min(S-CW,mainCol-Math.floor(CW/2)));
-    const r0=Math.max(0,mr-RH),r1=Math.min(totalRows-1,mr+RH);
+    const centered=mainCol-Math.floor(CW/2);
+    const c0=window.centerAxis===true&&S>8?centered:Math.max(0,Math.min(S-CW,centered));
+    const totalRows=Math.ceil(((window.scopeLength||scopeN())-(window.centerAxis===true?c0:0))/S);
+    const firstRow=window.centerAxis===true?Math.floor(-c0/S):0;
+    const r0=Math.max(firstRow,mr-RH),r1=Math.min(totalRows-1,mr+RH);
     return {S,mainCol,mr,c0,cw:CW,r0,r1,ctxR:window.ctxR,totalRows};
   }
   // 🎛️ setCtxR — היחיד שמשנה geometry-truth בפועל. משנה את st.ctxR, מפנה cache-ים תלויי-geometry
@@ -4112,7 +4153,7 @@
   // 🖥️ תיבת-התצוגה המותאמת: מתכווצת לתחום של כל הצופן המסומן (ציר + ממצאים) + שוליים,
   //    כדי שכל הצופן ייכנס למסך (למשל תורה קדשה — לא חלון ענק ריק). תת-קבוצה של חלון-הסריקה.
   function markedBBox(){
-    const base=blockOf(),S=base.S,rc=p=>[Math.floor(p/S),((p%S)+S)%S],cells=[];
+    const base=blockOf(),S=base.S,rc=p=>matrixRC(p,S,base.c0),cells=[];
     if(!st.hideMain)occ().positions.forEach(p=>cells.push(p));
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>cells.push(p))));
     if(!cells.length)return base;
@@ -4148,12 +4189,13 @@
     const mh=occ();
     // דילוגי-אלכסון: סביב כל כפולה של רוחב-המטריצה (kS±2, k=1..4) → תופס אלכסונים מקבילים בכל שיפוע
     // (כולל «התורה» ב-2S+2, מקביל דליל ל«אמיתית»), וגם שורות/אלכסונים קצרים (1..8).
-    const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    const rc=p=>matrixRC(p,S,b.c0);
+    const inWin=p=>{const [r,c]=matrixRC(p,S,b.c0);return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     // ⭐ קרבה נמדדת לאשכול שעל הדף: המילה הראשית + המילים שכבר מוצגות (לא רק לעוגן).
     const baseA=mh.positions.map(rc);
     const mainSet=new Set(mh.positions);   // לפסילת מופע חופף-לעוגן (תת-מחרוזת של המילה הראשית = טריוויאלי)
     st.words.forEach((w,wi)=>{
+      const prior=new Map((w.hits||[]).map(h=>[hitKey(h),h.v]));
       const t=norm(w.t),L=t.length,hits=[],seen=new Set();const skips=searchSpace(b,L);
       // סורקים רק את החלון הנראה — מילים «רחוקות» (72 עמודות…) לא רלוונטיות
       for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){
@@ -4172,9 +4214,11 @@
         for(const h of hits){const reversed={...h,dir:-h.dir,start:h.positions[h.positions.length-1]};
           if(!keep.has(hitKey(h))&&keep.has(hitKey(reversed))){h.dir=reversed.dir;h.start=reversed.start;h.positions.reverse();}}
       }
+      // Reuse verification only after the final (possibly reversed) occurrence identity is fixed.
+      hits.forEach(h=>{const v=prior.get(hitKey(h));if(v==="MATCH")h.v=v;});
       // עוגני-אשכול = ראשי + המופעים המוצגים של שאר המילים
       const anchors=baseA.concat(...st.words.filter((_,j)=>j!==wi).map(o=>(o.hits||[]).slice(0,st.showN).flatMap(hit=>hit.positions.map(rc))));
-      const cost=h=>distanceToAnchors(h.positions,anchors,S);
+      const cost=h=>distanceToAnchors(h.positions,anchors,S,b.c0);
       hits.forEach(h=>{h.cost=cost(h);});
       // 🏅 דירוג הממצא: **הידוק × קרבה**, לא קרבה בלבד. עד מחזור 1 מרחב-הדילוגים היה צר
       //    ({1..8, kS±2}) ולכן כל מועמד היה ממילא צמוד-לציר, ומיון לפי cost הספיק. מרחב-החיפוש
@@ -4195,7 +4239,7 @@
          const pin=hits.filter(h=>{const k=hitKey(h);return keep.has(k)&&!inTop.has(k);});
          if(pin.length)w.hits=w.hits.concat(pin);}}
       // Main-axis distance is separate from the unchanged cluster ranking cost.
-      w.hits.forEach(h=>{h.axisDistance=distanceToAnchors(h.positions,baseA,S);});
+      w.hits.forEach(h=>{h.axisDistance=distanceToAnchors(h.positions,baseA,S,b.c0);});
       // 🔁 שחזור בחירת-הנראות שנשמרה (פעם אחת אחרי טעינה): מתרגם את רשימת ההופעות-שהוצגו
       //    ל-off/extra מול ברירת-המחדל, כך שהופעה רחוקה שהמשתמש הסתיר לא תחזור בפתיחת הצופן.
       if(w._savedShown){
@@ -4212,12 +4256,12 @@
   function suggestCluster(){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw;
-    const rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const rc=p=>matrixRC(p,S,b.c0);
     const anchors=occ().positions.map(rc);
     st.words.forEach(w=>shownHitsOf(w).forEach(h=>h.positions.forEach(p=>anchors.push(rc(p)))));
     const byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=scopeN())continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
+    const inWin=p=>{const [r,c]=matrixRC(p,S,b.c0);return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const cellCost=(r,c)=>{let m=1e9;for(const a of anchors){const dc=Math.min(Math.abs(c-a[1]),S-Math.abs(c-a[1]));const d=Math.abs(r-a[0])+dc;if(d<m){m=d;if(m===0)return 0;}}return m;};
     const existing=new Set(st.words.map(w=>w.t)),out=[];
     for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2||existing.has(t))continue;
@@ -4225,7 +4269,7 @@
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){
         const end=s0+d*sk*(L-1);if(end<0||end>=scopeN())continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-        if(!ok)continue;let c=1e9;for(const p of pos){const cc=cellCost(Math.floor(p/S),((p%S)+S)%S);if(cc<c)c=cc;}
+        if(!ok)continue;let c=1e9;for(const p of pos){const cc=cellCost(...matrixRC(p,S,b.c0));if(cc<c)c=cc;}
         if(best===null||c<best){best=c;bestSkip=sk;}
       }
       if(best!==null&&best<=22){
@@ -4311,7 +4355,7 @@
     return wrap;
   }
 
-  function render(){
+  function render(wordsReady=false){
     if(searchUncommitted()||st.res?.scope&&st.res.scope!==st.scope){emitState();return;}
     cancelRevealArm();   // רינדור-מחדש (חיפוש חדש) מבטל סרט-ממתין שטרם התחיל — שלא יירה על מטריצה אחרת
     const r=st.res;
@@ -4330,7 +4374,7 @@
       emitState();   // 🛰️ גם «לא נמצא» הוא מצב — ה-host צריך לדעת (status:"empty")
       return;
     }
-    recomputeWords();
+    if(wordsReady!==true)recomputeWords();
     const h=occ(),S=Math.abs(h.skip),n=r.hits.length,st0=h.positions[0];
     const wrap=document.createElement("div");
     const head=document.createElement("div");head.className="rhead";
@@ -4456,7 +4500,7 @@
   //    אזור צפוף (הרבה קורה) = חם (זהב→אדום); דליל = קר. מדד ויזואלי טהור, לא פרשנות.
   function computeHeat(b){
     const S=b.S,R=2,heat=new Map();let mx=0;
-    const bump=idx=>{const r=Math.floor(idx/S),c=((idx%S)+S)%S;
+    const bump=idx=>{const [r,c]=matrixRC(idx,S,b.c0);
       for(let dr=-R;dr<=R;dr++)for(let dc=-R;dc<=R;dc++){const rr=r+dr,cc=c+dc;
         if(rr<b.r0||rr>b.r1||cc<b.c0||cc>=b.c0+b.cw)continue;
         const k=rr*S+cc,w=1/(1+dr*dr+dc*dc),v=(heat.get(k)||0)+w;heat.set(k,v);if(v>mx)mx=v;}};
@@ -4482,7 +4526,7 @@
     //    מדידה: מעבר ל-searchSpace המלא העלה את runMonteCarlo מ-2ms ל-3,837ms → הקפאת-שמירה.
     //    לא לאחד את זה בלי פתרון-ביצועים (מחזור 2). ראה work_log 2026-08-15.
     const skips=[1,2,3,4,5,6,7,8];for(let k=1;k<=4;k++)for(let o=-2;o<=2;o++){const s=k*S+o;if(s>=1)skips.push(s);}
-    const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=r0&&r<=r1&&c>=c0&&c<c1;};
+    const inWin=p=>{const [r,c]=matrixRC(p,S,c0);return r>=r0&&r<=r1&&c>=c0&&c<c1;};
     const coldist=c=>Math.min(Math.abs(c-anchorCol),S-Math.abs(c-anchorCol));
     let score=0;
     for(const t of words){const L=t.length;if(L<1)continue;const starts=byChar.get(t[0]);if(!starts)continue;
@@ -4490,7 +4534,7 @@
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok)continue;const key=pos[0]+"_"+pos[L-1];if(seen.has(key))continue;seen.add(key);
-        let cc=1e9;for(const p of pos){const dd=coldist(((p%S)+S)%S);if(dd<cc)cc=dd;}costs.push(cc);}
+        let cc=1e9;for(const p of pos){const dd=coldist(matrixRC(p,S,c0)[1]);if(dd<cc)cc=dd;}costs.push(cc);}
       costs.sort((a,b)=>a-b);
       costs.slice(0,showN).forEach(cc=>{score+=cc<=3?3:cc<=8?2:cc<=15?1:0;});
     }
@@ -4513,7 +4557,7 @@
     return {sObs,mean:Math.round(sum/TR*10)/10,p,rar,perc,TR,words:words.length,capped:ge===0};
   }
   // חתימת-מצב לתוצאת ה-Monte-Carlo: מתיישנת אוטומטית כשמשנים מופע / קרבה / ממצאים
-  function mcSig(){return st.occ+"|"+st.showN+"|"+(st.hideMain?1:0)+"|"+st.ctxR+"|"+st.words.map(w=>norm(w.t)).join(",");}
+  function mcSig(){return st.occ+"|"+st.showN+"|"+(st.hideMain?1:0)+"|"+st.ctxR+"|"+st.windowColumns+"|"+!!st.centerAxis+"|"+st.words.map(w=>norm(w.t)).join(",");}
   function buildMatrix(){
     const h=occ(),b=(st.fit?markedBBox():blockOf()),S=b.S;lastBlock=b;lastCw=b.cw;
     const basePX=Math.max(20,Math.min(30,Math.round(720/Math.min(b.cw,26))));
@@ -4690,7 +4734,7 @@
     },{passive:false});
     mb.addEventListener("touchend",e=>{
       if(pinch&&e.touches.length<2){const grid=mb.querySelector(".matrix");if(grid)grid.style.transform="";
-        if(Math.abs(pinch.live-st.zoom)>0.03){st.zoom=pinch.live;render();}pinch=null;}
+        if(Math.abs(pinch.live-st.zoom)>0.03){st.zoom=pinch.live;render(true);}pinch=null;}
       if(e.touches.length===0)end();
     });
   }
@@ -4712,9 +4756,9 @@
     if(view)view.page=Math.floor(st.res.hits.slice(0,index).filter(isGov).length/80);
     st.words=[];st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;render();
   }
-  function toggleFit(){st.fit=!st.fit;st.zoom=1;render();}
+  function toggleFit(){st.fit=!st.fit;st.zoom=1;render(true);}
   function adjustZoom(delta){setZoom(st.zoom+delta);}
-  function setZoom(z){st.zoom=Math.max(.5,Math.min(2.8,z));render();}
+  function setZoom(z){st.zoom=Math.max(.5,Math.min(2.8,z));render(true);}
   let _rzT=null;window.addEventListener("resize",()=>{if(!hasGov(st.res))return;clearTimeout(_rzT);_rzT=setTimeout(fitMatrixToScreen,150);});
 
   // 🔀 פאנל אזורי-התכנסות — כרטיס מפורט לכל אזור: כוכבים · ציר · ספר · כל מונח (דילוג/כיוון/מרחק/גימטריה/נדירות)
@@ -4781,7 +4825,7 @@
     const res=(z.axis&&st.crossResCache)?st.crossResCache[z.axis]:st.res;
     const hit=res&&res.hits[z.occ];
     if(!hit||!z.detail.length||!z.detail.every(d=>d.p0!=null)){z._chain=null;return null;}
-    const S=Math.abs(hit.skip),rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const S=Math.abs(hit.skip),b=researchGeometry(S,hit.start%S,Math.floor(hit.start/S)),rc=p=>matrixRC(p,S,b.c0);
     const dcell=(a,b)=>{const dc=Math.min(Math.abs(a[1]-b[1]),S-Math.abs(a[1]-b[1]));return Math.abs(a[0]-b[0])+dc;};
     const nodes=[{t:z.axis||norm(st.raw),s:rc(hit.positions[0]),e:rc(hit.positions[hit.positions.length-1])}]
       .concat(z.detail.map(d=>({t:d.t,s:rc(d.p0),e:rc(d.p1)})));
