@@ -5,6 +5,7 @@ import Els2029Representation from "../components/experience2029/Els2029Represent
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
 import ElsResearchBar2029 from "../components/experience2029/ElsResearchBar2029.jsx";
+import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
 import "../components/experience2029/els2029-research.css";
 import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
 import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
@@ -128,6 +129,8 @@ export default function Els2029Page() {
     error: null,
   });
   const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
+  const [researchLoad, setResearchLoad] = useState(null);
+  useEffect(() => { setResearchLoad(null); }, [cipherSlug, recordId]);
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
   const [classicSeed] = useState(() => clean(selection?.term || subject?.label || ""));
@@ -226,6 +229,7 @@ export default function Els2029Page() {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
+    <div hidden={!researchProfile}><ElsAdvancedSearch2029 onLoad={setResearchLoad} /></div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
@@ -257,7 +261,7 @@ export default function Els2029Page() {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
       </section>
 

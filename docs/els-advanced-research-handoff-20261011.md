@@ -1,0 +1,13 @@
+# ELS advanced research: implementation handoff
+
+Branch: `codex/els-research-advanced-v1`. Parent: Claude ELS visual commit `10c9af5ed9c8bf2eaaec0df0d17b61c63bd927f0`. The Classic structure and canonical ELS engine are unchanged. No merge or production deployment.
+
+The Research profile now offers explicit, bounded Torah/Tanakh page search. Users can choose a custom skip range (2–500), one of three range presets, and a page size (1–100). The next page uses the server's exact keyset cursor. Results come only from `els_search_page_v1` through `els-search-bridge`; the client does not generate ELS occurrences. A selected hit is reverified through the existing `els_occurrence_replay_v1` path before the existing engine receives an exact `load-matrix` item. Once its canonical state reaches Research Context, the existing exact replay/layers path enables the existing contextual Raziel entry. Raziel remains an explicit user action.
+
+Only the Research panel renders these new controls. The same native matrix and engine stay mounted during profile changes, and the Advanced form and results remain available when returning to Research. Opening a saved cipher clears the Advanced load item so the saved cipher wins. Existing findings, color, selection, source, save and navigation controls remain owned by the native Classic workspace.
+
+Files: `src/lib/research/elsAdvancedPage.js`, `src/components/experience2029/ElsAdvancedSearch2029.jsx`, `src/pages/Els2029Page.jsx`, `src/components/experience2029/ElsNativeClassic2029.jsx`, plus targeted unit/browser tests and the browser fixture.
+
+Current boundary: this is the first working advanced capability slice, not completion of the recovered 85-item ELS register. Geometry comparisons, statistical controls, adaptive multi-target plans, longer skip ranges beyond the bridge ceiling, and polished visual composition remain separate work. Do not present any of those as live. Claude can later style the Research controls within the approved `fa0e26f` Home visual direction without changing request, verification, or engine-load contracts. Keep the wide matrix, desktop findings on the left, mobile reachability and profile round-trip intact.
+
+Verification: the dedicated Advanced browser flow, bounded request/projection unit tests, Research/Classic/Raziel contract tests and the 2029 production build passed. The wider native UI run passed 122/123 tests. Its shared SVG keyboard-animation assertion failed again in isolated rerun (`test/els-native-ui-browser.test.mjs:1735`); this assertion and the shared SVG implementation were not changed in this branch. Treat that as an open visual regression until Claude checks it on the approved visual base.

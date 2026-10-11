@@ -8,7 +8,13 @@ export const useAuth=()=>useSyncExternalStore(subscribe,()=>state);`;
 export const libraryDatabase = `
 export const SUPABASE_URL=location.origin;export const SUPABASE_ANON='fixture';
 window.__libraryRows=[];window.__libraryCalls=[];window.__libraryViewer='owner-a';
-export const supabase={from(table){
+window.__advancedCalls=[];
+export const supabase={functions:{async invoke(name,{body}){
+ window.__advancedCalls.push({name,body});
+ if(body.op==='page')return {data:{result:{contract:'els_search_page_v1',status:'OK',corpus_id:'fixture-torah',input:{normalized:body.term},hits:[{occurrence_id:'els:fixture-torah:'+body.term+':86:1:1200',skip:86,dir:1,start:1200,end:1802,positions:[1200,1286,1372]}],completion:{executed:true,returned_hits:1,truncated:false}}}};
+ if(body.op==='verify')return {data:{result:{contract:'els_occurrence_replay_v1',status:'OK',verification_state:'MATCH'}}};
+ return {error:{message:'unsupported operation'}};
+}},from(table){
  const filters=[],call={table,eq:[],ors:[],orders:[]};
  const query={
   select(columns){call.columns=columns;return query;},
@@ -44,8 +50,8 @@ export function libraryFixturePlugin() {
     'ResearchProvider.jsx': `const research={context:null,updateResearchContext:()=>{}};export const useResearch=()=>research;`,
     'Sod2029Shell.jsx': `import React from 'react';export default function Shell({children}){return React.createElement('main',{className:'sod29-root',style:{padding:16}},children);}
       export const FrameState=({title,children})=>React.createElement('section',null,React.createElement('h2',null,title),children);export const use2029Shell=()=>({});`,
-    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,onSearchStart,onSaved}){
-      window.__libraryMatrix=matrix;const [query,setQuery]=useState('');
+    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,onSearchStart,onSaved}){
+      window.__libraryMatrix=matrix;window.__advancedLoad=researchLoad;const [query,setQuery]=useState('');
       useEffect(()=>{window.__libraryEngineMounts=(window.__libraryEngineMounts||0)+1;},[]);
       return React.createElement('div',{'data-fixture-matrix':matrix?.id||'new'},
         React.createElement('input',{'aria-label':'טיוטת חיפוש',value:query,onChange:e=>setQuery(e.target.value)}),

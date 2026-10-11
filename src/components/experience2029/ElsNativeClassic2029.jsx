@@ -601,7 +601,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, onSearchStart, onSaved }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, onSearchStart, onSaved }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -1164,6 +1164,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
+          journeyLoad={researchLoad}
           full={classicOpen}
           hiddenBridge
           experience2029
