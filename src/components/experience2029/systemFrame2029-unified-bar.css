@@ -138,3 +138,24 @@
     box-shadow: 0 0 40px color-mix(in srgb, var(--s29-page) 70%, transparent), 0 0 0 1px var(--s29-line-strong);
   }
 }
+
+/* Desktop dock (proposal): the bottom bar is a small floating pill centered at the bottom instead of a full-width strip.
+   Pages with a research trail keep the full-width bar because the trail needs the width. Phones are unchanged. */
+@media (min-width: 981px) {
+  .sod29-root.native-frame:not(:has(.sod29-command-island.has-context-trail)) { --s29-bar-height: 0px; --s29-island-clearance: 92px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) {
+    inset-inline: auto; left: 50%; right: auto; inset-block-end: calc(14px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%); inline-size: max-content; max-inline-size: min(640px, calc(100vw - 200px));
+    min-height: 58px; gap: 10px; padding: 4px 16px; border: 1px solid var(--s29-line-strong); border-radius: 32px;
+    background: color-mix(in srgb, var(--s29-panel) 86%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 70%, transparent), 0 0 0 1px color-mix(in srgb, var(--s29-bar-hue) 10%, transparent);
+  }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone > button > small,
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone .sod29-command-actions > button > small {
+    position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone > button,
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone .sod29-command-actions > button { min-width: 46px; height: 46px; border-radius: 50%; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-now-tab { min-width: 40px; padding: 0 12px; font-size: 13px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-raziel-orb.compact { margin-block: -14px 0; }
+}
