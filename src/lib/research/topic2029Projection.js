@@ -43,7 +43,7 @@ function cleanAttribution(content, source) {
   return [...new Set(values)];
 }
 
-export function buildTopic2029Projection(finding) {
+export function buildTopic2029Projection(finding, { sourceContext = null } = {}) {
   if (!finding || finding.kind !== "convergence" || !clean(finding?.subject?.key)) return null;
 
   const source = topicSourceFact(finding);
@@ -55,6 +55,10 @@ export function buildTopic2029Projection(finding) {
 
   const title = clean(finding?.subject?.label) || CONVERGENCE;
   const slug = clean(source?.slug || finding?.subject?.key);
+  const links = sourceContext?.topicSlug === slug && sourceContext?.access?.scope === "public" && sourceContext?.access?.available !== false
+    ? sourceContext?.links : null;
+  const mergeLinks = (stored, added) => [...(stored || []), ...(added || []).filter((row) =>
+    !(stored || []).some((existing) => existing.slug === row.slug))];
   const description = meaningfulDescription(source, content, title);
   const highlightNumbers = Array.isArray(source?.highlight_numbers)
     ? source.highlight_numbers.map(Number).filter(Number.isFinite)
@@ -89,8 +93,8 @@ export function buildTopic2029Projection(finding) {
     withheld: Boolean(content?.flags?.doNotPublish || finding?.access?.reason === "source-flag:_do_not_publish"),
     content,
     sections,
-    relatedConvergences: Array.isArray(sections.convergenceRefs) ? sections.convergenceRefs : [],
-    relatedPosts: Array.isArray(sections.posts) ? sections.posts : [],
+    relatedConvergences: mergeLinks(sections.convergenceRefs, links?.topics),
+    relatedPosts: mergeLinks(sections.posts, links?.posts),
     phrases: Array.isArray(sections.phrases) ? sections.phrases : [],
     numericClaims: Array.isArray(sections.numericClaims) ? sections.numericClaims : [],
     authoredRows: Array.isArray(sections.rows) ? sections.rows : [],

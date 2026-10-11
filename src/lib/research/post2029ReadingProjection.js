@@ -1,3 +1,4 @@
+import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
 import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
 import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
@@ -176,13 +177,28 @@ function markFz1073RegionHeadings(content = "") {
     );
   }
   for (const region of FZ1073_REGIONS) {
-    const pattern = new RegExp("(<h[1-6][^>]*)(>\\s*)" + region.heading + "(\\s*<\\/h[1-6]>)", "i");
-    html = html.replace(pattern, (match, open, separator, close) => {
-      if (/data-source-heading\s*=/.test(open)) return match;
-      return open + " data-source-heading=\"true\"" + separator + region.heading + close;
+    html = html.replace(/(<h[1-6]\b[^>]*)(>)([\s\S]*?)(<\/h[1-6]>)/gi, (match, open, separator, body, close) => {
+      if (stripTags(body) !== region.heading || /data-source-heading\s*=/.test(open)) return match;
+      // Annotate the attested heading in place, preserving its source markup (including <br>).
+      return open + " data-source-heading=\"true\"" + separator + body + close;
     });
   }
   return html;
+}
+
+// Resolve only regions of the currently loaded Post. This reads the existing Context;
+// it creates no history, source identity or access grant.
+export function resolvePostReadingRegion(projection, context, hash = "") {
+  const regions = projection?.regions || [];
+  const byLocator = (locator) => regions.find((region) => locator === `#source-region-${region.id}`)?.id || null;
+  const fromHash = byLocator(hash);
+  if (fromHash) return fromHash;
+  const post = projection?.post;
+  const samePost = post && context?.subject?.type === "post"
+    && String(context.subject.id) === String(post.id)
+    && (!context.subject.href || context.subject.href.split("#")[0] === `/post/${post.slug}`);
+  if (!samePost) return null;
+  return byLocator(context.selection?.locator);
 }
 function buildFz1073Experience(post, topic363 = null) {
   const href = "/" + "post/" + FZ1073_SLUG;
@@ -193,6 +209,12 @@ function buildFz1073Experience(post, topic363 = null) {
   const tiranSaudi = "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a2%d7%91%d7%a8%d7%aa-%d7%94%d7%90%d7%99%d7%99%d7%9d-%d7%94%d7%9e%d7%a6%d7%a8%d7%99%d7%9d-%d7%98%d7%99%d7%a8%d7%90%d7%9f-%d7%95%d7%a1%d7%a0%d7%a4%d7%99/";
   const iranSaudi = "/סכסוך-בין-איראן-לערב-הסעודית-לפני-הגאו";
   const connections = [
+    ...(isDocumentedIndiaCaptainPost(post) ? [{
+      id: "topic-india-source", label: "הציר ההודי · קפטן סמיט מאצ׳הר", kind: "טופיק",
+      href: "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar",
+      reason: "במקור המצולם הקפטן מתואר כאזרח הודי. מכאן אפשר לפתוח את אותה תמונה בתוך הציר ההודי.",
+      provenanceLabel: "posts:5112 · מקור מצולם",
+    }] : []),
     topic363 ? {
       id: "topic-363",
       label: clean(topic363.title) || "363 — חמישה = המשיח",
@@ -270,6 +292,39 @@ async function fetchFz1073Topic363() {
     .maybeSingle();
   if (error) return null;
   return data || null;
+}
+
+
+export async function resolvePostExperienceConnections(experience, { readPost = getPostBySlug, readTopic = async (slug) => {
+  const { data, error } = await supabase.from("topic_cards_public").select("slug,title").eq("slug", slug).maybeSingle();
+  return error ? null : data;
+} } = {}) {
+  const connections = await Promise.all((experience?.connections || []).map(async (connection) => {
+    const unavailable = () => ({ ...connection, href: null });
+    const rawHref = clean(connection.href);
+    const sourceLocator = rawHref === "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar" ? rawHref.slice(rawHref.indexOf("#")) : "";
+    const href = sourceLocator ? rawHref.slice(0, rawHref.indexOf("#")) : rawHref;
+    if (/^\/2029\/number\/\d+$/.test(href)) return connection;
+    // Never turn an external URL, malformed path or arbitrary route into a Post.
+    if (!href.startsWith("/") || href.startsWith("//") || /[?#]/.test(href)) return unavailable();
+    const parts = href.split("/").filter(Boolean);
+    try {
+      if (parts.length === 2 && parts[0] === "topic") {
+        const topic = await readTopic(decodeURIComponent(parts[1]));
+        const locator = sourceLocator;
+        return topic?.slug ? { ...connection, href: `/topic/${encodeURIComponent(topic.slug)}${locator}` } : unavailable();
+      }
+      const slug = parts.length === 2 && parts[0] === "post" ? parts[1]
+        : parts.length === 1 && !["world", "els", "heichal", "books", "2029"].includes(parts[0]) ? parts[0] : null;
+      if (!slug) return unavailable();
+      decodeURIComponent(slug); // Validate before invoking the existing reader.
+      const post = await readPost(slug);
+      return post?.id && post?.slug
+        ? { ...connection, href: `/post/${encodeURIComponent(post.slug)}` }
+        : unavailable();
+    } catch { return unavailable(); }
+  }));
+  return { ...experience, connections };
 }
 
 
@@ -637,7 +692,7 @@ export async function fetchPost2029ReadingProjection(slug) {
       }));
 
   const projectedExperience = projectPost2029Experience(presentationPost);
-  const experience = isGolden
+  const baseExperience = isGolden
     && !projectedExperience.media
     && projectedExperience.connections.length === 0
     && projectedExperience.timeline.length === 0
@@ -645,6 +700,11 @@ export async function fetchPost2029ReadingProjection(slug) {
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
 
+  // Only the new source link is resolved here; preserve the other main Post routes.
+  const sourceLinks = baseExperience.connections.filter((row) => row.id === "topic-india-source");
+  const resolved = await resolvePostExperienceConnections({ connections: sourceLinks });
+  const experience = { ...baseExperience, connections: baseExperience.connections.map((row) =>
+    row.id === "topic-india-source" ? resolved.connections[0] : row) };
   const contextPack = await fetchGoldenContextPack(post);
 
   return {
