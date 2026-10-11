@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
+import { prepareElsAdvancedBatch, runElsAdvancedBatch } from "../../lib/research/elsAdvancedBatch.js";
 
 const initialForm = { term: "", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "20" };
 
@@ -10,6 +11,8 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
   const [query, setQuery] = useState(null);
   const [pages, setPages] = useState([]);
   const [cursor, setCursor] = useState(null);
+  const [related, setRelated] = useState("");
+  const [batch, setBatch] = useState(null);
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(null);
   const [notice, setNotice] = useState("");
@@ -17,7 +20,7 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
   const edit = (field, value) => {
     revision.current += 1;
     setForm(current => ({ ...current, [field]: value }));
-    setQuery(null); setPages([]); setCursor(null); setNotice(""); setBusy(false); setSelecting(null);
+    setQuery(null); setPages([]); setCursor(null); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
   };
   const search = async (more = false) => {
     const source = more ? query : form;
@@ -25,7 +28,7 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
     if (built.error) { setNotice(built.error); return; }
     const seq = ++revision.current;
     setBusy(true); setNotice("");
-    if (!more) { setQuery({ ...form }); setPages([]); setCursor(null); }
+    if (!more) { setQuery({ ...form }); setPages([]); setCursor(null); setBatch(null); }
     try {
       const response = await supabase.functions.invoke("els-search-bridge", { body: built.request });
       if (seq !== revision.current) return;
@@ -36,6 +39,27 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
       if (!page.projection.occurrences.length && !more) setNotice("לא נמצאו מופעים בטווח המבוקש. אפשר להרחיב את טווח הדילוגים ולחפש שוב.");
     } catch (error) {
       if (seq === revision.current) setNotice(`החיפוש לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
+    } finally {
+      if (seq === revision.current) setBusy(false);
+    }
+  };
+  const searchBatch = async () => {
+    const plan = prepareElsAdvancedBatch({ axis: form.term, related, scope: form.scope,
+      skipMin: form.skipMin, skipMax: form.skipMax, pageSize: form.pageSize });
+    if (plan.error) { setNotice(plan.error); return; }
+    const seq = ++revision.current;
+    setBusy(true); setNotice(""); setBatch(null); setPages([]); setCursor(null); setQuery({ ...form });
+    try {
+      const result = await runElsAdvancedBatch({ plan, invokePage: async request => {
+        if (seq !== revision.current) throw new Error("cancelled");
+        return supabase.functions.invoke("els-search-bridge", { body: request });
+      } });
+      if (seq !== revision.current) return;
+      if (result.error) { setNotice(result.error); return; }
+      setBatch(result);
+      if (result.scan.stop !== "COMPLETE") setNotice(`הסריקה נעצרה בתקציב ${result.scan.stop}; מוצגות רק התוצאות שהושלמו.`);
+    } catch (error) {
+      if (seq === revision.current) setNotice(`חיפוש המונחים לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
       if (seq === revision.current) setBusy(false);
     }
@@ -63,7 +87,7 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
       {[[2, 80, "קרוב"], [81, 200, "בינוני"], [201, 500, "רחוק"]].map(([min, max, label]) =>
         <button key={label} type="button" className="sod29-action" onClick={() => {
           revision.current += 1; setForm(current => ({ ...current, skipMin: String(min), skipMax: String(max) }));
-          setQuery(null); setPages([]); setCursor(null); setNotice(""); setBusy(false);
+          setQuery(null); setPages([]); setCursor(null); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
         }}>{label} · {min}–{max}</button>)}
     </div>
     <form onSubmit={event => { event.preventDefault(); search(false); }} className="sod29-actions" style={{ flexWrap: "wrap", alignItems: "end", gap: 10 }}>
@@ -75,6 +99,17 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
       <button className="sod29-action primary" type="submit" disabled={busy || !!selecting}>חפש בטווח</button>
     </form>
     <p className="sod29-muted">החיפוש רץ רק בלחיצה. תוצאות נוספות נטענות בדפים, וכל מופע נבדק שוב לפני פתיחתו במטריצה.</p>
+    <details>
+      <summary>בדיקת ציר ומילות המשך באותו טווח</summary>
+      <p className="sod29-muted">כתבו מונח ראשי בשדה שמעל, ועוד אחת עד שלוש מילים כאן. לכל מילה נבדק דף מוגבל; הרשימה אינה טענה להצלבה או למובהקות.</p>
+      <label>מילות המשך, אחת בשורה או מופרדות בפסיק
+        <textarea aria-label="מילות המשך למחקר" value={related} onChange={event => {
+          revision.current += 1; setRelated(event.target.value); setBatch(null); setNotice(""); setBusy(false); setSelecting(null);
+        }} rows={3} placeholder="אמת, חסד" />
+      </label>
+      <div className="sod29-actions"><button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchBatch}>בדוק את כל המונחים</button>
+        <span className="sod29-muted">עד ארבע קריאות · דף אחד למונח · ללא חיפוש אוטומטי</span></div>
+    </details>
     {notice ? <p role="status">{notice}</p> : null}
     {busy ? <p role="status">מחפש מופעים במנוע הקנוני…</p> : null}
     {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
@@ -84,6 +119,21 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
         </button>
       </li>))}</ol>
       {cursor ? <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => search(true)}>טען תוצאות נוספות</button> : null}
+    </div> : null}
+    {batch ? <div aria-label="תוצאות מחקר רב־מונחי">
+      {batch.rows.map(row => <section key={row.term} aria-label={`תוצאות ${row.term}`}>
+        <h4><bdi>{row.term}</bdi> · {row.count} מופעים בדף</h4>
+        <p className="sod29-muted">{row.error ? `החיפוש נכשל: ${row.error}`
+          : row.truncated ? "יש עוד תוצאות למונח הזה; נבדק דף אחד בלבד."
+            : row.count === 0 ? "לא נמצאו מופעים בטווח שנבדק."
+              : "החיפוש הושלם בטווח שנבדק."}</p>
+        {row.projection?.occurrences.length ? <ol>{row.projection.occurrences.map(hit => <li key={hit.occurrenceId}>
+          <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, row.projection)}>
+            דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
+          </button>
+        </li>)}</ol> : null}
+      </section>)}
+      <p className="sod29-muted">השוואה זו מציגה מופעים נפרדים. לבדיקת הצטלבות במטריצה בחרו ציר ואז השתמשו בכלי ההצלבה הקיים.</p>
     </div> : null}
   </section>;
 }

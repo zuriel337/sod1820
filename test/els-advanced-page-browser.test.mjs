@@ -40,6 +40,14 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     assert.equal(await page.evaluate(() => window.__advancedLoad?.hitId), "86_1_1200");
     await page.getByRole("button", { name: /מחקר/ }).first().click();
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").inputValue(), "תורתאמת");
+    await page.getByText("בדיקת ציר ומילות המשך באותו טווח").click();
+    await page.getByLabel("מילות המשך למחקר").fill("אמת");
+    await page.getByRole("button", { name: "בדוק את כל המונחים" }).click();
+    await page.getByLabel("תוצאות אמת").getByRole("button", { name: /דילוג 86/ }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.term === "אמת");
+    const batchCalls = await page.evaluate(() => window.__advancedCalls.slice(2));
+    assert.deepEqual(batchCalls.map(call => call.body.op), ["page", "page", "verify"]);
+    assert.deepEqual(batchCalls.filter(call => call.body.op === "page").map(call => call.body.term), ["תורתאמת", "אמת"]);
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
