@@ -50,9 +50,10 @@ export function libraryFixturePlugin() {
     'ResearchProvider.jsx': `const research={context:null,updateResearchContext:()=>{}};export const useResearch=()=>research;`,
     'Sod2029Shell.jsx': `import React from 'react';export default function Shell({children}){return React.createElement('main',{className:'sod29-root',style:{padding:16}},children);}
       export const FrameState=({title,children})=>React.createElement('section',null,React.createElement('h2',null,title),children);export const use2029Shell=()=>({});`,
-    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,onSearchStart,onSaved}){
+    'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,researchProbe,onResearchProbeResult,onSearchStart,onSaved}){
       window.__libraryMatrix=matrix;window.__advancedLoad=researchLoad;const [query,setQuery]=useState('');
       useEffect(()=>{window.__libraryEngineMounts=(window.__libraryEngineMounts||0)+1;},[]);
+      useEffect(()=>{if(researchProbe)onResearchProbeResult?.({requestId:researchProbe.requestId,ok:true,term:researchProbe.term,scope:researchProbe.scope,skip:researchProbe.skip,dir:1,start:50890,hitId:researchProbe.skip+'_1_50890',corpusId:'fixture-torah'});},[researchProbe?.requestId]);
       return React.createElement('div',{'data-fixture-matrix':matrix?.id||'new'},
         React.createElement('input',{'aria-label':'טיוטת חיפוש',value:query,onChange:e=>setQuery(e.target.value)}),
         React.createElement('button',{onClick:onSearchStart},'חיפוש לדוגמה'),

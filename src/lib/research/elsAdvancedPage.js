@@ -53,3 +53,13 @@ export function buildElsAdvancedLoadItem(selection, projection) {
     hitId: `${selection.skip}_${selection.dir}_${selection.start}`, words: [],
   };
 }
+
+// A user-chosen skip has no arbitrary 500 ceiling. The canonical iframe discovers and verifies
+// the first available occurrence at that skip; this is not an exhaustive page of all hits.
+export function buildElsExactSkipProbe(form, requestId) {
+  const term = String(form?.term || "").trim();
+  const skip = integer(form?.skip);
+  if (term.replace(/[^א-ת]/g, "").length < 2) return { error: "הזינו מונח עברי של שתי אותיות לפחות." };
+  if (!Number.isSafeInteger(skip) || skip < 2) return { error: "הזינו דילוג שלם וחיובי מ־2 ומעלה." };
+  return { request: { term, scope: form?.scope === "tanakh" ? "tanakh" : "torah", skip, requestId } };
+}

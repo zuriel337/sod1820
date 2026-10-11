@@ -1,22 +1,24 @@
 import React, { useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
-import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
+import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
 import { prepareElsAdvancedBatch, runElsAdvancedBatch } from "../../lib/research/elsAdvancedBatch.js";
 
 const initialForm = { term: "", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "20" };
 
-export default function ElsAdvancedSearch2029({ onLoad }) {
+export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, exactStatus = "idle" }) {
   const [form, setForm] = useState(initialForm);
   const [query, setQuery] = useState(null);
   const [pages, setPages] = useState([]);
   const [cursor, setCursor] = useState(null);
   const [related, setRelated] = useState("");
+  const [exactSkip, setExactSkip] = useState("");
   const [batch, setBatch] = useState(null);
   const [busy, setBusy] = useState(false);
   const [selecting, setSelecting] = useState(null);
   const [notice, setNotice] = useState("");
   const revision = useRef(0);
+  const exactRequestId = useRef(0);
   const edit = (field, value) => {
     revision.current += 1;
     setForm(current => ({ ...current, [field]: value }));
@@ -64,6 +66,12 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
       if (seq === revision.current) setBusy(false);
     }
   };
+  const searchExactSkip = () => {
+    const built = buildElsExactSkipProbe({ term: form.term, scope: form.scope, skip: exactSkip }, ++exactRequestId.current);
+    if (built.error) { setNotice(built.error); return; }
+    revision.current += 1; setBusy(false); setSelecting(null); setNotice("");
+    onExactSkip?.(built.request);
+  };
   const select = async (occurrence, projection) => {
     const selection = buildElsAdvancedSelection(occurrence, projection, query?.scope);
     if (!selection) { setNotice("אי אפשר לבחור מופע בלי זהות מלאה."); return; }
@@ -100,6 +108,12 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
     </form>
     <p className="sod29-muted">החיפוש רץ רק בלחיצה. תוצאות נוספות נטענות בדפים, וכל מופע נבדק שוב לפני פתיחתו במטריצה.</p>
     <details>
+      <summary>חיפוש בדילוג מדויק ללא תקרת 500</summary>
+      <p className="sod29-muted">הזינו מונח למעלה ודילוג מסוים, למשל 1820 או 10065. המנוע הקנוני יחפש מופע בדילוג הזה ויאמת אותו לפני הצגה. זה אינו סיכום של כל המופעים האפשריים בדילוג.</p>
+      <div className="sod29-actions"><label>דילוג מדויק <input aria-label="דילוג מדויק ללא תקרת 500" type="number" min="2" step="1" value={exactSkip} onChange={event => setExactSkip(event.target.value)} /></label>
+        <button type="button" className="sod29-action" onClick={searchExactSkip}>פתח דילוג מדויק</button></div>
+    </details>
+    <details>
       <summary>בדיקת ציר ומילות המשך באותו טווח</summary>
       <p className="sod29-muted">כתבו מונח ראשי בשדה שמעל, ועוד אחת עד שלוש מילים כאן. לכל מילה נבדק דף מוגבל; הרשימה אינה טענה להצלבה או למובהקות.</p>
       <label>מילות המשך, אחת בשורה או מופרדות בפסיק
@@ -111,6 +125,9 @@ export default function ElsAdvancedSearch2029({ onLoad }) {
         <span className="sod29-muted">עד ארבע קריאות · דף אחד למונח · ללא חיפוש אוטומטי</span></div>
     </details>
     {notice ? <p role="status">{notice}</p> : null}
+    {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>
+      : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
+        : exactStatus === "probing" ? <p role="status">מחפש ומאמת מופע במנוע הקנוני…</p> : null}
     {busy ? <p role="status">מחפש מופעים במנוע הקנוני…</p> : null}
     {pages.length ? <div aria-label="מופעי החיפוש המתקדם"><p>{count} מופעים נטענו{cursor ? " · יש תוצאות נוספות" : " · סוף התוצאות בטווח"}</p>
       <ol>{pages.flatMap(page => page.projection.occurrences.map(hit => <li key={hit.occurrenceId}>

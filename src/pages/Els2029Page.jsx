@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
@@ -130,7 +130,26 @@ export default function Els2029Page() {
   });
   const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
   const [researchLoad, setResearchLoad] = useState(null);
-  useEffect(() => { setResearchLoad(null); }, [cipherSlug, recordId]);
+  const [researchProbe, setResearchProbe] = useState(null);
+  const [exactStatus, setExactStatus] = useState("idle");
+  const pendingProbeRef = useRef(null);
+  useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
+  const requestExactSkip = request => {
+    pendingProbeRef.current = request.requestId;
+    setExactStatus("probing");
+    setResearchProbe(request);
+  };
+  const receiveExactSkip = result => {
+    if (result.requestId !== pendingProbeRef.current) return;
+    pendingProbeRef.current = null;
+    setResearchProbe(null);
+    if (!result.ok || !Number.isSafeInteger(result.start) || ![1, -1].includes(result.dir) || !result.corpusId) {
+      setExactStatus("failed"); return;
+    }
+    setExactStatus("verified");
+    setResearchLoad({ term: result.term, scope: result.scope, skip: result.skip, dir: result.dir,
+      start: result.start, hitId: result.hitId, corpusId: result.corpusId, words: [], researchNonce: result.requestId });
+  };
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
   const [classicSeed] = useState(() => clean(selection?.term || subject?.label || ""));
@@ -229,7 +248,7 @@ export default function Els2029Page() {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <div hidden={!researchProfile}><ElsAdvancedSearch2029 onLoad={setResearchLoad} /></div>
+    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
@@ -261,7 +280,7 @@ export default function Els2029Page() {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
       </section>
 

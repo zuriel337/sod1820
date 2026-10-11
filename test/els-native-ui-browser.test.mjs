@@ -76,6 +76,8 @@ window.__findingColors={findingColorChoices,projectFindingColor,nextFindingColor
 function Fixture(){
 const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
 const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix;window.__fixtureMatrix=matrix;
+const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
+const [researchProbe,setResearchProbe]=React.useState(null);window.__probeResearch=setResearchProbe;
 const palette=resolve2029Palette(useThemePreset(),'research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
 const style={fontFamily:'Arial',color:palette.ink,background:palette.pageBg,minHeight:'100vh',padding:12};
@@ -90,7 +92,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -1587,6 +1589,25 @@ test('native form: crossing terms stay adjacent before the shared submit on mobi
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   if(process.env.ELS_SCREENSHOT_DIR)await form.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`cross-form-${width}.png`)});
  });
+});
+
+test('Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic',
+ {skip:!canRun,timeout:90000},async()=>{
+ await withNative({width:1440,height:1000},async page=>{
+  await page.evaluate(()=>window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:10065,requestId:1}));
+  await page.waitForFunction(()=>window.__probeResult?.requestId===1,null,{timeout:60000});
+  await page.waitForFunction(()=>window.__state?.status==='ok'&&window.__state?.axis?.skip===10065,null,{timeout:60000});
+  assert.equal(await page.evaluate(()=>window.__probeResult?.ok),true);
+  assert.equal(await page.evaluate(()=>window.__state.axis.hitId),'10065_1_50890');
+  assert.equal(await page.evaluate(()=>window.__state.verification.state),'MATCH');
+  await page.evaluate(()=>window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:400000,requestId:2}));
+  await page.waitForFunction(()=>window.__probeResult?.requestId===2);
+  assert.equal(await page.evaluate(()=>window.__probeResult.ok),false,'no-hit probe does not claim success');
+  assert.equal(await page.evaluate(()=>window.__state.axis.hitId),'10065_1_50890','no-hit probe preserves the current matrix');
+  await page.evaluate(()=>window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:400000,requestId:3}));
+  await page.waitForFunction(()=>window.__probeResult?.requestId===3);
+  assert.equal(await page.evaluate(()=>window.__probeResult.ok),false,'retry of same skip remains a new failed request');
+ },{realHost:true,loadGolden:false});
 });
 
 test('native folder: bounded recent cards, collapse, save refresh and library return preserve the workspace',

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsAdvancedLoadItem, projectElsAdvancedPage } from "./elsAdvancedPage.js";
+import { buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsAdvancedLoadItem, buildElsExactSkipProbe, projectElsAdvancedPage } from "./elsAdvancedPage.js";
 
 const form = { term: "תורתאמת", scope: "torah", skipMin: "81", skipMax: "200", pageSize: "20" };
 
@@ -36,4 +36,11 @@ test("only a canonical page yields selectable occurrences and continuation", () 
   const brokenContinuation = structuredClone(response);
   brokenContinuation.data.result.completion.continuation = null;
   assert.match(projectElsAdvancedPage(brokenContinuation).error, /סמן המשך/);
+});
+
+test("exact skip uses canonical matrix load without the paged bridge's 500 ceiling", () => {
+  const first = buildElsExactSkipProbe({ term: "תורה קדשה", scope: "torah", skip: "10065" }, 1);
+  assert.deepEqual(first.request, { term: "תורה קדשה", scope: "torah", skip: 10065, requestId: 1 });
+  assert.equal(buildElsExactSkipProbe({ term: "תורה קדשה", scope: "torah", skip: "10065" }, 2).request.requestId, 2);
+  for (const skip of ["", "1", "2.5", "9007199254740992"]) assert.ok(buildElsExactSkipProbe({ term: "תורה", skip }).error);
 });

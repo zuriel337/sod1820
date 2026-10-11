@@ -48,6 +48,12 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     const batchCalls = await page.evaluate(() => window.__advancedCalls.slice(2));
     assert.deepEqual(batchCalls.map(call => call.body.op), ["page", "page", "verify"]);
     assert.deepEqual(batchCalls.filter(call => call.body.op === "page").map(call => call.body.term), ["תורתאמת", "אמת"]);
+    await page.getByText("חיפוש בדילוג מדויק ללא תקרת 500").click();
+    await page.getByLabel("דילוג מדויק ללא תקרת 500").fill("10065");
+    await page.getByRole("button", { name: "פתח דילוג מדויק" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.skip === 10065);
+    assert.equal(await page.evaluate(() => window.__advancedLoad.start), 50890);
+    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 5, "exact skip goes through the mounted engine, not a >500 page request");
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
