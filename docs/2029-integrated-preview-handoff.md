@@ -125,9 +125,8 @@ exact final commit, hosted verification and deployment in `work_log` AFTER.
 
 ## Still open
 
-This Preview does not close G4. Posts' native returned selection can display 363
-after a flight 1073 return: continuity survives, but the exact visual post region
-still needs its existing owner. Live Raziel learning, account saves and public
+This Preview does not close G4. The Posts continuation below addresses the earlier
+1073-to-363 return gap in this isolated composition. Live Raziel learning, account saves and public
 curated journeys are not established by this Preview. ELS fixes are branch source,
 not proof that production or its migration changed. Community's complete source
 branch was not delivered here and is excluded. Home/World design remains for human
@@ -136,3 +135,45 @@ review; Kingdom placement remains a product decision.
 Continue through **World → Posts → Heichal**, with P0/G1 in their existing lanes.
 Do not add Kingdom scope to World closure or repeat the corpus scans. Review this
 working composition first; merge and production require separate authorization.
+
+## Posts continuation — existing reader and Context
+
+Continues `GOLDEN_POSTS_POST_ONLY_RECONCILE_V2` on the same isolated Preview branch.
+The canonical Posts owner is retained; GPT implements this bounded consumer slice
+under ZURIEL's instruction to move from World to Posts. BEFORE:
+`359ebc80-9053-4523-92f0-08fd41c590c8`. No agent activation/recipient ACK is claimed.
+
+- The currently loaded Post resolves a saved native region from its existing
+  ResearchContext or a valid source hash, instead of resetting to its first region.
+  Return/reload scrolls to that heading, and passive observation resumes on reader
+  interaction. Other-Post or unknown saved regions cannot supply a restored selection.
+- The flight reader annotates existing nested-markup headings without replacing
+  their words or markup. The native 75 → 750 → 7500 heading is now reachable.
+- Post-only title sizing and number-button containment avoid overlapping signals;
+  no shared SystemFrame/World/ELS presentation was changed.
+- The existing index labels modification as “עודכן” rather than implying an event
+  date. A calibration tag no longer asserts “מומלץ”; the count is available posts.
+- Public Post5107 was published by its existing content lane, not by this change.
+  Its Netanyahu77/Mazal source section is read as published; original source rows,
+  media, tags, publication metadata, calculations and graph remain unchanged.
+
+Verification uses the existing Home→World→captain source→Post5112→Number1073→
+explicit guest Path→Frame exact return→reload acceptance at1440/390. It now asserts
+both saved selection and an actual native heading in the viewport, rather than
+recording this as a nonfatal gap. A separate public-reader browser harness covers
+the index, elections77, flight, Bennett, number-text containment and trust-region
+hash/reload at both widths. Focused tests also reject stale/cross-Post context and
+verify source-markup preservation. Product builds and Frame/isolation checks pass.
+
+Commands:
+`node --test test/post2029-region-return.test.mjs test/post2029-expression-focus-not-raziel.test.mjs test/post2029-elections-chain-golden.test.mjs src/lib/research/researchExactReturn.test.js src/lib/research/journeySourceReturn.test.js`,
+`npm run build`, `node scripts/build-integrated-preview.mjs`,
+`node scripts/test-posts-connected-preview.mjs`,
+`node scripts/test-home-world-flight-preview.mjs` (browser env paths as in the existing handoff).
+The coordinator's AFTER binds the final SHA, immutable hosted Preview and final
+hosted receipts. Earlier local receipts describe the working tree, not a main release.
+
+Still pending: Human review of the Posts/World presentation, complete public
+curated journeys, live Raziel learning, corpus interpretation coverage, and G4.
+This slice proves native Post-region return; it does not add video-time seeking.
+No merge, production deployment, migration, live AI or product-data write occurred.

@@ -176,13 +176,28 @@ function markFz1073RegionHeadings(content = "") {
     );
   }
   for (const region of FZ1073_REGIONS) {
-    const pattern = new RegExp("(<h[1-6][^>]*)(>\\s*)" + region.heading + "(\\s*<\\/h[1-6]>)", "i");
-    html = html.replace(pattern, (match, open, separator, close) => {
-      if (/data-source-heading\s*=/.test(open)) return match;
-      return open + " data-source-heading=\"true\"" + separator + region.heading + close;
+    html = html.replace(/(<h[1-6]\b[^>]*)(>)([\s\S]*?)(<\/h[1-6]>)/gi, (match, open, separator, body, close) => {
+      if (stripTags(body) !== region.heading || /data-source-heading\s*=/.test(open)) return match;
+      // Annotate the attested heading in place, preserving its source markup (including <br>).
+      return open + " data-source-heading=\"true\"" + separator + body + close;
     });
   }
   return html;
+}
+
+// Resolve only regions of the currently loaded Post. This reads the existing Context;
+// it creates no history, source identity or access grant.
+export function resolvePostReadingRegion(projection, context, hash = "") {
+  const regions = projection?.regions || [];
+  const byLocator = (locator) => regions.find((region) => locator === `#source-region-${region.id}`)?.id || null;
+  const fromHash = byLocator(hash);
+  if (fromHash) return fromHash;
+  const post = projection?.post;
+  const samePost = post && context?.subject?.type === "post"
+    && String(context.subject.id) === String(post.id)
+    && (!context.subject.href || context.subject.href.split("#")[0] === `/post/${post.slug}`);
+  if (!samePost) return null;
+  return byLocator(context.selection?.locator);
 }
 function buildFz1073Experience(post, topic363 = null) {
   const href = "/" + "post/" + FZ1073_SLUG;

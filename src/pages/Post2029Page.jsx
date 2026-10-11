@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion } from "../lib/research/post2029ReadingProjection.js";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -19,16 +19,21 @@ const normalize = (value) => String(value || "")
 
 function PostReadingBody() {
   const { slug } = useParams();
+  const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
   const sourceRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
+  const entryRef = useRef(null);
+  entryRef.current = { context: research.context, hash: location.hash };
+  const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
 
   useEffect(() => {
     let live = true;
     explicitGematriaFocusRef.current = null;
+    restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
       .then((projection) => {
@@ -38,7 +43,9 @@ function PostReadingBody() {
           projection,
           error: projection ? null : "הפוסט לא נמצא",
         });
-        setActiveRegionId(projection?.defaultRegionId || null);
+        const restored = resolvePostReadingRegion(projection, entryRef.current?.context, entryRef.current?.hash);
+        restoredRegionRef.current = restored;
+        setActiveRegionId(restored || projection?.defaultRegionId || null);
       })
       .catch((error) => {
         if (live) setState({ loading: false, projection: null, error: error?.message || "טעינת הפוסט נכשלה" });
@@ -94,19 +101,45 @@ function PostReadingBody() {
       heading.id = `source-region-${region.id}`;
       mapped.push({ region, heading });
     }
-    if (!mapped.length || typeof IntersectionObserver === "undefined") return undefined;
+    const requested = resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
+    const restored = mapped.find(({ region }) => region.id === requested);
+    let frame = null;
+    if (restored) {
+      restoredRegionRef.current = restored.region.id;
+      setActiveRegionId(restored.region.id);
+      restored.heading.tabIndex = -1;
+      frame = requestAnimationFrame(() => {
+        restored.heading.scrollIntoView({ behavior: "instant", block: "start" });
+        restored.heading.focus({ preventScroll: true });
+      });
+    } else if (requested) {
+      // A stale saved region is not proof that its source anchor still exists.
+      restoredRegionRef.current = null;
+      setActiveRegionId(mapped[0]?.region.id || state.projection.defaultRegionId || null);
+    }
+    // Programmatic restoration must not let an adjacent heading overwrite the saved
+    // selection. Resume passive reading focus when the reader starts scrolling.
+    const resumeReading = (event) => {
+      if (event.type === "keydown" && !["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) return;
+      restoredRegionRef.current = null;
+    };
+    for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.addEventListener(event, resumeReading, { passive: true });
 
-    const observer = new IntersectionObserver((entries) => {
+    const observer = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver((entries) => {
       const visible = entries
         .filter((entry) => entry.isIntersecting)
         .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
       const id = visible?.target?.dataset?.readingRegion;
-      if (id) setActiveRegionId(id);
+      if (id && !restoredRegionRef.current) setActiveRegionId(id);
     }, { rootMargin: "-16% 0px -68% 0px", threshold: [0, 1] });
 
-    mapped.forEach(({ heading }) => observer.observe(heading));
-    return () => observer.disconnect();
-  }, [state.projection, regions]);
+    mapped.forEach(({ heading }) => observer?.observe(heading));
+    return () => {
+      observer?.disconnect();
+      if (frame != null) cancelAnimationFrame(frame);
+      for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.removeEventListener(event, resumeReading);
+    };
+  }, [state.projection, regions, location.hash]);
 
   useEffect(() => {
     // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions
@@ -603,6 +636,7 @@ function PostReadingBody() {
           type="button"
           className={region.id === activeFocus?.id ? "is-active" : ""}
           onClick={() => {
+            restoredRegionRef.current = null;
             setActiveRegionId(region.id);
             document.getElementById(`source-region-${region.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
           }}

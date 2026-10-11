@@ -70,12 +70,14 @@ for(const theme of themes) for(const width of widths){
  await returnFrame();
  await page.waitForURL(u=>u.pathname.startsWith('/post/'));await page.locator('[data-post-slug]').waitFor({timeout:90000});
  assert.equal((await current()).journey.root.id,root);
- const returned=await current();
- if(returned.selection?.locator !== '#source-region-flight-1073') receipt.ownerGaps.push({width,owner:'Posts',gap:'Post mount resets the returned flight-1073 selection',actualLocator:returned.selection?.locator});
- const nativeRegion=await page.locator('#source-region-flight-1073').count();
- if(!nativeRegion) receipt.ownerGaps.push({width,owner:'Posts',gap:'Stored post_region locator has no native rendered anchor; exact source-region/video return pending.'});
+ await page.locator('#source-region-flight-1073').waitFor();
+ await page.waitForFunction(()=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest'))?.selection?.locator === '#source-region-flight-1073');
+ assert.equal((await current()).subject.id,'5112');
+ await page.waitForFunction(()=>{const r=document.getElementById('source-region-flight-1073')?.getBoundingClientRect();return r&&r.top>=80&&r.bottom<innerHeight-100;});
  await capture('return-post');
- await page.reload({waitUntil:'domcontentloaded'});await page.locator('[data-post-slug]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
+ await page.reload({waitUntil:'domcontentloaded'});await page.locator('#source-region-flight-1073').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
+ assert.equal((await current()).selection.locator,'#source-region-flight-1073');
+ await page.waitForFunction(()=>{const r=document.getElementById('source-region-flight-1073')?.getBoundingClientRect();return r&&r.top>=80&&r.bottom<innerHeight-100;});
  // Re-open a raw public source from Home while the temporary Path is active.
  await page.goto(`${base}/2029`,{waitUntil:'domcontentloaded'});
  await page.locator('[data-flight-story=home]').waitFor({timeout:90000});
@@ -86,7 +88,7 @@ for(const theme of themes) for(const width of widths){
  await capture('raw-source-return-context');
  await returnFrame();
  await page.waitForURL(u=>u.pathname==='/2029');await page.locator('[data-flight-story=home]').waitFor({timeout:90000});assert.equal((await current()).journey.root.id,root);
- receipt.cases.push({width,theme,rawSourceHomeWorldReturn:true,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),journeySurvivesReload:true});
+ receipt.cases.push({width,theme,rawSourceHomeWorldReturn:true,homeWorldPost:true,sourceIdentity:identity,originalImage:true,publicSources:true,explicitJourney:true,returnHref,actualReturn:page.url(),exactNativePostRegionReturn:true,journeySurvivesReload:true});
  await context.close();
 }
 assert.deepEqual(receipt.errors,[]);

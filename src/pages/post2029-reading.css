@@ -36,8 +36,8 @@
 .sod29-reading-hero h1{
   margin:14px 0 12px;
   max-width:940px;
-  font-size:clamp(38px,6.2vw,76px);
-  line-height:1.02;
+  font-size:clamp(30px,3.5vw,48px);
+  line-height:1.18;
   letter-spacing:-.035em;
   text-wrap:balance;
 }
@@ -334,7 +334,7 @@
 
 @media(max-width:390px){
   .sod29-reading-post{width:calc(100% - 12px)}
-  .sod29-reading-hero h1{font-size:38px}
+  .sod29-reading-hero h1{font-size:30px}
   .sod29-reading-deck{font-size:15px}
   .sod29-reading-source{padding:24px 17px 36px;border-radius:20px}
   .sod29-reading-source p{font-size:16px;line-height:1.95}
@@ -1299,4 +1299,25 @@
   object-fit:contain;
   border-radius:12px;
   background:#050505;
+}
+
+/* The signal must fit its own button, including a four-digit number in a narrow rail. */
+.sod29-reading-post[data-post-slug] .sod29-reading-number-signal:nth-child(n){
+  container-type:inline-size;
+  min-inline-size:72px;
+}
+.sod29-reading-post[data-post-slug] .sod29-reading-number-signal strong{
+  font-size:clamp(20px,25cqw,38px);
+  letter-spacing:0;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.sod29-reading-source [data-reading-region]{
+  scroll-margin-top:max(130px,18vh);
+}
+.sod29-reading-post[data-post-slug] .sod29-reading-number-constellation{
+  width:100%;
+}
+.sod29-reading-post[data-post-slug="bennett-melach-631-78"] .sod29-reading-number-constellation{
+  display:grid;
 }

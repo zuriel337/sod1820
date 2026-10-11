@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { getPostsFromSupabase } from "../lib/supabase.js";
@@ -40,12 +40,11 @@ function PostIndexCard({ post, index }) {
           {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
         </div> : null}
         <div className="sod29-post-index-visual-wash" />
-        {golden ? <span className="sod29-post-index-golden-mark">מומלץ</span> : null}
       </div>
 
       <div className="sod29-post-index-copy">
         <div className="sod29-post-index-meta">
-          <span>{formatDateHe(post?.modified || post?.date)}</span>
+          <span>{post?.modified ? "עודכן " : "פורסם "}{formatDateHe(post?.modified || post?.date)}</span>
           {categories.map((category) => <span key={category}>{category}</span>)}
         </div>
         <h2>{title || "פוסט"}</h2>
@@ -84,26 +83,21 @@ export default function Posts2029Page() {
     return () => { live = false; };
   }, []);
 
-  const goldenCount = useMemo(
-    () => state.posts.filter(isGoldenPost).length,
-    [state.posts],
-  );
-
-  return <Sod2029Shell surface="post" symbol="✦" status="Posts 2029 · GOLDEN">
+  return <Sod2029Shell surface="post" symbol="✦" status="פוסטים">
     <main className="sod29-posts-index" data-experience-surface="posts-index">
       <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
-        <div className="sod29-posts-index-eyebrow">עדכונים · סיפורים · מחקר חי</div>
+        <div className="sod29-posts-index-eyebrow">אירועים · סיפורים · רמזים</div>
         <div className="sod29-posts-index-hero-grid">
           <div>
             <h1>הפוסטים</h1>
             <p>
-              כל פוסט הוא שער אחד לתוך אותה מציאות: המקור במרכז, המספרים והחיבורים סביבו,
-              והדרך לעומק נשארת פתוחה בלי לערבב מקור עם פרשנות.
+              סיפור אחד יכול לפתוח כמה כיווני גילוי: אנשים, מקומות, מספרים ומקורות.
+              בוחרים חיבור וממשיכים ממנו.
             </p>
           </div>
-          <div className="sod29-posts-index-orbit" aria-label="פוסטים מובילים">
-            <strong>{goldenCount || "—"}</strong>
-            <span>פוסטים מובילים</span>
+          <div className="sod29-posts-index-orbit" aria-label="פוסטים זמינים">
+            <strong>{state.total || "—"}</strong>
+            <span>פוסטים זמינים</span>
             <small>התצוגה כאן היא מבט על הפוסטים; התוכן נשאר של כותביו.</small>
           </div>
         </div>
