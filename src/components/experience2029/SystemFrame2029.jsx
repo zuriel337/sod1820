@@ -1345,6 +1345,26 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
   );
 }
 
+// The visual comparison folds context independently from decorative intros.
+// Context data and navigation continue to come from the existing ResearchProvider.
+function IntroResearchContext2029({ context }) {
+  const strip = <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
+    {context.lens ? <span>מבט · {context.lens}</span> : null}
+    {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
+    {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
+  </div>;
+  const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
+    && /^[1-8]$/.test(new URLSearchParams(window.location.search).get("visual") || "");
+  if (!review) return strip;
+  const arrivingWithContext = Boolean(context.selection?.locator || context.journey || context.returnTo?.href);
+  const arrivalKey = [context.subject?.id, context.selection?.locator, context.journey?.position, context.returnTo?.href].join("|");
+  return <details className="sod29-review-context" key={arrivalKey} open={arrivingWithContext}>
+    <summary>ההקשר המחקרי</summary>
+    {strip}
+  </details>;
+}
+
 export default function SystemFrame2029({
   title,
   eyebrow,
@@ -1979,12 +1999,7 @@ export default function SystemFrame2029({
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context && surface !== "number" ? <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-                      {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
-                      {context.lens ? <span>מבט · {context.lens}</span> : null}
-                      {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
-                      {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
-                    </div> : null}
+                    {context && surface !== "number" ? <IntroResearchContext2029 context={context} /> : null}
                   </div>
                 </section>
               ) : null}

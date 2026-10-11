@@ -82,7 +82,11 @@ function LibraryStatus({ data, personal, query }) {
 
 export function ElsRecentCiphers2029({ onOpen, onLibrary, collapseSignal = 0, revision = 0, enabled = true }) {
   const { user } = useAuth();
-  const [open, setOpen] = useState(() => !window.matchMedia("(max-width:600px)").matches);
+  const [open, setOpen] = useState(() => {
+    const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
+      && /^[1-8]$/.test(new URLSearchParams(window.location.search).get("visual") || "");
+    return !review && !window.matchMedia("(max-width:600px)").matches;
+  });
   const view = user ? "mine" : "public";
   const data = useCipherLibrary({ view, pageSize: 4, enabled: enabled && open, revision });
   useEffect(() => { if (collapseSignal) setOpen(false); }, [collapseSignal]);
