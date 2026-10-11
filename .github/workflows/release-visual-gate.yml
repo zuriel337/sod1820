@@ -386,7 +386,7 @@ jobs:
             expect(timelineBox).not.toBeNull();
             expect(timelineBox.y).toBeGreaterThan(sourceBox.y);
 
-            const focusGroup = post.locator('[data-contextual-number-focus-group="true"]');
+            const focusGroup = post.locator('.sod29-bennett-equalities[data-contextual-number-focus-group="true"]');
             await expect(focusGroup).toBeVisible({ timeout: 30_000 });
             expect(traceRequests).toBe(0);
             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);

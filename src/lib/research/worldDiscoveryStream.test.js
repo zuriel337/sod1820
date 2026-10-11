@@ -111,7 +111,9 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.match(world, /Number\.isFinite\(item\.value\)/);
   assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
   assert.match(frame, /title="מה חדש בעולם"/);
-  assert.match(frame, /<small>חדש בעולם<\/small>/);
+  assert.match(frame, /className="sod29-feed-chip" onClick=\{openAttention\}/);
+  assert.match(frame, /feed\.newCount > 0 && !transientKind/);
+  assert.match(frame, /const openAttention = useCallback\(\(\) => openTransient\(TRANSIENT\.ATTENTION\)/);
 });
 
 test("creator chips expose recent-window counts: a creator absent from the last N has 0, not hidden", async () => {

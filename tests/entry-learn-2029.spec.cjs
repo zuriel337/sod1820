@@ -60,7 +60,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   await expect(orientation).toHaveClass(/is-prominent/);
   await expect(orientation.getByRole('button', { name: 'חדש כאן? מה עושים בפוסט הזה?' })).toBeVisible();
 
-  const focusGroup = post.locator('[data-contextual-number-focus-group="true"]');
+  const focusGroup = post.locator('.sod29-bennett-equalities[data-contextual-number-focus-group="true"]');
   await expect(focusGroup).toBeVisible({ timeout: 30_000 });
   expect(traceRequests).toBe(0);
 
