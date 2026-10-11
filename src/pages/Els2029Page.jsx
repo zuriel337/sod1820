@@ -4,6 +4,8 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
+import ElsResearchBar2029 from "../components/experience2029/ElsResearchBar2029.jsx";
+import "../components/experience2029/els2029-research.css";
 import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
 import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -58,6 +60,25 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
   >
     {available ? "✦ רזיאל · פתח על הממצא" : "✦ רזיאל · ממתין למופע מאומת"}
   </button>;
+}
+
+function ElsResearchBarConnected({ researchContext, projection, layers, replay, ready, subject, locator, onLibrary, profileSwitch }) {
+  const shell = use2029Shell();
+  const surfaceContext = useMemo(
+    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers }) : null,
+    [ready, researchContext, projection, layers]
+  );
+  const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
+  return <ElsResearchBar2029
+    subjectLabel={subject?.label}
+    locator={locator}
+    replay={replay}
+    razielAvailable={available}
+    onRaziel={() => shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: surfaceContext })}
+    onLibrary={() => onLibrary("public")}
+    onMine={() => onLibrary("mine")}
+    profileSwitch={profileSwitch}
+  />;
 }
 
 export default function Els2029Page() {
@@ -205,7 +226,7 @@ export default function Els2029Page() {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <section className="sod29-focus-stage" data-els-2029-surface="v1">
+    <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
@@ -220,10 +241,11 @@ export default function Els2029Page() {
               : "חיפוש, הצלבות וסימוני צבע. אפשר לעבור בין התצוגות ולהמשיך עם אותו ממצא."}
           </div>
         </div>
-        <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+        {researchProfile ? <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
+        : <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
           <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
           <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
-        </div>
+        </div>}
       </div>
 
       <section
@@ -239,9 +261,21 @@ export default function Els2029Page() {
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
       </section>
 
+      {researchProfile ? <ElsResearchBarConnected
+        researchContext={context}
+        projection={replayProjection}
+        layers={replayLayers}
+        replay={replay}
+        ready={replayMatched && layeredReady}
+        subject={subject}
+        locator={locator}
+        onLibrary={showLibrary}
+        profileSwitch={<ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
+      /> : null}
+
 
       <details className="sod29-els-research-details" hidden={!researchProfile}>
-        <summary>פרטי מחקר מתקדמים</summary>
+        <summary>פרטי מחקר מתקדמים · חלק מהפעולות עדיין לא פעילות</summary>
       {researchProfile ? <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">
           <div style={{ width: "100%" }}>
