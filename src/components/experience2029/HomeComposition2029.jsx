@@ -6,6 +6,9 @@ import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
+import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
+import { levelNumbers } from "../../lib/ratings2029.js";
+import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import "./homeComposition2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
@@ -30,7 +33,7 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData() {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], videos: [], dimensionPost: null });
+  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], videos: [], dimensionPost: null, notable: [] });
   useEffect(() => {
     let live = true;
     Promise.allSettled([
@@ -39,7 +42,8 @@ function useHomeCompositionData() {
       getHomeVideos({ limit: 6 }),
       getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }),
       getPostsFromSupabase({ limit: 8 }),
-    ]).then(([posts, ciphers, videos, dimension, tagged]) => {
+      fetchExplorerFacetPage("topic", { limit: 4 }),
+    ]).then(([posts, ciphers, videos, dimension, tagged, notable]) => {
       if (!live) return;
       const value = (result, fallback) => (result.status === "fulfilled" && result.value) || fallback;
       const numberByTitle = new Map((value(tagged, {}).posts || []).map((post) => [clean(post.title), titleNumber(post.title, post.tags)]));
@@ -49,6 +53,7 @@ function useHomeCompositionData() {
         ciphers: value(ciphers, []),
         videos: value(videos, []),
         dimensionPost: (value(dimension, {}).posts || [])[0] || null,
+        notable: value(notable, {}).cards || [],
       });
     });
     return () => { live = false; };
@@ -104,6 +109,19 @@ export default function HomeComposition2029({
         {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}
       </div>
     </Section>
+
+    {data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
+      <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
+      <div className="h29-notable">
+        {data.notable.map((card, index) => <article className="h29-notable-card" key={card.id}>
+          <Link className="h29-notable-main" to={card.href}>
+            <span className="h29-card-t">{clean(card.label)}</span>
+            {card.numbers?.length ? <span className="h29-notable-nums">{levelNumbers(card.numbers, card.highlightNumbers, 4).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</span> : null}
+          </Link>
+          <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={index < 4} />
+        </article>)}
+      </div>
+    </Section> : null}
 
     {story}
 

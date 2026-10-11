@@ -199,3 +199,10 @@
   .sod29-root.surface-world .sod29-world-primary-grid { grid-template-columns: minmax(0, 1fr); }
   .sod29-root.surface-world .sod29-world-anchor-intro .sod29-section-head { display: flex; flex-direction: column; align-items: flex-start; }
 }
+
+/* Catalog item = card link + its separate ratings */
+.sod29-root.surface-world .sod29-world-catalog-item { display: flex; flex-direction: column; border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel); min-width: 0; }
+.sod29-root.surface-world .sod29-world-catalog-item:hover { border-color: var(--s29-line-strong); }
+.sod29-root.surface-world .sod29-world-catalog-item > .sod29-world-catalog-card { border: 0; background: none; flex: 1; }
+.sod29-root.surface-world .sod29-world-catalog-item > .k29-rate { padding: 0 12px 10px; }
+

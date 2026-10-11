@@ -68,6 +68,8 @@ import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 import "./worldComposition2029.css";
+import { levelNumbers } from "../lib/ratings2029.js";
+import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -1088,13 +1090,16 @@ function LiveWorldLanding({ research, shell, context }) {
       {allConvergences.loading ? <p role="status">פותח את הנושאים…</p> : null}
       {allConvergences.error ? <p role="status">חלק מהנושאים לא נטענו כרגע. מה שכבר נפתח נשאר זמין.</p> : null}
       {!allConvergences.loading && !allConvergences.error && !allConvergences.cards.length ? <p role="status">לא נמצאו נושאים במסנן הזה.</p> : null}
-      <div className="sod29-world-catalog-grid">{allConvergences.cards.slice(0, catalogExpanded ? undefined : 8).map((card) =>
-        <Link className="sod29-world-catalog-card" to={card.href} key={card.id} data-world-topic={card.refId}>
+      <div className="sod29-world-catalog-grid">{allConvergences.cards.slice(0, catalogExpanded ? undefined : 8).map((card, cardIndex) =>
+        <div className="sod29-world-catalog-item" key={card.id}>
+        <Link className="sod29-world-catalog-card" to={card.href} data-world-topic={card.refId}>
           <div className="sod29-world-catalog-meta"><span>{CONVERGENCE_LABEL}</span>{publicCreator(card.creator) ? <span>{publicCreator(card.creator).displayName}</span> : null}</div>
           <strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}
-          {card.numbers?.length ? <div className="sod29-world-catalog-numbers">{card.numbers.slice(0, 5).map((n) => <span key={n}>{n}</span>)}</div> : null}
+          {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
           <small>לגלות את החיבורים ←</small>
-        </Link>)}</div>
+        </Link>
+        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
+        </div>)}</div>
       <div className="sod29-actions">
         {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}
           onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}

@@ -17,6 +17,7 @@ import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
+import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
@@ -537,6 +538,7 @@ function TopicBody() {
           {projection.authoredConnections.length ? <span>{projection.authoredConnections.length} חיבורי המשך</span> : null}
           {golden?.people?.length ? <span>תרומה · {golden.people.join(" · ")}</span> : null}
         </div>
+        <ConvergenceRatings2029 className="sod29-topic-ratings" quality={projection.quality} meterScore={projection.meterScore} highlightNumbers={projection.highlightNumbers} numbers={projection.numbers} autoTiers />
         <div className="sod29-actions">
           <button className="sod29-action primary" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>✦ שאל את רזיאל על הציר</button>
           <ShareActions type="topic" url={"https://sod1820.co.il" + projection.canonicalPath} title={projection.title} channels={["native","copy"]} />
