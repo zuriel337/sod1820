@@ -1,0 +1,48 @@
+{
+  "base": "http://127.0.0.1:4178",
+  "target": "PREVIEW",
+  "cases": [
+    {
+      "width": 1440,
+      "sourceImages": 4,
+      "hashmalPublicSources": 131,
+      "sourcePagination": [
+        24,
+        48
+      ],
+      "tzvi": "PASS",
+      "topic1237": "PASS",
+      "readingReopenAfterReload": "PASS",
+      "sourceCategoryNotTopic": "PASS",
+      "number878": "PASS",
+      "overflow": false,
+      "errors": [],
+      "externalWritesBeforeGuardProbe": [],
+      "previewGuard": {
+        "status": 403,
+        "blocked": "true"
+      }
+    },
+    {
+      "width": 390,
+      "sourceImages": 4,
+      "hashmalPublicSources": 131,
+      "sourcePagination": [
+        24,
+        48
+      ],
+      "tzvi": "PASS",
+      "topic1237": "PASS",
+      "readingReopenAfterReload": "PASS",
+      "sourceCategoryNotTopic": "PASS",
+      "number878": "PASS",
+      "overflow": false,
+      "errors": [],
+      "externalWritesBeforeGuardProbe": [],
+      "previewGuard": {
+        "status": 403,
+        "blocked": "true"
+      }
+    }
+  ]
+}

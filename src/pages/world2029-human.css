@@ -1,6 +1,28 @@
 /* World 2029 · Human Projection
    Surface-local presentation only. Uses System Frame theme variables; no new palette owner. */
 
+.sod29-world-overview{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:24px 0 30px;color:var(--s29-ink)}
+.sod29-world-overview h2{font-size:clamp(28px,3vw,40px);line-height:1.35;margin:8px 0}
+.sod29-world-overview p,.sod29-world-source-homes header p,.sod29-world-discovery-doors header p{font-size:18px;line-height:1.8;color:var(--s29-muted);max-width:44em;margin:8px 0}
+.sod29-world-overview nav{display:flex;flex-wrap:wrap;gap:8px;max-width:350px;flex-shrink:0}
+.sod29-world-overview nav a{padding:10px 14px;min-height:44px;border:1px solid var(--s29-line);border-radius:30px;color:var(--s29-ink);background:var(--s29-panel);font-size:16px;text-decoration:none}
+.sod29-world-source-homes,.sod29-world-discovery-doors{margin-block:48px;scroll-margin-top:120px}
+.sod29-world-source-homes h2,.sod29-world-discovery-doors h2{font-size:clamp(26px,3vw,34px);line-height:1.4;margin:8px 0}
+.sod29-world-source-home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:22px}
+.sod29-world-source-home-grid>button{display:flex;flex-direction:column;gap:10px;padding:24px;text-align:start;color:var(--s29-ink);border:1px solid var(--s29-line);border-radius:20px;cursor:pointer;background:radial-gradient(ellipse at top right,color-mix(in srgb,var(--s29-accent) 12%,transparent),transparent 75%),var(--s29-panel)}
+.sod29-world-source-home-grid>button[aria-expanded=true]{border-color:var(--s29-accent);background:var(--s29-panel-soft)}
+.sod29-world-source-home-grid strong{font-size:24px;line-height:1.4}.sod29-world-source-home-grid span,.sod29-world-source-home-grid small{font-size:14px;line-height:1.7;color:var(--s29-muted)}
+.sod29-world-discovery-door-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-block:24px}
+.sod29-world-discovery-door-grid>article{min-width:0;border:1px solid var(--s29-line);border-radius:22px;overflow:hidden;background:var(--s29-panel)}
+.sod29-world-discovery-door-grid .sod29-canonical-media-figure{display:block;width:100%;height:250px;margin:0;border:0;border-radius:0;background:var(--s29-panel-soft);padding:12px}
+.sod29-world-discovery-door-grid .sod29-canonical-media-figure img{width:100%;height:100%;object-fit:contain}
+.sod29-world-discovery-door-copy{padding:20px}.sod29-world-discovery-door-copy h3{font-size:22px;line-height:1.5;margin:0 0 10px}.sod29-world-discovery-door-copy p{font-size:16px;line-height:1.8;color:var(--s29-muted);margin:0 0 18px}
+.sod29-world-discovery-door-missing{height:250px;display:grid;place-items:center;padding:18px;color:var(--s29-muted)}
+.sod29-world-overview a:focus-visible,.sod29-world-source-home-grid button:focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
+#world-sources,#world-all-convergences,#world-journey-entry{scroll-margin-top:120px}
+@media(max-width:1100px){.sod29-world-discovery-door-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sod29-world-overview{align-items:start;flex-direction:column}.sod29-world-overview nav{max-width:none;flex-shrink:1}}
+@media(max-width:600px){.sod29-world-discovery-door-grid{grid-template-columns:1fr}.sod29-world-source-home-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sod29-world-source-home-grid>button{padding:16px}.sod29-world-source-home-grid strong{font-size:20px}.sod29-world-overview nav a{padding:10px 12px;font-size:16px}.sod29-world-discovery-doors,.sod29-world-source-homes{margin-block:32px}.sod29-world-journey-doors .sod29-actions>*{width:100%;white-space:normal}}
+
 .sod29-world-source-story{margin-block:16px 28px;padding:clamp(20px,3vw,36px);border:1px solid var(--s29-line);border-radius:22px;background:var(--s29-panel);color:var(--s29-ink)}
 .sod29-world-source-story h2{font-size:clamp(24px,2.5vw,30px);line-height:1.45;margin:10px 0;max-width:32em}
 .sod29-world-source-story h3{font-size:28px;line-height:1.4;margin:6px 0 14px}

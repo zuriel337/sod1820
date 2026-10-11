@@ -19,10 +19,10 @@ export default function IntegratedPreview2029Page() {
       <section className="integrated-preview__opening">
         <p className="integrated-preview__eyebrow">סיפור · חיבור · מקור · מסע</p>
         <h2>לגלות את החיבור. להמשיך ממנו.</h2>
-        <p>התחילו בסיפור המטוס, פתחו את המקורות ובחרו כיוון. המספרים, השיטות והמסעות נפגשים באותה מסגרת.</p>
+        <p>התחילו בסיפור המטוס או היכנסו לעולם הרחב: סוד החשמל, הכותבים, הנושאים ותמונות המקור. בחרו חיבור והמשיכו ממנו.</p>
         <div className="integrated-preview__actions">
           <Link className="sod29-action primary" to="/2029">פתח את הבית <NavigationIcon2029 name="home" /></Link>
-          <Link className="sod29-action" to="/world">היכנס לעולם <NavigationIcon2029 name="world" /></Link>
+          <Link className="sod29-action" to="/world">היכנס לעולם הרחב <NavigationIcon2029 name="world" /></Link>
         </div>
         <p className="integrated-preview__notice">פריוויו לקריאה ולהתנסות. מסעות אורח ושמירת המשחק נשארים במכשיר; התחברות, שמירה בחשבון ו־AI חי אינם פעילים כאן.</p>
       </section>

@@ -26,6 +26,49 @@ Raziel AFTER from `d30a6bc5-f85a-4417-a6b2-1878d8685fb5`.
 
 ## Composition and review entry
 
+### Broad World continuation — 2026-10-11
+
+User approved showing the broader World after discovering that the first isolated
+Preview bypassed the existing corpus, contributor and Topic sections. BEFORE:
+`d0411e69-d4c2-4ae9-aea3-624413ae6160`, same coordination task and isolated branch.
+This is an additional review composition; it does not restore an unidentified older
+deployment or claim parity with the missing one-journey UX HTML.
+
+`/world` now presents flight discovery, recent public source arrivals, selectable
+Sod Hashmal and admitted contributor sources (including Zvi), four whole-image
+invitations into existing historical source readings, a bounded searchable public
+Topic catalog and the existing exact **משיח / מילוי / 878** entry. The four media
+invitations read only four reviewed locators via Entity Hub and the existing quote
+guards; no new calculations or inferred gallery memberships are created. Full
+source reading, category facets and contributor detail open on request. Category
+facets retain their existing explicit distinction from attested Topic links.
+
+The historical readings for India/14–45, 1237, 424 and wisdom73 remain source-reading
+projections. They are not newly published saved Paths. Original media, captions,
+credits, gallery order and public admission remain with the existing readers.
+Internal creator keys are omitted from the opening catalog; original attribution
+remains on the Topic/source detail. Source data and author identity are unchanged.
+No automatic personal Path is started by an invitation. The existing flight Path
+regression and its known Posts visual-region gap remain in the acceptance record.
+
+This update changes only isolated Preview composition and the review hub wording.
+Home, shared Frame, engines, source readers, score contracts, game and live Raziel
+are unchanged. It adds no store, graph edges, tagging, corpus scan or live migration.
+The previous deployment remains available; a new exact-commit Preview is delivered
+for comparison. Main and production remain held; G4 is still open.
+
+Validation of this continuation: 40 existing corpus/category/source-reading/World
+projection regressions, 3 public-language checks, Frame/isolation checks and both
+ordinary product builds passed. The existing flight/source/guest-Path/return/reload
+browser regression passed at 1440px and 390px, retaining the known Posts-owned
+visual-region gap. Broad World browser checks at both widths opened 131 public
+Sod Hashmal sources with 24→48 pagination and full text, Zvi material, Topic1237,
+all four source readings after reload, explicit category-versus-Topic state and
+exact878 expression/method entry. No overflow, JS errors or non-read network
+requests before the blocked save probe; the unchanged Preview guard returned403.
+Pre-commit browser receipts are in `preview-deploy/evidence/broad-world-local.json`
+and `broad-flight.json`; the hosted exact-SHA receipt is recorded in the AFTER.
+
 `/2029/preview` opens actual Home, World, Number 878, ELS and Kingdom surfaces.
 Home/World's delivered development preview is enabled with the dedicated build flag
 `VITE_INTEGRATED_PREVIEW`; ordinary production builds keep their previous routing.
