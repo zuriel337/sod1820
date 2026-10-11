@@ -1,0 +1,134 @@
+/* World 2029 · dressed in the approved Home composition language (reference fa0e26f), stage 1.
+   Presentation only: compact header, hero story, strips and card lists on the shared frame tokens.
+   No hex/rgba literals; colors come from --s29-* variables of the palette owner. */
+
+.sod29-root.surface-world { --w29-gap: 26px; }
+
+/* Header: one compact line */
+.sod29-root.surface-world .sod29-world-overview { align-items: center; padding: 6px 0 4px; gap: 16px; }
+.sod29-root.surface-world .sod29-world-overview h2 { font: 600 22px/1.3 var(--s29-font-ui); margin: 2px 0 4px; letter-spacing: 0; }
+.sod29-root.surface-world .sod29-world-overview p { font: 400 15px/1.6 var(--s29-font-ui); margin: 0; max-width: 46em; }
+.sod29-root.surface-world .sod29-world-overview nav { max-width: none; justify-content: flex-end; }
+.sod29-root.surface-world .sod29-world-overview nav a {
+  min-height: 40px; padding: 0 16px; display: inline-flex; align-items: center; font: 500 14px var(--s29-font-ui);
+  background: var(--s29-panel); border-color: var(--s29-line); color: var(--s29-accent-text);
+}
+.sod29-root.surface-world .sod29-world-overview nav a:hover { border-color: var(--s29-line-strong); }
+
+/* Kickers: the discovery tone used by Home */
+.sod29-root.surface-world :is(.sod29-world-overview, .sod29-flight-story, .sod29-source-arrivals, .sod29-world-source-homes, .sod29-world-discovery-doors, .sod29-world-all-convergences, .sod29-world-journey-doors) .sod29-kicker {
+  font: 500 13px var(--s29-font-ui); letter-spacing: .02em; color: var(--s29-discovery);
+}
+
+/* Section rhythm and headings */
+.sod29-root.surface-world :is(.sod29-flight-story, .sod29-source-arrivals, .sod29-world-source-homes, .sod29-world-discovery-doors, .sod29-world-journey-doors) { margin-block: var(--w29-gap) 0; }
+.sod29-root.surface-world :is(.sod29-source-arrivals, .sod29-world-source-homes, .sod29-world-discovery-doors) h2,
+.sod29-root.surface-world .sod29-world-all-convergences .sod29-section-head h2,
+.sod29-root.surface-world .sod29-world-journey-doors h2 { font: 600 18px/1.3 var(--s29-font-ui); letter-spacing: 0; margin: 2px 0 0; }
+.sod29-root.surface-world :is(.sod29-source-arrivals header, .sod29-world-source-homes header, .sod29-world-discovery-doors header) { max-width: none; margin-bottom: 12px; }
+.sod29-root.surface-world :is(.sod29-source-arrivals header p, .sod29-world-source-homes header p, .sod29-world-discovery-doors header p, .sod29-world-all-convergences .sod29-muted) {
+  font: 400 14px/1.55 var(--s29-font-ui); color: var(--s29-muted); margin: 4px 0 0;
+}
+
+/* Hero story: Home hero treatment */
+.sod29-root.surface-world .sod29-flight-story.is-world .sod29-flight-feature {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 260px); gap: 22px; padding: 22px 24px; border-radius: 20px; align-items: center;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--s29-bar-hue, var(--s29-brand-gold)) 10%, transparent), var(--s29-panel) 62%);
+}
+.sod29-root.surface-world .sod29-flight-story.is-world h2 { font: 600 24px/1.3 var(--s29-font-ui); letter-spacing: 0; margin: 4px 0 8px; text-wrap: balance; }
+.sod29-root.surface-world .sod29-flight-lead { font: 400 15px/1.7 var(--s29-font-ui); margin: 0 0 10px; max-width: 46em; }
+.sod29-root.surface-world .sod29-flight-meta { margin-bottom: 14px; font-size: 13px; }
+.sod29-root.surface-world .sod29-flight-media img { max-height: 220px; }
+.sod29-root.surface-world .sod29-flight-breadcrumb { margin-bottom: 4px; }
+.sod29-root.surface-world .sod29-flight-breadcrumb button { min-height: 36px; }
+
+/* Three directions: Home anchor cards */
+.sod29-root.surface-world .sod29-flight-directions { gap: 12px; margin-top: 12px; }
+.sod29-root.surface-world .sod29-flight-directions > button { padding: 14px; border-radius: 14px; gap: 6px 12px; grid-template-columns: 36px 1fr; }
+.sod29-root.surface-world .sod29-flight-direction-value { font: 600 20px var(--s29-font-numeric); color: var(--s29-brand-gold); }
+.sod29-root.surface-world .sod29-flight-direction-icon { width: 28px; height: 28px; }
+.sod29-root.surface-world .sod29-flight-directions strong { font-size: 16px; }
+.sod29-root.surface-world .sod29-flight-directions > button > span:nth-last-child(2) {
+  font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sod29-root.surface-world .sod29-flight-directions em { font-size: 13px; margin-top: 2px; }
+.sod29-root.surface-world .sod29-flight-time { margin-top: 10px; }
+.sod29-root.surface-world .sod29-flight-time summary { min-height: 44px; padding-block: 8px; font-size: 14px; }
+
+/* Arrivals: a card list instead of long open rows */
+.sod29-root.surface-world .sod29-source-arrivals > .sod29-actions { margin-bottom: 12px; gap: 8px; }
+.sod29-root.surface-world .sod29-source-arrivals > .sod29-actions .sod29-action { min-height: 40px; font-size: 14px; padding-inline: 16px; }
+.sod29-root.surface-world .sod29-source-arrival {
+  border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel); margin-bottom: 8px; overflow: hidden;
+}
+.sod29-root.surface-world .sod29-source-arrival:hover { border-color: var(--s29-line-strong); }
+.sod29-root.surface-world .sod29-source-arrival summary,
+.sod29-root.surface-world .sod29-source-arrival-link { padding: 12px 14px; gap: 12px; align-items: center; }
+.sod29-root.surface-world .sod29-source-arrival-icon { flex-basis: 36px; height: 36px; }
+.sod29-root.surface-world .sod29-source-arrival-copy { gap: 3px; font-size: 14px; line-height: 1.5; }
+.sod29-root.surface-world .sod29-source-arrival-copy strong {
+  font: 500 15px/1.45 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sod29-root.surface-world .sod29-source-arrival-label { font-size: 13px !important; line-height: 1.5; }
+.sod29-root.surface-world .sod29-source-arrival-open { font-size: 18px; color: var(--s29-accent-text); }
+.sod29-root.surface-world .sod29-source-arrival-body { padding: 0 16px 16px; font-size: 15px; line-height: 1.8; }
+.sod29-root.surface-world .sod29-source-arrival-update { padding: 0 62px 12px; }
+
+@media (min-width: 900px) {
+  .sod29-root.surface-world .sod29-source-arrivals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; align-items: start; }
+  .sod29-root.surface-world .sod29-source-arrivals > :is(header, .sod29-actions, p, [role="status"]) { grid-column: 1 / -1; }
+  .sod29-root.surface-world .sod29-source-arrivals > details[open] { grid-column: 1 / -1; }
+}
+
+/* Voices and sources: a strip of anchor cards */
+.sod29-root.surface-world .sod29-world-source-home-grid { margin-top: 0; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.sod29-root.surface-world .sod29-world-source-home-grid > button { padding: 14px; gap: 6px; border-radius: 14px; background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-source-home-grid > button:hover { border-color: var(--s29-line-strong); }
+.sod29-root.surface-world .sod29-world-source-home-grid strong { font: 600 16px/1.35 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-source-home-grid span,
+.sod29-root.surface-world .sod29-world-source-home-grid small { font-size: 13px; line-height: 1.45; }
+.sod29-root.surface-world .sod29-world-source-home-grid > button[aria-expanded="true"] { border-color: var(--s29-brand-gold); box-shadow: 0 0 0 1px var(--s29-brand-gold); }
+
+/* Doors: media cards */
+.sod29-root.surface-world .sod29-world-discovery-door-grid { gap: 12px; margin-block: 0; }
+.sod29-root.surface-world .sod29-world-discovery-door-grid > article { border-radius: 14px; }
+.sod29-root.surface-world .sod29-world-discovery-door-grid .sod29-canonical-media-figure,
+.sod29-root.surface-world .sod29-world-discovery-door-missing { height: 170px; padding: 8px; }
+.sod29-root.surface-world .sod29-world-discovery-door-copy { padding: 12px; }
+.sod29-root.surface-world .sod29-world-discovery-door-copy h3 { font: 600 16px/1.4 var(--s29-font-ui); margin: 0 0 6px; }
+.sod29-root.surface-world .sod29-world-discovery-door-copy p { font-size: 13px; line-height: 1.55; margin: 0 0 10px; }
+
+/* Catalog: the section is a plain section, cards follow the Home card */
+.sod29-root.surface-world .sod29-world-all-convergences { border: 0; background: none; overflow: visible; padding: 0; margin-block: var(--w29-gap) 0; }
+.sod29-root.surface-world .sod29-world-all-convergences .sod29-section-head { margin-bottom: 10px; }
+.sod29-root.surface-world .sod29-world-catalog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.sod29-root.surface-world .sod29-world-catalog-card { min-height: 0; padding: 12px; border-radius: 14px; background: var(--s29-panel); gap: 6px; }
+.sod29-root.surface-world .sod29-world-catalog-card:hover { transform: none; border-color: var(--s29-line-strong); background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-catalog-card strong { font: 500 15px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.sod29-root.surface-world .sod29-world-catalog-card p { font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sod29-root.surface-world .sod29-world-catalog-card > small { font: 500 13px var(--s29-font-ui); color: var(--s29-accent-text); }
+.sod29-root.surface-world .sod29-world-catalog-meta { font-size: 12px; font-weight: 500; }
+.sod29-root.surface-world .sod29-world-catalog-numbers span {
+  font: 600 12px var(--s29-font-numeric); color: var(--s29-ink); background: var(--s29-panel-soft); border: 1px solid var(--s29-line); padding: 2px 8px;
+}
+
+/* Journey doors: compact portion */
+.sod29-root.surface-world .sod29-world-journey-doors { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-journey-doors p { font-size: 14px; line-height: 1.6; }
+
+@media (max-width: 1100px) {
+  .sod29-root.surface-world .sod29-world-catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sod29-root.surface-world .sod29-world-overview { flex-direction: column; align-items: flex-start; }
+  .sod29-root.surface-world .sod29-world-overview nav { justify-content: flex-start; }
+}
+@media (max-width: 760px) {
+  .sod29-root.surface-world .sod29-flight-story.is-world .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; }
+  .sod29-root.surface-world .sod29-flight-story.is-world h2 { font-size: 21px; }
+  .sod29-root.surface-world .sod29-flight-directions { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+  .sod29-root.surface-world .sod29-flight-directions > button { flex: 0 0 78%; scroll-snap-align: start; }
+  .sod29-root.surface-world .sod29-world-discovery-door-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .sod29-root.surface-world .sod29-world-discovery-door-grid .sod29-canonical-media-figure,
+  .sod29-root.surface-world .sod29-world-discovery-door-missing { height: 120px; }
+  .sod29-root.surface-world .sod29-world-catalog-grid { grid-template-columns: minmax(0, 1fr); }
+  .sod29-root.surface-world .sod29-world-source-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -67,6 +67,7 @@ import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
+import "./worldComposition2029.css";
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
