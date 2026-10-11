@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import "./companionPanel2029.css";
 
-export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, onOpenHref, onAsk, hoverProps }) {
+export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, onOpenHref, razielNode, hoverProps }) {
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
   return <aside className={`sod29-companion is-${mode}`} aria-label="מה נכנס למערכת והקשר" data-companion-mode={mode} {...hoverProps}>
@@ -42,11 +42,13 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
               </span>
               <span className="sod29-companion-t">{row.title}</span>
             </button>
-            <button type="button" className="sod29-companion-ask" onClick={() => onAsk(row)}>שאל את רזיאל על זה</button>
           </li>)}
         </ul>
         <Link className="sod29-companion-all" to="/world" onClick={() => feed.rows.forEach((row) => feed.see(row))}>כל החידושים בעולם ←</Link>
       </div>}
     </div>}
+    {razielNode ? <section className="sod29-companion-raziel" aria-label="רזיאל" hidden={!open}>
+      {razielNode}
+    </section> : null}
   </aside>;
 }

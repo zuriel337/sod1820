@@ -24,7 +24,7 @@ const reviewPages = [
 const fromUrl = () => new URLSearchParams(location.search).get("visual");
 const valid = (id) => VISUAL_REVIEW_OPTIONS.some((option) => option.id === id);
 
-function SelectedPreview() {
+function SelectedPreview({ visible = true }) {
   const preset = useThemePreset();
   const [explanations, setExplanations] = useState(false);
   const palette = resolve2029Palette(preset);
@@ -35,6 +35,8 @@ function SelectedPreview() {
   useEffect(() => {
     document.documentElement.dataset.sodReviewExplanations = String(explanations);
   }, [explanations]);
+  // The review strip is hidden by default (it is not part of the product); ?review=1 brings it back. The review attributes stay.
+  if (!visible) return null;
   return <aside className="sod29-visual-review sod29-selected-preview" dir="rtl" aria-label="פריוויו העיצוב שנבחר"
     style={{ "--vr-page": palette.cardRaised, "--vr-ink": palette.ink, "--vr-muted": palette.inkSoft,
       "--vr-line": palette.borderStrong, "--vr-accent": palette.accentText, "--vr-focus": palette.focusRing }}>
@@ -92,7 +94,8 @@ export function mountPreviewVisualReview2029() {
   const host = document.createElement("div");
   host.id = "sod29-visual-review-host";
   document.getElementById("root").before(host);
-  createRoot(host).render(valid(initial) ? <VisualReview initial={initial} /> : <SelectedPreview />);
+  const showStrip = new URLSearchParams(location.search).get("review") === "1";
+  createRoot(host).render(valid(initial) ? <VisualReview initial={initial} /> : <SelectedPreview visible={showStrip} />);
   // The comparison controls are outside the product frame. Keep its existing
   // fixed rails below them, including when the review toolbar wraps on mobile.
   const observer = new ResizeObserver(() => {

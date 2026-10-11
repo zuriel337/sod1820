@@ -1923,6 +1923,10 @@ export default function SystemFrame2029({
     setCompanionTab("ctx");
     if (contextSubjectKey) setCompanionPeek(true);
   }, [contextSubjectKey, companionHasContext]);
+  const focusCompanionRaziel = () => {
+    setCompanionPeek(true);
+    setTimeout(() => { document.querySelector(".sod29-companion-raziel input")?.focus(); }, 80);
+  };
   const peekCompanion = (open) => {
     if (typeof window === "undefined" || !window.matchMedia?.("(hover: hover)").matches) return;
     clearTimeout(companionTimer.current);
@@ -2011,7 +2015,6 @@ export default function SystemFrame2029({
             <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
-          <div className="sod29-sidebar-theme"><small>מראה</small><ThemePresetControl2029 compact /></div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-sidebar-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "נעץ את התפריט פתוח" : "בטל נעיצה"} aria-pressed={!sidebarCollapsed}>
             <span aria-hidden="true">{sidebarCollapsed ? "‹" : "›"}</span><b>{sidebarCollapsed ? "נעץ פתוח" : "בטל נעיצה"}</b>
@@ -2043,6 +2046,7 @@ export default function SystemFrame2029({
               <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
+              <ThemePresetControl2029 compact />
             </div>
           </header>
 
@@ -2137,7 +2141,7 @@ export default function SystemFrame2029({
             suppressLearn
           /> : null}
           onOpenHref={(href) => go(href)}
-          onAsk={(row) => openRaziel({ readingFocus: { label: row.title, primary: row.typeLabel } })}
+          razielNode={<RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`מה נכנס למערכת: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
@@ -2180,7 +2184,7 @@ export default function SystemFrame2029({
               </div>
             </>}
           </div>
-          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} />
+          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL || (companionActive && companionMode !== "slim")} onClick={companionActive ? focusCompanionRaziel : openRaziel} />
           <div className="sod29-bar-zone is-actions">
             {toolMode ? <>
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />

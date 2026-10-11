@@ -162,10 +162,12 @@
 
 /* Side rail as a floating capsule (desktop), same language as the dock. The home glyph above the nav duplicated the Home item and is hidden when the rail is slim. */
 @media (min-width: 981px) {
+  /* both side capsules share the same top and bottom so they read as one pair */
+  .sod29-root.closed-shell.native-frame { --s29-capsule-top: calc(var(--sod-review-offset, 0px) + 78px); --s29-capsule-bottom: calc(var(--s29-bar-height, 0px) + 12px); }
   .sod29-root.closed-shell.native-frame .sod29-sidebar {
-    inset-block-start: calc(var(--sod-review-offset, 0px) + 10px) !important; inset-block-end: auto !important;
+    inset-block-start: var(--s29-capsule-top) !important; inset-block-end: var(--s29-capsule-bottom) !important;
     inset-inline-start: 8px !important; border: 1px solid var(--s29-line-strong); border-radius: 28px;
-    height: calc(100vh - var(--sod-review-offset, 0px) - 20px) !important; height: calc(100dvh - var(--sod-review-offset, 0px) - 20px) !important;
+    height: auto !important; max-height: none !important;
     box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
   }
   .sod29-root.closed-shell.native-frame.sidebar-collapsed:not(.rail-peek) .sod29-sidebar { inline-size: calc(var(--s29-global-rail-width, 72px) - 16px); }
