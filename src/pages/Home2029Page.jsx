@@ -423,7 +423,7 @@ function HomeBody() {
   };
 
   // Visual review consumes the same public readers and Frame. Include/Publish is unchanged.
-  if (import.meta.env.DEV) return <>
+  if (import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") return <>
     <WorldFlightStory2029 surface="home" research={research} shell={shell} />
     <SourceArrivalList2029 surface="home" loading={homeState.loading}
       items={worldPreview?.arrivals || worldPreview?.items || []}

@@ -1,0 +1,20 @@
+{
+  "browser": {
+    "layer": "LOCAL_BROWSER_MOCKED_SERVICES",
+    "correction_to_answer": true,
+    "fresh_context_next_question": true,
+    "failure_reopens_question": true,
+    "fresh_context_completes_pending_save": true,
+    "external_requests": 0,
+    "page_errors": []
+  },
+  "endpoint": "actual number-researcher source in isolated VM",
+  "db": "mocked existing RPC contracts",
+  "identity": "synthetic admin JWT",
+  "provider": "mock only",
+  "modelCalls": 1,
+  "liveModelCalls": 0,
+  "liveProductWrites": 0,
+  "corpusScans": 0,
+  "liveUserExperience": "NOT_VERIFIED"
+}

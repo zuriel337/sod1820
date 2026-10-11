@@ -1,0 +1,56 @@
+[
+  {
+    "surface": "kingdom",
+    "width": 1440,
+    "state": "PASS",
+    "errors": []
+  },
+  {
+    "surface": "number878",
+    "width": 1440,
+    "state": "PASS",
+    "errors": []
+  },
+  {
+    "surface": "guard",
+    "width": 1440,
+    "state": "PASS",
+    "blocked": [
+      {
+        "status": 403,
+        "blocked": "true"
+      },
+      {
+        "status": 403,
+        "blocked": "true"
+      }
+    ]
+  },
+  {
+    "surface": "kingdom",
+    "width": 390,
+    "state": "PASS",
+    "errors": []
+  },
+  {
+    "surface": "number878",
+    "width": 390,
+    "state": "PASS",
+    "errors": []
+  },
+  {
+    "surface": "guard",
+    "width": 390,
+    "state": "PASS",
+    "blocked": [
+      {
+        "status": 403,
+        "blocked": "true"
+      },
+      {
+        "status": 403,
+        "blocked": "true"
+      }
+    ]
+  }
+]

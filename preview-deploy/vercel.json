@@ -1,0 +1,12 @@
+{
+  "framework": null,
+  "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "headers": [{ "source": "/(.*)", "headers": [
+    { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+    { "key": "Cache-Control", "value": "no-store" },
+    { "key": "Content-Security-Policy", "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co https://sod1820.co.il; form-action 'none'; frame-ancestors 'self'" }
+  ]}]
+}

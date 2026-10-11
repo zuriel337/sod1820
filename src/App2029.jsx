@@ -34,6 +34,9 @@ const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx")
 const kingdomPreviewEnabled = import.meta.env.VITE_KINGDOM_PREVIEW === "true";
 const Kingdom2029Page = kingdomPreviewEnabled
   ? lazy(() => import("./pages/Kingdom2029Page.jsx")) : null;
+const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+const IntegratedPreview2029Page = integratedPreviewEnabled
+  ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
 
 function Loading2029() {
   const palette = use2029Palette();
@@ -47,7 +50,7 @@ function RouteEffects2029() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (kingdomPreviewEnabled && pathname === "/2029/kingdom") return undefined;
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -56,7 +59,7 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
-    if (kingdomPreviewEnabled && pathname === "/2029/kingdom") return undefined;
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/2029/control")) return undefined;
     const timer = setTimeout(() => {
@@ -96,6 +99,7 @@ export default function App2029() {
           <Suspense fallback={<Loading2029 />}>
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />
+              {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
               {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}

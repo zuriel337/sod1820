@@ -1,0 +1,5 @@
+{
+  "name": "sod1820-review-output",
+  "private": true,
+  "scripts": { "build": "node ../scripts/build-integrated-preview.mjs" }
+}

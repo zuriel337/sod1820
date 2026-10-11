@@ -987,7 +987,7 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  if (import.meta.env.DEV && !controlMode) return <>
+  if ((import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !controlMode) return <>
     <WorldFlightStory2029 research={research} shell={shell} />
     <WorldSourceStory research={research} shell={shell} compact />
     {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
@@ -1002,7 +1002,7 @@ function LiveWorldLanding({ research, shell, context }) {
   </>;
 
   return <>
-    {import.meta.env.DEV ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
+    {(import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"

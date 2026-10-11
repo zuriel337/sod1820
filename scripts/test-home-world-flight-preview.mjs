@@ -51,7 +51,7 @@ for(const theme of themes) for(const width of widths){
  const identity=await source.getAttribute('data-world-source-identity');assert.ok(identity);
  await source.getByRole('button',{name:'פתח את תמונת המקור של הקפטן'}).click();
  const [original]=await Promise.all([context.waitForEvent('page'),page.getByRole('link',{name:'פתח מקור',exact:true}).click()]);
- await original.waitForLoadState('domcontentloaded');assert.match(original.url(),/smit-machchhar-source/);await original.screenshot({path:`${out}/${theme}-${width}-original.png`});await original.close();await page.keyboard.press('Escape');
+ await original.waitForURL(/smit-machchhar-source/,{timeout:60000});await original.waitForLoadState('domcontentloaded');assert.match(original.url(),/smit-machchhar-source/);await original.screenshot({path:`${out}/${theme}-${width}-original.png`});await original.close();await page.keyboard.press('Escape');
  await capture('world-source');
  await page.getByRole('button',{name:'לקריאת פוסט המטוס',exact:true}).filter({visible:true}).click();
  await page.locator('[data-post-slug]').waitFor({timeout:90000});await capture('post');
