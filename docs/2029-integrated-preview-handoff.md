@@ -95,8 +95,10 @@ optional GPU renderer and flat fallback were checked against that version.
 and a Preview target. No production aliases, live migration, Edge deployment or
 backend code deployment are part of this delivery.
 
-A Preview-only worker controls the page before the React bundle loads. Account
-authentication, writes, uploads, cloud saves and live model calls are blocked.
+A Preview-only worker controls the page before the React bundle loads. Existing-account
+password/refresh-token login, email OTP with `create_user:false`, identity GET and
+explicit local logout are allowed only on the exact canonical Supabase HTTPS origin.
+Signup, account mutation, product writes, uploads, cloud saves and live model calls stay blocked.
 Existing public GET readers and enumerated canonical calculation RPCs are allowed.
 The existing governed ELS read bridge allows only `page`, `verify`, `verify_batch`;
 it retains its existing rate limits and operational Trace recording. This is not
@@ -240,3 +242,44 @@ return at1440/390. The full Flight harness additionally verifies that this exit
 and return retain the already-started guest Path. The coordinator AFTER binds
 the completed results, exact source SHA and protected hosted Preview. This repair
 does not establish Post-entity hubs or change other owners' global-navigation routes.
+
+### Account access and existing elections history
+
+User-requested continuation BEFORE records:
+`73bd22a8-6aae-484f-b604-20dc63db70ef` (existing personal-workspace task, AccountConnection
+function/import and account CSS only; canonical AuthProvider/helper and Preview guard),
+`d7d17d0f-7c40-4b94-b211-6543f528992d` (existing Posts task, historical consumer projection).
+The existing owners and earlier shared Frame/chrome claims remain unchanged.
+
+The personal account section defaults to the existing email/password auth helper,
+shows account name/email, supports password-manager autocomplete and password visibility,
+and offers the existing email-code alternative. Logout explicitly ends this device's
+session; another account can then sign in. Preview OTP cannot create an account.
+The existing AuthProvider rejects stale bootstrap/profile responses, exposes only the
+current principal's profile/role, and propagates logout errors. A retained refreshProfile
+callback resolves the current principal at invocation. Preview login skips automatic
+identity/credit/visit/avatar writes. ResearchProvider retains its existing principal-keyed
+isolation; its remount closes the personal panel after login/logout (reopen via “אישי”).
+The Preview account notice explicitly says cloud changes/saves remain unavailable.
+
+Elections5107 now consumes seven existing public historical Posts in its native connections
+section, under “בחירות לאורך השנים”: 1222 (2016), 1182 (2017), 1129/1124/1110 (2019),
+906 (2021), 83 (2024). Sources: existing handoff `bdb7caba-3f10-48d0-ab29-4b67e150097a`
+and bounded verification of these exact Posts; no repeat corpus scan. This is a curated
+consumer projection, not a claim of complete automatic mapping. The public reader checks
+each destination. Cards retain publication chronology and explain their relevance, including
+Sod Hashmal, 1820/1237/73 and Netanyahu/Trump. 1237 is the 2016 nomination-delegate threshold,
+not electoral votes; reuse of the 2017 Wall image in a 2024 publication is explicitly labelled.
+Original Post bodies, galleries, historical spelling and canonical graph remain unchanged.
+
+Verification commands: existing Post continuation harness (now opens all seven historical
+identities and returns precisely at desktop/mobile), `scripts/test-account-access-preview.mjs`
+(actual built app/worker with synthetic auth/profile network responses), and
+`node --test scripts/test-integrated-preview-auth-guard.mjs`. Auth browser coverage includes
+wrong password, account A→local logout→B, delayed A profile, reload/token refresh, logout
+persistence, email OTP with create_user:false and absence of passwords in local storage.
+The guard tests retain blocks on signup/global logout/user mutation/product/upload/model writes.
+Read-only specialist review found no blocking auth issue; its stale refreshProfile edge was fixed.
+These tests do not establish successful login to an actual user's account; that remains a
+user action in Preview. No credentials requested, no account created and no live OTP sent.
+The AFTER record supplies exact committed SHA, immutable Preview and completed receipts.

@@ -50,15 +50,17 @@ export async function updateProfile(userId, fields) {
 }
 
 // ── שער החידושים: אימות OTP במייל (בית המדרש) ──
-export async function requestEmailOtp(email) {
+export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   // WIRING: מצרפים את תצלום-הייחוס ל-user_metadata כדי ש-handle_new_user (טריגר auth signup)
   // יוכל לשמור אותו ב-subscribers.acquisition — זה המסלול הדומיננטי (שער-האימות), שאין לו
   // גישה ל-localStorage בצד-השרת. אם הלכידה נכשלת — ההרשמה ממשיכה כרגיל (data ריק).
   let data = {};
-  try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
+  if (shouldCreateUser) {
+    try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
+  }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { shouldCreateUser: true, data },
+    options: { shouldCreateUser, data },
   });
   if (error) throw error;
   return { ok: true };
@@ -77,8 +79,8 @@ export async function getSession() {
   return data?.session ?? null;
 }
 
-export function signOut() {
-  return supabase.auth.signOut();
+export function signOut(options) {
+  return supabase.auth.signOut(options);
 }
 
 // 🎯 המרה (research funnel שלב 6): בעת התחברות, לתבוע את ליד-המחקר של המשתמש

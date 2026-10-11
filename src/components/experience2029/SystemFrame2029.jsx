@@ -19,7 +19,7 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildExactReturnPatch } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { requestEmailOtp, verifyEmailOtp } from "../../lib/auth.js";
+import { requestEmailOtp, verifyEmailOtp, signInWithPassword } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { makeEntity } from "../../lib/research/entity.js";
 import { askRaziel, getNotificationPrefs } from "../../lib/supabase.js";
@@ -900,8 +900,11 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
 }
 
 function AccountConnection2029({ user, profile, signOut }) {
-  const [step, setStep] = useState("email");
+  const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+  const [step, setStep] = useState("password");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
@@ -910,10 +913,40 @@ function AccountConnection2029({ user, profile, signOut }) {
 
   useEffect(() => {
     if (!user?.id) return;
-    setStep("email");
+    setStep("password");
+    setPassword("");
+    setShowPassword(false);
     setCode("");
-    setMessage({ kind: "success", text: "החשבון מחובר. השמירות והמחקר יכולים להמשיך עם אותה זהות." });
+    setMessage(null);
   }, [user?.id]);
+
+  const changeStep = (next) => {
+    setStep(next);
+    setPassword("");
+    setShowPassword(false);
+    setCode("");
+    setMessage(null);
+  };
+
+  const login = async (event) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      await signInWithPassword(email.trim().toLowerCase(), password);
+      setPassword("");
+    } catch (error) {
+      const text = error?.code === "invalid_credentials" || error?.status === 400
+        ? "המייל או הסיסמה אינם נכונים. אפשר לנסות שוב או להיכנס עם קוד למייל."
+        : error?.status === 429
+          ? "היו כמה ניסיונות כניסה. נסו שוב בעוד כמה דקות."
+          : "לא הצלחנו להתחבר כרגע. בדקו את החיבור ונסו שוב.";
+      setMessage({ kind: "error", text });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const sendCode = async (event) => {
     event.preventDefault();
@@ -925,10 +958,10 @@ function AccountConnection2029({ user, profile, signOut }) {
     }
     setBusy(true);
     try {
-      await requestEmailOtp(value);
+      await requestEmailOtp(value, { shouldCreateUser: !preview });
       setEmail(value);
       setStep("code");
-      setMessage({ kind: "info", text: "שלחנו קוד כניסה למייל. משתמש חדש ייפתח באותו חשבון SOD1820." });
+      setMessage({ kind: "info", text: preview ? "אם הכתובת משויכת לחשבון קיים, קוד כניסה יישלח למייל." : "שלחנו קוד כניסה למייל. משתמש חדש ייפתח באותו חשבון SOD1820." });
     } catch (error) {
       setMessage({ kind: "error", text: error?.message || "לא הצלחנו לשלוח קוד כרגע." });
     } finally {
@@ -959,10 +992,11 @@ function AccountConnection2029({ user, profile, signOut }) {
     setBusy(true);
     setMessage(null);
     try {
-      await signOut();
+      await signOut({ scope: "local" });
       setEmail("");
+      setPassword("");
       setCode("");
-      setStep("email");
+      setStep("password");
       setMessage({ kind: "info", text: "התנתקת מהחשבון. אפשר להמשיך כאורח." });
     } catch (error) {
       setMessage({ kind: "error", text: error?.message || "ההתנתקות לא הושלמה." });
@@ -984,15 +1018,34 @@ function AccountConnection2029({ user, profile, signOut }) {
           <div>
             <strong>{displayName || "מחובר"}</strong>
             <small dir="ltr">{user.email || ""}</small>
-            <p>הזהות מחוברת. המחקר, השמירות, ההודעות וההתקדמות משתמשים באותו חשבון קנוני.</p>
+            <p>זה החשבון שמחובר במכשיר הזה. כדי להיכנס לחשבון אחר, התנתקו והתחברו עם המייל שלו.</p>
           </div>
           <button className="sod29-action" type="button" onClick={disconnect} disabled={busy}>התנתקות</button>
         </div>
+      ) : step === "password" ? (
+        <form className="sod29-workspace-auth-form" onSubmit={login}>
+          <div className="sod29-workspace-auth-copy">
+            <strong>כניסה לחשבון שלכם</strong>
+            <small>עם המייל והסיסמה של חשבון SOD1820 הקיים.</small>
+          </div>
+          <label>כתובת מייל
+            <input data-autofocus type="email" required autoComplete="username" dir="ltr"
+              value={email} disabled={busy} onChange={(event) => { setEmail(event.target.value); setMessage(null); }} />
+          </label>
+          <label>סיסמה
+            <input type={showPassword ? "text" : "password"} required autoComplete="current-password" dir="ltr"
+              value={password} disabled={busy} onChange={(event) => { setPassword(event.target.value); setMessage(null); }} />
+          </label>
+          <button className="sod29-action" type="button" aria-pressed={showPassword} disabled={busy}
+            onClick={() => setShowPassword((value) => !value)}>{showPassword ? "הסתרת סיסמה" : "הצגת סיסמה"}</button>
+          <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "מתחבר…" : "כניסה לחשבון"}</button>
+          <button className="sod29-action" type="button" disabled={busy} onClick={() => changeStep("email")}>אין לי סיסמה · כניסה בקוד למייל</button>
+        </form>
       ) : step === "code" ? (
         <form className="sod29-workspace-auth-form" onSubmit={verifyCode}>
           <div className="sod29-workspace-auth-copy">
             <strong>הזינו את הקוד מהמייל</strong>
-            <small>נשלח אל <b dir="ltr">{email}</b>. אחרי האימות תישארו בדיוק באזור האישי.</small>
+            <small>נשלח אל <b dir="ltr">{email}</b>.</small>
           </div>
           <input
             data-autofocus
@@ -1007,8 +1060,8 @@ function AccountConnection2029({ user, profile, signOut }) {
             dir="ltr"
           />
           <div className="sod29-actions">
-            <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "מאמת…" : "כניסה / הרשמה"}</button>
-            <button className="sod29-action" type="button" disabled={busy} onClick={() => { setStep("email"); setCode(""); setMessage(null); }}>שינוי מייל</button>
+            <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "מאמת…" : preview ? "כניסה לחשבון" : "כניסה / הרשמה"}</button>
+            <button className="sod29-action" type="button" disabled={busy} onClick={() => changeStep("email")}>שינוי מייל</button>
           </div>
         </form>
       ) : (
@@ -1028,9 +1081,11 @@ function AccountConnection2029({ user, profile, signOut }) {
             dir="ltr"
           />
           <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "שולח…" : "שלחו לי קוד כניסה"}</button>
+          <button className="sod29-action" type="button" disabled={busy} onClick={() => changeStep("password")}>כניסה עם סיסמה</button>
         </form>
       )}
 
+      {preview ? <p className="sod29-workspace-account-note">בפריוויו אפשר להתחבר לחשבון קיים. שינויים ושמירות בענן עדיין אינם זמינים כאן.</p> : null}
       {message ? <div className={`sod29-workspace-auth-message is-${message.kind}`} role={message.kind === "error" ? "alert" : "status"}>{message.text}</div> : null}
     </section>
   );

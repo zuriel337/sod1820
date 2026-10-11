@@ -73,9 +73,24 @@ for(const width of [1440,390]){
     await page.waitForFunction(()=>{const r=document.getElementById('source-region-post-connections')?.getBoundingClientRect();return r&&r.top>=80&&r.bottom<innerHeight-100;});
     assert.equal((await current()).selection.locator,'#source-region-post-connections');
   }
-  for (const [slug, postId, expectedConnections] of [['flydubai-fz1073-363-14000-remzei-geula','5112',8],['sharshar-elections-redemption-hints-draft','5107',6]]) {
+  for (const [slug, postId, expectedConnections] of [['flydubai-fz1073-363-14000-remzei-geula','5112',8],['sharshar-elections-redemption-hints-draft','5107',13]]) {
     await page.goto(`${base}/post/${slug}#source-region-post-connections`,{waitUntil:'domcontentloaded'});
     await connections.waitFor();assert.equal(await connections.locator('a').count(),expectedConnections);
+    if (postId === '5107') {
+      const history=connections.locator('[data-post-connection^="elections-history-"]');
+      assert.equal(await history.count(),7);
+      await page.getByRole('heading',{name:'בחירות לאורך השנים',exact:true}).waitFor();
+      assert.match(await history.first().innerText(),/1237.*[\s\S]*לא מספר אלקטורים/);
+      await history.first().scrollIntoViewIfNeeded();await page.screenshot({path:`${out}/elections-history-${width}.png`});
+      for (const id of ['906','1110','1222','1182','83','1124','1129']) {
+        await history.locator(`xpath=self::*[@data-post-connection="elections-history-${id}"]`).click();
+        await page.waitForFunction(expected=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest'))?.subject?.id===expected,id);
+        assert.equal((await current()).returnTo.subject.id,'5107');
+        assert.equal((await current()).returnTo.selection.locator,'#source-region-post-connections');
+        await returnFrame();await page.waitForURL(u=>u.pathname===`/post/${slug}`&&u.hash==='#source-region-post-connections');
+        await connections.waitFor();assert.equal(await history.count(),7);
+      }
+    }
     await page.getByRole('link',{name:'להמשיך לגלות בעולם ←',exact:true}).click();
     await page.waitForURL(u=>u.pathname==='/world');await page.locator('[data-flight-story=world]').waitFor();
     const worldContext=await current();assert.equal(worldContext.subject,null);assert.equal(worldContext.selection,null);

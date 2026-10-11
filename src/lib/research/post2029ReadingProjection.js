@@ -479,6 +479,14 @@ function buildElectionsExperience(post) {
       { id: "number-1820", label: "1820", kind: "NUMBER", value: "1820", href: "/2029/number/1820", reason: "המספר שמלווה את האתר; מילוי עופר וינטר." },
       { id: "number-26", label: "26", kind: "NUMBER", value: "26", href: "/2029/number/26", reason: "יהוה = 26 · הכנסת ה־26." },
       { id: "number-66", label: "66", kind: "NUMBER", value: "66", href: "/2029/number/66", reason: "בן דוד = 66." },
+      // Existing source handoff bdb7caba + verified public Posts, oldest publication first.
+      {"id":"elections-history-1222","label":"הבחירות בארה״ב · 1237","kind":"מהארכיון · פורסם 29.06.2016","href":"/post/9495-2","reason":"הפוסט הישן מחבר את טראמפ לציר 1237. כאן 1237 הוא סף צירי המפלגה למינוי המועמד, ולא מספר אלקטורים.","provenanceLabel":"post:1222"},
+      {"id":"elections-history-1182","label":"טראמפ בכותל · 424","kind":"מהארכיון · פורסם 23.05.2017","href":"/post/רמזים-מדהימים-על-ביקור-טראמפ-בישראל","reason":"תיעוד הביקור בישראל והחיבור ל־424. זהו אירוע מ־2017, שאליו חוזרים גם בפרסומים מאוחרים.","provenanceLabel":"post:1182"},
+      {"id":"elections-history-1129","label":"נתניהו, שאול המלך והבחירות","kind":"מהארכיון · פורסם 02.04.2019","href":"/post/התגלה-חותם-מימי-בית-ראשון-נתנמלך-רמזי","reason":"פוסט הבחירות המרכזי מ־2019, עם החיבורים לנתניהו ולטראמפ.","provenanceLabel":"post:1129"},
+      {"id":"elections-history-1124","label":"בראשית והבחירות · סוד החשמל","kind":"מהארכיון · פורסם 21.04.2019","href":"/post/רמזים-על-התרסקות-החללית-בראשית-והקשר-ל","reason":"חיבור היסטורי בין אירוע החללית לבחירות, מתוך חומרי סוד החשמל.","provenanceLabel":"post:1124"},
+      {"id":"elections-history-1110","label":"פיזור הכנסת ה־21 · סוד החשמל","kind":"מהארכיון · פורסם 01.06.2019","href":"/post/רמזים-מדהימים-לגאולה-מפיזור-הכנסת-ה21-וה","reason":"פוסט על הקדמת הבחירות לאלול, מתוך חומרי סוד החשמל. כך אפשר לחזור לסבב הקודם ולהקשר שלו.","provenanceLabel":"post:1110"},
+      {"id":"elections-history-906","label":"רמזי הבחירות והממשלה · 1820","kind":"מהארכיון · פורסם 24.03.2021","href":"/post/רמזי-הבחירות-הרביעיות-יא-ניסן-יום-הולד","reason":"הפוסט המרכזי הישן נושא את התגים 1820, 1237, חכמה 73 ונתניהו. זו כניסה לחומר המקור שמלווה את צירי הבחירות.","provenanceLabel":"post:906"},
+      {"id":"elections-history-83","label":"בחירת טראמפ ב־2024 · ביבי","kind":"מהארכיון · פורסם 06.11.2024","href":"/post/רמזים-מבחירתו-של-דונלד-טראמפ-לנשיאות-א","reason":"פרסום מ־2024 המחבר את טראמפ ונתניהו. צילום הכותל המופיע בו חוזר לאירוע 2017; הוא אינו אירוע חדש או מקור עצמאי נוסף.","provenanceLabel":"post:83"},
     ],
     timeline: [
       { id: "elections-published", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-09-30", temporalRole: "published", href, current: true, sourceLabel: null, note: "תאריך הפרסום של פוסט הבחירות." },

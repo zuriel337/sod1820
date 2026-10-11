@@ -676,20 +676,26 @@ function PostReadingBody() {
         <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
         <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
       </header>
+      {[
+        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
+        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
+      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
+      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
       <div className="sod29-post-continuation-grid">
-        {contextualConnections.map((connection) => <a
+        {group.items.map((connection) => <a
           key={connection.id}
           href={connection.href}
           className="sod29-post-continuation"
           data-post-connection={connection.id}
           onClick={(event) => openConnection(event, connection.href)}
         >
-          <span className="sod29-post-continuation-type">{connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
+          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
           <h3>{connection.label}</h3>
           {connection.reason ? <p>{connection.reason}</p> : null}
           <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
         </a>)}
       </div>
+      </div>)}
     </section> : null}
 
     <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />

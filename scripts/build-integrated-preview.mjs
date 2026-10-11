@@ -14,6 +14,7 @@ await build({ root, define: {
 
 const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2"];
 const worker = `const reads = new Set(${JSON.stringify(allow)});
+const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
@@ -21,6 +22,20 @@ self.addEventListener('fetch',event=>{
  const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))||(u.hostname==='linswmnnkjxvweumprav.supabase.co'&&reads.has(rpc));
  if(safe)return;
  event.respondWith((async()=>{
+  // Existing-account access only. No signup, account mutation or product writes.
+  if(u.origin===authOrigin){
+   if(req.method==='GET'&&u.pathname==='/auth/v1/user')return fetch(req);
+   if(req.method==='POST'&&u.pathname==='/auth/v1/token'&&['password','refresh_token'].includes(u.searchParams.get('grant_type')))return fetch(req);
+   if(req.method==='POST'&&u.pathname==='/auth/v1/logout'&&u.searchParams.get('scope')==='local')return fetch(req);
+   if(req.method==='POST'&&['/auth/v1/otp','/auth/v1/verify'].includes(u.pathname)){
+    try{
+     const body=await req.clone().json();
+     const emailOnly=typeof body.email==='string'&&body.email.includes('@')&&!body.phone;
+     if(emailOnly&&u.pathname==='/auth/v1/otp'&&body.create_user===false)return fetch(req);
+     if(emailOnly&&u.pathname==='/auth/v1/verify'&&body.type==='email'&&typeof body.token==='string')return fetch(req);
+    }catch{}
+   }
+  }
   // Only the existing governed ELS reader is callable. Save/upload/model endpoints stay blocked.
   if(req.method==='POST'&&u.hostname==='linswmnnkjxvweumprav.supabase.co'&&u.pathname==='/functions/v1/els-search-bridge'){
    try{const body=await req.clone().json();if(['page','verify','verify_batch'].includes(body.op))return fetch(req);}catch{}
