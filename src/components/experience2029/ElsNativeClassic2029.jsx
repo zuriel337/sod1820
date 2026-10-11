@@ -997,7 +997,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           />
         </label>
       </div> : null}
-      </div>
       {!crossOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
         <span>אפשר לחפש את הביטוי בשלמותו, או לבדוק מפגש בין שתי מילים קצרות.</span>
         <button type="button" onClick={() => {
@@ -1006,6 +1005,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           setCrossOpen(true);
         }}>{clean(query).split(/\s+/).length > 1 ? "פצל והצלב" : "פתח חיפוש מוצלב"}</button>
       </div> : null}
+      </div>
       <div className="els29-native-query-options">
       <div className="els29-native-scope" aria-label="היקף החיפוש">
         <button

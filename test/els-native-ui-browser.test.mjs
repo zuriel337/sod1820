@@ -1591,6 +1591,28 @@ test('native form: crossing terms stay adjacent before the shared submit on mobi
  });
 });
 
+test('native form: a phrase and its split-and-cross action stay in one centered search bundle',
+ {skip:!canRun,timeout:90000},async()=>{
+ for(const width of [390,1440]) await withNative({width,height:1000},async page=>{
+  const form=page.locator('#els29-query');
+  const term=form.getByRole('textbox',{name:'מונח',exact:true});
+  await term.fill('תורת אמת');
+  const coach=form.locator('.els29-native-search-coach');
+  const split=coach.getByRole('button',{name:'פצל והצלב',exact:true});
+  assert.equal(await coach.evaluate(node=>node.parentElement.className),'els29-native-query-terms');
+  const field=await term.boundingBox(),note=await coach.boundingBox(),outer=await form.boundingBox();
+  const region=await page.locator('.sod29-content.wide').boundingBox();
+  assert.ok(note.y>=field.y+field.height&&note.y-(field.y+field.height)<24,'split action follows its term without an intervening panel');
+  assert.ok(Math.abs(note.x-field.x)<2&&Math.abs(note.width-field.width)<2,'term and split action share one column');
+  assert.ok(Math.abs((outer.x+outer.width/2)-(region.x+region.width/2))<8,'search bundle is centered within the content area');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await split.click();
+  assert.equal(await form.getByRole('textbox',{name:'מונח ראשון',exact:true}).inputValue(),'תורת');
+  assert.equal(await form.getByRole('textbox',{name:'מונח שני',exact:true}).inputValue(),'אמת');
+  assert.equal(await form.locator('button[type=submit]').textContent(),'חפש הצלבה');
+ });
+});
+
 test('Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic',
  {skip:!canRun,timeout:90000},async()=>{
  await withNative({width:1440,height:1000},async page=>{
