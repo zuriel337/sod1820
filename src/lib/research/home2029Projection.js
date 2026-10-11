@@ -118,8 +118,35 @@ async function fetchHomeSystemPulse2029() {
   };
 }
 
+export function projectHomeWorldPreviewItem(item) {
+  if (!item?.id || !item.kind) return null;
+  return {
+    id: item.id,
+    kind: item.kind,
+    sourceKind: item.sourceKind || null,
+    sourceLabel: item.sourceLabel || null,
+    sourceRef: item.sourceRef || null,
+    href: item.href || null,
+    label: item.label,
+    summary: item.summary,
+    fullText: item.fullText || null,
+    stateLabel: item.stateLabel || null,
+    publicState: item.publicState || null,
+    creator: item.creator,
+    creatorSlug: item.creatorSlug || null,
+    at: item.at,
+    arrivalAt: item.arrivalAt || null,
+    sourceUpdatedAt: item.sourceUpdatedAt || null,
+    researchUpdatedAt: item.researchUpdatedAt || null,
+    researchCount: item.researchCount || 0,
+    slug: item.slug,
+    value: item.value,
+    numbers: item.numbers,
+  };
+}
+
 async function fetchHomeWorldPreview2029() {
-  const contributors = await fetchWorldLandingContributorProjection();
+  const contributors = await fetchWorldLandingContributorProjection().catch(() => null);
   const publicPeople = Array.isArray(contributors?.people) ? contributors.people : [];
   const discovery = await fetchWorldDiscoveryStream({ limit: 8, publicPeople });
   return {
@@ -131,17 +158,8 @@ async function fetchHomeWorldPreview2029() {
       kind: person.kind,
       meetingCount: Number(person.meetingCount || 0),
     })),
-    research: (Array.isArray(discovery?.items) ? discovery.items : []).slice(0, 6).map((item) => ({
-      id: item.id,
-      kind: item.kind,
-      label: item.label,
-      summary: item.summary,
-      creator: item.creator,
-      at: item.at,
-      slug: item.slug,
-      value: item.value,
-      numbers: item.numbers,
-    })),
+    items: (Array.isArray(discovery?.items) ? discovery.items : []).slice(0, 6).map(projectHomeWorldPreviewItem).filter(Boolean),
+    groupArrivals: discovery?.groupArrivals || null,
   };
 }
 

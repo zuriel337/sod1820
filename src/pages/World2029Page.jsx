@@ -522,7 +522,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         contributorPromise,
-        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
+        contributorPromise.catch(() => null).then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
         fetchGoldenWorldJourney878(),
       ]),
     ]);
@@ -820,7 +820,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const openDiscoveryItem = (item) => {
     if (!item) return;
-    if (item.kind === "source" && item.href) {
+    if (item.kind === "source" && item.sourceKind === "post" && item.href) {
       research.updateResearchContext?.({
         subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
         selection: { entityId: item.sourceRef, entityType: "post" },
@@ -857,8 +857,10 @@ function LiveWorldLanding({ research, shell, context }) {
   };
   const discoveryDate = (value) => {
     if (!value) return "זמן לא צוין";
-    try { return new Date(value).toLocaleDateString("he-IL", { day: "numeric", month: "short" }); }
-    catch (_) { return "זמן לא צוין"; }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "זמן לא צוין" : date.toLocaleString("he-IL", {
+      day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+    });
   };
 
   const creatorLabel = (value) => {
@@ -962,21 +964,29 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "source" ? (item.stateLabel || item.sourceLabel || "מהמקור") : item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
                 <strong>{item.label}</strong>
                 {item.summary ? <small>{item.summary}</small> : null}
-                {item.stateLabel ? <small>{item.stateLabel}</small> : null}
+                {item.sourceLabel && item.stateLabel ? <small>{item.sourceLabel}</small> : null}
                 {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
               </div>
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
               </>;
               const itemClass = `sod29-world-stream-item${index === 0 ? " is-lead" : ""}`;
-              if (item.sourceKind === "group_message") return <details key={item.id} id={`group-source-${item.id.slice(6)}`} className="sod29-world-group-source">
+              if (item.sourceKind === "group_message") return <details key={item.id} id={`group-source-${item.id.slice(6)}`} className="sod29-world-group-source" onToggle={(event) => {
+                if (event.currentTarget.open) research.updateResearchContext?.({
+                  selection: { entityId: item.sourceRef, entityType: "source", sourceRef: item.sourceRef },
+                  lens: "world",
+                });
+              }}>
                 <summary className={itemClass}>{copy}</summary>
-                <p className="sod29-world-group-source-body">{item.fullText}</p>
+                <div className="sod29-world-group-source-body">
+                  <small>{item.sourceLabel} · {item.creator} · {discoveryDate(item.arrivalAt || item.at)}</small>
+                  <p>{item.fullText}</p>
+                </div>
               </details>;
               return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
             })}
