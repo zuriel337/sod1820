@@ -303,7 +303,8 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
 }
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
-const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+// Release the adopted Home independently of preview-only tools and disabled telemetry.
+const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
 
 function HomeBody() {
   const navigate = useNavigate();
