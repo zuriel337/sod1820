@@ -16,6 +16,17 @@
 .sod29-root.surface-els .sod29-context-strip span{flex-shrink:0;white-space:nowrap}
 @media(min-width:981px){
   .sod29-root.surface-els .sod29-content.wide{width:90%;max-width:none;margin-inline:auto;padding-inline:8px}
+  /* Keep the shared dock on the boundary of the pinned findings rail and matrix.
+     The ELS content is 90vw wide; only this surface shifts its desktop tool mode. */
+  .sod29-root.surface-els.has-tool-dock:has(.els29-native-layout.has-system-dock.is-panel-pinned) .sod29-command-island[data-command-mode="tool"]{
+    --els29-dock-panel-width:340px;
+    inset-inline-start:calc(95vw - var(--els29-dock-panel-width) - 20px);
+  }
+}
+@media(min-width:981px) and (max-width:1180px){
+  .sod29-root.surface-els.has-tool-dock:has(.els29-native-layout.has-system-dock.is-panel-pinned) .sod29-command-island[data-command-mode="tool"]{
+    --els29-dock-panel-width:320px;
+  }
 }
 .els29-native-query{
   display:grid;
