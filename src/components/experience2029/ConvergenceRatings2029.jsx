@@ -61,11 +61,11 @@ export default function ConvergenceRatings2029({ quality, meterScore, highlightN
     {open ? <div id={panelId} className="k29-rate-explain" role="region" aria-label="הסבר על המדדים">
       <dl>
         <dt><span className="k29-stars" aria-hidden="true">★</span> איכות</dt>
-        <dd>דירוג ידני של הכרטיס (0–10, מוצג כ־5 כוכבים). נקבע בכרטיס עצמו ולא מחושב. "לא דורג" פירושו שלא הוזן דירוג. מקור: שדה האיכות של כרטיס הנושא.</dd>
+        <dd>דירוג ידני של מערכת כי לה׳ המלוכה לכרטיס (0–10, מוצג כ־5 כוכבים). נקבע בכרטיס עצמו ולא מחושב. "לא דורג" פירושו שלא הוזן דירוג. מקור: שדה האיכות של כרטיס הנושא.</dd>
         <dt><span className="k29-rate-bar" aria-hidden="true"><i style={{ inlineSize: "60%" }} /></span> חוזק התכנסות</dt>
         <dd>מד ההתכנסות הקיים, ציון 0–100 שנשמר בכרטיס: כמה שכבות בלתי־תלויות מסכימות על המספר (ביטויים, שיטות, אשכול באותו עולם, ישות מסומנת, גלריות, גרף, חדשות, כרטיס ועוגן קדוש). הוא לא הוכחה ולא אימות. הפירוק לרכיבים (קשר לזמן, פסוק או מקור מדויק, מקורות עצמאיים) עדיין לא מחושב, ולכן חסר כאן.</dd>
         <dt><span className="k29-tier is-diamond"><i aria-hidden="true">◆</i></span> <span className="k29-tier is-gold"><i aria-hidden="true">●</i></span> זהב ויהלום</dt>
-        <dd>ביטויים שצוריאל סימן ידנית, שערכם שווה למספרי הכרטיס{numberList ? ` (${numberList})` : ""}. הסימון אינו נגזר מהכוכבים או מהחוזק. מקור: מנוע ההתכנסות הקיים.
+        <dd>ביטויים שסומנו ידנית בידי המערכת, שערכם שווה למספרי הכרטיס{numberList ? ` (${numberList})` : ""}. הסימון אינו נגזר מהכוכבים או מהחוזק. מקור: מנוע ההתכנסות הקיים.
           {!lookup.length ? " לכרטיס אין מספר לבדיקה." : tiers === null ? " בודק…" : !tiers.loaded ? " לא התקבל מידע כרגע." : hasTier ? "" : " לא נמצאו ביטויי זהב או יהלום למספרים האלה."}
           {tiers?.anchors?.length ? <> עוגן קדוש (רשימה נפרדת, לא יהלום): {tiers.anchors.join(" · ")}.</> : null}</dd>
         <dt><span className="k29-num is-l1">14</span> <span className="k29-num is-l2">9</span> מספרי הכרטיס</dt>
