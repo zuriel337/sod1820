@@ -6,7 +6,8 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const base = process.env.POSTS_PREVIEW_BASE || 'http://127.0.0.1:4178';
 const out = process.env.POSTS_PREVIEW_ARTIFACTS || '/workspace/artifacts/2029-integrated-preview/posts-local';
 const access = process.env.POSTS_SHARE_FILE ? JSON.parse(await fs.readFile(process.env.POSTS_SHARE_FILE,'utf8')) : null;
-const receipt = { sha: execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(), workingTree: Boolean(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim()), base, at:new Date().toISOString(), cases:[] };
+const harnessSha = execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const receipt = { sha: process.env.POSTS_DEPLOYMENT_SHA || harnessSha, harnessSha, workingTree: Boolean(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim()), base, at:new Date().toISOString(), cases:[] };
 await fs.mkdir(out,{recursive:true});
 const browser = await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
 let page;
@@ -18,7 +19,9 @@ try {
     page.on('pageerror',e=>errors.push(e.message));
     page.on('request',r=>{if(!['GET','HEAD','OPTIONS'].includes(r.method())&&!new URL(r.url()).pathname.startsWith('/rest/v1/rpc/'))writes.push({method:r.method(),path:new URL(r.url()).pathname});});
     if(access) {await page.goto(access.shareableUrl,{waitUntil:'domcontentloaded'});await page.waitForURL(u=>u.origin===base&&!u.searchParams.has('_vercel_share'));}
-    await page.goto(base+'/2029/posts',{waitUntil:'domcontentloaded'});
+    // The share URL already opens Posts. A second navigation during the guard's
+    // cold bootstrap can interrupt controller acquisition before App imports.
+    else await page.goto(base+'/2029/posts',{waitUntil:'domcontentloaded'});
     const cards=page.locator('[data-experience-capability="post-index-card"]');
     await cards.first().waitFor();
     assert.ok(await cards.count()>1);
