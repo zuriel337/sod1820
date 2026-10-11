@@ -7,6 +7,20 @@ import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+
+// Some WordPress Posts authored equalities as plain text with a colored value,
+// before data-gem existed. Decorate only complete, explicit equality lines.
+// Preserve their wording, colors and media; no association is engine-verified
+// here. Each operand opens its own canonical Number calculation.
+function markLegacyEqualityLines(content = "") {
+  const operand = (text, numeric = false) => `<button type="button" class="${numeric ? "sod29-gematria-value" : "sod29-gematria-expression"}" data-gem="${text.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">${text.trim()}</button>`;
+  const hebrew = '[א-ת][א-ת\\u0591-\\u05C7 ״׳"\\x27-]{0,70}';
+  const forward = new RegExp('(^|>|\\n)(' + hebrew + ')\\s*=\\s*(<span\\b[^>]*>)?(\\d{1,9})(<\\/span>)?(?:\\s*=\\s*(' + hebrew + '))?(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
+  const reverse = new RegExp('(^|>|\\n)(\\d{1,9})\\s*=\\s*(' + hebrew + ')(?=\\s*(?:<br\\b|<\\/(?:p|h[1-6]|div)>|$))', 'g');
+  return String(content).split(/(<(?:a|button|script|style|pre|code)\b[^>]*>[\s\S]*?<\/(?:a|button|script|style|pre|code)>)/gi).map((part, index) => index % 2 ? part : part
+    .replace(forward, (match, start, phrase, span, number, endSpan, other) => `${start}${operand(phrase)} = ${span || ""}${operand(number, true)}${endSpan || ""}${other ? ` = ${operand(other)}` : ""}`)
+    .replace(reverse, (match, start, number, phrase) => `${start}${operand(number, true)} = ${operand(phrase)}`)).join("");
+}
 const GOLDEN_SLUG = "remzei-geula-ai-sod-hashir";
 const BENNETT_CONTEXTUAL_NUMBER_FOCUS = Object.freeze({
   expression: "נפתלי בנט",
@@ -322,10 +336,10 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
 const BENNETT_SALT_REGIONS = Object.freeze([
   {
     id: "elections-chain",
-    heading: "הסיפור הזה ממשיך מפוסט הבחירות",
-    label: "פוסט הבחירות · ציר 631",
-    primary: "פוסט הבחירות → 631 → בנט",
-    signals: ["מידע קודם", "אותו ציר"],
+    heading: "האירוע שתועד",
+    label: "בנט · האירוע שתועד",
+    primary: "נפתלי בנט · אירוע המלחיות בבני ברק",
+    signals: ["תיעוד המקור", "המשך לציר הבחירות"],
     worldLabel: "פתח את פוסט הבחירות",
   },
   {
@@ -339,7 +353,7 @@ const BENNETT_SALT_REGIONS = Object.freeze([
   },
   {
     id: "dead-sea-chronology",
-    heading: "כמה ימים קודם — ים המלח",
+    heading: "ים המלח",
     label: "22.9 → 24.9",
     primary: "פוסט ים המלח → אירוע המלחיות",
     signals: ["קשר כרונולוגי", "ללא טענת סיבתיות"],
@@ -347,12 +361,23 @@ const BENNETT_SALT_REGIONS = Object.freeze([
   },
 ]);
 
-function buildBennettGoldenBody(verification) {
+function buildBennettGoldenBody(verification, originalContent = "") {
   const verified = verification?.verified === true;
-  const focusAttrs = (expression) => verified
-    ? ` data-contextual-number-focus="true" data-focus-part="result" data-region-id="bennett-631" data-expression="${expression}" data-method="רגיל" data-result="631"`
+  const focusAttrs = (expression, part = "result") => verified
+    ? ` data-contextual-number-focus="true" data-focus-part="${part}" data-region-id="bennett-631" data-expression="${expression}" data-method="רגיל" data-result="631"`
     : "";
 
+  // The short reading composition must not replace the authored Post. Its
+  // complete source stays available here; historical result attributes are
+  // treated as source claims, not as live engine verification.
+  const original = String(originalContent).replace(/<button\b([^>]*)>/gi, (match, attrs) => {
+    const expression = attrs.match(/data-expression="([^"]+)"/)?.[1];
+    if (!expression) return match;
+    return `<button${attrs.replace(/\sdata-contextual-number-focus="true"/g, "")} data-gem="${expression}">`;
+  }).replace(/(<p\b[^>]*class="[^"]*sod29-gematria-line[^"]*"[^>]*>)([^<]+?)\s*=\s*(<button\b[^>]*data-gem="([^"]+)"[^>]*>)/g,
+    (match, open, phrase, button, expression) => stripTags(phrase) === expression
+      ? `${open}<button type="button" class="sod29-gematria-expression" data-gem="${expression}">${phrase.trim()}</button> = ${button}`
+      : match);
   return `
 <section dir="rtl" class="sod29-bennett-golden-body">
   <section class="sod29-bennett-golden-section is-incident">
@@ -364,15 +389,15 @@ function buildBennettGoldenBody(verification) {
   <section class="sod29-bennett-golden-section is-core">
     <h2 data-source-heading="true">631 — הציר המרכזי</h2>
     ${verified ? `
-      <button type="button" class="sod29-gematria-value sod29-gematria-hero"${focusAttrs("נפתלי בנט")}>631</button>
       <div class="sod29-bennett-equalities" data-contextual-number-focus-group="true">
-        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("נפתלי בנט")}>נפתלי בנט</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("נפתלי בנט")}>631</button></p>
-        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("הבחירות")}>הבחירות</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("הבחירות")}>631</button></p>
-        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("מלך ישראל")}>מלך ישראל</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("מלך ישראל")}>631</button></p>
+        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("נפתלי בנט", "expression")}>נפתלי בנט</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("נפתלי בנט")}>631</button></p>
+        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("הבחירות", "expression")}>הבחירות</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("הבחירות")}>631</button></p>
+        <p><button type="button" class="sod29-gematria-expression"${focusAttrs("מלך ישראל", "expression")}>מלך ישראל</button> = <button type="button" class="sod29-gematria-value"${focusAttrs("מלך ישראל")}>631</button></p>
       </div>
     ` : `<p class="sod29-state warn">החישוב הקנוני אינו זמין כרגע; השוויונות אינם מוצגים עד לאימות.</p>`}
     <p>את ציר 631 פתחנו בפוסט הבחירות. האירוע הזה מצטרף אליו: אותו מספר, אדם אחד נוסף. חיבורים נוספים סביב האירוע זמינים בהקשר הצדדי.</p>
   </section>
+  ${original ? `<details class="sod29-original-post"><summary>הפוסט המלא · מלח, ברית מלח והחיבורים הנוספים</summary><div class="sod29-original-post-body">${original}</div></details>` : ""}
 </section>`;
 }
 
@@ -395,21 +420,21 @@ function buildBennettSaltExperience(post) {
       },
     },
     connections: [
-      { id: "bennett-631", label: "נפתלי בנט", kind: "PERSON / POST", value: "631", href: "/sharshar-elections-redemption-hints-draft", reason: "631 כבר חי בפוסט הבחירות; כאן הוא נצרך כחיבור ולא נוצר מחדש.", provenanceLabel: "post:5107" },
+      { id: "bennett-631", label: "פוסט הבחירות · ציר 631", kind: "POST", value: "631", href: "/post/sharshar-elections-redemption-hints-draft", reason: "כאן נפתח ציר 631; פוסט בנט הוא המשך שלו. פתחו את הפוסט כדי לקרוא את החישובים ואת החיבורים המקוריים.", provenanceLabel: "post:5107" },
       { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע.", provenanceLabel: "מנוע גימטריה" },
       { id: "bread-78", label: "לחם", kind: "NUMBER", value: "78", href: "/2029/number/78", reason: "אותו ערך רגיל כמו מלח; המשמעות פרשנית." },
-      { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
+      { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/post/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
       { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/2029/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
       { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/2029/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
     ],
     timeline: [
-      { id: "dead-sea-post", label: "פורסם פוסט ים המלח", date: "2026-09-22", temporalRole: "published", href: "/yam-hamelach-tiferet-geula", sourceLabel: null, note: "פוסט קיים ונפרד באתר." },
+      { id: "dead-sea-post", label: "פורסם פוסט ים המלח", date: "2026-09-22", temporalRole: "published", href: "/post/yam-hamelach-tiferet-geula", sourceLabel: null, note: "פוסט קיים ונפרד באתר." },
       { id: "bennett-salt-event", label: "אירוע המלחיות בבני ברק", date: "2026-09-24", temporalRole: "occurred", href: "https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm", sourceLabel: "N12 · Times of Israel", note: "הציר מציג סדר כרונולוגי בלבד, ללא טענת סיבתיות." },
       { id: "bennett-salt-golden", label: "הפוסט פורסם", date: dateOnly(post?.date) || "2026-10-01", temporalRole: "published", href, current: true, sourceLabel: null, note: "תאריך הפרסום של הפוסט." },
     ],
     // CHAIN_AUTOMATION = FIXTURE/HARDCODED: trail is declared here, not derived from relation data.
     trail: [
-      { id: "elections-post", label: "פוסט הבחירות", href: "/sharshar-elections-redemption-hints-draft", kind: "post", active: false },
+      { id: "elections-post", label: "פוסט הבחירות", href: "/post/sharshar-elections-redemption-hints-draft", kind: "post", active: false },
       { id: "bennett-631", label: "631", href: "/2029/number/631", kind: "number", active: false },
       { id: "bennett-post", label: "בנט", href, kind: "post", active: true },
     ],
@@ -431,6 +456,7 @@ const ELECTIONS_EQUALITIES = Object.freeze([
   { phrase: "חכמה", value: 271, regionId: "elections-271" },
   { phrase: "יהוה", value: 26, regionId: "elections-26" },
   { phrase: "בן דוד", value: 66, regionId: "elections-66" },
+  { phrase: "מזל", value: 77, regionId: "elections-77" },
 ]);
 const ELECTIONS_REGIONS = Object.freeze([
   { id: "elections-631", heading: "631", label: "631 · הציר המרכזי", primary: "הבחירות = מלך ישראל = נפתלי בנט = 631", signals: ["5 שוויונות", "המשך: פוסט בנט"], number: 631, hero: true, worldLabel: "פתח את 631" },
@@ -439,6 +465,7 @@ const ELECTIONS_REGIONS = Object.freeze([
   { id: "elections-1820", heading: "1820", label: "1820 · המספר שמלווה את האתר", primary: "עופר וינטר · מילוי = 1820", signals: ["המספר של SOD1820"], number: 1820, worldLabel: "פתח את 1820" },
   { id: "elections-26", heading: "26", label: "26 · יהוה", primary: "יהוה = 26", signals: ["הכנסת ה־26"], number: 26, worldLabel: "פתח את 26" },
   { id: "elections-66", heading: "66", label: "66 · בן דוד", primary: "בן דוד = 66", signals: ["שישים ושש זוגות"], number: 66, worldLabel: "פתח את 66" },
+  { id: "elections-77", heading: "נתניהו בן 77 — מזל ופרשת בראשית", label: "77 · מזל · פרשת בראשית", primary: "מזל = 77", signals: ["יום ההולדת העברי", "מקורות בתוך הפוסט"], number: 77, worldLabel: "פתח את 77" },
 ]);
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -449,16 +476,24 @@ function markElectionsChain(content = "", verification = null) {
   // Region anchors: the existing big-number paragraphs become source headings in place.
   for (const region of ELECTIONS_REGIONS) {
     const pattern = new RegExp("(<p\\b)([^>]*>)(\\s*" + escapeRegExp(region.heading) + "\\s*<\\/p>)", "i");
-    html = html.replace(pattern, '$1 data-source-heading="true" data-elections-chain="v1"$2$3');
+    html = html.replace(pattern, '$1 data-source-heading="true" data-elections-chain="v1" data-gem="' + region.number + '"$2$3');
   }
+  html = html.replace(/(<h2\b)([^>]*>נתניהו בן 77 — מזל ופרשת בראשית<\/h2>)/, '$1 data-source-heading="true"$2');
   // Equal-gematria lines: only engine-verified equalities become sidecar triggers.
   const verified = new Set((verification?.rows || []).filter((row) => row.verified).map((row) => row.phrase));
   for (const eq of ELECTIONS_EQUALITIES) {
-    if (!verified.has(eq.phrase)) continue;
-    const pattern = new RegExp("(<p\\b[^>]*>\\s*)(" + escapeRegExp(eq.phrase) + ")\\s*=\\s*" + eq.value + "(\\s*<\\/p>)", "i");
-    const button = `<button type="button" class="sod29-gematria-value" data-contextual-number-focus="true" data-focus-part="result" data-region-id="${eq.regionId}" data-expression="${eq.phrase}" data-method="רגיל" data-result="${eq.value}">${eq.value}</button>`;
-    const phraseButton = `<button type="button" class="sod29-gematria-expression" data-contextual-number-focus="true" data-focus-part="expression" data-region-id="${eq.regionId}" data-expression="${eq.phrase}" data-method="רגיל" data-result="${eq.value}">${eq.phrase}</button>`;
-    html = html.replace(pattern, `$1${phraseButton} = ${button}$3`);
+    const attrs = (part) => verified.has(eq.phrase)
+      ? `data-contextual-number-focus="true" data-focus-part="${part}" data-region-id="${eq.regionId}" data-expression="${eq.phrase}" data-method="רגיל" data-result="${eq.value}"`
+      : `data-gem="${part === "expression" ? eq.phrase : eq.value}"`;
+    // Only the explicit equalities already authored here are decorated. An
+    // unverified source claim opens each operand independently; it never seeds
+    // its claimed result into the phrase's canonical calculation.
+    html = html.replace(/(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi, (match, open, body, close) => {
+      if (stripTags(body) !== `${eq.phrase} = ${eq.value}` || /<(?:button|img|video|iframe)\b/i.test(body)) return match;
+      const phrase = `<button type="button" class="sod29-gematria-expression" ${attrs("expression")}>${eq.phrase}</button>`;
+      const value = `<button type="button" class="sod29-gematria-value" ${attrs("result")}>${eq.value}</button>`;
+      return `${open.replace(/>$/, ' class="sod29-post-equality">')}${phrase} = ${value}${close}`;
+    });
   }
   // Parent relation: the 631 axis opened here continues in the Bennett post (link only, no copy).
   const card = `
@@ -466,7 +501,14 @@ function markElectionsChain(content = "", verification = null) {
   <span><small>הציר הזה ממשיך</small><br><strong>בנט בתוך ציר 631</strong><br><small>פוסט ההמשך מוסיף אירוע חדש לאותו ציר · המידע הקודם נשאר כאן</small></span>
   <b>פתח ←</b>
 </a>`;
-  return html.replace(/(נס נתניהו(?:<\/button>)?\s*=\s*(?:<button[\s\S]*?<\/button>|631)\s*<\/p>)/, `$1${card}`);
+  html = html.replace(/(נס נתניהו(?:<\/button>)?\s*=\s*(?:<button[\s\S]*?<\/button>|631)\s*<\/p>)/, `$1${card}`);
+  // The main axis precedes the secondary axes in the reading projection. Move
+  // the existing block once, without copying, dropping or rewriting its text.
+  const primary = html.match(/<p\b[^>]*data-gem="631"[^>]*>\s*631\s*<\/p>[\s\S]*?data-elections-continuation="true"[\s\S]*?<\/a>/);
+  if (primary && /<h1\b[^>]*>[\s\S]*?<\/h1>/.test(html)) {
+    html = html.replace(primary[0], "").replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/, `$1${primary[0]}`);
+  }
+  return html.replace(/<section\b/, '<section class="sod29-elections-reading-body"');
 }
 
 function buildElectionsExperience(post) {
@@ -665,10 +707,10 @@ export async function fetchPost2029ReadingProjection(slug) {
           ...post,
           title: "בנט בתוך ציר 631",
           excerpt: "אירוע חדש מתחבר לציר 631 שכבר הופיע בפוסט הבחירות: נפתלי בנט = הבחירות = מלך ישראל = 631. יומיים קודם פורסם פוסט ים המלח.",
-          content: buildBennettGoldenBody(bennettSaltVerification),
+          content: buildBennettGoldenBody(bennettSaltVerification, post.content),
           _experience: buildBennettSaltExperience(post),
         }
-      : post;
+      : { ...post, content: markLegacyEqualityLines(post.content) };
   const regions = (isGolden
     ? GOLDEN_REGIONS
     : isFz1073Pilot
@@ -749,6 +791,7 @@ export async function fetchPost2029ReadingProjection(slug) {
 }
 
 export const post2029ReadingInternals = {
+  markLegacyEqualityLines,
   stripTags,
   defaultRegionsFromSource,
   BENNETT_CONTEXTUAL_NUMBER_FOCUS,

@@ -135,6 +135,49 @@ html[data-sod-visual-option] .sod29-root .sod29-reading-source p { font-size: 18
 html[data-sod-visual-option] .sod29-root .sod29-reading-source :is(.sod29-gematria-expression,[data-gem]) { cursor: pointer; text-underline-offset: 4px; text-decoration: underline dotted var(--s29-brand-gold); }
 html[data-sod-visual-option] .sod29-root .sod29-gematria-expression { min-height: 44px; padding: 4px 6px; border: 0; border-radius: 6px; font: inherit; color: var(--s29-ink); background: transparent; }
 html[data-sod-visual-option] .sod29-root .sod29-reading-source :is(a,span,b)[data-gem] { display: inline-flex; align-items: center; min-height: 44px; }
+/* Legacy's phrase/value distinction, projected into the selected Crown modes.
+   Gold identifies a calculation value; ordinary story text stays readable. */
+html[data-sod-visual-option] .sod29-root .sod29-reading-source { --s29-post-number-ink: var(--s29-brand-gold); background: color-mix(in srgb,var(--s29-brand-gold) 4%,var(--s29-panel)); }
+html[data-sod-visual-option] .sod29-root[data-frame-theme-preset="light"] .sod29-reading-source,
+html[data-sod-visual-option] .sod29-root[data-frame-theme-preset="parchment"] .sod29-reading-source { --s29-post-number-ink: #8a6410; }
+html[data-sod-visual-option] .sod29-root .sod29-reading-source :is(.sod29-gematria-value,.sod-numlink) { color: var(--s29-post-number-ink) !important; min-height: 44px; min-width: 44px; padding: 4px 6px; font-weight: 700; text-decoration: none; }
+html[data-sod-visual-option] .sod29-root .sod29-reading-source .sod-gemlink { color: inherit; }
+html[data-sod-visual-option] .sod29-root .sod29-reading-source :is(.sod29-gematria-expression,.sod29-gematria-value,[data-gem]):hover { background: color-mix(in srgb,var(--s29-brand-gold) 9%,transparent); }
+/* One story hierarchy, no stack of oversized introductory cards. */
+html[data-sod-visual-option] .sod29-root .sod29-bennett-golden-body { gap: 18px; }
+html[data-sod-visual-option] .sod29-root .sod29-bennett-golden-section { padding: 0; border: 0; border-radius: 0; background: transparent; }
+html[data-sod-visual-option] .sod29-root .sod29-bennett-golden-section.is-core { padding-top: 16px; border-top: 1px solid var(--s29-line); text-align: start; }
+html[data-sod-visual-option] .sod29-root .sod29-bennett-golden-section h2 { font-size: 23px; font-weight: 500; text-align: start; margin-bottom: 10px; }
+html[data-sod-visual-option] .sod29-root .sod29-bennett-golden-section p { margin-block: 8px; }
+html[data-sod-visual-option] .sod29-root .sod29-bennett-equalities { max-width: none; gap: 0; margin: 8px 0 14px; }
+html[data-sod-visual-option] .sod29-root .sod29-bennett-equalities p { justify-content: flex-start; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-weight: 500; }
+html[data-sod-visual-option] .sod29-root .sod29-source-video-card { grid-template-columns: 56px minmax(0,1fr); border-radius: 12px; }
+html[data-sod-visual-option] .sod29-root .sod29-source-video-poster { min-height: 84px; }
+html[data-sod-visual-option] .sod29-root .sod29-source-video-poster i { width: 32px; height: 32px; font-size: 16px; }
+html[data-sod-visual-option] .sod29-root .sod29-source-video-copy { padding: 10px 12px; gap: 4px; }
+html[data-sod-visual-option] .sod29-root .sod29-source-video-copy :is(small,em) { font-size: 14px; font-weight: 400; }
+html[data-sod-visual-option] .sod29-root .sod29-source-video-copy strong { font-size: 18px; font-weight: 500; }
+html[data-sod-visual-option] .sod29-root .sod29-chain-trail { gap: 4px; margin-block: 12px; justify-content: flex-start; }
+html[data-sod-visual-option] .sod29-root .sod29-chain-trail-step { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 8px; font-size: 14px; font-weight: 500; border-radius: 8px; }
+html[data-sod-visual-option] .sod29-root .sod29-chain-trail-step small { font-size: 14px; font-weight: 400; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body { text-align: start !important; padding: 0 !important; line-height: 1.8 !important; }
+/* The authored title remains in the source DOM; the article has one visible h1. */
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body > :is(h1,p:first-child) { display: none; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body p { font-size: 18px !important; line-height: 1.8 !important; margin: 8px 0 !important; font-weight: 400 !important; opacity: 1 !important; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body :is(h2,blockquote) { font-size: 23px !important; line-height: 1.6 !important; margin: 18px 0 10px !important; font-weight: 500 !important; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body hr { margin: 22px 0 !important; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body p[data-source-heading] { font-size: 30px !important; font-weight: 600 !important; color: var(--s29-post-number-ink) !important; margin-top: 20px !important; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body p[data-gem="631"] { margin-top: 0 !important; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-reading-body p[data-gem="631"]::before { content: "ציר הבחירות · "; font-size: 18px; font-weight: 500; color: var(--s29-ink); }
+html[data-sod-visual-option] .sod29-root .sod29-post-equality { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 !important; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-continuation { padding: 10px 12px; border-radius: 10px; margin-block: 12px 24px; }
+html[data-sod-visual-option] .sod29-root .sod29-elections-continuation small { font-size: 14px; }
+html[data-sod-visual-option] .sod29-root .sod29-original-post { margin-top: 10px; border-top: 1px solid var(--s29-line); }
+html[data-sod-visual-option] .sod29-root .sod29-original-post > summary { min-height: 44px; padding-block: 8px; cursor: pointer; font-size: 16px; color: var(--s29-discovery); }
+html[data-sod-visual-option] .sod29-root .sod29-original-post-body { padding-top: 12px; }
+html[data-sod-visual-option] .sod29-root .sod29-original-post-body :is(h2,h3) { font-size: 23px; font-weight: 500; }
+html[data-sod-visual-option] .sod29-root .sod29-original-post-body .sod29-gematria-hero { display: inline-flex; min-height: 44px; min-width: 44px; font-size: 30px; margin: 4px; }
+html[data-sod-visual-option] .sod29-root .sod29-original-post-body .sod29-gematria-line { font-size: 18px; font-weight: 500; justify-content: flex-start; }
 html[data-sod-visual-option] .sod29-root :is(.sod29-number-drawer-mode small,.sod29-number-drawer-mode span,.sod29-number-drawer-status,.sod29-number-core2029-kicker,.sod29-number-core2029-active span,.sod29-number-core2029 small) { font-size: 14px; line-height: 1.5; }
 html[data-sod-visual-option] .sod29-root :is(.sod29-post-details > summary,.sod29-gematria-expression,[data-gem]):focus-visible { outline: 2px solid var(--s29-focus-ring); outline-offset: 3px; }
 html[data-sod-visual-option] .sod29-root .sod29-posts-index { padding-top: 14px; }

@@ -223,3 +223,92 @@ The canonical 27-item record is preserved in full at
 
 No merge, production release, product database mutation, authorization change,
 corpus rerun or paid AI execution is part of this Preview.
+
+## Post hierarchy and legacy gematria continuation · 11 October 2026
+
+User priority: actual Bennett/elections Posts, the legacy gematria color language,
+and independent phrase/value clicks before continuing the broader construction.
+The selected Design V2 Night/Day palette remains unchanged. Actor GPT; owner
+publishing_content with the existing Experience/Frame/Number consumers.
+CLAIM `90df940e-8678-4eb0-984e-9c1c3038610b`; isolated continuation ACK
+`6280e96b-332f-4607-a50f-8733d3cdce3c`.
+
+Remote visual-calibration advanced during this work. To preserve the Number
+continuation without overwriting its branch, this slice is stacked from
+`b25317630fe1c9a16617cbe96a2c28c19c5b7586` on
+`gpt/preview-post-hierarchy-20261011`. Main remains
+`737ee9aa2df4aaa80dd95ea0fa3c4f2bcbc4f12a`; no main merge performed.
+The new commit changes only the Post consumer/projection, existing gated Preview
+CSS, focused Post tests and this handoff; inherited Number changes are not
+claimed as new work in this slice.
+
+The hierarchy is now:
+
+- Bennett identifies itself as Bennett, with a thin title and one expandable
+  metadata row. The documented event precedes the compact 631 equalities.
+  A duplicate large 631 panel is removed. Parent navigation points to the real
+  elections Post through `/post/sharshar-elections-redemption-hints-draft`;
+  source dates and chronology remain distinct.
+- Elections moves the existing 631 block once to the start of the reading body,
+  followed by its Bennett continuation. Secondary 26/271/2701/1820/66 sections,
+  the later 77 passage, external sources and seven historical connections remain.
+  Duplicate visible opening titles and oversized inline typography are compacted
+  in the Preview projection. Authored database content is not rewritten.
+- Bennett's short composition no longer removes access to its complete source:
+  “הפוסט המלא” reveals the existing authored text, including 78, 756 and the
+  additional salt/covenant/dead-sea material. A saved deep locator opens this
+  disclosure before restoring the source anchor. Existing locator identities
+  remain stable; the obsolete introductory heading now maps to the actual event.
+- Values use Crown gold at Night, accessible dark gold `#8a6410` at Day;
+  expressions retain readable text with a fine gold dotted underline. Both have
+  keyboard/touch access to the same existing Number window. Original WordPress
+  colored spans and media remain; explicit complete equality lines gain separate
+  operand triggers. Existing `/number/...` links open in place on ordinary click,
+  retaining their href for modified-click navigation.
+- Verified curated equality buttons keep expression/method/value context. A
+  historical source claim that has not passed live verification opens the phrase
+  and the number independently; its claimed result is not seeded as a verified
+  phrase calculation. No new calculation engine, drawer, store or graph exists.
+
+Real acceptance routes, not fabricated Posts:
+
+| Existing Post | Route / source identity |
+| --- | --- |
+| Bennett | `/post/bennett-melach-631-78`, public Post 5113 |
+| Elections | `/post/sharshar-elections-redemption-hints-draft`, public Post 5107 |
+| Authored existing gematria/media | `/post/flydubai-fz1073-363-14000-remzei-geula`, public Post 5112 |
+| Historical elections, 2021 | `/post/רמזי-הבחירות-הרביעיות-יא-ניסן-יום-הולד`, public Post 906 |
+
+Local acceptance: 24 real layouts (four Posts × Night/Day × 320/390/1440),
+48 Number-window interactions, exact URL/scroll/focus return, source disclosure,
+deep-locator arrival and elections→Bennett→elections navigation. Headers stay
+below 300px, touch values are at least 44px, no horizontal overflow. 35 focused
+Post/Number/return/guard tests pass; normal/integrated builds and Frame acceptance
+pass. The inherited Number Preview and numberMathProfile checks also pass. Live
+deployment SHA and live acceptance are recorded in the short AFTER, after READY.
+
+Evidence: `/workspace/scratch/sod1820-preview-continuation-20261011/post-hierarchy/`
+contains `verify.py`, local/live JSON receipts, logs and actual viewport captures.
+The three historical `post2029-living-tree-infra` baseline failures described
+above remain outside this bounded change; the full historical suite is not
+claimed green. This is public/guest acceptance, not real account/cloud-save
+certification or exhaustive acceptance of every WordPress layout.
+
+All 27 requirements remain in full at
+`c29a9f97-9a0b-46c2-97cd-ce7b4a50d75a`, parent
+`4e8c4d18-a65d-401a-8b5f-c98c54f08589`; this handoff is not a replacement plan.
+Missing approved `sod1820-one-journey.html` and the six source appendices remain
+open. Source streams, complete World/Home acceptance, quality assessment and
+future journeys/Raziel/community/account requirements continue under that plan.
+
+Exact inherited sources and legacy visual evidence:
+https://github.com/zuriel337/sod1820/blob/b25317630fe1c9a16617cbe96a2c28c19c5b7586/docs/2029-eight-visual-review-handoff.md
+https://github.com/zuriel337/sod1820/blob/4b1488498e5b80484b879b74706fbb3628c94978/SOD1820_DESIGN_CONTRACT_V2.md
+https://github.com/zuriel337/sod1820/blob/4b1488498e5b80484b879b74706fbb3628c94978/src/legacy/legacy.jsx
+https://github.com/zuriel337/sod1820/blob/4b1488498e5b80484b879b74706fbb3628c94978/src/theme.js
+https://github.com/zuriel337/sod1820/blob/4b1488498e5b80484b879b74706fbb3628c94978/src/pages/PostEditorPage.jsx
+https://www.mako.co.il/news-politics/2026_q3/Article-af2d728ffded0a1027.htm
+
+No ownership change, production deployment, merge, new publication, product DB
+write, corpus rerun or paid AI call. Guarded Preview deployment remains the
+only authorized release target.

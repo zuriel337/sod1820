@@ -14,7 +14,7 @@ const SOURCE = `<section>
 const verifiedRows = (phrases) => ({ verified: true, rows: phrases.map((phrase) => ({ phrase, verified: true })) });
 
 test("elections regions put 631 first and keep secondary axes navigable", () => {
-  assert.deepEqual(I.ELECTIONS_REGIONS.map((r) => r.number), [631, 271, 2701, 1820, 26, 66]);
+  assert.deepEqual(I.ELECTIONS_REGIONS.map((r) => r.number), [631, 271, 2701, 1820, 26, 66, 77]);
   assert.equal(I.ELECTIONS_REGIONS[0].hero, true);
 });
 
@@ -25,7 +25,29 @@ test("source is preserved; axes tagged; only verified equalities become triggers
   assert.match(all, /data-focus-part="expression"[^>]*data-region-id="elections-66"[^>]*>בן דוד<\/button> = <button/);
   const none = I.markElectionsChain(SOURCE, { verified: false, rows: [] });
   assert.doesNotMatch(none, /data-contextual-number-focus/);
-  assert.match(none, /הבחירות = 631/);
+  assert.match(none.replace(/<[^>]+>/g, ""), /הבחירות = 631/);
+  assert.match(none, /data-gem="הבחירות"/);
+  assert.match(none, /data-gem="631"/);
+});
+
+test("the existing primary block moves once; secondary source text and links survive", () => {
+  const source = `<section><h1>הבחירות</h1><p>26</p><p>יהוה = 26</p><p>631</p><p>הבחירות = 631</p><p>נס נתניהו = 631</p><p>66</p><p>בן דוד = 66</p><a href="https://example.com/evidence">מקור</a></section>`;
+  const html = I.markElectionsChain(source, verifiedRows(["הבחירות", "נס נתניהו"]));
+  assert.ok(html.indexOf('data-gem="631"') < html.indexOf('data-gem="26"'));
+  assert.equal((html.match(/data-elections-continuation="true"/g) || []).length, 1);
+  assert.equal((html.match(/data-expression="הבחירות"/g) || []).length, 2);
+  assert.match(html, /<a href="https:\/\/example.com\/evidence">מקור<\/a>/);
+  assert.match(html, />בן דוד<\/button> = <button[^>]*data-gem="66"/);
+  assert.equal(I.markElectionsChain(html, null), html);
+});
+
+test("an authored linked equality gains two verified operands without nesting links", () => {
+  const html = I.markElectionsChain('<section><h2>נתניהו בן 77 — מזל ופרשת בראשית</h2><p><a href="/number/77">מזל = 77</a></p><p><a href="/number/77">77</a></p></section>', verifiedRows(["מזל"]));
+  assert.match(html, /data-focus-part="expression"[^>]*data-expression="מזל"/);
+  assert.match(html, /data-focus-part="result"[^>]*data-result="77"/);
+  assert.doesNotMatch(html, /<a[^>]*><button/);
+  assert.match(html, /data-source-heading="true">נתניהו בן 77/);
+  assert.match(html, /<a href="\/number\/77">77<\/a>/);
 });
 
 test("631 exposes the Bennett continuation by link, without copying Bennett", () => {

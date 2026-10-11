@@ -18,6 +18,13 @@ const normalize = (value) => String(value || "")
   .replace(/\s+/g, " ")
   .trim();
 
+function revealReadingAnchor(node) {
+  for (let parent = node?.parentElement; parent; parent = parent.parentElement) {
+    if (parent.tagName === "DETAILS") parent.open = true;
+  }
+  return node;
+}
+
 function PostReadingBody() {
   const { slug } = useParams();
   const location = useLocation();
@@ -85,7 +92,7 @@ function PostReadingBody() {
   const activeRegionFocus = activeFocus;
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
-    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
+    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
     ...(state.projection?.experience?.connections?.some((item) => item.href)
       ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
@@ -97,10 +104,23 @@ function PostReadingBody() {
     // Existing authored gematria markings remain the actionable unit. Make
     // non-link legacy markings keyboard reachable without rewriting the source.
     for (const node of sourceRef.current.querySelectorAll("[data-gem]")) {
+      if (/^\d[\d,]*$/.test(String(node.textContent || "").trim())) node.classList.add("sod-numlink");
       if (!node.matches("a,button") && !node.closest("a,button")) {
         node.setAttribute("role", "button");
         node.tabIndex = 0;
       }
+    }
+    // Authored legacy number links use the same in-place Number capability.
+    // Keep their href for ordinary modified-click navigation and copying.
+    for (const link of sourceRef.current.querySelectorAll('a[href^="/number/"]')) {
+      if (link.hasAttribute("data-gem")) continue;
+      try {
+        const term = decodeURIComponent(link.getAttribute("href").slice("/number/".length).split(/[?#]/)[0]).trim();
+        if (term) {
+          link.dataset.gem = term;
+          if (/^\d[\d,]*$/.test(String(link.textContent || "").trim())) link.classList.add("sod-numlink");
+        }
+      } catch { /* Keep a malformed legacy URL unchanged. */ }
     }
     const headings = [...sourceRef.current.querySelectorAll("[data-source-heading='true']"),
       ...(connectionsHeadingRef.current ? [connectionsHeadingRef.current] : [])];
@@ -122,6 +142,7 @@ function PostReadingBody() {
       setActiveRegionId(restored.region.id);
       restored.heading.tabIndex = -1;
       frame = requestAnimationFrame(() => {
+        revealReadingAnchor(restored.heading);
         restored.heading.scrollIntoView({ behavior: "instant", block: "start" });
         restored.heading.focus({ preventScroll: true });
       });
@@ -296,7 +317,7 @@ function PostReadingBody() {
       ? "2026-09-30"
       : String(post.date || post.modified || "").slice(0, 10);
   const visibleSourceLabel = isBennettMaster
-    ? "פוסט הבחירות · ציר 631"
+    ? "בנט · המשך לציר הבחירות"
     : isFz1073Master
       ? "טיסה FZ1073"
       : projection.sourceLabel;
@@ -518,6 +539,7 @@ function PostReadingBody() {
   };
 
   const handleSourceContextualFocus = (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const trigger = event.target?.closest?.("[data-contextual-number-focus='true']");
     if (trigger && sourceRef.current?.contains(trigger)) {
       event.preventDefault();
@@ -548,6 +570,7 @@ function PostReadingBody() {
             returnTo: exactReturnForRegion(activeFocus),
           });
           shell.openNumber?.({ id: `post:${post.id}:${term}`, type: "phrase", label: term, expression: term,
+            method: legacyNumber.dataset.method || undefined,
             source: "post-authored-gematria", locator, sourceLabel: projection.sourceLabel });
         }
       }
@@ -625,6 +648,7 @@ function PostReadingBody() {
               <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
             </summary>
             <div className="sod29-post-details-body">
+              {post.author ? <p>מאת {post.author}</p> : null}
               <p className="sod29-reading-source-line">{projection.sourceLine}</p>
               {heroDate ? <p>תאריך הפוסט: <time>{heroDate}</time></p> : null}
               <div className="sod29-reading-meta-line">
@@ -637,7 +661,7 @@ function PostReadingBody() {
           </details>
         </div>
 
-        {heroNumbers.length ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+        {heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
@@ -666,7 +690,7 @@ function PostReadingBody() {
         {index > 0 ? <span className="sod29-chain-trail-sep" aria-hidden="true">←</span> : null}
         {step.active
           ? <span className="sod29-chain-trail-step is-here" aria-current="page">{step.label} <small>(אתה כאן)</small></span>
-          : <a className="sod29-chain-trail-step" href={step.href}>{step.label}</a>}
+          : <a className="sod29-chain-trail-step" href={step.href} onClick={(event) => openConnection(event, step.href)}>{step.label}</a>}
       </React.Fragment>)}
     </nav> : null}
 
@@ -694,7 +718,7 @@ function PostReadingBody() {
           onClick={() => {
             restoredRegionRef.current = null;
             setActiveRegionId(region.id);
-            document.getElementById(`source-region-${region.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            revealReadingAnchor(document.getElementById(`source-region-${region.id}`))?.scrollIntoView({ behavior: "smooth", block: "center" });
           }}
           aria-label={`עבור אל ${region.label}`}
           aria-current={region.id === activeFocus?.id ? "true" : undefined}
