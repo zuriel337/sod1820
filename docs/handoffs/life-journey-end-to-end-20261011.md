@@ -1,5 +1,7 @@
 # Life Journey continuation and existing-engine audit — 2026-10-11
 
+Follow-on implementation: [private continuation](life-journey-continuation-20261011.md) adds the completed reflection, events and saved-path interface plus a required migration. This document records the first PR only.
+
 Actor: GPT. Task: `LIFE_JOURNEY_2029_CHAIN_V1`.
 Owner: existing Person v6, Workspace v5, Strategy, canonical engines and Experience V2.
 Baseline: `origin/main` at `737ee9aa2df4aaa80dd95ea0fa3c4f2bcbc4f12a`.

@@ -7,6 +7,7 @@ import { verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
 import { emitJourney2029 } from "../lib/research/journey2029Telemetry.js";
+import { LifeJourneyReflection, LifeJourneyPathHistory } from "./LifeJourneyContinuity.jsx";
 import Els2029Representation from "./experience2029/Els2029Representation.jsx";
 
 const labels = { ref: "מראה מקום", text: "טקסט המקור", value: "ערך", part: "רכיב", phrase: "ביטוי", word: "מילה", form: "צורת כתיב", method: "שיטה", count: "כמות מדווחת", source: "מקור", note: "הסבר", evidence: "סוג התאמה", verses: "פסוקים", matches: "התאמות", milui: "מילוי", ragil: "רגיל", anagrams: "אנגרמות", from: "מקורות ההצלבה", hits: "מופעים", across_items: "בין רכיבים", meeting_points: "נקודות מפגש", items: "רכיבים", methods: "שיטות", sum: "סכום", diff: "הפרש", parts: "רכיבים", ms: "שיטות", internal: "בתוך רכיב", cross_parts: "בין רכיבים", order: "סדר", distance: "מרחק", ladder: "דרגות קרבה", achieved: "נמצא", label: "תיאור", level: "דרגה", first: "רכיב ראשון", last: "רכיב אחרון", initials: "ראשי תיבות", finals: "סופי תיבות" };
@@ -151,10 +152,10 @@ export default function LifeJourneyResearch({ ownerId, userId, members, startReq
 
   const latest = research.pathResume?.latest;
   const canResume = latest?.representation?.context?.dimensions?.lifePersonRef?.startsWith(`person:${ownerId}:`);
-  async function resumePath() {
+  async function resumePath(pathId = latest?.path_id) {
     setPathBusy(true); setNotice("");
     try {
-      const snapshot = await research.resumeResearchPath(latest.path_id);
+      const snapshot = await research.resumeResearchPath(pathId);
       if (!mounted.current) return;
       const dims = snapshot?.context?.dimensions;
       if (!snapshot?.ok || !dims?.lifePersonRef?.startsWith(`person:${ownerId}:`)) throw new Error("resume_unavailable");
@@ -210,7 +211,7 @@ export default function LifeJourneyResearch({ ownerId, userId, members, startReq
     <div className="person-journey-actions">
       <button type="button" className="person-journey-primary" disabled={!selected || !engines.length || running || pathBusy} onClick={() => run()}>{running ? "בודק את המסלולים…" : personRef === selfRef ? "המשך למחקר על עצמי" : "התחל מחקר על האדם שנבחר"}</button>
       {running ? <button type="button" onClick={() => { runRef.current.epoch++; runRef.current.controller?.abort(); setRunning(false); setResults((prev) => Object.fromEntries(Object.entries(prev).map(([id, out]) => [id, out.state === "loading" ? { state: "unavailable", data: { unavailable: "הבדיקה בוטלה." } } : out]))); setNotice("הבדיקה נעצרה. אפשר לבחור מסלולים ולנסות שוב."); }}>עצור בדיקה</button> : null}
-      {canResume ? <button type="button" disabled={running || pathBusy} onClick={resumePath}>חדש את המסלול השמור</button> : null}
+      {canResume ? <button type="button" disabled={running || pathBusy} onClick={() => resumePath()}>חדש את המסלול השמור</button> : null}
     </div>
     <p className="life-note">שם ותאריך הם קלט למחקר. התאמה מספרית או לשונית אינה אבחון, תחזית או קביעה על חייך. מסלול מחודש משתמש בפרטים העדכניים שבחשבון.</p>
     {notice ? <p role="status" className="person-journey-state">{notice}</p> : null}
@@ -243,5 +244,7 @@ export default function LifeJourneyResearch({ ownerId, userId, members, startReq
       </article>;
     })}</div>
     {active && Object.values(results).some((r) => r.state === "ready") ? <div className="person-journey-actions"><button type="button" disabled={running || pathBusy} onClick={savePath}>{pathBusy ? "שומר…" : "שמור מסלול פרטי להמשך"}</button><small>נשמרים האדם ומסלולי הבדיקה. בחידוש יתבצע מחקר חדש על הפרטים השמורים.</small></div> : null}
+    <LifeJourneyPathHistory ownerId={ownerId} members={members} onResume={resumePath} busy={running || pathBusy} refreshKey={latest?.revision_id || latest?.revision_no || latest?.path_id} />
+    <LifeJourneyReflection ownerId={ownerId} userId={userId} members={members} />
   </section>;
 }
