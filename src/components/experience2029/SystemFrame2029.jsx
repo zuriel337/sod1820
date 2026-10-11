@@ -2012,6 +2012,9 @@ export default function SystemFrame2029({
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
           <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
+          <button className="sod29-rail-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"}>
+            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "הרחב" : "צמצם"}</b>
+          </button>
           <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 

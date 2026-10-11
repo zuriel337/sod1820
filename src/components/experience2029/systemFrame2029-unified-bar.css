@@ -229,3 +229,16 @@
   .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-sidebar-workspace,
   .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-rail-utilities button { inline-size: 100%; min-inline-size: 0; padding-inline: 4px; box-sizing: border-box; }
 }
+
+/* A visible button at the bottom of the rail opens and closes it (same state as the logo), so the rail can be found without knowing the logo does it. */
+.sod29-rail-toggle { display: none; }
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; inline-size: 100%; min-block-size: 44px; padding-inline: 4px; box-sizing: border-box;
+    border: 1px solid var(--s29-line-strong); border-radius: 14px; background: transparent; color: var(--s29-muted); font: 500 13px var(--s29-font-ui); cursor: pointer;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle:hover { color: var(--s29-ink); border-color: color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); }
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle:focus-visible { outline: 2px solid var(--s29-accent-text); outline-offset: 2px; }
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle > span { font-size: 20px; line-height: 1; }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-rail-toggle > b { display: none; }
+}
