@@ -1822,9 +1822,18 @@ test('design integration: royal controls preserve matrix identity and stable tou
     await page.waitForFunction(()=>document.querySelector('.els29-native-search-mode button:last-child')?.getAttribute('aria-pressed')==='true');
     await page.locator('.els29-native-search-mode button').first().click();
     if(await page.locator('#els29-context-panel').isVisible())await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+    await page.evaluate(()=>{
+      window.__elsIconPressObserved=0;
+      window.__elsOriginalAnimate=Element.prototype.animate;
+      Element.prototype.animate=function(frames,options){
+        if(options?.id==='sod29-icon-press')window.__elsIconPressObserved++;
+        return window.__elsOriginalAnimate.call(this,frames,options);
+      };
+    });
     await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
     await page.keyboard.press('Enter');
-    assert.ok(await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.id==='sod29-icon-press')),'shared SVG reacts to keyboard activation');
+    assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
+    await page.evaluate(()=>{Element.prototype.animate=window.__elsOriginalAnimate;});
     await page.locator('#els29-context-panel').waitFor();
     const controls=await page.locator('.els29-native-query button,.els29-native-context-panel button,.els29-native-context-panel select').evaluateAll(els=>els.filter(el=>el.getClientRects().length).map(el=>({name:el.textContent.trim().slice(0,50),width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,font:parseFloat(getComputedStyle(el).fontSize)})));
     for(const c of controls)assert.ok(c.width>=43.9&&c.height>=43.9,`${width}/${preset}: 44px ${JSON.stringify(c)}`);
