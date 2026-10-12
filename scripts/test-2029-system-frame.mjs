@@ -16,6 +16,7 @@ const shellHtml = read("2029.html");
 const tokens = read("src/lib/designTokens.js");
 const app = read("src/App2029.jsx");
 const home = read("src/pages/Home2029Page.jsx");
+const feedHook = read("src/components/experience2029/useSystemFeed2029.js");
 
 // One implementation owner: old import path is a compatibility export, not a second frame.
 assert.match(compat, /single active 2029 frame implementation/i);
@@ -237,7 +238,12 @@ assert.match(frame, /hint: "מה חדש בעולם", on: onWorld/);
 assert.match(frame, /onWorld=\{openAttention\} onMe=\{openWorkspace\}/);
 assert.match(frame, /className="sod29-bar-zone is-context"/);
 assert.match(frame, /className="sod29-bar-zone is-actions"/);
-assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
+// Typed Now uses one public World source watcher shared across the desktop
+// Companion and the mobile Attention sheet; no second polling or private research read.
+assert.match(feedHook, /watchWorldDiscoveryStream\(\{/);
+assert.match(feedHook, /limit:\s*40, includeResearch:\s*false/);
+assert.doesNotMatch(frame, /watchWorldDiscoveryStream\(\{/);
+assert.match(frame, /<AttentionProjection[\s\S]{0,240}?feed=\{feed\}/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);
