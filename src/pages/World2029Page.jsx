@@ -1492,7 +1492,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setGematriaMethodFilter("all");
     setGematriaTypeFilter("all");
     setGematriaQuery("");
-    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40 })
+    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40, mediaLimit: 40 })
       .then(async (data) => {
         if (!alive) return;
         let prominenceInputs = null;
