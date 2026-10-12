@@ -1345,3 +1345,6 @@
 .sod29-reading-post>.sod29-surface-tabs{width:min(900px,100%);margin:0 auto 28px;flex-wrap:wrap}
 #post-sources{scroll-margin-top:120px}
 @media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
+
+/* Post reading cover: one compact whole image (shared media kit does the contain/lightbox work). */
+.sod29-reading-cover{margin:0 auto 20px;max-width:min(100%,760px)}
