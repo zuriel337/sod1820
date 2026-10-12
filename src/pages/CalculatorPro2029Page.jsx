@@ -6,6 +6,7 @@ import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
 import CalculatorDuo2029 from "../components/gematria2029/CalculatorDuo2029.jsx";
 import CalculatorLedgerCard2029 from "../components/gematria2029/CalculatorLedgerCard2029.jsx";
+import CalculatorAiAnalysis2029 from "../components/gematria2029/CalculatorAiAnalysis2029.jsx";
 import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useCalculatorRow, useMethodLedger } from "../lib/research/useCalculatorRow.js";
@@ -537,11 +538,18 @@ function ProExperience() {
                 </button>
                 <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
                 <button type="button" onClick={openHeichal}>חקור בהיכל</button>
-                <button type="button" className="is-raziel" onClick={openRaziel}>✦ ניתוח AI של השיטה · רזיאל</button>
-                <small className="sod29-calcpro-ai-note">הניתוח רץ רק בלחיצה, ומבוסס על התוצאה שהמנוע חישב.</small>
+                <button type="button" className="is-raziel" onClick={openRaziel}>✦ שאל את רזיאל</button>
               </div>
               <CalculatorOpening2029 selection={canonicalSelection} open={showOpening} onClose={() => setShowOpening(false)} />
             </section>
+          ) : null}
+
+          {canonicalSelection ? (
+            <CalculatorAiAnalysis2029
+              selection={canonicalSelection}
+              ledger={ledgerState?.ledger || null}
+              sameValueLabels={sameValueMethods.map((method) => `${method.publicLabel || method.label}=${method.computedValue}`)}
+            />
           ) : null}
 
           {canonicalSelection ? (

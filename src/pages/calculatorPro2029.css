@@ -454,3 +454,40 @@
 }
 
 .sod29-calcpro-ai-note { color: var(--s29-muted); font-size: 14px; line-height: 1.6; padding: 0 4px; }
+
+.sod29-calcpro-ai {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--s29-accent) 40%, var(--s29-line));
+  border-radius: 22px;
+  background: linear-gradient(160deg, var(--s29-panel), color-mix(in srgb, var(--s29-accent) 7%, var(--s29-panel)));
+}
+
+.sod29-calcpro-ai > header { display: grid; gap: 2px; }
+.sod29-calcpro-ai > header b { color: var(--s29-ink); font-size: 16px; }
+.sod29-calcpro-ai > header small { color: var(--s29-muted); font-size: 14px; }
+
+.sod29-calcpro-ai button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--s29-accent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--s29-accent) 12%, var(--s29-panel));
+  color: var(--s29-ink);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sod29-calcpro-ai button:disabled { opacity: .7; cursor: default; }
+
+.sod29-calcpro-ai-answer {
+  margin: 0;
+  color: var(--s29-ink);
+  font-size: 16px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.sod29-calcpro-ai > footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--s29-muted); font-size: 14px; }

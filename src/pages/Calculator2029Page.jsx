@@ -90,9 +90,11 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
     && Array.isArray(profile.rows)
     && profile.rows.length > 0
     && !profile.loading;
-  const displayRows = !info.hebrewApplicable
-    ? []
-    : canonicalSettled ? profile.rows : (fastPreview?.methods || []);
+  const displayRows = info.kind === CALCULATOR_INPUT_KIND.EMPTY
+    ? (fastPreview?.methods || [])
+    : !info.hebrewApplicable
+      ? []
+      : canonicalSettled ? profile.rows : (fastPreview?.methods || []);
   const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
 
   const handleDraftChange = (value) => {

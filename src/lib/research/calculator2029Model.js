@@ -10,7 +10,10 @@ export function normalizeCalculatorMethods(rows = []) {
   return sortMethodsByCanonicalOrder(Array.isArray(rows) ? rows : []).map((row) => ({
     ...row,
     label: canonicalMethodPublicLabel(row),
-    computedValue: isReportableValue(row?.computedValue) ? Number(row.computedValue) : null,
+    // Canonical 0 means "no letters counted" and is never a result; preview rows keep their empty-state 0.
+    computedValue: isReportableValue(row?.computedValue) || (row?.previewOnly && Number(row?.computedValue) === 0)
+      ? Number(row.computedValue)
+      : null,
   }));
 }
 

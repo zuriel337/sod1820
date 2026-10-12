@@ -144,6 +144,17 @@ const vercel = fs.readFileSync("vercel.json", "utf8");
 assert.match(vercel, /"source": "\/2029\/calculator",\s*"destination": "\/2029\.html"/);
 assert.match(vercel, /"source": "\/2029\/calculator",\s*"headers"/);
 
+// ── AI analysis card: explicit click, same Raziel transport, engine facts only ──
+const ai = fs.readFileSync("src/components/gematria2029/CalculatorAiAnalysis2029.jsx", "utf8");
+assert.match(ai, /askRaziel/);
+assert.match(ai, /intelligenceLevel: "deep"/);
+assert.match(ai, /פרשנות, לא תוצאת חישוב/);
+assert.match(ai, /onClick=\{\(\) => run\(false\)\}/);
+assert.doesNotMatch(ai, /getAiAnalysis|functions\.invoke|ai-analyze/);
+// the only effect resets state on selection change; it must never call the AI
+const effectBody = ai.slice(ai.indexOf("useEffect("), ai.indexOf("if (!selection) return null;"));
+assert.doesNotMatch(effectBody, /askRaziel|run\(/);
+assert.match(pro, /CalculatorAiAnalysis2029/);
 // ── community page: ABC guard and handoff to the professional calculator ──
 const community = fs.readFileSync("src/pages/Calculator2029Page.jsx", "utf8");
 assert.match(community, /classifyCalculatorInput/);
