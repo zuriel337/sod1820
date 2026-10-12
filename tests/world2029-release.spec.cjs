@@ -879,7 +879,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
-      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
       expect(response.ok(), 'deployed sanitized group reader is reachable').toBe(true);

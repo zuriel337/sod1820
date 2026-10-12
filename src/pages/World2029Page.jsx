@@ -2,6 +2,7 @@ import WorldSourceConnections from '../components/research/WorldSourceConnection
 import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
+import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -951,9 +952,10 @@ function LiveWorldLanding({ research, shell, context }) {
   useEffect(() => {
     if (!location.hash.startsWith("#group-source-")) return;
     const element = document.getElementById(location.hash.slice(1));
-    if (element?.classList.contains("sod29-world-group-source")) {
-      element.open = true;
-      element.scrollIntoView({ block: "nearest" });
+    const card = element?.closest(".sod29-world-group-source");
+    if (card) {
+      card.open = true;
+      card.scrollIntoView({ block: "nearest" });
     }
   }, [location.hash, discoveryItems]);
 
@@ -1077,7 +1079,7 @@ function LiveWorldLanding({ research, shell, context }) {
     <WorldFlightStory2029 research={research} shell={shell} />
     <WorldSourceStory research={research} shell={shell} compact />
     {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
-    <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems}
+    <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
       availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
     {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
 
@@ -1242,9 +1244,13 @@ function LiveWorldLanding({ research, shell, context }) {
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
               </>;
               const itemClass = `sod29-world-stream-item${index === 0 ? " is-lead" : ""}`;
-              if (item.sourceKind === "group_message") return <details key={item.id} id={`group-source-${item.id.slice(6)}`} className="sod29-world-group-source">
+              if (item.sourceKind === "group_message") return <details key={item.id} className="sod29-world-group-source">
                 <summary className={itemClass}>{copy}</summary>
                 <p className="sod29-world-group-source-body">{item.fullText}</p>
+                <SourceRepeatInfo2029 item={item} onSelect={(event) => {
+                  research.updateResearchContext?.({ subject: null, selection: { entityId: event.sourceRef, entityType: "source", sourceRef: event.sourceRef }, lens: "world" });
+                  shell.go(`/world#group-source-${event.id}`, { preserve: false });
+                }} />
               </details>;
               return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
             })}
