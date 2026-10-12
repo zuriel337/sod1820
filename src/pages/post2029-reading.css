@@ -1347,16 +1347,6 @@
 @media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
 
 /* G4 compact reading — cover, single page title, thinner hero. Tokens only. */
-.sod29-reading-cover{
-  grid-column:1 / -1;
-  margin:0;
-  max-height:260px;
-  overflow:hidden;
-  border:1px solid var(--s29-line);
-  border-radius:14px;
-  background:color-mix(in srgb,var(--s29-panel) 80%,transparent);
-}
-.sod29-reading-cover img{display:block;width:100%;height:auto;max-height:260px;object-fit:cover}
 .sod29-reading-hero{margin-bottom:20px;padding:clamp(14px,2.4vw,24px);border-radius:18px;box-shadow:none}
 .sod29-reading-hero-grid{gap:clamp(14px,2.4vw,28px)}
 .sod29-reading-hero h1{margin:6px 0 8px;font-size:clamp(24px,2.6vw,34px);line-height:1.22}
@@ -1367,7 +1357,6 @@
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;
 }
 @media (max-width:620px){
-  .sod29-reading-cover,.sod29-reading-cover img{max-height:170px}
   .sod29-reading-hero{padding:14px;border-radius:14px;margin-bottom:14px}
   .sod29-reading-hero h1{font-size:23px}
 }
@@ -1427,3 +1416,5 @@
 .sod29-reading-source .sod29-bennet-section{margin-bottom:28px}
 /* Section tabs duplicate the pinned left context (sections) on wide screens; they stay as the compact selector elsewhere. */
 @media(min-width:1280px){.sod29-main-stage.has-context-rail .sod29-reading-post>.sod29-surface-tabs{display:none}}
+/* Post reading cover: one compact whole image (shared media kit does the contain/lightbox work). */
+.sod29-reading-cover{margin:0 auto 20px;max-width:min(100%,760px)}

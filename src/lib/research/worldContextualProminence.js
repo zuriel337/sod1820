@@ -203,6 +203,8 @@ function graphCandidates(data) {
       kind: "graph-relation",
       type,
       label,
+      // Exact existing graph counterpart identity; no title/number/filename matching.
+      mediaNodeId: ["image", "media"].includes(type) ? String(counterpart.id) : null,
       summary: null,
       sourceRef: finding?.source?.sourceRef || null,
       relationPath: [{ relationType, fromNodeId: relation.fromNodeId || null, toNodeId: relation.toNodeId || null }],
@@ -691,6 +693,7 @@ export function buildWorldContextualProminence(data, inputs = {}, {
       label: candidate.label,
       summary: candidate.summary,
       sourceRef: candidate.sourceRef,
+      mediaNodeId: candidate.mediaNodeId || null,
       familyKey: candidate.familyKey,
       explainWhy: explainCandidate(candidate, { isFirstFamily: first }),
     });

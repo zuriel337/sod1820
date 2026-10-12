@@ -28,9 +28,11 @@ import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
+import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
 import "./number2029.css";
 
-const GOLDEN_878_JOURNEY_ID = "golden:878:v1";
+const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
+const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -954,7 +956,7 @@ function NumberPageBody() {
     setPathError(result?.ok ? null : "הבחירה לא נוספה. אפשר לשמור את המסע ולנסות שוב.");
     if (!result?.ok) return;
     // Keep the existing 878 teaching route as a semantic preset of this Path.
-    if (root === 878 && !focusExplicit) {
+    if (GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878.rootValue && !focusExplicit) {
       research.updateResearchContext?.({
         lens: "world",
         dimensions: { ...result.context.dimensions, journeySource: "number-2029-preview",
@@ -1231,7 +1233,7 @@ function NumberPageBody() {
         onOpenWorld={() => openWorld()}
         onOpenHeichal={() => shell.go("/heichal")}
         onOpenJourney={continueJourney}
-        journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : root === 878 ? "צא למסע 878" : "צא למסע"}
+        journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878.rootValue ? "צא למסע 878" : "צא למסע"}
         onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
         onRazielAction={askRaziel}
         onExpandRaziel={() => askRaziel("expand_panel")}
