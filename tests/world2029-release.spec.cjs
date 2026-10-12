@@ -515,7 +515,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await page.screenshot({ path: 'test-results/release-visual/number-2029-v10-miluy-358-390.png', fullPage: true });
 });
 
-test('Number 2029 preview exposes the existing Golden Journey only for 878', async ({ page }) => {
+test('Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/878`, { waitUntil: 'domcontentloaded' });
 
@@ -525,7 +525,17 @@ test('Number 2029 preview exposes the existing Golden Journey only for 878', asy
   const journeyGate = numberPage.locator('[data-experience-capability="number-journey-gate"]');
   await expect(journeyGate).toBeVisible();
   await expect(journeyGate).toContainText('878');
-  await expect(journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ })).toBeVisible();
+  const generalPath = journeyGate.getByRole('button', { name: /צא למסע בעולם של 878/ });
+  await expect(generalPath).toBeVisible();
+  await expect(page.getByRole('button', { name: /צא למסע 878/ })).toHaveCount(0);
+  await generalPath.click();
+  await page.waitForTimeout(1_000);
+  expect(new URL(page.url()).pathname).toBe('/2029/number/878');
+  const journeyDimensions = await page.evaluate(() => {
+    const raw = sessionStorage.getItem('sod_research_context_v2:guest');
+    return raw ? JSON.parse(raw)?.dimensions || {} : {};
+  });
+  expect(journeyDimensions.journeySemanticId || null).toBeNull();
   await assertNoHorizontalOverflow(page);
 });
 
@@ -566,6 +576,9 @@ test('Golden World 878 journey stays closed while the public Number 878 and full
   await expect(page.getByRole('button', { name: 'המשך את מסע 878' })).toHaveCount(0);
   await expect(page.locator('.sod29-world-journey-path-preview')).toHaveCount(0);
 
+  // The landing visit already wrote this tab's scoped research context; start the anchored
+  // read from a clean tab session so the seeded 878 subject is the one that is restored.
+  await page.evaluate(() => sessionStorage.clear());
   await openWorldAnchor(page, 878, 390);
   await expect(page.locator('.sod29-world-journey-rail')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'העיקר סביב 878' })).toBeVisible();
@@ -692,7 +705,11 @@ test('RICH 1820 projects real published media without legacy gallery UI', async 
 test('RICH 1820 remains useful when research rows are access-filtered', async ({ page }) => {
   const projection = await openWorldAnchor(page, 1820, 390);
   await expect(projection).toHaveAttribute('data-world-density', 'rich');
-  await expect(page.getByText('חלק מהחומר אינו זמין בהרשאה הנוכחית')).toBeVisible();
+  // Anonymous readers cannot SELECT internal research rows; that is not a public-content
+  // restriction, so the public World must not present a global permission warning.
+  await expect(page.getByText('חלק מהחומר אינו זמין בהרשאה הנוכחית')).toHaveCount(0);
+  await expect(page.getByText('גישה למחקר הפנימי אינה זמינה')).toHaveCount(0);
+  await expect(page.locator('.sod29-world-primary-item').first()).toBeVisible();
   await selectWorldLane(page, 'קשרים');
   await expect(page.getByText('מה מחובר לכאן')).toBeVisible();
   await selectWorldLane(page, 'מקורות');
