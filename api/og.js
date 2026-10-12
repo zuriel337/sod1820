@@ -444,6 +444,8 @@ export default async function handler(req, res) {
     // מקור-התמונה: image_url של הצופן (מנוע-הכרטיס) אם קיים, אחרת כרטיס /api/card ממותג.
     let slug = key.slice('/codes/'.length);
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    // Match the browser page and sitemap even when Vercel passes a decoded path.
+    canonical = SITE + '/codes/' + encodeURIComponent(slug);
     let publishedCipherFound = false;
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });

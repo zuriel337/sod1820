@@ -229,6 +229,7 @@ const publishedCipher = await renderResponse(`/codes/${cipherSlug}`, async (url)
 }, { crawler: "search" });
 assert.match(publishedCipher.body, /הצופן «תורה» — דילוג 50/);
 assert.match(publishedCipher.body, /og:type" content="article"/);
+assert.match(publishedCipher.body, new RegExp(`<link rel="canonical" href="https://sod1820\\.co\\.il/codes/${cipherSlug}"\\/>`));
 assert.equal(publishedCipher.headers.get("x-robots-tag"), "index, follow");
 
 const missingCipher = await renderResponse("/codes/unknown-cipher", async () => ({ ok: true, json: async () => [] }), { crawler: "search" });
