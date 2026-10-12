@@ -17,6 +17,7 @@ grant select on public.channel_updates to anon;
 
 \i supabase/migrations/20261008170000_world_group_source_arrivals_v1.sql
 \i supabase/migrations/20261008190000_world_group_source_provenance_v2.sql
+\i supabase/migrations/20261013100000_world_group_source_repeat_projection_v3.sql
 
 insert into public.contributors(id,slug,display_name,phone,dossier_settings) values
  ('00000000-0000-0000-0000-0000000000a1','tzvi-opoc','צבי','0501111111','{"general_feed_enabled":true}'),
@@ -243,4 +244,46 @@ do $$ begin perform 1 from public.channel_update_group_proof; raise exception 'F
 reset role;
 -- reader output exposes no JID/phone columns
 select pg_temp.ok(not exists (select 1 from pg_proc p where p.proname='world_group_source_arrivals_v2' and (pg_get_function_result(p.oid) ~* 'jid|phone|ext_msg|chat_id|email')), 'reader columns carry no identifiers');
+-- v3 display grouping: every eligible source ID survives; private group/sender keys never leave the reader.
+select pg_temp.add('repeat_a','אותו מקור','torat-haremez','private','R1',ts=>now()-interval '3 hours');
+select pg_temp.add('repeat_b','  אותו  מקור ','torat-haremez','private','R2',ts=>now()-interval '2 hours 45 minutes');
+select pg_temp.add('repeat_later','אותו מקור','torat-haremez','private','R3',ts=>now()-interval '1 hour');
+select pg_temp.add('repeat_other_group','אותו מקור','gilui-yomi','private','R4',ts=>now()-interval '2 hours 40 minutes');
+select pg_temp.add('repeat_other_sender','אותו מקור','torat-haremez','private','R5','00000000-0000-0000-0000-0000000000a2',ts=>now()-interval '2 hours 40 minutes');
+select pg_temp.proof('repeat_a',:'T','R1',:'TC','972501111111@c.us');
+select pg_temp.proof('repeat_b',:'T','R2',:'TC','972501111111@c.us');
+select pg_temp.proof('repeat_later',:'T','R3',:'TC','972501111111@c.us');
+select pg_temp.proof('repeat_other_group',:'G','R4',:'GC','972501111111@c.us');
+select pg_temp.proof('repeat_other_sender',:'T','R5',:'TC','972502222222@c.us');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id', pg_temp.uid('repeat_a')),
+                                                              jsonb_build_object('id', pg_temp.uid('repeat_b'))))=1,
+                  'same group, sender and normalized text within 30 minutes: one card');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40) r,
+                   jsonb_array_elements(r.occurrences) e where e->>'id' in
+                   (select id::text from _ids where k like 'repeat_%'))=5,
+                  'all five independent source IDs preserved once');
+select pg_temp.ok(not exists (select 1 from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences::text ~ '@[cg]\.us|group_chat_id|sender_jid'),
+                  'occurrence JSON contains no private proof coordinates');
+select pg_temp.ok(not exists (select 1 from public.world_group_source_arrivals_v3(40) r,
+                   jsonb_array_elements(r.occurrences) e where e->>'id' = pg_temp.uid('dm_msg')::text),
+                  'direct message cannot appear in v3 occurrences');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('repeat_later')))
+                     and jsonb_array_length(r.occurrences)=1)=1, 'over 30 minute gap stays separate');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('repeat_other_group')))
+                     and jsonb_array_length(r.occurrences)=1)=1, 'different approved group stays separate');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('repeat_other_sender')))
+                     and jsonb_array_length(r.occurrences)=1)=1, 'different verified sender stays separate');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(1))=1, 'v3 card limit');
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40,now()-interval '10 years'))=0, 'v3 cursor');
+select pg_temp.ok(not exists (select 1 from pg_proc p where p.proname='world_group_source_arrivals_v3'
+                   and pg_get_function_result(p.oid) ~* 'jid|phone|ext_msg|chat_id|email'), 'v3 columns carry no private identifiers');
+select pg_temp.ok(has_function_privilege('anon','public.world_group_source_arrivals_v3(integer,timestamptz)','execute'), 'anon v3 read');
+set role anon;
+select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40))>=1, 'anon can call v3 reader');
+reset role;
 \echo ALL WORLD GROUP SOURCE PROVENANCE SQL TESTS PASSED

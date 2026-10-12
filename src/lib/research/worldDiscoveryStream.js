@@ -151,12 +151,15 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   const postRows = Array.isArray(input) ? [] : (Array.isArray(input?.posts) ? input.posts : []);
   const groupItems = Array.isArray(input?.groupItems) ? input.groupItems : [];
   const sourceByOccurrence = new Map();
+  const sourceItems = [];
   for (const item of [...postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean), ...groupItems]) {
-    if (item?.kind === "source" && item.sourceRef && !sourceByOccurrence.has(item.sourceRef)) {
-      sourceByOccurrence.set(item.sourceRef, { ...item });
+    if (item?.kind !== "source" || !item.sourceRef || sourceByOccurrence.has(item.sourceRef)) continue;
+    const source = { ...item };
+    sourceItems.push(source);
+    for (const ref of new Set([item.sourceRef, ...(Array.isArray(item.sourceRefs) ? item.sourceRefs : [])])) {
+      if (ref && !sourceByOccurrence.has(ref)) sourceByOccurrence.set(ref, source);
     }
   }
-  const sourceItems = [...sourceByOccurrence.values()];
   // Collapse authorized research on the SAME source occurrence; do not multiply arrivals
   // or treat repeated findings as independent sources. Unrelated findings keep their identities.
   const findingItems = researchRows.map((row) => researchRowToWorldUpdate(row, { publicPeople }))
