@@ -84,7 +84,9 @@ async function assertClsGood(page, route) {
 }
 
 test.setTimeout(60_000);
-test.describe.configure({ mode: 'serial' });
+// Each test receives a fresh page/context. Report every independent regression
+// even when an earlier route fails, while retaining the runner's worker limit.
+test.describe.configure({ mode: 'default' });
 test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
 
 for (const route of CLS_ROUTES) {
@@ -151,7 +153,7 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function openNumberCapabilityFromIsland(page) {
-  const action = page.locator('.sod29-command-island > button').filter({ hasText: 'פעולה' }).first();
+  const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });
   await expect(action).toBeVisible();
   await action.click();
   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
