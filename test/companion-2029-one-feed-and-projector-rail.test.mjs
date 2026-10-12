@@ -16,7 +16,7 @@ test("2029 left Companion and mobile Now share one public stream watcher and exa
   assert.match(hook, /watchWorldDiscoveryStream\(/);
   assert.match(hook, /includeResearch:\s*false/);
   assert.doesNotMatch(attention, /watchWorldDiscoveryStream|fetchWorldDiscoveryStream|\.from\(["']research_objects["']\)/);
-  assert.match(frame, /<AttentionProjection[^>]+feed=\{feed\}/);
+  assert.match(frame, /<AttentionProjection[\s\S]{0,240}?feed=\{feed\}/);
   assert.match(companion, /feed\.rows\.map\(\(row\)/);
   assert.match(attention, /rows\.slice\(0,\s*8\)\.map\(\(row\)/);
   assert.match(attention, /const href = row\.href/);
