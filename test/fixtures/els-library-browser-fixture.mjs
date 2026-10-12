@@ -49,7 +49,7 @@ export const libraryEntry = `import React from 'react';import {createRoot} from 
 import {BrowserRouter} from 'react-router-dom';import Page from '/src/pages/Els2029Page.jsx';
 import '/src/components/experience2029/sod2029.css';
 window.__switchLibraryUser=id=>{window.__libraryViewer=id;window.__setLibraryUser(id);};
-createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,null,React.createElement(Page)));`;
+createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,null,React.createElement(Page,{previewAdvanced:new URLSearchParams(location.search).has('testAdvanced')})));`;
 
 export function libraryFixturePlugin() {
   const modules = {

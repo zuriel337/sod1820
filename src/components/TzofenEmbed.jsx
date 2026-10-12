@@ -233,7 +233,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         && nrm(d.term) === nrm(contextMatrix.search_term)
         && Math.abs(d.skip || 0) === (contextMatrix.skip_distance || 0)
         && (d.scope || "torah") === (contextMatrix.scope || "torah"));
-      const editId = native ? null : (d.editId || (isReSave ? contextMatrix.id : null));
+      // An explicitly opened, owned private record must update its exact id. The
+      // native draft upsert remains for a newly created record that has no route id.
+      const nativeOpenedEditId = native && matrix?.id && savedMatrixMatchesAxis(matrix, savedState)
+        && matrix.owner_user_id === user?.id && matrix.visibility === "private"
+        && !matrix.self_published && matrix.status !== "published" ? matrix.id : null;
+      const editId = native ? nativeOpenedEditId : (d.editId || (isReSave ? contextMatrix.id : null));
       let editMatrix = null;
       if (editId) {
         editMatrix = editId === contextMatrix?.id ? contextMatrix : await getMatrixById(editId);
@@ -258,7 +263,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         && contextMatrix?.status !== "published" && savedMatrixMatchesAxis(contextMatrix, savedState);
       const shapeUrl = !privateSave && d.shape ? await uploadCipherCard(d.shape) : null;
       const imageUrl = (!privateSave && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
-      const positions = { ...(canUpdateNative ? contextMatrix.positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+      const positions = { ...(canUpdateNative ? (editMatrix || contextMatrix).positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
         quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null, view: d.view || null };
       const engineDetail = buildEngineDetail(d, savedState);
       // Native private saves retain the existing exact-identity upsert. Classic
@@ -272,12 +277,18 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         });
         if (!error) {
           postToTool({ type: "saved", ok: true, status: "updated" });
+          if (native) {
+            let row = null;
+            try { row = await getMatrixById(editId); } catch { /* the update committed; use the verified target */ }
+            if (row) nativeSavedRowRef.current = row;
+            completeNative({ ok: true, id: editId, row: row || editMatrix, status: "updated" });
+          }
           if (user) setSavedToast({ status: "updated" });   // 💾 קישור חוזר לדף-המחקר
           pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
           return;
         }
         // עדכון נכשל: אם המשתמש התכוון *במפורש* לעדכן (editId מהכלי) — לא יוצרים כפילות שקטה, מדווחים כשל.
-        if (d.editId || privateSave) { postToTool({ type: "saved", ok: false }); return; }
+        if (d.editId || privateSave) { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "update_failed" }); return; }
         // אחרת (re-save היוריסטי לפי מונח/דילוג) → ממשיך לשמירה-חדשה/גרסה למטה
       }
 

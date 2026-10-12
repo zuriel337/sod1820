@@ -26,6 +26,10 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+    await page.getByRole("heading", { name: "הצופן הקלאסי" }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 0);
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
     await page.getByLabel("דילוג מינימלי").fill("81");
