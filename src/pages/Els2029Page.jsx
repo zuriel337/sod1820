@@ -21,6 +21,7 @@ import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
+import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 
 const clean = (value) => String(value ?? "").trim();
 const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
@@ -97,6 +98,17 @@ export default function Els2029Page({ previewAdvanced = false }) {
   const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
+  const findingId = params.get("finding") || "";
+  const { journeyLoad: findingJourneyLoad, status: findingStatus } = useElsJourneyReopen(findingId);
+  const [findingNotice, setFindingNotice] = useState("");
+  useEffect(() => {
+    setFindingNotice("");
+    if (!findingId || ["none", "ok", "not-els"].includes(findingStatus)) return undefined;
+    const timer = setTimeout(() => setFindingNotice(findingStatus === "not-found"
+      ? "הממצא לא נמצא בסביבת המחקר שלך."
+      : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש."), 1200);
+    return () => clearTimeout(timer);
+  }, [findingId, findingStatus]);
   const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}|${openRevision}`;
   const [recordState, setSavedRecord] = useState({ key: null, row: null, error: false });
   // Hide the previous account/URL's record during the render that precedes the next fetch.
@@ -182,6 +194,10 @@ export default function Els2029Page({ previewAdvanced = false }) {
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
   const [classicSeed] = useState(() => clean(params.get("term") || params.get("q") || selection?.term || subject?.label || ""));
+  const legacySkip = Number(params.get("skip"));
+  const legacyMatrix = classicSeed && Number.isSafeInteger(legacySkip) && Math.abs(legacySkip) >= 2
+    ? { search_term: classicSeed, skip_distance: legacySkip, scope: params.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null }
+    : null;
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -267,6 +283,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
     {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
+    {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
@@ -309,7 +326,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);
