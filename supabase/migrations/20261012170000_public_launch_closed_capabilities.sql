@@ -4,6 +4,7 @@
 insert into public.site_flags (key, enabled, mode, message)
 values
   ('lock_heichal', true, 'all', 'ההיכל נמצא בהכנה וייפתח לאחר השלמת האימות.'),
-  ('lock_raziel_site', true, 'all', 'רזיאל באתר נמצא בהכנה וייפתח לאחר השלמת האימות.')
+  ('lock_raziel_site', true, 'all', 'רזיאל באתר נמצא בהכנה וייפתח לאחר השלמת האימות.'),
+  ('lock_life_journey', true, 'all', 'המסע האישי נמצא בהכנה וייפתח לאחר השלמת ההגדרות.')
 on conflict (key) do update
 set enabled = true, mode = 'all', message = excluded.message;
