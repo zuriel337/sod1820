@@ -794,14 +794,7 @@ function PostReadingBody() {
 
     <PostEvidenceMedia2029 media={experience.media} />
 
-    {(experience.trail || []).length >= 2 ? <nav className="sod29-chain-trail" aria-label="רצף האירועים" data-chain-trail="true">
-      {experience.trail.map((step, index) => <React.Fragment key={step.id}>
-        {index > 0 ? <span className="sod29-chain-trail-sep" aria-hidden="true">←</span> : null}
-        {step.active
-          ? <span className="sod29-chain-trail-step is-here" aria-current="page">{step.label} <small>(אתה כאן)</small></span>
-          : <a className="sod29-chain-trail-step" href={step.href} onClick={(event) => openConnection(event, step.href)}>{step.label}</a>}
-      </React.Fragment>)}
-    </nav> : null}
+    {/* The event sequence lives in the context rail (tree) and the bottom path: no third inline copy. */}
 
     <div className="sod29-reading-layout">
       <section

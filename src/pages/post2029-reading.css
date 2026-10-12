@@ -1409,3 +1409,21 @@
 .sod29-update-strip-more button:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
 .sod29-update-strip-more small{opacity:.7;white-space:nowrap}
 .sod29-reading-source [id]{scroll-margin-top:96px}
+
+/* Shared Post reading presentation: gematria in the canonical blue, scripture with a quiet mark, contract type.
+   Existing roles only (accent-text / ink / numeric + body fonts); gold stays brand, never a strength signal. */
+.sod29-reading-source{font-family:var(--s29-font-body,inherit)}
+.sod29-reading-source :is(.sod29-gematria-value,.sod29-gematria-expression,[data-gem]:not(a):not(button)){color:var(--s29-accent-text)!important}
+.sod29-reading-source :is(.sod29-gematria-value,.sod29-gematria-hero,.sod-numlink,p[data-gem]){font-family:var(--s29-font-numeric,inherit)}
+.sod29-reading-source p[style*="--gold"]{color:var(--s29-accent-text)!important;font-family:var(--s29-font-numeric,inherit)}
+.sod29-reading-source .sod29-gematria-hero{min-width:0;min-height:44px;font-size:clamp(2.6rem,5vw,3.8rem)!important;margin:6px auto 8px}
+.sod29-reading-source :is(blockquote,.sod29-source-quote){
+  margin:18px auto;padding:2px 16px;border:0;
+  border-inline-start:2px solid color-mix(in srgb,var(--s29-brand-gold,var(--s29-line-strong)) 55%,transparent);
+  color:var(--s29-ink)!important;font-weight:650;text-align:start;
+}
+.sod29-reading-source small{font-size:14px}
+.sod29-reading-source :is(a,button,summary){min-height:0}
+.sod29-reading-source .sod29-bennet-section{margin-bottom:28px}
+/* Section tabs duplicate the pinned left context (sections) on wide screens; they stay as the compact selector elsewhere. */
+@media(min-width:1280px){.sod29-main-stage.has-context-rail .sod29-reading-post>.sod29-surface-tabs{display:none}}

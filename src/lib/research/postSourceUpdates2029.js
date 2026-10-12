@@ -4,6 +4,25 @@
 // The strip additionally requires the authored fragment to exist in the live
 // source HTML, so a removed fragment hides the strip instead of lying.
 export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
+  5113: Object.freeze([
+    ...[
+      ["bennett-israel-78", "bennett-israel-78-title", "מלח = 78 — וישראל בת 78"],
+      ["bennett-dead-sea-sequence", "bennett-sequence-title", "יומיים אחרי ים המלח — המלח מופיע שוב"],
+    ].map(([targetId, titleId, label]) => Object.freeze({
+      id: targetId,
+      sourceSlug: "bennett-melach-631-78",
+      // Saved source edit 2026-10-12T14:06:54.127591Z (Asia/Jerusalem 17:06:54), revision 207 -> 208.
+      sourceModifiedAt: "2026-10-12T14:06:54.127591Z",
+      updatedAt: "2026-10-12T14:06:54.127591Z",
+      targetId,
+      titleId,
+      label,
+      date: "2026-10-12",
+      beforeRevision: 207,
+      afterRevision: 208,
+      attribution: "תוספת לפוסט",
+    })),
+  ]),
   5107: Object.freeze([
     ...[
       ["sharshar-shoes-66", "sharshar-shoes-title", "שרשר · נעליים · בן דוד = 66"],

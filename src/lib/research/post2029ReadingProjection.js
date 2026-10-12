@@ -345,31 +345,89 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
 
 const BENNETT_SALT_REGIONS = Object.freeze([
   {
+    id: "bennett-sequence",
+    heading: "יומיים אחרי ים המלח — המלח מופיע שוב",
+    label: "ים המלח → האירוע",
+    primary: "פוסט ים המלח (22.9) → אירוע המלחיות (24.9)",
+    signals: ["יומיים ביניהם", "ללא טענת סיבתיות"],
+    worldLabel: "פתח את ים המלח",
+  },
+  {
     id: "elections-chain",
-    heading: "האירוע שתועד",
-    label: "בנט · האירוע שתועד",
+    heading: "האירוע",
+    label: "24.9 · האירוע בבני ברק",
     primary: "נפתלי בנט · אירוע המלחיות בבני ברק",
     signals: ["תיעוד המקור", "המשך לציר הבחירות"],
     worldLabel: "פתח את פוסט הבחירות",
   },
   {
+    id: "salt-covenant",
+    heading: "ברית מלח",
+    label: "ברית מלח · מלכות דוד",
+    primary: "ברית מלח = 690 · מלכות דוד",
+    signals: ["3 פסוקים", "ויקרא · במדבר · דברי הימים"],
+    worldLabel: "פתח את ברית מלח",
+  },
+  {
+    id: "salt-78",
+    heading: "הרמז המרכזי — מלח",
+    label: "מלח = 78",
+    primary: "מלח = 78",
+    signals: ["גימטריה רגילה"],
+    number: 78,
+    worldLabel: "פתח את 78",
+  },
+  {
+    id: "bennett-israel-78",
+    heading: "מלח = 78 — וישראל בת 78",
+    label: "גיל המדינה · 78 · אחדות",
+    primary: "מלח = 78 · ישראל בת 78",
+    signals: ["78 שנות עצמאות", "אחדות"],
+    worldLabel: "פתח את 78",
+  },
+  {
     id: "bennett-631",
-    heading: "631 — הציר המרכזי",
+    heading: "בנט בתוך עץ הבחירות",
     label: "631 · בנט והבחירות",
     primary: "נפתלי בנט = הבחירות = מלך ישראל = 631",
-    signals: ["3 שוויונות מאומתים", "ציר הבחירות"],
+    signals: ["5 שוויונות", "ציר הבחירות"],
     number: 631,
     worldLabel: "פתח את 631",
   },
   {
     id: "dead-sea-chronology",
     heading: "ים המלח",
-    label: "22.9 → 24.9",
-    primary: "פוסט ים המלח → אירוע המלחיות",
-    signals: ["קשר כרונולוגי", "ללא טענת סיבתיות"],
+    label: "ים המלח · 133",
+    primary: "ים המלח = 133",
+    signals: ["חיבור משני", "הסיפור המלא בפוסט ים המלח"],
     worldLabel: "פתח את ים המלח",
   },
 ]);
+
+// Reading story of the saved Bennett source (revision 207 -> 208). The authored body is shown as written:
+// Dead Sea -> the incident two days later -> salt covenant / David -> salt = 78 and the state's age -> unity.
+// Presentation only: the covenant section is moved ahead of the salt = 78 section when both are found.
+function markBennettStory(content = "") {
+  let html = String(content || "");
+  if (html.includes('data-bennett-story="v1"')) return html;
+  // Saved result attributes are source claims, not live engine verification: keep them as plain open-number triggers.
+  html = html.replace(/<button\b([^>]*)>/gi, (match, attrs) => {
+    const expression = attrs.match(/data-expression="([^"]+)"/)?.[1];
+    if (!expression) return match;
+    return `<button${attrs.replace(/\sdata-contextual-number-focus="true"/g, "")} data-gem="${expression}">`;
+  });
+  for (const title of ["יומיים אחרי ים המלח — המלח מופיע שוב", "מלח = 78 — וישראל בת 78", "האירוע"]) {
+    html = html.replace(new RegExp(`(<h2\\b)(?![^>]*data-source-heading)([^>]*>\\s*${escapeRegExp(title)}\\s*<\\/h2>)`), '$1 data-source-heading="true"$2');
+  }
+  const covenant = html.match(/\s*<section class="sod29-bennet-section">\s*<h2[^>]*>ברית מלח<\/h2>[\s\S]*?<\/section>/);
+  const centralSalt = html.match(/\s*<section class="sod29-bennet-section is-centered">\s*<h2[^>]*>הרמז המרכזי — מלח<\/h2>/);
+  if (covenant && centralSalt && html.indexOf(covenant[0]) > html.indexOf(centralSalt[0])) {
+    html = html.replace(covenant[0], "");
+    html = html.replace(centralSalt[0], `${covenant[0]}${centralSalt[0]}`);
+  }
+  return html.replace(/<section\b/, '<section data-bennett-story="v1"');
+}
+
 
 function buildBennettGoldenBody(verification, originalContent = "") {
   const verified = verification?.verified === true;
@@ -432,7 +490,6 @@ function buildBennettSaltExperience(post) {
     connections: [
       { id: "bennett-631", label: "פוסט הבחירות · ציר 631", kind: "POST", value: "631", href: "/post/sharshar-elections-redemption-hints-draft", reason: "כאן נפתח ציר 631; פוסט בנט הוא המשך שלו. פתחו את הפוסט כדי לקרוא את החישובים ואת החיבורים המקוריים.", provenanceLabel: "post:5107" },
       { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע.", provenanceLabel: "מנוע גימטריה" },
-      { id: "bread-78", label: "לחם", kind: "NUMBER", value: "78", href: "/2029/number/78", reason: "אותו ערך רגיל כמו מלח; המשמעות פרשנית." },
       { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/post/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
       { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/2029/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
       { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/2029/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
@@ -710,9 +767,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     : isBennettSaltPilot
       ? {
           ...post,
-          title: "בנט בתוך ציר 631",
-          excerpt: "אירוע חדש מתחבר לציר 631 שכבר הופיע בפוסט הבחירות: נפתלי בנט = הבחירות = מלך ישראל = 631. יומיים קודם פורסם פוסט ים המלח.",
-          content: buildBennettGoldenBody(bennettSaltVerification, post.content),
+          content: markBennettStory(post.content),
           _experience: buildBennettSaltExperience(post),
         }
       : { ...post, content: markLegacyEqualityLines(post.content) };
@@ -810,6 +865,7 @@ export const post2029ReadingInternals = {
   BENNETT_SALT_REGIONS,
   buildBennettSaltExperience,
   buildBennettGoldenBody,
+  markBennettStory,
   ELECTIONS_SLUG,
   ELECTIONS_EQUALITIES,
   ELECTIONS_REGIONS,

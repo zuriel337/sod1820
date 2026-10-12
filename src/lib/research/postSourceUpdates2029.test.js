@@ -77,3 +77,14 @@ test("native hash resolves only to a proven unit of the same post", () => {
   assert.equal(provenUpdateForHash(5112, "#sharshar-shoes-66"), null);
   assert.equal(provenUpdateForHash(5107, "#%E0%A4%A"), null);
 });
+
+test("Bennett 207->208 units are certified with the exact saved time and only for their own slug", () => {
+  const entries = PROVEN_POST_SOURCE_UPDATES[5113];
+  assert.deepEqual(entries.map((entry) => entry.targetId), ["bennett-israel-78", "bennett-dead-sea-sequence"]);
+  assert.ok(entries.every((entry) => entry.beforeRevision === 207 && entry.afterRevision === 208 && entry.updatedAt === "2026-10-12T14:06:54.127591Z"));
+  const event = publicProvenPostSourceUpdate({ id: 5113, slug: "bennett-melach-631-78", source: "ai", tags: [], modified: "2026-10-12T14:06:54.127591Z" });
+  assert.equal(event.revision, 208);
+  assert.equal(event.fragmentRef, "posts:5113#bennett-israel-78");
+  assert.equal(publicProvenPostSourceUpdate({ id: 5113, slug: "bennett-melach-631-78", source: "ai", tags: [], modified: "2026-10-03T00:00:00Z" }), null);
+  assert.equal(provenUpdateForHash(5113, "#bennett-dead-sea-sequence").id, "bennett-dead-sea-sequence");
+});
