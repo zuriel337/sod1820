@@ -372,7 +372,10 @@ function sourceCandidates(data) {
       kind: "source",
       type,
       label,
-      summary: null,
+      // The canonical number-journey reader already supplies the complete verse text.
+      // Preserve it as the visible card body; the heading remains the verse reference.
+      // Never synthesize missing text or copy free-form research-source content here.
+      summary: verse ? clean(source?.text) : null,
       sourceRef: ref,
       relationPath: [{ relationType: verse ? "number_journey_source" : "research_source" }],
       directness: verse ? "canonical_number_journey_source" : "source_provenance",
