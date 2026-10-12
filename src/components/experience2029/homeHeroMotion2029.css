@@ -47,3 +47,4 @@
   .h29-hero2 { grid-template-columns: 1fr; }
   .h29-hero-measures { max-inline-size: none; }
 }
+.h29-hero-update-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--s29-accent-text); font: 600 14px var(--s29-font-ui); text-decoration: none; }

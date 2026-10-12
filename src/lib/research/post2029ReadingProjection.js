@@ -407,13 +407,16 @@ const BENNETT_SALT_REGIONS = Object.freeze([
 // Reading story of the saved Bennett source (revision 207 -> 208). The authored body is shown as written:
 // Dead Sea -> the incident two days later -> salt covenant / David -> salt = 78 and the state's age -> unity.
 // Presentation only: the covenant section is moved ahead of the salt = 78 section when both are found.
-function markBennettStory(content = "") {
+// `verifiedClaims` is a Set of "expression|result" pairs the canonical method engine confirmed. Only those keep the
+// contextual-number focus interaction; every other saved result stays a plain open-number trigger.
+function markBennettStory(content = "", verifiedClaims = new Set()) {
   let html = String(content || "");
   if (html.includes('data-bennett-story="v1"')) return html;
-  // Saved result attributes are source claims, not live engine verification: keep them as plain open-number triggers.
   html = html.replace(/<button\b([^>]*)>/gi, (match, attrs) => {
     const expression = attrs.match(/data-expression="([^"]+)"/)?.[1];
     if (!expression) return match;
+    const result = attrs.match(/data-result="([^"]+)"/)?.[1];
+    if (result && verifiedClaims.has(`${expression}|${result}`)) return match;
     return `<button${attrs.replace(/\sdata-contextual-number-focus="true"/g, "")} data-gem="${expression}">`;
   });
   for (const title of ["יומיים אחרי ים המלח — המלח מופיע שוב", "מלח = 78 — וישראל בת 78", "האירוע"]) {
@@ -639,6 +642,21 @@ async function verifyTashpaz() {
   };
 }
 
+// Engine check of every saved (expression, result) claim in the Bennett source; one RPC per distinct pair.
+async function verifyBennettStoryClaims(content = "") {
+  const pairs = new Map();
+  for (const match of String(content).matchAll(/<button\b[^>]*>/gi)) {
+    const expression = match[0].match(/data-expression="([^"]+)"/)?.[1];
+    const result = Number(match[0].match(/data-result="([^"]+)"/)?.[1]);
+    if (expression && Number.isSafeInteger(result)) pairs.set(`${expression}|${result}`, { expression, result });
+  }
+  const checked = await Promise.all([...pairs.entries()].slice(0, 24).map(async ([key, { expression, result }]) => {
+    const { data, error } = await supabase.rpc("fn_method_value", { p_method_key: "רגיל", p_phrase: expression });
+    return !error && Number(data) === result ? key : null;
+  }));
+  return new Set(checked.filter(Boolean));
+}
+
 async function verifyBennettSaltFocus() {
   const phrases = ["נפתלי בנט", "הבחירות", "מלך ישראל"];
   const rows = await Promise.all(phrases.map(async (phrase) => {
@@ -751,6 +769,7 @@ export async function fetchPost2029ReadingProjection(slug) {
   const electionsVerification = isElectionsChain ? await verifyElectionsEqualities() : null;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
   const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
+  const bennettStoryClaims = isBennettSaltPilot ? await verifyBennettStoryClaims(post.content) : new Set();
   const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
   const presentationPost = isFz1073Pilot
     ? {
@@ -767,7 +786,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     : isBennettSaltPilot
       ? {
           ...post,
-          content: markBennettStory(post.content),
+          content: markBennettStory(post.content, bennettStoryClaims),
           _experience: buildBennettSaltExperience(post),
         }
       : { ...post, content: markLegacyEqualityLines(post.content) };

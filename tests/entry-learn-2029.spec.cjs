@@ -60,11 +60,12 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   await expect(orientation).toHaveClass(/is-prominent/);
   await expect(orientation.getByRole('button', { name: 'חדש כאן? מה עושים בפוסט הזה?' })).toBeVisible();
 
-  const focusGroup = post.locator('.sod29-bennett-equalities[data-contextual-number-focus-group="true"]');
-  await expect(focusGroup).toBeVisible({ timeout: 30_000 });
+  // The live authored Bennett source: an engine-verified saved equality (נפתלי בנט = 631) is the explicit focus control.
+  const focusControl = post.locator('.sod29-reading-source [data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first();
+  await expect(focusControl).toBeVisible({ timeout: 30_000 });
   expect(traceRequests).toBe(0);
 
-  await focusGroup.locator('[data-contextual-number-focus="true"]').first().click();
+  await focusControl.click();
 
   const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
   await expect(sidecar).toBeVisible({ timeout: 30_000 });

@@ -53,7 +53,7 @@ function useHomeCompositionData() {
       let rowsBySlug = {};
       try {
         if (supabase && slugs.length) {
-          const { data: rows } = await supabase.from("posts").select("slug,date,modified,categories").in("slug", slugs);
+          const { data: rows } = await supabase.from("posts").select("id,slug,date,modified,categories,source,tags,home_hidden").in("slug", slugs);
           rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
         }
       } catch (_) { /* the cards simply show no mark */ }
@@ -117,10 +117,10 @@ export default function HomeComposition2029({
             <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>
               <Media src={post.poster} fallback={post.number || "✦"} />
               <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{relativeTimeLabel(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>
-                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)}</span> : null}</span>
+                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)} · {post.update.label}</span> : null}</span>
             </button>
             <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />
-            <Link className="h29-card-open" to={postHref(post.slug)}>לקריאה ←</Link>
+            <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
         {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}

@@ -95,3 +95,11 @@ test("the saved Bennett story keeps source order: Dead Sea, incident, covenant/D
   assert.equal(post2029ReadingInternals.markBennettStory(html), html);
   assert.doesNotMatch(html.replace(/<[^>]+>/g, " "), /לחם/);
 });
+
+test("only engine-verified saved equalities keep the contextual focus interaction", () => {
+  const source = '<section><p><button type="button" data-contextual-number-focus="true" data-expression="נפתלי בנט" data-result="631">631</button> <button type="button" data-contextual-number-focus="true" data-expression="מלח" data-result="79">79</button></p></section>';
+  const html = post2029ReadingInternals.markBennettStory(source, new Set(["נפתלי בנט|631"]));
+  assert.match(html, /data-contextual-number-focus="true"[^>]*data-expression="נפתלי בנט"/);
+  assert.match(html, /data-expression="מלח"[^>]*data-gem="מלח"/);
+  assert.equal((html.match(/data-contextual-number-focus/g) || []).length, 1);
+});

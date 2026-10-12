@@ -1418,3 +1418,8 @@
 @media(min-width:1280px){.sod29-main-stage.has-context-rail .sod29-reading-post>.sod29-surface-tabs{display:none}}
 /* Post reading cover: one compact whole image (shared media kit does the contain/lightbox work). */
 .sod29-reading-cover{margin:0 auto 20px;max-width:min(100%,760px)}
+
+/* Mobile/tablet: the rolling section locator is fixed at the inline-end edge; reserve its gutter so it never covers text. */
+@media(max-width:980px){
+  .sod29-root.surface-post .sod29-reading-post{padding-inline-end:52px}
+}
