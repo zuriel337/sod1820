@@ -12,6 +12,7 @@ import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import "./post2029-reading.css";
@@ -20,6 +21,19 @@ const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
   .replace(/\s+/g, " ")
   .trim();
+
+// The post's own cover (posts.image_url) is not a gallery row, so it carries no media identity.
+// Sharp reading image = image_url; thumb_url is preview-only and is never used as the reading cover.
+export function postReadingCoverItem(post) {
+  const imageUrl = typeof post?.image_url === "string" ? post.image_url.trim() : "";
+  if (!imageUrl) return null;
+  const thumbUrl = typeof post?.thumb_url === "string" && post.thumb_url.trim() ? post.thumb_url.trim() : imageUrl;
+  return {
+    mediaId: "", galleryImageId: "", label: humanContentTitle(post.title, { max: 0 }),
+    imageUrl, thumbUrl,
+    intrinsic: { galleryImageId: null, mediaId: null, representation: { imageUrl, thumbUrl, fit: "preserve-whole-image" } },
+  };
+}
 
 function revealReadingAnchor(node) {
   for (let parent = node?.parentElement; parent; parent = parent.parentElement) {
@@ -312,6 +326,7 @@ function PostReadingBody() {
 
   const { projection } = state;
   const { post } = projection;
+  const coverItem = postReadingCoverItem(post);
   const experience = projection.experience || {};
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
@@ -697,6 +712,10 @@ function PostReadingBody() {
         </div> : null}
       </div>
     </header>
+
+    {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
+      <CanonicalMediaFigure2029 item={coverItem} primary alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+    </figure> : null}
 
     <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
 

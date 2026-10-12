@@ -193,7 +193,15 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     items,
     // Source movement stays available even when a burst of research fills the mixed window.
     // This is the same bounded public set, not another feed or reader.
-    arrivals: sourceItems.filter(item => safeCreator === "all" || item.creator === safeCreator).sort(byTime).slice(0, 40),
+    // Public arrival rail shows recently EDITED posts first without rewriting the
+    // original publication/arrival timestamp; source identity and chronology remain intact.
+    arrivals: sourceItems.filter(item => safeCreator === "all" || item.creator === safeCreator)
+      .sort((a, b) => {
+        const recent = (item) => item.sourceKind === "post"
+          ? Math.max(Date.parse(item.sourceUpdatedAt || "") || 0, Date.parse(item.sourcePublishedAt || "") || 0)
+          : Date.parse(item.arrivalAt || item.at || "") || 0;
+        return recent(b) - recent(a) || a.id.localeCompare(b.id);
+      }).slice(0, 40),
     creators,
     recentCounts,
     total: items.length,
@@ -236,7 +244,9 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
       .not("tags", "cs", "{טיוטה}")
       .not("tags", "cs", "{פורום}")
       .in("source", ["wordpress", "SOD1820", "sod1820", "source_document", "ai", "uploaded_file"])
-      .order("date", { ascending: false, nullsFirst: false })
+      // Query the latest MODIFIED public sources, not only newly published ones.
+      // The client still retains the source's original publication date separately.
+      .order("modified", { ascending: false, nullsFirst: false })
       .limit(Math.min(80, Math.max(requested * 2, 32)));
     if (error) throw error;
     return Array.isArray(data) ? data : [];

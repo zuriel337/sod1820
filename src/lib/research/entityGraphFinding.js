@@ -168,14 +168,35 @@ export function graphEdgeToUniversalFinding(edge, nodesById = new Map()) {
   });
 }
 
+const MEDIA_NODE_TYPES = ["image", "media"];
+const MEDIA_TYPE_LIST = `(${MEDIA_NODE_TYPES.join(",")})`;
+const FROM_TYPE = "src:nodes!edges_from_node_fkey!inner(type)";
+const TO_TYPE = "dst:nodes!edges_to_node_fkey!inner(type)";
+
+function edgeRowsOf(result) {
+  if (result.error) throw result.error;
+  return (Array.isArray(result.data) ? result.data : [])
+    .map(({ src, dst, ...edge }) => edge);
+}
+
 /**
  * Exact node-id read path for the Entity/Graph Lens. Returns the entity Finding plus
  * relation Findings for its adjacent canonical edges. No graph writes and no truth inference.
+ *
+ * Media endpoints (one image usually carries both a contains and a mentions edge) are read in
+ * their own bounded window, so a recent gallery batch can never push a node's posts,
+ * convergences, entities or numbers out of its relation window. Retired (inactive) counterparts
+ * are not projected as live relations unless a caller explicitly asks for them.
  */
-export async function fetchCanonicalGraphEntityFindings(nodeId, { relationLimit = 50 } = {}) {
+export async function fetchCanonicalGraphEntityFindings(nodeId, {
+  relationLimit = 50,
+  mediaRelationLimit = null,
+  includeInactive = false,
+} = {}) {
   const id = clean(nodeId);
   if (!id) return [];
   const safeLimit = Math.max(1, Math.min(Number(relationLimit) || 50, 200));
+  const mediaLimit = Math.max(1, Math.min(Number(mediaRelationLimit) || safeLimit, 200));
 
   const { data: node, error: nodeError } = await supabase
     .from("nodes")
@@ -185,22 +206,51 @@ export async function fetchCanonicalGraphEntityFindings(nodeId, { relationLimit 
   if (nodeError) throw nodeError;
   if (!node) return [];
 
-  const { data: edges, error: edgeError } = await supabase
+  const anchorIsMedia = MEDIA_NODE_TYPES.includes(node.type);
+  const semantic = anchorIsMedia
+    ? supabase
+      .from("edges")
+      .select(EDGE_FIELDS)
+      .or(`from_node.eq.${id},to_node.eq.${id}`)
+    : supabase
+      .from("edges")
+      .select(`${EDGE_FIELDS},${FROM_TYPE},${TO_TYPE}`)
+      .or(`from_node.eq.${id},to_node.eq.${id}`)
+      .not("src.type", "in", MEDIA_TYPE_LIST)
+      .not("dst.type", "in", MEDIA_TYPE_LIST);
+  const mediaWindow = (column, embed, alias) => supabase
     .from("edges")
-    .select(EDGE_FIELDS)
-    .or(`from_node.eq.${id},to_node.eq.${id}`)
+    .select(`${EDGE_FIELDS},${embed}`)
+    .eq(column, id)
+    .in(`${alias}.type`, MEDIA_NODE_TYPES)
     .order("created_at", { ascending: false })
-    .limit(safeLimit);
-  if (edgeError) throw edgeError;
+    .limit(mediaLimit);
+  const [semanticResult, incomingMedia, outgoingMedia] = await Promise.all([
+    semantic.order("created_at", { ascending: false }).limit(safeLimit),
+    anchorIsMedia ? { data: [] } : mediaWindow("to_node", FROM_TYPE, "src"),
+    anchorIsMedia ? { data: [] } : mediaWindow("from_node", TO_TYPE, "dst"),
+  ]);
+  const mediaEdges = [...edgeRowsOf(incomingMedia), ...edgeRowsOf(outgoingMedia)]
+    .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))
+    .slice(0, mediaLimit);
+  const fetchedEdges = [...edgeRowsOf(semanticResult), ...mediaEdges]
+    .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
 
-  const edgeRows = Array.isArray(edges) ? edges : [];
-  const nodeIds = [...new Set(edgeRows.flatMap(edge => [edge.from_node, edge.to_node]).filter(Boolean).map(String))];
-  let relatedRows = [];
-  if (nodeIds.length) {
-    const { data, error } = await supabase.from("nodes").select(NODE_FIELDS).in("id", nodeIds);
+  const nodeIds = [...new Set(fetchedEdges.flatMap(edge => [edge.from_node, edge.to_node]).filter(Boolean).map(String))];
+  // Bounded id lists keep each GET request URL well under proxy limits.
+  const idChunks = [];
+  for (let i = 0; i < nodeIds.length; i += 100) idChunks.push(nodeIds.slice(i, i + 100));
+  const relatedRows = (await Promise.all(idChunks.map(async (chunk) => {
+    const { data, error } = await supabase.from("nodes").select(NODE_FIELDS).in("id", chunk);
     if (error) throw error;
-    relatedRows = Array.isArray(data) ? data : [];
-  }
+    return Array.isArray(data) ? data : [];
+  }))).flat();
+  const inactiveIds = new Set(relatedRows
+    .filter(row => row.is_active === false && String(row.id) !== String(node.id))
+    .map(row => String(row.id)));
+  const edgeRows = includeInactive
+    ? fetchedEdges
+    : fetchedEdges.filter(edge => !inactiveIds.has(String(edge.from_node)) && !inactiveIds.has(String(edge.to_node)));
 
   const nodesById = new Map(relatedRows.map(row => [String(row.id), row]));
   nodesById.set(String(node.id), node);

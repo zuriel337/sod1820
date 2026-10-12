@@ -12,6 +12,8 @@ async function readAllPosts() {
     const { data, error } = await supabase
       .from("posts")
       .select("id,slug,categories")
+      .or("tags.is.null,and(tags.not.cs.{טיוטה},tags.not.cs.{פורום})")
+      .or("source.is.null,source.neq.gpt-draft")
       .order("id", { ascending: true })
       .range(page * PAGE, page * PAGE + PAGE - 1);
     if (error) throw error;
@@ -26,7 +28,7 @@ async function readTopics() {
   for (let page = 0; page < 5; page += 1) {
     const { data, error } = await supabase
       .from("topic_cards_public")
-      .select("slug,title,subtitle,node_id")
+      .select("slug,title,subtitle,node_id,numbers,approved_at")
       .order("slug", { ascending: true })
       .range(page * PAGE, page * PAGE + PAGE - 1);
     if (error) throw error;
@@ -89,13 +91,18 @@ export const SOURCE_PAGE_SIZE = 12;
 // Genuine server-side pagination of public source works for ONE category (existing posts reader,
 // same anon-readable columns the rest of World uses). Returns {rows, hasMore}.
 export async function fetchCategorySources(category, page = 0) {
-  if (!supabase || !clean(category)) return { rows: [], hasMore: false };
+  if (!supabase) return { rows: [], hasMore: false };
   const from = page * SOURCE_PAGE_SIZE;
-  const { data, error } = await supabase
-    .from("posts")
-    .select("id,slug,title,date")
-    .contains("categories", [category])
+  let query = supabase.from("posts").select("id,slug,title,date")
+    .or("tags.is.null,and(tags.not.cs.{טיוטה},tags.not.cs.{פורום})")
+    .or("source.is.null,source.neq.gpt-draft");
+  // No category means the complete source-owner archive, including Home-hidden
+  // sources except explicitly marked draft/forum/internal origin. Home placement
+  // is not a publication gate; no graph node is required.
+  if (clean(category)) query = query.contains("categories", [category]);
+  const { data, error } = await query
     .order("date", { ascending: false, nullsFirst: false })
+    .order("id", { ascending: true })
     .range(from, from + SOURCE_PAGE_SIZE);
   if (error) throw error;
   const rows = (data || []).filter((r) => clean(r.slug));

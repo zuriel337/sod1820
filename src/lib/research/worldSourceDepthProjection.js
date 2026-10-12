@@ -70,7 +70,34 @@ export function buildSourceDepth({ posts = [], topics = [], attestedLinks = [], 
     postsRead: posts.length,
     categories: rows,
     topicsTotal: topicBySlug.size,
+    numberHighlights: buildPublicNumberHighlights([...topicBySlug.values()]),
     topicsLinked: linkedTopicSlugs.size,
     unlinkedTopics, // full directory, not a sampled head
   });
+}
+
+// A discovery signal over admitted PUBLIC topic identities, not search popularity,
+// research strength or curation. The same payload is usable on Home and World.
+export function buildPublicNumberHighlights(topics = [], { now = Date.now(), limit = 10 } = {}) {
+  const byNumber = new Map();
+  const seen = new Set();
+  const since = now - 7 * 86400000;
+  for (const topic of topics) {
+    const identity = clean(topic?.slug);
+    if (!identity || seen.has(identity)) continue;
+    seen.add(identity);
+    const approved = Date.parse(topic.approved_at || "");
+    const recent = Number.isFinite(approved) && approved >= since && approved <= now;
+    for (const value of new Set(Array.isArray(topic.numbers) ? topic.numbers : [])) {
+      if (!Number.isSafeInteger(value) || value <= 0) continue;
+      const row = byNumber.get(value) || { value, publicTopics: 0, approvedTopics7d: 0 };
+      row.publicTopics += 1;
+      if (recent) row.approvedTopics7d += 1;
+      byNumber.set(value, row);
+    }
+  }
+  return [...byNumber.values()]
+    .sort((a, b) => b.approvedTopics7d - a.approvedTopics7d || b.publicTopics - a.publicTopics || a.value - b.value)
+    .slice(0, limit)
+    .map((row) => ({ ...row, href: `/2029/number/${row.value}`, basis: "public_topic_membership", windowDays: 7 }));
 }

@@ -4981,10 +4981,20 @@ function PostPageBySlug({ onNav }) {
       )}
       {image && !loading && !fx && (() => {
         // כרטיס מעוצב (api/card) — מציגים שלם ונקי (contain, בלי פילטר/הכהיה); תמונת-תוכן — cover עם הכהיה עדינה.
-        const isCard = /\/api\/card|\/gallery\/sod1820\//.test(image);
+        const isCard = /\/api\/card|\/gallery\/sod1820\/|\/media\/sod1820\/2029\/image\/.+\/(?:reading-v2|cover-fast-v1|reading)\.jpg$/.test(image);
+        const openCover = () => {
+          // These five originals were preserved and read-back verified before deriving reading-v2.
+          const full = /\/post-(5107|5112|5114|5115|5116)-cover-20261012\/reading-v2\.jpg$/.test(image)
+            ? image.replace(/reading-v2\.jpg$/, "cover.png") : image;
+          setLbImages([{ image_url: full, name: title }]);
+          setLbStartIdx(0);
+        };
         return (
           <div style={{ height: "clamp(220px, 40vw, 480px)", position: "relative", overflow: "hidden", background: isCard ? pc.bg : pc.goldDeep }}>
-            <img src={image} alt={title} style={{ width: "100%", height: "100%", objectFit: isCard ? "contain" : "cover", filter: isCard ? "none" : "brightness(0.5) sepia(0.3)", display: "block" }} />
+            <img src={image} alt={title} role={isCard ? "button" : undefined} tabIndex={isCard ? 0 : undefined}
+              onClick={isCard ? openCover : undefined}
+              onKeyDown={isCard ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCover(); } } : undefined}
+              style={{ width: "100%", height: "100%", objectFit: isCard ? "contain" : "cover", filter: isCard ? "none" : "brightness(0.5) sepia(0.3)", display: "block" }} />
             {!isCard && <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${pc.bg} 100%)` }} />}
           </div>
         );

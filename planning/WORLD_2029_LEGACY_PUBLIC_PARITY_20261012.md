@@ -26,3 +26,32 @@ Personal/unpublished research, DMs, private WhatsApp submissions, drafts, person
 5. Release only with counted pre/post evidence: eligible distinct legacy IDs, restored published IDs, remaining missing IDs, excluded private IDs, regression tests and deploy URL. Never report rows 'entered' without release evidence.
 
 No DB or production change authorized by this document alone.
+
+
+## Execution continuation — 2026-10-12, branch-only
+
+Baseline reconciled against main `4f8c718c03b9edf6b9b3dd0d5eb943f2d7a2b1c4`; reuse merged PR1043 graph/media fixes. General Supabase connector used only for bounded READ ONLY queries, including transaction-local anon role. Public REST inventory uses only the existing public client key (no service role).
+
+| Measure | Before | After this branch |
+|---|---:|---:|
+| Anonymous readable post IDs | 1302 | 1302 (no DB writes) |
+| Post IDs with active exact graph identity | 306 | 306 |
+| Missing exact post identities | 996 | 996 |
+| Eligible archive sources (excluding explicit draft/forum/internal origin) | 1291 | 1291 |
+| Public gallery source IDs | 2192 | 2192 |
+| Images with active exact graph identity | 2037 | 2037 |
+| Missing image identities | 155 | 155 |
+| Shared public gallery adapter eligible rows | 2498 | 2192 (306 outside current publication/tier gate excluded) |
+| Approved topics / public-view topics | 206 / 205 | 206 / 205 |
+| Public topics without active node | 3 | 3 |
+| Anonymous readable active numbers | 2157 | 2157 |
+
+Implemented existing reader changes: public Gallery default applies published=1/min_tier=0/curator gate, admin hidden-review query remains separate under existing RLS. Stable ID tiebreak for Gallery and source pages. Existing category reader can now fetch the complete eligible archive without a category; Home-hidden is preserved and not treated as a publication permission. Explicit draft/forum/internal origins excluded from facet counts and archive reader. Five uncategorized sources 5056–5060 stay Home-hidden; no promotion or artificial category/node created.
+
+Numbers request: existing source-depth projection exposes `numberHighlights` to both Home/World consumers. Distinct public Topic membership and approvals over seven days are labeled separately. Current top signals include 1820 (7 public topics), 358 (6), 424 and 1202 (5). This is content relevance, NOT visitor/search popularity or research strength. Canonical Traffic demand RPCs deny anon; do not grant access or substitute legacy raw search-log popularity. The JSX/CSS surface wiring is PENDING under the existing visual writer lane. No new owner, store, importer, graph or event pipeline.
+
+Validation: eight adapter/projection tests PASS; 2029 production build PASS; diff check PASS. Companion `scripts/world2029-public-legacy-parity-audit.mjs` enumerates anonymous REST IDs, strict source mappings and a private-research denial probe. Public mapping numbers unchanged; zero backfilled nodes/edges and zero restored IDs claimed.
+
+LIVE sample (existing production, not this branch): unauthenticated browser renders /world, public source rail, 205 topic total, preserved 878 Journey lock. Seven visible img elements loaded successfully (including the four source discovery doors and flight cover). World -> elections post5107 renders complete source text and cover; Number631 link opens the existing Number route. The two un-mapped aircraft images return HEAD200 image/png and image/jpeg. Terminal /world returned403 while cloud browser succeeded; therefore do not infer production outage. Exhaustive rendered-route, mobile/return/SEO and all asset-byte verification remains OPEN.
+
+Release: NOT MERGED, NOT DEPLOYED. Keep PR draft. Full parity cannot close until reader UI wiring, all-ID route coverage, governed mapping decisions and deployment evidence. Preserve the existing 85 orphan-image-node decision; no relink/deactivation performed.

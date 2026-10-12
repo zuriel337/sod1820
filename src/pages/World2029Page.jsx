@@ -79,6 +79,7 @@ const WORLD_EXPERIENCE = resolveExperienceContext({
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
+const WORLD_878_JOURNEY_LOCKED = GOLDEN_WORLD_JOURNEY_878.locked === true;
 
 const WORLD_FACETS = [
   { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
@@ -861,6 +862,7 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   const startJourney = (journey) => {
+    if (WORLD_878_JOURNEY_LOCKED) return;
     const root = Number(journey?.rootValue);
     if (!Number.isSafeInteger(root)) return;
     research.addJourney?.({
@@ -886,6 +888,7 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   const resumeJourney = (savedJourney) => {
+    if (WORLD_878_JOURNEY_LOCKED) return;
     const root = Number(savedJourney?.root);
     if (root !== GOLDEN_WORLD_JOURNEY_878.rootValue) return;
     const pathValues = (Array.isArray(savedJourney.path) ? savedJourney.path : [])
@@ -1029,7 +1032,43 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  if ((import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !controlMode) return <>
+  // Same journey owner in public composed World and the legacy admin view.
+  // Preserve the Golden 878 invitation instead of hiding it behind the old layout.
+  const goldenJourneySection = WORLD_878_JOURNEY_LOCKED
+    ? <section className="sod29-section sod29-world-journey-section is-locked" aria-label="מסע 878 נעול" data-world-journey-locked="878">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">מסע · שמור לעריכה</div><h2>מסע 878 · נעול</h2>
+          <p className="sod29-muted">המסע אינו פתוח לכניסה כרגע. המספר, המקורות, התמונות והגימטריות נשארים ציבוריים.</p>
+        </div></div>
+      </section>
+    : (!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">המסע הראשון של 2029</div>
+          <h2>מסע 878</h2>
+          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
+        </div>
+        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
+      </div>
+      {landing.journeyError ? <FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או התכנסות בלי להמציא מסלול חלופי.</FrameState> : null}
+      {landing.journey ? <div className="sod29-world-journey-invitation">
+        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
+        <div className="sod29-world-journey-copy">
+          <span className="sod29-kicker">מסע · פתוח בבנייה</span>
+          <h3>המסע מתחיל ב־{landing.journey.rootValue}</h3>
+          <p>{landing.journey.subtitle}</p>
+          <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
+            {landing.journey.paths.map((path) => <div className="sod29-world-journey-path-preview" key={path.id}>
+              <span>878</span><b aria-hidden="true">←</b><strong>{path.targetValue}</strong>
+              <small>{path.meetingTitle}</small>
+            </div>)}
+          </div>
+          <div className="sod29-muted sod29-world-journey-truth-note">{landing.journey.truthNote}</div>
+        </div>
+        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>פתח 878 והתחל מסע</button>
+      </div> : null}
+    </section> : null);
+
+  if (!controlMode) return <>
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
@@ -1107,6 +1146,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </section>
     {sourceDepthOpen ? <WorldSourceDepth /> : null}
 
+    {goldenJourneySection}
     <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
       <div className="sod29-kicker">לאן זה מוביל?</div><h2>להיכנס לאותיות. להמשיך לחיבור הבא.</h2>
       <p>מכל חישוב שנפתח אפשר להמשיך למסע אישי באותה דרך: הביטוי, השיטה והמקור נשארים איתך.</p>
@@ -1371,33 +1411,7 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש התכנסות שאין לה attribution ציבורי.</FrameState>}
     </section> : null}
 
-    {!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">המסע הראשון של 2029</div>
-          <h2>מסע 878</h2>
-          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
-        </div>
-        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
-      </div>
-      {landing.journeyError ? <FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או התכנסות בלי להמציא מסלול חלופי.</FrameState> : null}
-      {landing.journey ? <div className="sod29-world-journey-invitation">
-        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
-        <div className="sod29-world-journey-copy">
-          <span className="sod29-kicker">מסע · פתוח בבנייה</span>
-          <h3>המסע מתחיל ב־{landing.journey.rootValue}</h3>
-          <p>{landing.journey.subtitle}</p>
-          <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
-            {landing.journey.paths.map((path) => <div className="sod29-world-journey-path-preview" key={path.id}>
-              <span>878</span><b aria-hidden="true">←</b><strong>{path.targetValue}</strong>
-              <small>{path.meetingTitle}</small>
-            </div>)}
-          </div>
-          <div className="sod29-muted sod29-world-journey-truth-note">{landing.journey.truthNote}</div>
-        </div>
-        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>פתח 878 והתחל מסע</button>
-      </div> : null}
-    </section> : null}
+    {goldenJourneySection}
 
     {!landing.loading && otherPopulatedSections.map((facet) => {
       const cards = landing.sections[facet.key] || [];
@@ -1477,7 +1491,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setGematriaMethodFilter("all");
     setGematriaTypeFilter("all");
     setGematriaQuery("");
-    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40 })
+    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40, mediaLimit: 40 })
       .then(async (data) => {
         if (!alive) return;
         let prominenceInputs = null;
@@ -1501,7 +1515,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     if (!isAdmin) setResearchSourceState({ loading: false, occurrences: {}, access: { available: true, reason: null }, error: null });
   }, [isAdmin]);
 
-  const goldenJourneyRelevant = (
+  const goldenJourneyRelevant = !WORLD_878_JOURNEY_LOCKED && (
     (subject.type === "number" && Number(subject.id) === GOLDEN_WORLD_JOURNEY_878.rootValue)
     || context?.journey?.id === GOLDEN_WORLD_JOURNEY_878.id
   );
@@ -1633,7 +1647,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   // the same Golden experience without conflating persistence identity with meaning.
   const journeySemanticId = context?.dimensions?.journeySemanticId
     || (context?.journey?.kind === GOLDEN_WORLD_JOURNEY_878.kind ? context?.journey?.id : null);
-  const journeyIsActive = journeySemanticId === GOLDEN_WORLD_JOURNEY_878.id;
+  const journeyIsActive = !WORLD_878_JOURNEY_LOCKED && journeySemanticId === GOLDEN_WORLD_JOURNEY_878.id;
   const currentJourneyValue = subject.type === "number" && Number.isSafeInteger(Number(subject.id)) ? Number(subject.id) : null;
   const savedGoldenJourney = useMemo(() => (
     Array.isArray(research.journeys)
@@ -1693,7 +1707,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   const activateGoldenJourney = () => {
-    if (!goldenJourney) return;
+    if (WORLD_878_JOURNEY_LOCKED || !goldenJourney) return;
     const root = GOLDEN_WORLD_JOURNEY_878.rootValue;
     research.addJourney?.({
       root,
@@ -1727,7 +1741,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   const followGoldenJourneyPath = (path) => {
-    if (!goldenJourney || !path?.targetValue) return;
+    if (WORLD_878_JOURNEY_LOCKED || !goldenJourney || !path?.targetValue) return;
     const root = GOLDEN_WORLD_JOURNEY_878.rootValue;
     const target = Number(path.targetValue);
     if (!Number.isSafeInteger(target)) return;
@@ -2098,7 +2112,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </section> : null}
 
       {density === "sparse" ? <NativeStateSection><FrameState kind="empty" title="הנקודה קיימת, אבל סביבה מעט חומר כרגע">זהו מצב תקין. העולם נשאר שקט במקום להמציא קשרים, מקורות או דברים שלא נמצאו.</FrameState></NativeStateSection> : null}
-      {data.research?.access?.available === false ? <NativeStateSection><FrameState kind="unavailable" title="חלק מהחומר אינו זמין בהרשאה הנוכחית">שאר החומר שנגיש ממשיך להופיע כרגיל.</FrameState></NativeStateSection> : null}
+      {data.research?.access?.available === false && adminMode ? <NativeStateSection><FrameState kind="unavailable" title="גישה למחקר הפנימי אינה זמינה">המקורות והמדיה הציבוריים אינם תלויים בשכבת המחקר הפנימית.</FrameState></NativeStateSection> : null}
 
       {activeLane === "overview" && state.prominenceError ? <NativeStateSection><FrameState kind="unavailable" title="העיקר עדיין לא זמין">שאר שכבות העולם ממשיכות להופיע. לא נבחר תחליף מלאכותי.</FrameState></NativeStateSection> : null}
 
@@ -2116,8 +2130,14 @@ function AnchoredWorld({ research, shell, subject, context }) {
             const whyLines = prominenceWhyLines(item);
             const uncertainty = Boolean(item.explainWhy?.uncertainty);
             const tier = item.explainWhy?.humanCuration?.tier || null;
-            return <article className={`sod29-world-primary-item${index === 0 ? " is-lead" : ""}${uncertainty ? " is-question" : ""}`} key={item.id}>
+            const linkedMedia = item.mediaNodeId
+              ? mediaItems.find((media) => String(media.nodeId || "") === String(item.mediaNodeId)) || null
+              : null;
+            return <article className={`sod29-world-primary-item${index === 0 ? " is-lead" : ""}${uncertainty ? " is-question" : ""}${linkedMedia ? " has-media" : ""}`} key={item.id}>
               <div className="sod29-world-primary-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>
+              {linkedMedia ? <div className="sod29-world-primary-media" data-world-primary-media={linkedMedia.galleryImageId}>
+                <CanonicalMediaFigure2029 item={linkedMedia} primary alt={linkedMedia.presentation?.label || "תמונת מקור"} contextNote={relationLabel(linkedMedia.relationType)} />
+              </div> : null}
               <div className="sod29-world-primary-copy">
                 <div className="sod29-world-primary-meta">
                   <span>{prominenceTypeLabel(item)}</span>

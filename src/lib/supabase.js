@@ -3009,7 +3009,7 @@ export async function getGalleryPage({ type = null, page = 0, limit = 60, search
     .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
     .not('image_url', 'is', null);
   if (hidden === 'only') q = q.eq('curator_hidden', true);
-  else if (hidden !== 'all') q = q.not('curator_hidden', 'is', true);
+  else if (hidden !== 'all') q = q.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true);
   if (type) q = q.eq('image_type', type);
   if (search.trim()) {
     const t = search.trim();
@@ -3019,6 +3019,7 @@ export async function getGalleryPage({ type = null, page = 0, limit = 60, search
   const { data, count, error } = await q
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .range(page * limit, (page + 1) * limit - 1);
   if (error) return { data: [], count: 0 };
   return { data: data || [], count: count || 0 };
@@ -3095,7 +3096,7 @@ export function adaptPost(row) {
     categories: row.categories ?? [],   // top-level — כדי שכרטיסי-פוסט יזהו «וידאו» בלי לחפור ב-_embedded
     tags: row.tags ?? [],
     _embedded: {
-      'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
+      'wp:featuredmedia': (row.thumb_url || row.image_url) ? [{ source_url: row.thumb_url || row.image_url }] : [],
       'wp:term': [
         (row.categories ?? []).map(name => ({ taxonomy: 'category', id: name, name })),
         (row.tags ?? []).map(name => ({ taxonomy: 'post_tag', id: name, name })),

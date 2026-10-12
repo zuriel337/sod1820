@@ -40,3 +40,9 @@
 @media(prefers-reduced-motion:reduce){.sod29-flight-directions>button{transition:none}}
 
 .sod29-source-arrivals>.sod29-actions{margin-bottom:20px;flex-wrap:wrap}
+
+/* Public World: reserve the above-the-fold flight slot while its authorized
+   post/source reader settles. Prevent the arrival rail jumping into the viewport
+   and then offscreen during async hydration (CLS /world <= 0.1). */
+.sod29-flight-story.is-world.is-loading{min-height:380px;display:flex;align-items:flex-start}
+@media(max-width:760px){.sod29-flight-story.is-world.is-loading{min-height:560px}}

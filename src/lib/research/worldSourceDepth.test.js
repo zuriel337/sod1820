@@ -1,7 +1,21 @@
 // node --test src/lib/research/worldSourceDepth.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildCategoryCounts, buildSourceDepth } from "./worldSourceDepthProjection.js";
+import { buildCategoryCounts, buildSourceDepth, buildPublicNumberHighlights } from "./worldSourceDepthProjection.js";
+
+test("number discovery counts distinct public topics and recent approvals, not repeated representations", () => {
+  const now = Date.parse("2026-10-12T15:00:00Z");
+  const topics = [
+    { slug: "old", numbers: [358, 358, 1237], approved_at: "2025-01-01" },
+    { slug: "recent", numbers: [1237, 14, 0, -1, "424"], approved_at: "2026-10-11" },
+    { slug: "recent", numbers: [1237], approved_at: "2026-10-11" },
+    { slug: "future", numbers: [358], approved_at: "2027-01-01" },
+  ];
+  const rows = buildPublicNumberHighlights(topics, { now });
+  assert.deepEqual(rows.map(r => [r.value, r.publicTopics, r.approvedTopics7d]), [[1237, 2, 1], [14, 1, 1], [358, 2, 0]]);
+  assert.equal(rows[0].basis, "public_topic_membership");
+  assert.equal(rows[0].href, "/2029/number/1237");
+});
 
 const posts = [
   { id: 1, slug: "a", categories: ["סוד החשמל", "סוד החשמל", "רמזים חזקים"] },

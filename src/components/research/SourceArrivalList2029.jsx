@@ -25,11 +25,14 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
     {sources.map(item => {
       const group = item.sourceKind === 'group_message';
       const newKey = `source:${item.id}`;
-      const isNew = showNew && recentSource(group ? item.arrivalAt : item.sourcePublishedAt || item.at) && !seen[newKey];
+      const latestSourceAt = group ? item.arrivalAt : item.sourceUpdatedAt || item.sourcePublishedAt || item.at;
+      const updatedPost = !group && item.sourceUpdatedAt && item.sourcePublishedAt
+        && Date.parse(item.sourceUpdatedAt) > Date.parse(item.sourcePublishedAt);
+      const isNew = showNew && recentSource(latestSourceAt) && !seen[newKey];
       const copy = <><span className="sod29-source-arrival-icon"><NavigationIcon2029 name="source" /></span><span className="sod29-source-arrival-copy">
         <span className="sod29-source-arrival-label">{isNew ? <><i className="sod29-source-arrival-dot" aria-hidden="true" /><span className="sod29-sr-only">חדש · </span></> : null}{group ? 'מהמקור · טרם נבדק' : 'פוסט מקור'}</span>
         <strong>{item.label}</strong><span>{item.creator || 'שם הכותב לא צוין'}</span>
-        <small>{group ? 'נשמר במערכת' : 'פרסום המקור'} · {date(group ? item.arrivalAt : item.sourcePublishedAt || item.at)}</small>
+        <small>{group ? 'נשמר במערכת' : updatedPost ? 'הפוסט עודכן' : 'פרסום המקור'} · {date(latestSourceAt)}</small>
       </span><span className="sod29-source-arrival-open" aria-hidden="true">{group ? '↓' : '←'}</span></>;
       return group ? <details key={item.id} id={surface === 'world' ? `group-source-${item.id.slice(6)}` : undefined}
         className="sod29-world-group-source sod29-source-arrival" data-source-arrival={item.sourceRef}>
@@ -43,6 +46,6 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
       </article>;
     })}
     {availability?.state !== 'connected' && availability?.message ? <p className="sod29-source-arrival-label" role="status">{availability.message}</p> : null}
-    <p className="sod29-source-arrival-label">הסדר נשען על זמן המקור או הקליטה. עיבוד נוסף אינו הופך את אותו מקור לחדש.</p>
+    <p className="sod29-source-arrival-label">פוסטים מוצגים לפי העדכון הציבורי האחרון, עם שמירת תאריך הפרסום המקורי. הודעות מקור לפי מועד קליטתן.</p>
   </section>;
 }

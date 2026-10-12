@@ -43,13 +43,15 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
     return () => cancelAnimationFrame(frame);
   }, [anchor, location.hash, state.loading]);
-  if (state.loading) return <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>;
+  if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
+    <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
+  </section>;
   if (!state.projection) return <FrameState kind="unavailable" title="סיפור המטוס אינו זמין כרגע">
     <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב את המקור</button>
   </FrameState>;
   const { post, identity, experience } = state.projection;
   const media = experience.media?.highlight;
-  const image = post.image_url || media?.poster;
+  const image = (home ? post.thumb_url : post.image_url) || post.image_url || media?.poster;
   const openWorld = () => {
     research.updateResearchContext?.({ subject: null, selection: null, lens: 'world',
       returnTo: { href: '/2029#home-plane', label: 'סיפור המטוס בבית', subject: null,
@@ -73,7 +75,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         <p className="sod29-flight-lead">{home
           ? 'מספר על צילום, שמו של הקפטן, מקום הנחיתה. מתוך סיפור טיסה 1073 נפתחים חיבורים לאנשים, לזמן ולמקורות שכבר פגשנו.'
           : 'מתחילים בסיפור ובצילום. בוחרים חיבור שמסקרן אותנו, פותחים את המקור, ומעמיקים בקצב שלנו.'}</p>
-        {import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' ? <p className="sod29-flight-lead" data-preview-interpretation="zuriel-787">
+        {!home ? <p className="sod29-flight-lead" data-source-interpretation="zuriel-787">
           <strong>787 · השנה, החג וההודיה.</strong> לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את סיפור ההצלה בכמה רבדים. זו קריאה פרשנית של החיבור, ולא עדות שהברכה נאמרה בטיסה.
         </p> : null}
         <div className="sod29-flight-meta"><PostCategories2029 categories={post.categories} /><span>FZ1073</span>{date ? <span>פורסם באתר · {date}</span> : null}</div>
