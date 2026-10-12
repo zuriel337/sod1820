@@ -334,11 +334,12 @@ function RazielOrb({ compact = false, active = false, onClick, title = "פתח �
       type="button"
       className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={locked ? "רזיאל · נעול" : title}
+      aria-label={locked ? "רזיאל · בבנייה" : title}
+      title={locked ? "רזיאל בבנייה" : title}
       aria-pressed={active}
       disabled={locked}
     >
-      <span className="sod29-raziel-orb-core" aria-hidden="true" />
+      <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
   );
@@ -1437,10 +1438,13 @@ export default function SystemFrame2029({
   const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
+  const booksFeature = useFeatureState("lock_books", { requireFlag: true });
   const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
   const razielLocked = razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
+  const booksLocked = booksFeature.loading || booksFeature.blocked;
   const homeNav = HOME_NAV.map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item);
+  const directNav = DIRECT_NAV.map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -2065,7 +2069,7 @@ export default function SystemFrame2029({
           </Link>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
           <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
             <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
@@ -2167,7 +2171,7 @@ export default function SystemFrame2029({
               </button>
             </div>
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
               <small>מראה</small>
               <ThemePresetControl2029 />

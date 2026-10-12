@@ -60,7 +60,10 @@
 .sod29-raziel-orb-label{font-size:var(--s29-type-micro);font-weight:800}
 .sod29-root.native-frame .sod29-nav-link.is-gated{opacity:.68;border-style:dashed;cursor:not-allowed}
 .sod29-root.native-frame .sod29-raziel-orb.is-locked{cursor:not-allowed;filter:grayscale(1)}
+.sod29-root.native-frame .sod29-raziel-orb.is-locked.compact{filter:none}
 .sod29-root.native-frame .sod29-raziel-orb.is-locked .sod29-raziel-orb-core{animation:none;box-shadow:none;opacity:.55}
+.sod29-root.native-frame .sod29-raziel-orb.is-locked.compact .sod29-raziel-orb-core{display:grid;place-items:center;background:var(--s29-panel);box-shadow:0 0 0 1px var(--s29-line-strong);opacity:1;font-size:25px;line-height:1}
+.sod29-root.native-frame .sod29-raziel-orb.is-locked.compact .sod29-raziel-orb-core:before,.sod29-root.native-frame .sod29-raziel-orb.is-locked.compact .sod29-raziel-orb-core:after{content:none}
 .sod29-root.native-frame .sod29-now-tab:disabled{cursor:not-allowed;opacity:.62}
 
 /* Temporary selection cue: contextual focus, not persisted truth. */

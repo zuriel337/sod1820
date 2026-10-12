@@ -296,8 +296,8 @@ export default function App() {
           <Route path="/book" element={<Book2029DocumentHandoff />} />
           <Route path="/book/:slug" element={<Book2029DocumentHandoff />} />
           <Route path="/els" element={<Els2029Page />} />
-          <Route path="/היכל" element={<Heichal2029Page />} />
-          <Route path="/heichal" element={<Heichal2029Page />} />
+          <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
+          <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
 
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           {/* טקס הכניסה — עמוד מלא, תמיד נגיש */}
