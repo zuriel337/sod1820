@@ -21,6 +21,8 @@ assert.equal(classifyEntryArrival({ historyIndex: 2 }), ENTRY_ARRIVAL.INTERNAL);
 
 const postManifest = getEntryOrientationManifest("post");
 assert.ok(postManifest);
+assert.equal(postManifest.firstAction, "number", "direct Post Number opening completes the first meaningful action");
+assert.equal(getEntryOrientationManifest("number").firstAction, "inspect", "Number page teaching retains its own interaction contract");
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "direct" }).mode, "prominent");
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "internal" }).mode, "compact");
 assert.equal(resolveEntryOrientation({ surface: "post", arrival: "exact_return" }).mode, "hidden");

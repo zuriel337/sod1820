@@ -167,7 +167,7 @@ export const ENTRY_ORIENTATION_MANIFESTS = Object.freeze({
     version: 1,
     label: "חדש כאן? מה עושים בפוסט הזה?",
     body: "זהו פוסט שמציג חיבורים וממצאים. מספרים וביטויים הם נקודות כניסה לבדיקה, בלי לאבד את הסיפור או את הדרך חזרה.",
-    firstAction: "inspect",
+    firstAction: "number",
   }),
   number: Object.freeze({
     version: 1,
