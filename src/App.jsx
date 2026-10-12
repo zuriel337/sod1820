@@ -15,11 +15,7 @@ import { startPresence, updatePresence } from "./lib/presence.js";
 import { useAuth } from "./lib/AuthContext.jsx";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
-import InstallPrompt from "./components/InstallPrompt.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
-import SitePromoPopup from "./components/SitePromoPopup.jsx";
-import GuestSignupPopup from "./components/GuestSignupPopup.jsx";
-import PlaneHintSpotlight from "./components/PlaneHintSpotlight.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -34,7 +30,6 @@ import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import { UserCenterProvider } from "./lib/userCenter/UserCenterContext.jsx";
 import UserCenter from "./components/userCenter/UserCenter.jsx";
 import AiQuotaToast from "./components/AiQuotaToast.jsx";
-import ProfileNudge from "./components/ProfileNudge.jsx";
 import ResearchPage from "./pages/ResearchPage.jsx";
 const EntityPage = React.lazy(() => import("./pages/EntityPage.jsx"));
 const BeitMidrashPage = React.lazy(() => import("./pages/BeitMidrashPage.jsx"));
@@ -267,11 +262,12 @@ export default function App() {
         <RouteEffects />
         <LegacyRedirect />
         <OnboardingGate />
-        <PlaneHintSpotlight />
         <GlobalChrome>
           <UpdateBanner />
-          <SitePromoPopup />
-          <GuestSignupPopup />
+          {/* הוסר לבקשת צוריאל — כל הפופ-אפים הקופצים של האתר הישן: סרטוני המטוס (PlaneHintSpotlight),
+              קמפיין site_promo (SitePromoPopup), הזמנת הרשמה לאורח (GuestSignupPopup), באנר התקנה
+              (InstallPrompt), נדנודי-פרופיל (ProfileNudge) וחגיגת-הצטרפות (JoinCelebration).
+              הקבצים נשמרו; להחזרה — להרכיב מחדש כאן. */}
           <RoyalShareWidget />
           {/* 🧭 RoyalContextBar (הסרגל השחור, admin-only) הוסר — כל היכולות שלו (הקשר/עדשה/הוסף-למחקר/
               שורש/חזרה/מחקר-חדש-מכאן) עברו ל-Bottom Bar (components/layout/BottomBar.jsx, slot «⌖ כאן»),
@@ -280,7 +276,6 @@ export default function App() {
               ב-slots אמיתיים («◉ עכשיו» מ-LiveChannelFeed הקיים, «✦ רזיאל» שמנווט ל-/research הציבורי
               שבו RazielChat כבר חי). הקובץ עצמו נשמר בהיסטוריית git, לא נמחק מהעולם. */}
           {/* הוסר זמנית לבקשת צוריאל — נחזיר כשיחליט. <LabDock /> */}
-          <InstallPrompt />
           {/* הוסר לבקשת צוריאל — בלי פוש «התראות דפדפן / הירשם לעדכונים» (בועת ימין בדסקטופ) */}
           {/* <UpdatesBar /> */}
         </GlobalChrome>
@@ -447,7 +442,6 @@ export default function App() {
         </React.Suspense>
         <UserCenter />
         <AiQuotaToast />
-        <ProfileNudge />
         </UserCenterProvider>
         </ResearchProvider>
     </BrowserRouter>
