@@ -1,5 +1,7 @@
 # G4 core launch — existing Home, legacy chat and locked World
 
+Historical launch scope. The later decision to open World while keeping Heichal closed is recorded in `docs/g4-world-open-cutover-sequence-20261013.md`; that document governs the current branch direction.
+
 Status: branch implementation and local verification only. No merge, production deployment or live database write.
 
 ## Scope

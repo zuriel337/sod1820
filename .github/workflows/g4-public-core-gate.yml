@@ -14,7 +14,14 @@ on:
       - 'src/pages/Els2029Page.jsx'
       - 'src/pages/Calculator2029Page.jsx'
       - 'src/pages/Number2029Page.jsx'
+      - 'src/pages/World2029Page.jsx'
+      - 'src/pages/Topic2029Page.jsx'
+      - 'src/lib/research/worldGroupSource.js'
+      - 'src/lib/research/worldGroupSource.test.js'
+      - 'scripts/test-2029-system-frame.mjs'
       - 'supabase/migrations/20261012170000_public_launch_closed_capabilities.sql'
+      - 'supabase/migrations/20261013100000_world_group_source_repeat_projection_v3.sql'
+      - 'supabase/migrations/20261013110000_public_launch_open_world.sql'
       - 'vercel.json'
   workflow_dispatch:
 
@@ -30,6 +37,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: node --test src/lib/research/worldGroupSource.test.js
+      - run: node scripts/test-2029-system-frame.mjs
       - run: npm install --no-save --no-package-lock @playwright/test@1.55.0
       - run: npx playwright install --with-deps chromium
       - name: Start isolated 2029 preview

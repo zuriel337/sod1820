@@ -91,7 +91,7 @@ function Section({ title, link, label, children, className = "" }) {
 
 export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
-  selectedSlug, onSelectPost, journeyLocked = false, corePublic = false,
+  selectedSlug, onSelectPost, journeyLocked = false, corePublic = false, worldOpen = false,
 }) {
   const data = useHomeCompositionData({ includeWorld: !corePublic });
   const now = projection?.temporalNow || null;
@@ -106,7 +106,7 @@ export default function HomeComposition2029({
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
-      <span>כבר עכשיו אפשר לקרוא פוסטים, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט הוותיק.</span>
+      <span>כבר עכשיו אפשר לקרוא פוסטים{worldOpen ? ", לגלות את העולם" : ""}, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט הוותיק.</span>
     </section> : null}
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
@@ -191,6 +191,7 @@ export default function HomeComposition2029({
     <Section label="כלים וכניסות">
       <div className="h29-portions">
         {calculator}
+        {corePublic && worldOpen ? <Link className="h29-portion k29-rv" to="/world" data-home-world="open"><span className="h29-portion-h"><NavigationIcon2029 name="cosmos" />העולם</span><small>מקורות, סיפורים וחיבורים במקום אחד</small></Link> : null}
         {!corePublic && now ? <Link className="h29-portion k29-rv" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
           <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
         {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />הצ׳אט הוותיק</span><small>ממשיכים את השיחה הקיימת</small></a>

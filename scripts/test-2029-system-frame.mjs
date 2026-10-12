@@ -140,9 +140,10 @@ assert.match(frame, /channels=\{\["native", "copy"\]\}/);
 assert.match(frame, /force/);
 
 // Navigation + the explicitly opened "מה חדש בעולם" panel may route to World.
+// The panel has a public-core link when World is open and the full-feed action.
 // Generic inspect/search/tool actions must still never force navigation to World.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 2, "Only main navigation and the user-opened World updates panel may link to World");
+assert.equal(worldLiteralCount, 3, "Only main navigation and the user-opened World updates panel may link to World");
 assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.

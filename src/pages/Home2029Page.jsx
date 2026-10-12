@@ -314,8 +314,10 @@ function HomeBody() {
   const shell = use2029Shell();
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
+  const worldFeature = useFeatureState("lock_world", { requireFlag: true });
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const razielLocked = razielFeature.loading || razielFeature.blocked;
+  const worldOpen = !worldFeature.loading && worldFeature.allowed;
   const [query, setQuery] = useState("");
   const [homeState, setHomeState] = useState({ loading: true, projection: null });
   const context = research.context || null;
@@ -466,6 +468,7 @@ function HomeBody() {
     projection={homeState.projection}
     loading={homeState.loading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
+    worldOpen={worldOpen}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">

@@ -2400,7 +2400,11 @@ function WorldBody() {
     research.updateResearchContext?.({ lens: "world" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  // Research Context follows the reader across routes. A Topic/Post subject can
+  // still be current when browser Back returns here; it is not a World node.
+  const foreignSubject = subject?.href && !/^\/world(?:[/?#]|$)/.test(subject.href)
+    && subject.type !== "number" && subject.type !== "phrase";
+  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type || foreignSubject) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
