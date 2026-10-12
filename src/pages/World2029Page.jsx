@@ -1029,6 +1029,36 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
+  // Same journey owner in public composed World and the legacy admin view.
+  // Preserve the Golden 878 invitation instead of hiding it behind the old layout.
+  const goldenJourneySection = (!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">המסע הראשון של 2029</div>
+          <h2>מסע 878</h2>
+          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
+        </div>
+        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
+      </div>
+      {landing.journeyError ? <FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או התכנסות בלי להמציא מסלול חלופי.</FrameState> : null}
+      {landing.journey ? <div className="sod29-world-journey-invitation">
+        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
+        <div className="sod29-world-journey-copy">
+          <span className="sod29-kicker">מסע · פתוח בבנייה</span>
+          <h3>המסע מתחיל ב־{landing.journey.rootValue}</h3>
+          <p>{landing.journey.subtitle}</p>
+          <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
+            {landing.journey.paths.map((path) => <div className="sod29-world-journey-path-preview" key={path.id}>
+              <span>878</span><b aria-hidden="true">←</b><strong>{path.targetValue}</strong>
+              <small>{path.meetingTitle}</small>
+            </div>)}
+          </div>
+          <div className="sod29-muted sod29-world-journey-truth-note">{landing.journey.truthNote}</div>
+        </div>
+        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>פתח 878 והתחל מסע</button>
+      </div> : null}
+    </section> : null);
+
   if (!controlMode) return <>
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
@@ -1107,6 +1137,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </section>
     {sourceDepthOpen ? <WorldSourceDepth /> : null}
 
+    {goldenJourneySection}
     <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
       <div className="sod29-kicker">לאן זה מוביל?</div><h2>להיכנס לאותיות. להמשיך לחיבור הבא.</h2>
       <p>מכל חישוב שנפתח אפשר להמשיך למסע אישי באותה דרך: הביטוי, השיטה והמקור נשארים איתך.</p>
@@ -1371,33 +1402,7 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש התכנסות שאין לה attribution ציבורי.</FrameState>}
     </section> : null}
 
-    {!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">המסע הראשון של 2029</div>
-          <h2>מסע 878</h2>
-          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
-        </div>
-        {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
-      </div>
-      {landing.journeyError ? <FrameState kind="unavailable" title="מסע 878 לא זמין כרגע">אפשר להמשיך דרך חיפוש, חוקר או התכנסות בלי להמציא מסלול חלופי.</FrameState> : null}
-      {landing.journey ? <div className="sod29-world-journey-invitation">
-        <div className="sod29-world-journey-number" aria-hidden="true">{landing.journey.rootValue}</div>
-        <div className="sod29-world-journey-copy">
-          <span className="sod29-kicker">מסע · פתוח בבנייה</span>
-          <h3>המסע מתחיל ב־{landing.journey.rootValue}</h3>
-          <p>{landing.journey.subtitle}</p>
-          <div className="sod29-world-journey-paths" aria-label="שבילים ממסע 878">
-            {landing.journey.paths.map((path) => <div className="sod29-world-journey-path-preview" key={path.id}>
-              <span>878</span><b aria-hidden="true">←</b><strong>{path.targetValue}</strong>
-              <small>{path.meetingTitle}</small>
-            </div>)}
-          </div>
-          <div className="sod29-muted sod29-world-journey-truth-note">{landing.journey.truthNote}</div>
-        </div>
-        <button className="sod29-action primary" type="button" onClick={() => startJourney(landing.journey)}>פתח 878 והתחל מסע</button>
-      </div> : null}
-    </section> : null}
+    {goldenJourneySection}
 
     {!landing.loading && otherPopulatedSections.map((facet) => {
       const cards = landing.sections[facet.key] || [];
