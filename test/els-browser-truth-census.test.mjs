@@ -88,10 +88,17 @@ test('governed exits are gated on isGov / verification', () => {
 
 test('every host message type is classified (coordinate-bearing ones are gated above)', () => {
   const types = new Set([...code.matchAll(/postHost\(\{type:"([a-z-]+)"/g)].map((m) => m[1]));
-  const carrying = new Set(['save', 'lens', 'search']);
+  const carrying = new Set(['save', 'lens', 'search', 'exact-skip-probe-result']);
   const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request', 'engine-cancel']);
+  const termOnly = new Set(['forms-preview-result']); // deterministic FORMS labels only; no occurrence coordinates or search claim
   const uiAccessOnly = new Set(['onboarding-required', 'operation', 'native-save-result']);
-  for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
+  for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || termOnly.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
+  const formsPreview = code.slice(code.indexOf('if(d.type==="preview-forms-batch")'), code.indexOf('if(d.type==="probe-exact-skip")'));
+  assert.match(formsPreview, /formsOf\("splitjoin",source\)/);
+  assert.doesNotMatch(formsPreview, /findAll|discoverVerified|hitId|positions|skip:/);
+  const exactProbe = code.slice(code.indexOf('if(d.type==="probe-exact-skip")'), code.indexOf('if(d.type==="tier"'));
+  assert.match(exactProbe, /promoteVerified\(/);
+  assert.match(exactProbe, /result\.hits\.find\(isGov\)/);
   assert.match(code, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/,
     'native search uses the shared onboarding policy and emits UI/access-only messages before blocked searches');
   const operation = code.slice(code.indexOf('function operationStatus('), code.indexOf('function beginOperation('));

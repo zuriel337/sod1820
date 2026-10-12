@@ -153,10 +153,9 @@ async function traceFinish(trace: any, outcome: string, reason: string | null = 
   } catch { /* trace fail-open */ }
 }
 
-// B0 (G3): direct compatibility page search is bounded at this Edge policy boundary. The canonical
-// SQL engine (els_search_page_core_v1) semantics are untouched; exact verify is NOT subject to this
-// ceiling (it is a single explicit occurrence replay, e.g. skip 1820/10065).
-const PAGE_SKIP_MAX_CEILING = 500;
+// The canonical SQL core caps execution at the physical corpus maximum. Each request remains
+// explicit, page-sized, rate-gated and traceable; no arbitrary skip-500 policy cap is imposed here.
+const PAGE_SKIP_MAX_CEILING = 2_147_483_647; // Postgres integer input bound
 const ELS_LOCK_FLAG = "lock_els";
 const GATE_OWNER_REFS = ["site_flags_lock_law v3", "platform_tiers_law v5", "ai_quota_law v3"];
 

@@ -115,7 +115,7 @@ const HOME_NAV = [
 const DIRECT_NAV = [
   { label: "דף המספר", icon: "123", action: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/els", label: "ELS", icon: "✦" },
+  { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
 ];
 
 const FOCUSABLE = [

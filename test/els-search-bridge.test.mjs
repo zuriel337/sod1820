@@ -39,7 +39,7 @@ test('B0: capability gate precedes every canonical engine RPC, names lock_els, i
 });
 
 test('B0: page search is explicitly bounded; verify keeps large exact skips', () => {
-  assert.match(src, /PAGE_SKIP_MAX_CEILING = 500/);
+  assert.match(src, /PAGE_SKIP_MAX_CEILING = 2_147_483_647/);
   assert.match(src, /skipMax == null \|\| skipMax < skipMin/);
   assert.match(src, /skip_max_required/);
   assert.match(src, /skipMax > PAGE_SKIP_MAX_CEILING/);
@@ -58,7 +58,7 @@ test('B0: trace root stays server-issued; interaction_id correlation preserved',
   assert.doesNotMatch(src, /body\??\.trace_id|body\??\.root_span_id/);
 });
 
-test('Tanakh remains delegated to canonical MISSING_ADAPTER behavior', () => {
+test('Tanakh remains delegated to the canonical core without local corpus logic', () => {
   assert.match(src, /const scope = body\?\.scope === "tanakh" \? "tanakh" : "torah"/);
   assert.doesNotMatch(src, /tanach_verses|tk-letters|TORAH_N/);
 });

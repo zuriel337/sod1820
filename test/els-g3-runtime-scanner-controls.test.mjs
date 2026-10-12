@@ -41,13 +41,14 @@ test('goldens: fixture positions are an arithmetic progression skip*dir (fixture
 const budget = { skipMin: 2, skipMax: 100, maxTrials: 10, maxCandidates: 5, maxDepth: 1, maxWallMs: 1000, pageSize: 10, maxPagesPerCandidate: 2 };
 const hit = (skip, start, dir = 1) => ({ occurrence_id: `o:${skip}:${start}`, skip, start, dir, positions: [start, start + dir * skip] });
 
-test('scanner: refuses to run without explicit hard budgets or with skipMax over the bridge ceiling', async () => {
-  for (const bad of [{}, { ...budget, skipMax: undefined }, { ...budget, skipMax: 501 }, { ...budget, maxTrials: 0 }, { ...budget, maxWallMs: undefined }]) {
+test('scanner: refuses to run without explicit hard budgets or with skipMax beyond the SQL integer domain', async () => {
+  for (const bad of [{}, { ...budget, skipMax: undefined }, { ...budget, skipMax: 2147483648 }, { ...budget, maxTrials: 0 }, { ...budget, maxWallMs: undefined }]) {
     const out = await runElsAdaptiveScan({ candidates: [{ term: 'אליהו' }], invokePage: async () => { throw new Error('must not be called'); }, budget: bad });
     assert.equal(out.stop, ELS_SCANNER_STOP.CONTEXT_REQUIRED);
     assert.equal(out.trials, 0);
   }
   assert.equal(normalizeElsScannerBudget(budget).ok, true);
+  assert.equal(normalizeElsScannerBudget({ ...budget, skipMax: 10065 }).ok, true);
 });
 
 test('scanner: every page call carries explicit bounded skip/stage/page limits; negatives + truncation preserved', async () => {

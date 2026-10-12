@@ -1,9 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
+import ElsResearchBar2029 from "../components/experience2029/ElsResearchBar2029.jsx";
+import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
+import "../components/experience2029/els2029-research.css";
 import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
 import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -30,13 +33,13 @@ function StateRow({ label, value, state = "ready" }) {
 }
 
 
-function ElsRazielEntry({ researchContext, projection, layers, ready }) {
+function ElsRazielEntry({ researchContext, projection, layers, planSummary, ready }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
     () => ready
-      ? buildElsRazielSurfaceContext({ researchContext, projection, layers })
+      ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary })
       : null,
-    [ready, researchContext, projection, layers]
+    [ready, researchContext, projection, layers, planSummary]
   );
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
 
@@ -60,7 +63,26 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
   </button>;
 }
 
-export default function Els2029Page() {
+function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary, profileSwitch }) {
+  const shell = use2029Shell();
+  const surfaceContext = useMemo(
+    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null,
+    [ready, researchContext, projection, layers, planSummary]
+  );
+  const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
+  return <ElsResearchBar2029
+    subjectLabel={subject?.label}
+    locator={locator}
+    replay={replay}
+    razielAvailable={available}
+    onRaziel={() => shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: surfaceContext })}
+    onLibrary={() => onLibrary("public")}
+    onMine={() => onLibrary("mine")}
+    profileSwitch={profileSwitch}
+  />;
+}
+
+export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
@@ -106,7 +128,57 @@ export default function Els2029Page() {
     traceId: null,
     error: null,
   });
-  const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
+  // Public launch opens the fast Classic workspace. Research remains implemented but
+  // has no public mode switch until the advanced flow is explicitly released.
+  const [previewProfile, setPreviewProfile] = useState(previewAdvanced ? ELS_MATRIX_PROFILE.RESEARCH : ELS_MATRIX_PROFILE.CLASSIC);
+  const matrixProfile = previewAdvanced ? previewProfile : ELS_MATRIX_PROFILE.CLASSIC;
+  const [researchLoad, setResearchLoad] = useState(null);
+  const [researchProbe, setResearchProbe] = useState(null);
+  const [exactStatus, setExactStatus] = useState("idle");
+  const [automaticSummary, setAutomaticSummary] = useState(null);
+  const pendingProbeRef = useRef(null);
+  const [formsPreviewRequest, setFormsPreviewRequest] = useState(null);
+  const formsRequestSeq = useRef(0);
+  const pendingFormsRef = useRef(new Map());
+  useEffect(() => () => {
+    for (const pending of pendingFormsRef.current.values()) { clearTimeout(pending.timer); pending.reject(new Error("forms_preview_cancelled")); }
+    pendingFormsRef.current.clear();
+  }, []);
+  const deriveCanonicalForms = expressions => new Promise((resolve, reject) => {
+    const requestId = ++formsRequestSeq.current;
+    const timer = setTimeout(() => {
+      pendingFormsRef.current.delete(requestId);
+      setFormsPreviewRequest(current => current?.requestId === requestId ? null : current);
+      reject(new Error("forms_preview_timeout"));
+    }, 6000);
+    pendingFormsRef.current.set(requestId, { resolve, reject, timer });
+    setFormsPreviewRequest({ requestId, expressions });
+  });
+  const receiveFormsPreview = result => {
+    const pending = pendingFormsRef.current.get(result?.requestId);
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pendingFormsRef.current.delete(result.requestId);
+    setFormsPreviewRequest(null);
+    pending.resolve(Array.isArray(result.rows) ? result.rows : []);
+  };
+  useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); setAutomaticSummary(null); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
+  const requestExactSkip = request => {
+    pendingProbeRef.current = request.requestId;
+    setExactStatus("probing");
+    setResearchProbe(request);
+  };
+  const receiveExactSkip = result => {
+    if (result.requestId !== pendingProbeRef.current) return;
+    pendingProbeRef.current = null;
+    setResearchProbe(null);
+    if (!result.ok || !Number.isSafeInteger(result.start) || ![1, -1].includes(result.dir) || !result.corpusId) {
+      setExactStatus("failed"); return;
+    }
+    setExactStatus("verified");
+    setResearchLoad({ term: result.term, scope: result.scope, skip: result.skip, dir: result.dir,
+      start: result.start, hitId: result.hitId, corpusId: result.corpusId, words: [], researchNonce: result.requestId });
+  };
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
   const [classicSeed] = useState(() => clean(selection?.term || subject?.label || ""));
@@ -205,7 +277,8 @@ export default function Els2029Page() {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <section className="sod29-focus-stage" data-els-2029-surface="v1">
+    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
+    <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
@@ -217,13 +290,14 @@ export default function Els2029Page() {
               ? (subject
                 ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
                 : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
-              : "חיפוש, הצלבות וסימוני צבע. אפשר לעבור בין התצוגות ולהמשיך עם אותו ממצא."}
+              : "חיפוש, הצלבות וסימוני צבע על טקסט התורה. הממצאים נשמרים להמשך עבודה."}
           </div>
         </div>
-        <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
-          <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
+        {researchProfile ? <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
+        : <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+          {previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
           <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
-        </div>
+        </div>}
       </div>
 
       <section
@@ -235,13 +309,30 @@ export default function Els2029Page() {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library}
-          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
+        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
+          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
+            setSavedRevision(value => value + 1);
+            if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
+          }} />
       </section>
+
+      {researchProfile ? <ElsResearchBarConnected
+        researchContext={context}
+        projection={replayProjection}
+        layers={replayLayers}
+        planSummary={automaticSummary}
+        replay={replay}
+        ready={replayMatched && layeredReady}
+        subject={subject}
+        locator={locator}
+        onLibrary={showLibrary}
+        profileSwitch={previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
+      /> : null}
 
 
       <details className="sod29-els-research-details" hidden={!researchProfile}>
-        <summary>פרטי מחקר מתקדמים</summary>
+        <summary>פרטי מחקר מתקדמים · חלק מהפעולות עדיין לא פעילות</summary>
       {researchProfile ? <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">
           <div style={{ width: "100%" }}>
@@ -318,6 +409,7 @@ export default function Els2029Page() {
             researchContext={context}
             projection={replayProjection}
             layers={replayLayers}
+            planSummary={automaticSummary}
             ready={replayMatched && layeredReady}
           />
           <span className="sod29-chip">Neighborhood · BUILDING</span>
