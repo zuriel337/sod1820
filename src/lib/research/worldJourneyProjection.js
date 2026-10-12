@@ -4,6 +4,9 @@ export const GOLDEN_WORLD_JOURNEY_878 = Object.freeze({
   kind: "golden",
   rootValue: 878,
   label: "מסע 878",
+  // Owner hold: start/resume/rail stay closed on every surface. Number 878, its sources,
+  // verses and gallery stay public; previously saved journeys are kept, not deleted.
+  locked: true,
 });
 
 const clean = (value) => value == null ? "" : String(value).trim();

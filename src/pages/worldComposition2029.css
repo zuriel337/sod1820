@@ -206,3 +206,52 @@
 .sod29-root.surface-world .sod29-world-catalog-item > .sod29-world-catalog-card { border: 0; background: none; flex: 1; }
 .sod29-root.surface-world .sod29-world-catalog-item > .k29-rate { padding: 0 12px 10px; }
 
+
+/* Public World prominent media: exact existing image envelope, shown on the RIGHT in RTL.
+   Whole original image is visible: no cover/crop/forced aspect ratio, bounded height. */
+.sod29-root.surface-world .sod29-world-primary-item.has-media {
+  grid-template-columns: minmax(0, 124px) minmax(0, 1fr);
+  gap: 10px 14px;
+  direction: rtl;
+}
+.sod29-root.surface-world .sod29-world-primary-item.has-media .sod29-world-primary-media {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  align-self: start;
+  border-radius: 10px;
+  background: var(--s29-panel-soft);
+}
+.sod29-root.surface-world .sod29-world-primary-item.has-media .sod29-world-primary-media .sod29-canonical-media-figure {
+  width: 100%;
+  min-height: 44px;
+  padding: 4px;
+  display: grid;
+  place-items: center;
+}
+.sod29-root.surface-world .sod29-world-primary-item.has-media .sod29-world-primary-media img {
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+.sod29-root.surface-world .sod29-world-primary-item.has-media .sod29-world-primary-copy,
+.sod29-root.surface-world .sod29-world-primary-item.has-media .sod29-world-primary-actions {
+  grid-column: 2;
+  min-width: 0;
+}
+.sod29-root.surface-world .sod29-world-primary-item.has-media .sod29-world-primary-actions {
+  grid-row: 2;
+  align-self: end;
+  flex-wrap: wrap;
+}
+@media(max-width:420px) {
+  .sod29-root.surface-world .sod29-world-primary-item.has-media {
+    grid-template-columns: minmax(0, 104px) minmax(0, 1fr);
+    gap: 8px 10px;
+  }
+}
