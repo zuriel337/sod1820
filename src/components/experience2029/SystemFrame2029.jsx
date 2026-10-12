@@ -12,7 +12,6 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
-import { timeAgoHe } from "../../lib/format.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
@@ -605,7 +604,7 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
             onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
             style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
           >
-            <small>{row.typeLabel} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
+            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
             <strong>{row.title}</strong>
             {item.summary ? <small>{item.summary}</small> : null}
             {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
