@@ -1371,3 +1371,13 @@
   .sod29-reading-hero{padding:14px;border-radius:14px;margin-bottom:14px}
   .sod29-reading-hero h1{font-size:23px}
 }
+
+/* Source update strip: one compact row, only for proven source fragments. */
+.sod29-update-strip{display:flex;align-items:center;gap:.6rem;margin:.5rem 0;padding:.35rem .7rem;border:1px solid color-mix(in srgb,currentColor 18%,transparent);border-radius:999px;min-height:44px;font-size:.88rem}
+.sod29-update-strip-kicker{font-weight:700;opacity:.75;white-space:nowrap}
+.sod29-update-strip-link{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:.1rem;min-height:44px;justify-content:center;cursor:pointer;min-width:0}
+.sod29-update-strip-link:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:8px}
+.sod29-update-strip-link strong{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sod29-update-strip-link small{opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sod29-update-target{outline:2px solid currentColor;outline-offset:6px;border-radius:6px;transition:outline-color .4s}
+@media(max-width:480px){.sod29-update-strip{border-radius:16px;padding:.3rem .6rem}}

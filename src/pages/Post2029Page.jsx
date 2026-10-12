@@ -12,6 +12,7 @@ import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import { provenSourceUpdatesFor } from "../lib/research/postSourceUpdates2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import "./post2029-reading.css";
@@ -41,6 +42,7 @@ function PostReadingBody() {
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
+  const [sourceUpdates, setSourceUpdates] = useState([]);
 
   useEffect(() => {
     let live = true;
@@ -101,6 +103,22 @@ function PostReadingBody() {
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
     { id: "post-next", label: "המשך", targetId: "post-next" },
   ], [regions, state.projection]);
+
+  useEffect(() => {
+    setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
+  }, [state.projection]);
+
+  const jumpToSourceUpdate = (entry) => {
+    const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
+    if (!target) return;
+    revealReadingAnchor(target);
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    target.setAttribute("tabindex", "-1");
+    target.focus?.({ preventScroll: true });
+    target.classList.add("sod29-update-target");
+    window.setTimeout(() => target.classList.remove("sod29-update-target"), 2600);
+  };
 
   useEffect(() => {
     // The hero owns the page h1. An authored h1 inside the source stays in the
@@ -726,6 +744,14 @@ function PostReadingBody() {
         </div> : null}
       </div>
     </header>
+
+    {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
+      <span className="sod29-update-strip-kicker">עודכן</span>
+      {sourceUpdates.map((entry) => <button key={entry.id} type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(entry)}>
+        <strong>{entry.label}</strong>
+        <small>{entry.attribution} · <time dateTime={entry.date}>{bilingualDateLabel(entry.date, entry.date)}</time> · גרסה {entry.beforeRevision}→{entry.afterRevision}</small>
+      </button>)}
+    </aside> : null}
 
     <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
 
