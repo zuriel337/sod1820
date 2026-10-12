@@ -60,8 +60,8 @@ async function prepare(context, page, role, preset = 'light', options = {}) {
       return respond({ db: { connections: healthReads, max_connections: 100 }, media: { storage: { total_objects: 2 } },
         usage: { ai_cost_usd_7d: 0.125, ai_cost_basis: 'SYNTHETIC', supabase_cached_egress_basis: 'UNKNOWN', storage_egress_observed_basis: 'OBSERVED_STORAGE_LOGS', storage_egress_guard: { state: 'sensor_stale' } } });
     }
-    if (rpc === 'admin_video_map_health') return respond({ summary: { unique_assets: 2, placements: 3 }, cron: { active: false } });
-    if (rpc === 'admin_op_trace_list_v1') return respond(options.empty ? [] : TRACE_IDS.map((trace_id, index) => ({ trace_id, capability: CAPABILITIES[index], surface: 'admin', outcome: 'success', started_at: '2026-10-09T00:00:00Z', span_count: 1, cost_certainty: 'unknown' })));
+    if (rpc === 'admin_video_map_health') return options.failVideo ? respond({ message: 'Synthetic video map unavailable' }, 503) : respond({ summary: { unique_assets: 2, placements: 3 }, cron: { active: false } });
+    if (rpc === 'admin_op_trace_list_v1') return options.failTraces ? respond({ message: 'Synthetic trace list unavailable' }, 503) : respond(options.empty ? [] : TRACE_IDS.map((trace_id, index) => ({ trace_id, capability: CAPABILITIES[index], surface: 'admin', outcome: 'success', started_at: '2026-10-09T00:00:00Z', span_count: 1, cost_certainty: 'unknown' })));
     if (rpc === 'admin_op_trace_v1') {
       const id = request.postDataJSON().p_trace_id;
       const index = TRACE_IDS.indexOf(id);
@@ -170,6 +170,30 @@ if (!LIVE) {
     await openControl(page);
     await expect(page.getByText('לא ניתן לקרוא את מצב המערכת', { exact: true })).toBeVisible();
     await expect(page.getByText('Synthetic monitoring unavailable', { exact: true })).toBeVisible();
+    await expect(page.getByText(SPANS[0], { exact: true })).toBeVisible();
+    await expect(page.getByText('Video assets', { exact: true }).locator('..').getByRole('heading', { name: '2' })).toBeVisible();
+    await expect(page.getByText('אין עדיין hourly snapshots', { exact: true })).toHaveCount(0);
+    expect(evidence.errors).toEqual([]);
+  });
+  test('native control isolates video and trace failures while keeping live health visible', async ({ context, page }) => {
+    const evidence = await prepare(context, page, 'admin', 'dark', { failVideo: true, failTraces: true });
+    await openControl(page);
+    await expect(page.getByText('מיפוי הווידאו אינו זמין', { exact: true })).toBeVisible();
+    await expect(page.getByText('רשימת traces אינה זמינה', { exact: true })).toBeVisible();
+    await expect(page.getByText('אין traces בטווח הזה', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('cron לא ידוע', { exact: true })).toBeVisible();
+    await expect(page.getByText('DB connections', { exact: true }).locator('..').getByRole('heading', { name: /^\d+ \/ 100$/ })).toBeVisible();
+    expect(evidence.errors).toEqual([]);
+  });
+  test('native control clears a previously selected trace when its refresh fails', async ({ context, page }) => {
+    const options = {};
+    const evidence = await prepare(context, page, 'admin', 'dark', options);
+    await openControl(page);
+    await expect(page.getByText(SPANS[0], { exact: true })).toBeVisible();
+    options.failTraces = true;
+    await page.getByRole('button', { name: 'רענן', exact: true }).click();
+    await expect(page.getByText('רשימת traces אינה זמינה', { exact: true })).toBeVisible();
+    await expect(page.getByText(SPANS[0], { exact: true })).toHaveCount(0);
     expect(evidence.errors).toEqual([]);
   });
   test('native control handles empty trace data', async ({ context, page }) => {

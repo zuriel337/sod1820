@@ -7,7 +7,7 @@ import { EXPERIENCE_SURFACE } from "../lib/experienceContext.js";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
-const num = v => n(v).toLocaleString("he-IL");
+const num = v => v == null || !Number.isFinite(Number(v)) ? "—" : Number(v).toLocaleString("he-IL");
 const cost = v => v == null ? "—" : `₪${n(v).toFixed(4)}`;
 const mib = v => v == null ? "—" : `${(n(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
 const gib = v => v == null ? "—" : `${(n(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
@@ -56,18 +56,27 @@ function SpanRow({ span }) {
 
 export default function ControlPlane2029Page() {
   const { loading: authLoading, isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null });
+  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null, videoMapError: null, tracesError: null });
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
-    setState(current => ({ ...current, loading: true, error: null }));
-    try {
-      const [health, traces, videoMap] = await Promise.all([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
-      setState({ loading: false, health, videoMap, traces, error: null });
-      setSelectedId(current => current || traces?.[0]?.trace_id || null);
-    } catch (error) {
-      setState({ loading: false, health: null, videoMap: null, traces: [], error });
+    setState(current => ({ ...current, loading: true, error: null, videoMapError: null, tracesError: null }));
+    const [healthResult, tracesResult, videoMapResult] = await Promise.allSettled([
+      getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth(),
+    ]);
+    const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+    const traces = tracesResult.status === "fulfilled" ? tracesResult.value : [];
+    const videoMap = videoMapResult.status === "fulfilled" ? videoMapResult.value : null;
+    const healthError = healthResult.status === "rejected" ? healthResult.reason : health == null ? new Error("System health returned no data") : null;
+    const tracesError = tracesResult.status === "rejected" ? tracesResult.reason : !Array.isArray(traces) ? new Error("Trace list returned no data") : null;
+    const videoMapError = videoMapResult.status === "rejected" ? videoMapResult.reason : videoMap == null ? new Error("Video map returned no data") : null;
+    setState({ loading: false, health, videoMap, traces: Array.isArray(traces) ? traces : [],
+      error: healthError, tracesError, videoMapError });
+    if (!tracesError) {
+      setSelectedId(current => traces.some(row => row.trace_id === current) ? current : traces[0]?.trace_id || null);
+    } else {
+      setSelectedId(null);
     }
   }, []);
 
@@ -131,7 +140,7 @@ export default function ControlPlane2029Page() {
         <Metric label="AI · 7 ימים" value={usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={`בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
         <Metric label="DB connections" value={`${num(db.connections)} / ${num(db.max_connections)}`} note={`idle tx: ${num(db.idle_in_transaction)}`} />
         <Metric label="Media objects" value={num(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note="aggregate קיים" />
-        <Metric label="Traces · 7 ימים" value={num(state.traces.length)} note="לחיצה פותחת spans ועלות" />
+        <Metric label="Traces · 7 ימים" value={num(state.tracesError ? null : state.traces.length)} note="לחיצה פותחת spans ועלות" />
       </div>
     </section>
 
@@ -145,7 +154,7 @@ export default function ControlPlane2029Page() {
           </div>
         </div>
         <div className="sod29-actions">
-          <span className="sod29-chip">{egressGuard.state || "NO_HOURLY_DATA"}</span>
+          <span className="sod29-chip">{state.health ? egressGuard.state || "NO_HOURLY_DATA" : "UNKNOWN"}</span>
           <span className="sod29-chip">{usage.storage_egress_observed_basis || "UNKNOWN"}</span>
         </div>
       </div>
@@ -196,6 +205,7 @@ export default function ControlPlane2029Page() {
           {egressLatest.root_causes.map((cause) => <span key={cause} className="sod29-chip">{cause}</span>)}
         </div>
       ) : null}
+      {state.error ? <FrameState kind="error" title="נתוני egress אינם זמינים" /> : null}
       {egressHistory.length ? <div className="sod29-list" aria-label="היסטוריית egress ב־24 שעות">
         {egressHistory.slice(-8).reverse().map((row, index) => <div className="sod29-row" key={`${row.at || "row"}:${index}`}>
           <div><strong>{when(row.at)}</strong><small>OBSERVED_STORAGE_LOGS</small></div>
@@ -205,7 +215,7 @@ export default function ControlPlane2029Page() {
             {n(row.burst_files) > 1 ? <span className="sod29-chip">{num(row.burst_files)} MP4 burst</span> : null}
           </div>
         </div>)}
-      </div> : <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState>}
+      </div> : !state.error ? <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState> : null}
     </section>
 
     <section className="sod29-section">
@@ -213,10 +223,11 @@ export default function ControlPlane2029Page() {
         <div><div className="sod29-kicker">VIDEO MAP · 2029</div><h2>וידאו — מיפוי, Google ועלות</h2>
           <div className="sod29-muted">Projection אחד מעל Posts · WhatsApp · Home Videos · Stories. המיפוי הדטרמיניסטי אינו צורך טוקנים.</div></div>
         <div className="sod29-actions">
-          <span className="sod29-chip">{videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
+          <span className="sod29-chip">{!state.videoMap ? "cron לא ידוע" : videoCron.active == null ? "cron לא ידוע" : videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
           <span className="sod29-chip">{videoCron.schedule || "—"}</span>
         </div>
       </div>
+      {state.videoMapError ? <FrameState kind="error" title="מיפוי הווידאו אינו זמין">{String(state.videoMapError?.message || state.videoMapError)}</FrameState> : null}
       <div className="sod29-grid">
         <Metric label="Video assets" value={num(videoSummary.unique_assets)} note={`${num(videoSummary.placements)} placements · ${num(videoSummary.duplicate_assets)} assets כפולים`} />
         <Metric label="Google Video" value={num(videoSummary.google_indexable_assets)} note={`${num(videoSummary.generic_google_pages)} דפי /video fallback`} />
@@ -225,9 +236,9 @@ export default function ControlPlane2029Page() {
           note={`Anthropic · ${videoMap.ai_policy?.metadata_model || "—"} · ~${cost(videoAi.estimated_cost_ils_7d)}`} />
       </div>
       <div className="sod29-list">
-        <div className="sod29-row"><div><strong>Projection owner</strong><small>{videoMap.owners?.projection || "—"}</small></div><span className="sod29-chip">0 tokens</span></div>
-        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{videoAi.calls_7d || 0} calls / 7d</span></div>
-        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
+        <div className="sod29-row"><div><strong>Projection owner</strong><small>{videoMap.owners?.projection || "—"}</small></div><span className="sod29-chip">{num(videoMap.ai_policy?.deterministic_mapping_tokens)} tokens</span></div>
+        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{num(videoAi.calls_7d)} calls / 7d</span></div>
+        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron == null ? "לא ידוע" : videoMap.ai_policy.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
         <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
     </section>
@@ -235,7 +246,7 @@ export default function ControlPlane2029Page() {
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>
         <div className="sod29-muted">עלות לא ידועה נשארת לא ידועה; אין חיבור מומצא בין אגרגציות.</div></div></div>
-      {state.loading ? <FrameState kind="loading" title="טוען traces" /> :
+      {state.loading ? <FrameState kind="loading" title="טוען traces" /> : state.tracesError ? <FrameState kind="error" title="רשימת traces אינה זמינה">{String(state.tracesError?.message || state.tracesError)}</FrameState> :
         state.traces.length ? <div className="sod29-list">{state.traces.map(row =>
           <TraceRow key={row.trace_id} row={row} active={row.trace_id === selectedId} open={setSelectedId} />
         )}</div> : <FrameState kind="empty" title="אין traces בטווח הזה">אין root traces להצגה בשבעת הימים האחרונים.</FrameState>}
