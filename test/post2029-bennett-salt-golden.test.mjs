@@ -8,8 +8,8 @@ test("Bennett salt Golden reuses existing tree identities", () => {
   assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
   assert.equal(BENNETT_SALT_REGIONS.length, 3);
   const experience = buildBennettSaltExperience({ date: "2026-10-01T00:00:00.000Z" });
-  assert.equal(experience.connections.find((row) => row.id === "bennett-631")?.href, "/sharshar-elections-redemption-hints-draft");
-  assert.equal(experience.connections.find((row) => row.id === "dead-sea-133")?.href, "/yam-hamelach-tiferet-geula");
+  assert.equal(experience.connections.find((row) => row.id === "bennett-631")?.href, "/post/sharshar-elections-redemption-hints-draft");
+  assert.equal(experience.connections.find((row) => row.id === "dead-sea-133")?.href, "/post/yam-hamelach-tiferet-geula");
   assert.equal(experience.timeline.find((row) => row.id === "bennett-salt-event")?.temporalRole, "occurred");
   assert.equal(experience.trail.length, 3);
   assert.equal(experience.media.fullSource.href.includes("mako.co.il"), true);
@@ -19,6 +19,9 @@ test("Bennett salt Golden reuses existing tree identities", () => {
   assert.match(body, /הבחירות/);
   assert.match(body, /מלך ישראל/);
   assert.match(body, /24\.9\.2026/);
+  assert.doesNotMatch(body, /sod29-gematria-hero/);
+  assert.equal((body.match(/data-focus-part="expression"/g) || []).length, 3);
+  assert.equal((body.match(/data-focus-part="result"/g) || []).length, 3);
   const visible = body.replace(/<[^>]+>/g, " ");
   assert.doesNotMatch(visible, /מלח = 78|ברית מלח|לחם|78|ים המלח|Golden|POST|SOD1820|debug/i);
 });
@@ -29,6 +32,16 @@ test("Bennett salt exact slug redirects to Post 2029", () => {
   assert.ok(match);
   assert.equal(match.destination, "/post/bennett-melach-631-78");
   assert.equal(match.permanent, true);
+});
+
+test("the full authored Bennett source remains available without certifying its saved result attributes", () => {
+  const original = '<p class="sod29-gematria-line">מלח = <button data-contextual-number-focus="true" data-expression="מלח" data-method="רגיל" data-result="78">78</button></p><a href="https://example.com/source">מקור מלא</a>';
+  const html = post2029ReadingInternals.buildBennettGoldenBody({ verified: false }, original);
+  assert.match(html, /<details class="sod29-original-post">/);
+  assert.match(html, /class="sod29-gematria-expression" data-gem="מלח">מלח<\/button>/);
+  assert.match(html, /data-method="רגיל"[^>]*data-gem="מלח">78<\/button>/);
+  assert.doesNotMatch(html, /data-contextual-number-focus="true"/);
+  assert.match(html, /<a href="https:\/\/example.com\/source">מקור מלא<\/a>/);
 });
 
 

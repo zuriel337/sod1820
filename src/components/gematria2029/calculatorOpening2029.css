@@ -25,7 +25,7 @@
 .sod29-calc-opening-words article > header span,
 .sod29-calc-opening > footer > span {
   color: var(--s29-muted);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .05em;
 }
@@ -136,7 +136,7 @@
 
 .sod29-calc-opening-fragment small {
   color: var(--s29-muted);
-  font-size: 10px;
+  font-size: 14px;
 }
 
 .sod29-calc-opening > footer {

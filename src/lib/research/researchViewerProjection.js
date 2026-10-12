@@ -135,7 +135,8 @@ export async function searchResearchViewerGraphEntities(query, { limit = 12 } = 
  * to the canonical adapter merged in PR #275; the Viewer never reads or interprets edges itself.
  */
 export async function fetchResearchViewerGraphEntity(nodeId, { relationLimit = 50 } = {}) {
-  return fetchCanonicalGraphEntityFindings(nodeId, { relationLimit });
+  // Admin inspection keeps retired counterparts visible; public projections do not.
+  return fetchCanonicalGraphEntityFindings(nodeId, { relationLimit, includeInactive: true });
 }
 
 /**

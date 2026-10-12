@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
-import { saveMatrix, saveMatrixAnon, getSavedMatrices, moderateMatrix } from "../lib/elsMatrices.js";
+import { saveMatrix, saveMatrixAnon, getSavedMatrices, getMatrixById, moderateMatrix } from "../lib/elsMatrices.js";
+import { savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
@@ -18,7 +20,7 @@ import { makeJourneySnapshot } from "../lib/elsJourney.js";
 // 🔐 שער-הרשמה (החלטת צוריאל): לא-רשום → עד 5 חיפושים רגילים · חיפוש-מוצלב = לרשומים בלבד.
 //    רשום/אדמין → ללא הגבלה. הכלי (iframe) אוכף את הספירה ופולט postMessage; העוטף כאן:
 //    (1) מעדכן את דרגת-המשתמש לכלי, (2) רושם כל חיפוש דרך track הקיים (events/visitor_events —
-//    בלי טבלה מקבילה), (3) מציג את SubscribeGate הקיים כשמגיעים לשער.
+//    בלי טבלה מקבילה), (3) מציג את SubscribeGate בהטמעה הישנה בלבד. חוויית 2029 מטפלת בחשבון באתר.
 // 🧬 GAP-5 reproducibility envelope (Pass 3, els_pass3_engine_detail_population) — תוספתי-בלבד,
 //    אף פעם לא מחליף/דורס את שדות-הזהות הקנוניים (corpus_id/term_norm/scope/direction/skip_distance/
 //    start_index, נגזרים בשרת). בונה מ-lastStateRef.current (elsState() האחרון, כבר-נעקב מ-Pass 1)
@@ -45,21 +47,7 @@ function buildEngineDetail(d, s) {
 //    loadMatrix() נופל ל-fallback הקיים שלו (item.skip בלבד, ללא שינוי-התנהגות לנתונים-ישנים-ודו-משמעיים).
 function rowToItem(m) {
   if (!m) return null;
-  const dir = m.direction === "back" ? -1 : m.direction === "fwd" ? 1 : null;
-  return {
-    id: m.id || null,   // 🆔 מזהה-הרשומה — כדי לצרוב חזרה מד-איכות (מונטה-קרלו) שחושב על צופן שמור
-    slug: m.slug || "",  // 🔗 1ב — הקשר-צופן: כדי לשתף ממצא מהכלי כתגובת-מחקר על הצופן הזה
-    name: m.title || m.search_term, term: m.search_term,
-    skip: m.skip_distance || 0, scope: m.scope || "torah",
-    start: m.start_index != null ? m.start_index : null, dir,   // 🆔 עוגן-מדויק ל-loadMatrix() exact-match
-    words: Array.isArray(m.positions?.findings) ? m.positions.findings : [],
-    hideMain: !!m.positions?.hideMain,   // 📌 ציר מוסתר — הצופן נטען עם הממצאים בלבד, בלי עמוד-השדרה
-    postUrl: m.positions?.postUrl || "", postTitle: m.positions?.postTitle || "",
-    desc: m.description || "",   // 📖 הסבר-הצופן → מוצג בכלי מתחת למטריצה
-    // 🖼 תצוגה-מקדימה בגלריה = ממוזערת (thumb) ולא הכרטיס המלא — חיסכון ~5-6× Egress, טעינה קלה.
-    //    (resize=contain בתוך thumb → בלי חיתוך. עמוד-הצופן הקנוני מושך את image_url המלא בנפרד.)
-    image: thumb(m.image_url, 200) || "", author: m.author_name || "",
-  };
+  return { ...savedMatrixToItem(m), image: thumb(m.image_url, 200) || "" };
 }
 
 // 🛰️ onState — מקבל-המצב של Work Area. ה-iframe הוא **מקור-העובדות**; ה-host רק מקבל אותן.
@@ -70,6 +58,9 @@ function rowToItem(m) {
 //    (2) פרמטר ?bridge=hidden ב-src, שהמנוע קורא כדי לדלג *רק* על חלון-ההדרכה החד-פעמית לריצה הזו
 //    (בלי לשמור tzofen_onboarded_v1, בלי להשפיע על הטמעות-גלויות). ⛔ אינו נוגע בשער
 //    tier/auth/quota/הרשמה (SubscribeGate) — אלה נשארים בדיוק כפי-שהם, לרשומים/אנונימי כרגיל.
+// experience2029 is a stable product scope, independent of which projection is visible. The engine
+// omits legacy local search trials in this scope; actual auth tier and the canonical Edge bridge remain unchanged.
+// onOperation receives request-scoped progress from that same engine (never inferred from a generic state tick).
 // 📜 lensRequest/onLens — חוזה on-demand ל-Verse/Context Lens (וכל עדשה עתידית דומה): לא חלק מ-state.
 //    lensRequest={lens,target} משודר לכלי כ-{type:"request-lens",...}; התשובה חוזרת דרך onLens (הודעת
 //    {type:"lens",...} מהכלי) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking. ⛔ אין Lens בכל state-tick.
@@ -77,14 +68,44 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, lensRequest = null, onLens = null, journeyLoad = null, onLoadError = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
   const iframeRef = useRef(null);
+  const engineRequestsRef = useRef(new Map());
+  useEffect(() => () => { for (const controller of engineRequestsRef.current.values()) controller.abort(); engineRequestsRef.current.clear(); }, []);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
   const [gate, setGate] = useState(null); // { reason: 'limit' | 'cross' }
+  const gateDialogRef = useRef(null);
+  useEffect(() => {
+    if (experience2029 || !engineOnly || !gate || verified) return;
+    const dialog = gateDialogRef.current;
+    if (!dialog) return;
+    const previousFocus = document.activeElement;
+    const focusable = () => [...dialog.querySelectorAll('button:not(:disabled), input:not(:disabled), a[href], select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')];
+    (focusable()[0] || dialog).focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setGate(null);
+      } else if (event.key === "Tab") {
+        const controls = focusable();
+        const first = controls[0] || dialog, last = controls.at(-1) || dialog;
+        if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    };
+    dialog.addEventListener("keydown", onKeyDown);
+    return () => {
+      dialog.removeEventListener("keydown", onKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, [experience2029, engineOnly, gate, verified]);
 
   // 🔗 Research Bus — מסלול-Finding יחיד (research_bus_reconciliation, Pass 1): ה-iframe פולט elsState()
   //    בכל render (onMsg d.type==="state", למעלה); כאן רק נשמר ה-tick האחרון (ref, לא state — אין re-render
@@ -107,11 +128,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (snap) axisFinding.projection = { ...axisFinding.projection, journeySnapshot: snap };
     workspace.upsertFinding(axisFinding);
     setAddedToast(true);
-  }, [workspace]);
+    onWorkspaceAdded?.();
+  }, [workspace, onWorkspaceAdded]);
   useEffect(() => { if (!addedToast) return; const t = setTimeout(() => setAddedToast(false), 3200); return () => clearTimeout(t); }, [addedToast]);
 
   const src =
-    "/tzofen.html?embed=1" + (seed ? "&q=" + encodeURIComponent(seed) : "") + (hiddenBridge ? "&bridge=hidden" : "");
+    "/tzofen.html?embed=1" + (seed ? "&q=" + encodeURIComponent(seed) : "") + (hiddenBridge ? "&bridge=hidden" : "") + (experience2029 ? "&experience=2029" : "");
 
   const postTier = useCallback(() => {
     try {
@@ -180,32 +202,68 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const [savedToast, setSavedToast] = useState(null);          // 💾 אישור-שמירה חוזר עם קישור לדף-המחקר (כל שמירה)
   // 🔔 טוסט-השמירה נעלם לבד אחרי 7ש' (המשתמש עדיין יכול ללחוץ «לדף המחקר»)
   useEffect(() => { if (!savedToast) return; const t = setTimeout(() => setSavedToast(null), 7000); return () => clearTimeout(t); }, [savedToast]);
+  const nativeSavedRowRef = useRef(null);
+  useEffect(() => { nativeSavedRowRef.current = null; }, [matrix?.id]);
   const saveToCloud = useCallback(async (d) => {
+    const native = d.nativeRequestId != null;
+    const savedState = lastStateRef.current;
+    if (native && (!experience2029 || d.nativeRequestId !== saveRequest?.seq)) return;
+    const completeNative = (result) => onSaveResult?.({ requestId: d.nativeRequestId, ...result });
+    if (native && (!user || savedState?.axis?.hitId !== saveRequest.axisHitId)) {
+      completeNative({ ok: false, error: user ? "selection_changed" : "auth_required" }); return;
+    }
     // G3 one-engine: a governed save needs the tool's last state to carry a canonical MATCH (defense in depth;
     // the tool already refuses to post `save` for an unverified occurrence).
-    if (lastStateRef.current?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); return; }
+    if (savedState?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
     try {
-      const shapeUrl = d.shape ? await uploadCipherCard(d.shape) : null;   // 🔲 צורת-הצופן הגולמית → Storage (תצוגת «צורה בלבד»)
-      // 🎴 כרטיס-הצופן → Storage. אם אין כרטיס מרונדר — נופלים לצורת-המטריצה, כך שצופן לעולם
-      //    לא נשמר בלי תמונת-שיתוף (auto-render: כל צופן אוטומטית מקבל תמונה, בלי צעד ידני).
-      const imageUrl = (d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
-      // 🏆 מד-האיכות (מונטה-קרלו) + צורת-הצופן נצרבים בתוך positions — בלי שינוי-סכמה, נקראים בכל מקום.
-      const positions = { findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
-        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain };
-
-      // 🔄 #2 מניעת-כפילות (unified_graph_law): שמירה בזמן שצופן קיים פתוח — אותו מונח·דילוג·היקף —
-      //    היא «עדכון הצופן», לא צופן חדש. אדמין → עדכון-במקום (preserve_linked_row). אחר → נשמר
-      //    כ«גרסה» מקושרת למקור (variantOf) שממתינה לאישור — לעולם לא דורסים צופן קיים.
+      let contextMatrix = nativeSavedRowRef.current || matrix;
+      // Classic edit ids and route props are not proof of current access/visibility.
+      // Resolve the saved row before rendering data can reach public Storage.
+      const classicContexts = [];
+      if (!native) {
+        for (const id of new Set([matrix?.id, nativeSavedRowRef.current?.id].filter(Boolean))) {
+          const row = await getMatrixById(id);
+          if (!row?.visibility) throw new Error("save_context_unavailable");
+          classicContexts.push(row);
+          if (id === contextMatrix?.id) contextMatrix = row;
+        }
+      }
       const nrm = (s) => String(s || "").replace(/\s+/g, "").trim();
-      const isReSave = !!(matrix?.id
-        && nrm(d.term) === nrm(matrix.search_term)
-        && Math.abs(d.skip || 0) === (matrix.skip_distance || 0)
-        && (d.scope || "torah") === (matrix.scope || "torah"));
-
-      // ✏️ עדכון-ממצא במקום (אפס כפילויות): הכלי שולח editId כשעורכים ממצא-קיים, או re-save
-      //    בהקשר עמוד-הצופן. update_els_matrix מתיר אדמין *או* בעלים; אם לא-מורשה → נופל לשמירה חדשה.
-      const engineDetail = buildEngineDetail(d, lastStateRef.current);
-      const editId = d.editId || (isReSave ? matrix.id : null);
+      const isReSave = native ? savedMatrixMatchesAxis(contextMatrix, savedState) : !!(contextMatrix?.id
+        && nrm(d.term) === nrm(contextMatrix.search_term)
+        && Math.abs(d.skip || 0) === (contextMatrix.skip_distance || 0)
+        && (d.scope || "torah") === (contextMatrix.scope || "torah"));
+      const editId = native ? null : (d.editId || (isReSave ? contextMatrix.id : null));
+      let editMatrix = null;
+      if (editId) {
+        editMatrix = editId === contextMatrix?.id ? contextMatrix : await getMatrixById(editId);
+        if (!editMatrix?.visibility) throw new Error("save_target_unavailable");
+      }
+      const privateNative = native && saveRequest.isPublic !== true;
+      // Switching to Classic is not consent to publish private research. Include
+      // newly saved native rows, explicit edit targets and non-public contexts.
+      const privateClassic = !native && [...classicContexts, editMatrix].some(row => row && row.visibility !== "public");
+      const privateSave = privateNative || privateClassic;
+      if (privateSave && !user) throw new Error("auth_required");
+      if (editMatrix && classicContexts.some(row => row.id !== editMatrix.id
+        && row.visibility !== "public" && !row.self_published && row.status !== "published")) {
+        throw new Error("private_context_changed");
+      }
+      if (editMatrix && !isAdmin && editMatrix.owner_user_id !== user?.id && (privateSave || d.editId)) throw new Error("not_authorized");
+      if (messageContextRef.current.user?.id !== user?.id
+        || lastStateRef.current?.axis?.hitId !== savedState.axis?.hitId
+        || lastStateRef.current?.scope !== savedState.scope) throw new Error("save_context_changed");
+      const canUpdateNative = privateNative && contextMatrix?.owner_user_id === user?.id
+        && contextMatrix?.visibility === "private" && !contextMatrix?.self_published
+        && contextMatrix?.status !== "published" && savedMatrixMatchesAxis(contextMatrix, savedState);
+      const shapeUrl = !privateSave && d.shape ? await uploadCipherCard(d.shape) : null;
+      const imageUrl = (!privateSave && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
+      const positions = { ...(canUpdateNative ? contextMatrix.positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+        quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null, view: d.view || null };
+      const engineDetail = buildEngineDetail(d, savedState);
+      // Native private saves retain the existing exact-identity upsert. Classic
+      // updates retain server ownership/publication checks and never downgrade
+      // a failed private update into a new public submission.
       if (editId) {
         const { error } = await supabase.rpc("update_els_matrix", {
           p_id: editId, p_positions: positions,
@@ -219,7 +277,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           return;
         }
         // עדכון נכשל: אם המשתמש התכוון *במפורש* לעדכן (editId מהכלי) — לא יוצרים כפילות שקטה, מדווחים כשל.
-        if (d.editId) { postToTool({ type: "saved", ok: false }); return; }
+        if (d.editId || privateSave) { postToTool({ type: "saved", ok: false }); return; }
         // אחרת (re-save היוריסטי לפי מונח/דילוג) → ממשיך לשמירה-חדשה/גרסה למטה
       }
 
@@ -227,21 +285,31 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         term: d.term, scope: d.scope || "torah",
         skip: d.skip != null ? Math.abs(d.skip) : null, direction: d.direction || null,
         // גרסה על צופן קיים (לא-אדמין) → מקושרת למקור כדי שהאדמין יראה «גרסה» ולא כפילות אקראית.
-        positions: isReSave ? { ...positions, variantOf: matrix.id, variantOfSlug: matrix.slug || null } : positions,
+        positions: isReSave && !canUpdateNative ? { ...positions, variantOf: contextMatrix.id, variantOfSlug: contextMatrix.slug || null } : positions,
         // 📝 «מה רואים בצופן» — חובה שנאכפת בכלי; נשמר כ-description (p_note→description ב-RPC).
-        title: d.postTitle || d.term, note: d.desc || null, imageUrl,
+        title: (native ? saveRequest.title : null) || d.postTitle || d.term, note: d.desc || null, imageUrl,
         // 🆔 עוגן-הממצא 0-based (occ().start מהמנוע). `!= null` כי start=0 חוקי. corpus_id/term_norm נגזרים בשרת.
         startIndex: d.start != null ? d.start : null,
         engineDetail,
       };
       if (user) {
-        await saveMatrix({ ...common, fromTopic: fromTopic || null });   // 🔁 round-trip: צופן מהתכנסות חוזר אליה כראיה
-        const st = isAdmin ? "published" : (isReSave ? "variant" : "pending");
+        const id = await saveMatrix({ ...common, isPublic: native ? saveRequest.isPublic === true : !privateSave, fromTopic: privateSave ? null : fromTopic || null });
+        if (native) {
+          let row = { id, search_term: d.term, title: common.title, scope: common.scope, skip_distance: common.skip,
+            direction: common.direction, start_index: common.startIndex, corpus_id: savedState?.verification?.corpus_id,
+            positions: common.positions, owner_user_id: user.id, visibility: privateNative ? "private" : null,
+            status: privateNative ? "draft" : null, description: common.note };
+          try { row = await getMatrixById(id) || row; } catch { /* retain the committed id if readback is temporarily unavailable */ }
+          nativeSavedRowRef.current = row;
+          postToTool({ type: "saved", ok: true, status: row.status || "saved" });
+          completeNative({ ok: true, id, row, status: row.status || "saved" }); return;
+        }
+        const st = privateSave ? "draft" : isAdmin ? "published" : (isReSave ? "variant" : "pending");
         postToTool({ type: "saved", ok: true, status: st });
         // 🎉 כניסה 1: אחרי השמירה הראשונה — מודל-חגיגה להכנת-תיק. אחרת: טוסט-שמירה חוזר עם קישור לדף-המחקר.
         let firstTime = false;
         try { firstTime = !localStorage.getItem("sod_dossier_prompted_v1"); if (firstTime) localStorage.setItem("sod_dossier_prompted_v1", "1"); } catch { /* noop */ }
-        if (firstTime) setDossierPrompt(true); else setSavedToast({ status: st });
+        if (firstTime && !privateSave) setDossierPrompt(true); else setSavedToast({ status: st });
         if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
@@ -250,12 +318,19 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       }
     } catch {
       postToTool({ type: "saved", ok: false });
+      if (native) completeNative({ ok: false, error: "save_failed" });
     }
-  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix]);
+  }, [user, isAdmin, postToTool, pushSavedMatrices, fromTopic, uploadCipherCard, matrix, experience2029, saveRequest, onSaveResult]);
+
+  // Keep the listener registered through synchronous Research Bus renders during dispatch.
+  // Read current props/callbacks without removing a listener before it receives that same event.
+  const messageContextRef = useRef(null);
+  messageContextRef.current = { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult };
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
     async function onMsg(e) {
+      const { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult } = messageContextRef.current;
       if (e.origin !== window.location.origin) return;
       // G3: origin alone is not enough — any same-origin window (other tab/iframe/script) could spoof the tool.
       // Accept only messages whose source is this component's own iframe window.
@@ -263,6 +338,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (!toolWin || e.source !== toolWin) return;
       const d = e.data;
       if (!d || d.source !== "tzofen") return;
+      if (d.type === "engine-cancel") {
+        for (const id of Array.isArray(d.requestIds) ? d.requestIds : []) engineRequestsRef.current.get(id)?.abort();
+        return;
+      }
       if (d.type === "engine-request") {
         const requestId = typeof d.requestId === "string" ? d.requestId.slice(0, 120) : "";
         const op = d.op === "page" || d.op === "verify" || d.op === "verify_batch" ? d.op : null;
@@ -270,11 +349,16 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
           if (requestId) postToTool({ type: "engine-result", requestId, ok: false, error: "invalid_request" });
           return;
         }
+        const controller = new AbortController();
+        engineRequestsRef.current.get(requestId)?.abort();
+        engineRequestsRef.current.set(requestId, controller);
         try {
           const payload = d.payload && typeof d.payload === "object" ? d.payload : {};
           const { data, error } = await supabase.functions.invoke("els-search-bridge", {
             body: { op, ...payload, interaction_id: newInteractionId() },
+            signal: controller.signal,
           });
+          if (controller.signal.aborted) return;
           if (error) {
             postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
             return;
@@ -288,7 +372,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             rate: data?.rate ?? null,
           });
         } catch {
-          postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
+          if (!controller.signal.aborted) postToTool({ type: "engine-result", requestId, ok: false, error: "bridge_error" });
+        } finally {
+          if (engineRequestsRef.current.get(requestId) === controller) engineRequestsRef.current.delete(requestId);
         }
         return;
       }
@@ -305,6 +391,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         // 📜 בקשת-Lens פעילה (למשל Verse) שנוצרה לפני שה-iframe סיים לטעון — נשלחת שוב עכשיו,
         //    אחרת ה-postMessage הראשון היה עלול לרדת לפני שהמנוע רשם את המאזין שלו (אותו מרוץ-טעינה).
         if (lensRequest) postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
+        if (searchRequest?.kind) postToTool({ type: "native-search", request: searchRequest, requestId: searchRequest.seq });
+        if (Array.isArray(findingsRequest?.findings)) postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq });
         return;
       }
       if (d.type === "state") {
@@ -321,6 +409,11 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         onLens?.(d);
         return;
       }
+      if (d.type === "operation") {
+        // Only engine acknowledgements drive search progress; React does not infer completion from state ticks.
+        onOperation?.(d);
+        return;
+      }
       if (d.type === "search") {
         try {
           track("els", (d.term || "").slice(0, 80),
@@ -329,6 +422,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         } catch { /* noop */ }
       } else if (d.type === "save") {
         saveToCloud(d);
+      } else if (d.type === "native-save-result" && d.requestId === saveRequest?.seq) {
+        onSaveResult?.(d);
       } else if (d.type === "contribute" && d.slug) {
         // ➕ 1ב — שיתוף ממצא מתוך הכלי כתגובת-מחקר על הצופן הנוכחי (עץ אחד: לא צופן חדש, תרומה על הקיים).
         const words = Array.isArray(d.words) ? d.words.filter(Boolean) : [];
@@ -357,7 +452,12 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             .catch(() => { /* noop */ });
         } catch { /* noop */ }
       } else if (d.type === "gate") {
-        if (!verified) setGate({ reason: d.reason || "limit" });
+        if (!verified) {
+          if (!experience2029) setGate({ reason: d.reason || "limit" });
+          onGate?.(d);
+        }
+      } else if (d.type === "onboarding-required") {
+        onOnboardingRequired?.(d);
       } else if (d.type === "load-error") {
         // 🧭 Research Journey (Pass 2): loadMatrix בכלי לא מצא את המונח/העוגן-המדויק (hitId/start+dir).
         onLoadError?.(d);
@@ -365,7 +465,26 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [verified, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onLens, lensRequest, onLoadError, journeyLoad]);
+  }, []);
+
+  const workspaceSeqRef = useRef(null);
+  useEffect(() => {
+    if (!workspaceRequest || workspaceSeqRef.current === workspaceRequest.seq) return;
+    workspaceSeqRef.current = workspaceRequest.seq;
+    addAxisFinding();
+  }, [workspaceRequest, addAxisFinding]);
+  useEffect(() => {
+    if (findingControlRequest) postToTool({ ...findingControlRequest, type: "native-finding-control" });
+  }, [findingControlRequest, postToTool]);
+  useEffect(() => {
+    if (actionRequest) postToTool({ type: "native-action", action: actionRequest.action });
+  }, [actionRequest, postToTool]);
+  useEffect(() => {
+    if (contextRequest) postToTool({ type: "native-context", delta: contextRequest.delta });
+  }, [contextRequest, postToTool]);
+  useEffect(() => {
+    if (cancelRequest) postToTool({ type: "native-cancel", kind: cancelRequest.kind, requestId: cancelRequest.requestId });
+  }, [cancelRequest, postToTool]);
 
   // 📜 בקשת-Lens (Verse/Context וכל עדשה עתידית) — נשלחת בכל שינוי אמיתי של lensRequest (הפעלה/כיבוי,
   //    Finding-פעיל אחר). אין תדירות של state-tick — רק כשה-caller יוזם בקשה חדשה במפורש.
@@ -374,12 +493,40 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     postToTool({ type: "request-lens", lens: lensRequest.lens, target: lensRequest.target || {} });
   }, [lensRequest, postToTool]);
 
-  // עמוד-צופן קנוני: אם ה-matrix מתחלף אחרי שהכלי כבר נטען — טוענים אותו מחדש.
+  // 🎛️ Native Classic one-shot controls — presentation-only allowlist בתוך ה-Tzofen הקנוני.
+  useEffect(() => {
+    if (!controlRequest?.action) return;
+    postToTool({ type: "native-control", action: controlRequest.action, value: controlRequest.value });
+  }, [controlRequest, postToTool]);
+
+  // 🔎 Native Classic search requests stay separate from presentation controls.
+  // The iframe remains the only search executor and reuses its canonical auth/gate/ranking paths.
+  useEffect(() => {
+    if (!searchRequest?.kind) return;
+    postToTool({ type: "native-search", request: searchRequest, requestId: searchRequest.seq });
+  }, [searchRequest, postToTool]);
+
+  // 🎯 Native findings edits reuse the existing update-findings path.
+  // The tool normalizes, bounds, recomputes, recolors and emits the resulting governed state.
+  useEffect(() => {
+    if (!Array.isArray(findingsRequest?.findings)) return;
+    postToTool({ type: "update-findings", findings: findingsRequest.findings, requestId: findingsRequest.seq });
+  }, [findingsRequest, postToTool]);
+
+  // A native save is sent once for its explicit user action.
+  const saveSeqRef = useRef(null);
+  useEffect(() => {
+    if (!saveRequest || saveSeqRef.current === saveRequest.seq) return;
+    saveSeqRef.current = saveRequest.seq;
+    postToTool({ ...saveRequest, type: "native-save", requestId: saveRequest.seq });
+  }, [saveRequest, postToTool]);
+
+  // Saved record loading still uses the same mounted canonical engine.
   //    ⚠️ רק כשזהות-הצופן מתחלפת (id/מונח/דילוג/היקף) — לא על כל שינוי-שדה (סטטוס וכו'),
   //    אחרת שינוי-סטטוס היה מריץ מחדש את כל הצופן + סרט-הצופן ללא צורך.
   useEffect(() => {
     if (!matrix) { lastKeyRef.current = null; return; }
-    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope].join("|");
+    const key = [matrix.id, matrix.search_term, matrix.skip_distance, matrix.scope, matrix.start_index, matrix.direction, matrix.corpus_id].join("|");
     if (lastKeyRef.current === key) return;
     lastKeyRef.current = key;
     postToTool({ type: "load-matrix", item: rowToItem(matrix) });
@@ -422,25 +569,84 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       : gate?.reason === "save"
       ? "שמירת מטריצות לתיק המחקר שלך — כדי לחזור אליהן ולשתף — שמורה לחוקרים רשומים. הרשמה חינם פותחת שמירה, חיפוש-מוצלב וכל התנ״ך."
       : "טעמת שהכלי עובד — עכשיו רישום חד-פעמי עם אימות במייל פותח את החיפוש המוצלב, כל התנ״ך, שמירות ושיתוף.";
+  const gateOverlay = !experience2029 && gate && !verified ? (
+    <div
+      ref={gateDialogRef}
+      dir="rtl"
+      role="dialog"
+      aria-modal="true"
+      aria-label={gateTitle}
+      tabIndex={-1}
+      data-els-access-gate={engineOnly ? "native" : "classic"}
+      style={{
+        position: engineOnly ? "fixed" : "absolute", inset: 0, zIndex: engineOnly ? 10000 : 20,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "18px", overflow: "auto",
+        background: "rgba(6,5,13,0.82)", backdropFilter: "blur(3px)",
+      }}
+    >
+      <div style={{ maxWidth: 520, width: "100%", maxHeight: "calc(100dvh - 36px)", overflow: "auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 4, color: "#f4c84a", fontSize: 34 }}>
+          {gate.reason === "cross" ? "🔀" : gate.reason === "tanakh" ? "📜" : "🔓"}
+        </div>
+        <div style={{ textAlign: "center", color: "#f4c84a", fontFamily: "'Frank Ruhl Libre', serif", fontSize: 21, fontWeight: 800, marginBottom: 6 }}>
+          {gateTitle}
+        </div>
+        <p style={{ textAlign: "center", color: "#c3ac7d", fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 6px", maxWidth: 440 }}>
+          {gateSub}
+        </p>
+        <SubscribeGate source="code" onUnlock={() => setGate(null)} />
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <button
+            onClick={() => setGate(null)}
+            style={{
+              background: "transparent", border: "none", color: "#8a7850",
+              fontFamily: "inherit", fontSize: 12.5, cursor: "pointer", textDecoration: "underline",
+            }}
+          >
+            {gate.reason === "cross" ? "חזרה לחיפוש רגיל" : "סגירה"}
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
-    <div dir="rtl" style={{ position: "relative", width: "100%" }}>
+    <div
+      dir="rtl"
+      aria-hidden={engineOnly ? true : undefined}
+      data-tzofen-projection={engineOnly ? "engine-only" : "classic-visible"}
+      style={engineOnly
+        ? {
+            position: "fixed",
+            insetInlineStart: 0,
+            top: 0,
+            width: "min(1280px, calc(100vw - 24px))",
+            height: 720,
+            overflow: "hidden",
+            opacity: 0,
+            pointerEvents: "none",
+            clipPath: "inset(50%)",
+            zIndex: -1,
+          }
+        : { position: "relative", width: "100%" }}
+    >
       <iframe
         ref={iframeRef}
         onLoad={postTier}
-        // 🔑 מפתח לפי זהות-הצופן: מעבר לצופן אחר (id שונה) → iframe נטען מחדש נקי, בלי מצב-כלי ישן דולף.
-        //    כך צופן שנמחק ונוצר-מחדש עם אותו מונח/דילוג לא מציג את הגרסה הישנה שהכלי שמר בזיכרון.
-        //    שינויי-שדה באותו צופן (סטטוס/איכות) לא מחליפים id → אין טעינה-מחדש מיותרת.
-        key={matrix?.id ? "els-" + matrix.id : (seed || "els")}
+        // Native records load into the same canonical engine. Remounting would replay stale search requests.
+        // Legacy pages keep their established record/seed keyed lifecycle.
+        key={experience2029 ? "els-native-engine" : matrix?.id ? "els-" + matrix.id : (seed || "els")}
         src={src}
         title="הצופן התנ״כי — דילוגי אותיות (ELS)"
-        loading={hiddenBridge ? "eager" : "lazy"}
+        loading={hiddenBridge || engineOnly ? "eager" : "lazy"}
+        tabIndex={engineOnly ? -1 : undefined}
         allow="clipboard-write; clipboard-read; web-share; fullscreen"
         allowFullScreen
         style={{
           width: "100%",
-          height: full ? "calc(100dvh - 58px)" : "calc(100dvh - 130px)",
-          minHeight: 620,
+          height: engineOnly ? 720 : (full ? "calc(100dvh - 58px)" : "calc(100dvh - 130px)"),
+          minHeight: engineOnly ? 720 : 620,
           border: "none",
           display: "block",
           borderRadius: full ? 0 : 14,
@@ -450,7 +656,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
 
       {/* 🔗 Research Bus — מסלול-Finding יחיד: המופע המדויק המוצג עכשיו → adapter → תיק-המחקר (cart).
           לא state-tick פסיבי — פעולת-משתמש מפורשת בלבד (research_bus_reconciliation, Pass 1). */}
-      {!hiddenBridge && hasAxisFinding && !gate && (
+      {(!hiddenBridge || (showResearchBusWhenHiddenBridge && !engineOnly)) && hasAxisFinding && !gate && (
         <button
           type="button"
           onClick={addAxisFinding}
@@ -471,40 +677,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         </div>
       )}
 
-      {gate && !verified && (
-        <div
-          style={{
-            position: "absolute", inset: 0, zIndex: 20,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "18px", overflow: "auto",
-            background: "rgba(6,5,13,0.82)", backdropFilter: "blur(3px)",
-          }}
-        >
-          <div style={{ maxWidth: 520, width: "100%" }}>
-            <div style={{ textAlign: "center", marginBottom: 4, color: "#f4c84a", fontSize: 34 }}>
-              {gate.reason === "cross" ? "🔀" : gate.reason === "tanakh" ? "📜" : "🔓"}
-            </div>
-            <div style={{ textAlign: "center", color: "#f4c84a", fontFamily: "'Frank Ruhl Libre', serif", fontSize: 21, fontWeight: 800, marginBottom: 6 }}>
-              {gateTitle}
-            </div>
-            <p style={{ textAlign: "center", color: "#c3ac7d", fontSize: 14.5, lineHeight: 1.8, margin: "0 auto 6px", maxWidth: 440 }}>
-              {gateSub}
-            </p>
-            <SubscribeGate source="code" onUnlock={() => setGate(null)} />
-            <div style={{ textAlign: "center", marginTop: 10 }}>
-              <button
-                onClick={() => setGate(null)}
-                style={{
-                  background: "transparent", border: "none", color: "#8a7850",
-                  fontFamily: "inherit", fontSize: 12.5, cursor: "pointer", textDecoration: "underline",
-                }}
-              >
-                {gate.reason === "cross" ? "חזרה לחיפוש רגיל" : "סגירה"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {gateOverlay && (engineOnly ? createPortal(gateOverlay, document.body) : gateOverlay)}
 
       {/* 🎉 כניסה 1 — הצעת הכנת-תיק אחרי השמירה הראשונה */}
       {dossierPrompt && (
@@ -535,6 +708,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: "'Frank Ruhl Libre',serif", fontWeight: 800, fontSize: 14.5, lineHeight: 1.3 }}>
                 {savedToast.status === "updated" ? "עודכן בתיק המחקר שלך"
+                  : savedToast.status === "draft" ? "נשמר אצלך באופן פרטי — לא נשלח לפרסום"
                   : savedToast.status === "published" ? "פורסם לתיק המחקר — גלוי לחוקרים"
                   : savedToast.status === "variant" ? "נשמר כגרסה — ממתין לאישור"
                   : "נשמר לתיק המחקר שלך — ממתין לאישור לפומבי"}

@@ -40,7 +40,7 @@ export default function ConvergenceWizard({ insight }) {
   return (
     <span
       role="status"
-      title="אשף ההתכנסויות הישן הוקפא ב-G2 כדי שלא יכתוב שוב לסמנטיקה הישנה. המחליף ייבנה על ארכיטקטורת 2029."
+      title="אשף ההתכנסויות הישן הוקפא ב-G2 כדי שלא יכתוב שוב לסמנטיקה הישנה. המחליף ייבנה כחלק מהמערכת החדשה."
       style={{
         display: "inline-flex",
         alignItems: "center",

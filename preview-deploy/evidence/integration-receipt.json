@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-10-11T00:03:30.628251+00:00",
+  "baseline": "4b62216d89b3fada1701ef21f8753f5fffaa9e0b",
+  "scope": "ISOLATED_PREVIEW_ONLY",
+  "unitTests": 69,
+  "elsDepthContinuityRegressions": 58,
+  "frame": "PASS",
+  "legacy2029Isolation": "PASS",
+  "legacyBuild": "PASS",
+  "build2029": "PASS",
+  "flight": "desktop/mobile PASS, Posts selection gap remains open",
+  "kingdom": "two discoveries + upgrade + reload: 1440/390 PASS",
+  "glyph": "GPU + outline return: PASS on Three 0.186.0",
+  "number878": "exact משיח / מילוי: desktop/mobile PASS",
+  "els": "משיח live canonical reader: HTTP200, verified occurrences",
+  "guard": "research POST and unsupported ELS save: local403",
+  "raziel": "MOCK_ONLY; no live model calls",
+  "hosted": "PENDING, see work_log AFTER"
+}

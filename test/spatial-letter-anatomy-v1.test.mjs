@@ -67,10 +67,10 @@ test("Number and Golden 1237 consume one shared Spatial Method Stage through the
   const mistaterComponent=readFileSync(new URL("../src/components/experience2029/MistaterTensionGolden2029.jsx",import.meta.url),"utf8");
   assert.equal(stage.includes("1237"),false);
   assert.match(stage,/data-experience-capability="spatial-method-stage"/);
-  assert.match(stage,/trace\.verification\?\.parity !== true/);
+  assert.match(stage,/isVerifiedMethodTrace/);
   assert.match(stage,/HEBREW_LETTER_NAMES_ENGINE_DEFAULT/);
-  assert.match(stage,/METHOD_TRACE_KIND/);
-  assert.match(stage,/trace\.trace_kind !== requiredTraceKind/);
+  assert.match(stage,/projectGematriaTrace/);
+  assert.match(stage,/projectGematriaTrace/);
   assert.match(stage,/Number\(step\.base_value\) > 0/);
   assert.match(stage,/data-spelling-source="ui_transitional_unverified"/);
   assert.match(stage,/data-density=\{density\}/);
@@ -128,14 +128,14 @@ test("Mistater tension consumes canonical adjacent-difference trace and projects
 
 test("Mistater tension fails closed if a pair is not internally consistent with the canonical trace",()=>{
   const bad={
-    input:"התגלות",
-    steps:[{word:"התגלות",pairs:[{difference:396,left_value:5,right_value:400}],letter_values:[5,400],word_subtotal:396}],
+    input:"הת",
+    steps:[{word:"הת",pairs:[{difference:396,left_value:5,right_value:400}],letter_values:[5,400],word_subtotal:396}],
     result:396,
     method_key:"מסתתר",
     trace_kind:"ADJACENT_DIFFERENCE",
     verification:{parity:true,trace_value:396,canonical_value:396},
   };
-  assert.throws(()=>compileMistaterTensionScene({expression:"התגלות",methodTrace:bad}),/PAIR_MISMATCH/);
+  assert.throws(()=>compileMistaterTensionScene({expression:"הת",methodTrace:bad}),/PAIR_MISMATCH/);
 });
 
 test("Kadmi potential triangle and Triangle Word prefix triangle remain distinct projections",()=>{

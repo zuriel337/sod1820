@@ -3,33 +3,221 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
+const nativeClassic = readFileSync(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
+const embed = readFileSync(new URL("../src/components/TzofenEmbed.jsx", import.meta.url), "utf8");
+const css = readFileSync(new URL("../src/components/experience2029/elsNativeClassic2029.css", import.meta.url), "utf8");
 const provider = readFileSync(new URL("../src/lib/research/ResearchProvider.jsx", import.meta.url), "utf8");
+const template = readFileSync(new URL("../tools/els/els-code.template.html", import.meta.url), "utf8");
 
-test("Classic 2029 mounts the canonical full tzofen workspace inside /els", () => {
-  assert.match(page, /import TzofenEmbed from "\.\.\/components\/TzofenEmbed\.jsx"/);
-  assert.match(page, /data-els-classic-2029="faithful-port-v1"/);
-  assert.match(page, /data-els-classic-tool="canonical-tzofen"/);
-  assert.match(page, /<TzofenEmbed seed=\{classicSeed \|\| undefined\} full \/>/);
-  assert.match(page, /המשך הפסוק/);
-  assert.match(page, /סימוני הצבע בצד/);
-  assert.match(page, /חיפוש מוצלב/);
-  assert.match(page, /שמירות/);
+test("Classic 2029 mounts a native workspace instead of exposing the old full iframe by default", () => {
+  assert.match(page, /import ElsNativeClassic2029 from/);
+  assert.match(page, /data-els-classic-2029="native-v1"/);
+  assert.ok(page.includes('<ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library}'));
+  assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
+
+  assert.match(nativeClassic, /data-els-native-classic="v4"/);
+  assert.match(nativeClassic, /aria-label="חיפוש ELS"/);
+  assert.match(nativeClassic, /<MatrixControls state=\{engineState\} onControl=\{requestControl\} onContext=\{requestContext\} busy=\{searchPending \|\| \["searching", "verifying"\]\.includes\(operations\.findings\?\.status\)\} \/>/);
+  assert.match(nativeClassic, /<MatrixSnapshot state=\{engineState\}/);
+  assert.match(nativeClassic, /<FindingsRail/);
 });
 
-test("Classic tool stays mounted across profile switches so working state is preserved", () => {
+test("Native Classic is projection-only and keeps one canonical Tzofen engine instance as parity fallback", () => {
+  assert.match(nativeClassic, /import TzofenEmbed from "..\/TzofenEmbed.jsx"/);
+  assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
+  assert.match(nativeClassic, /\n          hiddenBridge\n          experience2029\n          engineOnly=\{!classicOpen\}/);
+  assert.match(nativeClassic, /engineOnly=\{!classicOpen\}/);
+  assert.doesNotMatch(nativeClassic, /hiddenBridge=\{!classicOpen\}/);
+  assert.match(nativeClassic, /onState=\{handleEngineState\}/);
+  assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
+  assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
+  assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
+  assert.match(nativeClassic, /classicOpen \? "חזור למטריצה" : "כל הכלים"/);
+  assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
+
+  assert.match(embed, /engineOnly = false/);
+  assert.match(embed, /data-tzofen-projection=\{engineOnly \? "engine-only" : "classic-visible"\}/);
+  assert.match(embed, /width: "min\(1280px, calc\(100vw - 24px\)\)"/);
+  assert.match(embed, /clipPath: "inset\(50%\)"/);
+  assert.match(embed, /onGate\?\.\(d\)/);
+  assert.match(embed, /\(!hiddenBridge \|\| \(showResearchBusWhenHiddenBridge && !engineOnly\)\) && hasAxisFinding && !gate/);
+  assert.match(nativeClassic, /showResearchBusWhenHiddenBridge/);
+  assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
+});
+
+test("Native scope and simple cross search delegate to the canonical search path", () => {
+  assert.match(nativeClassic, /searchRequest=\{searchRequest\}/);
+  assert.match(nativeClassic, /requestSearch\("regular", \{ term, scope: activeScope \}\)/);
+  assert.match(nativeClassic, /submitCross = \(scope = activeScope\)/);
+  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope, radius: crossRadius \}\)/);
+  assert.match(nativeClassic, /switchScope\("torah"\)/);
+  assert.match(nativeClassic, /switchScope\("tanakh"\)/);
+  assert.match(nativeClassic, /data-els-native-cross="simple"/);
+  assert.doesNotMatch(nativeClassic, /runCrossSimple\(|crossFindMulti\(|discoverVerified\(|tanakhLocked\(|canCross\(/);
+
+  assert.match(embed, /searchRequest = null/);
+  assert.match(embed, /postToTool\(\{ type: "native-search", request: searchRequest, requestId: searchRequest\.seq \}\)/);
+
+  assert.match(template, /function selectSearchScope\(nextScope,rerunCurrent\)/);
+  assert.match(template, /next==="tanakh"&&tanakhLocked\(\)/);
+  assert.match(template, /d\.type==="native-search"/);
+  assert.match(template, /if\(!ensureOnboarded\(\)\)\{postHost\(\{type:"onboarding-required"\}\);operationStatus\(operation,"error",[^;]+\);return;\}/);
+  assert.match(embed, /onOnboardingRequired = null/);
+  assert.match(embed, /d\.type === "onboarding-required"/);
+  assert.match(nativeClassic, /onOnboardingRequired=\{\(\) => \{ setClassicOpen\(false\);/);
+  assert.match(template, /if\(!canCross\(\)\)\{gate\("cross"\);operationStatus\(operation,"error",[^;]+\);return;\}/);
+  assert.match(template, /if\(!selectSearchScope\(scope,false\)\)\{operationStatus\(operation,"error",[^;]+\);return;\}/);
+  assert.match(template, /run\(false,radius,operation\);   \/\/ run\(\) משתמש ב-runCrossSimple\/logSearch\/gate הקיימים/);
+  assert.match(template, /const canCross=\(\)=>EXPR2029\|\|!isAnon\(\)/);
+  assert.match(template, /const canRegular=\(\)=>EXPR2029\|\|!isAnon\(\)\|\|freeCount\(\)<FREE_DEMO/);
+  assert.match(template, /function tanakhLocked\(\)\{return !EXPR2029&&isAnon\(\);\}/);
+});
+
+test("Native finding editor delegates normalization, recompute and colors to canonical st.words", () => {
+  assert.match(nativeClassic, /findingsRequest=\{findingsRequest\}/);
+  assert.match(nativeClassic, /onFindingsChange=\{requestFindingsChange\}/);
+  assert.match(nativeClassic, /els29-native-system-colors/);
+  assert.doesNotMatch(nativeClassic, /type="color"/);
+  assert.match(nativeClassic, /findings\.length >= 12/);
+  assert.doesNotMatch(nativeClassic, /recomputeWords\(|recolorOnly\(|PALETTE|function\s+norm\(/);
+
+  assert.match(embed, /findingsRequest = null/);
+  assert.match(embed, /postToTool\(\{ type: "update-findings", findings: findingsRequest\.findings, requestId: findingsRequest\.seq \}\)/);
+
+  assert.match(template, /if\(d\.type==="update-findings"&&Array\.isArray\(d\.findings\)\)/);
+  assert.match(template, /if\(next\.length>=12\)break/);
+  assert.match(template, /if\(!t\|\|seen\.has\(t\)\)continue/);
+  assert.match(template, /const word=old\|\|/);
+  assert.match(template, /if\(membershipChanged\)recomputeWords\(\)/);
+  assert.match(css, /\.els29-native-color-picker/);
+});
+
+test("Native matrix controls reuse the canonical Tzofen presentation helpers", () => {
+  assert.match(nativeClassic, /controlRequest=\{controlRequest\}/);
+  assert.match(nativeClassic, /occurrence-prev/);
+  assert.match(nativeClassic, /occurrence-next/);
+  assert.match(nativeClassic, /zoom-out/);
+  assert.match(nativeClassic, /zoom-in/);
+  assert.match(nativeClassic, /fit-toggle/);
+
+  assert.match(embed, /controlRequest = null/);
+  assert.match(embed, /postToTool\(\{ type: "native-control", action: controlRequest\.action, value: controlRequest\.value \}\)/);
+
+  assert.match(template, /function shiftOccurrence\(delta\)/);
+  assert.match(template, /function toggleFit\(\)/);
+  assert.match(template, /function adjustZoom\(delta\)/);
+  assert.match(template, /d\.type==="native-control"/);
+  assert.match(template, /d\.action==="occurrence-prev"\)shiftOccurrence\(-1\)/);
+  assert.match(template, /d\.action==="occurrence-next"\)shiftOccurrence\(1\)/);
+  assert.match(template, /d\.action==="zoom-out"\)adjustZoom\(-0\.2\)/);
+  assert.match(template, /d\.action==="zoom-in"\)adjustZoom\(0\.2\)/);
+  assert.match(template, /d\.action==="fit-toggle"\)toggleFit\(\)/);
+  assert.match(template, /querySelector\("\.pv"\)\.onclick=\(\)=>shiftOccurrence\(-1\)/);
+  assert.match(template, /querySelector\("\.nx"\)\.onclick=\(\)=>shiftOccurrence\(1\)/);
+  assert.match(template, /querySelector\("\.fitbtn"\)\.onclick=toggleFit/);
+});
+
+test("Native letter click uses a bounded read-only canonical source lens", () => {
+  assert.match(nativeClassic, /requestLens\("letter-context", \{ i: index \}\)/);
+  assert.match(nativeClassic, /onSource=\{\(target\) => requestLens\("verse-context", target\)\}/);
+  assert.match(nativeClassic, /lensRequest=\{lensRequest\}/);
+  assert.match(nativeClassic, /onLens=\{handleLens\}/);
+
+  assert.match(template, /async function letterContextLens\(target\)/);
+  assert.match(template, /const b=blockOf\(\),r=Math\.floor\(i\/b\.S\)/);
+  assert.match(template, /i>=scopeN\(\)/);
+  assert.match(template, /await ensureVerseText\(\)/);
+  assert.match(template, /const loc=locateLetter\(i\)/);
+  assert.match(template, /lens:"letter-context"/);
+  assert.match(template, /d\.type==="request-lens"&&d\.lens==="letter-context"/);
+  assert.doesNotMatch(template.slice(template.indexOf("async function letterContextLens"), template.indexOf("const isAnon")), /findAll|verifyBatch|crossFind|els_search/);
+});
+
+test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
+  assert.equal((nativeClassic.match(/aria-label="סרוק לאורך הציר הנבחר"/g) || []).length, 1);
+  assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
+  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 1);
+  assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
+  assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);
+  assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);
+  assert.match(nativeClassic, /selected\.scope === state\?\.scope && selected\.axisHitId === state\?\.axis\?\.hitId && selectedFinding && \(selectedHit \|\| findingPending\)/);
+  assert.match(nativeClassic, /const target = selectionValid \? \{ term: selected\.term, hitId: selected\.hitId, \.\.\.\(selectedHit\?\.kind === "source-sequence" \? \{ kind: "source-sequence" \} : \{\}\) \} : \{ hitId: state\?\.axis\?\.hitId \}/);
+  // Reverification preserves selection identity, while both the main and secondary operations block scanning.
+  assert.match(nativeClassic, /const pending = searchPending \|\| findingPending/);
+  assert.match(nativeClassic, /aria-label="סרוק לאורך הציר הנבחר" disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
+  assert.match(nativeClassic, /chosen && selectedHit && hits\.length > 1/);
+  assert.match(nativeClassic, /const targetReady = verified && !!target\.hitId/);
+  assert.match(nativeClassic, /onScan=\{\(target\) => requestLens\("line-context", \{ \.\.\.target, scan: true \}\)\}/);
+  assert.match(nativeClassic, /lensResult\?\.lens === "line-context" \? "תוצאות סריקת הציר"/);
+  assert.match(nativeClassic, /result\?\.target\?\.nativeSeq !== lensSeqRef\.current/);
+});
+
+test("native search progress follows request-correlated canonical operation acknowledgements", () => {
+  assert.match(nativeClassic, /onOperation=\{handleOperation\}/);
+  assert.match(nativeClassic, /const expected = kind === "search" \? searchSeqRef\.current : findingsSeqRef\.current/);
+  assert.match(nativeClassic, /if \(operation\.requestId !== expected\) return/);
+  assert.match(embed, /if \(d\.type === "operation"\) \{[\s\S]*?onOperation\?\.\(d\);[\s\S]*?return;/);
+  assert.match(template, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status/);
+  assert.match(template, /updateNativeFindingsOperation\(d\.findings,d\.requestId\)/);
+  assert.match(template, /const operation=beginOperation\("search",d\.requestId===undefined\?d\.request\.seq:d\.requestId\)/);
+  assert.match(template, /if\(operation\.terminal\)return;/);
+  assert.match(template, /status==="done"\|\|status==="empty"\|\|status==="error"\|\|status==="cancelled"\)operation\.terminal=true/);
+  assert.match(template, /function invalidateSearchOperation\(\)\{[\s\S]*?stopXfWorkers\(\);\s*operationStatus\(_nativeSearchOperation,"cancelled"\);_nativeSearchOperation=null;clearSearchLoad\(\);/);
+  assert.match(template, /function invalidateFindingsOperation\(\)\{[\s\S]*?cancelEngineCalls\(_nativeFindingsOperation\);\s*operationStatus\(_nativeFindingsOperation,"cancelled"\);\+\+_nativeFindingsSeq;_nativeFindingsOperation=null;/);
+});
+
+test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation", () => {
+  assert.match(nativeClassic, /matrix\?\.rows/);
+  assert.match(nativeClassic, /matrix\?\.marks/);
+  assert.match(nativeClassic, /mark\?\.type === "main"/);
+  assert.match(nativeClassic, /mark\?\.type === "finding"/);
+  assert.match(nativeClassic, /state\?\.verification\?\.state === "MATCH"/);
+  assert.match(nativeClassic, /onPointerDown=\{onPointerDown\}/);
+  assert.match(nativeClassic, /scrollLeft = drag\.left - dx/);
+  assert.match(nativeClassic, /is-fit/);
+  assert.match(css, /\.els29-native-matrix\{[\s\S]*direction:rtl/);
+  assert.match(css, /\.els29-native-matrix-row\{[\s\S]*direction:rtl/);
+  assert.match(css, /\.els29-native-matrix\.is-fit/);
+  assert.match(css, /\.els29-native-matrix-scroll\.is-dragging/);
+  assert.match(css, /\.els29-native-cell\.is-axis/);
+  assert.match(css, /\.els29-native-cell\.is-finding/);
+  assert.match(css, /\.els29-native-cell\.is-selected/);
+});
+
+test("Native empty and candidate states remain truth-safe", () => {
+  assert.match(nativeClassic, /data-els-native-state=\{state\?\.status \|\| "idle"\}/);
+  assert.match(nativeClassic, /נמצא מועמד שעדיין לא אומת/);
+  assert.match(nativeClassic, /אין כרגע מופע מאומת להצגה/);
+  assert.match(nativeClassic, /אין סמכות שלילית/);
+  assert.match(nativeClassic, /MATCH מהמנוע הקנוני/);
+});
+
+test("Native matrix is keyboard-scrollable and exposes an accessible source path", () => {
+  assert.match(nativeClassic, /tabIndex=\{0\}/);
+  assert.match(nativeClassic, /aria-describedby=\{summaryId\}/);
+  assert.match(nativeClassic, /els29-native-sr-only/);
+  assert.match(nativeClassic, /אותיות ציר מסומנות/);
+  assert.match(nativeClassic, /אותיות ממצאים מסומנות/);
+  assert.match(nativeClassic, /מקור הממצא/);
+  assert.match(nativeClassic, /aria-hidden="true"/);
+  assert.match(css, /\.els29-native-matrix-scroll:focus-visible/);
+});
+
+test("Classic engine stays mounted across Classic/Research profile switches so working state can be preserved", () => {
   assert.match(page, /const \[classicSeed\] = useState\(\(\) => clean\(selection\?\.term \|\| subject\?\.label \|\| ""\)\)/);
-  assert.match(page, /display: researchProfile \? "none" : "block"/);
-  assert.match(page, /aria-hidden=\{researchProfile\}/);
-  assert.match(page, /ONE ENGINE/);
-  assert.match(page, /SAME STATE/);
+  assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
+  assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
+  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
+  assert.ok(page.includes('<ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library}'));
+  assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 
-test("canonical tzofen state already feeds the shared Research Context replay selection", () => {
+test("canonical tzofen state still feeds the shared Research Context replay selection", () => {
   assert.match(provider, /d\.source !== "tzofen" \|\| d\.type !== "state" \|\| d\.status !== "ok"/);
   assert.match(provider, /const elsSelection = \{/);
   assert.match(provider, /entityType: "els", locator, term, corpus: scope/);
   assert.match(provider, /actions\.setResearchContext\(next\)/);
 });
 
-console.log("ELS Classic 2029 faithful port: PASS");
+console.log("ELS Native Classic 2029 matrix parity slice: PASS");

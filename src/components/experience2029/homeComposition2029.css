@@ -1,0 +1,145 @@
+/* Approved Home composition inside the System Frame (reference fa0e26f).
+   Colors come only from the frame's --s29-* palette variables; widths follow the content column. */
+.h29 { container-type: inline-size; container-name: h29; display: flex; flex-direction: column; gap: 28px; color: var(--s29-ink); min-width: 0; }
+.h29 *, .h29 *::before, .h29 *::after { box-sizing: border-box; }
+.h29 a { color: inherit; text-decoration: none; }
+.h29-kicker { font: 500 14px var(--s29-font-ui); letter-spacing: .02em; color: var(--s29-discovery); }
+.h29-empty { margin: 0; color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
+.h29-sec { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.h29-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.h29-sec-h h2 { margin: 0; font: 600 18px/1.3 var(--s29-font-ui); }
+.h29-sec-h a { font: 500 14px var(--s29-font-ui); color: var(--s29-accent-text); white-space: nowrap; }
+
+.h29-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border-radius: 999px;
+  border: 1px solid var(--s29-line); background: var(--s29-panel); color: var(--s29-accent-text);
+  font: 500 15px var(--s29-font-ui); cursor: pointer; white-space: nowrap;
+}
+.h29-btn.is-primary { background: var(--s29-accent-btn); border-color: transparent; color: var(--s29-on-accent); }
+.h29-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+.h29-hero {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; padding: 22px 24px;
+  border-radius: 20px; border: 1px solid var(--s29-line); overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--s29-bar-hue, var(--s29-brand-gold)) 10%, transparent), var(--s29-panel) 62%);
+}
+.h29-hero-img { width: 220px; max-width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; }
+.h29-hero-copy { min-width: 0; }
+.h29-hero h1 { margin: 4px 0 8px; font: 600 26px/1.25 var(--s29-font-ui); text-wrap: balance; }
+
+.h29-updates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.h29-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
+.h29-card:hover, .h29-card.is-selected { border-color: var(--s29-line-strong); }
+.h29-card.is-selected { box-shadow: 0 0 0 1px var(--s29-brand-gold); }
+.h29-card-main { display: flex; flex-direction: column; padding: 0; text-align: start; cursor: pointer; border: 0; background: none; color: inherit; font: inherit; min-width: 0; flex: 1; }
+.h29-card-open { padding: 0 12px 12px; font: 500 14px var(--s29-font-ui); color: var(--s29-accent-text); min-height: 44px; display: flex; align-items: center; }
+.h29-media { width: 100%; max-width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; background: var(--s29-panel-soft); }
+.h29-media.is-empty {
+  display: grid; place-items: center; font: 600 26px var(--s29-font-numeric); color: var(--s29-brand-gold);
+  background: linear-gradient(140deg, var(--s29-panel-soft), var(--s29-panel));
+}
+.h29-card-body { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 4px; }
+.h29-card-t { font: 500 15px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-meta { font: 400 13px var(--s29-font-ui); color: var(--s29-muted); }
+.h29-skel { min-height: 200px; border-radius: 14px; background: var(--s29-panel-soft); }
+
+.h29-strips { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.h29-strip { min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); }
+.h29-strip-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
+.h29-tile { flex: 0 0 150px; display: flex; flex-direction: column; gap: 6px; scroll-snap-align: start; }
+.h29-tile .h29-media { aspect-ratio: 1; border-radius: 12px; }
+.h29-tile.is-video .h29-media { aspect-ratio: 16 / 10; }
+.h29-tile span:last-child { font: 500 13px/1.35 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.h29-anchors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.h29-anchor { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
+.h29-anchor > span:last-child { min-width: 0; }
+.h29-anchor b { display: block; font: 600 16px var(--s29-font-ui); }
+.h29-anchor small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 400 13px/1.45 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-glyph { width: 48px; height: 48px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; color: var(--s29-brand-gold); background: var(--s29-panel-soft); border: 1px solid var(--s29-line-strong); }
+.h29-glyph.is-dim { color: var(--s29-warm-accent); }
+.h29-glyph.is-geula { color: var(--s29-brand-gold); background: color-mix(in srgb, var(--s29-brand-gold) 14%, var(--s29-panel-soft)); }
+
+.h29-portions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+.h29-portions > :first-child { grid-column: 1 / -1; margin: 0; }
+.h29-portion { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); }
+.h29-portion-h { display: flex; align-items: center; gap: 8px; font: 600 15px var(--s29-font-ui); }
+.h29-portion-h .sod29-ui-icon { width: 20px; height: 20px; color: var(--s29-accent-text); }
+.h29-portion small { font: 400 13px/1.45 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-daynum { font: 600 28px var(--s29-font-numeric); color: var(--s29-brand-gold); }
+
+.h29-quiet {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: 12px;
+  border: 1px dashed var(--s29-line); color: var(--s29-muted); font: 400 14px var(--s29-font-ui);
+}
+.h29-quiet a { color: var(--s29-accent-text); font-weight: 500; }
+
+/* Reality stream (reference: .hp29-stream in fa0e26f): a restrained block of one-line source rows.
+   Full text opens deliberately (details/summary); the full stream lives in World. */
+.h29-stream { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px 12px; border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel); min-width: 0; }
+.h29-stream .sod29-source-arrivals { margin: 0; }
+.h29-stream .sod29-source-arrivals > header { margin: 0 0 2px; }
+.h29-stream .sod29-source-arrivals > header p, .h29-stream .sod29-source-arrivals > .sod29-actions, .h29-stream .sod29-source-arrivals > header .sod29-kicker,
+.h29-stream .sod29-source-arrivals > p:last-child { display: none; }
+.h29-stream .sod29-source-arrivals h2 { font: 600 18px/1.3 var(--s29-font-ui); margin: 0; }
+.h29-stream .sod29-source-arrival { margin: 0; border: 0; border-top: 1px solid var(--s29-line); border-radius: 0; background: none; }
+.h29-stream .sod29-source-arrival summary, .h29-stream .sod29-source-arrival-link { padding: 0; min-height: 44px; gap: 10px; align-items: center; cursor: pointer; }
+.h29-stream .sod29-source-arrival summary:focus-visible, .h29-stream .sod29-source-arrival-link:focus-visible { outline: 2px solid var(--s29-accent); outline-offset: 2px; border-radius: 8px; }
+.h29-stream .sod29-source-arrival-icon, .h29-stream .sod29-source-arrival-open { display: none; }
+.h29-stream .sod29-source-arrival-copy { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "kind title time"; gap: 4px 10px; align-items: center; font: 400 14px var(--s29-font-ui); width: 100%; }
+.h29-stream .sod29-source-arrival-copy > span:nth-child(3) { display: none; }
+.h29-stream .sod29-source-arrival-copy > .sod29-source-arrival-label { grid-area: kind; font: 500 12px var(--s29-font-ui) !important; padding: 2px 8px; border-radius: 999px; background: var(--s29-panel-soft); color: var(--s29-discovery); white-space: nowrap; }
+.h29-stream .sod29-source-arrival-copy strong { grid-area: title; font: 400 14px var(--s29-font-ui); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.h29-stream .sod29-source-arrival-copy small { grid-area: time; color: var(--s29-muted); font: 400 13px var(--s29-font-numeric); white-space: nowrap; }
+.h29-stream .sod29-source-arrival-update { padding: 0 0 8px; }
+.h29-stream .sod29-source-arrival-body { padding: 4px 0 12px; font-size: 14px; line-height: 1.7; }
+.h29-stream .sod29-source-arrival-body .sod29-source-arrival-label { font: 400 13px/1.6 var(--s29-font-ui); color: var(--s29-muted); margin: 6px 0 0; }
+.h29-stream .sod29-source-arrival-body .sod29-action { min-height: 44px; font-size: 14px; }
+.h29-stream-more { align-self: flex-start; margin-top: 2px; }
+@container h29 (max-width: 620px) {
+  .h29-stream { padding: 10px 12px 12px; }
+  .h29-stream .sod29-source-arrival-copy { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "title title" "kind time"; }
+  .h29-stream .sod29-source-arrival-copy small { white-space: normal; font-size: 12px; line-height: 1.3; text-align: end; min-width: 0; }
+  .h29-stream .sod29-source-arrival summary, .h29-stream .sod29-source-arrival-link { padding: 6px 0; }
+}
+
+/* Notable convergences with their separate ratings */
+.h29-note { margin: -4px 0 0; font: 400 13px/1.5 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-notable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.h29-notable-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
+.h29-notable-card:hover { border-color: var(--s29-line-strong); }
+.h29-notable-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.h29-notable-card .h29-card-t { -webkit-line-clamp: 3; }
+.h29-notable-nums { display: flex; flex-wrap: wrap; gap: 4px; }
+.h29-notable-nums span { font: 600 12px var(--s29-font-numeric); padding: 2px 8px; border-radius: 999px; background: var(--s29-panel-soft); border: 1px solid var(--s29-line); }
+
+@container h29 (max-width: 900px) {
+  .h29-updates, .h29-notable { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .h29-portions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .h29-strips { grid-template-columns: 1fr; }
+}
+@container h29 (max-width: 620px) {
+  .h29 { gap: 22px; }
+  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 16px; }
+  .h29-hero .h29-hero-img { justify-self: center; width: min(100%, 320px); }
+  .h29-hero h1 { font-size: 21px; }
+  .h29-updates, .h29-notable { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+  .h29-updates .h29-card, .h29-notable .h29-notable-card { flex: 0 0 74%; scroll-snap-align: start; }
+  .h29-anchors { grid-template-columns: 1fr; }
+  .h29-portions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* The plane story as one compact card on Home (the full story and its three directions live in World) */
+.h29 .sod29-flight-story { margin: 0; }
+.h29 .sod29-flight-feature { grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 16px; padding: 14px 18px; border-radius: 14px; align-items: center; }
+.h29 .sod29-flight-story h2 { font: 600 18px/1.35 var(--s29-font-ui); letter-spacing: 0; margin: 2px 0 6px; }
+.h29 .sod29-flight-lead { font: 400 14px/1.6 var(--s29-font-ui); margin: 0 0 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29 .sod29-flight-meta { margin-bottom: 8px; font-size: 13px; }
+.h29 .sod29-flight-media img { max-height: 110px; }
+.h29 .sod29-flight-media figcaption { display: none; }
+.h29 .sod29-flight-directions { display: none; }
+.h29 .sod29-flight-time { display: none; }
+@container h29 (max-width: 620px) {
+  .h29 .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+}
+.h29-card-cats { padding: 2px 12px 4px; }

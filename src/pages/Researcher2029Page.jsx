@@ -10,6 +10,7 @@ import {
 } from "../lib/research/researcherCorpusProjection.js";
 import { applySeo } from "../lib/seo.js";
 import "./researcher2029.css";
+import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 
 const OPERATION_LABELS = Object.freeze({
   "single-verification": "שוויון / חישוב",
@@ -22,8 +23,7 @@ const OPERATION_LABELS = Object.freeze({
 });
 
 function dateLabel(value) {
-  if (!value) return null;
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return null; }
+  return bilingualDateLabel(value) || null;
 }
 
 function CorpusRow({ row, onOpenToken }) {
@@ -172,7 +172,7 @@ export default function Researcher2029Page() {
   useEffect(() => {
     applySeo({
       title: "קורפוס חוקר · SOD1820",
-      description: "Admin researcher corpus projection in SOD1820 2029",
+      description: "מקורות וממצאים מתוך קורפוס המחקר ב־SOD1820",
       path: `/researcher/${encodeURIComponent(slug || "")}`,
       noindex: true,
     });
@@ -182,7 +182,7 @@ export default function Researcher2029Page() {
     <Sod2029Shell
       surface="world"
       symbol="⌁"
-      eyebrow="RESEARCHER CORPUS · 2029"
+      eyebrow="מקורות ומחקר"
       title="קורפוס חוקר"
       description="החומר המפוענח של החוקר במקום אחד: חיפוש, סינון ופתיחה ישירה של מילה או מספר — בלי מסלול Legacy באמצע."
       status="מנהל · מחקר"

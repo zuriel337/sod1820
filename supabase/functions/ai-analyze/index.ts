@@ -1962,16 +1962,12 @@ Deno.serve(async (req: Request) => {
       const rBudgetIdentity = rFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
       const rLimitOverride = rFast ? (tier === "anon" ? 30 : tier === "user" ? 200 : null) : null;
       const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride);
-      if (!q.allowed) {
-        return json({ analysis: null, error: "quota", surface: "raziel", intelligence_level: rLevel, tier: q.tier, used: q.used, limit: q.limit,
-          message: rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
-      }
-
       const userRef = rVerifiedRef;  // זיכרון = למשתמש מזוהה בלבד
 
       // 🚧 סגור לבדיקות (closed beta) — רק mode="advanced", רק לשני החשבונות באלוולט. שאר הבקשות
       // (כולל אנונימי) מקבלות תשובת "בבנייה" נעימה בלי לצרוך Claude/מכסה. מסלול-רזיאל הרגיל לא מושפע.
-      if (rMode && !(userRef && RAZIEL_ADVANCED_ALLOWLIST.has(userRef))) {
+      // Keep quota denial ahead of the beta response; allowed gated requests still return before tracing.
+      if (q.allowed && rMode && !(userRef && RAZIEL_ADVANCED_ALLOWLIST.has(userRef))) {
         return json(RAZIEL_ADVANCED_GATED_RESPONSE);
       }
 
@@ -1983,6 +1979,39 @@ Deno.serve(async (req: Request) => {
         ownerRef: "raziel_companion_layer_law + ai_analyze_contract v2",
         subject: rSubject,
       });
+
+      // Reuse the same redacted tool spans on both quota denial and ordinary synthesis.
+      const recordCompletedToolSpans = async () => {
+        if (rToolRes) {
+          const nowMs = Date.now();
+          for (const t of rToolRes.tools) {
+            const okT = t.status === "ok";
+            const endedAt = new Date(nowMs).toISOString();
+            await recordOperationalSpan(activeTrace, {
+              spanId: crypto.randomUUID(), kind: "db_rpc", name: `ai-analyze:raziel:tool:${t.capability}`,
+              startedAt: new Date(nowMs - Math.max(0, Math.round(t.ms ?? 0))).toISOString(), endedAt,
+              outcome: okT ? "success" : "failed_with_reason",
+              detail: {
+                capability: `raziel_tool:${t.capability}`,
+                owner_ref: t.capability === "tanakh_source" ? "raziel_routing_law v2 + corpus_admission_foundation_v1" : "raziel_routing_law v2 + research_strategy_layer_law v17",
+                routing_reason: "raziel_plan_multi_domain_tool_research", semantic_level: RAZIEL_TOOL_LEVEL,
+                output_use: okT ? (q.allowed ? "used" : "rejected") : "not_applicable",
+                stop_reason: okT ? (q.allowed ? null : "quota") : (t.error || t.status),
+                resources: { latency_ms: t.ms, api_calls: 1 },
+                replay: { ownerRuleRefs: ["raziel_routing_law v2"], parametersRef: `rpc:fn_raziel_protocol;intent:${t.capability};read_only:true` },
+                privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+              },
+            });
+          }
+        }
+      };
+
+      if (!q.allowed) {
+        await recordCompletedToolSpans();
+        await finishOperationalTrace(activeTrace, "failed_with_reason", "quota");
+        return json({ analysis: null, error: "quota", surface: "raziel", intelligence_level: rLevel, trace_id: activeTrace?.traceId || null, tier: q.tier, used: q.used, limit: q.limit,
+          message: rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
+      }
 
       // Phase C — operator READ (admin only). L0 questions answer straight from the owner projection (no model, no tokens);
       // broad questions get a bounded owner pack for the existing L2_FAST synthesis. Any failure → no admin data, ordinary synthesis.
@@ -2032,28 +2061,8 @@ Deno.serve(async (req: Request) => {
       }
 
       // Phase E — one operational db_rpc/tool span per deterministic protocol (already executed in fn_raziel_answer; no re-run here).
-      //    output_used + failures preserved per tool; a partial result is explicit, never filled in.
-      if (rToolRes) {
-        const nowMs = Date.now();
-        for (const t of rToolRes.tools) {
-          const okT = t.status === "ok";
-          const endedAt = new Date(nowMs).toISOString();
-          await recordOperationalSpan(activeTrace, {
-            spanId: crypto.randomUUID(), kind: "db_rpc", name: `ai-analyze:raziel:tool:${t.capability}`,
-            startedAt: new Date(nowMs - Math.max(0, Math.round(t.ms ?? 0))).toISOString(), endedAt,
-            outcome: okT ? "success" : "failed_with_reason",
-            detail: {
-              capability: `raziel_tool:${t.capability}`,
-              owner_ref: t.capability === "tanakh_source" ? "raziel_routing_law v2 + corpus_admission_foundation_v1" : "raziel_routing_law v2 + research_strategy_layer_law v17",
-              routing_reason: "raziel_plan_multi_domain_tool_research", semantic_level: RAZIEL_TOOL_LEVEL,
-              output_use: okT ? "used" : "not_applicable", stop_reason: okT ? null : (t.error || t.status),
-              resources: { latency_ms: t.ms, api_calls: 1 },
-              replay: { ownerRuleRefs: ["raziel_routing_law v2"], parametersRef: `rpc:fn_raziel_protocol;intent:${t.capability};read_only:true` },
-              privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
-            },
-          });
-        }
-      }
+      //    output use + failures preserved per tool; a partial result is explicit, never filled in.
+      await recordCompletedToolSpans();
 
       // Phase H — reality_number_context. Anchor comes from the plan (explicit / verified gematria dependency) or the bounded surface root; no anchor ⇒ no tool.
       //    L0 (listing/counts) answers straight from the owner projections (no model, no tokens); synthesis gets a bounded pack. Failure ⇒ ordinary synthesis, no claims.

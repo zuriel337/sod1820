@@ -19,7 +19,7 @@
 .sod29-calc2029-trace span,
 .sod29-calc2029-next > span {
   color: var(--s29-muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .05em;
 }
@@ -80,7 +80,7 @@
   border-radius: 999px;
   border: 1px solid var(--s29-line);
   color: var(--s29-muted);
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .sod29-calc2029-empty,
@@ -103,7 +103,7 @@
   justify-content: flex-start;
   padding-inline: 4px;
   color: var(--s29-muted);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
@@ -211,7 +211,7 @@
 
 .sod29-calc2029-grid button span,
 .sod29-calc2029-all button span {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--s29-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -226,7 +226,7 @@
 
 .sod29-calc2029-grid button small,
 .sod29-calc2029-all button small {
-  font-size: 10px;
+  font-size: 14px;
   color: var(--s29-muted);
 }
 
@@ -274,7 +274,7 @@
   text-decoration: none;
   cursor: pointer;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 750;
 }
 
@@ -314,7 +314,7 @@
   color: var(--s29-ink);
   background: var(--s29-panel);
   letter-spacing: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .sod29-calc2029-next {
@@ -389,7 +389,7 @@
 .sod29-calc-compare-relation > span,
 .sod29-calc-derived span {
   color: var(--s29-muted);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .05em;
 }
@@ -428,7 +428,7 @@
 .sod29-calc-compare-grid article > label,
 .sod29-calc-compare-grid article > small {
   color: var(--s29-muted);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .sod29-calc-compare-grid input,
@@ -474,7 +474,7 @@
 .sod29-calc-compare-relation em {
   font-style: normal;
   color: var(--s29-muted);
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .sod29-calc-derived {
@@ -488,7 +488,7 @@
 
 .sod29-calc-compare > footer {
   color: var(--s29-muted);
-  font-size: 11px;
+  font-size: 14px;
   border-top: 1px solid var(--s29-line);
   padding-top: 10px;
 }
@@ -532,7 +532,7 @@
 .sod29-calc2029-shared > span,
 .sod29-calc2029-share span {
   color: var(--s29-muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .04em;
 }
@@ -597,4 +597,49 @@
     width: 100%;
     justify-self: stretch;
   }
+}
+
+.sod29-calc2029-handoff,
+.sod29-calc2029-notice {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--s29-line-strong);
+  border-radius: 16px;
+  background: var(--s29-panel-soft);
+  color: var(--s29-muted);
+  font-size: 14px;
+  line-height: 1.7;
+  display: grid;
+  gap: 6px;
+}
+
+.sod29-calc2029-handoff p {
+  margin: 0;
+}
+
+.sod29-calc2029-handoff a {
+  color: var(--s29-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sod29-calc2029-actions .is-pro {
+  border-color: var(--s29-accent);
+  background: color-mix(in srgb, var(--s29-accent) 10%, var(--s29-panel));
+  display: inline-flex;
+  align-items: center;
+}
+
+.sod29-calc2029-actions.is-more {
+  padding-top: 4px;
+}
+
+.sod29-calc2029-handoff a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sod29-calc2029-share > :last-child {
+  flex-wrap: wrap !important;
 }

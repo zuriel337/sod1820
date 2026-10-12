@@ -1,0 +1,48 @@
+{
+  "head": "23990dd0d9cae3dd9b35c6b1070f5af4626167ce",
+  "base": "http://127.0.0.1:4178",
+  "at": "2026-10-11T00:54:28.664Z",
+  "cases": [
+    {
+      "width": 1440,
+      "theme": "dark",
+      "rawSourceHomeWorldReturn": true,
+      "homeWorldPost": true,
+      "sourceIdentity": "storage-object:https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+      "originalImage": true,
+      "publicSources": true,
+      "explicitJourney": true,
+      "returnHref": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "actualReturn": "http://127.0.0.1:4178/2029",
+      "journeySurvivesReload": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "rawSourceHomeWorldReturn": true,
+      "homeWorldPost": true,
+      "sourceIdentity": "storage-object:https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+      "originalImage": true,
+      "publicSources": true,
+      "explicitJourney": true,
+      "returnHref": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "actualReturn": "http://127.0.0.1:4178/2029",
+      "journeySurvivesReload": true
+    }
+  ],
+  "errors": [],
+  "ownerGaps": [
+    {
+      "width": 1440,
+      "owner": "Posts",
+      "gap": "Post mount resets the returned flight-1073 selection",
+      "actualLocator": "#source-region-visual-363"
+    },
+    {
+      "width": 390,
+      "owner": "Posts",
+      "gap": "Post mount resets the returned flight-1073 selection",
+      "actualLocator": "#source-region-visual-363"
+    }
+  ]
+}

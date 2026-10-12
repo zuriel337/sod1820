@@ -12,6 +12,7 @@ import { canonicalResearchSourceRef, researchSourceOccurrenceKey, sourceOccurren
 import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
 import { fetchScriptureDiscoveryForFindings } from "./scriptureDiscoveryProjection.js";
 import { fetchScriptureTermDiscoveryForFindings } from "./scriptureTermDiscoveryProjection.js";
+import { buildTopicSourceContext, buildGallerySourceContext, INDIA_CAPTAIN_SOURCE, isPublicSourceImage, TOPIC_SOURCE_LIMIT, TOPIC_OCCURRENCE_LIMIT } from "./topicSourceContext.js";
 
 const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
@@ -21,6 +22,7 @@ const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
+const TOPIC_MEDIA_FIELDS = `${WORLD_MEDIA_FIELDS},min_tier,wp_image_id`;
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
 // Public read model for Topic/Convergence (TOPIC_CARDS_PUBLIC_READ_MODEL_PRIVACY_FIX_V1): approved rows only,
@@ -353,7 +355,7 @@ async function fetchTopicFindingsForTerm(term, { limit = 12 } = {}) {
   return topicRowsToFindings(Array.isArray(data) ? data : []);
 }
 
-async function fetchMethodRegistry(methodKeys = []) {
+export async function fetchMethodRegistry(methodKeys = []) {
   const keys = [...new Set((methodKeys || []).map(clean).filter(Boolean))];
   if (!keys.length) return [];
   const { data, error } = await supabase
@@ -634,7 +636,7 @@ function mediaRelationPriority(type) {
 }
 
 async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
-  const cap = safeLimit(limit, 8, 16);
+  const cap = safeLimit(limit, 8, 40);
   const candidates = new Map();
 
   for (const finding of relationFindings || []) {
@@ -683,9 +685,10 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   try {
     const { data, error } = await supabase
       .from("gallery_images")
-      .select(WORLD_MEDIA_FIELDS)
+      .select(`${WORLD_MEDIA_FIELDS},min_tier`)
       .in("id", galleryIds)
       .eq("published", 1)
+      .eq("min_tier", 0)
       .or("curator_hidden.is.null,curator_hidden.eq.false");
     if (error) throw error;
     galleryRows = Array.isArray(data) ? data : [];
@@ -702,7 +705,7 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
     const row = galleryId ? galleryById.get(galleryId) : null;
     // Defense in depth: public media remains published + non-hidden even if a future reader
     // changes the server-side query. Representation availability never broadens publication.
-    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
+    if (!row?.image_url || row.published !== 1 || row.min_tier !== 0 || row.curator_hidden === true) return [];
     const relationType = candidates.get(String(node.id))?.relationType || "related";
     const envelope = buildMediaEnvelope({
       row,
@@ -801,9 +804,10 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
   try {
     const { data, error } = await supabase
       .from("gallery_images")
-      .select(WORLD_MEDIA_FIELDS)
+      .select(`${WORLD_MEDIA_FIELDS},min_tier`)
       .in("ocr_meta->>post_slug", variants)
       .eq("published", 1)
+      .eq("min_tier", 0)
       .or("curator_hidden.is.null,curator_hidden.eq.false")
       .limit(cap);
     if (error) throw error;
@@ -815,7 +819,7 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
     throw error;
   }
   const metaItems = rows.flatMap((row) => {
-    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
+    if (!row?.image_url || row.published !== 1 || row.min_tier !== 0 || row.curator_hidden === true) return [];
     if (normalizeMediaPostSlug(row?.ocr_meta?.post_slug) !== slug) return [];
     const envelope = buildMediaEnvelope({
       row,
@@ -833,6 +837,89 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
     access: graphAccess.available === false ? graphAccess : { available: true, reason: null },
     note: "source_metadata context relation (ocr_meta.post_slug) is distinct from reality_graph adjacency; no edge/node is created. Order is contextual only.",
   };
+}
+
+// Existing public Topic memberships, then exact-object historical appearances. All reads are
+// bounded; numeric similarity never seeds a query. Gallery SELECT RLS does not filter hidden,
+// unpublished or entitled rows, so this reader applies AND rechecks all three public gates.
+export async function fetchTopicSourceContext({ topicSlug, client = supabase } = {}) {
+  const slug = normalizeMediaPostSlug(topicSlug);
+  if (!slug) return null;
+  const { data: topic, error: topicError } = await client.from(TOPIC_SOURCE)
+    .select("id,slug,title,status,node_id,image_ids").eq("slug", slug).eq("status", "approved").maybeSingle();
+  if (topicError) throw topicError;
+  if (!topic || topic.status !== "approved" || topic.slug !== slug) return null;
+
+  const ids = [...new Set(Array.isArray(topic.image_ids) ? topic.image_ids.slice(0, TOPIC_SOURCE_LIMIT) : [])];
+  const publicImages = (query) => query.eq("published", 1).eq("min_tier", 0)
+    .or("curator_hidden.is.null,curator_hidden.eq.false");
+  const { data: selectedRows, error: imageError } = ids.length
+    ? await publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS).in("id", ids)).limit(TOPIC_SOURCE_LIMIT)
+    : { data: [] };
+  if (imageError) throw imageError;
+  const images = (selectedRows || []).filter(isPublicSourceImage);
+  const urls = [...new Set(images.map((row) => row.image_url))];
+  const [appearances, postResult] = await Promise.all([
+    urls.length
+      ? publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
+        .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
+      : Promise.resolve({ data: [], count: 0 }),
+    slug === INDIA_CAPTAIN_SOURCE.topicSlug
+      ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
+        .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  if (appearances.error) throw appearances.error;
+  const occurrences = (appearances.data || []).filter(isPublicSourceImage);
+  const galleryIds = [...new Set([...images, ...occurrences].map((row) => row.gallery_id).filter(Boolean))];
+  const occurrenceIds = [...new Set([...images, ...occurrences].map((row) => row.id))];
+  const [galleryResult, relatedResult] = await Promise.all([galleryIds.length
+    ? client.from("galleries").select("id,wp_gallery_id,name").in("id", galleryIds).limit(TOPIC_OCCURRENCE_LIMIT + TOPIC_SOURCE_LIMIT)
+    : Promise.resolve({ data: [] }), occurrenceIds.length
+    ? client.from(TOPIC_SOURCE).select("id,slug,title,status,node_id,image_ids", { count: "exact" })
+      .eq("status", "approved").overlaps("image_ids", occurrenceIds).order("slug").limit(24)
+    : Promise.resolve({ data: [], count: 0 })]);
+  if (galleryResult.error) throw galleryResult.error;
+  const projection = buildTopicSourceContext({
+    topic, images, occurrences, galleries: galleryResult.data || [], post: postResult.error ? null : postResult.data,
+    relatedTopics: relatedResult.error ? [] : relatedResult.data || [],
+    occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT,
+  });
+  if (projection && postResult.error) projection.coverage.captain = "source_read_failed";
+  if (projection) {
+    projection.coverage.relatedTopics = relatedResult.error ? "unavailable" : "public_shared_sources";
+    projection.coverage.relatedTopicsTruncated = relatedResult.count > 24;
+  }
+  return projection;
+}
+
+// Exact-source public read, bounded before querying. No OCR/numeric search, admission or tagging.
+export async function fetchGallerySourceContext({ imageIds = [], client = supabase } = {}) {
+  const ids = [...new Set(imageIds.filter((id) => /^[a-f0-9-]{36}$/i.test(id)))].slice(0, 12);
+  if (!ids.length) return { items: [], occurrencesTruncated: false };
+  const admitted = (query) => query.eq("published", 1).eq("min_tier", 0).or("curator_hidden.is.null,curator_hidden.eq.false");
+  const selected = await admitted(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS).in("id", ids)).limit(12);
+  if (selected.error) throw selected.error;
+  const images = (selected.data || []).filter(isPublicSourceImage);
+  const urls = [...new Set(images.map((row) => row.image_url))];
+  const appearances = urls.length ? await admitted(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
+    .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT) : { data: [], count: 0 };
+  if (appearances.error) throw appearances.error;
+  const occurrences = (appearances.data || []).filter(isPublicSourceImage);
+  const galleryIds = [...new Set([...images, ...occurrences].map((row) => row.gallery_id).filter(Boolean))];
+  const galleries = galleryIds.length ? await client.from("galleries").select("id,wp_gallery_id,name").in("id", galleryIds).limit(TOPIC_OCCURRENCE_LIMIT) : { data: [] };
+  if (galleries.error) throw galleries.error;
+  return { items: buildGallerySourceContext({ images, occurrences, galleries: galleries.data || [] }),
+    occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT };
+}
+
+export async function fetchPublicWorldPostSource({ postId, client = supabase } = {}) {
+  if (!Number.isSafeInteger(postId)) return null;
+  const result = await client.from("posts").select("id,slug,title,content,tags,source,home_hidden,author,authors,date,modified")
+    .eq("id", postId).maybeSingle();
+  if (result.error) throw result.error;
+  const { postRowToWorldUpdate } = await import("./worldDiscoveryStream.js");
+  return postRowToWorldUpdate(result.data) ? result.data : null;
 }
 
 function humanGateSummary(rows) {
@@ -967,22 +1054,26 @@ export async function fetchEntityHubProjection({
   numberResearchLenses = null,
   numberLookupLimit = 500,
   includeMedia = true,
+  mediaLimit = 8,
   includeScriptureDiscovery = true,
   includeScriptureTermDiscovery = true,
+  topicSourceSlug = null,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
 
-  const [definition, graphFindings, research] = await Promise.all([
+  const [definition, graphFindings, research, topicSources] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
     fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
     fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
+    topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
+      .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
   ]);
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
   const media = includeMedia
-    ? await fetchWorldMediaProjection(relationFindings, { limit: 8 })
+    ? await fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
     : { items: [], access: { available: true, reason: "deferred_by_projection_profile" } };
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
@@ -1088,6 +1179,8 @@ export async function fetchEntityHubProjection({
       relations: relationFindings,
     },
     media,
+    // Opt-in Topic composition only; Number/Posts/World retain their existing query profile.
+    sourceContext: topicSources?.topicNodeId && topicSources.topicNodeId !== String(node.id) ? null : topicSources,
     research: {
       rows: research.rows,
       findings: research.findings,

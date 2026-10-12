@@ -1,0 +1,386 @@
+{
+  "task_key": "SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1",
+  "status": "PREPARED_POST_APPLY_REPLAYS_NOT_RUN",
+  "baseline_file": "G1_ROUTING_LIVE_BASELINE_20261009.json",
+  "candidate_file": "G1_ROUTING_RULE_SUCCESSORS_20261009.json",
+  "fixture_only": true,
+  "not_runtime_router": true,
+  "grant_scope": {
+    "read_only_checks": true,
+    "isolated_branch_preparation": true,
+    "live_rule_write": false,
+    "publication": false,
+    "canonicalization": false,
+    "merge": false,
+    "production_deploy": false
+  },
+  "post_apply_preconditions": {
+    "independent_main_review": true,
+    "human_gate_live_apply": true,
+    "live_rule_versions": {
+      "live_state_resolution_law": 3,
+      "experience_governance_foundation_v1_law": 9
+    },
+    "code_pointer_release": true,
+    "sole_writer_rechecked": true
+  },
+  "cases": [
+    {
+      "id": "world_ux",
+      "task_profile": "ui_experience_work",
+      "prompt": "הכן הצעת UX ל־World ב־2029 סביב עוגן קיים, ושמור זהות, מקור והקשר חזרה. זהה את בעל האחריות, החוקים הפעילים, התלויות הישירות וההרשאות לפני פעולה. אין לכתוב קוד או לשנות נתונים במשימת כניסה זו.",
+      "primary_owner": "experience_governance_foundation_v1_law",
+      "index_responsibility": "Experience lifecycle / projection / zero legacy-UI inheritance",
+      "semantic_owners": [
+        "experience_governance_foundation_v1_law",
+        "reality_graph_law"
+      ],
+      "required_rules": [
+        "inter_agent_coordination_law",
+        "live_state_resolution_law",
+        "work_log_authority_law",
+        "experience_governance_foundation_v1_law",
+        "reality_graph_law",
+        "canonical_ui_components_law",
+        "sod1820_canonical_identity_law",
+        "truth_axes_foundation_law"
+      ],
+      "required_artifacts": [
+        "SOD1820_DESIGN_CONTRACT_V2.md",
+        "docs/sod1820-system-frame-contract-v1.md"
+      ],
+      "direct_dependencies_of": [
+        "experience_governance_foundation_v1_law",
+        "canonical_ui_components_law"
+      ],
+      "conditional_reads": [
+        "Research Context/Workspace for return/navigation semantics; actual routed addendum if frame navigation changes.",
+        "Only direct dependency bodies that can change the proposed UX; do not recursively traverse their whole dependency trees.",
+        "Production browser only if claiming present UI behavior; this prompt asks for a proposal."
+      ],
+      "required_permissions": {
+        "read": "authorized bounded main/DB/work_log reads",
+        "branch_write": "explicit scope + verified sole writer if later implementing",
+        "db_write": "not authorized by this entry",
+        "publish": "Human Gate; not authorized",
+        "release": "separate approved release gate; not authorized"
+      },
+      "baseline_versions": {
+        "inter_agent_coordination_law": 13,
+        "live_state_resolution_law": 2,
+        "work_log_authority_law": 2,
+        "experience_governance_foundation_v1_law": 8,
+        "reality_graph_law": 8,
+        "canonical_ui_components_law": 7,
+        "sod1820_canonical_identity_law": 5,
+        "truth_axes_foundation_law": 3
+      },
+      "declared_direct_dependencies": {
+        "experience_governance_foundation_v1_law": [
+          "sod1820_canonical_identity_law",
+          "raziel_voice_law",
+          "post_system_voice_law",
+          "content_translation_law",
+          "research_gold_hints_law",
+          "reality_graph_law",
+          "truth_axes_foundation_law"
+        ],
+        "canonical_ui_components_law": [
+          "canonical_colors_law",
+          "content_translation_law",
+          "site_flags_lock_law",
+          "system_suggestions_law"
+        ]
+      }
+    },
+    {
+      "id": "post_visual",
+      "task_profile": "post_visual",
+      "prompt": "הכן טיוטת פוסט ותמונה לסיפור סביב מקור קיים, תוך שמירת קרדיט, זהות מותג והפרדה בין מקור, חישוב ופרשנות. זהה בעלי אחריות, גרסאות, תלויות והרשאות. אין לפרסם או לשמור במערכת במשימת כניסה זו.",
+      "primary_owner": "project_codex.publishing_conventions",
+      "index_responsibility": "publishing conventions / Post identity",
+      "semantic_owners": [
+        "project_codex.publishing_conventions",
+        "experience_governance_foundation_v1_law"
+      ],
+      "required_rules": [
+        "inter_agent_coordination_law",
+        "live_state_resolution_law",
+        "work_log_authority_law",
+        "experience_governance_foundation_v1_law",
+        "post_system_voice_law",
+        "truth_axes_foundation_law",
+        "sod1820_canonical_identity_law",
+        "logo_integrity_law",
+        "content_translation_law"
+      ],
+      "required_artifacts": [
+        "SOD1820_DESIGN_CONTRACT_V2.md",
+        "SOD1820_CONTENT_FOUNDATION_CONTRACT.md"
+      ],
+      "direct_dependencies_of": [
+        "experience_governance_foundation_v1_law",
+        "sod1820_canonical_identity_law",
+        "logo_integrity_law"
+      ],
+      "conditional_reads": [
+        "legacy_content_protocol only for a concrete legacy WordPress/gallery maintenance action; not default.",
+        "Existing categories/tags/source owners only if choosing taxonomy or publishing.",
+        "Gematria engine/registry only if draft contains a numerical claim requiring verification."
+      ],
+      "required_permissions": {
+        "read": "bounded source/content/brand owner reads",
+        "branch_write": "draft artifact scope only; no product save inferred",
+        "db_write": "schema-before-write + scoped owner authorization required for future save",
+        "publish": "ZURIEL Human Gate; not authorized",
+        "release": "separate code-release gate; not authorized"
+      },
+      "baseline_versions": {
+        "inter_agent_coordination_law": 13,
+        "live_state_resolution_law": 2,
+        "work_log_authority_law": 2,
+        "experience_governance_foundation_v1_law": 8,
+        "post_system_voice_law": 1,
+        "truth_axes_foundation_law": 3,
+        "sod1820_canonical_identity_law": 5,
+        "logo_integrity_law": 3,
+        "content_translation_law": 4
+      },
+      "declared_direct_dependencies": {
+        "experience_governance_foundation_v1_law": [
+          "sod1820_canonical_identity_law",
+          "raziel_voice_law",
+          "post_system_voice_law",
+          "content_translation_law",
+          "research_gold_hints_law",
+          "reality_graph_law",
+          "truth_axes_foundation_law"
+        ],
+        "sod1820_canonical_identity_law": [
+          "canonical_colors_law",
+          "SOD1820_DESIGN_CONTRACT_V1.md",
+          "experience_governance_foundation_v1_law",
+          "raziel_voice_law",
+          "content_translation_law"
+        ],
+        "logo_integrity_law": [
+          "sod1820_canonical_identity_law",
+          "brand_spelling_law",
+          "canonical_colors_law"
+        ]
+      }
+    },
+    {
+      "id": "gematria_research",
+      "task_profile": "gematria_research",
+      "prompt": "בדוק איך לחקור את הביטוי משיח בשיטת רגיל באמצעות המנוע הקנוני. הבחן בין חישוב, טענת מקור ופרשנות; זהה שיטה, גרסה, תלויות והרשאות. אין לשמור ממצא או לפרסם במשימת כניסה זו.",
+      "primary_owner": "project_codex.gematria_engine",
+      "index_responsibility": "deterministic Gematria execution/verification routing",
+      "semantic_owners": [
+        "project_codex.gematria_engine",
+        "gematria_engine_law",
+        "canonical_methods_registry_law"
+      ],
+      "required_rules": [
+        "inter_agent_coordination_law",
+        "live_state_resolution_law",
+        "work_log_authority_law",
+        "gematria_engine_law",
+        "canonical_methods_registry_law",
+        "truth_axes_foundation_law",
+        "research_intake_foundation_contract_law",
+        "research_strategy_layer_law"
+      ],
+      "required_artifacts": [
+        "public.gematria_methods",
+        "registered fn_method_profile / fn_method_value / fn_ragil execution paths"
+      ],
+      "direct_dependencies_of": [
+        "gematria_engine_law"
+      ],
+      "conditional_reads": [
+        "Method Lifecycle/Engine Governance only if method eligibility or method changes matter.",
+        "numeric_rule_family_index and its active operators only for numeric fanout/derived research, not direct regular calculation.",
+        "No Design/Experience/publishing owner for this calculation-only task."
+      ],
+      "required_permissions": {
+        "read": "authorized registry/source reads",
+        "execute": "live registered active deterministic method + required_entitlement public; canonical engine permitted computation only",
+        "db_write": "no research save/method mutation without schema/claim/Human Gate as required",
+        "publish": "not authorized by calculation",
+        "release": "not authorized"
+      },
+      "baseline_versions": {
+        "inter_agent_coordination_law": 13,
+        "live_state_resolution_law": 2,
+        "work_log_authority_law": 2,
+        "gematria_engine_law": 2,
+        "canonical_methods_registry_law": 6,
+        "truth_axes_foundation_law": 3,
+        "research_intake_foundation_contract_law": 13,
+        "research_strategy_layer_law": 17
+      },
+      "declared_direct_dependencies": {
+        "gematria_engine_law": [
+          "canonical_methods_registry_law",
+          "truth_axes_foundation_law",
+          "research_intake_foundation_contract_law",
+          "research_strategy_layer_law"
+        ]
+      }
+    },
+    {
+      "id": "release_gate",
+      "task_profile": "release_gate",
+      "prompt": "בדוק אם אפשר לשחרר מועמד ענף קיים. זהה בעל אחריות, חוקים פעילים, תלויות ישירות, מצב בדיקות וההרשאות החסרות. אין למזג, להחיל חוקים או לפרוס במשימת כניסה זו.",
+      "primary_owner": "foundation_closure_protocol_law",
+      "index_responsibility": "Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction",
+      "semantic_owners": [
+        "foundation_closure_protocol_law",
+        "deploy_on_request",
+        "inter_agent_coordination_law"
+      ],
+      "required_rules": [
+        "inter_agent_coordination_law",
+        "live_state_resolution_law",
+        "work_log_authority_law",
+        "foundation_closure_protocol_law",
+        "deploy_on_request"
+      ],
+      "required_artifacts": [
+        "current origin/main and exact candidate head/PR evidence",
+        "scoped work_log_current release hold and reviewer AFTER"
+      ],
+      "direct_dependencies_of": [
+        "foundation_closure_protocol_law",
+        "deploy_on_request",
+        "inter_agent_coordination_law"
+      ],
+      "conditional_reads": [
+        "Only affected domain acceptance/security/dependency owners; P0 execution remains with its existing owner.",
+        "mobile_acceptance_law and browser evidence only for affected user-facing implementation.",
+        "Do not bulk-read all system rules or reopen general audit."
+      ],
+      "required_permissions": {
+        "read": "read-only release evidence checks",
+        "db_write": "separate reviewed and explicitly approved live-owner apply scope",
+        "publish": "not granted by release assessment",
+        "release": "explicit current scope authorization; user hold overrides standing auto-release",
+        "merge": "not authorized",
+        "production_deploy": "not authorized"
+      },
+      "baseline_versions": {
+        "inter_agent_coordination_law": 13,
+        "live_state_resolution_law": 2,
+        "work_log_authority_law": 2,
+        "foundation_closure_protocol_law": 7,
+        "deploy_on_request": 3
+      },
+      "declared_direct_dependencies": {
+        "foundation_closure_protocol_law": [],
+        "deploy_on_request": [],
+        "inter_agent_coordination_law": [
+          "live_state_resolution_law"
+        ]
+      }
+    }
+  ],
+  "fresh_sessions": [
+    {
+      "actor": "GPT",
+      "case_id": "world_ux",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "GPT",
+      "case_id": "post_visual",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "GPT",
+      "case_id": "gematria_research",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "GPT",
+      "case_id": "release_gate",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "CLAUDE",
+      "case_id": "world_ux",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "CLAUDE",
+      "case_id": "post_visual",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "CLAUDE",
+      "case_id": "gematria_research",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    },
+    {
+      "actor": "CLAUDE",
+      "case_id": "release_gate",
+      "status": "NOT_RUN_WAITING_AUTHORIZED_LIVE_APPLY",
+      "session_id": null,
+      "read_trace": null,
+      "live_versions": null,
+      "authorization_resolution": null,
+      "drift_report": null,
+      "after_work_log_id": null
+    }
+  ],
+  "evidence_requirements": [
+    "Eight independent cold sessions with only their natural-language prompt and standard project entry surface; do not supply this expected-route fixture as hints.",
+    "Actual tool read trace with exact path/slug/rule_id and active version, source SHA/time and reason each read is necessary; unrelated bulk scans fail.",
+    "Describe declared depends_on separately from dependency bodies actually needed/read, with reason for any expansion. Index/codex has no synthetic rule version.",
+    "Confirm actor/PRIMARY/BUILDER/REVIEWER/ACCEPTANCE, assignment/write conflict and permission boundary without performing product actions.",
+    "Use actual current authorized successor versions after application; stop on drift, competing writer or missing capability. Do not assume v3/v9 become active from this packet.",
+    "Record observed owners, read list, grants/denials and drift in existing work_log with verified receipts. Static fixture results are not fresh-agent acceptance."
+  ]
+}

@@ -152,6 +152,15 @@ The bottom surface is **context/path/action**, not the permanent product menu.
 - The bottom trail may collapse on desktop or become the preferred Command Island/path projection on mobile.
 - It must never silently become a second global navigation system.
 
+#### 3.5.3 Living sources, One Companion and contextual Projector · ZURIEL Human Gate 12.10.2026
+
+- This is a **projection assignment inside the existing System Frame**, not another Context/Attention/Projector owner: right navigation remains the unique Global Navigation; the existing desktop **left Companion** has two recoverable modes, **עדכונים | הקשר**, over one authorized World/Source reader and one contextual Inspector. Home favors Updates; selecting a meaningful source may focus Context; manual user choice remains recoverable.
+- The Golden Projector belongs **inside the Contextual Inspector** as optional depth over a currently selected source. Preserve the existing admin-only pilot and RLS; the "ציבור" compare mode is not permission to expose the admin research universe. Shared public source/media, verified calculation and candidate Finding are not interchangeable types.
+- **One bottom Command Island** continues to own Path, actions, Now and Raziel. If real Post/Topic sections and current section are present, a compact page-progress cue may consume its existing context-trail slot and open the same Context sheet. No second fixed progress bar or invented timestamp, percentage, claim or section.
+- Desktop left Updates and mobile Now sheet consume the **same governed source-arrival projection and seen identity**; no duplicate watcher, store or news-truth ranking. A living authored section's update is only shown when a source-native locator **and** the meaningful approved revision/version are available. The section itself remains in its original authored position; compact opening update line jumps to exact locus, with bounded disclosure/history.
+- Acceptance is interaction-based: 320/390/980/1100/1440, all Day/Parchment/Night presets, ≥44px hit targets, keyboard/focus, reduced-motion, overlapping mobile cues/dock, accurate source attribution, anonymous/admin RLS and exact return/reload.
+
+**Design authority and G4 gate:** SOD1820_DESIGN_CONTRACT_V2.md §§8.1, 11.8; source/fragment ownership stays with Publishing, Research Intake and Reality Graph; not a new Golden, storage, route owner or production acceptance. PR #1044 is shared rail branch-only, PR #1039 is compact Post branch-only and source-fragment propagation is still pending.
 
 ### 3.6 My Workspace
 

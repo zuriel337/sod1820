@@ -21,6 +21,8 @@ For every substantive task:
 
 Default read budget: **L1**. Escalate to L2/L3 only when cross-domain, WRITE, security, release or architecture work requires it.
 
+**Active-rule selection:** for live rule authority use `nodes.type='rule' AND nodes.is_active=true` (plus the latest active version per rule family). The legacy `rules_active` view selects the latest version without filtering `is_active`; it is **not** proof that a historical rule remains active. In particular, inactive `agent_onboarding_law v1` is provenance, not a parallel project-entry authority: route agent entry through the current `inter_agent_coordination_law`. Retain the separate live-schema-before-DB-WRITE requirement.
+
 ## 2. Owner creation gate
 
 Before creating a new Law / Contract / System / Store / Engine / Registry / Graph / Context system / global owner:
@@ -51,9 +53,11 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v13 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v16 ACTIVE** |
 
-**G3 runtime state:** `inter_agent_coordination_law v13` owns the LIVE event-driven GPT↔CLAUDE assignment/claim/lease/result transport over `work_log`. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
+**G3 runtime state:** `inter_agent_coordination_law v16` owns the LIVE event-driven assignment/claim/lease/result transport over `work_log`. Since v14 (11.10.2026) dispatch is one-directional: GPT dispatches CLAUDE; CLAUDE closes with an AFTER that GPT discovers on its next scan, without RESULT_WAKE. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
+
+**Writer lanes (v16 §§89–96):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
@@ -88,6 +92,7 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 | Human curation Gold/Signature/Anchor family | `golden_entity_law` under Truth Axes |
 | signal vs curation boundary | `signal_vs_curation` under Truth Axes |
 | manual verification seal | `verify_seal_manual_only` under Truth Axes |
+| display of record times: relative "לפני X" only on Home and World; everywhere else Hebrew + Gregorian date together (enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` v2 (child of Truth Axes time context); canonical zone stays `israel_time_law` |
 
 Interpretive research theses are Research OS/provenance, not global governance laws.
 
@@ -159,6 +164,8 @@ Privacy/RLS rules are scoped invariants under Person/Foundation owners, not para
 | Responsibility | Canonical owner |
 |---|---|
 | publishing conventions / Post identity | `project_codex.publishing_conventions` |
+| living authored source section / meaningful update revision, occurrence + provenance | `project_codex.publishing_conventions` (authored representation) + `research_intake_foundation_contract_law` / `research_object_identity_invariant_law` (source-native locus) + `reality_graph_law` (typed relations); Experience owns presentation only |
+| post voice (plural system voice "אנחנו", no first person); applies to authored post text, not to interface strings | `post_system_voice_law` v1 under publishing conventions |
 | legacy WordPress/gallery maintenance adapter | active `legacy_content_protocol` **on demand only** |
 | translation / source-language integrity | `content_translation_law` **v4 ACTIVE** |
 | contributor/source material | Research Intake + Research OS owners |
@@ -170,14 +177,17 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 
 | Responsibility | Canonical owner |
 |---|---|
-| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v8 ACTIVE** |
+| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v9 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
-| visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V1.md` |
+| desktop left Companion Updates/Context + nested contextual Golden Projector + mobile Now + bottom Command Island/page-progress | existing System Frame V2 Contextual Inspector (addendum §3.5.3) + `SOD1820_DESIGN_CONTRACT_V2.md` §§8.1 / 11.8; no extra owner, feed, RLS boundary or fixed bar |
+| visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V2.md` — **2029 ACTIVE**; V1 = preserved Legacy provenance |
 | canonical reusable UI primitives | `canonical_ui_components_law` **v7 ACTIVE** |
 | mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
 
 Product homes such as Home, World, Heichal, Archive, My Personal Area and surfaces like Global Now do not become owners merely because they are visible destinations.
+
+**Human Gate · ZURIEL · 12.10.2026:** living source-section update strip + one Companion/Projector/Command Island **design direction APPROVED**, scoped to the existing owners above. The reference is Design V2 §§8.1 / 11.8 and System Frame addendum §3.5.3; implementation PR #1039 / PR #1044 remains subject to G4/browser/security acceptance and source-fragment reader readiness, not a new owner or automatic cutover.
 
 ### M. TRAFFIC / SYSTEM OPERATIONS
 

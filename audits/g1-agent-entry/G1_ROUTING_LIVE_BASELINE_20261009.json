@@ -1,0 +1,663 @@
+{
+  "task_key": "SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1",
+  "status": "LIVE_READ_BASELINE_NOT_ACCEPTANCE",
+  "canonical_project": "linswmnnkjxvweumprav",
+  "observed_at": "2026-10-08T23:50:50.909059+00",
+  "active_selector": "nodes.type='rule' AND nodes.is_active=true",
+  "main_sha": "45315ef269fd1aef7eadb8b5ca445839e435390f",
+  "main_immutable_blobs": {
+    "AGENTS.md": "2bbfca4eb06329c88e98b3bebf2266881087459c",
+    "CLAUDE.md": "17e0848043c983f2999225658a3a08c47b81ce34",
+    "SOD1820_DESIGN_CONTRACT_V2.md": "25d2e606b011de1ed2edd94b205a7d091fc19aa5"
+  },
+  "rules": [
+    {
+      "id": "c98f173c-49a6-4219-bbf4-ef52f9b30681",
+      "rule_id": "experience_governance_foundation_v1_law",
+      "rule_version": 8,
+      "is_active": true,
+      "depends_on": [
+        "sod1820_canonical_identity_law",
+        "raziel_voice_law",
+        "post_system_voice_law",
+        "content_translation_law",
+        "research_gold_hints_law",
+        "reality_graph_law",
+        "truth_axes_foundation_law"
+      ]
+    },
+    {
+      "id": "986849b7-3d48-43b5-9a9d-067ed4aab394",
+      "rule_id": "foundation_closure_protocol_law",
+      "rule_version": 7,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "3c69d4c2-da67-419f-95e8-936e8e099436",
+      "rule_id": "inter_agent_coordination_law",
+      "rule_version": 13,
+      "is_active": true,
+      "depends_on": [
+        "live_state_resolution_law"
+      ]
+    },
+    {
+      "id": "a7ac6f28-ff81-48df-ba30-b5b590a5da71",
+      "rule_id": "live_state_resolution_law",
+      "rule_version": 2,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "4ccbc2e2-0f44-4f66-a023-28397b7ee39a",
+      "rule_id": "live_state_sync_law",
+      "rule_version": 1,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "a716dac5-bfb3-4d0f-8c3e-c3aa9c44bc28",
+      "rule_id": "work_log_authority_law",
+      "rule_version": 2,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "bf80f86a-16d1-445a-b65c-e3d2a598ed88",
+      "rule_id": "canonical_methods_registry_law",
+      "rule_version": 6,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "3833a4de-09fb-4145-8ec0-6ad58ed551f0",
+      "rule_id": "canonical_ui_components_law",
+      "rule_version": 7,
+      "is_active": true,
+      "depends_on": [
+        "canonical_colors_law",
+        "content_translation_law",
+        "site_flags_lock_law",
+        "system_suggestions_law"
+      ]
+    },
+    {
+      "id": "70f1ddf6-98fa-478c-90b8-ac6ff5dab310",
+      "rule_id": "deploy_on_request",
+      "rule_version": 3,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "bf96d4e2-6724-4fa8-ba77-26a949f7b05a",
+      "rule_id": "gematria_engine_law",
+      "rule_version": 2,
+      "is_active": true,
+      "depends_on": [
+        "canonical_methods_registry_law",
+        "truth_axes_foundation_law",
+        "research_intake_foundation_contract_law",
+        "research_strategy_layer_law"
+      ]
+    },
+    {
+      "id": "64f66776-0368-441e-88ca-dfc5ff75b90a",
+      "rule_id": "logo_integrity_law",
+      "rule_version": 3,
+      "is_active": true,
+      "depends_on": [
+        "sod1820_canonical_identity_law",
+        "brand_spelling_law",
+        "canonical_colors_law"
+      ]
+    },
+    {
+      "id": "c8079c47-e40c-449c-8cde-207feab2a329",
+      "rule_id": "mobile_acceptance_law",
+      "rule_version": 1,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "77ad8c15-a6cb-4349-9e16-e724d3daacbd",
+      "rule_id": "reality_graph_law",
+      "rule_version": 8,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "16502511-f625-4a95-b75b-9e14b537d3b0",
+      "rule_id": "sod1820_canonical_identity_law",
+      "rule_version": 5,
+      "is_active": true,
+      "depends_on": [
+        "canonical_colors_law",
+        "SOD1820_DESIGN_CONTRACT_V1.md",
+        "experience_governance_foundation_v1_law",
+        "raziel_voice_law",
+        "content_translation_law"
+      ]
+    },
+    {
+      "id": "bf28aabf-5dfb-44a3-8ec0-ce69d76112f0",
+      "rule_id": "brand_spelling_law",
+      "rule_version": 1,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "a1a65bb3-6d88-4c83-8dbc-39e34daf6efa",
+      "rule_id": "canonical_colors_law",
+      "rule_version": 2,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "82edad08-6506-4dee-9718-5bde779c4df3",
+      "rule_id": "content_translation_law",
+      "rule_version": 4,
+      "is_active": true,
+      "depends_on": [
+        "site_flags_lock_law",
+        "video_transcription_law",
+        "experience_governance_foundation_v1_law",
+        "truth_axes_foundation_law"
+      ]
+    },
+    {
+      "id": "1e53cc8c-b1e8-42a9-9998-90c911b3b859",
+      "rule_id": "post_system_voice_law",
+      "rule_version": 1,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "107f1f1b-325d-492f-9ea5-6bc939294dc6",
+      "rule_id": "raziel_voice_law",
+      "rule_version": 1,
+      "is_active": true,
+      "depends_on": null
+    },
+    {
+      "id": "09d69629-6ee7-4d2f-a8fc-457dbc881fb9",
+      "rule_id": "research_gold_hints_law",
+      "rule_version": 4,
+      "is_active": true,
+      "depends_on": [
+        "signal_vs_curation",
+        "reality_graph_law",
+        "cross_vs_convergence_criteria",
+        "truth_axes_foundation_law",
+        "experience_governance_foundation_v1_law",
+        "research_strategy_layer_law",
+        "content_translation_law",
+        "convergence_explanation_law",
+        "golden_entity_law"
+      ]
+    },
+    {
+      "id": "94e53f6b-6d6b-4f03-b35c-2dae2ac0ae55",
+      "rule_id": "research_intake_foundation_contract_law",
+      "rule_version": 13,
+      "is_active": true,
+      "depends_on": [
+        "truth_axes_foundation_law",
+        "reality_graph_law"
+      ]
+    },
+    {
+      "id": "69d88013-d360-41f2-a4c0-e83959d8d1b3",
+      "rule_id": "research_strategy_layer_law",
+      "rule_version": 17,
+      "is_active": true,
+      "depends_on": [
+        "research_intake_foundation_contract_law",
+        "research_workspace_law",
+        "truth_axes_foundation_law",
+        "reality_graph_law",
+        "ai_analyze_contract"
+      ]
+    },
+    {
+      "id": "678236e4-b561-495e-97c1-7155511dfdc3",
+      "rule_id": "site_flags_lock_law",
+      "rule_version": 3,
+      "is_active": true,
+      "depends_on": [
+        "experience_governance_foundation_v1_law"
+      ]
+    },
+    {
+      "id": "d42d4fa7-f7c6-42ac-989e-3831dab6912e",
+      "rule_id": "system_suggestions_law",
+      "rule_version": 5,
+      "is_active": true,
+      "depends_on": [
+        "ai_analyze_contract",
+        "deploy_on_request",
+        "inter_agent_coordination_law",
+        "raziel_routing_law",
+        "research_strategy_layer_law",
+        "traffic_intelligence_law"
+      ]
+    },
+    {
+      "id": "af98045a-9ec8-4d7b-a1e9-d6ab93cacef1",
+      "rule_id": "truth_axes_foundation_law",
+      "rule_version": 3,
+      "is_active": true,
+      "depends_on": [
+        "signal_vs_curation",
+        "unified_graph_law",
+        "verify_seal_manual_only",
+        "research_intake_foundation_contract_law",
+        "everything_additive_law",
+        "content_translation_law",
+        "person_foundation_contract_law"
+      ]
+    }
+  ],
+  "codex": [
+    {
+      "id": 5,
+      "slug": "gematria_engine",
+      "title": "מנוע הגימטריה — Execution Owner + Registry Pointer",
+      "updated_at": "2026-09-24 11:51:21.604205+00",
+      "version_semantics": "No rule_version column; identify by slug/id/updated_at, resolve referenced law versions live."
+    },
+    {
+      "id": 4,
+      "slug": "publishing_conventions",
+      "title": "מוסכמות פרסום פוסטים",
+      "updated_at": "2026-10-06 11:55:32.094257+00",
+      "version_semantics": "No rule_version column; identify by slug/id/updated_at, resolve referenced law versions live."
+    },
+    {
+      "id": 32,
+      "slug": "numeric_rule_family_index",
+      "title": "Numeric Research Rule Family Index — Engine Methods vs ZURIEL Laws",
+      "updated_at": "2026-09-13 14:59:18.541044+00",
+      "version_semantics": "No rule_version column; identify by slug/id/updated_at, resolve referenced law versions live."
+    }
+  ],
+  "historical_onboarding": {
+    "rule_id": "agent_onboarding_law",
+    "rule_version": 1,
+    "is_active": false
+  },
+  "protected_brand_owners": [
+    {
+      "id": "64f66776-0368-441e-88ca-dfc5ff75b90a",
+      "rule_id": "logo_integrity_law",
+      "rule_version": 3,
+      "description": "\nHuman-Gate ZURIEL · 1.10.2026. EXTEND_EXISTING under SOD1820_DESIGN_CONTRACT_V1.md.\n\n1. CANONICAL LOGO = ONE INSEPARABLE LOCKUP. The SOD1820 logo is always the approved crown artwork together with the exact protected Hebrew wordmark «כי לה׳ המלוכה». Crown and wordmark are one visual identity.\n2. CROWN NEVER ALONE. The crown must never be used by itself as a logo, watermark, avatar, thumbnail mark, favicon brand substitute, video corner mark, share mark or any other branded projection.\n3. NO CROPPING / NO WORDMARK REMOVAL. Never crop, hide, remove or replace the Hebrew wordmark. If a surface is too small to preserve the full lockup legibly, omit the brand mark or use a non-logo neutral UI symbol; do not substitute crown-only.\n4. NO ENGLISH INSIDE THE LOGO. «KINGDOM RISE», «SOD1820» and any other Latin/English copy are not part of the canonical logo artwork.\n5. HEBREW VIDEO RULE. In authored Hebrew video, the in-video brand mark is the full canonical lockup only: crown + «כי לה׳ המלוכה». No English words are added to the logo.\n6. INTRO / OUTRO DOMAIN EXCEPTION. At the beginning and/or ending of an authored Hebrew video, the separate live-text domain «sod1820.co.il» may be added beneath or near the full canonical logo. The domain is supporting information, never part of the logo artwork, and is not required during the body of the video.\n7. EXACT ARTWORK. The crown and protected Hebrew wordmark are not regenerated, redrawn, retyped, morphed or reconstructed by AI. They are composited as exact protected artwork after any generated scene/background.\n8. SMALL USE. Small placement is allowed only by proportional scaling of the full lockup while preserving the Hebrew words. No crown-only small variant exists.\n9. HERITAGE. /logo.png remains preserved as Heritage compatibility where legacy runtime still depends on it; it does not redefine Primary 2029 identity.\n10. ONE OWNER. This rule extends SOD1820_DESIGN_CONTRACT_V1.md / sod1820_canonical_identity_law and creates no parallel Brand System, Store, Registry or media-specific branding system.\n",
+      "depends_on": [
+        "sod1820_canonical_identity_law",
+        "brand_spelling_law",
+        "canonical_colors_law"
+      ],
+      "metadata": {
+        "added_by": "צוריאל",
+        "forbidden": [
+          "crown-icon.png (כתר בלבד)",
+          "favicon.svg (✦)",
+          "favicon.ico (לא קיים)",
+          "purpose:maskable"
+        ],
+        "added_date": "2026-07-14",
+        "human_gate": "ZURIEL 2026-10-01",
+        "owner_check": "EXTEND_EXISTING",
+        "primary_2029": {
+          "protected": true,
+          "master_mark": "blue_gold_crown",
+          "heritage_wordmark": "כי לה׳ המלוכה",
+          "canonical_latin_identity": "SOD1820",
+          "canonical_hebrew_identity": "סוד 1820"
+        },
+        "video_hebrew": {
+          "body_logo": "FULL_LOCKUP_ONLY",
+          "domain_is_logo": false,
+          "intro_outro_domain": "sod1820.co.il",
+          "english_words_in_logo": false
+        },
+        "compaction_v1": {
+          "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+          "owner_family": "brand_design",
+          "classified_at": "2026-09-15",
+          "classification": "CHILD_OF_OWNER",
+          "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+        },
+        "heritage_logo": {
+          "path": "/logo.png",
+          "role": "HERITAGE_COMPATIBILITY",
+          "preserve": true,
+          "primary_2029": false
+        },
+        "owner_routing": {
+          "domain": "brand_design",
+          "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+          "version": 1,
+          "confidence": "high",
+          "resolution": "RESOLVED",
+          "normalized_at": "2026-09-08",
+          "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+        },
+        "canonical_logo": "/logo.png",
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+        "asset_pack_state": "MASTER_LOCKUP_APPROVED",
+        "g3_disposition_v1": {
+          "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+          "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation",
+          "classified_at": "2026-09-15",
+          "classification": "KEEP_SCOPED_SEMANTIC",
+          "normal_startup": true,
+          "no_automatic_runtime_inheritance": true
+        },
+        "approved_reference": {
+          "role": "APPROVED_ARTWORK_REFERENCE_NOT_TRANSPARENT_MASTER",
+          "title": "sod1820-upload-test-middle-logo.png",
+          "file_id": "1Y3lDxlwRCJroaiUwBB8XTbtrMrJy-uvc",
+          "provider": "google_drive",
+          "created_at": "2026-09-17T09:25:45.159Z",
+          "size_bytes": 406511,
+          "actual_mime": "image/jpeg"
+        },
+        "exact_master_asset": {
+          "mime": "image/png",
+          "mode": "RGBA",
+          "width": 1664,
+          "height": 1506,
+          "sha256": "d543689eb92bb2a01bb9d5cf1f3907b6fbb7f092c8cf0395c14815e072184b34",
+          "status": "APPROVED_EXACT_MASTER_PNG",
+          "byte_size": 2405610,
+          "file_name": "sod1820_primary_hebrew_lockup_transparent_v1.png",
+          "human_gate": "ZURIEL 2026-10-01",
+          "geometry_locked": true,
+          "symmetry_locked": true,
+          "crown_position_locked": true,
+          "relative_scale_locked": true,
+          "allowed_transformations": [
+            "uniform_scale",
+            "whole_lockup_position",
+            "opacity",
+            "external_glow_behind_lockup"
+          ],
+          "wordmark_position_locked": true,
+          "forbidden_transformations": [
+            "move_crown_relative_to_wordmark",
+            "move_wordmark_relative_to_crown",
+            "change_spacing",
+            "change_relative_scale",
+            "crop_wordmark",
+            "crop_crown",
+            "warp",
+            "redraw",
+            "regenerate",
+            "retype"
+          ]
+        },
+        "required_asset_pack": [
+          "hebrew_master_lockup_transparent",
+          "asset_metadata_dimensions_checksum_clearspace"
+        ],
+        "canonical_logo_semantics": {
+          "crown": "approved_blue_gold_crown",
+          "hebrew_wordmark": "כי לה׳ המלוכה",
+          "english_inside_logo": false,
+          "crown_alone_forbidden": true,
+          "inseparable_full_lockup": true
+        },
+        "forbidden_primary_variants": [
+          "crown_only",
+          "icon_crown_crop",
+          "wordmark_removed",
+          "english_inside_logo",
+          "kingdom_rise_inside_logo"
+        ],
+        "supersedes_logo_integrity_version": 2,
+        "no_heritage_fallback_for_primary_2029": true
+      }
+    },
+    {
+      "id": "16502511-f625-4a95-b75b-9e14b537d3b0",
+      "rule_id": "sod1820_canonical_identity_law",
+      "rule_version": 5,
+      "description": "Human-Gate ZURIEL 17.9.2026. EXTEND_EXISTING only under SOD1820_DESIGN_CONTRACT_V1.md. v3 preserves v2 identity/mark/expression/lens/color decisions and locks the second Brand Core layer across site, World, Heichal, Raziel, posts, Share Cards, AI image/video generation, Remotion and future projections. TYPOGRAPHY: the protected Hebrew heritage wordmark «כי לה׳ המלוכה» is artwork, not live font text, and must not be retyped/redrawn in branded lockups. Live typography consumes existing semantic roles F.ui / F.body / F.display / F.numeric and existing type scale; no new brand-font owner. MOTION: brand artwork may translate, scale, fade, reveal, receive restrained glow/light sweep/depth/orbit context, but must not morph, redraw, distort or regenerate. Motion meaning is canonical; exact duration/composition is surface projection. Consume existing designTokens.MOTION and reduced-motion behavior; Remotion maps the same tokens to frames, not a separate motion system. AI BRAND CONTEXT: every SOD1820 branded generation derives from this canonical identity, mark, expressions by locale, color-role ownership, typography roles, voice/truth constraints, environment role and safe-area requirement. Generative AI creates scene/environment candidates, not the Master Mark or protected Hebrew wordmark. Canonical brand assets are composited as exact overlays after generation. SAFE AREAS: every branded representation reserves a brand-safe/focal region that survives target crop; exact coordinates vary by aspect/surface and are projection. Required brand text is not baked into generated backgrounds. REQUIRED ASSET PACK: one canonical Master Crown transparent asset; one protected Hebrew heritage wordmark transparent asset; one Hebrew master lockup Crown+wordmark; one icon/crown crop; asset metadata including dimensions/checksum/clear-space. KINGDOM RISE, SOD1820, URL and content titles remain live typography by default unless a separately approved exact artwork asset exists. CANONICAL = identity, protected artwork, expression mapping, semantic typography roles, motion semantics, AI brand-generation constraints, safe-area principle and required asset identities. PROJECTION = size, placement, crop/aspect, exact timing, scene/background, density, optional expression/URL/title and safe-area coordinates. No Brand System/Store/Registry, no motion engine, no media registry, no palette owner and no video-specific brand system are created.\n\n[UPDATE v4 · Human-Gate ZURIEL · 17.9.2026 — EXPERIENCE PROJECTION MATRIX · EXTEND_EXISTING]\nBRAND CORE IS RENDERER-AGNOSTIC. The canonical SOD1820 context is composed once and consumed by Web/UI, interactive motion, Canvas, GPU 3D, AI image/video generation, Share Cards, Remotion, audio/narration and future XR. There is no separate image/video/3D/audio brand.\nEvery renderer resolves, as applicable: canonical identity; Master Mark; protected Hebrew wordmark; locale/public expression; color roles; typography roles; surface voice role; motion vocabulary; spatial tier; voice mode; caption mode; environment role; AI visual freedom; safe area; truth-safe constraints; and performance/accessibility fallback.\nAI may generate environment/scene/atmosphere/spatial candidates but never regenerate the protected Master Crown or Hebrew wordmark and never bake required brand text into uncontrolled pixels. Canonical artwork is composited deterministically.\nCANONICAL = identity/artwork, semantic color and typography roles, voice character, motion vocabulary, spatial/audio invariants, AI constraints, safe-area principle and fallback semantics. PROJECTION = renderer, spatial tier, exact TTS provider/model, timing/easing/camera/lighting/material/fog/particles/audio mix/layout/crop and optional title/URL/expression.\nOWNER CHECK: Brand stays under the Design Contract / this identity law; Experience v5 owns contextual audio-motion-spatial behavior; Raziel and Publishing keep their existing voice owners. One composed runtime context, no new store/registry/system.\n\n[UPDATE v5 · Human-Gate ZURIEL · 1.10.2026 — PRIMARY LOCKUP FINALIZATION]\nThe Primary SOD1820 logo is one inseparable protected artwork lockup: approved crown + exact Hebrew wordmark «כי לה׳ המלוכה». Crown-only is forbidden on every branded surface, including small marks and video watermarks. The former icon_crown_crop requirement is superseded and removed. No English wording is part of the logo. For authored Hebrew video, the full lockup is used throughout; only in intro/outro may the separate live-text domain «sod1820.co.il» be added as supporting information. KINGDOM RISE may remain historical/optional English-language copy outside the logo when a separately governed English surface needs it, but it is never part of the canonical logo and is not used in the Hebrew video lockup.\n",
+      "depends_on": [
+        "canonical_colors_law",
+        "SOD1820_DESIGN_CONTRACT_V1.md",
+        "experience_governance_foundation_v1_law",
+        "raziel_voice_law",
+        "content_translation_law"
+      ],
+      "metadata": {
+        "motion": {
+          "owner": "src/lib/designTokens.js:MOTION",
+          "forbidden": [
+            "morph_master_mark",
+            "redraw_master_mark",
+            "distort_master_mark",
+            "regenerate_master_mark",
+            "retype_or_redraw_hebrew_wordmark"
+          ],
+          "canonical_semantics": [
+            "translate",
+            "scale",
+            "fade",
+            "reveal",
+            "restrained_glow",
+            "light_sweep",
+            "depth",
+            "orbit_context"
+          ],
+          "remotion_is_projection": true,
+          "reduced_motion_required": true
+        },
+        "safe_area": {
+          "survive_crop": true,
+          "principle_canonical": true,
+          "coordinates_projection": true,
+          "no_required_brand_text_baked_into_background": true
+        },
+        "human_gate": "ZURIEL 2026-10-01",
+        "typography": {
+          "live_roles": [
+            "F.ui",
+            "F.body",
+            "F.display",
+            "F.numeric"
+          ],
+          "new_font_owner": false,
+          "heritage_wordmark_is_artwork": true
+        },
+        "owner_check": "EXTEND_EXISTING",
+        "compaction_v1": {
+          "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+          "owner_family": "brand_design",
+          "classified_at": "2026-09-15",
+          "classification": "CHILD_OF_OWNER",
+          "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+        },
+        "inherits_rule": "sod1820_canonical_identity_law v2",
+        "no_new_system": true,
+        "owner_routing": {
+          "domain": "brand_design",
+          "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+          "version": 1,
+          "confidence": "high",
+          "resolution": "RESOLVED",
+          "normalized_at": "2026-09-08",
+          "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+        },
+        "primary_lockup": {
+          "crown": "approved_blue_gold_crown",
+          "inseparable": true,
+          "hebrew_wordmark": "כי לה׳ המלוכה",
+          "english_inside_logo": false,
+          "crown_alone_forbidden": true
+        },
+        "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+        "ai_brand_context": {
+          "consume_identity": true,
+          "consume_safe_area": true,
+          "consume_color_roles": true,
+          "generate_scene_not_logo": true,
+          "consume_environment_role": true,
+          "consume_typography_roles": true,
+          "consume_locale_expression": true,
+          "consume_voice_truth_constraints": true,
+          "composite_canonical_assets_after_generation": true
+        },
+        "asset_pack_state": "MASTER_LOCKUP_APPROVED",
+        "g3_disposition_v1": {
+          "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+          "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation",
+          "classified_at": "2026-09-15",
+          "classification": "KEEP_SCOPED_SEMANTIC",
+          "normal_startup": true,
+          "no_automatic_runtime_inheritance": true
+        },
+        "projection_fields": [
+          "size",
+          "placement",
+          "crop",
+          "aspect_ratio",
+          "exact_timing",
+          "scene_background",
+          "density",
+          "optional_expression",
+          "optional_url",
+          "optional_title",
+          "safe_area_coordinates"
+        ],
+        "exact_master_asset": {
+          "mime": "image/png",
+          "mode": "RGBA",
+          "width": 1664,
+          "height": 1506,
+          "sha256": "d543689eb92bb2a01bb9d5cf1f3907b6fbb7f092c8cf0395c14815e072184b34",
+          "status": "APPROVED_EXACT_MASTER_PNG",
+          "byte_size": 2405610,
+          "file_name": "sod1820_primary_hebrew_lockup_transparent_v1.png",
+          "human_gate": "ZURIEL 2026-10-01",
+          "geometry_locked": true,
+          "symmetry_locked": true,
+          "crown_position_locked": true,
+          "relative_scale_locked": true,
+          "allowed_transformations": [
+            "uniform_scale",
+            "whole_lockup_position",
+            "opacity",
+            "external_glow_behind_lockup"
+          ],
+          "wordmark_position_locked": true,
+          "forbidden_transformations": [
+            "move_crown_relative_to_wordmark",
+            "move_wordmark_relative_to_crown",
+            "change_spacing",
+            "change_relative_scale",
+            "crop_wordmark",
+            "crop_crown",
+            "warp",
+            "redraw",
+            "regenerate",
+            "retype"
+          ]
+        },
+        "required_asset_pack": [
+          "hebrew_master_lockup_transparent",
+          "asset_metadata_dimensions_checksum_clearspace"
+        ],
+        "removed_asset_identity": "icon_crown_crop",
+        "hebrew_video_projection": {
+          "brand_mark": "hebrew_master_lockup_transparent",
+          "kingdom_rise": false,
+          "domain_separate_live_text": true,
+          "intro_outro_optional_domain": "sod1820.co.il"
+        },
+        "supersedes_identity_version": 4,
+        "experience_projection_matrix_v1": {
+          "renderers": [
+            "web_ui",
+            "interactive_motion",
+            "canvas",
+            "gpu_3d",
+            "ai_image",
+            "ai_video",
+            "share_card",
+            "remotion",
+            "audio_narration",
+            "future_xr"
+          ],
+          "human_gate": "ZURIEL 2026-09-17",
+          "context_fields": [
+            "canonical_identity",
+            "master_mark",
+            "protected_wordmark",
+            "locale_expression",
+            "color_roles",
+            "typography_roles",
+            "surface_voice_role",
+            "motion_vocabulary",
+            "spatial_tier",
+            "voice_mode",
+            "caption_mode",
+            "environment_role",
+            "ai_visual_freedom",
+            "safe_area",
+            "truth_constraints",
+            "performance_fallback"
+          ],
+          "experience_owner": "experience_governance_foundation_v1_law v5",
+          "no_new_store_registry": true,
+          "no_separate_media_branding": true,
+          "one_context_many_renderers": true
+        },
+        "video_brand_frame_projection_v1": {
+          "status": "APPROVED_VIDEO_FRAME_GEOMETRY",
+          "human_gate": "ZURIEL 2026-10-01",
+          "aspect_ratio": "9:16",
+          "rendering_rule": "frame geometry may be ornamented/animated, but must preserve 20/30 bounds and exact canonical logo geometry",
+          "cta_73_position": "NEAR_END_BEFORE_OUTRO",
+          "logo_asset_sha256": "d543689eb92bb2a01bb9d5cf1f3907b6fbb7f092c8cf0395c14815e072184b34",
+          "frame_candidate_file": "sod1820_video_header_20_30_v1.png",
+          "frame_candidate_sha256": "4449b9ae242110b3c95e618dc7a5c85af70797e05d3e01fcfe0d135f25ce1af3",
+          "top_structure_max_height_pct": 20,
+          "logo_must_be_exact_master_png": true,
+          "side_descender_max_height_pct": 30,
+          "center_content_must_remain_open": true,
+          "long_full_height_columns_forbidden": true
+        }
+      }
+    }
+  ],
+  "gematria_probe": {
+    "method": {
+      "method_key": "רגיל",
+      "display_label": "רגיל",
+      "version": 1,
+      "active": true,
+      "in_engine": true,
+      "deterministic": true,
+      "execution_kind": "sql_function",
+      "function": "fn_ragil",
+      "required_entitlement": "public",
+      "input_schema": {
+        "subject": "text"
+      },
+      "source_of_truth": "gematria engine (fn_ragil)"
+    },
+    "profile_signature": "fn_method_profile(text,text)",
+    "profile_volatility": "STABLE",
+    "calculation_executed": false
+  },
+  "known_drift": [
+    {
+      "source": "project_codex.gematria_engine",
+      "pointer": "canonical_methods_registry_law v5",
+      "live_owner_version": 6,
+      "resolution": "Use current active v6. Leave unrelated codex unchanged; preserve and disclose stale pointer."
+    }
+  ]
+}

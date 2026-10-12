@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import FindingSurface from "./FindingSurface.jsx";
 import { use2029Palette } from "../../lib/palette.js";
 import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } from "../../lib/designTokens.js";
+import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -15,19 +16,8 @@ const FACET_LABELS = Object.freeze({
   topic: "התכנסויות",
 });
 
-function dt(value) {
-  if (!value) return "זמן לא צוין";
-  try {
-    return new Date(value).toLocaleString("he-IL", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch (_) {
-    return "זמן לא צוין";
-  }
+function dt(value, mode) {
+  return recordTimeLabel(value, mode, "זמן לא צוין");
 }
 
 function withinDays(value, days) {
@@ -65,7 +55,7 @@ function makeStyles(P) {
   return { box, pill, action };
 }
 
-function SourceGroup({ group, P, S, researchUnavailable }) {
+function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
   const [expanded, setExpanded] = useState(false);
   const findings = group.universalFindings || [];
   const shown = expanded ? findings : findings.slice(0, 6);
@@ -77,7 +67,7 @@ function SourceGroup({ group, P, S, researchUnavailable }) {
     <header style={{ display: "flex", gap: SPACE[3], alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap" }}>
       <div style={{ minWidth: 0, flex: "1 1 360px" }}>
         <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: SPACE[1] }}>
-          {dt(group.createdAt)}
+          {dt(group.createdAt, timeMode)}
 
         </div>
         <h3 style={{ margin: 0, ...TYPE_SCALE.lead, fontFamily: F.ui, color: P.ink }}>{group.title}</h3>
@@ -140,13 +130,13 @@ function SourceGroup({ group, P, S, researchUnavailable }) {
   </article>;
 }
 
-function TopicCard({ topic, P, S }) {
+function TopicCard({ topic, P, S, timeMode }) {
   return <Link
     to={topic.href || "#"}
     data-experience-capability="contributor-approved-topic"
     style={{ ...S.box, display: "block", padding: SPACE[3], color: P.ink, textDecoration: "none" }}
   >
-    <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: SPACE[1] }}>התכנסות מאושרת / היסטורית · {dt(topic.approvedAt || topic.createdAt)}</div>
+    <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: SPACE[1] }}>התכנסות מאושרת / היסטורית · {dt(topic.approvedAt || topic.createdAt, timeMode)}</div>
     <strong style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>{topic.statement}</strong>
     {topic.secondary ? <div style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft, marginTop: SPACE[1] }}>{topic.secondary}</div> : null}
     {(topic.values || []).length ? <div style={{ marginTop: SPACE[2], display: "flex", gap: SPACE[1], flexWrap: "wrap" }}>
@@ -160,6 +150,7 @@ export default function ContributorFindingsLens({
   loading = false,
   error = null,
   recentDays = 7,
+  timeMode = "relative", // "relative" on Home/World, "bilingual" (Hebrew + Gregorian) everywhere else
 }) {
   const P = use2029Palette();
   const S = useMemo(() => makeStyles(P), [P]);
@@ -264,17 +255,17 @@ export default function ContributorFindingsLens({
 
     {mode === "topics" ? (
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: SPACE[2] }}>
-        {(projection.topics || []).map((topic) => <TopicCard key={topic.id} topic={topic} P={P} S={S} />)}
+        {(projection.topics || []).map((topic) => <TopicCard key={topic.id} topic={topic} P={P} S={S} timeMode={timeMode} />)}
       </div>
     ) : groups.length ? (
       <div style={{ display: "grid", gap: SPACE[3] }}>
         <label style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>בחירת מקור · {groups.length} תוצאות
           <select aria-label="בחירת מקור לקריאה" value={groups.some((g) => g.id === selectedId) ? selectedId : groups[0].id}
             onChange={(event) => setSelectedId(event.target.value)} style={{ ...S.action, display: "block", width: "100%", maxWidth: "100%", marginTop: SPACE[2] }}>
-            {groups.map((group) => <option key={group.id} value={group.id}>{dt(group.createdAt)} · {group.title}</option>)}
+            {groups.map((group) => <option key={group.id} value={group.id}>{dt(group.createdAt, timeMode)} · {group.title}</option>)}
           </select>
         </label>
-        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} researchUnavailable={availability.research === "unavailable"} />)}
+        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} timeMode={timeMode} researchUnavailable={availability.research === "unavailable"} />)}
       </div>
     ) : <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>אין חומר במסנן הזה.</div>}
 
