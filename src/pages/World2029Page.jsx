@@ -79,8 +79,7 @@ const WORLD_EXPERIENCE = resolveExperienceContext({
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
-// Owner hold: public 878 Golden Journey stays closed; Number 878, posts and gallery remain public.
-const WORLD_878_JOURNEY_LOCKED = true;
+const WORLD_878_JOURNEY_LOCKED = GOLDEN_WORLD_JOURNEY_878.locked === true;
 
 const WORLD_FACETS = [
   { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
