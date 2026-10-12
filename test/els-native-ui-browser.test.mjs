@@ -219,6 +219,7 @@ async function withNative(viewport, run, options = {}) {
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
       if (fullFrame && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
+      if (fullFrame && id.endsWith('/MaintenanceLock.jsx')) return '\0els-frame-open-flags';
       if (fullFrame && importer?.endsWith('/SystemFrame2029.jsx') && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
       if (id.endsWith('/AuthContext.jsx')) return '\0els-host-stub:../lib/AuthContext.jsx';
       if (!realHost && id === '../TzofenEmbed.jsx' && importer?.endsWith('/ElsNativeClassic2029.jsx')) return '\0els-native-host';
@@ -227,6 +228,7 @@ async function withNative(viewport, run, options = {}) {
     load(id) {
       if (id === '\0els-native-fixture') return entry;
       if (id === '\0els-frame-research') return 'const state={context:null,cart:[],saved:[],updateResearchContext:()=>{}};export const useResearch=()=>state;';
+      if (id === '\0els-frame-open-flags') return 'export const useFeatureState=flag=>({flag,loading:false,blocked:false,allowed:true});';
       if (id.startsWith('\0els-frame-stub:')) return Object.values(frameStubs)[Number(id.slice('\0els-frame-stub:'.length))];
       if (id === '\0els-native-host') return host;
       if (id.startsWith('\0els-host-stub:')) return realHostStubs[id.slice('\0els-host-stub:'.length)];
