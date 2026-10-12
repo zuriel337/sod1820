@@ -99,6 +99,7 @@ async function openLaunchFlagForAcceptance(page, key) {
 
 for (const route of CLS_ROUTES) {
   test(`Core Web Vitals CLS budget holds on ${route} at 390px`, async ({ page }) => {
+    if (route === '/books' || route.startsWith('/book/')) await openLaunchFlagForAcceptance(page, 'lock_books');
     await installClsObserver(page);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
