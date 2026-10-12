@@ -1214,3 +1214,10 @@
 .sod29-golden-facet-filters button{cursor:pointer;font-weight:700}
 .sod29-golden-facet-filters small{align-self:center;color:var(--s29-muted)}
 .sod29-golden-source-text{white-space:pre-line;line-height:1.55;overflow-wrap:anywhere}
+.sod29-surface-context-chain{display:grid;gap:4px;padding:8px 10px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
+.sod29-surface-context-chain small{color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:850}
+.sod29-surface-context-chain ol{margin:0;padding:0;list-style:none;display:grid;gap:2px;border-inline-start:1px solid var(--s29-line-strong)}
+.sod29-surface-context-chain li{padding-inline-start:10px;min-width:0}
+.sod29-surface-context-chain a,.sod29-surface-context-chain span{display:flex;align-items:center;min-height:44px;font-size:13px;line-height:1.35;color:var(--s29-accent-text);text-decoration:none}
+.sod29-surface-context-chain span{color:var(--s29-ink);font-weight:800}
+.sod29-surface-context-chain em{font-style:normal;color:var(--s29-muted);font-weight:500}

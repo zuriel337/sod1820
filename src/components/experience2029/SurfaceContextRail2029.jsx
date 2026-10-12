@@ -66,6 +66,9 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
+  const chainTrail = surface === "post" && context?.subject?.type === "post" && Array.isArray(context?.dimensions?.bottomTrail)
+    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+    : [];
   const findings = Array.isArray(context?.dimensions?.surfaceFindings) ? context.dimensions.surfaceFindings : [];
   const focusedFinding = subject?.type === "finding";
   const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
@@ -226,6 +229,16 @@ export default function SurfaceContextRail2029({
         <b>{activeSection.label}</b>
         <span aria-hidden="true">↓</span>
       </button> : null}
+      {restMode && chainTrail.length >= 2 ? <nav className="sod29-surface-context-chain" aria-label="מקומו של הפוסט בשרשרת" data-context-chain="true">
+        <small>השרשרת</small>
+        <ol>
+          {chainTrail.map((step, index) => <li key={step.id || `chain-${index}`}>
+            {step.active || !step.href
+              ? <span className={step.active ? "is-here" : undefined} aria-current={step.active ? "page" : undefined}>{step.label}{step.active ? <em> · אתה כאן</em> : null}</span>
+              : <a href={step.href} onClick={() => { if (sheet) onNavigate?.(step); }}>{step.label}</a>}
+          </li>)}
+        </ol>
+      </nav> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
       {restMode ? null : subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
       {fragment ? <LearnMark2029
