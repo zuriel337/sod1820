@@ -1387,7 +1387,13 @@
 .sod29-reading-post>.k29-pcm>ul>li{padding:8px 10px;border-radius:10px}
 .sod29-reading-post>.k29-pcm h2{font-size:15px}
 .sod29-reading-post{padding-top:10px}
-.sod29-post-details>summary{gap:8px}
+/* Post summary row (all posts): badge, category chips and the details label are separate items with real gaps,
+   wrap on narrow screens and keep a 44px target; no item may touch the next one. */
+.sod29-post-details>summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:44px;cursor:pointer;list-style:none}
+.sod29-post-details>summary::-webkit-details-marker{display:none}
+.sod29-post-details>summary>.k29-cats{gap:8px;flex:0 1 auto}
+.sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:auto;padding-inline-start:12px;white-space:nowrap;color:var(--s29-accent-text);font-size:14px}
+@media(max-width:480px){.sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:0;padding-inline-start:0;flex-basis:100%}}
 
 /* Source update strip: newest in one slim row, the rest behind one disclosure (bounded). */
 .sod29-update-strip{flex-wrap:wrap;border-radius:14px;width:min(1180px,100%);margin-inline:auto}
