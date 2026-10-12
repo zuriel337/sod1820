@@ -103,6 +103,20 @@ function PostReadingBody() {
   ], [regions, state.projection]);
 
   useEffect(() => {
+    // The hero owns the page h1. An authored h1 inside the source stays in the
+    // DOM and text is untouched; it is exposed as a level-2 heading, and when it
+    // only repeats the hero title it is visually collapsed (still readable by AT).
+    const root = sourceRef.current;
+    if (!state.projection || !root) return;
+    const heroTitle = normalize(humanContentTitle(state.projection.post?.title, { max: 0 }));
+    for (const heading of root.querySelectorAll("h1")) {
+      heading.setAttribute("role", "heading");
+      heading.setAttribute("aria-level", "2");
+      heading.setAttribute("data-source-title", normalize(heading.textContent) === heroTitle ? "duplicate" : "own");
+    }
+  }, [state.projection]);
+
+  useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
     // Existing authored gematria markings remain the actionable unit. Make
     // non-link legacy markings keyboard reachable without rewriting the source.
@@ -325,6 +339,11 @@ function PostReadingBody() {
       : [...new Set(
           regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
         )].slice(0, 5);
+  // Cover is the existing post media: prefer the persisted small derivative,
+  // fall back to image_url. The original is never replaced or rewritten.
+  const heroCover = /^https:\/\//i.test(String(post.thumb_url || post.image_url || ""))
+    ? String(post.thumb_url || post.image_url)
+    : null;
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
   const heroDate = isBennettMaster
     ? "2026-10-01"
@@ -654,6 +673,16 @@ function PostReadingBody() {
 
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
+        {heroCover ? <figure className="sod29-reading-cover" data-post-cover="true">
+          <img
+            src={heroCover}
+            alt=""
+            width="1200"
+            height="630"
+            decoding="async"
+            fetchPriority="high"
+          />
+        </figure> : null}
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
           <details className="sod29-post-details">
