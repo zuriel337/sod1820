@@ -1408,9 +1408,14 @@
 /* Shared Post reading presentation: gematria in the canonical blue, scripture with a quiet mark, contract type.
    Existing roles only (accent-text / ink / numeric + body fonts); gold stays brand, never a strength signal. */
 .sod29-reading-source{font-family:var(--s29-font-body,inherit)}
-.sod29-reading-source :is(.sod29-gematria-value,.sod29-gematria-expression,[data-gem]:not(a):not(button)){color:var(--s29-accent-text)!important}
-.sod29-reading-source :is(.sod29-gematria-value,.sod29-gematria-hero,.sod-numlink,p[data-gem]){font-family:var(--s29-font-numeric,inherit)}
-.sod29-reading-source p[style*="--gold"]{color:var(--s29-accent-text)!important;font-family:var(--s29-font-numeric,inherit)}
+/* Colour marks a RELATION, not every number: items that belong to the same relation (e.g. 27.10 -> 2710 -> 271 and the words equal to 271)
+   share one colour (group a / b); everything else stays in the reading ink. Day/parchment use deeper tones for contrast. */
+.sod29-reading-post{--post-link-a:#A56F00;--post-link-b:#B3172F}
+html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-link-b:#FF6B6B}
+.sod29-reading-source :is(.sod29-gematria-value,.sod-numlink,.sod29-gematria-hero,.sod29-gematria-expression,[data-gem]:not(a):not(button)){color:var(--s29-ink)!important}
+.sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
+.sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}
+.sod29-reading-source :is(p[style*="--gold"],p[data-gem]){color:var(--s29-ink)!important;font-family:var(--s29-font-numeric,inherit)}
 .sod29-reading-source .sod29-gematria-hero{min-width:0;min-height:44px;font-size:clamp(2.6rem,5vw,3.8rem)!important;margin:6px auto 8px}
 .sod29-reading-source :is(blockquote,.sod29-source-quote){
   margin:18px auto;padding:2px 16px;border:0;
@@ -1442,8 +1447,8 @@
 /* Inline expressions (פלוני = 123): no box, background or border; real button semantics, 44px target, keyboard focus ring kept. */
 .sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]){
   appearance:none;-webkit-appearance:none;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:6px;
-  padding:0 .12em;margin:0;font:inherit;font-weight:inherit;color:var(--s29-accent-text)!important;cursor:pointer;
-  text-decoration:underline dotted color-mix(in srgb,var(--s29-accent-text) 55%,transparent);text-underline-offset:.28em;
+  padding:0 .12em;margin:0;font:inherit;font-weight:inherit;cursor:pointer;
+  text-decoration:underline dotted currentColor;text-underline-offset:.28em;
   display:inline;min-height:0;line-height:inherit;
 }
 .sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]):hover{background:color-mix(in srgb,var(--s29-accent) 8%,transparent)!important}
@@ -1452,3 +1457,15 @@
 .sod29-reading-source .sod29-post-equality{font-weight:800}
 /* Elections numerals share Bennett's numeral hero: blue canonical, numeric font, compact (not body-sized, not giant). */
 .sod29-reading-source p[style*="--gold"]{font-size:clamp(2.6rem,5vw,3.8rem)!important;line-height:1.05!important;margin-block:.4em .15em!important}
+
+/* Night post surface: deep navy with the ambient circles (palette preview A). Scoped to the Post surface only. */
+html[data-theme-preset="dark"] .sod29-root.surface-post{
+  --s29-page:#050F20!important;--s29-panel:rgba(10,32,64,.80)!important;--s29-panel-soft:rgba(14,44,86,.62)!important;
+  --s29-line:rgba(120,170,235,.24)!important;--s29-line-strong:rgba(255,205,90,.46)!important;
+  --s29-ink:#F4F1E6!important;--s29-muted:#BFD0EA!important;--s29-accent:#F2B93B!important;--s29-accent-text:#FFD36E!important;--s29-hero:#FFD36E!important;
+  background:radial-gradient(70% 45% at 50% 0%,rgba(80,140,230,.22),transparent 60%),linear-gradient(180deg,#0A2040,#050F20 72%)!important;
+}
+html[data-theme-preset="dark"] .sod29-root.surface-post .sod29-reading-source h2{color:#FFD36E}
+/* Relation colours win over the neutral reading ink above. */
+.sod29-reading-post .sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
+.sod29-reading-post .sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}

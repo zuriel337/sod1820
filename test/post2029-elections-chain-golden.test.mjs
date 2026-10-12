@@ -74,3 +74,15 @@ test("page and css wire the elections golden", () => {
   assert.match(page, /<PostTimeline2029 items=\{visibleTimeline\}/);
   assert.match(css, /sharshar-elections-redemption-hints-draft"\] \.sod29-elections-continuation/);
 });
+
+test("colour marks the date -> 2710 -> 271 relation and the 631 axis only; other numbers stay unmarked", () => {
+  const source = `<section><h1>הבחירות</h1><p>26</p><p>יהוה = 26</p><p>27.10.2026</p><p>2710</p><p>271</p><p>הריון = 271</p><p>חכמה = 271</p><p>2701</p><p>631</p><p>הבחירות = 631</p></section>`;
+  const html = I.markElectionsChain(source, verifiedRows(["הריון", "חכמה", "הבחירות", "יהוה"]));
+  assert.match(html, /<span data-link-group="a">27\.10<\/span>\.2026/);
+  assert.match(html, /<p data-link-group="a">2710<\/p>/);
+  assert.match(html, /data-gem="271"[^>]*data-link-group="a"|data-link-group="a"[^>]*data-gem="271"/);
+  assert.equal((html.match(/class="sod29-gematria-expression" data-link-group="a"/g) || []).length, 2);
+  assert.match(html, /class="sod29-gematria-value" data-link-group="b"[^>]*>631</);
+  assert.doesNotMatch(html, /data-gem="26"[^>]*data-link-group|data-gem="2701"[^>]*data-link-group/);
+  assert.doesNotMatch(html, /expression"[^>]*data-expression="יהוה"[^>]*data-link-group|data-link-group[^>]*data-expression="יהוה"/);
+});

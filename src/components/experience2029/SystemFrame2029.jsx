@@ -2170,7 +2170,7 @@ export default function SystemFrame2029({
             suppressLearn
           /> : null}
           onOpenHref={(href) => go(href)}
-          razielNode={<RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
+          razielNode={surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
@@ -2216,7 +2216,7 @@ export default function SystemFrame2029({
               </div>
             </>}
           </div>
-          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL || (companionActive && companionMode !== "slim")} onClick={companionActive ? focusCompanionRaziel : openRaziel} />
+          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim")} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} />
           <div className="sod29-bar-zone is-actions">
             {toolMode ? <>
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />

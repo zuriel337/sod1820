@@ -416,8 +416,9 @@ function markBennettStory(content = "", verifiedClaims = new Set()) {
     const expression = attrs.match(/data-expression="([^"]+)"/)?.[1];
     if (!expression) return match;
     const result = attrs.match(/data-result="([^"]+)"/)?.[1];
-    if (result && verifiedClaims.has(`${expression}|${result}`)) return match;
-    return `<button${attrs.replace(/\sdata-contextual-number-focus="true"/g, "")} data-gem="${expression}">`;
+    const group = result === "631" ? ' data-link-group="b"' : result === "78" ? ' data-link-group="a"' : "";
+    if (result && verifiedClaims.has(`${expression}|${result}`)) return `<button${attrs}${group}>`;
+    return `<button${attrs.replace(/\sdata-contextual-number-focus="true"/g, "")} data-gem="${expression}"${group}>`;
   });
   for (const title of ["יומיים אחרי ים המלח — המלח מופיע שוב", "מלח = 78 — וישראל בת 78", "האירוע"]) {
     html = html.replace(new RegExp(`(<h2\\b)(?![^>]*data-source-heading)([^>]*>\\s*${escapeRegExp(title)}\\s*<\\/h2>)`), '$1 data-source-heading="true"$2');
@@ -546,9 +547,12 @@ function markElectionsChain(content = "", verification = null) {
   // Region anchors: the existing big-number paragraphs become source headings in place.
   for (const region of ELECTIONS_REGIONS) {
     const pattern = new RegExp("(<p\\b)([^>]*>)(\\s*" + escapeRegExp(region.heading) + "\\s*<\\/p>)", "i");
-    html = html.replace(pattern, '$1 data-source-heading="true" data-elections-chain="v1" data-gem="' + region.number + '"$2$3');
+    html = html.replace(pattern, '$1 data-source-heading="true" data-elections-chain="v1" data-gem="' + region.number + '"' + (region.number === 271 ? ' data-link-group="a"' : region.number === 631 ? ' data-link-group="b"' : "") + '$2$3');
   }
   html = html.replace(/(<h2\b)([^>]*>נתניהו בן 77 — מזל ופרשת בראשית<\/h2>)/, '$1 data-source-heading="true"$2');
+  // Colour marks a RELATION only: the date 27.10 -> 2710 -> 271 (group a) and the 631 axis (group b). Everything else stays plain.
+  html = html.replace(/(<p\b[^>]*>)(\s*)27\.10(\.2026\s*<\/p>)/, '$1$2<span data-link-group="a">27.10</span>$3');
+  html = html.replace(/(<p\b)([^>]*>\s*2710\s*<\/p>)/, '$1 data-link-group="a"$2');
   // Equal-gematria lines: only engine-verified equalities become sidecar triggers.
   const verified = new Set((verification?.rows || []).filter((row) => row.verified).map((row) => row.phrase));
   for (const eq of ELECTIONS_EQUALITIES) {
@@ -560,8 +564,9 @@ function markElectionsChain(content = "", verification = null) {
     // its claimed result into the phrase's canonical calculation.
     html = html.replace(/(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi, (match, open, body, close) => {
       if (stripTags(body) !== `${eq.phrase} = ${eq.value}` || /<(?:button|img|video|iframe)\b/i.test(body)) return match;
-      const phrase = `<button type="button" class="sod29-gematria-expression" ${attrs("expression")}>${eq.phrase}</button>`;
-      const value = `<button type="button" class="sod29-gematria-value" ${attrs("result")}>${eq.value}</button>`;
+      const group = eq.value === 271 ? ' data-link-group="a"' : eq.value === 631 ? ' data-link-group="b"' : "";
+      const phrase = `<button type="button" class="sod29-gematria-expression"${group} ${attrs("expression")}>${eq.phrase}</button>`;
+      const value = `<button type="button" class="sod29-gematria-value"${group} ${attrs("result")}>${eq.value}</button>`;
       return `${open.replace(/>$/, ' class="sod29-post-equality">')}${phrase} = ${value}${close}`;
     });
   }
