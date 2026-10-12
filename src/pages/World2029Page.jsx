@@ -1029,7 +1029,7 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  if ((import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !controlMode) return <>
+  if (!controlMode) return <>
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
