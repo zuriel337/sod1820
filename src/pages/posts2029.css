@@ -277,3 +277,19 @@
 .sod29-posts-pagination button:disabled{opacity:.45;cursor:default}
 .sod29-posts-pagination button:focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
 .sod29-posts-pagination span{color:var(--s29-muted);font-size:14px}
+
+/* G4 compact index — thinner hero and cards; cover is a lazy <img>, not a CSS background. */
+.sod29-post-index-cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sod29-posts-index-hero{padding:clamp(18px,3vw,32px);border-radius:20px}
+.sod29-posts-index-hero h1{font-size:clamp(34px,5.5vw,64px);line-height:1}
+.sod29-posts-index-orbit{min-height:120px}
+.sod29-post-index-visual{min-height:140px}
+.sod29-post-index-card:nth-child(-n+2) .sod29-post-index-card-link{min-height:260px}
+.sod29-post-index-copy{padding:16px}
+.sod29-post-index-copy h2{font-size:clamp(18px,1.8vw,24px)}
+@media (max-width:620px){
+  .sod29-posts-index-hero{padding:16px;border-radius:14px}
+  .sod29-posts-index-hero h1{font-size:34px}
+  .sod29-posts-index-orbit{display:none}
+  .sod29-post-index-copy{padding:14px}
+}
