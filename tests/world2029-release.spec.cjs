@@ -571,7 +571,9 @@ test('Golden World 878 journey stays closed while the public Number 878 and full
   await expect(page.getByRole('heading', { name: 'העיקר סביב 878' })).toBeVisible();
   const attached = page.locator('.sod29-world-primary-item.has-media .sod29-world-primary-media').first();
   await expect(attached).toBeVisible({ timeout: 30_000 });
+  await attached.scrollIntoViewIfNeeded();
   await expect(attached.locator('img')).toHaveAttribute('data-media-fit', 'preserve-whole-image');
+  await expect.poll(() => attached.locator('img').evaluate((img) => img.complete && img.naturalWidth > 0), { timeout: 20_000 }).toBe(true);
   const rendering = await attached.locator('img').evaluate((img) => ({
     fit: getComputedStyle(img).objectFit,
     visible: img.getBoundingClientRect().width > 0 && img.getBoundingClientRect().height > 0,
