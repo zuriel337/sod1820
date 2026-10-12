@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { EXPERIENCE_SURFACE } from "../lib/experienceContext.js";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -115,7 +116,7 @@ export default function ControlPlane2029Page() {
     eyebrow="2029 · INTERNAL"
     description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
     status="ADMIN · READ ONLY"
-    surface="admin"
+    surface={EXPERIENCE_SURFACE.ADMIN}
     symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
