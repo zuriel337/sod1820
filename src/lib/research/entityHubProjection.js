@@ -685,9 +685,10 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
   try {
     const { data, error } = await supabase
       .from("gallery_images")
-      .select(WORLD_MEDIA_FIELDS)
+      .select(`${WORLD_MEDIA_FIELDS},min_tier`)
       .in("id", galleryIds)
       .eq("published", 1)
+      .eq("min_tier", 0)
       .or("curator_hidden.is.null,curator_hidden.eq.false");
     if (error) throw error;
     galleryRows = Array.isArray(data) ? data : [];
@@ -704,7 +705,7 @@ async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
     const row = galleryId ? galleryById.get(galleryId) : null;
     // Defense in depth: public media remains published + non-hidden even if a future reader
     // changes the server-side query. Representation availability never broadens publication.
-    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
+    if (!row?.image_url || row.published !== 1 || row.min_tier !== 0 || row.curator_hidden === true) return [];
     const relationType = candidates.get(String(node.id))?.relationType || "related";
     const envelope = buildMediaEnvelope({
       row,
@@ -803,9 +804,10 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
   try {
     const { data, error } = await supabase
       .from("gallery_images")
-      .select(WORLD_MEDIA_FIELDS)
+      .select(`${WORLD_MEDIA_FIELDS},min_tier`)
       .in("ocr_meta->>post_slug", variants)
       .eq("published", 1)
+      .eq("min_tier", 0)
       .or("curator_hidden.is.null,curator_hidden.eq.false")
       .limit(cap);
     if (error) throw error;
@@ -817,7 +819,7 @@ export async function fetchPostContextMedia({ postSlug, graphMedia = [], numbers
     throw error;
   }
   const metaItems = rows.flatMap((row) => {
-    if (!row?.image_url || row.published !== 1 || row.curator_hidden === true) return [];
+    if (!row?.image_url || row.published !== 1 || row.min_tier !== 0 || row.curator_hidden === true) return [];
     if (normalizeMediaPostSlug(row?.ocr_meta?.post_slug) !== slug) return [];
     const envelope = buildMediaEnvelope({
       row,
