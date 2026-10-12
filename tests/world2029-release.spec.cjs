@@ -524,7 +524,9 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(explain).toBeVisible({ timeout: 15_000 });
   await expect(explain).toContainText('878');
   await expect(explain).toContainText('אות → שם האות → ערך → סכום');
-  await expect(explain.getByRole('button', { name: /פתח בהיכל/ })).toHaveCount(0);
+  const heichal = explain.getByRole('button', { name: /פתח בהיכל/ });
+  await expect(heichal).toBeVisible();
+  await expect(heichal).toBeEnabled();
 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/number-2029-v10-miluy-358-390.png', fullPage: true });
