@@ -34,7 +34,7 @@ test("ELS 2029 opens in Classic and gates Research presentation without replay/s
   assert.match(page, /aria-label="ELS adaptive action slots"/);
   assert.match(page, /aria-label="סביבת המחקר של הצופן"/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
-  assert.match(page, /<ElsNativeClassic2029 initialSeed=\{savedRecord.row \? "" : classicSeed\} matrix=\{savedRecord.row\}\s/);
+  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
   assert.match(page, /one canonical Tzofen engine/);
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
