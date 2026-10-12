@@ -89,6 +89,14 @@ test.setTimeout(60_000);
 test.describe.configure({ mode: 'default' });
 test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
 
+async function openLaunchFlagForAcceptance(page, key) {
+  await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify([{ key, enabled: false, mode: 'all', message: '' }]),
+  }));
+}
+
 for (const route of CLS_ROUTES) {
   test(`Core Web Vitals CLS budget holds on ${route} at 390px`, async ({ page }) => {
     await installClsObserver(page);
@@ -229,6 +237,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
 });
 
 test('Topic expression focus opens Number 2029 and survives World + Heichal transitions', async ({ page }) => {
+  await openLaunchFlagForAcceptance(page, 'lock_heichal');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/topic/98-ikuv-geula`, { waitUntil: 'domcontentloaded' });
 
@@ -381,6 +390,7 @@ test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria
 });
 
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
+  await openLaunchFlagForAcceptance(page, 'lock_raziel_site');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="number"]')).toBeVisible({ timeout: 30_000 });
