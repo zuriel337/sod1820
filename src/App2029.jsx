@@ -106,7 +106,6 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
-              <Route path="/" element={<Navigate to="/2029" replace />} />
               <Route path="/2029" element={<Home2029Page />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
