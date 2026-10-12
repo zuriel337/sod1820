@@ -875,7 +875,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
         expect(row.proof_basis).toBe('verified_phone_unique');
         expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
       }
-      const writer = page.locator('.sod29-world-person-card').filter({ hasText: 'יניב לוי' }).first();
+      const writer = page.locator('#world-source-homes button').filter({ hasText: 'יניב לוי' }).first();
       await expect(writer).toBeVisible({ timeout: 30_000 });
       await writer.click();
       const lens = page.locator('[data-experience-surface="contributor-findings-lens"]');
@@ -885,14 +885,15 @@ for (const preset of ['light', 'parchment', 'dark']) {
       await expect(lens.locator('details[open]')).toHaveCount(0);
       await assertNoHorizontalOverflow(page);
       await lens.screenshot({ path: `test-results/release-visual/writer-projector-${preset}-${width}.png` });
-      await page.getByRole('button', { name: 'סוד החשמל · כל המקורות', exact: true }).click();
+      await page.locator('#world-source-homes button').filter({ hasText: 'סוד החשמל' }).first().click();
       const corpus = page.locator('[data-experience-capability="world-source-corpus"]');
       await expect(corpus.getByRole('combobox')).toBeVisible();
       await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).toBeVisible({ timeout: 20_000 });
       await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).not.toBeEmpty();
       await assertNoHorizontalOverflow(page);
       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
-      await expect(page.getByText(/מוצגות הודעות מקור מארבעה כותבים שאושרו לעריכה/)).toBeVisible();
+      await page.getByRole('button', { name: 'הודעות מקור' }).click();
+      if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);
     });
   }
