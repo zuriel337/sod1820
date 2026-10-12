@@ -360,7 +360,7 @@ jobs:
             await expect(post).toBeVisible({ timeout: 30_000 });
 
             // The adopted desktop shell embeds the context in the pinned companion.
-            // Phone keeps the existing context sheet. Both expose the same four sections.
+            // Phone keeps the existing context sheet. Both expose the same seven authored sections and connections.
             const companion = page.locator('.sod29-companion');
             if (width >= 981) {
               await expect(companion).toBeVisible();
@@ -371,13 +371,15 @@ jobs:
             }
             const restRail = page.locator('.sod29-surface-context-rail');
             const contentMap = restRail.locator('[data-context-map-item]');
-            await expect(contentMap).toHaveCount(4, { timeout: 30_000 });
+            await expect(contentMap).toHaveCount(8, { timeout: 30_000 });
             expect(await contentMap.evaluateAll(nodes => nodes.map(node => node.dataset.contextMapItem)))
-              .toEqual(['elections-chain', 'bennett-631', 'dead-sea-chronology', 'post-connections']);
-            await expect(contentMap.nth(0)).toContainText('האירוע שתועד');
-            await expect(contentMap.nth(1)).toContainText('631');
-            await expect(contentMap.nth(2)).toContainText('22.9');
-            await expect(contentMap.nth(3)).toContainText('חיבורים');
+              .toEqual(['bennett-sequence', 'elections-chain', 'salt-covenant', 'salt-78', 'bennett-israel-78', 'bennett-631', 'dead-sea-chronology', 'post-connections']);
+            await expect(contentMap.nth(0)).toContainText('ים המלח');
+            await expect(contentMap.nth(1)).toContainText('האירוע');
+            await expect(contentMap.nth(2)).toContainText('ברית מלח');
+            await expect(contentMap.nth(5)).toContainText('631');
+            await expect(contentMap.nth(6)).toContainText('ים המלח');
+            await expect(contentMap.nth(7)).toContainText('חיבורים');
             if (width < 600) {
               await expect(restRail).toBeHidden();
               const glassLocator = page.locator('.sod29-glass-locator');
@@ -401,10 +403,10 @@ jobs:
               expect(after.y + after.height).toBeLessThanOrEqual(dock.y);
             }
 
-            const focusGroup = post.locator('.sod29-bennett-equalities[data-contextual-number-focus-group="true"]');
-            await expect(focusGroup).toBeVisible({ timeout: 30_000 });
+            const focusSource = post.locator('.sod29-reading-source');
+            await expect(focusSource).toBeVisible({ timeout: 30_000 });
             for (const expression of ['נפתלי בנט', 'הבחירות', 'מלך ישראל']) {
-              await expect(focusGroup.locator(`[data-focus-part="expression"][data-expression="${expression}"]`)).toBeVisible();
+              await expect(focusSource.locator(`[data-contextual-number-focus="true"][data-expression="${expression}"]`).first()).toBeVisible();
             }
             const timeline = page.locator('[data-experience-capability="public-timeline"][data-timeline-surface="post"]');
             await expect(timeline).toBeVisible();
@@ -417,7 +419,7 @@ jobs:
             expect(traceRequests).toBe(0);
             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
 
-            await focusGroup.locator('[data-contextual-number-focus="true"]').first().click();
+            await focusSource.locator('[data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first().click();
 
             const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
             await expect(sidecar).toBeVisible({ timeout: 30_000 });

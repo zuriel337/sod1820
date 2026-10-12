@@ -109,7 +109,11 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.doesNotMatch(reader, /live-whatsapp-feed|wa_bot_log|wa_vip_inbox|\.from\("channel_updates"\)/);
   assert.match(world, /item\.kind === "source" && item\.sourceKind === "post" && item\.href/);
   assert.match(world, /Number\.isFinite\(item\.value\)/);
-  assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
+  const hook = readFileSync(new URL("../../components/experience2029/useSystemFeed2029.js", import.meta.url), "utf8");
+  assert.match(hook, /watchWorldDiscoveryStream\(\{/);
+  assert.match(hook, /limit:\s*40, includeResearch:\s*false/);
+  assert.doesNotMatch(frame, /watchWorldDiscoveryStream\(\{/);
+  assert.match(frame, /<AttentionProjection[\s\S]{0,240}?feed=\{feed\}/);
   assert.match(frame, /title="מה חדש בעולם"/);
   assert.match(frame, /className="sod29-feed-chip" onClick=\{openAttention\}/);
   assert.match(frame, /feed\.newCount > 0 && !transientKind/);
@@ -169,4 +173,42 @@ test("new public World uses the composed story and sources without a feature tog
   assert.match(world, /<SourceArrivalList2029 loading=\{landing\.loading\}/);
   assert.match(reader, /\.order\("modified", \{ ascending: false, nullsFirst: false \}\)/);
   assert.match(flight, /data-source-interpretation="zuriel-787"/);
+});
+
+
+test("exact reviewed public section update projects once from a source, retaining its publication timestamp", () => {
+  const elections = makePost({
+    id: 5107,
+    slug: "sharshar-elections-redemption-hints-draft",
+    source: "ai",
+    date: "2026-09-30T08:55:06Z",
+    modified: "2026-10-10T23:19:35.974936+00:00",
+  });
+  const item = postRowToWorldUpdate(elections);
+  assert.equal(item.sourceRef, "posts:5107");
+  assert.equal(item.arrivalAt, "2026-09-30T08:55:06.000Z");
+  assert.equal(item.sourcePublishedAt, item.arrivalAt);
+  assert.equal(item.at, "2026-10-10T23:19:35.974Z");
+  assert.equal(item.sourceUpdatedAt, item.at);
+  assert.equal(item.sourceUpdate.kind, "source_fragment_revision");
+  assert.equal(item.sourceUpdate.targetId, "netanyahu-77-mazal");
+  assert.equal(item.sourceUpdate.revision, 184);
+  assert.equal(item.href, "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal", "a certified update enters the exact source unit");
+  assert.equal(item.sourceUpdate.targetHref,
+    "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal");
+
+  const feed = buildWorldDiscoveryStream({
+    posts: [elections, makePost({ id: 5116, slug: "ordinary", date: "2026-10-05T00:00:00Z", modified: "2026-10-05T00:00:00Z" })]
+  }, { limit: 10 });
+  assert.deepEqual(feed.arrivals.map((row) => row.sourceRef), ["posts:5107", "posts:5116"]);
+  assert.equal(feed.items.filter((row) => row.sourceRef === "posts:5107").length, 1,
+    "one source occurrence is not counted twice because a fragment was updated");
+});
+
+test("future cover edit and hidden/draft source cannot propagate the certified segment event", () => {
+  const base = makePost({ id: 5107, slug: "sharshar-elections-redemption-hints-draft", source: "ai",
+    modified: "2026-10-11T21:21:26.060002+00:00" });
+  assert.equal(postRowToWorldUpdate(base)?.sourceUpdate, null);
+  assert.equal(postRowToWorldUpdate({ ...base, home_hidden: true }), null);
+  assert.equal(postRowToWorldUpdate({ ...base, tags: ["טיוטה"] }), null);
 });

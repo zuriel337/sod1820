@@ -35,9 +35,9 @@ function PostIndexCard({ post, index }) {
     <Link className="sod29-post-index-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
       <div
         className={"sod29-post-index-visual" + (image ? " has-image" : "")}
-        style={image ? { backgroundImage: `url("${image.replace(/"/g, "%22")}")` } : undefined}
         aria-hidden="true"
       >
+        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading={index < 2 ? "eager" : "lazy"} decoding="async" width="640" height="360" /> : null}
         {!image ? <div className="sod29-post-index-number-field">
           {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
         </div> : null}

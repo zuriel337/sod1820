@@ -36,7 +36,7 @@ function useHeroData(lead) {
     (async () => {
       let row = null; let cards = [];
       try {
-        const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories").eq("slug", lead.slug).limit(1);
+        const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories,source,home_hidden").eq("slug", lead.slug).limit(1);
         row = data?.[0] || null;
         const numbers = postNumbers(row?.tags);
         if (numbers.length) {
@@ -97,6 +97,7 @@ export default function HomeHeroMotion2029({ lead, href }) {
       {update ? <p className="h29-hero-update k29-in" style={{ "--i": 2 }} role="status">
         <span className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />
         <span>{updateText}</span>
+        {update.targetHref ? <Link className="h29-hero-update-link" to={update.targetHref}>{update.label} ←</Link> : null}
         {update.kind === "post-modified" ? <small>המערכת עדיין לא מפרטת מה נוסף בטקסט.</small> : null}
       </p> : null}
 

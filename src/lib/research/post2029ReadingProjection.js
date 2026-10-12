@@ -345,31 +345,93 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
 
 const BENNETT_SALT_REGIONS = Object.freeze([
   {
+    id: "bennett-sequence",
+    heading: "יומיים אחרי ים המלח — המלח מופיע שוב",
+    label: "ים המלח → האירוע",
+    primary: "פוסט ים המלח (22.9) → אירוע המלחיות (24.9)",
+    signals: ["יומיים ביניהם", "ללא טענת סיבתיות"],
+    worldLabel: "פתח את ים המלח",
+  },
+  {
     id: "elections-chain",
-    heading: "האירוע שתועד",
-    label: "בנט · האירוע שתועד",
+    heading: "האירוע",
+    label: "24.9 · האירוע בבני ברק",
     primary: "נפתלי בנט · אירוע המלחיות בבני ברק",
     signals: ["תיעוד המקור", "המשך לציר הבחירות"],
     worldLabel: "פתח את פוסט הבחירות",
   },
   {
+    id: "salt-covenant",
+    heading: "ברית מלח",
+    label: "ברית מלח · מלכות דוד",
+    primary: "ברית מלח = 690 · מלכות דוד",
+    signals: ["3 פסוקים", "ויקרא · במדבר · דברי הימים"],
+    worldLabel: "פתח את ברית מלח",
+  },
+  {
+    id: "salt-78",
+    heading: "הרמז המרכזי — מלח",
+    label: "מלח = 78",
+    primary: "מלח = 78",
+    signals: ["גימטריה רגילה"],
+    number: 78,
+    worldLabel: "פתח את 78",
+  },
+  {
+    id: "bennett-israel-78",
+    heading: "מלח = 78 — וישראל בת 78",
+    label: "גיל המדינה · 78 · אחדות",
+    primary: "מלח = 78 · ישראל בת 78",
+    signals: ["78 שנות עצמאות", "אחדות"],
+    worldLabel: "פתח את 78",
+  },
+  {
     id: "bennett-631",
-    heading: "631 — הציר המרכזי",
+    heading: "בנט בתוך עץ הבחירות",
     label: "631 · בנט והבחירות",
     primary: "נפתלי בנט = הבחירות = מלך ישראל = 631",
-    signals: ["3 שוויונות מאומתים", "ציר הבחירות"],
+    signals: ["5 שוויונות", "ציר הבחירות"],
     number: 631,
     worldLabel: "פתח את 631",
   },
   {
     id: "dead-sea-chronology",
     heading: "ים המלח",
-    label: "22.9 → 24.9",
-    primary: "פוסט ים המלח → אירוע המלחיות",
-    signals: ["קשר כרונולוגי", "ללא טענת סיבתיות"],
+    label: "ים המלח · 133",
+    primary: "ים המלח = 133",
+    signals: ["חיבור משני", "הסיפור המלא בפוסט ים המלח"],
     worldLabel: "פתח את ים המלח",
   },
 ]);
+
+// Reading story of the saved Bennett source (revision 207 -> 208). The authored body is shown as written:
+// Dead Sea -> the incident two days later -> salt covenant / David -> salt = 78 and the state's age -> unity.
+// Presentation only: the covenant section is moved ahead of the salt = 78 section when both are found.
+// `verifiedClaims` is a Set of "expression|result" pairs the canonical method engine confirmed. Only those keep the
+// contextual-number focus interaction; every other saved result stays a plain open-number trigger.
+function markBennettStory(content = "", verifiedClaims = new Set()) {
+  let html = String(content || "");
+  if (html.includes('data-bennett-story="v1"')) return html;
+  html = html.replace(/<button\b([^>]*)>/gi, (match, attrs) => {
+    const expression = attrs.match(/data-expression="([^"]+)"/)?.[1];
+    if (!expression) return match;
+    const result = attrs.match(/data-result="([^"]+)"/)?.[1];
+    const group = result === "631" ? ' data-link-group="b"' : result === "78" ? ' data-link-group="a"' : "";
+    if (result && verifiedClaims.has(`${expression}|${result}`)) return `<button${attrs}${group}>`;
+    return `<button${attrs.replace(/\sdata-contextual-number-focus="true"/g, "")} data-gem="${expression}"${group}>`;
+  });
+  for (const title of ["יומיים אחרי ים המלח — המלח מופיע שוב", "מלח = 78 — וישראל בת 78", "האירוע"]) {
+    html = html.replace(new RegExp(`(<h2\\b)(?![^>]*data-source-heading)([^>]*>\\s*${escapeRegExp(title)}\\s*<\\/h2>)`), '$1 data-source-heading="true"$2');
+  }
+  const covenant = html.match(/\s*<section class="sod29-bennet-section">\s*<h2[^>]*>ברית מלח<\/h2>[\s\S]*?<\/section>/);
+  const centralSalt = html.match(/\s*<section class="sod29-bennet-section is-centered">\s*<h2[^>]*>הרמז המרכזי — מלח<\/h2>/);
+  if (covenant && centralSalt && html.indexOf(covenant[0]) > html.indexOf(centralSalt[0])) {
+    html = html.replace(covenant[0], "");
+    html = html.replace(centralSalt[0], `${covenant[0]}${centralSalt[0]}`);
+  }
+  return html.replace(/<section\b/, '<section data-bennett-story="v1"');
+}
+
 
 function buildBennettGoldenBody(verification, originalContent = "") {
   const verified = verification?.verified === true;
@@ -432,7 +494,6 @@ function buildBennettSaltExperience(post) {
     connections: [
       { id: "bennett-631", label: "פוסט הבחירות · ציר 631", kind: "POST", value: "631", href: "/post/sharshar-elections-redemption-hints-draft", reason: "כאן נפתח ציר 631; פוסט בנט הוא המשך שלו. פתחו את הפוסט כדי לקרוא את החישובים ואת החיבורים המקוריים.", provenanceLabel: "post:5107" },
       { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע.", provenanceLabel: "מנוע גימטריה" },
-      { id: "bread-78", label: "לחם", kind: "NUMBER", value: "78", href: "/2029/number/78", reason: "אותו ערך רגיל כמו מלח; המשמעות פרשנית." },
       { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/post/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
       { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/2029/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
       { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/2029/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
@@ -469,12 +530,12 @@ const ELECTIONS_EQUALITIES = Object.freeze([
   { phrase: "מזל", value: 77, regionId: "elections-77" },
 ]);
 const ELECTIONS_REGIONS = Object.freeze([
-  { id: "elections-631", heading: "631", label: "631 · הציר המרכזי", primary: "הבחירות = מלך ישראל = נפתלי בנט = 631", signals: ["5 שוויונות", "המשך: פוסט בנט"], number: 631, hero: true, worldLabel: "פתח את 631" },
+  { id: "elections-26", heading: "26", label: "26 · יהוה", primary: "יהוה = 26", signals: ["הכנסת ה־26"], number: 26, worldLabel: "פתח את 26" },
   { id: "elections-271", heading: "271", label: "271 · הריון · חכמה", primary: "הריון = חכמה = 271", signals: ["27.10 → 2710 → 271"], number: 271, worldLabel: "פתח את 271" },
   { id: "elections-2701", heading: "2701", label: "2701 · בראשית א׳, א׳", primary: "בראשית א׳, א׳ = 2701", signals: ["הקשר מקראי"], number: 2701, worldLabel: "פתח את 2701" },
   { id: "elections-1820", heading: "1820", label: "1820 · המספר שמלווה את האתר", primary: "עופר וינטר · מילוי = 1820", signals: ["המספר של SOD1820"], number: 1820, worldLabel: "פתח את 1820" },
-  { id: "elections-26", heading: "26", label: "26 · יהוה", primary: "יהוה = 26", signals: ["הכנסת ה־26"], number: 26, worldLabel: "פתח את 26" },
-  { id: "elections-66", heading: "66", label: "66 · בן דוד", primary: "בן דוד = 66", signals: ["שישים ושש זוגות"], number: 66, worldLabel: "פתח את 66" },
+  { id: "elections-631", heading: "631", label: "631 · הציר המרכזי", primary: "הבחירות = מלך ישראל = נפתלי בנט = 631", signals: ["5 שוויונות", "המשך: פוסט בנט"], number: 631, hero: true, worldLabel: "פתח את 631" },
+  { id: "elections-66", heading: "66", label: "שרשר · נעליים · בן דוד = 66", primary: "בן דוד = 66", signals: ["שישים ושש זוגות"], number: 66, worldLabel: "פתח את 66" },
   { id: "elections-77", heading: "נתניהו בן 77 — מזל ופרשת בראשית", label: "77 · מזל · פרשת בראשית", primary: "מזל = 77", signals: ["יום ההולדת העברי", "מקורות בתוך הפוסט"], number: 77, worldLabel: "פתח את 77" },
 ]);
 
@@ -486,9 +547,12 @@ function markElectionsChain(content = "", verification = null) {
   // Region anchors: the existing big-number paragraphs become source headings in place.
   for (const region of ELECTIONS_REGIONS) {
     const pattern = new RegExp("(<p\\b)([^>]*>)(\\s*" + escapeRegExp(region.heading) + "\\s*<\\/p>)", "i");
-    html = html.replace(pattern, '$1 data-source-heading="true" data-elections-chain="v1" data-gem="' + region.number + '"$2$3');
+    html = html.replace(pattern, '$1 data-source-heading="true" data-elections-chain="v1" data-gem="' + region.number + '"' + (region.number === 271 ? ' data-link-group="a"' : region.number === 631 ? ' data-link-group="b"' : "") + '$2$3');
   }
   html = html.replace(/(<h2\b)([^>]*>נתניהו בן 77 — מזל ופרשת בראשית<\/h2>)/, '$1 data-source-heading="true"$2');
+  // Colour marks a RELATION only: the date 27.10 -> 2710 -> 271 (group a) and the 631 axis (group b). Everything else stays plain.
+  html = html.replace(/(<p\b[^>]*>)(\s*)27\.10(\.2026\s*<\/p>)/, '$1$2<span data-link-group="a">27.10</span>$3');
+  html = html.replace(/(<p\b)([^>]*>\s*2710\s*<\/p>)/, '$1 data-link-group="a"$2');
   // Equal-gematria lines: only engine-verified equalities become sidecar triggers.
   const verified = new Set((verification?.rows || []).filter((row) => row.verified).map((row) => row.phrase));
   for (const eq of ELECTIONS_EQUALITIES) {
@@ -500,8 +564,9 @@ function markElectionsChain(content = "", verification = null) {
     // its claimed result into the phrase's canonical calculation.
     html = html.replace(/(<p\b[^>]*>)([\s\S]*?)(<\/p>)/gi, (match, open, body, close) => {
       if (stripTags(body) !== `${eq.phrase} = ${eq.value}` || /<(?:button|img|video|iframe)\b/i.test(body)) return match;
-      const phrase = `<button type="button" class="sod29-gematria-expression" ${attrs("expression")}>${eq.phrase}</button>`;
-      const value = `<button type="button" class="sod29-gematria-value" ${attrs("result")}>${eq.value}</button>`;
+      const group = eq.value === 271 ? ' data-link-group="a"' : eq.value === 631 ? ' data-link-group="b"' : "";
+      const phrase = `<button type="button" class="sod29-gematria-expression"${group} ${attrs("expression")}>${eq.phrase}</button>`;
+      const value = `<button type="button" class="sod29-gematria-value"${group} ${attrs("result")}>${eq.value}</button>`;
       return `${open.replace(/>$/, ' class="sod29-post-equality">')}${phrase} = ${value}${close}`;
     });
   }
@@ -512,12 +577,7 @@ function markElectionsChain(content = "", verification = null) {
   <b>פתח ←</b>
 </a>`;
   html = html.replace(/(נס נתניהו(?:<\/button>)?\s*=\s*(?:<button[\s\S]*?<\/button>|631)\s*<\/p>)/, `$1${card}`);
-  // The main axis precedes the secondary axes in the reading projection. Move
-  // the existing block once, without copying, dropping or rewriting its text.
-  const primary = html.match(/<p\b[^>]*data-gem="631"[^>]*>\s*631\s*<\/p>[\s\S]*?data-elections-continuation="true"[\s\S]*?<\/a>/);
-  if (primary && /<h1\b[^>]*>[\s\S]*?<\/h1>/.test(html)) {
-    html = html.replace(primary[0], "").replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/, `$1${primary[0]}`);
-  }
+  // Reading order is the authored order: יהוה = 26 and the date first, then 631, then the people units.
   return html.replace(/<section\b/, '<section class="sod29-elections-reading-body"');
 }
 
@@ -585,6 +645,21 @@ async function verifyTashpaz() {
     value: Number.isSafeInteger(value) ? value : null,
     method: "רגיל",
   };
+}
+
+// Engine check of every saved (expression, result) claim in the Bennett source; one RPC per distinct pair.
+async function verifyBennettStoryClaims(content = "") {
+  const pairs = new Map();
+  for (const match of String(content).matchAll(/<button\b[^>]*>/gi)) {
+    const expression = match[0].match(/data-expression="([^"]+)"/)?.[1];
+    const result = Number(match[0].match(/data-result="([^"]+)"/)?.[1]);
+    if (expression && Number.isSafeInteger(result)) pairs.set(`${expression}|${result}`, { expression, result });
+  }
+  const checked = await Promise.all([...pairs.entries()].slice(0, 24).map(async ([key, { expression, result }]) => {
+    const { data, error } = await supabase.rpc("fn_method_value", { p_method_key: "רגיל", p_phrase: expression });
+    return !error && Number(data) === result ? key : null;
+  }));
+  return new Set(checked.filter(Boolean));
 }
 
 async function verifyBennettSaltFocus() {
@@ -699,6 +774,7 @@ export async function fetchPost2029ReadingProjection(slug) {
   const electionsVerification = isElectionsChain ? await verifyElectionsEqualities() : null;
   const yearVerification = isGolden ? await verifyTashpaz() : null;
   const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
+  const bennettStoryClaims = isBennettSaltPilot ? await verifyBennettStoryClaims(post.content) : new Set();
   const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
   const presentationPost = isFz1073Pilot
     ? {
@@ -715,9 +791,7 @@ export async function fetchPost2029ReadingProjection(slug) {
     : isBennettSaltPilot
       ? {
           ...post,
-          title: "בנט בתוך ציר 631",
-          excerpt: "אירוע חדש מתחבר לציר 631 שכבר הופיע בפוסט הבחירות: נפתלי בנט = הבחירות = מלך ישראל = 631. יומיים קודם פורסם פוסט ים המלח.",
-          content: buildBennettGoldenBody(bennettSaltVerification, post.content),
+          content: markBennettStory(post.content, bennettStoryClaims),
           _experience: buildBennettSaltExperience(post),
         }
       : { ...post, content: markLegacyEqualityLines(post.content) };
@@ -815,6 +889,7 @@ export const post2029ReadingInternals = {
   BENNETT_SALT_REGIONS,
   buildBennettSaltExperience,
   buildBennettGoldenBody,
+  markBennettStory,
   ELECTIONS_SLUG,
   ELECTIONS_EQUALITIES,
   ELECTIONS_REGIONS,

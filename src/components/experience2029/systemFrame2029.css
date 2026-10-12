@@ -1214,3 +1214,81 @@
 .sod29-golden-facet-filters button{cursor:pointer;font-weight:700}
 .sod29-golden-facet-filters small{align-self:center;color:var(--s29-muted)}
 .sod29-golden-source-text{white-space:pre-line;line-height:1.55;overflow-wrap:anywhere}
+.sod29-surface-context-chain{display:grid;gap:4px;padding:8px 10px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
+.sod29-surface-context-chain small{color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:850}
+.sod29-surface-context-chain ol{margin:0;padding:0;list-style:none;display:grid;gap:2px;border-inline-start:1px solid var(--s29-line-strong)}
+.sod29-surface-context-chain li{padding-inline-start:10px;min-width:0}
+.sod29-surface-context-chain a,.sod29-surface-context-chain span{display:flex;align-items:center;min-height:44px;font-size:13px;line-height:1.35;color:var(--s29-accent-text);text-decoration:none}
+.sod29-surface-context-chain span{color:var(--s29-ink);font-weight:800}
+.sod29-surface-context-chain em{font-style:normal;color:var(--s29-muted);font-weight:500}
+.sod29-surface-context-chain.is-tree ol ol{margin-block:2px;margin-inline-start:6px}
+.sod29-surface-context-chain.is-tree a{display:grid;gap:0;align-content:center}
+.sod29-surface-context-chain.is-tree a span{min-height:0;font-weight:700;color:var(--s29-accent-text)}
+.sod29-surface-context-chain.is-tree a em{font-size:11px}
+/* רצף האירועים — fixed first block of the Post context rail (logo + tree). Tree marks are NOT feed updates. */
+.sod29-event-tree{position:sticky;top:0;z-index:2;display:grid;gap:6px;padding:8px 10px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);box-shadow:0 6px 18px color-mix(in srgb,var(--s29-page) 30%,transparent)}
+.sod29-event-tree-head{display:flex;align-items:center;gap:8px;min-height:32px}
+.sod29-event-tree-head img{height:28px;width:auto;max-width:56px;object-fit:contain}
+.sod29-event-tree-head strong{font-size:14px;color:var(--s29-ink)}
+.sod29-event-tree-origins{margin:0;padding:0;list-style:none;display:grid;gap:1px;font-size:13px}
+.sod29-event-tree-origins small,.sod29-event-tree em,.sod29-event-tree-note{color:var(--s29-muted);font-size:12px;font-style:normal}
+.sod29-event-tree a{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);font-size:13px;font-weight:700;text-decoration:none}
+.sod29-event-tree-list,.sod29-event-tree-list ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.sod29-event-tree-list ol{margin-inline-start:12px;padding-inline-start:10px;border-inline-start:1px solid var(--s29-line-strong)}
+.sod29-event-tree-list li{display:grid;gap:0;min-width:0}
+.sod29-event-tree-list .is-here>span{font-size:13px;font-weight:850;color:var(--s29-ink)}
+.sod29-event-tree-list .is-child{margin-inline-start:12px;padding-inline-start:10px;border-inline-start:1px solid var(--s29-line-strong)}
+.sod29-event-tree-mark{justify-self:start;padding:0 8px;border:1px solid var(--s29-line-strong);border-radius:999px;font-size:11px;font-weight:700;color:var(--s29-muted);background:transparent}
+.sod29-event-tree-note{line-height:1.4}
+.sod29-event-tree-origins li{display:grid;gap:0;min-width:0}
+.sod29-event-tree-origins a{min-height:44px}
+.sod29-event-tree-list .is-label{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:850;color:var(--s29-ink)}
+.sod29-event-tree-list .is-here>.is-label{color:var(--s29-ink)}
+.sod29-event-tree-list .is-here{background:color-mix(in srgb,var(--s29-accent) 9%,transparent);border-radius:8px}
+.sod29-event-tree-list .is-axis>a{color:var(--s29-discovery-text,var(--s29-accent-text))}
+.sod29-event-tree-origin{display:grid;gap:0;font-size:12px}
+.sod29-event-tree-origin a{min-height:44px}
+.sod29-event-tree-list{max-height:min(44vh,360px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.sod29-surface-context-rail.is-rest .sod29-context-inspector-title{font-size:clamp(17px,1.6vw,22px);line-height:1.25}
+
+/* Phone/tablet context STRIP: a separate fixed horizontal strip directly above the action row (island), replacing the
+   vertical edge pill. It never reserves a text gutter, never moves the page, and the page keeps bottom clearance for it. */
+@media(max-width:980px){
+  .sod29-glass-locator{
+    inset-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));
+    inset-block-start:auto;
+    inset-block-end:calc(var(--s29-island-clearance,104px) + 6px + env(safe-area-inset-bottom,0px));
+    transform:none;
+    width:auto;
+    max-height:none;
+    min-height:48px;
+    grid-template-columns:44px minmax(0,1fr) 44px;
+    grid-template-rows:none;
+    align-items:center;
+    gap:4px;
+    padding:2px 4px;
+    border-radius:16px;
+    z-index:60;
+  }
+  .sod29-glass-locator-step{min-height:44px;min-width:44px}
+  .sod29-glass-locator-step small{display:none}
+  .sod29-glass-locator-step span{font-size:18px;line-height:1}
+  .sod29-glass-locator-core{
+    writing-mode:horizontal-tb;
+    min-height:44px;
+    width:100%;
+    display:flex!important;
+    flex-direction:row;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    padding:0 12px!important;
+    text-align:start;
+    border-radius:12px;
+  }
+  .sod29-glass-locator-core b{max-height:none;flex:1 1 auto;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sod29-glass-locator-core small{flex:0 0 auto;font-size:12px}
+  .sod29-root.surface-post .sod29-reading-post{padding-bottom:calc(var(--s29-island-clearance,104px) + 72px)}
+  .sod29-root.surface-post:has(.sod29-glass-locator) .sod29-feed-chip{bottom:calc(var(--s29-island-clearance,104px) + 62px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:980px){.sod29-glass-locator-step span{display:inline-block;transform:rotate(90deg)}}

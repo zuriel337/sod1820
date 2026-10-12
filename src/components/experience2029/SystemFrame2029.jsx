@@ -1,5 +1,6 @@
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
+import { createPortal } from "react-dom";
 import React, {
   createContext,
   useCallback,
@@ -12,7 +13,6 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
-import { timeAgoHe } from "../../lib/format.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
@@ -38,6 +38,7 @@ import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
@@ -96,6 +97,7 @@ const ShellContext = createContext({
   closeTransient: () => {},
   go: () => {},
   returnExact: () => {},
+  registerOrientationHost: () => {},
   experience: null,
 });
 
@@ -574,29 +576,12 @@ function ActionProjection({
   );
 }
 
-function AttentionProjection({ context, onWorkspace, onOpen }) {
-  const [arrivals, setArrivals] = useState({ loading: true, items: [], error: false, partial: false });
-
-  // SAME owner/reader as /world. Loaded only on opening the bottom attention sheet;
-  // never copy a private/admin research bundle into global Context or local storage.
-  useEffect(() => {
-    let stop;
-    let mounted = true;
-    import("../../lib/research/worldDiscoveryStream.js")
-      .then(({ watchWorldDiscoveryStream }) => {
-        if (!mounted) return;
-        stop = watchWorldDiscoveryStream({
-          limit: 10, includeResearch: false,
-          onResult: (result) => setArrivals({
-            loading: false, items: result.items || [], groupArrivals: result.groupArrivals,
-            error: false, partial: (result.unavailableSources || []).length > 0,
-          }),
-          onError: () => setArrivals({ loading: false, items: [], error: true, partial: false }),
-        });
-      })
-      .catch(() => { if (mounted) setArrivals({ loading: false, items: [], error: true, partial: false }); });
-    return () => { mounted = false; stop?.(); };
-  }, []);
+function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
+  // The mobile Now sheet and left Companion show the SAME authorized public rows.
+  // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
+  // independent ordering, research read or seen-state cache.
+  const rows = Array.isArray(feed?.rows) ? feed.rows : [];
+  const partial = Array.isArray(feed?.unavailableSources) && feed.unavailableSources.length > 0;
 
   return (
     <>
@@ -606,27 +591,24 @@ function AttentionProjection({ context, onWorkspace, onOpen }) {
         <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
       </div>
       <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
-        {arrivals.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
-        {arrivals.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!arrivals.loading && !arrivals.error && !arrivals.items.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
-        {arrivals.groupArrivals ? <p role="status">{arrivals.groupArrivals.message}</p> : null}
-        {arrivals.partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
-        {arrivals.items.slice(0, 8).map((item) => {
-          const href = item.kind === "source"
-            ? item.href
-            : item.kind === "convergence" && item.slug
-              ? `/topic/${encodeURIComponent(item.slug)}`
-              : null;
+        {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
+        {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
+        {!feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
+        {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
+        {rows.slice(0, 8).map((row) => {
+          const item = row.item || {};
+          const href = row.href;
           return <button
             type="button"
-            key={item.id}
+            key={row.id}
             className="sod29-action"
             disabled={!href}
-            onClick={() => onOpen?.(href)}
+            onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
             style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
           >
-            <small>{item.kind === "source" ? "כתב מקור" : "התכנסות"} · {item.creator} · {timeAgoHe(item.at) || "זמן לא צוין"}</small>
-            <strong>{item.label}</strong>
+            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
+            <strong>{row.title}</strong>
             {item.summary ? <small>{item.summary}</small> : null}
             {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
           </button>;
@@ -1510,6 +1492,8 @@ export default function SystemFrame2029({
     historyIndex,
     locationKey: location.key,
   }), [location.key, location.state, historyIndex]);
+  // A surface may host the orientation pill inside its own compact header (Post): same LearnMark, one owner, no extra bar.
+  const [orientationHost, setOrientationHost] = useState(null);
   const orientation = useMemo(() => resolveEntryOrientation({
     surface,
     arrival,
@@ -1861,6 +1845,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
+    registerOrientationHost: setOrientationHost,
   }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
@@ -1939,11 +1924,19 @@ export default function SystemFrame2029({
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
+  // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
+  const progressSections = (surface === "post" || surface === "topic") && Array.isArray(context?.dimensions?.surfaceSections)
+    ? context.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
+  const progressIndex = progressSections.findIndex((item) => item.id === context?.dimensions?.activeSectionId);
+  const readingProgress = showBottomTrail && progressSections.length >= 2 && progressIndex >= 0
+    ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
+    : null;
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
+  const companionHasSequence = hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
@@ -1983,7 +1976,7 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
@@ -2081,8 +2074,8 @@ export default function SystemFrame2029({
             </div>
           </header>
 
-          {orientation.mode !== "hidden" && orientation.manifest ? <div className="sod29-entry-orientation-slot">
-            <LearnMark2029
+          {orientation.mode !== "hidden" && orientation.manifest ? (() => {
+            const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
               label={orientation.manifest.label}
               compact={orientation.mode === "compact"}
@@ -2092,8 +2085,11 @@ export default function SystemFrame2029({
             >
               <p>{orientation.manifest.body}</p>
               <p><strong>{experience.experience.question}</strong></p>
-            </LearnMark2029>
-          </div> : null}
+            </LearnMark2029>;
+            return orientationHost && surface === "post"
+              ? createPortal(<span className="sod29-entry-orientation-slot is-in-header">{mark}</span>, orientationHost)
+              : <div className="sod29-entry-orientation-slot">{mark}</div>;
+          })() : null}
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
@@ -2158,10 +2154,12 @@ export default function SystemFrame2029({
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         {companionActive ? <CompanionPanel2029
-          feed={feed} mode={companionMode} tab={companionHasContext ? companionTab : "feed"} onTab={setCompanionTab}
+          feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={setCompanionTab}
           onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
           pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
           hasContext={companionHasContext}
+          hasSequence={companionHasSequence}
+          sequenceNode={companionHasSequence ? <EventSequencePanel2029 context={context} surface={surface} /> : null}
           contextNode={companionHasContext ? <SurfaceContextRail2029
             surface={surface} context={context} focus={surfaceFocus || activeTarget}
             onOpenNumber={(target) => openNumber(target || activeTarget)}
@@ -2172,10 +2170,10 @@ export default function SystemFrame2029({
             suppressLearn
           /> : null}
           onOpenHref={(href) => go(href)}
-          razielNode={<RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
+          razielNode={surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
-        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`מה נכנס למערכת: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
+        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context">
@@ -2202,6 +2200,9 @@ export default function SystemFrame2029({
               >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
             </React.Fragment>)}
           </nav> : null}
+              {readingProgress ? <button type="button" className="sod29-reading-progress" onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={`מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}${readingProgress.label ? `, ${readingProgress.label}` : ""}`} aria-haspopup="dialog" data-reading-progress={`${readingProgress.index}/${readingProgress.total}`}>
+                <span className="sod29-reading-progress-track" aria-hidden="true">{readingProgress.ids.map((id, i) => <i key={id} className={i < readingProgress.index - 1 ? "is-done" : i === readingProgress.index - 1 ? "is-now" : ""} />)}</span>
+              </button> : null}
               <div className="sod29-command-actions">
                 {showBottomTrail && surface === "number" ? <button
                   className="sod29-number-island-action"
@@ -2215,7 +2216,7 @@ export default function SystemFrame2029({
               </div>
             </>}
           </div>
-          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL || (companionActive && companionMode !== "slim")} onClick={companionActive ? focusCompanionRaziel : openRaziel} />
+          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim")} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} />
           <div className="sod29-bar-zone is-actions">
             {toolMode ? <>
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
