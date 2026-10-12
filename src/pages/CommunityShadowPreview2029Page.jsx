@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { usePalette } from "../lib/palette.js";
 import { fetchCommunityStream } from "../lib/community/razielCommunitySeam.js";
+import { genAvatar } from "../lib/avatar.js";
 
 // 🧪 הקהילה — SHADOW PREVIEW, INTERNAL ONLY. G3 Community Core 2029 Phase 2
 // (work_log dd097ffa-1689-4d97-ad29-b3144c4d38ed, task_key
@@ -13,80 +14,76 @@ import { fetchCommunityStream } from "../lib/community/razielCommunitySeam.js";
 // seam (scripts/g3-community-foundation-runtime/classificationSeam.mjs) and the moderation
 // pipeline stay invisible to this view, exactly like the live app's public surfaces today.
 //
-// The backing RPC (community_stream_projection) is defined in the branch-only migration and
-// is NOT applied live — this page is expected to render its "not live yet" state until a
-// future Phase 3 session applies that migration. That is the intended state of a hidden
-// runtime's Shadow Preview, not a bug.
+// The existing canonical community_stream_projection RPC is live. This remains a
+// read-only, unlinked preview: do not open writing or replace the legacy chat until gated.
 export default function CommunityShadowPreview2029Page() {
   const pal = usePalette();
   const [messages, setMessages] = useState(null);
-  const [notLiveYet, setNotLiveYet] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    fetchCommunityStream({ limit: 20 })
+    fetchCommunityStream({ limit: 50 })
       .then((rows) => { if (alive) setMessages(rows); })
-      .catch(() => { if (alive) setNotLiveYet(true); });
+      .catch(() => { if (alive) setLoadError(true); });
     return () => { alive = false; };
   }, []);
 
   return (
     <div dir="rtl" style={{ minHeight: "100vh", background: pal.pageBg, color: pal.ink, padding: 24, fontFamily: "inherit" }}>
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 28, marginBottom: 4 }}>הקהילה</h1>
-        <p style={{ color: pal.inkSoft, fontSize: 14, marginBottom: 24 }}>
-          תצוגה פנימית בלבד — Shadow Preview, לא מקושרת מהניווט הציבורי.
+        <h1 style={{ fontSize: 26, marginBottom: 4 }}>הקהילה</h1>
+        <p style={{ color: pal.inkSoft, fontSize: 13, marginBottom: 14 }}>
+          תצוגת חיבור ראשונית · קריאה בלבד · 50 ההודעות האחרונות הזמינות
         </p>
-
-        <div style={{ background: pal.card, border: `1px solid ${pal.border}`, borderRadius: 16, padding: 16, marginBottom: 20 }}>
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="מה עובר לך בראש?"
-            rows={2}
-            style={{ width: "100%", border: "none", outline: "none", background: "transparent", color: pal.ink, resize: "none", fontSize: 16 }}
-          />
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
-            <button
-              disabled
-              title="Shadow Preview — קלט לתצוגה בלבד, אינו כותב לשום מקום"
-              style={{ background: pal.accentBtn, color: pal.onAccent, border: "none", borderRadius: 999, padding: "8px 20px", fontWeight: 600, opacity: 0.6, cursor: "not-allowed" }}
-            >
-              שלח
-            </button>
+        <div role="note" style={{ border: "1px solid", borderColor: pal.border, borderRadius: 10, padding: "10px 12px", marginBottom: 18, fontSize: 13, lineHeight: 1.7 }}>
+          ההיסטוריה מוצגת ממקור הקהילה המאוחד. האווטארים הצבעוניים הם סימון זמני לפי השם, לא תמונות מאומתות של הכותבים.
+          <div style={{ marginTop: 4 }}>
+            <a href="/community/chat" style={{ color: pal.accentDim, textDecoration: "underline" }}>לצ׳אט הוותיק לשליחת הודעות</a>
           </div>
         </div>
 
-        {notLiveYet && (
+        {loadError && (
           <div style={{ color: pal.inkSoft, fontSize: 14, textAlign: "center", padding: 24 }}>
-            הריצה החיה (community_stream_projection) עדיין לא הוחלה — זהו branch-only preview.
+            לא ניתן לטעון כרגע את ההודעות. הצ׳אט הוותיק נשאר נגיש דרך הקישור שלמעלה.
           </div>
         )}
 
-        {!notLiveYet && messages === null && (
+        {!loadError && messages === null && (
           <div style={{ color: pal.inkSoft, fontSize: 14, textAlign: "center", padding: 24 }}>טוען…</div>
         )}
 
-        {!notLiveYet && messages !== null && messages.length === 0 && (
+        {!loadError && messages !== null && messages.length === 0 && (
           <div style={{ color: pal.inkSoft, fontSize: 14, textAlign: "center", padding: 24 }}>אין עדיין הודעות.</div>
         )}
 
-        {!notLiveYet && messages && messages.length > 0 && (
+        {!loadError && messages && messages.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {messages.map((m) => (
-              <div key={m.id} style={{ background: pal.cardSoft, border: `1px solid ${pal.border}`, borderRadius: 12, padding: 14 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>{m.author_display_name || "אורח"}</div>
-                <div style={{ color: pal.inkSoft, fontSize: 15 }}>{m.body}</div>
-                <div style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 13, color: pal.accentDim }}>
-                  <span>💬 השב</span>
-                  {/* Phase 2.2 integrity fix: an unknown reaction count (no `likes` key at all,
-                      e.g. reactions={}) must never render as "0 likes" — show a number only
-                      when the source actually captured one. */}
-                  {typeof m.reactions?.likes === "number" && <span>♥ {m.reactions.likes}</span>}
-                </div>
-              </div>
-            ))}
+            {messages.map((m) => {
+              const name = m.author_display_name || "אורח";
+              const when = m.created_at && !Number.isNaN(new Date(m.created_at).getTime())
+                ? new Date(m.created_at).toLocaleString("he-IL", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                : null;
+              return (
+                <article key={m.id} style={{ background: pal.cardSoft, border: "1px solid", borderColor: pal.border, borderRadius: 10, padding: "10px 12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 7 }}>
+                    <img src={genAvatar(name, 64)} alt="" loading="lazy" width="34" height="34"
+                      style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0 }} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontWeight: 650, fontSize: 14 }}>{name}</div>
+                      {when && <time dateTime={m.created_at} style={{ color: pal.inkSoft, fontSize: 11 }}>{when}</time>}
+                    </div>
+                    {m.parent_id && <span style={{ color: pal.inkSoft, fontSize: 11 }}>תגובה</span>}
+                  </div>
+                  <div style={{ fontSize: 14, lineHeight: 1.7, overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}>
+                    {m.body?.trim() || "לתוכן ההודעה אין טקסט זמין בתצוגה זו."}
+                  </div>
+                  {typeof m.reactions?.likes === "number" && (
+                    <div style={{ marginTop: 7, fontSize: 12, color: pal.accentDim }}>♥ {m.reactions.likes}</div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>
