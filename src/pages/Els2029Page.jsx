@@ -41,10 +41,10 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
 
   return <button
-    className={available ? "sod29-action primary" : "sod29-action"}
+    className={available && !shell.razielLocked ? "sod29-action primary" : "sod29-action"}
     type="button"
-    disabled={!available}
-    data-els-raziel-entry={available ? "context-ready" : "building"}
+    disabled={!available || shell.razielLocked}
+    data-els-raziel-entry={shell.razielLocked ? "locked" : available ? "context-ready" : "building"}
     onClick={() => {
       if (!available) return;
       shell.openRaziel({
@@ -52,11 +52,11 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
         elsSurfaceContext: surfaceContext,
       });
     }}
-    title={available
+    title={shell.razielLocked ? "רזיאל נעול עד השלמת ההגדרה והאימות" : available
       ? "פתח את אותו רזיאל עם context של המופע המאומת"
       : "רזיאל יקבל context רק אחרי exact replay מאומת"}
   >
-    {available ? "✦ רזיאל · פתח על הממצא" : "✦ רזיאל · ממתין למופע מאומת"}
+    {shell.razielLocked ? "✦ רזיאל · נעול" : available ? "✦ רזיאל · פתח על הממצא" : "✦ רזיאל · ממתין למופע מאומת"}
   </button>;
 }
 

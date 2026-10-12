@@ -94,7 +94,7 @@ function Section({ title, link, label, children, className = "" }) {
 
 export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
-  selectedSlug, onSelectPost,
+  selectedSlug, onSelectPost, journeyLocked = false,
 }) {
   const data = useHomeCompositionData();
   const now = projection?.temporalNow || null;
@@ -191,8 +191,10 @@ export default function HomeComposition2029({
         {now ? <Link className="h29-portion k29-rv" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
           <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
         <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>
-        <Link className="h29-portion k29-rv" to="/2029/journey"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>
-        <a className="h29-portion k29-rv" href="/community"><span className="h29-portion-h"><NavigationIcon2029 name="community" />קהילה</span><small>מחקר משותף ותרומות</small></a>
+        {journeyLocked
+          ? <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-life-journey="locked"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מסע החיים · נעול</span><small>ייפתח לאחר השלמת ההגדרה</small></div>
+          : <Link className="h29-portion k29-rv" to="/2029/journey" data-home-life-journey="open"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>}
+        <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-user-area="locked"><span className="h29-portion-h"><NavigationIcon2029 name="community" />אזור משתמשים · נעול</span><small>ייפתח לאחר השלמת ההגדרה והעברת הצ׳אט הישן</small></div>
       </div>
     </Section>
 
