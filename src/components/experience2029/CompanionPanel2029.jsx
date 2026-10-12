@@ -10,19 +10,19 @@ import "./companionPanel2029.css";
 export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, onOpenHref, razielNode, hoverProps }) {
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
-  return <aside className={`sod29-companion is-${mode}`} aria-label="מה נכנס למערכת והקשר" data-companion-mode={mode} {...hoverProps}>
+  return <aside className={`sod29-companion is-${mode}`} aria-label="עדכונים והקשר" data-companion-mode={mode} {...hoverProps}>
     {!open ? <div className="sod29-companion-slim">
-      <button type="button" className={`sod29-companion-ico${tab === "feed" ? " is-on" : ""}`} onClick={() => onOpenPanel("feed")} aria-label={feed.newCount ? `מה נכנס למערכת: ${feed.newCount} חדשים` : "מה נכנס למערכת"}>
+      <button type="button" className={`sod29-companion-ico${tab === "feed" ? " is-on" : ""}`} onClick={() => onOpenPanel("feed")} aria-label={feed.newCount ? `עדכונים: ${feed.newCount} חדשים` : "עדכונים"}>
         <i aria-hidden="true" />{feed.newCount ? <span className="sod29-companion-badge" aria-hidden="true">{badge}</span> : null}
       </button>
       {hasContext ? <button type="button" className="sod29-companion-ico is-ctx" onClick={() => onOpenPanel("ctx")} aria-label="הקשר"><span className="sod29-companion-ctx" aria-hidden="true" /></button> : null}
     </div> : <div className="sod29-companion-full">
       <div className="sod29-companion-top">
-        <b>{tab === "ctx" && hasContext ? "מה מחובר עכשיו" : "מה נכנס למערכת"}</b>
-        <button type="button" className="sod29-companion-pin" aria-pressed={pinned} onClick={onTogglePin}>{pinned ? "בטל נעיצה" : "נעץ"}</button>
+        <b>{tab === "ctx" && hasContext ? "הקשר" : "עדכונים"}</b>
+        <button type="button" className="sod29-companion-pin" aria-pressed={pinned} onClick={onTogglePin} title={pinned ? "בטל נעיצה" : "נעץ את הפאנל פתוח"}>{pinned ? "בטל נעיצה" : "נעץ"}</button>
       </div>
-      {hasContext ? <div className="sod29-companion-tabs" role="group" aria-label="תצוגת הפאנל">
-        <button type="button" aria-pressed={tab === "feed"} onClick={() => onTab("feed")}>מה נכנס{feed.newCount ? <em>{feed.newCount}</em> : null}</button>
+      {hasContext ? <div className="sod29-companion-tabs" role="group" aria-label="תצוגת הפאנל: עדכונים או הקשר">
+        <button type="button" aria-pressed={tab === "feed"} onClick={() => onTab("feed")}>עדכונים{feed.newCount ? <em>{feed.newCount}</em> : null}</button>
         <button type="button" aria-pressed={tab === "ctx"} onClick={() => onTab("ctx")}>הקשר</button>
       </div> : null}
 
