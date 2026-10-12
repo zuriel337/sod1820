@@ -9,10 +9,8 @@ import { genAvatar } from "../lib/avatar.js";
 // ExplorerPreviewPage/EntityHubPreviewPage — a Human-Gate visual review surface, not a live
 // route. Must never replace /community/chat or /forum (do_not_touch).
 //
-// One calm freeform input. Familiar message/reply/reaction language. No Chat/Forum split, no
-// intent/type chooser, no research jargon surfaced by default — the classification/extraction
-// seam (scripts/g3-community-foundation-runtime/classificationSeam.mjs) and the moderation
-// pipeline stay invisible to this view, exactly like the live app's public surfaces today.
+// One chronological, read-only Community preview. Keep classification/moderation behind
+// the canonical projection; no fake reply, like, send, or identity-verification actions.
 //
 // The existing canonical community_stream_projection RPC is live. This remains a
 // read-only, unlinked preview: do not open writing or replace the legacy chat until gated.
@@ -34,7 +32,7 @@ export default function CommunityShadowPreview2029Page() {
       <div style={{ maxWidth: 640, margin: "0 auto" }}>
         <h1 style={{ fontSize: 26, marginBottom: 4 }}>הקהילה</h1>
         <p style={{ color: pal.inkSoft, fontSize: 13, marginBottom: 14 }}>
-          תצוגת חיבור ראשונית · קריאה בלבד · 50 ההודעות האחרונות הזמינות
+          תצוגת חיבור ראשונית · קריאה בלבד · עד 50 הפריטים המעודכנים
         </p>
         <div role="note" style={{ border: "1px solid", borderColor: pal.border, borderRadius: 10, padding: "10px 12px", marginBottom: 18, fontSize: 13, lineHeight: 1.7 }}>
           ההיסטוריה מוצגת ממקור הקהילה המאוחד. האווטארים הצבעוניים הם סימון זמני לפי השם, לא תמונות מאומתות של הכותבים.
