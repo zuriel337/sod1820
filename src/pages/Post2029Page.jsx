@@ -723,8 +723,6 @@ function PostReadingBody() {
           </details>
         </div>
 
-        <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
-
         {heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
@@ -781,23 +779,10 @@ function PostReadingBody() {
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
-      <nav className="sod29-reading-spine" aria-label="עומק זמין לאורך המקור">
-        <span className="sod29-reading-spine-line" aria-hidden="true" />
-        {regions.map((region) => <button
-          key={region.id}
-          type="button"
-          className={region.id === activeFocus?.id ? "is-active" : ""}
-          onClick={() => {
-            restoredRegionRef.current = null;
-            setActiveRegionId(region.id);
-            revealReadingAnchor(document.getElementById(`source-region-${region.id}`))?.scrollIntoView({ behavior: "smooth", block: "center" });
-          }}
-          aria-label={`עבור אל ${region.label}`}
-          aria-current={region.id === activeFocus?.id ? "true" : undefined}
-        ><span /></button>)}
-      </nav>
 
     </div>
+
+    <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
 
     {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
       <header>
