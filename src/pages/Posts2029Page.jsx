@@ -22,7 +22,7 @@ function PostIndexCard({ post, index }) {
   const title = humanContentTitle(post?.title, { max: 92 });
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
   const numbers = numericSignals(post?.tags);
-  const image = post?.image_url || null;
+  const image = post?.thumb_url || post?.image_url || null;
   const categories = (Array.isArray(post?.categories) ? post.categories : []).slice(0, 3);
   const golden = isGoldenPost(post);
 
