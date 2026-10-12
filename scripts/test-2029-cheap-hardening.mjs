@@ -20,6 +20,14 @@ const appRoutes = [...app2029.matchAll(/<Route\s+path="([^"]+)"/g)]
   .map(routePattern)
   .sort();
 
+// These branch-only surfaces are registered only behind Vite preview flags.
+// Their absence from public document rewrites is intentional; the parity gate
+// applies to routes that are present in the default public build.
+const previewRoutes = ["/2029/kingdom", "/2029/preview"];
+assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
+assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
+const publicAppRoutes = appRoutes.filter((route) => !previewRoutes.includes(route));
+
 const documentRoutes = (vercel.rewrites || [])
   .filter((row) => row.destination === "/2029.html")
   .map((row) => row.source)
@@ -27,10 +35,11 @@ const documentRoutes = (vercel.rewrites || [])
 
 assert.deepEqual(
   documentRoutes,
-  appRoutes,
+  publicAppRoutes,
   "every explicit App2029 route must have exactly one isolated /2029.html document rewrite and vice versa",
 );
-assert.ok(appRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
+assert.ok(publicAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
+for (const route of previewRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay outside the public document rewrites`);
 
 // Legacy Journey telemetry: direct table reads are not a browser capability.
 assert.match(migration, /drop policy if exists journey_saves_public_read on public\.journey_saves/i);

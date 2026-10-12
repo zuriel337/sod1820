@@ -1999,6 +1999,15 @@
     if(r?.scope&&r.scope!==st.scope)return {type:"state",v:1,status:"loading",scope:st.scope,termRaw:"",term:"",verification:{state:"PENDING",negative_authority:false}};
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
       scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
+    // Before any search, expose only the opening letters of the canonical corpus. This is
+    // a plain-text preview, never a verified ELS occurrence or a saved example cipher.
+    if(!r&&!st.raw){
+      const S=48,r1=13,rows=[];
+      for(let row=0;row<=r1;row++)rows.push(T.slice(row*S,(row+1)*S));
+      return Object.assign(base,{status:"ready",verification:{state:"NONE",negative_authority:false},
+        geometry:{S,mainCol:null,c0:0,cw:S,r0:0,r1},
+        matrix:{S,r0:0,r1,c0:0,cw:S,rows,marks:[],sourceMarks:[],v:1,lenses:["cells"]}});
+    }
     // 🧬 G3: "empty" = חיפוש מקומי/דגום ללא מופע — לעולם לא NOT_FOUND / EXECUTED_EMPTY קנוני (negative_authority:false)
     if(!r||!r.hits.length)return Object.assign(base,{status:"empty",verification:{state:(r&&r.vstate)||"NONE",negative_authority:false}});
     const h=occ(),b=blockOf(),L=(r.t||"").length;
@@ -4350,6 +4359,7 @@
     const r=st.res;
     document.body.classList.toggle("searched",hasGov(r));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
     if(!hasGov(r)){
+      if(!r&&!st.raw){out.innerHTML='<div class="empty">טקסט התורה פתוח מבראשית. הזינו מונח כדי לחפש דילוג.</div>';emitState();return;}
       let _extra='נסה איות אחר או מילה קצרה יותר.';
       if(st.scope==="torah"&&r&&r.t){   // 📜 «לא נמצא בתורה» מטעה — אולי המונח קיים בכל התנ״ך (נ״ך). בודקים ומזמינים פנימה במקום מבוי-סתום.
         let _inTk=false;const _sv=st.scope;st.scope="tanakh";
@@ -5301,15 +5311,9 @@
   updateLockUI();
   const _shared=decodeMatrix(location.hash);   // 🔗 קישור-שיתוף: אם יש צופן בכתובת — פותח אותו
   let _seed="";try{_seed=(new URLSearchParams(location.search).get("q")||"").trim();}catch(e){}   // 🌱 זרע מסביבת-המחקר: ?q=מונח
-  const FIRSTKEY="tzofen_first_v1";let _firstVisit=false;try{_firstVisit=!localStorage.getItem(FIRSTKEY);}catch(e){}
   if(_shared){loadMatrix(_shared);toast("🔗 נטען צופן משותף: «"+_shared.name+"»");}
   else if(_seed.length>=2){q.value=_seed;run();}   // הגיע מונח מהאתר — מחפש אותו מיד
-  else if(_firstVisit){   // 🎬 ביקור ראשון: נפתח על «תורה קדשה» ומנגן את סרט-הצופן פעמיים (מהירות רגילה)
-    try{localStorage.setItem(FIRSTKEY,"1");}catch(e){}
-    const tk=galleryItems().find(x=>x.name==="תורה קדשה")||SYSTEM_MATRICES.find(x=>x.name==="תורה קדשה")||SYSTEM_MATRICES[0];
-    st.filmSpeed=1;loadMatrix(tk,2);
-  }
-  else loadMatrix(galleryItems()[0]||SYSTEM_MATRICES[0]);   // כל פתיחה = סרט פעם אחת (loadMatrix)
+  else render();   // פתיחה נקייה: בראשית ללא ציר או ממצא; דוגמה תיטען רק מבחירה מפורשת
   // 🔮 טעינה-מראש שקטה ברקע: אחרי שהמסך מוכן, מפענחים את טקסט-הפסוקים כדי שההקשה תהיה מיידית
   const _idle=window.requestIdleCallback||(fn=>setTimeout(fn,800));
   _idle(()=>{ensureVerseText();});

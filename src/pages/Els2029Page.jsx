@@ -82,7 +82,7 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
   />;
 }
 
-export default function Els2029Page() {
+export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
@@ -128,7 +128,10 @@ export default function Els2029Page() {
     traceId: null,
     error: null,
   });
-  const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
+  // Public launch opens the fast Classic workspace. Research remains implemented but
+  // has no public mode switch until the advanced flow is explicitly released.
+  const [previewProfile, setPreviewProfile] = useState(previewAdvanced ? ELS_MATRIX_PROFILE.RESEARCH : ELS_MATRIX_PROFILE.CLASSIC);
+  const matrixProfile = previewAdvanced ? previewProfile : ELS_MATRIX_PROFILE.CLASSIC;
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
@@ -287,12 +290,12 @@ export default function Els2029Page() {
               ? (subject
                 ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
                 : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
-              : "חיפוש, הצלבות וסימוני צבע. אפשר לעבור בין התצוגות ולהמשיך עם אותו ממצא."}
+              : "חיפוש, הצלבות וסימוני צבע על טקסט התורה. הממצאים נשמרים להמשך עבודה."}
           </div>
         </div>
         {researchProfile ? <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
         : <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
-          <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
+          {previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
           <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
         </div>}
       </div>
@@ -308,7 +311,10 @@ export default function Els2029Page() {
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library} researchLoad={researchLoad} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
-          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
+          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
+            setSavedRevision(value => value + 1);
+            if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
+          }} />
       </section>
 
       {researchProfile ? <ElsResearchBarConnected
@@ -321,7 +327,7 @@ export default function Els2029Page() {
         subject={subject}
         locator={locator}
         onLibrary={showLibrary}
-        profileSwitch={<ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
+        profileSwitch={previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
       /> : null}
 
 

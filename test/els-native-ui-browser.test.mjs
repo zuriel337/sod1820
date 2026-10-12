@@ -410,6 +410,23 @@ async function expectHeightControl(page) {
 }
 
 
+test('Classic opens on unmarked Genesis letters, right aligned, with no sample cipher',
+ {skip:!canRun,timeout:90000},async()=>{
+  for(const width of [390,1440]) await withNative({width,height:900},async page=>{
+    await page.waitForFunction(()=>window.__state?.status==='ready');
+    const state=await page.evaluate(()=>window.__state);
+    assert.equal(state.matrix.rows[0].slice(0,6),'בראשית');
+    assert.equal(state.axis,undefined);
+    assert.deepEqual(state.matrix.marks,[]);
+    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0);
+    assert.equal(await page.locator('.els29-native-cell').first().textContent(),'ב');
+    const region=await page.getByRole('region',{name:'טקסט התורה מבראשית, ללא צופן נבחר'}).boundingBox();
+    const first=await page.locator('.els29-native-cell').first().boundingBox();
+    assert.ok(first.x+first.width<=region.x+region.width+2&&first.x+first.width>=region.x+region.width-55,'בראשית starts at the visible right edge');
+    assert.equal(await page.locator('.els29-native-stage-head h3').textContent(),'הצופן הקלאסי');
+  },{realHost:true,loadGolden:false,mobile:width===390});
+});
+
 test('native UI: one unified rail scans exact primary and secondary targets without moving the matrix',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
@@ -1208,6 +1225,38 @@ async function classicPrivacySave(page, overrides = null) {
   return page.evaluate(()=>window.__hostLog.filter(m=>m.type==='saved').at(-1));
 }
 
+test('an opened personal cipher updates its exact saved record after findings change',
+ {skip:!canRun,timeout:120000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const row=await privacyRecord(page);
+  await page.evaluate(value=>window.__openSavedMatrix(value),row);
+  await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
+  await openPanel(page);
+  await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('התורה');
+  await activate(page,'חפש במטריצה');
+  await page.waitForFunction(()=>window.__state?.findings?.some(item=>item.t==='התורה'&&item.shown.length));
+  await activate(page,'שמירה');
+  assert.equal(await button(page,'עדכן ממצא').count(),1);
+  assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).isDisabled(),true);
+  await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('הוספתי את התורה כממצא נוסף על הציר השמור.');
+  await activate(page,'עדכן ממצא');
+  await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('עודכן'));
+  assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
+  assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
+  assert.equal(await page.evaluate(()=>window.__savedRows[0].positions.findings[0].t),'התורה');
+  await activate(page,'סריקה וממצאים');
+  await activate(page,'מופעים וצבע של התורה');
+  await activate(page,'מחק את המילה התורה וכל מופעיה');
+  await page.waitForFunction(()=>window.__state?.findings?.length===0);
+  await activate(page,'שמירה');
+  await activate(page,'עדכן ממצא');
+  await page.waitForFunction(()=>window.__savedRows[0].positions.findings.length===0);
+  assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
+  assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
+  assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
+ },{realHost:true,mobile:true});
+});
+
 test('privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
   await withNative({width:390,height:844},async page=>{
@@ -1773,9 +1822,18 @@ test('design integration: royal controls preserve matrix identity and stable tou
     await page.waitForFunction(()=>document.querySelector('.els29-native-search-mode button:last-child')?.getAttribute('aria-pressed')==='true');
     await page.locator('.els29-native-search-mode button').first().click();
     if(await page.locator('#els29-context-panel').isVisible())await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+    await page.evaluate(()=>{
+      window.__elsIconPressObserved=0;
+      window.__elsOriginalAnimate=Element.prototype.animate;
+      Element.prototype.animate=function(frames,options){
+        if(options?.id==='sod29-icon-press')window.__elsIconPressObserved++;
+        return window.__elsOriginalAnimate.call(this,frames,options);
+      };
+    });
     await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
     await page.keyboard.press('Enter');
-    assert.ok(await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.id==='sod29-icon-press')),'shared SVG reacts to keyboard activation');
+    assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
+    await page.evaluate(()=>{Element.prototype.animate=window.__elsOriginalAnimate;});
     await page.locator('#els29-context-panel').waitFor();
     const controls=await page.locator('.els29-native-query button,.els29-native-context-panel button,.els29-native-context-panel select').evaluateAll(els=>els.filter(el=>el.getClientRects().length).map(el=>({name:el.textContent.trim().slice(0,50),width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,font:parseFloat(getComputedStyle(el).fontSize)})));
     for(const c of controls)assert.ok(c.width>=43.9&&c.height>=43.9,`${width}/${preset}: 44px ${JSON.stringify(c)}`);
