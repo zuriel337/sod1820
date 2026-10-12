@@ -747,6 +747,7 @@ function PostReadingBody() {
         </figure> : null}
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+          <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
           <details className="sod29-post-details">
             <summary>
               <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>

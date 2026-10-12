@@ -76,9 +76,20 @@ export default function SurfaceContextRail2029({
   const treeSectionKey = context?.dimensions?.activeSectionId || "";
   const [presentUnitIds, setPresentUnitIds] = useState(null);
   useEffect(() => {
-    if (!Number.isSafeInteger(treePostId) || typeof document === "undefined") { setPresentUnitIds(null); return; }
+    if (!Number.isSafeInteger(treePostId) || typeof document === "undefined") { setPresentUnitIds(null); return undefined; }
     const entries = PROVEN_POST_SOURCE_UPDATES[treePostId] || [];
-    setPresentUnitIds(new Set(entries.filter((entry) => document.getElementById(entry.targetId)).map((entry) => entry.targetId)));
+    // Source units exist only once the authored source is in the DOM. On a direct (hash) reload the rail can mount
+    // first, so units are re-checked on DOM changes until all are found (event-driven, bounded, no polling store).
+    const check = () => {
+      const ids = entries.filter((entry) => document.getElementById(entry.targetId)).map((entry) => entry.targetId);
+      setPresentUnitIds((previous) => (previous && previous.size === ids.length && ids.every((id) => previous.has(id)) ? previous : new Set(ids)));
+      return ids.length === entries.length;
+    };
+    if (check() || typeof MutationObserver === "undefined") return undefined;
+    const observer = new MutationObserver(() => { if (check()) observer.disconnect(); });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const stop = window.setTimeout(() => observer.disconnect(), 8000);
+    return () => { observer.disconnect(); window.clearTimeout(stop); };
   }, [treePostId, treeSectionKey]);
   const postTree = Number.isSafeInteger(treePostId) ? buildPostTree(treePostId, presentUnitIds || new Set()) : null;
   const chainTrail = surface === "post" && context?.subject?.type === "post" && Array.isArray(context?.dimensions?.bottomTrail)

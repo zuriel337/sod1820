@@ -1,5 +1,6 @@
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
+import { createPortal } from "react-dom";
 import React, {
   createContext,
   useCallback,
@@ -95,6 +96,7 @@ const ShellContext = createContext({
   closeTransient: () => {},
   go: () => {},
   returnExact: () => {},
+  registerOrientationHost: () => {},
   experience: null,
 });
 
@@ -1489,6 +1491,8 @@ export default function SystemFrame2029({
     historyIndex,
     locationKey: location.key,
   }), [location.key, location.state, historyIndex]);
+  // A surface may host the orientation pill inside its own compact header (Post): same LearnMark, one owner, no extra bar.
+  const [orientationHost, setOrientationHost] = useState(null);
   const orientation = useMemo(() => resolveEntryOrientation({
     surface,
     arrival,
@@ -1840,6 +1844,7 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
+    registerOrientationHost: setOrientationHost,
   }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
@@ -2067,8 +2072,8 @@ export default function SystemFrame2029({
             </div>
           </header>
 
-          {orientation.mode !== "hidden" && orientation.manifest ? <div className="sod29-entry-orientation-slot">
-            <LearnMark2029
+          {orientation.mode !== "hidden" && orientation.manifest ? (() => {
+            const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
               label={orientation.manifest.label}
               compact={orientation.mode === "compact"}
@@ -2078,8 +2083,11 @@ export default function SystemFrame2029({
             >
               <p>{orientation.manifest.body}</p>
               <p><strong>{experience.experience.question}</strong></p>
-            </LearnMark2029>
-          </div> : null}
+            </LearnMark2029>;
+            return orientationHost && surface === "post"
+              ? createPortal(<span className="sod29-entry-orientation-slot is-in-header">{mark}</span>, orientationHost)
+              : <div className="sod29-entry-orientation-slot">{mark}</div>;
+          })() : null}
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>

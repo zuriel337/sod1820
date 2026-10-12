@@ -141,11 +141,9 @@
 }
 .sod29-learn-mark-help:hover{color:var(--learn-ink)}
 
-/* Post reading: the "new here?" pill must not cost a full empty row above the story.
-   Wide screens park it in the free gutter beside the hero; narrow screens keep one slim row. */
-.sod29-root.surface-post .sod29-entry-orientation-slot{padding:4px clamp(14px,2vw,24px) 0}
-@media(min-width:1440px){
-  .sod29-root.surface-post .sod29-main{position:relative}
-  .sod29-root.surface-post .sod29-entry-orientation-slot{position:absolute;inset-inline-start:clamp(14px,2vw,24px);top:84px;padding:0;z-index:3;max-width:300px}
-  .sod29-root.surface-post .sod29-entry-orientation-slot .sod29-learn-mark{max-width:300px}
-}
+/* Post reading: the "new here?" pill lives in the compact Post header (portal from the frame), never as its own bar. */
+.sod29-root.surface-post .sod29-entry-orientation-slot:not(.is-in-header){padding:4px clamp(14px,2vw,24px) 0}
+.sod29-entry-orientation-slot.is-in-header{display:block;padding:0;min-width:0}
+.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark{max-width:100%}
+.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark-trigger{min-height:44px;max-width:100%}
+.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark-disclosure{max-width:min(520px,100%)}

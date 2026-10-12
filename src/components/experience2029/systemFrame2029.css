@@ -1241,4 +1241,4 @@
 .sod29-event-tree-mark{justify-self:start;padding:0 8px;border:1px solid var(--s29-line-strong);border-radius:999px;font-size:11px;font-weight:700;color:var(--s29-muted);background:transparent}
 .sod29-event-tree-note{line-height:1.4}
 .sod29-event-tree-origins li{display:grid;gap:0;min-width:0}
-.sod29-event-tree-origins a{min-height:36px}
+.sod29-event-tree-origins a{min-height:44px}
