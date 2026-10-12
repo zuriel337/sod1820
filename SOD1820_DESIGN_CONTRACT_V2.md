@@ -122,6 +122,18 @@ ZURIEL-approved density refinement, 11 October 2026: compactness applies to all 
 
 Global Chrome placement and mobile projection are locked in §11. Desktop Adaptive Dual Rail depth/choreography continues in the same System Frame owner.
 
+### 8.1 Living source sections and anchored updates · Human Gate ZURIEL · 12.10.2026
+
+**Approved design direction; implementation/Golden acceptance are separate.** A Post is a reading/composition view of the existing Reality Graph, source occurrences and research — never a new article/Topic/notification truth store.
+
+- Keep the author's original material in its natural reading order. The presentation may distinguish meaningful **living sections** (e.g. Elections → Netanyahu 77, Sharshar and source video, Bennett 631; FZ1073 → Oct 7), using genuine source-native locators and separately governed links; do not auto-create entities, Topics, claims, publication status or research scores from typography.
+- At the start of a source, prefer **option A, one slim actionable anchored update strip**: newest real, authorized section revision in one line, with a bounded "+N" disclosure for other updates and a full historical list downstream under existing source/connections depth. On activation, focus/jump to exactly the changed section, briefly outline it without flashing and preserve Research Context / Exact Return after reload. Option B (updates hidden behind a single "what changed" button) is not the selected default.
+- The source section itself is compact authored prose and media, **not a stack of oversized standalone cards**. Depth is progressive and context-aware: source/claim, proven calculation and method, Finding, Topic link, video/image and provenance remain visibly distinct. Gold/Diamond, quality, strength and contextual relevance are separate axes. Show directly relevant source connections even when their strength score is lower; never label unmeasured zero as measured weak or a candidate as verified.
+- An update is visible as "new" only when the canonical source/segment identity, meaningful change and allowed revision/version are supported by the proper owner and access rules. posts.modified alone, a cover derivative or a heading ID alone never certifies **which** unit changed. Seen state must distinguish later revisions of the same section. Missing history → honest fallback, not fabricated news. A second projection on Home, World, Topic or Number links to the **same** authorized source fragment, not a duplicate research object; never expose restricted/candidate research through a public preview.
+- On mobile and desktop use concise semantic headings, thin borders, readable text and controls ≥44×44px. A subtle ≤2s focus outline after an explicit jump may be used; reduced-motion removes nonessential movement. Do not append updated units mechanically to the bottom of the source and do not displace the reader's active position.
+
+**Owner routing:** project_codex.publishing_conventions for authored Post/source, Research Intake + research_object_identity_invariant_law for occurrence/fragment provenance, reality_graph_law for relations, and Experience/System Frame for these **presentation projections**. Tests/rollout under the existing G4 Posts-first + cross-surface Golden, not a new Golden or independent editor.
+
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
 - Legacy remains Legacy until its own redesign pass.
@@ -270,6 +282,17 @@ Because the live route is `/2029/number/:value`, selecting `דף המספר` wit
 Desktop Brand hierarchy is singular: the Topbar owns the persistent full approved Brand lockup. The expanded Right Global Rail must not repeat it; its top is a quieter functional navigation header with restrained Brand Atmosphere. The collapsed rail uses a neutral Home/navigation affordance and must never create a crown-only logo.
 
 Global rail expansion preference may persist locally as a presentation preference. This does not create a new navigation store or product-truth state.
+
+### 11.8 One Companion, contextual Projector, one bottom Command Island · Human Gate ZURIEL · 12.10.2026
+
+- **Right side (RTL):** one existing global navigation rail. **Left side (desktop):** the existing CompanionPanel2029 is one capsule with **עדכונים | הקשר** (Updates | Context), compact/peek/pinned; Home favors Updates and a focused source favors Context, without forcing away a manually chosen tab.
+- The **Golden Projector** is contextual depth **inside** the existing SurfaceContextRail2029/Contextual Inspector, not another rail, map, store or independently owned source reader. Public viewers see only authorized public projections. The current experimental "מנהל / ציבור" compare layer is admin-only and scoped to its governed pilot (Posts 5112/92); approving this composition does **not** authorize expanding its reader or public access.
+- The existing authorized World/source-arrival projection is shared across the desktop Updates tab and the mobile Now/Attention sheet; one frame-level reader and one seen/arrival identity, not two differently sorted "what's new" feeds. New authorized source events are not proof/quality/strength; editorial Gold/Diamond and research candidates remain distinguishable and private/candidate material never enters public feed or persistent shared Research Context.
+- **Bottom:** keep exactly one SystemFrame2029 Command Island for Path, context/actions, Now and Raziel (center). Where actual Post/Topic sections and the active section are available, an optional slender progress cue belongs **within its existing context trail**, opening the existing Page Map/Context sheet; never add a competing fixed floating bar. With no real sections, omit semantic progress/markers rather than guess. Do not replace global navigation with the bottom trail.
+- Mobile already has Now/Attention and Context sheets; avoid feed-chip / context-cue / two-row dock overlap at 320/390px, respect safe-area and keyboard. Desktop pinned rail must not squeeze content; slim/peek recovery remains. All controls ≥44×44px, 3 presets **יום | קלף | לילה**, RTL/LTR, accessible names/focus, reduced-motion, source RLS and exact return must pass real browser acceptance.
+
+**Current delivery boundary (not a release assertion):** shared-rail implementation lives in PR #1044; compact Post work in PR #1039; source-native fragment update fanout is an outstanding G4 owner-adapter. Human approval here selects the design **only**. The Roadmap/Owner Index point to these existing owners, not to a new Component/Rule engine.
+
 ## 12. Acceptance
 A 2029 visual-foundation change must prove:
 1. same semantics in all three presets;
