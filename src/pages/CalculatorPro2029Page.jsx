@@ -3,36 +3,26 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
-import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
+import CalculatorDuo2029 from "../components/gematria2029/CalculatorDuo2029.jsx";
+import CalculatorLedgerCard2029 from "../components/gematria2029/CalculatorLedgerCard2029.jsx";
 import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
-import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
-import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
+import { useCalculatorRow, useMethodLedger } from "../lib/research/useCalculatorRow.js";
 import { buildGematriaPresentationModel } from "../lib/presentation/gematriaPresentation.js";
-import { hebrewReferenceNumber } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
-import {
-  CALCULATOR_INPUT_KIND,
-  classifyCalculatorInput,
-  filterProfileRowsForInput,
-  isEnglishMethodKey,
-} from "../lib/research/calculator2029Input.js";
-import { buildEnglishLaneRows } from "../lib/research/calculator2029English.js";
-import { ledgerFromFinding } from "../lib/research/calculator2029Ledger.js";
+import { CALCULATOR_INPUT_KIND, isEnglishMethodKey, isReportableValue } from "../lib/research/calculator2029Input.js";
 import {
   buildCalculationSelection,
   buildCalculatorResearchContext,
   calculationAvailabilityLabel,
-  normalizeCalculatorMethods,
 } from "../lib/research/calculator2029Model.js";
 import { buildCalculatorShareUrl, makeCalculatorShareId } from "../lib/research/calculator2029Viral.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculatorPro2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
-const SETTLE_MS = 240;
+const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "—";
 const EXAMPLES = Object.freeze(["צוריאל", "אהבה", "משיח", "David"]);
 const CORE_FAMILY_KEY = "base";
 const EXCEPTIONAL_STATE_HE = Object.freeze({
@@ -46,68 +36,16 @@ const EXCEPTIONAL_STATE_HE = Object.freeze({
   unavailable: "לא זמין",
 });
 
-function useCalculatorRow(seed = "") {
-  const [draft, setDraft] = useState(seed);
-  const [profile, setProfile] = useState({ loading: false, rows: [], error: null, expression: "" });
-  const requestRef = useRef(0);
-  const info = useMemo(() => classifyCalculatorInput(draft), [draft]);
-
-  useEffect(() => {
-    const phrase = info.expression;
-    const id = ++requestRef.current;
-    if (!phrase || !(info.hebrewApplicable || info.englishApplicable)) {
-      setProfile({ loading: false, rows: [], error: null, expression: phrase });
-      return undefined;
-    }
-    setProfile((current) => ({ ...current, loading: true, error: null }));
-    const timer = window.setTimeout(async () => {
-      try {
-        const rows = await fetchNumberMethodProfile(phrase);
-        if (id === requestRef.current) setProfile({ loading: false, rows, error: null, expression: phrase });
-      } catch (error) {
-        if (id === requestRef.current) setProfile({ loading: false, rows: [], error, expression: phrase });
-      }
-    }, SETTLE_MS);
-    return () => window.clearTimeout(timer);
-  }, [info.expression, info.hebrewApplicable, info.englishApplicable]);
-
-  const canonicalSettled = Boolean(
-    info.expression
-    && clean(profile.expression) === info.expression
-    && !profile.loading
-    && !profile.error
-    && profile.rows.length,
-  );
-
-  const preview = useMemo(() => buildCalculator2029FastPreview(draft), [draft]);
-
-  const hebrewRows = useMemo(() => {
-    if (!info.hebrewApplicable) return [];
-    if (canonicalSettled) {
-      return normalizeCalculatorMethods(filterProfileRowsForInput(profile.rows, info)
-        .filter((row) => !isEnglishMethodKey(row.methodKey)));
-    }
-    return (preview.methods || []).map((row) => ({ ...row, label: row.displayLabel, category: "base" }));
-  }, [info, canonicalSettled, profile.rows, preview]);
-
-  const englishRows = useMemo(
-    () => buildEnglishLaneRows(info.expression, canonicalSettled ? profile.rows : []),
-    [info.expression, canonicalSettled, profile.rows],
-  );
-
-  return { draft, setDraft, info, profile, canonicalSettled, hebrewRows, englishRows };
-}
-
-const MethodTile = React.memo(function MethodTile({ method, active, sameValue, onChoose }) {
+const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose }) {
   const unavailable = calculationAvailabilityLabel(method);
   const note = method.previewOnly
     ? (method.pendingNote || "מיידי")
-    : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable);
-  const value = method.computedValue ?? method.value;
+    : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable
+      || (sameCount > 0 ? `שווה ל־${sameCount} נוספות` : null));
   return (
     <button
       type="button"
-      className={`sod29-calcpro-tile${active ? " is-active" : ""}${sameValue ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}`}
+      className={`sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}`}
       onClick={() => onChoose(method)}
       aria-pressed={active}
       disabled={method.previewOnly && method.language !== "en"}
@@ -115,25 +53,112 @@ const MethodTile = React.memo(function MethodTile({ method, active, sameValue, o
       data-preview-state={method.previewOnly ? "preview" : "verified"}
     >
       <span>{method.publicLabel || method.label}</span>
-      <strong>{value ?? "—"}</strong>
-      {note ? <small>{note}</small> : null}
+      <strong>{method.computedValue == null ? "—" : fmt(method.computedValue)}</strong>
+      <small>{note || " "}</small>
     </button>
   );
 });
 
-function LedgerStrip({ ledger }) {
-  if (!ledger?.steps?.length) return null;
+function LetterStrip({ ledgerState }) {
+  const steps = ledgerState?.ledger?.steps || [];
   return (
-    <div className="sod29-calcpro-ledger" aria-label="פירוק האותיות מהמנוע">
-      {ledger.steps.map((step, index) => (
-        <span key={step.token + ":" + index} className="sod29-calcpro-ledger-step">
+    <div className="sod29-calcpro-letters" aria-label="ערכי האותיות מהמנוע" data-loading={ledgerState?.loading ? "true" : "false"}>
+      {steps.map((step, index) => (
+        <div className="sod29-calcpro-letter" key={step.token + ":" + index}>
           <b>{step.token}</b>
-          <em>{step.value}</em>
-        </span>
+          <i>{step.value}</i>
+        </div>
       ))}
-      {ledger.result != null ? <span className="sod29-calcpro-ledger-total">= {ledger.result}</span> : null}
     </div>
   );
+}
+
+function MethodBars({ groups, selectedKey, activeValue, onChoose }) {
+  const rows = groups.flatMap((group) => group.methods.map((method) => ({ ...method, family: group.label })));
+  const max = rows.reduce((top, method) => Math.max(top, Number(method.computedValue) || 0), 1);
+  const scale = (value) => Math.max(4, (Math.log10(Math.max(1, Number(value))) / Math.log10(Math.max(10, max))) * 100);
+  let lastFamily = "";
+  return (
+    <div className="sod29-calcpro-bars" aria-label="כל השיטות בסולם לוגריתמי">
+      <header><b>כל השיטות · סולם לוגריתמי</b><small>אותו ערך מודגש</small></header>
+      {rows.map((method) => {
+        const heading = method.family !== lastFamily ? method.family : null;
+        lastFamily = method.family;
+        const same = Number(method.computedValue) === Number(activeValue) && method.methodKey !== selectedKey;
+        return (
+          <React.Fragment key={method.methodKey}>
+            {heading ? <h4>{heading}</h4> : null}
+            <button
+              type="button"
+              className={`sod29-calcpro-bar${method.methodKey === selectedKey ? " is-active" : ""}${same ? " is-same" : ""}`}
+              onClick={() => onChoose(method)}
+              disabled={method.previewOnly}
+            >
+              <span>{method.publicLabel || method.label}</span>
+              <i aria-hidden="true"><u style={{ width: scale(method.computedValue) + "%" }} /></i>
+              <b>{method.computedValue == null ? "—" : fmt(method.computedValue)}</b>
+            </button>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function MethodRail({ groups, englishRows, selectedKey, activeValue, onChoose }) {
+  return (
+    <aside className="sod29-calcpro-rail" aria-label="רשימת השיטות">
+      {groups.map((group) => (
+        <div key={group.key}>
+          <h4>{group.label} · {group.methods.length}</h4>
+          {group.methods.map((method) => {
+            const same = Number(method.computedValue) === Number(activeValue) && method.methodKey !== selectedKey;
+            return (
+              <button
+                type="button"
+                key={method.methodKey}
+                className={`sod29-calcpro-li${method.methodKey === selectedKey ? " is-active" : ""}${same ? " is-same" : ""}`}
+                onClick={() => onChoose(method)}
+                disabled={method.previewOnly}
+              >
+                <span>{method.publicLabel || method.label}</span>
+                <b>{method.computedValue == null ? "—" : fmt(method.computedValue)}</b>
+              </button>
+            );
+          })}
+        </div>
+      ))}
+      {englishRows.length ? (
+        <div>
+          <h4>אנגלית · תצוגה מיידית</h4>
+          {englishRows.map((method) => (
+            <button
+              type="button"
+              key={method.methodKey}
+              className={`sod29-calcpro-li is-preview${method.methodKey === selectedKey ? " is-active" : ""}`}
+              onClick={() => onChoose(method)}
+            >
+              <span>{method.label}</span>
+              <b>{fmt(method.computedValue)}</b>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </aside>
+  );
+}
+
+function useIsDesktop(minWidth = 1100) {
+  const query = `(min-width: ${minWidth}px)`;
+  const [matches, setMatches] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const handler = (event) => setMatches(event.matches);
+    setMatches(media.matches);
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, [query]);
+  return matches;
 }
 
 function ProExperience() {
@@ -148,14 +173,15 @@ function ProExperience() {
   const { info } = row;
 
   const [selectedKey, setSelectedKey] = useState(seedMethod || null);
+  const [view, setView] = useState(params.get("tab") === "ledger" ? "ledger" : "tiles");
   const [showAllFamilies, setShowAllFamilies] = useState(false);
   const [advanced, setAdvanced] = useState(params.get("mode") === "adv");
-  const [wide, setWide] = useState(params.get("view") === "wide");
+  const desktop = useIsDesktop();
+  const [wideRequested, setWide] = useState(params.get("view") === "wide");
+  const wide = wideRequested && desktop;
   const [showOpening, setShowOpening] = useState(false);
-  const [ledgerState, setLedgerState] = useState({ key: null, loading: false, ledger: null, error: null });
   const [shareId, setShareId] = useState(() => makeCalculatorShareId());
   const [shareDiscovery, setShareDiscovery] = useState(null);
-  const ledgerCacheRef = useRef(new Map());
 
   useEffect(() => {
     emit("calculator_2029", "calculator_view", { props: { surface: "professional", entry: seedExpression ? "handoff" : "direct" } });
@@ -164,7 +190,7 @@ function ProExperience() {
   const allMethods = useMemo(() => [...row.hebrewRows, ...row.englishRows], [row.hebrewRows, row.englishRows]);
   const methodByKey = useMemo(() => new Map(allMethods.map((method) => [method.methodKey, method])), [allMethods]);
   const reportableRows = useMemo(
-    () => allMethods.filter((method) => !method.previewOnly && Number.isFinite(Number(method.computedValue))),
+    () => allMethods.filter((method) => !method.previewOnly && isReportableValue(method.computedValue)),
     [allMethods],
   );
 
@@ -180,14 +206,53 @@ function ProExperience() {
   const canonicalSelection = selectedMethod && !selectedMethod.previewOnly && row.canonicalSettled
     ? buildCalculationSelection(row.profile.expression, selectedMethod)
     : null;
+  const ledgerState = useMethodLedger(canonicalSelection);
 
   const presentation = useMemo(() => buildGematriaPresentationModel({
     expression: info.expression,
-    methodProfile: row.hebrewRows.map((method) => ({ ...method, computedValue: method.computedValue })),
+    methodProfile: row.hebrewRows,
     activeMethodKey: selectedMethod && !isEnglishMethodKey(selectedMethod.methodKey) ? selectedMethod.methodKey : null,
   }), [info.expression, row.hebrewRows, selectedMethod]);
 
   const activeValue = selectedMethod?.computedValue ?? null;
+  const activeNumber = Number(activeValue);
+
+  const valueCounts = useMemo(() => {
+    const counts = new Map();
+    for (const method of allMethods) {
+      if (method.previewOnly || !isReportableValue(method.computedValue)) continue;
+      const key = Number(method.computedValue);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+  }, [allMethods]);
+
+  const familyGroups = useMemo(() => presentation.familyGroups.map((group) => ({
+    key: group.key,
+    label: group.label,
+    methods: group.methods.map((modelMethod) => {
+      const source = methodByKey.get(modelMethod.methodKey) || {};
+      return {
+        ...source,
+        methodKey: modelMethod.methodKey,
+        publicLabel: modelMethod.publicLabel,
+        exceptionalState: modelMethod.exceptionalState,
+        computedValue: modelMethod.value ?? source.computedValue ?? null,
+      };
+    }),
+  })), [presentation, methodByKey]);
+
+  const compositeRows = useMemo(
+    () => row.hebrewRows.filter((method) => method.category === "composite" && isReportableValue(method.computedValue)),
+    [row.hebrewRows],
+  );
+
+  const sameValueMethods = useMemo(() => {
+    if (!isReportableValue(activeNumber)) return [];
+    return allMethods.filter((method) => (
+      method.methodKey !== selectedKey && !method.previewOnly && Number(method.computedValue) === activeNumber
+    ));
+  }, [allMethods, selectedKey, activeNumber]);
 
   useEffect(() => {
     setShareId(makeCalculatorShareId());
@@ -210,43 +275,14 @@ function ProExperience() {
     if (urlExpression) next.set("q", urlExpression);
     if (canonicalSelection?.methodKey) next.set("m", canonicalSelection.methodKey);
     else if (selectedKey && isEnglishMethodKey(selectedKey)) next.set("m", selectedKey);
+    if (view === "ledger") next.set("tab", "ledger");
     if (advanced) next.set("mode", "adv");
-    if (wide) next.set("view", "wide");
+    if (wideRequested) next.set("view", "wide");
     if (next.toString() !== params.toString()) setParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlExpression, canonicalSelection?.methodKey, selectedKey, advanced, wide]);
+  }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, advanced, wideRequested]);
 
-  // Letter ledger comes from the canonical trace RPC, one lazy fetch per expression+method.
-  useEffect(() => {
-    if (!canonicalSelection) {
-      setLedgerState({ key: null, loading: false, ledger: null, error: null });
-      return undefined;
-    }
-    const key = canonicalSelection.expression + "::" + canonicalSelection.methodKey;
-    const cached = ledgerCacheRef.current.get(key);
-    if (cached) {
-      setLedgerState({ key, loading: false, ledger: cached, error: null });
-      return undefined;
-    }
-    let alive = true;
-    setLedgerState({ key, loading: true, ledger: null, error: null });
-    fetchGematriaMethodTrace(canonicalSelection.methodKey, canonicalSelection.expression)
-      .then((finding) => {
-        if (!alive) return;
-        const ledger = ledgerFromFinding(finding);
-        ledgerCacheRef.current.set(key, ledger);
-        setLedgerState({ key, loading: false, ledger, error: null });
-      })
-      .catch((error) => {
-        if (alive) setLedgerState({ key, loading: false, ledger: null, error });
-      });
-    return () => { alive = false; };
-  }, [canonicalSelection?.expression, canonicalSelection?.methodKey]);
-
-  const chooseMethod = useCallback((method) => {
-    setSelectedKey(method.methodKey);
-  }, []);
-
+  const chooseMethod = useCallback((method) => setSelectedKey(method.methodKey), []);
   const fillExample = (text) => {
     row.setDraft(text);
     requestAnimationFrame(() => inputRef.current?.focus?.());
@@ -313,44 +349,113 @@ function ProExperience() {
         : englishOnlyPending ? "מיידי · האנגלית ממתינה להפעלה קנונית במנוע"
           : info.expression ? "מיידי" : "";
 
-  const familyGroups = useMemo(() => presentation.familyGroups.map((group) => ({
-    key: group.key,
-    label: group.label,
-    methods: group.methods.map((modelMethod) => ({
-      ...(methodByKey.get(modelMethod.methodKey) || {}),
-      methodKey: modelMethod.methodKey,
-      publicLabel: modelMethod.publicLabel,
-      exceptionalState: modelMethod.exceptionalState,
-      computedValue: modelMethod.value ?? methodByKey.get(modelMethod.methodKey)?.computedValue ?? null,
-    })),
-  })), [presentation, methodByKey]);
-  const visibleFamilies = showAllFamilies || advanced
+  const effectiveView = info.hebrewApplicable ? view : "tiles";
+  const visibleFamilies = showAllFamilies || advanced || wide
     ? familyGroups
     : familyGroups.filter((group) => group.key === CORE_FAMILY_KEY);
   const hiddenMethodCount = familyGroups
     .filter((group) => group.key !== CORE_FAMILY_KEY)
     .reduce((sum, group) => sum + group.methods.length, 0);
-  const activeNumericValue = Number(activeValue);
-  const sameValueKeys = useMemo(() => {
-    if (!Number.isFinite(activeNumericValue) || activeNumericValue <= 0) return new Set();
-    return new Set(allMethods
-      .filter((method) => method.methodKey !== selectedKey && Number(method.computedValue) === activeNumericValue && !method.previewOnly)
-      .map((method) => method.methodKey));
-  }, [allMethods, selectedKey, activeNumericValue]);
-
+  const isNumeric = info.kind === CALCULATOR_INPUT_KIND.NUMERIC;
   const hasAnyResults = allMethods.length > 0;
-  const unsupported = info.kind === CALCULATOR_INPUT_KIND.UNSUPPORTED || info.kind === CALCULATOR_INPUT_KIND.NUMERIC;
+  const showDuo = Boolean(canonicalSelection) && (advanced || wide);
+  const isEnglishSelected = selectedMethod?.language === "en";
+
+  const hero = selectedMethod && activeValue != null ? (
+    <section className="sod29-calcpro-hero" aria-label="התוצאה הפעילה">
+      <strong className="sod29-calcpro-hero-value">{fmt(activeValue)}</strong>
+      <div>
+        <b>{selectedMethod.publicLabel || selectedMethod.label}</b>
+        <span>{info.expression}</span>
+        {sameValueMethods.length ? (
+          <p>
+            {sameValueMethods.slice(0, 3).map((method) => (
+              <em key={method.methodKey}>{method.publicLabel || method.label} = {fmt(method.computedValue)}</em>
+            ))}
+            {sameValueMethods.length > 3 ? <em>+{sameValueMethods.length - 3}</em> : null}
+          </p>
+        ) : null}
+        {selectedMethod.previewOnly && isEnglishSelected ? (
+          <small>תצוגה מיידית · {selectedMethod.pendingNote}. לא ניתנת לשיתוף עד אישור.</small>
+        ) : null}
+      </div>
+    </section>
+  ) : null;
+
+  const tilesView = hasAnyResults ? (
+    <>
+      {canonicalSelection ? <LetterStrip ledgerState={ledgerState} /> : null}
+      <section className="sod29-calcpro-families" aria-label="כל השיטות">
+        {visibleFamilies.map((group) => (
+          <div className="sod29-calcpro-family" key={group.key}>
+            <h3>{group.label}<span>{group.methods.length}</span></h3>
+            <div className="sod29-calcpro-grid">
+              {group.methods.map((method) => (
+                <MethodTile
+                  key={method.methodKey}
+                  method={method}
+                  active={method.methodKey === selectedKey}
+                  sameCount={method.previewOnly ? 0 : Math.max(0, (valueCounts.get(Number(method.computedValue)) || 1) - 1)}
+                  onChoose={chooseMethod}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+        {!advanced && !wide && hiddenMethodCount > 0 ? (
+          <button type="button" className="sod29-calcpro-more" onClick={() => setShowAllFamilies((value) => !value)} aria-expanded={showAllFamilies}>
+            {showAllFamilies ? "צמצם" : `שיטות עומק ומורכבות · עוד ${hiddenMethodCount}`}
+          </button>
+        ) : null}
+      </section>
+    </>
+  ) : null;
+
+  const ledgerView = canonicalSelection ? (
+    <div className="sod29-calcpro-ledgerview">
+      <CalculatorLedgerCard2029
+        tag="הפירוק מגיע מהמנוע"
+        expression={canonicalSelection.expression}
+        methodLabel={canonicalSelection.methodLabel}
+        value={fmt(canonicalSelection.resultValue)}
+        ledgerState={ledgerState}
+      />
+      <MethodBars
+        groups={visibleFamilies}
+        selectedKey={selectedKey}
+        activeValue={activeValue}
+        onChoose={chooseMethod}
+      />
+    </div>
+  ) : (
+    <div className="sod29-calcpro-ledger-state">הפנקס נפתח כשהמנוע מאמת את התוצאה.</div>
+  );
+
+  const englishBlock = row.englishRows.length ? (
+    <section className="sod29-calcpro-family is-english" aria-label="אנגלית">
+      <h3>אנגלית · תצוגה מיידית<span>ממתינה להפעלה קנונית</span></h3>
+      <div className="sod29-calcpro-grid">
+        {row.englishRows.map((method) => (
+          <MethodTile key={method.methodKey} method={method} active={method.methodKey === selectedKey} sameCount={0} onChoose={chooseMethod} />
+        ))}
+      </div>
+      {isEnglishSelected && selectedMethod.explain ? (
+        <p className="sod29-calcpro-explain">{selectedMethod.note ? selectedMethod.note + " · " : ""}{selectedMethod.explain}</p>
+      ) : null}
+    </section>
+  ) : null;
 
   return (
     <section className={`sod29-calcpro${wide ? " is-wide" : ""}`} data-experience-surface="calculator-pro-2029">
+      <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
       <form className="sod29-calcpro-command" onSubmit={(event) => event.preventDefault()}>
-        <label htmlFor="calculator-pro-input">שם, מילה או ביטוי</label>
+        <label htmlFor="calculator-pro-input" className="sod29-calcpro-sr">שם, מילה או ביטוי</label>
         <input
           ref={inputRef}
           id="calculator-pro-input"
           value={row.draft}
           onChange={(event) => row.setDraft(event.target.value)}
-          placeholder="עברית או English"
+          placeholder="שם, מילה או ביטוי · עברית או English"
           dir="auto"
           autoComplete="off"
           spellCheck="false"
@@ -361,12 +466,22 @@ function ProExperience() {
             {statusText}
           </span>
           <div className="sod29-calcpro-modes">
-            <button type="button" aria-pressed={advanced} onClick={() => setAdvanced((value) => !value)}>
-              {advanced ? "סגור מצב מתקדם" : "מצב מתקדם"}
-            </button>
-            <button type="button" aria-pressed={wide} onClick={() => setWide((value) => !value)}>
-              {wide ? "מצב רגיל" : "מצב מורחב"}
-            </button>
+            {!wide ? (
+              <div className="sod29-calcpro-tabs" role="tablist" aria-label="תצוגה">
+                <button type="button" role="tab" aria-selected={effectiveView === "tiles"} onClick={() => setView("tiles")}>אריחים</button>
+                <button type="button" role="tab" aria-selected={effectiveView === "ledger"} onClick={() => setView("ledger")} disabled={!info.hebrewApplicable}>פנקס</button>
+              </div>
+            ) : null}
+            {!wide ? (
+              <button type="button" aria-pressed={advanced} onClick={() => setAdvanced((value) => !value)}>
+                {advanced ? "סגור מתקדם" : "מתקדם"}
+              </button>
+            ) : null}
+            {desktop ? (
+              <button type="button" aria-pressed={wide} onClick={() => setWide((value) => !value)}>
+                {wide ? "מצב רגיל" : "מורחב"}
+              </button>
+            ) : null}
           </div>
         </div>
         {info.notice ? <p className="sod29-calcpro-notice" role="status">{info.notice}</p> : null}
@@ -379,104 +494,48 @@ function ProExperience() {
         ) : null}
       </form>
 
-      {unsupported && info.expression ? (
+      {isNumeric ? (
         <div className="sod29-calcpro-empty">
-          {info.kind === CALCULATOR_INPUT_KIND.NUMERIC
-            ? <Link to={`/2029/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
-            : null}
+          <Link to={`/2029/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
         </div>
       ) : null}
 
-      <div className="sod29-calcpro-body">
+      <div className="sod29-calcpro-layout">
+        {wide && hasAnyResults ? (
+          <MethodRail
+            groups={familyGroups}
+            englishRows={row.englishRows}
+            selectedKey={selectedKey}
+            activeValue={activeValue}
+            onChoose={chooseMethod}
+          />
+        ) : null}
+
         <div className="sod29-calcpro-main">
-          {selectedMethod && activeValue != null ? (
-            <section className="sod29-calcpro-focal" aria-label="התוצאה הפעילה">
-              <div>
-                <span>{selectedMethod.language === "en" ? (selectedMethod.hebrewLabel || selectedMethod.label) : "שיטה פעילה"}</span>
-                <strong className="sod29-calcpro-value">{activeValue}</strong>
-                {selectedMethod.language !== "en" && hebrewReferenceNumber(activeValue)
-                  ? <em>{hebrewReferenceNumber(activeValue)}</em> : null}
-              </div>
-              <div>
-                <span>{info.expression}</span>
-                <b>{selectedMethod.publicLabel || selectedMethod.label}</b>
-                {selectedMethod.previewOnly && selectedMethod.language === "en" ? (
-                  <small>תצוגה מיידית · {selectedMethod.pendingNote}. לא ניתנת לשיתוף עד אישור.</small>
-                ) : null}
-              </div>
-            </section>
+          {hero}
+          {wide ? null : (effectiveView === "ledger" ? ledgerView : tilesView)}
+          {!wide ? englishBlock : null}
+          {showDuo ? (
+            <CalculatorDuo2029
+              expressionA={canonicalSelection.expression}
+              selectionA={canonicalSelection}
+              ledgerA={ledgerState}
+              compositeRows={compositeRows}
+            />
           ) : null}
-
-          {canonicalSelection ? (
-            <section className="sod29-calcpro-ledger-wrap">
-              {ledgerState.loading ? <small>טוען את פירוק האותיות מהמנוע…</small> : null}
-              {ledgerState.error ? <small>פירוק האותיות לא זמין כרגע לשיטה הזאת.</small> : null}
-              <LedgerStrip ledger={ledgerState.ledger} />
-            </section>
-          ) : null}
-
-          {hasAnyResults ? (
-            <section className="sod29-calcpro-families" aria-label="כל השיטות">
-              {visibleFamilies.map((group) => (
-                <div className="sod29-calcpro-family" key={group.key}>
-                  <h3>{group.label}</h3>
-                  <div className="sod29-calcpro-grid">
-                    {group.methods.map((method) => (
-                      <MethodTile
-                        key={method.methodKey}
-                        method={method}
-                        active={method.methodKey === selectedKey}
-                        sameValue={sameValueKeys.has(method.methodKey)}
-                        onChoose={chooseMethod}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {!advanced && hiddenMethodCount > 0 ? (
-                <button type="button" className="sod29-calcpro-more" onClick={() => setShowAllFamilies((value) => !value)} aria-expanded={showAllFamilies}>
-                  {showAllFamilies ? "צמצם" : `כל השיטות · עוד ${hiddenMethodCount}`}
-                </button>
-              ) : null}
-
-              {row.englishRows.length ? (
-                <div className="sod29-calcpro-family is-english">
-                  <h3>אנגלית</h3>
-                  <div className="sod29-calcpro-grid">
-                    {row.englishRows.map((method) => (
-                      <MethodTile
-                        key={method.methodKey}
-                        method={method}
-                        active={method.methodKey === selectedKey}
-                        sameValue={false}
-                        onChoose={chooseMethod}
-                      />
-                    ))}
-                  </div>
-                  {selectedMethod?.language === "en" && selectedMethod.explain ? (
-                    <p className="sod29-calcpro-explain">{selectedMethod.note ? selectedMethod.note + " · " : ""}{selectedMethod.explain}</p>
-                  ) : null}
-                </div>
-              ) : null}
-            </section>
-          ) : null}
+          {wide && !canonicalSelection && hasAnyResults ? <div className="sod29-calcpro-ledger-state">בחרו שיטה ברשימה כדי לפתוח שתי שורות.</div> : null}
         </div>
 
         <aside className="sod29-calcpro-side">
           {canonicalSelection ? (
             <section className="sod29-calcpro-inspector" data-calculation-selection={canonicalSelection.methodKey}>
-              <header>
-                <span>הבחירה שלך</span>
-                <strong>{canonicalSelection.expression} · {canonicalSelection.methodLabel}</strong>
-                <b>{canonicalSelection.resultValue}</b>
-              </header>
+              <h4>הבחירה שלך · {canonicalSelection.expression} · {canonicalSelection.methodLabel}</h4>
               <div className="sod29-calcpro-actions">
-                <button type="button" onClick={openNumber}>פתח מספר</button>
-                <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
+                <button type="button" className="is-primary" onClick={openNumber}>גלה הכל על {fmt(canonicalSelection.resultValue)} ←</button>
                 <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
                   {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
                 </button>
+                <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
                 <button type="button" onClick={openHeichal}>חקור בהיכל</button>
                 <button type="button" className="is-raziel" onClick={openRaziel}>✦ רזיאל · תסביר לי</button>
               </div>
@@ -484,13 +543,10 @@ function ProExperience() {
             </section>
           ) : null}
 
-          {advanced && canonicalSelection ? (
-            <CalculatorCompare2029 selectionA={canonicalSelection} onClose={() => setAdvanced(false)} />
-          ) : null}
-
           {canonicalSelection ? (
             <MethodLens2029
               selection={canonicalSelection}
+              compact
               onOpened={() => emit("calculator_2029", "method_opened", { props: { surface: "professional", expression: canonicalSelection.expression, method: canonicalSelection.methodKey } })}
               onProjection={handleLensProjection}
               onOpenExpression={(item) => {
@@ -505,7 +561,7 @@ function ProExperience() {
             <section className="sod29-calcpro-share" aria-label="שיתוף התוצאה" data-share-url={shareUrl}>
               <div>
                 <span>שתף כגילוי</span>
-                <strong>{canonicalSelection.expression} = {canonicalSelection.resultValue}</strong>
+                <strong>{canonicalSelection.expression} = {fmt(canonicalSelection.resultValue)}</strong>
                 <small>הקישור נפתח במחשבון הקהילתי ומשחזר את אותה תוצאה מהמנוע.</small>
               </div>
               <ShareActions
@@ -530,7 +586,7 @@ export default function CalculatorPro2029Page() {
   useEffect(() => {
     applySeo({
       title: "מחשבון גימטריה מקצועי · SOD1820",
-      description: "כל שיטות הגימטריה במבט אחד, עם מצב מתקדם להשוואה, פירוק אותיות מהמנוע הקנוני ואנגלית.",
+      description: "כל שיטות הגימטריה במבט אחד, עם פנקס פירוק אותיות מהמנוע הקנוני, מצב מתקדם להשוואה ומצב מורחב.",
       path: "/2029/calculator",
       noindex: true,
     });
@@ -540,7 +596,7 @@ export default function CalculatorPro2029Page() {
     <Sod2029Shell
       wide
       surface="number"
-      introVariant="compact"
+      introVariant="none"
       symbol="∑"
       eyebrow="מחשבון מקצועי"
       title="מחשבון גימטריה"
