@@ -126,7 +126,7 @@ const CORE_HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
   { to: "/community/chat", label: "הצ׳אט הוותיק", icon: "◉" },
-  { to: "/world", label: "העולם", icon: "◌" },
+  HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
   { label: "אזור משתמשים", icon: "◎", status: "נעול" },
 ];
@@ -1462,7 +1462,7 @@ export default function SystemFrame2029({
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
-  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.to === "/world" ? { ...item, locked: worldLocked } : item);
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
