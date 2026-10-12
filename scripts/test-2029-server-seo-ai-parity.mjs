@@ -215,6 +215,26 @@ const elsFailClosed = await render("/els", async () => { throw new Error("flag u
 assert.match(elsFailClosed, /ELS סגור זמנית לציבור לצורך בנייה מחדש/);
 assert.doesNotMatch(elsFailClosed, /מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד/);
 
+for (const [path, title] of [["/code", "חיפוש בצופן"], ["/codes", "ספריית הצפנים"]]) {
+  const page = await renderResponse(path, async () => { throw new Error("static ELS metadata must not fetch records"); }, { crawler: "search" });
+  assert.match(page.body, new RegExp(`<title>${title}`));
+  assert.match(page.body, new RegExp(`<link rel="canonical" href="https://sod1820\\.co\\.il${path}"\\/>`));
+  assert.equal(page.headers.get("x-robots-tag"), "index, follow");
+}
+
+const cipherSlug = encodeURIComponent("תורה-50");
+const publishedCipher = await renderResponse(`/codes/${cipherSlug}`, async (url) => {
+  assert.match(String(url), /els_records\?slug=eq\./);
+  return { ok: true, json: async () => [{ title: "תורה", search_term: "תורה", skip_distance: 50, scope: "torah", positions: {} }] };
+}, { crawler: "search" });
+assert.match(publishedCipher.body, /הצופן «תורה» — דילוג 50/);
+assert.match(publishedCipher.body, /og:type" content="article"/);
+assert.equal(publishedCipher.headers.get("x-robots-tag"), "index, follow");
+
+const missingCipher = await renderResponse("/codes/unknown-cipher", async () => ({ ok: true, json: async () => [] }), { crawler: "search" });
+assert.match(missingCipher.body, /הצופן לא נמצא/);
+assert.equal(missingCipher.headers.get("x-robots-tag"), "noindex, follow");
+
 // The public research collection is a real page, never a cipher slug. Both URL
 // spellings must share its own metadata and canonical without a record lookup.
 for (const path of ["/codes/מחקר", `/codes/${encodeURIComponent("מחקר")}`]) {
@@ -248,7 +268,7 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 14, "search crawlers must be routed only across the explicit native/public document family");
+assert.equal(searchRules.length, 17, "search crawlers must be routed only across the explicit native/public document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
@@ -256,7 +276,7 @@ for (const rule of searchRules) {
   assert.ok(ua.includes("Baiduspider"), `Baiduspider must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
+for (const route of ["/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/code", "/codes", "/codes/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
 assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "search crawlers must never be sent through a global crawler catch-all");

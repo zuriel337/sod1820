@@ -444,11 +444,13 @@ export default async function handler(req, res) {
     // מקור-התמונה: image_url של הצופן (מנוע-הכרטיס) אם קיים, אחרת כרטיס /api/card ממותג.
     let slug = key.slice('/codes/'.length);
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    let publishedCipherFound = false;
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
       const rows = await r.json();
       const c = Array.isArray(rows) && rows[0];
       if (c) {
+        publishedCipherFound = true;
         const scopeTxt = c.scope === 'tanakh' ? 'כל התנ״ך' : 'התורה';
         const findings = (c.positions && Array.isArray(c.positions.findings)) ? c.positions.findings.map(f => f && f.t).filter(Boolean) : [];
         title = `הצופן «${stripHtml(c.title || c.search_term)}» — דילוג ${c.skip_distance} · ${SITE_NAME}`;
@@ -463,7 +465,12 @@ export default async function handler(req, res) {
           : shapeUrl ? waSafeImage(shapeUrl)
           : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}&sig=els`;
       }
-    } catch { /* fallback to defaults */ }
+    } catch { /* unavailable records do not become indexable home metadata */ }
+    if (!publishedCipherFound) {
+      robots = 'noindex, follow';
+      title = 'הצופן לא נמצא · ' + SITE_NAME;
+      desc = 'הצופן המבוקש אינו זמין לציבור.';
+    }
   } else if (key.startsWith('/book/') || key.startsWith('/books/')) {
     // 📖 Book Hub / 2029 Books — ספר בודד (nodes.type='book'). שדות ציבוריים-בלבד: label/description/metadata
     // (זהות-ספר, לא research_objects) — תואם ל-BOOK PROJECTION EXPERIENCE CONTRACT §11/§16:
