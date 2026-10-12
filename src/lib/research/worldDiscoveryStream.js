@@ -86,7 +86,7 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     sourceUpdatedAt: safeDate(row.modified),
     researchUpdatedAt: null,
     sourceRef: `posts:${row.id}`,
-    href: `/post/${encodeURIComponent(clean(row.slug))}`,
+    href: sourceUpdate?.targetHref || `/post/${encodeURIComponent(clean(row.slug))}`,
     value: null,
     numbers: [],
     researchCount: 0,

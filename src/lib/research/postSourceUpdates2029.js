@@ -91,18 +91,27 @@ export function provenUpdateForHash(postId, hash = "") {
  * Missing proof, a changed source version or a hidden/draft post => no event.
  * The original post publication and ordinary source href remain separate.
  */
-export function publicProvenPostSourceUpdate(row) {
+export function publicProvenPostSourceUpdates(row) {
   const id = Number(row?.id);
   const slug = String(row?.slug || "").trim();
-  if (!Number.isSafeInteger(id) || !slug || row?.home_hidden === true) return null;
-  if (["gpt-draft", "web"].includes(String(row?.source || "").trim().toLowerCase())) return null;
-  if ((Array.isArray(row?.tags) ? row.tags : []).some((tag) => ["טיוטה", "פורום"].includes(String(tag).trim()))) return null;
+  if (!Number.isSafeInteger(id) || !slug || row?.home_hidden === true) return [];
+  if (["gpt-draft", "web"].includes(String(row?.source || "").trim().toLowerCase())) return [];
+  if ((Array.isArray(row?.tags) ? row.tags : []).some((tag) => ["טיוטה", "פורום"].includes(String(tag).trim()))) return [];
   const modifiedAt = Date.parse(String(row?.modified || ""));
-  if (!Number.isFinite(modifiedAt)) return null;
+  if (!Number.isFinite(modifiedAt)) return [];
 
   const entries = PROVEN_POST_SOURCE_UPDATES[id] || [];
-  for (const entry of orderedSourceUpdates([...entries]).sort((a, b) => b.afterRevision - a.afterRevision)) {
-    if (entry.sourceSlug !== slug || modifiedAt !== Date.parse(entry.sourceModifiedAt)) continue;
+  // A current certified source version may retain older units. They keep their
+  // original event identity and addition time; a newer child never retimestamps them.
+  const certifiedVersion = entries.some((entry) => entry.sourceSlug === slug &&
+    modifiedAt === Date.parse(entry.sourceModifiedAt));
+  if (!certifiedVersion) return [];
+  const events = [];
+  for (const entry of orderedSourceUpdates([...entries])) {
+    if (entry.sourceSlug !== slug || Date.parse(entry.sourceModifiedAt) > modifiedAt) continue;
+    // Older units need a live body witness. Metadata-only readers certify only
+    // the matching revision, never guess that historical content still exists.
+    if (Date.parse(entry.sourceModifiedAt) !== modifiedAt && typeof row.content !== "string") continue;
     if (!Number.isSafeInteger(entry.afterRevision) || !Number.isSafeInteger(entry.beforeRevision)) continue;
     if (entry.afterRevision <= entry.beforeRevision || !/^[-a-z0-9]+$/.test(entry.targetId || "")) continue;
     // If a caller DID load live source HTML, require the original fragment.
@@ -114,7 +123,7 @@ export function publicProvenPostSourceUpdate(row) {
     const sourceRef = `posts:${id}`;
     const fragmentRef = `${sourceRef}#${entry.targetId}`;
     const eventKey = `${fragmentRef}@revision:${entry.afterRevision}`;
-    return {
+    events.push({
       kind: "source_fragment_revision",
       sourceRef,
       fragmentRef,
@@ -123,13 +132,15 @@ export function publicProvenPostSourceUpdate(row) {
       label: entry.label,
       at: new Date(Date.parse(entry.updatedAt)).toISOString(),
       targetId: entry.targetId,
-      // The consumer should enable exact-jump href only AFTER Post restores
-      // native authored fragments from URL hash and reload.
       targetHref: `/post/${encodeURIComponent(slug)}#${encodeURIComponent(entry.targetId)}`,
       attribution: entry.attribution,
-    };
+    });
   }
-  return null;
+  return events;
+}
+
+export function publicProvenPostSourceUpdate(row) {
+  return publicProvenPostSourceUpdates(row)[0] || null;
 }
 
 // Real addition date, Asia/Jerusalem, dd.mm.yyyy. The date comes from the proven entry, never from "now".

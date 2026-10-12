@@ -32,6 +32,8 @@ on:
       - "src/lib/research/worldDiscoveryStream.test.js"
       - "src/lib/systemFeed2029.js"
       - "src/lib/systemFeed2029.test.js"
+      - "src/lib/heroUpdate2029.js"
+      - "src/lib/heroUpdate2029.test.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
       - "src/lib/research/topicConvergence.js"
@@ -127,7 +129,7 @@ jobs:
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: G4 source-section update / World / Companion public-read acceptance
-        run: node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js
+        run: node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js
       - name: Native System Frame acceptance
         run: node scripts/test-2029-system-frame.mjs
       - name: Raziel server-gated Result Bundle consumer acceptance

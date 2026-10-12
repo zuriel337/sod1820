@@ -193,7 +193,7 @@ test("exact reviewed public section update projects once from a source, retainin
   assert.equal(item.sourceUpdate.kind, "source_fragment_revision");
   assert.equal(item.sourceUpdate.targetId, "netanyahu-77-mazal");
   assert.equal(item.sourceUpdate.revision, 184);
-  assert.equal(item.href, "/post/sharshar-elections-redemption-hints-draft", "the source permalink is still stable");
+  assert.equal(item.href, "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal", "a certified update enters the exact source unit");
   assert.equal(item.sourceUpdate.targetHref,
     "/post/sharshar-elections-redemption-hints-draft#netanyahu-77-mazal");
 

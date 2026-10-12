@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { publicProvenPostSourceUpdate, PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, provenUpdateForHash, formatUpdateDate } from "./postSourceUpdates2029.js";
+import { publicProvenPostSourceUpdate, publicProvenPostSourceUpdates, PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, provenUpdateForHash, formatUpdateDate } from "./postSourceUpdates2029.js";
 
 const UPDATED = "2026-10-10T23:19:35.974936+00:00";
 const reviewedPost = (extra = {}) => ({
@@ -87,4 +87,16 @@ test("Bennett 207->208 units are certified with the exact saved time and only fo
   assert.equal(event.fragmentRef, "posts:5113#bennett-israel-78");
   assert.equal(publicProvenPostSourceUpdate({ id: 5113, slug: "bennett-melach-631-78", source: "ai", tags: [], modified: "2026-10-03T00:00:00Z" }), null);
   assert.equal(provenUpdateForHash(5113, "#bennett-dead-sea-sequence").id, "bennett-dead-sea-sequence");
+});
+
+test("a certified newer source preserves distinct child events and their real times", () => {
+  const content = PROVEN_POST_SOURCE_UPDATES[5107].map(e => `<section id="${e.targetId}"></section>`).join("");
+  const events = publicProvenPostSourceUpdates(reviewedPost({ modified: "2026-10-12T13:52:58.270789Z", content }));
+  assert.equal(events.length, 4);
+  assert.equal(new Set(events.map(e => e.eventKey)).size, 4);
+  assert.equal(events.at(-1).revision, 184);
+  assert.equal(events.at(-1).at, "2026-10-10T23:19:35.974Z");
+  const removed = publicProvenPostSourceUpdates(reviewedPost({ modified: "2026-10-12T13:52:58.270789Z", content: content.replace('id="netanyahu-77-mazal"', 'id="removed"') }));
+  assert.equal(removed.length, 3);
+  assert.equal(publicProvenPostSourceUpdates(reviewedPost({ modified: "2026-10-13T00:00:00Z", content })).length, 0);
 });
