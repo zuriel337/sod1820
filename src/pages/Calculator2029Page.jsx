@@ -546,6 +546,7 @@ function CalculatorExperience() {
             <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
+            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח דף מספר</button>
             <button type="button" className="is-raziel" onClick={openRaziel} disabled={selection.resultValue == null}>
               ✦ רזיאל · תסביר לי
             </button>
@@ -563,7 +564,6 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח מספר</button>
               <button type="button" onClick={openHeichal}>חקור בהיכל</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}

@@ -134,6 +134,7 @@ const CORE_HOME_NAV = [
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
   { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { label: "דף המספר", icon: "123", action: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
@@ -1253,18 +1254,26 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     document.querySelector('[data-workspace-section="account"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
   };
 
+  const openExistingModule = (module) => {
+    if (!userId) { openAccount(); return; }
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    go(`/profile?module=${encodeURIComponent(module)}&returnTo=${encodeURIComponent(returnTo)}`, { preserve: false });
+  };
+
   const core = [
     { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "כניסה / הרשמה ושמירה בין מכשירים", state: "live", onClick: openAccount },
-    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
+    { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
+    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "live", onClick: () => openExistingModule("public-page") },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
     { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
   ];
 
   const personal = [
     { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/2029/journey") },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
-    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "הרמזים ששמרתי ויצרתי", state: "live", onClick: () => openExistingModule("hints") },
+    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "live", onClick: () => openExistingModule("contrib") },
+    { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · פירוט` : "יתרה והיסטוריה", state: "live", onClick: () => openExistingModule("credits") },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
     { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך עם אותו הקשר אישי", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : onRaziel },
   ];
@@ -2040,7 +2049,7 @@ export default function SystemFrame2029({
       locale={locale}
       onDone={closeTransient}
     /></PanelShell>;
-    if (corePublicViewer) return <PanelShell {...common} icon="◎" kicker="אישי" title="אזור משתמשים · נעול"><FrameState kind="gated" title="אזור המשתמשים בבנייה">האזור ייפתח לאחר השלמת ההגדרה והעברת הצ׳אט הישן.</FrameState><Link to="/login" onClick={closeTransient}>כניסת מנהל ←</Link></PanelShell>;
+    if (corePublicViewer) return <PanelShell {...common} icon="◎" kicker="אישי" title="אזור משתמשים · נעול"><FrameState kind="gated" title="אזור המשתמשים בבנייה">האזור ייפתח בהדרגה לאחר השלמת החיבור והבדיקות.</FrameState><Link to="/login" onClick={closeTransient}>כניסת מנהל ←</Link></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}

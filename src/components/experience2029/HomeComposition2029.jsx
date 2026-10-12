@@ -104,6 +104,11 @@ export default function HomeComposition2029({
   return <div className="h29" data-experience-capability="home-composition">
     {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
 
+    {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
+      <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
+      <span>כבר עכשיו אפשר לקרוא פוסטים, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט הוותיק.</span>
+    </section> : null}
+
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
       <div className="h29-updates">
         {data.posts.map((post, index) => {
@@ -193,7 +198,7 @@ export default function HomeComposition2029({
         {journeyLocked
           ? <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-life-journey="locked"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מסע החיים · נעול</span><small>ייפתח לאחר השלמת ההגדרה</small></div>
           : <Link className="h29-portion k29-rv" to="/2029/journey" data-home-life-journey="open"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>}
-        <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-user-area="locked"><span className="h29-portion-h"><NavigationIcon2029 name="community" />אזור משתמשים · נעול</span><small>ייפתח לאחר השלמת ההגדרה והעברת הצ׳אט הישן</small></div>
+        <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-user-area="locked"><span className="h29-portion-h"><NavigationIcon2029 name="community" />אזור משתמשים · נעול</span><small>ייפתח לאחר השלמת החיבור והבדיקות</small></div>
       </div>
     </Section>
 
