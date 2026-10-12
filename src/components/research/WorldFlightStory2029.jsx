@@ -43,7 +43,9 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
     return () => cancelAnimationFrame(frame);
   }, [anchor, location.hash, state.loading]);
-  if (state.loading) return <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>;
+  if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
+    <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
+  </section>;
   if (!state.projection) return <FrameState kind="unavailable" title="סיפור המטוס אינו זמין כרגע">
     <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב את המקור</button>
   </FrameState>;
