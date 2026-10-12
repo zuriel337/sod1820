@@ -103,8 +103,8 @@ export function useSiteFlag(flag) {
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
 // שפה/locale אינה פרמטר בכוונה: לפי content_translation_law v2 היא Projection בלבד.
 export function resolveFeatureState(lock, { user = null, isAdmin = false, requireFlag = false } = {}) {
-  // A named launch gate must exist explicitly before it can open. Legacy flags
-  // retain their existing absent-flag behavior until migrated by their owner.
+  // A named launch gate must exist explicitly before it can open, including to
+  // admins. The server capability gate also denies unknown flags.
   if (!lock && requireFlag) {
     return {
       enabled: true, mode: "all", blocked: true, allowed: false,
@@ -139,14 +139,14 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false, requir
 
 // canonical hook for every feature-controlled surface.
 export function useFeatureState(flag, { requireFlag = false } = {}) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { loading, lock } = useSiteFlag(flag);
   return useMemo(() => ({
     flag,
-    loading,
+    loading: loading || authLoading,
     lock,
     ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
-  }), [flag, loading, lock, user, isAdmin, requireFlag]);
+  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
