@@ -229,8 +229,8 @@ export default function SurfaceContextRail2029({
         <b>{activeSection.label}</b>
         <span aria-hidden="true">↓</span>
       </button> : null}
-      {restMode && chainTrail.length >= 2 ? <nav className="sod29-surface-context-chain" aria-label="מקומו של הפוסט בשרשרת" data-context-chain="true">
-        <small>השרשרת</small>
+      {restMode && chainTrail.length >= 2 ? <nav className="sod29-surface-context-chain" aria-label="רצף האירועים" data-context-chain="true">
+        <small>רצף האירועים</small>
         <ol>
           {chainTrail.map((step, index) => <li key={step.id || `chain-${index}`}>
             {step.active || !step.href

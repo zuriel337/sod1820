@@ -755,7 +755,7 @@ function PostReadingBody() {
 
     <PostEvidenceMedia2029 media={experience.media} />
 
-    {(experience.trail || []).length >= 2 ? <nav className="sod29-chain-trail" aria-label="מקומו של הפוסט בשרשרת" data-chain-trail="true">
+    {(experience.trail || []).length >= 2 ? <nav className="sod29-chain-trail" aria-label="רצף האירועים" data-chain-trail="true">
       {experience.trail.map((step, index) => <React.Fragment key={step.id}>
         {index > 0 ? <span className="sod29-chain-trail-sep" aria-hidden="true">←</span> : null}
         {step.active

@@ -1,8 +1,8 @@
 // Post categories as links, wherever a post is shown (like the classic home): each category opens its category page.
-// "רמזים חזקים" is the flagship category and gets the canonical strong-hint mark (diamond) first. A category chip inside
+// "רמזים חזקים" is the flagship category and is listed first (no diamond mark in the chip). A category chip inside
 // another link or a <summary> (`nested`) is a role="link" span, so no <a> is nested in an <a>.
 import React from "react";
-import { categoryLabel, categoryIcon } from "../../lib/categoryIcons.js";
+import { categoryLabel } from "../../lib/categoryIcons.js";
 import { STRONG_HINT_CATEGORY } from "../StrongHintBadge.jsx";
 import { canonicalPostCategories } from "../../lib/postCategoryIdentity.js";
 import "./postCategories2029.css";
@@ -12,8 +12,8 @@ const categoryHref = (name) => `/category/${encodeURIComponent(name)}`;
 function Chip({ name, nested }) {
   const strong = name === STRONG_HINT_CATEGORY;
   const className = `k29-cat${strong ? " is-strong" : ""}`;
-  const title = strong ? "רמז חזק — לקטגוריה" : `${name} — לקטגוריה`;
-  const body = strong ? <><span aria-hidden="true">{categoryIcon(name)}</span> רמז חזק</> : categoryLabel(name);
+  const title = strong ? "רמזים חזקים — לקטגוריה" : `${name} — לקטגוריה`;
+  const body = categoryLabel(name);
   if (!nested) return <a className={className} href={categoryHref(name)} title={title}>{body}</a>;
   const go = (event) => { event.preventDefault(); event.stopPropagation(); window.location.assign(categoryHref(name)); };
   return <span className={className} role="link" tabIndex={0} title={title} onClick={go}
