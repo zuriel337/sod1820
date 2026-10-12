@@ -22,7 +22,7 @@ function PostIndexCard({ post, index }) {
   const title = humanContentTitle(post?.title, { max: 92 });
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
   const numbers = numericSignals(post?.tags);
-  const image = post?.image_url || null;
+  const image = post?.thumb_url || post?.image_url || null;
   const categories = (Array.isArray(post?.categories) ? post.categories : []).slice(0, 3);
   const golden = isGoldenPost(post);
 
@@ -35,9 +35,9 @@ function PostIndexCard({ post, index }) {
     <Link className="sod29-post-index-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
       <div
         className={"sod29-post-index-visual" + (image ? " has-image" : "")}
-        style={image ? { backgroundImage: `url("${image.replace(/"/g, "%22")}")` } : undefined}
         aria-hidden="true"
       >
+        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading={index < 2 ? "eager" : "lazy"} decoding="async" width="640" height="360" /> : null}
         {!image ? <div className="sod29-post-index-number-field">
           {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
         </div> : null}

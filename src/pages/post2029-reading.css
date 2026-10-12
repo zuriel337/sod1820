@@ -1345,3 +1345,29 @@
 .sod29-reading-post>.sod29-surface-tabs{width:min(900px,100%);margin:0 auto 28px;flex-wrap:wrap}
 #post-sources{scroll-margin-top:120px}
 @media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
+
+/* G4 compact reading — cover, single page title, thinner hero. Tokens only. */
+.sod29-reading-cover{
+  grid-column:1 / -1;
+  margin:0;
+  max-height:260px;
+  overflow:hidden;
+  border:1px solid var(--s29-line);
+  border-radius:14px;
+  background:color-mix(in srgb,var(--s29-panel) 80%,transparent);
+}
+.sod29-reading-cover img{display:block;width:100%;height:auto;max-height:260px;object-fit:cover}
+.sod29-reading-hero{margin-bottom:20px;padding:clamp(14px,2.4vw,24px);border-radius:18px;box-shadow:none}
+.sod29-reading-hero-grid{gap:clamp(14px,2.4vw,28px)}
+.sod29-reading-hero h1{margin:6px 0 8px;font-size:clamp(24px,2.6vw,34px);line-height:1.22}
+/* Authored h1 inside the source: never a second giant page title. */
+.sod29-reading-source h1{margin:22px 0 10px;font-size:clamp(21px,2.2vw,27px);line-height:1.28;letter-spacing:-.02em}
+.sod29-reading-source h1[data-source-title="duplicate"]{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;
+}
+@media (max-width:620px){
+  .sod29-reading-cover,.sod29-reading-cover img{max-height:170px}
+  .sod29-reading-hero{padding:14px;border-radius:14px;margin-bottom:14px}
+  .sod29-reading-hero h1{font-size:23px}
+}
