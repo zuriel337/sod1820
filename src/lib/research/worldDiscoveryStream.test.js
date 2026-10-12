@@ -136,3 +136,37 @@ test("unconnected group arrivals cannot masquerade as a working empty group feed
   assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /תורת הרמז והגילוי היומי/);
   assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /אינם זמינים/);
 });
+
+
+test("public World source rail puts an updated older post before newly published posts without changing original publication time", () => {
+  const olderUpdated = makePost({
+    id: 5107, slug: "elections",
+    title: "הבחירות לכנסת ה־26",
+    date: "2026-09-30T08:55:00Z",
+    modified: "2026-10-10T23:19:35Z",
+  });
+  const newerUnedited = makePost({
+    id: 5116, slug: "newer",
+    title: "סיפור חדש",
+    date: "2026-10-06T11:01:00Z",
+    modified: "2026-10-06T11:01:00Z",
+  });
+  const feed = buildWorldDiscoveryStream({ posts: [newerUnedited, olderUpdated] }, { limit: 5 });
+  assert.deepEqual(feed.arrivals.map(row => row.sourceRef), ["posts:5107", "posts:5116"]);
+  assert.equal(feed.arrivals[0].sourcePublishedAt, "2026-09-30T08:55:00.000Z");
+  assert.equal(feed.arrivals[0].sourceUpdatedAt, "2026-10-10T23:19:35.000Z");
+  assert.equal(feed.arrivals[0].arrivalAt, "2026-09-30T08:55:00.000Z");
+});
+
+test("new public World uses the composed story and sources without a feature toggle or integrated-preview gate", () => {
+  const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
+  const reader = readFileSync(new URL("./worldDiscoveryStream.js", import.meta.url), "utf8");
+  const flight = readFileSync(new URL("../../components/research/WorldFlightStory2029.jsx", import.meta.url), "utf8");
+  assert.match(world, /if \(!controlMode\) return <>/);
+  assert.doesNotMatch(world, /VITE_WORLD_2029_ENABLED/);
+  assert.doesNotMatch(world, /import\.meta\.env\.VITE_INTEGRATED_PREVIEW\s*===\s*["']true["']\)\s*&&\s*!controlMode/);
+  assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}/);
+  assert.match(world, /<SourceArrivalList2029 loading=\{landing\.loading\}/);
+  assert.match(reader, /\.order\("modified", \{ ascending: false, nullsFirst: false \}\)/);
+  assert.match(flight, /data-source-interpretation="zuriel-787"/);
+});
