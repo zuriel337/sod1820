@@ -768,6 +768,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/calculator",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/2029/journey",
       "destination": "/2029.html"
     },
@@ -853,6 +857,15 @@
     },
     {
       "source": "/2029/gematria",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/calculator",
       "headers": [
         {
           "key": "X-Robots-Tag",

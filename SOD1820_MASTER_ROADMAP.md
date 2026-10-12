@@ -168,6 +168,8 @@ These are product homes, not semantic owners:
 
 Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Attention, Share and Journey may appear across surfaces without becoming separate top-level truth systems.
 
+**Gematria Calculator (Human Gate ZURIEL · 2026-10-12):** one infrastructure, two projections — professional calculator (tiles/ledger, advanced, wide mode for Heichal) and the viral community calculator. Existing owners only (gematria engine/registry, Design V2, Raziel AI routing). Phases, dependencies and acceptance tests: `docs/2029-implementation-dependency-plan-v1.md` §5A.1.
+
 ## Open decisions that still matter
 
 Only decision-changing open items belong here:
@@ -183,6 +185,7 @@ Only decision-changing open items belong here:
 - exact server-boundary mechanics for HTTP 404/301/200 on invalid/retired/current **2029** public routes, without adding DB lookups to CN/SG bot-policy middleware;
 - exact Free/Registered/Premium/Credits allocation in G5;
 - exact English launch scope after Golden Locale acceptance;
+- Calculator: Registry activation of the `en_*` methods (3 verified, `en_reverse_reduction` pending adjudication), Agrippa/Latin admission, and the Heichal wide-mode link;
 - release batching after acceptance.
 
 ## Anti-inflation rule

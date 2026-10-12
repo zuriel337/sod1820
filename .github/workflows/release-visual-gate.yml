@@ -774,11 +774,12 @@ jobs:
               await shared.close();
 
               if (width === 390) {
+                await page.getByRole('button', { name: 'עוד כלים', exact: true }).click();
                 await page.getByRole('button', { name: 'השווה', exact: true }).click();
                 await expect(page.locator('.sod29-calc-compare')).toBeVisible();
                 await page.locator('#calculator-compare-b').fill('צוריאל פולייס');
                 await expect(page.locator('.sod29-calc-compare-b-result')).toBeVisible({ timeout: 20_000 });
-                await page.locator('.sod29-calc2029-actions button[aria-expanded="true"]').click();
+                await page.locator('.sod29-calc2029-actions.is-more button[aria-expanded="true"]').click();
 
                 for (const phrase of goldens.slice(1)) {
                   await input.fill(phrase);

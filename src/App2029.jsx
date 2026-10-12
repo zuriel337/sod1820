@@ -11,6 +11,7 @@ import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import Calculator2029Page from "./pages/Calculator2029Page.jsx";
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
+import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -106,6 +107,7 @@ export default function App2029() {
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
               {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
+              <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/2029/posts" element={<Posts2029Page />} />

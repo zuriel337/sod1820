@@ -6,6 +6,7 @@ import {
   calculationAvailabilityLabel,
   normalizeCalculatorMethods,
 } from "../../lib/research/calculator2029Model.js";
+import { classifyCalculatorInput, filterProfileRowsForInput } from "../../lib/research/calculator2029Input.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -39,13 +40,20 @@ export default function CalculatorCompare2029({ selectionA, onClose = null } = {
       return undefined;
     }
 
+    const inputInfoB = classifyCalculatorInput(phrase);
+    if (!inputInfoB.hebrewApplicable) {
+      setProfileB({ loading: false, rows: [], error: null, expression: phrase });
+      setMethodBKey(null);
+      return undefined;
+    }
+
     let alive = true;
     const timer = window.setTimeout(() => {
       setProfileB((current) => ({ ...current, loading: true, error: null, expression: phrase }));
       fetchNumberMethodProfile(phrase)
         .then((rows) => {
           if (!alive) return;
-          const normalized = normalizeCalculatorMethods(rows);
+          const normalized = normalizeCalculatorMethods(filterProfileRowsForInput(rows, inputInfoB));
           setProfileB({ loading: false, rows: normalized, error: null, expression: phrase });
           setMethodBKey((current) => normalized.some((row) => row.methodKey === current) ? current : normalized[0]?.methodKey || null);
         })
@@ -125,6 +133,8 @@ export default function CalculatorCompare2029({ selectionA, onClose = null } = {
             placeholder="הקלד ביטוי שני…"
             dir="rtl"
           />
+          {clean(expressionB) && !classifyCalculatorInput(expressionB).hebrewApplicable
+            ? <small>ההשוואה תומכת כרגע בביטוי עברי בלבד.</small> : null}
           {profileB.loading ? <small>מחשב דרך fn_method_profile…</small> : null}
           {profileB.error ? <small className="is-error">לא ניתן לחשב כרגע.</small> : null}
           {methodsB.length ? (
