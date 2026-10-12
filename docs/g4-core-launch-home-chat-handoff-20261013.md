@@ -11,6 +11,7 @@ Status: branch implementation and local verification only. No merge, production 
 - `/world`, `/topic/:slug` and `/researcher/:slug` are guarded by the `lock_world` site flag. The branch migration seeds that flag. Admin access follows the existing `MaintenanceLock` admin bypass after the flag is installed.
 - The new user area, journey, Heichal, Raziel and books retain their separate locked states. The old chat remains available as a separate existing route.
 - The existing Home now keeps a visible notice that the system is under construction and sections open gradually. It does not replace the Home or its latest-post hero.
+- The mobile Home reserves the post hero's loaded height, avoiding the large layout shift that occurred when the latest post and its update metadata arrived.
 
 ## User area bridge
 
@@ -33,6 +34,7 @@ Status: branch implementation and local verification only. No merge, production 
 - `test-2029-isolation`, `test-route-legitimacy-2029`, `test-home-2029-system-pulse` and the three ELS launch-gate tests passed.
 - Browser at 390px and 1440px: existing composed Home, four post cards, no horizontal overflow, no `world_group_source_arrivals_v3` request, no Home World stream/link, Home → chat → Home returned to `/2029`, direct World entry showed its lock.
 - Number browser smoke at 390px: direct 1237 and 1820 each loaded six method cards without horizontal overflow; calculator “שלום” → 376 opened the focused Number page and survived refresh. The desktop Number navigation opened the search/drawer and reached 1820. The smoke blocked telemetry/write requests; some optional `research_objects` reads returned 401 to the anonymous browser, while the number core loaded.
+- A read-only mobile Home layout-shift smoke measured 0.0404 after height reservation, down from 0.4166 in the same harness (the 0.1 budget used by the CI browser acceptance). The previous CI run predates this fix; its broad World acceptance remains incompatible with the deliberately closed World.
 
 ## Release boundary
 
