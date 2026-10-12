@@ -1939,6 +1939,13 @@ export default function SystemFrame2029({
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
+  // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
+  const progressSections = (surface === "post" || surface === "topic") && Array.isArray(context?.dimensions?.surfaceSections)
+    ? context.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
+  const progressIndex = progressSections.findIndex((item) => item.id === context?.dimensions?.activeSectionId);
+  const readingProgress = showBottomTrail && progressSections.length >= 2 && progressIndex >= 0
+    ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
+    : null;
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
@@ -2175,7 +2182,7 @@ export default function SystemFrame2029({
           razielNode={<RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
-        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`מה נכנס למערכת: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
+        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context">
@@ -2202,6 +2209,9 @@ export default function SystemFrame2029({
               >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
             </React.Fragment>)}
           </nav> : null}
+              {readingProgress ? <button type="button" className="sod29-reading-progress" onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={`מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}${readingProgress.label ? `, ${readingProgress.label}` : ""}`} aria-haspopup="dialog" data-reading-progress={`${readingProgress.index}/${readingProgress.total}`}>
+                <span className="sod29-reading-progress-track" aria-hidden="true">{readingProgress.ids.map((id, i) => <i key={id} className={i < readingProgress.index - 1 ? "is-done" : i === readingProgress.index - 1 ? "is-now" : ""} />)}</span>
+              </button> : null}
               <div className="sod29-command-actions">
                 {showBottomTrail && surface === "number" ? <button
                   className="sod29-number-island-action"
