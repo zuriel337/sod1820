@@ -72,6 +72,10 @@ import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 
+// The composed World (overview, flight story, source arrivals, connections) shows in dev, in the integrated review preview, and in
+// production only when VITE_WORLD_2029_ENABLED=true is set at build time (same independent switch pattern as the Home). Preview-only
+// interpretation copy keeps its own VITE_INTEGRATED_PREVIEW check.
+const WORLD_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_WORLD_2029_ENABLED === "true";
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
   locale: "he",
@@ -1029,7 +1033,7 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  if ((import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !controlMode) return <>
+  if (WORLD_COMPOSED && !controlMode) return <>
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
@@ -1118,7 +1122,7 @@ function LiveWorldLanding({ research, shell, context }) {
   </>;
 
   return <>
-    {(import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
+    {WORLD_COMPOSED ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"
