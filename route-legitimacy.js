@@ -36,6 +36,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/gematria",
   "/gematria-3d",
   "/heichal",
+  "/heichal.html",
   "/home-classic",
   "/home-new",
   "/join",
