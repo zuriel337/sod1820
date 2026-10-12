@@ -12,6 +12,7 @@ import React, { useState, useEffect } from "react";
 import { F } from "../../theme.js";
 import { judgeLastVisit, getSeenMap, candidateState, ageLabel } from "../../lib/judgeQueue.js";
 import { getConvergenceCandidates, decideCandidate, sendCandidateFromResearcher, askNumberResearcher, askRazielAttention, getNumberDossier, loadResearcherThread } from "../../lib/visits.js";
+import RazielInterviewPilot from "./RazielInterviewPilot.jsx";
 
 // 🎨 ברירת-מחדל כהה (עותק-מקומי של פלטת-האדמין, var(--adm-*)) — לשימוש כשלא מועבר theme (למשל
 // אם/כש-CommandCenterTab היתום יחזור לחיים). WarRoomTab מעביר theme={C} משלו (בהיר · היכל) —
@@ -104,8 +105,10 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
     } else {
       const dec = cmd.kind === "approve" ? "approve" : cmd.kind === "reject" ? "reject" : "partial";
       const res = await decideCandidate(c.id, dec).catch(() => null);
-      setCands(prev => prev.filter(x => x.id !== c.id));
-      note = `${dec === "approve" ? "✅ אושר" : dec === "reject" ? "❌ נדחה" : "✏️ חלקי"}: ${cmd.v}. נכנס ל-decision_ledger + הזין את Learned-Pattern. ${res?.pattern_key ? "(דפוס: " + res.pattern_key + ")" : ""}`;
+      if (res?.decision_id && ["approve", "modify", "reject"].includes(res?.decision)) {
+        setCands(prev => prev.filter(x => x.id !== c.id));
+        note = `${dec === "approve" ? "✅ אושר" : dec === "reject" ? "❌ נדחה" : "✏️ חלקי"}: ${cmd.v}. ההחלטה נרשמה ביומן ההחלטות.`;
+      } else note = `לא התקבל אישור לרישום ההחלטה על ${cmd.v}. המועמד נשאר ברשימה; אפשר לנסות שוב.`;
     }
     push("assistant", note);
     setBusyC(null);
@@ -211,6 +214,8 @@ export default function NumberResearcher({ theme, attentionDigest, mode, filters
         </div>
         <button onClick={loadCands} style={{ ...segBtn(false), fontSize: 12 }}>↻</button>
       </div>
+
+      <RazielInterviewPilot />
 
       {/* ⚡ Quick Actions — קיצורי-דרך לכוונות-קשב טבעיות (§15) — לא הדרך היחידה, רק פתיח */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>

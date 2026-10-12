@@ -1,7 +1,11 @@
+import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
+import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
+import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
+import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
@@ -15,7 +19,9 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection, fetchResearchSourceOccurrences } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { REVIEWED_SOURCE_WITNESSES, discoveryHref, witnessSource } from "../lib/research/worldSourceConnections.js";
+import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
 import {
   fetchExplorerFacetDetail,
   fetchExplorerFacetPage,
@@ -29,6 +35,9 @@ import {
   orderWorldRelations,
   worldRelationCounterpart,
   worldRelationFacets,
+  buildWorldSourceStory,
+  worldSourceStoryContext,
+  WORLD_SOURCE_STORY_ANCHOR,
 } from "../lib/research/world2029Presentation.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import {
@@ -58,6 +67,10 @@ import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
+import "./worldComposition2029.css";
+import { levelNumbers } from "../lib/ratings2029.js";
+import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
+import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -322,7 +335,7 @@ function prominenceWhyLines(item) {
   if (why.humanCuration?.tier === "gold") lines.push("סומן באוצרות האנושי ברמת זהב; זהו אות אוצרות, לא דירוג אמת.");
   else if (why.humanCuration?.tier === "silver") lines.push("סומן באוצרות האנושי ברמת כסף; זהו שובר שוויון בלבד.");
   if (why.informationGain === "adds_a_new_evidence_or_content_family_to_the_attention_bundle") lines.push("הפריט מוסיף סוג מידע נוסף לתמונה.");
-  if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`);
+  if (why.temporalRelevance?.occurredAt) lines.push(`זמן אירוע מתועד: ${new Date(why.temporalRelevance.occurredAt).toLocaleDateString("he-IL")}.`); // date-rule-exempt: event date, not a record time
   return lines.length ? lines : ["הפריט נבחר בגלל הרלוונטיות שלו לנקודה הזאת."];
 }
 
@@ -392,8 +405,7 @@ function contributionDisplay(row) {
 }
 
 function researchAddedDate(value) {
-  if (!value) return "זמן הוספה לא ידוע";
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return "זמן הוספה לא ידוע"; }
+  return relativeTimeLabel(value, "זמן הוספה לא ידוע");
 }
 
 function humanTimelineLabel(item) {
@@ -406,9 +418,9 @@ function humanTimelineLabel(item) {
 }
 
 function mediaDate(item) {
-  const value = item?.occurredAt || item?.createdAt || null;
-  if (!value) return null;
-  try { return new Date(value).toLocaleDateString("he-IL"); } catch (_) { return null; }
+  // The event date of the media is content (kept as a date); the time it was added is a record time (relative).
+  if (item?.occurredAt) { try { return new Date(item.occurredAt).toLocaleDateString("he-IL"); } catch (_) { return null; } } // date-rule-exempt: event date
+  return relativeTimeLabel(item?.createdAt) || null;
 }
 
 function WorldCard({ card, onOpen }) {
@@ -443,6 +455,44 @@ function NativeStateSection({ children }) {
   return <section className="sod29-section sod29-world-state-section">{children}</section>;
 }
 
+// Invitations into the existing source readings, not new Topics or public saved Paths.
+// Read four exact reviewed locators through the same public media envelope as the reader.
+function WorldDiscoveryDoors() {
+  const entries = [
+    { id: "india-health", reading: "rails", title: "הודו · 14 ו־45", lead: "מהתיעוד בהודו אל דוד, גאולה ורכבת המים." },
+    { id: "see-my-back", reading: "wall", title: "1237 · וראית את אחרי", lead: "מביטוי מצולם אל התגלות וסיפור המועמדות." },
+    { id: "wall-clock", reading: "wall", title: "424 · מהכותל אל טראמפ", lead: "השעה, השם וההקשרים שכתב המחבר." },
+    { id: "wisdom-methods", reading: "wisdom-set", title: "73 · לפתוח את החכמה", lead: "מאותה מילה אל המילויים והמקורות המחוברים." },
+  ];
+  const [state, setState] = useState({ loading: true, sources: {} });
+  useEffect(() => {
+    let alive = true;
+    const specs = entries.map(({ id }) => REVIEWED_SOURCE_WITNESSES.find((s) => s.id === id));
+    fetchGallerySourceContext({ imageIds: specs.map((s) => s.galleryImageId) })
+      .then((gallery) => {
+        const sources = Object.fromEntries(specs.map((spec) => [spec.id, witnessSource(spec, { gallery })]));
+        if (alive) setState({ loading: false, sources });
+      })
+      .catch(() => { if (alive) setState({ loading: false, sources: {} }); });
+    return () => { alive = false; };
+  }, []); // The four reviewed locators are fixed; no corpus scan.
+  return <section className="sod29-world-discovery-doors" id="world-connections" aria-label="תמונות שפותחות חיבורים">
+    <header><div className="sod29-kicker">מה מתחבר</div><h2>תמונה אחת יכולה לפתוח דרך.</h2>
+      <p>תיעוד מהגלריות, הסבר של המחבר וקריאה שאפשר להמשיך ממנה למקור ולמספר.</p></header>
+    <div className="sod29-world-discovery-door-grid">{entries.map((entry) => {
+      const source = state.sources[entry.id];
+      return <article key={entry.id} data-world-discovery-door={entry.id}>
+        {source ? <CanonicalMediaFigure2029 item={source.item} thumbnail alt={`הגדלת המקור: ${entry.title}`} contextNote={entry.lead} />
+          : <div className="sod29-world-discovery-door-missing" role="status">{state.loading ? "פותח את תמונת המקור…" : "תמונת המקור אינה זמינה כרגע"}</div>}
+        <div className="sod29-world-discovery-door-copy"><h3>{entry.title}</h3><p>{entry.lead}</p>
+          {source ? <Link className="sod29-action" to={discoveryHref(entry.reading, entry.id)}>לפתוח את החיבור ←</Link> : null}
+        </div>
+      </article>;
+    })}</div>
+    <p className="sod29-muted">אלו קריאות מחוברות בחומר קיים. בכל תחנה נשמרים המקור, הכיתוב והדרך לגלריה; אפשר לפתוח את החישוב ולהמשיך למסע אישי.</p>
+  </section>;
+}
+
 function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
   const activeFacets = WORLD_FACETS.filter((facet) => (sections?.[facet.key] || []).length > 0).slice(0, 5);
   return (
@@ -474,6 +524,88 @@ function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
   );
 }
 
+function WorldSourceStory({ research, shell, compact = false }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [state, setState] = useState({ loading: true, story: null });
+  const [attempt, setAttempt] = useState(0);
+  const expanded = location.hash === `#${WORLD_SOURCE_STORY_ANCHOR}`;
+  useEffect(() => {
+    let alive = true;
+    setState({ loading: true, story: null });
+    fetchTopicSourceContext({ topicSlug: INDIA_CAPTAIN_SOURCE.topicSlug })
+      .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection), projection }); })
+      .catch(() => { if (alive) setState({ loading: false, story: null }); });
+    return () => { alive = false; };
+  }, [attempt]);
+  const story = state.story;
+  useEffect(() => {
+    if (!expanded || !story) return;
+    const frame = requestAnimationFrame(() => {
+      const element = document.getElementById(WORLD_SOURCE_STORY_ANCHOR);
+      element?.scrollIntoView({ block: "start", behavior: "instant" });
+      element?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [expanded, story]);
+  const rememberSource = () => research.updateResearchContext?.(worldSourceStoryContext(story));
+  const leaveStory = (href) => {
+    const patch = worldSourceStoryContext(story);
+    const subject = href === story.item.reopen.topicHref
+      ? { id: story.topicSlug, type: "topic", label: story.topicLabel, href }
+      : { id: story.item.postPlacement.postSlug, type: "post", label: story.title, href };
+    // Supply the destination identity before mounting it: its first-entry setup
+    // may otherwise replace a subject-less Context and discard the return target.
+    research.updateResearchContext?.({ ...patch, subject, returnTo: {
+      href: story.returnHref, label: "המטוס והקשר להודו", subject: null,
+      ...patch, journey: research.context?.journey || null,
+    } });
+    shell.go(href, { preserve: false });
+  };
+  if (compact && !expanded && !/^#world-(direction|source)-/.test(location.hash)) return null;
+  return <section className="sod29-world-source-story" aria-label="מהמטוס אל הודו">
+    {state.loading ? <p role="status">טוען את הסיפור והמקור…</p> : !story ? <div role="status">
+      <p>המקור לסיפור המטוס אינו זמין כרגע.</p>
+      <button className="sod29-action" onClick={() => setAttempt((value) => value + 1)}>נסה שוב</button>
+    </div> : <>
+      <div className="sod29-world-story-intro" id={compact ? undefined : "world-plane-story"} hidden={compact}>
+        <div className="sod29-kicker">רמזי גאולה · מתוך פוסט באתר</div>
+        <h2>{humanContentTitle(story.title)}</h2>
+        <p>מסיפור הטיסה אל הקפטן שהוזכר בפוסט, ומשם אל התיעוד של הודו.</p>
+        <div className="sod29-actions">
+          <button className="sod29-action primary" aria-expanded={expanded} aria-controls={WORLD_SOURCE_STORY_ANCHOR}
+            onClick={() => navigate(expanded ? "/world#world-plane-story" : story.returnHref)}>
+            {expanded ? "סגור את הקשר להודו" : "מה מחבר את המטוס להודו?"}
+          </button>
+          <button className="sod29-action" onClick={() => leaveStory(story.item.reopen.postHref)}>לקריאת פוסט המטוס</button>
+        </div>
+      </div>
+      {expanded ? <div id={WORLD_SOURCE_STORY_ANCHOR} tabIndex={-1} className="sod29-world-story-source"
+        data-world-source-identity={story.item.sourceIdentity.ref}>
+        <figure>
+          <CanonicalMediaFigure2029 item={story.item} alt="פתח את תמונת המקור של הקפטן" contextNote={story.reason} onOpen={rememberSource} />
+          <figcaption>תמונת המקור מן הפוסט · לחצו להגדלה</figcaption>
+        </figure>
+        <div className="sod29-world-story-context">
+          <div className="sod29-kicker">החיבור שמופיע במקור</div>
+          <h3>{story.topicLabel}</h3>
+          <p>{story.reason}</p>
+          <details>
+            <summary>הכיתוב והקרדיט המקוריים</summary>
+            <p data-world-original-caption>{story.item.postPlacement.originalCaption}</p>
+            {story.item.postPlacement.originalCredit?.author ? <p>קרדיט שמור: {story.item.postPlacement.originalCredit.author}</p> : null}
+          </details>
+          <div className="sod29-actions">
+            <button className="sod29-action primary" onClick={() => leaveStory(story.item.reopen.topicHref)}>המשך לציר ההודי — באותה תמונה</button>
+          </div>
+          <p className="sod29-world-story-note">בציר ההודי אפשר לפגוש גם תיעוד היסטורי מן הגלריות, עם ההסבר והמקור של כל חיבור.</p>
+        </div>
+      </div> : null}
+      <WorldSourceConnections india={state.projection} research={research} shell={shell} showDirectionChoices={!compact} />
+    </>}
+  </section>;
+}
+
 function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
   const palette = usePalette();
@@ -494,6 +626,8 @@ function LiveWorldLanding({ research, shell, context }) {
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
+  const [sourceDepthOpen, setSourceDepthOpen] = useState(false);
+  const [catalogExpanded, setCatalogExpanded] = useState(false);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
   const [allCreatorOptions, setAllCreatorOptions] = useState([]);
@@ -802,6 +936,8 @@ function LiveWorldLanding({ research, shell, context }) {
   const lastJourney = Array.isArray(research.journeys)
     ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
     : null;
+  const publicCreator = (creator) => landing.contributors?.people?.find((person) =>
+    person.slug === creator || person.displayName === creatorLabel(creator));
 
   const discoveryItems = useMemo(() => {
     const items = Array.isArray(landing.discovery?.items) ? landing.discovery.items : [];
@@ -820,14 +956,21 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const openDiscoveryItem = (item) => {
     if (!item) return;
-    if (item.kind === "source" && item.href) {
+    if (item.sourceKind === "group_message") {
+      research.updateResearchContext?.({ subject: null, selection: { entityId: item.sourceRef, entityType: 'source', sourceRef: item.sourceRef }, lens: 'world' });
+      shell.go(item.href, { preserve: false });
+      return;
+    }
+    if (item.kind === "source" && item.sourceKind === "post" && item.href) {
       research.updateResearchContext?.({
         subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
-        selection: { entityId: item.sourceRef, entityType: "post" },
-        lens: "world",
-        returnTo: { href: "/world", label: "מה חדש בעולם" },
+        selection: { entityId: item.sourceRef, entityType: "post", sourceRef: item.sourceRef },
+        lens: "reading",
+        returnTo: { href: "/world#world-sources", label: "המקורות בעולם",
+          subject: context?.subject || null, selection: context?.selection || null,
+          lens: "world", dimensions: context?.dimensions || {}, journey: context?.journey || null },
       });
-      shell.go(item.href);
+      shell.go(item.href, { preserve: false });
       return;
     }
     if (item.kind === "convergence" && item.slug) {
@@ -855,11 +998,7 @@ function LiveWorldLanding({ research, shell, context }) {
       shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
     }
   };
-  const discoveryDate = (value) => {
-    if (!value) return "זמן לא צוין";
-    try { return new Date(value).toLocaleDateString("he-IL", { day: "numeric", month: "short" }); }
-    catch (_) { return "זמן לא צוין"; }
-  };
+  const discoveryDate = (value) => relativeTimeLabel(value, "זמן לא צוין");
 
   const creatorLabel = (value) => {
     if (!value) return "מקור לא צוין";
@@ -890,7 +1029,96 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
+  if ((import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !controlMode) return <>
+    <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
+      <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
+        <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
+      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a><a href="#world-all-convergences">עיון לפי נושא</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
+    </section>
+    <WorldFlightStory2029 research={research} shell={shell} />
+    <WorldSourceStory research={research} shell={shell} compact />
+    {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
+    <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems}
+      availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+    {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
+
+    <section className="sod29-world-source-homes" id="world-source-homes" aria-label="המקורות והכותבים בעולם">
+      <header><div className="sod29-kicker">החומר שמאחורי החיבורים</div><h2>קולות ומקורות בעולם</h2>
+        <p>הזרם מציג את העדכונים האחרונים. מכאן אפשר לפתוח גם את החומר שכבר נאסף לאורך השנים.</p></header>
+      <div className="sod29-world-source-home-grid">
+        {WORLD_SOURCE_CORPORA.map((spec) => <button type="button" key={spec.key} aria-expanded={corpusKey === spec.key}
+          aria-controls={`world-corpus-${spec.key}`} onClick={() => { setCorpusKey(corpusKey === spec.key ? null : spec.key); setWriterFilter("all"); }}>
+          <span>ספריית המקורות</span><strong>{spec.label}</strong><small>לקרוא את החומר הציבורי המלא ←</small>
+        </button>)}
+        {(landing.contributors?.people || []).map((person) => <button type="button" key={person.slug}
+          aria-expanded={writerFilter === person.slug} aria-controls="world-contributor-material"
+          onClick={() => { setWriterFilter(writerFilter === person.slug ? "all" : person.slug); setCorpusKey(null); }}>
+          <span>{person.role || "חוקר וכותב"}</span><strong>{person.displayName}</strong><small>לגלות את החומר והחיבורים שלו ←</small>
+        </button>)}
+      </div>
+      {landing.loading ? <p role="status">פותח את הכותבים והמקורות…</p> : null}
+      {landing.contributorError ? <p role="status">הכותבים אינם זמינים להצגה כרגע.</p> : null}
+    </section>
+    {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus key={spec.key} spec={spec}
+      recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? null} />)}
+    {selectedWriter ? <section className="sod29-section" id="world-contributor-material" aria-label={`החומר של ${selectedWriter.displayName}`}>
+      <ContributorFindingsLens projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
+        loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.loading}
+        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null} />
+      {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
+        <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
+    </section> : null}
+
+    <WorldDiscoveryDoors />
+    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושא">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושא</div><h2>כל חיבור פותח עוד עולם.</h2>
+        <p className="sod29-muted">בחרו נושא קיים כדי לראות אילו ביטויים, מספרים ומקורות נפגשים בו.</p></div>
+        {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} התכנסויות ציבוריות</span> : null}</div>
+      <div className="sod29-world-catalog-controls">
+        <label className="sod29-world-catalog-search"><span>מה מסקרן אותך?</span>
+          <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="מספר, שם או נושא…" aria-label="חיפוש בכל ההתכנסויות" /></label>
+        <div className="sod29-world-catalog-creators" role="group" aria-label="סינון כל ההתכנסויות לפי יוצר">
+          {["all", ...allCreatorOptions.filter(publicCreator)].map((creator) => <button key={creator} type="button"
+            className={`sod29-world-stream-filter${allCreator === creator ? " is-active" : ""}`} aria-pressed={allCreator === creator}
+            onClick={() => setAllCreator(creator)}>{creator === "all" ? "הכול" : creatorLabel(creator)}</button>)}
+        </div>
+      </div>
+      {allConvergences.loading ? <p role="status">פותח את הנושאים…</p> : null}
+      {allConvergences.error ? <p role="status">חלק מהנושאים לא נטענו כרגע. מה שכבר נפתח נשאר זמין.</p> : null}
+      {!allConvergences.loading && !allConvergences.error && !allConvergences.cards.length ? <p role="status">לא נמצאו נושאים במסנן הזה.</p> : null}
+      <div className="sod29-world-catalog-grid">{allConvergences.cards.slice(0, catalogExpanded ? undefined : 8).map((card, cardIndex) =>
+        <div className="sod29-world-catalog-item" key={card.id}>
+        <Link className="sod29-world-catalog-card" to={card.href} data-world-topic={card.refId}>
+          <div className="sod29-world-catalog-meta"><span>{CONVERGENCE_LABEL}</span>{publicCreator(card.creator) ? <span>{publicCreator(card.creator).displayName}</span> : null}</div>
+          <strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}
+          {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
+          <small>לגלות את החיבורים ←</small>
+        </Link>
+        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
+        </div>)}</div>
+      <div className="sod29-actions">
+        {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}
+          onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}
+        {catalogExpanded && allConvergences.hasMore ? <button className="sod29-action" disabled={allConvergences.loadingMore}
+          onClick={loadMoreConvergences}>{allConvergences.loadingMore ? "טוען עוד…" : "טען עוד נושאים"}</button> : null}
+        <button className="sod29-action" aria-expanded={sourceDepthOpen} aria-controls="world-source-depth"
+          onClick={() => setSourceDepthOpen(!sourceDepthOpen)}>{sourceDepthOpen ? "סגור את ספריית הנושאים" : "נושאים מתוך ספריית המקורות"}</button>
+      </div>
+    </section>
+    {sourceDepthOpen ? <WorldSourceDepth /> : null}
+
+    <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
+      <div className="sod29-kicker">לאן זה מוביל?</div><h2>להיכנס לאותיות. להמשיך לחיבור הבא.</h2>
+      <p>מכל חישוב שנפתח אפשר להמשיך למסע אישי באותה דרך: הביטוי, השיטה והמקור נשארים איתך.</p>
+      <div className="sod29-actions"><Link className="sod29-action primary"
+        to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>878 · לתוך המילוי של משיח</Link>
+        <button className="sod29-action" onClick={() => shell.openCommand()}>לבחור מספר או ביטוי אחר</button></div>
+      <p className="sod29-muted">כאן נפתח דף המספר עם הביטוי והשיטה. התחלת מסע ושמירה הן פעולות לבחירתך; המסע הערוך המלא של 878 עדיין בבנייה.</p>
+    </section>
+  </>;
+
   return <>
+    {(import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
     <section
       className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
       id="world-entry"
@@ -903,7 +1131,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
           <h2>מה חדש בעולם?</h2>
-          <p>דברי מקור שהתעדכנו באתר, ממצאי מחקר מורשים והתכנסויות מאושרות. המקור מופיע גם לפני שעבר מחקר; החידושים מסודרים לפי זמן, לא לפי דירוג אמת.</p>
+          <p>רמזי גאולה, סיפורים ותיעוד שהתחדשו באתר. אפשר לפתוח מקור גם לפני ששויך לנושא, ולבחור לאן להמשיך ממנו.</p>
         </div>
         <div className="sod29-actions">
           <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
@@ -999,6 +1227,8 @@ function LiveWorldLanding({ research, shell, context }) {
         </div>
       </div>
     </section>
+
+    <WorldSourceStory research={research} shell={shell} />
 
           {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
             key={spec.key}
@@ -2138,12 +2368,13 @@ function WorldBody() {
   const shell = use2029Shell();
   const context = research.context || null;
   const subject = context?.subject || null;
+  const location = useLocation();
 
   useEffect(() => {
     research.updateResearchContext?.({ lens: "world" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
@@ -2162,7 +2393,7 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}
       title="העולם"
-      description="ראה מה מתחבר לנקודה שמסקרנת אותך — מספרים, ביטויים, מקורות, אירועים וקשרים. פתח התכנסות, צא למסע וחזור בדיוק למקום שממנו יצאת."
+      description="רמזי גאולה מתוך סיפורים, תמונות ותיעוד. גלה מה מחבר ביניהם, פתח את המקור וחזור למקום שממנו יצאת."
       status="עולם · גילוי"
     >
       <WorldBody />

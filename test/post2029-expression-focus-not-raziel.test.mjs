@@ -15,9 +15,9 @@ const between = (src, start, end) => {
   return src.slice(a, b > a ? b : undefined);
 };
 
-test("expression click opens Number focus via Quick Inspect, not Raziel", () => {
+test("expression click opens Number focus directly in the existing Number window, not Raziel", () => {
   const focus = between(page, "const openContextualNumberFocus", "const handleSourceContextualFocus");
-  assert.match(focus, /shell\.openInspect\?\.\(/);
+  assert.match(focus, /shell\.openNumber\?\.\(/);
   assert.match(focus, /type: "gematria_expression"/);
   assert.match(focus, /expression: cleanExpression/);
   assert.doesNotMatch(focus, /openRaziel|askRaziel/);

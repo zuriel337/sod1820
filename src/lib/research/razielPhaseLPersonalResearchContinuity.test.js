@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
+import { runAiAnalyze, personalAnswer, UID as VERIFIED_UID, OTHER_UID, SERVICE_KEY } from "../../../test/helpers/ai-analyze-handler.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
@@ -41,10 +42,29 @@ test("Phase L: descriptor only for authenticated (user/admin) + valid verified u
   assert.equal(m.razielPersonalDescriptor(det("personal_saved"), "user", UID.replace(/-/g, "")), null);
 });
 
-test("Phase L: anonymous → zero personal RPC calls (descriptor null, call-site gated on descriptor + verified ref)", () => {
-  assert.match(callSite, /if \(!rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef\)/);
-  assert.match(edge, /rPersDesc = razielPersonalDescriptor\(det, tier, rVerifiedRef\)/);
-  assert.match(edge, /rUserBearer = tier === "user" \|\| tier === "admin"/);
+test("Phase L: real handler denies personal RPCs to anonymous/forged identity and trusted service channel", async () => {
+  const trusted_channel = { channel: "whatsapp", sender: "15555550123" };
+  const forged = { user_id: OTHER_UID, uid: OTHER_UID, user_ref: OTHER_UID, tier: "admin", trusted_channel };
+  for (const scenario of [
+    {},
+    { body: forged },
+    { bearer: "forged-jwt", body: forged },
+    { bearer: SERVICE_KEY, trustedUid: VERIFIED_UID, body: { trusted_channel } },
+  ]) {
+    // Quota is allowed so it cannot mask an identity-gate regression.
+    const r = await runAiAnalyze({ answer: personalAnswer(), allowed: true, ...scenario });
+    assert.equal(r.status, 200);
+    assert.equal(r.personal.length, 0);
+    assert.equal(r.models.length, 1, "continues ordinary mocked synthesis without personal snapshot");
+    assert.equal(r.spans.some((s) => s.p_name.includes("personal")), false);
+    const plan = r.calls.find((c) => c.name === "fn_raziel_answer").payload;
+    assert.equal(plan.p_user_ref, scenario.trustedUid || null);
+    if (!scenario.trustedUid) {
+      assert.equal(r.calls.some((c) => c.name === "fn_raziel_identity"), false);
+      assert.equal(r.calls.some((c) => c.name === "fn_raziel_context"), false);
+      assert.equal(r.calls.find((c) => c.name === "ai_quota_check").payload.p_tier, "anon");
+    }
+  }
 });
 
 test("Phase L: caller JWT + uid derived from the validated JWT only; no service role, no client uid, no raw table access, no writes", () => {

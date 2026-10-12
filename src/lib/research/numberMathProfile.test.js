@@ -27,6 +27,15 @@ test('101 is a palindromic prime with exact deterministic classification', () =>
   assert.equal(p.families.find(x => x.key === 'prime').reference.role, 'definition_pointer_unfetched');
 });
 
+test('787 prime lens derives the generic Number 138 bridge without an interpretive claim', () => {
+  const profile = analyzeNumberMath(787);
+  assert.deepEqual(profile.prime_context, {
+    status: 'exact', index: 138, previous: 773, next: 797, gapBefore: 14, gapAfter: 10,
+  });
+  assert.equal(analyzeNumberMath(878).prime_context, null);
+  assert.equal(profile.capability, 'number_math_profile');
+});
+
 test('256 exposes power, square, factorization and divisor facts', () => {
   const p = analyzeNumberMath(256);
   assert.equal(p.powers.square_root, 16);

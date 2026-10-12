@@ -53,9 +53,11 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch | `inter_agent_coordination_law` **v13 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v16 ACTIVE** |
 
-**G3 runtime state:** `inter_agent_coordination_law v13` owns the LIVE event-driven GPT↔CLAUDE assignment/claim/lease/result transport over `work_log`. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
+**G3 runtime state:** `inter_agent_coordination_law v16` owns the LIVE event-driven assignment/claim/lease/result transport over `work_log`. Since v14 (11.10.2026) dispatch is one-directional: GPT dispatches CLAUDE; CLAUDE closes with an AFTER that GPT discovers on its next scan, without RESULT_WAKE. Assignment → dispatch event → claim/lease → live owner resolution → bounded execution → AFTER/result is live-verified; dispatch never becomes Truth/Release authority and never auto-authorizes governed WRITE/publish/canonicalization.
+
+**Writer lanes (v16 §§89–96):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
@@ -90,6 +92,7 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 | Human curation Gold/Signature/Anchor family | `golden_entity_law` under Truth Axes |
 | signal vs curation boundary | `signal_vs_curation` under Truth Axes |
 | manual verification seal | `verify_seal_manual_only` under Truth Axes |
+| display of record times: relative "לפני X" only on Home and World; everywhere else Hebrew + Gregorian date together (enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` v2 (child of Truth Axes time context); canonical zone stays `israel_time_law` |
 
 Interpretive research theses are Research OS/provenance, not global governance laws.
 
@@ -161,6 +164,7 @@ Privacy/RLS rules are scoped invariants under Person/Foundation owners, not para
 | Responsibility | Canonical owner |
 |---|---|
 | publishing conventions / Post identity | `project_codex.publishing_conventions` |
+| post voice (plural system voice "אנחנו", no first person); applies to authored post text, not to interface strings | `post_system_voice_law` v1 under publishing conventions |
 | legacy WordPress/gallery maintenance adapter | active `legacy_content_protocol` **on demand only** |
 | translation / source-language integrity | `content_translation_law` **v4 ACTIVE** |
 | contributor/source material | Research Intake + Research OS owners |

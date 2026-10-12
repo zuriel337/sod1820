@@ -6,6 +6,7 @@ import { isReadable } from './nameMask.js';
 import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
 import { METHOD_DB_COLS } from './gematria.js';
+import { postCategoryFilterNames } from './postCategoryIdentity.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -18,7 +19,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 export default supabase;
 export { supabase };
 
-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false } = {}) {
+export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false, stableOrder = false } = {}) {
   if (!supabase) return { posts: [], total: 0 };
   let query = supabase
     .from('posts')
@@ -26,7 +27,9 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
     .order(orderBy, { ascending, nullsFirst: false })
     .range((page - 1) * limit, page * limit - 1);
 
-  if (category) query = query.contains('categories', [category]);
+  if (stableOrder && orderBy !== 'id') query = query.order('id', { ascending });
+
+  if (category) query = query.overlaps('categories', postCategoryFilterNames(category));
   if (tag) query = query.contains('tags', [tag]);
   else query = query.not('tags', 'cs', '{טיוטה}').not('tags', 'cs', '{פורום}');   // טיוטות + פוסטים שנותבו לפורום (tag 'פורום') מוסתרים מפידי-הפוסטים הציבוריים — חיים רק בפורום (getForumFeed)
   if (author) query = query.eq('author', author);
@@ -3303,6 +3306,24 @@ export async function getAllValuePhrases(value, limit = 500) {
     return out;
   } catch { return []; }
 
+}
+
+// Published, verified Regular expressions for progressive Number-page disclosure.
+// A separate exact count keeps the total distinct from the current loaded page.
+export async function getValuePhrasesPage(value, { offset = 0, limit = 30 } = {}) {
+  if (!supabase || !Number.isSafeInteger(Number(value))) return { rows: [], count: 0 };
+  const start = Math.max(0, Math.trunc(Number(offset) || 0));
+  const size = Math.max(1, Math.min(100, Math.trunc(Number(limit) || 30)));
+  const { data, count, error } = await supabase.from("gematria_words")
+    .select("phrase,is_verified,visibility_tier,lead_rank,tags", { count: "exact" })
+    .eq("ragil", Number(value))
+    .eq("is_verified", true).eq("is_published", true)
+    .order("lead_rank", { ascending: true, nullsFirst: false })
+    .order("visibility_tier", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false, nullsFirst: false })
+    .range(start, start + size - 1);
+  if (error) throw error;
+  return { rows: data || [], count: count ?? (start + (data || []).length) };
 }
 
 // 🆕 Legacy Home projection: הגימטריות האחרונות שנוספו למאגר הקנוני.

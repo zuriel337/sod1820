@@ -84,7 +84,9 @@ async function assertClsGood(page, route) {
 }
 
 test.setTimeout(60_000);
-test.describe.configure({ mode: 'serial' });
+// Each test receives a fresh page/context. Report every independent regression
+// even when an earlier route fails, while retaining the runner's worker limit.
+test.describe.configure({ mode: 'default' });
 test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
 
 for (const route of CLS_ROUTES) {
@@ -151,7 +153,7 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function openNumberCapabilityFromIsland(page) {
-  const action = page.locator('.sod29-command-island > button').filter({ hasText: 'פעולה' }).first();
+  const action = page.locator('.sod29-command-island').getByRole('button', { name: 'פעולה', exact: true });
   await expect(action).toBeVisible();
   await action.click();
   const actionDialog = page.getByRole('dialog', { name: /פעולה ·/ });
@@ -278,10 +280,14 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
-  await expect(page.locator('[data-experience-surface="number"]').getByRole('button', { name: /היכל/ })).toHaveCount(0);
+  const heichalAction = numberPage.locator('[data-number-core-root="98"] [data-stage-root="98"]').getByRole('button', { name: /חקור בהיכל/ });
+  await expect(heichalAction).toBeVisible();
+  await expect(heichalAction).toBeEnabled();
   await expect(page.locator('a[href="/heichal"], a[href="/היכל"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
+  await heichalAction.click();
+  await expect(page).toHaveURL(`${BASE}/heichal`, { timeout: 20_000 });
 });
 
 test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
@@ -522,7 +528,9 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
   await expect(explain).toBeVisible({ timeout: 15_000 });
   await expect(explain).toContainText('878');
   await expect(explain).toContainText('אות → שם האות → ערך → סכום');
-  await expect(explain.getByRole('button', { name: /פתח בהיכל/ })).toHaveCount(0);
+  const heichal = explain.getByRole('button', { name: /פתח בהיכל/ });
+  await expect(heichal).toBeVisible();
+  await expect(heichal).toBeEnabled();
 
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/number-2029-v10-miluy-358-390.png', fullPage: true });

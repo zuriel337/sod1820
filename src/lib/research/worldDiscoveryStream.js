@@ -7,7 +7,7 @@ import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroup
 const clean = (value) => value == null ? "" : String(value).trim();
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
   state: "not_connected",
-  message: "עדכוני תורת הרמז והגילוי היומי טרם חוברו לתצוגה הציבורית. מוצגים כאן עדכוני האתר בלבד; זמן האיסוף האחרון מהקבוצות אינו זמין בתצוגה זו.",
+  message: "עדכוני תורת הרמז והגילוי היומי אינם זמינים כרגע. מוצגים כאן עדכוני האתר בלבד.",
 });
 
 const CONVERGENCE = canonicalResearchPublicLabel("convergence");
@@ -62,14 +62,23 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
   const author = clean(row.author);
   const person = publicPersonForName(author, publicPeople);
   const summary = stripHtml(clean(row.excerpt));
+  const arrivalAt = safeDate(row.date) || safeDate(row.created_at);
   return {
     id: `post:${row.id}`,
     kind: "source",
+    sourceKind: "post",
+    sourceLabel: "פוסט מקור באתר",
     label,
     summary: summary ? summary.slice(0, 240) : null,
     creator: person?.displayName || author || "יצירה באתר",
     creatorSlug: person?.slug || null,
-    at: safeDate(row.modified) || safeDate(row.date) || safeDate(row.created_at),
+    at: arrivalAt,
+    arrivalAt,
+    sourcePublishedAt: safeDate(row.date),
+    recordedAt: safeDate(row.created_at),
+    discoveredAt: null,
+    sourceUpdatedAt: safeDate(row.modified),
+    researchUpdatedAt: null,
     sourceRef: `posts:${row.id}`,
     href: `/post/${encodeURIComponent(clean(row.slug))}`,
     value: null,
@@ -135,8 +144,13 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   const researchRows = Array.isArray(input) ? [] : (Array.isArray(input?.research) ? input.research : []);
   const postRows = Array.isArray(input) ? [] : (Array.isArray(input?.posts) ? input.posts : []);
   const groupItems = Array.isArray(input?.groupItems) ? input.groupItems : [];
-  const sourceItems = [...postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean), ...groupItems];
-  const sourceByOccurrence = new Map(sourceItems.map((item) => [item.sourceRef, item]));
+  const sourceByOccurrence = new Map();
+  for (const item of [...postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean), ...groupItems]) {
+    if (item?.kind === "source" && item.sourceRef && !sourceByOccurrence.has(item.sourceRef)) {
+      sourceByOccurrence.set(item.sourceRef, { ...item });
+    }
+  }
+  const sourceItems = [...sourceByOccurrence.values()];
   // Collapse authorized research on the SAME source occurrence; do not multiply arrivals
   // or treat repeated findings as independent sources. Unrelated findings keep their identities.
   const findingItems = researchRows.map((row) => researchRowToWorldUpdate(row, { publicPeople }))
@@ -145,7 +159,9 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
       const source = sourceByOccurrence.get(researchSourceOccurrenceKey(item.sourceRef));
       if (!source) return true;
       source.researchCount += 1;
-      if (item.at && (!source.at || Date.parse(item.at) > Date.parse(source.at))) source.at = item.at;
+      if (item.at && (!source.researchUpdatedAt || Date.parse(item.at) > Date.parse(source.researchUpdatedAt))) {
+        source.researchUpdatedAt = item.at;
+      }
       return false;
     });
 
@@ -175,6 +191,9 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
 
   return {
     items,
+    // Source movement stays available even when a burst of research fills the mixed window.
+    // This is the same bounded public set, not another feed or reader.
+    arrivals: sourceItems.filter(item => safeCreator === "all" || item.creator === safeCreator).sort(byTime).slice(0, 40),
     creators,
     recentCounts,
     total: items.length,
@@ -217,7 +236,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
       .not("tags", "cs", "{טיוטה}")
       .not("tags", "cs", "{פורום}")
       .in("source", ["wordpress", "SOD1820", "sod1820", "source_document", "ai", "uploaded_file"])
-      .order("modified", { ascending: false, nullsFirst: false })
+      .order("date", { ascending: false, nullsFirst: false })
       .limit(Math.min(80, Math.max(requested * 2, 32)));
     if (error) throw error;
     return Array.isArray(data) ? data : [];
@@ -227,7 +246,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   const [topicResult, researchResult, postsResult, groupResult] = await Promise.allSettled([
     topicPromise, researchPromise, postsPromise, fetchGroupSourceArrivals({ limit: requested }),
   ]);
-  if (topicResult.status === "rejected" && postsResult.status === "rejected") {
+  if (topicResult.status === "rejected" && postsResult.status === "rejected" && groupResult.status === "rejected") {
     throw new Error("world_public_arrivals_unavailable");
   }
   const topics = topicResult.status === "fulfilled" && Array.isArray(topicResult.value?.rows) ? topicResult.value.rows : [];

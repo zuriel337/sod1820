@@ -29,7 +29,7 @@ async function noOverflow(page) {
 test.setTimeout(60_000);
 test.describe.configure({ mode: 'serial' });
 
-test('direct Post teaches in place before opening the canonical calculation at 390px', async ({ page }) => {
+test('direct Post opens Number; contextual teaching and help retain the same focus at 390px', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript((key) => {
     try { localStorage.removeItem(key); } catch {}
@@ -60,7 +60,7 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(orientation).toHaveClass(/is-prominent/);
   await expect(orientation.getByRole('button', { name: 'חדש כאן? מה עושים בפוסט הזה?' })).toBeVisible();
 
-  const focusGroup = post.locator('[data-contextual-number-focus-group="true"]');
+  const focusGroup = post.locator('.sod29-bennett-equalities[data-contextual-number-focus-group="true"]');
   await expect(focusGroup).toBeVisible({ timeout: 30_000 });
   expect(traceRequests).toBe(0);
 
@@ -71,7 +71,18 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
   await expect(sidecar).toContainText('נפתלי בנט');
 
-  // Inspect is the Post first meaningful action, so Orientation compacts instead of disappearing.
+  // Explicit expression intent opens Number directly. Teaching is still available
+  // from the existing context sheet; it must not require a duplicate renderer.
+  const directDrawer = sidecar.locator('.sod29-number-drawer2029');
+  await expect(directDrawer).toBeVisible();
+  await expect(directDrawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+  await expect(directDrawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
+  await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
+  await page.keyboard.press('Escape');
+  await expect(directDrawer).toHaveCount(0);
+  await page.locator('.sod29-glass-locator-core').click();
+  await expect(sidecar).toBeVisible();
+  await expect(sidecar.locator('.sod29-number-drawer2029')).toHaveCount(0);
   await expect(page.locator('.sod29-entry-orientation-slot .sod29-learn-mark')).toHaveClass(/is-compact/);
 
   const learn = sidecar.locator('[data-learn-scope="concept"]');
@@ -82,7 +93,6 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await expect(learn).toContainText('נפתלי בנט');
   await expect(learn).toContainText('רגיל');
   await expect(learn).toContainText('631');
-  expect(traceRequests).toBe(0);
 
   // ASK: unresolved comprehension opens the already-live Contact Gateway, not a new help form.
   await expect(learn.getByRole('button', { name: 'עדיין לא ברור?' })).toBeVisible();
@@ -100,8 +110,8 @@ test('direct Post teaches in place before opening the canonical calculation at 3
   await page.locator('.sod29-frame-panel-head button[aria-label="סגור"]').click();
   await expect(page.locator('[data-contact-gateway="true"]')).toHaveCount(0);
 
-  // Re-enter the same focus and continue; asking for help never converts the object to feedback/research truth.
-  await focusGroup.locator('[data-contextual-number-focus="true"]').first().click();
+  // Reopen the context sheet; help preserves the explicit expression focus.
+  await page.locator('.sod29-glass-locator-core').click();
   const sidecarAfterAsk = page.locator('[data-experience-capability="contextual-sidecar"]');
   const learnAfterAsk = sidecarAfterAsk.locator('[data-learn-scope="concept"]');
   await learnAfterAsk.getByRole('button', { name: 'איך זה עובד?' }).click();

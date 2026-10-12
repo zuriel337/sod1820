@@ -1,0 +1,313 @@
+/* SOD1820 2029 · Unified frame projection of the approved Home composition (reference fa0e26f).
+   Presentation only, on the single System Frame: full-width bottom bar (context / Raziel at the
+   physical center / typed Now), visible account entry in the top bar, and the approved Night/Day
+   atmosphere. Colors come only from the palette owner through --s29-* variables. */
+
+.sod29-root.native-frame { --s29-bar-height: 72px; --s29-island-clearance: 100px; --s29-bar-hue: var(--s29-brand-gold); }
+.sod29-root.native-frame[data-frame-theme-preset="light"] { --s29-bar-hue: var(--s29-discovery); }
+
+/* Approved atmosphere: warm gold light over the black Night, discovery tint over Day. */
+.sod29-root.closed-shell.native-frame {
+  background:
+    radial-gradient(ellipse at 92% 0, color-mix(in srgb, var(--s29-bar-hue) 8%, transparent), transparent 46%),
+    var(--s29-page);
+}
+.sod29-root.native-frame :is(.sod29-header, .sod29-sidebar, .sod29-mobile-drawer) {
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--s29-bar-hue) 9%, transparent), transparent 62%),
+    color-mix(in srgb, var(--s29-panel) 94%, transparent);
+}
+
+/* Bottom bar */
+.sod29-root.native-frame .sod29-command-island.is-unified-bar {
+  inset-inline: 0; inset-block-end: 0; transform: none; width: auto; max-width: none;
+  min-height: var(--s29-bar-height);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px;
+  padding: 6px clamp(8px, 2vw, 22px) calc(6px + env(safe-area-inset-bottom, 0px));
+  border: 0; border-top: 1px solid var(--s29-line-strong); border-radius: 0;
+  background: color-mix(in srgb, var(--s29-panel) 97%, transparent);
+  box-shadow: 0 -10px 30px color-mix(in srgb, var(--s29-page) 55%, transparent);
+}
+.sod29-root.number-page-route.native-frame .sod29-command-island.is-unified-bar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.sod29-root.native-frame .sod29-bar-zone { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.sod29-root.native-frame .sod29-bar-zone.is-context { justify-content: flex-start; }
+.sod29-root.native-frame .sod29-bar-zone.is-actions { justify-content: flex-end; }
+.sod29-root.native-frame .sod29-bar-zone.is-context .sod29-command-trail { flex: 1 1 auto; max-width: none; }
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions { display: flex; align-items: center; gap: 4px; direction: inherit; }
+
+.sod29-root.native-frame .sod29-bar-zone > button,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button,
+.sod29-root.number-page-route .sod29-bar-zone .sod29-number-island-action {
+  min-width: 52px; height: 52px; padding: 3px 8px; border: 0; border-radius: 16px; background: transparent;
+  color: var(--s29-muted); display: grid; place-items: center; align-content: center; gap: 1px; cursor: pointer; flex: 0 0 auto;
+}
+.sod29-root.native-frame .sod29-bar-zone > button > span,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button > span { font-size: 15px; font-weight: 900; line-height: 1; }
+.sod29-root.native-frame .sod29-bar-zone > button > small,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button > small {
+  position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: nowrap;
+  font-size: var(--s29-type-micro, 14px); font-weight: 800; line-height: 1.1;
+}
+.sod29-root.native-frame .sod29-bar-zone > button:hover,
+.sod29-root.native-frame .sod29-bar-zone > button[aria-pressed="true"],
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button:hover,
+.sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button[aria-pressed="true"] {
+  color: var(--s29-ink); background: color-mix(in srgb, var(--s29-accent) 9%, transparent); transform: none;
+}
+
+/* Raziel: physical center of the bar, raised slightly above it. */
+.sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact {
+  margin-block: -16px 0; box-shadow: 0 0 0 4px var(--s29-panel);
+}
+
+/* Typed Now */
+.sod29-root.native-frame .sod29-now { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--s29-panel-soft); flex: 0 0 auto; }
+.sod29-root.native-frame .sod29-now-tab {
+  min-width: 0; width: auto; height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px;
+  border: 0; border-radius: 999px; background: transparent; color: var(--s29-muted); cursor: pointer; white-space: nowrap;
+  font: 700 14px var(--s29-font-ui);
+}
+.sod29-root.native-frame .sod29-now-tab:hover { color: var(--s29-ink); background: transparent; }
+.sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] { background: var(--s29-panel); color: var(--s29-ink); box-shadow: 0 0 0 1px var(--s29-line-strong); }
+.sod29-root.native-frame .sod29-now-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+.sod29-root.native-frame .sod29-now-tab.is-world .sod29-now-dot { background: var(--s29-discovery); }
+.sod29-root.native-frame .sod29-now-tab.is-me .sod29-now-dot { background: var(--s29-brand-gold); }
+.sod29-root.native-frame .sod29-now-tab.is-rz .sod29-now-dot { background: var(--s29-raziel-indigo); }
+
+/* The rail stops above the bar so nothing in it is covered. */
+@media (min-width: 981px) {
+  .sod29-root.native-frame .sod29-sidebar {
+    height: calc(100vh - var(--sod-review-offset, 0px) - var(--s29-bar-height)) !important;
+    height: calc(100dvh - var(--sod-review-offset, 0px) - var(--s29-bar-height)) !important;
+  }
+}
+
+/* Top bar: visible account entry */
+.sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out {
+  width: auto; min-width: 44px; padding: 0 14px 0 10px !important; display: inline-flex; align-items: center; gap: 8px;
+  border-radius: 999px; border-color: var(--s29-line-strong);
+  background: color-mix(in srgb, var(--s29-brand-gold) 12%, transparent);
+}
+.sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out .workspace-label { display: inline; font-weight: 800; color: var(--s29-ink); white-space: nowrap; }
+@media (min-width: 1100px) {
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace:not(.is-signed-out) { width: auto; padding: 0 12px 0 8px !important; display: inline-flex; align-items: center; gap: 8px; }
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace:not(.is-signed-out) .workspace-label { display: inline; font-weight: 700; white-space: nowrap; }
+}
+@media (max-width: 420px) {
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out { width: 44px; padding: 0 !important; gap: 0; }
+  .sod29-root.closed-shell .sod29-header-actions .sod29-header-workspace.is-signed-out .workspace-label { display: none; }
+}
+
+@media (max-width: 620px) {
+  .sod29-root.native-frame { --s29-bar-height: 66px; --s29-island-clearance: 96px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar { gap: 6px; padding-inline: 8px; }
+  .sod29-root.native-frame .sod29-bar-zone > button,
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button { min-width: 44px; width: 44px; height: 46px; padding: 2px; }
+  .sod29-root.native-frame .sod29-bar-zone > button > small,
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button > small { display: none; }
+  .sod29-root.native-frame .sod29-now-label { display: none; }
+  .sod29-root.native-frame .sod29-now-tab { min-width: 40px; width: 40px; justify-content: center; padding: 0; }
+  .sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] { width: auto; padding: 0 10px; }
+  .sod29-root.native-frame .sod29-now-tab[aria-pressed="true"] .sod29-now-label { display: inline; font-size: 13px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact { min-width: 56px; width: 56px; height: 56px; }
+}
+/* Research-trail pages on phones: the trail gets its own full-width row above the bar. */
+@media (max-width: 620px) {
+  .sod29-root.native-frame:has(.sod29-command-island.has-context-trail) { --s29-bar-height: 104px; --s29-island-clearance: 132px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar.has-context-trail { grid-template-rows: auto auto; row-gap: 4px; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-bar-zone.is-context { display: contents; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-command-trail { grid-column: 1 / -1; grid-row: 1; max-width: none; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-command-actions { grid-column: 1; grid-row: 2; justify-self: start; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail > .sod29-raziel-orb { grid-column: 2; grid-row: 2; margin-block: 0; }
+  .sod29-root.native-frame .sod29-command-island.has-context-trail > .sod29-bar-zone.is-actions { grid-column: 3; grid-row: 2; }
+}
+@media (max-width: 380px) {
+  /* Touch targets stay at least 44px wide at 320px: the bar spends its spare room on gaps and padding instead of on the buttons. */
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar { gap: 4px; padding-inline: 4px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-bar-zone { gap: 2px; }
+  .sod29-root.native-frame .sod29-bar-zone > button,
+  .sod29-root.native-frame .sod29-bar-zone .sod29-command-actions > button { min-width: 44px; width: 44px; }
+  .sod29-root.native-frame .sod29-now-tab { min-width: 36px; width: 36px; }
+}
+@media (max-width: 340px) {
+  /* 320px: the 44px targets only fit beside the centre button if its box is a little smaller and the side padding smaller. */
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar { padding-inline: 2px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact { min-width: 48px; width: 48px; height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sod29-root.native-frame .sod29-now-tab { transition: none; }
+}
+
+/* Desktop dock (proposal): the bottom bar is a small floating pill centered at the bottom instead of a full-width strip.
+   Pages with a research trail keep the full-width bar because the trail needs the width. Phones are unchanged. */
+@media (min-width: 981px) {
+  .sod29-root.native-frame:not(:has(.sod29-command-island.has-context-trail)) { --s29-bar-height: 0px; --s29-island-clearance: 92px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) {
+    inset-inline: auto; left: 50%; right: auto; inset-block-end: calc(14px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%); inline-size: max-content; max-inline-size: min(640px, calc(100vw - 200px));
+    min-height: 58px; gap: 10px; padding: 4px 16px; border: 1px solid var(--s29-line-strong); border-radius: 32px;
+    background: color-mix(in srgb, var(--s29-panel) 86%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 70%, transparent), 0 0 0 1px color-mix(in srgb, var(--s29-bar-hue) 10%, transparent);
+  }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone > button > small,
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone .sod29-command-actions > button > small {
+    position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone > button,
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone .sod29-command-actions > button { min-width: 46px; height: 46px; border-radius: 50%; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-now-tab { min-width: 40px; padding: 0 12px; font-size: 13px; }
+  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-raziel-orb.compact { margin-block: -14px 0; }
+}
+
+/* Side rail as a floating capsule (desktop), same language as the dock. The home glyph above the nav duplicated the Home item and is hidden when the rail is slim. */
+@media (min-width: 981px) {
+  /* both side capsules share the same top and bottom so they read as one pair */
+  .sod29-root.closed-shell.native-frame { --s29-capsule-top: calc(var(--sod-review-offset, 0px) + 78px); --s29-capsule-bottom: calc(var(--s29-bar-height, 0px) + 12px); }
+  .sod29-root.closed-shell.native-frame .sod29-sidebar {
+    inset-block-start: var(--s29-capsule-top) !important; inset-block-end: var(--s29-capsule-bottom) !important;
+    inset-inline-start: 8px !important; border: 1px solid var(--s29-line-strong); border-radius: 28px;
+    height: auto !important; max-height: none !important;
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+    .sod29-root.closed-shell.native-frame .sod29-nav-link.active { box-shadow: inset -3px 0 0 var(--s29-brand-gold); }
+}
+
+/* Three bars as one family (desktop): the top bar, the navigation rail and the left panel share one capsule language.
+   The canonical logo opens and closes the rail (click, Enter or Space). Hover only highlights; nothing moves on hover. */
+.sod29-logo-toggle { display: none; }
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame {
+    --s29-rail-slim: calc(var(--s29-global-rail-width, 72px) - 16px); --s29-rail-open: 232px; --s29-header-height: 78px;
+    --s29-capsule-edge: color-mix(in srgb, var(--s29-brand-gold) 30%, var(--s29-line-strong));
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header.closed-orientation {
+    position: sticky; top: calc(var(--sod-review-offset, 0px) + 10px); min-height: 56px; block-size: 56px; margin-block: 10px 12px; margin-inline: 0 10px;
+    padding-block: 0; padding-inline: 16px; border: 1px solid var(--s29-capsule-edge); border-radius: 28px;
+    background: color-mix(in srgb, var(--s29-panel) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-rail-identity { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-sidebar { border-color: var(--s29-capsule-edge); }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-sidebar { inline-size: var(--s29-rail-slim); }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-sidebar {
+    inline-size: var(--s29-rail-open); inset-block-start: calc(var(--sod-review-offset, 0px) + 10px) !important; padding-block-start: 76px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--s29-brand-gold) 22%, transparent), 0 20px 60px color-mix(in srgb, var(--s29-page) 70%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 10px; position: fixed; z-index: 46; padding: 0;
+    inset-inline-start: 8px; inset-block-start: calc(var(--sod-review-offset, 0px) + 10px); inline-size: var(--s29-rail-slim); block-size: 56px;
+    border: 1px solid var(--s29-capsule-edge); border-radius: 28px; color: var(--s29-ink); cursor: pointer; font-family: var(--s29-font-ui);
+    background: color-mix(in srgb, var(--s29-panel) 90%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 14px 40px color-mix(in srgb, var(--s29-page) 60%, transparent); overflow: hidden;
+    transition: inline-size 340ms cubic-bezier(.2, .8, .2, 1), background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle:hover { border-color: color-mix(in srgb, var(--s29-brand-gold) 60%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 9%, var(--s29-panel)); }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle:focus-visible { outline: 2px solid var(--s29-accent-text); outline-offset: 3px; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-discovery-gate { inline-size: 44px; flex: 0 0 44px; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-gate-menu,
+  .sod29-root.closed-shell.native-frame .sod29-logo-toggle .sod29-gate-arcs { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-name { display: flex; flex-direction: column; gap: 4px; max-inline-size: 0; opacity: 0; overflow: hidden; white-space: nowrap; text-align: start; transition: opacity 220ms ease, max-inline-size 340ms ease; }
+  .sod29-root.closed-shell.native-frame .sod29-logo-name b { font: 700 15px/1 var(--s29-font-ui); }
+  .sod29-root.closed-shell.native-frame .sod29-logo-name small { font: 400 11px/1 var(--s29-font-ui); color: var(--s29-muted); }
+  /* open: the logo becomes the head of the rail */
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle {
+    inline-size: var(--s29-rail-open); justify-content: flex-start; padding-inline: 14px; border-color: transparent; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+    border-block-end: 1px solid color-mix(in srgb, var(--s29-brand-gold) 30%, transparent); border-end-start-radius: 0; border-end-end-radius: 0;
+  }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle:hover { background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); }
+  .sod29-root.closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-name { max-inline-size: 150px; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .sod29-logo-toggle, .sod29-logo-name { transition: none !important; } }
+.sod29-root[data-frame-reduced-motion="true"] .sod29-logo-toggle, .sod29-root[data-frame-reduced-motion="true"] .sod29-logo-name { transition: none !important; }
+
+/* The three modes sit at the left end of the top bar and stay inside its 56px capsule. */
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets { display: flex; padding: 3px; gap: 3px; border-radius: 22px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button { min-height: 38px; block-size: 38px; display: inline-flex; align-items: center; gap: 6px; padding-inline: 12px; border-radius: 18px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button span { font-size: 15px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button b { font-size: 13px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets button:hover { transform: none; }
+}
+
+/* Slim rail: the logo sits exactly in the middle of its coin (no gap beside the hidden name) and the active item is no wider than the rail's inner width. */
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-logo-toggle { gap: 0; }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-nav { padding: 0; }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-nav-link,
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-sidebar-workspace,
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-rail-utilities button { inline-size: 100%; min-inline-size: 0; padding-inline: 4px; box-sizing: border-box; }
+}
+
+/* A visible button at the bottom of the rail opens and closes it (same state as the logo), so the rail can be found without knowing the logo does it. */
+.sod29-rail-toggle { display: none; }
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; inline-size: 100%; min-block-size: 44px; padding-inline: 4px; box-sizing: border-box;
+    border: 1px solid var(--s29-line-strong); border-radius: 14px; background: transparent; color: var(--s29-muted); font: 500 13px var(--s29-font-ui); cursor: pointer;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle:hover { color: var(--s29-ink); border-color: color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); }
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle:focus-visible { outline: 2px solid var(--s29-accent-text); outline-offset: 2px; }
+  .sod29-root.closed-shell.native-frame .sod29-rail-toggle > span { font-size: 20px; line-height: 1; }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-rail-toggle > b { display: none; }
+}
+
+/* ---- Glass chrome (dark only, desktop): the bars are translucent glass with a hairline edge and a soft top highlight.
+   Gold is kept for state only: the logo glow, the "you are here" dot and unread badges. Light and parchment keep their gold hairlines. ---- */
+@media (min-width: 981px) {
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame {
+    --s29-glass-bg: color-mix(in srgb, var(--s29-ink) 6%, transparent);
+    --s29-glass-edge: color-mix(in srgb, var(--s29-ink) 14%, transparent);
+    --s29-glass-shine: color-mix(in srgb, var(--s29-ink) 12%, transparent);
+    --s29-glass-lift: color-mix(in srgb, var(--s29-ink) 11%, transparent);
+    --s29-capsule-edge: var(--s29-glass-edge);
+  }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-header.closed-orientation,
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-sidebar,
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame.sidebar-collapsed .sod29-logo-toggle,
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion,
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) {
+    background: var(--s29-glass-bg); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
+    border-color: var(--s29-glass-edge);
+    box-shadow: inset 0 1px 0 var(--s29-glass-shine), 0 18px 48px color-mix(in srgb, var(--s29-page) 55%, transparent);
+  }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-sidebar {
+    -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
+  }
+  /* the logo stands on the glass without a blue disc; a faint warm glow marks it as the one gold thing */
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-logo-toggle .sod29-gate-halo { display: none; }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-logo-toggle .sod29-gate-artwork { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--s29-brand-gold) 38%, transparent)); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-logo-toggle:hover { background: var(--s29-glass-lift); border-color: color-mix(in srgb, var(--s29-ink) 26%, transparent); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle { border-block-end-color: var(--s29-glass-edge); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame:not(.sidebar-collapsed) .sod29-logo-toggle:hover { background: color-mix(in srgb, var(--s29-ink) 5%, transparent); }
+
+  /* active item: a lifted glass tile with one small gold dot, no gold fill and no side stripe */
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-nav-link.active {
+    background: var(--s29-glass-lift); border-color: var(--s29-glass-edge); color: var(--s29-ink); box-shadow: inset 0 1px 0 var(--s29-glass-shine);
+  }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-nav-link.active .sod29-nav-icon { color: var(--s29-ink); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-nav-link.active::after {
+    content: ""; position: absolute; inline-size: 6px; block-size: 6px; border-radius: 50%; background: var(--s29-brand-gold);
+    inset-block-start: 50%; inset-inline-end: 10px; transform: translateY(-50%); box-shadow: 0 0 8px color-mix(in srgb, var(--s29-brand-gold) 55%, transparent);
+  }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame.sidebar-collapsed .sod29-nav-link.active::after { inset-block-start: 6px; inset-inline-end: 6px; transform: none; }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-nav-link:hover:not(:disabled):not(.active) { background: color-mix(in srgb, var(--s29-ink) 7%, transparent); }
+
+  /* the other small controls follow the same glass */
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-rail-toggle,
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-theme-presets { border-color: var(--s29-glass-edge); background: transparent; }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-rail-toggle:hover { border-color: color-mix(in srgb, var(--s29-ink) 26%, transparent); background: color-mix(in srgb, var(--s29-ink) 7%, transparent); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-theme-presets button.is-active {
+    background: var(--s29-glass-lift); border-color: var(--s29-glass-edge); color: var(--s29-ink); box-shadow: inset 0 1px 0 var(--s29-glass-shine);
+  }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion-pin[aria-pressed="true"] { border-color: color-mix(in srgb, var(--s29-ink) 30%, transparent); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion-ico.is-on { border-color: color-mix(in srgb, var(--s29-ink) 30%, transparent); background: var(--s29-glass-lift); }
+  .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion.is-peek { box-shadow: inset 0 1px 0 var(--s29-glass-shine), 0 20px 60px color-mix(in srgb, var(--s29-page) 65%, transparent); }
+}
+
+/* Phone top bar: the three modes live in the navigation drawer (already there), and the orientation shows only the page name,
+   so the bar keeps menu, title, search and account without crowding. */
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-orientation > span:first-child,
+  .sod29-root.closed-shell.native-frame .sod29-orientation > i:first-of-type { display: none; }
+}

@@ -1,7 +1,10 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
+import "./experience2029/contentActions2029.css";
+
+import { usePalette, use2029Palette } from "../lib/palette.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
@@ -32,6 +35,10 @@ export default function ShareActions({
   video = null, poster = null, onShare = null,
 }) {
   const P = usePalette();
+  const visualPalette = use2029Palette();
+  const copyTimer = useRef(null);
+  const [copyFailed, setCopyFailed] = useState(false);
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
   const { pathname } = useLocation();
   const [copied, setCopied] = useState(false);
   const fullUrl = url || (typeof window !== "undefined" ? window.location.href : SITE);
@@ -65,7 +72,10 @@ export default function ShareActions({
 
   const copy = useCallback(async () => {
     logShare("copy", resolveModality({ ...intent, modality: "link" }, {}));
-    if (await copyLink(attributedShareUrl(fullUrl, "copy"))) { setCopied(true); setTimeout(() => setCopied(false), 1600); }
+    clearTimeout(copyTimer.current);
+    const ok = await copyLink(attributedShareUrl(fullUrl, "copy"));
+    setCopied(ok); setCopyFailed(!ok);
+    if (ok) copyTimer.current = setTimeout(() => setCopied(false), 1600);
   }, [fullUrl, logShare, intent]);
 
   // 🖼️ שיתוף התמונה עצמה כקובץ (הבאנר 1200×630) — כך התצוגה-המקדימה מגיעה מיד, בלי תלות ב-OG.
@@ -101,25 +111,25 @@ export default function ShareActions({
   if (!force && floatingShareShown(pathname)) return null;
 
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",
-    background: P.card, border: `1px solid ${P.border}`, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
+    background: P.card, borderWidth: 1, borderStyle: "solid", borderColor: P.border, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
     fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 44, whiteSpace: "nowrap", flexShrink: 0 };
   const label = (t) => compact ? null : <span>{t}</span>;
 
   return (
     // שורה אחת: לא נשבר; במסך צר נגלל אופקית עדין (WebkitOverflowScrolling) במקום להתפזר ל-2-3 שורות
-    <div dir="rtl" style={{ display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
+    <div className="sod-share-actions" dir="rtl" style={{ "--action-success": visualPalette.successText, "--action-danger": visualPalette.dangerText, display: "flex", gap: 8, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", alignItems: "center", scrollbarWidth: "none", ...style }}>
       {channels.includes("native") && canNative && (
-        <button onClick={native} title="שתף" aria-label="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}>🔗 {label("שתף")}</button>
+        <button type="button" data-action="share" onClick={native} title="שתף" aria-label="שתף" style={{ ...btn, background: P.accentBtn, color: P.onAccent, borderColor: "transparent" }}><NavigationIcon2029 name="share" /> {label("שתף")}</button>
       )}
       {/* 🖼️ שתף-תמונה — רק כשיש תמונה ואפשר לשתף בכלל (מובייל). שולח את הכרטיס/באנר עצמו. */}
       {image && canNative && (
-        <button onClick={shareImg} disabled={imgBusy} title="שתף כתמונה" aria-label={imgBusy ? "משתף כתמונה" : "שתף כתמונה"} style={btn}>🖼️ {label(imgBusy ? "…" : "תמונה")}</button>
+        <button type="button" data-action="share" onClick={shareImg} disabled={imgBusy} title="שתף כתמונה" aria-label={imgBusy ? "משתף כתמונה" : "שתף כתמונה"} style={btn}><NavigationIcon2029 name="gallery" /> {label(imgBusy ? "…" : "תמונה")}</button>
       )}
       {channels.filter(c => CH[c]).map(c => {
         const m = CH[c];
         // אייקון-מותג SVG בתוך תג-צבע (זהה ללשונית הצפה) — נשען על CHANNELS (svg+brand) כמקור-אמת יחיד.
         return (
-          <a key={c} href={m.href(attributedShareUrl(fullUrl, c), text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
+          <a data-action="share" key={c} href={m.href(attributedShareUrl(fullUrl, c), text)} target="_blank" rel="noopener noreferrer" onClick={() => logShare(c)}
             title={m.label} aria-label={m.label} style={btn}>
             <span style={{ width: 22, height: 22, borderRadius: "50%", background: m.brand, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden focusable="false"><path d={m.svg} /></svg>
@@ -128,8 +138,9 @@ export default function ShareActions({
         );
       })}
       {channels.includes("copy") && (
-        <button onClick={copy} title="העתק קישור" aria-label={copied ? "הועתק" : "העתק קישור"} style={btn}>{copied ? "✓ הועתק" : "📋"} {label(copied ? "" : "העתק")}</button>
+        <button type="button" data-action="copy" data-state={copied ? "success" : copyFailed ? "error" : "idle"} onClick={copy} title="העתק קישור" aria-label={copied ? "הועתק" : copyFailed ? "ההעתקה נכשלה, נסה שוב" : "העתק קישור"} style={btn}><NavigationIcon2029 name={copied ? "check" : "copy"} /> {label(copied ? "הועתק" : copyFailed ? "נסה שוב" : "העתק")}</button>
       )}
+      <span className="sod-action-announcement" role="status" aria-live="polite">{copied ? "הקישור הועתק" : copyFailed ? "ההעתקה נכשלה. נסה שוב." : ""}</span>
       {extra}
     </div>
   );

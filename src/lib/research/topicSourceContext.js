@@ -92,33 +92,6 @@ export function topicSourceAnchor(item) {
   return `topic-source-${String(item.galleryImageId || item.mediaId).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
 }
 
-function attachReopen(item, topic) {
-  const anchor = topicSourceAnchor(item);
-  const topicHref = `/topic/${encodeURIComponent(topic.slug)}#${anchor}`;
-  const selection = {
-    entityId: item.galleryImageId || item.mediaId,
-    entityType: "image", sourceRef: item.provenance.sourceRef, locator: `#${anchor}`,
-  };
-  return {
-    ...item, id: item.mediaId,
-    reopen: {
-      topicHref, selection, imageHref: item.imageUrl,
-      postHref: item.postPlacement ? `/post/${encodeURIComponent(item.postPlacement.postSlug)}#${item.postPlacement.regionId}` : null,
-      // main currently hides the original Post body containing this exact region anchor.
-      // Preserve the locator for its owner; do not advertise a visible-region reopen PASS.
-      postRoutePrecision: item.postPlacement ? "post_only_with_source_region_locator" : null,
-      galleries: item.occurrences.filter((entry) => entry.legacyPlacement).map(({ legacyPlacement: p }) => ({
-        sourceRef: `gallery_images:${p.galleryImageId}`,
-        href: p.wpGalleryId != null ? `/archive?tab=galleries&gal=${encodeURIComponent(p.wpGalleryId)}` : null,
-        // The current Archive route opens the gallery, not a selected image. Consumers must
-        // preserve this exact target without pretending an unsupported image query works.
-        routePrecision: "gallery_only",
-        selection: { galleryId: p.galleryId, wpGalleryId: p.wpGalleryId, galleryImageId: p.galleryImageId, wpImageId: p.wpImageId, ordering: p.ordering },
-      })),
-    },
-  };
-}
-
 export function isDocumentedIndiaCaptainPost(post) {
   return Boolean(captainSourceEnvelope({ slug: INDIA_CAPTAIN_SOURCE.topicSlug }, post));
 }
@@ -161,6 +134,86 @@ export function topicSourceLinks(context, relatedTopics = []) {
   return { topics, posts };
 }
 
+// Reviewed HTML image locator over a freshly admitted public Post. It remains a Post
+// occurrence (no invented gallery row, membership or source date). Reuses the same exact
+// storage-object identity and media envelope consumed by Gallery/Topic/Lightbox.
+export function buildPublicPostImageContext(post, locator) {
+  if (post?.id !== locator?.postId || !Array.isArray(post.tags)
+    || post.tags.some((tag) => ["טיוטה", "פורום"].includes(tag))
+    || ["gpt-draft", "web"].includes(post.source) || post.home_hidden === true) return null;
+  const html = String(post.content || "");
+  const images = html.match(/<img\b[^>]*>/gi) || [];
+  const image = images.find((tag) => tag.match(/\bsrc=["']([^"']+)["']/i)?.[1] === locator.imageUrl);
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (!image || !(locator.guards || []).every((quote) => text.includes(quote))) return null;
+  const mediaId = `media:post:${post.id}:image:${locator.imageUrl}`;
+  const sourceRef = `posts:${post.id}#image:${locator.imageUrl}`;
+  const figure = (html.match(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi) || []).find((part) => part.includes(image));
+  const originalCaption = figure?.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i)?.[1] ?? null;
+  const intrinsic = Object.freeze({ mediaId, galleryImageId: null, nodeId: null, label: locator.label,
+    representation: { imageUrl: locator.imageUrl, thumbUrl: locator.imageUrl, fit: "preserve-whole-image" },
+    extraction: { text: null, status: null, numbers: [], state: "not_extracted_here" },
+    interpretation: buildStoredInterpretation(null) });
+  const provenance = { sourceRef, storedSource: `posts:${post.id}`, author: post.author || null };
+  const item = dedupeMediaEnvelopes([{ mediaId, intrinsic, provenance, label: locator.label,
+    presentation: canonicalMediaPresentation({ ...intrinsic, provenance }),
+    imageUrl: locator.imageUrl, thumbUrl: locator.imageUrl, sourceRef,
+    access: { scope: "public", basis: "fresh_public_post_exact_html_image" }, dateUse: "provenance_only",
+    postPlacement: { postId: post.id, postSlug: post.slug, originalTitle: post.title, originalCaption,
+      originalAlt: image.match(/\balt=["']([^"']*)["']/i)?.[1] ?? null,
+      originalCredit: { author: post.author ?? null, authors: post.authors ?? null },
+      publishedAt: post.date || null, dateBasis: "posts.date_publication_not_event_date",
+      regionId: null, imageUrl: locator.imageUrl },
+  }], { bySourceObject: true })[0];
+  const routed = attachReopen(item, { slug: "" });
+  return { ...routed, reopen: { ...routed.reopen, topicHref: null,
+    postHref: `/post/${encodeURIComponent(post.slug)}`, postRoutePrecision: "post_only_exact_image_in_source_html" } };
+}
+
+function attachReopen(item, topic) {
+  const anchor = topicSourceAnchor(item);
+  const topicHref = `/topic/${encodeURIComponent(topic.slug)}#${anchor}`;
+  const selection = {
+    entityId: item.galleryImageId || item.mediaId,
+    entityType: "image", sourceRef: item.provenance.sourceRef, locator: `#${anchor}`,
+  };
+  return {
+    ...item, id: item.mediaId,
+    reopen: {
+      topicHref, selection, imageHref: item.imageUrl,
+      postHref: item.postPlacement ? `/post/${encodeURIComponent(item.postPlacement.postSlug)}#${item.postPlacement.regionId}` : null,
+      // main currently hides the original Post body containing this exact region anchor.
+      // Preserve the locator for its owner; do not advertise a visible-region reopen PASS.
+      postRoutePrecision: item.postPlacement ? "post_only_with_source_region_locator" : null,
+      galleries: item.occurrences.filter((entry) => entry.legacyPlacement).map(({ legacyPlacement: p }) => ({
+        sourceRef: `gallery_images:${p.galleryImageId}`,
+        href: p.wpGalleryId != null ? `/archive?tab=galleries&gal=${encodeURIComponent(p.wpGalleryId)}` : null,
+        // The current Archive route opens the gallery, not a selected image. Consumers must
+        // preserve this exact target without pretending an unsupported image query works.
+        routePrecision: "gallery_only",
+        selection: { galleryId: p.galleryId, wpGalleryId: p.wpGalleryId, galleryImageId: p.galleryImageId, wpImageId: p.wpImageId, ordering: p.ordering },
+      })),
+    },
+  };
+}
+
+// Exact reviewed gallery locators can be consumed outside a Topic. They do not acquire
+// Topic membership or a graph relation. Reuse the same identity/history/reopen contract.
+export function buildGallerySourceContext({ images = [], occurrences = [], galleries = [] } = {}) {
+  const publicRows = images.filter(isPublicSourceImage);
+  const urls = new Set(publicRows.map((row) => row.image_url));
+  const byId = new Map([...publicRows, ...occurrences.filter((row) => isPublicSourceImage(row) && urls.has(row.image_url))]
+    .map((row) => [row.id, row]));
+  const galleryById = new Map(galleries.map((row) => [row.id, row]));
+  return dedupeMediaEnvelopes([...byId.values()].map((row) => buildMediaEnvelope({ row,
+    gallery: galleryById.get(row.gallery_id), label: canonicalMediaPublicLabel(row),
+  })).filter(Boolean), { bySourceObject: true }).map((item) => {
+    const withRoutes = attachReopen(item, { slug: "" });
+    return { ...withRoutes, contextRelation: null, contextRelations: [], dateUse: "provenance_only",
+      access: { scope: "public", basis: "published_1_min_tier_0_not_curator_hidden" },
+      reopen: { ...withRoutes.reopen, topicHref: null } };
+  });
+}
 
 /** Pure projection; the Entity Hub reader supplies only public-view rows and bounded reads. */
 export function buildTopicSourceContext({ topic, images = [], occurrences = [], galleries = [], post = null, relatedTopics = [], occurrencesTruncated = false } = {}) {

@@ -23,8 +23,8 @@
   overflow:visible;
   clip-path:none;
   white-space:nowrap;
-  opacity:.86;
-  font-size:9px;
+  opacity:1;
+  font-size:var(--s29-type-micro,14px);
   font-weight:800;
   line-height:1.1;
 }
@@ -57,7 +57,7 @@
     padding:2px;
   }
   .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb) > small{
-    font-size:8px;
+    font-size:var(--s29-type-micro,14px);
   }
   .sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact{
     min-width:56px;
@@ -85,11 +85,11 @@
 
 @media(max-width:360px){
   .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
-    min-width:43px;
-    width:43px;
+    min-width:44px;
+    width:44px;
   }
   .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb) > small{
-    font-size:7.5px;
+    font-size:var(--s29-type-micro,14px);
   }
 }
 
@@ -98,8 +98,8 @@
     padding-inline:3px;
   }
   .sod29-root.native-frame .sod29-command-island > button:not(.sod29-raziel-orb){
-    min-width:40px;
-    width:40px;
+    min-width:44px;
+    width:44px;
   }
   .sod29-root.native-frame .sod29-command-island .sod29-raziel-orb.compact{
     min-width:48px;
@@ -107,3 +107,14 @@
     height:52px;
   }
 }
+
+/* Avatar and Raziel keep their identity; pressure never moves the hit target. */
+.sod29-root.native-frame button:has(.sod29-user-avatar),
+.sod29-root.native-frame .sod29-raziel-orb{transition:opacity 180ms ease-out}
+.sod29-root.native-frame button:has(.sod29-user-avatar):not(:disabled):active,
+.sod29-root.native-frame .sod29-raziel-orb:not(:disabled):active{opacity:.78}
+@media(prefers-reduced-motion:reduce){
+ .sod29-root.native-frame button:has(.sod29-user-avatar),.sod29-root.native-frame .sod29-raziel-orb{opacity:1!important;transition:none!important}
+}
+.sod29-root.native-frame[data-frame-reduced-motion="true"] button:has(.sod29-user-avatar),
+.sod29-root.native-frame[data-frame-reduced-motion="true"] .sod29-raziel-orb{opacity:1!important;transition:none!important}
