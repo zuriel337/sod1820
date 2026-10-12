@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/heichal.html",
+      "destination": "/heichal",
+      "permanent": false
+    },
+    {
       "source": "/whatsapp/kod-hametsiut",
       "destination": "/early-access",
       "permanent": false

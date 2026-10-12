@@ -363,12 +363,12 @@ export default async function handler(req, res) {
     desc = STATIC[key].desc;
     if (STATIC[key].card) image = cardUrl(STATIC[key].card);
 
-    // site_flags_lock_law v3: public metadata is a projection of the same live
-    // capability state. ELS is the current native 2029 flag-gated route.
-    if (key === '/els') {
-      const flag = await publicSiteFlag('lock_els', ogHeaders);
+    // Public metadata follows the same availability state as native routes.
+    if (key === '/els' || key === '/heichal' || key === '/היכל') {
+      const flag = await publicSiteFlag(key === '/els' ? 'lock_els' : 'lock_heichal', ogHeaders);
       if (!flag.found || flag.enabled) {
-        desc = cleanDesc(flag.message || 'ELS סגור זמנית לציבור לצורך בנייה מחדש.', 180);
+        desc = cleanDesc(flag.message || (key === '/els' ? 'ELS סגור זמנית לציבור לצורך בנייה מחדש.' : 'ההיכל סגור זמנית לציבור לצורך השלמת האימות.'), 180);
+        if (key !== '/els') robots = 'noindex, follow';
       }
     }
   } else if (key.startsWith('/topic/')) {

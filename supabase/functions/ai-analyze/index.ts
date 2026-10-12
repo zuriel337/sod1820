@@ -1885,6 +1885,23 @@ Deno.serve(async (req: Request) => {
       // feeds the quota check below (no duplicate lookup). context_type/user_ref passed to the plan are derived from it.
       const rTrusted = await resolveTrustedChannel(req, body);   // null unless an internal service-role request carries trusted_channel (never client-spoofable)
       const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
+      // Website launch availability applies to every site Raziel path, including
+      // deterministic answers and advanced mode. The verified WhatsApp adapter
+      // has its own channel owner and is outside this site-only launch gate.
+      if (!rTrusted) {
+        const availability = await traceRpc("fn_capability_execution_gate_v1", {
+          p_capability: "ai-analyze:raziel:site",
+          p_flag_key: "lock_raziel_site",
+          p_required_entitlement: "public",
+          p_user_ref: identity.startsWith("u:") ? identity.slice(2) : null,
+          p_visitor: identity.startsWith("v:") ? identity.slice(2) : null,
+          p_identity: identity,
+          p_budget_kind: "none",
+        });
+        if (availability?.allowed !== true) {
+          return rzJson({ analysis: null, error: "availability", message: availability?.availability?.message || "רזיאל באתר נמצא בהכנה." });
+        }
+      }
       const rCtxType = razielContextFromTier(tier);
       const rVerifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
       const rBearer = tier === "admin" && !rTrusted ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";

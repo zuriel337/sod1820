@@ -214,6 +214,20 @@ const elsFailClosed = await render("/els", async () => { throw new Error("flag u
 assert.match(elsFailClosed, /ELS סגור זמנית לציבור לצורך בנייה מחדש/);
 assert.doesNotMatch(elsFailClosed, /מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד/);
 
+for (const path of ["/heichal", "/היכל"]) {
+  const closed = await renderResponse(path, async (url) => {
+    assert.match(String(url), /site_flags\?/);
+    return { ok: true, async json() { return [{ key: "lock_heichal", enabled: true, mode: "all", message: "ההיכל סגור לבדיקה" }]; } };
+  }, { crawler: "search" });
+  assert.match(closed.body, /ההיכל סגור לבדיקה/);
+  assert.equal(closed.headers.get("x-robots-tag"), "noindex, follow");
+  assert.doesNotMatch(closed.body, /סביבת המחקר העמוקה של SOD1820/);
+}
+const heichalUnknown = await renderResponse("/heichal", async () => { throw new Error("flag unavailable"); }, { crawler: "search" });
+assert.equal(heichalUnknown.headers.get("x-robots-tag"), "noindex, follow");
+const heichalOpen = await renderResponse("/heichal", async () => ({ ok: true, async json() { return [{ key: "lock_heichal", enabled: false, mode: "all" }]; } }), { crawler: "search" });
+assert.equal(heichalOpen.headers.get("x-robots-tag"), "index, follow");
+
 const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
 const uaRules = vercel.rewrites.filter((r) => Array.isArray(r.has) && r.has.some((h) => h.key === "user-agent"));
 const socialAiRule = uaRules.find((r) => r.source === "/(.*)" && r.destination === "/api/og?path=/$1");

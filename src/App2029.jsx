@@ -12,6 +12,7 @@ import Calculator2029Page from "./pages/Calculator2029Page.jsx";
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
 import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
+import Locked from "./components/MaintenanceLock.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -118,8 +119,8 @@ export default function App2029() {
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
               <Route path="/book/:slug" element={<Books2029Page />} />
               <Route path="/els" element={<Els2029Page />} />
-              <Route path="/heichal" element={<Heichal2029Page />} />
-              <Route path="/היכל" element={<Heichal2029Page />} />
+              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
+              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/researcher/:slug" element={<Researcher2029Page />} />
               <Route path="/2029/number/:value" element={<Number2029Page />} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
