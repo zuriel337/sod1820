@@ -1250,3 +1250,45 @@
 .sod29-event-tree-origin a{min-height:44px}
 .sod29-event-tree-list{max-height:min(44vh,360px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
 .sod29-surface-context-rail.is-rest .sod29-context-inspector-title{font-size:clamp(17px,1.6vw,22px);line-height:1.25}
+
+/* Phone/tablet context STRIP: a separate fixed horizontal strip directly above the action row (island), replacing the
+   vertical edge pill. It never reserves a text gutter, never moves the page, and the page keeps bottom clearance for it. */
+@media(max-width:980px){
+  .sod29-glass-locator{
+    inset-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));
+    inset-block-start:auto;
+    inset-block-end:calc(var(--s29-island-clearance,104px) + 6px + env(safe-area-inset-bottom,0px));
+    transform:none;
+    width:auto;
+    max-height:none;
+    min-height:48px;
+    grid-template-columns:44px minmax(0,1fr) 44px;
+    grid-template-rows:none;
+    align-items:center;
+    gap:4px;
+    padding:2px 4px;
+    border-radius:16px;
+    z-index:60;
+  }
+  .sod29-glass-locator-step{min-height:44px;min-width:44px}
+  .sod29-glass-locator-step small{display:none}
+  .sod29-glass-locator-step span{font-size:18px;line-height:1}
+  .sod29-glass-locator-core{
+    writing-mode:horizontal-tb;
+    min-height:44px;
+    width:100%;
+    display:flex!important;
+    flex-direction:row;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    padding:0 12px!important;
+    text-align:start;
+    border-radius:12px;
+  }
+  .sod29-glass-locator-core b{max-height:none;flex:1 1 auto;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sod29-glass-locator-core small{flex:0 0 auto;font-size:12px}
+  .sod29-root.surface-post .sod29-reading-post{padding-bottom:calc(var(--s29-island-clearance,104px) + 72px)}
+  .sod29-root.surface-post:has(.sod29-glass-locator) .sod29-feed-chip{bottom:calc(var(--s29-island-clearance,104px) + 62px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:980px){.sod29-glass-locator-step span{display:inline-block;transform:rotate(90deg)}}
