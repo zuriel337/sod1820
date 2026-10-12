@@ -1423,7 +1423,10 @@
 /* Section tabs duplicate the pinned left context (sections) on wide screens; they stay as the compact selector elsewhere. */
 @media(min-width:1280px){.sod29-main-stage.has-context-rail .sod29-reading-post>.sod29-surface-tabs{display:none}}
 /* Post reading cover: one compact whole image (shared media kit does the contain/lightbox work). */
-.sod29-reading-cover{margin:0 auto 20px;max-width:min(100%,760px)}
+.sod29-reading-cover{margin:0 auto 20px;width:min(100%,560px);aspect-ratio:1586/992;max-height:min(46vh,360px)}
+/* Space is reserved (reading derivative is 1586x992) so the late-loading image can never shift the page; whole image stays visible. */
+.sod29-reading-cover .sod29-canonical-media-figure{height:100%}
+.sod29-reading-cover .sod29-canonical-media-image.is-primary{height:100%!important;max-height:none;object-fit:contain!important}
 
 /* Mobile/tablet: the rolling section locator is fixed at the inline-end edge; reserve its gutter so it never covers text. */
 @media(max-width:980px){
@@ -1437,3 +1440,5 @@
 .sod29-reading-hero-copy>.sod29-orientation-host{order:2;flex:0 1 auto;min-width:0}
 .sod29-reading-hero-copy>.sod29-orientation-host:empty{display:none}
 @media(max-width:620px){.sod29-reading-hero-copy>.sod29-post-details,.sod29-reading-hero-copy>.sod29-orientation-host{flex:1 1 100%}}
+/* Number controls inside the story keep clear of the fixed header and command island when scrolled into view. */
+.sod29-reading-source :is([data-contextual-number-focus],[data-gem],.sod-numlink){scroll-margin-block:132px}

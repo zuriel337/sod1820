@@ -401,11 +401,7 @@ function PostReadingBody() {
       : [...new Set(
           regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
         )].slice(0, 5);
-  // Cover is the existing post media: prefer the persisted small derivative,
-  // fall back to image_url. The original is never replaced or rewritten.
-  const heroCover = /^https:\/\//i.test(String(post.thumb_url || post.image_url || ""))
-    ? String(post.thumb_url || post.image_url)
-    : null;
+  // One cover only: the sharp whole-image reading cover below the header (shared media kit). No second thumbnail above the title.
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
   const heroDate = isBennettMaster
     ? "2026-10-01"
@@ -735,16 +731,6 @@ function PostReadingBody() {
 
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
-        {heroCover ? <figure className="sod29-reading-cover" data-post-cover="true">
-          <img
-            src={heroCover}
-            alt=""
-            width="1200"
-            height="630"
-            decoding="async"
-            fetchPriority="high"
-          />
-        </figure> : null}
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
