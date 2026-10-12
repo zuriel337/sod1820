@@ -28,9 +28,14 @@ test("desktop pinned region: sticky ~78px, viewport-bounded internal scroll, Pos
 });
 
 test("single pinned region: one rail mounted by the shared frame, no second drawer/rail", () => {
-  // Same component: one pinned desktop mount + its own Bottom Context Sheet projection (sheet mode).
-  assert.equal((frame.match(/<SurfaceContextRail2029/g) || []).length, 2);
+  // The shared frame has three conditional projections: pinned desktop rail,
+  // Companion context, and Bottom Context Sheet. Pinned and Companion must be
+  // mutually exclusive for document pages, including Post and Topic.
+  assert.equal((frame.match(/<SurfaceContextRail2029/g) || []).length, 3);
   assert.equal((frame.match(/<SurfaceContextRail2029\s+sheet/g) || []).length, 1);
+  assert.match(frame, /const companionHasContext = showContextRail && !numberPageRoute/);
+  assert.match(frame, /showContextRail && !\(companionActive && !numberPageRoute\) \? <SurfaceContextRail2029/);
+  assert.match(frame, /contextNode=\{companionHasContext \? <SurfaceContextRail2029/);
   assert.doesNotMatch(post + topic, /<SurfaceContextRail2029|<ContextualInspector2029/);
 });
 
