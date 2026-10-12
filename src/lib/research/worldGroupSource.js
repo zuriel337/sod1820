@@ -19,6 +19,18 @@ export function groupRowToWorldUpdate(row) {
   if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !APPROVED_GROUP_WRITERS.includes(clean(row.contributor_slug))) return null; // unproved / unverified author => excluded
   const body = redactGroupText(row.body);
   if (!body) return null;
+  const seen = new Set();
+  const occurrences = (Array.isArray(row.occurrences) ? row.occurrences : [{ id: row.id, created_at: row.created_at }])
+    .filter((event) => {
+      const id = clean(event?.id);
+      if (!id || seen.has(id)) return false;
+      if (!Number.isFinite(Date.parse(clean(event?.created_at)))) return false;
+      seen.add(id);
+      return true;
+    })
+    .slice(0, 40)
+    .map((event) => ({ id: clean(event.id), at: new Date(event.created_at).toISOString(), sourceRef: `channel_updates:${clean(event.id)}` }));
+  if (!occurrences.some((event) => event.id === clean(row.id))) return null;
   const at = Date.parse(clean(row.created_at));
   const arrivalAt = Number.isFinite(at) ? new Date(at).toISOString() : null;
   return {
@@ -39,6 +51,9 @@ export function groupRowToWorldUpdate(row) {
     discoveredAt: null,
     researchUpdatedAt: null,
     sourceRef: `channel_updates:${row.id}`,
+    sourceRefs: occurrences.map((event) => event.sourceRef),
+    occurrences,
+    occurrenceCount: occurrences.length,
     href: `/world#group-source-${encodeURIComponent(row.id)}`,
     value: null,
     numbers: [],
@@ -49,7 +64,7 @@ export function groupRowToWorldUpdate(row) {
 
 export async function fetchGroupSourceArrivals({ limit = 12, before = null, rpc } = {}) {
   const call = rpc || (await import("../supabase.js")).supabase.rpc.bind((await import("../supabase.js")).supabase);
-  const { data, error } = await call("world_group_source_arrivals_v2", { p_limit: limit, p_before: before });
+  const { data, error } = await call("world_group_source_arrivals_v3", { p_limit: limit, p_before: before });
   if (error) throw error;
   return (Array.isArray(data) ? data : []).map(groupRowToWorldUpdate).filter(Boolean);
 }

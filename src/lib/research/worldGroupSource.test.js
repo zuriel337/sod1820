@@ -55,10 +55,26 @@ test("no fake new items when reader returns nothing; reader error propagates (ca
   assert.deepEqual(await fetchGroupSourceArrivals({ rpc: async () => ({ data: [], error: null }) }), []);
   await assert.rejects(fetchGroupSourceArrivals({ rpc: async () => ({ data: null, error: new Error("503") }) }));
 });
-test("reader calls v2 RPC with cursor", async () => {
+test("reader calls v3 RPC with cursor", async () => {
   let seen;
   await fetchGroupSourceArrivals({ limit: 5, before: "2026-10-01T00:00:00Z", rpc: async (n, a) => { seen = [n, a]; return { data: [], error: null }; } });
-  assert.deepEqual(seen, ["world_group_source_arrivals_v2", { p_limit: 5, p_before: "2026-10-01T00:00:00Z" }]);
+  assert.deepEqual(seen, ["world_group_source_arrivals_v3", { p_limit: 5, p_before: "2026-10-01T00:00:00Z" }]);
+});
+test("grouped card retains both exact source occurrences and research links", () => {
+  const g = groupRowToWorldUpdate(row({
+    created_at: "2026-10-01T10:18:00Z",
+    occurrences: [
+      { id: "u1", created_at: "2026-10-01T10:00:00Z" },
+      { id: "u2", created_at: "2026-10-01T10:18:00Z" },
+    ],
+  }));
+  assert.equal(g.occurrenceCount, 2);
+  assert.deepEqual(g.sourceRefs, ["channel_updates:u1", "channel_updates:u2"]);
+  const feed = buildWorldDiscoveryStream({ groupItems: [g], research: [
+    { id: "f2", status: "approved", source_ref: "channel_updates:u2#finding:1", created_at: "2026-10-03T10:00:00Z" },
+  ] });
+  assert.equal(feed.items.filter((item) => item.sourceKind === "group_message").length, 1);
+  assert.equal(feed.items.find((item) => item.id === "group:u1").researchCount, 1);
 });
 test("v2 migration contract: private proof table, service-only writer, hold, no pushname trust, no channel_updates grants", () => {
   const sql = readFileSync(new URL("../../../supabase/migrations/20261008190000_world_group_source_provenance_v2.sql", import.meta.url), "utf8");

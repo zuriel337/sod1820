@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
+import SourceRepeatInfo2029 from './SourceRepeatInfo2029.jsx';
 import '../../pages/home-world-story2029.css';
 import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
 import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
@@ -38,7 +39,8 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
         className="sod29-world-group-source sod29-source-arrival" data-source-arrival={item.sourceRef}>
         <summary onClick={() => { if (isNew) see(newKey); }}>{copy}</summary><div className="sod29-source-arrival-body"><p>{item.fullText}</p>
           <p className="sod29-source-arrival-label">מאת: {item.creator || 'שם הכותב לא צוין'}</p>
-          <p className="sod29-source-arrival-label">מועד המקור ומועד גילוי חיבור: לא תועדו בנתונים הזמינים.</p>
+          <p className="sod29-source-arrival-label">מועד גילוי חיבור: לא תועד בנתונים הזמינים.</p>
+          <SourceRepeatInfo2029 item={item} anchorIds={surface === 'world'} onSelect={(event) => onOpen({ ...item, sourceRef: event.sourceRef, href: `/world#group-source-${event.id}` })} />
           <button className="sod29-action" onClick={() => onOpen(item)}>{surface === 'home' ? 'פתיחה בעולם' : 'שמירת ההקשר לקריאה'}</button>
         </div></details> : <article className="sod29-source-arrival" key={item.id} data-source-arrival={item.sourceRef}>
         <button className="sod29-source-arrival-link" onClick={() => { if (isNew) see(newKey); onOpen(item); }}>{copy}</button>

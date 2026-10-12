@@ -879,7 +879,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
-      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
       expect(response.ok(), 'deployed sanitized group reader is reachable').toBe(true);
@@ -888,7 +888,14 @@ for (const preset of ['light', 'parchment', 'dark']) {
       for (const row of groupRows) {
         expect(row.group_proof).toBe(true);
         expect(row.proof_basis).toBe('verified_phone_unique');
-        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
+        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'occurrences', 'proof_basis']);
+        expect(Array.isArray(row.occurrences)).toBe(true);
+        expect(row.occurrences.length).toBeGreaterThan(0);
+        expect(row.occurrences.some((event) => event.id === row.id)).toBe(true);
+        for (const event of row.occurrences) {
+          expect(Object.keys(event).sort()).toEqual(['created_at', 'id']);
+          expect(Number.isFinite(Date.parse(event.created_at))).toBe(true);
+        }
       }
       const writer = page.locator('#world-source-homes button').filter({ hasText: 'יניב לוי' }).first();
       await expect(writer).toBeVisible({ timeout: 30_000 });
