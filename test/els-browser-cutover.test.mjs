@@ -318,7 +318,7 @@ const waitOperation = (page, kind, requestId, status) => page.waitForFunction(([
   [kind, requestId, status], { timeout: 60000 });
 const waitSettledMatrix = (page) => page.waitForFunction(() => {
   const current = window.__log.filter(message => message.type === 'state').at(-1);
-  return current?.status === 'ok' && window.__oraclePending === 0 &&
+  return (current?.status === 'ok' || current?.status === 'ready') && window.__oraclePending === 0 &&
     (current.findings || []).every(word => (word.hits || []).every(hit => !hit.shown || hit.verified));
 }, null, { timeout: 60000 });
 
@@ -383,7 +383,7 @@ test('browser: a fresh hidden native first search runs without a persisted onboa
   await withHarness(async ({ page, frame, calls }) => {
     await page.waitForFunction(() => {
       const current = window.__log.filter(m => m.type === 'state').at(-1);
-      return current?.tier === 'anon' && current.status === 'ok' && window.__oraclePending === 0;
+      return current?.tier === 'anon' && current.status === 'ready' && window.__oraclePending === 0;
     });
     const hostUrl = page.url(), toolUrl = page.frames().find(f => f.url().includes('/tzofen.html')).url();
     assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null);
@@ -418,7 +418,7 @@ test('browser: a fresh hidden native first search runs without a persisted onboa
 
 test('browser: visible first-visit onboarding still blocks the requested search until acknowledged', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {
-    await page.waitForFunction(() => window.__log.some(m => m.type === 'state' && m.status === 'ok') && window.__oraclePending === 0);
+    await page.waitForFunction(() => window.__log.some(m => m.type === 'state' && m.status === 'ready') && window.__oraclePending === 0);
     const beforeCalls = calls.length;
     await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah' } });
     await page.waitForFunction(() => window.__log.some(m => m.type === 'onboarding-required'));
