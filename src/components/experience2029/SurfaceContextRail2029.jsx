@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -19,6 +19,24 @@ import {
   LEARN_SCOPE,
   markConceptFamiliarity,
 } from "../../lib/entryLearn2029.js";
+
+
+// One recursive node of the "רצף האירועים" tree. Marks here are tree-local ("שינוי בענף"), never feed updates.
+function EventTreeNode({ node, sheet, onNavigate }) {
+  const go = () => { if (sheet) onNavigate?.(node); };
+  const label = node.here
+    ? <span className="is-label" aria-current="page">{node.label} <em>· אתה כאן</em></span>
+    : <a href={node.href} onClick={go}>{node.label}</a>;
+  return <li className={`is-${node.kind}${node.here ? " is-here" : ""}`}>
+    {(node.origins || []).map((origin) => <span className="sod29-event-tree-origin" key={origin.id}><small>מגיע מ</small> <a href={origin.href} onClick={go}>{origin.label}</a> <em>{formatUpdateDate(origin.at)} · {origin.note}</em></span>)}
+    {label}
+    {node.kind === "unit"
+      ? <em>נוסף {formatUpdateDate(node.addedAt)}</em>
+      : node.changedAt ? <b className="sod29-event-tree-mark">שינוי בענף · {formatUpdateDate(node.changedAt)}</b> : null}
+    {node.via ? <em>{node.via}</em> : null}
+    {node.children?.length ? <ol>{node.children.map((child) => <EventTreeNode key={`${child.kind}:${child.id}`} node={child} sheet={sheet} onNavigate={onNavigate} />)}</ol> : null}
+  </li>;
+}
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 
@@ -91,7 +109,17 @@ export default function SurfaceContextRail2029({
     const stop = window.setTimeout(() => observer.disconnect(), 8000);
     return () => { observer.disconnect(); window.clearTimeout(stop); };
   }, [treePostId, treeSectionKey]);
+  const treeListRef = useRef(null);
   const postTree = Number.isSafeInteger(treePostId) ? buildPostTree(treePostId, presentUnitIds || new Set()) : null;
+  // "אתה כאן" must never be buried: keep the current node centered inside the tree's own scroll area.
+  const hereKey = postTree ? JSON.stringify(postTree).length : 0;
+  useEffect(() => {
+    const list = treeListRef.current;
+    const here = list?.querySelector(".is-here > .is-label");
+    if (!list || !here) return;
+    const top = here.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+    list.scrollTop = Math.max(0, top - list.clientHeight / 2 + here.clientHeight / 2);
+  }, [treePostId, hereKey]);
   const chainTrail = surface === "post" && context?.subject?.type === "post" && Array.isArray(context?.dimensions?.bottomTrail)
     ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
     : [];
@@ -245,32 +273,8 @@ export default function SurfaceContextRail2029({
           <img src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" aria-hidden="true" />
           <strong>רצף האירועים</strong>
         </header>
-        {postTree.origins.length ? <ul className="sod29-event-tree-origins" aria-label="מאיפה זה מגיע">
-          {postTree.origins.map((origin) => <li key={origin.id}><small>מגיע מ</small><a href={origin.href} onClick={() => { if (sheet) onNavigate?.(origin); }}>{origin.label}</a><em>{formatUpdateDate(origin.at)} · {origin.note}</em></li>)}
-        </ul> : null}
-        <ol className="sod29-event-tree-list">
-          {postTree.parent ? <li className="is-parent">
-            <a href={postTree.parent.href} onClick={() => { if (sheet) onNavigate?.(postTree.parent); }}>{postTree.parent.label}</a>
-            {postTree.parent.changedAt ? <b className="sod29-event-tree-mark">שינוי בעץ · {formatUpdateDate(postTree.parent.changedAt)}</b> : null}
-            <em>{postTree.parent.via}</em>
-          </li> : null}
-          <li className={`is-here${postTree.parent ? " is-child" : ""}`} aria-current="page">
-            <span>{postTree.current.label} <em>· אתה כאן</em></span>
-            {postTree.current.changedAt ? <b className="sod29-event-tree-mark">שינוי בעץ · {formatUpdateDate(postTree.current.changedAt)}</b> : null}
-            {postTree.units.length || postTree.children.length ? <ol>
-              {postTree.units.map((entry) => <li key={entry.id} className="is-unit">
-                <a href={`/post/${treeSlug}#${encodeURIComponent(entry.targetId)}`} onClick={() => { if (sheet) onNavigate?.(entry); }}>{entry.label}</a>
-                <em>נוסף {formatUpdateDate(entry.updatedAt)}</em>
-              </li>)}
-              {postTree.children.map((child) => <li key={child.id} className="is-post">
-                <a href={child.href} onClick={() => { if (sheet) onNavigate?.(child); }}>{child.label}</a>
-                {child.changedAt ? <b className="sod29-event-tree-mark">שינוי בעץ · {formatUpdateDate(child.changedAt)}</b> : null}
-                <em>{child.note}</em>
-              </li>)}
-            </ol> : null}
-          </li>
-        </ol>
-        <small className="sod29-event-tree-note">סימון בעץ בלבד. הוא לא מופיע כעדכון בשאר המערכת.</small>
+        <ol className="sod29-event-tree-list" ref={treeListRef}><EventTreeNode node={postTree.root} sheet={sheet} onNavigate={onNavigate} /></ol>
+        <small className="sod29-event-tree-note">סימון בענף בלבד. הוא לא מופיע כעדכון בשאר המערכת.</small>
       </nav> : null}
       {sections.length ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>

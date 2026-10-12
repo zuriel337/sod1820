@@ -2,30 +2,39 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildPostTree } from "../src/lib/research/postLineage2029.js";
 
-test("a child's addition marks its parent inside the tree (Bennett -> Elections)", () => {
-  const tree = buildPostTree(5113, new Set(["bennett-israel-78"]));
-  assert.equal(tree.parent.id, 5107);
-  assert.equal(tree.parent.changedAt, "2026-10-12T14:06:54.127Z");
-  assert.equal(tree.current.here, true);
-  assert.deepEqual(tree.units.map((unit) => unit.id), ["bennett-israel-78"]);
-  assert.deepEqual(tree.origins.map((origin) => origin.slug), ["yam-hamelach-tiferet-geula"]);
+const find = (node, predicate) => predicate(node) ? node : (node.children || []).map((child) => find(child, predicate)).find(Boolean) || null;
+
+test("the same declared tree is shown from either post: Elections -> units + axis 631 -> Bennett -> units", () => {
+  for (const viewing of [5107, 5113]) {
+    const { root, hereId } = buildPostTree(viewing, new Set(["sharshar-shoes-66", "bennett-israel-78"]));
+    assert.equal(hereId, viewing);
+    assert.equal(root.id, 5107);
+    const axis = root.children.find((node) => node.kind === "axis");
+    assert.equal(axis.label, "ציר 631");
+    const bennett = axis.children[0];
+    assert.equal(bennett.id, 5113);
+    assert.equal(bennett.origins[0].slug, "yam-hamelach-tiferet-geula");
+    assert.equal(find(root, (node) => node.here).id, viewing);
+  }
 });
 
-test("the parent post lists the continuing post and its own source units; a stale unit is not shown", () => {
-  const tree = buildPostTree(5107, new Set(["sharshar-shoes-66"]));
-  assert.equal(tree.parent, null);
-  assert.deepEqual(tree.units.map((unit) => unit.id), ["sharshar-shoes-66"]);
-  assert.equal(tree.children[0].id, 5113);
-  assert.equal(tree.children[0].changedAt, "2026-10-12T14:06:54.127Z");
-  assert.equal(tree.current.changedAt, "2026-10-12T14:06:54.127Z");
+test("a child's addition marks every ancestor (axis and parent post) but not the unrelated branch", () => {
+  const { root } = buildPostTree(5113, new Set(["bennett-israel-78"]));
+  const axis = root.children.find((node) => node.kind === "axis");
+  assert.equal(root.changedAt, "2026-10-12T14:06:54.127Z");
+  assert.equal(axis.changedAt, "2026-10-12T14:06:54.127Z");
+  const unit = find(root, (node) => node.id === "bennett-israel-78");
+  assert.equal(unit.addedAt, "2026-10-12T14:06:54.127591Z");
 });
 
-test("posts outside the declared tree get no tree", () => {
+test("units of the viewed post are guarded by the loaded source; the other post's certified units are not", () => {
+  const { root } = buildPostTree(5113, new Set());
+  assert.equal(find(root, (node) => node.id === "bennett-israel-78"), null);
+  assert.ok(find(root, (node) => node.id === "sharshar-shoes-66"));
+});
+
+test("posts outside the declared tree get no tree, and tree marks are not feed events", () => {
   assert.equal(buildPostTree(1), null);
-});
-
-test("tree marks are not system updates: module exposes no feed/event shape", () => {
-  const tree = buildPostTree(5107, null);
-  assert.equal(JSON.stringify(tree).includes("eventKey"), false);
-  assert.equal(JSON.stringify(tree).includes("feed:"), false);
+  const raw = JSON.stringify(buildPostTree(5107, null));
+  assert.equal(raw.includes("eventKey") || raw.includes("feed:"), false);
 });

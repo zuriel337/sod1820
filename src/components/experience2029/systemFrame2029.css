@@ -1242,3 +1242,11 @@
 .sod29-event-tree-note{line-height:1.4}
 .sod29-event-tree-origins li{display:grid;gap:0;min-width:0}
 .sod29-event-tree-origins a{min-height:44px}
+.sod29-event-tree-list .is-label{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:850;color:var(--s29-ink)}
+.sod29-event-tree-list .is-here>.is-label{color:var(--s29-ink)}
+.sod29-event-tree-list .is-here{background:color-mix(in srgb,var(--s29-accent) 9%,transparent);border-radius:8px}
+.sod29-event-tree-list .is-axis>a{color:var(--s29-discovery-text,var(--s29-accent-text))}
+.sod29-event-tree-origin{display:grid;gap:0;font-size:12px}
+.sod29-event-tree-origin a{min-height:44px}
+.sod29-event-tree-list{max-height:min(44vh,360px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.sod29-surface-context-rail.is-rest .sod29-context-inspector-title{font-size:clamp(17px,1.6vw,22px);line-height:1.25}

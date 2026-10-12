@@ -33,28 +33,49 @@ function changedAt(postId, presentIds) {
   return best ? new Date(best).toISOString() : null;
 }
 
-/** presentIds: ids of this post's source units that exist in the loaded source (stale guard); null = no guard. */
+const AXES = Object.freeze({
+  631: Object.freeze({ id: "axis-631", label: "ציר 631", href: "/2029/number/631", opensIn: 5107, continuesIn: 5113 }),
+});
+
+const rootOf = (postId) => { let id = Number(postId); while (POSTS[id]?.parent) id = POSTS[id].parent; return id; };
+
+/**
+ * The whole declared tree around a post, always rooted at the first post, so the reader sees where everything comes
+ * from and where they are: Elections post -> its source units + axis 631 -> Bennett post -> its source units.
+ * presentIds guards only the CURRENT post's units against the loaded source (other posts' units are certified proof).
+ */
 export function buildPostTree(postId, presentIds = null) {
-  const id = Number(postId);
-  const post = POSTS[id];
-  if (!post) return null;
-  const node = (nodeId) => ({
-    id: nodeId,
-    label: POSTS[nodeId].label,
-    href: `/post/${POSTS[nodeId].slug}`,
-    changedAt: changedAt(nodeId, nodeId === id ? presentIds : null),
-  });
-  const parent = post.parent ? { ...node(post.parent), via: post.via } : null;
-  const siblings = parent ? childrenOf(post.parent).filter((childId) => childId !== id).map(node) : [];
-  const children = childrenOf(id).map((childId) => ({ ...node(childId), note: "המשך מכאן" }));
-  const units = ownUnits(id, presentIds);
-  if (!parent && !children.length && !units.length && !post.origins.length) return null;
-  return {
-    current: { ...node(id), here: true },
-    parent,
-    siblings,
-    origins: post.origins.map((origin) => ({ ...origin, href: `/post/${origin.slug}` })),
-    children,
-    units,
+  const here = Number(postId);
+  if (!POSTS[here]) return null;
+  const unitNodes = (ownerId) => ownUnits(ownerId, ownerId === here ? presentIds : null).map((entry) => ({
+    kind: "unit",
+    id: entry.id,
+    label: entry.label,
+    href: `/post/${POSTS[ownerId].slug}#${encodeURIComponent(entry.targetId)}`,
+    addedAt: entry.updatedAt,
+    here: false,
+  }));
+  const postNode = (id) => {
+    const post = POSTS[id];
+    const kids = childrenOf(id);
+    const axis = kids.length ? AXES[631] : null;
+    const children = [
+      ...unitNodes(id),
+      ...(axis && axis.opensIn === id ? [{
+        kind: "axis", id: axis.id, label: axis.label, href: axis.href, here: false,
+        changedAt: changedAt(axis.continuesIn),
+        children: [postNode(axis.continuesIn)],
+      }] : kids.map(postNode)),
+    ];
+    return {
+      kind: "post", id, label: post.label, href: `/post/${post.slug}`, here: id === here,
+      changedAt: changedAt(id, id === here ? presentIds : null),
+      via: post.via,
+      origins: post.origins.map((origin) => ({ ...origin, href: `/post/${origin.slug}` })),
+      children,
+    };
   };
+  const root = postNode(rootOf(here));
+  const hasMore = root.children.length || root.origins.length || JSON.stringify(root).includes('"origins":[{');
+  return hasMore ? { root, hereId: here } : null;
 }
