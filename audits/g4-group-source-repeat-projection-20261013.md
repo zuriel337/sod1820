@@ -2,7 +2,7 @@
 
 ## Decision being reviewed
 
-The read-only audit in PR #1061 found 25 eligible group message events with 25 distinct update IDs and provider IDs, and two pairs whose normalized text matched within 3 and 18 minutes. This candidate groups consecutive messages for display only when the private proof has the same approved group, verified sender, and normalized raw text, with a gap of at most 30 minutes. This time window is a proposed display rule; it is not a content deletion or an editorial judgment.
+The read-only audit in PR #1061 found 25 eligible group message events with 25 distinct update IDs and provider IDs, and two pairs whose normalized text matched within 3 and 18 minutes. This candidate groups consecutive messages for display only when the private proof has the same approved group, verified sender, verified contributor, and normalized raw text, with a gap of at most 30 minutes. This time window is a proposed display rule; it is not a content deletion or an editorial judgment.
 
 `world_group_source_arrivals_v3` first calls the existing v2 eligibility reader. It uses private group and sender keys inside the definer function, returning only the v2 public columns plus each eligible event's ID and timestamp. The underlying `channel_updates` and proof rows remain distinct. A hold, inactive author, disabled feed, direct message, wrong group, or unverified identity excluded by v2 cannot enter a group.
 

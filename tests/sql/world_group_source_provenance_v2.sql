@@ -278,6 +278,23 @@ select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40
 select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40) r
                    where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('repeat_other_sender')))
                      and jsonb_array_length(r.occurrences)=1)=1, 'different verified sender stays separate');
+-- A verified phone can change owner later. Historical proof remains attributed to its
+-- original contributor, and a later proof for the same JID must not join that card.
+insert into public.contributors(id,slug,display_name,phone,dossier_settings) values
+ ('00000000-0000-0000-0000-0000000000a7','shachar-kandro','שחר','0501111111','{"general_feed_enabled":true}');
+update public.contributors set phone='0501212121' where slug='tzvi-opoc';
+select pg_temp.add('reassigned_writer','אותו מקור','torat-haremez','private','R6',ts=>now()-interval '2 hours 50 minutes');
+select pg_temp.ok((pg_temp.proof('reassigned_writer',:'T','R6',:'TC','972501111111@c.us')->>'identity_basis')='verified_phone_unique',
+                  'same sender JID resolves to newly verified writer');
+select pg_temp.ok((select contributor_slug from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('reassigned_writer'))))='shachar-kandro',
+                  'new owner has exact attribution');
+select pg_temp.ok((select jsonb_array_length(r.occurrences) from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('reassigned_writer'))))=1,
+                  'same JID and text but different verified contributor stays separate');
+select pg_temp.ok((select jsonb_array_length(r.occurrences) from public.world_group_source_arrivals_v3(40) r
+                   where r.occurrences @> jsonb_build_array(jsonb_build_object('id',pg_temp.uid('repeat_a'))))=2,
+                  'original owner pair remains grouped after reassignment');
 select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(1))=1, 'v3 card limit');
 select pg_temp.ok((select count(*) from public.world_group_source_arrivals_v3(40,now()-interval '10 years'))=0, 'v3 cursor');
 select pg_temp.ok(not exists (select 1 from pg_proc p where p.proname='world_group_source_arrivals_v3'

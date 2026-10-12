@@ -20,7 +20,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
   ), ordered as (
     select v.*,
            lag(v.created_at) over (
-             partition by v.group_chat_id, v.sender_jid, v.normalized_text
+             partition by v.group_chat_id, v.sender_jid, v.contributor_slug, v.normalized_text
              order by v.created_at, v.id
            ) as previous_at
       from visible v
@@ -28,7 +28,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
     select o.*,
            sum(case when o.previous_at is null or o.created_at - o.previous_at > interval '30 minutes'
                     then 1 else 0 end) over (
-             partition by o.group_chat_id, o.sender_jid, o.normalized_text
+             partition by o.group_chat_id, o.sender_jid, o.contributor_slug, o.normalized_text
              order by o.created_at, o.id rows unbounded preceding
            ) as repeat_cluster
       from ordered o
@@ -43,7 +43,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
          jsonb_agg(jsonb_build_object('id', c.id, 'created_at', c.created_at)
                    order by c.created_at, c.id) as occurrences
     from clustered c
-   group by c.group_chat_id, c.sender_jid, c.normalized_text, c.repeat_cluster
+   group by c.group_chat_id, c.sender_jid, c.contributor_slug, c.normalized_text, c.repeat_cluster
    order by max(c.created_at) desc, (array_agg(c.id order by c.created_at, c.id))[1]
    limit greatest(1, least(coalesce(p_limit, 12), 40));
 $$;
