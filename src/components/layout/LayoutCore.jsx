@@ -18,7 +18,6 @@ import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
 import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
-import JoinCelebration from "../JoinCelebration.jsx";
 import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
 import BottomBar from "./BottomBar.jsx"; // 🧭 Bottom Bar — Experience Shell קבוע (כאן·מספר·עכשיו·רזיאל·עוד)
 import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "../../lib/bottomBar.js";
@@ -108,7 +107,6 @@ export default function Layout() {
       {/* 🧭 חלון-העדכונים: ל-admin ה-fab הצף מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
           והפאנל-הנייד מקבל bottomClearance כנ"ל. לציבור-רגיל — בדיוק אותו legacy fab, בלי שינוי. */}
       {liveChrome && <LiveChannelFeed hideFab={showBottomBar} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />}
-      <JoinCelebration />
       {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
       <DimensionFiveFeed />
       {showBottomBar && <BottomBar />}
