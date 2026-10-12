@@ -58,6 +58,10 @@
 .sod29-raziel-orb-core:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid color-mix(in srgb,var(--s29-raziel-violet) 44%,transparent);opacity:.5}
 .sod29-raziel-orb.active .sod29-raziel-orb-core{box-shadow:0 0 30px var(--s29-raziel-glow),0 0 0 3px color-mix(in srgb,var(--s29-raziel-indigo) 18%,transparent),inset 0 0 14px rgba(255,255,255,.24)}
 .sod29-raziel-orb-label{font-size:var(--s29-type-micro);font-weight:800}
+.sod29-root.native-frame .sod29-nav-link.is-gated{opacity:.68;border-style:dashed;cursor:not-allowed}
+.sod29-root.native-frame .sod29-raziel-orb.is-locked{cursor:not-allowed;filter:grayscale(1)}
+.sod29-root.native-frame .sod29-raziel-orb.is-locked .sod29-raziel-orb-core{animation:none;box-shadow:none;opacity:.55}
+.sod29-root.native-frame .sod29-now-tab:disabled{cursor:not-allowed;opacity:.62}
 
 /* Temporary selection cue: contextual focus, not persisted truth. */
 .sod29-selection-cue{position:fixed;z-index:63;inset-inline-start:50%;inset-block-end:84px;transform:translateX(50%);max-width:min(520px,calc(100vw - 24px));min-height:38px;display:flex;align-items:center;gap:8px;border:1px solid var(--s29-line-strong);border-radius:999px;background:color-mix(in srgb,var(--s29-panel) 94%,transparent);color:var(--s29-ink);padding:7px 12px;box-shadow:0 12px 42px color-mix(in srgb,var(--s29-panel) 42%,transparent);cursor:pointer}

@@ -12,6 +12,7 @@ import { applySeo } from "../lib/seo.js";
 import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
+import { useFeatureState } from "../components/MaintenanceLock.jsx";
 
 
 function TemporalTreasures({ item }) {
@@ -83,12 +84,12 @@ function TemporalNowCard({ item, onOpen }) {
   </article>;
 }
 
-function ConnectedGoldenStory({ onOpenPost }) {
+function ConnectedGoldenStory({ onOpenPost, razielLocked }) {
   return <article className="sod29-connected-golden-story" aria-label="המשך מהעת אל המקור">
     <div>
       <div className="sod29-kicker">מקור חי</div>
       <h3>רמזי הגאולה, הבינה המלאכותית וסוד השיר — תשפ״ז</h3>
-      <p>החיבור של 787 לא נשאר ככרטיס בבית: הוא ממשיך אל המקור, אל העולם, אל המספר ואל רזיאל — עם חזרה מדויקת לאותה נקודה.</p>
+      <p>החיבור של 787 לא נשאר ככרטיס בבית: הוא ממשיך אל המקור, אל העולם ואל המספר{razielLocked ? " — עם חזרה מדויקת לאותה נקודה. רזיאל ייפתח בהמשך." : " ואל רזיאל — עם חזרה מדויקת לאותה נקודה."}</p>
     </div>
     <div className="sod29-actions">
       <button className="sod29-action primary" type="button" onClick={onOpenPost}>פתח את הפוסט ←</button>
@@ -310,6 +311,10 @@ function HomeBody() {
   const navigate = useNavigate();
   const research = useResearch();
   const shell = use2029Shell();
+  const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
+  const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
+  const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
+  const razielLocked = razielFeature.loading || razielFeature.blocked;
   const [query, setQuery] = useState("");
   const [homeState, setHomeState] = useState({ loading: true, projection: null });
   const context = research.context || null;
@@ -428,7 +433,7 @@ function HomeBody() {
           <div className="sod29-muted">{context.subject.label || context.subject.id} · {CONTEXT_TYPE_LABEL[context.subject.type] || context.subject.type}</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
-            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
+            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()} disabled={razielLocked}>{razielLocked ? "רזיאל · נעול" : "המשך עם רזיאל"}</button>
           </div>
         </> : <>
           <div className="sod29-muted">כשתתחיל לגלות משהו, הבית יידע להחזיר אותך בדיוק לשם.</div>
@@ -479,6 +484,7 @@ function HomeBody() {
       </section>
     }
     continuity={continuity}
+    journeyLocked={journeyLocked}
     selectedSlug={context?.subject?.type === "post" ? context.subject.id : null}
     onSelectPost={selectPost}
   />;
@@ -497,6 +503,7 @@ function HomeBody() {
       {homeState.loading ? <div className="sod29-home-now-empty">בודק מה באמת התחבר לעת הזאת…</div> : null}
       {!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
       <ConnectedGoldenStory
+        razielLocked={razielLocked}
         onOpenPost={() => shell.go("/post/remzei-geula-ai-sod-hashir")}
       />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
@@ -512,13 +519,13 @@ function HomeBody() {
         <div className="sod29-command-copy">
           <div className="sod29-kicker">גלה משהו משלך</div>
           <h2>פתח מספר, ביטוי או נושא.<br />משם העולם נפתח.</h2>
-          <div className="sod29-muted">החיפוש שומר את ההקשר וממשיך איתך לעולם, למקורות, להיכל ולרזיאל בלי להתחיל מחדש.</div>
+          <div className="sod29-muted">החיפוש שומר את ההקשר וממשיך איתך לעולם ולמקורות בלי להתחיל מחדש.</div>
           <form className="sod29-command-bar" onSubmit={start}>
             <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="למשל 358 · משיח · 1820" aria-label="חיפוש או התחלת גילוי" />
             <button className="sod29-action primary" type="submit">פתח בעולם ←</button>
           </form>
           <div className="sod29-actions">
-            <button className="sod29-action" type="button" onClick={() => navigate("/2029/journey")}>מסע החיים שלי</button>
+            <button className="sod29-action" type="button" onClick={() => navigate("/2029/journey")} disabled={journeyLocked}>{journeyLocked ? "מסע החיים שלי · נעול" : "מסע החיים שלי"}</button>
             <span className="sod29-muted">מידע אישי נכנס רק מתוך המסע — החיפוש הכללי לא מנחש מי הוא אדם.</span>
           </div>
         </div>

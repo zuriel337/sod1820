@@ -1027,6 +1027,10 @@ function NumberPageBody() {
   };
 
   const askRaziel = (intent = "number_context", focus = {}) => {
+    if (shell.razielLocked) {
+      shell.openRaziel();
+      return;
+    }
     const focusPatch = focus && typeof focus === "object" ? focus : {};
     const forcedExpression = clean(focusPatch.expression) || (intent === "explain_crossing" ? clean(activeExpression) : focusExpression);
     const forcedCrossing = clean(focusPatch.partner || focusPatch.crossingPartner) || focusedCrossingPartner;

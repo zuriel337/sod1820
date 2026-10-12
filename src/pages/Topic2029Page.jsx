@@ -564,7 +564,7 @@ function TopicBody() {
         </div>
         <ConvergenceRatings2029 className="sod29-topic-ratings" quality={projection.quality} meterScore={projection.meterScore} highlightNumbers={projection.highlightNumbers} numbers={projection.numbers} autoTiers />
         <div className="sod29-actions">
-          <button className="sod29-action primary" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>✦ שאל את רזיאל על הציר</button>
+          <button className="sod29-action primary" type="button" disabled={shell.razielLocked} onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title })}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל על הציר"}</button>
           <ShareActions type="topic" url={"https://sod1820.co.il" + projection.canonicalPath} title={projection.title} channels={["native","copy"]} />
         </div>
       </div>
@@ -608,7 +608,7 @@ function TopicBody() {
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/world">פתח בעולם</Link>
         {primaryNumbers[0] != null ? <Link className="sod29-action" to={"/2029/number/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
-        <button className="sod29-action" type="button" onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title, intent: "topic_next_step" })}>✦ מה כדאי לבדוק עכשיו?</button>
+        <button className="sod29-action" type="button" disabled={shell.razielLocked} onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title, intent: "topic_next_step" })}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ מה כדאי לבדוק עכשיו?"}</button>
       </div>
     </section>
   </article>;
