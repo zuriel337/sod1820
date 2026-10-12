@@ -1397,3 +1397,5 @@
 .sod29-reading-post>.k29-pcm{width:min(1180px,100%);margin:18px auto;padding:10px 14px;border-radius:12px;gap:6px}
 .sod29-reading-post>.k29-pcm>ul>li{padding:8px 10px;border-radius:10px}
 .sod29-reading-post>.k29-pcm h2{font-size:15px}
+.sod29-reading-post{padding-top:10px}
+.sod29-post-details>summary{gap:8px}
