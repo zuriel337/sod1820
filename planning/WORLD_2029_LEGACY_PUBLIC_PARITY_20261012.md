@@ -2,6 +2,9 @@
 
 Status: prepared on branch; NOT applied to Supabase or deployed.
 
+## Owner clarification — 2026-10-12
+The historic SOD1820 website has NEVER exposed personal research. Treat the historic site as a public-content origin, while new internal research is a separate data domain. Do NOT presume that every private research_objects record belonged to the old site. Restore all historically publicly served content by legacy identifiers and publication provenance without moving internal/private research into the public domain. Legacy public publication is sufficient evidence for public presentation in World 2029; no additional research-approval gate may suppress the legacy content itself. Keep direct personal research/private messages excluded.
+
 ## Authority
 A row/asset demonstrably published on the existing SOD1820 site stays publicly readable in World 2029. This covers posts, galleries, images, topic cards, public gematria and their provenance/source links. A missing World relationship is not a reason to suppress an otherwise published item.
 
