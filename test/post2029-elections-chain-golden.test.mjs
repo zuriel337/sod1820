@@ -13,9 +13,10 @@ const SOURCE = `<section>
 <p style="b">בן דוד = 66</p></section>`;
 const verifiedRows = (phrases) => ({ verified: true, rows: phrases.map((phrase) => ({ phrase, verified: true })) });
 
-test("elections regions put 631 first and keep secondary axes navigable", () => {
-  assert.deepEqual(I.ELECTIONS_REGIONS.map((r) => r.number), [631, 271, 2701, 1820, 26, 66, 77]);
-  assert.equal(I.ELECTIONS_REGIONS[0].hero, true);
+test("elections regions open with יהוה = 26 and the date, then 631, and keep secondary axes navigable", () => {
+  assert.deepEqual(I.ELECTIONS_REGIONS.map((r) => r.number), [26, 271, 2701, 1820, 631, 66, 77]);
+  assert.equal(I.ELECTIONS_REGIONS.find((r) => r.number === 631).hero, true);
+  assert.equal(I.ELECTIONS_REGIONS.find((r) => r.number === 66).label, "שרשר · נעליים · בן דוד = 66");
 });
 
 test("source is preserved; axes tagged; only verified equalities become triggers", () => {
@@ -30,10 +31,10 @@ test("source is preserved; axes tagged; only verified equalities become triggers
   assert.match(none, /data-gem="631"/);
 });
 
-test("the existing primary block moves once; secondary source text and links survive", () => {
+test("reading order stays authored (26 before 631); secondary source text and links survive", () => {
   const source = `<section><h1>הבחירות</h1><p>26</p><p>יהוה = 26</p><p>631</p><p>הבחירות = 631</p><p>נס נתניהו = 631</p><p>66</p><p>בן דוד = 66</p><a href="https://example.com/evidence">מקור</a></section>`;
   const html = I.markElectionsChain(source, verifiedRows(["הבחירות", "נס נתניהו"]));
-  assert.ok(html.indexOf('data-gem="631"') < html.indexOf('data-gem="26"'));
+  assert.ok(html.indexOf('data-gem="26"') < html.indexOf('data-gem="631"'));
   assert.equal((html.match(/data-elections-continuation="true"/g) || []).length, 1);
   assert.equal((html.match(/data-expression="הבחירות"/g) || []).length, 2);
   assert.match(html, /<a href="https:\/\/example.com\/evidence">מקור<\/a>/);
@@ -69,7 +70,7 @@ test("experience reuses existing identities; timeline stays canonical (no new st
 test("page and css wire the elections golden", () => {
   const page = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
   const css = readFileSync(new URL("../src/pages/post2029-reading.css", import.meta.url), "utf8");
-  assert.match(page, /isElectionsMaster\s*\n?\s*\?\s*\[631, 271, 2701, 1820, 26, 66\]/);
+  assert.match(page, /isElectionsMaster\s*\n?\s*\?\s*\[26, 271, 2701, 1820, 631, 66\]/);
   assert.match(page, /<PostTimeline2029 items=\{visibleTimeline\}/);
   assert.match(css, /sharshar-elections-redemption-hints-draft"\] \.sod29-elections-continuation/);
 });

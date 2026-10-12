@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { publicProvenPostSourceUpdate, PROVEN_POST_SOURCE_UPDATES } from "./postSourceUpdates2029.js";
+import { publicProvenPostSourceUpdate, PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, provenUpdateForHash, formatUpdateDate } from "./postSourceUpdates2029.js";
 
 const UPDATED = "2026-10-10T23:19:35.974936+00:00";
 const reviewedPost = (extra = {}) => ({
@@ -15,7 +15,7 @@ const reviewedPost = (extra = {}) => ({
 });
 
 test("only the owner-certified BEFORE→AFTER 5107 section is a public source-update projection", () => {
-  const proof = PROVEN_POST_SOURCE_UPDATES[5107][0];
+  const proof = PROVEN_POST_SOURCE_UPDATES[5107].find((entry) => entry.id === "netanyahu-77-mazal");
   assert.equal(proof.beforeRevision, 183);
   assert.equal(proof.afterRevision, 184);
   const event = publicProvenPostSourceUpdate(reviewedPost());
@@ -56,4 +56,24 @@ test("event is a safe public label / location, never raw post_revisions or priva
     "at", "attribution", "eventKey", "fragmentRef", "kind", "label",
     "revision", "sourceRef", "targetHref", "targetId",
   ].sort());
+});
+
+test("the three 205->206 source units are listed newest-first with the real addition time, Netanyahu keeps its own", () => {
+  const ordered = orderedSourceUpdates([...PROVEN_POST_SOURCE_UPDATES[5107]]);
+  assert.deepEqual(ordered.map((entry) => entry.id), ["sharshar-shoes-66", "sharshar-knesset-source", "sharshar-monthly-help-requests", "netanyahu-77-mazal"]);
+  assert.equal(ordered[0].label, "שרשר · נעליים · בן דוד = 66");
+  assert.equal(ordered[0].updatedAt, "2026-10-12T13:52:58.270789Z");
+  assert.equal(ordered[3].updatedAt, "2026-10-10T23:19:35.974936Z");
+  assert.equal(formatUpdateDate(ordered[0].updatedAt), "12.10.2026");
+  const event = publicProvenPostSourceUpdate(reviewedPost({ modified: "2026-10-12T13:52:58.270789Z" }));
+  assert.equal(event.revision, 206);
+  assert.equal(event.targetHref, "/post/sharshar-elections-redemption-hints-draft#sharshar-shoes-66");
+});
+
+test("native hash resolves only to a proven unit of the same post", () => {
+  assert.equal(provenUpdateForHash(5107, "#sharshar-knesset-source").id, "sharshar-knesset-source");
+  assert.equal(provenUpdateForHash(5107, "#netanyahu-77-mazal").id, "netanyahu-77-mazal");
+  assert.equal(provenUpdateForHash(5107, "#unknown"), null);
+  assert.equal(provenUpdateForHash(5112, "#sharshar-shoes-66"), null);
+  assert.equal(provenUpdateForHash(5107, "#%E0%A4%A"), null);
 });

@@ -12,7 +12,7 @@ import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { provenSourceUpdatesFor } from "../lib/research/postSourceUpdates2029.js";
+import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import "./post2029-reading.css";
@@ -114,11 +114,40 @@ function PostReadingBody() {
     revealReadingAnchor(target);
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    // Exact entry survives refresh/share: the hash names the source unit.
+    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}#${encodeURIComponent(entry.targetId)}`); } catch { /* hash is a convenience */ }
     target.setAttribute("tabindex", "-1");
     target.focus?.({ preventScroll: true });
     target.classList.add("sod29-update-target");
     window.setTimeout(() => target.classList.remove("sod29-update-target"), 2600);
   };
+
+  useEffect(() => {
+    // Native hash entry (refresh / shared link) into a proven source unit: land exactly on it.
+    const entry = state.projection ? provenUpdateForHash(state.projection.post?.id, location.hash) : null;
+    const root = sourceRef.current;
+    const target = entry && root ? root.querySelector(`[id="${entry.targetId}"]`) : null;
+    if (!target) return undefined;
+    let frame = null;
+    let released = false;
+    const land = () => {
+      if (released) return;
+      revealReadingAnchor(target);
+      target.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+    land();
+    target.setAttribute("tabindex", "-1");
+    target.focus?.({ preventScroll: true });
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => {
+      if (frame != null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(land);
+    });
+    observer?.observe(root);
+    const release = () => { released = true; observer?.disconnect(); };
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    for (const name of events) window.addEventListener(name, release, { passive: true, once: true });
+    return () => { release(); if (frame != null) cancelAnimationFrame(frame); for (const name of events) window.removeEventListener(name, release); };
+  }, [state.projection, location.hash]);
 
   useEffect(() => {
     // The hero owns the page h1. An authored h1 inside the source stays in the
@@ -349,7 +378,7 @@ function PostReadingBody() {
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
   const isElectionsMaster = post.slug === "sharshar-elections-redemption-hints-draft";
   const heroNumbers = isElectionsMaster
-    ? [631, 271, 2701, 1820, 26, 66]
+    ? [26, 271, 2701, 1820, 631, 66]
     : isBennettMaster
     ? [631]
     : isFz1073Master
@@ -745,10 +774,20 @@ function PostReadingBody() {
 
     {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
       <span className="sod29-update-strip-kicker">עודכן</span>
-      {sourceUpdates.map((entry) => <button key={entry.id} type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(entry)}>
-        <strong>{entry.label}</strong>
-        <small>{entry.attribution} · <time dateTime={entry.date}>{bilingualDateLabel(entry.date, entry.date)}</time> · גרסה {entry.beforeRevision}→{entry.afterRevision}</small>
-      </button>)}
+      <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
+        <strong>{sourceUpdates[0].label}</strong>
+        <small>{sourceUpdates[0].attribution} · <time dateTime={sourceUpdates[0].updatedAt}>{formatUpdateDate(sourceUpdates[0].updatedAt)}</time></small>
+      </button>
+      {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
+        <summary>עוד {sourceUpdates.length - 1}</summary>
+        <ul>
+          {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
+            <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
+              <span>{entry.label}</span><small><time dateTime={entry.updatedAt}>{formatUpdateDate(entry.updatedAt)}</time></small>
+            </button>
+          </li>)}
+        </ul>
+      </details> : null}
     </aside> : null}
 
     <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />

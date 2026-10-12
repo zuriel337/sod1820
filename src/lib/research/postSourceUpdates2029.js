@@ -5,6 +5,24 @@
 // source HTML, so a removed fragment hides the strip instead of lying.
 export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
   5107: Object.freeze([
+    ...[
+      ["sharshar-shoes-66", "sharshar-shoes-title", "שרשר · נעליים · בן דוד = 66"],
+      ["sharshar-knesset-source", "sharshar-knesset-title", "״הגעתי לכנסת ישראל לשרת את עם ישראל״"],
+      ["sharshar-monthly-help-requests", "sharshar-help-title", "שרשר מספר על אלפי בקשות לעזרה בכל חודש"],
+    ].map(([targetId, titleId, label]) => Object.freeze({
+      id: targetId,
+      sourceSlug: "sharshar-elections-redemption-hints-draft",
+      // Real addition time of the saved source edit (Asia/Jerusalem 2026-10-12 16:52:58), revision 205 -> 206.
+      sourceModifiedAt: "2026-10-12T13:52:58.270789Z",
+      updatedAt: "2026-10-12T13:52:58.270789Z",
+      targetId,
+      titleId,
+      label,
+      date: "2026-10-12",
+      beforeRevision: 205,
+      afterRevision: 206,
+      attribution: "תוספת לפוסט",
+    })),
     Object.freeze({
       id: "netanyahu-77-mazal",
       sourceSlug: "sharshar-elections-redemption-hints-draft",
@@ -22,10 +40,25 @@ export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
   ]),
 });
 
+// Newest real addition first; equal times keep authored order. Pure ordering, no new truth.
+export function orderedSourceUpdates(entries) {
+  return entries
+    .map((entry, index) => ({ entry, index }))
+    .sort((a, b) => Date.parse(b.entry.updatedAt) - Date.parse(a.entry.updatedAt) || a.index - b.index)
+    .map(({ entry }) => entry);
+}
+
 export function provenSourceUpdatesFor(postId, sourceRoot) {
   const entries = PROVEN_POST_SOURCE_UPDATES[Number(postId)] || [];
   if (!sourceRoot) return [];
-  return entries.filter((entry) => sourceRoot.querySelector(`[id="${entry.targetId}"]`));
+  return orderedSourceUpdates(entries.filter((entry) => sourceRoot.querySelector(`[id="${entry.targetId}"]`)));
+}
+
+// Exact source-unit id from a URL hash, only when it names a proven unit of this post.
+export function provenUpdateForHash(postId, hash = "") {
+  let id = "";
+  try { id = decodeURIComponent(String(hash || "").replace(/^#/, "")); } catch { return null; }
+  return (PROVEN_POST_SOURCE_UPDATES[Number(postId)] || []).find((entry) => entry.targetId === id) || null;
 }
 
 /**
@@ -49,7 +82,7 @@ export function publicProvenPostSourceUpdate(row) {
   if (!Number.isFinite(modifiedAt)) return null;
 
   const entries = PROVEN_POST_SOURCE_UPDATES[id] || [];
-  for (const entry of [...entries].sort((a, b) => b.afterRevision - a.afterRevision)) {
+  for (const entry of orderedSourceUpdates([...entries]).sort((a, b) => b.afterRevision - a.afterRevision)) {
     if (entry.sourceSlug !== slug || modifiedAt !== Date.parse(entry.sourceModifiedAt)) continue;
     if (!Number.isSafeInteger(entry.afterRevision) || !Number.isSafeInteger(entry.beforeRevision)) continue;
     if (entry.afterRevision <= entry.beforeRevision || !/^[-a-z0-9]+$/.test(entry.targetId || "")) continue;
@@ -78,4 +111,12 @@ export function publicProvenPostSourceUpdate(row) {
     };
   }
   return null;
+}
+
+// Real addition date, Asia/Jerusalem, dd.mm.yyyy. The date comes from the proven entry, never from "now".
+export function formatUpdateDate(iso) {
+  const time = Date.parse(iso);
+  if (!Number.isFinite(time)) return "";
+  return new Intl.DateTimeFormat("he-IL", { timeZone: "Asia/Jerusalem", day: "2-digit", month: "2-digit", year: "numeric" })
+    .format(new Date(time)).replace(/\//g, ".");
 }

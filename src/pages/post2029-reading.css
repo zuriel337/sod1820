@@ -1399,3 +1399,13 @@
 .sod29-reading-post>.k29-pcm h2{font-size:15px}
 .sod29-reading-post{padding-top:10px}
 .sod29-post-details>summary{gap:8px}
+
+/* Source update strip: newest in one slim row, the rest behind one disclosure (bounded). */
+.sod29-update-strip{flex-wrap:wrap;border-radius:14px;width:min(1180px,100%);margin-inline:auto}
+.sod29-update-strip-more{margin-inline-start:auto;min-width:0}
+.sod29-update-strip-more>summary{display:inline-flex;align-items:center;min-height:44px;padding-inline:10px;cursor:pointer;font-size:.82rem;opacity:.85}
+.sod29-update-strip-more ul{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.sod29-update-strip-more button{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:44px;width:100%;cursor:pointer;font-size:.84rem}
+.sod29-update-strip-more button:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
+.sod29-update-strip-more small{opacity:.7;white-space:nowrap}
+.sod29-reading-source [id]{scroll-margin-top:96px}

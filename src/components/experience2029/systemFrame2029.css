@@ -1221,3 +1221,7 @@
 .sod29-surface-context-chain a,.sod29-surface-context-chain span{display:flex;align-items:center;min-height:44px;font-size:13px;line-height:1.35;color:var(--s29-accent-text);text-decoration:none}
 .sod29-surface-context-chain span{color:var(--s29-ink);font-weight:800}
 .sod29-surface-context-chain em{font-style:normal;color:var(--s29-muted);font-weight:500}
+.sod29-surface-context-chain.is-tree ol ol{margin-block:2px;margin-inline-start:6px}
+.sod29-surface-context-chain.is-tree a{display:grid;gap:0;align-content:center}
+.sod29-surface-context-chain.is-tree a span{min-height:0;font-weight:700;color:var(--s29-accent-text)}
+.sod29-surface-context-chain.is-tree a em{font-size:11px}

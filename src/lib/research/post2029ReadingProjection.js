@@ -469,12 +469,12 @@ const ELECTIONS_EQUALITIES = Object.freeze([
   { phrase: "מזל", value: 77, regionId: "elections-77" },
 ]);
 const ELECTIONS_REGIONS = Object.freeze([
-  { id: "elections-631", heading: "631", label: "631 · הציר המרכזי", primary: "הבחירות = מלך ישראל = נפתלי בנט = 631", signals: ["5 שוויונות", "המשך: פוסט בנט"], number: 631, hero: true, worldLabel: "פתח את 631" },
+  { id: "elections-26", heading: "26", label: "26 · יהוה", primary: "יהוה = 26", signals: ["הכנסת ה־26"], number: 26, worldLabel: "פתח את 26" },
   { id: "elections-271", heading: "271", label: "271 · הריון · חכמה", primary: "הריון = חכמה = 271", signals: ["27.10 → 2710 → 271"], number: 271, worldLabel: "פתח את 271" },
   { id: "elections-2701", heading: "2701", label: "2701 · בראשית א׳, א׳", primary: "בראשית א׳, א׳ = 2701", signals: ["הקשר מקראי"], number: 2701, worldLabel: "פתח את 2701" },
   { id: "elections-1820", heading: "1820", label: "1820 · המספר שמלווה את האתר", primary: "עופר וינטר · מילוי = 1820", signals: ["המספר של SOD1820"], number: 1820, worldLabel: "פתח את 1820" },
-  { id: "elections-26", heading: "26", label: "26 · יהוה", primary: "יהוה = 26", signals: ["הכנסת ה־26"], number: 26, worldLabel: "פתח את 26" },
-  { id: "elections-66", heading: "66", label: "66 · בן דוד", primary: "בן דוד = 66", signals: ["שישים ושש זוגות"], number: 66, worldLabel: "פתח את 66" },
+  { id: "elections-631", heading: "631", label: "631 · הציר המרכזי", primary: "הבחירות = מלך ישראל = נפתלי בנט = 631", signals: ["5 שוויונות", "המשך: פוסט בנט"], number: 631, hero: true, worldLabel: "פתח את 631" },
+  { id: "elections-66", heading: "66", label: "שרשר · נעליים · בן דוד = 66", primary: "בן דוד = 66", signals: ["שישים ושש זוגות"], number: 66, worldLabel: "פתח את 66" },
   { id: "elections-77", heading: "נתניהו בן 77 — מזל ופרשת בראשית", label: "77 · מזל · פרשת בראשית", primary: "מזל = 77", signals: ["יום ההולדת העברי", "מקורות בתוך הפוסט"], number: 77, worldLabel: "פתח את 77" },
 ]);
 
@@ -512,12 +512,7 @@ function markElectionsChain(content = "", verification = null) {
   <b>פתח ←</b>
 </a>`;
   html = html.replace(/(נס נתניהו(?:<\/button>)?\s*=\s*(?:<button[\s\S]*?<\/button>|631)\s*<\/p>)/, `$1${card}`);
-  // The main axis precedes the secondary axes in the reading projection. Move
-  // the existing block once, without copying, dropping or rewriting its text.
-  const primary = html.match(/<p\b[^>]*data-gem="631"[^>]*>\s*631\s*<\/p>[\s\S]*?data-elections-continuation="true"[\s\S]*?<\/a>/);
-  if (primary && /<h1\b[^>]*>[\s\S]*?<\/h1>/.test(html)) {
-    html = html.replace(primary[0], "").replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/, `$1${primary[0]}`);
-  }
+  // Reading order is the authored order: יהוה = 26 and the date first, then 631, then the people units.
   return html.replace(/<section\b/, '<section class="sod29-elections-reading-body"');
 }
 

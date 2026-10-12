@@ -4,6 +4,7 @@ import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
+import { PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, formatUpdateDate } from "../../lib/research/postSourceUpdates2029.js";
 import GoldenProjectorModeLayer2029 from "./GoldenProjectorModeLayer2029.jsx";
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
@@ -66,6 +67,17 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
+  // Event sequence tree: the post (parent) is marked when one of its source units (children) was added.
+  // Entries come from the proven registry and are shown only while the unit still exists in the source.
+  const treePostId = surface === "post" && context?.subject?.type === "post" ? Number(context.subject.id) : null;
+  const treeSlug = String(context?.subject?.href || "").split("#")[0].replace(/^\/post\//, "");
+  const treeSectionKey = context?.dimensions?.activeSectionId || "";
+  const [treeUnits, setTreeUnits] = useState([]);
+  useEffect(() => {
+    if (!Number.isSafeInteger(treePostId) || typeof document === "undefined") { setTreeUnits([]); return; }
+    const entries = PROVEN_POST_SOURCE_UPDATES[treePostId] || [];
+    setTreeUnits(orderedSourceUpdates(entries.filter((entry) => document.getElementById(entry.targetId))));
+  }, [treePostId, treeSectionKey]);
   const chainTrail = surface === "post" && context?.subject?.type === "post" && Array.isArray(context?.dimensions?.bottomTrail)
     ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
     : [];
@@ -224,6 +236,20 @@ export default function SurfaceContextRail2029({
           ariaLabel={mapLabel}
         />
       </div> : null}
+      {restMode && treeUnits.length ? <nav className="sod29-surface-context-chain is-tree" aria-label="רצף האירועים" data-context-event-tree="true">
+        <small>רצף האירועים</small>
+        <ol>
+          <li className="is-parent"><span aria-current="page">הפוסט <em>· עודכן {formatUpdateDate(treeUnits[0].updatedAt)}</em></span>
+            <ol>
+              {treeUnits.map((entry) => <li key={entry.id}>
+                <a href={`/post/${treeSlug}#${encodeURIComponent(entry.targetId)}`} onClick={() => { if (sheet) onNavigate?.(entry); }}>
+                  <span>{entry.label}</span><em>נוסף {formatUpdateDate(entry.updatedAt)}</em>
+                </a>
+              </li>)}
+            </ol>
+          </li>
+        </ol>
+      </nav> : null}
       {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={() => { jumpToDepth(); if (sheet) onNavigate?.(activeSection); }}>
         <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
         <b>{activeSection.label}</b>
