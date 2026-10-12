@@ -13,6 +13,7 @@ import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.js
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
+import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
 
 
 function TemporalTreasures({ item }) {
@@ -305,7 +306,7 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 // Release the adopted Home independently of preview-only tools and disabled telemetry.
-const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
+const HOME_COMPOSED = CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
 
 function HomeBody() {
   const navigate = useNavigate();
@@ -321,7 +322,7 @@ function HomeBody() {
 
   useEffect(() => {
     let live = true;
-    fetchHome2029Projection()
+    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
     return () => { live = false; };
@@ -464,16 +465,17 @@ function HomeBody() {
   if (HOME_COMPOSED) return <HomeComposition2029
     projection={homeState.projection}
     loading={homeState.loading}
+    corePublic={CORE_PUBLIC_LAUNCH_2029}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
-    story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
-    arrivals={<div className="h29-stream">
+    story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
       <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
         items={worldPreview?.arrivals || worldPreview?.items || []}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
-    entry={
+    entry={CORE_PUBLIC_LAUNCH_2029 ? null :
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
         <form className="sod29-command-bar" onSubmit={start}>
@@ -483,7 +485,7 @@ function HomeBody() {
         {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
       </section>
     }
-    continuity={continuity}
+    continuity={CORE_PUBLIC_LAUNCH_2029 ? null : continuity}
     journeyLocked={journeyLocked}
     selectedSlug={context?.subject?.type === "post" ? context.subject.id : null}
     onSelectPost={selectPost}
@@ -555,7 +557,9 @@ function HomeBody() {
 
 export default function Home2029Page() {
   useEffect(() => {
-    applySeo({ title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
+    applySeo(CORE_PUBLIC_LAUNCH_2029
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה והצ׳אט הוותיק באתר החדש של SOD1820.", path: "/2029" }
+      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה והצ׳אט הוותיק." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;
 }

@@ -34,22 +34,17 @@ function titleNumber(title, tags) {
   return null;
 }
 
-function useHomeCompositionData() {
+function useHomeCompositionData({ includeWorld = true } = {}) {
   const [state, setState] = useState({ loading: true, posts: [], ciphers: [], videos: [], dimensionPost: null, notable: [] });
   useEffect(() => {
     let live = true;
-    Promise.allSettled([
-      getLatestPostCards({ limit: 4 }),
-      getTzofonStories({ limit: 6 }),
-      getHomeVideos({ limit: 6 }),
-      getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }),
-      getPostsFromSupabase({ limit: 8 }),
-      fetchExplorerFacetPage("topic", { limit: 4 }),
-    ]).then(async ([posts, ciphers, videos, dimension, tagged, notable]) => {
+    const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
+    getLatestPostCards({ limit: 4 }).then(async (posts) => {
       if (!live) return;
-      const value = (result, fallback) => (result.status === "fulfilled" && result.value) || fallback;
-      // Real update marks come from the post rows themselves (modified more than a day after publishing).
-      const slugs = (value(posts, [])).map((post) => post.slug).filter(Boolean);
+      const cards = Array.isArray(posts) ? posts : [];
+      update({ loading: false, posts: cards });
+      // Enrichment must not hold back the latest post and its hero.
+      const slugs = cards.map((post) => post.slug).filter(Boolean);
       let rowsBySlug = {};
       try {
         if (supabase && slugs.length) {
@@ -57,19 +52,21 @@ function useHomeCompositionData() {
           rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
         }
       } catch (_) { /* the cards simply show no mark */ }
-      if (!live) return;
-      const numberByTitle = new Map((value(tagged, {}).posts || []).map((post) => [clean(post.title), titleNumber(post.title, post.tags)]));
-      setState({
-        loading: false,
-        posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null, update: realUpdate(rowsBySlug[post.slug]), categories: rowsBySlug[post.slug]?.categories || post.categories || [] })),
-        ciphers: value(ciphers, []),
-        videos: value(videos, []),
-        dimensionPost: (value(dimension, {}).posts || [])[0] || null,
-        notable: value(notable, {}).cards || [],
-      });
-    });
+      update({ posts: cards.map((post) => ({
+        ...post,
+        number: titleNumber(post.title, rowsBySlug[post.slug]?.tags),
+        update: realUpdate(rowsBySlug[post.slug]),
+        categories: rowsBySlug[post.slug]?.categories || post.categories || [],
+      })) });
+    }).catch(() => update({ loading: false, posts: [] }));
+    getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
+    if (includeWorld) {
+      getHomeVideos({ limit: 6 }).then((videos) => update({ videos: videos || [] })).catch(() => {});
+      getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }).then((result) => update({ dimensionPost: result?.posts?.[0] || null })).catch(() => {});
+      fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [] })).catch(() => {});
+    }
     return () => { live = false; };
-  }, []);
+  }, [includeWorld]);
   return state;
 }
 
@@ -94,9 +91,9 @@ function Section({ title, link, label, children, className = "" }) {
 
 export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
-  selectedSlug, onSelectPost, journeyLocked = false,
+  selectedSlug, onSelectPost, journeyLocked = false, corePublic = false,
 }) {
-  const data = useHomeCompositionData();
+  const data = useHomeCompositionData({ includeWorld: !corePublic });
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
@@ -105,7 +102,7 @@ export default function HomeComposition2029({
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
   return <div className="h29" data-experience-capability="home-composition">
-    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} /> : <section className="h29-hero is-loading" aria-busy="true"><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>טוען את מה שחי עכשיו…</h1></div></section>)}
+    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
       <div className="h29-updates">
@@ -124,10 +121,11 @@ export default function HomeComposition2029({
           </article>;
         })}
         {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}
+        {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
       </div>
     </Section>
 
-    {data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
+    {!corePublic && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
       <div className="h29-notable">
         {data.notable.map((card, index) => {
@@ -159,7 +157,7 @@ export default function HomeComposition2029({
             {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
           </div>
         </div>
-        <div className="h29-strip k29-rv">
+        {!corePublic ? <div className="h29-strip k29-rv">
           <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><a href="/archive">כל הסרטים ←</a></div>
           <div className="h29-strip-row">
             {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? `/${video.slug}` : "/archive"}>
@@ -168,13 +166,13 @@ export default function HomeComposition2029({
             </a>)}
             {!data.loading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
           </div>
-        </div>
+        </div> : null}
       </div>
     </Section>
 
     {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
 
-    <Section label="מוקדי זהות">
+    {!corePublic ? <Section label="מוקדי זהות">
       <div className="h29-anchors">
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
@@ -183,14 +181,15 @@ export default function HomeComposition2029({
         <a className="h29-anchor k29-rv" href="/or-geula"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>אור הגאולה</b><small>רמזי הגאולה לאורך השנים</small></span></a>
       </div>
-    </Section>
+    </Section> : null}
 
     <Section label="כלים וכניסות">
       <div className="h29-portions">
         {calculator}
-        {now ? <Link className="h29-portion k29-rv" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
+        {!corePublic && now ? <Link className="h29-portion k29-rv" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
           <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
-        <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>
+        {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />הצ׳אט הוותיק</span><small>ממשיכים את השיחה הקיימת</small></a>
+          : <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>}
         {journeyLocked
           ? <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-life-journey="locked"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מסע החיים · נעול</span><small>ייפתח לאחר השלמת ההגדרה</small></div>
           : <Link className="h29-portion k29-rv" to="/2029/journey" data-home-life-journey="open"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>}
@@ -203,7 +202,7 @@ export default function HomeComposition2029({
 
     <section className="h29-quiet" aria-label="דופק ומצב בנייה">
       <span>{pulse?.corpusTotal ? `${Number(pulse.corpusTotal).toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
-      <a href="/map">מה כבר חי ומה בדרך ←</a>
+      {!corePublic ? <a href="/map">מה כבר חי ומה בדרך ←</a> : null}
     </section>
   </div>;
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { CORE_PUBLIC_LAUNCH_2029 } from "./lib/publicLaunch2029.js";
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
@@ -214,6 +215,7 @@ function Product2029DocumentHandoff() {
 // ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
 function HomeRoute() {
   const stream = useStream();
+  if (CORE_PUBLIC_LAUNCH_2029) return <Navigate to="/2029" replace />;
   return stream === "reality" ? <HomeReality /> : <HomeNewPage />;
 }
 
@@ -282,8 +284,8 @@ export default function App() {
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
           {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
-          <Route path="/2029" element={<Home2029Page />} />
-          <Route path="/world" element={<World2029Page />} />
+          <Route path="/2029" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <Home2029Page />} />
+          <Route path="/world" element={<Locked flag="lock_world" requireFlag><World2029Page /></Locked>} />
           <Route path="/books" element={<Product2029DocumentHandoff />} />
           <Route path="/books/:slug" element={<Product2029DocumentHandoff />} />
           <Route path="/book" element={<Product2029DocumentHandoff />} />
@@ -394,7 +396,7 @@ export default function App() {
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
           <Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />
-          <Route path="/topic/:slug" element={<TopicPage />} />
+          <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag><TopicPage /></Locked>} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
           {/* 🔒 lock_forum: הפורום בבנייה — נעול לכולם חוץ מאדמין עד להשקה (mode='all') */}

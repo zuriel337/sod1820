@@ -20,6 +20,7 @@ import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildExactReturnPatch } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useFeatureState } from "../MaintenanceLock.jsx";
+import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { makeEntity } from "../../lib/research/entity.js";
@@ -119,6 +120,21 @@ const DIRECT_NAV = [
   { label: "דף המספר", icon: "123", action: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
+];
+
+const CORE_HOME_NAV = [
+  { to: "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: "/community/chat", label: "הצ׳אט הוותיק", icon: "◉" },
+  { to: "/world", label: "העולם", icon: "◌" },
+  { to: "/heichal", label: "היכל", icon: "◇" },
+  { label: "אזור משתמשים", icon: "◎", status: "נעול" },
+];
+
+const CORE_DIRECT_NAV = [
+  { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
+  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
 const FOCUSABLE = [
@@ -1434,7 +1450,9 @@ export default function SystemFrame2029({
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
+  const corePublicViewer = CORE_PUBLIC_LAUNCH_2029 && !isAdmin;
+  const worldFeature = useFeatureState("lock_world", { requireFlag: true });
   const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
@@ -1443,14 +1461,15 @@ export default function SystemFrame2029({
   const razielLocked = razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
-  const homeNav = HOME_NAV.map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item);
-  const directNav = DIRECT_NAV.map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item);
+  const worldLocked = worldFeature.loading || worldFeature.blocked;
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.to === "/world" ? { ...item, locked: worldLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
   // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
-  const feed = useSystemFeed2029({ enabled: surface !== "control" });
+  const feed = useSystemFeed2029({ enabled: surface !== "control" && !corePublicViewer });
   const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
@@ -1963,7 +1982,7 @@ export default function SystemFrame2029({
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
-  const companionActive = companionWide && surface !== "control";
+  const companionActive = companionWide && surface !== "control" && !corePublicViewer;
   const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
@@ -2006,7 +2025,7 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם">{corePublicViewer ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState> : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
@@ -2021,6 +2040,7 @@ export default function SystemFrame2029({
       locale={locale}
       onDone={closeTransient}
     /></PanelShell>;
+    if (corePublicViewer) return <PanelShell {...common} icon="◎" kicker="אישי" title="אזור משתמשים · נעול"><FrameState kind="gated" title="אזור המשתמשים בבנייה">האזור ייפתח לאחר השלמת ההגדרה והעברת הצ׳אט הישן.</FrameState><Link to="/login" onClick={closeTransient}>כניסת מנהל ←</Link></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}

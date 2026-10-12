@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "destination": "/2029",
+      "permanent": false
+    },
+    {
       "source": "/heichal.html",
       "destination": "/heichal",
       "permanent": false

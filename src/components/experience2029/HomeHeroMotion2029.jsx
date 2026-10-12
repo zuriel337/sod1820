@@ -28,7 +28,7 @@ const readSeen = () => { try { return JSON.parse(storage("localStorage")?.getIte
 const writeSeen = (seen) => { try { storage("localStorage")?.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (_) { /* optional */ } };
 
 
-function useHeroData(lead) {
+function useHeroData(lead, includeWorld) {
   const [state, setState] = useState({ row: null, cards: [], loaded: false });
   useEffect(() => {
     if (!lead?.slug || !supabase) { setState({ row: null, cards: [], loaded: true }); return undefined; }
@@ -39,7 +39,7 @@ function useHeroData(lead) {
         const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories,source,home_hidden").eq("slug", lead.slug).limit(1);
         row = data?.[0] || null;
         const numbers = postNumbers(row?.tags);
-        if (numbers.length) {
+        if (includeWorld && numbers.length) {
           const result = await supabase.from("topic_cards_public").select(TOPIC_FIELDS).overlaps("numbers", numbers)
             .order("meter_score", { ascending: false, nullsFirst: false }).limit(3);
           cards = (result.data || []).map((card) => ({ id: String(card.id), slug: card.slug, label: card.title, numbers: card.numbers || [],
@@ -50,12 +50,12 @@ function useHeroData(lead) {
       if (live) setState({ row, cards, loaded: true });
     })();
     return () => { live = false; };
-  }, [lead?.slug]);
+  }, [lead?.slug, includeWorld]);
   return state;
 }
 
-export default function HomeHeroMotion2029({ lead, href }) {
-  const data = useHeroData(lead);
+export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) {
+  const data = useHeroData(lead, includeWorld);
   const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const previewTools = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   const demo = previewTools && params.get("pulse") === "demo";
@@ -109,13 +109,13 @@ export default function HomeHeroMotion2029({ lead, href }) {
 
       <div className="h29-actions k29-in" style={{ "--i": 4 }}>
         <Link className="h29-btn is-primary" to={href}>לקריאה ←</Link>
-        <Link className="h29-btn" to="/world">לעולם</Link>
-        <button type="button" className="h29-btn h29-hero-more" aria-expanded={open} aria-controls="h29-hero-detail" onClick={openDetail}>
+        {includeWorld ? <Link className="h29-btn" to="/world">לעולם</Link> : null}
+        {includeWorld ? <button type="button" className="h29-btn h29-hero-more" aria-expanded={open} aria-controls="h29-hero-detail" onClick={openDetail}>
           {open ? "סגירת הפירוט" : "פירוט החיבורים והמקורות"}
-        </button>
+        </button> : null}
       </div>
 
-      {open ? <div id="h29-hero-detail" className="h29-hero-detail" role="region" aria-label="פירוט החיבורים והמקורות">
+      {includeWorld && open ? <div id="h29-hero-detail" className="h29-hero-detail" role="region" aria-label="פירוט החיבורים והמקורות">
         <h2>חיבורים</h2>
         {data.cards.length ? <ul>{data.cards.map((card) => <li key={card.id}>
           <Link to={`/topic/${encodeURIComponent(card.slug)}`}>{clean(card.label)}</Link>

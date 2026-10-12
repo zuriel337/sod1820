@@ -106,6 +106,7 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
+              <Route path="/" element={<Navigate to="/2029" replace />} />
               <Route path="/2029" element={<Home2029Page />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
@@ -114,8 +115,8 @@ export default function App2029() {
               {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
               <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
-              <Route path="/world" element={<World2029Page />} />
-              <Route path="/topic/:slug" element={<Topic2029Page />} />
+              <Route path="/world" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><World2029Page /></Locked>} />
+              <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
@@ -127,7 +128,7 @@ export default function App2029() {
               <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
-              <Route path="/researcher/:slug" element={<Researcher2029Page />} />
+              <Route path="/researcher/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Researcher2029Page /></Locked>} />
               <Route path="/2029/number/:value" element={<Number2029Page />} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />

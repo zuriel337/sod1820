@@ -347,9 +347,10 @@ async function fetchTemporalTreasures(catalog) {
   return out.slice(0, 3);
 }
 
-export async function fetchHome2029Projection() {
+export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
   const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
-  const worldPreviewPromise = fetchHomeWorldPreview2029().catch(() => null);
+  const worldPreviewPromise = includeWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
+  if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
   if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
