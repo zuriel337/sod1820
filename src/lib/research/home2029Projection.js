@@ -3,6 +3,7 @@ import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
+import { fetchNumberRecordHistory2029 } from "./worldSourceDepth.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -163,10 +164,12 @@ export function projectHomeWorldPreviewItem(item) {
 }
 
 async function fetchHomeWorldPreview2029() {
+  const numberHistoryPromise = fetchNumberRecordHistory2029().catch(() => ({ items: [], state: "unavailable", hasMore: false, nextBefore: null }));
   const contributors = await fetchWorldLandingContributorProjection().catch(() => null);
   const publicPeople = Array.isArray(contributors?.people) ? contributors.people : [];
   const discovery = await fetchWorldDiscoveryStream({ limit: 8, publicPeople });
   return {
+    numberHistory: await numberHistoryPromise,
     people: publicPeople.slice(0, 4).map((person) => ({
       id: person.id,
       slug: person.slug,

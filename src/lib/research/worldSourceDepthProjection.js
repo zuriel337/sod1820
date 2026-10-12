@@ -103,3 +103,21 @@ export function buildPublicNumberHighlights(topics = [], { now = Date.now(), lim
     .slice(0, limit)
     .map((row) => ({ ...row, href: `/2029/number/${row.value}`, basis: "public_topic_membership", windowDays: 7 }));
 }
+
+// Number registry history is separate from opening history and from public content
+// updates. created_at proves a record creation, not a first publication or discovery.
+export function projectNumberRecordHistory(rows = []) {
+  const seen = new Set();
+  return rows.flatMap(row => {
+    const label = clean(row?.label);
+    const value = /^\d+$/.test(label) ? Number(label) : NaN;
+    const time = Date.parse(row?.created_at || "");
+    if (!row?.id || row.is_active === false || !Number.isSafeInteger(value) || value < 0
+      || !Number.isFinite(time) || seen.has(String(row.id))) return [];
+    seen.add(String(row.id));
+    return [{ id: String(row.id), value, at: new Date(time).toISOString(),
+      href: `/2029/number/${value}`, sourceRef: `nodes:${row.id}`,
+      kind: "number_record_created", timestampBasis: "nodes.created_at",
+      firstPublicationVerified: false }];
+  }).sort((a, b) => Date.parse(b.at) - Date.parse(a.at) || a.id.localeCompare(b.id));
+}

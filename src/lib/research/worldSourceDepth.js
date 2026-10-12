@@ -1,5 +1,5 @@
 import { supabase } from "../supabase.js";
-import { buildSourceDepth } from "./worldSourceDepthProjection.js";
+import { buildSourceDepth, projectNumberRecordHistory } from "./worldSourceDepthProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE = 1000;
@@ -87,6 +87,34 @@ export function fetchWorldSourceDepth() {
 }
 
 export const SOURCE_PAGE_SIZE = 12;
+
+// Same public Number owner for Home, World and the number region; cursor history,
+// not a new feed/store. No raw telemetry or personal navigation is read here.
+export async function fetchNumberRecordHistory2029({ before = null, limit = 12 } = {}) {
+  const cap = Math.max(1, Math.min(Math.trunc(Number(limit) || 12), 24));
+  if (!supabase) return { items: [], state: "unavailable", hasMore: false, nextBefore: null };
+  let query = supabase.from("nodes").select("id,label,created_at,is_active")
+    .eq("type", "number").eq("is_active", true)
+    .order("created_at", { ascending: false }).order("id", { ascending: true });
+  if (before) {
+    // Timestamp ties are common on historic imports; the node ID closes the cursor.
+    if (!Number.isFinite(Date.parse(before.at)) || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(before.at || "")
+      || !/^[0-9a-f-]{36}$/i.test(before.id || "")) {
+      throw new Error("INVALID_NUMBER_HISTORY_CURSOR");
+    }
+    query = query.or(`and(or(metadata->>space.is.null,metadata->>space.eq.core),or(created_at.lt.${before.at},and(created_at.eq.${before.at},id.gt.${before.id})))`);
+  } else {
+    query = query.or("metadata->>space.is.null,metadata->>space.eq.core");
+  }
+  const { data, error } = await query.limit(cap + 1);
+  if (error) throw error;
+  const raw = data || [];
+  const page = raw.slice(0, cap);
+  const last = page.at(-1);
+  return { items: projectNumberRecordHistory(page), state: "ready",
+    hasMore: raw.length > cap,
+    nextBefore: raw.length > cap && last ? { at: last.created_at, id: last.id } : null };
+}
 
 // Genuine server-side pagination of public source works for ONE category (existing posts reader,
 // same anon-readable columns the rest of World uses). Returns {rows, hasMore}.

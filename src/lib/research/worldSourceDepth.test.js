@@ -1,7 +1,22 @@
 // node --test src/lib/research/worldSourceDepth.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildCategoryCounts, buildSourceDepth, buildPublicNumberHighlights } from "./worldSourceDepthProjection.js";
+import { buildCategoryCounts, buildSourceDepth, buildPublicNumberHighlights, projectNumberRecordHistory } from "./worldSourceDepthProjection.js";
+
+test("number record history preserves exact identities and timestamps, without claiming discovery/publication", () => {
+  const row = { id: 'number-1', label: '5844', created_at: '2026-09-30T23:22:21Z', is_active: true };
+  const items = projectNumberRecordHistory([row, row,
+    { ...row, id: 'invalid', label: 'אריאל בן משה' },
+    { ...row, id: 'inactive', is_active: false },
+    { ...row, id: 'bad-time', created_at: null },
+  ]);
+  assert.equal(items.length, 1);
+  assert.equal(items[0].href, '/2029/number/5844');
+  assert.equal(items[0].sourceRef, 'nodes:number-1');
+  assert.equal(items[0].at, '2026-09-30T23:22:21.000Z');
+  assert.equal(items[0].firstPublicationVerified, false);
+  assert.equal(items[0].kind, 'number_record_created');
+});
 
 test("number discovery counts distinct public topics and recent approvals, not repeated representations", () => {
   const now = Date.parse("2026-10-12T15:00:00Z");
