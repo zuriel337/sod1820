@@ -64,6 +64,9 @@ const STATIC = {
     card: { w: 'הצופן התנ"כי', sub: 'דילוגי אותיות · AI', cap: 'מה חבוי בתורה?' } },
   '/codes': { title: "ספריית הצפנים — כל דילוגי-האותיות · " + SITE_NAME, desc: "כל הצפנים שנחקרו ואומתו בסוד 1820 — דילוגי אותיות (ELS) עם המונח, הדילוג והממצאים. כל צופן בעמוד משלו. עדות — לא ניבוי.",
     card: { w: 'ספריית הצפנים', sub: 'דילוגי אותיות · ELS', cap: 'כל הצפנים שנחקרו ואומתו' } },
+  '/codes/מחקר': { title: "תיקיית המחקר — צירים ארוכים (ELS) בתנ״ך · " + SITE_NAME,
+    desc: "אוסף דילוגי-אותיות ארוכים שנמצאו בכל התנ״ך — עד 9 אותיות, כולל «משיח בן דוד». עדות — לא ניבוי.",
+    card: { w: 'תיקיית המחקר', sub: 'צירים ארוכים · ELS', cap: 'עדות — לא ניבוי', sig: 'els' } },
   '/post': { title: "פוסטים אחרונים · " + SITE_NAME, desc: "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון.",
     card: { w: 'פוסטים', sub: 'החדשות והרמזים האחרונים', cap: 'מה מתגלה עכשיו?' } },
   '/timeline': { title: "ציר ההתגלות · " + SITE_NAME, desc: "ציר הזמן של אירועי הגאולה — כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים.",
@@ -185,6 +188,12 @@ export default async function handler(req, res) {
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  // This public collection shares the /codes prefix with cipher slugs. Resolve
+  // its encoded Hebrew address before the individual-record metadata branch.
+  let researchFolderPath = false;
+  try { researchFolderPath = decodeURIComponent(key) === '/codes/מחקר'; } catch { /* malformed URL remains unmatched */ }
+  const staticKey = researchFolderPath ? '/codes/מחקר' : key;
+  if (researchFolderPath) canonical = SITE + '/codes/מחקר';
   // /היכל is an addressable legacy alias; the hydrated 2029 page already
   // declares /heichal as canonical. Server/crawler metadata must agree.
   if (key === '/היכל') canonical = SITE + '/heichal';
@@ -358,10 +367,10 @@ export default async function handler(req, res) {
     } else {
       robots = 'noindex, follow';
     }
-  } else if (STATIC[key]) {
-    title = STATIC[key].title;
-    desc = STATIC[key].desc;
-    if (STATIC[key].card) image = cardUrl(STATIC[key].card);
+  } else if (STATIC[staticKey]) {
+    title = STATIC[staticKey].title;
+    desc = STATIC[staticKey].desc;
+    if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);
 
     // site_flags_lock_law v3: public metadata is a projection of the same live
     // capability state. ELS is the current native 2029 flag-gated route.

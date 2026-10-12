@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import handler from "../api/og.js";
+import sitemapHandler from "../api/sitemap.js";
 
 function makeRes() {
   return {
@@ -213,6 +214,29 @@ assert.doesNotMatch(elsLocked, /מחקר דילוגי אותיות מעל מנו
 const elsFailClosed = await render("/els", async () => { throw new Error("flag unavailable"); });
 assert.match(elsFailClosed, /ELS סגור זמנית לציבור לצורך בנייה מחדש/);
 assert.doesNotMatch(elsFailClosed, /מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד/);
+
+// The public research collection is a real page, never a cipher slug. Both URL
+// spellings must share its own metadata and canonical without a record lookup.
+for (const path of ["/codes/מחקר", `/codes/${encodeURIComponent("מחקר")}`]) {
+  const researchFolder = await renderResponse(path, async () => {
+    throw new Error("research collection metadata must not fetch a cipher record");
+  }, { crawler: "search" });
+  assert.match(researchFolder.body, /<title>תיקיית המחקר — צירים ארוכים \(ELS\) בתנ״ך/);
+  assert.match(researchFolder.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/codes\/מחקר"\/>/);
+  assert.match(researchFolder.body, /og:type" content="website"/);
+  assert.equal(researchFolder.headers.get("x-robots-tag"), "index, follow");
+}
+
+const previousSitemapFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async () => ({ ok: true, json: async () => [] });
+  const sitemap = makeRes();
+  await sitemapHandler({}, sitemap);
+  assert.equal(sitemap.statusCode, 200);
+  assert.match(sitemap.body, new RegExp(`<loc>https://sod1820\\.co\\.il/codes/${encodeURIComponent("מחקר")}</loc>`));
+} finally {
+  globalThis.fetch = previousSitemapFetch;
+}
 
 const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
 const uaRules = vercel.rewrites.filter((r) => Array.isArray(r.has) && r.has.some((h) => h.key === "user-agent"));
