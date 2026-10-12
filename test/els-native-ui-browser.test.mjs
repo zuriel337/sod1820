@@ -622,8 +622,16 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
     const position=await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position);assert.equal(position,'relative');
     const bounds=await panel.boundingBox(),bar=await dock.boundingBox();assert.ok(bounds.y+bounds.height<bar.y,'inline tools clear the one dock');
    }
-   await orb().click();await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
-   assert.equal(await page.getByRole('dialog').count(),1);
+   await orb().click();
+   if(width<981){
+    await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
+    assert.equal(await page.getByRole('dialog').count(),1);
+   }else{
+    const raziel=page.locator('.sod29-companion-raziel');
+    await raziel.waitFor({state:'visible'});
+    await page.waitForFunction(()=>document.querySelector('.sod29-companion-raziel input')===document.activeElement);
+    assert.equal(await page.getByRole('dialog').count(),0,'desktop Raziel uses the existing companion without a second dialog');
+   }
    assert.ok(await dock.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),'Raziel keeps the dock reachable');
    await dock.getByRole('button',{name:'שמירה',exact:true}).click();
    assert.equal(await page.getByRole('dialog').count(),0,'a native action dismisses the shared transient');
@@ -644,7 +652,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
    assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
-   assert.equal(await dock.getByRole('button',{name:'האזור האישי שלי',exact:true}).count(),1);
+   assert.equal(await dock.getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
   },{fullFrame:true,leavesMatrix:true,mobile:width<981});
  });
 
