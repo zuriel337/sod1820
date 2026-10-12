@@ -1394,6 +1394,27 @@ assert.equal(numberLivingWorld.includes("onMethodSelect"), false, "method select
 assert.equal(number2029Page.includes("METHOD LENS"), false, "legacy lower Method Lens duplication must stay retired");
 assert.equal(number2029Page.includes("LIVE EXPRESSIONS"), false, "legacy lower calculator-era expression duplication must stay retired");
 
+// Preserve the exact canonical verse body through the same World projection that renders
+// "העיקר סביב..." (836 is a real five-verse number-journey fixture).
+const verse836 = [
+  ["במדבר 33:11", "ויסעו מיםסוף ויחנו במדברסין"],
+  ["ירמיהו 29:30", "ויהי דבר יהוה אל ירמיהו לאמר"],
+  ["ירמיהו 32:26", "ויהי דבר יהוה אל ירמיהו לאמר"],
+  ["ירמיהו 33:23", "ויהי דבר יהוה אל ירמיהו לאמר"],
+  ["ירמיהו 35:12", "ויהי דבר יהוה אל ירמיהו לאמר"],
+];
+const verse836Projection = buildWorldContextualProminence({
+  identity: { nodeId: "836", type: "number", label: "836" },
+  graph: { relations: [] }, research: { rows: [], findings: [] }, topics: { rows: [], findings: [] },
+  sources: verse836.map(([ref, text]) => ({ type: "verse", ref, text, label: `${ref} — ${text}`, value: 836 })),
+}, {}, { limit: 7 });
+assert.equal(verse836Projection.items.length, 5, "836 must retain all five canonical verse sources");
+for (const [ref, text] of verse836) {
+  const verseCard = verse836Projection.items.find((item) => item.sourceRef === ref);
+  assert.equal(verseCard?.summary, text, `World must show the full verse body for ${ref}`);
+}
+assert.match(world, /item\.summary \? <p>\{item\.summary\}<\/p>/, "World must render preserved verse text under the source reference");
+
 console.log("2029 native World surface acceptance: PASS");
 
 
