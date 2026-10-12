@@ -4,7 +4,9 @@ import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
-import { PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, formatUpdateDate } from "../../lib/research/postSourceUpdates2029.js";
+import { PROVEN_POST_SOURCE_UPDATES, formatUpdateDate } from "../../lib/research/postSourceUpdates2029.js";
+import { buildPostTree } from "../../lib/research/postLineage2029.js";
+import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import GoldenProjectorModeLayer2029 from "./GoldenProjectorModeLayer2029.jsx";
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
@@ -72,12 +74,13 @@ export default function SurfaceContextRail2029({
   const treePostId = surface === "post" && context?.subject?.type === "post" ? Number(context.subject.id) : null;
   const treeSlug = String(context?.subject?.href || "").split("#")[0].replace(/^\/post\//, "");
   const treeSectionKey = context?.dimensions?.activeSectionId || "";
-  const [treeUnits, setTreeUnits] = useState([]);
+  const [presentUnitIds, setPresentUnitIds] = useState(null);
   useEffect(() => {
-    if (!Number.isSafeInteger(treePostId) || typeof document === "undefined") { setTreeUnits([]); return; }
+    if (!Number.isSafeInteger(treePostId) || typeof document === "undefined") { setPresentUnitIds(null); return; }
     const entries = PROVEN_POST_SOURCE_UPDATES[treePostId] || [];
-    setTreeUnits(orderedSourceUpdates(entries.filter((entry) => document.getElementById(entry.targetId))));
+    setPresentUnitIds(new Set(entries.filter((entry) => document.getElementById(entry.targetId)).map((entry) => entry.targetId)));
   }, [treePostId, treeSectionKey]);
+  const postTree = Number.isSafeInteger(treePostId) ? buildPostTree(treePostId, presentUnitIds || new Set()) : null;
   const chainTrail = surface === "post" && context?.subject?.type === "post" && Array.isArray(context?.dimensions?.bottomTrail)
     ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
     : [];
@@ -226,6 +229,38 @@ export default function SurfaceContextRail2029({
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
+      {restMode && postTree ? <nav className="sod29-event-tree" aria-label="רצף האירועים" data-context-event-tree="true">
+        <header className="sod29-event-tree-head">
+          <img src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" aria-hidden="true" />
+          <strong>רצף האירועים</strong>
+        </header>
+        {postTree.origins.length ? <ul className="sod29-event-tree-origins" aria-label="מאיפה זה מגיע">
+          {postTree.origins.map((origin) => <li key={origin.id}><small>מגיע מ</small><a href={origin.href} onClick={() => { if (sheet) onNavigate?.(origin); }}>{origin.label}</a><em>{formatUpdateDate(origin.at)} · {origin.note}</em></li>)}
+        </ul> : null}
+        <ol className="sod29-event-tree-list">
+          {postTree.parent ? <li className="is-parent">
+            <a href={postTree.parent.href} onClick={() => { if (sheet) onNavigate?.(postTree.parent); }}>{postTree.parent.label}</a>
+            {postTree.parent.changedAt ? <b className="sod29-event-tree-mark">שינוי בעץ · {formatUpdateDate(postTree.parent.changedAt)}</b> : null}
+            <em>{postTree.parent.via}</em>
+          </li> : null}
+          <li className={`is-here${postTree.parent ? " is-child" : ""}`} aria-current="page">
+            <span>{postTree.current.label} <em>· אתה כאן</em></span>
+            {postTree.current.changedAt ? <b className="sod29-event-tree-mark">שינוי בעץ · {formatUpdateDate(postTree.current.changedAt)}</b> : null}
+            {postTree.units.length || postTree.children.length ? <ol>
+              {postTree.units.map((entry) => <li key={entry.id} className="is-unit">
+                <a href={`/post/${treeSlug}#${encodeURIComponent(entry.targetId)}`} onClick={() => { if (sheet) onNavigate?.(entry); }}>{entry.label}</a>
+                <em>נוסף {formatUpdateDate(entry.updatedAt)}</em>
+              </li>)}
+              {postTree.children.map((child) => <li key={child.id} className="is-post">
+                <a href={child.href} onClick={() => { if (sheet) onNavigate?.(child); }}>{child.label}</a>
+                {child.changedAt ? <b className="sod29-event-tree-mark">שינוי בעץ · {formatUpdateDate(child.changedAt)}</b> : null}
+                <em>{child.note}</em>
+              </li>)}
+            </ol> : null}
+          </li>
+        </ol>
+        <small className="sod29-event-tree-note">סימון בעץ בלבד. הוא לא מופיע כעדכון בשאר המערכת.</small>
+      </nav> : null}
       {sections.length ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>
         <SurfaceProgressSpine2029
@@ -236,20 +271,6 @@ export default function SurfaceContextRail2029({
           ariaLabel={mapLabel}
         />
       </div> : null}
-      {restMode && treeUnits.length ? <nav className="sod29-surface-context-chain is-tree" aria-label="רצף האירועים" data-context-event-tree="true">
-        <small>רצף האירועים</small>
-        <ol>
-          <li className="is-parent"><span aria-current="page">הפוסט <em>· עודכן {formatUpdateDate(treeUnits[0].updatedAt)}</em></span>
-            <ol>
-              {treeUnits.map((entry) => <li key={entry.id}>
-                <a href={`/post/${treeSlug}#${encodeURIComponent(entry.targetId)}`} onClick={() => { if (sheet) onNavigate?.(entry); }}>
-                  <span>{entry.label}</span><em>נוסף {formatUpdateDate(entry.updatedAt)}</em>
-                </a>
-              </li>)}
-            </ol>
-          </li>
-        </ol>
-      </nav> : null}
       {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={() => { jumpToDepth(); if (sheet) onNavigate?.(activeSection); }}>
         <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
         <b>{activeSection.label}</b>

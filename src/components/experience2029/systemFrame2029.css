@@ -1225,3 +1225,20 @@
 .sod29-surface-context-chain.is-tree a{display:grid;gap:0;align-content:center}
 .sod29-surface-context-chain.is-tree a span{min-height:0;font-weight:700;color:var(--s29-accent-text)}
 .sod29-surface-context-chain.is-tree a em{font-size:11px}
+/* רצף האירועים — fixed first block of the Post context rail (logo + tree). Tree marks are NOT feed updates. */
+.sod29-event-tree{position:sticky;top:0;z-index:2;display:grid;gap:6px;padding:8px 10px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);box-shadow:0 6px 18px color-mix(in srgb,var(--s29-page) 30%,transparent)}
+.sod29-event-tree-head{display:flex;align-items:center;gap:8px;min-height:32px}
+.sod29-event-tree-head img{height:28px;width:auto;max-width:56px;object-fit:contain}
+.sod29-event-tree-head strong{font-size:14px;color:var(--s29-ink)}
+.sod29-event-tree-origins{margin:0;padding:0;list-style:none;display:grid;gap:1px;font-size:13px}
+.sod29-event-tree-origins small,.sod29-event-tree em,.sod29-event-tree-note{color:var(--s29-muted);font-size:12px;font-style:normal}
+.sod29-event-tree a{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);font-size:13px;font-weight:700;text-decoration:none}
+.sod29-event-tree-list,.sod29-event-tree-list ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.sod29-event-tree-list ol{margin-inline-start:12px;padding-inline-start:10px;border-inline-start:1px solid var(--s29-line-strong)}
+.sod29-event-tree-list li{display:grid;gap:0;min-width:0}
+.sod29-event-tree-list .is-here>span{font-size:13px;font-weight:850;color:var(--s29-ink)}
+.sod29-event-tree-list .is-child{margin-inline-start:12px;padding-inline-start:10px;border-inline-start:1px solid var(--s29-line-strong)}
+.sod29-event-tree-mark{justify-self:start;padding:0 8px;border:1px solid var(--s29-line-strong);border-radius:999px;font-size:11px;font-weight:700;color:var(--s29-muted);background:transparent}
+.sod29-event-tree-note{line-height:1.4}
+.sod29-event-tree-origins li{display:grid;gap:0;min-width:0}
+.sod29-event-tree-origins a{min-height:36px}
