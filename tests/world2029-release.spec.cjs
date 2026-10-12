@@ -280,10 +280,14 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
-  await expect(page.locator('[data-experience-surface="number"]').getByRole('button', { name: /היכל/ })).toHaveCount(0);
+  const heichalAction = numberPage.locator('.sod29-number-v10-stage-actions').getByRole('button', { name: /חקור בהיכל/ });
+  await expect(heichalAction).toBeVisible();
+  await expect(heichalAction).toBeEnabled();
   await expect(page.locator('a[href="/heichal"], a[href="/היכל"]')).toHaveCount(1);
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/expression-focus-chinam-98-390.png', fullPage: true });
+  await heichalAction.click();
+  await expect(page).toHaveURL(`${BASE}/heichal`, { timeout: 20_000 });
 });
 
 test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
