@@ -64,6 +64,9 @@ const STATIC = {
     card: { w: 'הצופן התנ"כי', sub: 'דילוגי אותיות · AI', cap: 'מה חבוי בתורה?' } },
   '/codes': { title: "ספריית הצפנים — כל דילוגי-האותיות · " + SITE_NAME, desc: "כל הצפנים שנחקרו ואומתו בסוד 1820 — דילוגי אותיות (ELS) עם המונח, הדילוג והממצאים. כל צופן בעמוד משלו. עדות — לא ניבוי.",
     card: { w: 'ספריית הצפנים', sub: 'דילוגי אותיות · ELS', cap: 'כל הצפנים שנחקרו ואומתו' } },
+  '/codes/מחקר': { title: "תיקיית המחקר — צירים ארוכים (ELS) בתנ״ך · " + SITE_NAME,
+    desc: "אוסף דילוגי-אותיות ארוכים שנמצאו בכל התנ״ך — עד 9 אותיות, כולל «משיח בן דוד». עדות — לא ניבוי.",
+    card: { w: 'תיקיית המחקר', sub: 'צירים ארוכים · ELS', cap: 'עדות — לא ניבוי', sig: 'els' } },
   '/post': { title: "פוסטים אחרונים · " + SITE_NAME, desc: "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון.",
     card: { w: 'פוסטים', sub: 'החדשות והרמזים האחרונים', cap: 'מה מתגלה עכשיו?' } },
   '/timeline': { title: "ציר ההתגלות · " + SITE_NAME, desc: "ציר הזמן של אירועי הגאולה — כל תחנה מחוברת לפוסט המתעד ולתמונות הממצאים.",
@@ -185,6 +188,12 @@ export default async function handler(req, res) {
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  // This public collection shares the /codes prefix with cipher slugs. Resolve
+  // its encoded Hebrew address before the individual-record metadata branch.
+  let researchFolderPath = false;
+  try { researchFolderPath = decodeURIComponent(key) === '/codes/מחקר'; } catch { /* malformed URL remains unmatched */ }
+  const staticKey = researchFolderPath ? '/codes/מחקר' : key;
+  if (researchFolderPath) canonical = SITE + '/codes/מחקר';
   // /היכל is an addressable legacy alias; the hydrated 2029 page already
   // declares /heichal as canonical. Server/crawler metadata must agree.
   if (key === '/היכל') canonical = SITE + '/heichal';
@@ -358,10 +367,10 @@ export default async function handler(req, res) {
     } else {
       robots = 'noindex, follow';
     }
-  } else if (STATIC[key]) {
-    title = STATIC[key].title;
-    desc = STATIC[key].desc;
-    if (STATIC[key].card) image = cardUrl(STATIC[key].card);
+  } else if (STATIC[staticKey]) {
+    title = STATIC[staticKey].title;
+    desc = STATIC[staticKey].desc;
+    if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);
 
     // Public metadata follows the same availability state as native routes.
     if (key === '/els' || key === '/heichal' || key === '/היכל') {
@@ -435,11 +444,15 @@ export default async function handler(req, res) {
     // מקור-התמונה: image_url של הצופן (מנוע-הכרטיס) אם קיים, אחרת כרטיס /api/card ממותג.
     let slug = key.slice('/codes/'.length);
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    // Match the browser page and sitemap even when Vercel passes a decoded path.
+    canonical = SITE + '/codes/' + encodeURIComponent(slug);
+    let publishedCipherFound = false;
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
       const rows = await r.json();
       const c = Array.isArray(rows) && rows[0];
       if (c) {
+        publishedCipherFound = true;
         const scopeTxt = c.scope === 'tanakh' ? 'כל התנ״ך' : 'התורה';
         const findings = (c.positions && Array.isArray(c.positions.findings)) ? c.positions.findings.map(f => f && f.t).filter(Boolean) : [];
         title = `הצופן «${stripHtml(c.title || c.search_term)}» — דילוג ${c.skip_distance} · ${SITE_NAME}`;
@@ -454,7 +467,12 @@ export default async function handler(req, res) {
           : shapeUrl ? waSafeImage(shapeUrl)
           : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}&sig=els`;
       }
-    } catch { /* fallback to defaults */ }
+    } catch { /* unavailable records do not become indexable home metadata */ }
+    if (!publishedCipherFound) {
+      robots = 'noindex, follow';
+      title = 'הצופן לא נמצא · ' + SITE_NAME;
+      desc = 'הצופן המבוקש אינו זמין לציבור.';
+    }
   } else if (key.startsWith('/book/') || key.startsWith('/books/')) {
     // 📖 Book Hub / 2029 Books — ספר בודד (nodes.type='book'). שדות ציבוריים-בלבד: label/description/metadata
     // (זהות-ספר, לא research_objects) — תואם ל-BOOK PROJECTION EXPERIENCE CONTRACT §11/§16:

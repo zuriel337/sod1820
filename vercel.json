@@ -658,6 +658,39 @@
       "destination": "/api/og?path=/book/$1&crawler=search"
     },
     {
+      "source": "/code",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/code&crawler=search"
+    },
+    {
+      "source": "/codes",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/codes&crawler=search"
+    },
+    {
+      "source": "/codes/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/codes/$1&crawler=search"
+    },
+    {
       "source": "/els",
       "has": [
         {
