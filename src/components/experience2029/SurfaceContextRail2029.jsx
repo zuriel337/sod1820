@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
-import { PROVEN_POST_SOURCE_UPDATES, formatUpdateDate } from "../../lib/research/postSourceUpdates2029.js";
-import { buildPostTree } from "../../lib/research/postLineage2029.js";
-import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
+import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
 import GoldenProjectorModeLayer2029 from "./GoldenProjectorModeLayer2029.jsx";
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
@@ -20,23 +18,6 @@ import {
   markConceptFamiliarity,
 } from "../../lib/entryLearn2029.js";
 
-
-// One recursive node of the "רצף האירועים" tree. Marks here are tree-local ("שינוי בענף"), never feed updates.
-function EventTreeNode({ node, sheet, onNavigate }) {
-  const go = () => { if (sheet) onNavigate?.(node); };
-  const label = node.here
-    ? <span className="is-label" aria-current="page">{node.label} <em>· אתה כאן</em></span>
-    : <a href={node.href} onClick={go}>{node.label}</a>;
-  return <li className={`is-${node.kind}${node.here ? " is-here" : ""}`}>
-    {(node.origins || []).map((origin) => <span className="sod29-event-tree-origin" key={origin.id}><small>מגיע מ</small> <a href={origin.href} onClick={go}>{origin.label}</a> <em>{formatUpdateDate(origin.at)} · {origin.note}</em></span>)}
-    {label}
-    {node.kind === "unit"
-      ? <em>נוסף {formatUpdateDate(node.addedAt)}</em>
-      : node.changedAt ? <b className="sod29-event-tree-mark">שינוי בענף · {formatUpdateDate(node.changedAt)}</b> : null}
-    {node.via ? <em>{node.via}</em> : null}
-    {node.children?.length ? <ol>{node.children.map((child) => <EventTreeNode key={`${child.kind}:${child.id}`} node={child} sheet={sheet} onNavigate={onNavigate} />)}</ol> : null}
-  </li>;
-}
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 
@@ -87,42 +68,6 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
-  // Event sequence tree: the post (parent) is marked when one of its source units (children) was added.
-  // Entries come from the proven registry and are shown only while the unit still exists in the source.
-  const treePostId = surface === "post" && context?.subject?.type === "post" ? Number(context.subject.id) : null;
-  const treeSlug = String(context?.subject?.href || "").split("#")[0].replace(/^\/post\//, "");
-  const treeSectionKey = context?.dimensions?.activeSectionId || "";
-  const [presentUnitIds, setPresentUnitIds] = useState(null);
-  useEffect(() => {
-    if (!Number.isSafeInteger(treePostId) || typeof document === "undefined") { setPresentUnitIds(null); return undefined; }
-    const entries = PROVEN_POST_SOURCE_UPDATES[treePostId] || [];
-    // Source units exist only once the authored source is in the DOM. On a direct (hash) reload the rail can mount
-    // first, so units are re-checked on DOM changes until all are found (event-driven, bounded, no polling store).
-    const check = () => {
-      const ids = entries.filter((entry) => document.getElementById(entry.targetId)).map((entry) => entry.targetId);
-      setPresentUnitIds((previous) => (previous && previous.size === ids.length && ids.every((id) => previous.has(id)) ? previous : new Set(ids)));
-      return ids.length === entries.length;
-    };
-    if (check() || typeof MutationObserver === "undefined") return undefined;
-    const observer = new MutationObserver(() => { if (check()) observer.disconnect(); });
-    observer.observe(document.body, { childList: true, subtree: true });
-    const stop = window.setTimeout(() => observer.disconnect(), 8000);
-    return () => { observer.disconnect(); window.clearTimeout(stop); };
-  }, [treePostId, treeSectionKey]);
-  const treeListRef = useRef(null);
-  const postTree = Number.isSafeInteger(treePostId) ? buildPostTree(treePostId, presentUnitIds || new Set()) : null;
-  // "אתה כאן" must never be buried: keep the current node centered inside the tree's own scroll area.
-  const hereKey = postTree ? JSON.stringify(postTree).length : 0;
-  useEffect(() => {
-    const list = treeListRef.current;
-    const here = list?.querySelector(".is-here > .is-label");
-    if (!list || !here) return;
-    const top = here.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
-    list.scrollTop = Math.max(0, top - list.clientHeight / 2 + here.clientHeight / 2);
-  }, [treePostId, hereKey]);
-  const chainTrail = surface === "post" && context?.subject?.type === "post" && Array.isArray(context?.dimensions?.bottomTrail)
-    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
-    : [];
   const findings = Array.isArray(context?.dimensions?.surfaceFindings) ? context.dimensions.surfaceFindings : [];
   const focusedFinding = subject?.type === "finding";
   const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
@@ -268,14 +213,6 @@ export default function SurfaceContextRail2029({
       </div>}
       footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
-      {restMode && postTree ? <nav className="sod29-event-tree" aria-label="רצף האירועים" data-context-event-tree="true">
-        <header className="sod29-event-tree-head">
-          <img src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" aria-hidden="true" />
-          <strong>רצף האירועים</strong>
-        </header>
-        <ol className="sod29-event-tree-list" ref={treeListRef}><EventTreeNode node={postTree.root} sheet={sheet} onNavigate={onNavigate} /></ol>
-        <small className="sod29-event-tree-note">סימון בענף בלבד. הוא לא מופיע כעדכון בשאר המערכת.</small>
-      </nav> : null}
       {sections.length ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>
         <SurfaceProgressSpine2029
@@ -291,16 +228,6 @@ export default function SurfaceContextRail2029({
         <b>{activeSection.label}</b>
         <span aria-hidden="true">↓</span>
       </button> : null}
-      {restMode && chainTrail.length >= 2 ? <nav className="sod29-surface-context-chain" aria-label="רצף האירועים" data-context-chain="true">
-        <small>רצף האירועים</small>
-        <ol>
-          {chainTrail.map((step, index) => <li key={step.id || `chain-${index}`}>
-            {step.active || !step.href
-              ? <span className={step.active ? "is-here" : undefined} aria-current={step.active ? "page" : undefined}>{step.label}{step.active ? <em> · אתה כאן</em> : null}</span>
-              : <a href={step.href} onClick={() => { if (sheet) onNavigate?.(step); }}>{step.label}</a>}
-          </li>)}
-        </ol>
-      </nav> : null}
       {subject.type === "verse" && subject.text ? <blockquote className="sod29-surface-context-verse">{subject.text}</blockquote> : null}
       {restMode ? null : subject.expression ? <div className="sod29-surface-context-expression"><span>{subject.expression}</span>{subject.method ? <small>{subject.method}</small> : null}{subject.resultValue != null ? <b>{subject.resultValue}</b> : null}</div> : null}
       {fragment ? <LearnMark2029
@@ -325,6 +252,7 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
+      {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
       {surface === "post" ? <GoldenProjectorModeLayer2029 context={context} surface={surface} /> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}

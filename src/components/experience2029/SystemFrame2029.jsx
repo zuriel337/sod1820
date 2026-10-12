@@ -38,6 +38,7 @@ import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
@@ -1935,6 +1936,7 @@ export default function SystemFrame2029({
     && Boolean(activeTarget || context?.subject);
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
+  const companionHasSequence = hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
@@ -2152,10 +2154,12 @@ export default function SystemFrame2029({
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         {companionActive ? <CompanionPanel2029
-          feed={feed} mode={companionMode} tab={companionHasContext ? companionTab : "feed"} onTab={setCompanionTab}
+          feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={setCompanionTab}
           onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
           pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
           hasContext={companionHasContext}
+          hasSequence={companionHasSequence}
+          sequenceNode={companionHasSequence ? <EventSequencePanel2029 context={context} surface={surface} /> : null}
           contextNode={companionHasContext ? <SurfaceContextRail2029
             surface={surface} context={context} focus={surfaceFocus || activeTarget}
             onOpenNumber={(target) => openNumber(target || activeTarget)}

@@ -44,7 +44,7 @@
 .sod29-companion-tabs button[aria-pressed="true"] { color: var(--s29-page); background: var(--s29-ink); border-color: var(--s29-ink); }
 .sod29-companion-tabs em { font-style: normal; margin-inline-start: 6px; color: var(--s29-brand-gold); font-family: var(--s29-font-numeric); }
 .sod29-companion-tabs button[aria-pressed="true"] em { color: var(--s29-page); }
-.sod29-companion-feed, .sod29-companion-ctxbody { flex: 1; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.sod29-companion-feed, .sod29-companion-ctxbody, .sod29-companion-seqbody { flex: 1; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
 .sod29-companion-note { font: 400 12px/1.5 var(--s29-font-ui); color: var(--s29-muted); padding-inline: 4px; }
 .sod29-companion-empty { margin: 0; font: 400 13px/1.5 var(--s29-font-ui); color: var(--s29-muted); padding: 6px 4px; }
 .sod29-companion-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -87,3 +87,9 @@
   }
   .sod29-feed-chip i { inline-size: 8px; block-size: 8px; border-radius: 50%; background: var(--s29-brand-gold); flex: 0 0 auto; }
 }
+.sod29-companion-tabs button { padding-inline: 6px; }
+.sod29-companion-seq { font: 700 18px/1 var(--s29-font-ui); color: var(--s29-brand-gold); }
+.sod29-companion-seqbody .sod29-event-tree { position: static; box-shadow: none; }
+.sod29-companion-seqbody .sod29-event-tree-list { max-height: none; overflow: visible; }
+@media (max-width: 980px) { .sod29-event-tree-details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font: 700 13px var(--s29-font-ui); color: var(--s29-accent-text); } }
+.sod29-companion-tabs button { font-size: 12.5px; line-height: 1.15; }
