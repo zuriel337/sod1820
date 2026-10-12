@@ -51,7 +51,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   </FrameState>;
   const { post, identity, experience } = state.projection;
   const media = experience.media?.highlight;
-  const image = post.image_url || media?.poster;
+  const image = (home ? post.thumb_url : post.image_url) || post.image_url || media?.poster;
   const openWorld = () => {
     research.updateResearchContext?.({ subject: null, selection: null, lens: 'world',
       returnTo: { href: '/2029#home-plane', label: 'סיפור המטוס בבית', subject: null,

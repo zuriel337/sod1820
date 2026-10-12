@@ -3095,7 +3095,7 @@ export function adaptPost(row) {
     categories: row.categories ?? [],   // top-level — כדי שכרטיסי-פוסט יזהו «וידאו» בלי לחפור ב-_embedded
     tags: row.tags ?? [],
     _embedded: {
-      'wp:featuredmedia': row.image_url ? [{ source_url: row.image_url }] : [],
+      'wp:featuredmedia': (row.thumb_url || row.image_url) ? [{ source_url: row.thumb_url || row.image_url }] : [],
       'wp:term': [
         (row.categories ?? []).map(name => ({ taxonomy: 'category', id: name, name })),
         (row.tags ?? []).map(name => ({ taxonomy: 'post_tag', id: name, name })),
