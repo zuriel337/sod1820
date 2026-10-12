@@ -170,64 +170,43 @@ async function selectWorldLane(page, label) {
   await expect(lane).toHaveAttribute('aria-pressed', 'true');
 }
 
-test('direct /world opens the Golden discovery landing without a stored anchor', async ({ page }) => {
+test('direct /world opens public composed World with aircraft story, real arrivals and source navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'חוקרים וכתבים' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'כל ההתכנסויות', exact: true })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'מסע 878', exact: true })).toBeVisible({ timeout: 30_000 });
-  for (const name of ['צבי (OPOC)', 'שמעון חיימוב', 'יניב לוי', 'יצחק שחר קנדרו']) {
-    await expect(page.locator('.sod29-world-person-card').filter({ hasText: name }).first()).toBeVisible();
-  }
-  const entry = page.locator('#world-entry');
-  await expect(entry).toHaveAttribute('data-experience-surface', 'world');
-  await expect(entry).toHaveAttribute('data-experience-question', 'מה מתחבר?');
-  await expect(entry.getByRole('button', { name: /חפש בעולם/ })).toBeVisible();
-
-  const core = entry.locator('.sod29-world-core-map');
-  await expect(core).toBeVisible();
-  await expect(core.getByRole('button', { name: 'פתח חיפוש בעולם' })).toBeVisible();
-  await expect(core.getByText('בחר שער כדי לקפוץ ישר אליו')).toBeVisible();
-  const numberGate = core.locator('.sod29-world-core-node').filter({ hasText: 'מספרים' }).first();
-  await expect(numberGate).toBeVisible({ timeout: 30_000 });
-
-  await core.getByRole('button', { name: 'פתח חיפוש בעולם' }).click();
-  await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: 'חיפוש' })).toHaveCount(0);
-
-  await numberGate.click();
-  await expect(page.locator('#world-facet-number')).toBeFocused();
-  await expect(page.locator('#world-facet-number').getByRole('heading', { name: 'מספרים בעולם' })).toBeVisible();
-
+  await expect(page.getByRole('heading', { name: 'סיפור חדש. עומק של שנים.' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'לאן סיפור המטוס מוביל?' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-source-interpretation="zuriel-787"]')).toContainText('787');
+  await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'קולות ומקורות בעולם' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('#world-all-convergences')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('#world-journey-entry')).toBeVisible({ timeout: 30_000 });
+  const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });
+  await postsFilter.click();
+  await expect(page.locator('.sod29-source-arrivals [data-source-arrival^="posts:"]').first()).toBeVisible({ timeout: 30_000 });
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
 
-test('World catalog exposes the full canonical convergence index with server pagination and search', async ({ page }) => {
+test('public World catalog remains searchable and paginated inside the new composed presentation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-
   const catalog = page.locator('#world-all-convergences');
   await expect(catalog).toBeVisible({ timeout: 30_000 });
-  await expect(catalog.getByRole('heading', { name: 'כל ההתכנסויות', exact: true })).toBeVisible();
-  await expect(catalog.getByText(/\d+ מתוך \d+/)).toBeVisible({ timeout: 30_000 });
-
+  await expect(catalog.getByRole('heading', { name: 'כל חיבור פותח עוד עולם.' })).toBeVisible();
+  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
   const cards = catalog.locator('.sod29-world-catalog-card');
-  const before = await cards.count();
-  expect(before).toBeGreaterThan(0);
-  const more = catalog.getByRole('button', { name: 'טען עוד התכנסויות' });
-  if (await more.count()) {
-    await more.click();
-    await expect.poll(async () => cards.count()).toBeGreaterThan(before);
-  }
-
+  expect(await cards.count()).toBeGreaterThan(0);
   const search = catalog.getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' });
   await search.fill('888');
   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
+  await search.fill('');
+  const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
+  if (await expand.count()) {
+    await expand.click();
+    await expect(expand).toHaveAttribute('aria-expanded', 'true');
+  }
   await assertNoHorizontalOverflow(page);
 });
 
@@ -611,15 +590,13 @@ test('Golden Journey 878 starts in World and keeps its rail across a path transi
 });
 
 for (const width of MOBILE_WIDTHS) {
-  test(`World Core remains usable and overflow-free at ${width}px`, async ({ page }) => {
+  test(`Public World story and source entry remain usable and overflow-free at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: 'מה חדש בעולם?' })).toBeVisible({ timeout: 30_000 });
-    const core = page.locator('.sod29-world-core-map');
-    await expect(core).toBeVisible();
-    const firstGate = core.locator('.sod29-world-core-node').first();
-    await expect(firstGate).toBeVisible({ timeout: 30_000 });
-    expect(await core.locator('.sod29-world-core-node').count()).toBeGreaterThan(0);
+    await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('heading', { name: 'סיפור חדש. עומק של שנים.' })).toBeVisible();
+    await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('#world-all-convergences')).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/world-core-${width}.png`, fullPage: true });
   });
