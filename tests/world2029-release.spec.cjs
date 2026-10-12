@@ -280,7 +280,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
-  const heichalAction = numberPage.locator('.sod29-number-v10-stage-actions').getByRole('button', { name: /חקור בהיכל/ });
+  const heichalAction = numberPage.locator('[data-experience-capability="spatial-method-stage"]').getByRole('button', { name: /חקור בהיכל/ });
   await expect(heichalAction).toBeVisible();
   await expect(heichalAction).toBeEnabled();
   await expect(page.locator('a[href="/heichal"], a[href="/היכל"]')).toHaveCount(1);
