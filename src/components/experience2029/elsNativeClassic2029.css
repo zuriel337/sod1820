@@ -19,9 +19,11 @@
 }
 .els29-native-query{
   display:grid;
-  grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
-  gap:8px;
-  align-items:end;
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+  width:100%;
+  max-width:980px;
+  margin-inline:auto;
   padding:12px;
   border:1px solid var(--s29-line);
   border-radius:20px;
@@ -697,6 +699,7 @@
 .els29-native-search-mode button{min-height:44px;padding:9px 14px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);color:var(--s29-muted);font:500 16px var(--s29-font-ui);cursor:pointer}
 .els29-native-search-mode button[aria-pressed=true]{border-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel));color:var(--s29-accent-text)}
 .els29-native-query-terms,.els29-native-query-options{display:grid;gap:12px;min-width:0;align-content:end}
+.els29-native-query-terms{gap:8px}
 .els29-native-query-actions{display:flex;flex-wrap:wrap;gap:8px}.els29-native-query-actions button{flex:1;min-height:48px}
 .els29-native-query .els29-native-scope button{flex:1;min-height:44px}
 .els29-native-query button{transition:opacity 180ms ease,background-color 180ms ease,border-color 180ms ease}

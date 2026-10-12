@@ -2004,6 +2004,15 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(r?.scope&&r.scope!==st.scope)return {type:"state",v:1,status:"loading",scope:st.scope,termRaw:"",term:"",verification:{state:"PENDING",negative_authority:false}};
     const base={type:"state",v:1,termRaw:st.raw||"",term:(r&&r.t)||"",
       scope:st.scope,corpusLetters:scopeN(),tier:st.tier,admin:!!st.admin};
+    // Before any search, expose only the opening letters of the canonical corpus. This is
+    // a plain-text preview, never a verified ELS occurrence or a saved example cipher.
+    if(!r&&!st.raw){
+      const S=48,r1=13,rows=[];
+      for(let row=0;row<=r1;row++)rows.push(T.slice(row*S,(row+1)*S));
+      return Object.assign(base,{status:"ready",verification:{state:"NONE",negative_authority:false},
+        geometry:{S,mainCol:null,c0:0,cw:S,r0:0,r1},
+        matrix:{S,r0:0,r1,c0:0,cw:S,rows,marks:[],sourceMarks:[],v:1,lenses:["cells"]}});
+    }
     // 🧬 G3: "empty" = חיפוש מקומי/דגום ללא מופע — לעולם לא NOT_FOUND / EXECUTED_EMPTY קנוני (negative_authority:false)
     if(!r||!r.hits.length)return Object.assign(base,{status:"empty",verification:{state:(r&&r.vstate)||"NONE",negative_authority:false}});
     const h=occ(),b=blockOf(),L=(r.t||"").length;
@@ -2243,6 +2252,29 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // הודעות מהאתר-העוטף: עדכון דרגת-המשתמש (anon/registered/admin)
   window.addEventListener("message",e=>{const d=e.data;if(!d||d.source!=="sod-host"||e.source!==window.parent)return;   // G3: every host command must come from the exact parent window
     if(d.type==="engine-result"){const f=_engPending.get(d.requestId);if(f){_engPending.delete(d.requestId);f(d);}return;}   // 🧬 G3: תשובת מנוע-השרת (verify_batch)
+    if(d.type==="preview-forms-batch"){
+      const expressions=Array.isArray(d.expressions)?d.expressions.slice(0,40):[];
+      const rows=[];
+      for(const source of expressions){
+        if(typeof source!=="string"||source.length>200)continue;
+        for(const form of formsOf("splitjoin",source))rows.push({source,term:form.w,derivation:form.derivation});
+      }
+      postHost({type:"forms-preview-result",requestId:d.requestId,rows});
+      return;
+    }
+    if(d.type==="probe-exact-skip"){
+      const r=d.request||{},requestId=r.requestId,scope=r.scope==="tanakh"?"tanakh":"torah";
+      const skip=r.skip,term=typeof r.term==="string"?r.term:"",t=norm(term);
+      if(!Number.isSafeInteger(skip)||skip<2||t.length<2){postHost({type:"exact-skip-probe-result",requestId,ok:false,reason:"invalid-request"});return;}
+      const previousScope=st.scope;let hits=[];
+      try{st.scope=scope;hits=fixedSkipCandidates(term,skip);}finally{st.scope=previousScope;}
+      promoteVerified({t,hits,capped:false,strategy:{policy:"EXACT_SKIP_PROBE_V1"}},scope,null)
+        .then(result=>{const hit=result.hits.find(isGov);postHost({type:"exact-skip-probe-result",requestId,ok:!!hit,
+          term,scope,skip,dir:hit?.dir,start:hit?.start,hitId:hit?hitKey(hit):null,
+          corpusId:hit?result.corpus_id:null,reason:hit?null:result.vstate});})
+        .catch(()=>postHost({type:"exact-skip-probe-result",requestId,ok:false,reason:"verification-error"}));
+      return;
+    }
     if(d.type==="tier"&&typeof d.tier==="string"){st.tierKnown=true;st.tier=d.tier;
       if(d.tier==="admin"&&!st.admin&&typeof setAdmin==="function")setAdmin(true);
       try{updateLockUI();}catch(_){}
@@ -2273,7 +2305,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(d.type==="contributed"&&!d.ok){toast("שיתוף-הממצא נכשל — נסו שוב");}   // ➕ 1ב — כשל בלבד (הצלחה כבר הודגמה)
     if(d.type==="load-matrix"&&d.item&&d.item.term){   // 🔗 עמוד-צופן קנוני: טען צופן ספציפי
       // ✏️ קשר-עריכה: צופן קיים נטען → שמירה תעדכן אותו במקום (לא עותק). נמחק בחיפוש-מונח חדש.
-      st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");
+      if(!d.item.researchNonce){st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");}
       try{loadMatrix(d.item,0);}catch(e){}
     }
     if(d.type==="request-lens"&&searchUncommitted()){
@@ -3689,6 +3721,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // טעינת מטריצה שמורה (מערכת או משתמש): קובע מילה, קופץ לדילוג השמור, וטוען ההצטלבויות
   async function loadMatrix(item,filmTimes){
     const requestSeq=++_matrixRequestSeq;
+    const prior=item.researchNonce?{zoom:st.zoom,fit:st.fit,verseHL:st.verseHL,scope:st.scope,
+      postUrl:st.postUrl,postTitle:st.postTitle,desc:st.desc,author:st.author,
+      cipherSlug:st.cipherSlug,cipherTerm:st.cipherTerm,raw:st.raw,query:q.value,editId:st.editId,editTerm:st.editTerm}:null;
+    const failResearch=reason=>{if(!prior)return false;
+      const {query,...previous}=prior;Object.assign(st,previous);q.value=query;updateScopeUI();
+      postHost({type:"load-error",term:item.term,reason});render();return true;};
     invalidateSearchOperation();invalidateFindingsOperation();
     st.zoom=1;st.fit=true;   // כל טעינה מתחילה מותאמת-למסך
     st.verseHL=-1;   // 📖 מטריצה חדשה = מנקים הדגשת-פסוק קודמת (המצב עצמו נשאר כפי שהוא)
@@ -3705,11 +3743,15 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
     // Exact saved occurrences use the SAME canonical verifier. A capped
     // discovery list must never substitute a different occurrence of the word.
-    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
+    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
     const t=norm(item.term);
     const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
     const discovered=await discoverVerified(item.term,4000,null,anchor);
     if(requestSeq!==_matrixRequestSeq)return;
+    if(prior&&!discovered.hits.some(h=>isGov(h)&&h.skip===item.skip&&h.dir===item.dir&&h.start===item.start)){
+      failResearch("anchor-not-found");return;
+    }
+    if(prior){st.editId=null;st.editTerm="";}
     if(!exact&&Number.isInteger(item.skip)&&item.skip>=2&&!discovered.hits.some(h=>isGov(h)&&Math.abs(h.skip)===item.skip)){
       const candidates=fixedSkipCandidates(item.term,item.skip);
       const targeted=await promoteVerified({t,hits:candidates,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
@@ -4322,6 +4364,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const r=st.res;
     document.body.classList.toggle("searched",hasGov(r));   // כיווץ-אוטומטי: מטריצה קיימת → כותרת דקה, בלי הסבר/דוגמאות
     if(!hasGov(r)){
+      if(!r&&!st.raw){out.innerHTML='<div class="empty">טקסט התורה פתוח מבראשית. הזינו מונח כדי לחפש דילוג.</div>';emitState();return;}
       let _extra='נסה איות אחר או מילה קצרה יותר.';
       if(st.scope==="torah"&&r&&r.t){   // 📜 «לא נמצא בתורה» מטעה — אולי המונח קיים בכל התנ״ך (נ״ך). בודקים ומזמינים פנימה במקום מבוי-סתום.
         let _inTk=false;const _sv=st.scope;st.scope="tanakh";
@@ -5273,15 +5316,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   updateLockUI();
   const _shared=decodeMatrix(location.hash);   // 🔗 קישור-שיתוף: אם יש צופן בכתובת — פותח אותו
   let _seed="";try{_seed=(new URLSearchParams(location.search).get("q")||"").trim();}catch(e){}   // 🌱 זרע מסביבת-המחקר: ?q=מונח
-  const FIRSTKEY="tzofen_first_v1";let _firstVisit=false;try{_firstVisit=!localStorage.getItem(FIRSTKEY);}catch(e){}
   if(_shared){loadMatrix(_shared);toast("🔗 נטען צופן משותף: «"+_shared.name+"»");}
   else if(_seed.length>=2){q.value=_seed;run();}   // הגיע מונח מהאתר — מחפש אותו מיד
-  else if(_firstVisit){   // 🎬 ביקור ראשון: נפתח על «תורה קדשה» ומנגן את סרט-הצופן פעמיים (מהירות רגילה)
-    try{localStorage.setItem(FIRSTKEY,"1");}catch(e){}
-    const tk=galleryItems().find(x=>x.name==="תורה קדשה")||SYSTEM_MATRICES.find(x=>x.name==="תורה קדשה")||SYSTEM_MATRICES[0];
-    st.filmSpeed=1;loadMatrix(tk,2);
-  }
-  else loadMatrix(galleryItems()[0]||SYSTEM_MATRICES[0]);   // כל פתיחה = סרט פעם אחת (loadMatrix)
+  else render();   // פתיחה נקייה: בראשית ללא ציר או ממצא; דוגמה תיטען רק מבחירה מפורשת
   // 🔮 טעינה-מראש שקטה ברקע: אחרי שהמסך מוכן, מפענחים את טקסט-הפסוקים כדי שההקשה תהיה מיידית
   const _idle=window.requestIdleCallback||(fn=>setTimeout(fn,800));
   _idle(()=>{ensureVerseText();});

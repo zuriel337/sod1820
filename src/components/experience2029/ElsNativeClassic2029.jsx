@@ -25,6 +25,11 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
 
   useEffect(() => {
     const el = scrollRef.current;
+    if (visible && el && state?.status === "ready") {
+      el.scrollLeft = el.scrollWidth - el.clientWidth;
+      el.scrollTop = 0;
+      return;
+    }
     const axis = state?.axis;
     if (!visible || !el?.clientWidth || !el?.clientHeight || !axis?.hitId) return;
     const first = el.querySelector(`[data-els-index="${Number(axis.start)}"]`);
@@ -46,7 +51,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         ? a.bottom - viewport.top - el.clientHeight + 24
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
-  }, [visible, readingView, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
+  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
 
   const markMap = useMemo(() => {
     const map = new Map();
@@ -156,7 +161,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     className="els29-native-matrix-scroll"
     role="region"
     tabIndex={0}
-    aria-label={`מטריצת ELS עבור ${state.termRaw || state.term || "המונח הפעיל"}`}
+    aria-label={state?.status === "ready" ? "טקסט התורה מבראשית, ללא צופן נבחר" : `מטריצת ELS עבור ${state.termRaw || state.term || "המונח הפעיל"}`}
     aria-describedby={summaryId}
     onPointerDown={onPointerDown}
     onPointerMove={onPointerMove}
@@ -171,7 +176,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     }}
   >
     <span id={summaryId} className="els29-native-sr-only">
-      {state.termRaw || state.term || "מונח פעיל"} · דילוג {state?.axis?.skip ?? "לא ידוע"} · כיוון {directionLabel(state?.axis?.direction)} · {markSummary.axis} אותיות ציר מסומנות · {markSummary.findings} אותיות ממצאים מסומנות. אפשר להשתמש בכפתור "מקור הממצא" כדי לקרוא את הפסוקים במקלדת.
+      {state?.status === "ready" ? "תחילת ספר בראשית ברצף אותיות, ללא צופן או ממצא נבחר." : `${state.termRaw || state.term || "מונח פעיל"} · דילוג ${state?.axis?.skip ?? "לא ידוע"} · כיוון ${directionLabel(state?.axis?.direction)} · ${markSummary.axis} אותיות ציר מסומנות · ${markSummary.findings} אותיות ממצאים מסומנות. אפשר להשתמש בכפתור מקור הממצא כדי לקרוא את הפסוקים במקלדת.`}
     </span>
     {readingView ? <p className="els29-native-reading-note" dir="rtl">
       רצף המקור בשורות רחבות · {state?.axis?.direction === "back" ? "קוראים את הסימון משמאל לימין, מלמטה למעלה" : "קוראים את הסימון מימין לשמאל, מלמעלה למטה"}
@@ -601,7 +606,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, onSearchStart, onSaved }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -942,7 +947,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const resultsAreCross = operations.search ? ["cross", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
-  const matrixStatus = previousResult
+  const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
     ? searchPending ? "הממצא הקודם · החיפוש החדש מתבצע…"
       : operations.search.status === "error" ? "הממצא הקודם · החיפוש החדש לא הושלם"
         : operations.search.status === "cancelled" ? "הממצא הקודם · החיפוש החדש בוטל"
@@ -997,7 +1002,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           />
         </label>
       </div> : null}
-      </div>
       {!crossOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
         <span>אפשר לחפש את הביטוי בשלמותו, או לבדוק מפגש בין שתי מילים קצרות.</span>
         <button type="button" onClick={() => {
@@ -1006,6 +1010,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           setCrossOpen(true);
         }}>{clean(query).split(/\s+/).length > 1 ? "פצל והצלב" : "פתח חיפוש מוצלב"}</button>
       </div> : null}
+      </div>
       <div className="els29-native-query-options">
       <div className="els29-native-scope" aria-label="היקף החיפוש">
         <button
@@ -1077,7 +1082,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={handleLetterClick} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
+          <MatrixSnapshot state={engineState} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>
@@ -1164,6 +1169,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
+          journeyLoad={researchLoad}
+          exactSkipProbe={researchProbe}
+          onExactSkipProbeResult={onResearchProbeResult}
+          formsPreviewRequest={formsPreviewRequest}
+          onFormsPreviewResult={onFormsPreviewResult}
           full={classicOpen}
           hiddenBridge
           experience2029
@@ -1182,8 +1192,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           findingControlRequest={findingControlRequest}
           contextRequest={contextRequest}
           saveRequest={saveRequest}
-          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(); }}
-          onLoadError={(error) => { setLoadError(error);setNotice("לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
+          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(result.row); }}
+          onLoadError={(error) => { setLoadError(error); if (researchLoad) onResearchLoadError?.(error); setNotice(researchLoad
+            ? "לא הצלחנו למצוא או לאמת מופע בדילוג שביקשתם. אפשר לשנות דילוג או מונח ולנסות שוב."
+            : "לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
         />
