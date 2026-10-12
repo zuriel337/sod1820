@@ -73,7 +73,6 @@ const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const Gematria3DPage = React.lazy(() => import("./pages/Gematria3DPage.jsx"));
 const ThemePage = React.lazy(() => import("./pages/ThemePage.jsx"));
-const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const OrGeulaPage = React.lazy(() => import("./pages/OrGeulaPage.jsx"));
 const VideoAssetPage = React.lazy(() => import("./pages/VideoAssetPage.jsx"));
@@ -108,7 +107,6 @@ const ConvergenceGalaxy = React.lazy(() => import("./components/ConvergenceGalax
 // 2029 greenfield core surfaces — shared shell, shared Research Context, one Raziel.
 const Home2029Page = React.lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = React.lazy(() => import("./pages/World2029Page.jsx"));
-const Els2029Page = React.lazy(() => import("./pages/Els2029Page.jsx"));
 const Heichal2029Page = React.lazy(() => import("./pages/Heichal2029Page.jsx"));
 // מסכים מלאים כבדים (three.js / קנבס) — נטענים עצמאית
 const GalaxyPage = React.lazy(() => import("./pages/GalaxyPage.jsx"));
@@ -205,7 +203,7 @@ function GematriaToLab() {
   return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
 }
 
-function Book2029DocumentHandoff() {
+function Product2029DocumentHandoff() {
   const location = useLocation();
   const raw = `${location.pathname}${location.search || ""}${location.hash || ""}`;
   const href = location.pathname === "/book"
@@ -291,11 +289,11 @@ export default function App() {
           {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
           <Route path="/2029" element={<Home2029Page />} />
           <Route path="/world" element={<World2029Page />} />
-          <Route path="/books" element={<Book2029DocumentHandoff />} />
-          <Route path="/books/:slug" element={<Book2029DocumentHandoff />} />
-          <Route path="/book" element={<Book2029DocumentHandoff />} />
-          <Route path="/book/:slug" element={<Book2029DocumentHandoff />} />
-          <Route path="/els" element={<Els2029Page />} />
+          <Route path="/books" element={<Product2029DocumentHandoff />} />
+          <Route path="/books/:slug" element={<Product2029DocumentHandoff />} />
+          <Route path="/book" element={<Product2029DocumentHandoff />} />
+          <Route path="/book/:slug" element={<Product2029DocumentHandoff />} />
+          <Route path="/els" element={<Product2029DocumentHandoff />} />
           <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
           <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
 
@@ -352,7 +350,7 @@ export default function App() {
           <Route path="/גימטריה-מרחבית" element={<Gematria3DPage />} />
           <Route path="/gematria-3d" element={<Gematria3DPage />} />
           <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
-          <Route path="/code" element={<CodePage />} />
+          <Route path="/code" element={<Product2029DocumentHandoff />} />
           {/* הפרדה: /code = הכלי · /codes = ספרייה · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
           <Route path="/codes" element={<CiphersLibraryPage />} />
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}

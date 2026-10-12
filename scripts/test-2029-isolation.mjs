@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { savedMatrixWorkspaceHref } from "../src/lib/elsSavedMatrix.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -70,7 +71,7 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/2029", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
   assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
@@ -89,10 +90,18 @@ assert.equal(legacyApp.includes('BookHubPage'), false, "Legacy Book renderer mus
 for (const route of ["/heichal", "/היכל"]) {
   assert.ok(legacyApp.includes(`path="${route}" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>}`), "legacy SPA navigation must not bypass the Heichal launch gate");
 }
-assert.match(legacyApp, /function Book2029DocumentHandoff\(\)/, "Legacy SPA must cross the document boundary for Book routes");
+assert.match(legacyApp, /function Product2029DocumentHandoff\(\)/, "Legacy SPA must cross the document boundary for 2029 routes");
+for (const route of ["/code", "/els"]) {
+  assert.ok(legacyApp.includes(`path="${route}" element={<Product2029DocumentHandoff />}`), `${route} must cross into isolated 2029 runtime`);
+}
+assert.ok(app2029.includes('path="/code" element={<Els2029Page />}' ), "canonical cipher tool must render natively at /code");
+assert.ok(app2029.includes('path="/els" element={<ElsAddressAlias2029 />}' ), "old /els address must preserve its alias");
+assert.match(app2029, /\/code\$\{location\.search \|\| ""\}\$\{location\.hash \|\| ""\}/, "ELS alias must preserve query and fragment");
+assert.equal(savedMatrixWorkspaceHref({ slug: "תורה-50" }), `/code?cipher=${encodeURIComponent("תורה-50")}`);
+assert.equal(savedMatrixWorkspaceHref({ id: "record-1" }), "/code?record=record-1");
 for (const route of ["/books", "/books/:slug", "/book", "/book/:slug"]) {
   assert.equal(
-    legacyApp.includes(`path="${route}" element={<Book2029DocumentHandoff />}`),
+    legacyApp.includes(`path="${route}" element={<Product2029DocumentHandoff />}`),
     true,
     `Legacy SPA must hand off ${route} to the isolated 2029 document`
   );

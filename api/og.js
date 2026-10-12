@@ -43,8 +43,8 @@ const STATIC = {
   '/books': { title: "ספרים ומקורות · SOD1820",
     desc: "ספרים, מקורות, עדים ומחקר בתוך עץ הידע האחד של SOD1820.",
     card: { w: 'ספרים ומקורות', sub: 'מקור · עדות · מחקר', cap: 'להיכנס אל המקור' } },
-  '/els': { title: "ELS · הצופן התנ״כי · SOD1820",
-    desc: "מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד, עם הקשר, Evidence ו־Research Context.",
+  '/els': { title: "ELS · SOD1820",
+    desc: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים",
     card: { w: 'ELS', sub: 'הצופן התנ״כי · מנוע אחד', cap: 'דילוגים · הקשר · מחקר', sig: 'els' } },
   '/heichal': { title: "היכל · SOD1820",
     desc: "סביבת המחקר העמוקה של SOD1820 — כלים, Evidence, Findings ורזיאל סביב אותו Research Context.",
@@ -60,7 +60,7 @@ const STATIC = {
     card: { w: "הצ'אט החי", sub: 'קוד המציאות · בזמן אמת', cap: 'מה מתגלה עכשיו?' } },
   '/community/calculator': { title: "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם · " + SITE_NAME, desc: "רוצים לדעת מה מסתתר בשם שלכם? מחשבון הגימטריה החינמי והמדויק של SOD1820 — חישוב כל שם או מילה ב-8 שיטות, השוואה בין שני שמות וגילוי הקשרים הנסתרים בשפת המספרים.",
     card: { w: 'מחשבון הגימטריה', sub: 'חשבו כל מילה · שם · ביטוי', cap: 'מה מסתתר בשם שלכם?' } },
-  '/code': { title: "חיפוש בצופן התנ\"כי עם AI — דילוגי אותיות בתורה ובתנ\"ך · " + SITE_NAME, desc: "חיפוש בצופן התנ\"כי בעזרת בינה מלאכותית — דילוגי אותיות (ELS), חישוב בתורה וחיפוש תבניות נסתרות בתנ\"ך.",
+  '/code': { title: "ELS · SOD1820", desc: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים",
     card: { w: 'הצופן התנ"כי', sub: 'דילוגי אותיות · AI', cap: 'מה חבוי בתורה?' } },
   '/codes': { title: "ספריית הצפנים — כל דילוגי-האותיות · " + SITE_NAME, desc: "כל הצפנים שנחקרו ואומתו בסוד 1820 — דילוגי אותיות (ELS) עם המונח, הדילוג והממצאים. כל צופן בעמוד משלו. עדות — לא ניבוי.",
     card: { w: 'ספריית הצפנים', sub: 'דילוגי אותיות · ELS', cap: 'כל הצפנים שנחקרו ואומתו' } },
@@ -197,6 +197,7 @@ export default async function handler(req, res) {
   // /היכל is an addressable legacy alias; the hydrated 2029 page already
   // declares /heichal as canonical. Server/crawler metadata must agree.
   if (key === '/היכל') canonical = SITE + '/heichal';
+  if (key === '/els') canonical = SITE + '/code';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
@@ -373,11 +374,12 @@ export default async function handler(req, res) {
     if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);
 
     // Public metadata follows the same availability state as native routes.
-    if (key === '/els' || key === '/heichal' || key === '/היכל') {
-      const flag = await publicSiteFlag(key === '/els' ? 'lock_els' : 'lock_heichal', ogHeaders);
+    if (key === '/code' || key === '/els' || key === '/heichal' || key === '/היכל') {
+      const elsRoute = key === '/code' || key === '/els';
+      const flag = await publicSiteFlag(elsRoute ? 'lock_els' : 'lock_heichal', ogHeaders);
       if (!flag.found || flag.enabled) {
-        desc = cleanDesc(flag.message || (key === '/els' ? 'ELS סגור זמנית לציבור לצורך בנייה מחדש.' : 'ההיכל סגור זמנית לציבור לצורך השלמת האימות.'), 180);
-        if (key !== '/els') robots = 'noindex, follow';
+        desc = cleanDesc(flag.message || (elsRoute ? 'ELS סגור זמנית לציבור לצורך בנייה מחדש.' : 'ההיכל סגור זמנית לציבור לצורך השלמת האימות.'), 180);
+        if (!elsRoute) robots = 'noindex, follow';
       }
     }
   } else if (key.startsWith('/topic/')) {

@@ -834,6 +834,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/code",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/els",
       "destination": "/2029.html"
     },

@@ -181,7 +181,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   };
   // Stable entry seed only. Once Classic is live, the canonical tzofen state flows into ResearchProvider
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
-  const [classicSeed] = useState(() => clean(selection?.term || subject?.label || ""));
+  const [classicSeed] = useState(() => clean(params.get("term") || params.get("q") || selection?.term || subject?.label || ""));
 
   useEffect(() => {
     if (elsState.loading || elsState.blocked || !replayKey) {
@@ -237,7 +237,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   const researchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
 
   useEffect(() => {
-    applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/els" });
+    applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/code" });
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

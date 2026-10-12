@@ -214,6 +214,14 @@ assert.doesNotMatch(elsLocked, /מחקר דילוגי אותיות מעל מנו
 const elsFailClosed = await render("/els", async () => { throw new Error("flag unavailable"); });
 assert.match(elsFailClosed, /ELS סגור זמנית לציבור לצורך בנייה מחדש/);
 assert.doesNotMatch(elsFailClosed, /מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד/);
+const codeOpen = await renderResponse("/code", async (url) => {
+  assert.match(String(url), /site_flags\?/);
+  return { ok: true, async json() { return [{ key: "lock_els", enabled: false, mode: "all" }]; } };
+}, { crawler: "search" });
+assert.match(codeOpen.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/code"\/>/);
+assert.match(codeOpen.body, /חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים/);
+const elsAlias = await renderResponse("/els", async () => ({ ok: true, async json() { return [{ key: "lock_els", enabled: false, mode: "all" }]; } }), { crawler: "search" });
+assert.match(elsAlias.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/code"\/>/);
 
 for (const path of ["/heichal", "/היכל"]) {
   const closed = await renderResponse(path, async (url) => {
@@ -229,7 +237,7 @@ assert.equal(heichalUnknown.headers.get("x-robots-tag"), "noindex, follow");
 const heichalOpen = await renderResponse("/heichal", async () => ({ ok: true, async json() { return [{ key: "lock_heichal", enabled: false, mode: "all" }]; } }), { crawler: "search" });
 assert.equal(heichalOpen.headers.get("x-robots-tag"), "index, follow");
 
-for (const [path, title] of [["/code", "חיפוש בצופן"], ["/codes", "ספריית הצפנים"]]) {
+for (const [path, title] of [["/code", "ELS"], ["/codes", "ספריית הצפנים"]]) {
   const page = await renderResponse(path, async () => { throw new Error("static ELS metadata must not fetch records"); }, { crawler: "search" });
   assert.match(page.body, new RegExp(`<title>${title}`));
   assert.match(page.body, new RegExp(`<link rel="canonical" href="https://sod1820\\.co\\.il${path}"\\/>`));

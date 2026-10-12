@@ -6,6 +6,8 @@ The 2029 Home has two bodies: the composed Home runs in development or when `VIT
 
 Product direction clarified by ZURIEL: there is **no forum to migrate**; the future personal user area is a new area and the old community/forum paths are not its replacement. `/code` is the intended public address for the cipher tool. The new 2029 ELS implementation is currently wired at `/els`; do not assume that changing the canonical `/code` address to `/els` is the desired cutover. Keep the tool, published cipher library (`/codes`) and individual cipher pages (`/codes/:slug`) distinct.
 
+Update on the separate `codex/g4-code-route-candidate-20261013` branch: `/code` is wired to the isolated 2029 ELS tool; `/els` is a query/fragment-preserving alias, and saved matrix links now point to `/code`. `/codes` and `/codes/:slug` still use their existing library/detail pages. A legacy `term` or `q` query seeds the Classic input. The old `skip`/`finding` query shapes still need exact-replay verification before route-family acceptance. This branch is not a production cutover or Home parity approval.
+
 | Legacy `/` click/action | Legacy target | 2029 candidate | Finding / required check |
 | --- | --- | --- | --- |
 | Hero stories and six research teasers | Root post slugs, `/code`, `/start` | Recent post cards, hero, `/els`; no matching fixed hero/teaser set | **Editorial gap:** preserve the intended hero/start entry and exact story targets, or approve their removal. Root post links must resolve to the same canonical post after handoff. |
@@ -34,7 +36,7 @@ Secondary variants: `HomeReality` is selected by the old root stream preference;
 
 ## Suggested order for Home cutover work
 
-1. The branch now projects closed Life Journey, Heichal and site Raziel in the **actively owned** 2029 Home/Frame surfaces, keeps the new personal-area Journey item visible but locked, and keeps `/els` active. Desktop/phone local checks covered missing, closed and open flags; this is not production acceptance. The ELS/routing owner must connect the intended `/code` address to the new experience without silently changing its canonical identity.
+1. The branch projects closed Life Journey, Heichal and site Raziel in the **actively owned** 2029 Home/Frame surfaces, keeps the new personal-area Journey item visible but locked, and keeps ELS active. Desktop/phone local checks covered missing, closed and open flags; this is not production acceptance. The separate `/code` route candidate above needs exact URL/replay and SEO acceptance before release.
 2. Preserve exact identity and deep links for root posts, categories, contributor profiles, `/codes` and `/codes/:slug`, gallery tabs and number pages. Test one populated example of each from a Home click through refresh, auth and return.
 3. Do not migrate or promote the retired forum. Decide which other Home-specific actions must be in 2029: gallery Reality/cascade tabs, inline video/story viewing, timeline/anniversary, subscription/push and Dimension Five feed. Put an honest legacy link or closed label on anything deferred.
 4. Run the existing automated Legacy↔2029 family parity scan and a real desktop/phone click pass on the exact cutover build. The 2029 Home build flag must be included in that evidence.

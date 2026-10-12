@@ -84,6 +84,11 @@ function CanonicalBookAlias2029() {
   return <Navigate replace to={slug ? `/book/${slug}` : "/books"} />;
 }
 
+function ElsAddressAlias2029() {
+  const location = useLocation();
+  return <Navigate replace to={`/code${location.search || ""}${location.hash || ""}`} />;
+}
+
 function LegacyDocumentHandoff() {
   const location = useLocation();
   const href = `${location.pathname}${location.search || ""}${location.hash || ""}`;
@@ -118,7 +123,8 @@ export default function App2029() {
               <Route path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
               <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
-              <Route path="/els" element={<Els2029Page />} />
+              <Route path="/code" element={<Els2029Page />} />
+              <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/researcher/:slug" element={<Researcher2029Page />} />
