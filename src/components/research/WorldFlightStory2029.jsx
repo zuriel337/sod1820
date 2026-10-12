@@ -73,7 +73,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         <p className="sod29-flight-lead">{home
           ? 'מספר על צילום, שמו של הקפטן, מקום הנחיתה. מתוך סיפור טיסה 1073 נפתחים חיבורים לאנשים, לזמן ולמקורות שכבר פגשנו.'
           : 'מתחילים בסיפור ובצילום. בוחרים חיבור שמסקרן אותנו, פותחים את המקור, ומעמיקים בקצב שלנו.'}</p>
-        {import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' ? <p className="sod29-flight-lead" data-preview-interpretation="zuriel-787">
+        {!home ? <p className="sod29-flight-lead" data-source-interpretation="zuriel-787">
           <strong>787 · השנה, החג וההודיה.</strong> לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את סיפור ההצלה בכמה רבדים. זו קריאה פרשנית של החיבור, ולא עדות שהברכה נאמרה בטיסה.
         </p> : null}
         <div className="sod29-flight-meta"><PostCategories2029 categories={post.categories} /><span>FZ1073</span>{date ? <span>פורסם באתר · {date}</span> : null}</div>
