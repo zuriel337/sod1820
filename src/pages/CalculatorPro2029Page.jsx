@@ -537,7 +537,8 @@ function ProExperience() {
                 </button>
                 <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
                 <button type="button" onClick={openHeichal}>חקור בהיכל</button>
-                <button type="button" className="is-raziel" onClick={openRaziel}>✦ רזיאל · תסביר לי</button>
+                <button type="button" className="is-raziel" onClick={openRaziel}>✦ ניתוח AI של השיטה · רזיאל</button>
+                <small className="sod29-calcpro-ai-note">הניתוח רץ רק בלחיצה, ומבוסס על התוצאה שהמנוע חישב.</small>
               </div>
               <CalculatorOpening2029 selection={canonicalSelection} open={showOpening} onClose={() => setShowOpening(false)} />
             </section>

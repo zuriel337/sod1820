@@ -452,3 +452,5 @@
 @container calcmain (min-width: 640px) {
   .sod29-calcpro-duo-cards { grid-template-columns: 1fr 1fr; }
 }
+
+.sod29-calcpro-ai-note { color: var(--s29-muted); font-size: 14px; line-height: 1.6; padding: 0 4px; }
