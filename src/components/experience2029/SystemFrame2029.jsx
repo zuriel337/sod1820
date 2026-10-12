@@ -574,29 +574,12 @@ function ActionProjection({
   );
 }
 
-function AttentionProjection({ context, onWorkspace, onOpen }) {
-  const [arrivals, setArrivals] = useState({ loading: true, items: [], error: false, partial: false });
-
-  // SAME owner/reader as /world. Loaded only on opening the bottom attention sheet;
-  // never copy a private/admin research bundle into global Context or local storage.
-  useEffect(() => {
-    let stop;
-    let mounted = true;
-    import("../../lib/research/worldDiscoveryStream.js")
-      .then(({ watchWorldDiscoveryStream }) => {
-        if (!mounted) return;
-        stop = watchWorldDiscoveryStream({
-          limit: 10, includeResearch: false,
-          onResult: (result) => setArrivals({
-            loading: false, items: result.items || [], groupArrivals: result.groupArrivals,
-            error: false, partial: (result.unavailableSources || []).length > 0,
-          }),
-          onError: () => setArrivals({ loading: false, items: [], error: true, partial: false }),
-        });
-      })
-      .catch(() => { if (mounted) setArrivals({ loading: false, items: [], error: true, partial: false }); });
-    return () => { mounted = false; stop?.(); };
-  }, []);
+function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
+  // The mobile Now sheet and left Companion show the SAME authorized public rows.
+  // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
+  // independent ordering, research read or seen-state cache.
+  const rows = Array.isArray(feed?.rows) ? feed.rows : [];
+  const partial = Array.isArray(feed?.unavailableSources) && feed.unavailableSources.length > 0;
 
   return (
     <>
@@ -606,27 +589,24 @@ function AttentionProjection({ context, onWorkspace, onOpen }) {
         <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
       </div>
       <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
-        {arrivals.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
-        {arrivals.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!arrivals.loading && !arrivals.error && !arrivals.items.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
-        {arrivals.groupArrivals ? <p role="status">{arrivals.groupArrivals.message}</p> : null}
-        {arrivals.partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
-        {arrivals.items.slice(0, 8).map((item) => {
-          const href = item.kind === "source"
-            ? item.href
-            : item.kind === "convergence" && item.slug
-              ? `/topic/${encodeURIComponent(item.slug)}`
-              : null;
+        {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
+        {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
+        {!feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
+        {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
+        {rows.slice(0, 8).map((row) => {
+          const item = row.item || {};
+          const href = row.href;
           return <button
             type="button"
-            key={item.id}
+            key={row.id}
             className="sod29-action"
             disabled={!href}
-            onClick={() => onOpen?.(href)}
+            onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
             style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
           >
-            <small>{item.kind === "source" ? "כתב מקור" : "התכנסות"} · {item.creator} · {timeAgoHe(item.at) || "זמן לא צוין"}</small>
-            <strong>{item.label}</strong>
+            <small>{row.typeLabel} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
+            <strong>{row.title}</strong>
             {item.summary ? <small>{item.summary}</small> : null}
             {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
           </button>;
@@ -1990,7 +1970,7 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
