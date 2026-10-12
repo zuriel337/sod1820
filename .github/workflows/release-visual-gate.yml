@@ -663,6 +663,12 @@ jobs:
           test('Calculator 2029 viral Golden completes compute discovery Raziel share loop', async ({ page }) => {
             const calculatorPath = '/2029/gematria';
             const goldens = ['צוריאל', 'צוריאל פולייס', 'שער נון', 'אנכי'];
+            // This loop verifies the open Raziel capability independently of the launch lock.
+            await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+              status: 200,
+              contentType: 'application/json',
+              body: JSON.stringify([{ key: 'lock_raziel_site', enabled: false, mode: 'all', message: '' }]),
+            }));
             const install2029Rewrite = async (targetPage) => {
               await targetPage.route('**/2029/gematria*', async (route) => {
                 const response = await targetPage.request.get(`${BASE}/2029.html`);
