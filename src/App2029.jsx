@@ -9,6 +9,7 @@ import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import Calculator2029Page from "./pages/Calculator2029Page.jsx";
+import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -86,6 +87,7 @@ export default function App2029() {
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
+              <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/2029/posts" element={<Posts2029Page />} />

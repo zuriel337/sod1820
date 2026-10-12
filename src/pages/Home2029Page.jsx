@@ -213,7 +213,7 @@ function HomeMiniGematria({ onOpenCalculator }) {
         data-preview-state="preview"
       >
         <span>{method.displayLabel}</span>
-        <strong>{method.computedValue ?? 0}</strong>
+        <strong>{method.computedValue ?? "—"}</strong>
       </div>)}
     </div>
   </section>;

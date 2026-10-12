@@ -1,3 +1,5 @@
+import { isReportableValue } from "./calculator2029Input.js";
+
 const clean = (value) => value == null ? "" : String(value).trim();
 
 export const CALCULATOR_VIRAL_PARAM = Object.freeze({
@@ -25,7 +27,7 @@ export function buildCalculatorShareUrl(selection, {
   shareId = null,
   baseUrl = "https://sod1820.co.il/2029/gematria",
 } = {}) {
-  if (!selection?.expression || !selection?.methodKey || selection?.resultValue == null) return null;
+  if (!selection?.expression || !selection?.methodKey || !isReportableValue(selection?.resultValue)) return null;
   const url = new URL(baseUrl, "https://sod1820.co.il");
   url.search = "";
   url.searchParams.set(CALCULATOR_VIRAL_PARAM.EXPRESSION, clean(selection.expression));
@@ -46,7 +48,7 @@ export function parseCalculatorShareState(search = "") {
   const resultValue = valueRaw != null && valueRaw !== "" && Number.isFinite(Number(valueRaw)) ? Number(valueRaw) : null;
   const discoveryPhrase = clean(params.get(CALCULATOR_VIRAL_PARAM.DISCOVERY)) || null;
   const shareId = clean(params.get(CALCULATOR_VIRAL_PARAM.SHARE_ID)) || null;
-  const isShared = Boolean(expression && methodKey && resultValue != null && shareId);
+  const isShared = Boolean(expression && methodKey && isReportableValue(resultValue) && shareId);
   return Object.freeze({ isShared, expression, methodKey, resultValue, discoveryPhrase, shareId });
 }
 
