@@ -4,6 +4,7 @@ import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
 import { fetchNumberRecordHistory2029 } from "./worldSourceDepth.js";
+import { project2029BuildStatus } from "./worldSourceDepthProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -114,6 +115,7 @@ async function fetchHomeSystemPulse2029() {
 
   return {
     windowDays: PULSE_WINDOW_DAYS,
+    buildStatus: project2029BuildStatus(),
     corpusTotal,
     corpusAdded7d,
     corpusLatestAt: latestWords[0]?.publicAt || null,

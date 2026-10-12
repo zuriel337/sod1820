@@ -108,3 +108,13 @@ Verification required: real admitted data in desktop +320/390 and three presets;
 Dispatch capability checked: canonical work_log_assign_agent requires authenticated admin/service_role. This session reports auth.role=NULL and rd_is_admin=false. Do not call through the SQL NULL-guard behavior, impersonate a role, bypass with direct INSERT, or claim Claude activation. Required next owner action is the existing authorized coordinator dispatching the visual brief; no manual user relay requested. Visual implementation and release remain OPEN.
 
 Additional recommendations: one interval selector24h/7d/30d, a separate popular/recent toggle, why-shown explanation, follow a Number for published additions, and a visible last-data-refresh timestamp. Show number-with-new-content separately from newly created records; meaningful public additions are more useful than insert-time flashing.
+
+## Construction status and evidence-based percentages
+
+Owner requested a visible “מערכת 2029 בבנייה” status, alongside the shared metrics/history in Home, World and the number region. Added one shared build-status projection to the existing source-depth and Home pulse payloads. This is presentation data, not another tracker or release gate.
+
+The current roadmap does not provide a finite, approved, versioned G4 checklist denominator. Navigation table `gates` is not a milestone checklist. Therefore production/default payload is `state=building`, `percent=null`, `basis=approved_checklist_unavailable`; no invented completion percentage. A future admitted checklist may supply unique milestone IDs, verified closed status and an evidence reference: only those closures count. Missing evidence or conflicting duplicate closures do not increase completion. A calculated percentage never authorizes release or certifies G4 closure.
+
+Visual brief extension (still not dispatched): show the construction label in the same compact shared component on Home/World/number region. Show numeric percentage plus completed/total only when an approved denominator and verified evidence exist; otherwise show “אחוז ההשלמה טרם אומת”. Keep build progress separate from content coverage, quality and popularity. Any coverage percentage needs exact public eligible totals, independently verified anonymous accessibility, its timestamp and an explanation; node mapping alone does not prove accessibility. Preserve original private/hidden decisions.
+
+Validation: eight source-depth tests PASS, existing Home Pulse acceptance PASS, 2029 build PASS, diff whitespace check PASS. This change is branch-only; no UI mount, deployment, product DB/RLS/ACL write or authenticated visual dispatch. Mandatory Claude visual lane and governed public opening aggregate remain OPEN.

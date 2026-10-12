@@ -13,6 +13,28 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE = 1000;
 const MAX_PAGES = 12;
 
+// Owner-requested public construction status. Completion percentages require an
+// explicit, versioned milestone denominator and evidence; this is not a new tracker.
+export function project2029BuildStatus({ milestones = [], checklistRef = null } = {}) {
+  const byId = new Map();
+  for (const item of milestones) {
+    if (!clean(item?.id)) continue;
+    // Conflicting duplicate evidence cannot increase completion.
+    const existing = byId.get(item.id);
+    const verified = item.status === "closed" && item.verified === true && Boolean(clean(item.evidenceRef));
+    byId.set(item.id, { verified: existing ? existing.verified && verified : verified });
+  }
+  const total = byId.size;
+  const completed = [...byId.values()].filter(item => item.verified).length;
+  const measured = Boolean(clean(checklistRef)) && total > 0;
+  return { scope: "2029", state: "building", label: "מערכת 2029 בבנייה",
+    percent: measured ? Math.floor(100 * completed / total) : null,
+    completed: measured ? completed : null, total: measured ? total : null,
+    checklistRef: measured ? checklistRef : null,
+    basis: measured ? "verified_closed_milestones" : "approved_checklist_unavailable",
+    releaseAuthorized: false };
+}
+
 // posts: [{id, slug, categories}] -> [{category, count}] distinct by post id, de-duplicated within a post.
 export function buildCategoryCounts(posts = []) {
   const seenByCategory = new Map();
@@ -67,6 +89,7 @@ export function buildSourceDepth({ posts = [], topics = [], attestedLinks = [], 
 
   return Object.freeze({
     complete: Boolean(complete),
+    buildStatus: project2029BuildStatus(),
     postsRead: posts.length,
     categories: rows,
     topicsTotal: topicBySlug.size,
