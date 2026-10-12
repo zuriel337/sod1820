@@ -11,6 +11,7 @@ const is2029 = process.env.SOD_BUILD_TARGET === '2029'
 // into the 2029 document merely because both runtimes consume Foundation modules.
 export default defineConfig({
   plugins: [react()],
+  define: { "import.meta.env.VITE_RUNTIME_TARGET": JSON.stringify(is2029 ? "2029" : "legacy") },
   build: {
     emptyOutDir: !is2029,
     manifest: is2029,

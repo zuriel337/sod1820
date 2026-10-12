@@ -54,6 +54,8 @@ async function fetchHomeSystemPulse2029() {
     latestCreatedResult,
     latestVisibilityResult,
     contributionsResult,
+    commentsResult,
+    channelUpdatesResult,
   ] = await Promise.all([
     publicWordQuery("phrase", { count: "exact", head: true }),
     publicWordQuery("phrase", { count: "exact", head: true }).gte("created_at", since),
@@ -72,6 +74,12 @@ async function fetchHomeSystemPulse2029() {
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1000),
+    // Public aggregates only; never raw chat_messages, DMs or personal inboxes.
+    supabase.from("comments").select("wp_id", { count: "exact", head: true })
+      .eq("status", "publish").gte("date", since),
+    supabase.from("channel_updates").select("id", { count: "exact", head: true })
+      .eq("status", "live").gte("created_at", since)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`),
   ]);
 
   const hasCorpusError = [totalResult, createdResult, visibilityResult, overlapResult]
@@ -111,6 +119,12 @@ async function fetchHomeSystemPulse2029() {
     latestWords,
     contributions7d: contributionsError ? null : Number(contributionsResult.count || 0),
     writers7d: contributionsError ? null : writers.size,
+    publicComments7d: commentsResult?.error ? null : commentsResult.count,
+    publicChannelUpdates7d: channelUpdatesResult?.error ? null : channelUpdatesResult.count,
+    metricSources: {
+      publicComments7d: "comments:status=publish",
+      publicChannelUpdates7d: "channel_updates:live_unexpired",
+    },
     // Journey/search/calculator counts intentionally stay out until their canonical public readers are live.
     journeysToday: null,
     searchesToday: null,

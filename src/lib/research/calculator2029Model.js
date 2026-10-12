@@ -87,3 +87,12 @@ export function buildCalculatorResearchContext(selection, extraDimensions = {}) 
     },
   };
 }
+
+// Canonical successful computations are activity, not individual methods or previews.
+// Safe aggregate event metadata only; never the expression or personal input.
+export function buildCanonicalComputeTelemetry(expression, rows = [], { restored = false } = {}) {
+  const phrase = clean(expression);
+  const methods = rows.filter(row => !row?.previewOnly && isReportableValue(row?.computedValue));
+  if (!phrase || restored || !methods.length) return null;
+  return { computation_version: 1, expression_length: phrase.length, method_count: methods.length };
+}

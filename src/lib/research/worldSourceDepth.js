@@ -28,7 +28,7 @@ async function readTopics() {
   for (let page = 0; page < 5; page += 1) {
     const { data, error } = await supabase
       .from("topic_cards_public")
-      .select("slug,title,subtitle,node_id,numbers,approved_at")
+      .select("slug,title,subtitle,node_id,numbers,approved_at,quality,meter_score")
       .order("slug", { ascending: true })
       .range(page * PAGE, page * PAGE + PAGE - 1);
     if (error) throw error;

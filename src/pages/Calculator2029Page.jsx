@@ -17,6 +17,7 @@ import {
   buildCalculatorResearchContext,
   calculationAvailabilityLabel,
   splitCalculatorMethods,
+  buildCanonicalComputeTelemetry,
 } from "../lib/research/calculator2029Model.js";
 import {
   CALCULATOR_INPUT_KIND,
@@ -338,6 +339,9 @@ function CalculatorExperience() {
       const method = preferred || list[0] || null;
       setProfile({ loading: false, rows: list, error: null, expression: phrase });
       if (method) commitMethod(method, phrase, restore ? "share_restore" : "compute_default");
+
+      const computeTelemetry = buildCanonicalComputeTelemetry(phrase, list, { restored: restore });
+      if (computeTelemetry) emit("calculator_2029", "canonical_compute", { props: computeTelemetry });
 
       if (restore) {
         setSharedRestored(true);

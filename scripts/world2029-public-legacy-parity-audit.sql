@@ -42,3 +42,40 @@ SELECT
 -- A post or image without an active node is not necessarily hidden: legacy owner routes
 -- may still expose it. A node without an approved World entry is not proof of publication.
 -- Next exact evidence required: anon HTTP route coverage for all legacy source IDs.
+
+-- 4) 2029 activity only, over the EXISTING Traffic events owner. No raw search terms.
+-- Historical shared URLs cannot prove runtime identity. The forward runtime_target
+-- marker closes that gap; do not retrospectively label /world or /post as 2029.
+WITH runtime_events AS (
+ SELECT * FROM public.events
+ WHERE ts >= now() - interval '7 days'
+   AND (props->>'runtime_target'='2029' OR path='/2029' OR path LIKE '/2029/%')
+)
+SELECT path, count(*) AS page_views
+FROM runtime_events WHERE surface='page' AND event_type='view'
+GROUP BY path ORDER BY page_views DESC;
+
+-- Exact number opens: page/view once, never summed with number/view or site_visits.
+WITH runtime_events AS (
+ SELECT * FROM public.events WHERE ts>=now()-interval '7 days'
+   AND surface='page' AND event_type='view' AND path ~ '^/2029/number/[0-9]+$'
+)
+SELECT path,count(*) AS opens FROM runtime_events GROUP BY path ORDER BY opens DESC;
+
+-- New canonical_compute events are forward-only. first_compute is a funnel marker,
+-- result_selected is a selection (including method changes), neither is total computes.
+SELECT event_type,count(*) AS n FROM public.events
+WHERE ts>=now()-interval '7 days' AND surface='calculator_2029'
+  AND event_type IN ('canonical_compute','first_compute','result_selected')
+GROUP BY event_type;
+
+-- 5) ADMIN-ONLY intake pipeline inventory. No message text, identities or addresses.
+-- These stages overlap. NEVER sum processed/published rows into unique received messages.
+SELECT 'mail_received' AS metric,count(*) AS n FROM public.inbound_emails WHERE received_at>=now()-interval '7 days'
+UNION ALL SELECT 'whatsapp_records_ingested',count(*) FROM public.wa_msg_ext WHERE created_at>=now()-interval '7 days'
+UNION ALL SELECT 'whatsapp_new_message_timestamps',count(*) FROM public.wa_msg_ext WHERE created_at>=now()-interval '7 days' AND ts>=now()-interval '7 days'
+UNION ALL SELECT 'whatsapp_older_backfill',count(*) FROM public.wa_msg_ext WHERE created_at>=now()-interval '7 days' AND ts<now()-interval '7 days'
+UNION ALL SELECT 'whatsapp_bot_processed_ids',count(DISTINCT msg_id) FROM public.wa_bot_log WHERE created_at>=now()-interval '7 days';
+
+SELECT origin,status,count(*) AS n FROM public.research_contributions
+WHERE created_at>=now()-interval '7 days' GROUP BY origin,status;

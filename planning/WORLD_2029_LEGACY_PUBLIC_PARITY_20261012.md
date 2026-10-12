@@ -55,3 +55,34 @@ Validation: eight adapter/projection tests PASS; 2029 production build PASS; dif
 LIVE sample (existing production, not this branch): unauthenticated browser renders /world, public source rail, 205 topic total, preserved 878 Journey lock. Seven visible img elements loaded successfully (including the four source discovery doors and flight cover). World -> elections post5107 renders complete source text and cover; Number631 link opens the existing Number route. The two un-mapped aircraft images return HEAD200 image/png and image/jpeg. Terminal /world returned403 while cloud browser succeeded; therefore do not infer production outage. Exhaustive rendered-route, mobile/return/SEO and all asset-byte verification remains OPEN.
 
 Release: NOT MERGED, NOT DEPLOYED. Keep PR draft. Full parity cannot close until reader UI wiring, all-ID route coverage, governed mapping decisions and deployment evidence. Preserve the existing 85 orphan-image-node decision; no relink/deactivation performed.
+
+
+## Owner-selected metrics and 2029-only activity — 2026-10-12 18:38 Israel
+
+ZURIEL selected all three separate dimensions: content richness (sources/images/topics), research strength/quality and manual Gold/Diamond, and weekly number popularity (opens/computations). Requested the main activity meter cover number-page openings, pages opened, Gematria computations, and intake from Community/WhatsApp/email. Scope is 2029, not the old UI.
+
+### LIVE bounded READ ONLY findings (rolling seven days)
+- Canonical events `surface=page,event_type=view,path=/2029 or /2029/*`:247 views, including50 number opens across14 distinct number pages. Six of50 are known admin activity;44 have no matched admin role (NOT a proof that all are human). Raw site_visits for numeric2029 routes:7212 rows,7162 flagged bots. Never promote that raw total into public popularity.
+- Number routes:718=12,1073=7,631=6,73=4,363=3,878=3; these are recorded opens, not unique people.
+- Other /2029 pages:Home106,Posts36,Gematria26,home-preview18,calculator7. Preview/admin traffic should be separate in final public projection.
+- Existing Calculator2029 telemetry:first_compute5,result_selected43. First_compute only fires once per mounted calculator; result_selected includes method changes. Neither measures total computations.1153 legacy Gematria computes have no2029 path; excluded.
+- Shared URLs /world,/post,/topic,/els historically lack a renderer marker. Do not guess runtime from the URL. Existing admin_2029_analytics with null prefix includes legacy events, so its unfiltered summary is not a2029-only measurement.
+- Canonical intake owners (admin-only decomposition):wa_msg_ext98 records ingested this week;65 have original message timestamps this week,33 are older-message backfill. wa_bot_log9 distinct processed message IDs (no overlap with those98); stages are not a unique-received-message total. Research Contributions:2 pending from whatsapp_dm. inbound_emails0 received this week (zero rows is not connector-health proof). Public live/unexpired channel updates16; public published comments0. No inbox body, address, phone or user-search term read/displayed.
+- Old activity_pulse/site_pulse_today use raw site_visits, UTC-day casts and old /number,/code path predicates. Labels of investigations are not canonical computation/search counts. They stay out of Home2029; no old ticker reactivated.
+
+### Implemented branch-only capabilities
+- Compile-time VITE_RUNTIME_TARGET in the existing dual Vite build. Existing events emitter and engagement payload attach runtime_target=2029 only to2029 builds, including shared URLs. Same collector/store/RPC; no identity, bot-classifier, retention or historical-data rewrite.
+- Existing Calculator2029 compute path emits one canonical_compute after a successful current, nonempty canonical profile, excluding share restoration and preview-only/invalid results. Existing professional/comparison useCalculatorRow emits after an accepted current server result; cached re-renders/method selection do not emit. Metadata is expression length and method count only, no expression/value/private root. Existing first_compute funnel retained unchanged.
+- Existing Home pulse extends safe public aggregates with comments:status=publish and channel_updates:live/unexpired over7days; errors/null counts remain unknown, not zero. No raw Community chat/DM/email/WA inbox feed in public Home.
+- Existing source-depth numberHighlights carries exact Topic-owned ratings with Topic identity; ratings are not assigned to the Number or combined with popularity. Existing convergence_meter/Number tier reader is the Gold/Diamond owner.
+- Existing parity SQL extended with repeatable2029-only page/number/compute and admin-only intake-stage queries. Not an importer or new analytics system.
+
+Validation:13 targeted tests PASS; existing Home Pulse acceptance PASS; Legacy+2029 builds PASS; source hard-isolation PASS. Live telemetry evidence after publication still required; new canonical_compute/runtime_target events will be forward-only and cannot repair past gaps.
+
+### Recommended existing Control2029 decomposition
+1. Public product activity: page/number opens, successful computations, published reactions/contributions; each has its own window and source, excludes known admin/preview/bot activity.
+2. Admin intake: unique arrived source IDs by channel, pending/processing/failed/published states, oldest waiting item and time from arrival to publication. Never add overlapping representations as messages.
+3. Public content richness/strength: exact distinct public source/image/topic IDs plus separate Topic quality, convergence score and human-curated tier counts. Popularity never establishes truth.
+4. Existing Traffic/reliability detail: reading engagement and exact-return completion, first-action funnel, failed public reads, server response latency and source freshness. These reveal whether visits become successful research.
+
+Remaining: visual Home/World/control integration under existing visual writer lane; extend/review existing admin analytics query to consume explicit runtime_target and preserve legacy raw signal as separate provenance; governed safe public popularity aggregate; end-to-end success/error/cache/duplicate telemetry verification; exact-head CI and deployment. No production/DB/RLS/permission change and no claim that all channels are integrated/live.

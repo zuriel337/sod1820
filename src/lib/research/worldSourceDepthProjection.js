@@ -90,8 +90,10 @@ export function buildPublicNumberHighlights(topics = [], { now = Date.now(), lim
     const recent = Number.isFinite(approved) && approved >= since && approved <= now;
     for (const value of new Set(Array.isArray(topic.numbers) ? topic.numbers : [])) {
       if (!Number.isSafeInteger(value) || value <= 0) continue;
-      const row = byNumber.get(value) || { value, publicTopics: 0, approvedTopics7d: 0 };
+      const row = byNumber.get(value) || { value, publicTopics: 0, approvedTopics7d: 0, topicRatings: [] };
       row.publicTopics += 1;
+      // These ratings belong to the Topic, never silently transferred to the Number.
+      row.topicRatings.push({ slug: identity, title: clean(topic.title), quality: topic.quality ?? null, meterScore: topic.meter_score ?? null });
       if (recent) row.approvedTopics7d += 1;
       byNumber.set(value, row);
     }

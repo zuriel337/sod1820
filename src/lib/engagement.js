@@ -163,6 +163,7 @@ export function createPageEngagementTracker(path, deps = {}) {
       p_is_bot: false,
       p_props: {
         ...snap,
+        ...(import.meta.env?.VITE_RUNTIME_TARGET === "2029" ? { runtime_target: "2029" } : {}),
         flush_reason: reason,
         engagement_version: ENGAGEMENT_VERSION,
         idle_threshold_ms: idleThresholdMs,
