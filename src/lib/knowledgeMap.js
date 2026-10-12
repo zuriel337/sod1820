@@ -89,23 +89,25 @@ export const stagePercent = stage => STAGE_PROGRESS[Number(stage || 0)] || 0;
 // FIRST PUBLIC 2029 STAGE = the first bounded Golden Experience, not the full 2029 rollout.
 // Canonical Foundation Closure Protocol binds the path as G0 → G1 → G2 → G3 → G3.5 → G4.
 // Only CLOSED+LIVE+VERIFIED gates count. An active gate contributes 0 until it is formally closed.
-// Snapshot verified 21.9.2026: G0, G1 and G2 closed/live/verified; G3 active/open; G3.5/G4 pending.
+// Reconciled 9.10.2026 against current Master State and Roadmap: G3 closed by Human Gate on
+// 1.10.2026; the G3→G4 transition is in progress. This public milestone indicator is
+// not a promise of full launch or automatic unlocking on the announcement date.
 export const FIRST_STAGE_RELEASE_GATES = [
   { id:"G0", label:"ניקוי ופריטי בסיס", state:"closed", closedAt:"2026-09-12" },
   { id:"G1", label:"כניסת סוכנים ומקורות אמת", state:"closed", closedAt:"2026-09-12" },
-  { id:"G2", label:"מודל 2029 והמשמעות הסמנטית", state:"closed", closedAt:"2026-09-15" },
-  { id:"G3", label:"מימוש תשתיות 2029", state:"active", closedAt:null },
-  { id:"G3.5", label:"מוכנות תרחישי אמת", state:"pending", closedAt:null },
+  { id:"G2", label:"מודל העולם החדש והמשמעות הסמנטית", state:"closed", closedAt:"2026-09-15" },
+  { id:"G3", label:"מימוש תשתיות 2029", state:"closed", closedAt:"2026-10-01" },
+  { id:"G3.5", label:"מוכנות תרחישי אמת ומעבר ל־G4", state:"active", closedAt:null },
   { id:"G4", label:"חוויית הזהב הראשונה", state:"pending", closedAt:null },
 ];
 const CLOSED_FIRST_STAGE_GATES = FIRST_STAGE_RELEASE_GATES.filter(g => g.state === "closed").length;
 export const BUILD_PROGRESS = Math.round((CLOSED_FIRST_STAGE_GATES / FIRST_STAGE_RELEASE_GATES.length) * 100);
 export const BUILD_REMAINING = 100 - BUILD_PROGRESS;
 
-// Audited weekly comparison: on 14.9.2026 G0+G1 were closed/live/verified;
-// by 21.9.2026 G2 had also closed and G3 was active. Keep the range explicit so it never masquerades as a rolling metric.
-export const BUILD_WEEKLY_LABEL = "14–21.9";
-export const BUILD_WEEKLY_BASE_PROGRESS = 33;
+// Historical milestone comparison (not a live rolling metric): 21.9 -> 9.10.
+// On 21.9 only G0-G2 were sealed; G3 was sealed on 1.10 (Human Gate).
+export const BUILD_WEEKLY_LABEL = "21.9–9.10";
+export const BUILD_WEEKLY_BASE_PROGRESS = 50;
 export const BUILD_WEEKLY_DELTA = BUILD_PROGRESS - BUILD_WEEKLY_BASE_PROGRESS;
 export const BUILD_TRACK_BY_ID = Object.fromEntries(BUILD_TRACKS.map(t => [t.id, t]));
 

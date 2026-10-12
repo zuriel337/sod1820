@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js';
 import { signupAttribution, visitorId } from './acquisition.js';
+import { googleOAuthRequest } from './oauthReturn.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -7,11 +8,13 @@ const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, created_at';
 
 // ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
-export function signInWithGoogle() {
-  return supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: SITE_URL + '/' },
+export function signInWithGoogle({ returnTo = '/' } = {}) {
+  const request = googleOAuthRequest({
+    origin: SITE_URL,
+    returnTo,
+    integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true',
   });
+  return supabase.auth.signInWithOAuth(request);
 }
 
 export function signInWithFacebook() {
@@ -50,15 +53,17 @@ export async function updateProfile(userId, fields) {
 }
 
 // ── שער החידושים: אימות OTP במייל (בית המדרש) ──
-export async function requestEmailOtp(email) {
+export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   // WIRING: מצרפים את תצלום-הייחוס ל-user_metadata כדי ש-handle_new_user (טריגר auth signup)
   // יוכל לשמור אותו ב-subscribers.acquisition — זה המסלול הדומיננטי (שער-האימות), שאין לו
   // גישה ל-localStorage בצד-השרת. אם הלכידה נכשלת — ההרשמה ממשיכה כרגיל (data ריק).
   let data = {};
-  try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
+  if (shouldCreateUser) {
+    try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
+  }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { shouldCreateUser: true, data },
+    options: { shouldCreateUser, data },
   });
   if (error) throw error;
   return { ok: true };
@@ -77,8 +82,8 @@ export async function getSession() {
   return data?.session ?? null;
 }
 
-export function signOut() {
-  return supabase.auth.signOut();
+export function signOut(options) {
+  return supabase.auth.signOut(options);
 }
 
 // 🎯 המרה (research funnel שלב 6): בעת התחברות, לתבוע את ליד-המחקר של המשתמש

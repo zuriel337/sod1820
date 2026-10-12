@@ -63,6 +63,9 @@ function topicRowToCard(row) {
     refId: row.slug || String(row.id),
     creator: row.created_by || null,
     numbers: Array.isArray(row.numbers) ? row.numbers : [],
+    highlightNumbers: Array.isArray(row.highlight_numbers) ? row.highlight_numbers : [],
+    quality: row.quality ?? null,
+    meterScore: row.meter_score ?? null,
     approvedAt: row.approved_at || null,
     // Slice 5: meter_score is an existing public-safe convergence/evidence-strength signal.
     // It orders DISPLAY only; it is not verification, canonicality, publication, or access.

@@ -91,8 +91,12 @@ export function buildTopicGoldenProjection(projection, { hub = null, prominence 
   ].filter(Boolean))];
 
   // Same media envelope as World/Number (shared intrinsic payload); Topic only supplies context.
-  const media = asArray(hub?.media?.items).slice(0, 8).map((row, index) => ({
-    id: clean(row?.galleryImageId || row?.nodeId) || `media-${index}`,
+  // An explicitly requested source context is authoritative for this section, including an
+  // empty/error result. Do not silently substitute graph cards or discard historical layers.
+  const mediaRows = hub?.sourceContext ? asArray(hub.sourceContext.items) : asArray(hub?.media?.items).slice(0, 8);
+  const media = mediaRows.map((row, index) => ({
+    ...row,
+    id: clean(row?.galleryImageId || row?.mediaId || row?.nodeId) || `media-${index}`,
     mediaId: row?.mediaId || null,
     nodeId: row?.nodeId || null,
     galleryImageId: row?.galleryImageId || null,
@@ -122,6 +126,7 @@ export function buildTopicGoldenProjection(projection, { hub = null, prominence 
     sources: sourceRows(hub),
     people,
     media,
+    sourceContext: hub?.sourceContext || null,
     prominenceItems,
     rank: rankSummary(prominence),
     researchCount: asArray(hub?.research?.findings).length,

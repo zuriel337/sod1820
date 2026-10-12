@@ -112,6 +112,24 @@ export function isPrimeSafeInteger(input) {
   return true;
 }
 
+// Bounded deterministic prime lens. Large inputs keep their primality result
+// without implying that an uncomputed ordinal is known.
+export function primeContextForNumber(input, { maxOrdinalInput = 20000 } = {}) {
+  const n = Number(input);
+  if (!Number.isSafeInteger(n) || n < 2 || !isPrimeSafeInteger(n)) return null;
+  if (n > maxOrdinalInput) return { status: 'ordinal_unavailable', index: null };
+  let index = 0;
+  let previous = null;
+  for (let value = 2; value <= n; value += 1) {
+    if (!isPrimeSafeInteger(value)) continue;
+    if (value < n) previous = value;
+    index += 1;
+  }
+  let next = n + 1;
+  while (!isPrimeSafeInteger(next)) next += 1;
+  return { status: 'exact', index, previous, next, gapBefore: previous == null ? null : n - previous, gapAfter: next - n };
+}
+
 export function factorIntegerBounded(input, options = {}) {
   const n = Number(input);
   if (!Number.isSafeInteger(n) || n < 0) throw new TypeError('number must be a non-negative safe integer');
@@ -312,6 +330,7 @@ export function analyzeNumberMath(numberInput, options = {}) {
       factorization,
       ...arithmetic,
     },
+    prime_context: prime ? primeContextForNumber(number) : null,
     digit_structure: digits,
     figurate,
     powers: {

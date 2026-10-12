@@ -1,8 +1,8 @@
 import { METHODS } from "../gematria.js";
 import { canonicalMethodPublicLabel } from "../presentation/canonicalPresentation.js";
+import { classifyCalculatorInput } from "./calculator2029Input.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
-const HEBREW_LETTER_RE = /[\u05D0-\u05EA]/u;
 
 export const CALCULATOR_2029_FAST_CORE_KEYS = Object.freeze([
   "רגיל",
@@ -23,15 +23,18 @@ const FAST_CORE_METHODS = CALCULATOR_2029_FAST_CORE_KEYS
 
 export function buildCalculator2029FastPreview(input) {
   const expression = clean(input);
-  const hasHebrew = HEBREW_LETTER_RE.test(expression);
+  const inputInfo = classifyCalculatorInput(expression);
+  const hasHebrew = inputInfo.hebrewApplicable;
 
   const methods = FAST_CORE_METHODS.map((method, index) => {
-    const rawValue = hasHebrew ? method.fn(expression) : 0;
-    const value = Number(rawValue);
+    // Empty input keeps the quiet "0" calculator look; non-empty input the Hebrew methods do not
+    // apply to (Latin, digits, other scripts) shows no value instead of an invented 0.
+    const rawValue = hasHebrew ? method.fn(expression) : null;
+    const value = rawValue == null ? null : Number(rawValue);
     return Object.freeze({
       methodKey: method.key,
       displayLabel: canonicalMethodPublicLabel(method),
-      computedValue: Number.isFinite(value) ? value : 0,
+      computedValue: value != null && Number.isFinite(value) ? value : (expression ? null : 0),
       sortOrder: index,
       executionKind: "client_preview",
       previewOnly: true,
@@ -43,6 +46,8 @@ export function buildCalculator2029FastPreview(input) {
   return Object.freeze({
     kind: "gematria_fast_preview",
     expression,
+    inputKind: inputInfo.kind,
+    inputNotice: inputInfo.notice,
     methods: Object.freeze(methods),
     methodCount: methods.length,
     previewOnly: true,

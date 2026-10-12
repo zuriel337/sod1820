@@ -6,3 +6,8 @@ export { default } from "./SystemFrame2029.jsx";
 export { use2029Shell, FrameState } from "./SystemFrame2029.jsx";
 import "./systemFrame2029-human-gate.css";
 import "./systemFrame2029-command-island-polish.css";
+
+// Content orientation only; global header/rail remain owned by SystemFrame.
+import "./pageIntro2029.css";
+
+import "./contentActions2029.css";

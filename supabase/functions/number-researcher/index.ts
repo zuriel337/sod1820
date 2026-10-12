@@ -9,6 +9,7 @@
 // לעולם לא מחזירים null לצ׳אט; (3) dossier קומפקטי (במקום JSON-גולמי ענק) → פחות טוקנים,
 // מהיר יותר, וסיכון נמוך יותר לטקסט-ריק.
 import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";
+import { createRazielInterview } from "../_shared/razielInterview.js";
 
 const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
@@ -17,6 +18,7 @@ const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || SB_SVC;
 // G3 D2: canonical server capability gate + Operational Trace before provider spend (service role only).
 const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
+const interview = createRazielInterview({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
 const CAPABILITY = "number-researcher:chat";
 const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const H = { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" };
@@ -70,9 +72,9 @@ async function uidFromToken(auth: string): Promise<string> {
 
 async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { role: string; text: string }[]; snapshot: unknown }> {
   if (!uid) return { history: [], snapshot: null };
-  const rows = await rest(`agent_user_memory?user_ref=eq.${encodeURIComponent(uid)}&channel=eq.site&agent=eq.raziel&memory_type=eq.conversation&source=eq.site&select=content,data,created_at&order=created_at.asc&limit=${limit}`);
+  const rows = await rest(`agent_user_memory?user_ref=eq.${encodeURIComponent(uid)}&channel=eq.site&agent=eq.raziel&memory_type=eq.conversation&source=eq.site&select=content,data,created_at&order=created_at.desc,id.desc&limit=${limit}`);
   const history: { role: string; text: string }[] = []; let snapshot: unknown = null;
-  if (Array.isArray(rows)) for (const r of rows) {
+  if (Array.isArray(rows)) for (const r of [...rows].reverse()) {
     if (r.content) history.push({ role: "user", text: r.content });
     const reply = r?.data?.reply; if (reply) history.push({ role: "assistant", text: humanize(String(reply)) || String(reply) });
     if (r?.data?.context_snapshot) snapshot = r.data.context_snapshot;
@@ -81,9 +83,9 @@ async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { rol
 }
 
 async function saveExchange(uid: string, userMsg: string, reply: string, values: number[], snapshot: unknown) {
-  if (!uid || !reply) return;
+  if (!uid || !reply) return false;
   try {
-    await fetch(`${SB_URL}/rest/v1/agent_user_memory`, {
+    const response = await fetch(`${SB_URL}/rest/v1/agent_user_memory`, {
       method: "POST", headers: { ...H, Prefer: "return=minimal" },
       body: JSON.stringify({
         user_ref: uid, channel: "site", agent: "raziel",
@@ -93,7 +95,8 @@ async function saveExchange(uid: string, userMsg: string, reply: string, values:
         data: { reply, context_snapshot: snapshot, values },
       }),
     });
-  } catch { /* לא שובר את התשובה */ }
+    return response.ok;
+  } catch { return false; /* לא שובר את התשובה */ }
 }
 
 const CORE_RULE_IDS = ["misratar_multi","ribua_definition","method_hierarchy_ragil_foundation","method_priority","messiah_frequency_law","intent_before_compute_law","gematria_engine_law","shitat_haechad_alef_law"];
@@ -208,9 +211,14 @@ async function callClaude(system: string, userMsg: string, tries = 3): Promise<{
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  if (!ANTHROPIC_KEY) return json({ answer: null, error: "not_configured" });
   try {
     const body = await req.json().catch(() => ({}));
+    // Explicit human operations over the existing owners; no model/quota call.
+    if (body?.op === "interview") {
+      const result = await interview.handle(req, body);
+      return json(result, result.ok ? 200 : result.status || 503);
+    }
+    if (!ANTHROPIC_KEY) return json({ answer: null, error: "not_configured" });
     const uid = await uidFromToken(req.headers.get("Authorization") || "");
 
     if (body?.op === "history") { const t = await loadThreadFull(uid); return json({ history: t.history, snapshot: t.snapshot, uid_present: !!uid }); }
@@ -236,6 +244,15 @@ Deno.serve(async (req: Request) => {
     });
     if (g.state === "unavailable") return json({ answer: null, error: "gate_unavailable", trace_id: trace?.traceId || null });
     if (g.state === "denied") return json({ answer: null, error: g.denial, trace_id: trace?.traceId || null });
+
+    let interviewPack: any = null;
+    if (body?.interview_path_id != null) {
+      interviewPack = await interview.context(req, body.interview_path_id);
+      if (!interviewPack.ok) {
+        await mg.finishTrace(trace, [401, 403, 404].includes(interviewPack.status) ? "access_filtered" : "failed_with_reason", "interview_unavailable");
+        return json({ answer: null, error: interviewPack.error, degraded: true }, interviewPack.status);
+      }
+    }
 
     const [personaRaw, rctx, knowledge, brainRows] = await Promise.all([
       rpc("fn_raziel_persona", { p_channel: "site" }),
@@ -273,6 +290,7 @@ Deno.serve(async (req: Request) => {
       (knowBlock ? knowBlock + "\n\n" : "") +
       (memBlock ? memBlock + "\n\n" : "") +
       (convo ? `— שיחה עד כה —\n${convo}\n\n` : "") +
+      (interviewPack ? interviewPack.text + "\n\n" : "") +
       `— צוריאל עכשיו —\n${message || (values.length > 1 ? `השווה בין ${values.join(" ל-")}` : `ספר לי הכל על ${values[0]}`)}\n\n` +
       `ענה בעברית רצופה בלבד (לא JSON) לפי המדורים. context version: ${typeof ctxVer === "string" ? ctxVer : JSON.stringify(ctxVer)}.`;
 
@@ -291,16 +309,19 @@ Deno.serve(async (req: Request) => {
       rules_snapshot: rulesSnap ?? [], engine_snapshot: engineSnap ?? [],
       decisions: Array.isArray(decisions) ? decisions : [],
       values, model: MODEL,
+      ...(interviewPack ? { interview: { path_id: interviewPack.result.path_id, revision_no: interviewPack.result.revision_no,
+        decision_refs: interviewPack.result.decisions.map((d: any) => d.id), next_question_ref: interviewPack.result.next_question?.id || null,
+        basis: "ATTRIBUTED_HUMAN_INTERPRETATION" } } : {}),
     };
 
-    if (uid && text) await saveExchange(uid, message, text, values, snapshot);
+    const persisted = uid && text ? await saveExchange(uid, message, text, values, snapshot) : false;
 
     // 🛟 fallback חינני — לעולם לא null לצ׳אט. הדוסייה כבר בידי ה-UI, אז רזיאל מכוון את צוריאל להמשיך.
     const answer = text || (values.length
       ? `רגע — נתקעתי בניתוח של ${values.join(" · ")} (${aiError === "timeout" ? "לקח יותר מדי זמן" : "עומס רגעי"}). הנתונים כבר לפניך בכרטיס. נסה לשלוח שוב, או שאל אותי משהו ממוקד — למשל «מה ההתכנסות הכי חזקה של ${values[0]}?» או «למה זה מעניין?» 🌳`
       : `לא תפסתי מספר לחקור. כתוב לי מספר (למשל 312) ואחקור אותו לעומק — או שאל על מספר שכבר על השולחן. 🌳`);
 
-    return json({ answer, dossiers, values, context_version: ctxVer, model: MODEL, context_snapshot: snapshot, remembered: snapshot.memory_context.recent_conversation_n, persisted: !!(uid && text), degraded: !text, ai_error: text ? null : aiError });
+    return json({ answer, dossiers, values, context_version: ctxVer, model: MODEL, context_snapshot: snapshot, remembered: snapshot.memory_context.recent_conversation_n, persisted, degraded: !text, ai_error: text ? null : aiError });
   } catch (e) {
     return json({ answer: "אירעה תקלה רגעית אצלי — נסה שוב בעוד רגע. 🌳", error: String(e).slice(0, 200), degraded: true }, 200);
   }

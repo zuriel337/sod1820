@@ -122,11 +122,7 @@ assert.equal(restored.selection.locator, "chapter:2:verse:4");
 assert.equal(restored.lens, "reading");
 assert.equal(restored.journey.position, 4);
 assert.equal(restored.returnTo, null);
-assert.match(frame, /selection:\s*target\.selection \|\| null/);
-assert.match(frame, /lens:\s*target\.lens \|\| null/);
-assert.match(frame, /dimensions:\s*target\.dimensions \|\| null/);
-assert.match(frame, /journey:\s*target\.journey \|\| null/);
-assert.match(frame, /returnTo:\s*null/);
+assert.match(frame, /updateResearchContext\?\.\(\(current\) => buildExactReturnPatch\(current, target\)\)/, "Frame must reconcile against the live runtime context");
 
 // Quick Inspect and Selection Intelligence stay temporary context projections. The native NumberDrawer2029 may be mounted as a 2029 projection, but the Legacy NumberDrawer/numberDrawer owners remain forbidden above.
 assert.match(frame, /בחירה זמנית/);
@@ -235,8 +231,12 @@ assert.match(frame, /<small>פעולה<\/small>/);
 assert.match(frame, /<small>כלים<\/small>/);
 assert.equal(frame.includes("<small>מספר</small>"), false, "Number must be a capability projection, not a permanent command-island owner");
 assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
-assert.match(frame, /<small>חדש בעולם<\/small>/);
-assert.match(frame, /title="מה חדש בעולם"/);
+// Typed Now (approved Home bottom-bar structure): world / for-me / Raziel, each opening an existing frame surface.
+assert.match(frame, /function NowTabs2029\(/);
+assert.match(frame, /hint: "מה חדש בעולם", on: onWorld/);
+assert.match(frame, /onWorld=\{openAttention\} onMe=\{openWorkspace\}/);
+assert.match(frame, /className="sod29-bar-zone is-context"/);
+assert.match(frame, /className="sod29-bar-zone is-actions"/);
 assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);

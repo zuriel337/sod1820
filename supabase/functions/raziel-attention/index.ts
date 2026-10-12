@@ -57,9 +57,9 @@ async function uidFromToken(auth: string): Promise<string> {
 // memory_type='conversation') — "ONE SYSTEM. ONE RAZIEL." לא שיחה נפרדת/מקבילה.
 async function loadThreadFull(uid: string, limit = 40): Promise<{ history: { role: string; text: string }[]; snapshot: unknown }> {
   if (!uid) return { history: [], snapshot: null };
-  const rows = await rest(`agent_user_memory?user_ref=eq.${encodeURIComponent(uid)}&channel=eq.site&agent=eq.raziel&memory_type=eq.conversation&source=eq.site&select=content,data,created_at&order=created_at.asc&limit=${limit}`);
+  const rows = await rest(`agent_user_memory?user_ref=eq.${encodeURIComponent(uid)}&channel=eq.site&agent=eq.raziel&memory_type=eq.conversation&source=eq.site&select=content,data,created_at&order=created_at.desc,id.desc&limit=${limit}`);
   const history: { role: string; text: string }[] = []; let snapshot: unknown = null;
-  if (Array.isArray(rows)) for (const r of rows) {
+  if (Array.isArray(rows)) for (const r of [...rows].reverse()) {
     if (r.content) history.push({ role: "user", text: r.content });
     const reply = r?.data?.reply; if (reply) history.push({ role: "assistant", text: String(reply) });
     if (r?.data?.context_snapshot) snapshot = r.data.context_snapshot;

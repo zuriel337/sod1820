@@ -31,8 +31,8 @@ export function methodMechanicalDefinition(row = {}, profile = {}, labelByKey = 
     ? row.derived_from.map(clean).filter(Boolean)
     : Array.isArray(profile.derivedFrom) ? profile.derivedFrom.map(clean).filter(Boolean) : [];
 
-  let what = sub;
-  if (!what && derivedFrom.length) {
+  let what = sub.startsWith("LEGACY HYBRID") ? "החלפת אותיות לפי הטבלה ההיסטורית של האתר. הייחוס למקור טרם הוכרע." : sub;
+  if (derivedFrom.length && ["sum", "diff"].includes(operator)) {
     const names = derivedFrom.map((key) => labelByKey.get(key) || key);
     const op = OPERATOR_LABELS[operator] || operator || "→";
     what = "שיטה מורכבת: " + names.join(" " + op + " ");
@@ -42,14 +42,16 @@ export function methodMechanicalDefinition(row = {}, profile = {}, labelByKey = 
   if (!what) what = "שיטה קנונית הרשומה במנוע; הפירוט המדויק מוצג דרך עקבת החישוב.";
 
   let structure = null;
-  if (derivedFrom.length) {
+  if (executionKind === "context_activated") {
+    structure = "שיטה תלוית־הקשר; החישוב דורש סימון מפורש במקור.";
+  } else if (derivedFrom.length && OPERATOR_LABELS[operator]) {
     structure = methodLabel + " = " + derivedFrom
       .map((key) => labelByKey.get(key) || key)
-      .join(" " + (OPERATOR_LABELS[operator] || operator || "·") + " ");
+      .join(" " + OPERATOR_LABELS[operator] + " ");
   } else if (FAMILY_LABELS[family]) {
     structure = FAMILY_LABELS[family];
-  } else if (executionKind === "context_activated") {
-    structure = "שיטה תלוית־הקשר; אין להמציא ערך בלי הקשר מתאים.";
+  } else if (derivedFrom.length) {
+    structure = "קשורה לשיטות: " + derivedFrom.map((key) => labelByKey.get(key) || key).join(" · ");
   }
 
   const dependencies = [];

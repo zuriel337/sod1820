@@ -25,7 +25,7 @@
     border-bottom:1px solid var(--s29-line);
   }
   .sod29-root.native-frame .sod29-brand b{font-size:14px;letter-spacing:.12em}
-  .sod29-root.native-frame .sod29-brand small{font-size:10px;opacity:.72}
+  .sod29-root.native-frame .sod29-brand small{font-size:var(--s29-type-micro,14px);opacity:1}
 
   .sod29-root.native-frame .sod29-nav{gap:3px}
   .sod29-root.native-frame .sod29-nav-group{gap:3px}
@@ -36,9 +36,9 @@
   .sod29-root.native-frame .sod29-nav-group-title{
     padding-inline:10px;
     margin:0 0 3px;
-    font-size:9px;
+    font-size:var(--s29-type-micro,14px);
     letter-spacing:.06em;
-    opacity:.58;
+    opacity:1;
   }
   .sod29-root.native-frame .sod29-nav-link{
     min-height:44px;
@@ -61,7 +61,7 @@
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    font-size:12.5px;
+    font-size:var(--s29-type-ui,16px);
     font-weight:700;
   }
 
@@ -87,13 +87,13 @@
   }
   .sod29-root.native-frame .sod29-sidebar-toggle{
     margin-top:auto;
-    min-height:36px;
+    min-height:44px;
     border:0;
     border-top:1px solid var(--s29-line);
     border-radius:0;
     background:transparent;
-    font-size:11px;
-    opacity:.72;
+    font-size:var(--s29-type-ui,16px);
+    opacity:1;
   }
 
   .sod29-root.native-frame.sidebar-collapsed .sod29-sidebar{padding-inline:8px}

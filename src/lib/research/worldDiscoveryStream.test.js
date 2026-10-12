@@ -32,10 +32,29 @@ test("a public source post arrives even with zero research Findings, without num
   assert.equal(item.creator, "סוד החשמל"); // Attribution only, not a newly minted Person.
   assert.equal(item.label, "סוד החשמל — דברי המקור");
   assert.equal(item.summary, "דברי המקור מופיעים לפני המחקר.");
-  assert.equal(item.at, "2026-10-08T10:00:00.000Z");
+  assert.equal(item.at, "2026-10-01T10:00:00.000Z");
+  assert.equal(item.arrivalAt, item.at);
+  assert.equal(item.sourceUpdatedAt, "2026-10-08T10:00:00.000Z");
   assert.equal(item.researchCount, 0);
   assert.equal(item.value, null);
   assert.deepEqual(item.numbers, []);
+});
+
+test("publication, recording and discovery time are distinct; modification never invents arrival", () => {
+  const item = postRowToWorldUpdate(makePost({ date: '2017-05-23T12:00:00Z' }));
+  assert.equal(item.sourcePublishedAt, '2017-05-23T12:00:00.000Z');
+  assert.equal(item.recordedAt, '2026-10-01T10:00:00.000Z');
+  assert.equal(item.discoveredAt, null);
+  const undated = postRowToWorldUpdate(makePost({ date: null, created_at: null }));
+  assert.equal(undated.at, null);
+  assert.equal(undated.sourceUpdatedAt, '2026-10-08T10:00:00.000Z');
+});
+
+test("recent research cannot crowd source-only material out of the source projection", () => {
+  const feed = buildWorldDiscoveryStream({ posts: [makePost()], topics: [{ id: 't1', created_at: '2026-10-10T10:00:00Z' }] }, { limit: 1 });
+  assert.equal(feed.items[0].kind, 'convergence');
+  assert.deepEqual(feed.arrivals.map(item => item.sourceRef), ['posts:5114']);
+  assert.equal(feed.arrivals[0].researchCount, 0);
 });
 
 test("exclude hidden/draft/forum and unresolved internal origins; published AI/uploaded source is still a source", () => {
@@ -59,9 +78,10 @@ test("same occurrence groups authorized research beneath the source, not two ind
       { id: "m3", status: "approved", source_ref: "channel_updates:other", statement: "מחקר ממקור אחר", value: null, created_at: "2026-10-08T09:00:00Z" },
     ],
   });
-  assert.equal(feed.items[0].kind, "source");
-  assert.equal(feed.items[0].researchCount, 1);
-  assert.equal(feed.items[0].at, "2026-10-08T11:00:00.000Z");
+  const source = feed.items.find((item) => item.kind === "source");
+  assert.equal(source.researchCount, 1);
+  assert.equal(source.at, "2026-10-01T10:00:00.000Z");
+  assert.equal(source.researchUpdatedAt, "2026-10-08T11:00:00.000Z");
   assert.equal(feed.items.length, 2);
   assert.ok(feed.items.some((item) => item.id === "research:m3" && item.value === null));
   assert.ok(!feed.items.some((item) => item.id === "research:m1" || item.id === "research:m2"));
@@ -70,12 +90,12 @@ test("same occurrence groups authorized research beneath the source, not two ind
   assert.equal(researchRowToWorldUpdate({ id: "candidate", status: "candidate" }), null);
 });
 
-test("one time-ordered projection serves both World and bottom attention, with source first", () => {
+test("one time-ordered projection serves both World and bottom attention by arrival and approval time", () => {
   const feed = buildWorldDiscoveryStream({
     posts: [makePost()],
     topics: [{ id: "t", slug: "t", title: "התכנסות", approved_at: "2026-10-07T10:00:00Z" }],
   }, { limit: 2 });
-  assert.deepEqual(feed.items.map((item) => item.kind), ["source", "convergence"]);
+  assert.deepEqual(feed.items.map((item) => item.kind), ["convergence", "source"]);
   assert.ok(feed.note.includes("Source arrival is not research verification"));
 });
 
@@ -87,11 +107,13 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.match(reader, /\.from\("posts"\)/);
   assert.match(reader, /\.eq\("home_hidden", false\)/);
   assert.doesNotMatch(reader, /live-whatsapp-feed|wa_bot_log|wa_vip_inbox|\.from\("channel_updates"\)/);
-  assert.match(world, /item\.kind === "source" && item\.href/);
+  assert.match(world, /item\.kind === "source" && item\.sourceKind === "post" && item\.href/);
   assert.match(world, /Number\.isFinite\(item\.value\)/);
   assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
   assert.match(frame, /title="מה חדש בעולם"/);
-  assert.match(frame, /<small>חדש בעולם<\/small>/);
+  assert.match(frame, /className="sod29-feed-chip" onClick=\{openAttention\}/);
+  assert.match(frame, /feed\.newCount > 0 && !transientKind/);
+  assert.match(frame, /const openAttention = useCallback\(\(\) => openTransient\(TRANSIENT\.ATTENTION\)/);
 });
 
 test("creator chips expose recent-window counts: a creator absent from the last N has 0, not hidden", async () => {
@@ -112,5 +134,39 @@ test("unconnected group arrivals cannot masquerade as a working empty group feed
   const { GROUP_ARRIVALS_AVAILABILITY } = await import("./worldDiscoveryStream.js");
   assert.equal(GROUP_ARRIVALS_AVAILABILITY.state, "not_connected");
   assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /תורת הרמז והגילוי היומי/);
-  assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /טרם חוברו/);
+  assert.match(GROUP_ARRIVALS_AVAILABILITY.message, /אינם זמינים/);
+});
+
+
+test("public World source rail puts an updated older post before newly published posts without changing original publication time", () => {
+  const olderUpdated = makePost({
+    id: 5107, slug: "elections",
+    title: "הבחירות לכנסת ה־26",
+    date: "2026-09-30T08:55:00Z",
+    modified: "2026-10-10T23:19:35Z",
+  });
+  const newerUnedited = makePost({
+    id: 5116, slug: "newer",
+    title: "סיפור חדש",
+    date: "2026-10-06T11:01:00Z",
+    modified: "2026-10-06T11:01:00Z",
+  });
+  const feed = buildWorldDiscoveryStream({ posts: [newerUnedited, olderUpdated] }, { limit: 5 });
+  assert.deepEqual(feed.arrivals.map(row => row.sourceRef), ["posts:5107", "posts:5116"]);
+  assert.equal(feed.arrivals[0].sourcePublishedAt, "2026-09-30T08:55:00.000Z");
+  assert.equal(feed.arrivals[0].sourceUpdatedAt, "2026-10-10T23:19:35.000Z");
+  assert.equal(feed.arrivals[0].arrivalAt, "2026-09-30T08:55:00.000Z");
+});
+
+test("new public World uses the composed story and sources without a feature toggle or integrated-preview gate", () => {
+  const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
+  const reader = readFileSync(new URL("./worldDiscoveryStream.js", import.meta.url), "utf8");
+  const flight = readFileSync(new URL("../../components/research/WorldFlightStory2029.jsx", import.meta.url), "utf8");
+  assert.match(world, /if \(!controlMode\) return <>/);
+  assert.doesNotMatch(world, /VITE_WORLD_2029_ENABLED/);
+  assert.doesNotMatch(world, /import\.meta\.env\.VITE_INTEGRATED_PREVIEW\s*===\s*["']true["']\)\s*&&\s*!controlMode/);
+  assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}/);
+  assert.match(world, /<SourceArrivalList2029 loading=\{landing\.loading\}/);
+  assert.match(reader, /\.order\("modified", \{ ascending: false, nullsFirst: false \}\)/);
+  assert.match(flight, /data-source-interpretation="zuriel-787"/);
 });

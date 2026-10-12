@@ -1016,6 +1016,7 @@ export default function ContributorPage() {
             loading={findingsLens.loading}
             error={findingsLens.error}
             recentDays={7}
+            timeMode="bilingual"
           />
         </div>
       )}

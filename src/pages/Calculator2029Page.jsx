@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -13,9 +14,16 @@ import { buildCalculator2029FastPreview } from "../lib/research/calculator2029Fa
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import {
   buildCalculationSelection,
+  buildCalculatorResearchContext,
   calculationAvailabilityLabel,
   splitCalculatorMethods,
 } from "../lib/research/calculator2029Model.js";
+import {
+  CALCULATOR_INPUT_KIND,
+  classifyCalculatorInput,
+  filterProfileRowsForInput,
+  isReportableValue,
+} from "../lib/research/calculator2029Input.js";
 import {
   buildCalculatorShareUrl,
   makeCalculatorShareId,
@@ -77,11 +85,17 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
     () => buildCalculator2029FastPreview(draft),
     [draft]
   );
-  const canonicalSettled = clean(profile.expression) === clean(draft)
+  const info = useMemo(() => classifyCalculatorInput(draft), [draft]);
+  const canonicalSettled = info.hebrewApplicable
+    && clean(profile.expression) === clean(draft)
     && Array.isArray(profile.rows)
     && profile.rows.length > 0
     && !profile.loading;
-  const displayRows = canonicalSettled ? profile.rows : (fastPreview?.methods || []);
+  const displayRows = info.kind === CALCULATOR_INPUT_KIND.EMPTY
+    ? (fastPreview?.methods || [])
+    : !info.hebrewApplicable
+      ? []
+      : canonicalSettled ? profile.rows : (fastPreview?.methods || []);
   const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
 
   const handleDraftChange = (value) => {
@@ -128,7 +142,6 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
         <div className="sod29-calc2029-command-meta" id="calculator-2029-help">
           <span>התוצאות מתעדכנות אוטומטית</span>
           <span>AI ורזיאל רק בפעולה מפורשת</span>
-          <span>מנוע + Registry קנוניים</span>
         </div>
       </form>
 
@@ -136,18 +149,31 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
         className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
         aria-live="polite"
         role={profile.error ? "alert" : undefined}
-        data-engine-status={profile.error ? "error" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
+        data-engine-status={profile.error ? "error" : !info.hebrewApplicable ? "idle" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
       >
         {profile.error
           ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
             ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
             : "לא ניתן לקבל כרגע את פרופיל השיטות."
-          : profile.loading
-            ? "מאמת מול המנוע הקנוני…"
-            : canonicalSettled
-              ? "מאומת"
-              : "מיידי"}
+          : !info.hebrewApplicable
+            ? ""
+            : profile.loading
+              ? "מאמת מול המנוע הקנוני…"
+              : canonicalSettled
+                ? "מאומת"
+                : "מיידי"}
       </div>
+
+      {clean(draft) && !info.hebrewApplicable ? (
+        <div className="sod29-calc2029-handoff" role="status">
+          <p>{info.kind === CALCULATOR_INPUT_KIND.LATIN
+            ? "כאן מגלים מה מסתתר בשם בעברית. הקלידו את השם באותיות עבריות."
+            : info.notice}</p>
+          {info.kind === CALCULATOR_INPUT_KIND.LATIN ? (
+            <Link to={"/2029/calculator?q=" + encodeURIComponent(info.expression)}>רוצים אנגלית? המחשבון המקצועי מחשב גם אנגלית ←</Link>
+          ) : null}
+        </div>
+      ) : info.notice ? <p className="sod29-calc2029-notice">{info.notice}</p> : null}
 
       {methods.all.length ? (
         <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
@@ -238,6 +264,7 @@ function CalculatorExperience() {
   const [fastResetToken, setFastResetToken] = useState(0);
   const [showCompare, setShowCompare] = useState(false);
   const [showOpening, setShowOpening] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [trace, setTrace] = useState({ loading: false, finding: null, error: null, key: null });
   const [shareId, setShareId] = useState(() => makeCalculatorShareId());
   const [shareDiscovery, setShareDiscovery] = useState(null);
@@ -253,31 +280,8 @@ function CalculatorExperience() {
   }, []);
 
   const updateSelectionContext = useCallback((next, extraDimensions = {}) => {
-    if (!next) return;
-    research.updateResearchContext?.({
-      subject: {
-        id: String(next.resultValue ?? next.expression),
-        type: next.resultValue != null ? "number" : "phrase",
-        label: next.expression,
-        href: next.resultValue != null
-          ? numberExpressionFocusHref(next.resultValue, { expression: next.expression, method: next.methodKey })
-          : "/2029/gematria",
-      },
-      selection: {
-        entityId: next.resultValue != null ? String(next.resultValue) : next.expression,
-        entityType: next.resultValue != null ? "number" : "phrase",
-        expression: next.expression,
-        method: next.methodKey,
-        resultValue: next.resultValue,
-        focusKind: "calculation",
-      },
-      lens: "gematria",
-      dimensions: {
-        calculationSelection: true,
-        source: "calculator-2029",
-        ...extraDimensions,
-      },
-    });
+    const context = buildCalculatorResearchContext(next, extraDimensions);
+    if (context) research.updateResearchContext?.(context);
   }, [research]);
 
   const commitMethod = useCallback((method, phrase, reason = "manual") => {
@@ -298,7 +302,23 @@ function CalculatorExperience() {
   const compute = useCallback(async (raw, { restore = false, preferredMethodKey = null, expectedValue = null } = {}) => {
     const phrase = clean(raw);
     if (!phrase) return;
+    const inputInfo = classifyCalculatorInput(phrase);
     const requestId = ++computeRequestRef.current;
+    if (!inputInfo.hebrewApplicable) {
+      // Hebrew methods do not apply (Latin, digits, other scripts): never present zeros as a verified result.
+      setProfile({
+        loading: false,
+        rows: [],
+        error: restore ? new Error("SHARED_RESULT_CANONICAL_MISMATCH") : null,
+        expression: phrase,
+      });
+      setSelectedKey(null);
+      setTrace({ loading: false, finding: null, error: null, key: null });
+      setShowCompare(false);
+      setShowOpening(false);
+      setShareDiscovery(null);
+      return;
+    }
     setProfile({ loading: true, rows: [], error: null, expression: phrase });
     setSelectedKey(null);
     setTrace({ loading: false, finding: null, error: null, key: null });
@@ -308,11 +328,11 @@ function CalculatorExperience() {
     try {
       const rows = await fetchNumberMethodProfile(phrase);
       if (requestId !== computeRequestRef.current) return;
-      const list = Array.isArray(rows) ? rows : [];
+      const list = filterProfileRowsForInput(Array.isArray(rows) ? rows : [], inputInfo);
       const preferred = preferredMethodKey
         ? list.find((row) => row.methodKey === preferredMethodKey)
         : null;
-      if (restore && (!preferred || preferred.computedValue == null || Number(preferred.computedValue) !== Number(expectedValue))) {
+      if (restore && (!preferred || !isReportableValue(preferred.computedValue) || Number(preferred.computedValue) !== Number(expectedValue))) {
         throw new Error("SHARED_RESULT_CANONICAL_MISMATCH");
       }
       const method = preferred || list[0] || null;
@@ -526,19 +546,33 @@ function CalculatorExperience() {
             <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
-            <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח מספר</button>
-            <button type="button" onClick={openHeichal}>חקור בהיכל</button>
-            <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
-              {showCompare ? "סגור השוואה" : "השווה"}
-            </button>
-            <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
-              {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
-            </button>
             <button type="button" className="is-raziel" onClick={openRaziel} disabled={selection.resultValue == null}>
               ✦ רזיאל · תסביר לי
             </button>
+            <Link
+              className="is-pro"
+              to={"/2029/calculator?q=" + encodeURIComponent(selection.expression) + "&m=" + encodeURIComponent(selection.methodKey)}
+            >
+              המשך במחשבון המקצועי ←
+            </Link>
+            <button type="button" onClick={() => setShowMore((value) => !value)} aria-expanded={showMore}>
+              {showMore ? "פחות כלים" : "עוד כלים"}
+            </button>
           </div>
+
+          {showMore ? (
+            <div className="sod29-calc2029-actions is-more">
+              <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
+              <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח מספר</button>
+              <button type="button" onClick={openHeichal}>חקור בהיכל</button>
+              <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
+                {showCompare ? "סגור השוואה" : "השווה"}
+              </button>
+              <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
+                {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
+              </button>
+            </div>
+          ) : null}
 
           {trace.error ? <div className="sod29-calc2029-trace is-error">הסבר החישוב לא זמין כרגע לשילוב הזה.</div> : null}
           {trace.finding ? (
@@ -608,10 +642,10 @@ function CalculatorBody() {
     <Sod2029Shell
       wide
       surface="number"
-      symbol="∑"
-      eyebrow="ONE GEMATRIA ENGINE · ONE DISCOVERY PATH"
+      symbol={<NavigationIcon2029 name="number" />}
+      eyebrow="גימטריה · חישוב מיידי"
       title="מה מסתתר בשם שלך?"
-      description="חשב דרך המנוע הקנוני, בחר תוצאה, גלה קשרים אמיתיים, שאל את רזיאל ושתף קישור חי."
+      description="הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי."
     >
       <CalculatorExperience />
     </Sod2029Shell>

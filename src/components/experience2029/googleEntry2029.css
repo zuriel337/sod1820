@@ -1,0 +1,6 @@
+/* Google entry in the account form. Neutral outlined button in the frame language; only the Google mark carries its own brand colours. */
+.sod29-google-entry { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+.sod29-root .sod29-google-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; font-weight: 600; }
+.sod29-root .sod29-google-btn svg { flex: 0 0 auto; }
+.sod29-google-or { display: flex; align-items: center; gap: 10px; color: var(--s29-muted); font: 400 12px var(--s29-font-ui); }
+.sod29-google-or i { flex: 1; block-size: 1px; background: var(--s29-line-strong); }

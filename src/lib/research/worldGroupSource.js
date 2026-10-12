@@ -20,17 +20,24 @@ export function groupRowToWorldUpdate(row) {
   const body = redactGroupText(row.body);
   if (!body) return null;
   const at = Date.parse(clean(row.created_at));
+  const arrivalAt = Number.isFinite(at) ? new Date(at).toISOString() : null;
   return {
     id: `group:${row.id}`,
     kind: "source",
     sourceKind: "group_message",
+    sourceLabel: "הודעה מקבוצת מקור",
     label: body.length > 140 ? `${body.slice(0, 140)}…` : body,
     fullText: body,
     summary: null,
     stateLabel: GROUP_SOURCE_LABEL,
     creator: clean(row.contributor_name) || clean(row.contributor_slug),
     creatorSlug: clean(row.contributor_slug),
-    at: Number.isFinite(at) ? new Date(at).toISOString() : null,
+    at: arrivalAt,
+    arrivalAt,
+    recordedAt: arrivalAt,
+    sourcePublishedAt: null,
+    discoveredAt: null,
+    researchUpdatedAt: null,
     sourceRef: `channel_updates:${row.id}`,
     href: `/world#group-source-${encodeURIComponent(row.id)}`,
     value: null,

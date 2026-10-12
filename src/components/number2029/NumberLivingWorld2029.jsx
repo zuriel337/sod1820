@@ -17,6 +17,10 @@ import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+const publicDiscovery = (item) => ![
+  item?.label, item?.title, item?.summary, item?.sourceLabel,
+  item?.relation?.label, item?.source?.label,
+].some((value) => /traffic_intelligence/i.test(clean(value)));
 
 const MATH_FAMILY_HE = Object.freeze({
   prime: "מספר ראשוני",
@@ -187,6 +191,11 @@ export default function NumberLivingWorld2029({
   activeMethodLabel,
   families = [],
   regularExpressions = [],
+  regularExpressionCount = 0,
+  regularExpressionsLoading = false,
+  regularExpressionsError = null,
+  onLoadMoreExpressions,
+  onExpressionSelect,
   languageBridges = [],
   topics = [],
   relations = [],
@@ -216,7 +225,10 @@ export default function NumberLivingWorld2029({
   const [scrubMode, setScrubMode] = useState("numbers");
   const [scrubIndex, setScrubIndex] = useState(0);
   const [showAllExpressions, setShowAllExpressions] = useState(false);
+  const [expressionLimit, setExpressionLimit] = useState(30);
   const [showAllSources, setShowAllSources] = useState(false);
+  const [sourceLimit, setSourceLimit] = useState(24);
+  const [mediaLimit, setMediaLimit] = useState(4);
   const [timelineSteps, setTimelineSteps] = useState(0);
   const [showAllVerses, setShowAllVerses] = useState(false);
   const [currentSection, setCurrentSection] = useState("עיקר");
@@ -227,33 +239,34 @@ export default function NumberLivingWorld2029({
     [root, projectionRelatedNumbers, relations, topics, zeroScale],
   );
   const people = useMemo(() => buildPeople(sources, researchFindings), [sources, researchFindings]);
-  const prominence = Array.isArray(researchState?.items) ? researchState.items : [];
+  const prominence = Array.isArray(researchState?.items) ? researchState.items.filter(publicDiscovery) : [];
+  const publicFindings = researchFindings.filter(publicDiscovery);
   const expressionRows = useMemo(() => {
     const seen = new Set();
     const rows = [];
-    const add = (phrase, method, meta = "") => {
+    const add = (phrase, method, meta = "", methodKey = null) => {
       const text = clean(phrase);
       if (!text || seen.has(text)) return;
       seen.add(text);
-      rows.push({ phrase: text, method: clean(method) || "רגיל", meta });
+      rows.push({ phrase: text, method: clean(method) || "רגיל", meta, methodKey });
     };
-    for (const row of regularExpressions || []) add(row?.phrase, "רגיל", row?.verified === true ? "מאומת" : "");
+    for (const row of regularExpressions || []) add(row?.phrase, "רגיל", row?.verified === true ? "מאומת" : "", "רגיל");
     for (const group of families || []) {
       const method = clean(group?.registry?.display_label || group?.display_label || group?.method || group?.method_key);
-      for (const row of Array.isArray(group?.phrases) ? group.phrases : []) add(typeof row === "string" ? row : row?.phrase || row?.label, method);
+      for (const row of Array.isArray(group?.phrases) ? group.phrases : []) add(typeof row === "string" ? row : row?.phrase || row?.label, method, "", group?.registry?.method_key || group?.method_key || group?.method);
     }
     return rows;
   }, [regularExpressions, families]);
 
-  const directMaterialCount = topics.length + relations.length + sources.length + researchFindings.length + Math.min(expressionRows.length, 6);
+  const directMaterialCount = topics.length + relations.length + sources.length + publicFindings.length + Math.min(expressionRows.length, 6);
   const sparseMode = directMaterialCount < 7 && zeroScale.some((value) => Number(value) !== root);
-  const primary = prominence[0] || topics[0] || researchFindings[0] || null;
+  const primary = prominence[0] || topics[0] || publicFindings[0] || null;
   const summits = prominence.slice(primary ? 1 : 0, 5);
   const selectedWorld = worldCards[Math.min(activeWorld, Math.max(0, worldCards.length - 1))] || null;
 
   const scrubRows = useMemo(() => {
     if (scrubMode === "findings") {
-      return (prominence.length ? prominence : researchFindings).slice(0, 12).map((item, index) => ({
+      return (prominence.length ? prominence : publicFindings).slice(0, 12).map((item, index) => ({
         key: item?.id || `finding-${index}`,
         title: findingLabel(item),
         subtitle: findingReason(item) || "ממצא מחקר",
@@ -328,9 +341,9 @@ export default function NumberLivingWorld2029({
   }, [root]);
 
   const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const expressionsShown = showAllExpressions ? expressionRows.slice(0, 30) : expressionRows.slice(0, 5);
-  const sourcesShown = showAllSources ? sources.slice(0, 24) : sources.slice(0, 5);
-  const timelineRows = numberTimelineToRows(timeline, (item) => {
+  const expressionsShown = showAllExpressions ? expressionRows.slice(0, expressionLimit) : expressionRows.slice(0, 5);
+  const sourcesShown = showAllSources ? sources.slice(0, sourceLimit) : sources.slice(0, 5);
+  const timelineRows = numberTimelineToRows(timeline.filter(publicDiscovery), (item) => {
     if (item?.relation) return canonicalGraphRelationTitle(item.relation, { anchorId: data?.identity?.nodeId });
     if (["image", "media"].includes(clean(item?.type))) return canonicalMediaPublicLabel(item?.label, { fallback: "תמונה" });
     return humanContentTitle(clean(item?.label), { max: 88 }) || canonicalFindingKindPublicLabel(item?.kind, item?.type);
@@ -359,7 +372,7 @@ export default function NumberLivingWorld2029({
         kicker="תנ״ך · גימטריה"
         title={`פסוקים בגימטריה של ${root}`}
         text="פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק."
-        aside={<span className="sod29-lw-count">{versesLoading ? "…" : (verseCount || verseRows.length)}</span>}
+        aside={<span className="sod29-lw-count">{verseRows.length} מתוך {Math.max(verseCount, verseRows.length)}</span>}
       />
       {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <div className="sod29-lw-verse-grid">
         {(showAllVerses ? verseRows : verseRows.slice(0, 3)).map((row, index) => <article key={row.ref || index}>
@@ -382,7 +395,8 @@ export default function NumberLivingWorld2029({
       <div className="sod29-lw-crown">
         <div className="sod29-lw-crown-copy">
           <span className="sod29-lw-kicker">העיקר סביב {root}</span>
-          <h2>{clean(data?.anchorProfile?.row?.title || data?.anchorProfile?.row?.name) || (primary ? findingLabel(primary) : `המספר ${root}`)}</h2>
+          <h2>המספר {root}</h2>
+          {clean(data?.anchorProfile?.row?.title || data?.anchorProfile?.row?.name) ? <strong>{clean(data?.anchorProfile?.row?.title || data?.anchorProfile?.row?.name)}</strong> : null}
           <p>{shortText(
             clean(data?.anchorProfile?.row?.fact || primary?.summary || primary?.why || topics[0]?.subtitle) ||
             `זהו מרכז הכובד של ${root} כרגע. מה שמוצג כאן מגיע מהמחקר והקשרים הקיימים, בלי להמציא שכבת אמת חדשה.`,
@@ -411,7 +425,7 @@ export default function NumberLivingWorld2029({
         <small>נקודות המשך מתוך המחקר הקיים</small>
       </div>
       <div className="sod29-lw-summits" aria-label="קשרים בולטים סביב המספר">
-        {(summits.length ? summits : [topics[0], researchFindings[0], sources[0], relatedNumbers[0]].filter(Boolean)).slice(0, 4).map((item, index) => (
+        {(summits.length ? summits : [topics[0], publicFindings[0], sources[0], relatedNumbers[0]].filter(Boolean)).slice(0, 4).map((item, index) => (
           <article key={item?.id || item?.slug || item?.value || index}>
             <span>קשר {index + 1}</span>
             <strong>{item?.value != null ? item.value : findingLabel(item)}</strong>
@@ -486,6 +500,10 @@ export default function NumberLivingWorld2029({
           {!math?.families?.length ? <span>אין משפחה מיוחדת שזוהתה</span> : null}
         </div>
       </div>
+      {math?.prime_context?.status === "exact" ? <div className="sod29-lw-prime-lens" data-experience-capability="number-prime-lens">
+        <div><strong>עדשת הראשוניים · #{math.prime_context.index}</strong><p>ראשוני קודם {math.prime_context.previous ?? "—"} · הבא {math.prime_context.next} · פערים {math.prime_context.gapBefore ?? "—"} ו־{math.prime_context.gapAfter}</p><small>קשר מתמטי מחושב; ביטויים ומשמעות נבדקים בדף המספר הנגזר.</small></div>
+        <DepthButton onClick={() => onOpenNumber?.(math.prime_context.index)}>פתח את מספר {math.prime_context.index}</DepthButton>
+      </div> : null}
 
       <div className="sod29-lw-scrubber">
         <div className="sod29-lw-scrub-tabs">
@@ -537,13 +555,17 @@ export default function NumberLivingWorld2029({
         kicker="ביטויים ושפות"
         title="משפחת הביטויים"
         text="ביטויים שווים, שיטות ושפות נוספות מוצגים בהדרגה. מספר לעולם לא מנותק מהשיטה שיצרה אותו."
-        aside={<span className="sod29-lw-count">{expressionRows.length}</span>}
+        aside={<span className="sod29-lw-count">{expressionRows.length} נטענו{regularExpressionCount > regularExpressions.length ? ` · לפחות ${regularExpressionCount} ברגיל` : ""}</span>}
       />
       <div className="sod29-lw-expression-grid">
-        {expressionsShown.map((row, index) => <article key={row.phrase + index}><strong>{row.phrase}</strong><span>{row.method}</span>{row.meta ? <small>{row.meta}</small> : null}</article>)}
+        {expressionsShown.map((row, index) => <button type="button" key={row.phrase + index} onClick={() => onExpressionSelect?.(row.phrase, row.methodKey)}><strong>{row.phrase}</strong><span>{row.method}</span>{row.meta ? <small>{row.meta}</small> : null}</button>)}
       </div>
       {languageBridges.length ? <div className="sod29-lw-language-rail">{languageBridges.slice(0, 6).map((row, index) => <span key={row?.id || index}>{clean(row?.english || row?.target || row?.translation || row?.label) || "קשר שפה מאומת"}</span>)}</div> : null}
-      {expressionRows.length > 5 ? <DepthButton onClick={() => setShowAllExpressions((value) => !value)}>{showAllExpressions ? "צמצם" : `פתח עוד ${Math.min(25, expressionRows.length - 5)} ביטויים`}</DepthButton> : null}
+      {expressionRows.length > 5 && !showAllExpressions ? <DepthButton onClick={() => setShowAllExpressions(true)}>פתח ביטויים נוספים</DepthButton> : null}
+      {showAllExpressions && expressionLimit < expressionRows.length ? <DepthButton onClick={() => setExpressionLimit((n) => n + 30)}>{`הצג עוד · ${expressionsShown.length} מתוך ${expressionRows.length} טעונים`}</DepthButton> : null}
+      {showAllExpressions && regularExpressions.length < regularExpressionCount ? <DepthButton onClick={onLoadMoreExpressions}>{regularExpressionsLoading ? "טוען…" : `טען ביטויים נוספים · ${regularExpressions.length} מתוך ${regularExpressionCount} ברגיל`}</DepthButton> : null}
+      {regularExpressionsError ? <p role="status">טעינת ביטויים נוספים נכשלה. אפשר לנסות שוב.</p> : null}
+      {showAllExpressions ? <DepthButton onClick={() => setShowAllExpressions(false)}>צמצם ביטויים</DepthButton> : null}
     </section>
 
     <section className="sod29-lw-section" id="number-content-live" data-experience-capability="number-sources-content">
@@ -568,7 +590,7 @@ export default function NumberLivingWorld2029({
             <span className="sod29-lw-media-caption"><small>ייצוג מוביל</small><strong>{label}</strong></span>
           </CanonicalMediaFigure2029>;
         })()}
-        <div>{mediaItems.slice(1, 4).map((item, index) => {
+        <div>{mediaItems.slice(1, mediaLimit).map((item, index) => {
           const label = item?.presentation?.label || canonicalMediaPublicLabel(item, { fallback: "תמונה" });
           return <CanonicalMediaFigure2029
             key={item?.galleryImageId || item?.nodeId || index}
@@ -582,18 +604,22 @@ export default function NumberLivingWorld2029({
             <span className="sod29-lw-media-caption">{label}</span>
           </CanonicalMediaFigure2029>;
         })}</div>
+        {mediaLimit < mediaItems.length ? <DepthButton onClick={() => setMediaLimit((n) => n + 8)}>{`הצג עוד מדיה · ${Math.min(mediaLimit, mediaItems.length)} מתוך ${mediaItems.length}`}</DepthButton> : null}
       </div> : null}
       <div className="sod29-lw-source-list">
-        {sourcesShown.map((row, index) => <article key={row?.id || row?.ref || index}><div><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}</div><span>מקור</span></article>)}
+        {sourcesShown.map((row, index) => <button type="button" key={row?.id || row?.ref || index} onClick={() => onFocusContext?.({ id: row?.id || row?.ref || `source-${index}`, type: "source", label: sourceLabel(row), primary: sourceLabel(row), sectionLabel: "מקורות", sourceLabel: sourceDetail(row) || "מקור", sourceRef: row?.sourceRef || row?.ref || null, locator: "#number-content-live", href: row?.href || row?.url || null })}><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}<span>פתח הקשר מקור</span></button>)}
         {!sources.length ? <div className="sod29-lw-empty">אין כרגע מקור אנושי מספיק ברור להצגה.</div> : null}
       </div>
       <div className="sod29-lw-depth-gates">
         {onOpenHeichal ? <>
-          <button type="button" onClick={() => onOpenHeichal({ kind: "els_from_number", root })}><span>ELS / צפנים</span><strong>בדוק ממצאים קיימים או פתח חקירה</strong><small>לא רץ אוטומטית</small></button>
+          <button type="button" onClick={() => onOpenHeichal({ kind: "els_saved_from_number", root })}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>
+          <button type="button" onClick={() => onOpenHeichal({ kind: "els_new_from_number", root })}><span>ELS / חקירה</span><strong>פתח חיפוש חדש</strong><small>חיפוש מתחיל רק בפעולה מפורשת</small></button>
           <button type="button" onClick={() => onOpenHeichal({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
         </> : null}
       </div>
-      {sources.length > 5 ? <DepthButton onClick={() => setShowAllSources((value) => !value)}>{showAllSources ? "צמצם מקורות" : "ראה מקורות נוספים"}</DepthButton> : null}
+      {sources.length > 5 && !showAllSources ? <DepthButton onClick={() => setShowAllSources(true)}>ראה מקורות נוספים</DepthButton> : null}
+      {showAllSources && sourceLimit < sources.length ? <DepthButton onClick={() => setSourceLimit((n) => n + 24)}>{`הצג עוד מקורות · ${sourcesShown.length} מתוך ${sources.length}`}</DepthButton> : null}
+      {showAllSources ? <DepthButton onClick={() => setShowAllSources(false)}>צמצם מקורות</DepthButton> : null}
     </section>
 
     {people.length ? <section className="sod29-lw-section" id="number-people" data-experience-capability="number-people">

@@ -10,6 +10,7 @@ import {
   resumeHrefFromResearchPath,
 } from "../src/lib/research/researchPathRuntime.js";
 import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
+import "../src/lib/research/researchPathContinuity.test.js";
 import {
   JOURNEY_2029_EVENTS,
   JOURNEY_2029_KINDS,
