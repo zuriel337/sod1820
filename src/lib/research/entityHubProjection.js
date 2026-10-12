@@ -636,7 +636,7 @@ function mediaRelationPriority(type) {
 }
 
 async function fetchWorldMediaProjection(relationFindings, { limit = 8 } = {}) {
-  const cap = safeLimit(limit, 8, 16);
+  const cap = safeLimit(limit, 8, 40);
   const candidates = new Map();
 
   for (const finding of relationFindings || []) {
@@ -1052,6 +1052,7 @@ export async function fetchEntityHubProjection({
   numberResearchLenses = null,
   numberLookupLimit = 500,
   includeMedia = true,
+  mediaLimit = 8,
   includeScriptureDiscovery = true,
   includeScriptureTermDiscovery = true,
   topicSourceSlug = null,
@@ -1070,7 +1071,7 @@ export async function fetchEntityHubProjection({
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
   const media = includeMedia
-    ? await fetchWorldMediaProjection(relationFindings, { limit: 8 })
+    ? await fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
     : { items: [], access: { available: true, reason: "deferred_by_projection_profile" } };
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
