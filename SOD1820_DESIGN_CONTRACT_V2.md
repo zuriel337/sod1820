@@ -358,3 +358,14 @@ controls do not move. Shared icon feedback must not require a second global
 listener, navigation store, or animation engine. Whole-frame layout, palette
 context propagation and command-island typography remain with the existing
 SystemFrame owner; this refinement does not claim those gaps closed.
+
+
+## Home 2029 discovery/category and zero-repeat law · ZURIEL 13.10.2026
+
+**User direction:** A Post may occur at most once as an editorial content tile in the same Home composition. The Home owns only placement; it must not create another content or notification identity.
+
+- **Categorization:** Published **Post categories** alone determine membership of each automatically populated Home editorial gateway. Tags, title keywords, shares, translated terms, and media properties are not substitutes for category membership. A manual editorial *series link* remains an explicit pointer with its original Post categories preserved. Eligibility/privacy gates still apply.
+- **Placement priority:** One canonical Post identity is reserved across Home Hero → one dedicated story → latest updates → source arrivals → discovery gateways. Dedupe on `posts.id` / `posts:<id>` and canonical slug, not title similarity or arrival timestamp. Do not delete data or modify the World/Archive/full reading views. If a promoted Post is absent from Recent, show the next distinct eligible Post instead. Category overlap grants contextual links, not a second Home tile.
+- **Separate domains:** `הצופן בסרטים` = cinema research (Matrix, Squid Game); `מימד חמש` = authored visual series (not a writer), even when one Post belongs to both categories; `צפונות בתורה` = cipher posts / videos; `ELS` is the existing `els_records` research engine and library; `שבילי שפה` = language research. No inferred membership from a film title containing “מטריקס”.
+- **Follow:** Reuse the existing `WatchButton`/`notification_prefs`/`watchToggle` system via explicit `cat:<category>` for Post categories, and `codes:new` for ELS. Guest Follow is not permission for email, Push or WhatsApp delivery; channel opt-in remains separately governed. Never create a second Follow implementation for a Home gateway.
+- **Evidence and scope:** Category placement and Follow choices are user-approved directions. PR/preview verification, existing owner review, live subscription delivery and Production merge are separate release gates. Public Home statistics remain grounded in public readers. Tests must cover hero+recent+story+arrival+gateway collisions, categories versus tags and the existing Follow aliases.
