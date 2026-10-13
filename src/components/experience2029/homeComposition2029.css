@@ -127,6 +127,9 @@
   .h29-hero2 .h29-hero-copy { min-block-size: 0; }
   .h29-hero .h29-hero-img { justify-self: center; width: min(100%, 280px); max-height: 180px; object-fit: contain; }
   .h29-hero h1 { font-size: 21px; }
+  /* Loading geometry: reserve the loaded hero's phone height (poster + copy + actions) so the
+     content below does not jump when the latest post arrives. Same component, no new visual. */
+  .h29-hero.is-loading { min-height: 418px; align-content: start; }
   /* All recent items visible at once, rather than clipped jumbo carousel cards. */
   .h29-updates, .h29-notable { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; overflow: visible; scroll-snap-type: none; }
   .h29-updates .h29-card { display: flex; width: 100%; }
