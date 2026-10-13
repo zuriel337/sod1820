@@ -40,8 +40,22 @@ export function communityAuthorIdentity(authorKey) {
 }
 
 function filterByAuthor(query, identity) {
-  if (identity.verifiedOwner) return query.or(`author_user_id.in.(${identity.accountIds.join(",")}),author_contributor_id.in.(${identity.contributorIds.join(",")})`);
-  return identity.accountIds.length ? query.eq("author_user_id", identity.accountIds[0]) : query.eq("author_contributor_id", identity.contributorIds[0]);
+  if (identity.accountIds.length && identity.contributorIds.length) return query.or(`author_user_id.in.(${identity.accountIds.join(",")}),author_contributor_id.in.(${identity.contributorIds.join(",")})`);
+  if (identity.accountIds.length) return query.eq("author_user_id", identity.accountIds[0]);
+  return identity.contributorIds.length === 1 ? query.eq("author_contributor_id", identity.contributorIds[0]) : query.in("author_contributor_id", identity.contributorIds);
+}
+
+async function resolveCommunityAuthorIdentity(authorKey) {
+  const identity = communityAuthorIdentity(authorKey);
+  if (identity.verifiedOwner) return identity;
+  if (authorKey.startsWith("user:")) {
+    const { data, error } = await supabase.from("contributors").select("id").eq("user_id", identity.accountIds[0]).limit(100);
+    if (error) throw error;
+    return { ...identity, contributorIds: (data || []).map((row) => row.id) };
+  }
+  const { data, error } = await supabase.from("contributors").select("user_id").eq("id", identity.contributorIds[0]).maybeSingle();
+  if (error) throw error;
+  return { ...identity, accountIds: data?.user_id ? [data.user_id] : [] };
 }
 
 const entityDecoder = typeof document === "undefined" ? null : document.createElement("textarea");
@@ -63,6 +77,7 @@ export function normalizeCommunityRow(row) {
     authorName,
     authorKey: row.author_user_id ? `user:${row.author_user_id}` : contributorId,
     authorUserId: row.author_user_id || null,
+    linkedUserId: contributor?.user_id || null,
     avatarUrl: contributor?.avatar_url || null,
     title: row.title || null,
     body: decodeCommunityText(row.body || row.title || ""),
@@ -85,7 +100,7 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
   const { data, error, count } = await supabase
     .from("research_contributions")
-    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
+    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
     .eq("status", "approved")
     .in("origin", ["openweb", "community_2029"])
     .order("created_at", { ascending: sort === "oldest" })
@@ -100,12 +115,12 @@ export async function fetchCommunityAuthorPage(authorKey, { offset = 0, limit = 
 }
 
 export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, limit = COMMUNITY_PAGE_SIZE, filter = "all", sort = "newest" } = {}) {
-  const identity = communityAuthorIdentity(authorKey);
+  const identity = await resolveCommunityAuthorIdentity(authorKey);
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
   let base = supabase
     .from("research_contributions")
-    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,target_type,target_id,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,display_name,avatar_url)", { count: "exact" })
+    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,target_type,target_id,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
     .eq("status", "approved")
     .not("body", "is", null)
     .neq("body", "");
@@ -120,7 +135,7 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
 }
 
 export async function fetchCommunityAuthorSummary(authorKey) {
-  const identity = communityAuthorIdentity(authorKey);
+  const identity = await resolveCommunityAuthorIdentity(authorKey);
   const base = () => filterByAuthor(supabase.from("research_contributions")
     .select("created_at,reactions")
     .eq("status", "approved")
@@ -138,8 +153,8 @@ export async function fetchCommunityAuthorSummary(authorKey) {
   return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };
 }
 
-export async function fetchLinkedAccountProfiles() {
-  const ids = Object.values(VERIFIED_ARCHIVE_PROFILES).map((profile) => profile.accountUserId).filter(Boolean);
+export async function fetchLinkedAccountProfiles(extraIds = []) {
+  const ids = [...new Set([...Object.values(VERIFIED_ARCHIVE_PROFILES).map((profile) => profile.accountUserId), ...extraIds].filter(Boolean))];
   const { data, error } = await supabase.from("users").select("id,display_name,username,avatar_url").in("id", ids);
   if (error) throw error;
   return Object.fromEntries((data || []).map((account) => [account.id, account]));

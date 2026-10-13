@@ -18,7 +18,7 @@ const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "l
 const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהילה", number: "מספר", els: "צופן", forum: "דיון", community: "קהילה" };
 
 function LiveAuthor({ row, accountProfiles }) {
-  const accountId = row.authorUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
+  const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
   const name = account?.display_name || account?.username || row.authorName;
   const badge = <UserBadge name={name} avatarUrl={account?.avatar_url || row.avatarUrl} avatarClassName="sod29-community-avatar">
@@ -112,6 +112,13 @@ export default function CommunityLive2029() {
   useEffect(() => { loadPage(0, true); }, [loadPage]);
   useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות הקהילה והארכיון במקום אחד.", path: "/2029?preview=community&data=live", noindex: true }); }, []);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
+  useEffect(() => {
+    const ids = [...new Set([...rows, ...profileRows].flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
+    if (!ids.length) return undefined;
+    let active = true;
+    fetchLinkedAccountProfiles(ids).then((accounts) => { if (active) setAccountProfiles((current) => ({ ...current, ...accounts })); }).catch(() => {});
+    return () => { active = false; };
+  }, [rows, profileRows]);
 
   useEffect(() => {
     setProfileRows([]); setProfileNextOffset(0); setProfileCount(0); setProfileError("");
@@ -149,7 +156,8 @@ export default function CommunityLive2029() {
     return needle ? rows.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : rows;
   }, [query, rows]);
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
-  const linkedAccount = baseline?.accountUserId ? accountProfiles[baseline.accountUserId] : null;
+  const linkedAccountId = profileRows.find((row) => row.linkedUserId)?.linkedUserId || baseline?.accountUserId;
+  const linkedAccount = linkedAccountId ? accountProfiles[linkedAccountId] : null;
   const memberName = linkedAccount?.display_name || linkedAccount?.username || baseline?.name || profileRows[0]?.authorName || "חבר הקהילה";
   const isOwner = Boolean(user?.id && (baseline?.accountUserId === user.id || selectedAuthorId === `user:${user.id}`));
 

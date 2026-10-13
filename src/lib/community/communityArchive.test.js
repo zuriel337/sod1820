@@ -38,8 +38,9 @@ test("normalizes an archive message without exposing identity fields", () => {
   assert.equal(row.authorKey, "c1");
   assert.equal(row.parentId, "p1");
   assert.equal(row.body, decodeCommunityText("שלום &#34;עולם&#34;"));
-  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "id", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
+  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
   assert.equal(row.authorUserId, null);
+  assert.equal(row.linkedUserId, null);
 });
 
 test("a signed-in message uses the account identity even when a new contributor row exists", () => {
