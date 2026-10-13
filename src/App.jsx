@@ -123,7 +123,7 @@ const MeaningLabPage = React.lazy(() => import("./pages/MeaningLabPage.jsx"));
 // 🏛️ Legacy Research/Heichal access is governed by the canonical site_flags owner.
 // lock_research mode=anon => anonymous visitors see free registration/login; registered users and admin pass.
 function ResearchEntryRoute() {
-  return <Locked flag="lock_research"><ResearchPage /></Locked>;
+  return <Locked flag="lock_research" requireFlag><ResearchPage /></Locked>;
 }
 
 // ניהול SEO + גלילה לראש בכל מעבר route.
@@ -286,13 +286,13 @@ export default function App() {
           {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
           <Route path="/2029" element={<Home2029Page />} />
           <Route path="/world" element={<World2029Page />} />
-          <Route path="/books" element={<Book2029DocumentHandoff />} />
-          <Route path="/books/:slug" element={<Book2029DocumentHandoff />} />
-          <Route path="/book" element={<Book2029DocumentHandoff />} />
-          <Route path="/book/:slug" element={<Book2029DocumentHandoff />} />
+          <Route path="/books" element={<Locked flag="lock_books" requireFlag><Book2029DocumentHandoff /></Locked>} />
+          <Route path="/books/:slug" element={<Locked flag="lock_books" requireFlag><Book2029DocumentHandoff /></Locked>} />
+          <Route path="/book" element={<Locked flag="lock_books" requireFlag><Book2029DocumentHandoff /></Locked>} />
+          <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag><Book2029DocumentHandoff /></Locked>} />
           <Route path="/els" element={<Els2029Page />} />
-          <Route path="/היכל" element={<Heichal2029Page />} />
-          <Route path="/heichal" element={<Heichal2029Page />} />
+          <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
+          <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
 
           {/* דף ניסיון — מסך מלא, ללא Layout (בלי ניווט/פוטר); נטען עצמאית (three.js) */}
           {/* טקס הכניסה — עמוד מלא, תמיד נגיש */}
@@ -338,7 +338,7 @@ export default function App() {
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/map" element={<NavigationCenterPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
-          <Route path="/numbers" element={<NumbersPage />} />
+          <Route path="/numbers" element={<Locked flag="lock_convergence_tree" requireFlag><NumbersPage /></Locked>} />
           <Route path="/name-lab" element={<NameLabPage />} />
           <Route path="/מעבדת-השם" element={<NameLabPage />} />
           {/* 🧊 גימטריה מרחבית — «הגיאומטריה של העץ»: ענף מחקר (4 שכבות/מודל, מתכנס ל-1820).
@@ -392,35 +392,35 @@ export default function App() {
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
-          <Route path="/number" element={<NumberSearchPage />} />
+          <Route path="/number" element={<Locked flag="lock_number" requireFlag><NumberSearchPage /></Locked>} />
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
-          <Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />
+          <Route path="/number/:phrase" element={<Locked flag="lock_number" requireFlag><LegacyNumberTransitionRoute /></Locked>} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
           {/* 🔒 lock_forum: הפורום בבנייה — נעול לכולם חוץ מאדמין עד להשקה (mode='all') */}
-          <Route path="/forum" element={<Locked flag="lock_forum"><ForumPage /></Locked>} />
+          <Route path="/forum" element={<Locked flag="lock_forum" requireFlag><ForumPage /></Locked>} />
           <Route path="/or-geula" element={<OrGeulaPage />} />
           <Route path="/or-geula/video/:id" element={<OrGeulaPage />} />
           <Route path="/video/:assetId" element={<VideoAssetPage />} />
           <Route path="/אור-הגאולה" element={<OrGeulaPage />} />
-          <Route path="/forum/:id" element={<Locked flag="lock_forum"><ForumThreadPage /></Locked>} />
+          <Route path="/forum/:id" element={<Locked flag="lock_forum" requireFlag><ForumThreadPage /></Locked>} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
           <Route path="/gematria" element={<GematriaToLab />} />
           <Route path="/גימטריה" element={<GematriaToLab />} />
           {/* תצוגה מקדימה — דף בית חדש (לא מחליף את הקיים) */}
           <Route path="/home-new" element={<HomeNewPage />} />
           <Route path="/בית-חדש" element={<HomeNewPage />} />
-          <Route path="/cross" element={<Locked flag="lock_cross"><CrossMethodPage /></Locked>} />
+          <Route path="/cross" element={<Locked flag="lock_cross" requireFlag><CrossMethodPage /></Locked>} />
           <Route path="/verse-gematria" element={<VerseGematriaPage />} />
           <Route path="/פסוקים" element={<VerseGematriaPage />} />
           <Route path="/broadcasts" element={<BroadcastsPage />} />
           <Route path="/whats-new" element={<SiteUpdatesPage />} />
-          <Route path="/הצלבה" element={<CrossMethodPage />} />
-          <Route path="/journey" element={<JourneyPage />} />
-          <Route path="/מסע" element={<JourneyPage />} />
-          <Route path="/journey-beta" element={<JourneyPageV2 />} />
+          <Route path="/הצלבה" element={<Locked flag="lock_cross" requireFlag><CrossMethodPage /></Locked>} />
+          <Route path="/journey" element={<Locked flag="lock_life_journey" requireFlag><JourneyPage /></Locked>} />
+          <Route path="/מסע" element={<Locked flag="lock_life_journey" requireFlag><JourneyPage /></Locked>} />
+          <Route path="/journey-beta" element={<Locked flag="lock_life_journey" requireFlag><JourneyPageV2 /></Locked>} />
           <Route path="/lab" element={<LabIndex />} />
           {/* 🧭 Work Area של הצופן — אותו TzofenEmbed ואותו /tzofen.html?embed=1. קריאה-בלבד. */}
           <Route path="/lab/els" element={<Navigate to="/els" replace />} />

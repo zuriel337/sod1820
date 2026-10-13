@@ -1,3 +1,4 @@
+import Locked from "./components/MaintenanceLock.jsx";
 import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -121,17 +122,17 @@ export default function App2029() {
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
-              <Route path="/2029/journey" element={<LifeJourney2029Page />} />
+              <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
-              <Route path="/books" element={<Books2029Page />} />
-              <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
-              <Route path="/book/:slug" element={<Books2029Page />} />
+              <Route path="/books" element={<Locked flag="lock_books" requireFlag><Books2029Page /></Locked>} />
+              <Route path="/books/:slug" element={<Locked flag="lock_books" requireFlag><CanonicalBookAlias2029 /></Locked>} />
+              <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag><Books2029Page /></Locked>} />
               <Route path="/els" element={<Els2029Page />} />
-              <Route path="/heichal" element={<Heichal2029Page />} />
-              <Route path="/היכל" element={<Heichal2029Page />} />
+              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
+              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
               <Route path="/researcher/:slug" element={<Researcher2029Page />} />
-              <Route path="/2029/number/:value" element={<Number2029Page />} />
+              <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />

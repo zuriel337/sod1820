@@ -38,7 +38,10 @@ assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il
 assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
 
-const number = await render("/2029/number/123");
+const number = await render("/2029/number/123", async (url) => {
+  assert.match(String(url), /\/site_flags\?/);
+  return { ok: true, json: async () => [{ key: "lock_number", enabled: false, mode: "all" }] };
+});
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(number, /123 · דף המספר 2029/);
 assert.match(number, /og:type" content="website"/);
@@ -180,6 +183,7 @@ assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/exampl
 
 const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (url) => {
   const u = String(url);
+  if (u.includes("/site_flags?")) return { ok: true, json: async () => [{ key: "lock_number", enabled: false, mode: "all" }] };
   if (u.includes("/number_anchors?")) {
     return {
       ok: true,
@@ -224,7 +228,7 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 14, "search crawlers must be routed only across the explicit native/public document family");
+assert.equal(searchRules.length, 25, "search crawlers must be routed only across the explicit native/public document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);

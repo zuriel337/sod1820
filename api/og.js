@@ -1,3 +1,4 @@
+import { publicCapabilityForPath, publicCapabilityIsOpen } from "../src/lib/publicCapabilityRoutes.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
@@ -189,6 +190,17 @@ export default async function handler(req, res) {
   // declares /heichal as canonical. Server/crawler metadata must agree.
   if (key === '/היכל') canonical = SITE + '/heichal';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
+  // Resolve availability before fetching any capability-specific metadata.
+  const capability = publicCapabilityForPath(key);
+  let capabilityBlocked = false;
+  if (capability) {
+    let rows = null;
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/site_flags?select=key,enabled,mode&key=eq.${capability.key}`, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
+      if (response.ok) rows = await response.json();
+    } catch { /* named gates fail closed */ }
+    capabilityBlocked = !publicCapabilityIsOpen(rows, capability.key);
+  }
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
   if (!vParam) {
@@ -196,7 +208,11 @@ export default async function handler(req, res) {
     const qi = rp.indexOf('?');
     if (qi >= 0) { try { vParam = new URLSearchParams(rp.slice(qi + 1)).get('v') || ''; } catch { /* ignore */ } }
   }
-  if (key === '/2029/gematria') {
+  if (capabilityBlocked) {
+    title = `${capability.title} · ${SITE_NAME}`;
+    desc = 'האזור אינו פתוח לציבור כרגע.';
+    robots = 'noindex, nofollow';
+  } else if (key === '/2029/gematria') {
     // 2029 viral Gematria result — projection only. Never recalculate in OG.
     // The live page re-verifies q+m+v through fn_method_profile before presenting it as canonical.
     const rawPath = String((req.query && req.query.path) || '');
@@ -700,8 +716,8 @@ ${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc
 </body></html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
-  if (searchCrawlerDocument) {
+  res.setHeader('Cache-Control', capability ? 'no-store' : 'public, max-age=300, s-maxage=600');
+  if (searchCrawlerDocument || capability) {
     res.setHeader('X-Robots-Tag', robots);
     res.setHeader('Vary', 'User-Agent');
   }

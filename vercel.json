@@ -1,5 +1,6 @@
 {
   "redirects": [
+    { "source": "/heichal.html", "destination": "/heichal", "permanent": false },
     {
       "source": "/whatsapp/kod-hametsiut",
       "destination": "/early-access",
@@ -462,6 +463,17 @@
     }
   ],
   "rewrites": [
+    {"source": "/research", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/research&crawler=search"},
+    {"source": "/2029/journey", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/2029/journey&crawler=search"},
+    {"source": "/number", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/number&crawler=search"},
+    {"source": "/numbers", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/numbers&crawler=search"},
+    {"source": "/forum", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/forum&crawler=search"},
+    {"source": "/forum/(.*)", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/forum/$1&crawler=search"},
+    {"source": "/journey", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/journey&crawler=search"},
+    {"source": "/journey-beta", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/journey-beta&crawler=search"},
+    {"source": "/מסע", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/מסע&crawler=search"},
+    {"source": "/cross", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/cross&crawler=search"},
+    {"source": "/הצלבה", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/הצלבה&crawler=search"},
     {
       "source": "/favicon.ico",
       "destination": "/logo.png"

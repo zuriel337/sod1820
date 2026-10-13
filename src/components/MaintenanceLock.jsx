@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
 import { LOGO_URL } from "../theme.js";
@@ -88,21 +88,29 @@ export function LockTeaser({ message, showLogin = false }) {
 }
 
 // hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
-export function useSiteFlag(flag) {
+export function useSiteFlag(flag, refreshKey) {
   const [st, setSt] = useState({ loading: true, lock: null });
   useEffect(() => {
     let alive = true;
     getSiteFlags()
-      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null }); })
-      .catch(() => { if (alive) setSt({ loading: false, lock: null }); });
+      .then(f => { if (alive) setSt({ flag, refreshKey, loading: false, lock: f[flag] || null }); })
+      .catch(() => { if (alive) setSt({ flag, refreshKey, loading: false, lock: null }); });
     return () => { alive = false; };
-  }, [flag]);
-  return st;
+  }, [flag, refreshKey]);
+  // A new route cannot borrow the previous route's open state while its read is pending.
+  return st.flag === flag && st.refreshKey === refreshKey ? st : { loading: true, lock: null };
 }
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
 // שפה/locale אינה פרמטר בכוונה: לפי content_translation_law v2 היא Projection בלבד.
-export function resolveFeatureState(lock, { user = null, isAdmin = false } = {}) {
+export function resolveFeatureState(lock, { user = null, isAdmin = false, requireFlag = false } = {}) {
+  // Explicit containment gates fail closed on a missing/malformed row or failed read.
+  // Existing default-open consumers (including World/ELS) keep their semantics.
+  if (requireFlag && (!lock || typeof lock.enabled !== "boolean" || !["all", "anon"].includes(lock.mode))) {
+    return { enabled: true, mode: "all", blocked: true, allowed: false,
+      adminBypass: false, registeredBypass: false, publicState: "closed", viewerState: "closed",
+      message: DEFAULT_MSG, showLogin: false, status: "building" };
+  }
   const enabled = !!lock?.enabled;
   const mode = lock?.mode || "all";
   const adminBypass = !!isAdmin;
@@ -128,20 +136,35 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false } = {})
 }
 
 // canonical hook for every feature-controlled surface.
-export function useFeatureState(flag) {
-  const { user, isAdmin } = useAuth();
-  const { loading, lock } = useSiteFlag(flag);
+export function useFeatureState(flag, { requireFlag = false, refreshKey } = {}) {
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { loading, lock } = useSiteFlag(flag, refreshKey);
   return useMemo(() => ({
     flag,
-    loading,
+    loading: loading || (requireFlag && authLoading),
     lock,
-    ...resolveFeatureState(lock, { user, isAdmin }),
-  }), [flag, loading, lock, user, isAdmin]);
+    ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
+  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
-export default function Locked({ flag, children }) {
-  const state = useFeatureState(flag);
+export default function Locked({ flag, children, requireFlag = false }) {
+  const location = useLocation();
+  const state = useFeatureState(flag, { requireFlag, refreshKey: requireFlag ? location.key : undefined });
+  useEffect(() => {
+    if (state.loading || !state.blocked) return;
+    let meta = document.querySelector('meta[name="robots"]');
+    const created = !meta;
+    const previous = meta?.getAttribute("content");
+    if (!meta) { meta = document.createElement("meta"); meta.name = "robots"; document.head.appendChild(meta); }
+    meta.content = "noindex, nofollow";
+    return () => {
+      if (meta.content !== "noindex, nofollow") return;
+      if (created) meta.remove();
+      else if (previous == null) meta.removeAttribute("content");
+      else meta.content = previous;
+    };
+  }, [state.loading, state.blocked, location.key]);
   if (state.loading) return null;
   if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} />;
   return children;
