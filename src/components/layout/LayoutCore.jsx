@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../../lib/AuthContext.jsx";
 import { C, F, GLOBAL_CSS } from "../../theme.js";
 import { PALETTES } from "../../lib/palette.js";
 import { effectiveMode, POST_SLUG_RE } from "../../lib/lightRoutes.js";
@@ -16,11 +15,10 @@ import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר יחיד מתח
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
-import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
-import BottomBar from "./BottomBar.jsx"; // 🧭 Bottom Bar — Experience Shell קבוע (כאן·מספר·עכשיו·רזיאל·עוד)
-import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "../../lib/bottomBar.js";
+import NowBar, { NOW_BAR_HEIGHT } from "./NowBar.jsx"; // ⏱ «עכשיו» — סרגל דק יחיד לכולם (צבי + מיילים); מחליף Bottom Bar + LiveChannelFeed
+import { isBottomBarRoute } from "../../lib/bottomBar.js";
 
 // 🌗 רשימת הראוטים התומכים בבהיר עברה ל-src/lib/lightRoutes.js (מקור-אמת יחיד),
 // כדי שגם מתג התמה בנאבבר יוכל לדעת אם הדף הנוכחי תומך בבהיר — בלי תלות-מעגלית.
@@ -32,13 +30,13 @@ export default function Layout() {
   // 🧭 ADMIN-ONLY PRODUCTION PILOT (BOTTOM_DOCK_ADMIN_PILOT_V1): ה-Dock מוצג רק ל-ZURIEL/admin.
   // ציבור-רגיל ממשיך לקבל בדיוק את ה-legacy launchers (NumberDrawer bubble + LiveChannelFeed fab)
   // כפי שהם ב-production היום — role-aware migration, לא gate גורף שמסתיר יכולת מכולם.
-  const { isAdmin, loading: authLoading } = useAuth();
   // 📡 בדף הבית ובצ'אט: LiveChannelFeed (חלון העדכונים) ממופה בפועל; אצל admin הכפתור-הפותח עבר ל-Bottom Bar.
   //    (טיקר-החדשות LiveActivityBar מוצג בכל הדפים — הוחזר לבית+צ'אט 11.7.)
   const liveChrome = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/].some(re => re.test(pathname));
   // 🧭 Bottom Bar — מוצג רק ל-admin, בכל מסלולי ה-Layout חוץ מדף-הספר (חוויית-קריאה נקייה, ר' lib/bottomBar.js).
   // authLoading→false כברירת-מחדל בטוחה (אף פעם לא "מהבהב" Dock למשתמש שעדיין לא אומת כ-admin).
-  const showBottomBar = isBottomBarRoute(pathname) && !authLoading && isAdmin;
+  const showNowBar = isBottomBarRoute(pathname);   // «עכשיו» לכולם (גם לא מחוברים), חוץ מדף-הספר
+  const nowClearance = showNowBar ? `calc(${NOW_BAR_HEIGHT}px + env(safe-area-inset-bottom, 0px))` : undefined;
   // 🔒 ה-legacy hide-condition המקורי של בועת-מגירת-המספר (מלפני ה-Dock) — נשמר בדיוק כפי שהיה,
   // כדי שציבור-רגיל (בלי Dock) ימשיך לקבל את אותה התנהגות-production בדיוק.
   const legacyHideNumberLauncher = liveChrome || /^\/code/.test(pathname) || /^\/book(\/|$)/.test(pathname) || (pathname === "/research" && /tool=els/.test(search));
@@ -67,7 +65,7 @@ export default function Layout() {
       {/* רקע קנוני: הקוסמוס/עיר נשארים. שכבת פסוק/אותיות דקורטיבית הוסרה במפורש — רקע ≠ תוכן. */}
       {dark && <SpaceBackground />}
       {showAxis && <RevelationAxis />}
-      <div style={{ position: "relative", zIndex: 1, paddingBottom: showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined }}>
+      <div style={{ position: "relative", zIndex: 1, paddingBottom: nowClearance }}>
         <Navbar />
         {/* 🎗️ טיקר יחיד מתחלף «בקרוב» — סרגל אחד גלובלי שמחליף כל 7ש׳ בין הפרומואים:
             🌅 ציר ההתגלות (תאריכים 0→6000 נגללים ימין→שמאל) · ✦ ציר התגלות אישי ·
@@ -103,13 +101,12 @@ export default function Layout() {
       {/* 🧭 מגירת-המספר: ל-admin (Dock מוצג) הבועה הצפה תמיד מוסתרת — הפעולה עברה ל-Bottom Bar
           (כפתור «123 מספר»), והפאנל מקבל bottomClearance כדי שה-Dock לא יכסה/יחתוך אותו.
           לציבור-רגיל (בלי Dock) — בדיוק אותו legacy hide-condition כמו לפני ה-Dock, בלי שינוי. */}
-      <NumberDrawer hideLauncher={showBottomBar || legacyHideNumberLauncher} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />
+      <NumberDrawer hideLauncher={legacyHideNumberLauncher} bottomClearance={nowClearance} />
       {/* 🧭 חלון-העדכונים: ל-admin ה-fab הצף מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
           והפאנל-הנייד מקבל bottomClearance כנ"ל. לציבור-רגיל — בדיוק אותו legacy fab, בלי שינוי. */}
-      {liveChrome && <LiveChannelFeed hideFab={showBottomBar} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />}
       {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
       <DimensionFiveFeed />
-      {showBottomBar && <BottomBar />}
+      {showNowBar && <NowBar />}
     </div>
   );
 }
