@@ -24,13 +24,14 @@ const languageSources = [
   { id: "language-shimon", title: "הזהב של שמעון חיימוב", href: "/post/shimon-haimov-english-gold" },
 ];
 
-function Gateway({ title, subtitle, symbol, href, action, items, empty, loading }) {
+function Gateway({ title, subtitle, symbol, href, action, items, empty, loading, featuredLink = null }) {
   return <article className="dg29-gateway">
     <div className="dg29-gateway-head">
       <span className="dg29-glyph" aria-hidden="true">{symbol}</span>
       <div><h3>{title}</h3><p>{subtitle}</p></div>
     </div>
     <div className="dg29-sources">
+      {featuredLink ? <Link to={featuredLink.href} className="dg29-source dg29-featured"><span>{featuredLink.title}</span><small>{featuredLink.detail}</small></Link> : null}
       {items.map(item => <Link to={item.href} key={item.id} className="dg29-source">
         <span>{item.title}</span>
         {item.detail ? <small>{item.detail}</small> : null}
@@ -85,6 +86,7 @@ export default function DiscoveryGateways2029() {
         items={state.cinema} loading={state.loading} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
       <Gateway title="הצפנים בסרטונים" subtitle="סרטוני הצופן והחיבורים שמאחוריהם" symbol="▶"
         href="/archive" action="לספריית הסרטונים"
+        featuredLink={{ href: "/category/מימד חמש", title: "מימד חמש · סדרת סרטונים", detail: "סרטונים קצרים ותוכן חזותי — לא כותב" }}
         items={state.videos} loading={state.loading} empty="אין כרגע סרטונים המסומנים כצופן" />
       <Gateway title="הצופן התנ״כי" subtitle="דילוגי אותיות, מטריצות וצפנים שמורים" symbol="✦"
         href="/els?library=public" action="לספריית ELS ולמנוע הדילוגים"
