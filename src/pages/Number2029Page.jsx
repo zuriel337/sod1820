@@ -833,6 +833,11 @@ function NumberPageBody() {
     };
   }, [contextualWorld]);
 
+  // An inbound `cross` parameter is untrusted navigation state, not evidence.
+  // Show/persist a crossing only after the existing verified reader found it.
+  const verifiedCrossingPartner = (Array.isArray(hiddenCrossState.rows) ? hiddenCrossState.rows : [])
+    .some((item) => clean(item?.partner) === clean(focusedCrossingPartner))
+    ? clean(focusedCrossingPartner) : "";
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
   const focusMethodKey = selectedMethodProfile?.methodKey || selectedMethodKey || null;
   const focusExpression = focusExplicit ? clean(activeExpression) : "";
@@ -843,7 +848,7 @@ function NumberPageBody() {
   const currentNumberHref = numberExpressionFocusHref(root, {
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
-    crossingPartner: focusExplicit ? focusedCrossingPartner : null,
+    crossingPartner: focusExplicit ? verifiedCrossingPartner : null,
   }) || `/2029/number/${root}`;
   const focusSelection = (entityId = root) => ({
     ...(research.context?.selection?.entityId === String(entityId)
@@ -859,8 +864,8 @@ function NumberPageBody() {
     methodVersion: focusExplicit ? focusTrace?.method_version ?? focusProfile?.definitionVersion ?? null : null,
     findingId: focusTrace ? traceState.finding?.id || null : null,
     resultValue: focusExplicit && (traceNumber(activeResult) != null) ? Number(activeResult) : null,
-    focusKind: focusExplicit ? (focusedCrossingPartner ? "crossing" : "expression") : null,
-    crossingPartner: focusExplicit ? focusedCrossingPartner || null : null,
+    focusKind: focusExplicit ? (verifiedCrossingPartner ? "crossing" : "expression") : null,
+    crossingPartner: focusExplicit ? verifiedCrossingPartner || null : null,
   });
 
   const clearExpressionFocus = () => {
@@ -945,7 +950,7 @@ function NumberPageBody() {
     // captured the selected Topic source after this render was scheduled.
     research.updateResearchContext?.({ subject, selection, lens: "number",
       dimensions: { expressionFocusExplicit: Boolean(focusExplicit) } });
-  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, verifiedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [pathError, setPathError] = useState(null);
   const sourceReturnRequest = useRef(0);
@@ -968,7 +973,7 @@ function NumberPageBody() {
         subject: { id: String(root), type: "number", label: String(root), href: currentNumberHref },
         selection: focusSelection(root), lens: "number" },
       href: currentNumberHref, surface: "number", kind: "number_expression",
-      reason: focusExplicit ? (focusedCrossingPartner ? "selected_crossing" : "selected_method") : "selected_number",
+      reason: focusExplicit ? (verifiedCrossingPartner ? "selected_crossing" : "selected_method") : "selected_number",
     });
     setPathError(result?.ok ? null : "הבחירה לא נוספה. אפשר לשמור את המסע ולנסות שוב.");
     if (!result?.ok) return;
@@ -1050,7 +1055,7 @@ function NumberPageBody() {
     }
     const focusPatch = focus && typeof focus === "object" ? focus : {};
     const forcedExpression = clean(focusPatch.expression) || (intent === "explain_crossing" ? clean(activeExpression) : focusExpression);
-    const forcedCrossing = clean(focusPatch.partner || focusPatch.crossingPartner) || focusedCrossingPartner;
+    const forcedCrossing = clean(focusPatch.partner || focusPatch.crossingPartner) || verifiedCrossingPartner;
     const numberCoreFocus = {
       root,
       expression: forcedExpression || activeExpression || null,
@@ -1188,7 +1193,7 @@ function NumberPageBody() {
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
-        <strong>{focusedCrossingPartner ? `${focusExpression} ↔ ${focusedCrossingPartner}` : focusExpression}</strong>
+        <strong>{verifiedCrossingPartner ? `${focusExpression} ↔ ${verifiedCrossingPartner}` : focusExpression}</strong>
         <small>{activeMethodLabel || focusMethodKey || "שיטה"} {(traceNumber(activeResult) != null) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
       </div>
       <div className="sod29-actions">
@@ -1224,7 +1229,7 @@ function NumberPageBody() {
         hiddenCrossingsLoading={hiddenCrossState.loading}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
-        activeCrossingPartner={focusExplicit ? focusedCrossingPartner : null}
+        activeCrossingPartner={focusExplicit ? verifiedCrossingPartner : null}
         onClearCrossing={clearCrossingFocus}
         onOpenCrossing={(crossing) => {
           const partner = clean(crossing?.partner);
@@ -1266,7 +1271,7 @@ function NumberPageBody() {
 
     <NumberPathContinuation2029
       active={research.context?.dimensions?.journey2029Active === true}
-      selectionLabel={focusExpression ? `${focusExpression} · ${activeMethodLabel}${focusedCrossingPartner ? ` · ${focusedCrossingPartner}` : ""}` : `המספר ${root}`}
+      selectionLabel={focusExpression ? `${focusExpression} · ${activeMethodLabel}${verifiedCrossingPartner ? ` · ${verifiedCrossingPartner}` : ""}` : `המספר ${root}`}
       steps={research.researchPathSteps || []}
       onContinue={continueJourney}
       onWorkspace={() => shell.openWorkspace()}
