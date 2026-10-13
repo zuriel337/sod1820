@@ -43,7 +43,7 @@ const number = await render("/2029/number/123", async (url) => {
   return { ok: true, json: async () => [{ key: "lock_number", enabled: false, mode: "all" }] };
 });
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
-assert.match(number, /123 · דף המספר 2029/);
+assert.match(number, /123 · דף המספר/);
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
@@ -183,7 +183,7 @@ assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/exampl
 
 const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (url) => {
   const u = String(url);
-  if (u.includes("/site_flags?")) return { ok: true, json: async () => [{ key: "lock_number", enabled: false, mode: "all" }] };
+  if (u.includes("/rpc/is_number_indexable")) return { ok: true, json: async () => true };
   if (u.includes("/number_anchors?")) {
     return {
       ok: true,

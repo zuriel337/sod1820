@@ -6,14 +6,14 @@ import sitemap, { projectPublicUrls } from '../api/sitemap-public.js';
 import { PUBLIC_CAPABILITY_KEYS, publicCapabilityForPath, publicCapabilityIsOpen } from '../src/lib/publicCapabilityRoutes.js';
 
 const gated = {
-  '/number': 'lock_number', '/number/1820': 'lock_number', '/2029/number/1820': 'lock_number',
+  '/2029/number/1820': 'lock_number',
   '/numbers': 'lock_convergence_tree', '/books': 'lock_books', '/book/daat-tevunot': 'lock_books',
   '/books/daat-tevunot': 'lock_books', '/heichal': 'lock_heichal', '/היכל': 'lock_heichal',
   '/heichal.html': 'lock_heichal', '/journey': 'lock_life_journey', '/journey-beta': 'lock_life_journey',
   '/2029/journey': 'lock_life_journey', '/מסע': 'lock_life_journey', '/forum': 'lock_forum',
   '/forum/123': 'lock_forum', '/cross': 'lock_cross', '/הצלבה': 'lock_cross', '/research': 'lock_research',
 };
-const publicPaths = ['/', '/world', '/els', '/code', '/codes', '/codes/published-code', '/post', '/post/published-post', '/old-post-slug', '/topic/98', '/community/chat', '/reality', '/numbering'];
+const publicPaths = ['/number', '/number/1820', '/number/אמת', '/number/123abc', '/', '/world', '/els', '/code', '/codes', '/codes/published-code', '/post', '/post/published-post', '/old-post-slug', '/topic/98', '/community/chat', '/reality', '/numbering'];
 const rows = (enabled, mode = 'all') => PUBLIC_CAPABILITY_KEYS.map(key => ({ key, enabled, mode }));
 const response = () => ({ headers: {}, statusCode: null, body: '', setHeader(k, v) { this.headers[k.toLowerCase()] = v; }, status(c) { this.statusCode = c; return this; }, send(b) { this.body = b; return this; } });
 const xmlFor = paths => `<?xml version="1.0"?><urlset>${paths.map(p => `<url><loc>https://sod1820.co.il${encodeURI(p)}</loc><lastmod>2026-10-13</lastmod></url>`).join('')}</urlset>`;
@@ -35,6 +35,45 @@ test('anonymous projection requires one explicitly open, valid flag', () => {
   }
 });
 
+test('Legacy Number and phrase metadata use index admission without opening the native gate', async () => {
+  const original = globalThis.fetch;
+  try {
+    for (const [path, rpc, args] of [
+      ['/number/1820', 'is_number_indexable', { p_value: 1820 }],
+      ['/number/%D7%90%D7%9E%D7%AA', 'is_phrase_indexable', { p_phrase: 'אמת' }],
+      ['/number/123abc', 'is_phrase_indexable', { p_phrase: '123abc' }],
+    ]) {
+      for (const admitted of [true, false, 'unavailable']) {
+        const calls = [];
+        globalThis.fetch = async (url, options) => {
+          calls.push(String(url));
+          assert.doesNotMatch(String(url), /site_flags/);
+          if (String(url).includes('/rpc/')) {
+            assert.ok(String(url).endsWith(`/rpc/${rpc}`));
+            assert.equal(options.method, 'POST');
+            assert.deepEqual(JSON.parse(options.body), args);
+            if (admitted === 'unavailable') throw new Error('admission unavailable');
+            return { ok: true, json: async () => admitted };
+          }
+          assert.match(String(url), /\/number_anchors\?/);
+          return { ok: true, json: async () => [] };
+        };
+        const res = response(); await og({ query: { path, crawler: 'search' } }, res);
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.headers['x-robots-tag'], admitted === true ? 'index, follow' : 'noindex, nofollow');
+        assert.match(res.body, /דף המספר/);
+        assert.doesNotMatch(res.body, /האזור אינו פתוח לציבור כרגע|דף המספר 2029/);
+        assert.ok(res.body.includes(`href="https://sod1820.co.il${path}"`));
+        assert.equal(calls.length, rpc === 'is_number_indexable' ? 2 : 1);
+      }
+    }
+    globalThis.fetch = async () => { throw new Error('Legacy search must not read lock_number'); };
+    const search = response(); await og({ query: { path: '/number', crawler: 'search' } }, search);
+    assert.equal(search.headers['x-robots-tag'], 'index, follow');
+    assert.match(search.body, /<title>דף המספר · SOD1820<\/title>/);
+  } finally { globalThis.fetch = original; }
+});
+
 test('sitemap closes gated families and preserves public URLs byte for byte', () => {
   const publicXml = xmlFor(publicPaths);
   const allXml = xmlFor([...Object.keys(gated), ...publicPaths]);
@@ -42,7 +81,8 @@ test('sitemap closes gated families and preserves public URLs byte for byte', ()
   assert.equal(projectPublicUrls(allXml, rows(false)), allXml);
   const mixed = rows(true).map(row => ({ ...row, enabled: row.key !== 'lock_books' }));
   assert.match(projectPublicUrls(allXml, mixed), /\/book\/daat-tevunot/);
-  assert.doesNotMatch(projectPublicUrls(allXml, mixed), /\/number\/1820/);
+  assert.doesNotMatch(projectPublicUrls(allXml, mixed), /\/2029\/number\/1820/);
+  assert.match(projectPublicUrls(allXml, mixed), /\.il\/number\/1820/);
 });
 
 test('blocked crawler metadata never fetches capability content, including unavailable flags', async () => {

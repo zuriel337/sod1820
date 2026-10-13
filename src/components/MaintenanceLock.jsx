@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
 import { LOGO_URL } from "../theme.js";
+import { publicCapabilityForPath } from "../lib/publicCapabilityRoutes.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
 // ONE CAPABILITY → ONE STATE → MANY PROJECTIONS.
@@ -156,15 +157,20 @@ export default function Locked({ flag, children, requireFlag = false }) {
     let meta = document.querySelector('meta[name="robots"]');
     const created = !meta;
     const previous = meta?.getAttribute("content");
+    const previousTitle = document.title;
+    const title = publicCapabilityForPath(location.pathname)?.title;
+    const blockedTitle = title ? `${title} · SOD1820` : null;
     if (!meta) { meta = document.createElement("meta"); meta.name = "robots"; document.head.appendChild(meta); }
     meta.content = "noindex, nofollow";
+    if (blockedTitle) document.title = blockedTitle;
     return () => {
+      if (blockedTitle && document.title === blockedTitle) document.title = previousTitle;
       if (meta.content !== "noindex, nofollow") return;
       if (created) meta.remove();
       else if (previous == null) meta.removeAttribute("content");
       else meta.content = previous;
     };
-  }, [state.loading, state.blocked, location.key]);
+  }, [state.loading, state.blocked, location.key, location.pathname]);
   if (state.loading) return null;
   if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} />;
   return children;

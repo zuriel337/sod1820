@@ -42,7 +42,7 @@ const page = await browser.newPage();
 await page.route('https://**', r => r.abort());
 const errors=[];page.on('pageerror', e=>errors.push(e.message));
 async function start(auth={user:null,isAdmin:false,loading:false}) {
-  await page.goto('http://127.0.0.1:4186/number/1820');
+  await page.goto('http://127.0.0.1:4186/2029/number/1820');
   await page.waitForFunction(()=>window.pending?.length>0);
   await page.evaluate(a=>{window.auth=a;window.render()},auth);
   assert.equal(await page.locator('#child').count(),0,'no child before flag read');
@@ -82,7 +82,7 @@ try {
   await start({user:null,isAdmin:false,loading:true});await settle({enabled:false,mode:'all'});
   assert.equal(await page.locator('#child').count(),0);
   await page.evaluate(()=>{window.auth.loading=false;window.render()});await page.locator('#child').waitFor();cases++;
-  for (const path of ['/books','/number/42']) {
+  for (const path of ['/books','/2029/number/42']) {
     await start();await settle({enabled:false,mode:'all'});await page.locator('#child').waitFor();
     await page.evaluate(p=>window.navigate(p),path);await page.waitForFunction(()=>window.pending.length>0);
     assert.equal(await page.locator('#child').count(),0,'navigation must not reuse an open flag');
