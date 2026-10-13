@@ -48,10 +48,17 @@ test('full Number page opens from both menus without entering another drawer', a
 test('real zero stays zero, invalid number never falls through to zero', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/0`, { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sod29-number-core2029.is-page[data-number-core-root="0"]'))
-    .toBeVisible({ timeout: 35_000 });
+  const zero = page.locator('[data-experience-surface="number"][data-number-root="0"]');
+  await expect(zero).toBeVisible({ timeout: 35_000 });
+  // An unindexed Number may have no canonical Graph node. Do not invent one.
+  if (await zero.getAttribute('data-number-empty') === 'true') {
+    await expect(zero).toContainText('אין עדיין חומר מחקרי מקושר ל־0');
+    await expect(zero.locator('.sod29-number-zero-identity strong')).toHaveText('0');
+  } else {
+    await expect(zero.locator('.sod29-number-core2029.is-page')).toBeVisible();
+  }
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.sod29-number-core2029.is-page[data-number-core-root="0"]'))
+  await expect(page.locator('[data-experience-surface="number"][data-number-root="0"]'))
     .toBeVisible({ timeout: 35_000 });
   await page.goto(`${BASE}/2029/number/not-a-number`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('המספר לא תקין')).toBeVisible();
