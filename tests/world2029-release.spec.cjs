@@ -3,6 +3,7 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
+const PRE_CUTOVER_FIXTURE = process.env.SOD_WORLD_PRE_CUTOVER_FIXTURE === '1';
 const CONTEXT_KEY = 'sod_research_context_session_v1';
 const MOBILE_WIDTHS = [320, 360, 390];
 const CLS_ROUTES = [
@@ -87,13 +88,40 @@ test.setTimeout(60_000);
 // Each test receives a fresh page/context. Report every independent regression
 // even when an earlier route fails, while retaining the runner's worker limit.
 test.describe.configure({ mode: 'default' });
-test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
+test.beforeEach(async ({ context }) => {
+  await installStorageEgressGuard(context);
+  if (!PRE_CUTOVER_FIXTURE) return;
+
+  // The branch preview must exercise the open World without flipping a live flag.
+  // Real v3 HTTP remains a separate cutover gate after its reviewed migration is applied.
+  await context.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify([{ key: 'lock_world', enabled: false, mode: 'all', message: '' }]),
+  }));
+  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    headers: { 'x-sod-acceptance-fixture': 'pre-cutover' },
+    body: JSON.stringify([{
+      id: '00000000-0000-4000-8000-000000000001',
+      body: 'הודעת מקור לבדיקה',
+      created_at: '2026-10-12T12:00:00Z',
+      contributor_slug: 'tzvi-opoc',
+      contributor_name: 'צבי',
+      group_proof: true,
+      proof_basis: 'verified_phone_unique',
+      occurrences: [{ id: '00000000-0000-4000-8000-000000000001', created_at: '2026-10-12T12:00:00Z' }],
+    }]),
+  }));
+});
 
 async function openLaunchFlagForAcceptance(page, key) {
   await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify([{ key, enabled: false, mode: 'all', message: '' }]),
+    body: JSON.stringify([...new Set(PRE_CUTOVER_FIXTURE ? ['lock_world', key] : [key])]
+      .map((flagKey) => ({ key: flagKey, enabled: false, mode: 'all', message: '' }))),
   }));
 }
 
@@ -226,7 +254,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   const article = page.locator('article[data-entity-type="convergence"]');
   await expect(article).toBeVisible({ timeout: 30_000 });
   const heroNumber = article.locator('a[href="/2029/number/888"]').first();
-  await expect(heroNumber).toBeVisible();
+  await expect(heroNumber).toBeVisible({ timeout: 20_000 });
   await expect(heroNumber).toHaveText('888');
   await expect(article.locator('h1')).toContainText('אלהים משיח מקדש');
   await expect(article).toContainText('מה מחבר את הציר הזה?');
@@ -893,7 +921,8 @@ for (const preset of ['light', 'parchment', 'dark']) {
       const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
-      expect(response.ok(), 'deployed sanitized group reader is reachable').toBe(true);
+      expect(response.ok(), 'sanitized group reader is reachable').toBe(true);
+      expect(response.headers()['x-sod-acceptance-fixture'] || null).toBe(PRE_CUTOVER_FIXTURE ? 'pre-cutover' : null);
       const groupRows = await response.json();
       expect(Array.isArray(groupRows)).toBe(true);
       for (const row of groupRows) {
@@ -912,7 +941,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
       await expect(writer).toBeVisible({ timeout: 30_000 });
       await writer.click();
       const lens = page.locator('[data-experience-surface="contributor-findings-lens"]');
-      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible();
+      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible({ timeout: 20_000 });
       await expect(lens.locator('[data-experience-capability="contributor-source-finding-group"]')).toHaveCount(1);
       await expect(lens).not.toContainText('CONTRIBUTOR FINDINGS');
       await expect(lens.locator('details[open]')).toHaveCount(0);

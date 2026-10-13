@@ -114,6 +114,20 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   }
 });
 
+test('Topic number remains tappable when external fonts are unavailable', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('https://fonts.googleapis.com/**', (route) => route.abort());
+  await page.route('https://fonts.gstatic.com/**', (route) => route.abort());
+  await page.goto(`${BASE}/topic/888-yeshua`, { waitUntil: 'domcontentloaded' });
+  const number = page.locator('article[data-entity-type="convergence"] a[href="/2029/number/888"]').first();
+  await expect(number).toBeVisible({ timeout: 30_000 });
+  const box = await number.boundingBox();
+  expect(box?.width).toBeGreaterThanOrEqual(44);
+  expect(box?.height).toBeGreaterThanOrEqual(44);
+  await number.click();
+  await expect(page).toHaveURL(`${BASE}/2029/number/888`);
+});
+
 test('Heichal and the other unopened areas stay closed', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   // Vercel rewrites /heichal to the 2029 shell. Vite preview instead serves

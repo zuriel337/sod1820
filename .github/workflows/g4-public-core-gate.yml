@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/g4-public-core-gate.yml'
+      - '2029.html'
+      - 'public/fonts/**'
       - 'tests/g4-public-core-release.spec.cjs'
       - 'src/App2029.jsx'
       - 'src/components/MaintenanceLock.jsx'
