@@ -4,7 +4,7 @@ Status: APPROVED DESIGN DIRECTION · DOCS ONLY · NO FRAME/ICON CODE CHANGES · 
 Authorities: SOD1820_DESIGN_CONTRACT_V2.md, docs/sod1820-system-frame-contract-v2-addendum.md, NavigationIcon2029.jsx. This is an implementation handoff, NOT an alternative contract.
 
 ## Visual direction
-Royal Living Interface: royal thin-line gold for global navigation, research blue exclusively for research/Number at Night, restrained violet for Raziel, teal for personal journeys, warm amber for communication. Use existing palette semantic tokens, not per-icon hardcoded colors. All Day/Parchment/Night states remain valid; Night outside Number keeps black-brown and muted gold. Do not render every icon in different colors at rest: semantic accents emerge on meaningful interactions.
+Royal Living Interface: royal thin-line gold for global navigation, royal blue for primary actions in all presets, with deep research-blue surfaces scoped to Number content at Night, restrained violet for Raziel, teal/cyan for discovery and selected journey interactions, warm amber for communication highlights only when compatible with existing semantic tokens. Use existing palette semantic tokens, not per-icon hardcoded colors. All Day/Parchment/Night states remain valid; Night outside Number keeps black-brown and muted gold. Do not render every icon in different colors at rest: semantic accents emerge on meaningful interactions.
 
 Optional families within the ONE canonical icon catalog: Royal Gold (base); Quantum Research (number/ELS/research); Mystic Light (Raziel/discovery only); Living Identity (workspace/community); Royal 3D (large gates only; never navigation glyphs). Common stroke, grid, corner treatment, optical weight across families.
 
@@ -28,3 +28,11 @@ User expressly approved retaining the **exact visual family already used in the 
 Implementation owner must create a side-by-side visual specimen using actual current sidebar icon shapes at matched size/stroke and the proposed missing workspace glyphs. Compare in all three presets, desktop/mobile, resting/pressed/selected. Preserve approved sidebar silhouettes as-is unless an explicitly documented semantic bug is corrected (chat fallback, calculator collision, ELS legibility). New icons copy geometry, optical size, line width, corner treatment, stroke joins, spacing, active treatment from current canonical implementation. Use shared motion and palette tokens, not uncoordinated local CSS.
 
 No code implementation or QA acceptance implied by this handoff. PR #1092 preview may advance; after its owner completes gates, pin exact integrated commit and reconcile duplicate follow changes and all overlapping SystemFrame edits before a dedicated implementation branch. Keep all production and legacy routes unchanged until approved independent release.
+
+## Three-preset visual acceptance crosswalk
+- Day/light: cool light canvas; brand Gold #875E13 reserved for identity, royal blue for primary interaction. Preserve semantic contrast for chosen/hovered glyphs.
+- Parchment: warm editorial canvas; brand Gold #80570E for identity; the same blue/cyan/violet capability roles adapt through canonical palette.
+- Night/dark: default Shell, Workspace, Home, World and Posts stay warm black-brown with restrained Crown gold #F9BA3F; Number content alone may project sapphire research-blue. In-context Number stays blue *inside its scoped content*, never dyes the host navigation.
+- Treat those literal gold codes as contract references, not CSS to paste into components. Palette owner resolves roles; three presets share the exact icon SVG geometry.
+- Contract already specifies 24x24 SVG, 1.8px stroke, 180ms interaction and finite touch pulse; the new mapping must inherit these exact canonical primitives, not override timing with independent per-component rules.
+- Acceptance still PENDING real browser visuals and contrast checks: no claim of tested rendering or approved production.
