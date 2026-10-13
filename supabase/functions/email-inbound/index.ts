@@ -3,7 +3,7 @@
 // The signing secret is read from RESEND_WEBHOOK_SECRET when configured, otherwise retrieved/cached
 // from the authenticated Resend Webhooks API using the already-existing RESEND_API_KEY.
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { normalizeReceivedEmail, resolveApprovedSender, exactMailbox, canHydrateLegacy, TECHNICAL_TEST_PROVIDER_IDS } from "../_shared/sourceEmail.mjs";
+import { normalizeReceivedEmail, providerSenderProof, resolveApprovedSender, exactMailbox, canHydrateLegacy, TECHNICAL_TEST_PROVIDER_IDS } from "../_shared/sourceEmail.mjs";
 
 const RESEND_KEY = (Deno.env.get("RESEND_READ_KEY") || Deno.env.get("RESEND_API_KEY") || "").trim();
 const WEBHOOK_ID = "d31ce68e-5f2f-481e-af12-6ac0256005c9"; // resource id, not a secret
@@ -135,6 +135,9 @@ Deno.serve(async (req: Request) => {
     } catch { /* keep the private source; permission lookup can recover on replay */ }
   }
   const technicalTest = TECHNICAL_TEST_PROVIDER_IDS.includes(emailId);
+  // Provider authentication and canonical Person approval are independent axes.
+  // Keep real sender proof privately even while contributor reconciliation is pending.
+  const senderProof = providerSenderProof(fetched, { provider: "resend", providerId: emailId });
   const author = technicalTest ? null : resolveApprovedSender(fetched, approvals, { provider: "resend", providerId: emailId });
 
   const bodyText = text.trim() ? text.trim() : stripHtml(html);
@@ -150,7 +153,7 @@ Deno.serve(async (req: Request) => {
     const deniedTest = technicalTest || prior.technical_test === true;
     const currentAuthor = deniedTest ? null : author;
     const refresh = sb.from("inbound_emails").update({ meta: { ...dup.meta,
-      source_email_v1: { ...prior, author: currentAuthor, identity_proof: currentAuthor?.identity_proof || null,
+      source_email_v1: { ...prior, author: currentAuthor, identity_proof: senderProof,
         admission: currentAuthor ? "approved_source_candidate" : "unresolved", technical_test: deniedTest } } })
       .eq("id",dup.id);
     const { data: refreshed, error: refreshError } = await protectAdminMetadata(refresh,dup).select("id").maybeSingle();
@@ -182,7 +185,7 @@ Deno.serve(async (req: Request) => {
     ...(source.arrival_at && !existing ? { received_at: source.arrival_at } : {}),
     meta: { ...(existing?.meta || {}), raw_from: from, raw_to: to, provider: "resend", provider_id: emailId, verified_webhook: true,
       source_email_v1: { ...source, author, admission: author ? "approved_source_candidate" : "unresolved",
-        identity_proof: author?.identity_proof || null,
+        identity_proof: senderProof,
         technical_test: technicalTest, publication_state: "private", media_state: "provider_references_only" } },
   };
   // Hydrate old metadata-only rows on provider replay without resetting read/reply state.

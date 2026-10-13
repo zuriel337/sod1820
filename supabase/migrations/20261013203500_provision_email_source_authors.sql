@@ -49,13 +49,15 @@ begin
       case when count(c.id)>1 then 'ambiguous'
         when count(c.id)=1 and bool_and(c.active is true and c.merged_into is null) then 'resolved'
         when count(c.id)=1 then 'inactive_or_merged'
+        when exists(select 1 from public.contributors h where h.merged_into is not null
+          and public.email_source_mailbox_v1(h.id)=a.mailbox) then 'merged_identity_link_required'
         when exists(select 1 from public.users u where lower(trim(u.email))=a.mailbox) then 'account_link_required'
         else 'would_create_private' end state,
       coalesce(jsonb_agg(c.id order by c.id) filter(where c.id is not null),'[]'::jsonb) contributor_ids
-    from approved a left join public.contributors c on public.email_source_mailbox_v1(c.id)=a.mailbox
+    from approved a left join public.contributors c on public.email_source_mailbox_v1(c.id)=a.mailbox and c.merged_into is null
     group by a.input_index,a.mailbox
   ) select jsonb_build_object('total',13,
-    'blocked',count(*) filter(where state in ('ambiguous','inactive_or_merged','account_link_required')),
+    'blocked',count(*) filter(where state in ('ambiguous','inactive_or_merged','account_link_required','merged_identity_link_required')),
     'entries',jsonb_agg(jsonb_build_object('input_index',input_index,'state',state,'contributor_ids',contributor_ids) order by input_index)) into result from resolved;
   return result;
 end;
@@ -93,7 +95,7 @@ begin
       raise exception 'invalid approved source identity';
     end if;
     select count(*),min(c.id::text)::uuid into matches,author_id from public.contributors c
-      where public.email_source_mailbox_v1(c.id)=mailbox;
+      where public.email_source_mailbox_v1(c.id)=mailbox and c.merged_into is null;
     if matches>1 then raise exception 'ambiguous canonical mailbox'; end if;
     if matches=1 then
       if not exists(select 1 from public.contributors where id=author_id and active is true and merged_into is null) then
@@ -103,6 +105,10 @@ begin
         '{email_source_approved}','true'::jsonb),updated_at=now() where id=author_id;
       reused:=reused+1;
     else
+      if exists(select 1 from public.contributors h where h.merged_into is not null
+        and public.email_source_mailbox_v1(h.id)=mailbox) then
+        raise exception 'merged identity link required';
+      end if;
       if exists(select 1 from public.users where lower(trim(email))=mailbox) then
         raise exception 'canonical account link required';
       end if;

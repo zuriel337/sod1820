@@ -62,3 +62,21 @@ test('wrong batch, duplicate mailbox and malformed input cannot reach provisioni
   await assert.rejects(()=>call('preview_email_source_authors_v1',batch.map(()=>batch[0])),/duplicate/);
   await assert.rejects(()=>call('preview_email_source_authors_v1',batch.map((x,i)=>i===0?{...x,display:''}:x)),/invalid/);
 });
+test('a governed merge alias no longer counts as a competing canonical identity',async()=>{
+  const matches=(await db.query("select id,kind from contributors where email='approved-12@example.invalid'")).rows;
+  const canonical=matches.find(x=>x.kind==='private').id,alias=matches.find(x=>x.kind!== 'private').id;
+  await db.query('update contributors set merged_into=$1 where id=$2',[canonical,alias]);
+  const plan=await call('preview_email_source_authors_v1');
+  assert.equal(plan.blocked,0);assert.equal(plan.entries[12].state,'resolved');
+  assert.deepEqual(plan.entries[12].contributor_ids,[canonical]);
+  const result=await call('provision_email_source_authors_v1');assert.equal(result.created_private_sources,0);
+  assert.equal((await db.query("select count(*) n from contributors where email='approved-12@example.invalid'")).rows[0].n,2,'merge history preserved');
+});
+test('merged-only contact aliases are held instead of creating another source identity',async()=>{
+  const aliases=batch.map((x,i)=>({...x,email:`alias-${i}@example.invalid`}));
+  const canonical=(await db.query("select id from contributors where email='approved-1@example.invalid'")).rows[0].id;
+  await db.query("insert into contributors(id,email,active,merged_into) values(gen_random_uuid(),'alias-0@example.invalid',true,$1)",[canonical]);
+  const plan=await call('preview_email_source_authors_v1',aliases);
+  assert.equal(plan.blocked,1);assert.equal(plan.entries[0].state,'merged_identity_link_required');
+  await assert.rejects(()=>call('provision_email_source_authors_v1',aliases),/reconciliation required/);
+});

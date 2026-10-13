@@ -127,3 +127,27 @@ private preflight/provision, reviewed private migration + normalizing Edge deplo
 real provider-to-private-storage/read roundtrip, then separately reviewed public
 thread/image/destination and existing legacy release gates. Older public migrations
 must not be applied merely to install private sender identity support.
+
+
+Independent review99b84b96 PASSed604e9d66 code (21 isolated PostgreSQL tests) and
+confirmed the same2 data blockers. The two index13 profiles are one account-backed
+self-dossier and one private open-web imported profile of that same person; neither
+has an authoritative merge pointer. Index4 account has no contributor pointer.
+No profile was chosen or linked. Contributors have no insert/update triggers live.
+
+Follow-up preflight correction: an already-governed merged alias is not counted as a
+competing canonical identity. A merged-only mailbox without a matching live canonical
+author remains blocked instead of minting a duplicate source identity. Merge history
+is preserved; no real merge is performed. Regression tests cover both cases. Actual
+new source normalization yielded available text for both receipts (2435/2188 chars),
+parent references retained,0 attachments. This is offline adapter evidence, not live
+normalization/storage or public publication. Both receipts are the same approved sender
+(index1), so this is not proof that every one of the13 mailboxes has native DKIM/DMARC.
+
+
+The private producer now retains native provider identity_proof independently of
+canonical author resolution. A legitimate received sender can therefore be proved
+while author/admission remains unresolved. No author, publication or permissions are
+inferred from that proof alone. The existing source/privacy/public gates remain required;
+a regression test exercises actual handler behavior with positive native proof and
+no canonical author. Receiving and provider replays still never invoke public admission.

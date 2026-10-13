@@ -153,6 +153,14 @@ test('explicit canonical approval without provider proof remains private', async
   assert.equal(publishCalls.length, 0);
   assert.equal(writes[0].payload.meta.source_email_v1.author, null);
 });
+test('native sender proof is retained privately while canonical author linkage remains unresolved',async()=>{
+  approvedSource();approvals=[];
+  await handler(request());
+  const source=writes[0].payload.meta.source_email_v1;
+  assert.equal(source.author,null);assert.equal(source.admission,'unresolved');
+  assert.equal(source.identity_proof.dmarc,'pass');assert.equal(source.identity_proof.basis,'resend_receiving_api_v1');
+  assert.equal(source.publication_state,'private');assert.equal(publishCalls.length,0);
+});
 test('authenticated approved source stays private for an explicit destination decision', async () => {
   approvedSource();
   const result = await (await handler(request())).json();
