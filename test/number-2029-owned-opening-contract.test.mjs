@@ -20,7 +20,7 @@ test("zero is a literal addressable root, missing/unsafe roots are not zero", ()
   for (const invalid of [null, undefined, "", " ", "1.2", -1, Number.NaN, Number.MAX_SAFE_INTEGER + 1]) {
     assert.equal(numberExpressionFocusHref(invalid), null, `invalid root ${String(invalid)}`);
   }
-  assert.match(page, /const root = \/\^\\d\+\$\/.test\(String\(value \|\| ""\)\)/);
+  assert.ok(page.includes('const root = /^\\d+$/.test(String(value || ""))'));
   assert.match(page, /Number\.isSafeInteger\(root\) \|\| root < 0/);
   assert.match(source("src/lib/research/numberExpressionFocus.js"), /selected\?\.computedValue == null/);
 });
@@ -35,7 +35,7 @@ test("crossing focus persists in the existing URL and exact-return model", () =>
   assert.match(core, /if \(!compact\) onClearCrossing\?\.\(\)/);
   assert.match(core, /onClick=\{\(\) => chooseCrossing\(stageCrossing\)\}/);
   assert.match(core, /onClick=\{\(\) => chooseCrossing\(item\)\}/);
-  assert.match(page, /activeCrossingPartner=\{focusExplicit \? focusedCrossingPartner : null\}/);
+  assert.match(page, /activeCrossingPartner=\\{focusExplicit \\? verifiedCrossingPartner : null\\}/);
   assert.match(page, /onClearCrossing=\{clearCrossingFocus\}/);
   assert.doesNotMatch(page.slice(page.indexOf("onOpenCrossing={(crossing) => {"), page.indexOf("onOpenZero={(next)")), /askRaziel\(/,
     "choosing a crossing must not auto-run gated/paid Raziel");
