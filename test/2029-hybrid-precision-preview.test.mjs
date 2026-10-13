@@ -1,0 +1,18 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const read=(p)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const p=read("src/lib/palette.js"),f=read("src/components/experience2029/SystemFrame2029.jsx");
+const s=read("src/components/experience2029/Sod2029Shell.jsx");
+const c=read("src/components/experience2029/precisionHybrid2029-preview.css");
+const t=read("src/lib/themeMode.js"),d=read("SOD1820_DESIGN_CONTRACT_V2.md");
+assert.match(t,/THEME_PRESETS.*light.*parchment.*dark/);
+assert.match(p,/NUMBER_RESEARCH_NIGHT_V2/);
+assert.match(p,/numberResearch: NUMBER_RESEARCH_NIGHT_V2/);
+assert.match(p,/accentBtn: "#315DD5"/);
+assert.match(f,/"--s29-number-panel": palette.numberResearch.card/);
+assert.match(s,/precisionHybrid2029-preview.css/);
+assert.match(c,/data-frame-theme-preset="dark"/);
+assert.match(c,/\.sod29-number-drawer2029/);
+assert.doesNotMatch(c,/#[0-9A-Fa-f]{3,8}\b/);
+assert.match(d,/6.3 Hybrid precision review/);
+console.log("Hybrid precision scope PASS; browser review still required.");
