@@ -2732,3 +2732,7 @@
 .sod29-number-ai-analysis section small{font-size:var(--s29-type-micro,14px);font-weight:800;color:var(--s29-accent)}
 .sod29-number-ai-analysis section p{color:var(--s29-ink);white-space:pre-wrap}
 .sod29-number-ai-analysis button:disabled{opacity:.55;cursor:default}
+
+/* Canonical share sits beside the identity; Follow is a separate gate after the content (follow v19). */
+.sod29-number-v10-share{margin-top:8px;min-width:0}
+.sod29-number-follow-gate{margin-top:8px}

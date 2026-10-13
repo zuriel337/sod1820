@@ -1,6 +1,9 @@
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import WatchButton from "../WatchButton.jsx";
+import { SHARE_SITE } from "../../lib/share.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import NumberCore2029 from "./NumberCore2029.jsx";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
@@ -657,15 +660,18 @@ export default function NumberDrawer2029({
       hiddenCrossings={verifiedCrossings}
       hiddenCrossingsLoading={hiddenCrossState.loading}
       mode="drawer"
+      shareUrl={`${SHARE_SITE}${numberExpressionFocusHref(root, surfaceMode === "focus" && clean(expression) ? { expression: clean(expression), method: selectedProfile?.methodKey || clean(selectedMethodKey) || null } : {}) || `/2029/number/${root}`}`}
+      shareTitle={`SOD1820 · ${surfaceMode === "focus" && clean(expression) ? clean(expression) : root}`}
       traceState={traceState}
       traceOpen={traceOpen}
       traceSteps={traceSteps}
       traceDetail={trace}
-      onExpressionSelect={(phrase) => {
+      onExpressionSelect={(phrase, preferredMethod = null) => {
         setExpression(phrase);
         setInput(phrase);
         setSurfaceMode("focus");
-        if (regularProfile?.methodKey) setSelectedMethodKey(regularProfile.methodKey);
+        const nextMethod = clean(preferredMethod) || regularProfile?.methodKey;
+        if (nextMethod) setSelectedMethodKey(nextMethod);
         setTraceOpen(false);
       }}
       onResolveQuery={resolveInputValue}
@@ -683,5 +689,8 @@ export default function NumberDrawer2029({
       onRazielAction={razielIntent}
       onExpandRaziel={() => razielIntent("expand_panel")}
     /> : !dataState.loading ? <div className="sod29-number-drawer-status">הקלד ביטוי כדי לקבל שיטות, או מספר כדי לפתוח את ה־Root.</div> : null}
+    {projection && Number.isSafeInteger(Number(root)) ? <div className="sod29-number-follow-gate" data-follow-owner="WatchButton" data-follow-placement="after-core">
+      <WatchButton topic={`number:${root}`} source="number_drawer" gate ui2029 heading={`לעקוב אחרי ${root}?`} explainer="נשמור את המספר במעקב שלך באתר. עדכונים יופיעו כאן בתוך האתר; מייל או התראות נבחרים בנפרד ורק בהסכמה." label="עקוב אחרי המספר" followLabel="עוקב" />
+    </div> : null}
   </div></PaletteProvider>;
 }
