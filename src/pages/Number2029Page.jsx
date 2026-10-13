@@ -304,7 +304,11 @@ function NumberPageBody() {
   const deepSentinelRef = useRef(null);
 
   useEffect(() => {
-    if (!Number.isSafeInteger(root) || root < 0) {
+    // Loading / unavailable states live inside the same Number colour scope as the ready page, so the Night canvas
+  // does not appear only after data arrives.
+  const inNumberScope = (node) => <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-wide-layout={wideLayout} data-number-root={root}>{node}</div></PaletteProvider>;
+
+  if (!Number.isSafeInteger(root) || root < 0) {
       setState({ loading: false, data: null, error: new Error("invalid-number") });
       return undefined;
     }
@@ -1341,10 +1345,10 @@ function NumberPageBody() {
   };
 
   if (!Number.isSafeInteger(root) || root < 0) {
-    return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
+    return inNumberScope(<FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>);
   }
   if (state.loading && !data) {
-    return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
+    return inNumberScope(<FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>);
   }
   // A valid numeric zero currently has no public Number node. Render a bounded
   // full-page empty state, not a fabricated Research/Graph or a fake 0 result.
@@ -1372,7 +1376,7 @@ function NumberPageBody() {
     </div>;
   }
   if (!data) {
-    return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
+    return inNumberScope(<FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>);
   }
   return <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
