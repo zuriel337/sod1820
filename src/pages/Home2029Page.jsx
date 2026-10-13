@@ -468,6 +468,7 @@ function HomeBody() {
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
+    pulsePanel={<HomeSystemPulse pulse={homeState.projection?.systemPulse || null} loading={homeState.loading} />}
     entry={
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
