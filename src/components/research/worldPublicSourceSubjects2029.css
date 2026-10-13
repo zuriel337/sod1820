@@ -70,3 +70,10 @@
   block-size: auto; object-fit: contain; border-radius: 10px;
   border: 1px solid var(--s29-line); background: var(--s29-panel);
 }
+
+.sod29-world-source-subject-origin-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.sod29-world-source-subject-origin-links a {
+  color: var(--s29-accent-text); font: 500 12px/1.4 var(--s29-font-ui);
+  text-decoration: underline; text-underline-offset: 3px;
+  min-height: 44px; display: inline-flex; align-items: center;
+}
