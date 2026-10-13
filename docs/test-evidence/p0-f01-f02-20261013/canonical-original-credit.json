@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-10-13T07:29:00Z",
+  "project_ref": "linswmnnkjxvweumprav",
+  "reader": "general Supabase connector, bounded read-only work_log_current query",
+  "original_evidence_commit": "d7fdb5e41927eb90deee494b438b3e03c8f88c86",
+  "credited_native_API_checks": 37,
+  "original_checks_rerun_for_supplement": false,
+  "new_work_log_rows_created": false,
+  "note": "Quoted existing provenance credit; historical row status is not a new MAIN acceptance verdict.",
+  "canonical_rows": [
+    {
+      "id": "14f40bcd-1a07-481c-9137-f440b91e45ae",
+      "task_key": "SOD1820_P0_F01_F02_SERVER_HTTP_PROOF_V1",
+      "from_actor": "GPT",
+      "to_actor": "CLAUDE",
+      "status": "DEFERRED_WRITE_AUTOSTART_REQUIRES_BRANCH_ONLY",
+      "created_at": "2026-10-09 01:22:14.744939+00",
+      "credit_excerpts": [
+        "Original MAIN reviewer eb370db1-0b48-41b0-94c6-73fd74bdf7b9 explicitly credited 37 real GoTrue/PostgREST/Storage tests from evidence d7fdb5e41927eb90deee494b438b3e03c8f88c86.",
+        "Reuse ALL 37 without rerun.",
+        "Current PR999 was safely replayed unchanged onto main 45315ef269fd1aef7eadb8b5ca445839e435390f; HEAD e5a27331b33dcc5ddb7bef4b3d735e569cea40a8, 1 ahead 0 behind, exactly 3 reviewed candidate files; SQL blobs b5b9125eb36717f8734373ef450013c24913cf71 and d91080414080205afbc72313119ec5e954ed781a unchanged."
+      ]
+    },
+    {
+      "id": "eb370db1-0b48-41b0-94c6-73fd74bdf7b9",
+      "task_key": "SOD1820_P0_F01_F02_LIVE_APPLY_GATE_V1",
+      "from_actor": "GPT",
+      "to_actor": "GPT",
+      "status": "FINAL_REVIEW_BLOCKED_HTTP_EVIDENCE_AND_CURRENT_MAIN",
+      "created_at": "2026-10-09 00:52:50.271002+00",
+      "credit_excerpts": [
+        "Draft PR999 exact 9b6a10b585234e966f0e37d2f942b233c1874d16 remains unmerged/mergeable, 1 ahead/35 behind current main.",
+        "Reviewed actual 37-case real GoTrue/PostgREST/Storage evidence and harness in evidence branch d7fdb5e41927eb90deee494b438b3e03c8f88c86.",
+        "These checks are credited as recorded, not claimed rerun by MAIN.",
+        "If unavailable, rerun ONLY those negative cases lacking reason evidence on the patched isolated child; do not reopen old grants or rerun all 37."
+      ]
+    }
+  ]
+}

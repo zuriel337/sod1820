@@ -1,0 +1,30 @@
+{
+  "project_ref": "krnaxxndgtrdnaddlzws",
+  "read_only": true,
+  "historical_migration_replay": "MIGRATIONS_FAILED",
+  "storage_cleanup": {
+    "protected_fixture_rows": 0,
+    "new_service_proof_rows": 0,
+    "unrelated_proof_rows": 0,
+    "original_community_fixture_rows": 1
+  },
+  "history_acl": {
+    "anon_execute": false,
+    "authenticated_execute": true,
+    "service_execute": false,
+    "definition_md5": "afdf1e28eeeba9ce1693768430f518cb"
+  },
+  "policies": {
+    "temporary_count": 0,
+    "intentional_count": 3
+  },
+  "retired_function": {
+    "name": "p0-999-supplemental-http-proof",
+    "version": 8,
+    "verify_jwt": true,
+    "retirement_marker": true,
+    "fetch_call_present": false,
+    "environment_read_present": false
+  },
+  "production_applied": false
+}
