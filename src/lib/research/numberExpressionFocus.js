@@ -63,7 +63,9 @@ export async function resolveExpressionFocus(expression, {
     || regularMethodProfile(list)
     || list[0]
     || null;
-  const root = Number(selected?.computedValue);
+  // null / missing output is NOT numeric zero. Keep actual calculated zero valid.
+  if (selected?.computedValue == null || String(selected.computedValue).trim() === "") return null;
+  const root = Number(selected.computedValue);
   if (!Number.isSafeInteger(root) || root < 0) return null;
   const method = clean(selected?.methodKey || selected?.displayLabel) || null;
   return {
