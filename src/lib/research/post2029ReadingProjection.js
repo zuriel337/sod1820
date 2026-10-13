@@ -310,7 +310,19 @@ async function fetchFz1073Topic363() {
 
 // Reopen declared connections in the existing 2029 readers. A historical path is
 // not a new Post identity: resolve it through the current access-controlled reader.
-export async function resolvePostExperienceConnections(experience, { readPost = getPostBySlug, readTopic = async (slug) => {
+// A connection only needs to know that the Post exists and its canonical slug. Same slug candidates as
+// getPostBySlug, but selects id+slug instead of the whole row (title, content, tags...) per connection.
+export async function readPostIdentityBySlug(slug) {
+  if (!supabase) return null;
+  const decoded = decodeURIComponent(slug);
+  const encoded = encodeURIComponent(decoded).toLowerCase();
+  const slugs = [...new Set([slug, decoded, encoded])];
+  const { data, error } = await supabase.from("posts").select("id,slug").in("slug", slugs).limit(1);
+  if (error || !data?.length) return null;
+  return data[0];
+}
+
+export async function resolvePostExperienceConnections(experience, { readPost = readPostIdentityBySlug, readTopic = async (slug) => {
   const { data, error } = await supabase.from("topic_cards_public").select("slug,title").eq("slug", slug).maybeSingle();
   return error ? null : data;
 } } = {}) {
