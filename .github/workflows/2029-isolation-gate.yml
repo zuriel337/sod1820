@@ -61,6 +61,10 @@ on:
       - "scripts/test-replayable-golden-no-black-box.mjs"
       - "scripts/test-web-vitals-2029.mjs"
       - "supabase/functions/ai-analyze/index.ts"
+      - "supabase/functions/_shared/supabaseServiceHeaders.js"
+      - "scripts/test-ai-analyze-service-headers.mjs"
+      - "test/helpers/ai-analyze-handler.mjs"
+      - "test/raziel-quota-trace.test.mjs"
       - "supabase/functions/research-run/index.ts"
       - "scripts/package-research-run.mjs"
       - "scripts/test-research-run-contract.mjs"
@@ -108,7 +112,10 @@ jobs:
       - name: Operational Trace Runtime persistence acceptance
         run: npm run test:operational-trace-runtime
       - name: AI-Analyze early paid paths trace coverage acceptance
-        run: node test/ai-analyze-early-trace-coverage.test.mjs
+        run: |
+          node test/ai-analyze-early-trace-coverage.test.mjs
+          node scripts/test-ai-analyze-service-headers.mjs
+          node --test test/raziel-quota-trace.test.mjs
       - name: Replayable Golden No-Black-Box acceptance
         run: npm run test:replayable-golden
       - name: Server capability execution gate acceptance

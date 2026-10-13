@@ -1,6 +1,7 @@
 import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
+import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -85,7 +86,7 @@ async function logTokens(
       const prefer = withTrace ? "resolution=ignore-duplicates,return=representation" : "return=representation";
       return await fetch(`${url}/rest/v1/ai_token_log${suffix}`, {
         method: "POST",
-        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: prefer },
+        headers: supabaseServiceHeaders(key, { "Content-Type": "application/json", Prefer: prefer }),
         body: JSON.stringify(withTrace ? row : legacyRow),
       });
     };
@@ -104,7 +105,7 @@ async function logTokens(
     if (hasTrace) {
       const q = await fetch(
         `${url}/rest/v1/ai_token_log?trace_id=eq.${trace.traceId}&span_id=eq.${trace.spanId}&select=id&limit=1`,
-        { headers: { apikey: key, Authorization: `Bearer ${key}` } },
+        { headers: supabaseServiceHeaders(key) },
       );
       if (q.ok) {
         const existing = await q.json().catch(() => []);
@@ -189,7 +190,7 @@ async function traceRpc(name: string, payload: Record<string, unknown>): Promise
     if (!url || !key) return null;
     const r = await fetch(`${url}/rest/v1/rpc/${name}`, {
       method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      headers: supabaseServiceHeaders(key, { "Content-Type": "application/json" }),
       body: JSON.stringify(payload),
     });
     if (!r.ok) return null;
@@ -414,7 +415,7 @@ const RAZIEL_SITE_FALLBACK =
   "(7) סיים בשאלה מזמינה שממשיכה את המחקר. (8) גדול=רגיל כשאין סופיות — לא ממצא. (9) עובדה≠רמז, ענווה, בלי נבואות.\n" +
   "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown.";
 
-const svcHeaders = () => ({ apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" });
+const svcHeaders = () => supabaseServiceHeaders(SB_SVC, { "Content-Type": "application/json" });
 
 // פרסונת-רזיאל ממקור-האמת היחיד (fn_raziel_persona) — משותפת עם wa-christina.
 async function fetchRazielPersona(channel: string): Promise<string> {
@@ -527,7 +528,7 @@ async function resolveIdentity(req: Request, body: any): Promise<{ identity: str
         if (uid) {
           let tier = "user";
           try {  // אדמין → ∞
-            const rr = await fetch(`${SB_URL}/rest/v1/users?id=eq.${uid}&select=role`, { headers: { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}` } });
+            const rr = await fetch(`${SB_URL}/rest/v1/users?id=eq.${uid}&select=role`, { headers: supabaseServiceHeaders(SB_SVC) });
             const rows = rr.ok ? await rr.json() : [];
             if (rows?.[0]?.role === "admin") tier = "admin";
           } catch { /* ברירת-מחדל user */ }
@@ -639,7 +640,7 @@ async function checkQuota(identity: string, tier: string, limitOverride: number 
   try {
     const r = await fetch(`${SB_URL}/rest/v1/rpc/ai_quota_check`, {
       method: "POST",
-      headers: { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" },
+      headers: svcHeaders(),
       body: JSON.stringify({ p_identity: identity, p_tier: tier, p_limit_override: limitOverride }),
     });
     if (!r.ok) return { allowed: true, used: 0, limit: null, tier };
@@ -1695,7 +1696,7 @@ async function runRazielCurrentContent(desc: { kind: "post" | "topic"; slug: str
     try {
       // anon key only (existing public SELECT); exact slug equality; one row; no listing/search.
       const r = await fetch(`${SB_URL}/rest/v1/${table}?slug=eq.${encodeURIComponent(desc.slug)}&select=${select}&limit=1`, {
-        headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` }, signal: AbortSignal.timeout(8000) });
+        headers: supabaseServiceHeaders(SB_ANON), signal: AbortSignal.timeout(8000) });
       if (!r.ok) { outcome = r.status === 401 || r.status === 403 ? "access_filtered" : "tool_error"; err = `http_${r.status}`; }
       else {
         const rows = await r.json();

@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { runInNewContext } from "node:vm";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/functions/_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
+import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -40,7 +41,7 @@ export const personalSnapshot = () => ({
 // A separate VM per request has synthetic env + fetch, never native network access.
 // Unexpected I/O is also asserted AFTER the handler (which has fail-open catches).
 export async function runAiAnalyze({
-  answer = toolAnswer(), allowed = false, bearer = "", verifiedUid = null,
+  answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
@@ -62,6 +63,15 @@ export async function runAiAnalyze({
           return response({ error: "synthetic trace outage" }, 503);
         }
         switch (name) {
+          case "fn_capability_execution_gate_v1":
+            assert.equal(payload.p_capability, "ai-analyze:raziel:site");
+            assert.equal(payload.p_flag_key, "lock_raziel_site");
+            assert.equal(payload.p_required_entitlement, "public");
+            assert.equal(payload.p_budget_kind, "none");
+            return response({ allowed: siteAllowed, availability: {
+              state: siteAllowed ? "open" : "closed", allowed: siteAllowed,
+              message: siteAllowed ? "" : "Synthetic site availability closure",
+            } });
           case "fn_raziel_answer": return response(answer);
           case "fn_raziel_plan": return response(null);
           case "ai_quota_check": return response({ allowed, used: 15, limit: 15, tier: payload.p_tier });
@@ -86,16 +96,18 @@ export async function runAiAnalyze({
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 3, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 4, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
+  assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
     fetch, Request, Response, Headers, URL, AbortSignal, TextEncoder, TextDecoder,
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
+    supabaseServiceHeaders,
     callClaudeReliable: async (options) => {
       models.push(options);
       return { text: JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [] }),
