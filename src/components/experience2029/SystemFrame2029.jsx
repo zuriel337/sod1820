@@ -117,7 +117,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
-  { label: "דף המספר", icon: "123", action: "number" },
+  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
 ];
@@ -134,7 +134,7 @@ const CORE_HOME_NAV = [
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
   { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { label: "דף המספר", icon: "123", action: "number" },
+  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
@@ -1682,12 +1682,8 @@ export default function SystemFrame2029({
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const handleGlobalNavAction = useCallback((action) => {
-    if (action === "number") {
-      setCommandQuery("");
-      openCommand();
-    }
     if (action === "workspace") openTransient(TRANSIENT.WORKSPACE);
-  }, [openCommand, openTransient]);
+  }, [openTransient]);
 
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {

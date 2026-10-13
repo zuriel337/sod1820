@@ -54,6 +54,17 @@ test('public navigation opens the same user area', async ({ page }) => {
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
 });
 
+test('Number navigation opens the full page on mobile and desktop', async ({ page }) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
+    if (width < 720) await page.getByRole('button', { name: 'פתח ניווט' }).click();
+    await page.getByRole('link', { name: 'דף המספר', exact: true }).click();
+    await expect(page).toHaveURL(/\/2029\/number\/1820$/);
+    await expect(page.locator('[data-number-core-root="1820"]')).toBeVisible({ timeout: 30_000 });
+  }
+});
+
 test('a large signed-in profile image cannot squeeze the account text', async ({ page }) => {
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 844 });
