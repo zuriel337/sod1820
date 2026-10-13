@@ -17,6 +17,7 @@ import { useAuth } from "./lib/AuthContext.jsx";
 import RoyalShareWidget from "./components/RoyalShareWidget.jsx";
 import LabDock from "./components/hub/LabDock.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
+import LegacyNewsletterInvite from "./components/LegacyNewsletterInvite.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
 import { AuthProvider } from "./lib/AuthContext.jsx";
@@ -284,6 +285,7 @@ export default function App() {
         <OnboardingGate />
         <GlobalChrome>
           <UpdateBanner />
+          <LegacyNewsletterInvite />
           {/* הוסר לבקשת צוריאל — כל הפופ-אפים הקופצים של האתר הישן: סרטוני המטוס (PlaneHintSpotlight),
               קמפיין site_promo (SitePromoPopup), הזמנת הרשמה לאורח (GuestSignupPopup), באנר התקנה
               (InstallPrompt), נדנודי-פרופיל (ProfileNudge) וחגיגת-הצטרפות (JoinCelebration).
