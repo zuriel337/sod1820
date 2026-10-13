@@ -21,3 +21,10 @@ Rest: crisp muted line. Hover (fine pointer only): subtle color and lift within 
 3. Single owner adds missing SVG to canonical catalog and maps chat, calculator, ELS, Raziel, workspace and preset icons. Do not create second nav engine/style contract. Preserve legacy untouched.
 4. Test in real browser widths 320/390/980/1100/1440, 3 presets, mouse/touch/keyboard, focus, reduced motion, RTL/LTR, accurate accessibility and no performance regression. Verify direct routes, back, refresh and one shared workspace.
 5. Preview only, then release via existing gates; no merge/deploy without gating.
+
+## Approved visual inheritance — 2026-10-14
+User expressly approved retaining the **exact visual family already used in the 2029 left navigation**. NavigationIcon2029.jsx and its existing SVG shapes and CSS are the mandatory **visual reference**, NOT an opportunity to replace the navigation artwork with generic Lucide, emoji, a competing aesthetic or newly minted icon system. A suggestion gallery displayed in chat was conceptual only; it does not authorize replacement of existing approved shapes.
+
+Implementation owner must create a side-by-side visual specimen using actual current sidebar icon shapes at matched size/stroke and the proposed missing workspace glyphs. Compare in all three presets, desktop/mobile, resting/pressed/selected. Preserve approved sidebar silhouettes as-is unless an explicitly documented semantic bug is corrected (chat fallback, calculator collision, ELS legibility). New icons copy geometry, optical size, line width, corner treatment, stroke joins, spacing, active treatment from current canonical implementation. Use shared motion and palette tokens, not uncoordinated local CSS.
+
+No code implementation or QA acceptance implied by this handoff. PR #1092 preview may advance; after its owner completes gates, pin exact integrated commit and reconcile duplicate follow changes and all overlapping SystemFrame edits before a dedicated implementation branch. Keep all production and legacy routes unchanged until approved independent release.
