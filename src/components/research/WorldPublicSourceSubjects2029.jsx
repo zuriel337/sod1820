@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   fetchPublicSourceSubjectIndex,
   filterPublicSourceSubjects,
@@ -14,6 +14,7 @@ const EMPTY = { loading: false, cards: [], totals: { zvi: null, hashmal: null },
 
 export default function WorldPublicSourceSubjects2029() {
   const anchor = useRef(null);
+  const location = useLocation();
   const [armed, setArmed] = useState(false);
   const [version, setVersion] = useState(0);
   const [state, setState] = useState(EMPTY);
@@ -21,6 +22,14 @@ export default function WorldPublicSourceSubjects2029() {
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState(CHUNK);
+
+  useEffect(() => {
+    const requested = new URLSearchParams(location.search).get("subjectSource");
+    if (requested !== "zvi" && requested !== "hashmal") return;
+    setOrigin(requested);
+    setCategory("all");
+    setVisible(CHUNK);
+  }, [location.search]);
 
   useEffect(() => {
     const node = anchor.current;
