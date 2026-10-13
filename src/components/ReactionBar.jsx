@@ -12,7 +12,19 @@ import { supabase } from "../lib/supabase.js";
 // variant: undefined=בר מלא (5 אימוג'ים) · "compact"=סיכום קריא-בלבד · "row"=לייק-יחיד לחיץ לשורת-פיד.
 const EMOJIS = ["👍", "💡", "🔥", "🙏", "✨"];
 
-export default function ReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant }) {
+// Controlled design preview: never mount live auth/visitor/RPC behavior for fixtures.
+export default function ReactionBar(props) {
+  if (props.preview) {
+    const { count, selected, onToggle, iconOnly = false } = props.preview;
+    return <button type="button" className="sod29-community-like" aria-pressed={selected} aria-label={selected ? "ביטול לייק לדוגמה" : "אהבתי · לדוגמה"} onClick={onToggle}>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 10H3v11h4M7 10l5-7c1.5 0 2 1 1.6 2.6L13 9h6a2 2 0 0 1 2 2.5l-1.7 7.9A2 2 0 0 1 17.3 21H7V10Z" /></svg>
+      {!iconOnly ? <span>אהבתי</span> : null}{Number.isFinite(count) ? <span className="sod29-community-like-count">{count}</span> : null}
+    </button>;
+  }
+  return <LiveReactionBar {...props} />;
+}
+
+function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const myKey = user?.id || ("v:" + getVisitorId());
@@ -21,7 +33,11 @@ export default function ReactionBar({ id, reactions = {}, boosts = {}, compact =
   const [busy, setBusy] = useState(false);
 
   const boostOf = (e) => Number(bx[e]) || 0;
-  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + boostOf(e);   // סך = משתמשים + בוסט
+  // OpenWeb's imported archive stores its historical 👍 count in reactions.likes.
+  // New reactions keep using the canonical per-identity array. Both are displayed,
+  // while the server continues to toggle only the canonical array.
+  const historicalLikes = Number(rx?.likes) > 0 ? Number(rx.likes) : 0;
+  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + (e === "👍" ? historicalLikes : 0) + boostOf(e);
   const mine = (e) => Array.isArray(rx[e]) && rx[e].includes(myKey);
 
   const toggle = async (e) => {
