@@ -72,6 +72,10 @@ export default function WorldPublicSourceSubjects2029() {
       {[["all", "הכול"], ["zvi", "צבי"], ["hashmal", "סוד החשמל"]].map(([key, label]) =>
         <button key={key} type="button" aria-pressed={origin === key} onClick={() => sourceSwitch(key)}>{label}</button>)}
     </div>
+    <div className="sod29-world-source-subject-origin-links">
+      <Link to="/world?source=tzvi-opoc#world-contributor-material">כל הודעות המקור של צבי ←</Link>
+      <Link to="/world?source=sod-hashmal#world-corpus-sod-hashmal">ספריית סוד החשמל המלאה ←</Link>
+    </div>
     <label className="sod29-world-source-subject-search">
       <span>חיפוש בנושאים</span>
       <input type="search" value={query} onChange={(e) => { setQuery(e.target.value); setVisible(CHUNK); }}
