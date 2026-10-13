@@ -729,6 +729,83 @@ Before live voice:
 
 **Exit gate:** Raziel can correctly operate in ELS/World/Heichal/Post/Journey in text and tools before microphone complexity is introduced.
 
+### 10A — Full companion delivery chain (ZURIEL decisions · 2026-10-13)
+
+**Task:** `RAZIEL_FULL_COMPANION_CHAIN_20261013`. **State: PLANNED / requirements accepted, runtime completion NOT VERIFIED.** This section records the user's accepted questionnaire decisions and delivery dependencies in the existing plan. It is not a new owner, capability registry, memory store, payment system or grant of production activation. Existing owners remain authoritative; owner-body amendments listed below are still pending. No prices, quotas, paid calls, site unlocks or background jobs are activated by this entry.
+
+**Target:** one conversational companion for research, site navigation, account service and personal actions; verified administrators additionally receive governed operational capabilities. A user can ask naturally, see what happened, and resume the same research across surfaces/devices. Capability coverage is measured by completed journeys, not the number of prompts, rules or registered tools.
+
+**Single execution chain:** verified identity/channel → authorized current context → intent and owner-qualified capability → bounded Research/Action Plan → availability/entitlement/budget and any confirmation → existing executor → verified receipt/result → response/navigation/save → persisted continuity. Model output is a proposal, never authorization, a canonical URL, an ELS occurrence or a successful mutation receipt. Read scope and action scope remain distinct.
+
+#### Accepted decisions (question numbers preserve the conversation provenance)
+
+| Decisions | Accepted requirement | Existing owner/dependency |
+|---|---|---|
+| 1–2 | Full companion. Requested opening, search and private saving may execute without another confirmation. Payment, deletion and publication require a concrete confirmation. | Raziel Routing/Companion; Workspace; Person; Truth; Access |
+| 3, 8 | User supplies a research goal; Raziel plans, searches, expands and compares within bounds. It may propose new investigations, but a proposal starts work only after user selection. | Strategy v17; ELS v9; existing Pulse/Attention |
+| 4–5 | Configurable default budget; stop before exceeding it. An explicitly started run may continue after the screen closes and saves a result. | Phase 3 jobs; System/AI cost; Access |
+| 6–7, 19 | Separate named conversations by topic/research, complete server-side transcript until user deletion, cross-device resume. Inspectable/deletable memory of explicit preferences, decisions and saved research; relevant prior material may be retrieved across conversations. | Workspace; Person; Raziel memory/context |
+| 9, 11–12 | Monthly subscription with included credits and optional top-ups; unused credits accumulate up to a yet-to-be-measured cap. On exhaustion, paid work waits; history and included tools remain available. | Phase 12; platform_tiers_law; unified_credit_system |
+| 10 | Automatic minimum-sufficient intelligence. Before expensive work, show an estimate and hard ceiling and obtain confirmation; no automatic purchase or silent overage. | Raziel Routing; ai_analyze_contract; Access |
+| 13–15 | Honest no-finding research charges for performed work within the agreed ceiling. Cancellation charges only completed work and releases unused reservation. Failed technical stages are not charged to the user; retries never double-charge. | Existing credit/accounting and execution owners |
+| 16 | Read plan, balance, usage and renewal information. Purchase/top-up, upgrade and cancel-renewal actions require exact terms and explicit confirmation before execution. | Subscription/Access; existing payment adapters |
+| 17 | Completion in the personal area; email/WhatsApp only if the user has opted in. | subscription_funnel_law; existing notification transport |
+| 18 | Administrator can inspect, diagnose and prepare changes; mutation occurs only after the proposed action is shown and approved. | Operator capability owners; Truth/release/access |
+| 20 | Bounded guest trial. Authentication required for durable account history, personal actions and background research. | Identity/Person/Access |
+| 21 | Short plan, completed/current steps, usage against budget and Stop; expandable sources/tool results. Operational evidence, not private model reasoning. | System trace; Experience |
+| 22 | Administrator pilot → small invited cohort → subscribers, based on acceptance and measured costs. | Release/availability; Phase 11/12 |
+| 23 | Open within the existing site surface while preserving conversation and Exact Return. | System Frame; Experience; Research Context |
+| 24 | Save plan, parameters, sources, positive/negative results and consumption with the conversation so research can resume and replay. | Workspace/Result Bundle; ELS; System trace |
+| 25 | Explain missing capability/failure, preserve useful partial results and offer an available alternative; never claim unverified success. | Strategy; completion contract |
+| 26 | Initial intake: text, links, images and documents, according to verified adapter availability. Voice/video follow later support/cost acceptance. | Existing Intake/media; Phase 4/14 |
+| 27 | Natural Hebrew; concise answer first, depth as needed; ask when information is missing rather than force a question on every response. | raziel_voice_law amendment; Companion |
+
+History display and model context are separate: paginate the full authorized transcript for the human; send a bounded recent/relevant context plus attributable summaries to the model. Summaries cannot replace the saved original or change an approved decision. A deleted conversation must not remain retrievable through derived memory without an explicit, separately retained basis; deletion/cancellation must also account for an in-flight run. Attachment retention and backup-erasure details require the existing privacy/storage owner before promising exact deletion timing.
+
+**Owner reconciliation before runtime activation:** (1) amend the existing voice owner, whose live v1 still mandates an ending question, to reflect decision 27; (2) reconcile the older never-block/full-answer wording with included service versus exhausted paid capabilities, preserving truthful useful responses without free unlimited compute; (3) extend existing Access/credit semantics for rollover, reservation/settlement/cancellation and technical-failure treatment; (4) verify conversation identity, retention/deletion and durable job primitives before adding schema. User decisions are accepted here; live owner updates have NOT been applied. Existing fixed client costs in `src/lib/credits.js` are not approved prices for this new offer.
+
+#### Evidence and coverage baseline — 2026-10-13
+
+Read-only canonical DB checks used project `linswmnnkjxvweumprav`; repository baseline was `5dd7032e1ba32af350c1179a543dde69400d146f`. These are bounded observations, not production-browser or model-response acceptance. Recheck on each implementation/release batch.
+
+| Capability | Observed evidence | Required closure |
+|---|---|---|
+| Natural number research | Live `fn_raziel_plan` / `fn_raziel_answer`: “מה זה 533” → no_match/fallback; “מה המשמעות של 533” → number_context; “ספר לי על 533” → tanakh_source. `number_map(533)` and `number_dossier_json(533)` return data. | Family-wide intent/context selection and real retrieval; no 533-specific exception. |
+| Canonical tools | Enabled protocol entries include Gematria, ELS, Tanakh source, research intelligence and big cipher. Registration alone does not prove active expert, access, callable execution or completion. | Verify availability and actual consumer execution per capability, including negative/unsupported outcomes. |
+| Open/link | Live “פתח לי את 533” and “תן לי קישור ל533” → no_match. `razielActionContract.js` is semantic-only and explicitly does not execute navigation. `ai-analyze` carries a validated context-derived continuation href. | Resolve entity → canonical destination → existing navigation executor → receipt/Exact Return; no model-invented URLs. |
+| Private research | Live “מה שמרתי” with authenticated context → personal_research_read; “שמור לי את המספר הזה” → no_match. Planning used no real user's identity and read no private account. | Verified-user reads and save receipts; denial, duplicate requests and reload recovery. |
+| Account/service | Live “מה המנוי שלי” and “כמה קרדיטים נשארו לי” → no_match. | Owner-backed account readers; later confirmed payment/renewal actions. No account fields inferred from chat. |
+| Transcript/memory | `number-researcher` stores exchanges in `agent_user_memory`; history reader defaults to 40 exchanges. This is not evidence of complete topic-thread history or cross-device product acceptance. | Stable conversation identity, pagination, inspect/delete, resume and bounded context loading using existing primitives first. |
+| Research continuity | PR #958 A–M merged 2026-10-05; PR #1026 pilot 787 merged 2026-10-12. Pilot documentation still says branch-only; earlier specialist evidence reports 41 tests, not live-model acceptance. | Reconcile stale release labels and verify authenticated full journeys; do not generalize the bounded 787 pilot to all research. |
+| Autonomous ELS | ELS v9 and Strategy v17 define bounded planning, expansion, controls and replay. `research-run` is an existing execution seam, not proof of a durable background companion. | Canonical-engine execution + persistent job/cancel/resume + budgets + meaningful controls + result/notification receipt. |
+| Public readiness | Observed `lock_raziel_site=true`, `lock_raziel_voice=true`. `raziel_execution_flags.enabled=true` is separate from `raziel_config.shared.model_policy.routing_enabled=false`. | Verify actual path and flag meanings; no universal “turn it on” switch inferred from these values. |
+
+#### Delivery sequence and acceptance
+
+| Package | Bounded scope | Exit evidence |
+|---|---|---|
+| R0 — this planning increment | Accepted decisions, owner reconciliation, coverage and sequenced acceptance in this existing document. | Reviewable docs diff; no runtime/DB/visual changes. |
+| R1 — conversational read/navigation | Reuse current Plan, capability adapters and route resolver. Cover natural research, open/link and account/personal reads; explicit unavailable when an adapter is missing. | Paraphrase/context matrix below, authorized receipts and server/consumer agreement. |
+| R2 — conversations and personal actions | Existing memory/Workspace storage reuse assessment; topic threads, pagination, cross-device history, explicit preference memory and private-save execution. | Two isolated users; reload/device resume; retry without duplicate save; deletion and stale-reference tests. |
+| R3 — bounded ELS operator | Phase 3 durable-job prerequisites, canonical engine, frozen search plan, controls, saved outcomes, progress/cancel and opted-in completion delivery. | Close browser mid-run, recover worker, resume without duplicate work; stop at budget; positive/negative/truncated/control-erased cases; exact replay. |
+| R4 — metering and account actions | Instrument R1–R3 during pilot using existing trace/cost paths; establish one-credit accounting, settlement/refund and confirmed subscription actions. | Measured unit economics and provider reconciliation; exhausted balance/concurrent runs/retry/cancel/failure cases before paid activation. |
+| R5 — acceptance and opening | Admin → invited cohort → subscriber rollout; preserve all later capabilities while unavailable. | Full browser journeys, privacy/reliability/performance/cost acceptance, explicit release decision. Voice/video stay later. |
+
+**First implementation package: R1, not a keyword hotfix.** Begin with the existing planner/server/consumer boundary (`fn_raziel_plan`, `fn_raziel_answer`, `ai-analyze`, `razielSurfaceContext`, `razielActionContract`, existing route and account owners). Establish a paraphrase baseline and distinguish explanation, navigation, account read and mutation intent. Reuse the current minimum-intelligence policy for unresolved natural language only after its owner-qualified capability binding is verified; do not create a second router or let a model select arbitrary RPCs. Missing account/action adapters return explicit unavailable, not a successful generic answer. Build only adapters whose owner interfaces are verified. Visual changes follow the existing CLAUDE lane; data integration must preserve adopted components.
+
+R1 acceptance families (fixtures, not a closed phrase allowlist):
+
+- Explain: “מה זה 533”, “ספר לי על 533”, “מה המשמעות של 533”, punctuation/typos and previously unseen paraphrases; repeat on rich, sparse and missing numbers. A year/count/order identifier in unrelated prose must not become a research anchor automatically.
+- Context: “ומה איתו?”, “פתח את המקור”, “חזור למה שראינו” with valid selection; ambiguous/missing/stale selection asks a focused question and executes nothing guessed.
+- Open/link: canonical destination exists, is accessible and receives the exact context; unsupported destinations remain unavailable. Refresh/back/forward and return preserve the selected object and conversation.
+- Account: current-user plan/balance/usage only; anonymous, forged identity and another account are denied. Renewal data unknown is not guessed; reads never purchase/change/cancel a plan.
+- Mutation boundary: private save uses the existing authorized writer and confirmed receipt; payment/delete/publish/admin changes prepare a concrete proposal and wait for scoped confirmation. Expired or changed proposals require fresh confirmation.
+- Failure: no match, no data, missing adapter, access denial, timeout, lock and exhausted budget remain distinct; no fabricated “opened/saved/paid”, hidden reroute or automatic paid retry.
+
+**Cost calibration before amounts:** measure ordinary turns, long-thread retrieval, number/context research, document/image intake and short/deep ELS runs, including no-finding, cancellation, failure and retry. Record model input/output/cached usage, deterministic compute time, DB/RPC use, storage/egress and background/notification costs where measurable; unknown cost stays unknown. Separate provider cost from customer charge. Compare typical and high-percentile cost/latency, concurrency and plan margin before choosing included credits, rollover ceiling, expensive-action threshold or price. No monetary figures or unlimited-use promises are approved here.
+
+**Handoff:** actor GPT; task `RAZIEL_FULL_COMPANION_CHAIN_20261013`; existing Raziel/Strategy owners plus direct dependencies; R0 docs-only branch; next R1 bounded owner/adapter closure. No live owner amendment, work-log write/dispatch, product write, model call, merge or deployment is asserted by this document. The bounded current-ledger scan found no overlapping writer for these planning files; recheck before R1 writes. Product/visual/account acceptance and all runtime packages remain open.
+
 ---
 
 ## PHASE 11 — G4 Golden Experiences
