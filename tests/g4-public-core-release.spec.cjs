@@ -492,6 +492,27 @@ test('direct video entry mounts its registered surface and playable asset withou
   expect(errors).toEqual([]);
 });
 
+test('a temporary video read failure offers retry without claiming the public video is missing', async ({ page }) => {
+  const id = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  let reads = 0;
+  let unavailable = true;
+  await page.route('**/rest/v1/video_media_assets_v1*', route => {
+    reads++;
+    return route.fulfill(unavailable
+      ? { status: 503, contentType: 'application/json', body: JSON.stringify({ code: '503', message: 'temporarily unavailable' }) }
+      : { status: 200, contentType: 'application/json', body: JSON.stringify({ public_id: id, title: 'סרטון ציבורי', video_kind: 'youtube', youtube_id: 'dQw4w9WgXcQ', uses_generic_page: true, google_indexable: true }) });
+  });
+  await page.goto(`${BASE}/video/${id}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('heading', { name: 'טעינת הסרטון לא הושלמה' })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole('heading', { name: 'הסרטון לא נמצא' })).toHaveCount(0);
+  const failedReads = reads;
+  unavailable = false;
+  await page.getByRole('button', { name: 'נסה שוב', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'נגן סרטון' })).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow');
+  expect(reads).toBe(failedReads + 1);
+});
+
 test('legacy calculator parameters and book aliases keep their input and reading location', async ({ page }) => {
   for (const parameter of ['w', 'calc']) {
     await page.goto(`${BASE}/gematria?${parameter}=${encodeURIComponent('שלום')}&from=old-link#reading`, { waitUntil: 'domcontentloaded' });
