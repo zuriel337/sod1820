@@ -65,6 +65,32 @@ test('Number navigation opens the full page on mobile and desktop', async ({ pag
   }
 });
 
+test('a phrase in the Number drawer opens its calculated full page, never a missing-value zero', async ({ page }) => {
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
+    await page.locator('.sod29-header-search').click();
+    const search = page.getByRole('dialog', { name: 'חיפוש' });
+    await search.getByRole('textbox', { name: 'חיפוש' }).fill('שלום');
+    await search.getByRole('button', { name: 'בדוק' }).click();
+    const drawer = page.locator('.sod29-number-drawer2029');
+    await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('376', { timeout: 30_000 });
+    await drawer.getByRole('button', { name: 'פתח דף מלא ↗' }).click();
+    await expect(page).toHaveURL(`${BASE}/2029/number/376`);
+    await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
+    const type = await page.locator('.sod29-number-core2029.is-page').evaluate((core) => ({
+      regular: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v11-regular-track button strong')).fontSize),
+      method: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v10-method-head span')).fontSize),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    }));
+    expect(type.regular).toBeGreaterThanOrEqual(12);
+    expect(type.method).toBeGreaterThanOrEqual(12);
+    expect(type.overflow).toBeLessThanOrEqual(1);
+  }
+});
+
 test('a large signed-in profile image cannot squeeze the account text', async ({ page }) => {
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 844 });

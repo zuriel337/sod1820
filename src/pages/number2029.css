@@ -1230,3 +1230,62 @@
 @media(prefers-reduced-motion:reduce){
   .sod29-number-page *{animation:none!important;scroll-behavior:auto!important}
 }
+
+/* Keep the full Number page readable; the compact drawer retains its denser type. */
+.sod29-number-page .sod29-number-core2029.is-page :is(small,p){
+  font-size:12px;
+  line-height:1.45;
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{
+  width:76px;
+  height:76px;
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal>span:not(.sod29-number-v10-life-ring){font-size:10px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal>small{font-size:9px}
+.sod29-number-page .sod29-number-core2029.is-page :is(
+  .sod29-number-v10-method-head,
+  .sod29-number-v10-stage-head,
+  .sod29-number-v10-stage-meta,
+  .sod29-number-v10-panel-head,
+  .sod29-number-v11-regular-head
+) span,
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>span{
+  font-size:12px;
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>small{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression>span,
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-calculation-card>span{font-size:12px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-calculation-card>strong,
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-chip-list strong{font-size:13px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-chip-list{
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-pulse-row span,
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-loading.is-inline{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-more button{min-height:62px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-more strong{
+  font-size:12px;
+  line-height:1.3;
+  white-space:normal;
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card{min-height:72px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-grid{min-height:72px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button{
+  min-width:170px;
+  max-width:240px;
+  min-height:60px;
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:13px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button small{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-head strong{font-size:14px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-stage-cross-methods b,
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-focus-reset{font-size:11px}
+@media(max-width:720px){
+  .sod29-number-page .sod29-number-core2029.is-page :is(small,p){font-size:11px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>span{font-size:11px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button{
+    min-width:148px;
+    max-width:200px;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:12px}
+}

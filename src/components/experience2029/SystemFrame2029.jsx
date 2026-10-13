@@ -17,7 +17,7 @@ import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
-import { buildExactReturnPatch } from "../../lib/research/researchContext.js";
+import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
@@ -162,7 +162,8 @@ function normalizeTarget(input, source = "context") {
   if (rawId == null || !type) return null;
   const id = String(rawId).trim();
   if (!id) return null;
-  const resultValue = Number(input.resultValue ?? input.number);
+  const resultValue = researchContextNumber(input.resultValue ?? input.number);
+  const number = researchContextNumber(input.number);
   return {
     id,
     type: String(type),
@@ -173,7 +174,7 @@ function normalizeTarget(input, source = "context") {
     expression: input.expression || null,
     method: input.method || input.methodKey || null,
     resultValue: Number.isSafeInteger(resultValue) ? resultValue : null,
-    number: Number.isSafeInteger(Number(input.number)) ? Number(input.number) : null,
+    number: Number.isSafeInteger(number) ? number : null,
     sectionLabel: input.sectionLabel || null,
     sourceLabel: input.sourceLabel || null,
   };
@@ -1697,9 +1698,9 @@ export default function SystemFrame2029({
     if (
       normalized?.expression
       && normalized?.method
-      && Number.isSafeInteger(Number(normalized?.resultValue))
+      && Number.isSafeInteger(normalized?.resultValue)
     ) {
-      const resultValue = Number(normalized.resultValue);
+      const resultValue = normalized.resultValue;
       const currentSelection = context?.selection || null;
       const sameSelection = Boolean(
         currentSelection?.entityId
