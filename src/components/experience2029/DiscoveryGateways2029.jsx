@@ -35,7 +35,7 @@ function languagePostHighlights(post) {
 function LanguagePostPreview({ post, highlights }) {
   if (!post || !highlights.length) return null;
   return <Link to={post.href} className="dg29-language-preview"
-    aria-label="לקריאת שבילי שפה — מפתח לגן, עם ארבע דוגמאות מתוך המחקר">
+    aria-label="לקריאת שבילי שפה — מפתח לגן, עם דוגמאות מספריות מתוך המחקר">
     <span className="dg29-language-kicker">מתוך הפוסט · מפתח לגן</span>
     <strong>איך שפות שונות נפגשות במספרים?</strong>
     <span className="dg29-language-metrics">
