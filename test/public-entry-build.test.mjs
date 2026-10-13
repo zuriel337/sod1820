@@ -28,7 +28,7 @@ test('deployment root uses native graph while legacy deep links retain their ind
     assert.equal(config.rewrites.find(row => row.source === '/(.*)' && !row.has)?.destination, '/legacy.html');
     assert.equal(config.redirects.find(row => row.source === '/index.html')?.destination, '/');
     const social = config.rewrites.findIndex(row => row.source === '/(.*)' && JSON.stringify(row.has).includes('facebookexternalhit'));
-    for (const source of ['/post/(.*)', '/video/(.*)']) {
+    for (const source of ['/posts', '/community/chat', '/home-preview', '/post/(.*)', '/video/(.*)']) {
       assert.ok(social < config.rewrites.findIndex(row => row.source === source && !row.has));
     }
   } finally {

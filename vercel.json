@@ -708,18 +708,6 @@
       "destination": "/api/og?path=/posts&crawler=search"
     },
     {
-      "source": "/posts",
-      "destination": "/2029.html"
-    },
-    {
-      "source": "/community/chat",
-      "destination": "/2029.html"
-    },
-    {
-      "source": "/home-preview",
-      "destination": "/2029.html"
-    },
-    {
       "source": "/world",
       "has": [
         {
@@ -883,6 +871,18 @@
         }
       ],
       "destination": "/api/og?path=/$1"
+    },
+    {
+      "source": "/posts",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/community/chat",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/home-preview",
+      "destination": "/2029.html"
     },
     {
       "source": "/post/(.*)",
