@@ -6,25 +6,38 @@ const gateway = readFileSync(new URL("../src/components/experience2029/Discovery
 const home = readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
 const style = readFileSync(new URL("../src/components/experience2029/discoveryGateways2029.css", import.meta.url), "utf8");
 
-test("2029 Home has exactly one composed four-gateway discovery projection", () => {
-  assert.match(home, /<DiscoveryGateways2029\s*\/>/);
+test("2029 Home presents the four approved gateways exactly once", () => {
+  assert.match(home, /<DiscoveryGateways2029 excludedPostKeys=\{reservedPostKeys\}/);
   assert.doesNotMatch(home, /Section label="צפנים וסרטים"/);
   for (const title of ["שבילי שפה", "הצופן בקולנוע", "הצפנים בסרטונים", "הצופן התנ״כי"]) {
     assert.ok(gateway.includes(`title="${title}"`), `missing ${title}`);
   }
 });
 
-test("gateways link to existing canonical readers and ELS replay rather than making a second tree", () => {
-  for (const api of ["getRealityCodePosts", "getRealityVideos", "getMatrixLibraryPage", "savedMatrixWorkspaceHref"]) {
-    assert.ok(gateway.includes(api));
-  }
-  assert.match(gateway, /video\?\.is_cipher/);
-  assert.match(gateway, /getMatrixLibraryPage\(\{ view: "public"/);
-  assert.match(gateway, /\/els\?library=public/);
-  assert.match(gateway, /\/languages/);
-  assert.doesNotMatch(gateway, /\.from\(|\.insert\(|\.upsert\(/);
+test("automatic gateway membership comes ONLY from categories, not tags/keywords", () => {
+  assert.match(gateway, /getPostsFromSupabase\(\{ category: "הצופן בסרטים"/);
+  assert.match(gateway, /getPostsFromSupabase\(\{ category: "מימד חמש"/);
+  assert.match(gateway, /getCategoryVideos\("צפונות בתורה"/);
+  assert.doesNotMatch(gateway, /getRealityCodePosts|getRealityVideos|\.tags|isCinemaPost|includes\("מטריקס"\)/);
 });
 
+test("canonical followers cover each configured category and ELS without a second notification engine", () => {
+  assert.match(gateway, /import WatchButton from/);
+  for (const category of ["שבילי שפה", "הצופן בסרטים", "צפונות בתורה", "מימד חמש"]) {
+    assert.ok(gateway.includes(`category: "${category}"`));
+  }
+  assert.match(gateway, /topic: "codes:new"/);
+  assert.match(gateway, /noPush compact/);
+  assert.doesNotMatch(gateway, /saveNotificationPrefs|watchToggle\(|\.upsert\(/);
+});
+
+test("ELS uses canonical reader, source identity and replay, no duplicate research store", () => {
+  assert.match(gateway, /getMatrixLibraryPage\(\{ view: "public"/);
+  assert.match(gateway, /savedMatrixWorkspaceHref\(row\)/);
+  assert.match(gateway, /\/els\?library=public/);
+  assert.match(gateway, /\/languages/);
+  assert.match(gateway, /claimHomeItems/);
+});
 test("home discovery controls remain compact and accessible", () => {
   assert.match(style, /min-height:\s*44px/);
   assert.match(style, /--s29-panel/);
