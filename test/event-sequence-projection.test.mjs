@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildEventSequences } from '../src/lib/research/eventSequenceProjection.js';
+import { buildEventSequences, provenPostUpdatesToEventUpdates } from '../src/lib/research/eventSequenceProjection.js';
 import { buildPresentationReason, buildPresentationFeedback } from '../src/lib/research/presentationReason.js';
 const event = (id, parentId = null, order = null) => ({ id, label: id, href: `/event/${id}`, parentId, order });
 const update = (id, eventId, at, extra = {}) => ({ id, eventId, revisionId: '1', sourceRef: `posts:${id}`, summary: `changed ${id}`, href: `/post/${id}#unit`, arrivalAt: at, streamIds: ['sources'], verification: 'unverified', ...extra });
@@ -75,4 +75,18 @@ test('unknown sibling chronology stays explicit rather than claiming lexical ord
 test('explanation references are bounded strings, not caller profile objects',()=>{
   assert.equal(buildPresentationReason({code:'recent_arrival',subjectRef:{email:'secret'},occurrenceKey:'a'}),null);
   assert.equal(buildPresentationReason({code:'recent_arrival',subjectRef:'x'.repeat(513),occurrenceKey:'a'}),null);
+});
+test('existing proven post update bridge retains exact fragment and revision without claiming verification',()=>{
+  const proof={kind:'source_fragment_revision',sourceRef:'posts:7',fragmentRef:'posts:7#unit',eventKey:'posts:7#unit@revision:9',revision:9,label:'source changed',at,targetHref:'/post/p#unit'};
+  const p=provenPostUpdatesToEventUpdates([proof],[{sourceRef:'posts:7',eventId:'event-a'}],{streamIds:['sources']});
+  assert.equal(p.updates[0].href,proof.targetHref); assert.equal(p.updates[0].revisionId,'9'); assert.equal(p.updates[0].verification,'unknown');
+  assert.equal(buildEventSequences({events:[event('event-a')],updates:p.updates}).sequences[0].updates.length,1);
+});
+test('ambiguous post-to-event links need exact fragment binding; raw modified rows never become updates',()=>{
+  const proof={kind:'source_fragment_revision',sourceRef:'posts:7',fragmentRef:'posts:7#unit',eventKey:'posts:7#unit@revision:9',revision:9,label:'source changed',at,targetHref:'/post/p#unit'};
+  const bindings=[{sourceRef:'posts:7',eventId:'a'},{sourceRef:'posts:7',eventId:'b'}];
+  assert.equal(provenPostUpdatesToEventUpdates([proof],bindings).updates.length,0);
+  bindings.push({sourceRef:'posts:7#unit',eventId:'b'});
+  assert.equal(provenPostUpdatesToEventUpdates([proof],bindings).updates[0].eventId,'b');
+  assert.equal(provenPostUpdatesToEventUpdates([{id:7,modified:at}],bindings).updates.length,0);
 });

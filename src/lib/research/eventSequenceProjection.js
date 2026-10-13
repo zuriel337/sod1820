@@ -7,6 +7,32 @@ const localHref = (v) => typeof v === 'string' && /^\/(?!\/)/.test(v) && !/[\\\s
 const compare = (a, b) => (a.at ?? Infinity) - (b.at ?? Infinity) || a.id.localeCompare(b.id) || String(a.seenKey || '').localeCompare(String(b.seenKey || ''));
 export const eventUpdateSeenKey = (u) => JSON.stringify(['event-update', u.sourceRef, u.id, u.revisionId]);
 
+// Bridge the existing Publishing owner's publicProvenPostSourceUpdates output.
+// Bindings are authorized declared source/fragment -> existing Event links.
+// A source linked to multiple Events needs an exact fragment binding; never
+// select a contextual parent by title, number or first result.
+export function provenPostUpdatesToEventUpdates(proofs = [], bindings = [], { streamIds = [] } = {}) {
+  const byRef = new Map();
+  for (const binding of bindings) {
+    const ref = text(binding?.sourceRef), eventId = text(binding?.eventId);
+    if (!ref || !eventId) continue;
+    if (!byRef.has(ref)) byRef.set(ref, new Set());
+    byRef.get(ref).add(eventId);
+  }
+  const updates = []; let unresolved = 0;
+  for (const proof of proofs) {
+    if (proof?.kind !== 'source_fragment_revision' || !text(proof.eventKey) || !text(proof.fragmentRef)
+      || !Number.isSafeInteger(proof.revision) || proof.revision < 1
+      || !text(proof.sourceRef) || !text(proof.label) || !localHref(proof.targetHref) || time(proof.at) === null) { unresolved++; continue; }
+    const targets = byRef.get(proof.fragmentRef) || byRef.get(proof.sourceRef);
+    if (!targets || targets.size !== 1) { unresolved++; continue; }
+    updates.push({ id: proof.fragmentRef, sourceRef: proof.sourceRef, eventId: [...targets][0],
+      revisionId: String(proof.revision), summary: proof.label, href: proof.targetHref,
+      arrivalAt: proof.at, streamIds, verification: 'unknown' });
+  }
+  return { updates, coverage: { state: unresolved ? 'partial' : 'complete', unresolved } };
+}
+
 /** Parent relations must be declared by the source/graph owner, not inferred
  * from shared numbers, titles, dates or audience. Missing ancestors and cyclic
  * components are withheld, never silently reparented. Gaps carry counts only.
