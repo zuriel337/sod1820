@@ -33,3 +33,5 @@
   .dg29-gateway { flex: 0 0 min(85%, 290px); scroll-snap-align: start; }
   .dg29-intro { display: none; }
 }
+
+.dg29-featured { border-color:var(--s29-line);background:var(--s29-panel); }
