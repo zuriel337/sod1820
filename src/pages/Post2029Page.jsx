@@ -9,6 +9,7 @@ import { mergeContextPackWithConnections } from "../lib/research/goldenPostConte
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
+import { logView, logActivity } from "../lib/supabase.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -91,6 +92,16 @@ function PostReadingBody() {
       type: "article",
       noindex: projection.draft || projection.privateStage || projection.previewSnapshot,
     });
+  }, [state.projection]);
+
+  useEffect(() => {
+    const projection = state.projection;
+    const post = projection?.post;
+    if (!post?.slug || projection.draft || projection.privateStage || projection.previewSnapshot) return;
+    // Reuse the legacy sinks so 2029 readings count toward the same hot-post
+    // view meter and signed-in reading history. logView deduplicates per session.
+    void logView("post", post.slug);
+    void logActivity("post", post.slug, post.title);
   }, [state.projection]);
 
   useEffect(() => {
