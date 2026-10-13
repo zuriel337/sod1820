@@ -30,6 +30,7 @@ const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
+const MyPage2029 = lazy(() => import("./pages/MyPage2029.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
 // unless explicitly enabled; no global navigation/route ownership is promoted.
@@ -101,6 +102,7 @@ export default function App2029() {
           <Suspense fallback={<Loading2029 />}>
             <Routes>
               <Route path="/2029" element={<Home2029Page />} />
+              <Route path="/2029/me" element={<MyPage2029 />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />

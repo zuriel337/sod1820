@@ -1254,7 +1254,7 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
   const personal = [
     { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: "שם, תאריך ומשפחה — פרטי", state: "live", onClick: () => go("/2029/journey") },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
-    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
+    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "היסטוריית הצ׳אט ותרומות נוספות", state: "live", onClick: () => go("/2029/me#activity") },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
     { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },

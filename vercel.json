@@ -776,6 +776,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/me",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/world",
       "destination": "/2029.html"
     },
@@ -902,6 +906,15 @@
     },
     {
       "source": "/2029/control",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/me",
       "headers": [
         {
           "key": "X-Robots-Tag",
