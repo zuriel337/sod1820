@@ -420,7 +420,7 @@ export default function NumberCore2029({
           <g className="orbit-spark"><circle cx="50" cy="10" r="2.4" /></g>
         </svg>
         <strong>{contentPending ? "…" : Number(rootCoverage.present) || 0}</strong>
-        <small>{contentPending ? (contentError ? "לא זמין" : "טוען") : "שכבות"}</small>
+        <small>{contentPending ? (contentError ? "לא זמין" : "טוען…") : "שכבות"}</small>
       </button>}
     </header>
 
