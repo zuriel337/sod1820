@@ -54,6 +54,20 @@ async function anon(sql) {
   try { return (await db.query(sql)).rows; } finally { await db.exec('reset role'); }
 }
 test.after(()=>db.close());
+test('a broken merge pointer revokes public email reads and blocks admission until exact alias repair',async()=>{
+  await seed(91);const published=await admit(91);assert.equal(published.state,'public');
+  await db.exec('begin');
+  try {
+    const alias=(await db.query("insert into contributors(id,slug,email,active,merged_into) values(gen_random_uuid(),'broken-a','a@example.invalid',true,'nonexistent') returning id")).rows[0];
+    assert.deepEqual(await anon("select id from channel_updates where source='email'"),[]);
+    await seed(92);assert.equal((await admit(92)).state,'unresolved_author');
+    await db.query("update contributors set merged_into='demo-a' where id=$1",[alias.id]);
+    assert.equal((await anon("select id from channel_updates where source='email'")).length,1);
+    assert.equal((await admit(92)).state,'public');
+  } finally {await db.exec('rollback');}
+  await db.query('delete from channel_updates where id=$1',[published.id]);
+  await db.exec('delete from inbound_emails where id=91');
+});
 test('migration applies to real PostgreSQL and private inbox remains inaccessible', async()=>{
   await assert.rejects(()=>anon('select * from inbound_emails'),/permission denied/);
   await assert.rejects(()=>anon('select admit_email_source_v1(1)'),/permission denied/);

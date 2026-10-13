@@ -20,6 +20,7 @@ test('private stage installs independently without public tables, policies or gr
       await assert.rejects(()=>call('preview_email_source_authors_v1'),/permission denied/);
       await assert.rejects(()=>call('provision_email_source_authors_v1'),/permission denied/);
       await assert.rejects(()=>db.query("select * from email_source_author_v1('approved-0@example.invalid')"),/permission denied/);
+      await assert.rejects(()=>db.query("select email_source_aliases_valid_v1('approved-0@example.invalid')"),/permission denied/);
     } finally {await db.exec('reset role');}
   }
 });
@@ -80,4 +81,29 @@ test('merged-only contact aliases are held instead of creating another source id
   const plan=await call('preview_email_source_authors_v1',aliases);
   assert.equal(plan.blocked,1);assert.equal(plan.entries[0].state,'merged_identity_link_required');
   await assert.rejects(()=>call('provision_email_source_authors_v1',aliases),/reconciliation required/);
+});
+test('invalid alias pointers cannot hide competing identity rows or bypass private batch gating',async()=>{
+  const target=(await db.query("select id,slug from contributors where email='approved-1@example.invalid'")).rows[0];
+  for(const fault of ['missing','self','inactive','cycle','foreign_mailbox','duplicate_slug','uuid_slug_collision']) {
+    await db.exec('begin');
+    try {
+      const alias=(await db.query("insert into contributors(id,slug,email,active,merged_into) values(gen_random_uuid(),'test-alias','approved-1@example.invalid',true,$1) returning id",[fault==='missing'?'nonexistent':fault==='self'?'test-alias':target.slug])).rows[0];
+      if(fault==='inactive') await db.query('update contributors set active=false where id=$1',[target.id]);
+      if(fault==='cycle') await db.query("update contributors set merged_into='test-alias' where id=$1",[target.id]);
+      if(fault==='foreign_mailbox') await db.query("update contributors set email='other@example.invalid' where id=$1",[target.id]);
+      if(fault==='duplicate_slug') await db.query("insert into contributors(id,slug,email,active) values(gen_random_uuid(),$1,'other@example.invalid',true)",[target.slug]);
+      if(fault==='uuid_slug_collision') {
+        const other=(await db.query("insert into contributors(id,slug,email,active) values(gen_random_uuid(),'uuid-slug-collision','other@example.invalid',true) returning id")).rows[0];
+        await db.query('update contributors set slug=$1 where id=$2',[other.id,target.id]);
+        await db.query('update contributors set merged_into=$1 where id=$2',[other.id,alias.id]);
+      }
+      assert.equal((await db.query("select email_source_aliases_valid_v1('approved-1@example.invalid') valid")).rows[0].valid,false,fault);
+      const plan=await call('preview_email_source_authors_v1');assert.ok(plan.blocked>0,fault);
+      await db.exec('savepoint expected_denial');
+      await assert.rejects(()=>call('provision_email_source_authors_v1'),/reconciliation required/);
+      await db.exec('rollback to savepoint expected_denial');
+      assert.deepEqual((await db.query("select * from email_source_author_v1('approved-1@example.invalid')")).rows,[],fault);
+      assert.ok(alias.id);
+    } finally {await db.exec('rollback');}
+  }
 });

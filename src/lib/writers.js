@@ -10,8 +10,15 @@ const norm = (s) => String(s || "").trim().replace(/\s+/g, " ").toLowerCase();
 // alias: מחרוזת-מנורמלת → Set(contributor id) — מזהה גם התאמה-מרובה (→ ambiguous).
 export function buildWriterIndex(rows = []) {
   const byId = new Map();
+  const bySlug = new Map();
   const alias = new Map();
-  for (const r of rows) byId.set(r.id, r);
+  for (const r of rows) {
+    byId.set(r.id, r);
+    if (r.slug) {
+      if (!bySlug.has(r.slug)) bySlug.set(r.slug, new Set());
+      bySlug.get(r.slug).add(r.id);
+    }
+  }
   for (const r of rows) {
     const keys = [r.display_name, r.slug, ...(Array.isArray(r.wa_names) ? r.wa_names : [])];
     for (const k of keys) {
@@ -21,17 +28,23 @@ export function buildWriterIndex(rows = []) {
       alias.get(n).add(r.id);
     }
   }
-  return { byId, alias };
+  return { byId, bySlug, alias };
 }
 
 // עוקב merged_into עד הישות הקנונית (הגנת-מעגל). מחזיר את ה-contributor הקנוני.
-function canonicalOf(id, byId) {
+function canonicalOf(id, { byId, bySlug }) {
   const seen = new Set();
   let cur = byId.get(id);
-  while (cur && cur.merged_into && !seen.has(cur.id)) {
+  while (cur && cur.merged_into) {
+    if (seen.has(cur.id)) return null;
     seen.add(cur.id);
-    const next = byId.get(cur.merged_into);
-    if (!next) break;
+    // Native ContributorPage uses slugs; retain historical UUID references.
+    // Never select one interpretation of a colliding pointer arbitrarily.
+    const targets = new Set(bySlug?.get(cur.merged_into) || []);
+    if (byId.has(cur.merged_into)) targets.add(cur.merged_into);
+    if (targets.size !== 1) return null;
+    const next = byId.get([...targets][0]);
+    if (!next || next.active === false) return null;
     cur = next;
   }
   return cur || byId.get(id) || null;
@@ -53,7 +66,8 @@ export function resolveWriter(raw, index) {
   }
   const id = [...ids][0];
   const matched = index.byId.get(id) || null;
-  const canonical = canonicalOf(id, index.byId);
+  const canonical = canonicalOf(id, index);
+  if (!canonical) return { ...empty, candidates: matched ? [matched] : [] };
   const mergedFrom = canonical && matched && canonical.id !== matched.id ? matched : null;
   return { state: "matched", raw: rawStr, contributor: matched, canonical, mergedFrom, candidates: [] };
 }

@@ -16,6 +16,21 @@ $$;
 revoke all on function public.email_source_mailbox_v1(uuid) from public,anon,authenticated;
 grant execute on function public.email_source_mailbox_v1(uuid) to service_role;
 
+
+-- Only exact native slug aliases to one active, unmerged, same-mailbox target
+-- may disappear from ambiguity checks. Missing/self/cyclic/foreign pointers hold.
+create or replace function public.email_source_aliases_valid_v1(p_mailbox text)
+returns boolean language sql stable security definer set search_path=public,pg_temp as $$
+  select not exists(select 1 from public.contributors a
+    where a.merged_into is not null and public.email_source_mailbox_v1(a.id)=lower(trim(p_mailbox))
+      and ((select count(*) from public.contributors any_target where any_target.slug=a.merged_into or any_target.id::text=a.merged_into)<>1
+        or (select count(*) from public.contributors t where t.slug=a.merged_into
+        and t.id<>a.id and t.active is true and t.merged_into is null
+        and public.email_source_mailbox_v1(t.id)=lower(trim(p_mailbox)))<>1));
+$$;
+revoke all on function public.email_source_aliases_valid_v1(text) from public,anon,authenticated;
+grant execute on function public.email_source_aliases_valid_v1(text) to service_role;
+
 create or replace function public.email_source_author_v1(p_mailbox text)
 returns table(email text,active boolean,author_key text,author_display text,contributor_id uuid)
 language sql stable security definer set search_path=public,pg_temp as $$
@@ -23,6 +38,7 @@ language sql stable security definer set search_path=public,pg_temp as $$
   from public.contributors c where c.active is true and c.merged_into is null
     and public.email_source_mailbox_v1(c.id)=lower(trim(p_mailbox))
     and c.page_config->'email_source_approved'='true'::jsonb
+    and public.email_source_aliases_valid_v1(p_mailbox)
     and (select count(*) from public.contributors unique_author where unique_author.active is true
       and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=lower(trim(p_mailbox)))=1;
 $$;
@@ -51,6 +67,7 @@ returns boolean language sql stable security definer set search_path = public, p
       and c.page_config->'email_source_public' = 'true'::jsonb
       and c.page_config->'email_source_approved' = 'true'::jsonb
       and public.email_source_mailbox_v1(c.id) = i.from_email
+      and public.email_source_aliases_valid_v1(i.from_email)
       and (select count(*) from public.contributors unique_author where unique_author.active is true
         and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=i.from_email) = 1
       and i.id not in (56,57)
@@ -120,6 +137,9 @@ begin
     or src->'identity_proof'->'from_aligned' is distinct from 'true'::jsonb
     or src->'identity_proof'->>'provider_id' is distinct from mail.meta->>'provider_id'
     then return jsonb_build_object('state','private'); end if;
+  if not public.email_source_aliases_valid_v1(mail.from_email) then
+    return jsonb_build_object('state','unresolved_author');
+  end if;
   -- Count before selecting: a duplicate canonical mailbox must not resolve by LIMIT 1.
   if (select count(*) from public.contributors c where c.active is true and c.merged_into is null
       and public.email_source_mailbox_v1(c.id)=mail.from_email) <> 1 then

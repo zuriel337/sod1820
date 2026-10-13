@@ -210,3 +210,29 @@ none. This is fixture evidence, not completed sender reconciliation, not operato
 transaction authorization, not proof of production locking/audit implementation,
 and not evidence that all13 senders have native provider proof. No SQL repair runner
 or new RPC/table/identity owner was introduced. Public gates remain closed.
+
+### Alias consumer consistency delta
+
+Original Claude review0b27ae25 PASSed the94a98a55 recommendation/rehearsal only
+(12 independent tests), and identified two caveats which this follow-up resolves
+before any real identity decision. src/lib/writers.js previously resolved only
+UUID merge pointers while ContributorPage resolves slug pointers. The existing
+read-only resolver now indexes exact slugs too, retains historical UUID support,
+and rejects missing/inactive targets, cycles, duplicate slugs and UUID/slug
+collisions. It never modifies profiles or infers merges from display-name equality.
+
+Both independently-applicable mail migrations now define the same service-only
+email_source_aliases_valid_v1 predicate. Only a native exact slug pointer to one
+active, unmerged, same-mailbox canonical target may be excluded from sender
+ambiguity. Self-links, dangling/cyclic/inactive/foreign-mailbox pointers and
+duplicate slugs/UUID-slug collisions hold the whole preflight; malformed aliases also prevent private
+author resolution and revoke current public-mail eligibility/admission. This
+validates an already-recorded alias; it does NOT create or authorize identity
+merges. Historical UUID pointers may still be read by the generic writer resolver,
+but email admission requires the reviewed native slug alias, not a UUID shortcut.
+
+New negative tests cover these branches and direct anonymous public-carrier
+revocation plus safe recovery after exact test-only alias repair. All94 local
+tests passed. These SQL/read-only resolver changes are branch implementation,
+not deployed code. The two real identity blockers remain, and actual account-link/
+alias decision, guarded operator transaction, audit and rollback are still pending.

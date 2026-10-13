@@ -11,6 +11,21 @@ $$;
 revoke all on function public.email_source_mailbox_v1(uuid) from public,anon,authenticated;
 grant execute on function public.email_source_mailbox_v1(uuid) to service_role;
 
+
+-- Only exact native slug aliases to one active, unmerged, same-mailbox target
+-- may disappear from ambiguity checks. Missing/self/cyclic/foreign pointers hold.
+create or replace function public.email_source_aliases_valid_v1(p_mailbox text)
+returns boolean language sql stable security definer set search_path=public,pg_temp as $$
+  select not exists(select 1 from public.contributors a
+    where a.merged_into is not null and public.email_source_mailbox_v1(a.id)=lower(trim(p_mailbox))
+      and ((select count(*) from public.contributors any_target where any_target.slug=a.merged_into or any_target.id::text=a.merged_into)<>1
+        or (select count(*) from public.contributors t where t.slug=a.merged_into
+        and t.id<>a.id and t.active is true and t.merged_into is null
+        and public.email_source_mailbox_v1(t.id)=lower(trim(p_mailbox)))<>1));
+$$;
+revoke all on function public.email_source_aliases_valid_v1(text) from public,anon,authenticated;
+grant execute on function public.email_source_aliases_valid_v1(text) to service_role;
+
 create or replace function public.email_source_author_v1(p_mailbox text)
 returns table(email text,active boolean,author_key text,author_display text,contributor_id uuid)
 language sql stable security definer set search_path=public,pg_temp as $$
@@ -18,6 +33,7 @@ language sql stable security definer set search_path=public,pg_temp as $$
   from public.contributors c where c.active is true and c.merged_into is null
     and public.email_source_mailbox_v1(c.id)=lower(trim(p_mailbox))
     and c.page_config->'email_source_approved'='true'::jsonb
+    and public.email_source_aliases_valid_v1(p_mailbox)
     and (select count(*) from public.contributors unique_author where unique_author.active is true
       and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=lower(trim(p_mailbox)))=1;
 $$;
@@ -46,7 +62,8 @@ begin
     from jsonb_array_elements(p_approved) with ordinality
   ), resolved as (
     select a.input_index,
-      case when count(c.id)>1 then 'ambiguous'
+      case when count(c.id)>0 and not public.email_source_aliases_valid_v1(a.mailbox) then 'invalid_merge_pointer'
+        when count(c.id)>1 then 'ambiguous'
         when count(c.id)=1 and bool_and(c.active is true and c.merged_into is null) then 'resolved'
         when count(c.id)=1 then 'inactive_or_merged'
         when exists(select 1 from public.contributors h where h.merged_into is not null
@@ -57,7 +74,7 @@ begin
     from approved a left join public.contributors c on public.email_source_mailbox_v1(c.id)=a.mailbox and c.merged_into is null
     group by a.input_index,a.mailbox
   ) select jsonb_build_object('total',13,
-    'blocked',count(*) filter(where state in ('ambiguous','inactive_or_merged','account_link_required','merged_identity_link_required')),
+    'blocked',count(*) filter(where state in ('ambiguous','inactive_or_merged','account_link_required','merged_identity_link_required','invalid_merge_pointer')),
     'entries',jsonb_agg(jsonb_build_object('input_index',input_index,'state',state,'contributor_ids',contributor_ids) order by input_index)) into result from resolved;
   return result;
 end;
