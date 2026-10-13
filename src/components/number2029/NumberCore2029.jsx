@@ -184,6 +184,8 @@ export default function NumberCore2029({
   onMethodSelect,
   onToggleTrace,
   onOpenCrossing,
+  onClearCrossing,
+  activeCrossingPartner = null,
   onOpenZero,
   onOpenPage,
   onOpenWorld,
@@ -239,8 +241,10 @@ export default function NumberCore2029({
   const activeExpressionText = String(projection.expression || "").trim();
   const hasActivePhrase = Boolean(activeExpressionText) && !/^\d+$/.test(activeExpressionText);
   const defaultStageCrossing = stageCrossings[0] || null;
-  const focusedCrossing = focusedCrossingPartner
-    ? stageCrossings.find((item) => String(item?.partner || "") === String(focusedCrossingPartner)) || null
+  // A full-page URL focus is authoritative after reload; drawer-only focus remains local.
+  const currentCrossingPartner = String(activeCrossingPartner || focusedCrossingPartner || "").trim();
+  const focusedCrossing = currentCrossingPartner
+    ? stageCrossings.find((item) => String(item?.partner || "") === currentCrossingPartner) || null
     : null;
   const stageCrossing = focusedCrossing || defaultStageCrossing;
   const crossingFocusActive = Boolean(focusedCrossing);
@@ -280,6 +284,18 @@ export default function NumberCore2029({
     setShowCalculation(false);
     setShowMoreMethods(false);
   }, [root, projection.expression]);
+
+  const chooseCrossing = (crossing) => {
+    const partner = String(crossing?.partner || "").trim();
+    if (!partner) return;
+    setFocusedCrossingPartner(partner);
+    // Only the full page serializes selection to the existing exact-state URL.
+    if (!compact) onOpenCrossing?.(crossing);
+  };
+  const clearCrossing = () => {
+    setFocusedCrossingPartner(null);
+    if (!compact) onClearCrossing?.();
+  };
 
   const selectMethod = (method) => {
     setInspectorMethodKey(method.methodKey);
@@ -492,7 +508,7 @@ export default function NumberCore2029({
               </b>)}
             </div>
             <small>Root {stageRoot} נשאר העוגן · הפוקוס בלבד השתנה</small>
-            <button type="button" className="sod29-number-v10-focus-reset" data-experience-action="crossing-focus-reset" onClick={() => setFocusedCrossingPartner(null)}>חזור ל־{stageRoot}</button>
+            <button type="button" className="sod29-number-v10-focus-reset" data-experience-action="crossing-focus-reset" onClick={clearCrossing}>חזור ל־{stageRoot}</button>
           </> : <>
             <span>{publicMethodLabel(active)} · התוצאה הפעילה</span>
             <strong>{projection.expression || root} <em>→</em> {compact && onOpenResult ? <button
@@ -555,7 +571,7 @@ export default function NumberCore2029({
                   className={`sod29-number-v10-crossing-lead${crossingFocusActive ? " is-active" : ""}`}
                   data-experience-action="crossing-focus"
                   aria-pressed={crossingFocusActive}
-                  onClick={() => setFocusedCrossingPartner(stageCrossing.partner)}
+                  onClick={() => chooseCrossing(stageCrossing)}
                 >
                   <span>ההצלבה המובילה</span>
                   <strong>{activeExpressionText || root} <b>=</b> {stageCrossing.partner}</strong>
@@ -572,8 +588,8 @@ export default function NumberCore2029({
                     type="button"
                     key={`${item.partner}:${index}`}
                     data-experience-action="crossing-focus-secondary"
-                    aria-pressed={String(item.partner) === String(focusedCrossingPartner || "")}
-                    onClick={() => setFocusedCrossingPartner(item.partner)}
+                    aria-pressed={String(item.partner) === currentCrossingPartner}
+                    onClick={() => chooseCrossing(item)}
                   >
                     <strong>{item.partner}</strong>
                     <small>{item.methods.map((method) => publicMethodLabel(method)).join(" · ")}</small>
@@ -581,7 +597,7 @@ export default function NumberCore2029({
                 </div> : null}
                 <div className="sod29-number-v10-inline-actions">
                   {secondaryCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `עוד ${secondaryCrossings.length - 4} הצלבות`}</button> : null}
-                  {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
+                  {crossingFocusActive ? <button type="button" onClick={clearCrossing}>חזור למספר</button> : null}
                   <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
                 </div>
               </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
