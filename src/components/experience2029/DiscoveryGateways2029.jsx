@@ -12,7 +12,12 @@ import "./discoveryGateways2029.css";
 
 const clean = value => stripHtml(String(value || "")).trim();
 
-const postHref = slug => slug ? `/post/${encodeURIComponent(slug)}` : "/2029/posts";
+const postHref = slug => {
+  if (!slug) return "/2029/posts";
+  let decoded = String(slug);
+  try { decoded = decodeURIComponent(decoded); } catch { /* preserve original */ }
+  return `/post/${encodeURIComponent(decoded)}`;
+};
 
 const languageSources = [
   { id: "language-intro", title: "שבילי שפה — מפתח לגן", href: "/post/chibur-bein-hasafot-mafteach-lagan" },
