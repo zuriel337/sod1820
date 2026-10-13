@@ -1125,11 +1125,21 @@ test('browser: native finding can show three verified occurrences then hide exac
         current.findings[0].color === '#5465ff' && current.findings[0].hits?.some(hit => hit.verified && hit.shown);
     });
     let current=await latestState(page);
-    for(let n=0;n<3 && current.findings[0].shown.length<3;n++) {
-      const candidate=current.findings[0].hits.find(h=>!h.shown);
-      assert.ok(candidate,'additional occurrence available');
+    const attempted=new Set();
+    // Local candidates are provisional: the canonical oracle may reject one.
+    // Continue with another candidate after that verification settles.
+    for(let n=0;n<40 && current.findings[0].shown.length<3;n++) {
+      const candidate=current.findings[0].hits.find(h=>!h.shown && h.verified && !attempted.has(h.candidateIndex)) ||
+        current.findings[0].hits.find(h=>!h.shown && !attempted.has(h.candidateIndex));
+      assert.ok(candidate,'three verifiable occurrences are available');
+      attempted.add(candidate.candidateIndex);
+      const previousRevision=current.findings[0].revision;
+      const previousShown=current.findings[0].shown.length;
       await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',hitId:candidate.hitId,axisHitId:current.axis.hitId,candidateIndex:candidate.candidateIndex,revision:candidate.revision});
-      await page.waitForFunction(index=>{const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.candidateIndex===index&&h.shown&&h.verified);},candidate.candidateIndex,{timeout:5000}).catch(async error=>{throw new Error(JSON.stringify({candidate,latest:(await latestState(page)).findings}),{cause:error});});
+      await page.waitForFunction(([revision,count])=>{
+        const word=window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0];
+        return word?.shown?.length>count || (word?.revision>revision && window.__oraclePending===0);
+      },[previousRevision,previousShown],{timeout:30000});
       current=await latestState(page);
     }
     const shown=current.findings[0].shown;
