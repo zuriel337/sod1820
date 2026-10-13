@@ -1995,7 +1995,7 @@ export default function SystemFrame2029({
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = !corePublicViewer && showContextRail && !numberPageRoute;
   const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
-  const companionPinned = !corePublicViewer && (companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0));
+  const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
