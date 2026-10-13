@@ -1,0 +1,28 @@
+name: Community Reaction Visibility
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20261013062404_community_reaction_public_visibility_gate_v1.sql'
+      - 'tests/sql/community_reaction_public_visibility_v1.sql'
+      - '.github/workflows/community-reaction-visibility-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  approved-visibility:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: public.ecr.aws/docker/library/postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: community_reaction_fixture
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute migration and adversarial cases as anon/authenticated
+        env:
+          PGPASSWORD: fixture_only
+        run: psql -h localhost -U postgres -d community_reaction_fixture -v ON_ERROR_STOP=1 -f tests/sql/community_reaction_public_visibility_v1.sql
