@@ -35,3 +35,8 @@
 }
 
 .dg29-featured { border-color:var(--s29-line);background:var(--s29-panel); }
+
+/* The canonical WatchButton is shared with the existing follow engine. */
+.dg29-follow { display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--s29-line);padding-top:8px; }
+.dg29-follow > div { flex:0 0 auto;max-width:100%; }
+.dg29-follow button { min-height:44px!important;max-width:100%;white-space:normal!important; }
