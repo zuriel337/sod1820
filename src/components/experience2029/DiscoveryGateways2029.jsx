@@ -86,7 +86,7 @@ export default function DiscoveryGateways2029() {
         items={state.cinema} loading={state.loading} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
       <Gateway title="הצפנים בסרטונים" subtitle="סרטוני הצופן והחיבורים שמאחוריהם" symbol="▶"
         href="/archive" action="לספריית הסרטונים"
-        featuredLink={{ href: "/category/מימד חמש", title: "מימד חמש · סדרת סרטונים", detail: "סרטונים קצרים ותוכן חזותי — לא כותב" }}
+        featuredLink={{ href: "/category/מימד חמש", title: "מימד חמש · סדרת סרטונים", detail: "סרטונים קצרים, תמונות ונגן רציף" }}
         items={state.videos} loading={state.loading} empty="אין כרגע סרטונים המסומנים כצופן" />
       <Gateway title="הצופן התנ״כי" subtitle="דילוגי אותיות, מטריצות וצפנים שמורים" symbol="✦"
         href="/els?library=public" action="לספריית ELS ולמנוע הדילוגים"
