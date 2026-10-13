@@ -236,3 +236,49 @@ revocation plus safe recovery after exact test-only alias repair. All94 local
 tests passed. These SQL/read-only resolver changes are branch implementation,
 not deployed code. The two real identity blockers remain, and actual account-link/
 alias decision, guarded operator transaction, audit and rollback are still pending.
+
+## Human choice 1 recorded; guarded operator prepared (2026-10-14)
+
+ZURIEL explicitly chose option1 at02:01:55 Asia/Jerusalem: link the missing private
+Contributor to the existing account/Person; account self-dossier is the selected
+primary with the private imported profile retained as a native slug alias. This
+records the manual identity decision only, never permission to publish emails,
+enable public access, merge main or deploy the production site. Both accounts were
+re-read: confirmed Auth email matches the public account mailbox, exactly one
+account Person each; private candidate fingerprints/footprint were unchanged.
+
+scripts/sql/apply-private-email-identity-choice-v1.sql is a privileged one-off DML
+program, not a migration, permanent RPC or automatic email-based merge engine.
+The private exact13 input and expected fingerprints are supplied transaction-
+locally by the trusted operator, not committed. Only postgres can execute it;
+client-supplied human/actor strings do not grant execution permission. It rechecks
+confirmed account/email/Person uniqueness, missing-vs-duplicate candidate counts,
+exact private import/current target snapshots, exact unique target slug and material
+digest before writing. The account advisory-lock namespace is reused and a short
+Contributor SHARE ROW EXCLUSIVE lock prevents phantom inserts by legacy writers
+which do not share that namespace. Reads continue; caller bounds waits to2seconds
+and statement runtime to10seconds and keeps all statements in one transaction.
+
+The only intended identity changes are one private account-linked source profile
+with no email approval/public flags and one native alias pointer. Existing users,
+Persons, profiles,26 contributions and one content item retain their original
+fields/ownership/status/access; post-write preservation failures roll back both
+changes. Mandatory existing decision_ledger audit contains selected IDs, HumanGate
+reference and revision digests only; no raw contacts/names/body/code/access-code
+snapshots. Revision digests are concurrency guards, not sender identity proof.
+An exact replay must match its recorded input/applied rows and creates nothing.
+Changed rows/Person/account or a previously rolled-back approval require review.
+
+scripts/sql/rollback-private-email-identity-choice-v1.sql is separately gated and
+not automatically invoked after success. It requires the exact unchanged applied
+rows and an unused new source, restores only the native alias pointer, retains the
+new source as private/inactive, and appends a rollback decision without deleting
+rows/material/Persons or overwriting the original audit. Subsequent approval,
+material references or other changes block rollback for manual review. A rolled-
+back approval cannot be reused to recreate identities.
+
+Seven new isolated PostgreSQL operator tests execute these actual DML blocks:
+positive preservation/audit, exact replay, spoofed anon/authenticated execution,
+seven stale-state failures, post-write/audit failure atomicity, guarded rollback
+and referenced/changed-source denial. Preparation is not evidence of a live apply;
+independent specialist review and a fresh expected-state read precede execution.
