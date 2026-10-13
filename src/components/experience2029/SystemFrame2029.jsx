@@ -1479,7 +1479,7 @@ export default function SystemFrame2029({
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
   // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
-  const feed = useSystemFeed2029({ enabled: surface !== "control" && !corePublicViewer });
+  const feed = useSystemFeed2029({ enabled: surface !== "control" });
   const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
@@ -1993,7 +1993,7 @@ export default function SystemFrame2029({
   // Golden Projector or Event Sequence. The existing public World/RLS readers remain
   // the only source of truth; gated research and private controls stay inaccessible.
   const companionActive = companionWide && surface !== "control";
-  const companionHasContext = !corePublicViewer && showContextRail && !numberPageRoute;
+  const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
