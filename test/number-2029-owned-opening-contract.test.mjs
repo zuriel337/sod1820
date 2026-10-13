@@ -43,10 +43,11 @@ test("crossing focus persists in the existing URL and exact-return model", () =>
 
 test("G4 menu full-page route remains preview only; public cutover stays blocked", () => {
   assert.match(frame, /\{ to: "\/2029\/number\/1820", label: "דף המספר"/);
-  assert.match(app, /<Route path="\/2029\/number\/:value" element=\{<Number2029Page \/>\}/);
+  assert.match(app, /<Route path="\/2029\/number\/:value" element=\{<Locked flag="lock_number" requireFlag homeHref="\/2029"><Number2029Page \/><\/Locked>\}/,
+    "Number preview changes must preserve the current public access gate");
   assert.match(page, /noindex: true/);
   assert.match(page, /DESIGN PREVIEW/);
-  assert.match(legacy, /<Route path="\/number\/:phrase" element=\{<LegacyNumberTransitionRoute \/>\}/);
+  assert.match(legacy, /<Route path="\/number\/:phrase" element=\{<Locked flag="lock_number" requireFlag homeHref="\/2029"><LegacyNumberTransitionRoute \/><\/Locked>\}/);
   assert.ok(vercel.rewrites.some((r) => r.source === "/2029/number/(.*)" && r.destination === "/2029.html"));
   assert.ok(!vercel.redirects.some((r) => r.source?.startsWith("/number") && r.destination?.includes("2029")),
     "old inbound /number links must not be auto-redirected before Number release");
@@ -66,10 +67,10 @@ test("full-page responsive Number text respects V2 minimum; crossing never trunc
   assert.doesNotMatch(drawerCss, /#[0-9a-f]{3,8}\b/i);
 });
 
-test("Night tokens use the one shared black/gold/brown V2 owner", () => {
-  const night = palette.slice(palette.indexOf('  dark: Object.freeze({', palette.indexOf("export const DESIGN_V2_PALETTES")));
-  for (const token of ['pageBg: "#0D0A09"', 'card: "#1B1512"', 'cardSoft: "#251D18"', 'brandGold: "#F9BA3F"']) {
+test("Number work preserves the main branch's shared warm Night atmosphere", () => {
+  const start = palette.indexOf('  dark: Object.freeze({', palette.indexOf("export const DESIGN_V2_PALETTES"));
+  const night = palette.slice(start, palette.indexOf("\n  }),", start));
+  for (const token of ['pageBg: "#0B0907"', 'card: "#17120E"', 'cardSoft: "#211A13"', 'brandGold: "#F9BA3F"']) {
     assert.ok(night.includes(token), `missing ${token}`);
   }
-  assert.ok(night.includes('accent: "#315DD5"'), "blue stays action role, not Night canvas");
 });

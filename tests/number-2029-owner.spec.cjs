@@ -3,9 +3,11 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 
 const BASE = 'http://127.0.0.1:4173';
 const CLOSED_FLAGS = [
-  'lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books',
+  'lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books', 'lock_number',
 ].map((key) => ({ key, enabled: true, mode: 'all', message: `${key} בבנייה` }));
-const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => flag.key === 'lock_world' ? { ...flag, enabled: false, message: '' } : flag);
+// Positive Number scenarios use an explicit open fixture; production remains
+// gated, including the fail-closed behavior asserted by the public-core suite.
+const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => ['lock_world', 'lock_number'].includes(flag.key) ? { ...flag, enabled: false, message: '' } : flag);
 
 test.setTimeout(90_000);
 test.beforeEach(async ({ context }) => {

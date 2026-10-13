@@ -194,6 +194,7 @@ export default function NumberCore2029({
   onToggleTrace,
   onOpenCrossing,
   onClearCrossing,
+  onCrossingFocusChange,
   activeCrossingPartner = null,
   onOpenZero,
   onOpenPage,
@@ -328,10 +329,12 @@ export default function NumberCore2029({
     setFocusedCrossingPartner(partner);
     // Only the full page serializes selection to the existing exact-state URL.
     if (!compact) onOpenCrossing?.(crossing);
+    else onCrossingFocusChange?.(crossing);
   };
   const clearCrossing = () => {
     setFocusedCrossingPartner(null);
     if (!compact) onClearCrossing?.();
+    else onCrossingFocusChange?.(null);
   };
 
   const selectMethod = (method) => {
