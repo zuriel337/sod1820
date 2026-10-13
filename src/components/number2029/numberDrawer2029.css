@@ -108,3 +108,12 @@
   padding:8px 10px;
   font:inherit;
 }
+
+/* Night Number research-blue canvas inside the drawer (Design V2 6.1): palette tokens only, set by useNumber2029Scope. */
+.sod29-number-drawer2029[data-number-scope="night"]{
+  background:var(--s29-page);
+  color:var(--s29-ink);
+  border:1px solid var(--s29-line);
+  border-radius:16px;
+  padding:10px;
+}
