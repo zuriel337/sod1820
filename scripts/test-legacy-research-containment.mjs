@@ -14,7 +14,7 @@ const number = read("src/pages/Number2029Page.jsx");
 const drawer = read("src/components/number2029/NumberDrawer2029.jsx");
 const contextual = read("src/lib/research/contextualCapabilities.js");
 
-assert.match(app, /<Locked flag="lock_research"><ResearchPage \/><\/Locked>/, "legacy /research must consume canonical registered-only site flag");
+assert.match(app, /<Locked flag="lock_research" requireFlag><ResearchPage \/><\/Locked>/, "legacy /research must consume canonical registered-only site flag");
 assert.match(research, /legacyPublicToolBlocked\s*=\s*!isAdmin\s*&&\s*!!tool\s*&&\s*!\["number", "midrash", "gematria"\]\.includes\(tool\)/, "registered non-admin users must be contained to Number + canonical Gematria calculator aliases");
 assert.match(research, /\(isAdmin \|\| t\.id === "number" \|\| t\.id === "midrash"\)/, "legacy Research subnav must expose only Number + canonical Gematria calculator to registered users");
 assert.match(home, /visibleBigIds\s*=\s*containedUser\s*\?\s*\["gematria", "number", "els"\]/, "legacy landing must show Gematria + Number plus closed ELS");

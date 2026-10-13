@@ -79,8 +79,8 @@ for (const source of expected) {
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
 // The plural detail path survives only as a compatibility alias and must never become a second canonical.
-assert.equal(app2029.includes('path="/book/:slug" element={<Books2029Page />}' ), true, "canonical Book detail must render natively in App2029");
-assert.equal(app2029.includes('path="/books/:slug" element={<CanonicalBookAlias2029 />}' ), true, "plural Book detail must remain alias-only");
+assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag><Books2029Page /></Locked>}' ), true, "canonical Book detail must render natively behind its capability gate in App2029");
+assert.equal(app2029.includes('path="/books/:slug" element={<Locked flag="lock_books" requireFlag><CanonicalBookAlias2029 /></Locked>}' ), true, "plural Book detail must remain alias-only behind its capability gate");
 assert.equal(books2029.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "Book cards must link to canonical singular detail URL");
 assert.equal(books2029.includes('path: slug ? `/book/${slug}` : "/books"' ), true, "Book detail SEO must use canonical singular path");
 assert.equal(books2029.includes("path: slug ? `/books/"), false, "Book detail SEO must not mint a plural canonical");
@@ -88,7 +88,7 @@ assert.equal(legacyApp.includes('BookHubPage'), false, "Legacy Book renderer mus
 assert.match(legacyApp, /function Book2029DocumentHandoff\(\)/, "Legacy SPA must cross the document boundary for Book routes");
 for (const route of ["/books", "/books/:slug", "/book", "/book/:slug"]) {
   assert.equal(
-    legacyApp.includes(`path="${route}" element={<Book2029DocumentHandoff />}`),
+    legacyApp.includes(`path="${route}" element={<Locked flag="lock_books" requireFlag><Book2029DocumentHandoff /></Locked>}`),
     true,
     `Legacy SPA must hand off ${route} to the isolated 2029 document`
   );
