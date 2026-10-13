@@ -405,9 +405,6 @@ export default function NumberCore2029({
         {shareUrl ? <div className="sod29-number-v10-share" data-share-owner="ShareActions">
           <ShareActions type="number" entityId={String(root)} sourceSurface={compact ? "number_drawer" : "number_page"} title={shareTitle || `SOD1820 · ${root}`} url={shareUrl} channels={["native", "copy"]} compact force />
         </div> : null}
-        {onOpenWorld ? <button type="button" className="sod29-number-v10-open-world" data-experience-action="number-open-world" onClick={() => onOpenWorld()}>
-          <NavigationIcon2029 name="world" size={20} /> פתח עולם
-        </button> : null}
       </div>
       {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
         <i aria-hidden="true" />
@@ -814,14 +811,16 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>◇ חקור בהיכל</button> : null}
+          {onOpenWorld ? <button type="button" className="sod29-number-v10-open-world" data-experience-action="number-open-world" onClick={() => onOpenWorld()}>
+            <NavigationIcon2029 name="world" size={18} /> פתח עולם
+          </button> : null}
         </footer>
 
 
     </section>
 
     {compact ? <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
-      {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
-        : onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 עולם</button> : null}
+      {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button> : null}
       <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
       <button type="button" onClick={() => onExpandRaziel?.()}>✨ רזיאל</button>
       {compact && onOpenPage ? <button type="button" className="primary" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}

@@ -1677,14 +1677,14 @@
 }
 .sod29-number-v10-expression>small{color:var(--s29-muted);font-size:var(--s29-type-micro,14px)}
 .sod29-number-v10-root{min-width:72px;text-align:center}
-.sod29-number-v10-open-world{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;margin-top:6px;padding:0 14px;
-  border:1px solid color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line-strong));border-radius:999px;
+.sod29-number-v10-stage-actions button.sod29-number-v10-open-world{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 12px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line-strong));border-radius:12px;
   background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel-soft));color:var(--s29-accent-text);
-  font:inherit;font-size:14px;font-weight:800;white-space:nowrap;cursor:pointer;
+  font:inherit;font-size:var(--s29-type-micro,14px);font-weight:900;white-space:nowrap;cursor:pointer;
 }
-.sod29-number-v10-open-world:hover{border-color:var(--s29-accent)}
-.sod29-number-v10-open-world:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.sod29-number-v10-stage-actions button.sod29-number-v10-open-world:hover{border-color:var(--s29-accent)}
+.sod29-number-v10-stage-actions button.sod29-number-v10-open-world:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .sod29-number-v10-root b{font-size:34px}
 .sod29-number-v10-raziel-orb{
   width:52px;
@@ -2515,6 +2515,10 @@
   .sod29-number-v10-calculation-card{padding:8px;border-radius:13px}
   .sod29-number-v10-stage-actions{gap:4px}
   .sod29-number-v10-stage-actions button{font-size:7px;min-height:34px;padding:4px}
+  .sod29-number-v10-stage-actions button.sod29-number-v10-open-world{font-size:var(--s29-type-micro,14px);min-height:44px;padding:0 8px}
+  .sod29-number-v10-share{display:flex;justify-content:center}
+  .sod29-number-v10-share .sod-share-actions{justify-content:safe center;max-width:100%}
+  .sod29-number-v10-share .sod-share-actions>button,.sod29-number-v10-share .sod-share-actions>a{min-height:44px;min-width:44px}
   .sod29-number-v10-premium-ready{align-items:flex-start}
 }
 @media(max-width:350px){
