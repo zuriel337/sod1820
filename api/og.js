@@ -452,7 +452,7 @@ export default async function handler(req, res) {
         const arows = await ar.json();
         const anc = Array.isArray(arows) && arows[0];
         if (anc && anc.fact) {
-          title = `✦ ${stripHtml(anc.fact)} · ${SITE_NAME}`;
+          title = `✦ ${stripHtml(anc.fact)} · דף המספר · ${SITE_NAME}`;
           desc = cleanDesc(`${stripHtml(anc.fact)}${anc.hint ? ' — ' + stripHtml(anc.hint) : ''} · פלא מאומת במנוע · סוד 1820`, 180);
         }
       } catch { /* fallback to generic */ }
