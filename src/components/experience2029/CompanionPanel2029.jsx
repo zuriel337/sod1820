@@ -5,6 +5,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
+import OrGeulaStoryColumn from "../OrGeulaStoryColumn.jsx";
 import "./companionPanel2029.css";
 
 export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, hoverProps }) {
@@ -17,6 +18,11 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
       </button>
       {hasContext ? <button type="button" className="sod29-companion-ico is-ctx" onClick={() => onOpenPanel("ctx")} aria-label="הקשר"><span className="sod29-companion-ctx" aria-hidden="true" /></button> : null}
       {hasSequence ? <button type="button" className={`sod29-companion-ico is-seq${tab === "seq" ? " is-on" : ""}`} onClick={() => onOpenPanel("seq")} aria-label="רצף האירועים"><span className="sod29-companion-seq" aria-hidden="true">⋮</span></button> : null}
+      <div className="sod29-companion-source-quick is-slim" aria-label="מקורות ציבוריים">
+        <OrGeulaStoryColumn variant="shortcut" limit={12} />
+        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=tzvi-opoc#world-contributor-material")} aria-label="מקורות ציבוריים של צבי"><span aria-hidden="true">צ</span></button>
+        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=sod-hashmal#world-corpus-sod-hashmal")} aria-label="ספריית סוד החשמל"><span aria-hidden="true">⚡</span></button>
+      </div>
     </div> : <div className="sod29-companion-full">
       <div className="sod29-companion-top">
         <b>{tab === "seq" && hasSequence ? "רצף האירועים" : tab === "ctx" && hasContext ? "הקשר" : "עדכונים"}</b>
@@ -29,6 +35,11 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
       </div> : null}
 
       {tab === "seq" && hasSequence ? <div className="sod29-companion-seqbody">{sequenceNode}</div> : tab === "ctx" && hasContext ? <div className="sod29-companion-ctxbody">{contextNode}</div> : <div className="sod29-companion-feed">
+        <div className="sod29-companion-source-quick is-expanded" aria-label="ערוצי מקור ציבוריים">
+          <OrGeulaStoryColumn variant="shortcut" limit={12} />
+          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=tzvi-opoc#world-contributor-material")} aria-label="לקריאת מקורות צבי"><span className="sod29-companion-source-icon" aria-hidden="true">צ</span><span>צבי · הודעות מקור</span></button>
+          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=sod-hashmal#world-corpus-sod-hashmal")} aria-label="לקריאת סוד החשמל"><span className="sod29-companion-source-icon" aria-hidden="true">⚡</span><span>סוד החשמל · ספרייה</span></button>
+        </div>
         <div className="sod29-companion-note">חזקים קודם, ובתוכם החדשים. חדש אינו ממצא מאומת.</div>
         {feed.loading ? <p className="sod29-companion-empty" role="status">טוען את מה שנכנס…</p> : null}
         {feed.error ? <p className="sod29-companion-empty" role="status">העדכונים אינם זמינים כרגע.</p> : null}
