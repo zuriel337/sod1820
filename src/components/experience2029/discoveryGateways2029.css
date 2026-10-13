@@ -1,7 +1,7 @@
 /* Compact discovery portals inherit System Frame semantic roles in all three presets. */
 .dg29 { display: grid; gap: 12px; min-width: 0; }
 .dg29-intro { color: var(--s29-muted); font: 400 14px/1.45 var(--s29-font-ui); }
-.dg29-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.dg29-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .dg29-gateway {
   display: flex; flex-direction: column; min-width: 0; gap: 9px;
   padding: 12px; border: 1px solid var(--s29-line); border-radius: 14px;
@@ -29,12 +29,39 @@
   .dg29-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @container h29 (max-width: 620px) {
-  .dg29-grid { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
-  .dg29-gateway { flex: 0 0 min(85%, 290px); scroll-snap-align: start; }
+  .dg29-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .dg29-gateway { min-width: 0; }
   .dg29-intro { display: none; }
 }
 
-.dg29-featured { border-color:var(--s29-line);background:var(--s29-panel); }
+/* Wide Dimension Five row is independent of the biblical research gateway. */
+.dg29-dimension {
+  display: grid; gap: 12px; padding: 14px; min-width: 0;
+  border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel);
+}
+.dg29-dimension-head { display: flex; align-items: center; gap: 10px; }
+.dg29-dimension-head > div { min-width: 0; }
+.dg29-dimension-head h3 { margin: 0; font: 600 18px/1.4 var(--s29-font-ui); }
+.dg29-dimension-head p { margin: 0; color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
+.dg29-dimension-sources { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; min-width: 0; }
+.dg29-dimension-source {
+  display: flex; gap: 9px; align-items: center; min-width: 0; min-height: 72px;
+  padding: 7px; border: 1px solid var(--s29-line); border-radius: 10px;
+  background: var(--s29-panel-soft); font: 500 14px/1.5 var(--s29-font-ui);
+}
+.dg29-dimension-source > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.dg29-dimension-source:hover, .dg29-dimension-source:focus-visible { border-color: var(--s29-line-strong); }
+.dg29-dimension-poster {
+  display: grid; place-items: center; flex: 0 0 64px; width: 64px; height: 52px;
+  border-radius: 8px; overflow: hidden; background: var(--s29-panel); color: var(--s29-discovery);
+}
+.dg29-dimension-poster img { width: 100%; height: 100%; object-fit: contain; }
+.dg29-dimension-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; border-top: 1px solid var(--s29-line); padding-top: 8px; }
+.dg29-dimension-foot .dg29-gateway-action { border-top: 0; }
+.dg29-gateway-secondary { display: flex; align-items: center; min-height: 44px; font: 400 14px/1.4 var(--s29-font-ui); color: var(--s29-accent-text); }
+.dg29-dimension a:focus-visible { outline: 2px solid var(--s29-discovery); outline-offset: 2px; }
+@container h29 (max-width: 1000px) { .dg29-dimension-sources { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container h29 (max-width: 620px) { .dg29-dimension { padding: 10px; } .dg29-dimension-sources { grid-template-columns: minmax(0, 1fr); } }
 
 /* The canonical WatchButton is shared with the existing follow engine. */
 .dg29-follow { display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--s29-line);padding-top:8px; }
