@@ -4,6 +4,13 @@ Actor GPT · task CENTRAL_SOURCE_INTAKE_LEGACY_ADAPTER_20261013.
 Owners: existing Research Intake v13 / writer_material_home v6, canonical UI and subscription funnel.
 User direction 13 October 2026 23:38 Asia/Jerusalem supersedes automatic NowBar mail delivery.
 
+Current 14 October status: the two identity choices explicitly approved by ZURIEL
+were APPLIED privately and verified (see final LIVE closure). Exact13 read now
+shows4 canonical matches,9 would-create-private and0 identity blockers. Source
+approval/provisioning helpers, private normalized ingress/routing activation and
+public distribution remain separate pending stages. No mail was published. Code
+tests101/101; exact operator independently reviewed, including native schema fix.
+
 ## Implemented on branch
 
 One private receiving home: existing inbound_emails. Shared source projection and
@@ -34,9 +41,9 @@ The existing Intake contract addendum records these owner/actions/routing bounda
 No 2029 visual/shell/palette/Home/World changes. WhatsApp retains its existing source home;
 a combined WhatsApp inbox UI is not claimed in this email-first delivery.
 
-## Live versus branch
+## Earlier live baseline (13 October 2026; historical)
 
-Production read-back: restored legacy 99249526, deployment dpl_46k9WvaD5QBUo969obYzJ7pKkNyq.
+Earlier production read-back: restored legacy 99249526, deployment dpl_46k9WvaD5QBUo969obYzJ7pKkNyq.
 PR1089 starts from legacy-candidate-20261013@1e56a934, not main@4651042d.
 Candidate Stage0 runtime/performance gates remain independently open.
 Live inbox: 53 rows including tests; normalized count 0, public source=email rows 0.
@@ -290,3 +297,36 @@ were independently re-read unchanged. The isolated fixture had omitted that
 real column. Both operator blocks now prefix EVERY local with v_, and the actual
 native target_id column is in the isolated fixture; the correction is re-tested
 and independently reviewed before another attempt. No approval boundary widened.
+
+## LIVE private identity closure after choice 1
+
+The namespace fix5c98611b independently PASSed Claude fb6d547c (7 actual DML tests;
+comparison confirmed only local identifiers/header changed from77ac011a). Fresh
+live guards and one-writer scan matched the original approved private context.
+The corrected single transaction APPLIED both intended identity changes, with
+existing decision_ledger audit35dc8055-907e-461a-9c04-999e932f89ab/status=applied.
+No rollback was invoked. This is LIVE PRIVATE IDENTITY only, not a site release,
+private ingress deployment, sender-approval batch activation or public mail release.
+
+Post-commit verification: case4 new Contributor is private, linked to its existing
+confirmed account/Person, building/engaged/trusted=false and both email approval/
+public flags absent. Case13 native alias points at the selected account dossier
+slug; its original fields except merged_into have the exact prior digest. Target
+profile and all26 contributions/one content item retain exact prior digests;
+2approved+1hidden and9approved+14hidden distributions remain. Both existing public
+Person projections have byte-identical revision digests. Public carrier still has
+zero source=email rows. No mail/contact/body was emitted by verification.
+
+Bounded live exact13 read now shows4 unique existing canonical Contributors,
+9 would-create-private sources and0 account/ambiguity blockers. This read-only
+cross-check is not a live call to the still-uninstalled2035 preflight/provisioning
+functions. The missing9 source identities were NOT provisioned and no existing
+source received email_source_approved/public grants in this two-choice operation.
+
+Next private-stage implementation remains the independently reviewed2035 private
+helpers + exact13 service-only source approval/provisioning, private normalizing
+ingress deployment and real provider→private-storage/thread read roundtrip. These
+were not authorized/applied by the narrow two-identity choice alone. The accepted
+thread-wide destination/media choices and public distribution/release/security
+gates remain separate. Main/site deployment/flags/RLS/permissions unchanged by
+this operation. Always verify current live coordination before the next scope.
