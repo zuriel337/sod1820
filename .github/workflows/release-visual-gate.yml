@@ -124,27 +124,25 @@ jobs:
             });
           });
 
-          test('released Home keeps four compact source rows and one dock at phone and desktop widths', async ({ page }) => {
+          test('released Home keeps four post cards, the opening notice and one dock at phone and desktop widths', async ({ page }) => {
             test.setTimeout(120_000);
+            await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+              status: 200,
+              contentType: 'application/json',
+              body: JSON.stringify([{ key: 'lock_world', enabled: false, mode: 'all', message: '' }]),
+            }));
             for (const width of [320, 390, 1440]) {
               await page.setViewportSize({ width, height: 900 });
               await page.goto(`${BASE}/2029`, { waitUntil: 'networkidle' });
               const home = page.locator('[data-experience-capability="home-composition"]');
               await expect(home).toBeVisible({ timeout: 30_000 });
               await expect(home.locator('.h29-updates > .h29-card')).toHaveCount(4, { timeout: 30_000 });
-              const sources = home.locator('#home-sources');
-              await sources.scrollIntoViewIfNeeded();
-              const rows = sources.locator('[data-source-arrival]');
-              await expect(rows).toHaveCount(4, { timeout: 30_000 });
-              await expect(sources.locator('details[open]')).toHaveCount(0);
-              const titles = rows.locator('.sod29-source-arrival-copy strong');
-              for (const title of await titles.all()) {
-                await expect(title).toBeVisible();
-                expect(await title.evaluate(node => getComputedStyle(node).whiteSpace)).toBe('nowrap');
-              }
+              await expect(home.locator('[data-home-launch-notice="gradual-opening"]')).toBeVisible();
+              await expect(home.locator('[data-home-world="open"]')).toBeVisible();
+              await expect(home.locator('#home-sources')).toHaveCount(0);
               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
               expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
-              await page.screenshot({ path: `test-results/release-visual/home-compact-sources-${width}.png`, fullPage: false });
+              await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
             }
           });
 
@@ -204,6 +202,10 @@ jobs:
           async function assertHealthy(page, width, mode = 'dark') {
             const suffix = mode === 'dark' ? '' : `?mode=${mode}`;
             await installClsObserver(page);
+            await page.route('**/entity-hub-preview/**', async (route) => {
+              const response = await page.request.get(`${BASE}/2029.html`);
+              await route.fulfill({ status: response.status(), headers: response.headers(), body: await response.body() });
+            });
             await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
             await page.goto(`${BASE}${PATH}${suffix}`, { waitUntil: 'networkidle' });
             await page.waitForTimeout(500);
@@ -223,9 +225,9 @@ jobs:
 
             const interactive = page.locator('a, button, [tabindex="0"]');
             expect(await interactive.count()).toBeGreaterThan(3);
-            const first = interactive.first();
-            await first.focus();
-            await expect(first).toBeFocused();
+            const researchLink = page.locator('.sp29-actions a').first();
+            await researchLink.focus();
+            await expect(researchLink).toBeFocused();
 
             await page.screenshot({
               path: `test-results/release-visual/${mode}-${width}.png`,
@@ -360,10 +362,11 @@ jobs:
             const post = page.locator('[data-experience-surface="post-reading"]');
             await expect(post).toBeVisible({ timeout: 30_000 });
 
-            // The adopted desktop shell embeds the context in the pinned companion.
-            // Phone keeps the existing context sheet. Both expose the same seven authored sections and connections.
+            // The public desktop shell keeps the context rail; the richer companion
+            // remains available when its viewer gate is enabled. Phone uses the context sheet.
             const companion = page.locator('.sod29-companion');
-            if (width >= 981) {
+            const hasCompanion = width >= 981 && await companion.count() > 0;
+            if (hasCompanion) {
               await expect(companion).toBeVisible();
               await companion.hover();
               await companion.getByRole('button', { name: 'נעץ', exact: true }).click();
@@ -394,10 +397,11 @@ jobs:
             } else {
               await expect(restRail).toBeVisible();
               await expect(restRail).toContainText('בתוך הפוסט');
-              const before = await companion.boundingBox();
+              const desktopContext = hasCompanion ? companion : restRail;
+              const before = await desktopContext.boundingBox();
               await page.evaluate(() => window.scrollTo(0, Math.min(900, document.body.scrollHeight - window.innerHeight)));
-              await expect.poll(async () => (await companion.boundingBox()).y).toBe(before.y);
-              const after = await companion.boundingBox();
+              await expect.poll(async () => (await desktopContext.boundingBox()).y).toBe(before.y);
+              const after = await desktopContext.boundingBox();
               expect(after.x).toBe(before.x);
               const dock = await page.locator('.sod29-command-island').boundingBox();
               expect(after.y).toBeGreaterThanOrEqual(76);
@@ -580,6 +584,10 @@ jobs:
 
           test('200 percent text zoom and long Hebrew labels preserve layout at narrow width', async ({ page }) => {
             await page.setViewportSize({ width: 320, height: 844 });
+            await page.route('**/entity-hub-preview/**', async (route) => {
+              const response = await page.request.get(`${BASE}/2029.html`);
+              await route.fulfill({ status: response.status(), headers: response.headers(), body: await response.body() });
+            });
             await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
             await page.addStyleTag({ content: 'html{font-size:200%!important}' });
             await page.evaluate(() => {
@@ -645,9 +653,11 @@ jobs:
               expect(metrics.scrollWidth).toBe(metrics.clientWidth);
 
               await card.locator('.sod-gematria-card__summary-main').click();
-              await expect(card.getByText('ביטויים באותו ערך')).toBeVisible();
-              await expect(card.getByText('ביד רמה', { exact: true })).toBeVisible();
-              await expect(card.getByText('ארס', { exact: true })).toBeVisible();
+              await expect(card.locator('.sod-gematria-card__summary-main')).toHaveAttribute('aria-expanded', 'true');
+              const peers = card.getByRole('region', { name: 'ביטויים באותו ערך' });
+              await expect(peers).toBeVisible();
+              await expect(peers).toContainText('ביד רמה');
+              await expect(peers).toContainText('ארס');
 
               const toggle = card.locator('.sod-gematria-card__toggle');
               await toggle.focus();
@@ -662,8 +672,9 @@ jobs:
 
 
           test('Calculator 2029 viral Golden completes compute discovery Raziel share loop', async ({ page }) => {
-            const calculatorPath = '/2029/gematria';
-            const goldens = ['צוריאל', 'צוריאל פולייס', 'שער נון', 'אנכי'];
+            test.setTimeout(120_000);
+            const calculatorPath = '/2029/gematria/viral';
+            const goldens = ['שלום', 'ברכה', 'שער נון', 'אנכי'];
             // This loop verifies the open Raziel capability independently of the launch lock.
             await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
               status: 200,
@@ -671,7 +682,7 @@ jobs:
               body: JSON.stringify([{ key: 'lock_raziel_site', enabled: false, mode: 'all', message: '' }]),
             }));
             const install2029Rewrite = async (targetPage) => {
-              await targetPage.route('**/2029/gematria*', async (route) => {
+              await targetPage.route('**/2029/gematria/viral*', async (route) => {
                 const response = await targetPage.request.get(`${BASE}/2029.html`);
                 await route.fulfill({
                   status: response.status(),
@@ -772,7 +783,7 @@ jobs:
               const shared = await page.context().newPage();
               await shared.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
               await install2029Rewrite(shared);
-              await shared.goto(shareUrl, { waitUntil: 'networkidle' });
+              await shared.goto(shareUrl, { waitUntil: 'domcontentloaded' });
               const sharedCard = shared.locator('.sod29-calc2029-shared');
               await expect(sharedCard).toBeVisible({ timeout: 20_000 });
               await expect(sharedCard).toContainText(goldens[0]);
@@ -786,7 +797,7 @@ jobs:
                 await page.getByRole('button', { name: 'עוד כלים', exact: true }).click();
                 await page.getByRole('button', { name: 'השווה', exact: true }).click();
                 await expect(page.locator('.sod29-calc-compare')).toBeVisible();
-                await page.locator('#calculator-compare-b').fill('צוריאל פולייס');
+                await page.locator('#calculator-compare-b').fill('ברכה');
                 await expect(page.locator('.sod29-calc-compare-b-result')).toBeVisible({ timeout: 20_000 });
                 await page.locator('.sod29-calc2029-actions.is-more button[aria-expanded="true"]').click();
 

@@ -1080,6 +1080,9 @@
     overscroll-behavior:contain;
     z-index:18;
   }
+  .sod29-root.closed-shell:is(.surface-post,.surface-topic) .sod29-surface-context-rail{
+    height:calc(100dvh - 82px - var(--s29-island-clearance,92px));
+  }
 }
 .sod29-root.surface-post .sod29-surface-tabs,
 .sod29-root.surface-topic .sod29-surface-tabs,
