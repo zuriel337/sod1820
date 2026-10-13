@@ -42,7 +42,9 @@ Background #F4F7FC · Surface #FFFFFF · Primary #315DD5 · Action text #2454B8 
 Background #F4EDDE · Surface #FFF9EE · Primary #315DD5 · Action text #284E9F · Secondary #764B87 · Discovery #176965 · Text #312B23.
 
 ### Night
-Background #0B0B0C · Surface #171719 · Raised/soft #202023 · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F5F5F0 · Secondary text #C6C6C1. Bounded content surfaces may mix Crown gold into the surface at 6% to preserve the selected black-brown warmth.
+Background #0D0A09 · Surface #1B1512 · Soft #251D18 · Raised #2C221B · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F5F5F0 · Secondary text #D3C9BE. The warm charcoal/brown neutrals are owned only by `src/lib/palette.js`; restrained Crown gold remains Brand atmosphere, not an action, quality or verification color.
+
+**Night warmth calibration (13.10.2026):** branch-only visual candidate responding to ZURIEL's request to return to the black-brown Night feeling. Exact colors require preview review before release; Day and Parchment presets, Brand Core and semantic blue/violet/cyan interaction roles remain unchanged.
 
 ### Selected Day and shared finishing · ZURIEL 11.10.2026
 Modern Day follows the light color treatment of review option 7, with cool white surfaces and restrained turquoise tint. This selects colors only; it does not move the global tools above the content. Parchment remains available through the same theme store.

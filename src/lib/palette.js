@@ -188,6 +188,8 @@ export const DESIGN_V2_PALETTES = Object.freeze({
     brandGold: "#80570E",
     brandGlow: "rgba(128,87,14,0.12)",
   }),
+  // The governed Night preset projects the approved warm black-brown atmosphere.
+  // Preserve the user-approved warm gold public palette during Number integration.
   dark: Object.freeze({
     preset: "dark", mode: "dark",
     matrix: Object.freeze({ ...MATRIX_HIGHLIGHTS, surface: "#17120E", ink: "#F5EBDD", frame: "#D4AF37" }),
