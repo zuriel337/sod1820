@@ -22,6 +22,11 @@ export async function preparePublicEntry(directory = 'dist') {
   // legacy scripts, styles, manifests or UI. Deep pages retain their own OG route.
   const metadata = legacy.match(/<meta\s+(?:name="(?:google-site-verification|facebook-domain-verification|twitter:[^"]+)"|property="og:[^"]+")[^>]*>|<link\s+rel="canonical"[^>]*>/g) || [];
   await writeFile(resolve(root, 'index.html'), native.replace('</head>', metadata.join('\n') + '\n</head>'));
+  // Static .html resolution can win over /heichal's SPA rewrite (including
+  // Vite preview's extension fallback). The canonical deep link must enter
+  // the same runtime and capability gate as in-app navigation.
+  // Historical source remains in public/heichal.html and Git history.
+  await writeFile(resolve(root, 'heichal.html'), native);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

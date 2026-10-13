@@ -1,0 +1,157 @@
+{
+  "checkedAt": "2026-10-13T11:03:45.131Z",
+  "origin": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+  "expectedSha": "c407683dee675c1f98e30f315f35c940faeb0331",
+  "expectedDeployment": "dpl_8PDtPrSRUt65zQ2q9XFLg2bR7iy1",
+  "checks": [
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/",
+      "finalPath": "/",
+      "title": "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט · SOD1820",
+      "canonical": "https://sod1820.co.il"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "finalPath": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "title": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים · SOD1820",
+      "canonical": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/code",
+      "finalPath": "/code",
+      "title": "ELS · SOD1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/code"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/video/5c31d5a39af321bc109b06c074af1e11",
+      "finalPath": "/video/5c31d5a39af321bc109b06c074af1e11",
+      "title": "טקסט בעברית על רקע דיגיטלי כחול וסגול · SOD1820",
+      "canonical": "https://sod1820.co.il/video/5c31d5a39af321bc109b06c074af1e11"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/community/chat",
+      "finalPath": "/community/chat",
+      "title": "הקהילה — סוד 1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/community/chat"
+    },
+    {
+      "name": "real_chat_history",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "sdkReady": false,
+      "count": null,
+      "hasReplies": false,
+      "communicationError": false,
+      "newThreads": 40
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/posts",
+      "finalPath": "/posts",
+      "title": "פוסטים · SOD1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/posts"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/world",
+      "finalPath": "/world",
+      "title": "העולם · SOD1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/world"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/number/1820",
+      "finalPath": "/number/1820",
+      "title": "SOD1820",
+      "canonical": null
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/gematria",
+      "finalPath": "/gematria",
+      "title": "מחשבון גימטריה מקצועי · SOD1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/gematria"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/2029/posts?from=old#kept",
+      "finalPath": "/posts",
+      "title": "פוסטים · SOD1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/posts"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/index.html?from=old#kept",
+      "finalPath": "/",
+      "title": "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט · SOD1820",
+      "canonical": "https://sod1820.co.il"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/",
+      "finalPath": "/",
+      "title": "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט · SOD1820",
+      "canonical": "https://sod1820.co.il"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/community/chat",
+      "finalPath": "/community/chat",
+      "title": "הקהילה — סוד 1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/community/chat"
+    },
+    {
+      "name": "theme_and_chat_layout",
+      "width": 314,
+      "font": "18px"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/",
+      "finalPath": "/",
+      "title": "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט · SOD1820",
+      "canonical": "https://sod1820.co.il"
+    },
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/community/chat",
+      "finalPath": "/community/chat",
+      "title": "הקהילה — סוד 1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/community/chat"
+    },
+    {
+      "name": "theme_and_chat_layout",
+      "width": 740,
+      "font": "18px"
+    }
+  ],
+  "pageErrors": [
+    "called without required arguments",
+    "called without required arguments"
+  ],
+  "assetFailures": [],
+  "blockedWrites": 207,
+  "failure": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'called without required arguments',\n+   'called without required arguments'\n+ ]\n- []\n",
+  "failedPath": "/community/chat",
+  "title": "הקהילה — סוד 1820 · SOD1820",
+  "pass": false
+}

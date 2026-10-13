@@ -14,6 +14,7 @@ test('deployment root uses native graph while legacy deep links retain their ind
     await assert.rejects(preparePublicEntry(dir));
     assert.equal(await readFile(join(dir, 'index.html'), 'utf8'), legacy);
     await writeFile(join(dir, '2029.html'), native);
+    await writeFile(join(dir, 'heichal.html'), '<h1>legacy sealed gate</h1>');
     await preparePublicEntry(dir);
     await preparePublicEntry(dir);
     const root = await readFile(join(dir, 'index.html'), 'utf8');
@@ -23,6 +24,8 @@ test('deployment root uses native graph while legacy deep links retain their ind
     assert.match(root, /og:title/);
     assert.equal(await readFile(join(dir, 'legacy.html'), 'utf8'), legacy);
     assert.equal(await readFile(join(dir, '2029.html'), 'utf8'), native);
+    assert.equal(await readFile(join(dir, 'heichal.html'), 'utf8'), native,
+      'direct /heichal must not resolve a physical legacy document ahead of the native route');
     const config = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
     assert.match(config.buildCommand, /prepare-public-entry\.mjs/);
     assert.equal(config.rewrites.find(row => row.source === '/(.*)' && !row.has)?.destination, '/legacy.html');
