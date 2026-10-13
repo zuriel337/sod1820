@@ -91,7 +91,9 @@ test('sitemap handler reads live flags, fails closed, and never caches an open p
 test('Googlebot routes reach the guard; legacy HTML enters the same Heichal route', () => {
   const vercel = JSON.parse(readFileSync('vercel.json', 'utf8'));
   for (const path of Object.keys(gated).filter(p => !['/books/daat-tevunot', '/heichal.html'].includes(p))) {
-    assert.ok(vercel.rewrites.some(r => new RegExp(`^${r.source}$`).test(path) && r.destination.includes('crawler=search')), path);
+    for (const variant of [path, encodeURI(path)]) {
+      assert.ok(vercel.rewrites.some(r => new RegExp(`^${r.source}$`).test(variant) && r.destination.includes('crawler=search')), variant);
+    }
   }
   assert.deepEqual(vercel.redirects.find(r => r.source === '/heichal.html'), { source: '/heichal.html', destination: '/heichal', permanent: false });
 });

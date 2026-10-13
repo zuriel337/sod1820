@@ -11,6 +11,7 @@ Reference work: `49d72cd10801956b3af6fe99711ba68aad287ffe` is retained in local 
 - Blocked routes set `noindex, nofollow` and restore preceding robots metadata on exit. Existing public pages retain their SEO owner.
 - Project the existing `site_flags` into `/sitemap.xml` and crawler metadata. Closed/registered-only/unknown capabilities are omitted from public discovery. Resolve availability before capability metadata queries; no-store avoids caching a formerly open projection. This is a route projection, not a new flag store or capability registry.
 - Add only missing search-crawler rewrites and a temporary `/heichal.html` → `/heichal` redirect, closing the old static document bypass. Existing Book redirects stay unchanged.
+- Explicit percent-encoded Hebrew crawler aliases cover `/היכל`, `/מסע`, `/הצלבה`; preview HTTP verification found that Vercel did not match their existing literal Hebrew rules. The existing middleware still returns 403 to crawlers on `/journey`, `/journey-beta`, `/research`; its blocking policy is preserved.
 
 ## Before/after (anonymous visitor; current live flags)
 
