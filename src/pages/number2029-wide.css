@@ -55,7 +55,7 @@
 @container sod-number-hero (min-width:940px){
   .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page{
     max-width:1680px;
-    grid-template-columns:minmax(250px,290px) minmax(0,1fr);
+    grid-template-columns:minmax(408px,420px) minmax(0,1fr);
     column-gap:18px;
     row-gap:12px;
     align-items:start;
@@ -78,6 +78,8 @@
     gap:10px;
     padding:20px 14px 16px;
   }
+  /* Ring stays in A: the identity column is wide enough for the 1:1 380px stage (408px column minus 2x14px card padding). */
+  .sod29-number-page[data-wide-layout="a"] .sod29-method-ring{display:grid}
     .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root b{
     font-size:clamp(48px,20cqi,68px);
     line-height:1;
@@ -239,8 +241,9 @@
 /* METHOD_RING_V1 (?rail=smart): six primary methods around the active result; shown only where the identity column exists. */
 .sod29-method-ring{display:none;margin:0;justify-items:center}
 /* Effective-size rule: the SVG is drawn 1:1 (380px wide = viewBox 380), so a 14 user-unit label renders at exactly 14px.
-   The ring therefore appears only where a full-width 380px stage fits (layout c); the narrow layout-a identity column
-   (max 290px) keeps the existing method grid instead of clipping or shrinking the ring. */
+   Layout a shows the ring inside its widened identity column (hero >= 940px, see the A block above); layout c shows it
+   in the centred stage. Where neither exists (single column / narrow hero) the existing method grid stays and the ring
+   is hidden rather than clipped or shrunk. */
 @container sod-number-hero (min-width:900px){
   .sod29-number-page[data-wide-layout="c"] .sod29-method-ring{display:grid}
 }
