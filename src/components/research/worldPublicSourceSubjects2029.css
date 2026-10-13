@@ -60,3 +60,13 @@
   .sod29-world-source-subject-index { padding: 10px; }
   .sod29-world-source-subject-list { grid-template-columns: 1fr; }
 }
+
+/* Previously a media-only message could show "מקור ללא טקסט" while its
+   original image/video was available. Keep a small legible preview. */
+.sod29-contributor-public-media { display: flex; max-width: 100%; overflow: hidden; }
+.sod29-contributor-public-media img,
+.sod29-contributor-public-media video {
+  display: block; max-inline-size: 100%; inline-size: auto; max-block-size: 220px;
+  block-size: auto; object-fit: contain; border-radius: 10px;
+  border: 1px solid var(--s29-line); background: var(--s29-panel);
+}
