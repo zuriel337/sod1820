@@ -234,7 +234,8 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
   if (!supabase) return [];
   try {
     const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags, home_hidden")
+      .eq("home_hidden", false)
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
@@ -242,7 +243,7 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
     return data
       .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
       .slice(0, limit)
-      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+      .map(p => ({ id: p.id, slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
   } catch { return []; }
 }
 

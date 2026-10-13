@@ -461,13 +461,14 @@ function HomeBody() {
     loading={homeState.loading}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
-    arrivals={<div className="h29-stream">
+    arrivals={(homeArrivals) => <div className="h29-stream">
       <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
-        items={worldPreview?.arrivals || worldPreview?.items || []}
+        items={homeArrivals}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
+    pulsePanel={<HomeSystemPulse pulse={homeState.projection?.systemPulse || null} loading={homeState.loading} />}
     entry={
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
