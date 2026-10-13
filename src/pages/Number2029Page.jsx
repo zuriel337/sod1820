@@ -30,6 +30,7 @@ import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressio
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
+import { PaletteProvider, useNumber2029Scope } from "../lib/palette.js";
 import "./number2029.css";
 import "./number2029-wide.css";
 
@@ -248,6 +249,7 @@ function factorizationText(profile) {
 }
 
 function NumberPageBody() {
+  const numberScope = useNumber2029Scope();
   const { value } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -1372,7 +1374,7 @@ function NumberPageBody() {
   if (!data) {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
   }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
+  return <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
@@ -1535,7 +1537,7 @@ function NumberPageBody() {
       <div className="sod29-number-core2029-note">טוען את מפת המחקר כשמגיעים אליה…</div>
     </section> : null}
 
-  </div>;
+  </div></PaletteProvider>;
 }
 
 export default function Number2029Page() {
