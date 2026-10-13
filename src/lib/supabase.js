@@ -1,3 +1,4 @@
+import { createSiteFlagsReader } from './siteFlagsReader.js';
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
@@ -1753,27 +1754,19 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
-// ⚡ קריאה אחת משותפת לכל ה-hooks בדף: בקשות מקבילות מתאחדות לבקשה אחת, ותוצאה תקפה
-// FLAGS_TTL_MS בלבד — כך דגל שהשתנה נקלט בתוך דקה לכל היותר (ואילו {fresh:true} מדלג על ה-cache).
-// שגיאה אינה נשמרת: מוחזר ה-cache האחרון הידוע (או {} כמו קודם), והבקשה הבאה מנסה שוב.
-const FLAGS_TTL_MS = 30000;
-let flagsCache = null, flagsAt = 0, flagsInflight = null;
-export async function getSiteFlags({ fresh = false } = {}) {
+// ⚡ קריאה אחת משותפת לכל ה-hooks (ראו src/lib/siteFlagsReader.js): איחוד בקשות מקבילות, שימוש חוזר
+// בתוצאה מוצלחת עד 30 שניות בלבד, {fresh:true} לניווט/רענון מפורש, וכשל קריאה מחזיר {} (כמו קודם —
+// צרכני requireFlag נסגרים) ולא תוצאה ישנה/פגת-תוקף.
+const siteFlagsReader = createSiteFlagsReader({
+  fetchRows: async () => {
+    const { data, error } = await supabase.from('site_flags').select('key,enabled,message,mode');
+    if (error) throw error;
+    return data;
+  },
+});
+export async function getSiteFlags(options) {
   if (!supabase) return {};
-  if (!fresh && flagsCache && Date.now() - flagsAt < FLAGS_TTL_MS) return flagsCache;
-  if (flagsInflight) return flagsInflight;
-  flagsInflight = (async () => {
-    try {
-      const { data, error } = await supabase.from('site_flags').select('key,enabled,message,mode');
-      if (error || !Array.isArray(data)) return flagsCache || {};
-      const m = {};
-      for (const r of data) m[r.key] = r;
-      flagsCache = m; flagsAt = Date.now();
-      return m;
-    } catch { return flagsCache || {}; }
-    finally { flagsInflight = null; }
-  })();
-  return flagsInflight;
+  return siteFlagsReader(options);
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
