@@ -159,7 +159,7 @@ export default function CommunityLive2029() {
   const linkedAccountId = profileRows.find((row) => row.linkedUserId)?.linkedUserId || baseline?.accountUserId;
   const linkedAccount = linkedAccountId ? accountProfiles[linkedAccountId] : null;
   const memberName = linkedAccount?.display_name || linkedAccount?.username || baseline?.name || profileRows[0]?.authorName || "חבר הקהילה";
-  const isOwner = Boolean(user?.id && (baseline?.accountUserId === user.id || selectedAuthorId === `user:${user.id}`));
+  const isOwner = Boolean(user?.id && (linkedAccountId === user.id || selectedAuthorId === `user:${user.id}`));
 
   const closeProfile = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("member"); return next; });
   const closeCard = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("memberCard"); return next; });
