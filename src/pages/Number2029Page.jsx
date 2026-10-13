@@ -18,6 +18,8 @@ import {
   deriveHiddenCrossings,
   methodProfileEntry,
 } from "../lib/research/numberCoreProjection.js";
+import WatchButton from "../components/WatchButton.jsx";
+import { SHARE_SITE } from "../lib/share.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
 import NumberDeepView2029 from "../components/number2029/NumberDeepView2029.jsx";
 import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld2029.jsx";
@@ -30,6 +32,7 @@ import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressio
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
+import { PaletteProvider, useNumber2029Scope } from "../lib/palette.js";
 import "./number2029.css";
 import "./number2029-wide.css";
 
@@ -248,6 +251,7 @@ function factorizationText(profile) {
 }
 
 function NumberPageBody() {
+  const numberScope = useNumber2029Scope();
   const { value } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -1338,11 +1342,14 @@ function NumberPageBody() {
     navigate(nextHref);
   };
 
+  // Loading / unavailable states live inside the same Number colour scope as the ready page.
+  const inNumberScope = (node) => <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-wide-layout={wideLayout} data-number-root={root}>{node}</div></PaletteProvider>;
+
   if (!Number.isSafeInteger(root) || root < 0) {
-    return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
+    return inNumberScope(<FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>);
   }
   if (state.loading && !data) {
-    return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
+    return inNumberScope(<FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>);
   }
   // A valid numeric zero currently has no public Number node. Render a bounded
   // full-page empty state, not a fabricated Research/Graph or a fake 0 result.
@@ -1370,9 +1377,9 @@ function NumberPageBody() {
     </div>;
   }
   if (!data) {
-    return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
+    return inNumberScope(<FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>);
   }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
+  return <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
@@ -1412,7 +1419,9 @@ function NumberPageBody() {
         pinnedExpression={pinnedCompare?.expression || null}
         onPinCompare={pinCompare}
         onClearCompare={() => setPinnedCompare(null)}
-        onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
+        shareUrl={`${SHARE_SITE}${currentNumberHref}`}
+        shareTitle={`SOD1820 · ${focusExpression || root}`}
+        onExpressionSelect={(phrase, preferredMethod = null) => activateExpressionFocus(phrase, preferredMethod || regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}
@@ -1535,7 +1544,12 @@ function NumberPageBody() {
       <div className="sod29-number-core2029-note">טוען את מפת המחקר כשמגיעים אליה…</div>
     </section> : null}
 
-  </div>;
+    {/* Follow v19: a distinct, value-last gate after the Number content — never mixed into the share icons. */}
+    <div className="sod29-number-follow-gate" data-follow-owner="WatchButton" data-follow-placement="after-content">
+      <WatchButton topic={`number:${root}`} source="number_page" gate ui2029 heading={`לעקוב אחרי ${root}?`} explainer="נשמור את המספר במעקב שלך באתר. עדכונים יופיעו כאן בתוך האתר; מייל או התראות נבחרים בנפרד ורק בהסכמה." label="עקוב אחרי המספר" followLabel="עוקב" />
+    </div>
+
+  </div></PaletteProvider>;
 }
 
 export default function Number2029Page() {

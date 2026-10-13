@@ -3,9 +3,11 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 
 const BASE = process.env.G4_PREVIEW_BASE_URL || 'http://127.0.0.1:4173';
 const CLOSED_FLAGS = [
-  'lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books',
+  'lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books', 'lock_number',
 ].map((key) => ({ key, enabled: true, mode: 'all', message: `${key} בבנייה` }));
-const OPEN_FLAGS = [{ key: 'lock_number', enabled: false, mode: 'all', message: '' }, ...CLOSED_FLAGS.map((flag) => flag.key === 'lock_world' ? { ...flag, enabled: false, message: '' } : flag)];
+// Positive Number scenarios use an explicit open fixture; production remains
+// gated, including the fail-closed behavior asserted by the public-core suite.
+const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => ['lock_world', 'lock_number'].includes(flag.key) ? { ...flag, enabled: false, message: '' } : flag);
 
 test.setTimeout(90_000);
 test.beforeEach(async ({ context }) => {
@@ -51,6 +53,7 @@ test('real zero stays zero, invalid number never falls through to zero', async (
   const zero = page.locator('[data-experience-surface="number"][data-number-root="0"]');
   await expect(zero).toBeVisible({ timeout: 35_000 });
   // An unindexed Number may have no canonical Graph node. Do not invent one.
+  await expect(page.locator('[data-number-empty="true"], [data-number-core-root="0"]')).toBeVisible({ timeout: 35_000 });
   if (await zero.getAttribute('data-number-empty') === 'true') {
     await expect(zero).toContainText('אין עדיין חומר מחקרי מקושר ל־0');
     await expect(zero.locator('.sod29-number-zero-identity strong')).toHaveText('0');

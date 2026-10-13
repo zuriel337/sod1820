@@ -3,11 +3,13 @@ import SignatureResearchIcon from "../SignatureResearchIcon.jsx";
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
+import ShareActions from "../ShareActions.jsx";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
 import MethodRing2029 from "./MethodRing2029.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import "./numberCore2029.css";
 
 // The embedded Number window inherits the same semantic palette as its Frame.
@@ -194,6 +196,7 @@ export default function NumberCore2029({
   onToggleTrace,
   onOpenCrossing,
   onClearCrossing,
+  onCrossingFocusChange,
   activeCrossingPartner = null,
   onOpenZero,
   onOpenPage,
@@ -205,6 +208,8 @@ export default function NumberCore2029({
   onResolveQuery,
   onExpressionSelect,
   journeyLabel = null,
+  shareUrl = null,
+  shareTitle = "",
   onRazielAction,
   onExpandRaziel,
 } = {}) {
@@ -328,10 +333,12 @@ export default function NumberCore2029({
     setFocusedCrossingPartner(partner);
     // Only the full page serializes selection to the existing exact-state URL.
     if (!compact) onOpenCrossing?.(crossing);
+    else onCrossingFocusChange?.(crossing);
   };
   const clearCrossing = () => {
     setFocusedCrossingPartner(null);
     if (!compact) onClearCrossing?.();
+    else onCrossingFocusChange?.(null);
   };
 
   const selectMethod = (method) => {
@@ -395,6 +402,9 @@ export default function NumberCore2029({
             compact
           /> : null}
         </div>
+        {shareUrl ? <div className="sod29-number-v10-share" data-share-owner="ShareActions">
+          <ShareActions type="number" entityId={String(root)} sourceSurface={compact ? "number_drawer" : "number_page"} title={shareTitle || `SOD1820 · ${root}`} url={shareUrl} channels={["native", "copy"]} compact force />
+        </div> : null}
       </div>
       {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
         <i aria-hidden="true" />
@@ -467,7 +477,7 @@ export default function NumberCore2029({
           return <div
             role="listitem"
             key={phrase}
-            className={`sod29-number-v11-regular-item${selected ? " is-active" : ""}${railPreview === phrase && !selected ? " is-preview" : ""}`}
+            className={`sod29-number-v11-regular-item${curatedPhrase?.type === "entity" ? " has-curation" : ""}${selected ? " is-active" : ""}${railPreview === phrase && !selected ? " is-preview" : ""}`}
           >
             <button
               type="button"
@@ -626,7 +636,9 @@ export default function NumberCore2029({
                 key={`${item.label}:${index}`}
                 className={item.world ? "has-world" : "no-world"}
                 style={item.world ? { "--world-color": worldColor(item.world) } : undefined}
-                onClick={() => onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })}
+                onClick={() => (item.kind === "expression" || item.kind === "composite_method_expression") && onExpressionSelect
+                  ? onExpressionSelect(item.label, item.methodKey || null)
+                  : onRazielAction?.("explain_connection", { kind: item.kind, label: item.label, note: item.note, resultValue: stageRoot })}
               >
                 <strong>{item.label}</strong>
                 {item.world ? <em className="sod29-number-v10-world-tag">{item.world}</em> : <small>{item.note}</small>}
@@ -799,14 +811,16 @@ export default function NumberCore2029({
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
           })}>◇ חקור בהיכל</button> : null}
+          {onOpenWorld ? <button type="button" className="sod29-number-v10-open-world" data-experience-action="number-open-world" onClick={() => onOpenWorld()}>
+            <NavigationIcon2029 name="world" size={18} /> פתח עולם
+          </button> : null}
         </footer>
 
 
     </section>
 
     {compact ? <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
-      {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
-        : onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 עולם</button> : null}
+      {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button> : null}
       <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
       <button type="button" onClick={() => onExpandRaziel?.()}>✨ רזיאל</button>
       {compact && onOpenPage ? <button type="button" className="primary" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}

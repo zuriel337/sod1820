@@ -1754,14 +1754,27 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
+// All useFeatureState hooks in the mounted frame request the same public flags.
+// Coalesce only simultaneous requests; deliberately do NOT cache resolved values:
+// route changes and lock changes must still receive a fresh authorization view.
+// UI checks are not a substitute for server-side access enforcement.
+let siteFlagsInflight = null;
 export async function getSiteFlags() {
   if (!supabase) return {};
+  if (siteFlagsInflight) return siteFlagsInflight;
+  siteFlagsInflight = (async () => {
+    try {
+      const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
+      const m = {};
+      for (const r of (data || [])) m[r.key] = r;
+      return m;
+    } catch { return {}; }
+  })();
   try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-    const m = {};
-    for (const r of (data || [])) m[r.key] = r;
-    return m;
-  } catch { return {}; }
+    return await siteFlagsInflight;
+  } finally {
+    siteFlagsInflight = null;
+  }
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.

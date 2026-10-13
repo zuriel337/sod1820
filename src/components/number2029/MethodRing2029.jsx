@@ -2,15 +2,31 @@ import React from "react";
 
 // Six primary methods around the active result. Presentation only: every value comes from the engine-returned
 // method profile the Number page already holds. Missing stays "—", a pending load shows "…", a real 0 stays 0.
-const CX = 160;
-const CY = 160;
-const RING = 112;
-const NODE = 37;
+const SIZE = 380;
+const CX = SIZE / 2;
+const CY = SIZE / 2;
+const RING = 128;
+const NODE = 47;
 const hasValue = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
 
 function nodePoint(index, count) {
   const angle = (-90 + (360 / Math.max(1, count)) * index) * (Math.PI / 180);
   return [CX + RING * Math.cos(angle), CY + RING * Math.sin(angle)];
+}
+
+// Labels stay at the 14px metadata floor; long ones wrap onto a second line instead of shrinking.
+function splitLabel(text) {
+  const value = String(text || "");
+  if (value.length <= 8) return [value];
+  const words = value.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return [value];
+  let best = 1;
+  let gap = Infinity;
+  for (let i = 1; i < words.length; i += 1) {
+    const d = Math.abs(words.slice(0, i).join(" ").length - words.slice(i).join(" ").length);
+    if (d < gap) { gap = d; best = i; }
+  }
+  return [words.slice(0, best).join(" "), words.slice(best).join(" ")];
 }
 
 export default function MethodRing2029({ methods = [], activeKey = null, loading = false, result = null, activeLabel = "", labelOf, onSelect }) {
@@ -23,7 +39,7 @@ export default function MethodRing2029({ methods = [], activeKey = null, loading
     ? "טבעת השיטות: מחשב את השיטות"
     : `טבעת השיטות: ${activeLabel || "שיטה פעילה"}${hasValue(result) ? ` = ${result}` : ""}`;
   return <figure className={`sod29-method-ring${loading ? " is-loading" : ""}`} data-experience-capability="number-method-ring" aria-label={aria}>
-    <svg viewBox="0 0 320 320" role="group" aria-label={aria} focusable="false">
+    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} role="group" aria-label={aria} focusable="false">
       <circle className="ring-halo" cx={CX} cy={CY} r={RING + NODE + 6} />
       <circle className="ring-orbit" cx={CX} cy={CY} r={RING} />
       {Array.from({ length: count }, (_, index) => {
@@ -33,10 +49,10 @@ export default function MethodRing2029({ methods = [], activeKey = null, loading
         return <line key={`spoke-${index}`} className={`ring-spoke${on ? " is-active" : ""}`} x1={CX} y1={CY} x2={x} y2={y} />;
       })}
       <g className="ring-core">
-        <circle cx={CX} cy={CY} r="56" />
-        <text className="ring-core-label" x={CX} y={CY - 22} textAnchor="middle">{activeLabel || "התוצאה"}</text>
-        <text className="ring-core-value" x={CX} y={CY + 12} textAnchor="middle">{loading ? "…" : hasValue(result) ? String(result) : "—"}</text>
-        <text className="ring-core-caption" x={CX} y={CY + 34} textAnchor="middle">תוצאה פעילה</text>
+        <circle cx={CX} cy={CY} r="62" />
+        <text className="ring-core-label" x={CX} y={CY - 24} textAnchor="middle">{activeLabel || "התוצאה"}</text>
+        <text className="ring-core-value" x={CX} y={CY + 14} textAnchor="middle">{loading ? "…" : hasValue(result) ? String(result) : "—"}</text>
+        <text className="ring-core-caption" x={CX} y={CY + 38} textAnchor="middle">תוצאה פעילה</text>
       </g>
       {Array.from({ length: count }, (_, index) => {
         const [x, y] = nodePoint(index, count);
@@ -44,6 +60,7 @@ export default function MethodRing2029({ methods = [], activeKey = null, loading
         if (!method) return <g key={`ph-${index}`} className="ring-node is-placeholder" aria-hidden="true"><circle cx={x} cy={y} r={NODE} /></g>;
         const on = index === activeIndex;
         const text = label(method);
+        const lines = splitLabel(text);
         const select = () => { if (!loading) onSelect?.(method); };
         return <g
           key={method.methodKey}
@@ -57,8 +74,8 @@ export default function MethodRing2029({ methods = [], activeKey = null, loading
           onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); select(); } }}
         >
           <circle cx={x} cy={y} r={NODE} />
-          <text className="ring-node-label" x={x} y={y - 6} textAnchor="middle" style={{ fontSize: String(text).length > 6 ? 10.5 : 12 }}>{text}</text>
-          <text className="ring-node-value" x={x} y={y + 14} textAnchor="middle">{hasValue(method.computedValue) ? String(method.computedValue) : "—"}</text>
+          <text className="ring-node-label" x={x} y={y - (lines.length > 1 ? 14 : 6)} textAnchor="middle">{lines.map((line, i) => <tspan key={i} x={x} dy={i ? 15 : 0}>{line}</tspan>)}</text>
+          <text className="ring-node-value" x={x} y={y + (lines.length > 1 ? 30 : 18)} textAnchor="middle">{hasValue(method.computedValue) ? String(method.computedValue) : "—"}</text>
         </g>;
       })}
     </svg>

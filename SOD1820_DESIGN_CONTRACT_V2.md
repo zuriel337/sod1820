@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026
 **Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -42,9 +42,7 @@ Background #F4F7FC · Surface #FFFFFF · Primary #315DD5 · Action text #2454B8 
 Background #F4EDDE · Surface #FFF9EE · Primary #315DD5 · Action text #284E9F · Secondary #764B87 · Discovery #176965 · Text #312B23.
 
 ### Night
-Background #0D0A09 · Surface #1B1512 · Soft #251D18 · Raised #2C221B · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F5F5F0 · Secondary text #D3C9BE. The warm charcoal/brown neutrals are owned only by `src/lib/palette.js`; restrained Crown gold remains Brand atmosphere, not an action, quality or verification color.
-
-**Night warmth calibration (13.10.2026):** branch-only visual candidate responding to ZURIEL's request to return to the black-brown Night feeling. Exact colors require preview review before release; Day and Parchment presets, Brand Core and semantic blue/violet/cyan interaction roles remain unchanged.
+Background #0B0B0C · Surface #171719 · Raised/soft #202023 · Primary #315DD5 · Action text #A8C7FF · Secondary #C2A8FA · Discovery #69DED7 · Text #F5F5F0 · Secondary text #C6C6C1. Bounded content surfaces may mix Crown gold into the surface at 6% to preserve the selected black-brown warmth.
 
 ### Selected Day and shared finishing · ZURIEL 11.10.2026
 Modern Day follows the light color treatment of review option 7, with cool white surfaces and restrained turquoise tint. This selects colors only; it does not move the global tools above the content. Parchment remains available through the same theme store.
@@ -84,6 +82,24 @@ Research Lab may become more blue/research-clean in any preset:
 Modern Day + Lab, Parchment + Lab, Night + Lab.
 
 An environment must never force a fourth theme or silently override the user preference unless a Human-Gate accessibility/safety reason explicitly says so.
+
+### 6.1 Night Number research-blue projection · Human Gate ZURIEL · 13.10.2026
+
+**Approved visual direction, not implementation/release acceptance.** This refines the approved Design V2 and its three user presets; it does not create a fourth theme, second palette store or independent Number design system.
+
+- **Night / default product:** Global Chrome, Home, World, Posts, Calculator, Community, Journey and ordinary content surfaces retain the selected deep black + warm black-brown + restrained Crown-gold atmosphere. The shared precision finish is thin polished borders, controlled radius and compact readable content (§4, §8). Do not restyle these surfaces blue just because Number uses blue.
+- **Night / Number identity:** The canonical `/2029/number/:value` content surface intentionally uses a *deep sapphire/navy research-blue* atmosphere (canvas, bounded cards, subtle focus and spatial depth) instead of the default black-brown content canvas. The numeric expression/value, verified calculation methods, relations and existing layer-depth visualization are the hero; keep these data live. The user-reviewed Number 1820 capture on 13.10.2026 guides the atmospheric direction, **not** a mandate to copy Legacy layout, large radii or heavy frames. Exact accessible values are calibrated in Preview by the single palette owner.
+- **Contextual Number:** Opening the existing Number window/inspector from a Post, Calculator, World or another host projects the same *scoped Number research-blue* **inside the Number content area only**. The host page and Global Chrome keep their selected preset and ambient identity. Reuse the existing contextual Number owner; preserve expression, method, Research Context and exact return. Never add a competing drawer, palette provider or navigation system.
+- **Shared Research Lab guard:** `RESEARCH_LAB` is also used by Books, Heichal and ELS. Do **not** turn every `research_lab` environment blue. Resolve the Night Number-focused variant using a semantic **Number surface/Number-inspector scope** through the existing `src/lib/palette.js`, `themeMode.js` and System Frame consumers. Pages consume shared palette roles / frame CSS variables rather than redefining hex values locally; coordinate the palette-token owner once across concurrent work.
+- **Day and Parchment:** Retain the approved Modern Day and Parchment identities and the user's selected three-mode control `יום | קלף | לילה`. Number remains a research experience in both modes, but the Night blue override must not replace their backgrounds or user preference.
+- **Semantic and accessibility safeguards:** Royal-blue actions, violet/Raziel depth, cyan discovery, Crown sapphire/gold identity and true status/research-strength indicators keep their existing separate meanings. A blue Number backdrop, light/glow and gold decoration are **not** proof, verification or quality rankings. Preserve sufficient contrast, touch targets ≥44×44px, text minima from §5, keyboard focus, RTL and reduced-motion behavior.
+
+### 6.2 Cross-session rollout of the same decision
+
+- **Contract first:** All component-specific work sessions read this canonical V2 from current `origin/main` and report which revision they used. Existing §4/§8 compact-and-precise styling applies across the product; only the Night Number projection is specially blue.
+- **Single color owner before consumers:** Any missing semantic palette roles are implemented by the existing palette/System Frame owner once; other sessions consume them, without local hard-coded page palettes or duplicate contract files. Concurrent branches with overlapping shared files must be coordinated before integration.
+- **Scope per session:** Number session owns Number page and its existing contextual Number projection; Home/Post/Calculator/Community/other sessions polish only their assigned surfaces against the unchanged three presets. No changes to research truth, calculations, access, content or Brand assets are authorized by this visual approval.
+- **Proof before merge/release:** Each session returns its precise branch/commit, working Preview URL and actual mobile/desktop screenshots in **Day, Parchment and Night**, including a Number page and a Number opened within a black-brown Night host where relevant. Compare 320/390px and desktop, keyboard/focus, text contrast, no horizontal overflow, preserved reading/return and reduced-motion as in §12. A static mockup or passing build alone is not visual acceptance. Human review and existing CI/release gates still control deployment.
 
 ## 7. Brand boundary
 The approved canonical Crown + Hebrew wordmark remain protected artwork under Brand Core. Their blue-sapphire + gold identity is preserved.
