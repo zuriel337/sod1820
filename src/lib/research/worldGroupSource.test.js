@@ -105,3 +105,37 @@ test("ingest sends proof from senderId, never senderName", () => {
   assert.ok(guard.includes("!outgoing") && guard.includes("!imageUrl") && guard.includes("@g.us"));
   assert.ok(call.includes("p_sender_jid: senderId") && !call.includes("senderName"));
 });
+
+
+// Live backend may still expose v2 but not v3. Fallback stays inside
+// the same anonymized proof-only server reader, never raw WhatsApp.
+test("missing v3 RPC safely falls back to existing public v2 and preserves proof", async () => {
+  const calls = [];
+  const item = row({ id: "u-safe", created_at: "2026-10-13T00:00:00Z" });
+  const result = await fetchGroupSourceArrivals({
+    limit: 40, before: "2026-10-12T00:00:00Z",
+    rpc: async (name, args) => {
+      calls.push({ name, args });
+      return name.endsWith("_v3")
+        ? { data: null, error: { code: "PGRST202", message: "Could not find function public.world_group_source_arrivals_v3" } }
+        : { data: [item], error: null };
+    },
+  });
+  assert.deepEqual(calls.map((c) => c.name), ["world_group_source_arrivals_v3", "world_group_source_arrivals_v2"]);
+  assert.deepEqual(calls[1].args, { p_limit: 40, p_before: "2026-10-12T00:00:00Z" });
+  assert.equal(result.length, 1);
+  assert.equal(result[0].publicState, "group_source_message_unverified");
+  assert.equal(result[0].sourceRef, "channel_updates:u-safe");
+  assert.equal(groupRowToWorldUpdate({ ...item, group_proof: false }), null);
+});
+
+test("group timeline is accessible without mandatory topical classification or research gating", () => {
+  const component = readFileSync(new URL("../../components/research/ZviGroupTimeline2029.jsx", import.meta.url), "utf8");
+  const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
+  assert.match(component, /fetchGroupSourceArrivals\(\{ limit: PAGE, before:/);
+  assert.match(component, /group_message/);
+  assert.match(component, /עוד הודעות ישנות יותר/);
+  assert.match(component, /סיווג|שיוך לנושא אינו תנאי/);
+  assert.doesNotMatch(component, /\.from\("research_objects"\)|fetchResearchObjects|\.from\("channel_updates"\)/);
+  assert.equal((world.match(/<ZviGroupTimeline2029 /g) || []).length, 2);
+});
