@@ -170,7 +170,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
             ? "כאן מגלים מה מסתתר בשם בעברית. הקלידו את השם באותיות עבריות."
             : info.notice}</p>
           {info.kind === CALCULATOR_INPUT_KIND.LATIN ? (
-            <Link to={"/2029/calculator?q=" + encodeURIComponent(info.expression)}>רוצים אנגלית? המחשבון המקצועי מחשב גם אנגלית ←</Link>
+            <Link to={"/calculator?q=" + encodeURIComponent(info.expression)}>רוצים אנגלית? המחשבון המקצועי מחשב גם אנגלית ←</Link>
           ) : null}
         </div>
       ) : info.notice ? <p className="sod29-calc2029-notice">{info.notice}</p> : null}
@@ -402,7 +402,7 @@ function CalculatorExperience() {
     setShowOpening(false);
     setShareDiscovery(null);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria/viral", { replace: true });
+    if (location.search) navigate("/gematria/viral", { replace: true });
   }, [location.search, navigate]);
 
   const settleFastExpression = useCallback((raw) => {
@@ -472,7 +472,7 @@ function CalculatorExperience() {
     return buildCalculatorShareUrl(selection, {
       discovery: shareDiscovery,
       shareId,
-      baseUrl: origin + "/2029/gematria/viral",
+      baseUrl: origin + "/gematria/viral",
     });
   }, [selection, shareDiscovery, shareId]);
 
@@ -502,7 +502,7 @@ function CalculatorExperience() {
     setShowCompare(false);
     setShowOpening(false);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria/viral", { replace: true });
+    if (location.search) navigate("/gematria/viral", { replace: true });
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
@@ -552,7 +552,7 @@ function CalculatorExperience() {
             </button>
             <Link
               className="is-pro"
-              to={"/2029/calculator?q=" + encodeURIComponent(selection.expression) + "&m=" + encodeURIComponent(selection.methodKey)}
+              to={"/calculator?q=" + encodeURIComponent(selection.expression) + "&m=" + encodeURIComponent(selection.methodKey)}
             >
               המשך במחשבון המקצועי ←
             </Link>
@@ -655,9 +655,9 @@ function CalculatorBody() {
 export default function Calculator2029Page() {
   useEffect(() => {
     applySeo({
-      title: "מחשבון גימטריה 2029 · SOD1820",
+      title: "מחשבון גימטריה · SOD1820",
       description: "חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.",
-      path: "/2029/gematria/viral",
+      path: "/gematria/viral",
       noindex: true,
     });
   }, []);

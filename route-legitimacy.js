@@ -3,6 +3,13 @@
 
 export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/2029",
+  "/2029.html",
+  "/posts",
+  "/calculator",
+  "/control",
+  "/home-preview",
+  "/preview",
+  "/kingdom",
   "/888",
   "/about",
   "/admin",

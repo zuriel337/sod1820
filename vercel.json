@@ -1,9 +1,35 @@
 {
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.sod1820.co.il"
+        }
+      ],
+      "destination": "https://sod1820.co.il/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/2029.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2029",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2029/:path*",
+      "destination": "/:path*",
+      "permanent": true
+    },
+    {
       "source": "/post",
-      "destination": "/2029/posts",
-      "permanent": false
+      "destination": "/posts",
+      "permanent": true
     },
     {
       "source": "/forum",
@@ -484,27 +510,57 @@
   "rewrites": [
     {
       "source": "/forum/(.*)",
-      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
       "destination": "/api/og?path=/forum/$1&crawler=search"
     },
     {
       "source": "/journey",
-      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
       "destination": "/api/og?path=/journey&crawler=search"
     },
     {
       "source": "/journey-beta",
-      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
       "destination": "/api/og?path=/journey-beta&crawler=search"
     },
     {
       "source": "/מסע",
-      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
       "destination": "/api/og?path=/מסע&crawler=search"
     },
     {
       "source": "/number",
-      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
       "destination": "/api/og?path=/number&crawler=search"
     },
     {
@@ -635,7 +691,7 @@
       "destination": "/api/og?path=/&crawler=search"
     },
     {
-      "source": "/2029",
+      "source": "/posts",
       "has": [
         {
           "type": "header",
@@ -643,10 +699,10 @@
           "value": ".*(Googlebot|bingbot|Baiduspider).*"
         }
       ],
-      "destination": "/api/og?path=/2029&crawler=search"
+      "destination": "/api/og?path=/posts&crawler=search"
     },
     {
-      "source": "/2029/posts",
+      "source": "/posts",
       "destination": "/2029.html"
     },
     {
@@ -654,7 +710,7 @@
       "destination": "/2029.html"
     },
     {
-      "source": "/2029/home-preview",
+      "source": "/home-preview",
       "destination": "/2029.html"
     },
     {
@@ -779,17 +835,6 @@
       "destination": "/api/og?path=/researcher/$1&crawler=search"
     },
     {
-      "source": "/2029/number/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(Googlebot|bingbot|Baiduspider).*"
-        }
-      ],
-      "destination": "/api/og?path=/2029/number/$1&crawler=search"
-    },
-    {
       "source": "/number/(.*)",
       "has": [
         {
@@ -846,23 +891,19 @@
       "destination": "/2029.html"
     },
     {
-      "source": "/2029",
+      "source": "/gematria",
       "destination": "/2029.html"
     },
     {
-      "source": "/2029/gematria",
+      "source": "/gematria/viral",
       "destination": "/2029.html"
     },
     {
-      "source": "/2029/gematria/viral",
+      "source": "/calculator",
       "destination": "/2029.html"
     },
     {
-      "source": "/2029/calculator",
-      "destination": "/2029.html"
-    },
-    {
-      "source": "/2029/journey",
+      "source": "/journey",
       "destination": "/2029.html"
     },
     {
@@ -906,11 +947,11 @@
       "destination": "/2029.html"
     },
     {
-      "source": "/2029/number/(.*)",
+      "source": "/number/(.*)",
       "destination": "/2029.html"
     },
     {
-      "source": "/2029/control",
+      "source": "/control",
       "destination": "/2029.html"
     },
     {
@@ -923,6 +964,14 @@
     },
     {
       "source": "/early-access",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/preview",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/kingdom",
       "destination": "/2029.html"
     },
     {
@@ -950,7 +999,7 @@
       ]
     },
     {
-      "source": "/2029/journey",
+      "source": "/journey",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -959,7 +1008,7 @@
       ]
     },
     {
-      "source": "/2029/gematria",
+      "source": "/gematria",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -968,7 +1017,7 @@
       ]
     },
     {
-      "source": "/2029/gematria/viral",
+      "source": "/gematria/viral",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -977,7 +1026,7 @@
       ]
     },
     {
-      "source": "/2029/calculator",
+      "source": "/calculator",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -995,7 +1044,7 @@
       ]
     },
     {
-      "source": "/2029/posts",
+      "source": "/home-preview",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -1004,16 +1053,7 @@
       ]
     },
     {
-      "source": "/2029/home-preview",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    },
-    {
-      "source": "/2029/control",
+      "source": "/control",
       "headers": [
         {
           "key": "X-Robots-Tag",

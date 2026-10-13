@@ -25,7 +25,7 @@ export function makeCalculatorShareId() {
 export function buildCalculatorShareUrl(selection, {
   discovery = null,
   shareId = null,
-  baseUrl = "https://sod1820.co.il/2029/gematria",
+  baseUrl = "https://sod1820.co.il/gematria/viral",
 } = {}) {
   if (!selection?.expression || !selection?.methodKey || !isReportableValue(selection?.resultValue)) return null;
   const url = new URL(baseUrl, "https://sod1820.co.il");

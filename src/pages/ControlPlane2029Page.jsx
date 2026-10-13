@@ -108,11 +108,11 @@ export default function ControlPlane2029Page() {
   const selected = useMemo(() => state.traces.find(row => row.trace_id === selectedId) || null, [state.traces, selectedId]);
 
   if (authLoading) return <div aria-label="טוען" style={{ minHeight: "100vh" }} />;
-  if (!isAdmin) return <Navigate replace to="/2029" />;
+  if (!isAdmin) return <Navigate replace to="/" />;
 
   return <Sod2029Shell
     title="Control Plane"
-    eyebrow="2029 · INTERNAL"
+    eyebrow="ניהול"
     description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
     status="ADMIN · READ ONLY"
     surface="admin"

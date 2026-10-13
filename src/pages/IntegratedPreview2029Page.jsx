@@ -14,14 +14,14 @@ const evidence = [
 
 export default function IntegratedPreview2029Page() {
   const [selected, setSelected] = useState(0);
-  return <Sod2029Shell title="2029 · פריוויו משולב" surface="world" introVariant="compact" status="תצוגה לבדיקה" wide>
+  return <Sod2029Shell title="תצוגה משולבת" surface="world" introVariant="compact" status="תצוגה לבדיקה" wide>
     <div className="integrated-preview" dir="rtl">
       <section className="integrated-preview__opening">
         <p className="integrated-preview__eyebrow">סיפור · חיבור · מקור · מסע</p>
         <h2>לגלות את החיבור. להמשיך ממנו.</h2>
         <p>התחילו בסיפור המטוס או היכנסו לעולם הרחב: סוד החשמל, הכותבים, הנושאים ותמונות המקור. בחרו חיבור והמשיכו ממנו.</p>
         <div className="integrated-preview__actions">
-          <Link className="sod29-action primary" to="/2029">פתח את הבית <NavigationIcon2029 name="home" /></Link>
+          <Link className="sod29-action primary" to="/">פתח את הבית <NavigationIcon2029 name="home" /></Link>
           <Link className="sod29-action" to="/world">היכנס לעולם הרחב <NavigationIcon2029 name="world" /></Link>
         </div>
         <p className="integrated-preview__notice">פריוויו לקריאה ולהתנסות. מסעות אורח ושמירת המשחק נשארים במכשיר; התחברות, שמירה בחשבון ו־AI חי אינם פעילים כאן.</p>
@@ -36,13 +36,13 @@ export default function IntegratedPreview2029Page() {
           <div><strong>מי שגמלך כל טוב הוא יגמלך כל טוב סלה</strong><span>נוסח ההודיה · 787</span></div>
         </div>
         <p className="integrated-preview__notice">הערכים בגימטריה רגילה. זו פרשנות מיוחסת; התאמת הברכה אינה מעידה שנאמרה בטיסה. בפוסט אפשר לפתוח את ההקשר והמקורות.</p>
-        <Link className="sod29-action" to="/2029">לסיפור המטוס ולמקור</Link>
+        <Link className="sod29-action" to="/">לסיפור המטוס ולמקור</Link>
       </section>
 
       <section className="integrated-preview__doors" aria-label="כיווני המשך">
         <article><NavigationIcon2029 name="milui" size={36} /><h3>לתוך האותיות</h3><p>פתחו את מילוי ״משיח״ מ־878. התחילו מהביטוי והשיטה ובחרו לאן להמשיך.</p><Link className="sod29-action" to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>פתח את המילוי של משיח</Link><small>דף המספר מחובר. המסע הערוך המלא של 878 עדיין בהמשך התוכנית.</small></article>
         <article><NavigationIcon2029 name="els" size={36} /><h3>דילוגי אותיות</h3><p>אותו מנוע חיפוש, מטריצה, ממצאים והעמקה, עם העיצוב והתיקונים שנמסרו.</p><Link className="sod29-action" to="/els">פתח ELS</Link><small>שמירה פרטית וציבורית אינה מופעלת בפריוויו הזה.</small></article>
-        <article><NavigationIcon2029 name="kingdom" size={36} /><h3>ממלכת המספרים</h3><p>גלו, פתרו חידות וראו את המפה מתפתחת. מהחידה אפשר להמשיך לחקור את הביטוי.</p><Link className="sod29-action" to="/2029/kingdom">היכנס לממלכה</Link><small>התקדמות מקומית במשחק; מיקומו הקבוע באתר עדיין לבחירה.</small></article>
+        <article><NavigationIcon2029 name="kingdom" size={36} /><h3>ממלכת המספרים</h3><p>גלו, פתרו חידות וראו את המפה מתפתחת. מהחידה אפשר להמשיך לחקור את הביטוי.</p><Link className="sod29-action" to="/kingdom">היכנס לממלכה</Link><small>התקדמות מקומית במשחק; מיקומו הקבוע באתר עדיין לבחירה.</small></article>
       </section>
 
       <section className="integrated-preview__learning" aria-label="ראיות פיילוט רזיאל">

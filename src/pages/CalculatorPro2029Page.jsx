@@ -292,7 +292,7 @@ function ProExperience() {
   const shareUrl = useMemo(() => {
     if (!canonicalSelection) return null;
     const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
-    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/2029/gematria/viral" });
+    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/gematria/viral" });
   }, [canonicalSelection, shareDiscovery, shareId]);
 
   const openNumber = () => {
@@ -497,7 +497,7 @@ function ProExperience() {
 
       {isNumeric ? (
         <div className="sod29-calcpro-empty">
-          <Link to={`/2029/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
+          <Link to={`/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
         </div>
       ) : null}
 

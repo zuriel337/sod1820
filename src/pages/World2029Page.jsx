@@ -1067,7 +1067,7 @@ function LiveWorldLanding({ research, shell, context }) {
     : (!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">המסע הראשון של 2029</div>
+          <div className="sod29-kicker">המסע הראשון שלכם</div>
           <h2>מסע 878</h2>
           <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
         </div>
@@ -1722,7 +1722,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
   const openNumberPage = () => {
     if (data?.identity?.type !== "number") return;
-    shell.go(focusedNumberHref || `/2029/number/${encodeURIComponent(data.identity.label)}`);
+    shell.go(focusedNumberHref || `/number/${encodeURIComponent(data.identity.label)}`);
   };
 
   const clearExpressionFocus = () => {
@@ -1900,7 +1900,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       </div>
       <div className="sod29-actions">
         {focusedNumberHref ? <button className="sod29-action primary" type="button" onClick={() => {
-          if (context?.returnTo?.href?.startsWith("/2029/number/")) shell.returnExact();
+          if (context?.returnTo?.href?.startsWith("/number/")) shell.returnExact();
           else shell.go(focusedNumberHref, { preserve: false });
         }}>חזור לחישוב</button> : null}
         <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את העולם בלי מיקוד</button>

@@ -110,7 +110,7 @@ function PostReadingBody() {
     if (state.loading || state.projection) return;
     applySeo({
       title: "הפוסט לא נמצא",
-      description: "המקור המבוקש אינו זמין ב-SOD1820 2029.",
+      description: "המקור המבוקש אינו זמין ב-SOD1820.",
       path: `/post/${slug || ""}`,
       noindex: true,
     });
@@ -496,7 +496,7 @@ function PostReadingBody() {
     explicitGematriaFocusRef.current = null;
     updateFocusContext();
     const subject = activeFocus.number
-      ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/2029/number/${activeFocus.number}` }
+      ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/number/${activeFocus.number}` }
       : { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` };
     research.updateResearchContext?.({
       subject,
@@ -519,7 +519,7 @@ function PostReadingBody() {
       id: String(activeFocus.number),
       type: "number",
       label: String(activeFocus.number),
-      href: `/2029/number/${activeFocus.number}`,
+      href: `/number/${activeFocus.number}`,
     });
   };
 
@@ -568,7 +568,7 @@ function PostReadingBody() {
       id: String(numericResult),
       type: "number",
       label: String(numericResult),
-      href: `/2029/number/${numericResult}`,
+      href: `/number/${numericResult}`,
     };
     const explicitSelection = {
       entityId: targetRegion.id,
@@ -723,7 +723,7 @@ function PostReadingBody() {
       id: String(number),
       type: "number",
       label: String(number),
-      href: "/2029/number/" + number,
+      href: "/number/" + number,
       source: "post-master-hero",
       number: Number(number),
       locator: targetRegion ? `#source-region-${targetRegion.id}` : null,
@@ -872,7 +872,7 @@ function PostReadingBody() {
     </footer>
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
-      <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
+      <a href="/posts" onClick={(event) => openConnection(event, "/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
     </nav>
   </article>;

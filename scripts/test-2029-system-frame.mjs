@@ -139,12 +139,13 @@ assert.equal(frame.includes("shareOrCopy"), false, "2029 Frame must not bypass c
 assert.match(frame, /channels=\{\["native", "copy"\]\}/);
 assert.match(frame, /force/);
 
-// Navigation + the explicitly opened "מה חדש בעולם" panel may route to World.
-// The panel has a public-core link when World is open and the full-feed action.
+// Navigation and the existing shared updates feed may route to World.
+// The mobile updates panel consumes that feed when World is open.
 // Generic inspect/search/tool actions must still never force navigation to World.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 3, "Only main navigation and the user-opened World updates panel may link to World");
+assert.equal(worldLiteralCount, 2, "Only main navigation and the shared World updates action may link to World");
 assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
+assert.match(frame, /TRANSIENT\.ATTENTION[\s\S]*worldLocked[\s\S]*<AttentionProjection[\s\S]*?feed=\{feed\}/, "the open World panel must show the existing shared feed");
 
 // Raziel route-action consumer is fail-closed and presentation-only.
 const validRazielRoute = {
@@ -300,7 +301,7 @@ assert.match(frame, /data-autofocus/);
 assert.match(frame, /closeMobileNav\(true\)/);
 
 // Generic native surface exists independently of World-specific data/rendering.
-assert.match(app, /path="\/2029"/);
+assert.match(app, /path="\/"/);
 assert.match(home, /<Sod2029Shell/);
 assert.equal(frame.includes("fetchEntityHubProjection"), false);
 assert.equal(frame.includes("explorerFacets"), false);

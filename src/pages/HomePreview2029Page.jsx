@@ -16,14 +16,14 @@ import { stripHtml } from "../lib/format.js";
 import "./homePreview2029.css";
 
 const NAV = [
-  { name: "home", label: "בית", to: "/2029/home-preview", current: true },
+  { name: "home", label: "בית", to: "/home-preview", current: true },
   { name: "world", label: "העולם", to: "/world" },
-  { name: "posts", label: "פוסטים", to: "/2029/posts" },
+  { name: "posts", label: "פוסטים", to: "/posts" },
   { name: "heichal", label: "היכל", to: "/heichal" },
   { name: "els", glyph: "✦", label: "צפנים", to: "/els" },
   { name: "books", label: "ספרים", to: "/books" },
-  { name: "journey", label: "מסע", to: "/2029/journey" },
-  { name: "tools", label: "מחשבון", to: "/2029/gematria", divider: true },
+  { name: "journey", label: "מסע", to: "/journey" },
+  { name: "tools", label: "מחשבון", to: "/gematria", divider: true },
 ];
 
 const PRESETS = [
@@ -44,7 +44,7 @@ function shortDate(value) {
 
 function postHref(slugOrPath) {
   const slug = String(slugOrPath || "").replace(/^\/+/, "");
-  return slug ? "/post/" + slug : "/2029/posts";
+  return slug ? "/post/" + slug : "/posts";
 }
 
 function titleNumber(title, tags) {
@@ -121,7 +121,7 @@ function Hero({ now, lead, onSelect }) {
         <div className="hp29-hero-src">{now.sourceCount} מקורות{lead0?.sourceTitle ? <> · <b>{lead0.sourceTitle}</b></> : null}</div>
         <div className="hp29-actions">
           <Link className="hp29-btn is-primary" to="/world">פתח את החיבור בעולם ←</Link>
-          <Link className="hp29-btn" to={`/2029/number/${now.value}`}>לדף המספר</Link>
+          <Link className="hp29-btn" to={`/number/${now.value}`}>לדף המספר</Link>
         </div>
       </div>
     </section>;
@@ -164,7 +164,7 @@ function Calculator() {
       <input id="hp29-calc-in" value={text} onChange={(event) => setText(event.target.value)} dir="rtl" autoComplete="off" />
       <output htmlFor="hp29-calc-in">{regular?.computedValue || "—"}</output>
     </div>
-    <small>תצוגה מהירה בשיטה הרגילה. <Link to={`/2029/gematria?q=${encodeURIComponent(text)}`}>לחישוב המלא ←</Link></small>
+    <small>תצוגה מהירה בשיטה הרגילה. <Link to={`/gematria?q=${encodeURIComponent(text)}`}>לחישוב המלא ←</Link></small>
   </div>;
 }
 
@@ -198,7 +198,7 @@ function SelectionPanel({ selection, razielOpen, onClose }) {
         <div className="hp29-lbl">מקור והמשך</div>
         {selection.sourceHref ? <Link to={selection.sourceHref}><NavigationIcon2029 name="posts" />למקור</Link> : null}
         <Link to="/world"><NavigationIcon2029 name="world" />לחיבור בעולם</Link>
-        {selection.value ? <Link to={`/2029/number/${selection.value}`}><NavigationIcon2029 name="number" />לדף המספר {selection.value}</Link> : null}
+        {selection.value ? <Link to={`/number/${selection.value}`}><NavigationIcon2029 name="number" />לדף המספר {selection.value}</Link> : null}
       </div>
     </> : <div><div className="hp29-lbl">הבחירה שלך</div><h3>בחרו פריט בבית כדי לראות את ההקשר שלו</h3></div>}
     <div className="hp29-rz">
@@ -220,7 +220,7 @@ export default function HomePreview2029Page() {
   const [nowTab, setNowTab] = useState("world");
 
   useEffect(() => {
-    applySeo({ title: "בית · תצוגה מקדימה", description: "תצוגה מקדימה פנימית של הרכב הבית.", path: "/2029/home-preview", noindex: true });
+    applySeo({ title: "בית · תצוגה מקדימה", description: "תצוגה מקדימה פנימית של הרכב הבית.", path: "/home-preview", noindex: true });
   }, []);
 
   const now = data.projection?.temporalNow || null;
@@ -272,7 +272,7 @@ export default function HomePreview2029Page() {
       <main className="hp29-main">
         <Hero now={now} lead={lead} onSelect={select} />
 
-        <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
+        <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>
           <div className="hp29-updates">
             {(data.posts || []).map((post) => <button key={post.slug} type="button" className="hp29-card" onClick={() => select(selectionFromPost(post))}>
               <Media src={post.poster} fallback={post.number || "✦"} />
@@ -334,7 +334,7 @@ export default function HomePreview2029Page() {
           <div className="hp29-anchors">
             <Link className="hp29-anchor" to="/world"><span className="hp29-glyph is-people"><NavigationIcon2029 name="community" /></span>
               <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
-            <Link className="hp29-anchor" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/2029/posts"}><span className="hp29-glyph is-dim"><NavigationIcon2029 name="books" /></span>
+            <Link className="hp29-anchor" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/posts"}><span className="hp29-glyph is-dim"><NavigationIcon2029 name="books" /></span>
               <span><b>מימד חמש</b><small>{data.dimensionPost ? clean(data.dimensionPost.title) : "עשר הספירות, מפת ישראל ותודעה"}</small></span></Link>
             <a className="hp29-anchor" href="/or-geula"><span className="hp29-glyph is-geula"><NavigationIcon2029 name="now" /></span>
               <span><b>אור הגאולה</b><small>רמזי הגאולה לאורך השנים</small></span></a>
@@ -344,12 +344,12 @@ export default function HomePreview2029Page() {
         <Section label="כלים וכניסות">
           <div className="hp29-portions">
             <Calculator />
-            {now ? <Link className="hp29-portion" to={`/2029/number/${now.value}`}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
+            {now ? <Link className="hp29-portion" to={`/number/${now.value}`}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
               <span className="hp29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link>
-              : <Link className="hp29-portion" to={active?.value ? `/2029/number/${active.value}` : "/2029/gematria"}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />דף המספר</span>
+              : <Link className="hp29-portion" to={active?.value ? `/number/${active.value}` : "/gematria"}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />דף המספר</span>
               <span className="hp29-daynum">{active?.value || "123"}</span><small>{active?.value ? "המספר מהבחירה שלכם" : "כל מספר עם השיטות שלו"}</small></Link>}
             <a className="hp29-portion" href="/archive"><span className="hp29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>
-            <Link className="hp29-portion" to="/2029/journey"><span className="hp29-portion-h"><NavigationIcon2029 name="personal" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>
+            <Link className="hp29-portion" to="/journey"><span className="hp29-portion-h"><NavigationIcon2029 name="personal" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>
             <a className="hp29-portion" href="/community"><span className="hp29-portion-h"><NavigationIcon2029 name="community" />קהילה</span><small>מחקר משותף ותרומות</small></a>
           </div>
         </Section>
@@ -367,7 +367,7 @@ export default function HomePreview2029Page() {
 
     <footer className="hp29-bottom">
       <div className="hp29-ctx">
-        <Link className="hp29-btn is-primary" to={active?.value ? `/2029/number/${active.value}` : "/world"}><NavigationIcon2029 name="action" />{active?.value ? "פתח את המספר" : "פתח בעולם"}</Link>
+        <Link className="hp29-btn is-primary" to={active?.value ? `/number/${active.value}` : "/world"}><NavigationIcon2029 name="action" />{active?.value ? "פתח את המספר" : "פתח בעולם"}</Link>
         <span className="hp29-where">אתם ב<b>בית</b>{active ? <> · בחרתם <b>{active.value || "פוסט"}</b></> : null}</span>
       </div>
       <div className="hp29-rz-slot">

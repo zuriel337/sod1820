@@ -30,7 +30,7 @@ assert.equal(app2029.includes("@vercel/analytics"), false);
 assert.equal(app2029.includes("@vercel/speed-insights"), false);
 
 // OG: every currently public isolated 2029 route family gets an explicit existing-owner projection.
-for (const route of ["/2029", "/world", "/books", "/els", "/heichal", "/היכל"]) {
+for (const route of ["/", "/world", "/books", "/els", "/heichal", "/היכל"]) {
   assert.ok(og.includes(`'${route}':`), `missing canonical OG projection for ${route}`);
 }
 assert.match(og, /key\.startsWith\('\/book\/'\) \|\| key\.startsWith\('\/books\/'\)/);

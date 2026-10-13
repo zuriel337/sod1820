@@ -1,4 +1,4 @@
-// SOD1820 2029 real-user Web Vitals collector.
+// SOD1820 real-user Web Vitals collector.
 // EXTEND_EXISTING only: writes one semantic event family into the existing
 // public.events pipeline through public.ingest_event. No second analytics store.
 // Release-gate measurement remains separate browser evidence; this module is RUM.

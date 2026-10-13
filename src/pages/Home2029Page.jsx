@@ -341,7 +341,7 @@ function HomeBody() {
       ? String(primary.value ?? primary.label ?? raw)
       : String(primary?.label || raw);
     const type = primary?.type === "number" ? "number" : "phrase";
-    const href = type === "number" ? `/2029/number/${encodeURIComponent(id)}` : "/world";
+    const href = type === "number" ? `/number/${encodeURIComponent(id)}` : "/world";
 
     research.setResearchContext?.({
       subject: { id, type, label: id, href },
@@ -361,7 +361,7 @@ function HomeBody() {
     if (!item) return;
     const id = String(item.value);
     research.setResearchContext?.({
-      subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
+      subject: { id, type: "number", label: id, href: `/number/${id}` },
       selection: { entityId: id, entityType: "number" },
       lens: item.worldLens || "time",
       locale: "he",
@@ -388,7 +388,7 @@ function HomeBody() {
 
   const openCalculator = (expression) => {
     const phrase = String(expression || "").trim();
-    navigate(phrase ? `/2029/gematria?q=${encodeURIComponent(phrase)}` : "/2029/gematria");
+    navigate(phrase ? `/gematria?q=${encodeURIComponent(phrase)}` : "/gematria");
   };
 
   const openWorldItem = (item) => {
@@ -532,7 +532,7 @@ function HomeBody() {
             <button className="sod29-action primary" type="submit">פתח בעולם ←</button>
           </form>
           <div className="sod29-actions">
-            <button className="sod29-action" type="button" onClick={() => navigate("/2029/journey")} disabled={journeyLocked}>{journeyLocked ? "מסע החיים שלי · נעול" : "מסע החיים שלי"}</button>
+            <button className="sod29-action" type="button" onClick={() => navigate("/journey")} disabled={journeyLocked}>{journeyLocked ? "מסע החיים שלי · נעול" : "מסע החיים שלי"}</button>
             <span className="sod29-muted">מידע אישי נכנס רק מתוך המסע — החיפוש הכללי לא מנחש מי הוא אדם.</span>
           </div>
         </div>

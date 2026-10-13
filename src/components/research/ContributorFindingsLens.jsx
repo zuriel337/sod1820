@@ -94,7 +94,7 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
     {(group.values?.length || group.terms?.length) ? <div style={{ display: "flex", gap: SPACE[2], flexWrap: "wrap", alignItems: "center" }}>
       {group.values?.map((value) => <Link
         key={value}
-        to={`/2029/number/${value}`}
+        to={`/number/${value}`}
         style={{ ...S.pill, textDecoration: "none", color: P.accentText, fontFamily: F.numeric }}
       >{value}</Link>)}
       {group.terms?.slice(0, 14).map((term) => <span key={term} style={{ ...S.pill, color: P.inkSoft }}>{term}</span>)}

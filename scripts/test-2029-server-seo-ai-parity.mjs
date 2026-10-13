@@ -51,7 +51,7 @@ assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
 
 const number = await render("/2029/number/123", withOpenLaunchFlag("lock_number"));
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
-assert.match(number, /123 · דף המספר 2029/);
+assert.match(number, /123 · דף המספר/);
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
@@ -202,8 +202,8 @@ const legacyNumberSearchCrawler = await renderResponse("/number/1237", withOpenL
   throw new Error("unexpected legacy number fetch: " + u);
 }), { crawler: "search" });
 assert.match(legacyNumberSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/number\/1237"/);
-assert.match(legacyNumberSearchCrawler.body, /עוגן 1237/);
-assert.equal(legacyNumberSearchCrawler.headers.get("x-robots-tag"), "index, follow");
+assert.match(legacyNumberSearchCrawler.body, /1237 · דף המספר/);
+assert.equal(legacyNumberSearchCrawler.headers.get("x-robots-tag"), "noindex, nofollow");
 assert.doesNotMatch(legacyNumberSearchCrawler.body, /http-equiv="refresh"/);
 
 const elsLocked = await render("/els", async (url) => {
@@ -301,7 +301,7 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-const expectedSearchRoutes = ["/forum/(.*)", "/journey", "/journey-beta", "/מסע", "/number", "/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/code", "/codes", "/codes/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"];
+const expectedSearchRoutes = ["/forum/(.*)", "/journey", "/journey-beta", "/מסע", "/number", "/", "/posts", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/code", "/codes", "/codes/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/number/(.*)"];
 assert.equal(searchRules.length, expectedSearchRoutes.length, "search crawlers must be routed only across the explicit native/public and closed alias document families");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;

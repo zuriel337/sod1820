@@ -201,7 +201,7 @@ function GematriaToLab() {
     p.delete("w");
     p.delete("calc");
     const query = p.toString();
-    return <Product2029DocumentHandoff to={`/2029/gematria${query ? `?${query}` : ""}${hash || ""}`} />;
+    return <Product2029DocumentHandoff to={`/gematria${query ? `?${query}` : ""}${hash || ""}`} />;
   }
   return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
 }
@@ -226,7 +226,7 @@ function LegacyPostDocumentHandoff() {
 
 function Posts2029DocumentHandoff() {
   const location = useLocation();
-  return <Product2029DocumentHandoff to={`/2029/posts${location.search || ""}${location.hash || ""}`} />;
+  return <Product2029DocumentHandoff to={`/posts${location.search || ""}${location.hash || ""}`} />;
 }
 
 // דף הבית ב-/ מתחלף לפי הזרם (root-swap): reality → בית-הקוד; אחרת → בית-המלוכה.
@@ -264,7 +264,7 @@ function LegacyRedirect() {
 // navigation, Raziel and Workspace there. Legacy production remains untouched until explicit cutover.
 function GlobalChrome({ children }) {
   const { pathname } = useLocation();
-  const is2029 = pathname === "/2029"
+  const is2029 = pathname === "/"
     || pathname === "/world"
     || pathname === "/els"
     || pathname === "/heichal"
@@ -303,7 +303,12 @@ export default function App() {
         <React.Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#0C0818" }} />}>
         <Routes>
           {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
-          <Route path="/2029" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <Home2029Page />} />
+          <Route path="/2029/*" element={<Product2029DocumentHandoff />} />
+          <Route path="/posts" element={<Product2029DocumentHandoff />} />
+          <Route path="/calculator" element={<Product2029DocumentHandoff />} />
+          <Route path="/gematria/viral" element={<Product2029DocumentHandoff />} />
+          <Route path="/control" element={<Product2029DocumentHandoff />} />
+          <Route path="/home-preview" element={<Product2029DocumentHandoff />} />
           <Route path="/world" element={<Locked flag="lock_world"><World2029Page /></Locked>} />
           <Route path="/books" element={<Product2029DocumentHandoff />} />
           <Route path="/books/:slug" element={<Product2029DocumentHandoff />} />
@@ -411,10 +416,10 @@ export default function App() {
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
-          <Route path="/number" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberSearchPage /></Locked>} />
+          <Route path="/number" element={<Locked flag="lock_number" requireFlag homeHref="/"><NumberSearchPage /></Locked>} />
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
-          <Route path="/number/:phrase" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><LegacyNumberTransitionRoute /></Locked>} />
+          <Route path="/number/:phrase" element={<Locked flag="lock_number" requireFlag homeHref="/"><Product2029DocumentHandoff /></Locked>} />
           <Route path="/topic/:slug" element={<Locked flag="lock_world"><TopicPage /></Locked>} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
@@ -426,7 +431,7 @@ export default function App() {
           <Route path="/אור-הגאולה" element={<OrGeulaPage />} />
           <Route path="/forum/:id" element={<Locked flag="lock_forum"><ForumThreadPage /></Locked>} />
           {/* ניסוי — מחשבון גימטריה לבן + קיר חי (לא בתפריט) */}
-          <Route path="/gematria" element={<GematriaToLab />} />
+          <Route path="/gematria" element={<Product2029DocumentHandoff />} />
           <Route path="/גימטריה" element={<GematriaToLab />} />
           {/* תצוגה מקדימה — דף בית חדש (לא מחליף את הקיים) */}
           <Route path="/home-new" element={<HomeNewPage />} />
@@ -437,9 +442,9 @@ export default function App() {
           <Route path="/broadcasts" element={<BroadcastsPage />} />
           <Route path="/whats-new" element={<SiteUpdatesPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
-          <Route path="/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><JourneyPage /></Locked>} />
-          <Route path="/מסע" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><JourneyPage /></Locked>} />
-          <Route path="/journey-beta" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><JourneyPageV2 /></Locked>} />
+          <Route path="/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/"><Product2029DocumentHandoff /></Locked>} />
+          <Route path="/מסע" element={<Locked flag="lock_life_journey" requireFlag homeHref="/"><JourneyPage /></Locked>} />
+          <Route path="/journey-beta" element={<Locked flag="lock_life_journey" requireFlag homeHref="/"><JourneyPageV2 /></Locked>} />
           <Route path="/lab" element={<LabIndex />} />
           {/* 🧭 Work Area של הצופן — אותו TzofenEmbed ואותו /tzofen.html?embed=1. קריאה-בלבד. */}
           <Route path="/lab/els" element={<Navigate to="/els" replace />} />

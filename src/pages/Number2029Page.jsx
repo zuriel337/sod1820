@@ -841,7 +841,7 @@ function NumberPageBody() {
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
     crossingPartner: focusExplicit ? focusedCrossingPartner : null,
-  }) || `/2029/number/${root}`;
+  }) || `/number/${root}`;
   const focusSelection = (entityId = root) => ({
     ...(research.context?.selection?.entityId === String(entityId)
       && (research.context.selection.expression || "") === focusExpression ? {
@@ -871,7 +871,7 @@ function NumberPageBody() {
       lens: "number",
       dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: false },
     });
-    navigate(`/2029/number/${root}`, { replace: true });
+    navigate(`/number/${root}`, { replace: true });
   };
 
   const returnToOriginTopic = () => {
@@ -1069,7 +1069,7 @@ function NumberPageBody() {
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
       setFocusExplicit(false);
       setFocusedCrossingPartner("");
-      navigate(`/2029/number/${Number(raw)}`);
+      navigate(`/number/${Number(raw)}`);
       return;
     }
     try {
@@ -1131,7 +1131,7 @@ function NumberPageBody() {
     const selection = focusSelection(root);
     const nextHref = keepFocus
       ? numberExpressionFocusHref(next, { expression: focusExpression, method: focusMethodKey })
-      : `/2029/number/${next}`;
+      : `/number/${next}`;
     const nextSelection = keepFocus
       ? { ...focusSelection(next), resultValue: next }
       : { entityId: String(next), entityType: "number" };
@@ -1328,7 +1328,7 @@ export default function Number2029Page() {
     applySeo({
       title: `${value || "מספר"} · דף המספר`,
       description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
-      path: `/2029/number/${value || ""}`,
+      path: `/number/${value || ""}`,
       noindex: true,
     });
   }, [value]);

@@ -450,7 +450,7 @@ export default function NumberDrawer2029({
       method: activeMethodKey,
       resultValue: activeResultValue,
     };
-    const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
+    const subject = { id: String(root), type: "number", label: String(root), href: `/number/${root}` };
     internalContextSignatureRef.current = numberContextSignature(root, selection.expression, activeMethodKey);
     if (context?.subject?.type === "number" && String(context.subject.id) === String(root)) {
       research?.updateResearchContext?.({ selection, lens: "number", ...patch });
@@ -567,7 +567,7 @@ export default function NumberDrawer2029({
   const openPage = () => {
     if (!Number.isSafeInteger(root)) return;
     updateContext();
-    go?.(`/2029/number/${root}`);
+    go?.(`/number/${root}`);
   };
 
   const openWorld = () => {
@@ -581,12 +581,12 @@ export default function NumberDrawer2029({
       resultValue: selectedProfile?.computedValue ?? null,
     };
     research?.setResearchContext?.({
-      subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
+      subject: { id: String(root), type: "number", label: String(root), href: `/number/${root}` },
       selection,
       lens: "world",
-      dimensions: { ...(current.dimensions || {}), numberHome: `/2029/number/${root}` },
+      dimensions: { ...(current.dimensions || {}), numberHome: `/number/${root}` },
       returnTo: {
-        href: current?.subject?.href || `/2029/number/${root}`,
+        href: current?.subject?.href || `/number/${root}`,
         label: current?.subject?.label || `דף ${root}`,
         subject: current?.subject || null,
         selection: current?.selection || null,

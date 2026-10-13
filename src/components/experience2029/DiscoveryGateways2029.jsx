@@ -13,7 +13,7 @@ import "./discoveryGateways2029.css";
 const clean = value => stripHtml(String(value || "")).trim();
 
 const postHref = slug => {
-  if (!slug) return "/2029/posts";
+  if (!slug) return "/posts";
   let decoded = String(slug);
   try { decoded = decodeURIComponent(decoded); } catch { /* preserve original */ }
   return `/post/${encodeURIComponent(decoded)}`;

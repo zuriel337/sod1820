@@ -29,7 +29,7 @@ export default function HomeBuildSignup2029({ pulsePanel }) {
         body: JSON.stringify({
           email: value,
           source: SIGNUP_SOURCE,
-          back: "/2029",
+          back: "/",
           acquisition: signupAttribution(),
           visitor_id: getVisitorId(),
         }),

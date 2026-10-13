@@ -30,7 +30,7 @@ export function numberExpressionFocusHref(root, {
   if (methodKey) params.set("method", methodKey);
   if (crossing) params.set("cross", crossing);
   const query = params.toString();
-  return `/2029/number/${numeric}${query ? `?${query}` : ""}`;
+  return `/number/${numeric}${query ? `?${query}` : ""}`;
 }
 
 export function parseNumberExpressionFocus(search = "") {

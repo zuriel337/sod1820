@@ -134,7 +134,7 @@ export default function PersonJourney({ variant = "legacy" }) {
       id: selfRef,
       type: "person",
       label: persistedName || "מסע החיים שלי",
-      href: variant === "2029" ? "/2029/journey" : "/research?tool=journey",
+      href: variant === "2029" ? "/journey" : "/research?tool=journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
     if (!currentResearchSubjectId) {

@@ -101,7 +101,7 @@ export default function VideoAssetPage() {
     if (state.loading || asset) return;
     applySeo({
       title: "הסרטון לא נמצא",
-      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820 2029.",
+      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820.",
       path: `/video/${assetId || ""}`,
       noindex: true,
     });
@@ -117,6 +117,7 @@ export default function VideoAssetPage() {
       description: topics.length ? `${title} — ${topics.slice(0, 5).join(" · ")}` : `${title} — וידאו ב-SOD1820`,
       path,
       image: poster,
+      noindex: asset.google_indexable !== true,
     });
     setUnifiedVideoJsonLd({ ...asset, title }, path);
     return () => clearUnifiedVideoJsonLd();

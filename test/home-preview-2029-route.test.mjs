@@ -10,16 +10,16 @@ const app = fs.readFileSync("src/App2029.jsx", "utf8");
 const config = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
 
 test("preview route is served by the 2029 document with noindex", () => {
-  assert.match(app, /<Route path="\/2029\/home-preview" element={<HomePreview2029Page \/>} \/>/);
-  assert.ok(config.rewrites.some((row) => row.source === "/2029/home-preview" && row.destination === "/2029.html"));
-  const headers = config.headers.find((row) => row.source === "/2029/home-preview");
+  assert.match(app, /<Route path="\/home-preview" element={<HomePreview2029Page \/>} \/>/);
+  assert.ok(config.rewrites.some((row) => row.source === "/home-preview" && row.destination === "/2029.html"));
+  const headers = config.headers.find((row) => row.source === "/home-preview");
   assert.ok(headers?.headers.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value)));
   assert.match(page, /noindex: true/);
 });
 
 test("preview is not linked from existing public surfaces", () => {
   for (const file of ["src/pages/Home2029Page.jsx", "src/components/experience2029/SystemFrame2029.jsx", "src/pages/HomeNewPage.jsx"]) {
-    assert.ok(!fs.readFileSync(file, "utf8").includes("/2029/home-preview"), `${file} links the preview`);
+    assert.ok(!fs.readFileSync(file, "utf8").includes("/home-preview"), `${file} links the preview`);
   }
 });
 

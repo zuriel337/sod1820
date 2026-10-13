@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -108,33 +109,34 @@ const ShellContext = createContext({
 export const use2029Shell = () => useContext(ShellContext);
 
 const HOME_NAV = [
-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: "/", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
   { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: "/posts", label: "פוסטים", icon: "↟" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
   { label: "אזור משתמשים", icon: "◎", action: "workspace" },
 ];
 
 const DIRECT_NAV = [
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/number/1820", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
 ];
 
 const CORE_HOME_NAV = [
-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: "/", label: "בית", icon: "⌂", exact: true },
+  { to: "/posts", label: "פוסטים", icon: "↟" },
   { to: "/community/chat", label: "צ׳אט", icon: "◉" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
+  HOME_NAV[4],
   { label: "אזור משתמשים", icon: "◎", action: "workspace" },
 ];
 
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
-  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { to: "/number/1820", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
@@ -254,23 +256,45 @@ const THEME_PRESET_OPTIONS = Object.freeze([
   { id: "dark", label: "לילה", icon: "☾" },
 ]);
 
-function ThemePresetControl2029({ compact = false }) {
+function ThemePresetControl2029({ compact = false, header = false }) {
   const preset = useThemePreset();
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const controlRef = useRef(null);
+  const triggerRef = useRef(null);
+  const optionsId = useId();
+  const active = THEME_PRESET_OPTIONS.find((item) => item.id === preset) || THEME_PRESET_OPTIONS[2];
+  useEffect(() => {
+    if (!header || !chooserOpen) return undefined;
+    const closeOutside = (event) => {
+      if (!controlRef.current?.contains(event.target)) setChooserOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [header, chooserOpen]);
   return (
-    <div className={`sod29-theme-presets${compact ? " is-compact" : ""}`} role="group" aria-label="ערכת צבעים">
-      {THEME_PRESET_OPTIONS.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          aria-pressed={preset === item.id}
-          className={preset === item.id ? "is-active" : ""}
-          onClick={() => setThemePreset(item.id)}
-          title={item.label}
-        >
-          <span aria-hidden="true">{item.icon}</span>
-          <b>{item.label}</b>
-        </button>
-      ))}
+    <div ref={controlRef} className={`sod29-theme-presets${compact ? " is-compact" : ""}${header ? " is-header-control" : ""}${chooserOpen ? " is-open" : ""}`} role="group" aria-label="ערכת צבעים" onKeyDown={(event) => {
+      if (header && chooserOpen && event.key === "Escape") {
+        event.preventDefault(); event.stopPropagation(); setChooserOpen(false); triggerRef.current?.focus();
+      }
+    }}>
+      {header ? <button ref={triggerRef} className="sod29-theme-trigger" type="button" onClick={() => setChooserOpen((value) => !value)} aria-expanded={chooserOpen} aria-controls={optionsId} aria-label={`מראה: ${active.label}. בחר יום, קלף או לילה`} title={`מראה: ${active.label}`}>
+        <span aria-hidden="true">{active.icon}</span><b>{active.label}</b>
+      </button> : null}
+      <div id={optionsId} className="sod29-theme-options">
+        {THEME_PRESET_OPTIONS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-pressed={preset === item.id}
+            className={preset === item.id ? "is-active" : ""}
+            onClick={() => { setThemePreset(item.id); setChooserOpen(false); if (header && chooserOpen) triggerRef.current?.focus(); }}
+            title={item.label}
+          >
+            <span aria-hidden="true">{item.icon}</span>
+            <b>{item.label}</b>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -893,7 +917,7 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
   const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
   const openRow = (e) => {
     const m = /^\/number\/(\d+)\/?$/.exec(e.link || "");
-    if (m) return go(`/2029/number/${m[1]}`);
+    if (m) return go(`/number/${m[1]}`);
     if (e.link) return go(e.link);
     if (e.type === "number" || e.type === "phrase") return onOpenNumber?.(rowTarget(e));
     return onInspect?.(rowTarget(e));
@@ -1081,7 +1105,7 @@ function AccountConnection2029({ user, profile, signOut }) {
     <section className="sod29-workspace-account" data-workspace-section="account" aria-label="חיבור לחשבון">
       <div className="sod29-workspace-section-head">
         <strong>החשבון שלי</strong>
-        <small>אותו חשבון SOD1820 · בתוך 2029</small>
+        <small>החשבון שלכם ב־SOD1820</small>
       </div>
 
       {user?.id ? (
@@ -1142,7 +1166,7 @@ function AccountConnection2029({ user, profile, signOut }) {
           <GoogleEntry2029 busy={busy} onClick={continueWithGoogle} />
           <div className="sod29-workspace-auth-copy">
             <strong>התחברו כדי לקחת את המחקר איתכם</strong>
-            <small>אותו חשבון עובד במחשבון, במסעות, בשמירות ובהודעות. אין חשבון 2029 נפרד.</small>
+            <small>החשבון שלכם מחבר בין המחשבון, המסעות, השמורים וההודעות.</small>
           </div>
           <input
             data-autofocus
@@ -1205,7 +1229,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
   const workspaceHref = (link) => {
     if (!link) return null;
     const m = /^\/number\/(\d+)\/?$/.exec(link);
-    return m ? `/2029/number/${m[1]}` : link;
+    return m ? `/number/${m[1]}` : link;
   };
 
   const unfollow = async (topic) => {
@@ -1270,7 +1294,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
   ];
 
   const personal = [
-    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/2029/journey") },
+    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/journey") },
     { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "הרמזים ששמרתי ויצרתי", state: "live", onClick: () => openExistingModule("hints") },
     { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "live", onClick: () => openExistingModule("contrib") },
     { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
@@ -1304,7 +1328,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
       <AccountConnection2029 user={user} profile={profile} signOut={signOut} />
 
       <section className="sod29-workspace-home" aria-label="הדברים שלי">
-        <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
+        <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>שמורים, חיפושים ופעילות</small></div>
         <div className="sod29-workspace-core-grid">
           {core.map((item) => item.readOnly && item.state === "live" ? (
             <div key={item.id} className="sod29-workspace-home-card is-live is-readonly" data-workspace-card={item.id}>
@@ -1451,7 +1475,7 @@ export default function SystemFrame2029({
   eyebrow,
   description,
   children,
-  status = "2029 · BUILD",
+  status = "SOD1820",
   wide = false,
   surface = "home",
   symbol = "✦",
@@ -1475,7 +1499,7 @@ export default function SystemFrame2029({
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.to.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.to.startsWith("/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -1716,7 +1740,7 @@ export default function SystemFrame2029({
           id: String(resultValue),
           type: "number",
           label: String(resultValue),
-          href: `/2029/number/${resultValue}`,
+          href: `/number/${resultValue}`,
         },
         selection: {
           entityId: sameSelection ? currentSelection.entityId : normalized.id,
@@ -1955,7 +1979,7 @@ export default function SystemFrame2029({
   useEffect(() => {
     if (razielLocked && transientKind === TRANSIENT.RAZIEL) setTransient(null);
   }, [razielLocked, transientKind]);
-  const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
+  const numberPageRoute = surface === "number" && /^\/(?:2029\/)?number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = context?.subject?.href || "";
   const postTrail = surface === "post"
     && context?.subject?.type === "post"
@@ -1991,13 +2015,12 @@ export default function SystemFrame2029({
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || context?.subject);
-  // Core-public launch permits this source-only Companion, not the admin Context/
-  // Golden Projector or Event Sequence. The existing public World/RLS readers remain
-  // the only source of truth; gated research and private controls stay inaccessible.
+  // The existing Context and Event Sequence remain projections in the same Companion.
+  // Destination routes and capabilities retain their own availability gates.
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
-  const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
-  const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
+  const companionHasSequence = hasEventSequence(context, surface);
+  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
@@ -2037,9 +2060,8 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם">{corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם">{corePublicViewer && worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
-      : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
@@ -2096,8 +2118,8 @@ export default function SystemFrame2029({
           <span className="sod29-logo-name" aria-hidden="true"><b>{experience.brand.identity}</b>{experience.brand.expression ? <small>{experience.brand.expression}</small> : null}</span>
         </button>
 
-        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820 2029" data-rail-state={sidebarCollapsed ? "slim" : "open"}>
-          <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+        <aside id="sod29-desktop-navigation" className="sod29-sidebar" aria-label="ניווט SOD1820" data-rail-state={sidebarCollapsed ? "slim" : "open"}>
+          <Link to="/" state={{ sodEntryArrival: "internal" }} className="sod29-rail-identity" onClick={() => preserveReturnFor("/")} aria-label="SOD1820 · בית">
             <span className="sod29-rail-home" aria-hidden="true">⌂</span>
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
           </Link>
@@ -2122,8 +2144,8 @@ export default function SystemFrame2029({
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger sod29-gate-trigger" type="button" onClick={() => navOpen ? closeMobileNav(true) : setNavOpen(true)} aria-label={navOpen ? "סגור ניווט" : "פתח ניווט"} aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">
                 <DiscoveryGateMark2029 open={navOpen} />
               </button>
-              <div className="sod29-orientation" aria-label="איפה אני" title={title || "2029"}>
-                <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
+              <div className="sod29-orientation" aria-label="איפה אני" title={title || "SOD1820"}>
+                <span>SOD1820</span><i>/</i><b>{title || "SOD1820"}</b>
                 {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
               </div>
             </div>
@@ -2136,7 +2158,7 @@ export default function SystemFrame2029({
             <div className="sod29-header-actions">
               <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
-              <ThemePresetControl2029 compact />
+              <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
           </header>
@@ -2195,11 +2217,11 @@ export default function SystemFrame2029({
             ref={navRef}
             role="dialog"
             aria-modal="true"
-            aria-label="ניווט SOD1820 2029"
+            aria-label="ניווט SOD1820"
             tabIndex={-1}
           >
             <div className="sod29-mobile-drawer-head">
-              <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "2029"}</strong></div>
+              <div className="sod29-mobile-drawer-identity"><small>SOD1820</small><strong>{title || "SOD1820"}</strong></div>
               <button className="sod29-mobile-close" data-autofocus type="button" onClick={() => closeMobileNav(true)} aria-label="סגור ניווט">
                 <span aria-hidden="true">×</span>
               </button>
@@ -2254,7 +2276,7 @@ export default function SystemFrame2029({
                 aria-current={item.active ? "page" : undefined}
                 onClick={() => {
                   if (item.number != null) {
-                    openNumber({ id: String(item.number), type: "number", label: String(item.number), href: `/2029/number/${item.number}` });
+                    openNumber({ id: String(item.number), type: "number", label: String(item.number), href: `/number/${item.number}` });
                     return;
                   }
                   if (item.targetId) {

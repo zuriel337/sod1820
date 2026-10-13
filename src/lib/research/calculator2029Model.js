@@ -69,7 +69,7 @@ export function buildCalculatorResearchContext(selection, extraDimensions = {}) 
       label: selection.expression,
       href: hasValue
         ? numberExpressionFocusHref(selection.resultValue, { expression: selection.expression, method: selection.methodKey })
-        : "/2029/gematria",
+        : "/gematria",
     },
     selection: {
       entityId: hasValue ? String(selection.resultValue) : selection.expression,

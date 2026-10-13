@@ -242,10 +242,10 @@ function buildFz1073Experience(post, topic363 = null) {
       label: "363",
       kind: "מספר",
       value: "363",
-      href: "/2029/number/363",
+      href: "/number/363",
       reason: "הרמז החזותי הראשי בפוסט.",
     },
-    { id: "number-1073", label: "מספר הטיסה", kind: "מספר", value: "1073", href: "/2029/number/1073", reason: "מספר הטיסה והחיבור ל׳אשר בשמים ממעל׳." },
+    { id: "number-1073", label: "מספר הטיסה", kind: "מספר", value: "1073", href: "/number/1073", reason: "מספר הטיסה והחיבור ל׳אשר בשמים ממעל׳." },
     { id: "topic-718", label: "718 — שביעי באוקטובר", kind: "טופיק", value: "718", href: "/topic/gapfill-718", reason: "הבית הקבוע של שביעי באוקטובר = חדשות = התשובה = 718.", provenanceLabel: "topic_cards_public" },
     { id: "topic-386", label: "386 — סנכרון · דוד בן ישי", kind: "טופיק", value: "386", href: "/topic/386-david-ben-yishai-tzipor", reason: "הבית הקבוע של סנכרון = דוד בן ישי = 386; כולל החיבור הנפרד לנתניהו = 683.", provenanceLabel: "topic_cards_public" },
     { id: "oct-710-post", label: "7.10 — דינים מתוקים", kind: "פוסט ישן", value: "710", href: oct710, reason: "פוסט קיים שמוקדש לרמז 7.10." },
@@ -319,7 +319,7 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
     const rawHref = clean(connection.href);
     const sourceLocator = rawHref === "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar" ? rawHref.slice(rawHref.indexOf("#")) : "";
     const href = sourceLocator ? rawHref.slice(0, rawHref.indexOf("#")) : rawHref;
-    if (/^\/2029\/number\/\d+$/.test(href)) return connection;
+    if (/^\/(?:2029\/)?number\/\d+$/.test(href)) return connection;
     // Never turn an external URL, malformed path or arbitrary route into a Post.
     if (!href.startsWith("/") || href.startsWith("//") || /[?#]/.test(href)) return unavailable();
     const parts = href.split("/").filter(Boolean);
@@ -493,10 +493,10 @@ function buildBennettSaltExperience(post) {
     },
     connections: [
       { id: "bennett-631", label: "פוסט הבחירות · ציר 631", kind: "POST", value: "631", href: "/post/sharshar-elections-redemption-hints-draft", reason: "כאן נפתח ציר 631; פוסט בנט הוא המשך שלו. פתחו את הפוסט כדי לקרוא את החישובים ואת החיבורים המקוריים.", provenanceLabel: "post:5107" },
-      { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/2029/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע.", provenanceLabel: "מנוע גימטריה" },
+      { id: "salt-78", label: "מלח", kind: "CONCEPT", value: "78", href: "/number/78", reason: "המלח מופיע בתוך האירוע עצמו; 78 מאומת במנוע.", provenanceLabel: "מנוע גימטריה" },
       { id: "dead-sea-133", label: "ים המלח", kind: "POST", value: "133", href: "/post/yam-hamelach-tiferet-geula", reason: "פוסט עצמאי קיים בעץ, מוצג כאן כחיבור עומק.", provenanceLabel: "post:5109" },
-      { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/2029/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
-      { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/2029/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
+      { id: "brit-melach-690", label: "ברית מלח", kind: "SOURCE / NUMBER", value: "690", href: "/number/690", reason: "מונח מקראי וחישוב מאומת; ההקשר לאירוע נשאר פרשני." },
+      { id: "brit-melach-olam-836", label: "ברית מלח עולם", kind: "SOURCE / NUMBER", value: "836", href: "/number/836", reason: "עומק מקראי נוסף סביב מושג המלח." },
     ],
     timeline: [
       { id: "dead-sea-post", label: "פורסם פוסט ים המלח", date: "2026-09-22", temporalRole: "published", href: "/post/yam-hamelach-tiferet-geula", sourceLabel: null, note: "פוסט קיים ונפרד באתר." },
@@ -506,7 +506,7 @@ function buildBennettSaltExperience(post) {
     // CHAIN_AUTOMATION = FIXTURE/HARDCODED: trail is declared here, not derived from relation data.
     trail: [
       { id: "elections-post", label: "פוסט הבחירות", href: "/post/sharshar-elections-redemption-hints-draft", kind: "post", active: false },
-      { id: "bennett-631", label: "631", href: "/2029/number/631", kind: "number", active: false },
+      { id: "bennett-631", label: "631", href: "/number/631", kind: "number", active: false },
       { id: "bennett-post", label: "בנט", href, kind: "post", active: true },
     ],
   };
@@ -587,11 +587,11 @@ function buildElectionsExperience(post) {
   return {
     connections: [
       { id: "continuation-bennett", label: "בנט בתוך ציר 631", kind: "POST · המשך", value: "631", href: bennettHref, reason: "פוסט ההמשך של ציר 631: אירוע חדש מתחבר לציר שנפתח כאן.", provenanceLabel: "post:" + BENNETT_SALT_SLUG },
-      { id: "number-631", label: "631", kind: "NUMBER", value: "631", href: "/2029/number/631", reason: "הציר המרכזי: הבחירות = מלך ישראל = נפתלי בנט." },
-      { id: "number-271", label: "271 · 2701", kind: "NUMBER", value: "271", href: "/2029/number/271", reason: "27.10 → 2710 → 271; בראשית א׳, א׳ = 2701." },
-      { id: "number-1820", label: "1820", kind: "NUMBER", value: "1820", href: "/2029/number/1820", reason: "המספר שמלווה את האתר; מילוי עופר וינטר." },
-      { id: "number-26", label: "26", kind: "NUMBER", value: "26", href: "/2029/number/26", reason: "יהוה = 26 · הכנסת ה־26." },
-      { id: "number-66", label: "66", kind: "NUMBER", value: "66", href: "/2029/number/66", reason: "בן דוד = 66." },
+      { id: "number-631", label: "631", kind: "NUMBER", value: "631", href: "/number/631", reason: "הציר המרכזי: הבחירות = מלך ישראל = נפתלי בנט." },
+      { id: "number-271", label: "271 · 2701", kind: "NUMBER", value: "271", href: "/number/271", reason: "27.10 → 2710 → 271; בראשית א׳, א׳ = 2701." },
+      { id: "number-1820", label: "1820", kind: "NUMBER", value: "1820", href: "/number/1820", reason: "המספר שמלווה את האתר; מילוי עופר וינטר." },
+      { id: "number-26", label: "26", kind: "NUMBER", value: "26", href: "/number/26", reason: "יהוה = 26 · הכנסת ה־26." },
+      { id: "number-66", label: "66", kind: "NUMBER", value: "66", href: "/number/66", reason: "בן דוד = 66." },
       // Existing source handoff bdb7caba + verified public Posts, oldest publication first.
       {"id":"elections-history-1222","label":"הבחירות בארה״ב · 1237","kind":"מהארכיון · פורסם 29.06.2016","href":"/post/9495-2","reason":"הפוסט הישן מחבר את טראמפ לציר 1237. כאן 1237 הוא סף צירי המפלגה למינוי המועמד, ולא מספר אלקטורים.","provenanceLabel":"post:1222"},
       {"id":"elections-history-1182","label":"טראמפ בכותל · 424","kind":"מהארכיון · פורסם 23.05.2017","href":"/post/רמזים-מדהימים-על-ביקור-טראמפ-בישראל","reason":"תיעוד הביקור בישראל והחיבור ל־424. זהו אירוע מ־2017, שאליו חוזרים גם בפרסומים מאוחרים.","provenanceLabel":"post:1182"},
@@ -607,7 +607,7 @@ function buildElectionsExperience(post) {
     ],
     trail: [
       { id: "elections-post", label: "פוסט הבחירות", href, kind: "post", active: true },
-      { id: "elections-631", label: "631", href: "/2029/number/631", kind: "number", active: false },
+      { id: "elections-631", label: "631", href: "/number/631", kind: "number", active: false },
       { id: "elections-bennett", label: "בנט", href: bennettHref, kind: "post", active: false },
     ],
   };

@@ -53,7 +53,7 @@ assert.match(home, /buildCalculator2029FastPreview/);
 assert.match(home, /data-experience-capability="home-gematria-fast-core"/);
 assert.match(home, /תשע שיטות נדלקות מיד/);
 assert.match(home, /טרם אומת/);
-assert.match(home, /\/2029\/gematria\?q=/);
+assert.match(home, /\/gematria\?q=/);
 assert.equal(/from "\.\.\/lib\/gematria\.js"/.test(home), false, "Home must not own a duplicate Gematria engine");
 
 assert.match(projection, /fetchWorldLandingContributorProjection/);
