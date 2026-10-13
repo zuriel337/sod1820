@@ -49,10 +49,17 @@ function LanguagePostPreview({ post, highlights }) {
 }
 
 function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [] }) {
+  const followControl = ({ category, topic, title: followTitle }) => <WatchButton
+    key={topic || category} topic={topic || `cat:${category}`}
+    source="home_2029_discovery" noPush variant="icon"
+    label={followTitle || `עקבו אחרי ${category}`} explainer="" />;
   return <article className="dg29-gateway">
     <div className="dg29-gateway-head">
       <span className="dg29-glyph" aria-hidden="true">{symbol}</span>
-      <div><h3>{title}</h3><p>{subtitle}</p></div>
+      <div className="dg29-heading"><h3>{title}</h3><p>{subtitle}</p></div>
+      {followTopics.length ? <div className="dg29-head-follow" aria-label={`מעקב אחרי ${title}`}>
+        {followTopics.slice(0, 1).map(followControl)}
+      </div> : null}
     </div>
     <div className="dg29-sources">
       {feature}
@@ -64,12 +71,9 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
       {loading && items.length === 0 && !feature ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}
     </div>
     <Link className="dg29-gateway-action" to={href}>{action} ←</Link>
-    {secondaryHref ? <Link className="dg29-gateway-secondary" to={secondaryHref}>{secondaryAction} ←</Link> : null}
-    {followTopics.length ? <div className="dg29-follow" aria-label={`מעקב אחרי ${title}`}>
-      {followTopics.map(({ category, topic, title: followTitle }) => <WatchButton
-        key={topic || category} topic={topic || `cat:${category}`}
-        source="home_2029_discovery" noPush compact icon="🔔"
-        label={followTitle || `עקבו אחרי ${category}`} explainer="" />)}
+    {secondaryHref ? <div className="dg29-secondary-row">
+      <Link className="dg29-gateway-secondary" to={secondaryHref}>{secondaryAction} ←</Link>
+      {followTopics.slice(1).map(followControl)}
     </div> : null}
   </article>;
 }
@@ -82,6 +86,8 @@ function DimensionFiveFeature({ items, loading }) {
         <h3>מימד חמש</h3>
         <p>סרטים ומסרים — רצועה עצמאית מתוך הקטגוריה</p>
       </div>
+      <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"
+        noPush variant="icon" label="עקבו אחרי מימד חמש" explainer="" />
     </div>
     <div className="dg29-dimension-sources">
       {items.map(item => <Link key={item.id} className="dg29-dimension-source" to={item.href}>
@@ -95,8 +101,6 @@ function DimensionFiveFeature({ items, loading }) {
     </div>
     <div className="dg29-dimension-foot">
       <Link className="dg29-gateway-action" to="/category/מימד חמש">לכל תכני מימד חמש ←</Link>
-      <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"
-        noPush compact icon="🔔" label="עקבו אחרי מימד חמש" explainer="" />
     </div>
   </section>;
 }
