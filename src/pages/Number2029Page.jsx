@@ -248,7 +248,6 @@ function NumberPageBody() {
       setState({ loading: false, data: null, error: new Error("invalid-number") });
       return undefined;
     }
-    let alive = true;
     const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
     const contextExplicit = sameContextRoot && research.context?.dimensions?.expressionFocusExplicit === true;
     const contextExpression = contextExplicit ? clean(research.context?.selection?.expression) : "";
@@ -268,41 +267,60 @@ function NumberPageBody() {
       limit: DEFAULT_VERSE_GEMATRIA_LIMIT,
       error: null,
     });
+  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
 
+  useEffect(() => {
+    if (!Number.isSafeInteger(root) || root < 0) return undefined;
+    let alive = true;
+    let settled = false;
     const cacheKey = String(root);
     const cached = NUMBER_PAGE_PROJECTION_CACHE.get(cacheKey);
-    if (cached?.data) {
+    if (cached?.data && !cached.promise) {
       setState({ loading: false, data: cached.data, error: null });
       return () => { alive = false; };
     }
-    setState({ loading: true, data: null, error: null });
+    setState({ loading: true, data: cached?.data || null, error: null });
 
-    const pending = cached?.promise || fetchEntityHubProjection({
+    const entry = cached || { data: null, promise: null };
+    entry.listeners ||= new Set();
+    const receiveCore = (partial) => {
+      if (alive) setState({ loading: true, data: partial, error: null });
+    };
+    entry.listeners.add(receiveCore);
+    const pending = entry.promise || fetchEntityHubProjection({
       type: "number",
       key: cacheKey,
       relationLimit: 140,
       researchLimit: 80,
       topicLimit: 24,
+      onNumberCore: (partial) => {
+        if (settled) return;
+        entry.data = partial;
+        for (const receive of entry.listeners) receive(partial);
+      },
     });
-    if (!cached?.promise) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { promise: pending }, 20);
+    entry.promise = pending;
+    rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, entry, 20);
 
     pending
       .then((data) => {
+        settled = true;
         if (data) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { data }, 20);
         else NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
         if (alive) setState({ loading: false, data, error: null });
       })
       .catch((error) => {
+        settled = true;
         NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
-        if (alive) setState({ loading: false, data: null, error });
+        if (alive) setState((current) => ({ loading: false, data: current.data, error }));
       });
-    return () => { alive = false; };
-  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
+    return () => { alive = false; entry.listeners.delete(receiveCore); };
+  }, [root]);
 
   const data = state.data;
 
   useEffect(() => {
-    if (!data || !Number.isSafeInteger(root)) return undefined;
+    if (!data || data.numberPagePending || !Number.isSafeInteger(root)) return undefined;
     let alive = true;
     fetchVersesByGematria(root, { limit: DEFAULT_VERSE_GEMATRIA_LIMIT })
       .then((result) => {
@@ -326,7 +344,7 @@ function NumberPageBody() {
 
   useEffect(() => {
     const node = deepSentinelRef.current;
-    if (!node || deepRequested) return undefined;
+    if (!node || deepRequested || state.loading) return undefined;
     if (typeof IntersectionObserver === "undefined") {
       setDeepRequested(true);
       return undefined;
@@ -339,7 +357,7 @@ function NumberPageBody() {
     }, { rootMargin: "900px 0px", threshold: 0 });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [data, root, deepRequested]);
+  }, [data, root, deepRequested, state.loading]);
 
   useEffect(() => {
     if (!deepRequested || !data?.identity || data.identity.type !== "number") {
@@ -527,7 +545,7 @@ function NumberPageBody() {
 
     let alive = true;
     let cancelDeferred = null;
-    setHiddenCrossState({ loading: false, rows: [], error: null });
+    setHiddenCrossState({ loading: true, rows: [], error: null });
     cancelDeferred = deferClientWork(() => {
       if (!alive) return;
       setHiddenCrossState({ loading: true, rows: [], error: null });
@@ -1183,7 +1201,7 @@ function NumberPageBody() {
   if (!Number.isSafeInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
-  if (state.loading) {
+  if (state.loading && !data) {
     return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
   }
   // A valid numeric zero currently has no public Number node. Render a bounded
@@ -1211,10 +1229,10 @@ function NumberPageBody() {
       </section>
     </div>;
   }
-  if (state.error || !data) {
+  if (!data) {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
   }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
@@ -1241,8 +1259,10 @@ function NumberPageBody() {
         traceSteps={traceSteps}
         traceDetail={trace}
         stageProjection={stageProjection}
-        stageLoading={methodResultState.loading}
-        methodsLoading={methodProfileState.loading}
+        stageLoading={methodResultState.loading || (stageRoot === root && state.loading)}
+        contentPending={Boolean(data.numberPagePending)}
+        contentError={Boolean(state.error)}
+        methodsLoading={methodProfileState.loading || (!methodProfileState.rows.length && !state.error && (Boolean(data.gematria?.pending) || (state.loading && !activeExpression)))}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
@@ -1251,7 +1271,7 @@ function NumberPageBody() {
         onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         hiddenCrossings={hiddenCrossState.rows}
-        hiddenCrossingsLoading={hiddenCrossState.loading}
+        hiddenCrossingsLoading={hiddenCrossState.loading || methodProfileState.loading}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
         activeCrossingPartner={focusExplicit ? verifiedCrossingPartner : null}
@@ -1316,7 +1336,9 @@ function NumberPageBody() {
       error={pathError}
     />
 
-    <NumberLivingWorld2029
+    {state.loading ? <FrameState kind="loading" title="טוען את הקשרים והמקורות">אפשר כבר לחקור את המספר והשיטות.</FrameState>
+      : state.error ? <FrameState kind="unavailable" title="הקשרים והמקורות לא זמינים כרגע">אפשר להמשיך עם המידע שכבר נטען.</FrameState>
+      : <NumberLivingWorld2029
       root={root}
       data={data}
       activeExpression={activeExpression}
@@ -1357,7 +1379,7 @@ function NumberPageBody() {
         expression: activeExpression || null,
         method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       })}
-    />
+    />}
 
     <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
     {deepRequested && deepViewModel ? <NumberDeepView2029
@@ -1387,6 +1409,6 @@ export default function Number2029Page() {
     symbol={<NavigationIcon2029 name="number" />}
     status="LIVING NUMBER · DESIGN PREVIEW"
   >
-    <NumberPageBody />
+    <NumberPageBody key={value} />
   </Sod2029Shell>;
 }

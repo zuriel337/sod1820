@@ -8,6 +8,9 @@ on:
       - 'src/pages/number2029.css'
       - 'src/components/number2029/**'
       - 'src/lib/research/numberExpressionFocus.js'
+      - 'src/lib/research/entityHubProjection.js'
+      - 'src/lib/research/entityHubProjection.progressive.test.js'
+      - 'src/lib/supabase.js'
       - 'src/lib/palette.js'
       - 'test/number-2029-owned-opening-contract.test.mjs'
       - 'tests/number-2029-owner.spec.cjs'
@@ -28,7 +31,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Number owner semantic / legacy-route contract
-        run: node --test test/number-2029-owned-opening-contract.test.mjs
+        run: node --test test/number-2029-owned-opening-contract.test.mjs src/lib/research/entityHubProjection.progressive.test.js src/lib/research/entityHubProjection.test.js src/lib/research/numericResearch.test.js
       - name: Build both generations without public cutover
         run: npm run build
       - run: npm install --no-save --no-package-lock @playwright/test@1.55.0

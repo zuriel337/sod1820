@@ -148,8 +148,7 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
   if (node.type === "number" && Number.isSafeInteger(Number(label))) {
     const value = Number(label);
     queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).eq("value", value), cap));
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [String(value)]), cap));
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [String(value)]), cap));
+    if (!terms.includes(String(value))) terms.push(String(value));
   }
 
   for (const term of terms) {
@@ -1058,10 +1057,56 @@ export async function fetchEntityHubProjection({
   includeScriptureDiscovery = true,
   includeScriptureTermDiscovery = true,
   topicSourceSlug = null,
+  onNumberCore = null,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
 
+  const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
+  // Share reads only inside this projection request, never across user/access contexts.
+  const numberReads = new Map();
+  const numberRpc = (name, args) => {
+    const key = JSON.stringify([name, args]);
+    if (!numberReads.has(key)) numberReads.set(key, Promise.resolve(supabase.rpc(name, args)));
+    return numberReads.get(key);
+  };
+  const lookupLimit = safeLimit(numberLookupLimit, 500, 500);
+  const familyLookup = async (value) => {
+    const page = await numberRpc("fn_number_lookup", { p_value: value, p_limit: lookupLimit, p_after_bid_id: null });
+    const rows = page.data;
+    const total = rows?.[0]?.total_count;
+    // Families need the full population. Reuse a numeric-research page only when the
+    // server proves it is exhaustive; never truncate family counts to a paging window.
+    if (!page.error && Array.isArray(rows) && (!rows.length || (total != null && Number(total) === rows.length))) return rows;
+    const full = await numberRpc("fn_number_lookup", { p_value: value });
+    return full.error ? [] : full.data || [];
+  };
+  const progressive = isNumberNode && typeof onNumberCore === "function";
+  const numberIdentity = {
+    nodeId: String(node.id), type: node.type, key: node.identity_key || String(node.id),
+    label: node.label, hubHref: hubHref(node.type, node.label),
+  };
+  if (progressive) onNumberCore({ identity: numberIdentity, gematria: { pending: true }, numberPagePending: true });
+
+  // Start Number identity/method inputs before graph, media and topic hydration. The
+  // same promises feed the final projection, so progressive rendering adds no reads.
+  const numberCorePromise = isNumberNode ? (async () => {
+    const [families, anchorProfile] = await Promise.all([
+      getValueFamilies(Number(node.label), 12, { lookup: familyLookup }),
+      fetchNumberAnchorProfile(Number(node.label)),
+    ]);
+    const registry = await fetchMethodRegistry(families.map(group => group.method));
+    const core = {
+      identity: numberIdentity,
+      gematria: { families: enrichGematriaFamilies(families, registry), registry },
+      anchorProfile,
+      numberPagePending: true,
+    };
+    if (progressive) onNumberCore(core);
+    return core;
+  })() : null;
+  // Observe early failures immediately while the independent graph readers run.
+  numberCorePromise?.catch(() => {});
   const [definition, graphFindings, research, topicSources] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
     fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
@@ -1072,9 +1117,12 @@ export async function fetchEntityHubProjection({
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
-  const media = includeMedia
-    ? await fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
-    : { items: [], access: { available: true, reason: "deferred_by_projection_profile" } };
+  const mediaPromise = includeMedia
+    ? fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
+    : Promise.resolve({ items: [], access: { available: true, reason: "deferred_by_projection_profile" } });
+  // Number topics and numeric research do not depend on media hydration.
+  mediaPromise.catch(() => {});
+  if (!isNumberNode) await mediaPromise;
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
   let numberJourney = null;
@@ -1088,7 +1136,6 @@ export async function fetchEntityHubProjection({
   let phraseEntities = {};
   let methodBridge = { identity: null, results: [], engineFindings: [] };
 
-  const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
   if (!isNumberNode) {
     // Entity → Number bridge (generic: any node with a canonical gematria identity).
     [methodBridge, topics] = await Promise.all([
@@ -1099,7 +1146,8 @@ export async function fetchEntityHubProjection({
 
   if (isNumberNode) {
     const number = Number(node.label);
-    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = await Promise.all([
+    const [core, topicData, numericData, surfaceData, worldData, signatureData, scaleData] = await Promise.all([
+      numberCorePromise,
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       researchNumber(number, {
         lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
@@ -1109,7 +1157,7 @@ export async function fetchEntityHubProjection({
           5,
           Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
         )), depth: 1 },
-        rpc: (name, args) => supabase.rpc(name, args),
+        rpc: numberRpc,
         fetchResearchObjects: async () => ({ data: research.rows }),
         researchObjectLimit: researchLimit,
         // World deep view must be able to show the complete canonical reverse-lookup source
@@ -1121,22 +1169,24 @@ export async function fetchEntityHubProjection({
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
       }),
       getEntityBundle({ term: String(number), value: number, isNumber: true }),
-      getValueFamilies(number, 12),
       fetchNumberWorlds(number),
       fetchNumberSignatures(number),
       fetchZeroScale(number),
-      fetchNumberAnchorProfile(number),
     ]);
+    topics = topicData;
+    numberResearch = numericData;
+    publicSurface = surfaceData;
+    worlds = worldData;
+    signatures = signatureData;
+    zeroScale = scaleData;
+    anchorProfile = core.anchorProfile;
+    gematriaFamilies = core.gematria.families;
+    methodRegistry = core.gematria.registry;
     // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
     // (bounded to the shown phrases; nothing is created). This is what makes
     // "<phrase> · <method> = <number>" clickable into the canonical entity hub.
     const shownPhrases = gematriaFamilies.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
-    const [registryRows, entityNodes] = await Promise.all([
-      fetchMethodRegistry(gematriaFamilies.map(group => group.method)),
-      fetchNodesByLabels("entity", shownPhrases),
-    ]);
-    methodRegistry = registryRows;
-    gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
+    const entityNodes = await fetchNodesByLabels("entity", shownPhrases);
     phraseEntities = buildPhraseEntityLinks(entityNodes);
     numberJourney = projectNumberJourney(numberResearch);
   }
@@ -1178,7 +1228,7 @@ export async function fetchEntityHubProjection({
       entity: entityFinding,
       relations: relationFindings,
     },
-    media,
+    media: await mediaPromise,
     // Opt-in Topic composition only; Number/Posts/World retain their existing query profile.
     sourceContext: topicSources?.topicNodeId && topicSources.topicNodeId !== String(node.id) ? null : topicSources,
     research: {

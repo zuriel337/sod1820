@@ -127,3 +127,72 @@ test('same Number can be revisited after navigation/back without losing preview-
   await expect(page).toHaveURL(`${BASE}/2029`);
   await expect(page.locator('[data-experience-capability="home-composition"]')).toBeVisible();
 });
+
+test('Number and verified crossing are usable before stalled depth finishes', async ({ page, context }) => {
+  let release;
+  const held = new Promise(resolve => { release = resolve; });
+  const lookupRequests = [];
+  page.on('request', request => {
+    if (request.method() === 'POST' && request.url().endsWith('/rpc/fn_number_lookup')) lookupRequests.push(request.postDataJSON());
+  });
+  await context.route('**/rest/v1/edges*', async route => { await held; await route.fallback(); });
+  try {
+    await page.goto(`${BASE}/2029/number/376?focus=${encodeURIComponent('שלום')}&method=${encodeURIComponent('רגיל')}`, { waitUntil: 'domcontentloaded' });
+    const core = page.locator('[data-number-core-root="376"]');
+    await expect(core).toBeVisible({ timeout: 15_000 });
+    await expect(core.locator('.sod29-number-v10-method-grid button').first()).toBeEnabled({ timeout: 15_000 });
+    const crossing = core.locator('[data-experience-action="crossing-focus"]');
+    await expect(crossing).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-number-depth]')).toHaveAttribute('data-number-depth', 'loading');
+    await expect(core.locator('[data-experience-action="number-life-seal"] small')).toHaveText('טוען…');
+    await crossing.click();
+    await expect(page).toHaveURL(/cross=/);
+    await expect(page.locator('[data-expression-focus="true"]')).toContainText('↔');
+    release();
+    await expect(page.locator('[data-number-depth]')).toHaveAttribute('data-number-depth', 'ready', { timeout: 35_000 });
+    expect(lookupRequests.filter(args => args.p_value === 376)).toHaveLength(1);
+    await expect(page.locator('[data-expression-focus="true"]')).toContainText('↔');
+  } finally { release(); }
+});
+
+test('a depth failure keeps the loaded Number and methods available without inventing zero coverage', async ({ page, context }) => {
+  await context.route('**/rest/v1/edges*', route => route.fulfill({
+    status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'Synthetic depth reader unavailable' }),
+  }));
+  await page.goto(`${BASE}/2029/number/376?focus=${encodeURIComponent('שלום')}&method=${encodeURIComponent('רגיל')}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-number-depth]')).toHaveAttribute('data-number-depth', 'unavailable', { timeout: 35_000 });
+  const core = page.locator('[data-number-core-root="376"]');
+  await expect(core).toBeVisible();
+  await expect(core.locator('.sod29-number-v10-method-grid button').first()).toBeEnabled({ timeout: 15_000 });
+  await expect(core.locator('[data-experience-action="number-life-seal"] small')).toHaveText('לא זמין');
+  await expect(page.getByText('הקשרים והמקורות לא זמינים כרגע', { exact: true })).toBeVisible();
+});
+
+test('back and forward subscribe to an in-flight Number without waiting for its depth', async ({ page, context }) => {
+  await page.goto(`${BASE}/2029/number/376?focus=${encodeURIComponent('שלום')}&method=${encodeURIComponent('רגיל')}`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-number-depth]')).toHaveAttribute('data-number-depth', 'ready', { timeout: 35_000 });
+  let releaseLookup, releaseDepth;
+  const lookup = new Promise(resolve => { releaseLookup = resolve; });
+  const depth = new Promise(resolve => { releaseDepth = resolve; });
+  let lookupCount = 0;
+  await context.route('**/rest/v1/rpc/fn_number_lookup', async route => {
+    if (route.request().postDataJSON()?.p_value === 1820) { lookupCount++; await lookup; }
+    await route.fallback();
+  });
+  await context.route('**/rest/v1/edges*', async route => { await depth; await route.fallback(); });
+  try {
+    await page.getByRole('link', { name: 'דף המספר', exact: true }).click();
+    await expect(page.locator('[data-number-core-root="1820"]')).toBeVisible({ timeout: 15_000 });
+    await page.goBack();
+    await expect(page.locator('[data-number-core-root="376"]')).toBeVisible();
+    await page.goForward();
+    const core = page.locator('[data-number-core-root="1820"]');
+    await expect(core).toBeVisible();
+    releaseLookup();
+    await expect(core.locator('.sod29-number-v10-method-grid button').first()).toBeEnabled({ timeout: 15_000 });
+    await expect(page.locator('[data-number-depth]')).toHaveAttribute('data-number-depth', 'loading');
+    expect(lookupCount).toBe(1);
+    releaseDepth();
+    await expect(page.locator('[data-number-depth]')).toHaveAttribute('data-number-depth', 'ready', { timeout: 35_000 });
+  } finally { releaseLookup(); releaseDepth(); }
+});

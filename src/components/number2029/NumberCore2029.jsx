@@ -168,6 +168,8 @@ export default function NumberCore2029({
   curationCatalog = null,
   stageProjection = null,
   stageLoading = false,
+  contentPending = false,
+  contentError = false,
   methodsLoading = false,
   languageBridges = [],
   regularExpressions = [],
@@ -325,7 +327,9 @@ export default function NumberCore2029({
   ];
   const liveChannelCount = lifeChannels.filter((item) => item.count > 0).length;
   const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
-  const lifeAria = `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
+  const lifeAria = contentPending
+    ? (contentError ? "חומר העומק לא זמין כרגע" : "טוען את חומר העומק")
+    : `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
   return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root}>
     <header className="sod29-number-v10-identity">
@@ -375,7 +379,7 @@ export default function NumberCore2029({
           </span>
         </span>
         <span>חיים</span>
-        <small>{Number(rootCoverage.present) || 0} שכבות</small>
+        <small>{contentPending ? (contentError ? "לא זמין" : "טוען…") : `${Number(rootCoverage.present) || 0} שכבות`}</small>
       </button>}
     </header>
 
@@ -521,8 +525,8 @@ export default function NumberCore2029({
             <small>{stageLoading ? "מחבר את המחקר של התוצאה…" : "החלל שמתחת שייך עכשיו לתוצאה הזאת בלבד"}</small>
           </>}
         </div>
-        <div className="sod29-number-v10-stage-meta" data-experience-capability="number-result-summary" aria-label={`${stageCoverage.present || 0} שכבות חומר זמינות לתוצאה ${stageRoot}`}>
-          <strong>{stageCoverage.present || 0}</strong>
+        <div className="sod29-number-v10-stage-meta" data-experience-capability="number-result-summary" aria-label={stageLoading || contentPending ? lifeAria : `${stageCoverage.present || 0} שכבות חומר זמינות לתוצאה ${stageRoot}`}>
+          <strong>{stageLoading || contentPending ? "—" : stageCoverage.present || 0}</strong>
           <span>שכבות</span>
           <small>בתוצאה {stageRoot}</small>
         </div>
@@ -533,7 +537,7 @@ export default function NumberCore2029({
       </div> : null}
 
       <div className={`sod29-number-v10-loading is-inline${stageLoading ? " is-loading" : " is-ready"}`} role="status">
-        {stageLoading ? <><i /> מעדכן את החיבורים של {stageRoot} ברקע…</> : <><span aria-hidden="true">✓</span> החיבורים של {stageRoot} מעודכנים</>}
+        {contentError ? <>החיבורים אינם זמינים כרגע</> : stageLoading ? <><i /> מעדכן את החיבורים של {stageRoot} ברקע…</> : <><span aria-hidden="true">✓</span> החיבורים של {stageRoot} מעודכנים</>}
       </div>
         <div className="sod29-number-v10-research-grid">
           <section className="sod29-number-v10-convergence">
@@ -555,14 +559,14 @@ export default function NumberCore2029({
                 {item.world ? <em className="sod29-number-v10-world-tag">{item.world}</em> : <small>{item.note}</small>}
                 {item.world ? <small className="sod29-number-v10-method-note">{item.note}</small> : null}
               </button>)}
-            </div> : <div className="sod29-number-core2029-note">{stageLoading ? `מעדכן התכנסויות של ${stageRoot}…` : "אין כרגע התכנסות נוספת להצגה בשיטה הזאת."}</div>}
+            </div> : <div className="sod29-number-core2029-note">{contentError ? "ההתכנסויות אינן זמינות כרגע." : stageLoading ? `מעדכן התכנסויות של ${stageRoot}…` : "אין כרגע התכנסות נוספת להצגה בשיטה הזאת."}</div>}
           </section>
 
           {hasActivePhrase ? <section className="sod29-number-v10-crossing" data-experience-capability="number-hidden-crossing">
               <div className="sod29-number-v10-panel-head">
                 <div>
                   <span>הצלבה נסתרת</span>
-                  <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : "אין כרגע הצלבה עצמאית"}</strong><small>{stageCrossings.length || 0}</small></div>
+                  <div className="sod29-number-v10-title-count"><strong>{stageCrossing ? `${projection.expression || root} ↔ ${stageCrossing.partner}` : hiddenCrossingsLoading ? "בודק הצלבות…" : "אין כרגע הצלבה עצמאית"}</strong><small>{hiddenCrossingsLoading ? "—" : stageCrossings.length || 0}</small></div>
                 </div>
               </div>
               {stageCrossing ? <>
