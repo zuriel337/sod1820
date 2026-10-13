@@ -1,0 +1,292 @@
+{
+  "invoked_at": "2026-10-13T07:25:34.384Z",
+  "http_status": 200,
+  "reviewed_source_sha256": "03bd33d5c4ef73f13e596b6cde16550d4227f78988aa71e5e92d8879ab5a2722",
+  "proof_function_version": 7,
+  "retired_function_version": 8,
+  "verify_jwt": true,
+  "temporary_object_run_identifiers_redacted": true,
+  "data": {
+    "result": "PASS_SUPPLEMENTAL_HTTP_ONLY",
+    "child_ref": "krnaxxndgtrdnaddlzws",
+    "credential_mode": "modern",
+    "credited_checks_not_rerun": 37,
+    "checks": [
+      {
+        "name": "F01_service_role_without_admin_JWT_denied",
+        "path": null,
+        "status": 403,
+        "code": "42501",
+        "reason": "permission denied for function get_work_log"
+      },
+      {
+        "name": "F02_service_upload_public_byte_parity",
+        "path": "p0-local/service-http-proof-<run-id>.bin",
+        "status": 200,
+        "sha256": "63d53825e356e03aa8bea7f6807d5acfc2076b10c07691a20403479c157b8942"
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "posts/tmp-content-5074.txt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "posts/tmp-content-5074.txt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "posts/tmp-content-5074.txt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/cards/ego-confession.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/cards/ego-confession.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/cards/ego-confession.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/videos/ego-confession.en.vtt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/videos/ego-confession.en.vtt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/videos/ego-confession.en.vtt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/videos/ego-confession.he.vtt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/videos/ego-confession.he.vtt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/videos/ego-confession.he.vtt",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/videos/ego-confession.jpg",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/videos/ego-confession.jpg",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/videos/ego-confession.jpg",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/videos/ego-confession.mp4",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/videos/ego-confession.mp4",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/videos/ego-confession.mp4",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/updates/metro-gush-dan-fixture-a.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/updates/metro-gush-dan-fixture-a.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/updates/metro-gush-dan-fixture-a.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_anonymous_PUT_denied",
+        "path": "sod1820/updates/metro-gush-dan-fixture-b.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_POST_upsert_denied",
+        "path": "sod1820/updates/metro-gush-dan-fixture-b.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "fb6c7983c1820ebe64241665292806d72807d3b2c77bf6550d67eb937a4c4fba"
+      },
+      {
+        "name": "F02_anonymous_fresh_POST_denied",
+        "path": "sod1820/updates/metro-gush-dan-fixture-b.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_unrelated_unauthorized_POST_denied",
+        "path": "not-authorized/service-http-proof-<run-id>.bin",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "absent_status": 400
+      },
+      {
+        "name": "F02_community_anonymous_PUT_denied",
+        "path": "community/p0-local-1791499873650.png",
+        "status": 400,
+        "code": "AccessDenied",
+        "reason": "new row violates row-level security policy",
+        "unchanged_sha256": "a38a4ff7320a3d8764ac959b264f15e335360d7c1e23a0627dee7f366c95c58f"
+      }
+    ],
+    "negative_request_count": 26,
+    "cleanup": [
+      {
+        "path": "posts/tmp-content-5074.txt",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/cards/ego-confession.png",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/videos/ego-confession.en.vtt",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/videos/ego-confession.he.vtt",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/videos/ego-confession.jpg",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/videos/ego-confession.mp4",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/updates/metro-gush-dan-fixture-a.png",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "sod1820/updates/metro-gush-dan-fixture-b.png",
+        "delete_status": 200,
+        "absent_status": 400
+      },
+      {
+        "path": "p0-local/service-http-proof-<run-id>.bin",
+        "delete_status": 200,
+        "absent_status": 400
+      }
+    ],
+    "public_fixture_before_sha256": "a38a4ff7320a3d8764ac959b264f15e335360d7c1e23a0627dee7f366c95c58f",
+    "public_fixture_after_sha256": "a38a4ff7320a3d8764ac959b264f15e335360d7c1e23a0627dee7f366c95c58f",
+    "synthetic_public_fixture_restored_after_failure": false,
+    "failure": null,
+    "production_applied": false,
+    "independent_main_GO": false
+  }
+}
