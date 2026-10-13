@@ -45,3 +45,10 @@ User-approved semantics: first activation opens preview, second activation on sa
 Icon-lane owns **visual projection only**: SVG reuse, selected/preview-open visual state, finite activation animation from shared existing motion CSS, semantic palette for three presets, reduced-motion. Do not introduce a new Sidebar, preview store, theme provider or hover-triggered separate pipeline. Preview-open state must not misleadingly imply route active; distinguish previewed and currently navigated entries with a secondary shape/focus marker and ARIA owned by SystemFrame.
 Source of truth for data stays with existing content owners; no new feed. Keep default Night shell black-brown/gold, and Night Number sapphire scoped inside Number content.
 Do not edit shared SystemFrame2029.jsx / NavigationIcon2029.jsx until shell/icon owner reconciles concurrent PRs and confirms current integration SHA. Deliver preview in Day/Parchment/Night desktop/mobile before any merge/production. No implementation or browser proof in this documentation-only PR.
+
+## User design decisions finalized 2026-10-14
+- categories = asymmetric mosaic glyph, visually distinct from tools equal-cell grid.
+- series = stepped sequence/stacked progression glyph, visually distinct from journey route.
+- "Streams" is a taxonomy/presentation grouping, not an additional icon engine, catalog or content identity. Reuse existing icon catalog groups unless UI lookup genuinely requires a label; any new metadata group must be within the same ICON_CATALOG, with no separate registry.
+- Preview-open is a visual state distinct from route-current: restrained halo plus secondary non-color cue; only shell owner defines semantic state and ARIA. Icons project it without owning navigation.
+- Claude/icon specialist may prepare proposed shape patch and test specimen, but shared files remain blocked until shell owner pins a verified integrated SHA from #1092 and settles edit ownership. No direct merge or production release from this docs PR.
