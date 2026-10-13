@@ -131,7 +131,8 @@ must not be applied merely to install private sender identity support.
 
 Independent review99b84b96 PASSed604e9d66 code (21 isolated PostgreSQL tests) and
 confirmed the same2 data blockers. The two index13 profiles are one account-backed
-self-dossier and one private open-web imported profile of that same person; neither
+self-dossier and one private open-web imported profile with a matching mailbox;
+mailbox equality is not an authoritative same-person/merge decision. Neither
 has an authoritative merge pointer. Index4 account has no contributor pointer.
 No profile was chosen or linked. Contributors have no insert/update triggers live.
 
@@ -151,3 +152,61 @@ while author/admission remains unresolved. No author, publication or permissions
 inferred from that proof alone. The existing source/privacy/public gates remain required;
 a regression test exercises actual handler behavior with positive native proof and
 no canonical author. Receiving and provider replays still never invoke public admission.
+
+## Pending canonical decisions: bounded native rehearsal (2026-10-14)
+
+Status: PLANNED + TESTED WITH SYNTHETIC DATA; not live, not a repair runner.
+The operator still has two distinct decisions to obtain, not a new consent request
+for the already-approved thirteen senders. Person v6 explicitly reserves
+contributors.merged_into for manual Human Gate; service_role is not Human Gate.
+Current main5dd7032e and private PR head337c26f9 were re-read before this pass.
+
+1. Index4 already has exactly one account Person, but no Contributor. Recommend
+   creating a PRIVATE Contributor linked to that exact existing account, keeping
+   kind=private, visibility=private, building/trusted/engaged=false and no public
+   source flag. Reuse the existing Person; do not create/link a different Person,
+   impersonate the account owner or call contributors_claim_legacy as that user.
+2. Index13 has an account-linked self-dossier and an unclaimed private import.
+   Recommend the account-linked dossier as the future email attribution target,
+   only if ZURIEL confirms both records represent the same person. Mark the import
+   as a native alias using merged_into=TARGET SLUG, never its UUID. ContributorPage
+   redirects to /community/researcher/<merged_into>; an UUID pointer breaks that
+   route. Preserve both rows, all material attribution, dossier settings, user_id,
+   flags, source metadata and access. No content transfer or profile-field copy.
+
+Live footprint: index4 has one account Person. Index13 account has one account
+Person; imported dossier has3 research contributions (2 approved,1 hidden), account
+dossier has23 (9 approved,14 hidden), plus1 contributor_content item. Neither has a
+contributor legacy identity edge; no merge pointer exists. No content bodies were
+retrieved for this decision. A private dossier is NOT evidence that every attributed
+contribution is private: current rc_public_read grants approved rows independently
+of dossier visibility. Preserve each row's exact current status/ownership.
+
+No existing admin Contributor merge/link RPC was found. contributors_claim_legacy
+only allows the actual authenticated, email-confirmed account holder to claim an
+unlinked same-mailbox profile; fn_get_or_create_my_person is account-owner scoped
+and is not a privileged Contributor linking API. Do not use either as an admin
+impersonation shortcut. Historical materialization only operates on an already-
+resolved Contributor with contributions and does not resolve this ambiguity.
+
+Before any separately-authorized live operator transaction: re-read the exact13
+private input and candidates, current account/Person uniqueness, no overlapping
+writer, original row snapshots and row counts. Require explicit recorded Human-Gate
+decisions for both choices, lock/recheck touched candidates and the existing account
+lock namespace, and abort on any changed mailbox, account, Person, merged pointer,
+visibility, attribution or candidate count. Record exact actor, decision and
+before/after IDs in the existing decision_ledger. Do not deploy a generic email-
+based merge engine. Rollback must use reviewed expected-state guards and restore
+only the alias pointer/remove an unreferenced newly-created private Contributor;
+never delete accounts, Persons, material or source history. No live transaction or
+provisioning function call was performed in this pass.
+
+The new isolated reconciliation test uses synthetic identities and replays the
+exact footprint through the existing2035 private migration. It proves the preflight
+remains blocked until both test-only owner decisions, native slug aliases retain
+all26 contributions/one content item/Persons, anonymous visibility is unchanged,
+the existing batch then reuses4 and creates9 private identities, and replay adds
+none. This is fixture evidence, not completed sender reconciliation, not operator
+transaction authorization, not proof of production locking/audit implementation,
+and not evidence that all13 senders have native provider proof. No SQL repair runner
+or new RPC/table/identity owner was introduced. Public gates remain closed.

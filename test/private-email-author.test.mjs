@@ -63,9 +63,10 @@ test('wrong batch, duplicate mailbox and malformed input cannot reach provisioni
   await assert.rejects(()=>call('preview_email_source_authors_v1',batch.map((x,i)=>i===0?{...x,display:''}:x)),/invalid/);
 });
 test('a governed merge alias no longer counts as a competing canonical identity',async()=>{
-  const matches=(await db.query("select id,kind from contributors where email='approved-12@example.invalid'")).rows;
-  const canonical=matches.find(x=>x.kind==='private').id,alias=matches.find(x=>x.kind!== 'private').id;
-  await db.query('update contributors set merged_into=$1 where id=$2',[canonical,alias]);
+  const matches=(await db.query("select id,slug,kind from contributors where email='approved-12@example.invalid'")).rows;
+  const target=matches.find(x=>x.kind==='private'),canonical=target.id,alias=matches.find(x=>x.kind!== 'private').id;
+  // Native ContributorPage routes merged_into as a slug, never as a UUID.
+  await db.query('update contributors set merged_into=$1 where id=$2',[target.slug,alias]);
   const plan=await call('preview_email_source_authors_v1');
   assert.equal(plan.blocked,0);assert.equal(plan.entries[12].state,'resolved');
   assert.deepEqual(plan.entries[12].contributor_ids,[canonical]);
