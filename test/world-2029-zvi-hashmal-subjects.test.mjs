@@ -2,29 +2,26 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  canonicalSourceSubjectCards,
-  filterPublicSourceSubjects,
-  publicSourceSubjectCategories,
-  fetchPublicSourceSubjectIndex,
+  canonicalSourceSubjectCards, filterPublicSourceSubjects, fetchPublicSourceSubjectIndex,
 } from "../src/lib/research/worldPublicSourceSubjects2029.js";
 import { readableSourceTitle } from "../src/lib/research/contributorFindingsProjection.js";
 
-test("Zvi's approved topics and Hashmal public posts keep DISTINCT identities", () => {
+test("only approved Topic identities are subjects; Hashmal post is a source work", () => {
   const cards = canonicalSourceSubjectCards({
-    zviTopics: [{ id: "t1", slug: "zvi-topic", title: "שערי חכמה", approved_at: "2026-10-01" }],
-    hashmalPosts: [{ id: 8, slug: "source-8", title: "שערי חכמה", categories: ["סוד החשמל", "תיעוד אירועים"] }],
+    zviTopics: [{ id: "t1", slug: "zvi-topic", title: "שער נון", approved_at: "2026-10-01", numbers: [1234] }],
+    hashmalPosts: [{ id: 8, slug: "source-8", title: "שער נון", categories: ["סוד החשמל", "גימטריות"] }],
   });
   assert.equal(cards.length, 2);
-  assert.deepEqual(cards.map((c) => c.type), ["approved_topic", "source_post"]);
+  assert.deepEqual(cards.map((c) => c.type), ["approved_topic", "source_work"]);
   assert.equal(cards[0].href, "/topic/zvi-topic");
   assert.equal(cards[1].href, "/post/source-8");
-  assert.deepEqual(cards[1].categories, ["תיעוד אירועים"]);
+  assert.equal(cards[1].linkedTopicSlugs.length, 0);
+  assert.ok(!Object.hasOwn(cards[1], "categories"));
   assert.equal(filterPublicSourceSubjects(cards, { origin: "hashmal" }).length, 1);
-  assert.equal(filterPublicSourceSubjects(cards, { category: "תיעוד אירועים" }).length, 1);
-  assert.equal(publicSourceSubjectCategories(cards)[0].count, 1);
+  assert.equal(filterPublicSourceSubjects(cards, { query: "1234" }).length, 1);
 });
 
-test("all pages are read using existing public readers, without silent first-page cutoff", async () => {
+test("the 78 approved Topic and 131 public source rows are paged completely", async () => {
   const calls = [];
   const out = await fetchPublicSourceSubjectIndex({
     topicReader: async ({ offset, limit, creator }) => {
@@ -32,32 +29,53 @@ test("all pages are read using existing public readers, without silent first-pag
       assert.equal(creator, "צבי (OPOC)");
       assert.equal(limit, 60);
       const n = offset === 0 ? 60 : 18;
-      return { rows: Array.from({ length: n }, (_, i) => ({ id: String(offset + i + 1), slug: `z-${offset + i + 1}`, title: `צבי ${offset + i + 1}` })), total: 78, hasMore: offset === 0 };
+      return { rows: Array.from({ length: n }, (_, i) => ({
+        id: String(offset + i + 1), slug: `z-${offset + i + 1}`, title: `צבי ${offset + i + 1}`,
+      })), total: 78, hasMore: offset === 0 };
     },
     corpusReader: async (spec, page) => {
-      calls.push(["hashmal", page, spec.key]);
+      calls.push(["source", page, spec.key]);
       const n = page < 5 ? 24 : 11;
-      return { items: Array.from({ length: n }, (_, i) => ({ id: `p-${page}-${i}`, slug: `p-${page}-${i}`, title: "תיעוד מקור", categories: ["סוד החשמל"] })), total: 131, hasMore: page < 5 };
+      return { items: Array.from({ length: n }, (_, i) => ({
+        id: `p-${page}-${i}`, slug: `p-${page}-${i}`, title: "פרסום מקור",
+      })), total: 131, hasMore: page < 5 };
     },
   });
   assert.equal(out.cards.length, 209);
   assert.deepEqual(out.totals, { zvi: 78, hashmal: 131 });
+  assert.deepEqual(out.available, { zvi: true, hashmal: true });
   assert.equal(out.incomplete, false);
   assert.equal(calls.filter(([type]) => type === "topic").length, 2);
-  assert.equal(calls.filter(([type]) => type === "hashmal").length, 6);
+  assert.equal(calls.filter(([type]) => type === "source").length, 6);
 });
 
-test("media-only source and generic placeholder never become title 'מקור ללא טקסט'", () => {
+test("one unavailable source reader never turns unknown inventory into zero", async () => {
+  const out = await fetchPublicSourceSubjectIndex({
+    topicReader: async () => { throw new Error("unavailable"); },
+    corpusReader: async () => ({ items: [{ id: "8", slug: "a", title: "המקור" }], total: 1, hasMore: false }),
+  });
+  assert.deepEqual(out.totals, { zvi: null, hashmal: 1 });
+  assert.deepEqual(out.available, { zvi: false, hashmal: true });
+  assert.equal(out.cards.length, 1);
+});
+
+test("media-only source does not show empty technical title", () => {
   assert.equal(readableSourceTitle({ text: "📷 עדכון", imageUrl: "https://example.com/photo.jpg" }), "תמונה מהמקור");
   assert.equal(readableSourceTitle({ text: "🎬 עדכון וידאו", imageUrl: "https://example.com/movie.mp4" }), "סרטון מהמקור");
   assert.equal(readableSourceTitle({ text: "נושא ברור\nשורה נוספת" }), "נושא ברור");
   assert.equal(readableSourceTitle(null), "עדכון מהמקור");
 });
 
-test("topic browse is on BOTH World layouts and avoids raw research-source words", () => {
+test("both World layouts use one category-free subject reader and keep sources separate", () => {
   const world = readFileSync(new URL("../src/pages/World2029Page.jsx", import.meta.url), "utf8");
   assert.equal((world.match(/<WorldPublicSourceSubjects2029 \/>/g) || []).length, 2);
-  const ui = readFileSync(new URL("../src/components/research/ContributorFindingsLens.jsx", import.meta.url), "utf8");
-  assert.doesNotMatch(ui, /פרסום מקור אינו אימות מחקרי|מקור ללא טקסט שמור/);
-  assert.match(ui, /sod29-contributor-public-media/);
+  assert.doesNotMatch(world, /<WorldSourceDepth|sourceDepthOpen/);
+  const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
+  assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);
+  assert.match(ui, /מקורות סוד החשמל/);
+  assert.match(ui, /נושאים מאושרים/);
+  const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
+  assert.doesNotMatch(reader, /posts\.categories|\.map\(.*categories|category\s*=/);
+  const source = readFileSync(new URL("../src/components/research/ContributorFindingsLens.jsx", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /פרסום מקור אינו אימות מחקרי|מקור ללא טקסט שמור/);
 });
