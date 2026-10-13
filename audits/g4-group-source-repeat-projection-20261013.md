@@ -14,6 +14,12 @@ The Home and World cards show one body and a dated button for every event. World
 - `npm run build:2029`: passed.
 - `git diff --check`: passed.
 
+### Live read-only snapshot, 13 October 2026
+
+The canonical database currently returns 27 distinct eligible events from the existing v2 reader, all attributed to `tzvi-opoc`. Applying the candidate v3 grouping expression in a read-only aggregate yields 25 display cards: two cards contain two source events each, and all 27 events remain represented. This is database inspection through the general Supabase connector, not an `anon`/`authenticated` HTTP test or approval to install v3.
+
+The candidate v3 function reads at most 40 v2 events before clustering. Its `p_before` filter is applied before clustering, so a later page can show the older member of a previously shown repeat card again. The current World discovery client requests only the latest batch and does not use this cursor. Complete searchable, paginated source history therefore remains open work; do not describe this candidate as full-history pagination.
+
 ## Release boundary
 
 The migration is committed as a review candidate only. No live database write, merge, or production deploy has been made. Because this adds a public security-definer reader, independent security review and the existing Human Gate are still required. Until the migration is applied in an approved release, a deployment of this client would report group arrivals unavailable; deploy the reader before the client. G4 remains blocked by the separate #999 security evidence and the combined release route verification.
