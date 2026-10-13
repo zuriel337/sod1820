@@ -125,7 +125,7 @@ function BuildStatusDeep() {
         {otherTracks.map(t => <BuildTrackCard key={t.id} t={t} />)}
       </div>
       <p style={{margin:"14px auto 0",maxWidth:820,textAlign:"center",color:P.inkSoft,fontFamily:F.body,fontSize:12.5,lineHeight:1.7}}>
-        מד ההתקדמות העליון מציין אבני דרך שנסגרו בתוכנית, ולא את אחוז התכונות שכבר זמינות לציבור. מצב כל יכולת נקבע בנפרד לפי שערי הפתיחה שלה; שעון ההכרזה אינו פותח יכולות אוטומטית.
+        מד ההתקדמות העליון מציין אבני דרך שנסגרו בתוכנית, ולא את אחוז התכונות שכבר זמינות לציבור. מצב כל יכולת נקבע בנפרד לפי שערי הפתיחה שלה.
       </p>
     </section>
   );

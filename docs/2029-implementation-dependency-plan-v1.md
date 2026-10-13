@@ -258,6 +258,22 @@ Current relevant work:
 
 Current: PR #483 supports authority isolation; release integration must reconcile its stacked base.
 
+#### 5A.1 Gematria Calculator — professional, wide mode in Heichal, viral community projection
+
+Human Gate: ZURIEL · 2026-10-12 (professional calculator + community calculator on one infrastructure; wide mode is a display mode of the professional one, not a third calculator).
+
+- **Owners (existing, no new system):** `gematria_engine_law` v2 + `canonical_methods_registry_law` v6 for calculation, methods and Registry state; `experience_governance_foundation_v1_law` + Design V2 for projection; `ai_analyze_contract` under Raziel routing for AI; G3 Gematria presentation contract (D1–D15) for grouping/continuity.
+- **Surfaces:** community `/2029/gematria` (viral: input → real result → share link that restores the discovery → continue in professional); professional `/2029/calculator` (tiles ⇄ ledger views, advanced two-row mode, `?view=wide` desktop wide mode for Heichal).
+- **Phases:**
+  1. Input guard + professional form: non-Hebrew input never shown as a verified result; family grid, canonical letter ledger, advanced Compare, wide layout. *(done on branch, 2026-10-12)*
+  2. English lane: instant labelled preview from `englishGematria.js`, switching automatically to canonical rows once the Registry returns `en_*` methods. *(done; Registry activation pending Human Gate)*
+  3. Method AI analysis via the existing Raziel transport (`askRaziel`, deep, explicit click, engine facts only). *(done)*
+  4. Heichal wiring: link Heichal "חשב" to the professional calculator in wide mode with Research Context continuity (expression, language, method, variant, result) and D15 exact reopen. *(planned)*
+  5. Remaining capabilities: Milui variants, "up" (result text into the input), Key method (lab, hypothesis separated from fact), saved methods star and counts, Hebrew numeral display only if re-approved. *(planned; each needs engine/Registry support first, never a parallel calculation)*
+- **Dependencies:** Registry `en_*` rows (active=false today; `en_reverse_reduction` has an open Human-Gate conflict, Agrippa/Latin has no Registry row); `gematria_method_trace` ledger; `fn_method_profile` input-language handling (currently returns 0 for non-applicable input, so the UI filters it).
+- **Acceptance tests:** `scripts/test-calculator-2029-pro.mjs` (input kinds, ABC≠verified, English parity with live SQL goldens, ledger parse, static contract), the existing calculator-2029 golden/viral/compare/opening/semantic tests, `scripts/test-2029-isolation.mjs`, release visual gate (community loop + Compare), plus live checks: Hebrew and English input, ABC, mixed input, share and restore, tiles ⇄ ledger, advanced, wide, desktop and mobile.
+- **Not authority:** `englishGematria.js` and client Hebrew functions are preview/capability evidence only; no calculator here is a second engine.
+
 ### 5B Corpus / Books / Sources
 
 - stable source/work/edition/witness identity;

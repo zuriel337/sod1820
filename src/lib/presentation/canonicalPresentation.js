@@ -1,4 +1,5 @@
 import { hebrewNumeral } from "../gematria.js";
+import { formatTanakhReferenceParts } from "./tanakhReferenceParts.js";
 
 const METHOD_PUBLIC_LABEL_OVERRIDES = Object.freeze({
   "קדמי": "משולש",
@@ -244,7 +245,7 @@ export function formatTanakhRef(input, chapter = null, verse = null) {
   const chapterHe = hebrewReferenceNumber(ch);
   if (!book || !chapterHe) return fallback || clean(input);
   const verseHe = hebrewReferenceNumber(vs);
-  return verseHe ? `${book} ${chapterHe}, ${verseHe}` : `${book} ${chapterHe}`;
+  return formatTanakhReferenceParts(book, chapterHe, verseHe);
 }
 
 export function formatVerseGematriaSuffix(value) {

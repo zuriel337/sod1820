@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { selectRazielIntelligence } from "../../../supabase/functions/_shared/razielIntelligence.js";
+import { runAiAnalyze, toolAnswer } from "../../../test/helpers/ai-analyze-handler.mjs";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
@@ -58,15 +59,35 @@ test("E: selector stays pure/semantic (untouched); tool_research forces deep syn
   assert.doesNotMatch(edge.slice(edge.indexOf("const rFast ="), edge.indexOf("const rFast =") + 200), /tier/);
 });
 
-test("E: ai-analyze wiring — spans per tool, same persona/metatron/quota path, no model math, no new writes", () => {
-  assert.match(edge, /rToolRes = razielToolResearch\(det\)/);
-  assert.match(edge, /ai-analyze:raziel:tool:\$\{t\.capability\}/);
-  assert.match(edge, /kind: "db_rpc"/);
-  assert.match(edge, /toolText \+\n\s+\(rPath/);          // injected into the existing Raziel user prompt
-  assert.match(edge, /await checkQuota\(rBudgetIdentity/); // same quota path
-  assert.match(edge, /fetchMetatronContext\(rSubject/);    // same metatron path
-  // tools are NOT executed by the edge function: only fn_raziel_answer/plan RPCs
-  assert.doesNotMatch(edge, /rpc\/fn_raziel_protocol|rpc\/fn_els_search|rpc\/fn_gematria_pack/);
+test("E: real handler supplies completed tool evidence to synthesis once, with quota/persona/metatron and per-tool trace", async () => {
+  const r = await runAiAnalyze({ answer: toolAnswer(), allowed: true });
+  assert.equal(r.status, 200);
+  assert.equal(r.models.length, 1);
+  assert.equal(r.result.intelligence_level, "deep");
+  assert.equal(r.result.intelligence_selection.semantic_level, "L4_TOOL_RESEARCH");
+  assert.match(r.models[0].user, /358/);
+  assert.match(r.models[0].user, /292/);
+  assert.match(r.models[0].user, /fixture-g/);
+  assert.match(r.models[0].user, /fixture-e/);
+  assert.match(r.models[0].user, /אל תחשב גימטריה/);
+  for (const name of ["fn_raziel_answer", "ai_quota_check", "fn_raziel_persona", "metatron_context"]) {
+    assert.equal(r.calls.filter((c) => c.name === name).length, 1, name);
+  }
+  assert.deepEqual(r.calls.find((c) => c.name === "ai_quota_check").payload,
+    { p_identity: "v:fixture-visitor", p_tier: "anon", p_limit_override: null });
+  assert.deepEqual(r.spans.map((s) => [s.p_name, s.p_kind, s.p_outcome, s.p_detail.output_use]), [
+    ["ai-analyze:raziel:tool:gematria", "db_rpc", "success", "used"],
+    ["ai-analyze:raziel:tool:els", "db_rpc", "success", "used"],
+    ["ai-analyze:raziel:model", "model_call", "success", "used"],
+  ]);
+  const begin = r.traces.find((c) => c.name === "op_trace_begin_v1").payload;
+  for (const span of r.spans) {
+    assert.equal(span.p_trace_id, r.result.trace_id);
+    assert.equal(span.p_parent_span_id, begin.p_root_span_id);
+  }
+  assert.equal(r.traces.at(-1).name, "op_trace_finish_v1");
+  assert.equal(r.traces.at(-1).payload.p_outcome, "success");
+  assert.equal(r.calls.some((c) => ["fn_raziel_protocol", "fn_els_search", "fn_gematria_pack", "fn_raziel_remember"].includes(c.name)), false);
 });
 
 test("E: migration is additive, bounded to gematria+els, read-only, no new tables/tools", () => {

@@ -211,7 +211,7 @@ export default async function handler(req, res) {
     const vRaw = pick('v');
     const d = pick('d');
     const s = pick('s');
-    const v = vRaw !== '' && Number.isFinite(Number(vRaw)) ? Number(vRaw) : null;
+    const v = vRaw !== '' && Number.isFinite(Number(vRaw)) && Number(vRaw) > 0 ? Number(vRaw) : null;
 
     robots = 'noindex, nofollow';
     type = 'website';

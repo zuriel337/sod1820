@@ -1,5 +1,7 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -7,6 +9,9 @@ import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo } from "../lib/seo.js";
+import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
+import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
+import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
 
 
 function TemporalTreasures({ item }) {
@@ -96,12 +101,11 @@ function formatPulseNumber(value) {
 }
 
 function formatPulseDate(value) {
-  if (!value) return null;
-  try {
-    return new Date(value).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
-  } catch {
-    return null;
-  }
+  return relativeTimeLabel(value) || null;
+}
+
+function formatWorldArrival(value) {
+  return relativeTimeLabel(value, "זמן לא צוין");
 }
 
 function HomeSystemPulse({ pulse, loading }) {
@@ -213,13 +217,13 @@ function HomeMiniGematria({ onOpenCalculator }) {
         data-preview-state="preview"
       >
         <span>{method.displayLabel}</span>
-        <strong>{method.computedValue ?? 0}</strong>
+        <strong>{method.computedValue ?? "—"}</strong>
       </div>)}
     </div>
   </section>;
 }
 
-function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onOpenWorld }) {
+function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOpenWorld }) {
   if (loading) {
     return <section className="sod29-home-world-preview is-loading" aria-label="העולם חי">
       <div className="sod29-kicker">העולם חי</div>
@@ -228,9 +232,8 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
   }
   if (!preview) return null;
 
-  const research = Array.isArray(preview.research) ? preview.research : [];
+  const items = Array.isArray(preview.items) ? preview.items : [];
   const people = Array.isArray(preview.people) ? preview.people : [];
-  if (!research.length && !people.length) return null;
 
   return <section
     className="sod29-home-world-preview"
@@ -240,8 +243,8 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
     <div className="sod29-home-world-preview-head">
       <div>
         <div className="sod29-kicker">העולם חי</div>
-        <h2>מחקרים נפתחים. אנשים מחברים.</h2>
-        <p>אותן התכנסויות וחוקרים שכבר חיים בעולם — כאן כחלון קטן למה שקורה במערכת.</p>
+        <h2>רמזים מן המקור. חיבורים מתגלים.</h2>
+        <p>הודעות מקור, כתבים והתכנסויות ציבוריות — חלון קטן אל מה שמגיע לעולם.</p>
       </div>
       <button type="button" className="sod29-action" onClick={onOpenWorld}>פתח את העולם ←</button>
     </div>
@@ -249,21 +252,24 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
     <div className="sod29-home-world-preview-grid">
       <div className="sod29-home-world-research-lane">
         <div className="sod29-home-world-lane-head">
-          <strong>חדש במחקר</strong>
-          <small>התכנסויות ציבוריות שאושרו לאחרונה</small>
+          <strong>מה חדש בעולם</strong>
+          <small>דברי מקור והתכנסויות ציבוריות</small>
         </div>
         <div className="sod29-home-world-research-list">
-          {research.slice(0, 5).map((item) => <button
+          {preview.groupArrivals?.state !== "connected" && preview.groupArrivals?.message
+            ? <p role="status" className="sod29-home-world-source-status">{preview.groupArrivals.message}</p> : null}
+          {!items.length ? <p className="sod29-home-world-source-status">אין כרגע רמזים חדשים להצגה.</p> : null}
+          {items.slice(0, 5).map((item) => <button
             type="button"
             className="sod29-home-world-research-item"
             key={item.id}
-            onClick={() => item.slug && onOpenTopic(item.slug)}
-            disabled={!item.slug}
+            onClick={() => onOpenItem(item)}
           >
-            <span>{item.value != null ? item.value : "✦"}</span>
+            <span>{item.kind === "convergence" && item.value != null ? item.value : "✦"}</span>
             <div>
+              <small>{item.kind === "source" ? (item.stateLabel || item.sourceLabel || "מהמקור") : "התכנסות במחקר"}</small>
               <strong>{item.label}</strong>
-              <small>{item.creator}{item.at ? " · " + formatPulseDate(item.at) : ""}</small>
+              <small>{item.creator} · {formatWorldArrival(item.arrivalAt || item.at)}{item.sourceLabel && item.stateLabel ? " · " + item.sourceLabel : ""}</small>
             </div>
           </button>)}
         </div>
@@ -295,6 +301,10 @@ function HomeWorldPreview({ preview, loading, onOpenTopic, onOpenResearcher, onO
     </div>
   </section>;
 }
+
+const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
+// Release the adopted Home independently of preview-only tools and disabled telemetry.
+const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
 
 function HomeBody() {
   const navigate = useNavigate();
@@ -373,15 +383,105 @@ function HomeBody() {
     navigate(phrase ? `/2029/gematria?q=${encodeURIComponent(phrase)}` : "/2029/gematria");
   };
 
-  const openTopic = (slug) => {
-    if (!slug) return;
-    navigate(`/topic/${encodeURIComponent(slug)}`);
+  const openWorldItem = (item) => {
+    if (!item) return;
+    const isGroupSource = item.kind === "source" && item.sourceKind === "group_message"
+      && /^\/world#group-source-[a-zA-Z0-9-]+$/.test(item.href || "");
+    const isPostSource = item.kind === "source" && item.sourceKind === "post"
+      && /^\/post\/[^/?#]+$/.test(item.href || "");
+    const isTopic = item.kind === "convergence" && item.slug;
+    const href = isGroupSource || isPostSource ? item.href
+      : isTopic ? `/topic/${encodeURIComponent(item.slug)}` : "/world";
+    research.setResearchContext?.({
+      subject: isGroupSource || (!isPostSource && !isTopic) ? null : {
+        id: item.sourceRef || item.id,
+        type: isPostSource ? "post" : isTopic ? "topic" : "world",
+        label: item.label,
+        href,
+      },
+      selection: item.sourceRef ? { entityId: item.sourceRef, entityType: item.kind, sourceRef: item.sourceRef } : null,
+      lens: "world",
+      journey: context?.journey || null,
+      returnTo: {
+        href: "/2029", label: "דף הבית",
+        subject: context?.subject || null,
+        selection: context?.selection || null,
+        lens: context?.lens || "home",
+        dimensions: context?.dimensions || {},
+        journey: context?.journey || null,
+      },
+    });
+    navigate(href);
   };
 
   const openResearcher = (slug) => {
     if (!slug) return;
     navigate(`/researcher/${encodeURIComponent(slug)}`);
   };
+
+  const continuity = (
+    <section className="sod29-home-continuity" aria-label="רציפות אישית">
+      <article className="sod29-home-lane">
+        <div className="sod29-kicker">המשך</div>
+        <h2>להמשיך מהמקום האחרון</h2>
+        {context?.subject ? <>
+          <div className="sod29-muted">{context.subject.label || context.subject.id} · {CONTEXT_TYPE_LABEL[context.subject.type] || context.subject.type}</div>
+          <div className="sod29-actions">
+            <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
+            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
+          </div>
+        </> : <>
+          <div className="sod29-muted">כשתתחיל לגלות משהו, הבית יידע להחזיר אותך בדיוק לשם.</div>
+          <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>האזור שלי</button></div>
+        </>}
+      </article>
+
+      <article className="sod29-home-lane">
+        <div className="sod29-kicker">בשבילי</div>
+        <h2>מה השתנה בשבילי</h2>
+        <div className="sod29-muted">כאן יופיע רק שינוי שבאמת נוגע למה ששמרת או פתחת. עד שאין שינוי מוכח — לא ממציאים התראה.</div>
+        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>פתח תשומת־לב אישית</button></div>
+      </article>
+    </section>
+  );
+
+  const selectPost = (post) => {
+    research.setResearchContext?.({
+      subject: { id: String(post.slug), type: "post", label: post.title, href: `/post/${post.slug}` },
+      selection: null,
+      lens: "home",
+      returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
+    });
+  };
+
+  // Approved composition (reference fa0e26f) on the same public readers and the single Frame.
+  // Include/Publish is unchanged; production keeps its current body until release.
+  if (HOME_COMPOSED) return <HomeComposition2029
+    projection={homeState.projection}
+    loading={homeState.loading}
+    nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
+    story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    arrivals={<div className="h29-stream">
+      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
+        items={worldPreview?.arrivals || worldPreview?.items || []}
+        availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
+      <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
+    </div>}
+    calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
+    entry={
+    <section className="sod29-home-review-entry" aria-label="התחלה משלך">
+        <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
+        <form className="sod29-command-bar" onSubmit={start}>
+          <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או נושא" aria-label="חיפוש או התחלת גילוי" />
+          <button className="sod29-action primary" type="submit">לגלות בעולם</button>
+        </form>
+        {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
+      </section>
+    }
+    continuity={continuity}
+    selectedSlug={context?.subject?.type === "post" ? context.subject.id : null}
+    onSelectPost={selectPost}
+  />;
 
   return <>
     <section className="sod29-global-now-stage sod29-home-now-first" id="global-now">
@@ -437,34 +537,12 @@ function HomeBody() {
     <HomeWorldPreview
       preview={worldPreview}
       loading={homeState.loading}
-      onOpenTopic={openTopic}
+      onOpenItem={openWorldItem}
       onOpenResearcher={openResearcher}
       onOpenWorld={() => navigate("/world")}
     />
 
-    <section className="sod29-home-continuity" aria-label="רציפות אישית">
-      <article className="sod29-home-lane">
-        <div className="sod29-kicker">המשך</div>
-        <h2>להמשיך מהמקום האחרון</h2>
-        {context?.subject ? <>
-          <div className="sod29-muted">{context.subject.label || context.subject.id} · {context.subject.type} · {context.lens || "ללא עדשה"}</div>
-          <div className="sod29-actions">
-            <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
-            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
-          </div>
-        </> : <>
-          <div className="sod29-muted">כשתתחיל לגלות משהו, הבית יידע להחזיר אותך בדיוק לשם.</div>
-          <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>האזור שלי</button></div>
-        </>}
-      </article>
-
-      <article className="sod29-home-lane">
-        <div className="sod29-kicker">בשבילי</div>
-        <h2>מה השתנה בשבילי</h2>
-        <div className="sod29-muted">כאן יופיע רק שינוי שבאמת נוגע למה ששמרת או פתחת. עד שאין שינוי מוכח — לא ממציאים התראה.</div>
-        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => shell.openWorkspace()}>פתח תשומת־לב אישית</button></div>
-      </article>
-    </section>
+    {continuity}
   </>;
 }
 
@@ -472,5 +550,5 @@ export default function Home2029Page() {
   useEffect(() => {
     applySeo({ title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" symbol="✦" eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
 }

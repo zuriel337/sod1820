@@ -1,0 +1,4486 @@
+[
+  {
+    "method_key": "רגיל",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 7
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 80,
+          "contribution": 80,
+          "running_subtotal": 87
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 100,
+          "contribution": 100,
+          "running_subtotal": 187
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 187
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 188
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 192
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 50,
+          "contribution": 50,
+          "running_subtotal": 242
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 100,
+          "contribution": 100,
+          "running_subtotal": 342
+        }
+      ],
+      "result": 342,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "רגיל",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_ragil",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 342,
+        "canonical_value": 342
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "מילוי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 111,
+          "contribution": 111,
+          "running_subtotal": 111
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 22,
+          "contribution": 22,
+          "running_subtotal": 133
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 81,
+          "contribution": 81,
+          "running_subtotal": 214
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 186,
+          "contribution": 186,
+          "running_subtotal": 400
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 400
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 111,
+          "contribution": 111,
+          "running_subtotal": 511
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 434,
+          "contribution": 434,
+          "running_subtotal": 945
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 106,
+          "contribution": 106,
+          "running_subtotal": 1051
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 186,
+          "contribution": 186,
+          "running_subtotal": 1237
+        }
+      ],
+      "result": 1237,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מילוי",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_miluy",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1237,
+        "canonical_value": 1237
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "מסתתר",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "word": "אופק",
+          "pairs": [
+            {
+              "difference": 5,
+              "left_value": 1,
+              "right_value": 6
+            },
+            {
+              "difference": 74,
+              "left_value": 6,
+              "right_value": 80
+            },
+            {
+              "difference": 20,
+              "left_value": 80,
+              "right_value": 100
+            }
+          ],
+          "letter_values": [
+            1,
+            6,
+            80,
+            100
+          ],
+          "word_subtotal": 99
+        },
+        {
+          "word": "אדנק",
+          "pairs": [
+            {
+              "difference": 3,
+              "left_value": 1,
+              "right_value": 4
+            },
+            {
+              "difference": 46,
+              "left_value": 4,
+              "right_value": 50
+            },
+            {
+              "difference": 50,
+              "left_value": 50,
+              "right_value": 100
+            }
+          ],
+          "letter_values": [
+            1,
+            4,
+            50,
+            100
+          ],
+          "word_subtotal": 99
+        }
+      ],
+      "result": 198,
+      "semantics": {
+        "per_word_reset": true,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": false
+      },
+      "method_key": "מסתתר",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_misratar",
+        "method_version": 1
+      },
+      "trace_kind": "ADJACENT_DIFFERENCE",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 198,
+        "canonical_value": 198
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "adjacent_difference"
+    }
+  },
+  {
+    "method_key": "קדמי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 21,
+          "contribution": 21,
+          "running_subtotal": 22
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 405,
+          "contribution": 405,
+          "running_subtotal": 427
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 595,
+          "contribution": 595,
+          "running_subtotal": 1022
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 1022
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1023
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 10,
+          "contribution": 10,
+          "running_subtotal": 1033
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 195,
+          "contribution": 195,
+          "running_subtotal": 1228
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 595,
+          "contribution": 595,
+          "running_subtotal": 1823
+        }
+      ],
+      "result": 1823,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "קדמי",
+      "provenance": {
+        "engine": "gematria",
+        "function": "kadmi_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1823,
+        "canonical_value": 1823
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "ריבוע",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "word": "אופק",
+          "steps": [
+            {
+              "index": 1,
+              "token": "א",
+              "base_value": 1,
+              "prefix_subtotal": 1
+            },
+            {
+              "index": 2,
+              "token": "ו",
+              "base_value": 6,
+              "prefix_subtotal": 7
+            },
+            {
+              "index": 3,
+              "token": "פ",
+              "base_value": 80,
+              "prefix_subtotal": 87
+            },
+            {
+              "index": 4,
+              "token": "ק",
+              "base_value": 100,
+              "prefix_subtotal": 187
+            }
+          ],
+          "word_subtotal": 282
+        },
+        {
+          "word": "אדנק",
+          "steps": [
+            {
+              "index": 1,
+              "token": "א",
+              "base_value": 1,
+              "prefix_subtotal": 1
+            },
+            {
+              "index": 2,
+              "token": "ד",
+              "base_value": 4,
+              "prefix_subtotal": 5
+            },
+            {
+              "index": 3,
+              "token": "נ",
+              "base_value": 50,
+              "prefix_subtotal": 55
+            },
+            {
+              "index": 4,
+              "token": "ק",
+              "base_value": 100,
+              "prefix_subtotal": 155
+            }
+          ],
+          "word_subtotal": 216
+        }
+      ],
+      "result": 498,
+      "semantics": {
+        "per_word_reset": true,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": false
+      },
+      "method_key": "ריבוע",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_ribua",
+        "method_version": 1
+      },
+      "trace_kind": "CUMULATIVE_PREFIX",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 498,
+        "canonical_value": 498
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "cumulative_prefix_sum"
+    }
+  },
+  {
+    "method_key": "גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 7
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 80,
+          "contribution": 80,
+          "running_subtotal": 87
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 100,
+          "contribution": 100,
+          "running_subtotal": 187
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 187
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 188
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 192
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 50,
+          "contribution": 50,
+          "running_subtotal": 242
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 100,
+          "contribution": 100,
+          "running_subtotal": 342
+        }
+      ],
+      "result": 342,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_gadol",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 342,
+        "canonical_value": 342
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "סידורי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 7
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 17,
+          "contribution": 17,
+          "running_subtotal": 24
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 19,
+          "contribution": 19,
+          "running_subtotal": 43
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 43
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 44
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 48
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 14,
+          "contribution": 14,
+          "running_subtotal": 62
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 19,
+          "contribution": 19,
+          "running_subtotal": 81
+        }
+      ],
+      "result": 81,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "סידורי",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_siduri",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 81,
+        "canonical_value": 81
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "אתבש",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 400,
+          "contribution": 400,
+          "running_subtotal": 400
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 80,
+          "contribution": 80,
+          "running_subtotal": 480
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 486
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 490
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 490
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 400,
+          "contribution": 400,
+          "running_subtotal": 890
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 100,
+          "contribution": 100,
+          "running_subtotal": 990
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 9,
+          "contribution": 9,
+          "running_subtotal": 999
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 1003
+        }
+      ],
+      "result": 1003,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "אתבש",
+      "provenance": {
+        "engine": "gematria",
+        "function": "atbash_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1003,
+        "canonical_value": 1003
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "אלבם",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 30,
+          "contribution": 30,
+          "running_subtotal": 30
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 80,
+          "contribution": 80,
+          "running_subtotal": 110
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 116
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 8,
+          "contribution": 8,
+          "running_subtotal": 124
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 124
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 30,
+          "contribution": 30,
+          "running_subtotal": 154
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 60,
+          "contribution": 60,
+          "running_subtotal": 214
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 3,
+          "contribution": 3,
+          "running_subtotal": 217
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 8,
+          "contribution": 8,
+          "running_subtotal": 225
+        }
+      ],
+      "result": 225,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "אלבם",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_albam",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 225,
+        "canonical_value": 225
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "אטבח",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "substituted",
+          "base_value": 9,
+          "contribution": 9,
+          "running_subtotal": 9,
+          "transformed_token": "ט"
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "substituted",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 13,
+          "transformed_token": "ד"
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "substituted",
+          "base_value": 20,
+          "contribution": 20,
+          "running_subtotal": 33,
+          "transformed_token": "כ"
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "substituted",
+          "base_value": 90,
+          "contribution": 90,
+          "running_subtotal": 123,
+          "transformed_token": "ץ"
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "substituted",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 123,
+          "transformed_token": " "
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "substituted",
+          "base_value": 9,
+          "contribution": 9,
+          "running_subtotal": 132,
+          "transformed_token": "ט"
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "substituted",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 138,
+          "transformed_token": "ו"
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "substituted",
+          "base_value": 50,
+          "contribution": 50,
+          "running_subtotal": 188,
+          "transformed_token": "נ"
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "substituted",
+          "base_value": 90,
+          "contribution": 90,
+          "running_subtotal": 278,
+          "transformed_token": "ץ"
+        }
+      ],
+      "result": 278,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "אטבח",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_atbach",
+        "method_version": 1
+      },
+      "trace_kind": "SUBSTITUTION_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 278,
+        "canonical_value": 278
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive_substitution"
+    }
+  },
+  {
+    "method_key": "אותיות אחרי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 2,
+          "contribution": 2,
+          "running_subtotal": 2
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 7,
+          "contribution": 7,
+          "running_subtotal": 9
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 90,
+          "contribution": 90,
+          "running_subtotal": 99
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 200,
+          "contribution": 200,
+          "running_subtotal": 299
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 299
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 2,
+          "contribution": 2,
+          "running_subtotal": 301
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 5,
+          "contribution": 5,
+          "running_subtotal": 306
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 60,
+          "contribution": 60,
+          "running_subtotal": 366
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 200,
+          "contribution": 200,
+          "running_subtotal": 566
+        }
+      ],
+      "result": 566,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "אותיות אחרי",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_otiot_after",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 566,
+        "canonical_value": 566
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "אותיות לפני",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 400,
+          "contribution": 400,
+          "running_subtotal": 400
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 5,
+          "contribution": 5,
+          "running_subtotal": 405
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 70,
+          "contribution": 70,
+          "running_subtotal": 475
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 90,
+          "contribution": 90,
+          "running_subtotal": 565
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 565
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 400,
+          "contribution": 400,
+          "running_subtotal": 965
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 3,
+          "contribution": 3,
+          "running_subtotal": 968
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 40,
+          "contribution": 40,
+          "running_subtotal": 1008
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 90,
+          "contribution": 90,
+          "running_subtotal": 1098
+        }
+      ],
+      "result": 1098,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "אותיות לפני",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_otiot_before",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1098,
+        "canonical_value": 1098
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "מילוי בלבד",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": {
+        "operator": "diff",
+        "components": [
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 111,
+                  "contribution": 111,
+                  "running_subtotal": 111
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 22,
+                  "contribution": 22,
+                  "running_subtotal": 133
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 81,
+                  "contribution": 81,
+                  "running_subtotal": 214
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 186,
+                  "contribution": 186,
+                  "running_subtotal": 400
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 400
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 111,
+                  "contribution": 111,
+                  "running_subtotal": 511
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 434,
+                  "contribution": 434,
+                  "running_subtotal": 945
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 106,
+                  "contribution": 106,
+                  "running_subtotal": 1051
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 186,
+                  "contribution": 186,
+                  "running_subtotal": 1237
+                }
+              ],
+              "result": 1237,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "מילוי",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_miluy",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 1237,
+                "canonical_value": 1237
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 1237,
+            "component_method": "מילוי"
+          },
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 6,
+                  "contribution": 6,
+                  "running_subtotal": 7
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 80,
+                  "contribution": 80,
+                  "running_subtotal": 87
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 188
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 4,
+                  "contribution": 4,
+                  "running_subtotal": 192
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 50,
+                  "contribution": 50,
+                  "running_subtotal": 242
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 342
+                }
+              ],
+              "result": 342,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "רגיל",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_ragil",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 342,
+                "canonical_value": 342
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 342,
+            "component_method": "רגיל"
+          }
+        ]
+      },
+      "result": 895,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מילוי בלבד",
+      "provenance": {
+        "engine": "gematria",
+        "function": null,
+        "method_version": 2
+      },
+      "trace_kind": "COMPOSITE",
+      "dependencies": [
+        "מילוי",
+        "רגיל"
+      ],
+      "verification": {
+        "parity": true,
+        "trace_value": 895,
+        "canonical_value": 895
+      },
+      "execution_kind": "composite_engine",
+      "method_version": 2,
+      "mathematical_family": "composite_diff"
+    }
+  },
+  {
+    "method_key": "הכפלה",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "square",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "square",
+          "base_value": 6,
+          "contribution": 36,
+          "running_subtotal": 37
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "square",
+          "base_value": 80,
+          "contribution": 6400,
+          "running_subtotal": 6437
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "square",
+          "base_value": 100,
+          "contribution": 10000,
+          "running_subtotal": 16437
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "square",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 16437
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "square",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 16438
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "square",
+          "base_value": 4,
+          "contribution": 16,
+          "running_subtotal": 16454
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "square",
+          "base_value": 50,
+          "contribution": 2500,
+          "running_subtotal": 18954
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "square",
+          "base_value": 100,
+          "contribution": 10000,
+          "running_subtotal": 28954
+        }
+      ],
+      "result": 28954,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": null,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "הכפלה",
+      "provenance": {
+        "engine": "gematria",
+        "function": "hakpala_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 28954,
+        "canonical_value": 28954
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "letter_square_sum"
+    }
+  },
+  {
+    "method_key": "משולש גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 21,
+          "contribution": 21,
+          "running_subtotal": 22
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 405,
+          "contribution": 405,
+          "running_subtotal": 427
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 595,
+          "contribution": 595,
+          "running_subtotal": 1022
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 1022
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1023
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 10,
+          "contribution": 10,
+          "running_subtotal": 1033
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 195,
+          "contribution": 195,
+          "running_subtotal": 1228
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 595,
+          "contribution": 595,
+          "running_subtotal": 1823
+        }
+      ],
+      "result": 1823,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "משולש גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": "kadmi_gadol_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1823,
+        "canonical_value": 1823
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "מסתתר גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "word": "אופק",
+          "pairs": [
+            {
+              "difference": 5,
+              "left_value": 1,
+              "right_value": 6
+            },
+            {
+              "difference": 74,
+              "left_value": 6,
+              "right_value": 80
+            },
+            {
+              "difference": 20,
+              "left_value": 80,
+              "right_value": 100
+            }
+          ],
+          "letter_values": [
+            1,
+            6,
+            80,
+            100
+          ],
+          "word_subtotal": 99
+        },
+        {
+          "word": "אדנק",
+          "pairs": [
+            {
+              "difference": 3,
+              "left_value": 1,
+              "right_value": 4
+            },
+            {
+              "difference": 46,
+              "left_value": 4,
+              "right_value": 50
+            },
+            {
+              "difference": 50,
+              "left_value": 50,
+              "right_value": 100
+            }
+          ],
+          "letter_values": [
+            1,
+            4,
+            50,
+            100
+          ],
+          "word_subtotal": 99
+        }
+      ],
+      "result": 198,
+      "semantics": {
+        "per_word_reset": true,
+        "order_sensitive": true,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": false
+      },
+      "method_key": "מסתתר גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": "mistater_gadol_calc",
+        "method_version": 1
+      },
+      "trace_kind": "ADJACENT_DIFFERENCE",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 198,
+        "canonical_value": 198
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "adjacent_difference"
+    }
+  },
+  {
+    "method_key": "מילוי דמילוי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 266,
+          "contribution": 266,
+          "running_subtotal": 266
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 64,
+          "contribution": 64,
+          "running_subtotal": 330
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 192,
+          "contribution": 192,
+          "running_subtotal": 522
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 289,
+          "contribution": 289,
+          "running_subtotal": 811
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 811
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 266,
+          "contribution": 266,
+          "running_subtotal": 1077
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 924,
+          "contribution": 924,
+          "running_subtotal": 2001
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 234,
+          "contribution": 234,
+          "running_subtotal": 2235
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 289,
+          "contribution": 289,
+          "running_subtotal": 2524
+        }
+      ],
+      "result": 2524,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מילוי דמילוי",
+      "provenance": {
+        "engine": "gematria",
+        "function": "miluy_demiluy_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 2524,
+        "canonical_value": 2524
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "מילוי דמילוי גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 986,
+          "contribution": 986,
+          "running_subtotal": 986
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 64,
+          "contribution": 64,
+          "running_subtotal": 1050
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 912,
+          "contribution": 912,
+          "running_subtotal": 1962
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 1009,
+          "contribution": 1009,
+          "running_subtotal": 2971
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 2971
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 986,
+          "contribution": 986,
+          "running_subtotal": 3957
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 924,
+          "contribution": 924,
+          "running_subtotal": 4881
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 1534,
+          "contribution": 1534,
+          "running_subtotal": 6415
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 1009,
+          "contribution": 1009,
+          "running_subtotal": 7424
+        }
+      ],
+      "result": 7424,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מילוי דמילוי גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": "miluy_demiluy_gadol_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 7424,
+        "canonical_value": 7424
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "הכפלה גדולה",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "square",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "square",
+          "base_value": 6,
+          "contribution": 36,
+          "running_subtotal": 37
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "square",
+          "base_value": 80,
+          "contribution": 6400,
+          "running_subtotal": 6437
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "square",
+          "base_value": 100,
+          "contribution": 10000,
+          "running_subtotal": 16437
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "square",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 16437
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "square",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 16438
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "square",
+          "base_value": 4,
+          "contribution": 16,
+          "running_subtotal": 16454
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "square",
+          "base_value": 50,
+          "contribution": 2500,
+          "running_subtotal": 18954
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "square",
+          "base_value": 100,
+          "contribution": 10000,
+          "running_subtotal": 28954
+        }
+      ],
+      "result": 28954,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": null,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "הכפלה גדולה",
+      "provenance": {
+        "engine": "gematria",
+        "function": "hakpala_gadol_calc",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 28954,
+        "canonical_value": 28954
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "letter_square_sum"
+    }
+  },
+  {
+    "method_key": "ריבוע גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "word": "אופק",
+          "steps": [
+            {
+              "index": 1,
+              "token": "א",
+              "base_value": 1,
+              "prefix_subtotal": 1
+            },
+            {
+              "index": 2,
+              "token": "ו",
+              "base_value": 6,
+              "prefix_subtotal": 7
+            },
+            {
+              "index": 3,
+              "token": "פ",
+              "base_value": 80,
+              "prefix_subtotal": 87
+            },
+            {
+              "index": 4,
+              "token": "ק",
+              "base_value": 100,
+              "prefix_subtotal": 187
+            }
+          ],
+          "word_subtotal": 282
+        },
+        {
+          "word": "אדנק",
+          "steps": [
+            {
+              "index": 1,
+              "token": "א",
+              "base_value": 1,
+              "prefix_subtotal": 1
+            },
+            {
+              "index": 2,
+              "token": "ד",
+              "base_value": 4,
+              "prefix_subtotal": 5
+            },
+            {
+              "index": 3,
+              "token": "נ",
+              "base_value": 50,
+              "prefix_subtotal": 55
+            },
+            {
+              "index": 4,
+              "token": "ק",
+              "base_value": 100,
+              "prefix_subtotal": 155
+            }
+          ],
+          "word_subtotal": 216
+        }
+      ],
+      "result": 498,
+      "semantics": {
+        "per_word_reset": true,
+        "order_sensitive": true,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": false
+      },
+      "method_key": "ריבוע גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": "ribua_gadol_calc",
+        "method_version": 1
+      },
+      "trace_kind": "CUMULATIVE_PREFIX",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 498,
+        "canonical_value": 498
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "cumulative_prefix_sum"
+    }
+  },
+  {
+    "method_key": "משולש מילה",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "token": "א",
+          "base_value": 1,
+          "prefix_subtotal": 1,
+          "original_position": 1
+        },
+        {
+          "index": 2,
+          "token": "ו",
+          "base_value": 6,
+          "prefix_subtotal": 7,
+          "original_position": 2
+        },
+        {
+          "index": 3,
+          "token": "פ",
+          "base_value": 80,
+          "prefix_subtotal": 87,
+          "original_position": 3
+        },
+        {
+          "index": 4,
+          "token": "ק",
+          "base_value": 100,
+          "prefix_subtotal": 187,
+          "original_position": 4
+        },
+        {
+          "index": 5,
+          "token": "א",
+          "base_value": 1,
+          "prefix_subtotal": 188,
+          "original_position": 5
+        },
+        {
+          "index": 6,
+          "token": "ד",
+          "base_value": 4,
+          "prefix_subtotal": 192,
+          "original_position": 6
+        },
+        {
+          "index": 7,
+          "token": "נ",
+          "base_value": 50,
+          "prefix_subtotal": 242,
+          "original_position": 7
+        },
+        {
+          "index": 8,
+          "token": "ק",
+          "base_value": 100,
+          "prefix_subtotal": 342,
+          "original_position": 8
+        }
+      ],
+      "result": 1246,
+      "semantics": {
+        "per_word_reset": false,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": true
+      },
+      "method_key": "משולש מילה",
+      "provenance": {
+        "engine": "gematria",
+        "function": "triangle_word_calc",
+        "method_version": 1
+      },
+      "trace_kind": "CUMULATIVE_PREFIX",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1246,
+        "canonical_value": 1246
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "cumulative_prefix_sum"
+    }
+  },
+  {
+    "method_key": "משולש הפוך",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "token": "ק",
+          "base_value": 100,
+          "prefix_subtotal": 100,
+          "original_position": 8
+        },
+        {
+          "index": 2,
+          "token": "נ",
+          "base_value": 50,
+          "prefix_subtotal": 150,
+          "original_position": 7
+        },
+        {
+          "index": 3,
+          "token": "ד",
+          "base_value": 4,
+          "prefix_subtotal": 154,
+          "original_position": 6
+        },
+        {
+          "index": 4,
+          "token": "א",
+          "base_value": 1,
+          "prefix_subtotal": 155,
+          "original_position": 5
+        },
+        {
+          "index": 5,
+          "token": "ק",
+          "base_value": 100,
+          "prefix_subtotal": 255,
+          "original_position": 4
+        },
+        {
+          "index": 6,
+          "token": "פ",
+          "base_value": 80,
+          "prefix_subtotal": 335,
+          "original_position": 3
+        },
+        {
+          "index": 7,
+          "token": "ו",
+          "base_value": 6,
+          "prefix_subtotal": 341,
+          "original_position": 2
+        },
+        {
+          "index": 8,
+          "token": "א",
+          "base_value": 1,
+          "prefix_subtotal": 342,
+          "original_position": 1
+        }
+      ],
+      "result": 1832,
+      "semantics": {
+        "per_word_reset": false,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": true
+      },
+      "method_key": "משולש הפוך",
+      "provenance": {
+        "engine": "gematria",
+        "function": "triangle_reverse_calc",
+        "method_version": 1
+      },
+      "trace_kind": "CUMULATIVE_PREFIX",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1832,
+        "canonical_value": 1832
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "position_weighted_sum"
+    }
+  },
+  {
+    "method_key": "משולש מדרגות",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "word": "אופק",
+          "steps": [
+            {
+              "index": 1,
+              "token": "א",
+              "position": 1,
+              "base_value": 1,
+              "contribution": 1
+            },
+            {
+              "index": 2,
+              "token": "ו",
+              "position": 2,
+              "base_value": 6,
+              "contribution": 12
+            },
+            {
+              "index": 3,
+              "token": "פ",
+              "position": 3,
+              "base_value": 80,
+              "contribution": 240
+            },
+            {
+              "index": 4,
+              "token": "ק",
+              "position": 4,
+              "base_value": 100,
+              "contribution": 400
+            }
+          ],
+          "word_subtotal": 653
+        },
+        {
+          "word": "אדנק",
+          "steps": [
+            {
+              "index": 1,
+              "token": "א",
+              "position": 1,
+              "base_value": 1,
+              "contribution": 1
+            },
+            {
+              "index": 2,
+              "token": "ד",
+              "position": 2,
+              "base_value": 4,
+              "contribution": 8
+            },
+            {
+              "index": 3,
+              "token": "נ",
+              "position": 3,
+              "base_value": 50,
+              "contribution": 150
+            },
+            {
+              "index": 4,
+              "token": "ק",
+              "position": 4,
+              "base_value": 100,
+              "contribution": 400
+            }
+          ],
+          "word_subtotal": 559
+        }
+      ],
+      "result": 1212,
+      "semantics": {
+        "per_word_reset": true,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": false
+      },
+      "method_key": "משולש מדרגות",
+      "provenance": {
+        "engine": "gematria",
+        "function": "stair_triangle_calc",
+        "method_version": 1
+      },
+      "trace_kind": "POSITION_WEIGHTED",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 1212,
+        "canonical_value": 1212
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "position_weighted_sum"
+    }
+  },
+  {
+    "method_key": "מילוי גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 831,
+          "contribution": 831,
+          "running_subtotal": 831
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 22,
+          "contribution": 22,
+          "running_subtotal": 853
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 81,
+          "contribution": 81,
+          "running_subtotal": 934
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 906,
+          "contribution": 906,
+          "running_subtotal": 1840
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 1840
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 831,
+          "contribution": 831,
+          "running_subtotal": 2671
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 434,
+          "contribution": 434,
+          "running_subtotal": 3105
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 756,
+          "contribution": 756,
+          "running_subtotal": 3861
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 906,
+          "contribution": 906,
+          "running_subtotal": 4767
+        }
+      ],
+      "result": 4767,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": null,
+        "final_letter_sensitive": null,
+        "word_boundary_sensitive": null,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מילוי גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_miluy_gadol",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 4767,
+        "canonical_value": 4767
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "רגיל+מילוי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": {
+        "operator": "sum",
+        "components": [
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 6,
+                  "contribution": 6,
+                  "running_subtotal": 7
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 80,
+                  "contribution": 80,
+                  "running_subtotal": 87
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 188
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 4,
+                  "contribution": 4,
+                  "running_subtotal": 192
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 50,
+                  "contribution": 50,
+                  "running_subtotal": 242
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 342
+                }
+              ],
+              "result": 342,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "רגיל",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_ragil",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 342,
+                "canonical_value": 342
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 342,
+            "component_method": "רגיל"
+          },
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 111,
+                  "contribution": 111,
+                  "running_subtotal": 111
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 22,
+                  "contribution": 22,
+                  "running_subtotal": 133
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 81,
+                  "contribution": 81,
+                  "running_subtotal": 214
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 186,
+                  "contribution": 186,
+                  "running_subtotal": 400
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 400
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 111,
+                  "contribution": 111,
+                  "running_subtotal": 511
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 434,
+                  "contribution": 434,
+                  "running_subtotal": 945
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 106,
+                  "contribution": 106,
+                  "running_subtotal": 1051
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 186,
+                  "contribution": 186,
+                  "running_subtotal": 1237
+                }
+              ],
+              "result": 1237,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "מילוי",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_miluy",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 1237,
+                "canonical_value": 1237
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 1237,
+            "component_method": "מילוי"
+          }
+        ]
+      },
+      "result": 1579,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "רגיל+מילוי",
+      "provenance": {
+        "engine": "gematria",
+        "function": null,
+        "method_version": 1
+      },
+      "trace_kind": "COMPOSITE",
+      "dependencies": [
+        "רגיל",
+        "מילוי"
+      ],
+      "verification": {
+        "parity": true,
+        "trace_value": 1579,
+        "canonical_value": 1579
+      },
+      "execution_kind": "composite_engine",
+      "method_version": 1,
+      "mathematical_family": "composite_sum"
+    }
+  },
+  {
+    "method_key": "רגיל+מסתתר",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": {
+        "operator": "sum",
+        "components": [
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 6,
+                  "contribution": 6,
+                  "running_subtotal": 7
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 80,
+                  "contribution": 80,
+                  "running_subtotal": 87
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 188
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 4,
+                  "contribution": 4,
+                  "running_subtotal": 192
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 50,
+                  "contribution": 50,
+                  "running_subtotal": 242
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 342
+                }
+              ],
+              "result": 342,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "רגיל",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_ragil",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 342,
+                "canonical_value": 342
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 342,
+            "component_method": "רגיל"
+          },
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "word": "אופק",
+                  "pairs": [
+                    {
+                      "difference": 5,
+                      "left_value": 1,
+                      "right_value": 6
+                    },
+                    {
+                      "difference": 74,
+                      "left_value": 6,
+                      "right_value": 80
+                    },
+                    {
+                      "difference": 20,
+                      "left_value": 80,
+                      "right_value": 100
+                    }
+                  ],
+                  "letter_values": [
+                    1,
+                    6,
+                    80,
+                    100
+                  ],
+                  "word_subtotal": 99
+                },
+                {
+                  "word": "אדנק",
+                  "pairs": [
+                    {
+                      "difference": 3,
+                      "left_value": 1,
+                      "right_value": 4
+                    },
+                    {
+                      "difference": 46,
+                      "left_value": 4,
+                      "right_value": 50
+                    },
+                    {
+                      "difference": 50,
+                      "left_value": 50,
+                      "right_value": 100
+                    }
+                  ],
+                  "letter_values": [
+                    1,
+                    4,
+                    50,
+                    100
+                  ],
+                  "word_subtotal": 99
+                }
+              ],
+              "result": 198,
+              "semantics": {
+                "per_word_reset": true,
+                "order_sensitive": true,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": true,
+                "full_phrase_continuation": false
+              },
+              "method_key": "מסתתר",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_misratar",
+                "method_version": 1
+              },
+              "trace_kind": "ADJACENT_DIFFERENCE",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 198,
+                "canonical_value": 198
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "adjacent_difference"
+            },
+            "component_value": 198,
+            "component_method": "מסתתר"
+          }
+        ]
+      },
+      "result": 540,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": null
+      },
+      "method_key": "רגיל+מסתתר",
+      "provenance": {
+        "engine": "gematria",
+        "function": null,
+        "method_version": 1
+      },
+      "trace_kind": "COMPOSITE",
+      "dependencies": [
+        "רגיל",
+        "מסתתר"
+      ],
+      "verification": {
+        "parity": true,
+        "trace_value": 540,
+        "canonical_value": 540
+      },
+      "execution_kind": "composite_engine",
+      "method_version": 1,
+      "mathematical_family": "composite_sum"
+    }
+  },
+  {
+    "method_key": "רגיל+משולש",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": {
+        "operator": "sum",
+        "components": [
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 6,
+                  "contribution": 6,
+                  "running_subtotal": 7
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 80,
+                  "contribution": 80,
+                  "running_subtotal": 87
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 188
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 4,
+                  "contribution": 4,
+                  "running_subtotal": 192
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 50,
+                  "contribution": 50,
+                  "running_subtotal": 242
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 342
+                }
+              ],
+              "result": 342,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "רגיל",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_ragil",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 342,
+                "canonical_value": 342
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 342,
+            "component_method": "רגיל"
+          },
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 21,
+                  "contribution": 21,
+                  "running_subtotal": 22
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 405,
+                  "contribution": 405,
+                  "running_subtotal": 427
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 595,
+                  "contribution": 595,
+                  "running_subtotal": 1022
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 1022
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1023
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 10,
+                  "contribution": 10,
+                  "running_subtotal": 1033
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 195,
+                  "contribution": 195,
+                  "running_subtotal": 1228
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 595,
+                  "contribution": 595,
+                  "running_subtotal": 1823
+                }
+              ],
+              "result": 1823,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "קדמי",
+              "provenance": {
+                "engine": "gematria",
+                "function": "kadmi_calc",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 1823,
+                "canonical_value": 1823
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 1823,
+            "component_method": "קדמי"
+          }
+        ]
+      },
+      "result": 2165,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "רגיל+משולש",
+      "provenance": {
+        "engine": "gematria",
+        "function": null,
+        "method_version": 1
+      },
+      "trace_kind": "COMPOSITE",
+      "dependencies": [
+        "רגיל",
+        "קדמי"
+      ],
+      "verification": {
+        "parity": true,
+        "trace_value": 2165,
+        "canonical_value": 2165
+      },
+      "execution_kind": "composite_engine",
+      "method_version": 1,
+      "mathematical_family": "composite_sum"
+    }
+  },
+  {
+    "method_key": "משולש מילה+משולש הפוך",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": {
+        "operator": "sum",
+        "components": [
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "token": "א",
+                  "base_value": 1,
+                  "prefix_subtotal": 1,
+                  "original_position": 1
+                },
+                {
+                  "index": 2,
+                  "token": "ו",
+                  "base_value": 6,
+                  "prefix_subtotal": 7,
+                  "original_position": 2
+                },
+                {
+                  "index": 3,
+                  "token": "פ",
+                  "base_value": 80,
+                  "prefix_subtotal": 87,
+                  "original_position": 3
+                },
+                {
+                  "index": 4,
+                  "token": "ק",
+                  "base_value": 100,
+                  "prefix_subtotal": 187,
+                  "original_position": 4
+                },
+                {
+                  "index": 5,
+                  "token": "א",
+                  "base_value": 1,
+                  "prefix_subtotal": 188,
+                  "original_position": 5
+                },
+                {
+                  "index": 6,
+                  "token": "ד",
+                  "base_value": 4,
+                  "prefix_subtotal": 192,
+                  "original_position": 6
+                },
+                {
+                  "index": 7,
+                  "token": "נ",
+                  "base_value": 50,
+                  "prefix_subtotal": 242,
+                  "original_position": 7
+                },
+                {
+                  "index": 8,
+                  "token": "ק",
+                  "base_value": 100,
+                  "prefix_subtotal": 342,
+                  "original_position": 8
+                }
+              ],
+              "result": 1246,
+              "semantics": {
+                "per_word_reset": false,
+                "order_sensitive": true,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": true,
+                "full_phrase_continuation": true
+              },
+              "method_key": "משולש מילה",
+              "provenance": {
+                "engine": "gematria",
+                "function": "triangle_word_calc",
+                "method_version": 1
+              },
+              "trace_kind": "CUMULATIVE_PREFIX",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 1246,
+                "canonical_value": 1246
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "cumulative_prefix_sum"
+            },
+            "component_value": 1246,
+            "component_method": "משולש מילה"
+          },
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "token": "ק",
+                  "base_value": 100,
+                  "prefix_subtotal": 100,
+                  "original_position": 8
+                },
+                {
+                  "index": 2,
+                  "token": "נ",
+                  "base_value": 50,
+                  "prefix_subtotal": 150,
+                  "original_position": 7
+                },
+                {
+                  "index": 3,
+                  "token": "ד",
+                  "base_value": 4,
+                  "prefix_subtotal": 154,
+                  "original_position": 6
+                },
+                {
+                  "index": 4,
+                  "token": "א",
+                  "base_value": 1,
+                  "prefix_subtotal": 155,
+                  "original_position": 5
+                },
+                {
+                  "index": 5,
+                  "token": "ק",
+                  "base_value": 100,
+                  "prefix_subtotal": 255,
+                  "original_position": 4
+                },
+                {
+                  "index": 6,
+                  "token": "פ",
+                  "base_value": 80,
+                  "prefix_subtotal": 335,
+                  "original_position": 3
+                },
+                {
+                  "index": 7,
+                  "token": "ו",
+                  "base_value": 6,
+                  "prefix_subtotal": 341,
+                  "original_position": 2
+                },
+                {
+                  "index": 8,
+                  "token": "א",
+                  "base_value": 1,
+                  "prefix_subtotal": 342,
+                  "original_position": 1
+                }
+              ],
+              "result": 1832,
+              "semantics": {
+                "per_word_reset": false,
+                "order_sensitive": true,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": true,
+                "full_phrase_continuation": true
+              },
+              "method_key": "משולש הפוך",
+              "provenance": {
+                "engine": "gematria",
+                "function": "triangle_reverse_calc",
+                "method_version": 1
+              },
+              "trace_kind": "CUMULATIVE_PREFIX",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 1832,
+                "canonical_value": 1832
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "position_weighted_sum"
+            },
+            "component_value": 1832,
+            "component_method": "משולש הפוך"
+          }
+        ]
+      },
+      "result": 3078,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": true,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": true,
+        "full_phrase_continuation": null
+      },
+      "method_key": "משולש מילה+משולש הפוך",
+      "provenance": {
+        "engine": "gematria",
+        "function": null,
+        "method_version": 1
+      },
+      "trace_kind": "COMPOSITE",
+      "dependencies": [
+        "משולש מילה",
+        "משולש הפוך"
+      ],
+      "verification": {
+        "parity": true,
+        "trace_value": 3078,
+        "canonical_value": 3078
+      },
+      "execution_kind": "composite_engine",
+      "method_version": 1,
+      "mathematical_family": "composite_sum"
+    }
+  },
+  {
+    "method_key": "איק בכר",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "substituted",
+          "base_value": 10,
+          "contribution": 10,
+          "running_subtotal": 10,
+          "transformed_token": "י"
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "substituted",
+          "base_value": 60,
+          "contribution": 60,
+          "running_subtotal": 70,
+          "transformed_token": "ס"
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "substituted",
+          "base_value": 80,
+          "contribution": 80,
+          "running_subtotal": 150,
+          "transformed_token": "ף"
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "substituted",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 151,
+          "transformed_token": "א"
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "substituted",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 151,
+          "transformed_token": " "
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "substituted",
+          "base_value": 10,
+          "contribution": 10,
+          "running_subtotal": 161,
+          "transformed_token": "י"
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "substituted",
+          "base_value": 40,
+          "contribution": 40,
+          "running_subtotal": 201,
+          "transformed_token": "מ"
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "substituted",
+          "base_value": 20,
+          "contribution": 20,
+          "running_subtotal": 221,
+          "transformed_token": "ך"
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "substituted",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 222,
+          "transformed_token": "א"
+        }
+      ],
+      "result": 222,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "איק בכר",
+      "provenance": {
+        "engine": "gematria",
+        "function": "aiq_bekar_calc",
+        "method_version": 1
+      },
+      "trace_kind": "SUBSTITUTION_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 222,
+        "canonical_value": 222
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive_substitution"
+    }
+  },
+  {
+    "method_key": "אות רבתי",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": null,
+      "result": 342000,
+      "semantics": {
+        "per_word_reset": false,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": true
+      },
+      "method_key": "אות רבתי",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_rabbati",
+        "method_version": 1
+      },
+      "trace_kind": "context_required",
+      "dependencies": [
+        "רגיל",
+        "גדול"
+      ],
+      "verification": {
+        "parity": null,
+        "trace_value": null,
+        "canonical_value": 342000
+      },
+      "execution_kind": "context_activated",
+      "method_version": 1,
+      "context_contract": {
+        "subject": "text",
+        "activation": "explicit_rabbati_context_only"
+      },
+      "mathematical_family": "extended_letter_values"
+    }
+  },
+  {
+    "method_key": "מיקום האות",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": [
+        {
+          "index": 1,
+          "scope": "letter",
+          "token": "א",
+          "position": 1,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 1
+        },
+        {
+          "index": 2,
+          "scope": "letter",
+          "token": "ו",
+          "position": 2,
+          "transform": "identity",
+          "base_value": 6,
+          "contribution": 6,
+          "running_subtotal": 7
+        },
+        {
+          "index": 3,
+          "scope": "letter",
+          "token": "פ",
+          "position": 3,
+          "transform": "identity",
+          "base_value": 17,
+          "contribution": 17,
+          "running_subtotal": 24
+        },
+        {
+          "index": 4,
+          "scope": "letter",
+          "token": "ק",
+          "position": 4,
+          "transform": "identity",
+          "base_value": 19,
+          "contribution": 19,
+          "running_subtotal": 43
+        },
+        {
+          "index": 5,
+          "scope": "letter",
+          "token": " ",
+          "position": 5,
+          "transform": "identity",
+          "base_value": 0,
+          "contribution": 0,
+          "running_subtotal": 43
+        },
+        {
+          "index": 6,
+          "scope": "letter",
+          "token": "א",
+          "position": 6,
+          "transform": "identity",
+          "base_value": 1,
+          "contribution": 1,
+          "running_subtotal": 44
+        },
+        {
+          "index": 7,
+          "scope": "letter",
+          "token": "ד",
+          "position": 7,
+          "transform": "identity",
+          "base_value": 4,
+          "contribution": 4,
+          "running_subtotal": 48
+        },
+        {
+          "index": 8,
+          "scope": "letter",
+          "token": "נ",
+          "position": 8,
+          "transform": "identity",
+          "base_value": 14,
+          "contribution": 14,
+          "running_subtotal": 62
+        },
+        {
+          "index": 9,
+          "scope": "letter",
+          "token": "ק",
+          "position": 9,
+          "transform": "identity",
+          "base_value": 19,
+          "contribution": 19,
+          "running_subtotal": 81
+        }
+      ],
+      "result": 81,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": true,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מיקום האות",
+      "provenance": {
+        "engine": "gematria",
+        "function": "fn_mikum_haot",
+        "method_version": 1
+      },
+      "trace_kind": "LETTER_LEDGER",
+      "dependencies": null,
+      "verification": {
+        "parity": true,
+        "trace_value": 81,
+        "canonical_value": 81
+      },
+      "execution_kind": "sql_function",
+      "method_version": 1,
+      "mathematical_family": "base_additive"
+    }
+  },
+  {
+    "method_key": "מילוי בלבד גדול",
+    "trace": {
+      "input": "אופק אדנק",
+      "steps": {
+        "operator": "diff",
+        "components": [
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 831,
+                  "contribution": 831,
+                  "running_subtotal": 831
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 22,
+                  "contribution": 22,
+                  "running_subtotal": 853
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 81,
+                  "contribution": 81,
+                  "running_subtotal": 934
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 906,
+                  "contribution": 906,
+                  "running_subtotal": 1840
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 1840
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 831,
+                  "contribution": 831,
+                  "running_subtotal": 2671
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 434,
+                  "contribution": 434,
+                  "running_subtotal": 3105
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 756,
+                  "contribution": 756,
+                  "running_subtotal": 3861
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 906,
+                  "contribution": 906,
+                  "running_subtotal": 4767
+                }
+              ],
+              "result": 4767,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": null,
+                "final_letter_sensitive": null,
+                "word_boundary_sensitive": null,
+                "full_phrase_continuation": null
+              },
+              "method_key": "מילוי גדול",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_miluy_gadol",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 4767,
+                "canonical_value": 4767
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 4767,
+            "component_method": "מילוי גדול"
+          },
+          {
+            "component_trace": {
+              "input": "אופק אדנק",
+              "steps": [
+                {
+                  "index": 1,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 1,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 1
+                },
+                {
+                  "index": 2,
+                  "scope": "letter",
+                  "token": "ו",
+                  "position": 2,
+                  "transform": "identity",
+                  "base_value": 6,
+                  "contribution": 6,
+                  "running_subtotal": 7
+                },
+                {
+                  "index": 3,
+                  "scope": "letter",
+                  "token": "פ",
+                  "position": 3,
+                  "transform": "identity",
+                  "base_value": 80,
+                  "contribution": 80,
+                  "running_subtotal": 87
+                },
+                {
+                  "index": 4,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 4,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 5,
+                  "scope": "letter",
+                  "token": " ",
+                  "position": 5,
+                  "transform": "identity",
+                  "base_value": 0,
+                  "contribution": 0,
+                  "running_subtotal": 187
+                },
+                {
+                  "index": 6,
+                  "scope": "letter",
+                  "token": "א",
+                  "position": 6,
+                  "transform": "identity",
+                  "base_value": 1,
+                  "contribution": 1,
+                  "running_subtotal": 188
+                },
+                {
+                  "index": 7,
+                  "scope": "letter",
+                  "token": "ד",
+                  "position": 7,
+                  "transform": "identity",
+                  "base_value": 4,
+                  "contribution": 4,
+                  "running_subtotal": 192
+                },
+                {
+                  "index": 8,
+                  "scope": "letter",
+                  "token": "נ",
+                  "position": 8,
+                  "transform": "identity",
+                  "base_value": 50,
+                  "contribution": 50,
+                  "running_subtotal": 242
+                },
+                {
+                  "index": 9,
+                  "scope": "letter",
+                  "token": "ק",
+                  "position": 9,
+                  "transform": "identity",
+                  "base_value": 100,
+                  "contribution": 100,
+                  "running_subtotal": 342
+                }
+              ],
+              "result": 342,
+              "semantics": {
+                "per_word_reset": null,
+                "order_sensitive": false,
+                "final_letter_sensitive": false,
+                "word_boundary_sensitive": false,
+                "full_phrase_continuation": null
+              },
+              "method_key": "רגיל",
+              "provenance": {
+                "engine": "gematria",
+                "function": "fn_ragil",
+                "method_version": 1
+              },
+              "trace_kind": "LETTER_LEDGER",
+              "dependencies": null,
+              "verification": {
+                "parity": true,
+                "trace_value": 342,
+                "canonical_value": 342
+              },
+              "execution_kind": "sql_function",
+              "method_version": 1,
+              "mathematical_family": "base_additive"
+            },
+            "component_value": 342,
+            "component_method": "רגיל"
+          }
+        ]
+      },
+      "result": 4425,
+      "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": null,
+        "final_letter_sensitive": null,
+        "word_boundary_sensitive": null,
+        "full_phrase_continuation": null
+      },
+      "method_key": "מילוי בלבד גדול",
+      "provenance": {
+        "engine": "gematria",
+        "function": null,
+        "method_version": 1
+      },
+      "trace_kind": "COMPOSITE",
+      "dependencies": [
+        "מילוי גדול",
+        "רגיל"
+      ],
+      "verification": {
+        "parity": true,
+        "trace_value": 4425,
+        "canonical_value": 4425
+      },
+      "execution_kind": "composite_engine",
+      "method_version": 1,
+      "mathematical_family": "composite_diff"
+    }
+  }
+]

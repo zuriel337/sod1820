@@ -1,3 +1,5 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import { use2029Palette } from "../lib/palette.js";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -68,6 +70,21 @@ function primaryCoverage(coverage) {
   return null;
 }
 
+function SaveBookItemAction({ item, research }) {
+  const palette = use2029Palette();
+  const [failed, setFailed] = useState(false);
+  const saved = Boolean(item?.id && research.saved?.some(entry => entry.id === item.id));
+  return <>
+    <button type="button" className="sod29-action" data-action="save"
+      style={{ "--action-success": palette.successText, "--action-danger": palette.dangerText }}
+      data-state={failed ? "error" : saved ? "success" : "idle"} aria-pressed={saved && !failed} disabled={!item}
+      onClick={() => { try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
+      <NavigationIcon2029 name={failed ? "issue" : saved ? "check" : "save"} />{failed ? "נסה לשמור שוב" : saved ? "נשמר" : "שמור"}
+    </button>
+    <span className="sod-action-announcement" role="status">{failed ? "השמירה לא הושלמה. נסה שוב." : saved ? "הפריט שמור בספרייה" : ""}</span>
+  </>;
+}
+
 function ResearchFindingRow({ entry, book, research }) {
   const row = entry.row;
   const loc = entry.representation?.sourceLocator || parseSourceRefLocator(row.source_ref);
@@ -78,7 +95,7 @@ function ResearchFindingRow({ entry, book, research }) {
       <strong>{shortText(row.statement || entry.representation?.title || row.kind || "ממצא מחקר", 260)}</strong>
       <small>{[entry.statusLabel, entry.verificationLabel, locus].filter(Boolean).join(" · ")}</small>
     </div>
-    <div className="sod29-actions"><button className="sod29-action" onClick={() => item && research.saveItem?.(item)}>♡ שמור</button></div>
+    <div className="sod29-actions"><SaveBookItemAction item={item} research={research} /></div>
   </div>;
 }
 
@@ -212,7 +229,6 @@ function BookDetail({ slug }) {
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
   if (!book) return <section className="sod29-section"><div className="sod29-state warn">הספר אינו פעיל/נגיש כרגע. לא מציגים snapshot קשיח במקום זהות חיה.</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
 
-  const saveBook = () => { const item = bookToWorkspaceItem(book); if (item) research.saveItem?.(item); };
   const addBook = () => { const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
 
   return <>
@@ -223,7 +239,7 @@ function BookDetail({ slug }) {
           <div className="sod29-kicker">ספר · מקור · מחקר</div>
           <h2>{book.label}</h2>
           <p className="sod29-muted">מתחילים מהעיקר: מה כבר מופה, מה נמצא במחקר, מאיזה מקור זה מגיע ומה עדיין דורש המשך בדיקה. שכבות העדות נשמרות בנפרד מאחורי התצוגה האנושית.</p>
-          <div className="sod29-actions"><button className="sod29-action" onClick={saveBook}>♡ שמור</button><button className="sod29-action" onClick={addBook}>＋ הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button></div>
+          <div className="sod29-actions"><SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()}>✦ שאל את רזיאל</button></div>
         </div>
       </div>
     </section>

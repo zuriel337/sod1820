@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17
+        # Docker Official Images mirror avoids anonymous Docker Hub pull limits.
+        image: public.ecr.aws/docker/library/postgres:17
         env:
           POSTGRES_PASSWORD: fixture_only
           POSTGRES_DB: research_sync_fixture

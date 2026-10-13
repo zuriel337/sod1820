@@ -1,3 +1,4 @@
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
@@ -115,7 +116,7 @@ export default function ControlPlane2029Page() {
     description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
     status="ADMIN · READ ONLY"
     surface="admin"
-    symbol="⌁"
+    symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
     <section className="sod29-section">

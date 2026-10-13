@@ -36,8 +36,8 @@
 .sod29-reading-hero h1{
   margin:14px 0 12px;
   max-width:940px;
-  font-size:clamp(38px,6.2vw,76px);
-  line-height:1.02;
+  font-size:clamp(30px,3.5vw,48px);
+  line-height:1.18;
   letter-spacing:-.035em;
   text-wrap:balance;
 }
@@ -334,7 +334,7 @@
 
 @media(max-width:390px){
   .sod29-reading-post{width:calc(100% - 12px)}
-  .sod29-reading-hero h1{font-size:38px}
+  .sod29-reading-hero h1{font-size:30px}
   .sod29-reading-deck{font-size:15px}
   .sod29-reading-source{padding:24px 17px 36px;border-radius:20px}
   .sod29-reading-source p{font-size:16px;line-height:1.95}
@@ -1300,3 +1300,51 @@
   border-radius:12px;
   background:#050505;
 }
+
+/* The signal must fit its own button, including a four-digit number in a narrow rail. */
+.sod29-reading-post[data-post-slug] .sod29-reading-number-signal:nth-child(n){
+  container-type:inline-size;
+  min-inline-size:72px;
+}
+.sod29-reading-post[data-post-slug] .sod29-reading-number-signal strong{
+  font-size:clamp(20px,25cqw,38px);
+  letter-spacing:0;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.sod29-reading-source [data-reading-region],
+.sod29-post-continuations [data-reading-region]{
+  scroll-margin-top:max(130px,18vh);
+}
+.sod29-reading-post[data-post-slug] .sod29-reading-number-constellation{
+  width:100%;
+}
+.sod29-reading-post[data-post-slug="bennett-melach-631-78"] .sod29-reading-number-constellation{
+  display:grid;
+}
+
+/* Declared connections remain separate from the historical source body. */
+.sod29-post-continuations{
+  width:min(900px,100%);margin:48px auto;scroll-margin-top:120px;
+}
+.sod29-post-continuations h2{font-size:28px;line-height:1.3;margin:0 0 12px;color:var(--s29-ink)}
+.sod29-post-continuations header>p{font-size:18px;line-height:1.7;color:var(--s29-muted);margin:0 0 24px}
+.sod29-post-continuation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.sod29-post-continuation{
+  display:flex;flex-direction:column;gap:12px;min-width:0;padding:24px;border:1px solid var(--s29-line);
+  border-radius:22px;background:var(--s29-panel);color:var(--s29-ink);text-decoration:none;
+}
+.sod29-post-continuation:hover{border-color:var(--s29-accent)}
+.sod29-post-continuation:focus-visible,.sod29-post-next a:focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
+.sod29-post-continuation-type{font-size:14px;color:var(--s29-accent-text)}
+.sod29-post-continuation h3{font-size:22px;line-height:1.4;margin:0}
+.sod29-post-continuation p{font-size:18px;line-height:1.7;margin:0;color:var(--s29-muted)}
+.sod29-post-continuation-open{display:flex;justify-content:space-between;gap:12px;font-size:16px;color:var(--s29-accent-text);margin-top:auto;padding-top:12px}
+.sod29-post-next{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;scroll-margin-top:120px}
+.sod29-post-next a{display:inline-flex;align-items:center;min-height:44px;padding:12px 18px;border:1px solid var(--s29-line);border-radius:14px;color:var(--s29-accent-text);font-size:16px;text-decoration:none}
+.sod29-reading-post>.sod29-surface-tabs{width:min(900px,100%);margin:0 auto 28px;flex-wrap:wrap}
+#post-sources{scroll-margin-top:120px}
+@media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
+
+/* Post reading cover: one compact whole image (shared media kit does the contain/lightbox work). */
+.sod29-reading-cover{margin:0 auto 20px;max-width:min(100%,760px)}

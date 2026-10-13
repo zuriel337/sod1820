@@ -9,6 +9,9 @@ import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import Calculator2029Page from "./pages/Calculator2029Page.jsx";
+import { use2029Palette } from "./lib/palette.js";
+import { TYPEFACE } from "./lib/designTokens.js";
+import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
@@ -36,9 +39,22 @@ function HomeEntry2029() {
     ? <Community2029Page />
     : <Home2029Page />;
 }
+const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
+
+// Branch-only prototype. Production builds do not register or import this surface
+// unless explicitly enabled; no global navigation/route ownership is promoted.
+const kingdomPreviewEnabled = import.meta.env.VITE_KINGDOM_PREVIEW === "true";
+const Kingdom2029Page = kingdomPreviewEnabled
+  ? lazy(() => import("./pages/Kingdom2029Page.jsx")) : null;
+const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+const IntegratedPreview2029Page = integratedPreviewEnabled
+  ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
 
 function Loading2029() {
-  return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
+  const palette = use2029Palette();
+  return <div role="status" dir="rtl" style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui, fontSize: 18 }}>
+    <span>טוען את התוכן…</span>
+  </div>;
 }
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
@@ -46,6 +62,7 @@ function RouteEffects2029() {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -54,6 +71,7 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/2029/control")) return undefined;
     const timer = setTimeout(() => {
@@ -93,9 +111,13 @@ export default function App2029() {
           <Suspense fallback={<Loading2029 />}>
             <Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
+              {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
+              <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
+              {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}
               <Route path="/2029/gematria" element={<Calculator2029Page />} />
+              <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
               <Route path="/world" element={<World2029Page />} />
               <Route path="/topic/:slug" element={<Topic2029Page />} />
               <Route path="/2029/posts" element={<Posts2029Page />} />

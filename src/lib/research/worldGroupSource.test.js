@@ -10,6 +10,8 @@ test("projects a proved four-author group row as unverified source", () => {
   const it = groupRowToWorldUpdate(row());
   assert.equal(it.kind, "source"); assert.equal(it.stateLabel, GROUP_SOURCE_LABEL);
   assert.equal(it.href, "/world#group-source-u1");
+  assert.equal(it.sourceLabel, "הודעה מקבוצת מקור");
+  assert.equal(it.arrivalAt, "2026-10-01T10:00:00.000Z");
   assert.equal(it.publicState, "group_source_message_unverified"); assert.equal(it.researchCount, 0);
   assert.equal(it.value, null); assert.deepEqual(it.numbers, []); // no Number 0, no invented number
 });
@@ -32,6 +34,21 @@ test("exact source reuse: one stream item per row, same id/sourceRef for World a
   const b = buildWorldDiscoveryStream({ groupItems: g }, { limit: 5 });
   assert.equal(a.items.length, 2); assert.deepEqual(a.items.map((i) => i.id), b.items.map((i) => i.id));
   assert.equal(a.items.filter((i) => i.creator === "צבי").length, 2);
+});
+test("later research enriches one group occurrence without changing its arrival or making a second source", () => {
+  const g = groupRowToWorldUpdate(row());
+  const feed = buildWorldDiscoveryStream({
+    groupItems: [g, g],
+    research: [
+      { id: "f1", status: "approved", source_ref: "channel_updates:u1#finding:1", created_at: "2026-10-03T10:00:00Z" },
+      { id: "f2", status: "approved", source_ref: "channel_updates:u1#finding:2", created_at: "2026-10-04T10:00:00Z" },
+    ],
+  });
+  assert.equal(feed.items.length, 1);
+  assert.equal(feed.items[0].id, "group:u1");
+  assert.equal(feed.items[0].at, "2026-10-01T10:00:00.000Z");
+  assert.equal(feed.items[0].researchUpdatedAt, "2026-10-04T10:00:00.000Z");
+  assert.equal(feed.items[0].researchCount, 2);
 });
 test("no fake new items when reader returns nothing; reader error propagates (caller shows not_connected)", async () => {
   assert.equal(buildWorldDiscoveryStream({ groupItems: [] }).items.length, 0);

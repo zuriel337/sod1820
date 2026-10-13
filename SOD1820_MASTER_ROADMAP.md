@@ -95,6 +95,8 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - Posts-first does **not** make Posts the owner of the visual system. Extract/reuse shared primitives and tokens so World and Home inherit the same language; no Bennett/FZ1073-specific UI law and no page-local visual system.
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
+
+- **Accepted 2029 composition · Human Gate ZURIEL · 12.10.2026:** one slim anchored real-update strip over natural living source sections; one desktop LEFT Companion with **עדכונים | הקשר**, contextual Golden Projector nested within it, and one BOTTOM Command Island with optional section-based progress inside its trail. The RIGHT global navigation remains distinct. **Owners:** Design V2 §§8.1/11.8, System Frame V2 addendum §3.5.3, current Publishing/Research Intake/Reality Graph and Owner Index. **G4 remaining sequence:** certified source-native fragment + revision reader → Post/Home/World exact update/return → 320/390/desktop + Night/Day/Parchment/anon/admin visual/privacy acceptance. PR #1039 (Posts) and PR #1044 (Companion) remain independent unmerged implementation candidates; approval of direction is not Golden PASS, major cutover authorization, or an additional Golden.
 ### Source-world completion timing after the 2026-10-07 corpus census
 
 - **Now / before the Posts Golden is accepted:** close only the selective identity/linkage repairs and exact source/provenance seams actually used by the Golden fixtures. The completed Zvi + Sod Hashmal maps are sufficient to proceed; do **not** deep-map the whole remaining world first.
@@ -168,6 +170,8 @@ These are product homes, not semantic owners:
 
 Global capabilities such as Raziel, Universal Resolve/Search/Command, Follow/Attention, Share and Journey may appear across surfaces without becoming separate top-level truth systems.
 
+**Gematria Calculator (Human Gate ZURIEL · 2026-10-12):** one infrastructure, two projections — professional calculator (tiles/ledger, advanced, wide mode for Heichal) and the viral community calculator. Existing owners only (gematria engine/registry, Design V2, Raziel AI routing). Phases, dependencies and acceptance tests: `docs/2029-implementation-dependency-plan-v1.md` §5A.1.
+
 ## Open decisions that still matter
 
 Only decision-changing open items belong here:
@@ -183,6 +187,7 @@ Only decision-changing open items belong here:
 - exact server-boundary mechanics for HTTP 404/301/200 on invalid/retired/current **2029** public routes, without adding DB lookups to CN/SG bot-policy middleware;
 - exact Free/Registered/Premium/Credits allocation in G5;
 - exact English launch scope after Golden Locale acceptance;
+- Calculator: Registry activation of the `en_*` methods (3 verified, `en_reverse_reduction` pending adjudication), Agrippa/Latin admission, and the Heichal wide-mode link;
 - release batching after acceptance.
 
 ## Anti-inflation rule

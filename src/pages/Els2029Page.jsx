@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
-import TzofenEmbed from "../components/TzofenEmbed.jsx";
+import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
+import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
+import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
+import { useAuth } from "../lib/AuthContext.jsx";
+import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
@@ -15,6 +20,7 @@ import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 
 const clean = (value) => String(value ?? "").trim();
+const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
 
 function StateRow({ label, value, state = "ready" }) {
   return <div className="sod29-state" data-state={state}>
@@ -56,6 +62,34 @@ function ElsRazielEntry({ researchContext, projection, layers, ready }) {
 
 export default function Els2029Page() {
   const research = useResearch();
+  const { user, loading: authLoading } = useAuth();
+  const [params, setParams] = useSearchParams();
+  const library = params.get("library");
+  const [workspaceVisited, setWorkspaceVisited] = useState(!library);
+  const [searchRevision, setSearchRevision] = useState(0);
+  const [savedRevision, setSavedRevision] = useState(0);
+  const [openRevision, setOpenRevision] = useState(0);
+  useEffect(() => { if (!library) setWorkspaceVisited(true); }, [library]);
+  const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
+  const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
+  const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
+  const cipherSlug = params.get("cipher");
+  const recordId = params.get("record");
+  const recordKey = `${authLoading ? "loading" : user?.id || "guest"}|${cipherSlug || ""}|${recordId || ""}|${openRevision}`;
+  const [recordState, setSavedRecord] = useState({ key: null, row: null, error: false });
+  // Hide the previous account/URL's record during the render that precedes the next fetch.
+  const savedRecord = recordState.key === recordKey ? recordState
+    : { loading: Boolean(cipherSlug || recordId), row: null, error: false };
+  useEffect(() => {
+    let alive = true;
+    if (!cipherSlug && !recordId) { setSavedRecord({ key: recordKey, loading: false, row: null, error: false });return; }
+    setSavedRecord({ key: recordKey, loading: true, row: null, error: false });
+    if (authLoading) return;
+    (cipherSlug ? getMatrixBySlug(cipherSlug) : getMatrixById(recordId))
+      .then(row => { if (alive) setSavedRecord({ key: recordKey, loading: false, row, error: !row }); })
+      .catch(() => { if (alive) setSavedRecord({ key: recordKey, loading: false, row: null, error: true }); });
+    return () => { alive = false; };
+  }, [recordKey]);
   const elsState = useFeatureState("lock_els");
   const context = research.context || null;
   const subject = context?.subject || null;
@@ -131,51 +165,83 @@ export default function Els2029Page() {
   const researchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
 
   useEffect(() => {
-    applySeo({ title: "ELS · SOD1820", description: "ELS 2029 · Research Context, exact locus and replay-ready projection", path: "/els" });
+    applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/els" });
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (elsState.loading) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="טוען את מצב היכולת הקנוני…">
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
       <FrameState kind="loading" title="טוען את מצב ELS" progress={{ phase: "בודק את מצב היכולת הקנוני", compact: true }}>המערכת מוודאת שהיכולת זמינה לפני פתיחת סביבת המחקר.</FrameState>
     </Sod2029Shell>;
   }
 
   if (elsState.blocked) {
-    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="ONE ELS ENGINE · MANY PROJECTIONS" title="ELS" description="אותו מנוע קנוני, עם מצב פתיחה/סגירה אחד לכל המערכת.">
+    return <Sod2029Shell wide surface="els" symbol="✦" eyebrow="הצופן התנ״כי · חיפוש ומחקר" title="ELS" description={ELS_DESCRIPTION}>
       <FeatureClosedNotice state={elsState} title="ELS" to="/world" />
     </Sod2029Shell>;
   }
 
   return <Sod2029Shell
+    introVariant={library ? "none" : "compact"}
     wide
     surface="els"
     symbol="✦"
-    eyebrow="ONE ELS ENGINE · MANY PROJECTIONS"
+    eyebrow="הצופן התנ״כי · חיפוש ומחקר"
     title="ELS"
-    description="משטח 2029 מקרין Research Context ותוצאות קנוניות. הוא אינו מחשב ELS בעצמו ואינו יורש את ה־Work Area הישן כארכיטקטורה."
+    description={ELS_DESCRIPTION}
   >
+    {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
+      onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} /> : null}
+    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
+      : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
+      : <div hidden={!!library}>
+    {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
+    {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
+      <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
+      {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
+      {!hasExactSavedMatrix(savedRecord.row) ? <>
+        <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
+        {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
+      </> : null}
+    </section> : null}
+    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     <section className="sod29-focus-stage" data-els-2029-surface="v1">
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">{researchProfile ? "CURRENT RESEARCH CONTEXT" : "CLASSIC 2029 · FULL TOOL"}</div>
+          <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
           <h2>{researchProfile
-            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "ELS מחכה להקשר מחקר")
-            : "הצופן הקלאסי · בתוך 2029"}</h2>
+            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
+            : "הצופן הקלאסי"}</h2>
           <div className="sod29-muted">
             {researchProfile
               ? (subject
-                ? "הנושא מגיע מאותו Research Context של World / Number / Heichal / Journey. בחירת מופע אינה יוצרת זהות חדשה."
-                : "פתח ELS מתוך Number, World, Heichal, Journey או מקור אחר כדי לשמור רצף מחקר.")
-              : "אותו ממשק עבודה מוכר: חיפוש, מטריצת אותיות, הצלבות, המשך פסוק, סימוני הצבע בצד, שמירות ושיתוף. המעבר למחקר שומר את אותו ממצא בתוך אותו Research Context."}
+                ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
+                : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
+              : "חיפוש, הצלבות וסימוני צבע. אפשר לעבור בין התצוגות ולהמשיך עם אותו ממצא."}
           </div>
         </div>
         <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
           <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
-          <span className="sod29-chip">{subject ? "CONTEXT READY" : "CONTEXT REQUIRED"}</span>
+          <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
         </div>
       </div>
 
+      <section
+        className="sod29-section"
+        aria-label="סביבת המחקר של הצופן"
+        data-els-classic-2029="native-v1"
+        style={{ marginTop: 18, overflow: "hidden" }}
+      >
+        {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
+            The same iframe instance remains mounted as an engine-only bridge and can be revealed
+            as the parity fallback for capabilities that have not yet been ported to 2029. */}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row ? "" : classicSeed} matrix={savedRecord.row} active={!library}
+          onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={() => setSavedRevision(value => value + 1)} />
+      </section>
+
+
+      <details className="sod29-els-research-details" hidden={!researchProfile}>
+        <summary>פרטי מחקר מתקדמים</summary>
       {researchProfile ? <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">
           <div style={{ width: "100%" }}>
@@ -238,33 +304,6 @@ export default function Els2029Page() {
         </aside> : null}
       </div> : null}
 
-      <section
-        className="sod29-section"
-        aria-label="ELS Classic full workspace"
-        data-els-classic-2029="faithful-port-v1"
-        aria-hidden={researchProfile}
-        style={{ marginTop: 18, display: researchProfile ? "none" : "block", padding: 0, overflow: "hidden" }}
-      >
-        <div style={{ padding: "16px 18px 0" }}>
-          <div className="sod29-section-head">
-            <div>
-              <div className="sod29-kicker">CLASSIC · FAITHFUL PORT</div>
-              <h2>הממשק הקלאסי המלא</h2>
-              <div className="sod29-muted">המשך הפסוק · סימוני צבע בצד · חיפוש מוצלב · שמירות · שיתוף · אותה מטריצה. הכלי נשאר mounted גם במעבר למחקר, כדי לא לאבד את מצב העבודה.</div>
-            </div>
-            <div className="sod29-actions" style={{ flexWrap: "wrap" }}>
-              <span className="sod29-chip">ONE ENGINE</span>
-              <span className="sod29-chip">SAME STATE</span>
-              <span className="sod29-chip">NO LEGACY ROUTE</span>
-            </div>
-          </div>
-        </div>
-        {/* Faithful Classic presentation lives inside /els. The canonical tool emits governed state;
-            ResearchProvider converts that state to an exact-replay selection for the Research profile. */}
-        <div data-els-classic-tool="canonical-tzofen">
-          <TzofenEmbed seed={classicSeed || undefined} full />
-        </div>
-      </section>
 
       {researchProfile ?       <section className="sod29-section" aria-label="ELS adaptive action slots" style={{ marginTop: 18 }}>
         <div className="sod29-section-head">
@@ -290,6 +329,8 @@ export default function Els2029Page() {
           Neighborhood / Axis Continuation נשמרים כאן כנקודות הרחבה בלבד. חוקי האינטליגנציה שלהם ייקבעו מאוחר יותר מתוך דוגמאות מחקר אמיתיות, בלי לחסום את G3.
         </p>
       </section> : null}
+      </details>
     </section>
+    </div> : null}
   </Sod2029Shell>;
 }

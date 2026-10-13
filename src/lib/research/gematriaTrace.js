@@ -1,5 +1,6 @@
 import { supabase } from "../supabase.js";
 import { makeUniversalFinding } from "./universalFinding.js";
+import { isVerifiedMethodTrace } from "./gematriaTracePresentation.js";
 
 // Canonical Gematria Method Trace -> Universal Finding adapter.
 // GEMATRIA_SINGLE_TRUTH_FOUNDATION_CLOSURE_V1 (2026-09-03) MUST-2.
@@ -18,7 +19,7 @@ export function gematriaTraceToFinding(trace, { inputText = null, createdAt = nu
   const methodKey = String(trace.method_key || "").trim();
   const expression = String(inputText ?? trace.input ?? "").trim();
   if (!methodKey || !expression) return null;
-  if (!Number.isFinite(Number(trace.result))) return null;
+  if (!isVerifiedMethodTrace(trace, { expression, methodKey })) return null;
 
   const at = createdAt || new Date().toISOString();
   const value = Number(trace.result);
@@ -94,6 +95,7 @@ export function gematriaTraceToFinding(trace, { inputText = null, createdAt = nu
           semantics: trace.semantics ?? null,
           dependencies: trace.dependencies ?? null,
           verification: trace.verification ?? null,
+          context_contract: trace.context_contract ?? null,
         },
       },
     },

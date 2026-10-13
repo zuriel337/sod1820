@@ -1,0 +1,17 @@
+/* Category chips for a post. Tokens only. */
+.k29-cats { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+.k29-cat {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 10px; border: 1px solid var(--s29-line-strong); border-radius: 999px;
+  color: var(--s29-muted); background: transparent; font: 500 12.5px/1 var(--s29-font-ui); text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.k29-cat:hover { color: var(--s29-ink); border-color: var(--s29-brand-gold); }
+.k29-cat:focus-visible { outline: 2px solid var(--s29-accent-text); outline-offset: 2px; }
+.k29-cat.is-strong {
+  color: var(--s29-ink); border-color: var(--s29-brand-gold); font-weight: 700;
+  background: color-mix(in srgb, var(--s29-brand-gold) 20%, transparent);
+}
+.k29-cat.is-strong:hover { background: color-mix(in srgb, var(--s29-brand-gold) 32%, transparent); }
+/* inside meta rows that style every span as a chip */
+.sod29-post-index-meta span.k29-cats, .sod29-reading-meta-line span.k29-cats { border: 0; padding: 0; min-height: 0; border-radius: 0; }
+.sod29-post-index-meta span.k29-cat, .sod29-reading-meta-line span.k29-cat, .sod29-reading-meta-line a.k29-cat { min-height: 28px; padding: 0 10px; border: 1px solid var(--s29-line-strong); border-radius: 999px; font-size: 12.5px; }
+.sod29-post-index-meta span.k29-cat.is-strong, .sod29-reading-meta-line span.k29-cat.is-strong, .sod29-reading-meta-line a.k29-cat.is-strong { border-color: var(--s29-brand-gold); }

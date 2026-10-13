@@ -1,0 +1,49 @@
+/* Home main item: restrained motion. Colors only from --s29-* tokens; motion is opt-out via prefers-reduced-motion. */
+.h29-hero2 { position: relative; grid-template-columns: auto minmax(0, 1fr); }
+.h29-hero2 .h29-hero-copy { display: flex; flex-direction: column; gap: 8px; }
+.h29-hero2 h1 { margin: 2px 0 0; }
+.h29-hero2 .h29-actions { margin-top: 6px; }
+
+.h29-hero-update { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font: 500 14px/1.5 var(--s29-font-ui); color: var(--s29-ink); }
+.h29-hero-update small { color: var(--s29-muted); font: 400 13px var(--s29-font-ui); }
+.h29-dot { inline-size: 9px; block-size: 9px; border-radius: 50%; background: var(--s29-line-strong); display: inline-block; flex: 0 0 auto; align-self: center; }
+.h29-dot.is-new { background: var(--s29-brand-gold); }
+
+.h29-hero-measures { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--s29-line); background: color-mix(in srgb, var(--s29-panel) 70%, transparent); max-inline-size: 640px; }
+.h29-hero-measures-l { font: 500 12px var(--s29-font-ui); color: var(--s29-muted); }
+.h29-hero-measures-l em { font-style: normal; opacity: .85; }
+.h29-hero-conv { font: 600 15px/1.4 var(--s29-font-ui); color: var(--s29-ink); text-decoration: none; }
+.h29-hero-conv:hover { text-decoration: underline; }
+.h29-hero-rate { margin-top: 2px; }
+
+.h29-hero-more[aria-expanded="true"] { border-color: var(--s29-line-strong); }
+.h29-hero-detail { margin-top: 4px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--s29-line); background: var(--s29-panel-soft); display: flex; flex-direction: column; gap: 6px; }
+.h29-hero-detail h2 { margin: 6px 0 0; font: 600 14px var(--s29-font-ui); }
+.h29-hero-detail h2:first-child { margin-top: 0; }
+.h29-hero-detail ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.h29-hero-detail li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font: 400 14px/1.5 var(--s29-font-ui); }
+.h29-hero-detail li a { color: var(--s29-accent-text); font-weight: 500; }
+.h29-hero-detail li span { color: var(--s29-muted); font-size: 13px; }
+.h29-hero-detail p { margin: 0; font: 400 14px/1.6 var(--s29-font-ui); }
+.h29-hero-fine { color: var(--s29-muted); font-size: 13px !important; }
+.h29-hero-na { flex-direction: row !important; flex-wrap: wrap; }
+.h29-hero-na li { padding: 2px 10px; border-radius: 999px; border: 1px dashed var(--s29-line-strong); color: var(--s29-muted); font-size: 13px; }
+
+/* Entrance: a staged appearance, once per session, then quiet. */
+@keyframes h29-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.h29-hero2.is-enter .k29-in { animation: h29-rise 420ms cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 110ms + 60ms); }
+/* Real update: one short pulse of light across the item (plays once, no loop). */
+@keyframes h29-light { 0% { opacity: 0; transform: translateX(40%); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateX(-40%); } }
+.h29-hero2.is-pulse::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--s29-brand-gold) 22%, transparent) 50%, transparent 70%);
+  opacity: 0; animation: h29-light 1100ms ease-out 900ms 1 both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .h29-hero2.is-enter .k29-in { animation: none; }
+  .h29-hero2.is-pulse::after { display: none; }
+}
+@container h29 (max-width: 620px) {
+  .h29-hero2 { grid-template-columns: 1fr; }
+  .h29-hero-measures { max-inline-size: none; }
+}

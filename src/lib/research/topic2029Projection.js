@@ -1,5 +1,6 @@
 import { topicConvergenceContentSections } from "./topicConvergence.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
+import { normalizeWorldNumber } from "./worldContextualProminence.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CONVERGENCE = canonicalResearchPublicLabel("convergence");
@@ -43,7 +44,7 @@ function cleanAttribution(content, source) {
   return [...new Set(values)];
 }
 
-export function buildTopic2029Projection(finding) {
+export function buildTopic2029Projection(finding, { sourceContext = null } = {}) {
   if (!finding || finding.kind !== "convergence" || !clean(finding?.subject?.key)) return null;
 
   const source = topicSourceFact(finding);
@@ -55,6 +56,10 @@ export function buildTopic2029Projection(finding) {
 
   const title = clean(finding?.subject?.label) || CONVERGENCE;
   const slug = clean(source?.slug || finding?.subject?.key);
+  const links = sourceContext?.topicSlug === slug && sourceContext?.access?.scope === "public" && sourceContext?.access?.available !== false
+    ? sourceContext?.links : null;
+  const mergeLinks = (stored, added) => [...(stored || []), ...(added || []).filter((row) =>
+    !(stored || []).some((existing) => existing.slug === row.slug))];
   const description = meaningfulDescription(source, content, title);
   const highlightNumbers = Array.isArray(source?.highlight_numbers)
     ? source.highlight_numbers.map(Number).filter(Number.isFinite)
@@ -82,15 +87,15 @@ export function buildTopic2029Projection(finding) {
     createdAt: source?.created_at || null,
     approvedAt: source?.approved_at || null,
     occurredAt: source?.occurred_at || null,
-    quality: Number.isFinite(Number(source?.quality)) ? Number(source.quality) : null,
-    meterScore: Number.isFinite(Number(source?.meter_score)) ? Number(source.meter_score) : null,
+    quality: normalizeWorldNumber(source?.quality),
+    meterScore: normalizeWorldNumber(source?.meter_score),
     imageIds: Array.isArray(source?.image_ids) ? source.image_ids.map(String) : [],
     searchTerms: Array.isArray(source?.search_terms) ? source.search_terms.map(String) : [],
     withheld: Boolean(content?.flags?.doNotPublish || finding?.access?.reason === "source-flag:_do_not_publish"),
     content,
     sections,
-    relatedConvergences: Array.isArray(sections.convergenceRefs) ? sections.convergenceRefs : [],
-    relatedPosts: Array.isArray(sections.posts) ? sections.posts : [],
+    relatedConvergences: mergeLinks(sections.convergenceRefs, links?.topics),
+    relatedPosts: mergeLinks(sections.posts, links?.posts),
     phrases: Array.isArray(sections.phrases) ? sections.phrases : [],
     numericClaims: Array.isArray(sections.numericClaims) ? sections.numericClaims : [],
     authoredRows: Array.isArray(sections.rows) ? sections.rows : [],

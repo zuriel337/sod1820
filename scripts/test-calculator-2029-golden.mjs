@@ -62,8 +62,13 @@ assert.match(fastPreviewSource, /canonicalMethodPublicLabel/);
 const trianglePreview = previewAba?.methods.find((row) => row.methodKey === "קדמי");
 assert.equal(trianglePreview?.displayLabel, "משולש");
 assert.equal(trianglePreview?.methodKey, "קדמי");
+// Non-Hebrew input must never be presented as a Hebrew result (ABC used to show nine verified-looking zeros).
 assert.equal(buildCalculator2029FastPreview("abc")?.methodCount, 9);
-assert.deepEqual(buildCalculator2029FastPreview("abc")?.methods.map((row) => row.computedValue), Array(9).fill(0));
+assert.deepEqual(buildCalculator2029FastPreview("abc")?.methods.map((row) => row.computedValue), Array(9).fill(null));
+assert.equal(buildCalculator2029FastPreview("abc")?.inputKind, "latin");
+assert.equal(buildCalculator2029FastPreview("123")?.inputKind, "numeric");
+assert.equal(buildCalculator2029FastPreview("abc צוריאל")?.inputKind, "mixed");
+assert.equal(buildCalculator2029FastPreview("abc צוריאל")?.methods.find((row) => row.methodKey === "רגיל")?.computedValue, 337);
 assert.match(page, /fetchGematriaMethodTrace/);
 assert.doesNotMatch(page, />חשב</);
 assert.match(page, /CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240/);

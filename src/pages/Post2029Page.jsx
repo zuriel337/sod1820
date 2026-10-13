@@ -1,15 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection } from "../lib/research/post2029ReadingProjection.js";
+import { fetchPost2029ReadingProjection, resolvePostReadingRegion } from "../lib/research/post2029ReadingProjection.js";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
+import { humanContentTitle } from "../lib/presentation/contentTitle.js";
+import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
+import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
+import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -17,18 +22,44 @@ const normalize = (value) => String(value || "")
   .replace(/\s+/g, " ")
   .trim();
 
+// The post's own cover (posts.image_url) is not a gallery row, so it carries no media identity.
+// Sharp reading image = image_url; thumb_url is preview-only and is never used as the reading cover.
+export function postReadingCoverItem(post) {
+  const imageUrl = typeof post?.image_url === "string" ? post.image_url.trim() : "";
+  if (!imageUrl) return null;
+  const thumbUrl = typeof post?.thumb_url === "string" && post.thumb_url.trim() ? post.thumb_url.trim() : imageUrl;
+  return {
+    mediaId: "", galleryImageId: "", label: humanContentTitle(post.title, { max: 0 }),
+    imageUrl, thumbUrl,
+    intrinsic: { galleryImageId: null, mediaId: null, representation: { imageUrl, thumbUrl, fit: "preserve-whole-image" } },
+  };
+}
+
+function revealReadingAnchor(node) {
+  for (let parent = node?.parentElement; parent; parent = parent.parentElement) {
+    if (parent.tagName === "DETAILS") parent.open = true;
+  }
+  return node;
+}
+
 function PostReadingBody() {
   const { slug } = useParams();
+  const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
   const sourceRef = useRef(null);
+  const connectionsHeadingRef = useRef(null);
   const explicitGematriaFocusRef = useRef(null);
+  const entryRef = useRef(null);
+  entryRef.current = { context: research.context, hash: location.hash };
+  const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
 
   useEffect(() => {
     let live = true;
     explicitGematriaFocusRef.current = null;
+    restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
     fetchPost2029ReadingProjection(slug)
       .then((projection) => {
@@ -38,7 +69,9 @@ function PostReadingBody() {
           projection,
           error: projection ? null : "הפוסט לא נמצא",
         });
-        setActiveRegionId(projection?.defaultRegionId || null);
+        const restored = resolvePostReadingRegion(projection, entryRef.current?.context, entryRef.current?.hash);
+        restoredRegionRef.current = restored;
+        setActiveRegionId(restored || projection?.defaultRegionId || null);
       })
       .catch((error) => {
         if (live) setState({ loading: false, projection: null, error: error?.message || "טעינת הפוסט נכשלה" });
@@ -76,37 +109,100 @@ function PostReadingBody() {
   const activeRegionFocus = activeFocus;
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
-    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: "post-gematria" }] : []),
-    { id: "post-connections", label: "חיבורים", targetId: "post-connections" },
+    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
+    ...(state.projection?.experience?.connections?.some((item) => item.href)
+      ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
     { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions]);
+  ], [regions, state.projection]);
 
   useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
-    const headings = [...sourceRef.current.querySelectorAll("[data-source-heading='true']")];
+    // Existing authored gematria markings remain the actionable unit. Make
+    // non-link legacy markings keyboard reachable without rewriting the source.
+    for (const node of sourceRef.current.querySelectorAll("[data-gem]")) {
+      if (/^\d[\d,]*$/.test(String(node.textContent || "").trim())) node.classList.add("sod-numlink");
+      if (!node.matches("a,button") && !node.closest("a,button")) {
+        node.setAttribute("role", "button");
+        node.tabIndex = 0;
+      }
+    }
+    // Authored legacy number links use the same in-place Number capability.
+    // Keep their href for ordinary modified-click navigation and copying.
+    for (const link of sourceRef.current.querySelectorAll('a[href^="/number/"]')) {
+      if (link.hasAttribute("data-gem")) continue;
+      try {
+        const term = decodeURIComponent(link.getAttribute("href").slice("/number/".length).split(/[?#]/)[0]).trim();
+        if (term) {
+          link.dataset.gem = term;
+          if (/^\d[\d,]*$/.test(String(link.textContent || "").trim())) link.classList.add("sod-numlink");
+        }
+      } catch { /* Keep a malformed legacy URL unchanged. */ }
+    }
+    const headings = [...sourceRef.current.querySelectorAll("[data-source-heading='true']"),
+      ...(connectionsHeadingRef.current ? [connectionsHeadingRef.current] : [])];
     const mapped = [];
 
     for (const region of regions) {
-      const heading = headings.find((node) => normalize(node.textContent) === normalize(region.heading));
+      const heading = region.id === "post-story" ? sourceRef.current
+        : headings.find((node) => normalize(node.textContent) === normalize(region.heading));
       if (!heading) continue;
       heading.dataset.readingRegion = region.id;
       heading.id = `source-region-${region.id}`;
       mapped.push({ region, heading });
     }
-    if (!mapped.length || typeof IntersectionObserver === "undefined") return undefined;
+    const requested = resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
+    const restored = mapped.find(({ region }) => region.id === requested);
+    let frame = null;
+    // Late source images/fonts can move an already-restored heading. Keep that
+    // anchor stable only until the reader explicitly takes over scrolling/focus.
+    const restoreExactAnchor = () => {
+      if (!restored || restoredRegionRef.current !== restored.region.id) return;
+      if (frame != null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (restoredRegionRef.current !== restored.region.id) return;
+        revealReadingAnchor(restored.heading);
+        restored.heading.scrollIntoView({ behavior: "instant", block: "start" });
+        restored.heading.focus({ preventScroll: true });
+      });
+    };
+    if (restored) {
+      restoredRegionRef.current = restored.region.id;
+      setActiveRegionId(restored.region.id);
+      restored.heading.tabIndex = -1;
+      restoreExactAnchor();
+    } else if (requested) {
+      // A stale saved region is not proof that its source anchor still exists.
+      restoredRegionRef.current = null;
+      setActiveRegionId(mapped[0]?.region.id || state.projection.defaultRegionId || null);
+    }
+    // Programmatic restoration must not let an adjacent heading overwrite the saved
+    // selection. Resume passive reading focus when the reader starts scrolling.
+    const sourceResizeObserver = restored && typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(restoreExactAnchor) : null;
+    sourceResizeObserver?.observe(sourceRef.current);
+    const resumeReading = (event) => {
+      if (event.type === "keydown" && !["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) return;
+      restoredRegionRef.current = null;
+    };
+    for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.addEventListener(event, resumeReading, { passive: true });
 
-    const observer = new IntersectionObserver((entries) => {
+    const observer = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver((entries) => {
       const visible = entries
         .filter((entry) => entry.isIntersecting)
         .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
       const id = visible?.target?.dataset?.readingRegion;
-      if (id) setActiveRegionId(id);
+      if (id && !restoredRegionRef.current) setActiveRegionId(id);
     }, { rootMargin: "-16% 0px -68% 0px", threshold: [0, 1] });
 
-    mapped.forEach(({ heading }) => observer.observe(heading));
-    return () => observer.disconnect();
-  }, [state.projection, regions]);
+    mapped.forEach(({ heading }) => observer?.observe(heading));
+    return () => {
+      observer?.disconnect();
+      if (frame != null) cancelAnimationFrame(frame);
+      sourceResizeObserver?.disconnect();
+      for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.removeEventListener(event, resumeReading);
+    };
+  }, [state.projection, regions, location.hash]);
 
   useEffect(() => {
     // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions
@@ -230,6 +326,7 @@ function PostReadingBody() {
 
   const { projection } = state;
   const { post } = projection;
+  const coverItem = postReadingCoverItem(post);
   const experience = projection.experience || {};
   const isBennettMaster = post.slug === "bennett-melach-631-78";
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
@@ -250,7 +347,7 @@ function PostReadingBody() {
       ? "2026-09-30"
       : String(post.date || post.modified || "").slice(0, 10);
   const visibleSourceLabel = isBennettMaster
-    ? "פוסט הבחירות · ציר 631"
+    ? "בנט · המשך לציר הבחירות"
     : isFz1073Master
       ? "טיסה FZ1073"
       : projection.sourceLabel;
@@ -259,12 +356,7 @@ function PostReadingBody() {
       ? { ...item, label: "הפוסט פורסם", date: "2026-10-01", sourceLabel: null, note: "תאריך הפרסום של הפוסט.", current: true }
       : item
   ));
-  const contextualConnections = (experience.connections || []).filter((connection) => {
-    if (!activeFocus) return true;
-    const focusNeedle = normalize(activeFocus.primary || activeFocus.label);
-    const haystack = normalize([connection.label, connection.reason, connection.value].filter(Boolean).join(" "));
-    return !focusNeedle || haystack.includes(focusNeedle) || (experience.connections || []).length <= 6;
-  });
+  const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
   const exactReturnForRegion = (region) => ({
     href: `/post/${post.slug}#source-region-${region?.id || projection.defaultRegionId}`,
     label: post.title,
@@ -279,6 +371,28 @@ function PostReadingBody() {
     journey: research.context?.journey || null,
   });
   const exactReturn = exactReturnForRegion(activeFocus);
+  const openConnection = (event, href) => {
+    if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const connectionRegion = regions.find((region) => region.id === "post-connections");
+    research.updateResearchContext?.((current) => ({
+      // This footer opens World discovery, not an entity-hub query for a local
+      // Post reading region. Preserve its source in returnTo and any active Path.
+      ...(href === "/world" ? {
+        subject: null,
+        selection: null,
+        lens: "world",
+        dimensions: {
+          ...(current?.dimensions || {}),
+          bottomTrail: [], surfaceSections: [], surfaceFindings: [],
+          activeSectionId: null, surfaceMapLabel: null,
+          surfaceFocus: null, readingFocus: null,
+        },
+      } : {}),
+      returnTo: exactReturnForRegion(connectionRegion || activeFocus),
+    }));
+    shell.go(href, { preserve: false });
+  };
 
   const updateFocusContext = () => {
     if (!activeFocus) return;
@@ -439,7 +553,7 @@ function PostReadingBody() {
       },
       returnTo: exactReturnForRegion(targetRegion),
     });
-    shell.openInspect?.({
+    shell.openNumber?.({
       id: `post:${post.id}:${targetRegion.id}`,
       type: "phrase",
       label: cleanExpression,
@@ -455,6 +569,7 @@ function PostReadingBody() {
   };
 
   const handleSourceContextualFocus = (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const trigger = event.target?.closest?.("[data-contextual-number-focus='true']");
     if (trigger && sourceRef.current?.contains(trigger)) {
       event.preventDefault();
@@ -467,13 +582,26 @@ function PostReadingBody() {
       return;
     }
 
-    if (isFz1073Master) {
-      const legacyNumber = event.target?.closest?.(".sod-numlink[data-gem]");
+    {
+      const legacyNumber = event.target?.closest?.("[data-gem]");
       if (legacyNumber && sourceRef.current?.contains(legacyNumber)) {
-        const numericValue = Number(String(legacyNumber.dataset.gem || "").replace(/,/g, ""));
+        const term = String(legacyNumber.dataset.gem || "").trim();
+        if (!term || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        const numericValue = /^\d[\d,]*$/.test(term) ? Number(term.replace(/,/g, "")) : null;
         if (Number.isSafeInteger(numericValue)) {
-          event.preventDefault();
           openHeroNumber(numericValue);
+        } else {
+          const locator = activeFocus ? `#source-region-${activeFocus.id}` : "#post-story";
+          research.updateResearchContext?.({
+            subject: { id: String(post.id), type: "post", label: post.title, href: `/post/${post.slug}` },
+            selection: { entityId: activeFocus?.id || String(post.id), entityType: "gematria_expression", locator, expression: term },
+            lens: "gematria",
+            returnTo: exactReturnForRegion(activeFocus),
+          });
+          shell.openNumber?.({ id: `post:${post.id}:${term}`, type: "phrase", label: term, expression: term,
+            method: legacyNumber.dataset.method || undefined,
+            source: "post-authored-gematria", locator, sourceLabel: projection.sourceLabel });
         }
       }
     }
@@ -514,7 +642,7 @@ function PostReadingBody() {
         },
       });
     }
-    shell.openInspect?.({
+    shell.openNumber?.({
       id: String(number),
       type: "number",
       label: String(number),
@@ -542,21 +670,30 @@ function PostReadingBody() {
     <header id="post-story" className="sod29-reading-hero" data-experience-capability="post-master-hero">
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
-          <div className="sod29-reading-source-badge">{visibleSourceLabel}</div>
-          <h1>{post.title}</h1>
-          <p className="sod29-reading-source-line">{projection.sourceLine}</p>
-          <p className="sod29-reading-deck">{projection.excerpt}</p>
-          <div className="sod29-reading-meta-line">
-            {heroDate ? <span>{heroDate}</span> : null}
-            {heroCategories.map((category) => <span key={category}>{category}</span>)}
-          </div>
-          {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <div className="sod29-reading-integrity">
-            <span>המקור נשמר כלשונו</span>
-            <span>חישוב · מקור · פרשנות נשארים שכבות נפרדות</span>
-          </div> : null}
+          <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+          <details className="sod29-post-details">
+            <summary>
+              <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
+              {heroCategories.length ? <PostCategories2029 categories={heroCategories} max={2} nested className="sod29-post-category" /> : null}
+              <span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span>
+            </summary>
+            <div className="sod29-post-details-body">
+              {post.author ? <p>מאת {post.author}</p> : null}
+              <p className="sod29-reading-source-line">{projection.sourceLine}</p>
+              {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
+              <div className="sod29-reading-meta-line">
+                <PostCategories2029 categories={post.categories} max={8} />
+              </div>
+              {projection.excerpt ? <p>{projection.excerpt}</p> : null}
+              {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
+              {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
+            </div>
+          </details>
         </div>
 
-        {heroNumbers.length ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
+        <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+
+        {heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
           <div className="sod29-reading-number-constellation">
             {heroNumbers.map((number, index) => <button
@@ -576,6 +713,12 @@ function PostReadingBody() {
       </div>
     </header>
 
+    {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
+      <CanonicalMediaFigure2029 item={coverItem} primary alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+    </figure> : null}
+
+    <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
+
     <PostEvidenceMedia2029 media={experience.media} />
 
     {(experience.trail || []).length >= 2 ? <nav className="sod29-chain-trail" aria-label="מקומו של הפוסט בשרשרת" data-chain-trail="true">
@@ -583,7 +726,7 @@ function PostReadingBody() {
         {index > 0 ? <span className="sod29-chain-trail-sep" aria-hidden="true">←</span> : null}
         {step.active
           ? <span className="sod29-chain-trail-step is-here" aria-current="page">{step.label} <small>(אתה כאן)</small></span>
-          : <a className="sod29-chain-trail-step" href={step.href}>{step.label}</a>}
+          : <a className="sod29-chain-trail-step" href={step.href} onClick={(event) => openConnection(event, step.href)}>{step.label}</a>}
       </React.Fragment>)}
     </nav> : null}
 
@@ -593,6 +736,12 @@ function PostReadingBody() {
         className="sod29-reading-source"
         aria-label="טקסט המקור"
         onClick={handleSourceContextualFocus}
+        onKeyDown={(event) => {
+          if ((event.key === "Enter" || event.key === " ") && event.target?.matches?.('[data-gem][role="button"]')) {
+            event.preventDefault();
+            handleSourceContextualFocus(event);
+          }
+        }}
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
@@ -603,8 +752,9 @@ function PostReadingBody() {
           type="button"
           className={region.id === activeFocus?.id ? "is-active" : ""}
           onClick={() => {
+            restoredRegionRef.current = null;
             setActiveRegionId(region.id);
-            document.getElementById(`source-region-${region.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            revealReadingAnchor(document.getElementById(`source-region-${region.id}`))?.scrollIntoView({ behavior: "smooth", block: "center" });
           }}
           aria-label={`עבור אל ${region.label}`}
           aria-current={region.id === activeFocus?.id ? "true" : undefined}
@@ -613,13 +763,44 @@ function PostReadingBody() {
 
     </div>
 
+    {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
+      <header>
+        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
+        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
+      </header>
+      {[
+        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
+        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
+      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
+      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
+      <div className="sod29-post-continuation-grid">
+        {group.items.map((connection) => <a
+          key={connection.id}
+          href={connection.href}
+          className="sod29-post-continuation"
+          data-post-connection={connection.id}
+          onClick={(event) => openConnection(event, connection.href)}
+        >
+          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
+          <h3>{connection.label}</h3>
+          {connection.reason ? <p>{connection.reason}</p> : null}
+          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
+        </a>)}
+      </div>
+      </div>)}
+    </section> : null}
+
     <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
 
-    <footer className="sod29-reading-footnote">
+    <footer id="post-sources" className="sod29-reading-footnote">
       <span>מקור</span>
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
+    <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
+      <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
+      <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
+    </nav>
   </article>;
 }
 
@@ -638,6 +819,8 @@ export default function Post2029Page() {
 
   return <Sod2029Shell
     surface="post"
+    title="פוסט"
+    introVariant="none"
     symbol="✦"
     status="פוסט"
   >

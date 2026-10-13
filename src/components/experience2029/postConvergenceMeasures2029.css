@@ -1,0 +1,9 @@
+/* Convergence measures block on the post page. Tokens only. */
+.k29-pcm { max-width: 1100px; margin: 18px auto; padding: 16px 18px; border: 1px solid var(--s29-line); border-radius: 18px; background: var(--s29-panel); display: flex; flex-direction: column; gap: 10px; font-family: var(--s29-font-ui); color: var(--s29-ink); }
+.k29-pcm h2 { margin: 0; font: 600 18px/1.3 var(--s29-font-ui); }
+.k29-pcm-note { margin: 0; font: 400 13px/1.55 var(--s29-font-ui); color: var(--s29-muted); }
+.k29-pcm > ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.k29-pcm > ul > li { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid var(--s29-line); border-radius: 14px; min-width: 0; }
+.k29-pcm-title { font: 600 15px/1.4 var(--s29-font-ui); color: var(--s29-accent-text); text-decoration: none; overflow-wrap: anywhere; }
+.k29-pcm-title:hover { text-decoration: underline; }
+.k29-pcm-shared { font: 400 13px/1.4 var(--s29-font-ui); color: var(--s29-muted); }

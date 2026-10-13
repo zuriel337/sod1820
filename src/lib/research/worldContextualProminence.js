@@ -44,7 +44,7 @@ function finiteOrNull(value) {
 
 function normalizeTier(value) {
   const tier = clean(value)?.toLowerCase() || null;
-  return tier === "gold" || tier === "silver" ? tier : null;
+  return tier === "diamond" || tier === "gold" || tier === "silver" ? tier : null;
 }
 
 function relationOf(finding) {
@@ -131,9 +131,10 @@ function verificationClass(candidate, { attentionFirst = true } = {}) {
 }
 
 function curationClass(candidate) {
-  if (candidate.curation?.tier === "gold") return 0;
-  if (candidate.curation?.tier === "silver") return 1;
-  return 2;
+  if (candidate.curation?.tier === "diamond") return 0;
+  if (candidate.curation?.tier === "gold") return 1;
+  if (candidate.curation?.tier === "silver") return 2;
+  return 3;
 }
 
 function compareDescendingNullable(a, b) {
@@ -198,10 +199,12 @@ function graphCandidates(data) {
       id: `graph:${finding.id || relation.id || counterpart.id}`,
       stableKey: `graph:${counterpart.id}:${relationType}`,
       groupKey: `graph-counterpart:${counterpart.id}`,
-      familyKey: tier === "gold" ? "gold-signature" : type === "convergence" ? "convergence" : `graph-${type}`,
+      familyKey: tier === "diamond" ? "diamond-signature" : tier === "gold" ? "gold-signature" : type === "convergence" ? "convergence" : `graph-${type}`,
       kind: "graph-relation",
       type,
       label,
+      // Exact existing graph counterpart identity; no title/number/filename matching.
+      mediaNodeId: ["image", "media"].includes(type) ? String(counterpart.id) : null,
       summary: null,
       sourceRef: finding?.source?.sourceRef || null,
       relationPath: [{ relationType, fromNodeId: relation.fromNodeId || null, toNodeId: relation.toNodeId || null }],
@@ -371,7 +374,10 @@ function sourceCandidates(data) {
       kind: "source",
       type,
       label,
-      summary: null,
+      // The canonical number-journey reader already supplies the complete verse text.
+      // Preserve it as the visible card body; the heading remains the verse reference.
+      // Never synthesize missing text or copy free-form research-source content here.
+      summary: verse ? clean(source?.text) : null,
       sourceRef: ref,
       relationPath: [{ relationType: verse ? "number_journey_source" : "research_source" }],
       directness: verse ? "canonical_number_journey_source" : "source_provenance",
@@ -579,7 +585,7 @@ function ensureRelevantGold(selected, sorted, limit, comparatorOptions) {
     else {
       let replaceAt = -1;
       for (let i = out.length - 1; i >= 0; i -= 1) {
-        if (!out[i].decisionChangingNegative && out[i].curation?.tier !== "gold") {
+        if (!out[i].decisionChangingNegative && !["gold", "diamond"].includes(out[i].curation?.tier)) {
           replaceAt = i;
           break;
         }
@@ -687,6 +693,7 @@ export function buildWorldContextualProminence(data, inputs = {}, {
       label: candidate.label,
       summary: candidate.summary,
       sourceRef: candidate.sourceRef,
+      mediaNodeId: candidate.mediaNodeId || null,
       familyKey: candidate.familyKey,
       explainWhy: explainCandidate(candidate, { isFirstFamily: first }),
     });

@@ -605,6 +605,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/home-preview",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/world",
       "has": [
         {
@@ -764,6 +768,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/calculator",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/2029/journey",
       "destination": "/2029.html"
     },
@@ -857,6 +865,15 @@
       ]
     },
     {
+      "source": "/2029/calculator",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
       "source": "/entity-hub-preview/(.*)/(.*)",
       "headers": [
         {
@@ -867,6 +884,15 @@
     },
     {
       "source": "/2029/posts",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/home-preview",
       "headers": [
         {
           "key": "X-Robots-Tag",

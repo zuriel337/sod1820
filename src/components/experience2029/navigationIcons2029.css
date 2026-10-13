@@ -1,14 +1,34 @@
 /* Design V2 navigation family: semantic currentColor, no local palette. */
-.sod29-ui-icon {display:inline-block;vertical-align:middle;flex-shrink:0;width:24px;height:24px;transition:transform 180ms ease}
+.sod29-ui-icon {display:inline-block;vertical-align:middle;flex-shrink:0;width:24px;height:24px;transform-origin:center;transition:transform 180ms ease-out}
 .sod29-root .sod29-nav-icon {display:grid;place-items:center}
-.sod29-root .sod29-nav-link:hover:not(:disabled) .sod29-ui-icon {transform:translateY(-1px)}
-.sod29-root button:active .sod29-ui-icon,
-.sod29-root a:active .sod29-ui-icon {transform:scale(.92)}
+/* Shared control pressure: covers the entire hit area, including padding in
+   existing bars. Opacity preserves each consumer's hit area and positioning transform.
+   No listeners, scroll interception, persistent loops or navigation changes. */
+.sod29-root :is(button,a):has(.sod29-ui-icon) {
+  transition:opacity 160ms ease-out;
+}
+.sod29-root :is(button,a):has(.sod29-ui-icon):not(:disabled):not([aria-disabled="true"]):active {
+  opacity:.78;
+}
+.sod29-root :is(button,a):has(.sod29-ui-icon):not(:disabled):not([aria-disabled="true"]):focus-visible {
+  outline:2px solid var(--s29-focus-ring);outline-offset:3px;
+}
+@media(hover:hover) {
+  .sod29-root :is(button,a):not(:disabled):not([aria-disabled="true"]):hover .sod29-ui-icon {transform:translateY(-1px) rotate(-4deg)}
+}
+.sod29-root :is(button,a):not(:disabled):focus-visible .sod29-ui-icon {transform:translateY(-1px)}
+.sod29-root :is(button,a):not(:disabled):not([aria-disabled="true"]):active .sod29-ui-icon {transform:scale(.92)}
 .sod29-icon-diagonal {transform-box:fill-box;transform-origin:center}
 .sod29-root a:active .sod29-icon-diagonal {animation:sod29-icon-step 360ms ease both}
 .sod29-icon-diagonal.is-1 {animation-delay:60ms!important}
 .sod29-icon-diagonal.is-2 {animation-delay:120ms!important}
 @keyframes sod29-icon-step {0%,100%{opacity:1}50%{opacity:.35}}
-@media(prefers-reduced-motion:reduce) {.sod29-ui-icon,.sod29-icon-diagonal{transition:none!important;animation:none!important;transform:none!important}}
+@media(prefers-reduced-motion:reduce) {.sod29-ui-icon,.sod29-icon-diagonal,.sod29-nav-icon,.rf-icon{transition:none!important;animation:none!important;transform:none!important}}
+.sod29-root[data-frame-reduced-motion="true"] .sod29-nav-icon,
+.sod29-root[data-frame-reduced-motion="true"] .rf-icon,
 .sod29-root[data-frame-reduced-motion="true"] .sod29-ui-icon,
 .sod29-root[data-frame-reduced-motion="true"] .sod29-icon-diagonal {transition:none!important;animation:none!important;transform:none!important}
+@media(prefers-reduced-motion:reduce) {
+  .sod29-root :is(button,a):has(.sod29-ui-icon):not(:disabled):not([aria-disabled="true"]) {opacity:1!important;transition:none!important}
+}
+.sod29-root[data-frame-reduced-motion="true"] :is(button,a):has(.sod29-ui-icon):not(:disabled):not([aria-disabled="true"]) {opacity:1!important;transition:none!important}
