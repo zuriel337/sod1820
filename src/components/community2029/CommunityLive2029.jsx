@@ -5,7 +5,7 @@ import { requestEmailOtp, verifyEmailOtp } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { applySeo } from "../../lib/seo.js";
 import { use2029Palette } from "../../lib/palette.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchLinkedAccountProfiles, publishCommunityMessage } from "../../lib/community/communityArchive.js";
+import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchLinkedAccountProfiles, legacyLikeCount, publishCommunityMessage } from "../../lib/community/communityArchive.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import ReactionBar from "../ReactionBar.jsx";
@@ -21,8 +21,8 @@ function LiveAuthor({ row, accountProfiles }) {
     <time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time>
   </UserBadge>;
   if (!row.authorKey) return <span className="sod29-community-author-link">{badge}</span>;
-  const target = new URLSearchParams({ preview: "community", data: "live", member: row.authorKey });
-  return <Link className="sod29-community-author-link" to={`?${target}`} aria-label={`פתיחת העמוד של ${name}`}>
+  const target = new URLSearchParams({ preview: "community", data: "live", memberCard: row.authorKey });
+  return <Link className="sod29-community-author-link" to={`?${target}`} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
   </Link>;
 }
@@ -105,6 +105,8 @@ export default function CommunityLive2029() {
   const { user, profile } = useAuth();
   const [params, setParams] = useSearchParams();
   const memberId = params.get("member") || "";
+  const cardId = memberId ? "" : params.get("memberCard") || "";
+  const selectedAuthorId = memberId || cardId;
   const [rows, setRows] = useState([]);
   const [nextOffset, setNextOffset] = useState(0);
   const [total, setTotal] = useState(COMMUNITY_ARCHIVE_TOTAL);
@@ -122,6 +124,7 @@ export default function CommunityLive2029() {
   const [profileError, setProfileError] = useState("");
   const [accountProfiles, setAccountProfiles] = useState({});
   const composerRef = useRef(null);
+  const cardCloseRef = useRef(null);
 
   const loadPage = useCallback(async (offset = 0, replace = false) => {
     setLoading(true); setError("");
@@ -141,26 +144,36 @@ export default function CommunityLive2029() {
 
   useEffect(() => {
     setProfileRows([]); setProfileNextOffset(0); setProfileCount(0); setProfileError("");
-    if (!memberId || VERIFIED_ARCHIVE_PROFILES[memberId]?.isPrivate) { setProfileLoading(false); return; }
+    if (!selectedAuthorId) { setProfileLoading(false); return; }
     let active = true;
     setProfileLoading(true);
-    fetchCommunityAuthorPage(memberId).then((page) => {
+    fetchCommunityAuthorPage(selectedAuthorId, { limit: memberId ? COMMUNITY_PAGE_SIZE : 4 }).then((page) => {
       if (active) { setProfileRows(page.rows); setProfileCount(page.count); setProfileNextOffset(page.nextOffset); }
     }).catch(() => { if (active) setProfileError("לא הצלחנו לטעון את עמוד הכותב."); })
       .finally(() => { if (active) setProfileLoading(false); });
     return () => { active = false; };
-  }, [memberId]);
+  }, [selectedAuthorId, memberId]);
+
+  useEffect(() => {
+    if (!cardId) return;
+    cardCloseRef.current?.focus();
+    const onKeyDown = (event) => { if (event.key === "Escape") closeCard(); };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [cardId]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
     return needle ? rows.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : rows;
   }, [query, rows]);
-  const baseline = VERIFIED_ARCHIVE_PROFILES[memberId];
+  const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
   const linkedAccount = baseline?.accountUserId ? accountProfiles[baseline.accountUserId] : null;
   const memberName = linkedAccount?.display_name || linkedAccount?.username || baseline?.name || profileRows[0]?.authorName || "חבר הקהילה";
-  const isOwner = Boolean(user?.id && (baseline?.accountUserId === user.id || memberId === `user:${user.id}`));
+  const isOwner = Boolean(user?.id && (baseline?.accountUserId === user.id || selectedAuthorId === `user:${user.id}`));
 
   const closeProfile = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("member"); return next; });
+  const closeCard = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("memberCard"); return next; });
+  const openFullProfile = () => setParams((current) => { const next = new URLSearchParams(current); next.set("member", selectedAuthorId); next.delete("memberCard"); return next; });
   const startReply = (row) => { setReplyTo(row); requestAnimationFrame(() => composerRef.current?.focus()); };
   const submit = async () => {
     const body = draft.trim();
@@ -182,7 +195,8 @@ export default function CommunityLive2029() {
         <button type="button" className="sod29-community-text-action" onClick={closeProfile}>→ חזרה לשיחות</button>
         <header className="sod29-community-profile-hero"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{baseline?.name && baseline.name !== memberName ? <p>הודעות עבר בשם {baseline.name}</p> : null}{baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
         {isOwner ? <Link className="sod29-community-secondary sod29-community-edit-profile" to="/profile">עריכת הפרופיל שלי</Link> : null}
-        {baseline?.isPrivate ? <div className="sod29-community-private"><span aria-hidden="true">🔒</span><p>הפרופיל של {memberName} במצב פרטי</p></div> : <><h3>פוסטים ({profileCount.toLocaleString("he-IL")})</h3>{profileError ? <p role="alert">{profileError}</p> : null}<div className="sod29-community-feed">{profileRows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={accountProfiles} onReply={(item) => { closeProfile(); startReply(item); }} />)}</div>{profileLoading ? <p className="sod29-community-end">טוען פוסטים…</p> : null}{!profileRows.length && !profileLoading && !profileError ? <p className="sod29-community-end">אין פוסטים ציבוריים לכותב זה.</p> : null}{profileNextOffset < profileCount ? <button className="sod29-community-load" type="button" disabled={profileLoading} onClick={async () => { setProfileLoading(true); try { const page = await fetchCommunityAuthorPage(memberId, { offset: profileNextOffset }); setProfileRows((current) => [...current, ...page.rows]); setProfileNextOffset(page.nextOffset); } catch { setProfileError("לא הצלחנו לטעון פוסטים נוספים."); } finally { setProfileLoading(false); } }}>עוד פוסטים</button> : null}</>}
+        {baseline?.isPrivate ? <p className="sod29-community-profile-note">פרטי הפרופיל פרטיים. הודעות שפורסמו בעבר נשארות ציבוריות.</p> : null}
+        <h3>פוסטים ({profileCount.toLocaleString("he-IL")})</h3>{profileError ? <p role="alert">{profileError}</p> : null}<div className="sod29-community-feed">{profileRows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={accountProfiles} onReply={(item) => { closeProfile(); startReply(item); }} />)}</div>{profileLoading ? <p className="sod29-community-end">טוען פוסטים…</p> : null}{!profileRows.length && !profileLoading && !profileError ? <p className="sod29-community-end">אין פוסטים ציבוריים לכותב זה.</p> : null}{profileNextOffset < profileCount ? <button className="sod29-community-load" type="button" disabled={profileLoading} onClick={async () => { setProfileLoading(true); try { const page = await fetchCommunityAuthorPage(memberId, { offset: profileNextOffset }); setProfileRows((current) => [...current, ...page.rows]); setProfileNextOffset(page.nextOffset); } catch { setProfileError("טעינת פוסטים נוספים נכשלה."); } finally { setProfileLoading(false); } }}>עוד פוסטים</button> : null}
       </section> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunitySignIn />
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
@@ -200,6 +214,19 @@ export default function CommunityLive2029() {
         <div className="sod29-community-feed">{filtered.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} />)}</div>
         {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף הארכיון.</p>}
       </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card"><h2>הארכיון מחובר</h2><p>{COMMUNITY_ARCHIVE_TOTAL.toLocaleString("he-IL")} רשומות נשמרו; {total.toLocaleString("he-IL")} הודעות גלויות בפיד הקהילה. הכפתור ״עוד הודעות״ טוען אותן בהדרגה.</p></section><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
+      {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
+        <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
+          <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>
+          <header className="sod29-community-card-header"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
+          {baseline?.isPrivate ? <p className="sod29-community-card-note">פרטי הפרופיל פרטיים; ההודעות שכבר פורסמו ציבוריות.</p> : null}
+          <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
+          {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}
+          {profileError ? <p className="sod29-community-card-note" role="alert">{profileError}</p> : null}
+          <div className="sod29-community-card-messages">{profileRows.slice(0, 3).map((row) => <article key={row.id}><time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time><p dir="auto">{row.body}</p><div>{legacyLikeCount(row.reactions) > 0 ? <span>👍 {legacyLikeCount(row.reactions)}</span> : null}{row.parentId ? <span>תגובה בצ׳אט</span> : null}</div></article>)}</div>
+          {!profileLoading && !profileRows.length && !profileError ? <p className="sod29-community-card-note">אין הודעות ציבוריות לכותב זה.</p> : null}
+          <button type="button" className="sod29-community-card-full" onClick={openFullProfile}>לעמוד הכותב המלא ←</button>
+        </section>
+      </div> : null}
     </main>
   </Sod2029Shell>;
 }
