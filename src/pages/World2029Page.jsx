@@ -15,6 +15,7 @@ import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
 import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
 import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
+import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -1136,6 +1137,7 @@ function LiveWorldLanding({ research, shell, context }) {
       <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושא</div><h2>כל חיבור פותח עוד עולם.</h2>
         <p className="sod29-muted">בחרו נושא קיים כדי לראות אילו ביטויים, מספרים ומקורות נפגשים בו.</p></div>
         {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} התכנסויות ציבוריות</span> : null}</div>
+      <WorldPublicSourceSubjects2029 />
       <div className="sod29-world-catalog-controls">
         <label className="sod29-world-catalog-search"><span>מה מסקרן אותך?</span>
           <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="מספר, שם או נושא…" aria-label="חיפוש בכל ההתכנסויות" /></label>
@@ -1276,7 +1278,7 @@ function LiveWorldLanding({ research, shell, context }) {
               return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
             })}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
+          <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. מקורות חדשים מופיעים כאן כפי שנשלחו.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
@@ -1383,6 +1385,7 @@ function LiveWorldLanding({ research, shell, context }) {
         </span>
       </div>
 
+      <WorldPublicSourceSubjects2029 />
       <div className="sod29-world-catalog-controls">
         <label className="sod29-world-catalog-search">
           <span>חיפוש</span>
