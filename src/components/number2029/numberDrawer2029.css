@@ -13,19 +13,20 @@
   background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent);
 }
 .sod29-number-drawer-mode>div{display:grid;gap:3px;min-width:0}
-.sod29-number-drawer-mode span{color:var(--s29-accent-text);font-size:9px;font-weight:900;letter-spacing:.06em}
+.sod29-number-drawer-mode span{color:var(--s29-accent-text);font-size:var(--s29-type-micro,14px);font-weight:900;letter-spacing:.06em}
 .sod29-number-drawer-mode strong{color:var(--s29-ink);font-size:18px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sod29-number-drawer-mode small{color:var(--s29-muted);font-size:9px;line-height:1.45}
+.sod29-number-drawer-mode small{color:var(--s29-muted);font-size:var(--s29-type-micro,14px);line-height:1.45}
 .sod29-number-drawer-back{
   flex:0 0 auto;
-  min-height:36px;
+  min-height:44px;
+  min-width:44px;
   border:1px solid var(--s29-line-strong);
   border-radius:999px;
   background:transparent;
   color:var(--s29-ink);
   padding:6px 10px;
   font:inherit;
-  font-size:9px;
+  font-size:var(--s29-type-micro,14px);
   font-weight:850;
   cursor:pointer;
 }
@@ -42,7 +43,7 @@
 .sod29-number-drawer-search input{
   min-width:0;
   flex:1;
-  min-height:42px;
+  min-height:44px;
   border:1px solid var(--s29-line-strong);
   border-radius:999px;
   background:color-mix(in srgb,var(--s29-panel-soft) 92%,transparent);
@@ -57,13 +58,14 @@
 }
 .sod29-number-drawer-search button,
 .sod29-number-drawer-empty button{
+  min-height:44px;
   border:1px solid transparent;
   border-radius:999px;
   background:var(--s29-accent);
-  color:var(--s29-on-accent,#120d04);
+  color:var(--s29-on-accent);
   padding:7px 11px;
   font:inherit;
-  font-size:10px;
+  font-size:var(--s29-type-ui,16px);
   font-weight:900;
   cursor:pointer;
 }
@@ -72,7 +74,7 @@
   border:1px dashed var(--s29-line);
   border-radius:12px;
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--s29-type-micro,14px);
 }
 .sod29-number-drawer-status.error{
   border-style:solid;
@@ -89,7 +91,7 @@
 .sod29-number-drawer-empty p{
   margin:0;
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:var(--s29-type-micro,14px);
 }
 .sod29-number-drawer-empty form{
   display:flex;
@@ -97,6 +99,7 @@
 }
 .sod29-number-drawer-empty input{
   min-width:0;
+  min-height:44px;
   flex:1;
   border:1px solid var(--s29-line);
   border-radius:999px;
