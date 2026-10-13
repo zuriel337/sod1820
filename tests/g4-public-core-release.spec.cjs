@@ -127,6 +127,8 @@ test('a phrase in the Number drawer opens its calculated full page, never a miss
     await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.sod29-number-v11-regular-track button strong').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.sod29-number-v10-method-head span').first()).toBeVisible({ timeout: 30_000 });
     const type = await page.locator('.sod29-number-core2029.is-page').evaluate((core) => ({
       regular: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v11-regular-track button strong')).fontSize),
       method: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v10-method-head span')).fontSize),
