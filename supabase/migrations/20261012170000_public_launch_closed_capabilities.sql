@@ -7,6 +7,7 @@ values
   ('lock_world', true, 'all', 'העולם נמצא בהכנה וייפתח לאחר השלמת בדיקות המקורות.'),
   ('lock_raziel_site', true, 'all', 'רזיאל באתר נמצא בהכנה וייפתח לאחר השלמת האימות.'),
   ('lock_life_journey', true, 'all', 'המסע האישי נמצא בהכנה וייפתח לאחר השלמת ההגדרות.'),
-  ('lock_books', true, 'all', 'אזור הספרים נמצא בהכנה וייפתח לאחר השלמת הבדיקה.')
+  ('lock_books', true, 'all', 'אזור הספרים נמצא בהכנה וייפתח לאחר השלמת הבדיקה.'),
+  ('lock_number', true, 'all', 'דף המספר נמצא בהכנה וייפתח בהמשך.')
 on conflict (key) do update
 set enabled = true, mode = 'all', message = excluded.message;

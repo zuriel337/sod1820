@@ -8,6 +8,15 @@ on:
       - 'public/fonts/**'
       - 'tests/g4-public-core-release.spec.cjs'
       - 'src/App2029.jsx'
+      - 'src/App.jsx'
+      - 'src/components/community2029/**'
+      - 'src/pages/CommunityChatTransition2029Page.jsx'
+      - 'src/lib/community/communityArchive.js'
+      - 'src/lib/community/communityArchive.test.js'
+      - 'api/og.js'
+      - 'api/sitemap-public.js'
+      - 'test/public-launch-seo-gates.test.mjs'
+      - 'test/convergence-tree-closure.test.mjs'
       - 'src/components/MaintenanceLock.jsx'
       - 'src/components/experience2029/**'
       - 'src/components/number2029/**'
@@ -40,6 +49,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Public capability metadata and Community reader acceptance
+        run: node --test test/public-launch-seo-gates.test.mjs test/convergence-tree-closure.test.mjs src/lib/community/communityArchive.test.js
       - run: node --test src/lib/research/worldGroupSource.test.js
       - name: Group source v3 real HTTP role acceptance on disposable fixtures
         run: bash scripts/test-world-group-source-http.sh

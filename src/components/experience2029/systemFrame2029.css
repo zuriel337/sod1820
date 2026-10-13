@@ -22,7 +22,7 @@
 }
 .sod29-root[data-frame-theme-preset="dark"]{
   background:
-    radial-gradient(circle at 18% -8%,color-mix(in srgb,var(--s29-brand-sapphire) 20%,transparent),transparent 34%),
+    radial-gradient(circle at 18% -8%,color-mix(in srgb,var(--s29-brand-gold) 12%,transparent),transparent 34%),
     radial-gradient(circle at 76% 108%,color-mix(in srgb,var(--s29-brand-gold) 7%,transparent),transparent 31%),
     var(--s29-page);
 }

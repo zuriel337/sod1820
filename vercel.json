@@ -6,6 +6,21 @@
       "permanent": false
     },
     {
+      "source": "/post",
+      "destination": "/2029/posts",
+      "permanent": false
+    },
+    {
+      "source": "/forum",
+      "destination": "/community/chat",
+      "permanent": false
+    },
+    {
+      "source": "/numbers",
+      "destination": "/number",
+      "permanent": false
+    },
+    {
       "source": "/heichal.html",
       "destination": "/heichal",
       "permanent": false
@@ -473,6 +488,31 @@
   ],
   "rewrites": [
     {
+      "source": "/forum/(.*)",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/forum/$1&crawler=search"
+    },
+    {
+      "source": "/journey",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/journey&crawler=search"
+    },
+    {
+      "source": "/journey-beta",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/journey-beta&crawler=search"
+    },
+    {
+      "source": "/מסע",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/מסע&crawler=search"
+    },
+    {
+      "source": "/number",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/number&crawler=search"
+    },
+    {
       "source": "/favicon.ico",
       "destination": "/logo.png"
     },
@@ -612,6 +652,10 @@
     },
     {
       "source": "/2029/posts",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/community/chat",
       "destination": "/2029.html"
     },
     {
@@ -888,6 +932,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/community/chat",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
     {
       "source": "/early-access",
       "headers": [

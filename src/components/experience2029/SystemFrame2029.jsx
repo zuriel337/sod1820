@@ -125,7 +125,7 @@ const DIRECT_NAV = [
 const CORE_HOME_NAV = [
   { to: "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/community/chat", label: "הצ׳אט הוותיק", icon: "◉" },
+  { to: "/community/chat", label: "צ׳אט", icon: "◉" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
   { label: "אזור משתמשים", icon: "◎", action: "workspace" },
@@ -1467,13 +1467,15 @@ export default function SystemFrame2029({
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
   const booksFeature = useFeatureState("lock_books", { requireFlag: true });
+  const numberFeature = useFeatureState("lock_number", { requireFlag: true });
   const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
   const razielLocked = razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
+  const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.to.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -1987,7 +1989,7 @@ export default function SystemFrame2029({
     ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
     : null;
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
-  const showContextRail = surface !== "control" && surface !== "els"
+  const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || context?.subject);
   const companionActive = companionWide && surface !== "control" && !corePublicViewer;
   const companionHasContext = showContextRail && !numberPageRoute;

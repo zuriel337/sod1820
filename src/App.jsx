@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CORE_PUBLIC_LAUNCH_2029 } from "./lib/publicLaunch2029.js";
 import { applySeo } from "./lib/seo.js";
 import { ROUTE_META } from "./routes.jsx";
@@ -48,7 +48,7 @@ import {
 import CommunityCalculatorPage from "./pages/CommunityCalculatorPage.jsx";
 import {
   PostBySlugRoute, GematriaRoute,
-  LoginRoute, ContactRoute, SpotimChatRoute,
+  LoginRoute, ContactRoute,
   TrafficRoute, NumbersReportRoute,
 } from "./pages/legacyRoutes.jsx";
 
@@ -193,22 +193,40 @@ function EnterRoute() {
 // מחשבון יחיד (עץ אחד) — כל הקיצורים מובילים למחשבון הקנוני *במעבדה* (כלי 🧮).
 // משמרים seed: /gematria?w=דוד → /research?tool=gematria&q=דוד
 function GematriaToLab() {
-  const { search } = useLocation();
+  const { search, hash } = useLocation();
   const p = new URLSearchParams(search);
   const w = p.get("w") || p.get("calc");
+  if (CORE_PUBLIC_LAUNCH_2029) {
+    if (!p.get("q") && w) p.set("q", w);
+    p.delete("w");
+    p.delete("calc");
+    const query = p.toString();
+    return <Product2029DocumentHandoff to={`/2029/gematria${query ? `?${query}` : ""}${hash || ""}`} />;
+  }
   return <Navigate to={`/research?tool=gematria${w ? `&q=${encodeURIComponent(w)}` : ""}`} replace />;
 }
 
-function Product2029DocumentHandoff() {
+function Product2029DocumentHandoff({ to = null }) {
   const location = useLocation();
   const raw = `${location.pathname}${location.search || ""}${location.hash || ""}`;
-  const href = location.pathname === "/book"
+  const href = to || (location.pathname === "/book"
     ? `/books${location.search || ""}${location.hash || ""}`
-    : raw;
+    : raw);
   useEffect(() => {
-    window.location.assign(href);
+    window.location.replace(href);
   }, [href]);
   return <div aria-label="טוען" style={{ position: "fixed", inset: 0, background: "#0C0818" }} />;
+}
+
+function LegacyPostDocumentHandoff() {
+  const { slug } = useParams();
+  const location = useLocation();
+  return <Product2029DocumentHandoff to={`/post/${encodeURIComponent(slug || "")}${location.search || ""}${location.hash || ""}`} />;
+}
+
+function Posts2029DocumentHandoff() {
+  const location = useLocation();
+  return <Product2029DocumentHandoff to={`/2029/posts${location.search || ""}${location.hash || ""}`} />;
 }
 
 // דף הבית ב-/ מתחלף לפי הזרם (root-swap): reality → בית-הקוד; אחרת → בית-המלוכה.
@@ -359,7 +377,7 @@ export default function App() {
           <Route path="/beit-midrash/:method" element={<LegacyBeitMidrashTransitionRoute />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
-          <Route path="/post" element={<PostsPage />} />
+          <Route path="/post" element={<Posts2029DocumentHandoff />} />
           {/* /archive = זרם המציאות: שער-רשומים ברמת הראוט (lock_reality mode=anon);
               טאבי הגלריות בפנים חסומים בנפרד גם לרשומים (lock_galleries, בתוך ArchivePage) */}
           <Route path="/archive" element={<Locked flag="lock_reality"><ArchivePage /></Locked>} />
@@ -367,7 +385,7 @@ export default function App() {
           <Route path="/gallery-updates" element={<Navigate to="/archive" replace />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />
-          <Route path="/community/chat" element={<SpotimChatRoute />} />
+          <Route path="/community/chat" element={<Product2029DocumentHandoff />} />
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/community/researcher/:slug" element={<ContributorPage />} />
@@ -392,10 +410,10 @@ export default function App() {
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
-          <Route path="/number" element={<NumberSearchPage />} />
+          <Route path="/number" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberSearchPage /></Locked>} />
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
-          <Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />
+          <Route path="/number/:phrase" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><LegacyNumberTransitionRoute /></Locked>} />
           <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag><TopicPage /></Locked>} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
@@ -418,9 +436,9 @@ export default function App() {
           <Route path="/broadcasts" element={<BroadcastsPage />} />
           <Route path="/whats-new" element={<SiteUpdatesPage />} />
           <Route path="/הצלבה" element={<CrossMethodPage />} />
-          <Route path="/journey" element={<JourneyPage />} />
-          <Route path="/מסע" element={<JourneyPage />} />
-          <Route path="/journey-beta" element={<JourneyPageV2 />} />
+          <Route path="/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><JourneyPage /></Locked>} />
+          <Route path="/מסע" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><JourneyPage /></Locked>} />
+          <Route path="/journey-beta" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><JourneyPageV2 /></Locked>} />
           <Route path="/lab" element={<LabIndex />} />
           {/* 🧭 Work Area של הצופן — אותו TzofenEmbed ואותו /tzofen.html?embed=1. קריאה-בלבד. */}
           <Route path="/lab/els" element={<Navigate to="/els" replace />} />
@@ -437,7 +455,7 @@ export default function App() {
           <Route path="/chat" element={<Navigate to="/community/chat" replace />} />
 
           {/* קנוני: כתובת שורש = סלאג של פוסט (1,200 פוסטים מאונדקסים) */}
-          <Route path="/:slug" element={<PostBySlugRoute />} />
+          <Route path="/:slug" element={CORE_PUBLIC_LAUNCH_2029 ? <LegacyPostDocumentHandoff /> : <PostBySlugRoute />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
         </Routes>

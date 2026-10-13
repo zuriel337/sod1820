@@ -71,7 +71,7 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/2029", "/community/chat", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
   assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
@@ -90,7 +90,8 @@ assert.equal(legacyApp.includes('BookHubPage'), false, "Legacy Book renderer mus
 for (const route of ["/heichal", "/היכל"]) {
   assert.ok(legacyApp.includes(`path="${route}" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>}`), "legacy SPA navigation must not bypass the Heichal launch gate");
 }
-assert.match(legacyApp, /function Product2029DocumentHandoff\(\)/, "Legacy SPA must cross the document boundary for 2029 routes");
+assert.match(legacyApp, /function Product2029DocumentHandoff\(\{ to = null \}\)/, "Legacy SPA must cross the document boundary for 2029 routes");
+assert.match(legacyApp, /window\.location\.replace\(href\)/, "canonical document handoffs must not leave a redirecting alias in back history");
 for (const route of ["/code", "/els"]) {
   assert.ok(legacyApp.includes(`path="${route}" element={<Product2029DocumentHandoff />}`), `${route} must cross into isolated 2029 runtime`);
 }

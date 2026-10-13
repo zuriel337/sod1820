@@ -8,8 +8,11 @@ const CLOSED_FLAGS = [
   'lock_raziel_site',
   'lock_life_journey',
   'lock_books',
+  'lock_number',
 ].map((key) => ({ key, enabled: true, mode: 'all', message: `${key} בבנייה` }));
-const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => flag.key === 'lock_world' ? { ...flag, enabled: false, message: '' } : flag);
+// Existing positive Number scenarios exercise its explicitly-open state;
+// the launch-specific closed state is asserted separately below.
+const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => ['lock_world', 'lock_number'].includes(flag.key) ? { ...flag, enabled: false, message: '' } : flag);
 
 test.setTimeout(45_000);
 
@@ -54,6 +57,48 @@ test('public navigation opens the same user area', async ({ page }) => {
   await page.getByRole('button', { name: 'פתח ניווט' }).click();
   await page.getByRole('button', { name: 'אזור משתמשים', exact: true }).click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
+});
+
+test('launch Number lock blocks direct entry before the Number engine mounts', async ({ page }) => {
+  let numberReads = 0;
+  await page.route('**/rest/v1/rpc/fn_number_lookup*', async (route) => { numberReads++; await route.abort(); });
+  await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify(CLOSED_FLAGS),
+  }));
+  await page.goto(`${BASE}/2029/number/1820`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.mlock')).toBeVisible();
+  await expect(page.locator('[data-number-core-root]')).toHaveCount(0);
+  expect(numberReads).toBe(0);
+});
+
+test('chat transition has one frame with the existing chat above the connected new chat', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('sod_research_context_v2:guest', JSON.stringify({
+    subject: { id: 'previous-post', type: 'post', label: 'Previous post context', href: '/post/previous-post' },
+    selection: { entityId: 'previous-post', entityType: 'post' },
+    dimensions: {},
+  })));
+  await page.route('https://launcher.spot.im/**', (route) => route.fulfill({
+    status: 200, contentType: 'application/javascript', body: 'window.__openwebLauncherLoads = (window.__openwebLauncherLoads || 0) + 1;',
+  }));
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${BASE}/community/chat`, { waitUntil: 'domcontentloaded' });
+    const oldChat = page.locator('[data-community-chat="legacy"]');
+    const newChat = page.locator('#community-new-chat');
+    await expect(oldChat).toBeVisible();
+    await expect(newChat).toBeAttached();
+    await expect(page.locator('.sod29-root')).toHaveCount(1);
+    await expect(page.locator('.sod29-surface-context-rail')).toHaveCount(0);
+    await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-id', 'POST_ID_GOES_HERE');
+    await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-url', 'https://sod1820.co.il/community/chat');
+    await expect(page.locator('#spotim-script')).toHaveCount(1);
+    expect(await newChat.evaluate((element) => Boolean(document.querySelector('[data-community-chat="legacy"]').compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+    await expect(page.locator('.sod29-community-preview-notice, .sod29-community-feed-label')).toHaveCount(0);
+    await oldChat.getByRole('link', { name: 'לצ׳אט החדש ↓' }).click();
+    await expect(newChat.getByRole('textbox', { name: 'מה תרצו לשתף?' })).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/community/chat');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  }
 });
 
 test('Number navigation opens the full page on mobile and desktop', async ({ page }) => {

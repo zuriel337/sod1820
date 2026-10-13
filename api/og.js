@@ -56,7 +56,7 @@ const STATIC = {
     desc: "צא למסע במפת המספרים — כל צעד פותח סוד חדש, וכל מספר מתחבר לבא אחריו. לא תאמין לאן זה מוביל. פלא פלאים.",
     card: { w: 'המסע', sub: 'מספר → מספר → סוד', cap: 'לאן זה יוביל אותך?' } },
   '/community/chat': { title: "הצ'אט החי — קוד המציאות בזמן אמת · " + SITE_NAME,
-    desc: "וואו מה שקורה פה — בוא לדבר על מה שמתגלה עכשיו. קוד המציאות חי, בזמן אמת, עם חוקרים מכל הארץ. פלא פלאים.",
+    desc: "שיחות, שאלות וגילויים בקהילת SOD1820.",
     card: { w: "הצ'אט החי", sub: 'קוד המציאות · בזמן אמת', cap: 'מה מתגלה עכשיו?' } },
   '/community/calculator': { title: "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם · " + SITE_NAME, desc: "רוצים לדעת מה מסתתר בשם שלכם? מחשבון הגימטריה החינמי והמדויק של SOD1820 — חישוב כל שם או מילה ב-8 שיטות, השוואה בין שני שמות וגילוי הקשרים הנסתרים בשפת המספרים.",
     card: { w: 'מחשבון הגימטריה', sub: 'חשבו כל מילה · שם · ביטוי', cap: 'מה מסתתר בשם שלכם?' } },
@@ -98,9 +98,6 @@ const STATIC = {
   // 📣 מרכז השידורים
   '/broadcasts': { title: "מרכז השידורים · " + SITE_NAME, desc: "בית אחד לכל מה שקורה בסוד 1820: פורום ותגובות, שידורי הערוצים, פעילות האתר וזרם המציאות.",
     card: { w: 'מרכז השידורים', sub: 'כל מה שקורה בסוד 1820', cap: 'מה מתחדש עכשיו?' } },
-  // 💬 פורום המחקר הקהילתי (הרשימה; פתיל בודד /forum/:id יטופל בעתיד עם שליפת-DB)
-  '/forum': { title: "פורום המחקר הקהילתי · " + SITE_NAME, desc: "כל חידושי, השערות, מקורות ומאמרי הכתבים של הקהילה במקום אחד — פורום המחקר של סוד 1820.",
-    card: { w: 'פורום המחקר', sub: 'חידושי הקהילה · מקורות · מאמרים', cap: 'בואו לחקור יחד' } },
   // 🎬 אור הגאולה — אוסף מדיה (סרטונים + ריבועים)
   '/or-geula': { title: "אור הגאולה — אוסף הסרטונים והרמזים · " + SITE_NAME, desc: "אור הגאולה — אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה. תיעוד חי ומתעדכן בסוד 1820.",
     card: { w: 'אור הגאולה', sub: 'סרטונים · ריבועים · רמזי גאולה', cap: 'אוסף חי שמתעדכן' } },
@@ -148,17 +145,36 @@ function cleanDesc(raw = '', max = 160) {
   return s.replace(/[\s,.;:–-]+$/, '') + '…';
 }
 
-async function publicSiteFlag(key, headers) {
+async function publicSiteFlags(keys, headers) {
+  const closed = { found: false, enabled: true, mode: 'all', message: null };
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/site_flags?select=key,enabled,mode,message&key=eq.${encodeURIComponent(key)}&limit=1`, { headers });
-    if (!r.ok) return { found: false, enabled: true, mode: 'all', message: null, failed: true };
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/site_flags?select=key,enabled,mode,message&key=in.(${keys.join(',')})`, { headers, signal: AbortSignal.timeout(5000) });
+    if (!r.ok) return { flags: new Map(), failed: true };
     const rows = await r.json();
-    const row = Array.isArray(rows) ? rows[0] : null;
-    if (!row) return { found: false, enabled: true, mode: 'all', message: null, failed: false };
-    return { found: true, enabled: !!row.enabled, mode: row.mode || 'all', message: row.message || null, failed: false };
+    if (!Array.isArray(rows)) return { flags: new Map(), failed: true };
+    const flags = new Map();
+    for (const row of rows) {
+      if (!row || !keys.includes(row.key)) continue;
+      const valid = typeof row.enabled === 'boolean' && ['all', 'anon'].includes(row.mode);
+      flags.set(row.key, flags.has(row.key) || !valid ? closed : {
+        found: true, enabled: row.enabled, mode: row.mode,
+        message: typeof row.message === 'string' ? row.message : null,
+      });
+    }
+    return { flags, failed: false };
   } catch {
-    return { found: false, enabled: true, mode: 'all', message: null, failed: true };
+    return { flags: new Map(), failed: true };
   }
+}
+
+function launchGateForPath(path) {
+  if (/^\/(?:world|topic|researcher)(?:\/|$)/.test(path)) return { key: 'lock_world', title: 'העולם', message: 'העולם נבנה וייפתח בהמשך.' };
+  if (/^\/books?(?:\/|$)/.test(path)) return { key: 'lock_books', title: 'ספרים ומקורות', message: 'אזור הספרים נבנה וייפתח בהמשך.' };
+  if (/^\/(?:journey|journey-beta|מסע)(?:\/|$)/.test(path) || /^\/2029\/journey(?:\/|$)/.test(path)) return { key: 'lock_life_journey', title: 'המסע האישי', message: 'המסע האישי נבנה וייפתח בהמשך.' };
+  if (/^\/numbers?(?:\/|$)/.test(path) || /^\/2029\/number(?:\/|$)/.test(path)) return { key: 'lock_number', title: 'דף המספר', message: 'דף המספר נבנה וייפתח בהמשך.' };
+  if (/^\/(?:heichal|היכל)(?:\/|$)/.test(path)) return { key: 'lock_heichal', title: 'היכל', message: 'ההיכל סגור זמנית לציבור לצורך השלמת האימות.' };
+  if (/^\/(?:2029\/)?raziel(?:\/|$)/.test(path)) return { key: 'lock_raziel_site', title: 'רזיאל', message: 'רזיאל נבנה וייפתח בהמשך.' };
+  return null;
 }
 
 // 🎬 og:video — סוג המדיה לפי סיומת (לתצוגה מתנגנת ברשתות שתומכות)
@@ -182,7 +198,6 @@ export default async function handler(req, res) {
   let robots = 'index, follow';
   let convergenceLd = null;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
-  let forumThread = null;  // פתיל-פורום (research_contributions) — ל-DiscussionForumPosting
   let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
   let videoCanonical = null;
   let canonical = SITE + (path === '/' ? '' : path);
@@ -192,13 +207,25 @@ export default async function handler(req, res) {
   // its encoded Hebrew address before the individual-record metadata branch.
   let researchFolderPath = false;
   try { researchFolderPath = decodeURIComponent(key) === '/codes/מחקר'; } catch { /* malformed URL remains unmatched */ }
-  const staticKey = researchFolderPath ? '/codes/מחקר' : key;
+  let decodedKey = key;
+  try { decodedKey = decodeURIComponent(key); } catch { /* malformed paths stay unmatched */ }
+  const journeyAlias = ['/journey-beta', '/מסע', '/2029/journey'].includes(decodedKey);
+  const staticKey = researchFolderPath ? '/codes/מחקר' : journeyAlias ? '/journey' : decodedKey === '/היכל' ? '/היכל' : key;
   if (researchFolderPath) canonical = SITE + '/codes/מחקר';
   // /היכל is an addressable legacy alias; the hydrated 2029 page already
   // declares /heichal as canonical. Server/crawler metadata must agree.
-  if (key === '/היכל') canonical = SITE + '/heichal';
+  if (decodedKey === '/היכל') canonical = SITE + '/heichal';
   if (key === '/els') canonical = SITE + '/code';
   const ogHeaders = { apikey: ANON, Authorization: 'Bearer ' + ANON };
+  const launchGate = launchGateForPath(decodedKey);
+  const flagKeys = launchGate ? [launchGate.key] : key === '/code' || key === '/els' ? ['lock_els'] : [];
+  const legacyNumbersAlias = /^\/numbers(?:\/|$)/.test(decodedKey);
+  if (legacyNumbersAlias) flagKeys.push('lock_convergence_tree');
+  const flagState = flagKeys.length ? await publicSiteFlags(flagKeys, ogHeaders) : null;
+  const routeFlag = flagKeys.length ? flagState.flags.get(flagKeys[0]) : null;
+  const convergenceFlag = legacyNumbersAlias ? flagState.flags.get('lock_convergence_tree') : null;
+  const convergenceClosed = legacyNumbersAlias && (flagState.failed || flagState.flags.has('lock_convergence_tree') && convergenceFlag?.enabled !== false);
+  const launchClosed = launchGate && (!routeFlag?.found || routeFlag.enabled || convergenceClosed);
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
   if (!vParam) {
@@ -206,7 +233,23 @@ export default async function handler(req, res) {
     const qi = rp.indexOf('?');
     if (qi >= 0) { try { vParam = new URLSearchParams(rp.slice(qi + 1)).get('v') || ''; } catch { /* ignore */ } }
   }
-  if (key === '/2029/gematria') {
+  if (/^\/forum(?:\/|$)/.test(decodedKey)) {
+    robots = 'noindex, follow';
+    title = `הצ'אט הקהילתי · ${SITE_NAME}`;
+    desc = 'הפורום הישן נסגר. השיחות ממשיכות בצ׳אט הקהילתי.';
+    image = cardUrl({ w: "הצ'אט הקהילתי", sub: 'SOD1820', cap: 'שיחות · שאלות · גילויים' });
+    canonical = SITE + '/community/chat';
+  } else if (launchClosed) {
+    robots = 'noindex, follow';
+    title = `${launchGate.title} · ${SITE_NAME}`;
+    desc = cleanDesc(routeFlag?.message || launchGate.message, 180);
+    image = cardUrl({ w: launchGate.title, sub: 'בבנייה', cap: 'האזור ייפתח בהמשך' });
+  } else if (decodedKey === '/community/chat') {
+    robots = 'noindex, follow';
+    title = STATIC['/community/chat'].title;
+    desc = STATIC['/community/chat'].desc;
+    image = cardUrl(STATIC['/community/chat'].card);
+  } else if (key === '/2029/gematria') {
     // 2029 viral Gematria result — projection only. Never recalculate in OG.
     // The live page re-verifies q+m+v through fn_method_profile before presenting it as canonical.
     const rawPath = String((req.query && req.query.path) || '');
@@ -374,12 +417,9 @@ export default async function handler(req, res) {
     if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);
 
     // Public metadata follows the same availability state as native routes.
-    if (key === '/code' || key === '/els' || key === '/heichal' || key === '/היכל') {
-      const elsRoute = key === '/code' || key === '/els';
-      const flag = await publicSiteFlag(elsRoute ? 'lock_els' : 'lock_heichal', ogHeaders);
-      if (!flag.found || flag.enabled) {
-        desc = cleanDesc(flag.message || (elsRoute ? 'ELS סגור זמנית לציבור לצורך בנייה מחדש.' : 'ההיכל סגור זמנית לציבור לצורך השלמת האימות.'), 180);
-        if (!elsRoute) robots = 'noindex, follow';
+    if (key === '/code' || key === '/els') {
+      if (!routeFlag?.found || routeFlag.enabled) {
+        desc = cleanDesc(routeFlag?.message || 'ELS סגור זמנית לציבור לצורך בנייה מחדש.', 180);
       }
     }
   } else if (key.startsWith('/topic/')) {
@@ -526,26 +566,6 @@ export default async function handler(req, res) {
         }
       } catch { /* fallback to defaults */ }
     }
-  } else if (key.startsWith('/forum/')) {
-    // 💬 פתיל-פורום בודד (research_contributions) — תצוגת-שיתוף אמיתית + DiscussionForumPosting.
-    // משלים את ה-TODO שהיה על /forum: פתיל בודד עם שליפת-DB. רק מאושר (approved) נחשף.
-    let fid = key.slice('/forum/'.length);
-    try { fid = decodeURIComponent(fid); } catch { /* keep */ }
-    if (fid) {
-      try {
-        const r = await fetch(`${SUPABASE_URL}/rest/v1/research_contributions?id=eq.${encodeURIComponent(fid)}&status=eq.approved&select=id,author_name,title,body,image_url,created_at&limit=1`, { headers: ogHeaders });
-        const rows = await r.json();
-        const c = Array.isArray(rows) && rows[0];
-        if (c && (c.title || c.body)) {
-          forumThread = c;
-          const ttl = stripHtml(c.title || c.body).slice(0, 80);
-          title = `${ttl} — פורום המחקר · ${SITE_NAME}`;
-          desc = cleanDesc(c.body || c.title, 180) || 'דיון מחקר קהילתי בסוד 1820 — הצטרפו לדיון.';
-          image = c.image_url ? c.image_url
-            : cardUrl({ w: ttl.slice(0, 46), sub: 'פורום המחקר · סוד 1820', cap: 'הצטרפו לדיון ←' });
-        }
-      } catch { /* fallback to defaults */ }
-    }
   } else {
     // לטפל כ-slug של פוסט.
     // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
@@ -652,25 +672,6 @@ export default async function handler(req, res) {
       ],
     };
     jsonLd = `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': [page, breadcrumb] }).replace(/</g, '\\u003c')}</script>`;
-  } else if (forumThread) {
-    // 💬 DiscussionForumPosting — הסוג שגוגל מזהה כ«פורום דיונים».
-    const nm = (forumThread.author_name && String(forumThread.author_name).trim()) || 'חבר הקהילה';
-    const ld = {
-      '@context': 'https://schema.org',
-      '@type': 'DiscussionForumPosting',
-      '@id': canonical + '#discussion',
-      headline: stripHtml(forumThread.title || forumThread.body).slice(0, 110) || 'דיון מחקר',
-      articleBody: stripHtml(forumThread.body || forumThread.title).slice(0, 5000),
-      url: canonical,
-      mainEntityOfPage: canonical,
-      author: { '@type': 'Person', name: nm },
-      publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
-      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE },
-      inLanguage: 'he-IL',
-    };
-    if (forumThread.created_at) { ld.datePublished = forumThread.created_at; ld.dateModified = forumThread.created_at; }
-    if (image) ld.image = [image];
-    jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
   } else if (orgeulaVid) {
     // 🎬 VideoObject — סרטון אור-הגאולה ספציפי (?v=) → תוצאת-וידאו בגוגל גם ל-crawler שלא מריץ JS.
     const ld = {
@@ -720,7 +721,7 @@ ${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc
 </body></html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600');
+  res.setHeader('Cache-Control', flagState?.failed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
   if (searchCrawlerDocument) {
     res.setHeader('X-Robots-Tag', robots);
     res.setHeader('Vary', 'User-Agent');

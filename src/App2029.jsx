@@ -32,6 +32,7 @@ const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
+const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
 
 // Design review on an existing document route; does not open public Community
 // navigation or require a competing edit to the deployment rewrite configuration.
@@ -137,6 +138,7 @@ export default function App2029() {
               <Route path="/world" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><World2029Page /></Locked>} />
               <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
+              <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
@@ -148,7 +150,7 @@ export default function App2029() {
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/researcher/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Researcher2029Page /></Locked>} />
-              <Route path="/2029/number/:value" element={<Number2029Page />} />
+              <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />

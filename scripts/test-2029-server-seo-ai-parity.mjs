@@ -31,6 +31,16 @@ async function render(path, fetchImpl, query = {}) {
   return (await renderResponse(path, fetchImpl, query)).body;
 }
 
+function withOpenLaunchFlag(key, fetchImpl) {
+  return async (url, options) => {
+    if (String(url).includes('/site_flags?')) {
+      return { ok: true, json: async () => [{ key, enabled: false, mode: 'all' }] };
+    }
+    if (!fetchImpl) throw new Error('unexpected data fetch: ' + url);
+    return fetchImpl(url, options);
+  };
+}
+
 
 const homeSearchCrawler = await renderResponse("/", async () => {
   throw new Error("home server document must not require Supabase fetch");
@@ -39,22 +49,22 @@ assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il
 assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
 
-const number = await render("/2029/number/123");
+const number = await render("/2029/number/123", withOpenLaunchFlag("lock_number"));
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(number, /123 · דף המספר 2029/);
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
 let researcherFetches = [];
-const researcher = await render("/researcher/admin-only", async (url) => {
+const researcher = await render("/researcher/admin-only", withOpenLaunchFlag("lock_world", async (url) => {
   researcherFetches.push(String(url));
   throw new Error("native researcher OG must not fetch corpus or contributor data");
-});
+}));
 assert.match(researcher, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(researcher, /קורפוס חוקר/);
 assert.equal(researcherFetches.length, 0);
 
-const topic = await render("/topic/98-test", async (url) => {
+const topic = await render("/topic/98-test", withOpenLaunchFlag("lock_world", async (url) => {
   const u = String(url);
   if (u.includes("/topic_cards_public?")) {
     return {
@@ -65,13 +75,13 @@ const topic = await render("/topic/98-test", async (url) => {
     };
   }
   throw new Error("unexpected topic fetch: " + u);
-});
+}));
 assert.match(topic, /og:type" content="website"/);
 assert.match(topic, /"@type":"WebPage"/);
 assert.match(topic, /"@type":"BreadcrumbList"/);
 assert.equal(topic.includes('"@type":"Article"'), false);
 
-const topicSearchCrawler = await renderResponse("/topic/98-test", async (url) => {
+const topicSearchCrawler = await renderResponse("/topic/98-test", withOpenLaunchFlag("lock_world", async (url) => {
   const u = String(url);
   if (u.includes("/topic_cards_public?")) {
     return {
@@ -82,7 +92,7 @@ const topicSearchCrawler = await renderResponse("/topic/98-test", async (url) =>
     };
   }
   throw new Error("unexpected topic fetch: " + u);
-}, { crawler: "search" });
+}), { crawler: "search" });
 assert.match(topicSearchCrawler.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/topic\/98-test"\/>/);
 assert.match(topicSearchCrawler.body, /"@type":"WebPage"/);
 assert.doesNotMatch(topicSearchCrawler.body, /http-equiv="refresh"/);
@@ -179,7 +189,7 @@ assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/exampl
 
 
 
-const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (url) => {
+const legacyNumberSearchCrawler = await renderResponse("/number/1237", withOpenLaunchFlag("lock_number", async (url) => {
   const u = String(url);
   if (u.includes("/number_anchors?")) {
     return {
@@ -190,7 +200,7 @@ const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (ur
     };
   }
   throw new Error("unexpected legacy number fetch: " + u);
-}, { crawler: "search" });
+}), { crawler: "search" });
 assert.match(legacyNumberSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/number\/1237"/);
 assert.match(legacyNumberSearchCrawler.body, /עוגן 1237/);
 assert.equal(legacyNumberSearchCrawler.headers.get("x-robots-tag"), "index, follow");
@@ -291,7 +301,8 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 17, "search crawlers must be routed only across the explicit native/public document family");
+const expectedSearchRoutes = ["/forum/(.*)", "/journey", "/journey-beta", "/מסע", "/number", "/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/code", "/codes", "/codes/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"];
+assert.equal(searchRules.length, expectedSearchRoutes.length, "search crawlers must be routed only across the explicit native/public and closed alias document families");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
@@ -299,7 +310,7 @@ for (const rule of searchRules) {
   assert.ok(ua.includes("Baiduspider"), `Baiduspider must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/code", "/codes", "/codes/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
+for (const route of expectedSearchRoutes) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
 assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "search crawlers must never be sent through a global crawler catch-all");
