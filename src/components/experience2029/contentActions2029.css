@@ -48,3 +48,37 @@
 }
 .sod29-root[data-frame-reduced-motion="true"] .sod-share-actions :is(button,a),
 .sod29-root[data-frame-reduced-motion="true"] .sod29-action[data-action] {transition:none!important;transform:none!important}
+
+/* Shared 2029 Follow projection: the canonical WatchButton still owns state,
+   guest identity and notification consent. Only visual geometry lives here. */
+.sod29-root .sod29-watch-icon-wrap {
+  display:inline-flex; flex:0 0 auto; position:relative; min-width:44px; min-height:44px;
+  align-items:center; justify-content:center;
+}
+.sod29-root .sod29-watch-icon {
+  display:grid; place-items:center; box-sizing:border-box; width:44px; height:44px;
+  padding:0; border:1px solid var(--s29-line); border-radius:12px;
+  color:var(--s29-muted); background:var(--s29-panel-soft); cursor:pointer;
+  transition:color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+.sod29-root .sod29-watch-icon[data-follow-state="following"] {
+  color:var(--s29-accent-text); border-color:var(--s29-accent);
+  background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel));
+}
+.sod29-root .sod29-watch-icon:hover {
+  border-color:var(--s29-accent);color:var(--s29-accent-text);
+}
+.sod29-root .sod29-watch-icon:focus-visible {
+  outline:2px solid var(--s29-focus-ring);outline-offset:2px;
+}
+.sod29-root .sod29-watch-icon:disabled { opacity:.5;cursor:wait; }
+.sod29-root .sod29-watch-icon-popover {
+  position:absolute;z-index:15;inset-block-start:calc(100% + 5px);inset-inline-end:0;
+  width:min(290px,calc(100vw - 32px));max-width:calc(100vw - 32px);
+  padding:8px;border:1px solid var(--s29-line-strong);border-radius:12px;
+  background:var(--s29-panel);box-shadow:0 8px 30px rgba(0,0,0,.16);
+}
+@media(prefers-reduced-motion:reduce) {
+  .sod29-root .sod29-watch-icon {transition:none}
+}
+.sod29-root[data-frame-reduced-motion="true"] .sod29-watch-icon {transition:none}
