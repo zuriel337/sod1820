@@ -228,7 +228,7 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 25, "search crawlers must be routed only across the explicit native/public document family");
+assert.equal(searchRules.length, 28, "search crawlers must be routed only across the explicit native/public document family");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);

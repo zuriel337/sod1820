@@ -463,6 +463,9 @@
     }
   ],
   "rewrites": [
+    {"source": "/%D7%94%D7%99%D7%9B%D7%9C", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/היכל&crawler=search"},
+    {"source": "/%D7%9E%D7%A1%D7%A2", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/מסע&crawler=search"},
+    {"source": "/%D7%94%D7%A6%D7%9C%D7%91%D7%94", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/הצלבה&crawler=search"},
     {"source": "/research", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/research&crawler=search"},
     {"source": "/2029/journey", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/2029/journey&crawler=search"},
     {"source": "/number", "has": [{"type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*"}], "destination": "/api/og?path=/number&crawler=search"},
