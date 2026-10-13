@@ -48,13 +48,14 @@ begin
     raise exception 'not found';
   end if;
 
-  -- Lock the whole chain in a stable order, then validate its current status
+  -- Lock the whole chain from target toward root, then validate its current status
   -- and links. A moderation/reparent/delete racing the initial read fails
-  -- closed. Stable lock order avoids child/root and sibling toggle deadlocks.
+  -- closed. This matches admin_boost_reaction's existing target -> parent order;
+  -- UUID order would invert its locks for some replies and introduce deadlocks.
   for v_row in
     select rc.id, rc.parent_id, rc.status, rc.reactions
     from public.research_contributions rc where rc.id = any(v_chain_ids)
-    order by rc.id for update
+    order by array_position(v_chain_ids, rc.id) for update
   loop
     if v_row.status is distinct from 'approved'
       or v_row.parent_id is distinct from v_chain_parents[array_position(v_chain_ids, v_row.id)] then

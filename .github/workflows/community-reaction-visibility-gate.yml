@@ -2,8 +2,10 @@ name: Community Reaction Visibility
 on:
   pull_request:
     paths:
+      - 'supabase/migrations/20260808_forum_admin_reaction_boosts.sql'
       - 'supabase/migrations/20261013062404_community_reaction_public_visibility_gate_v1.sql'
       - 'tests/sql/community_reaction_public_visibility_v1.sql'
+      - 'scripts/test-community-reaction-concurrency.mjs'
       - '.github/workflows/community-reaction-visibility-gate.yml'
   workflow_dispatch:
 permissions:
@@ -26,3 +28,14 @@ jobs:
         env:
           PGPASSWORD: fixture_only
         run: psql -h localhost -U postgres -d community_reaction_fixture -v ON_ERROR_STOP=1 -f tests/sql/community_reaction_public_visibility_v1.sql
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Check admin boost, moderation and concurrent visitor races
+        env:
+          PGPASSWORD: fixture_only
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: postgres
+          PGDATABASE: community_reaction_fixture
+        run: node scripts/test-community-reaction-concurrency.mjs
