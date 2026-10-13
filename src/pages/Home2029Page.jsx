@@ -314,7 +314,7 @@ function HomeBody() {
   const shell = use2029Shell();
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
-  const worldFeature = useFeatureState("lock_world", { requireFlag: true });
+  const worldFeature = useFeatureState("lock_world");
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const razielLocked = razielFeature.loading || razielFeature.blocked;
   const worldOpen = !worldFeature.loading && worldFeature.allowed;

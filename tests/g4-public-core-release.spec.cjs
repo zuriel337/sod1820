@@ -266,12 +266,12 @@ test('Heichal and the other unopened areas stay closed', async ({ page }) => {
   }
 });
 
-test('World stays closed if its explicit flag is missing', async ({ page }) => {
+test('the existing public World stays open when no lock flag has been installed', async ({ page }) => {
   await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
     status: 200, contentType: 'application/json',
     body: JSON.stringify(OPEN_FLAGS.filter((flag) => flag.key !== 'lock_world')),
   }));
   await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.mlock')).toBeVisible();
-  await expect(page.locator('.sod29-world-native-projection')).toHaveCount(0);
+  await expect(page.locator('.mlock')).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible();
 });

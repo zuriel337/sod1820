@@ -1462,7 +1462,7 @@ export default function SystemFrame2029({
   const research = useResearch();
   const { user, profile, isAdmin } = useAuth();
   const corePublicViewer = CORE_PUBLIC_LAUNCH_2029 && !isAdmin;
-  const worldFeature = useFeatureState("lock_world", { requireFlag: true });
+  const worldFeature = useFeatureState("lock_world");
   const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
   const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });

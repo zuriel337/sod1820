@@ -22,6 +22,12 @@ async function publicCapabilityFlags() {
     const flags = new Map();
     for (const row of rows) {
       if (!row || !FLAG_KEYS.includes(row.key)) continue;
+      // World is already public. Preserve its route's default-open behavior;
+      // an explicit enabled=true flag remains the public closure decision.
+      if (row.key === 'lock_world') {
+        flags.set(row.key, { enabled: flags.get(row.key)?.enabled === true || row.enabled === true });
+        continue;
+      }
       // A malformed/duplicate row cannot accidentally open a launch gate.
       const valid = typeof row.enabled === 'boolean' && ['all', 'anon'].includes(row.mode);
       flags.set(row.key, flags.has(row.key) || !valid ? null : row);
@@ -65,6 +71,7 @@ function projectPublicUrls(xml, state) {
       return convergenceClosed || state.flags.get('lock_number')?.enabled !== false ? '' : entry;
     }
     const gate = capabilityForPath(path);
+    if (gate === 'lock_world') return state.flags.get(gate)?.enabled === true ? '' : entry;
     return gate && (state.failed || state.flags.get(gate)?.enabled !== false) ? '' : entry;
   });
 }

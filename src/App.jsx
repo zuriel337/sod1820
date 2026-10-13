@@ -303,7 +303,7 @@ export default function App() {
         <Routes>
           {/* 2029 greenfield — real routes on one shared shell. Branch-only until Human Gate release. */}
           <Route path="/2029" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <Home2029Page />} />
-          <Route path="/world" element={<Locked flag="lock_world" requireFlag><World2029Page /></Locked>} />
+          <Route path="/world" element={<Locked flag="lock_world"><World2029Page /></Locked>} />
           <Route path="/books" element={<Product2029DocumentHandoff />} />
           <Route path="/books/:slug" element={<Product2029DocumentHandoff />} />
           <Route path="/book" element={<Product2029DocumentHandoff />} />
@@ -414,7 +414,7 @@ export default function App() {
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
           <Route path="/number/:phrase" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><LegacyNumberTransitionRoute /></Locked>} />
-          <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag><TopicPage /></Locked>} />
+          <Route path="/topic/:slug" element={<Locked flag="lock_world"><TopicPage /></Locked>} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />
           {/* 🔒 lock_forum: הפורום בבנייה — נעול לכולם חוץ מאדמין עד להשקה (mode='all') */}

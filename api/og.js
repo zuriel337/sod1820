@@ -155,6 +155,17 @@ async function publicSiteFlags(keys, headers) {
     const flags = new Map();
     for (const row of rows) {
       if (!row || !keys.includes(row.key)) continue;
+      // World keeps the existing public default. Only an explicit true flag
+      // closes its metadata; missing/unavailable truth never hides an open area.
+      if (row.key === 'lock_world') {
+        const prior = flags.get(row.key);
+        const enabled = prior?.enabled === true || row.enabled === true;
+        flags.set(row.key, {
+          found: true, enabled, mode: row.mode || 'all',
+          message: row.enabled === true && typeof row.message === 'string' ? row.message : prior?.message || null,
+        });
+        continue;
+      }
       const valid = typeof row.enabled === 'boolean' && ['all', 'anon'].includes(row.mode);
       flags.set(row.key, flags.has(row.key) || !valid ? closed : {
         found: true, enabled: row.enabled, mode: row.mode,
@@ -225,7 +236,9 @@ export default async function handler(req, res) {
   const routeFlag = flagKeys.length ? flagState.flags.get(flagKeys[0]) : null;
   const convergenceFlag = legacyNumbersAlias ? flagState.flags.get('lock_convergence_tree') : null;
   const convergenceClosed = legacyNumbersAlias && (flagState.failed || flagState.flags.has('lock_convergence_tree') && convergenceFlag?.enabled !== false);
-  const launchClosed = launchGate && (!routeFlag?.found || routeFlag.enabled || convergenceClosed);
+  const launchClosed = launchGate && (launchGate.key === 'lock_world'
+    ? routeFlag?.enabled === true
+    : !routeFlag?.found || routeFlag.enabled || convergenceClosed);
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
   if (!vParam) {

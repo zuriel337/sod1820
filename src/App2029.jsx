@@ -135,8 +135,8 @@ export default function App2029() {
               <Route path="/2029/gematria" element={<GematriaEntry2029 />} />
               <Route path="/2029/gematria/viral" element={<Calculator2029Page />} />
               <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
-              <Route path="/world" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><World2029Page /></Locked>} />
-              <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Topic2029Page /></Locked>} />
+              <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><World2029Page /></Locked>} />
+              <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
@@ -149,7 +149,7 @@ export default function App2029() {
               <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
-              <Route path="/researcher/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Researcher2029Page /></Locked>} />
+              <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Researcher2029Page /></Locked>} />
               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />

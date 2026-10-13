@@ -13,6 +13,8 @@ const pathsByFlag = {
   lock_raziel_site: ['/raziel', '/2029/raziel'],
 };
 const gatedPaths = Object.values(pathsByFlag).flat();
+const strictPaths = Object.entries(pathsByFlag).filter(([key]) => key !== 'lock_world').flatMap(([, paths]) => paths);
+const existingWorldPaths = pathsByFlag.lock_world;
 const publicPaths = ['/post/public', '/code', '/gematria', '/bookcase', '/numbered'];
 const retiredPaths = ['/forum', '/forum/thread', '/community/chat'];
 const xml = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -54,9 +56,9 @@ function assertLocs(result, present, absent) {
   for (const path of absent) assert.ok(!result.body.includes(`<loc>${SITE}${encodeURI(path)}</loc>`), `closed URL leaked ${path}`);
 }
 
-test('sitemap missing launch flags fail closed while public posts survive', async () => {
+test('sitemap preserves default-open World when flags are missing while unfinished launch gates stay closed', async () => {
   const result = await invoke(sitemapHandler, sitemapFetch(async () => flagResponse([])));
-  assertLocs(result, publicPaths, [...gatedPaths, ...retiredPaths]);
+  assertLocs(result, [...publicPaths, ...existingWorldPaths], [...strictPaths, ...retiredPaths]);
   const flagReads = result.calls.filter(url => url.includes('/site_flags?'));
   assert.equal(flagReads.length, 1, 'availability must be read in one batch');
   for (const key of Object.keys(pathsByFlag)) assert.ok(flagReads[0].includes(key));
@@ -96,10 +98,10 @@ test('legacy numbers aliases require Number and convergence admission while conv
   }
 });
 
-test('sitemap failed availability reads never advertise closed routes and are not cached', async () => {
+test('sitemap failed availability reads preserve World and exclude unfinished launch gates without caching', async () => {
   for (const flagRead of [async () => ({ ok: false }), async () => { throw new Error('network'); }, async () => flagResponse({ enabled: false })]) {
     const result = await invoke(sitemapHandler, sitemapFetch(flagRead));
-    assertLocs(result, publicPaths, [...gatedPaths, ...retiredPaths, '/numbers']);
+    assertLocs(result, [...publicPaths, ...existingWorldPaths], [...strictPaths, ...retiredPaths, '/numbers']);
     assert.equal(result.headers.get('cache-control'), 'no-store');
   }
 });
@@ -112,7 +114,7 @@ test('sitemap malformed or contradictory launch rows cannot open a capability', 
     [{ key: 'lock_number', enabled: false, mode: 'all' }, { key: 'lock_number', enabled: true, mode: 'all' }],
   ]) {
     const result = await invoke(sitemapHandler, sitemapFetch(async () => flagResponse(badRows)));
-    assertLocs(result, publicPaths, [...gatedPaths, ...retiredPaths]);
+    assertLocs(result, [...publicPaths, ...existingWorldPaths], [...strictPaths, ...retiredPaths]);
   }
 });
 
@@ -122,10 +124,13 @@ test('an unavailable upstream sitemap returns 502 without caching', async () => 
   assert.equal(result.headers.get('cache-control'), 'no-store');
 });
 
-test('crawler metadata cannot query content from any missing, closed, registered-only or malformed launch gate', async () => {
+test('explicit World closure and all unfinished launch gates suppress crawler content reads', async () => {
   for (const [key, paths] of Object.entries(pathsByFlag)) {
     for (const path of paths) {
-      for (const rows of [[], [{ key, enabled: true, mode: 'all' }], [{ key, enabled: true, mode: 'anon' }], [{ key, enabled: 'false', mode: 'all' }], [{ key, enabled: false, mode: 'bad' }]]) {
+      const states = key === 'lock_world'
+        ? [[{ key, enabled: true, mode: 'all' }], [{ key, enabled: true, mode: 'anon' }], [{ key, enabled: true }]]
+        : [[], [{ key, enabled: true, mode: 'all' }], [{ key, enabled: true, mode: 'anon' }], [{ key, enabled: 'false', mode: 'all' }], [{ key, enabled: false, mode: 'bad' }]];
+      for (const rows of states) {
         const result = await invoke(ogHandler, async url => {
           assert.ok(url.includes('/site_flags?'), `closed page queried data: ${url}`);
           return flagResponse(rows);
@@ -140,12 +145,40 @@ test('crawler metadata cannot query content from any missing, closed, registered
   }
 });
 
-test('crawler metadata network/non-array failures stay closed and are not cached', async () => {
+test('unfinished launch crawler gates stay closed on network/non-array failures and are not cached', async () => {
   for (const flagRead of [async () => ({ ok: false }), async () => { throw new Error('network'); }, async () => flagResponse({ enabled: false })]) {
-    const result = await invoke(ogHandler, flagRead, { path: '/topic/unavailable', crawler: 'search' });
+    const result = await invoke(ogHandler, flagRead, { path: '/book/unavailable', crawler: 'search' });
     assert.equal(result.headers.get('x-robots-tag'), 'noindex, follow');
     assert.equal(result.headers.get('cache-control'), 'no-store');
     assert.equal(result.calls.length, 1);
+  }
+});
+
+test('World and topic crawler metadata preserve existing public data on missing or failed flag reads', async () => {
+  for (const flagRead of [
+    async () => flagResponse([]),
+    async () => ({ ok: false }),
+    async () => { throw new Error('network'); },
+    async () => flagResponse({ unavailable: true }),
+    async () => flagResponse([{ key: 'lock_world', enabled: false, mode: 'all' }]),
+  ]) {
+    for (const path of ['/world', '/topic/public', '/researcher/internal']) {
+      const result = await invoke(ogHandler, async url => {
+        if (url.includes('/site_flags?')) return flagRead(url);
+        assert.equal(path, '/topic/public', 'World and researcher must not add content readers');
+        assert.ok(url.includes('/topic_cards_public?'));
+        return flagResponse([{ title: 'נושא ציבורי קיים', subtitle: 'מקור קיים', highlight_numbers: [1237], image_ids: [] }]);
+      }, { path, crawler: 'search' });
+      assert.equal(result.headers.get('x-robots-tag'), path.startsWith('/researcher/') ? 'noindex, nofollow' : 'index, follow');
+      if (path === '/topic/public') {
+        assert.match(result.body, /נושא ציבורי קיים/);
+        assert.match(result.body, /"@type":"WebPage"/);
+        assert.match(result.body, /"@type":"BreadcrumbList"/);
+        assert.equal(result.calls.length, 2, 'existing topic projection is retained');
+      } else {
+        assert.equal(result.calls.length, 1);
+      }
+    }
   }
 });
 

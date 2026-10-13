@@ -90,7 +90,7 @@ assert.equal(page.includes("getGalleryImagesByIds"), false);
 assert.equal(page.includes("BeitMidrash"), false);
 assert.equal(page.includes("TopicPage.jsx"), false);
 
-assert.match(app, /path="\/topic\/:slug" element=\{<Locked flag="lock_world" requireFlag homeHref="\/2029"><Topic2029Page \/><\/Locked>\}/);
+assert.match(app, /path="\/topic\/:slug" element=\{<Locked flag="lock_world" homeHref="\/2029"><Topic2029Page \/><\/Locked>\}/);
 const config = JSON.parse(vercel);
 assert.equal(config.rewrites.some((row) => row.source === "/topic/(.*)" && row.destination === "/2029.html"), true);
 assert.match(seo, /export function setConvergenceJsonLd/);
