@@ -1,11 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/",
-      "destination": "/2029",
-      "permanent": false
-    },
-    {
       "source": "/post",
       "destination": "/2029/posts",
       "permanent": false
@@ -845,6 +840,10 @@
         }
       ],
       "destination": "/api/og?path=/$1"
+    },
+    {
+      "source": "/",
+      "destination": "/2029.html"
     },
     {
       "source": "/2029",

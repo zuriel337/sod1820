@@ -42,6 +42,11 @@ function HomeEntry2029() {
     ? <Community2029Page />
     : <Home2029Page />;
 }
+
+function HomeAddressAlias2029() {
+  const location = useLocation();
+  return <Navigate replace to={`/${location.search || ""}${location.hash || ""}`} />;
+}
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
@@ -126,7 +131,8 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
-              <Route path="/2029" element={<HomeEntry2029 />} />
+              <Route path="/" element={<HomeEntry2029 />} />
+              <Route path="/2029" element={<HomeAddressAlias2029 />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />

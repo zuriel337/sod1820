@@ -54,7 +54,6 @@ for (const forbidden of [
   assert.equal(app2029.includes(forbidden), false, `App2029 must not load legacy presentation/effect: ${forbidden}`);
 }
 assert.match(app2029, /window\.location\.assign\(href\)/, "non-2029 navigation must cross the document boundary, not render legacy in the 2029 tree");
-assert.equal(/Navigate\s+to=["']\/["']/.test(app2029), false, "2029 runtime must not auto-navigate to legacy root");
 
 // 2029 shell isolation: old wallpaper, heritage logo and legacy Raziel presentation are removed.
 for (const forbidden of ["SpaceBackground", "AskRaziel", "LOGO_URL", "/logo.png", "royal-bg.jpg"]) {
@@ -71,7 +70,7 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/community/chat", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/", "/2029", "/community/chat", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
   assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
@@ -109,6 +108,11 @@ for (const route of ["/books", "/books/:slug", "/book", "/book/:slug"]) {
 }
 
 const redirects = vercel.redirects || [];
+assert.equal(redirects.some((item) => item.source === "/"), false, "public Home must render at the root address without a redirect");
+assert.ok(app2029.includes('path="/" element={<HomeEntry2029 />}'), "the native root must mount the real Home before wildcard handoff");
+assert.ok(app2029.includes('path="/2029" element={<HomeAddressAlias2029 />}'), "the former Home address must remain a compatibility alias");
+assert.match(app2029, /function HomeAddressAlias2029\(\)[\s\S]*?<Navigate replace to=\{`\/\$\{location\.search \|\| ""\}\$\{location\.hash \|\| ""\}`\}/, "Home alias must preserve query and fragment");
+assert.match(legacyApp, /function HomeRoute\(\)[\s\S]*?CORE_PUBLIC_LAUNCH_2029\) return <Product2029DocumentHandoff to=\{`\/\$\{location\.search \|\| ""\}\$\{location\.hash \|\| ""\}`\}/, "legacy Home must cross to the native root document with callback state intact");
 const bookIndexRedirect = redirects.find((r) => r.source === "/book");
 assert.deepEqual(
   bookIndexRedirect,
