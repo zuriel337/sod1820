@@ -358,7 +358,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
     return () => { alive = false; };
   }, [limit, brand.channel, brand.fetchRows]);
 
-  if (rows !== null && shown.length === 0) return null;
+  if (variant !== "shortcut" && rows !== null && shown.length === 0) return null;
 
   // שיתוף ישיר — בלי לפתוח את הסרטון (סופר כ-share_story, כמו מתוך המציג)
   const shareUrlOf = (r) => `${SITE_URL}${r.link_url || `${brand.shareBase}?v=${r.id}`}`;
@@ -373,6 +373,22 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
   const viewer = (story >= 0 && rows && rows[story])
     ? <StoryViewer items={rows} startIndex={story} onClose={() => setStory(-1)} brand={brand} />
     : null;
+
+  // Compact source entry for the EXISTING 2029 Companion. Uses the same public
+  // channel reader, seen identity and canonical StoryViewer as the full story rail.
+  if (variant === "shortcut") {
+    const newest = [...shown].sort((a, b) => (Date.parse(b.created_at || "") || 0) - (Date.parse(a.created_at || "") || 0))[0];
+    const hasNew = shown.some((row) => isNewFresh(row, seen));
+    return <>
+      <button type="button" className={`sod29-or-geula-shortcut${hasNew ? " is-new" : ""}`}
+        aria-label={hasNew ? "אור הגאולה · סטוריז חדשים" : "אור הגאולה · צפייה בסטוריז"}
+        onClick={() => newest ? openAt(newest) : navigate(brand.href)}>
+        <span className="sod29-or-geula-ring"><img src={brand.logo} alt="" loading="lazy" width="35" height="35" /></span>
+        <span className="sod29-or-geula-label">אור הגאולה{hasNew ? " · חדש" : ""}</span>
+      </button>
+      {viewer}
+    </>;
+  }
 
   // 🎞️ variant="rail" — רצועת-סטוריז אופקית (סגנון אינסטגרם), קבועה למובייל: תמיד גלויה,
   // גם אחרי צפייה. אותו מקור + אותו StoryViewer קנוני — בלי כפילות (canonical_ui_components_law).
