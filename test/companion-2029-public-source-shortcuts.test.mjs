@@ -7,8 +7,8 @@ const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf
 test("2029 Companion exposes the three EXISTING public source destinations", () => {
   const companion = read("src/components/experience2029/CompanionPanel2029.jsx");
   assert.match(companion, /OrGeulaStoryColumn variant="shortcut"/);
-  assert.match(companion, /world\?source=tzvi-opoc#world-contributor-material/);
-  assert.match(companion, /world\?source=sod-hashmal#world-corpus-sod-hashmal/);
+  assert.match(companion, /world\?subjectSource=zvi#world-all-convergences/);
+  assert.match(companion, /world\?subjectSource=hashmal#world-all-convergences/);
   assert.match(companion, /sod29-companion-source-quick is-slim/);
   assert.match(companion, /sod29-companion-source-quick is-expanded/);
 });
