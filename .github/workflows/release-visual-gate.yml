@@ -148,7 +148,7 @@ jobs:
             }
           });
 
-          test('guest signup popup remains dismissible without replacing surface acceptance', async ({ page }) => {
+          test('legacy guest signup popup stays removed without replacing surface acceptance', async ({ page }) => {
             await page.addInitScript(() => {
               const nativeSetTimeout = window.setTimeout.bind(window);
               window.setTimeout = (fn, delay, ...args) => nativeSetTimeout(fn, delay === 120000 ? 50 : delay, ...args);
@@ -156,9 +156,8 @@ jobs:
             await page.setViewportSize({ width: 390, height: 844 });
             await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
             const dialog = page.getByRole('dialog', { name: 'האתר בבנייה — ואתם מוזמנים להיות חלק מהדרך' });
-            await expect(dialog).toBeVisible({ timeout: 6000 });
-            await dialog.getByRole('button', { name: 'סגירה' }).click();
-            await expect(dialog).toBeHidden();
+            await page.waitForTimeout(150);
+            await expect(dialog).toHaveCount(0);
             await expect(page.locator('#sp29-title')).toBeVisible();
           });
 
