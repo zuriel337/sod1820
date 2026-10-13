@@ -189,7 +189,10 @@ assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 // Design V2 typography must be real at runtime, not token-only.
-assert.match(shellHtml, /family=Rubik/);
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Hebrew\.woff2'\)/);
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Latin\.woff2'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Hebrew.woff2")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Latin.woff2")), true);
 assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
 assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Bold\.ttf'\)/);
 assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Regular.ttf")), true);
