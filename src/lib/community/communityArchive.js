@@ -2,6 +2,7 @@ import { supabase } from "../supabase.js";
 import { addContribution } from "../contributions.js";
 
 export const COMMUNITY_PAGE_SIZE = 40;
+export const COMMUNITY_REPLY_PAGE_SIZE = 20;
 export const COMMUNITY_ARCHIVE_TOTAL = 41080;
 
 export const PROFILE_BASELINES = Object.freeze({
@@ -103,11 +104,55 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
     .eq("status", "approved")
     .in("origin", ["openweb", "community_2029"])
+    .is("parent_id", null)
     .order("created_at", { ascending: sort === "oldest" })
     .order("id", { ascending: sort === "oldest" })
     .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
-  return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body), count: count ?? null, nextOffset: safeOffset + (data || []).length };
+  return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length };
+}
+
+// The feed pages roots only. Replies are read from the same RLS-protected source
+// when a thread opens, so an approved reply never appears detached from its parent.
+export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMMUNITY_REPLY_PAGE_SIZE } = {}) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parentId || "")) throw new Error("invalid parent id");
+  const safeOffset = Math.max(0, Math.trunc(offset));
+  const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const { data, error, count } = await supabase
+    .from("research_contributions")
+    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
+    .eq("status", "approved")
+    .in("origin", ["openweb", "community_2029"])
+    .eq("parent_id", parentId)
+    .not("body", "is", null)
+    .neq("body", "")
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true })
+    .range(safeOffset, safeOffset + safeLimit - 1);
+  if (error) throw error;
+  return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body), count: count ?? 0, nextOffset: safeOffset + (data || []).length };
+}
+
+export async function fetchCommunityReplyCounts(parentIds) {
+  const ids = [...new Set(parentIds)].filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || ""));
+  if (!ids.length) return {};
+  const counts = Object.fromEntries(ids.map((id) => [id, 0]));
+  for (let offset = 0; offset < 25000; offset += 1000) {
+    const { data, error } = await supabase.from("research_contributions")
+      .select("id,parent_id")
+      .eq("status", "approved")
+      .in("origin", ["openweb", "community_2029"])
+      .in("parent_id", ids)
+      .not("body", "is", null)
+      .neq("body", "")
+      .order("parent_id", { ascending: true })
+      .order("id", { ascending: true })
+      .range(offset, offset + 999);
+    if (error) throw error;
+    for (const row of data || []) counts[row.parent_id] += 1;
+    if ((data || []).length < 1000) return counts;
+  }
+  throw new Error("reply count limit exceeded");
 }
 
 export async function fetchCommunityAuthorPage(authorKey, { offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest" } = {}) {

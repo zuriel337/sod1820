@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -66,4 +66,36 @@ test("same display name never makes an unlinked message part of a known author p
   const signedIn = normalizeCommunityRow({ id: "m3", author_name: "אמילי", author_user_id: "b6ce542a-2b07-4749-8aba-532c886f6de7", body: "שלום" });
   assert.equal(signedIn.authorKey, "user:b6ce542a-2b07-4749-8aba-532c886f6de7");
   assert.notEqual(signedIn.authorKey, "e7581ab5-8c15-4832-b602-f361e41ff373");
+});
+
+test("the chat pages roots and fetches approved direct replies in reading order", async () => {
+  const parentId = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57";
+  const childId = "d69c5c78-fc0c-4f2c-9da5-620d426d84ed";
+  const requests = [];
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = new URL(input.url || input);
+    requests.push(url);
+    const isRoot = url.searchParams.get("parent_id") === "is.null";
+    const isReply = url.searchParams.get("parent_id") === `eq.${parentId}`;
+    const isCount = url.searchParams.get("parent_id")?.startsWith("in.");
+    const rows = isRoot ? [{ id: parentId, parent_id: null, body: "", created_at: "2026-09-22T00:00:00Z" }]
+      : isReply ? [{ id: childId, parent_id: parentId, body: "תגובה", created_at: "2026-09-22T01:00:00Z" }]
+        : isCount ? [{ id: childId, parent_id: parentId }] : [];
+    return new Response(JSON.stringify(rows), { status: 200, headers: { "content-type": "application/json", "content-range": `0-${rows.length - 1}/${rows.length}` } });
+  };
+  try {
+    const roots = await fetchCommunityArchivePage({ limit: 5 });
+    const replies = await fetchCommunityReplies(parentId, { limit: 5 });
+    const counts = await fetchCommunityReplyCounts([parentId]);
+    assert.equal(roots.rows.length, 1);
+    assert.equal(roots.rows[0].parentId, null);
+    assert.equal(roots.rows[0].body, ""); // keeps an approved empty parent as context for visible replies
+    assert.equal(replies.rows[0].parentId, parentId);
+    assert.equal(replies.count, 1);
+    assert.equal(counts[parentId], 1);
+    assert.match(requests[1].searchParams.get("order"), /created_at\.asc,id\.asc/);
+    assert.ok(requests[1].searchParams.getAll("body").includes("neq."));
+    assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+  } finally { globalThis.fetch = previousFetch; }
 });
