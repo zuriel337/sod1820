@@ -18,7 +18,9 @@ async function fixture(){
  create table contributors(id uuid primary key,slug text,display_name text,email text,
   active boolean,merged_into text,page_config jsonb,user_id uuid,kind text,source text,
   building boolean,engaged boolean,trusted boolean,dossier_settings jsonb,updated_at timestamptz);
- create table research_contributions(id uuid primary key,author_contributor_id uuid,author_user_id uuid,status text,body text);
+ -- Native live target_id catches PL/pgSQL variable/column shadowing. Keep it
+ -- even though this operator never writes or selects the relation target itself.
+ create table research_contributions(id uuid primary key,author_contributor_id uuid,author_user_id uuid,status text,body text,target_id text);
  create table contributor_content(id uuid primary key,contributor_id uuid,is_public boolean,is_personal boolean,body text);
  create table channel_updates(id uuid primary key,contributor_id uuid,source text);
  create table channel_update_group_proof(identity_contributor_id uuid);
@@ -45,7 +47,7 @@ async function fixture(){
  await db.query(`insert into contributors(id,slug,display_name,email,user_id,active,kind,source,dossier_settings,page_config)
  values($1,'imported-13','Imported Source',$2,null,true,'external','openweb_import','{"visibility":"private"}','{}'),
  ($3,'r-existing-account-13','Account Source',null,$4,true,'community','self-dossier','{}','{}')`,[aliasId,approved[12].email,targetId,user13]);
- for(let i=0;i<26;i++) await db.query('insert into research_contributions values($1,$2,$3,$4,$5)',
+ for(let i=0;i<26;i++) await db.query('insert into research_contributions(id,author_contributor_id,author_user_id,status,body) values($1,$2,$3,$4,$5)',
   [id(500+i),i<3?aliasId:targetId,i<3?null:user13,i<2||(i>=3&&i<12)?'approved':'hidden',`Synthetic ${i}`]);
  await db.query('insert into contributor_content values($1,$2,false,true,$3)',[id(600),targetId,'Synthetic private content']);
  const [source,target]=(await db.query("select id,md5(to_jsonb(c)::text) revision,md5((to_jsonb(c)-'merged_into')::text) without_pointer from contributors c where id in($1,$2) order by id",[aliasId,targetId])).rows;

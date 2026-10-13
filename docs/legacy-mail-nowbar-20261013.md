@@ -282,3 +282,11 @@ positive preservation/audit, exact replay, spoofed anon/authenticated execution,
 seven stale-state failures, post-write/audit failure atomicity, guarded rollback
 and referenced/changed-source denial. Preparation is not evidence of a live apply;
 independent specialist review and a fresh expected-state read precede execution.
+
+The first approved live attempt stopped BEFORE WRITES because native
+research_contributions.target_id shadowed the original PL/pgSQL local target_id.
+Private source/audit counts remained0 and both profile fingerprints/pointers
+were independently re-read unchanged. The isolated fixture had omitted that
+real column. Both operator blocks now prefix EVERY local with v_, and the actual
+native target_id column is in the isolated fixture; the correction is re-tested
+and independently reviewed before another attempt. No approval boundary widened.
