@@ -4,7 +4,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { use2029Palette } from "../../lib/palette.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage } from "../../lib/community/communityArchive.js";
+import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReplies, fetchCommunityReplyCounts, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage } from "../../lib/community/communityArchive.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
@@ -49,13 +49,60 @@ function LiveMessage({ row, onReply, accountProfiles, showSource = false }) {
     <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} /></div>
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
-    <CommunityMessageContent text={row.body} />
+    {row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
     <div className="sod29-community-thread-actions">
       {canReply ? <button type="button" className="sod29-community-reply-action" onClick={() => onReply(row)}>השב</button> : null}
       <LiveLike row={row} />
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
     </div>
   </article>;
+}
+
+function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [] }) {
+  const [expanded, setExpanded] = useState(false);
+  const [replies, setReplies] = useState([]);
+  const [replyTotal, setReplyTotal] = useState(null);
+  const [nextReplyOffset, setNextReplyOffset] = useState(0);
+  const [loadingReplies, setLoadingReplies] = useState(false);
+  const [replyError, setReplyError] = useState("");
+  const knownCount = replyCounts[row.id];
+  const count = replyTotal ?? knownCount;
+  const canExpand = expanded || count == null || count > 0 || replies.length > 0;
+  const childrenId = `community-replies-${row.id}`;
+
+  const loadReplies = async (offset = 0) => {
+    if (loadingReplies) return;
+    setLoadingReplies(true); setReplyError("");
+    try {
+      const page = await fetchCommunityReplies(row.id, { offset });
+      const lineage = new Set([...ancestors, row.id]);
+      const visible = page.rows.filter((item) => !lineage.has(item.id));
+      setReplies((current) => offset ? [...current, ...visible] : visible);
+      setReplyTotal(page.count);
+      setNextReplyOffset(page.nextOffset);
+      onRepliesLoaded(visible);
+    } catch { setReplyError("לא הצלחנו לטעון את התגובות."); }
+    finally { setLoadingReplies(false); }
+  };
+
+  const toggleReplies = () => {
+    if (expanded) { setExpanded(false); return; }
+    setExpanded(true);
+    if (replyTotal === null) loadReplies();
+  };
+  useEffect(() => { if (expanded) loadReplies(0); }, [refreshToken]);
+
+  return <div className="sod29-community-thread-group">
+    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} />
+    {canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
+    <div id={childrenId} className="sod29-community-replies" hidden={!expanded}>
+      {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
+      {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
+      {replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} />)}
+      {!loadingReplies && !replyError && replyTotal === 0 ? <p>אין תגובות גלויות.</p> : null}
+      {replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : "עוד תגובות"}</button> : null}
+    </div>
+  </div>;
 }
 
 
@@ -89,6 +136,9 @@ export default function CommunityLive2029() {
   const [profileSort, setProfileSort] = useState("newest");
   const [profileSummary, setProfileSummary] = useState({ firstAt: null, archiveLikes: null });
   const [accountProfiles, setAccountProfiles] = useState({});
+  const [replyCounts, setReplyCounts] = useState({});
+  const [threadRefresh, setThreadRefresh] = useState(0);
+  const requestedReplyCounts = useRef(new Set());
   const composerRef = useRef(null);
   const attachmentRef = useRef(null);
   const cardCloseRef = useRef(null);
@@ -119,6 +169,17 @@ export default function CommunityLive2029() {
     fetchLinkedAccountProfiles(ids).then((accounts) => { if (active) setAccountProfiles((current) => ({ ...current, ...accounts })); }).catch(() => {});
     return () => { active = false; };
   }, [rows, profileRows]);
+  const onRepliesLoaded = useCallback((items) => {
+    const ids = [...new Set(items.map((item) => item.id).filter((id) => !requestedReplyCounts.current.has(id)))];
+    if (ids.length) {
+      ids.forEach((id) => requestedReplyCounts.current.add(id));
+      fetchCommunityReplyCounts(ids).then((counts) => setReplyCounts((current) => ({ ...current, ...counts })))
+        .catch(() => ids.forEach((id) => requestedReplyCounts.current.delete(id)));
+    }
+    const accountIds = [...new Set(items.flatMap((item) => [item.authorUserId, item.linkedUserId]).filter(Boolean))];
+    if (accountIds.length) fetchLinkedAccountProfiles(accountIds).then((accounts) => setAccountProfiles((current) => ({ ...current, ...accounts }))).catch(() => {});
+  }, []);
+  useEffect(() => { onRepliesLoaded(rows); }, [rows, onRepliesLoaded]);
 
   useEffect(() => {
     setProfileRows([]); setProfileNextOffset(0); setProfileCount(0); setProfileError("");
@@ -153,8 +214,9 @@ export default function CommunityLive2029() {
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
-    return needle ? rows.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : rows;
-  }, [query, rows]);
+    const visible = rows.filter((row) => row.body || replyCounts[row.id] > 0);
+    return needle ? visible.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
+  }, [query, rows, replyCounts]);
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
   const linkedAccountId = profileRows.find((row) => row.linkedUserId)?.linkedUserId || baseline?.accountUserId;
   const linkedAccount = linkedAccountId ? accountProfiles[linkedAccountId] : null;
@@ -187,6 +249,11 @@ export default function CommunityLive2029() {
         if (!item.url) setAttachments((current) => current.map((entry) => entry.file === item.file ? { ...entry, ...result } : entry));
       }
       await publishCommunityMessage({ body: appendCommunityAttachments(body, uploaded), parentId: replyTo?.id || null, authorName: profile?.display_name || profile?.username || null });
+      if (replyTo) {
+        requestedReplyCounts.current.delete(replyTo.id);
+        setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });
+        setThreadRefresh((current) => current + 1);
+      }
       setDraft(""); setAttachments([]); setReplyTo(null); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
       await loadPage(0, true);
     } catch { setNotice("השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר."); }
@@ -221,12 +288,12 @@ export default function CommunityLive2029() {
         </section>
         <label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בהודעות שנטענו</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שנטענו" /></label>
         <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option></select></label>
-        <div className="sod29-community-feed-label" role="status">{COMMUNITY_ARCHIVE_TOTAL.toLocaleString("he-IL")} רשומות בארכיון · {total.toLocaleString("he-IL")} הודעות קהילה גלויות · נטענו {rows.length.toLocaleString("he-IL")}</div>
+        <div className="sod29-community-feed-label" role="status">{COMMUNITY_ARCHIVE_TOTAL.toLocaleString("he-IL")} רשומות בארכיון · {total.toLocaleString("he-IL")} שיחות ראשיות גלויות · נטענו {rows.length.toLocaleString("he-IL")}</div>
         {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
         {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
-        <div className="sod29-community-feed">{filtered.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} />)}</div>
+        <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} />)}</div>
         {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף הארכיון.</p>}
-      </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card"><h2>הארכיון מחובר</h2><p>{COMMUNITY_ARCHIVE_TOTAL.toLocaleString("he-IL")} רשומות נשמרו; {total.toLocaleString("he-IL")} הודעות גלויות בפיד הקהילה. הכפתור ״עוד הודעות״ טוען אותן בהדרגה.</p></section><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
+      </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card"><h2>הארכיון מחובר</h2><p>{COMMUNITY_ARCHIVE_TOTAL.toLocaleString("he-IL")} רשומות נשמרו; {total.toLocaleString("he-IL")} שיחות ראשיות גלויות בפיד הקהילה. התגובות נפתחות בתוך כל שיחה.</p></section><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
           <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>
