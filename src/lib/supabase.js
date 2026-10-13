@@ -3375,10 +3375,10 @@ export function isGovernedMethod(states, method) { return !!(states && states[me
 // 🧩 Number Page Integration v1: המקור עבר מ-select ישיר על bidim ל-fn_number_lookup (אותו מקור-נתונים,
 // אך מורחב — atomic_or_composite/component_methods/component_values) כדי שקבוצות-Composite (רגיל+מילוי וכו')
 // יסומנו ויוסברו במפורש, לא רק יופיעו כמפתח-שיטה גולמי. אין שינוי-חישוב — כל ערך כבר-מחושב במנוע.
-export async function getValueFamilies(value, perMethod = 20) {
+export async function getValueFamilies(value, perMethod = 20, { lookup = getNumberLookup } = {}) {
   if (!supabase || !value || value < 1) return [];
   try {
-    const data = await getNumberLookup(value);
+    const data = await lookup(value);
     if (!data || !data.length) return [];
     // סדר-תצוגה בלבד (לא ערך-מחושב) — אותה מיפוי-עדיפות המשמש ב-bidim_sync להצגה קודם של השיטות הליבתיות.
     const DISPLAY_PRIORITY = { "רגיל": 1, "מסתתר": 1, "קדמי": 1, "מילוי": 2, "אתבש": 3 };
