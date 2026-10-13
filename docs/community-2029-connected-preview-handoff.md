@@ -39,6 +39,10 @@ Canonical ownership remains to be materialized. Read-only eligibility check foun
 
 The OpenWeb handles `torahtamima` and `greenraz` from the screenshots still have no exact source ID match in the imported stage. Their approved like labels remain recorded but are not attached to an arbitrary archive contributor.
 
+## Inline sign-in in the temporary Community preview
+
+The connected preview now shows the existing email OTP sign-in flow directly above the composer. Requesting and verifying a code keeps the visitor on the Community page; the signed-in state shows the account name and a switch-account action. The implementation reuses `requestEmailOtp`, `verifyEmailOtp`, and `AuthProvider`, without changing `/community/chat` or adding another authentication store. A browser smoke with the OTP request mocked confirmed that the inline code field appears and the Community route stays open; no real email was sent by the smoke test.
+
 ## Main-session close sequence
 
 1. Recheck `origin/main`, `work_log_current`, and active file claims. This branch began from main `8e939d3b092f267e40d74953b9103711322276d2`; reconcile newer shell/design work before merge.
