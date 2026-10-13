@@ -90,3 +90,15 @@ test('ambiguous post-to-event links need exact fragment binding; raw modified ro
   assert.equal(provenPostUpdatesToEventUpdates([proof],bindings).updates[0].eventId,'b');
   assert.equal(provenPostUpdatesToEventUpdates([{id:7,modified:at}],bindings).updates.length,0);
 });
+test('one source occurrence can relate to multiple events without duplicate sequence rows or stream counts',()=>{
+  const u=update('u','a',at); const bundle={events:[event('root'),event('a','root'),event('b','root'),event('other')],updates:[u,{...u,eventId:'b'},{...u,eventId:'other'}]};
+  const p=buildEventSequences(bundle); assert.equal(p.coverage.conflicts,0);
+  assert.equal(p.sequences.find(s=>s.rootId==='root').updates.length,1);
+  assert.deepEqual(p.sequences.find(s=>s.rootId==='root').updates[0].eventIds,['a','b']);
+  assert.equal(p.streams[0].unreadCount,1);
+  const seen={[p.sequences[0].updates[0].seenKey]:true}; assert.equal(buildEventSequences(bundle,{seen}).streams[0].hasUnread,false);
+});
+test('oversized labels, summaries and targets fail without truncating identity or evidence',()=>{
+  assert.equal(buildEventSequences({events:[{...event('a'),label:'a'.repeat(257)}]}).sequences.length,0);
+  for(const extra of [{summary:'x'.repeat(1601)},{href:'/'+ 'x'.repeat(2048)}]) assert.equal(buildEventSequences({events:[event('a')],updates:[update('u','a',at,extra)]}).sequences[0].updates.length,0);
+});

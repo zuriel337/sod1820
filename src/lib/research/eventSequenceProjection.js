@@ -1,9 +1,9 @@
 // EXTEND_EXISTING One Reality / Research OS projection. No I/O, storage, inferred
 // relation, publication grant or independent feed. Input MUST be an already
 // authorized, sanitized owner bundle; never pass raw nodes/edges/private rows.
-const text = (v) => typeof v === 'string' ? v.trim() : '';
+const text = (v, max = 512) => typeof v === 'string' && v.length <= max ? v.trim() : '';
 const time = (v) => { const n = Date.parse(v); return Number.isFinite(n) ? n : null; };
-const localHref = (v) => typeof v === 'string' && /^\/(?!\/)/.test(v) && !/[\\\s\u0000-\u001f]/.test(v) ? v : null;
+const localHref = (v) => typeof v === 'string' && v.length <= 2048 && /^\/(?!\/)/.test(v) && !/[\\\s\u0000-\u001f]/.test(v) ? v : null;
 const compare = (a, b) => (a.at ?? Infinity) - (b.at ?? Infinity) || a.id.localeCompare(b.id) || String(a.seenKey || '').localeCompare(String(b.seenKey || ''));
 export const eventUpdateSeenKey = (u) => JSON.stringify(['event-update', u.sourceRef, u.id, u.revisionId]);
 
@@ -23,7 +23,7 @@ export function provenPostUpdatesToEventUpdates(proofs = [], bindings = [], { st
   for (const proof of proofs) {
     if (proof?.kind !== 'source_fragment_revision' || !text(proof.eventKey) || !text(proof.fragmentRef)
       || !Number.isSafeInteger(proof.revision) || proof.revision < 1
-      || !text(proof.sourceRef) || !text(proof.label) || !localHref(proof.targetHref) || time(proof.at) === null) { unresolved++; continue; }
+      || !text(proof.sourceRef) || !text(proof.label, 1600) || !localHref(proof.targetHref) || time(proof.at) === null) { unresolved++; continue; }
     const targets = byRef.get(proof.fragmentRef) || byRef.get(proof.sourceRef);
     if (!targets || targets.size !== 1) { unresolved++; continue; }
     updates.push({ id: proof.fragmentRef, sourceRef: proof.sourceRef, eventId: [...targets][0],
@@ -45,7 +45,7 @@ export function buildEventSequences({ events = [], updates = [] } = {}, { seen =
   const nodes = new Map(); const invalidIds = new Set();
   let invalid = 0; let missingParent = 0; let cycles = 0; let conflicts = 0; let orphanUpdates = 0;
   for (const row of events) {
-    const id = text(row?.id); const label = text(row?.label); const href = localHref(row?.href);
+    const id = text(row?.id); const label = text(row?.label, 256); const href = localHref(row?.href);
     if (!id || !label || !href) { invalid++; continue; }
     const event = { id, label, href, parentId: text(row.parentId) || null,
       occurredAt: time(row.occurredAt) === null ? null : row.occurredAt,
@@ -70,22 +70,22 @@ export function buildEventSequences({ events = [], updates = [] } = {}, { seen =
   const occurrences = new Map(); const badKeys = new Set();
   for (const row of updates) {
     const id = text(row?.id), eventId = text(row?.eventId), revisionId = text(row?.revisionId), sourceRef = text(row?.sourceRef);
-    const summary = text(row?.summary); const href = localHref(row?.href); const at = time(row?.arrivalAt);
+    const summary = text(row?.summary, 1600); const href = localHref(row?.href); const at = time(row?.arrivalAt);
     if (!id || !eventId || !revisionId || !sourceRef || !summary || !href || at === null) { invalid++; continue; }
     if (!roots.has(eventId)) { orphanUpdates++; continue; }
-    const u = { id, eventId, revisionId, sourceRef, summary, href, at,
+    const u = { id, revisionId, sourceRef, summary, href, at,
       arrivalAt: new Date(at).toISOString(),
-      streamIds: [...new Set((Array.isArray(row.streamIds) ? row.streamIds : []).map(text).filter(Boolean))].sort(),
+      streamIds: [...new Set((Array.isArray(row.streamIds) ? row.streamIds : []).map(value => text(value)).filter(Boolean))].sort(),
       verification: ['verified', 'unverified'].includes(row.verification) ? row.verification : 'unknown' };
     const key = eventUpdateSeenKey(u);
     // Same source-native occurrence+revision can appear in several channels,
     // but contradictions never become last-write-wins truth.
     if (occurrences.has(key)) {
       const prior = occurrences.get(key);
-      const { streamIds: a, ...left } = prior; const { streamIds: b, ...right } = u;
+      const { streamIds: a, eventIds, ...left } = prior; const { streamIds: b, ...right } = u;
       if (JSON.stringify(left) !== JSON.stringify(right)) { badKeys.add(key); conflicts++; }
-      else prior.streamIds = [...new Set([...a, ...b])].sort();
-    } else occurrences.set(key, u);
+      else { prior.streamIds = [...new Set([...a, ...b])].sort(); prior.eventIds = [...new Set([...eventIds, eventId])].sort(); }
+    } else occurrences.set(key, { ...u, eventIds: [eventId] });
   }
   const byRoot = new Map();
   for (const [id, rootId] of roots) {
@@ -94,7 +94,9 @@ export function buildEventSequences({ events = [], updates = [] } = {}, { seen =
   }
   for (const [key, update] of occurrences) {
     if (badKeys.has(key)) continue;
-    byRoot.get(roots.get(update.eventId)).updates.push({ ...update, seenKey: key, isUnread: !seen[key] });
+    const updateRoots = [...new Set(update.eventIds.map(id => roots.get(id)))];
+    for (const rootId of updateRoots) byRoot.get(rootId).updates.push({ ...update,
+      eventIds: update.eventIds.filter(id => roots.get(id) === rootId), seenKey: key, isUnread: !seen[key] });
   }
   const sequences = [...byRoot].map(([rootId, group]) => {
     group.updates.sort(compare);
