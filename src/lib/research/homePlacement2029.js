@@ -26,6 +26,7 @@ function decodeSafe(value) { try { return decodeURIComponent(value); } catch { r
 export function claimHomeItems(rows, reserved = new Set(), limit = Infinity) {
   const out = [];
   const seen = reserved instanceof Set ? new Set(reserved) : new Set(reserved || []);
+  if (limit <= 0) return { items: out, reserved: seen };
   for (const row of Array.isArray(rows) ? rows : []) {
     const keys = homePostKeys(row);
     if (keys.length && keys.some(key => seen.has(key))) continue;
