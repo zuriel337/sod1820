@@ -130,7 +130,7 @@ assert.match(attributionAttentionMigration, /פער ייחוס למחקר איש
 assert.match(world, /מסע 878/);
 assert.match(world, /כאן מופיעים חיבורים מתועדים בין ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /בחירת חוקר או כותב/);
+assert.match(world, /בחירת כותב/);
 assert.match(world, /לקריאת המקורות והחיבורים שלו/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
