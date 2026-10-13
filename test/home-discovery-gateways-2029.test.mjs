@@ -6,12 +6,17 @@ const gateway = readFileSync(new URL("../src/components/experience2029/Discovery
 const home = readFileSync(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
 const style = readFileSync(new URL("../src/components/experience2029/discoveryGateways2029.css", import.meta.url), "utf8");
 
-test("2029 Home presents the four approved gateways exactly once", () => {
+test("2029 Home presents three research gateways and an independent Dimension Five full-width row", () => {
   assert.match(home, /<DiscoveryGateways2029 excludedPostKeys=\{reservedPostKeys\}/);
   assert.doesNotMatch(home, /Section label="צפנים וסרטים"/);
-  for (const title of ["שבילי שפה", "הצופן בקולנוע", "הצפנים בסרטונים", "הצופן התנ״כי"]) {
+  for (const title of ["שבילי שפה", "הצופן בקולנוע", "הצופן התנ״כי"]) {
     assert.ok(gateway.includes(`title="${title}"`), `missing ${title}`);
   }
+  assert.ok(!gateway.includes('title="הצפנים בסרטונים"'));
+  assert.ok(gateway.includes('<DimensionFiveFeature items={dimension.items}'));
+  assert.ok(gateway.includes('secondaryHref="/els?library=public"'));
+  assert.ok(gateway.includes('...videos.items.slice(0, 2)'));
+  assert.ok(gateway.includes('...state.matrices.slice(0, 2)'));
 });
 
 test("automatic gateway membership comes ONLY from categories, not tags/keywords", () => {
@@ -43,4 +48,7 @@ test("home discovery controls remain compact and accessible", () => {
   assert.match(style, /min-height:\s*44px/);
   assert.match(style, /--s29-panel/);
   assert.match(style, /@container h29 \(max-width: 620px\)/);
+  assert.ok(style.includes(".dg29-grid { display: grid; grid-template-columns: minmax(0, 1fr);"));
+  assert.ok(style.includes(".dg29-dimension-sources"));
+  assert.ok(!style.includes("scroll-snap-type: x mandatory"));
 });
