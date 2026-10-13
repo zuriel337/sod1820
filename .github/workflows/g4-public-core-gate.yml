@@ -23,7 +23,6 @@ on:
       - 'scripts/test-2029-system-frame.mjs'
       - 'supabase/migrations/20261012170000_public_launch_closed_capabilities.sql'
       - 'supabase/migrations/20261013100000_world_group_source_repeat_projection_v3.sql'
-      - 'supabase/migrations/20261013110000_public_launch_open_world.sql'
       - 'vercel.json'
   workflow_dispatch:
 
