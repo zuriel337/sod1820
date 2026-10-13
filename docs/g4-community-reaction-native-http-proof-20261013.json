@@ -1,0 +1,426 @@
+{
+  "project_id": "krnaxxndgtrdnaddlzws",
+  "scope": "Approved isolated child; no production writes",
+  "source_commit": "f33d79c9357a118d42a8aa0ab4de5b6bc1fd135f",
+  "migration_sha256": "e47144774634ec856d2d500d0545a3a21f64b04681e8f3d4ed19e74b08aef97a",
+  "actual_http_identity": "anon using a client-only public key; no server key retrieved",
+  "accepted_http_calls": 37,
+  "denial_calls": 18,
+  "positive_calls": 14,
+  "concurrent_guest_calls": 5,
+  "accepted_http_results": [
+    {
+      "label": "deny_2",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 810,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_3",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 305,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_4",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 635,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_5",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 619,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_12",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 553,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_13",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 232,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_21",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 247,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_22",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 233,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_23",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 238,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_31",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 240,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_40",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 245,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_41",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 227,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_50",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 228,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_99",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 244,
+      "response_kind": "error"
+    },
+    {
+      "label": "deny_null",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 245,
+      "response_kind": "error"
+    },
+    {
+      "label": "missing_identity",
+      "status": 400,
+      "code": "P0001",
+      "message": "no identity",
+      "duration_ms": 212,
+      "response_kind": "error"
+    },
+    {
+      "label": "invalid_emoji",
+      "status": 400,
+      "code": "P0001",
+      "message": "bad emoji",
+      "duration_ms": 228,
+      "response_kind": "error"
+    },
+    {
+      "label": "null_emoji",
+      "status": 400,
+      "code": "P0001",
+      "message": "bad emoji",
+      "duration_ms": 222,
+      "response_kind": "error"
+    },
+    {
+      "label": "approved_root_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 346,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 3
+    },
+    {
+      "label": "approved_root_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 228,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 2
+    },
+    {
+      "label": "approved_💡_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 258,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 1
+    },
+    {
+      "label": "approved_💡_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 250,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 0
+    },
+    {
+      "label": "approved_🔥_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 230,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 1
+    },
+    {
+      "label": "approved_🔥_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 274,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 0
+    },
+    {
+      "label": "approved_🙏_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 246,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 1
+    },
+    {
+      "label": "approved_🙏_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 232,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 0
+    },
+    {
+      "label": "approved_✨_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 204,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 1
+    },
+    {
+      "label": "approved_✨_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 218,
+      "response_kind": "reactions",
+      "historical_likes": 12,
+      "identity_count": 0
+    },
+    {
+      "label": "approved_reply_11_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 225,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 1
+    },
+    {
+      "label": "approved_reply_11_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 297,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 0
+    },
+    {
+      "label": "approved_reply_60_add",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 251,
+      "response_kind": "reactions",
+      "historical_likes": 60,
+      "identity_count": 1
+    },
+    {
+      "label": "approved_reply_60_remove",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 279,
+      "response_kind": "reactions",
+      "historical_likes": 60,
+      "identity_count": 0
+    },
+    {
+      "label": "concurrent_guest_0",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 296,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 1
+    },
+    {
+      "label": "concurrent_guest_2",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 289,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 2
+    },
+    {
+      "label": "concurrent_guest_3",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 315,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 3
+    },
+    {
+      "label": "concurrent_guest_4",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 314,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 4
+    },
+    {
+      "label": "concurrent_guest_1",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 595,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 5
+    }
+  ],
+  "denial_atomicity": {
+    "tagged_rows": 16,
+    "users_digest": "c82e9f63ea7dfe080108cd68f313430a",
+    "notifications": 0,
+    "changed_or_missing_rows": 0
+  },
+  "cleanup": {
+    "users": 5,
+    "auth_users": 5,
+    "anon_execute": true,
+    "users_digest": "c82e9f63ea7dfe080108cd68f313430a",
+    "notifications": 0,
+    "public_execute": false,
+    "installed_migration": [
+      {
+        "name": "community_reaction_public_visibility_gate_v1_f33d79c9",
+        "version": "20261013073315"
+      }
+    ],
+    "authenticated_execute": true,
+    "installed_function_md5": "6803e0ce21cac8c2c386f8330b74bec1",
+    "remaining_contributions": 0,
+    "remaining_tagged_fixtures": 0
+  },
+  "authenticated_admin_evidence": "Separately tested and independently reviewed in disposable PostgreSQL 17; not signed-in HTTP evidence",
+  "concurrency_evidence": "Five real simultaneous anon HTTP requests preserve every identity and historical likes",
+  "moderation_race_http": "UNVERIFIED. Initial calls ran after hide commit or before hide; long lock trial hit HTTP 500 / SQLSTATE 57014 statement timeout. No HTTP race GO is claimed.",
+  "moderation_race_sql": "PASS. Committed runner uses actual admin RPC and two independent PostgreSQL sessions; independently reviewed.",
+  "moderation_http_orchestration_trials": [
+    {
+      "label": "moderation_racing_guest",
+      "status": 400,
+      "code": "P0001",
+      "message": "not found",
+      "duration_ms": 434,
+      "response_kind": "error"
+    },
+    {
+      "label": "moderation_racing_guest",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 399,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 6
+    },
+    {
+      "label": "moderation_racing_guest",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 476,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 6
+    },
+    {
+      "label": "moderation_racing_guest",
+      "status": 200,
+      "code": null,
+      "message": null,
+      "duration_ms": 719,
+      "response_kind": "reactions",
+      "historical_likes": 8,
+      "identity_count": 6
+    },
+    {
+      "label": "moderation_racing_guest",
+      "status": 500,
+      "code": "57014",
+      "message": "canceling statement due to statement timeout",
+      "duration_ms": 3751,
+      "response_kind": "error"
+    }
+  ],
+  "transport_setup_note": "Initial direct Node transport unavailable; accepted HTTP calls ran through the configured session proxy using --use-env-proxy.",
+  "started_at": "2026-10-13T07:36:50.193Z",
+  "receipt_at": "2026-10-13T07:49:22.355962+00:00"
+}
