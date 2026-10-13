@@ -15,32 +15,47 @@ const SEEN_KEY = "now-bar";
 const ZVI = "tzvi-opoc";
 const POLL_MS = 90000;
 
+const MailIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" aria-label="מייל" role="img" style={{ flex: "none" }}>
+    <rect x="2" y="4" width="20" height="16" rx="3" fill="#5ea8ff" />
+    <path d="M3 7l9 6.5L21 7" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const WhatsAppIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" aria-label="וואטסאפ" role="img" style={{ flex: "none" }}>
+    <circle cx="12" cy="12" r="11" fill="#25D366" />
+    <path d="M12 5.2a6.8 6.8 0 0 0-5.8 10.3L5.3 18.8l3.4-.9A6.8 6.8 0 1 0 12 5.2z" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M9.6 9.2c.2-.4.4-.4.6-.4h.4c.1 0 .3 0 .4.3l.6 1.4c0 .2 0 .3-.1.4l-.4.5c.5 1 1.3 1.7 2.3 2.2l.5-.6c.1-.1.3-.2.5-.1l1.4.7c.2.1.3.2.2.5-.1.6-.7 1.1-1.4 1.1-2.4-.2-4.4-2.2-4.9-4.4 0-.5.1-1 .3-1.5z" fill="#fff" />
+  </svg>
+);
+
 const ts = (iso) => Date.parse(iso || "") || 0;
 
 async function loadEmail() {
   if (!supabase) return [];
   const { data } = await supabase.from("channel_updates")
-    .select("id,text,credit,created_at,link_url")
+    .select("id,text,credit,created_at")
     .eq("status", "live").eq("source", "email").eq("page_only", false)
     .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
     .order("created_at", { ascending: false }).limit(15);
   return (data || []).map((r) => ({
     key: `mail:${r.id}`, kind: "mail", who: r.credit || "מייל",
     text: stripHtml(r.text || "").replace(/\s+/g, " ").trim().slice(0, 600),
-    at: r.created_at, href: r.link_url || null,
+    at: r.created_at,
   })).filter((r) => r.text);
 }
 
 async function loadZvi() {
   const rows = await fetchGroupSourceArrivals({ limit: 40 });
   return rows.filter((r) => r.creatorSlug === ZVI && r.sourceKind === "group_message").slice(0, 15).map((r) => ({
-    key: `zvi:${r.id}`, kind: "zvi", who: r.creator || "צבי", text: r.fullText || r.label, at: r.arrivalAt || r.at, href: null,
+    key: `zvi:${r.id}`, kind: "zvi", who: r.creator || "צבי", text: r.fullText || r.label, at: r.arrivalAt || r.at,
   }));
 }
 
 export default function NowBar() {
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
+  const [exp, setExp] = useState({});
   const [cutoff, setCutoff] = useState(() => seenCutoff(SEEN_KEY));
 
   useEffect(() => {
@@ -80,18 +95,21 @@ export default function NowBar() {
           {items.length === 0 && <div style={{ padding: 18, textAlign: "center", opacity: 0.7, fontSize: 14 }}>אין עדכונים כרגע</div>}
           {items.map((i) => {
             const fresh = i.at && i.at > cutoff;
-            const body = (
-              <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,.07)", background: fresh ? "rgba(212,175,55,.08)" : "transparent" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 12, opacity: 0.75, marginBottom: 3 }}>
-                  <span>{i.kind === "zvi" ? "💬" : "✉️"} {i.who}</span>
+            const long = i.text.length > 160;
+            const expanded = !!exp[i.key];
+            return (
+              <div key={i.key} onClick={long ? () => setExp((v) => ({ ...v, [i.key]: !v[i.key] })) : undefined}
+                style={{ padding: "10px 14px", borderBottom: "1px solid rgba(255,255,255,.07)", cursor: long ? "pointer" : "default", background: fresh ? "rgba(212,175,55,.08)" : "transparent" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, opacity: 0.8, marginBottom: 3 }}>
+                  {i.kind === "zvi" ? <WhatsAppIcon /> : <MailIcon />}
+                  <span style={{ flex: 1 }}>{i.who}</span>
                   <span>{timeAgoHe(i.at)}</span>
                 </div>
-                <div style={{ fontSize: 14, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{i.text}</div>
+                <div style={{ fontSize: 14, lineHeight: 1.55, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                  {long && !expanded ? `${i.text.slice(0, 160)}…` : i.text}
+                </div>
               </div>
             );
-            return i.href
-              ? <a key={i.key} href={i.href} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "none", display: "block" }}>{body}</a>
-              : <div key={i.key}>{body}</div>;
           })}
         </div>
       )}
