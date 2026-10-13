@@ -1,7 +1,9 @@
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
-// רגילים (וגוגל, שמריץ JS) ממשיכים לקבל את ה-SPA כרגיל.
+// Search crawler routes also use this document; public posts include their full text.
+
+import { publicPostDocument } from '../src/lib/publicPostDocument.js';
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
@@ -207,6 +209,7 @@ export default async function handler(req, res) {
   let image = cardUrl(STATIC['/'].card);
   let type = 'website';
   let robots = 'index, follow';
+  let dependencyFailed = false;
   let convergenceLd = null;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
@@ -476,14 +479,33 @@ export default async function handler(req, res) {
     // עמוד מספר — תמונה מייצגת (primary_value)
     let raw = key.slice('/number/'.length);
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
-    const n = parseInt(raw, 10);
+    const n = /^\d+$/.test(raw) && Number.isSafeInteger(Number(raw)) ? Number(raw) : NaN;
+    // Same admission owners as EntityPageBase and sitemap; never infer admission
+    // from a numeric prefix, an anchor, or a successful metadata response.
+    robots = 'noindex, follow';
+    const numeric = Number.isFinite(n);
+    try {
+      const admission = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${numeric ? 'is_number_indexable' : 'is_phrase_indexable'}`, {
+        method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify(numeric ? { p_value: n } : { p_phrase: raw.trim() }),
+        signal: AbortSignal.timeout(3000),
+      });
+      if (!admission.ok) throw new Error('indexability unavailable');
+      const admitted = await admission.json();
+      if (typeof admitted !== 'boolean') throw new Error('invalid indexability response');
+      if (admitted) robots = 'index, follow';
+    } catch { dependencyFailed = true; }
+    if (!numeric) {
+      title = `${stripHtml(raw)} — דף הביטוי · ${SITE_NAME}`;
+      desc = `מקורות וקשרים לביטוי ${stripHtml(raw)} בסוד 1820.`;
+    }
     if (Number.isFinite(n)) {
       title = `${n} — מרכז ההתכנסות · ${SITE_NAME}`;
       desc = `כל מה שמתכנס למספר ${n} בסוד 1820 — גימטריה, גלריות, פוסטים וצירי התכנסות במקום אחד.`;
       type = 'article';
       // ✦ עוגן-המהות (number_anchors) — אם למספר יש מהות מאומתת, מציגים אותה בתצוגת-השיתוף.
       try {
-        const ar = await fetch(`${SUPABASE_URL}/rest/v1/number_anchors?value=eq.${n}&select=fact,hint&limit=1`, { headers: ogHeaders });
+        const ar = await fetch(`${SUPABASE_URL}/rest/v1/number_anchors?value=eq.${n}&select=fact,hint&limit=1`, { headers: ogHeaders, signal: AbortSignal.timeout(3000) });
         const arows = await ar.json();
         const anc = Array.isArray(arows) && arows[0];
         if (anc && anc.fact) {
@@ -593,9 +615,14 @@ export default async function handler(req, res) {
     for (const v of variants) {
       try {
         const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(v)}&${SEL}`;
-        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+        const r = await fetch(url, { headers: ogHeaders, signal: AbortSignal.timeout(3000) });
+        if (!r.ok) throw new Error('post unavailable');
         const rows = await r.json();
+        if (!Array.isArray(rows)) throw new Error('invalid post response');
         if (Array.isArray(rows) && rows[0]) {
+          // Existing sitemap publication signal. Do not expose draft/forum
+          // bodies through a second anonymous representation.
+          if ((rows[0].tags || []).some(t => ['טיוטה', 'פורום'].includes(t))) break;
           post = rows[0];
           title = stripHtml(post.title) + ' · ' + SITE_NAME;
           desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
@@ -615,9 +642,9 @@ export default async function handler(req, res) {
           type = 'article';
           break;
         }
-      } catch { /* try next variant */ }
+      } catch { dependencyFailed = true; /* try next spelling, never cache uncertainty */ }
     }
-    if (key.startsWith('/post/') && !post) {
+    if (!post) {
       robots = 'noindex, follow';
       title = 'הפוסט לא נמצא · ' + SITE_NAME;
       desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
@@ -730,14 +757,16 @@ ${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc
 </head><body>
 <h1>${esc(title)}</h1>
 <p>${esc(desc)}</p>
+${searchCrawlerDocument && post ? publicPostDocument(post.content, canonical) : ''}
 <p><a href="${esc(canonical)}">המשך לעמוד ←</a></p>
 </body></html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', flagState?.failed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
+  res.setHeader('Cache-Control', flagState?.failed || dependencyFailed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
   if (searchCrawlerDocument) {
     res.setHeader('X-Robots-Tag', robots);
     res.setHeader('Vary', 'User-Agent');
   }
   res.status(200).send(html);
 }
+

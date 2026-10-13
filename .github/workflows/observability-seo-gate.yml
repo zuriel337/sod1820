@@ -89,6 +89,11 @@ jobs:
       - name: Search Indexing 2029 closure acceptance
         run: node scripts/test-search-indexing-2029.mjs
 
+      - name: Crawler public content and admission behavior
+        run: |
+          node --test test/crawler-content-admission.test.mjs test/public-launch-seo-gates.test.mjs
+          node scripts/test-2029-server-seo-ai-parity.mjs
+
       - name: Route Legitimacy 2029 acceptance
         run: node scripts/test-route-legitimacy-2029.mjs
 
@@ -97,3 +102,4 @@ jobs:
 
       - name: Build
         run: npm run build
+

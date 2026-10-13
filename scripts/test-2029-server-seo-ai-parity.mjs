@@ -191,6 +191,7 @@ assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/exampl
 
 const legacyNumberSearchCrawler = await renderResponse("/number/1237", withOpenLaunchFlag("lock_number", async (url) => {
   const u = String(url);
+  if (u.endsWith('/rpc/is_number_indexable')) return { ok: true, json: async () => true };
   if (u.includes("/number_anchors?")) {
     return {
       ok: true,
@@ -320,3 +321,4 @@ assert.ok(
 );
 
 console.log("2029 server/crawler SEO+AI metadata parity: PASS");
+
