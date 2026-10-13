@@ -176,6 +176,10 @@ export default function NumberCore2029({
   regularExpressionsLoading = false,
   smartRail = false,
   railSignals = {},
+  compareModel = null,
+  pinnedExpression = null,
+  onPinCompare,
+  onClearCompare,
   hiddenCrossings = [],
   hiddenCrossingsLoading = false,
   systemMethods = [],
@@ -438,6 +442,12 @@ export default function NumberCore2029({
           <strong>ביטויים רגילים על אותו מספר</strong>
         </div>
         <small>{regularExpressions.length} ביטויים · ↔ גרור ימינה / שמאלה</small>
+        {smartRail && !compact ? <button
+          type="button"
+          className="sod29-number-v12-pin"
+          aria-pressed={Boolean(pinnedExpression)}
+          onClick={() => (pinnedExpression ? onClearCompare?.() : onPinCompare?.(projection.expression))}
+        >{pinnedExpression ? "בטל השוואה" : "הצמד להשוואה"}</button> : null}
       </div>
       <div className="sod29-number-v11-regular-track" data-experience-capability="number-regular-expressions" role="list" key={`regular-rail:${root}`} onKeyDown={stepRail}>
         {regularExpressions.map((item) => {
@@ -469,6 +479,20 @@ export default function NumberCore2029({
           </div>;
         })}
       </div>
+      {smartRail && compareModel && !compact ? <div className="sod29-number-v12-compare" data-compare-state={compareModel.state} role="status" aria-live="polite">
+        {compareModel.state === "same" ? <p>הוצמד: <strong>{compareModel.a}</strong>. בחר ביטוי אחר בפס כדי להשוות.</p>
+          : compareModel.state === "loading" ? <p>משווה את <strong>{compareModel.a}</strong> עם <strong>{compareModel.b}</strong>…</p>
+          : <>
+            <p><strong>{compareModel.a}</strong> <em>↔</em> <strong>{compareModel.b}</strong></p>
+            {compareModel.crossing ? <>
+              <p className="is-yes">הצלבה נסתרת ב־{compareModel.crossing.methodCount} שיטות ייחודיות:</p>
+              <div className="sod29-number-v12-compare-methods">
+                {compareModel.crossing.methods.map((method) => <span key={method.methodKey}>{method.methodLabel} = {method.value}</span>)}
+              </div>
+            </> : <p className="is-no">אין הצלבה נסתרת לפי הכללים הקיימים (אותיות זהות, או פחות משתי שיטות ייחודיות).</p>}
+            <small>{compareModel.equal} מתוך {compareModel.compared} שיטות מושוות נותנות ערך זהה. ההשוואה היא באותה שיטה בלבד.</small>
+          </>}
+      </div> : null}
     </section> : regularExpressionsLoading && !compact ? <section
       className="sod29-number-v11-regular-rail is-loading"
       data-experience-state="regular-expressions-loading"

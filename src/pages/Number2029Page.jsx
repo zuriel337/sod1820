@@ -15,6 +15,7 @@ import {
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
   fetchNumberHiddenCrossings,
+  deriveHiddenCrossings,
   methodProfileEntry,
 } from "../lib/research/numberCoreProjection.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
@@ -675,6 +676,39 @@ function NumberPageBody() {
 
     return rows;
   }, [activeExpression, regularMethodProfile, regularGroup, regularPhraseState, root]);
+
+  // Smart rail compare: pin one expression, slide another. Uses the existing pure same-method crossing rule
+  // (equivalence collapse, anagram exclusion, at least two distinct methods) over engine-returned profiles only.
+  const [pinnedCompare, setPinnedCompare] = useState(null);
+  const pinCompare = (expression) => {
+    const expr = clean(expression);
+    if (!expr) { setPinnedCompare(null); return; }
+    if (methodProfileState.expression !== expr || !methodProfileState.rows.length) return;
+    setPinnedCompare({ expression: expr, rows: methodProfileState.rows });
+  };
+  const compareModel = useMemo(() => {
+    if (!smartRail || !pinnedCompare) return null;
+    const a = pinnedCompare.expression;
+    const b = clean(activeExpression);
+    if (!b || b === a) return { state: "same", a };
+    if (methodProfileState.loading || methodProfileState.expression !== b || !methodProfileState.rows.length) return { state: "loading", a, b };
+    const columnByMethod = new Map(pinnedCompare.rows.map((row) => [row.methodKey, row.dbColumn]));
+    const candidate = { phrase: b, lead_rank: null };
+    let compared = 0;
+    let equal = 0;
+    const ownByMethod = new Map(pinnedCompare.rows.map((row) => [row.methodKey, traceNumber(row.computedValue)]));
+    for (const row of methodProfileState.rows) {
+      const column = columnByMethod.get(row.methodKey);
+      const other = traceNumber(row.computedValue);
+      const own = ownByMethod.get(row.methodKey);
+      if (!column || other == null || own == null) continue;
+      candidate[column] = other;
+      compared += 1;
+      if (other === own) equal += 1;
+    }
+    const [crossing = null] = deriveHiddenCrossings({ expression: a, methodProfile: pinnedCompare.rows, candidates: [candidate], limit: 1 });
+    return { state: "ready", a, b, compared, equal, crossing };
+  }, [smartRail, pinnedCompare, activeExpression, methodProfileState]);
 
   // Smart rail: crossing counts appear on a chip only after the canonical reader computed them (unknown stays blank).
   const [railSignals, setRailSignals] = useState({});
@@ -1374,6 +1408,10 @@ function NumberPageBody() {
         regularExpressionsLoading={regularPhraseState.loading}
         smartRail={smartRail}
         railSignals={railSignals}
+        compareModel={compareModel}
+        pinnedExpression={pinnedCompare?.expression || null}
+        onPinCompare={pinCompare}
+        onClearCompare={() => setPinnedCompare(null)}
         onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
