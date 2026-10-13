@@ -1811,8 +1811,11 @@ test('design integration: royal controls preserve matrix identity and stable tou
     await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
     const submit=page.locator('.els29-native-search');
     const primary=await submit.evaluate(el=>({background:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color,font:getComputedStyle(el).fontFamily}));
-    assert.match(primary.background,/49, 93, 213/,`${preset}: shared royal blue primary`);
-    assert.equal(primary.color,'rgb(255, 255, 255)');
+    // Dark returns to the approved black/gold/brown palette. Light and
+    // parchment retain their existing blue primary; interaction tests below
+    // still enforce the same matrix identity and touch geometry in all presets.
+    assert.match(primary.background,preset==='dark'?/212, 175, 55/:/49, 93, 213/,`${preset}: shared primary palette`);
+    assert.equal(primary.color,preset==='dark'?'rgb(26, 14, 0)':'rgb(255, 255, 255)');
     assert.match(primary.font,/Rubik/);
     assert.ok(await page.locator('[data-palette-probe]').evaluate(el=>{const p=JSON.parse(el.dataset.paletteProbe),root=getComputedStyle(el.closest('.sod29-root'));return p.accent===root.getPropertyValue('--s29-accent').trim()&&p.panel===root.getPropertyValue('--s29-panel').trim();}),'frame children inherit the same preset/environment palette as its CSS');
     const mode=page.locator('.els29-native-search-mode button').last();
@@ -1850,7 +1853,7 @@ test('design integration: royal controls preserve matrix identity and stable tou
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}/${preset}: no document overflow`);
     assert.deepEqual((await identity(page)).axis,baseline.axis,'presentation does not replace the axis');
     const matrix=await page.locator('.els29-native-matrix-scroll').evaluate(el=>getComputedStyle(el).backgroundColor);
-    assert.equal(matrix,{light:'rgb(255, 254, 249)',parchment:'rgb(255, 244, 212)',dark:'rgb(19, 15, 35)'}[preset]);
+    assert.equal(matrix,{light:'rgb(255, 254, 249)',parchment:'rgb(255, 244, 212)',dark:'rgb(23, 18, 14)'}[preset]);
     if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`integrated-${preset}-${width}.png`),fullPage:true});}
    }
    for(const setting of ['os','frame']){

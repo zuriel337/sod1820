@@ -17,6 +17,8 @@ import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from ".
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
+import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
+import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -120,14 +122,16 @@ function PostReadingBody() {
     [regions, activeRegionId],
   );
   const activeRegionFocus = activeFocus;
+  const commentArchiveId = publicPostCommentArchiveId(state.projection);
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
     ...(state.projection?.experience?.connections?.some((item) => item.href)
       ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
+    ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection]);
+  ], [regions, state.projection, commentArchiveId]);
 
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
@@ -866,6 +870,7 @@ function PostReadingBody() {
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
+    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>

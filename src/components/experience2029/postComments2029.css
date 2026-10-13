@@ -1,0 +1,12 @@
+.sod29-post-comments{margin-block:32px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel);color:var(--s29-ink);padding:16px 20px;scroll-margin-top:110px}
+.sod29-post-comments summary{cursor:pointer;font-weight:700;font-size:17px;line-height:1.7;color:var(--s29-accent-text)}
+.sod29-post-comments summary span{margin-inline-start:12px;font-weight:400;font-size:14px;color:var(--s29-muted)}
+.sod29-post-comment-list{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:14px}
+.sod29-post-comment-list li{min-width:0;border:1px solid var(--s29-line);border-inline-start:3px solid var(--s29-accent);border-radius:10px;padding:14px 16px;background:var(--s29-panel-soft);scroll-margin-top:110px}
+.sod29-post-comment-list li.is-reply{margin-inline-start:22px}
+.sod29-post-comment-list header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sod29-post-comment-list strong{font-size:16px;overflow-wrap:anywhere}
+.sod29-post-comment-list time,.sod29-post-comment-parent{font-size:13px;color:var(--s29-muted)}
+.sod29-post-comment-parent{display:block;margin-block-start:8px}
+.sod29-post-comment-list p{margin:10px 0 0;font-size:16px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:600px){.sod29-post-comments{padding:14px}.sod29-post-comments summary span{display:block;margin-inline-start:0}.sod29-post-comment-list li.is-reply{margin-inline-start:12px}}

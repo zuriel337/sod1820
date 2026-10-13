@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { use2029Palette } from "../../lib/palette.js";
 import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReplies, fetchCommunityReplyCounts, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage } from "../../lib/community/communityArchive.js";
+import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
@@ -35,7 +36,7 @@ function LiveLike({ row }) {
   const reactions = row.reactions || {};
   const dislikes = Number(reactions.dislikes) || 0;
   return <div className="sod29-community-reactions">
-    <ReactionBar id={row.id} reactions={reactions} variant="row" />
+    <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" />
     {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
@@ -65,24 +66,29 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const [nextReplyOffset, setNextReplyOffset] = useState(0);
   const [loadingReplies, setLoadingReplies] = useState(false);
   const [replyError, setReplyError] = useState("");
+  const replyReadRef = useRef(false);
+  const replyAnchorRef = useRef(null);
   const knownCount = replyCounts[row.id];
   const count = replyTotal ?? knownCount;
   const canExpand = expanded || count == null || count > 0 || replies.length > 0;
   const childrenId = `community-replies-${row.id}`;
 
   const loadReplies = async (offset = 0) => {
-    if (loadingReplies) return;
+    if (replyReadRef.current) return;
+    replyReadRef.current = true;
     setLoadingReplies(true); setReplyError("");
     try {
-      const page = await fetchCommunityReplies(row.id, { offset });
+      const page = await fetchCommunityReplies(row.id, { offset, limit: offset ? undefined : Math.max(20, Math.min(100, nextReplyOffset)) });
       const lineage = new Set([...ancestors, row.id]);
       const visible = page.rows.filter((item) => !lineage.has(item.id));
-      setReplies((current) => offset ? [...current, ...visible] : visible);
+      replyAnchorRef.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
+      const nextReplies = offset ? [...replies, ...visible.filter((item) => !replies.some((existing) => existing.id === item.id))] : mergeCommunityRefreshRows(replies, visible, "oldest", { complete: page.nextOffset >= page.count });
+      setReplies(nextReplies);
       setReplyTotal(page.count);
-      setNextReplyOffset(page.nextOffset);
+      setNextReplyOffset(nextReplies.length);
       onRepliesLoaded(visible);
     } catch { setReplyError("לא הצלחנו לטעון את התגובות."); }
-    finally { setLoadingReplies(false); }
+    finally { replyReadRef.current = false; setLoadingReplies(false); }
   };
 
   const toggleReplies = () => {
@@ -90,7 +96,8 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     setExpanded(true);
     if (replyTotal === null) loadReplies();
   };
-  useEffect(() => { if (expanded) loadReplies(0); }, [refreshToken]);
+  useEffect(() => { if (expanded && !document.hidden) loadReplies(0); }, [refreshToken]);
+  useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
   return <div className="sod29-community-thread-group">
     <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} />
@@ -143,23 +150,67 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   const attachmentRef = useRef(null);
   const cardCloseRef = useRef(null);
   const streamRequestRef = useRef(0);
+  const feedReadRef = useRef(null);
+  const feedStateRef = useRef(null);
+  const feedAnchorRef = useRef(null);
+  feedStateRef.current = { rows, loading, sending };
 
   const loadPage = useCallback(async (offset = 0, replace = false) => {
     const request = ++streamRequestRef.current;
     setLoading(true); setError("");
+    const previousRead = feedReadRef.current;
+    const read = (async () => {
+      if (previousRead) await previousRead.catch(() => {});
+      if (request !== streamRequestRef.current) return null;
+      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort });
+    })();
+    feedReadRef.current = read;
     try {
-      const page = await fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort });
+      const page = await read;
       if (request !== streamRequestRef.current) return;
-      setRows((current) => replace ? page.rows : [...current, ...page.rows]);
+      setRows((current) => replace ? page.rows : [...current, ...page.rows.filter((item) => !current.some((existing) => existing.id === item.id))]);
       setNextOffset(page.nextOffset);
       if (page.count != null) setTotal(page.count);
     } catch {
       if (request !== streamRequestRef.current) return;
       setError("לא הצלחנו לטעון את השיחות כרגע.");
-    } finally { if (request === streamRequestRef.current) setLoading(false); }
+    } finally {
+      if (feedReadRef.current === read) feedReadRef.current = null;
+      if (request === streamRequestRef.current) setLoading(false);
+    }
   }, [sort]);
 
-  useEffect(() => { loadPage(0, true); }, [loadPage]);
+  useEffect(() => { loadPage(0, true); return () => { streamRequestRef.current++; }; }, [loadPage]);
+  useLayoutEffect(() => { restoreCommunityScrollAnchor(feedAnchorRef.current); feedAnchorRef.current = null; }, [rows]);
+  useEffect(() => {
+    if (memberId || claimId || cardId) return undefined;
+    let active = true;
+    const stop = startCommunityRefresh({ refresh: async () => {
+      const current = feedStateRef.current;
+      if (current.loading || current.sending || !current.rows.length || feedReadRef.current) return;
+      const request = streamRequestRef.current;
+      const read = fetchCommunityArchivePage({ limit: COMMUNITY_PAGE_SIZE, sort });
+      feedReadRef.current = read;
+      try {
+        const page = await read;
+        if (!active || document.hidden || request !== streamRequestRef.current) return;
+        const merged = mergeCommunityRefreshRows(feedStateRef.current.rows, page.rows, sort, { complete: page.count != null && page.nextOffset >= page.count });
+        if (merged !== feedStateRef.current.rows) {
+          feedAnchorRef.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
+          setRows(merged);
+          setNextOffset(merged.length);
+        }
+        if (page.count != null) setTotal(page.count);
+        // Open threads refresh through the same approved-reply reader. Closed
+        // threads need only one bounded count read for this public feed page.
+        const counts = await fetchCommunityReplyCounts(page.rows.map((item) => item.id));
+        if (!active || document.hidden || request !== streamRequestRef.current) return;
+        setReplyCounts((existing) => Object.keys(counts).every((id) => existing[id] === counts[id]) ? existing : { ...existing, ...counts });
+        setThreadRefresh((value) => value + 1);
+      } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
+    }});
+    return () => { active = false; stop(); };
+  }, [sort, memberId, claimId, cardId]);
   useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {

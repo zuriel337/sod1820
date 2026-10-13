@@ -4,6 +4,7 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
 const PRE_CUTOVER_FIXTURE = process.env.SOD_WORLD_PRE_CUTOVER_FIXTURE === '1';
+const POSITIVE_ACCEPTANCE_FLAGS = ['lock_world', 'lock_number'];
 const CONTEXT_KEY = 'sod_research_context_session_v1';
 const MOBILE_WIDTHS = [320, 360, 390];
 const CLS_ROUTES = [
@@ -90,14 +91,22 @@ test.setTimeout(60_000);
 test.describe.configure({ mode: 'default' });
 test.beforeEach(async ({ context }) => {
   await installStorageEgressGuard(context);
+  // Preserve real read-only engine/data requests while keeping browser acceptance
+  // visits, metrics and identity events out of the canonical product database.
+  await context.route(/https:\/\/linswmnnkjxvweumprav\.supabase\.co\/rest\/v1\/(?:rpc\/(?:track_visit|ingest_event|link_identity)|visitor_events|page_views|user_activity)(?:\?.*)?$/, async (route) => {
+    if (['GET', 'HEAD'].includes(route.request().method())) return route.fallback();
+    return route.fulfill({ status: 204, body: '' });
+  });
   if (!PRE_CUTOVER_FIXTURE) return;
 
-  // The branch preview must exercise the open World without flipping a live flag.
-  // Real v3 HTTP remains a separate cutover gate after its reviewed migration is applied.
+  // Exercise the positive World/Number capability contracts without changing live
+  // availability. Number is closed for launch; its negative route/no-engine-mount
+  // case remains covered separately in g4-public-core-release.spec.cjs.
   await context.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify([{ key: 'lock_world', enabled: false, mode: 'all', message: '' }]),
+    body: JSON.stringify(POSITIVE_ACCEPTANCE_FLAGS
+      .map((key) => ({ key, enabled: false, mode: 'all', message: '' }))),
   }));
   await context.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
     status: 200,
@@ -120,7 +129,7 @@ async function openLaunchFlagForAcceptance(page, key) {
   await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify([...new Set(PRE_CUTOVER_FIXTURE ? ['lock_world', key] : [key])]
+    body: JSON.stringify([...new Set(PRE_CUTOVER_FIXTURE ? [...POSITIVE_ACCEPTANCE_FLAGS, key] : [key])]
       .map((flagKey) => ({ key: flagKey, enabled: false, mode: 'all', message: '' }))),
   }));
 }
