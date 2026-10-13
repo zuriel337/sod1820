@@ -77,3 +77,53 @@ Atomic scalar PostgREST guards compare current route revision and source hold; a
 concurrent decision returns503 for provider retry. No private source/headers/body
 are serialized into URL filters. Both normalized replay and legacy hydration are
 covered, including PostgreSQL revision-guard and adversarial handler tests.
+
+## Current sender identity closure — 14 October 2026
+
+The pasted fd6b23a5/47-test status is superseded. Current base087e373d has72 tests,
+independent private-stage/replay PASS, and a real full-build preview. Main now5dd7032e.
+Fresh live private inbox:55 rows,0 normalized source_email_v1 rows. Two new substantive
+approved-group messages arrived13Oct21:12:55/21:19:59 UTC (14Oct00:12:55/00:19:59 Jerusalem).
+They remain private and have no public email carrier rows.
+
+Real receiving-server proof independently re-read from original production Edge API
+response logs6b041b95/e4f576fb: messages461bf1e0/3fc7e9f3 have native spf/dkim/dmarc pass,
+resource IDs matched, both From identities are in the approved13. The actual source
+proof adapter accepted both raw API receipts; with no canonical approval it still
+returns no admitted author. No body, header, sender address or signed URL is in git.
+Official contract: https://resend.com/docs/api-reference/emails/retrieve-received-email.
+
+Canonical DRIFT/CORRECTION: prior four-row count was not four unique identities.
+Fresh exact13 preflight:2 resolved (source indices3,6),9 would-create-private,
+1 existing account needing canonical contributor link (index4),1 ambiguous mailbox
+mapped to2 active profiles (index13). Candidate IDs for index13 are
+19936860-6b35-4386-bc44-113289858ff0 and fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf;
+existing unlinked account is2702ccc0-705e-46c7-8455-a26c80fcaf72. No identity is
+chosen/merged by name, kind, age or email equality. No author provisioning occurred.
+
+The existing2035 migration now independently installs PRIVATE mailbox/author helpers,
+service-only exact-batch preflight and provisioning. It only sets email_source_approved;
+it never enables email_source_public or public grants/policies. Ambiguous/unlinked
+accounts block the entire write batch. Public bridge now separately requires BOTH
+private source approval and explicit public approval, plus native proof/routing/holds.
+The private stage can be installed without1930 public bridge or publication flag.
+
+Current site/read permissions verified: private inbox has admin-only SELECT/UPDATE
+RLS and no anon table grant; users.role is not client-updatable. Public broadcast
+carrier SELECT exists, so no source-email row may be inserted before reviewed proof,
+identity/publication gates. No live migrations/functions/public flags were applied.
+
+All accepted questionnaire choices are recorded in the existing Intake addendum:
+whole thread, verified-reply inheritance after first publication, all3 destinations,
+text+original images. These remain planned distribution/media semantics; no automatic
+publishing of new threads, raw HTML, quotes, attachments or provider signed URLs.
+
+If native proof is missing/gray/fail, hold the private email. An authenticated canonical
+writer submission through existing site contribution flow is a separate safe source,
+not a forged-email exception. No new consent requests or verification emails were sent.
+
+Remaining activation conditions: Person-owner resolution of indices4/13, exact13
+private preflight/provision, reviewed private migration + normalizing Edge deployment,
+real provider-to-private-storage/read roundtrip, then separately reviewed public
+thread/image/destination and existing legacy release gates. Older public migrations
+must not be applied merely to install private sender identity support.

@@ -300,3 +300,30 @@ legacy presentation uses the current shared legacy palette without creating anot
 The legacy adapter may be adopted independently after its compatible release gates.
 A branch or preview is not proof of a live migration or production activation.
 
+
+### Accepted thread policy and private identity separation — 14 October 2026
+
+ZURIEL selected in conversation: routing applies to the full original thread;
+verified replies to an already published thread inherit its chosen destinations;
+first-stage destinations are World, writer pages and NowBar; source content is text
+and original images. A new thread still starts in private reception. These are
+accepted policy choices, not live/public activation or implementation receipts.
+Thread-wide atomic routing, verified-reply distribution and authorized image delivery
+remain integration work; the current admin RPC persists per-occurrence draft intent only.
+
+Canonical source approval is private page_config.email_source_approved. It is not
+email_source_public, a published destination decision, global capability activation,
+account ownership, verification of research, or public profile visibility. Private
+identity/helper/provisioning migration is independently reviewable/applicable without
+public bridge RLS/readers/grants. New registrations use existing private contributors.
+Exact batch preflight reports source indices and canonical candidate IDs, never raw
+mailboxes. Ambiguous profiles and existing unlinked accounts require Person-owner
+reconciliation; provisioning stays atomic and does not create duplicates as a workaround.
+
+Native provider authentication is accepted only from the authenticated receiving API
+object bound to the received resource ID. From-aligned DKIM and DMARC must both pass;
+SPF, arbitrary headers, From allowlist alone, and copied authentication strings do not
+establish sender provenance. Missing/gray/fail proof remains private, even for approved
+mailboxes and published parents. A secure alternate path is submission by the canonical
+writer through existing authenticated site contributions, with its own source provenance;
+no unsolicited verification emails or automatic alternative publication is authorized.

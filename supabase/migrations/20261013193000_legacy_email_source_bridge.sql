@@ -22,7 +22,7 @@ language sql stable security definer set search_path=public,pg_temp as $$
   select public.email_source_mailbox_v1(c.id),true,c.slug,c.display_name,c.id
   from public.contributors c where c.active is true and c.merged_into is null
     and public.email_source_mailbox_v1(c.id)=lower(trim(p_mailbox))
-    and c.page_config->'email_source_public'='true'::jsonb
+    and c.page_config->'email_source_approved'='true'::jsonb
     and (select count(*) from public.contributors unique_author where unique_author.active is true
       and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=lower(trim(p_mailbox)))=1;
 $$;
@@ -49,6 +49,7 @@ returns boolean language sql stable security definer set search_path = public, p
       and u.page_only is false and (u.expires_at is null or u.expires_at > now())
       and c.active is true and c.merged_into is null
       and c.page_config->'email_source_public' = 'true'::jsonb
+      and c.page_config->'email_source_approved' = 'true'::jsonb
       and public.email_source_mailbox_v1(c.id) = i.from_email
       and (select count(*) from public.contributors unique_author where unique_author.active is true
         and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=i.from_email) = 1
@@ -127,6 +128,7 @@ begin
   select * into author from public.contributors c where c.active is true and c.merged_into is null
     and public.email_source_mailbox_v1(c.id)=mail.from_email;
   if author.page_config->'email_source_public' is distinct from 'true'::jsonb
+    or author.page_config->'email_source_approved' is distinct from 'true'::jsonb
     or src->'author'->>'contributor_id' is distinct from author.id::text then
     return jsonb_build_object('state','author_not_approved');
   end if;

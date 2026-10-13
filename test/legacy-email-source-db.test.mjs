@@ -33,8 +33,8 @@ await db.exec(await readFile('test/fixtures/contributorsFeed.sql','utf8'));
 assert.equal((await db.query("select enabled from site_flags where key='mail_source_publication'")).rows[0].enabled,false);
 await db.exec("update site_flags set enabled=true where key='mail_source_publication'");
 await db.query(`insert into contributors(id,slug,display_name,email,active,merged_into,page_config) values
-  ($1,'demo-a','כותב א','a@example.invalid',true,null,'{"email_source_public":true}'),
-  ($2,'demo-b','כותב ב','b@example.invalid',true,null,'{"email_source_public":true}')`,[authorA,authorB]);
+  ($1,'demo-a','כותב א','a@example.invalid',true,null,'{"email_source_public":true,"email_source_approved":true}'),
+  ($2,'demo-b','כותב ב','b@example.invalid',true,null,'{"email_source_public":true,"email_source_approved":true}')`,[authorA,authorB]);
 async function seed(id, overrides={}) {
   const contributor = overrides.contributor || authorA;
   const source = { id:`source-${id}`,parent_id:null,storage_key:`provider-${id}`,full_text:`טקסט ${id}`,
@@ -80,7 +80,7 @@ test('revocation immediately removes old sources from both RPC and direct anonym
   assert.deepEqual(direct.map(r=>r.text),['טקסט 2']);
   const rows=await anon('select * from email_source_threads_v1(1)');
   assert.equal(rows.length,1); assert.equal(rows[0].parent_id,'source-1');
-  await db.query(`update contributors set page_config='{"email_source_public":true}' where id=$1`,[authorA]);
+  await db.query(`update contributors set page_config='{"email_source_public":true,"email_source_approved":true}' where id=$1`,[authorA]);
 });
 test('RFC collision stays private and replay dedup leaves one public identity', async()=>{
   await seed(6,{source:{id:'source-1'}});
@@ -109,7 +109,7 @@ test('a newly ambiguous canonical mailbox immediately revokes existing mail read
 test('account-linked canonical authors resolve privately without copying mailbox into contributor fields',async()=>{
   const id='44444444-4444-4444-8444-444444444444';
   await db.query('insert into users values($1,$2)',[id,'linked@example.invalid']);
-  await db.query(`insert into contributors(id,slug,display_name,active,page_config,user_id) values($1,'linked','Linked',true,'{"email_source_public":true}',$1)`,[id]);
+  await db.query(`insert into contributors(id,slug,display_name,active,page_config,user_id) values($1,'linked','Linked',true,'{"email_source_public":true,"email_source_approved":true}',$1)`,[id]);
   const rows=(await db.query(`select * from email_source_author_v1('linked@example.invalid')`)).rows;
   assert.equal(rows.length,1);assert.equal(rows[0].contributor_id,id);
   await assert.rejects(()=>anon(`select * from email_source_author_v1('linked@example.invalid')`),/permission denied/);
@@ -152,4 +152,11 @@ test('future published projection only reaches the explicitly selected destinati
   assert.ok((await anon("select * from email_source_threads_v1(50,'world')")).every(row=>row.id!=='source-21'));
   assert.ok((await anon("select * from email_source_threads_v1(50,'writer')")).every(row=>row.id!=='source-21'));
   assert.deepEqual(await anon("select * from email_source_threads_v1(50,'unknown')"),[]);
+});
+test('private sender approval resolves an author but cannot publish or keep old public rows visible',async()=>{
+  await db.query(`update contributors set page_config='{"email_source_approved":true}' where id=$1`,[authorB]);
+  assert.equal((await db.query("select * from email_source_author_v1('b@example.invalid')")).rows.length,1);
+  assert.equal((await admit(21)).state,'author_not_approved');
+  assert.ok((await anon('select * from email_source_threads_v1(50)')).every(row=>row.author_key!=='demo-b'));
+  assert.ok((await anon('select * from channel_updates')).every(row=>row.contributor_id!==authorB));
 });
