@@ -20,6 +20,8 @@ on:
       - 'src/pages/Topic2029Page.jsx'
       - 'src/lib/research/worldGroupSource.js'
       - 'src/lib/research/worldGroupSource.test.js'
+      - 'scripts/test-world-group-source-http.sh'
+      - 'tests/sql/world_group_source_provenance_v2.sql'
       - 'scripts/test-2029-system-frame.mjs'
       - 'supabase/migrations/20261012170000_public_launch_closed_capabilities.sql'
       - 'supabase/migrations/20261013100000_world_group_source_repeat_projection_v3.sql'
@@ -39,6 +41,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: node --test src/lib/research/worldGroupSource.test.js
+      - name: Group source v3 real HTTP role acceptance on disposable fixtures
+        run: bash scripts/test-world-group-source-http.sh
       - run: node scripts/test-2029-system-frame.mjs
       - run: npm install --no-save --no-package-lock @playwright/test@1.55.0
       - run: npx playwright install --with-deps chromium
