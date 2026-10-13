@@ -1481,7 +1481,7 @@ export default function SystemFrame2029({
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
   // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
-  const feed = useSystemFeed2029({ enabled: surface !== "control" && !corePublicViewer });
+  const feed = useSystemFeed2029({ enabled: surface !== "control" });
   const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
@@ -1991,10 +1991,13 @@ export default function SystemFrame2029({
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || context?.subject);
-  const companionActive = companionWide && surface !== "control" && !corePublicViewer;
+  // Core-public launch permits this source-only Companion, not the admin Context/
+  // Golden Projector or Event Sequence. The existing public World/RLS readers remain
+  // the only source of truth; gated research and private controls stay inaccessible.
+  const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
-  const companionHasSequence = hasEventSequence(context, surface);
-  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
+  const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
+  const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
@@ -2170,7 +2173,7 @@ export default function SystemFrame2029({
               ) : null}
               {children}
             </main>
-            {showContextRail && !(companionActive && !numberPageRoute) ? <SurfaceContextRail2029
+            {showContextRail && !(companionActive && companionHasContext) ? <SurfaceContextRail2029
               surface={surface}
               context={context}
               focus={surfaceFocus || activeTarget}

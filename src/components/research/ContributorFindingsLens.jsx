@@ -4,8 +4,12 @@ import FindingSurface from "./FindingSurface.jsx";
 import { use2029Palette } from "../../lib/palette.js";
 import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } from "../../lib/designTokens.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
+import { galThumb } from "../../lib/img.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
+const genericSourceLabel = (text) => ["📷 עדכון", "🎬 עדכון וידאו", "עדכון"].includes(clean(text));
+const safeHttps = (value) => /^https:\/\/[^\s]+$/i.test(clean(value)) ? clean(value) : null;
+const videoMedia = (url) => /\.(mp4|mov|webm|m4v)([?#]|$)/i.test(url || "");
 
 const FACET_LABELS = Object.freeze({
   source: "מקור",
@@ -83,7 +87,7 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
         {findings.length ? <>
           <strong style={{ color: P.ink }}>{group.findingCount}</strong> ממצאים<br />
           <strong style={{ color: P.ink }}>{group.verifiedCount}</strong> עם אימות מנוע
-        </> : <span data-experience-capability="contributor-source-only">{researchUnavailable ? "מקור ציבורי · המחקר אינו זמין בתצוגה זו" : "מקור בלבד · אין ממצא מחקר מוצג"}</span>}
+        </> : <span data-experience-capability="contributor-source-only">מקור פתוח לקריאה</span>}
       </div>
     </header>
 
@@ -97,14 +101,19 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
       {group.terms?.length > 14 ? <span style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>+{group.terms.length - 14} ביטויים</span> : null}
     </div> : null}
 
-    {group.source?.text ? <section
+    {group.source?.text && !genericSourceLabel(group.source.text) ? <section
       data-experience-capability="contributor-source-fidelity"
       style={{ borderInlineStart: `3px solid ${P.accent}`, paddingInlineStart: SPACE[3] }}
     >
-      <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, fontWeight: 900, color: P.accentText, marginBottom: SPACE[1] }}>המקור · דברי החוקר</div>
+      <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, fontWeight: 900, color: P.accentText, marginBottom: SPACE[1] }}>מתוך המקור</div>
       <div style={{ ...TYPE_SCALE.body, fontFamily: F.body, whiteSpace: "pre-wrap", color: P.ink }}>{group.source.text}</div>
-      {(group.source.imageUrl || group.source.thumbUrl) ? <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginTop: SPACE[2] }}>יש מדיה מקורית שמורה במקור.</div> : null}
-    </section> : <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>מקור ללא טקסט שמור{group.source?.channel ? ` · ${group.source.channel}` : ""}</div>}
+    </section> : null}
+    {(safeHttps(group.source?.thumbUrl) || safeHttps(group.source?.imageUrl)) ? <div className="sod29-contributor-public-media">
+      {videoMedia(group.source?.imageUrl)
+        ? <video controls preload="none" poster={safeHttps(group.source?.thumbUrl) || undefined} src={safeHttps(group.source?.imageUrl) || undefined} aria-label="סרטון המקור" />
+        : <img src={safeHttps(group.source?.thumbUrl) || galThumb(safeHttps(group.source?.imageUrl), 320)}
+            width="220" height="145" loading="lazy" alt={group.title} />}
+    </div> : !group.source?.text ? <p style={{ ...TYPE_SCALE.small, fontFamily: F.body, color: P.inkSoft }}>אין תיאור זמין לעדכון הזה.</p> : null}
 
     {findings.length ? <details data-experience-capability="contributor-system-analysis">
       <summary style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink, cursor: "pointer", fontWeight: 800, marginBottom: SPACE[2] }}>ניתוח המערכת · {findings.length} ממצאים</summary>
@@ -124,9 +133,7 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
       {group.lexicalTags.slice(0, 18).map((tag) => <span key={tag} style={{ ...S.pill, color: P.inkSoft }}>{tag}</span>)}
     </footer> : null}
 
-    <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>
-      {findings.length ? null : "מקור ציבורי כפי שנשלח; פרסום מקור אינו אימות מחקרי. "}מצב: {group.topicState === "linked_topic" ? "מקושר להתכנסות" : "טרם צורף להתכנסות"}
-    </div>
+    {group.topicState === "linked_topic" ? <span style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>קשור לנושא קיים</span> : null}
   </article>;
 }
 
@@ -176,16 +183,16 @@ export default function ContributorFindingsLens({
     return rows;
   }, [projection, mode, world, query, recentDays]);
 
-  if (loading) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>טוען את ממצאי החוקר…</div>;
-  if (error) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>ממצאי החוקר לא נטענו כרגע. לא יוצג חומר חלופי במקום הנתונים החסרים.</div>;
-  if (!projection) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>לא נמצא חוקר לעדשה הזו.</div>;
+  if (loading) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>טוען את חומרי המקור…</div>;
+  if (error) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>המקורות לא נטענו כרגע. נסו שוב מאוחר יותר.</div>;
+  if (!projection) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>לא נמצאו מקורות להצגה.</div>;
 
   const availability = projection.availability || {};
   const unavailable = [
-    availability.research === "unavailable" ? "ממצאי המחקר" : null,
+    availability.research === "unavailable" && projection.mode === "admin_all" ? "נתונים נוספים" : null,
     availability.sources === "unavailable" ? "הודעות המקור" : null,
     availability.contributions === "unavailable" ? "התרומות" : null,
-    availability.topics === "unavailable" ? "ההתכנסויות" : null,
+    availability.topics === "unavailable" ? "הנושאים" : null,
   ].filter(Boolean);
   const countOrUnknown = (key, value) => (availability[key] === "unavailable" ? "—" : value);
   const worlds = Object.entries(projection.worldCounts || {}).sort((a, b) => b[1] - a[1]);
@@ -199,7 +206,7 @@ export default function ContributorFindingsLens({
     <header style={{ ...S.box, padding: SPACE[4] }}>
       <h2 style={{ margin: 0, ...TYPE_SCALE.title, fontFamily: F.ui }}>המקורות של {projection.contributor.displayName}</h2>
       <p style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: 0 }}>
-        {countOrUnknown("sources", projection.counts.sourceGroups)} מקורות זמינים · המקור פתוח לקריאה; ממצאים קשורים נפתחים בנפרד.
+        {countOrUnknown("sources", projection.counts.sourceGroups)} מקורות זמינים · לקריאה מתוך הפרסומים המקוריים.
       </p>
     </header>
 
@@ -212,9 +219,9 @@ export default function ContributorFindingsLens({
         {[
           ["recent", `חדש · ${recentDays} ימים`],
           ["all", "כל המקורות"],
-          ["verified", "עם אימות מנוע"],
-          ["topics", `התכנסויות · ${projection.counts.topics}`],
-        ].map(([key, label]) => <button
+          ["verified", "עם נתונים נוספים"],
+          ["topics", `נושאים · ${projection.counts.topics}`],
+        ].filter(([key]) => key !== "verified" || projection.counts.engineVerified > 0).map(([key, label]) => <button
           key={key}
           type="button"
           onClick={() => setMode(key)}
@@ -236,8 +243,8 @@ export default function ContributorFindingsLens({
       <input
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="חפש ביטוי, מספר, ממצא, עולם או תגית…"
-        aria-label="חיפוש בממצאי החוקר"
+        placeholder="חפש נושא, מספר, ביטוי או תגית…"
+        aria-label="חיפוש במקורות"
         style={{
           width: "100%",
           minHeight: LAYOUT.controlMinHeight,
@@ -259,7 +266,7 @@ export default function ContributorFindingsLens({
       </div>
     ) : groups.length ? (
       <div style={{ display: "grid", gap: SPACE[3] }}>
-        <label style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>בחירת מקור · {groups.length} תוצאות
+        <label style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>בחירת פרסום · {groups.length} תוצאות
           <select aria-label="בחירת מקור לקריאה" value={groups.some((g) => g.id === selectedId) ? selectedId : groups[0].id}
             onChange={(event) => setSelectedId(event.target.value)} style={{ ...S.action, display: "block", width: "100%", maxWidth: "100%", marginTop: SPACE[2] }}>
             {groups.map((group) => <option key={group.id} value={group.id}>{dt(group.createdAt, timeMode)} · {group.title}</option>)}
@@ -270,7 +277,7 @@ export default function ContributorFindingsLens({
     ) : <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>אין חומר במסנן הזה.</div>}
 
     <footer style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>
-      פרסום מקור אינו אימות מחקרי. רק ממצאים והתכנסויות המקושרים במפורש מוצגים כמחקר קשור.
+      ניתן לפתוח את הפרסום המקורי או נושא קיים.
     </footer>
   </section>;
 }

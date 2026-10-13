@@ -2,6 +2,7 @@ import WorldSourceConnections from '../components/research/WorldSourceConnection
 import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
+import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
@@ -14,7 +15,8 @@ import WorldConvergenceLens from "../components/research/WorldConvergenceLens.js
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
 import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
-import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
+
+import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -628,7 +630,6 @@ function LiveWorldLanding({ research, shell, context }) {
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
-  const [sourceDepthOpen, setSourceDepthOpen] = useState(false);
   const [catalogExpanded, setCatalogExpanded] = useState(false);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
@@ -640,6 +641,27 @@ function LiveWorldLanding({ research, shell, context }) {
   const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
   const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
+
+  // Deep links from the shared Companion use existing World source readers.
+  // Query params only choose a PUBLIC display focus; they never grant read access.
+  useEffect(() => {
+    const source = new URLSearchParams(location.search).get("source");
+    if (source === "tzvi-opoc") { setWriterFilter("tzvi-opoc"); setCorpusKey(null); }
+    else if (source === "sod-hashmal") { setCorpusKey("sod-hashmal"); setWriterFilter("all"); }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (landing.loading) return;
+    const source = new URLSearchParams(location.search).get("source");
+    const target = source === "tzvi-opoc" && writerFilter === "tzvi-opoc"
+      ? "world-contributor-material"
+      : source === "sod-hashmal" && corpusKey === "sod-hashmal"
+        ? "world-corpus-sod-hashmal" : null;
+    if (!target) return;
+    const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [landing.loading, location.search, writerFilter, corpusKey]);
+
 
   const load = async () => {
     setLanding((prev) => ({
@@ -1074,13 +1096,14 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
-      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a><a href="#world-all-convergences">עיון לפי נושא</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
+      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a><a href="#world-all-convergences">עיון לפי נושאים</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
     </section>
     <WorldFlightStory2029 research={research} shell={shell} />
     <WorldSourceStory research={research} shell={shell} compact />
     {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
     <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
       availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+    <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
     {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
 
     <section className="sod29-world-source-homes" id="world-source-homes" aria-label="המקורות והכותבים בעולם">
@@ -1111,10 +1134,11 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null}
 
     <WorldDiscoveryDoors />
-    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושא">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושא</div><h2>כל חיבור פותח עוד עולם.</h2>
+    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושאים">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושאים</div><h2>כל חיבור פותח עוד עולם.</h2>
         <p className="sod29-muted">בחרו נושא קיים כדי לראות אילו ביטויים, מספרים ומקורות נפגשים בו.</p></div>
         {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} התכנסויות ציבוריות</span> : null}</div>
+      <WorldPublicSourceSubjects2029 />
       <div className="sod29-world-catalog-controls">
         <label className="sod29-world-catalog-search"><span>מה מסקרן אותך?</span>
           <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="מספר, שם או נושא…" aria-label="חיפוש בכל ההתכנסויות" /></label>
@@ -1142,11 +1166,8 @@ function LiveWorldLanding({ research, shell, context }) {
           onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}
         {catalogExpanded && allConvergences.hasMore ? <button className="sod29-action" disabled={allConvergences.loadingMore}
           onClick={loadMoreConvergences}>{allConvergences.loadingMore ? "טוען עוד…" : "טען עוד נושאים"}</button> : null}
-        <button className="sod29-action" aria-expanded={sourceDepthOpen} aria-controls="world-source-depth"
-          onClick={() => setSourceDepthOpen(!sourceDepthOpen)}>{sourceDepthOpen ? "סגור את ספריית הנושאים" : "נושאים מתוך ספריית המקורות"}</button>
       </div>
     </section>
-    {sourceDepthOpen ? <WorldSourceDepth /> : null}
 
     {goldenJourneySection}
     <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
@@ -1232,14 +1253,14 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "גילוי נוסף" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
                 <strong>{item.label}</strong>
                 {item.summary ? <small>{item.summary}</small> : null}
                 {item.stateLabel ? <small>{item.stateLabel}</small> : null}
-                {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
+                {item.kind === "source" && item.researchCount > 0 ? <small>יש חיבורים נוספים למקור הזה</small> : null}
               </div>
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
               </>;
@@ -1255,14 +1276,14 @@ function LiveWorldLanding({ research, shell, context }) {
               return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
             })}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. פרסום מקור ≠ אימות מחקרי.</div>
+          <div className="sod29-world-stream-truth-note">העדכונים האחרונים מופיעים כאן, והחומר המלא נשאר בספריית המקורות. בחרו מקור כדי לקרוא ולהמשיך אל החיבורים שלו.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
           <div className="sod29-world-spatial-copy">
             <span className="sod29-kicker">לב העולם</span>
             <h3>לא רשימה — מרחב.</h3>
-            <p>כל שער הוא projection של אותה מציאות: מספרים, מקורות, אירועים, ספרים והתכנסויות.</p>
+            <p>כל שער פותח צד אחר של אותה מציאות: מספרים, מקורות, אירועים, ספרים וחיבורים.</p>
           </div>
           <WorldCoreMap
             sections={landing.sections}
@@ -1275,6 +1296,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </section>
 
     <WorldSourceStory research={research} shell={shell} />
+    <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
 
           {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
             key={spec.key}
@@ -1289,25 +1311,24 @@ function LiveWorldLanding({ research, shell, context }) {
       onOpen={openAnchorValue}
     />
 
-    <WorldSourceDepth />
 
-    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
+    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">נושאים, מקורות, מסעות וקשרים נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    {!landing.loading ? <section className="sod29-section sod29-world-people-section" id="world-researchers" aria-label="חוקרים וכתבים">
+    {!landing.loading ? <section className="sod29-section sod29-world-people-section" id="world-researchers" aria-label="כותבים ומקורות">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">מי מביא את החומר</div>
-          <h2>חוקרים וכתבים</h2>
-          <div className="sod29-muted">בחר חוקר כדי לראות קודם את חומר המחקר שמיוחס אליו. התכנסויות הן שכבה נוספת — לא תחליף לממצאים ולמקורות.</div>
+          <h2>כותבים ומקורות</h2>
+          <div className="sod29-muted">בחרו כותב כדי לקרוא את דבריו ולגלות לאילו נושאים ומקורות הם מתחברים.</div>
         </div>
 
       </div>
-      {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
-      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="בחירת חוקר או כותב">
+      {landing.contributorError ? <FrameState kind="unavailable" title="רשימת הכותבים אינה זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
+      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="בחירת כותב">
         <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
-          <strong>הכול</strong><small>ללא סינון חוקר</small>
+          <strong>הכול</strong><small>כל הכותבים</small>
         </button>
         {landing.contributors.people.map((person) => <button
           type="button"
@@ -1317,8 +1338,8 @@ function LiveWorldLanding({ research, shell, context }) {
           onClick={() => setWriterFilter(person.slug)}
         >
           <strong>{person.displayName}</strong>
-          <small>{person.role || "חוקר / כותב"}</small>
-          <span>פתח את חומר המחקר שלו בעולם</span>
+          <small>{person.role || "כותב"}</small>
+          <span>לקריאת המקורות והחיבורים שלו</span>
         </button>)}
       </div> : null}
     </section> : null}
@@ -1362,6 +1383,7 @@ function LiveWorldLanding({ research, shell, context }) {
         </span>
       </div>
 
+      <WorldPublicSourceSubjects2029 />
       <div className="sod29-world-catalog-controls">
         <label className="sod29-world-catalog-search">
           <span>חיפוש</span>
@@ -1409,12 +1431,12 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">מה נפגש כאן</div>
           <h2>{`${CONVERGENCES_LABEL} של ${selectedWriter.displayName}`}</h2>
-          <div className="sod29-muted">התכנסות היא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מחקר מתכנסים סביב אותו עוגן. קשר הוא יחס נקודתי בין דברים; הצלבה היא תוצאה חישובית מסוג אחר; התכנסות היא התמונה המחקרית הרחבה.</div>
+          <div className="sod29-muted">כאן מופיעים חיבורים מתועדים בין ביטויים, מספרים ומקורות. אפשר לפתוח כל נושא ולגלות את הקשרים שלו.</div>
         </div>
       </div>
       {writerMeetings.length ? <div className="sod29-book-grid">
         {writerMeetings.map((meeting) => <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}
-      </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש התכנסות שאין לה attribution ציבורי.</FrameState>}
+      </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>אפשר להמשיך לקרוא את המקורות של הכותב, גם כשאין עדיין נושא ציבורי מקושר.</FrameState>}
     </section> : null}
 
     {goldenJourneySection}

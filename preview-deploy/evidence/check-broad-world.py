@@ -81,14 +81,18 @@ with sync_playwright() as p:
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
             page.screenshot(path=str(out / f'{witness}-{width}.png'))
 
-        page.get_by_role('button', name='נושאים מתוך ספריית המקורות', exact=True).click()
-        depth = page.locator('#world-source-depth')
-        depth.scroll_into_view_if_needed()
-        expect(depth.get_by_role('heading', name='נושאים ומקורות', exact=True)).to_be_visible()
-        expect(depth.locator('.sod29-world-subject-card').filter(has_text='סוד החשמל')).to_be_visible()
-        depth.locator('.sod29-world-subject-card').filter(has_text='סוד החשמל').click()
-        expect(depth.locator('.sod29-world-subject-works li').first).to_be_visible()
-        assert 'אין עדיין קשר מתועד' in depth.inner_text()
+        # World 2029 semantic subjects: no categories-as-topics.
+        index = page.locator('#world-all-convergences [data-world-public-source-subjects]')
+        index.scroll_into_view_if_needed()
+        expect(index.get_by_role('heading', name='לגלות נושאים דרך המקורות')).to_be_visible()
+        expect(index.get_by_role('heading', name='נושאים מאושרים')).to_be_visible()
+        expect(index.get_by_role('heading', name='מקורות סוד החשמל')).to_be_visible()
+        expect(index.locator('a[href^="/topic/"]').first).to_be_visible()
+        expect(index.locator('a[href^="/post/"]').first).to_be_visible()
+        assert 'קטגוריות סוד החשמל' not in index.inner_text()
+        index.get_by_role('button', name='סוד החשמל', exact=True).click()
+        expect(index.locator('a[href^="/post/"]').first).to_be_visible()
+        assert index.locator('a[href^="/topic/"]').count() == 0
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
 
         page.locator('#world-journey-entry').get_by_role('link', name='878 · לתוך המילוי של משיח', exact=True).click()
@@ -97,7 +101,7 @@ with sync_playwright() as p:
         blocked = page.evaluate("""async()=>{const r=await fetch('https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_paths',{method:'POST',body:'{}'});return {status:r.status,blocked:r.headers.get('X-Preview-Write-Blocked')}}""")
         assert blocked == {'status': 403, 'blocked': 'true'}
         assert errors == []
-        case = {'width': width, 'sourceImages': 4, 'hashmalPublicSources': int(corpus_count), 'sourcePagination': [first_count, 48], 'tzvi': 'PASS', 'topic1237': 'PASS', 'readingReopenAfterReload': 'PASS', 'sourceCategoryNotTopic': 'PASS', 'number878': 'PASS', 'overflow': False, 'errors': errors, 'externalWritesBeforeGuardProbe': [], 'previewGuard': blocked}
+        case = {'width': width, 'sourceImages': 4, 'hashmalPublicSources': int(corpus_count), 'sourcePagination': [first_count, 48], 'tzvi': 'PASS', 'topic1237': 'PASS', 'readingReopenAfterReload': 'PASS', 'sourceIdentityNotTopic': 'PASS', 'number878': 'PASS', 'overflow': False, 'errors': errors, 'externalWritesBeforeGuardProbe': [], 'previewGuard': blocked}
         receipt['cases'].append(case)
         print(json.dumps(case, ensure_ascii=False), flush=True)
         context.close()
