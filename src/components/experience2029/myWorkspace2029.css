@@ -74,3 +74,36 @@
   .sod29-workspace-account-connected{grid-template-columns:auto 1fr}
   .sod29-workspace-account-connected>.sod29-action{grid-column:1/-1;width:100%}
 }
+
+/* Design V2: readable Hebrew and clear touch targets throughout My Workspace. */
+.sod29-workspace-home{gap:18px}
+.sod29-workspace-section-head{align-items:baseline;flex-wrap:wrap}
+.sod29-workspace-section-head strong{font-size:18px;line-height:1.45}
+.sod29-workspace-section-head small{font-size:14px;line-height:1.5}
+.sod29-workspace-core-grid,.sod29-workspace-secondary-grid{gap:12px}
+.sod29-workspace-home-card,.sod29-workspace-mini-card{min-width:0;min-height:72px;gap:12px;padding:15px;font-size:16px;line-height:1.5}
+.sod29-workspace-home-card{min-height:100px}
+.sod29-workspace-home-card>span:nth-child(2),.sod29-workspace-mini-card>span:nth-child(2){min-width:0}
+.sod29-workspace-home-card strong,.sod29-workspace-mini-card strong{font-size:16px}
+.sod29-workspace-home-card small,.sod29-workspace-mini-card small{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.sod29-workspace-home-card>b,.sod29-workspace-mini-card>b,.sod29-workspace-attention>b{font-size:14px}
+.sod29-workspace-home-card .icon{width:44px;height:44px}
+.sod29-workspace-home-card.is-live:hover,.sod29-workspace-mini-card.is-live:hover{border-color:var(--s29-accent)}
+.sod29-workspace-home-card:focus-visible,.sod29-workspace-mini-card:focus-visible,.sod29-workspace-list button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.sod29-workspace-pulse{gap:10px 14px;padding:16px}
+.sod29-workspace-pulse-id strong{font-size:18px;line-height:1.4}
+.sod29-workspace-pulse-id small,.sod29-workspace-pulse-stats small{font-size:14px;line-height:1.5}
+.sod29-workspace-pulse-stats span{min-width:72px;padding:9px 12px}
+.sod29-workspace-pulse-stats b{font-size:18px}
+.sod29-workspace-attention,.sod29-workspace-account{padding:16px}
+.sod29-workspace-badge,.sod29-workspace-list small,.sod29-workspace-sync-note{font-size:14px;line-height:1.5}
+.sod29-workspace-list button{min-height:44px;padding:11px 13px;font-size:16px;line-height:1.5}
+.sod29-workspace-follow-row .sod29-workspace-unfollow{min-height:44px;font-size:14px}
+.sod29-workspace-auth-copy strong{font-size:18px}
+.sod29-workspace-auth-copy small,.sod29-workspace-account-connected small,.sod29-workspace-account-connected p,.sod29-workspace-auth-message,.sod29-workspace-account-note{font-size:14px;line-height:1.5}
+.sod29-workspace-auth-form label{font-size:16px}
+.sod29-workspace-auth-form input{font-size:16px}
+.sod29-workspace-collection{min-height:44px;font-size:16px;line-height:1.5}
+@media(max-width:640px){
+  .sod29-workspace-core-grid,.sod29-workspace-secondary-grid{grid-template-columns:minmax(0,1fr)}
+}
