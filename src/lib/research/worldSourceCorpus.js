@@ -52,7 +52,6 @@ export function classifyCorpusRows(rows = []) {
       slug: clean(row.slug),
       title,
       excerpt: excerpt || null,
-      categories: Array.isArray(row.categories) ? row.categories.map(clean).filter(Boolean) : [],
       date: row.date || null,
       homeHidden: row.home_hidden === true,
       href: `/post/${encodeURIComponent(clean(row.slug))}`,
@@ -67,7 +66,7 @@ export async function fetchCorpusPage(spec, page = 0, { client = getPublicResear
   const from = page * CORPUS_PAGE_SIZE;
   const { data, error, count } = await client
     .from("posts")
-    .select("id,slug,title,excerpt,date,home_hidden,tags,categories", { count: "exact" })
+    .select("id,slug,title,excerpt,date,home_hidden,tags", { count: "exact" })
     .or(filter)
     .or(publicOnlyFilter())
     .order("date", { ascending: false, nullsFirst: false })
