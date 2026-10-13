@@ -468,6 +468,7 @@ function HomeBody() {
     projection={homeState.projection}
     loading={homeState.loading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
+    onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}

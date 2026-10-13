@@ -37,10 +37,21 @@ test('public Home keeps the adopted page and exposes the opening paths', async (
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-capability="home-composition"]')).toBeVisible();
   await expect(page.locator('[data-home-launch-notice="gradual-opening"]')).toBeVisible();
-  await expect(page.locator('[data-home-user-area="locked"]')).toBeVisible();
+  await expect(page.locator('[data-home-user-area="open"]')).toBeVisible();
   await expect(page.locator('[data-home-world="open"]')).toBeVisible();
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toBeVisible();
   await expect(page.locator('a[href="/els"]').first()).toBeVisible();
+  await page.locator('[data-home-user-area="open"]').click();
+  await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
+  await expect(page.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled', 'true');
+});
+
+test('public navigation opens the same user area', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'פתח ניווט' }).click();
+  await page.getByRole('button', { name: 'אזור משתמשים', exact: true }).click();
+  await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
 });
 
 test('posts, ELS, calculator and Number are reachable on mobile', async ({ page }) => {
@@ -50,14 +61,22 @@ test('posts, ELS, calculator and Number are reachable on mobile', async ({ page 
   await page.goto(`${BASE}/els`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-els-2029-surface="v1"]')).toBeVisible();
   await page.goto(`${BASE}/2029/gematria`, { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('[data-experience-surface="calculator-2029"]')).toBeVisible();
-  await page.getByPlaceholder('למשל: צוריאל').fill('שלום');
-  await expect(page.getByRole('button', { name: 'פתח דף מספר' })).toBeVisible();
-  await page.getByRole('button', { name: 'פתח דף מספר' }).click();
+  await expect(page.locator('[data-experience-surface="calculator-pro-2029"]')).toBeVisible();
+  await expect(page.getByText('צוריאל')).toHaveCount(0);
+  await page.getByPlaceholder('שם, מילה או ביטוי · עברית או English').fill('שלום');
+  await expect(page.locator('[data-experience-surface="calculator-pro-2029"] [data-share-url]')).toHaveAttribute('data-share-url', /\/2029\/gematria\/viral\?/);
+  await page.getByRole('button', { name: /גלה הכל על 376/ }).click();
   await expect(page).toHaveURL(/\/2029\/number\/376(?:\?|$)/);
   await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
+});
+
+test('existing gematria share links still open the shared result', async ({ page }) => {
+  await page.goto(`${BASE}/2029/gematria?q=${encodeURIComponent('שלום')}&m=${encodeURIComponent('רגיל')}&v=376&s=existing-share`, { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-experience-surface="calculator-2029"]')).toBeVisible();
+  await expect(page.locator('[data-experience-surface="calculator-pro-2029"]')).toHaveCount(0);
+  await expect(page.getByPlaceholder('שם, מילה או ביטוי')).toBeVisible();
 });
 
 test('World opens from Home and requests its grouped source reader', async ({ page }) => {

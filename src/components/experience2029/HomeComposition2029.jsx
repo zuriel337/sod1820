@@ -91,7 +91,7 @@ function Section({ title, link, label, children, className = "" }) {
 
 export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
-  selectedSlug, onSelectPost, journeyLocked = false, corePublic = false, worldOpen = false,
+  selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
 }) {
   const data = useHomeCompositionData({ includeWorld: !corePublic });
   const now = projection?.temporalNow || null;
@@ -199,7 +199,7 @@ export default function HomeComposition2029({
         {journeyLocked
           ? <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-life-journey="locked"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מסע החיים · נעול</span><small>ייפתח לאחר השלמת ההגדרה</small></div>
           : <Link className="h29-portion k29-rv" to="/2029/journey" data-home-life-journey="open"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>}
-        <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-user-area="locked"><span className="h29-portion-h"><NavigationIcon2029 name="community" />אזור משתמשים · נעול</span><small>ייפתח לאחר השלמת החיבור והבדיקות</small></div>
+        <button className="h29-portion k29-rv" type="button" onClick={onOpenWorkspace} data-home-user-area="open"><span className="h29-portion-h"><NavigationIcon2029 name="community" />האזור האישי שלי</span><small>חשבון, פרופיל והדברים ששמרתם</small></button>
       </div>
     </Section>
 

@@ -113,7 +113,7 @@ const HOME_NAV = [
   { to: "/heichal", label: "היכל", icon: "◇" },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
-  { label: "אזור משתמשים", icon: "◎", status: "נעול" },
+  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
 ];
 
 const DIRECT_NAV = [
@@ -128,7 +128,7 @@ const CORE_HOME_NAV = [
   { to: "/community/chat", label: "הצ׳אט הוותיק", icon: "◉" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
-  { label: "אזור משתמשים", icon: "◎", status: "נעול" },
+  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
 ];
 
 const CORE_DIRECT_NAV = [
@@ -1686,7 +1686,8 @@ export default function SystemFrame2029({
       setCommandQuery("");
       openCommand();
     }
-  }, [openCommand]);
+    if (action === "workspace") openTransient(TRANSIENT.WORKSPACE);
+  }, [openCommand, openTransient]);
 
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
@@ -2052,7 +2053,6 @@ export default function SystemFrame2029({
       locale={locale}
       onDone={closeTransient}
     /></PanelShell>;
-    if (corePublicViewer) return <PanelShell {...common} icon="◎" kicker="אישי" title="אזור משתמשים · נעול"><FrameState kind="gated" title="אזור המשתמשים בבנייה">האזור ייפתח בהדרגה לאחר השלמת החיבור והבדיקות.</FrameState><Link to="/login" onClick={closeTransient}>כניסת מנהל ←</Link></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
