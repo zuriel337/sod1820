@@ -29,10 +29,11 @@ test("automatic gateway membership comes ONLY from categories, not tags/keywords
 
 test("canonical followers cover each configured category and ELS without a second notification engine", () => {
   assert.match(gateway, /import WatchButton from/);
-  for (const category of ["שבילי שפה", "הצופן בסרטים", "צפונות בתורה", "מימד חמש"]) {
+  for (const category of ["שבילי שפה", "הצופן בסרטים", "צפונות בתורה"]) {
     assert.ok(gateway.includes(`category: "${category}"`));
   }
   assert.match(gateway, /topic: "codes:new"/);
+  assert.ok(gateway.includes('topic="cat:מימד חמש"'));
   assert.match(gateway, /noPush compact/);
   assert.doesNotMatch(gateway, /saveNotificationPrefs|watchToggle\(|\.upsert\(/);
 });
