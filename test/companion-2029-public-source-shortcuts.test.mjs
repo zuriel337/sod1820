@@ -33,10 +33,11 @@ test("World source selector changes view only, never source authorizations", () 
   assert.match(css, /sod29-or-geula-shortcut\.is-new/);
 });
 
-test("core-public visitor sees source Companion but not admin Projector or Event Sequence", () => {
+test("public visitor sees the authorized context Inspector, but not the admin Projector or Event Sequence", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
   assert.match(frame, /companionActive = companionWide && surface !== "control"/);
-  assert.match(frame, /companionHasContext = !corePublicViewer && showContextRail/);
+  assert.match(frame, /feed = useSystemFeed2029\(\{ enabled: surface !== "control" \}\)/);
+  assert.match(frame, /companionHasContext = showContextRail && !numberPageRoute/);
   assert.match(frame, /companionHasSequence = !corePublicViewer && hasEventSequence/);
   assert.match(frame, /showContextRail && !\(companionActive && companionHasContext\)/);
 });
