@@ -51,8 +51,28 @@ test("canonical followers cover each configured category and ELS without a secon
   }
   assert.match(gateway, /topic: "codes:new"/);
   assert.ok(gateway.includes('topic="cat:מימד חמש"'));
-  assert.match(gateway, /noPush compact/);
+  assert.match(gateway, /noPush variant="icon"/);
+  assert.match(gateway, /followTopics\.slice\(0, 1\)\.map\(followControl\)/);
+  assert.match(gateway, /followTopics\.slice\(1\)\.map\(followControl\)/);
+  assert.match(gateway, /dg29-head-follow/);
+  assert.doesNotMatch(gateway, /className="dg29-follow"/);
+  assert.ok(style.includes(".dg29-head-follow"));
+  assert.ok(style.includes(".dg29-secondary-row"));
   assert.doesNotMatch(gateway, /saveNotificationPrefs|watchToggle\(|\.upsert\(/);
+});
+
+test("Follow is the same canonical WatchButton with shared compact control projection", () => {
+  const watch = readFileSync(new URL("../src/components/WatchButton.jsx", import.meta.url), "utf8");
+  const sharedActions = readFileSync(new URL("../src/components/experience2029/contentActions2029.css", import.meta.url), "utf8");
+  const icons = readFileSync(new URL("../src/components/experience2029/NavigationIcon2029.jsx", import.meta.url), "utf8");
+  assert.match(watch, /variant === "icon"/);
+  assert.match(watch, /NavigationIcon2029 name="follow"/);
+  assert.match(watch, /aria-pressed={following}/);
+  assert.match(watch, /regCta/);
+  assert.match(sharedActions, /width:44px; height:44px/);
+  assert.match(sharedActions, /\[data-follow-state="following"\]/);
+  assert.match(sharedActions, /--s29-accent/);
+  assert.match(icons, /follow: <>/);
 });
 
 test("ELS uses canonical reader, source identity and replay, no duplicate research store", () => {
