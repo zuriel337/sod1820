@@ -791,8 +791,9 @@ test('browser: native and classic niqqud use aligned Torah marks without changin
       const current = window.__log.filter(m => m.type === 'state').at(-1);
       return current?.status === 'ok' && current.provenance?.editId === id && window.__oraclePending === 0;
     }, golden.id);
-    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#5465ff' }] });
-    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0 && window.__oraclePending === 0);
+    await nativeSend(page, { type: 'update-findings', requestId: 7841, findings: [{ t: 'אל', color: '#5465ff' }] });
+    await waitOperation(page, 'findings', 7841, 'done');
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0 && window.__oraclePending === 0, null, { timeout: 60_000 });
     const initial = await latestState(page);
     if (!initial.findings[0].hits.some(hit => hit.shown && hit.verified)) {
       const candidate = initial.findings[0].hits.find(hit => !hit.shown);
@@ -920,7 +921,8 @@ test('browser: optional native heat reflects verified display density, excludes 
     assert.ok(heated.matrix.heat.cells.some(cell => Math.floor(cell.i / geometry.S) === geometry.r0), 'the fixture exercises top-edge clipping');
 
     await page.evaluate(() => { window.__mode = 'down'; });
-    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#5465ff' }] });
+    await nativeSend(page, { type: 'update-findings', requestId: 8781, findings: [{ t: 'אל', color: '#5465ff' }] });
+    await page.waitForFunction(() => window.__log.some(message => message.type === 'operation' && message.kind === 'findings' && message.requestId === 8781 && ['done', 'error', 'empty'].includes(message.status)), null, { timeout: 60_000 });
     await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0);
     const candidateState = await latestState(page), candidate = candidateState.findings[0].hits.find(hit => !hit.shown) || candidateState.findings[0].hits[0];
     if (!candidate.shown) await nativeSend(page, { type: 'native-finding-control', term: 'אל', action: 'toggle-hit',
