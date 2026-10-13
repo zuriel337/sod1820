@@ -56,7 +56,7 @@ test('Legacy Number and phrase metadata use index admission without opening the 
             return { ok: true, json: async () => admitted };
           }
           assert.match(String(url), /\/number_anchors\?/);
-          return { ok: true, json: async () => [] };
+          return { ok: true, json: async () => [{ fact: 'עוגן מספר מאומת' }] };
         };
         const res = response(); await og({ query: { path, crawler: 'search' } }, res);
         assert.equal(res.statusCode, 200);
