@@ -2,6 +2,17 @@
 // גרדיאנט צבעוני ייחודי + האות הראשונה. מי שרוצה תמונה אמיתית שם avatar_url (גובר).
 // שימוש: <img src={avatar_url || genAvatar(display_name)} />.
 
+// Display only an explicit image URL returned by an authorized identity reader.
+// Never derive an image from a name/email or allow executable/local URL schemes.
+export function displayAvatarUrl(value) {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== "https:" || url.username || url.password || url.port) return null;
+    return url.href;
+  } catch { return null; }
+}
+
 function hash(s) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }

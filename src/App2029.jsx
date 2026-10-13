@@ -29,6 +29,16 @@ const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx
 const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
+const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
+
+// Design review on an existing document route; does not open public Community
+// navigation or require a competing edit to the deployment rewrite configuration.
+function HomeEntry2029() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).get("preview") === "community"
+    ? <Community2029Page />
+    : <Home2029Page />;
+}
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
@@ -100,7 +110,7 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
-              <Route path="/2029" element={<Home2029Page />} />
+              <Route path="/2029" element={<HomeEntry2029 />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />

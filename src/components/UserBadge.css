@@ -1,0 +1,6 @@
+.sod-user-badge{display:inline-flex;align-items:center;gap:10px;min-width:0;color:var(--user-badge-ink)}
+.sod-user-badge-copy{display:grid;gap:3px;min-width:0;text-align:start}
+.sod-user-badge-copy>strong{font-size:16px;line-height:1.4;overflow-wrap:anywhere}
+.sod-user-badge-copy>time{color:var(--user-badge-muted);font-size:14px;line-height:1.4}
+.sod-user-avatar{display:grid;place-items:center;flex:none;width:36px;height:36px;overflow:hidden;border-radius:50%;border:1px solid var(--user-badge-border);background:var(--user-badge-surface);color:var(--user-badge-accent);font-size:18px;font-weight:600}
+.sod-user-avatar img{display:block;width:100%;height:100%;object-fit:cover}
