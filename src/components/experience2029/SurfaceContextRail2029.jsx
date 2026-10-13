@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
-import GoldenProjectorModeLayer2029 from "./GoldenProjectorModeLayer2029.jsx";
+// Post surface only: loaded when a post rail actually renders.
+const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
   buildLearnHelpSeed,
@@ -254,7 +255,7 @@ export default function SurfaceContextRail2029({
       </div> : null}
       {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
-      {surface === "post" ? <GoldenProjectorModeLayer2029 context={context} surface={surface} /> : null}
+      {surface === "post" ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>
