@@ -8,7 +8,8 @@
   background: var(--s29-panel);
 }
 .dg29-gateway-head { display: flex; align-items: start; gap: 9px; min-width: 0; }
-.dg29-gateway-head > div { min-width: 0; }
+.dg29-gateway-head > .dg29-heading { min-width: 0; flex: 1 1 auto; }
+.dg29-head-follow { margin-inline-start: auto; flex: 0 0 44px; align-self: flex-start; }
 .dg29-gateway h3 { margin: 0; font: 600 16px/1.4 var(--s29-font-ui); }
 .dg29-gateway p { margin: 0; }
 .dg29-gateway-head p { color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
@@ -64,7 +65,7 @@
   border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel);
 }
 .dg29-dimension-head { display: flex; align-items: center; gap: 10px; }
-.dg29-dimension-head > div { min-width: 0; }
+.dg29-dimension-head > div { min-width: 0; flex: 1 1 auto; }
 .dg29-dimension-head h3 { margin: 0; font: 600 18px/1.4 var(--s29-font-ui); }
 .dg29-dimension-head p { margin: 0; color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
 .dg29-dimension-sources { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; min-width: 0; }
@@ -82,12 +83,16 @@
 .dg29-dimension-poster img { width: 100%; height: 100%; object-fit: contain; }
 .dg29-dimension-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; border-top: 1px solid var(--s29-line); padding-top: 8px; }
 .dg29-dimension-foot .dg29-gateway-action { border-top: 0; }
-.dg29-gateway-secondary { display: flex; align-items: center; min-height: 44px; font: 400 14px/1.4 var(--s29-font-ui); color: var(--s29-accent-text); }
+.dg29-secondary-row { display:flex; align-items:center; justify-content:space-between; gap:6px; min-width:0; }
+.dg29-gateway-secondary { display: flex; align-items: center; flex:1 1 auto; min-height: 44px; font: 400 14px/1.4 var(--s29-font-ui); color: var(--s29-accent-text); }
 .dg29-dimension a:focus-visible { outline: 2px solid var(--s29-discovery); outline-offset: 2px; }
 @container h29 (max-width: 1000px) { .dg29-dimension-sources { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @container h29 (max-width: 620px) { .dg29-dimension { padding: 10px; } .dg29-dimension-sources { grid-template-columns: minmax(0, 1fr); } }
 
-/* The canonical WatchButton is shared with the existing follow engine. */
-.dg29-follow { display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--s29-line);padding-top:8px; }
-.dg29-follow > div { flex:0 0 auto;max-width:100%; }
-.dg29-follow button { min-height:44px!important;max-width:100%;white-space:normal!important; }
+/* Follow controls use WatchButton's shared 2029 icon projection.
+   The action is in the heading or contextual ELS link, never a dedicated footer row. */
+.dg29-gateway .sod29-watch-icon-wrap,
+.dg29-dimension .sod29-watch-icon-wrap { max-width:44px; }
+.dg29-gateway-head .sod29-watch-icon,
+.dg29-dimension-head .sod29-watch-icon { flex-shrink:0; }
+.dg29-gateway .sod29-watch-icon-popover { min-width:min(280px,calc(100vw - 32px)); }
