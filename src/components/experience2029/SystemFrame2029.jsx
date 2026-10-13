@@ -1989,10 +1989,13 @@ export default function SystemFrame2029({
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els"
     && Boolean(activeTarget || context?.subject);
-  const companionActive = companionWide && surface !== "control" && !corePublicViewer;
-  const companionHasContext = showContextRail && !numberPageRoute;
-  const companionHasSequence = hasEventSequence(context, surface);
-  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
+  // Core-public launch permits this source-only Companion, not the admin Context/
+  // Golden Projector or Event Sequence. The existing public World/RLS readers remain
+  // the only source of truth; gated research and private controls stay inaccessible.
+  const companionActive = companionWide && surface !== "control";
+  const companionHasContext = !corePublicViewer && showContextRail && !numberPageRoute;
+  const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
+  const companionPinned = !corePublicViewer && (companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0));
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
