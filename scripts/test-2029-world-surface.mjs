@@ -108,9 +108,9 @@ assert.match(world, /onSearch=\{\(\) => shell\.openCommand\(\)\}/);
 assert.match(world, /aria-controls=\{landingSectionId\(facet\.key\)\}/);
 assert.match(world, /section\.scrollIntoView/);
 assert.match(world, /בחר שער כדי לקפוץ ישר אליו/);
-assert.match(world, /חוקרים וכתבים/);
+assert.match(world, /כותבים ומקורות/);
 assert.match(world, /world-auth-identity-bridge/, "World must expose account/admin identity state");
-assert.ok(world.indexOf("world-auth-identity-bridge") < world.indexOf("חוקרים וכתבים"), "World auth/admin identity must be visible before the lower researcher section");
+assert.ok(world.indexOf("world-auth-identity-bridge") < world.indexOf("כותבים ומקורות"), "World auth/admin identity must be visible before the lower researcher section");
 assert.match(world, /התחברות \/ מנהל/, "World guests need a visible bridge to the canonical login");
 assert.match(world, /href="\/login"/, "World login bridge must reuse the canonical legacy Auth route");
 assert.match(world, /isAdmin \? "מנהל" : "מחובר"/, "World must visibly distinguish an admin session from a regular signed-in session");
@@ -522,7 +522,7 @@ assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
 assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
 assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
 assert.ok(
-  world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
+  world.indexOf('aria-label="כותבים ומקורות"') < world.indexOf('id="world-admin-tools"'),
   "researcher/content discovery must appear before internal admin tooling",
 );
 assert.match(world, /controlMode \? <section id="world-admin-tools"/);
