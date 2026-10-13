@@ -10,7 +10,7 @@ import "./worldPublicSourceSubjects2029.css";
 // A subsection INSIDE World "עיון לפי נושא" — never a replacement for its
 // canonical convergence catalog. Sources remain sources, Topics remain Topics.
 const CHUNK = 18;
-const EMPTY = { loading: false, cards: [], totals: { zvi: null, hashmal: null }, error: false, incomplete: false };
+const EMPTY = { loading: true, cards: [], totals: { zvi: null, hashmal: null }, error: false, incomplete: false };
 
 export default function WorldPublicSourceSubjects2029() {
   const anchor = useRef(null);
