@@ -14,7 +14,10 @@ await db.exec(`
   create table public.contributors(id uuid primary key,slug text,display_name text,email text,
     active boolean,merged_into text,page_config jsonb,user_id uuid,kind text,
     source text,building boolean,engaged boolean,trusted boolean,dossier_settings jsonb,
-    updated_at timestamptz);
+    updated_at timestamptz,locked boolean,tags text[]);
+  create table public.els_records(created_at timestamptz,owner_user_id uuid,status text,search_term text);
+  create table public.posts(date timestamptz,author text);
+  create table public.research_contributions(created_at timestamptz,author_user_id uuid,author_name text,status text,parent_id uuid);
   create table public.inbound_emails(id bigint primary key,from_email text,meta jsonb);
   create table public.channel_updates(id uuid primary key default gen_random_uuid(),source text,status text,
     page_only boolean,expires_at timestamptz,channel text,text text,credit text,contributor_id uuid,
@@ -26,6 +29,7 @@ await db.exec(`
 `);
 await db.exec(await readFile('supabase/migrations/20261013193000_legacy_email_source_bridge.sql','utf8'));
 await db.exec(await readFile('supabase/migrations/20261013203500_provision_email_source_authors.sql','utf8'));
+await db.exec(await readFile('test/fixtures/contributorsFeed.sql','utf8'));
 assert.equal((await db.query("select enabled from site_flags where key='mail_source_publication'")).rows[0].enabled,false);
 await db.exec("update site_flags set enabled=true where key='mail_source_publication'");
 await db.query(`insert into contributors(id,slug,display_name,email,active,merged_into,page_config) values
@@ -120,7 +124,9 @@ test('exact thirteen provisioning is operator-only and creates private source id
   assert.equal(second.created_private_sources,0);assert.equal(second.reused,13);
   const rows=(await db.query("select * from contributors where source='email-approved-20261013'")).rows;
   assert.equal(rows.length,13);
-  assert.ok(rows.every(row=>row.dossier_settings.visibility==='private'&&row.user_id===null&&row.trusted===false&&row.building===true));
+  assert.ok(rows.every(row=>row.dossier_settings.visibility==='private'&&row.user_id===null&&row.trusted===false&&row.building===false&&row.kind==='private'));
+  const feed=await anon('select * from contributors_feed(100)');
+  assert.ok(feed.every(row=>!row.slug.startsWith('mail-source-')),'exact live definer reader must not list new private source identities');
 });
 test('duplicate or wrong-sized source approval batches fail atomically',async()=>{
   await assert.rejects(()=>db.query('select provision_email_source_authors_v1($1)',[JSON.stringify([])]),/thirteen/);

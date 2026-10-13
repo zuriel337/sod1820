@@ -96,7 +96,7 @@ Edge-runtime deployment, mobile/browser acceptance or production build receipt.
    contributor rows. Existing public/person metadata is otherwise preserved.
    Operator-only provision_email_source_authors_v1 validates exact count,
    uniqueness, inactive/merged/ambiguous identity gates and uses existing
-   contributors with private dossier visibility, building=true, trusted=false,
+   contributors with private dossier visibility, building=false, trusted=false,
    and user_id=NULL for new source registrations. It has NOT been applied yet.
    Actual names/addresses stay out of git and public handoffs.
 3. **Security owner review.** Reconcile PR1078's prior B1-B4 review against this
@@ -128,3 +128,17 @@ release. Deploying the private receiving adapter does not publish mail.
 Replays can repair derived admission after provisioning without overwriting
 original bodies, holds or read/reply state. Enable only with the exact approved
 legacy release and its remaining gates.
+
+## Independent privacy review correction
+
+Claude review 22bf9c5f blocked kind=source/building=true registration because
+the existing public contributors_feed SECURITY DEFINER bypassed dossier RLS.
+The provisioner now uses existing kind=private AND building=false. An isolated
+PostgreSQL test runs the exact live contributors_feed definition and proves
+new source identities are absent. Other reviewed anon definers: research_level_of
+requires a user_id (new sources have NULL); rc_normalize_author_name is a trigger
+on account-linked contributions; sync_writer_gematria_findings requires admin;
+studio_verify does not return names/contacts; studio_list has no new source
+content, and studio mutations require admin/access_code/user_id, all unavailable
+to anonymous callers for these new identities. No existing reader was changed.
+Re-review required before private author creation.

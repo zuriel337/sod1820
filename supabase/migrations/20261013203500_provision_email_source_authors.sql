@@ -43,8 +43,11 @@ begin
       -- or public member profile. Only attributed source words may become visible.
       insert into public.contributors(id,slug,display_name,email,kind,active,source,
         building,engaged,trusted,user_id,dossier_settings,page_config)
-      values(new_id,'mail-source-'||replace(new_id::text,'-',''),display,mailbox,'source',true,
-        'email-approved-20261013',true,false,false,null,
+      -- Legacy public contributors_feed also gates on kind; RLS alone is not
+      -- sufficient for its SECURITY DEFINER projection. Use the existing private
+      -- kind and never enlist these source identities into the public building feed.
+      values(new_id,'mail-source-'||replace(new_id::text,'-',''),display,mailbox,'private',true,
+        'email-approved-20261013',false,false,false,null,
         jsonb_build_object('visibility','private','identity_basis','approved_mailbox_source'),
         jsonb_build_object('version',1,'email_source_public',true));
       created:=created+1;
