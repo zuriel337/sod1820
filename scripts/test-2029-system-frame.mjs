@@ -140,9 +140,10 @@ assert.match(frame, /channels=\{\["native", "copy"\]\}/);
 assert.match(frame, /force/);
 
 // Navigation + the explicitly opened "מה חדש בעולם" panel may route to World.
+// The panel has a public-core link when World is open and the full-feed action.
 // Generic inspect/search/tool actions must still never force navigation to World.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 2, "Only main navigation and the user-opened World updates panel may link to World");
+assert.equal(worldLiteralCount, 3, "Only main navigation and the user-opened World updates panel may link to World");
 assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.
@@ -188,8 +189,14 @@ assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 // Design V2 typography must be real at runtime, not token-only.
-assert.match(shellHtml, /family=Rubik/);
-assert.match(shellHtml, /Noto\+Sans\+Hebrew/);
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Hebrew\.woff2'\)/);
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Latin\.woff2'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Hebrew.woff2")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Latin.woff2")), true);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Bold\.ttf'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Regular.ttf")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Bold.ttf")), true);
 assert.match(shellHtml, /IBM\+Plex\+Mono/);
 assert.equal(shellHtml.includes("family=Assistant"), false, "2029 runtime must not load Legacy Assistant as its primary font family");
 assert.match(baseCss, /DESIGN_V2_TYPOGRAPHY_ROOT/);

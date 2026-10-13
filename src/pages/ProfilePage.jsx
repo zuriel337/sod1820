@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "../components/ui.jsx";
@@ -15,6 +15,14 @@ export default function ProfilePage() {
   const P = usePalette();
   const { user, loading } = useAuth();
   const { open } = useUserCenter();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const requestedModule = params.get("module");
+  const allowedModules = new Set(["profile", "messages", "public-page", "page-editor", "credits", "contrib", "hints", "notifications"]);
+  const module = allowedModules.has(requestedModule) ? requestedModule : null;
+  const requestedReturn = params.get("returnTo") || "";
+  const returnTo = requestedReturn.startsWith("/") && !requestedReturn.startsWith("//") && !requestedReturn.includes("\\")
+    ? requestedReturn : "/";
 
   // 🔒 לא לאינדקס (SEO = דף החוקר הציבורי בלבד)
   useEffect(() => {
@@ -28,9 +36,9 @@ export default function ProfilePage() {
   useEffect(() => {
     if (loading || !user) return;
     const hash = (typeof window !== "undefined" && window.location.hash) || "";
-    const t = setTimeout(() => open(hash === "#notifications" ? "notifications" : null), 60);
+    const t = setTimeout(() => open(module || (hash === "#notifications" ? "notifications" : null)), 60);
     return () => clearTimeout(t);
-  }, [loading, user, open]);
+  }, [loading, user, open, module]);
 
   if (!loading && !user) {
     return (
@@ -63,7 +71,7 @@ export default function ProfilePage() {
           <button onClick={() => open("public-page")} style={ghost}>👑 הדף הפומבי שלי — צפה / ערוך</button>
         </div>
         <div style={{ marginTop: 22 }}>
-          <Link to="/" style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← חזרה לאתר</Link>
+          <Link to={returnTo} style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← חזרה לאתר</Link>
         </div>
       </div>
     </div>

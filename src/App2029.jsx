@@ -12,6 +12,7 @@ import Calculator2029Page from "./pages/Calculator2029Page.jsx";
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
 import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
+import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
@@ -98,6 +99,14 @@ function LegacyDocumentHandoff() {
   return <Loading2029 />;
 }
 
+function GematriaEntry2029() {
+  const { search } = useLocation();
+  // Existing shared result links retain their original result presentation.
+  return parseCalculatorShareState(search).isShared
+    ? <Calculator2029Page />
+    : <CalculatorPro2029Page />;
+}
+
 export default function App2029() {
   return (
     <AuthProvider>
@@ -112,10 +121,11 @@ export default function App2029() {
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
               {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}
-              <Route path="/2029/gematria" element={<Calculator2029Page />} />
+              <Route path="/2029/gematria" element={<GematriaEntry2029 />} />
+              <Route path="/2029/gematria/viral" element={<Calculator2029Page />} />
               <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
-              <Route path="/world" element={<World2029Page />} />
-              <Route path="/topic/:slug" element={<Topic2029Page />} />
+              <Route path="/world" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><World2029Page /></Locked>} />
+              <Route path="/topic/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
@@ -127,7 +137,7 @@ export default function App2029() {
               <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
-              <Route path="/researcher/:slug" element={<Researcher2029Page />} />
+              <Route path="/researcher/:slug" element={<Locked flag="lock_world" requireFlag homeHref="/2029"><Researcher2029Page /></Locked>} />
               <Route path="/2029/number/:value" element={<Number2029Page />} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />

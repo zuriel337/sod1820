@@ -230,6 +230,7 @@
 }
 .sod29-user-avatar.is-header{width:38px;height:38px}
 .sod29-user-avatar.is-rail{width:34px;height:34px}
+.sod29-user-avatar.is-normal{box-sizing:border-box;width:44px;height:44px}
 .sod29-user-avatar img{width:100%;height:100%;object-fit:cover}
 .sod29-user-avatar b{font-size:15px;line-height:1}
 .sod29-raziel-presence-button{position:relative}

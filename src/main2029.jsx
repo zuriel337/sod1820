@@ -11,8 +11,27 @@ if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
 
 initRuntimeErrorCapture();
 
-createRoot(document.getElementById("root")).render(
+const root = createRoot(document.getElementById("root"));
+async function warmLocalFonts() {
+  if (!document.fonts?.load) return;
+  let timeout;
+  try {
+    await Promise.race([
+      Promise.allSettled([
+        document.fonts.load('400 16px "Noto Sans Hebrew"', "אבג"),
+        document.fonts.load('700 16px "Noto Sans Hebrew"', "אבג"),
+        document.fonts.load('700 16px Rubik', "אבג"),
+        document.fonts.load('700 16px Rubik', "1237"),
+      ]),
+      new Promise((resolve) => { timeout = window.setTimeout(resolve, 1500); }),
+    ]);
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+warmLocalFonts().catch(() => {}).finally(() => root.render(
   <StrictMode>
     <App2029 />
   </StrictMode>,
-);
+));

@@ -63,6 +63,7 @@
 .h29-portions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
 .h29-portions > :first-child { grid-column: 1 / -1; margin: 0; }
 .h29-portion { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); }
+.h29-portion[type="button"] { text-align: start; color: inherit; cursor: pointer; }
 .h29-portion.is-locked { border-style: dashed; opacity: .72; }
 .h29-portion-h { display: flex; align-items: center; gap: 8px; font: 600 15px var(--s29-font-ui); }
 .h29-portion-h .sod29-ui-icon { width: 20px; height: 20px; color: var(--s29-accent-text); }
@@ -121,7 +122,8 @@
 }
 @container h29 (max-width: 620px) {
   .h29 { gap: 22px; }
-  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 16px; }
+  /* Reserve the final post hero height while its post and update metadata load. */
+  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 16px; min-height: 540px; }
   .h29-hero .h29-hero-img { justify-self: center; width: min(100%, 320px); }
   .h29-hero h1 { font-size: 21px; }
   .h29-updates, .h29-notable { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }

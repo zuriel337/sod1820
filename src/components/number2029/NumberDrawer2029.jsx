@@ -51,14 +51,13 @@ export default function NumberDrawer2029({
   go,
   openRaziel,
 } = {}) {
-  const targetNumber = target?.type === "number" && Number.isSafeInteger(Number(target?.id)) ? Number(target.id) : null;
+  const targetNumber = target?.type === "number" ? traceNumber(target?.id) : null;
   // A contextual Learn/Inspect handoff may carry an already-selected phrase + method + result.
   // These values seed selection/navigation only; NumberDrawer still fetches the canonical
   // method profile and trace before rendering calculation truth.
-  const targetResult = Number(target?.resultValue ?? target?.number);
-  const targetResultRoot = Number.isSafeInteger(targetResult) ? targetResult : null;
+  const targetResultRoot = traceNumber(target?.resultValue ?? target?.number);
   const targetMethodKey = clean(target?.method || target?.methodKey);
-  const contextRoot = context?.subject?.type === "number" && Number.isSafeInteger(Number(context.subject.id)) ? Number(context.subject.id) : null;
+  const contextRoot = context?.subject?.type === "number" ? traceNumber(context.subject.id) : null;
   const contextExpression = clean(context?.selection?.expression);
   const initialExpression = target?.type === "phrase" ? clean(target.expression || target.label || target.id) : (targetNumber != null ? "" : contextExpression);
   const initialMethodKey = targetMethodKey || clean(context?.selection?.method);
@@ -71,7 +70,7 @@ export default function NumberDrawer2029({
   const [originFocus, setOriginFocus] = useState(() => initialExpression ? {
     expression: initialExpression,
     methodKey: initialMethodKey || null,
-    root: Number.isSafeInteger(Number(initialRoot)) ? Number(initialRoot) : null,
+    root: traceNumber(initialRoot),
   } : null);
   const [dataState, setDataState] = useState({ loading: false, data: null, error: null, key: null });
   const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null });
@@ -103,7 +102,7 @@ export default function NumberDrawer2029({
     setOriginFocus(nextExpression ? {
       expression: nextExpression,
       methodKey: nextMethodKey || null,
-      root: Number.isSafeInteger(Number(nextRoot)) ? Number(nextRoot) : null,
+      root: traceNumber(nextRoot),
     } : null);
     setTraceOpen(false);
   }, [
@@ -233,9 +232,7 @@ export default function NumberDrawer2029({
     const expr = clean(expression);
     if (surfaceMode !== "focus" || !expr) return;
     const computed = traceNumber(selectedProfile?.computedValue);
-    const focusRoot = Number.isSafeInteger(Number(root))
-      ? Number(root)
-      : (Number.isSafeInteger(computed) ? computed : null);
+    const focusRoot = traceNumber(root) ?? computed;
     setOriginFocus({
       expression: expr,
       methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
@@ -485,12 +482,12 @@ export default function NumberDrawer2029({
       }) || rows[0] || null;
       setProfileState({ loading: false, rows, error: null });
       if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
-      const next = Number(regular?.computedValue);
-      if (Number.isSafeInteger(next)) setRoot(next);
+      const next = traceNumber(regular?.computedValue);
+      if (next != null) setRoot(next);
       setOriginFocus({
         expression: raw,
         methodKey: regular?.methodKey || null,
-        root: Number.isSafeInteger(next) ? next : null,
+        root: next,
       });
     } catch {
       // expression remains usable; profile effect owns the visible error state.
@@ -515,17 +512,17 @@ export default function NumberDrawer2029({
   };
 
   const openExplicitRoot = (value) => {
-    const next = Number(value);
-    if (!Number.isSafeInteger(next)) return;
+    const next = traceNumber(value);
+    if (next == null) return;
     if (surfaceMode === "focus" && clean(expression)) {
       setOriginFocus({
         expression: clean(expression),
         methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
-        root: Number.isSafeInteger(Number(root)) ? Number(root) : null,
+        root: traceNumber(root),
         traceOpen,
       });
     }
-    const sameRoot = Number.isSafeInteger(Number(root)) && Number(root) === next;
+    const sameRoot = root === next;
     setRoot(next);
     setInput(String(next));
     if (!sameRoot) {
@@ -542,7 +539,8 @@ export default function NumberDrawer2029({
     setExpression(originFocus.expression);
     setInput(originFocus.expression);
     setSelectedMethodKey(originFocus.methodKey || "");
-    if (Number.isSafeInteger(Number(originFocus.root))) setRoot(Number(originFocus.root));
+    const restoredRoot = traceNumber(originFocus.root);
+    if (restoredRoot != null) setRoot(restoredRoot);
     setTraceOpen(originFocus.traceOpen === true);
   };
 
@@ -567,6 +565,7 @@ export default function NumberDrawer2029({
   };
 
   const openPage = () => {
+    if (!Number.isSafeInteger(root)) return;
     updateContext();
     go?.(`/2029/number/${root}`);
   };
@@ -615,7 +614,7 @@ export default function NumberDrawer2029({
     <div className="sod29-number-drawer-mode" role="region" aria-label="מצב חלונית המספר" tabIndex={-1} ref={modeRef}>
       <div>
         <span>{surfaceMode === "focus" ? "FOCUS · איך זה מחושב" : "NUMBER PREVIEW · מה חי סביב המספר"}</span>
-        <strong>{surfaceMode === "focus" ? (clean(expression) || "ביטוי") : (Number.isSafeInteger(Number(root)) ? String(root) : "מספר")}</strong>
+        <strong>{surfaceMode === "focus" ? (clean(expression) || "ביטוי") : (Number.isSafeInteger(root) ? String(root) : "מספר")}</strong>
         <small>{surfaceMode === "focus"
           ? `${selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey) || "בחר שיטה"} · אותה חלונית, אותו הקשר`
           : "תצוגת המספר באותה חלונית · בלי לפתוח Drawer נוסף"}</small>
