@@ -53,6 +53,7 @@ test('real zero stays zero, invalid number never falls through to zero', async (
   const zero = page.locator('[data-experience-surface="number"][data-number-root="0"]');
   await expect(zero).toBeVisible({ timeout: 35_000 });
   // An unindexed Number may have no canonical Graph node. Do not invent one.
+  await expect(page.locator('[data-number-empty="true"], [data-number-core-root="0"]')).toBeVisible({ timeout: 35_000 });
   if (await zero.getAttribute('data-number-empty') === 'true') {
     await expect(zero).toContainText('אין עדיין חומר מחקרי מקושר ל־0');
     await expect(zero.locator('.sod29-number-zero-identity strong')).toHaveText('0');
