@@ -8,6 +8,10 @@ export function describeMessageLink(raw) {
   try { url = new URL(raw); } catch { return null; }
   if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) return null;
   const link = { kind: "link", href: url.href, host: url.hostname };
+  if (url.protocol === "https:" && url.hostname === "linswmnnkjxvweumprav.supabase.co") {
+    const file = /^\/storage\/v1\/object\/public\/gallery\/community\/[0-9a-f-]{36}\.(jpg|jpeg|png|webp|gif|pdf|txt|docx)$/i.exec(url.pathname);
+    if (file) return { ...link, kind: /^(jpg|jpeg|png|webp|gif)$/i.test(file[1]) ? "image" : "file", extension: file[1].toUpperCase() };
+  }
   if (url.port) return link;
   if (YOUTUBE_HOSTS.has(url.hostname)) {
     const candidate = url.hostname.endsWith("youtu.be") ? url.pathname.slice(1)

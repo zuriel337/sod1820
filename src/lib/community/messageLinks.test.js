@@ -28,3 +28,11 @@ test("preserves escaped prose and URL punctuation, deduplicates and bounds previ
   assert.deepEqual(previews.map((link) => link.kind), ["youtube", "link", "vimeo"]);
   assert.equal(previews[1].href, "https://example.com/path_(x)");
 });
+test("previews only files uploaded to the Community gallery path", () => {
+  const base = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/community/46a7a3ae-cd08-4441-893a-5ef57cda9a9e";
+  assert.equal(describeMessageLink(`${base}.gif`).kind, "image");
+  assert.equal(describeMessageLink(`${base}.pdf`).kind, "file");
+  assert.equal(describeMessageLink(`${base}.html`).kind, "link");
+  assert.equal(describeMessageLink(`${base}.svg`).kind, "link");
+  assert.equal(describeMessageLink("https://other.example/storage/v1/object/public/gallery/community/46a7a3ae-cd08-4441-893a-5ef57cda9a9e.gif").kind, "link");
+});

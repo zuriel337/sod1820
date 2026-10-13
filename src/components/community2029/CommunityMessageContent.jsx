@@ -5,6 +5,8 @@ function LinkPreview({ link }) {
   const [playing, setPlaying] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const provider = link.kind === "youtube" ? "YouTube" : "Vimeo";
+  if (link.kind === "image") return <a className="sod29-community-attachment-image" href={link.href} target="_blank" rel="noopener noreferrer" aria-label="פתיחת התמונה המצורפת"><img src={link.href} alt="תמונה שצורפה להודעה" loading="lazy" /></a>;
+  if (link.kind === "file") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong>📎 קובץ {link.extension}</strong><small>פתיחת הקובץ המצורף ↗</small></a>;
   if (link.kind === "link") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong dir="ltr">{link.host}</strong><span dir="ltr">{link.href}</span><small>פתיחת הקישור ↗</small></a>;
   return <div className="sod29-community-video-card">
     {playing ? <iframe src={link.embed} title={`סרטון ${provider}`} allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
@@ -20,7 +22,7 @@ export default function CommunityMessageContent({ text, previewsOnly = false }) 
   const parts = splitMessageLinks(text);
   const links = messageLinkPreviews(parts);
   return <>
-    {!previewsOnly ? <p className="sod29-community-body">{parts.map((part, index) => part.link ? <a key={index} dir="auto" href={part.link.href} target="_blank" rel="noopener noreferrer">{part.text}</a> : part.text)}</p> : null}
+    {!previewsOnly ? <p className="sod29-community-body">{parts.map((part, index) => part.link ? <a key={index} dir="auto" href={part.link.href} target="_blank" rel="noopener noreferrer">{part.link.kind === "image" ? "פתיחת התמונה המצורפת" : part.link.kind === "file" ? `פתיחת קובץ ${part.link.extension}` : part.text}</a> : part.text)}</p> : null}
     {links.length ? <div className="sod29-community-link-previews" aria-label="תצוגה מקדימה לקישורים">{links.map((link) => <LinkPreview key={link.key} link={link} />)}</div> : null}
   </>;
 }
