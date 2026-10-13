@@ -7,6 +7,7 @@ import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
 import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
+import MethodRing2029 from "./MethodRing2029.jsx";
 import "./numberCore2029.css";
 
 // The embedded Number window inherits the same semantic palette as its Frame.
@@ -433,6 +434,15 @@ export default function NumberCore2029({
       />
       <button type="submit">חפש ✦</button>
     </form> : null}
+    {smartRail && !compact ? <MethodRing2029
+      methods={primaryMethods}
+      activeKey={active?.methodKey || null}
+      loading={methodsLoading}
+      result={result}
+      activeLabel={active ? publicMethodLabel(active) : ""}
+      labelOf={publicMethodLabel}
+      onSelect={selectMethod}
+    /> : null}
     </div>
 
     {regularExpressions.length ? <section className={`sod29-number-v11-regular-rail${regularExpressions.length > 1 ? " has-overflow-hint" : ""}`} aria-label={`ביטויים רגילים על ${root}`}>

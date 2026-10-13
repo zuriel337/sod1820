@@ -235,3 +235,29 @@
 @container sod-number-hero (min-width:900px){
   .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-identity .sod29-number-v10-root{text-align:center;justify-self:center}
 }
+
+/* METHOD_RING_V1 (?rail=smart): six primary methods around the active result; shown only where the identity column exists. */
+.sod29-method-ring{display:none;margin:0;justify-items:center}
+@container sod-number-hero (min-width:900px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-method-ring,
+  .sod29-number-page[data-wide-layout="c"] .sod29-method-ring{display:grid}
+}
+.sod29-method-ring svg{width:100%;max-width:300px;height:auto;display:block;overflow:visible}
+.sod29-method-ring text{font-family:inherit}
+.sod29-method-ring .ring-halo{fill:color-mix(in srgb,var(--s29-accent) 5%,var(--s29-panel));stroke:color-mix(in srgb,var(--s29-accent) 18%,var(--s29-line));stroke-width:.8}
+.sod29-method-ring .ring-orbit{fill:none;stroke:color-mix(in srgb,var(--s29-line) 90%,transparent);stroke-width:1;stroke-dasharray:2 5}
+.sod29-method-ring .ring-spoke{stroke:color-mix(in srgb,var(--s29-line) 80%,transparent);stroke-width:1}
+.sod29-method-ring .ring-spoke.is-active{stroke:var(--s29-hero,var(--s29-accent));stroke-width:1.6;stroke-dasharray:4 4}
+.sod29-method-ring .ring-core circle{fill:color-mix(in srgb,var(--s29-hero,var(--s29-accent)) 8%,var(--s29-panel));stroke:color-mix(in srgb,var(--s29-hero,var(--s29-accent)) 45%,var(--s29-line));stroke-width:1.2}
+.sod29-method-ring .ring-core-label{fill:var(--s29-muted);font-size:11px;font-weight:800;letter-spacing:.04em}
+.sod29-method-ring .ring-core-value{fill:var(--s29-hero,var(--s29-ink));font-size:30px;font-weight:900;font-variant-numeric:tabular-nums}
+.sod29-method-ring .ring-core-caption{fill:var(--s29-muted);font-size:10px}
+.sod29-method-ring .ring-node{cursor:pointer;outline:none}
+.sod29-method-ring .ring-node circle{fill:var(--s29-panel);stroke:var(--s29-line);stroke-width:1.2;transition:stroke .15s,fill .15s}
+.sod29-method-ring .ring-node:hover circle,.sod29-method-ring .ring-node:focus-visible circle{stroke:var(--s29-accent)}
+.sod29-method-ring .ring-node:focus-visible circle{stroke-width:2.4}
+.sod29-method-ring .ring-node.is-active circle{stroke:var(--s29-hero,var(--s29-accent));stroke-width:2.2;fill:color-mix(in srgb,var(--s29-hero,var(--s29-accent)) 12%,var(--s29-panel))}
+.sod29-method-ring .ring-node-label{fill:var(--s29-muted);font-weight:700}
+.sod29-method-ring .ring-node-value{fill:var(--s29-ink);font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.sod29-method-ring .ring-node.is-placeholder circle{stroke-dasharray:3 4;fill:none}
+.sod29-method-ring.is-loading .ring-node{cursor:progress}
