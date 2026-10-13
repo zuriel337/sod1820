@@ -119,7 +119,7 @@ export default function CanonicalProgress({
     "--cp-on-accent": palette.onAccent,
     "--cp-accent-btn": palette.accentBtn,
     "--cp-progress": percent == null ? "38%" : `${Math.max(0, Math.min(100, percent))}%`,
-    fontFamily: F.body,
+    fontFamily: `var(--s29-font-body, ${F.body})`,
   };
 
   return (

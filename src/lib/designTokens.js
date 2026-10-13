@@ -33,7 +33,7 @@ export const TYPEFACE = Object.freeze({
   ui: "'Rubik','Noto Sans Hebrew',Arial,sans-serif",
   body: "'Noto Sans Hebrew','Rubik',Arial,sans-serif",
   display: "'Rubik','Noto Sans Hebrew',Arial,sans-serif",
-  numeric: "'IBM Plex Mono','Roboto Mono','Courier New',monospace",
+  numeric: "'IBM Plex Mono','Roboto Mono','Courier New','Rubik','Noto Sans Hebrew',monospace",
 });
 
 export const TYPE_SCALE_V2 = Object.freeze({
