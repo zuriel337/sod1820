@@ -15,6 +15,7 @@ test("2029 Home presents the four approved gateways exactly once", () => {
 });
 
 test("automatic gateway membership comes ONLY from categories, not tags/keywords", () => {
+  assert.match(gateway, /getPostsFromSupabase\(\{ category: "שבילי שפה"/);
   assert.match(gateway, /getPostsFromSupabase\(\{ category: "הצופן בסרטים"/);
   assert.match(gateway, /getPostsFromSupabase\(\{ category: "מימד חמש"/);
   assert.match(gateway, /getCategoryVideos\("צפונות בתורה"/);
