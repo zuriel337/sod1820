@@ -9,6 +9,8 @@ import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
 import { includesFollowSubject } from "../lib/followIdentity.js";
 import EmailVerify from "./EmailVerify.jsx";
+import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
+import "./experience2029/contentActions2029.css";
 
 // 🔔 WatchButton — הרכיב הקנוני היחיד של מנוע-המשפך (subscription_funnel_law).
 // חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
@@ -143,6 +145,27 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
       )}
     </div>
   );
+
+  // 2029 compact projection: same canonical follow state and identity steps.
+  // The hit area is 44x44, while the visual glyph remains a quiet 20px.
+  // Any guest-identity continuation opens on demand, not as a reserved extra row.
+  if (variant === "icon") {
+    const controlLabel = following
+      ? `עוקב: ${label}. לחץ לביטול המעקב`
+      : `הפעל מעקב: ${label}`;
+    return <div className="sod29-watch-icon-wrap" dir="rtl">
+      <button type="button" onClick={toggle} disabled={busy}
+        className="sod29-watch-icon" data-follow-state={following ? "following" : "idle"}
+        aria-label={controlLabel} title={controlLabel} aria-pressed={following}
+        aria-busy={busy || undefined}>
+        <NavigationIcon2029 name="follow" size={20} />
+      </button>
+      {regCta || pushOffer || pushDone
+        ? <div className="sod29-watch-icon-popover">
+          {regCta}{pushOffer}{pushDone}
+        </div> : null}
+    </div>;
+  }
 
   // ── אזור-מעקב קנוני (מובחן משיתוף, Value-First, שפה אחידה בכל האתר) ──
   if (gate) {

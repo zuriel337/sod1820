@@ -1,0 +1,26 @@
+/* Builds and public activity: one compact home conversion surface using the existing System Frame palette. */
+.hb29 { display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;min-width:0; }
+.hb29 > div { min-width:0; padding:16px; border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel); }
+.hb29 h2 { font:600 18px/1.4 var(--s29-font-ui);margin:4px 0 7px; }
+.hb29 p { font:400 15px/1.6 var(--s29-font-ui);margin:0 0 10px;color:var(--s29-muted); }
+.hb29 small { display:block;font:400 14px/1.5 var(--s29-font-ui);color:var(--s29-muted); }
+.hb29-meter-head { display:flex;justify-content:space-between;align-items:center;gap:8px;font:500 14px/1.4 var(--s29-font-ui);margin:12px 0 7px; }
+.hb29-meter-head b { font:600 18px var(--s29-font-numeric);color:var(--s29-accent-text); }
+.hb29-meter { height:7px;overflow:hidden;border-radius:10px;background:var(--s29-panel-soft);border:1px solid var(--s29-line);margin-bottom:7px; }
+.hb29-meter span { display:block;height:100%;background:var(--s29-accent);border-radius:10px; }
+.hb29-link { display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text)!important;font:500 14px var(--s29-font-ui); }
+.hb29-pulse { margin-top:8px; }
+.hb29-pulse .sod29-home-system-pulse { background:var(--s29-panel-soft);border-radius:10px;padding:10px; }
+.hb29-pulse .sod29-home-system-pulse-grid { gap:8px; }
+.hb29-form { margin-top:10px; }
+.hb29-form label { display:block;font:500 14px var(--s29-font-ui);margin-bottom:6px; }
+.hb29-field { display:flex;gap:7px;flex-wrap:wrap; }
+.hb29-field input { min-width:0;flex:1 1 160px;min-height:44px;border:1px solid var(--s29-line-strong);border-radius:9px;background:var(--s29-panel-soft);color:var(--s29-ink);font:400 16px var(--s29-font-ui);padding:0 12px; }
+.hb29-field button { min-height:44px;border:0;border-radius:9px;padding:0 14px;cursor:pointer;background:var(--s29-accent-btn);color:var(--s29-on-accent);font:600 14px var(--s29-font-ui); }
+.hb29-field button:disabled { opacity:.65;cursor:wait; }
+.hb29-field input:focus-visible,.hb29-field button:focus-visible,.hb29-link:focus-visible { outline:2px solid var(--s29-discovery);outline-offset:2px; }
+.hb29 .hb29-error { color:var(--s29-danger, var(--s29-ink));font-weight:500; }
+.hb29 .hb29-message { color:var(--s29-ink);font-weight:600; }
+.hb29-signup > small { margin-top:12px; }
+@container h29 (max-width: 760px) { .hb29 { grid-template-columns:1fr; } }
+@media (prefers-reduced-motion:reduce) { .hb29 * { transition:none!important; } }

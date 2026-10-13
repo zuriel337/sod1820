@@ -324,7 +324,7 @@ function HomeBody() {
 
   useEffect(() => {
     let live = true;
-    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
+    fetchHome2029Projection({ includeWorld: true, includeTemporal: true })
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
     return () => { live = false; };
@@ -371,7 +371,7 @@ function HomeBody() {
         currentYearValue: item.value,
       },
       returnTo: {
-        href: "/2029",
+        href: "/",
         label: "דף הבית",
         subject: null,
         selection: null,
@@ -411,7 +411,7 @@ function HomeBody() {
       lens: "world",
       journey: context?.journey || null,
       returnTo: {
-        href: "/2029", label: "דף הבית",
+        href: "/", label: "דף הבית",
         subject: context?.subject || null,
         selection: context?.selection || null,
         lens: context?.lens || "home",
@@ -458,7 +458,7 @@ function HomeBody() {
       subject: { id: String(post.slug), type: "post", label: post.title, href: `/post/${post.slug}` },
       selection: null,
       lens: "home",
-      returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
+      returnTo: { href: "/", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
     });
   };
 
@@ -471,15 +471,16 @@ function HomeBody() {
     onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
-    story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
-    arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
+    story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    arrivals={(homeArrivals) => <div className="h29-stream">
       <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
-        items={worldPreview?.arrivals || worldPreview?.items || []}
+        items={homeArrivals}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
-    entry={CORE_PUBLIC_LAUNCH_2029 ? null :
+    pulsePanel={<HomeSystemPulse pulse={homeState.projection?.systemPulse || null} loading={homeState.loading} />}
+    entry={
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
         <form className="sod29-command-bar" onSubmit={start}>
@@ -489,7 +490,7 @@ function HomeBody() {
         {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
       </section>
     }
-    continuity={CORE_PUBLIC_LAUNCH_2029 ? null : continuity}
+    continuity={continuity}
     journeyLocked={journeyLocked}
     selectedSlug={context?.subject?.type === "post" ? context.subject.id : null}
     onSelectPost={selectPost}
@@ -562,8 +563,8 @@ function HomeBody() {
 export default function Home2029Page() {
   useEffect(() => {
     applySeo(CORE_PUBLIC_LAUNCH_2029
-      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: "/2029" }
-      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: "/" }
+      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/" });
   }, []);
   return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;
 }

@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
-import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
+import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
@@ -15,6 +15,9 @@ import { useReveal } from "./useReveal2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
+import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
+import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";
+import { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
@@ -35,11 +38,11 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData({ includeWorld = true } = {}) {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], videos: [], dimensionPost: null, notable: [] });
+  const [state, setState] = useState({ loading: true, posts: [], notable: [] });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
-    getLatestPostCards({ limit: 4 }).then(async (posts) => {
+    getLatestPostCards({ limit: 16 }).then(async (posts) => {
       if (!live) return;
       const cards = Array.isArray(posts) ? posts : [];
       update({ loading: false, posts: cards });
@@ -59,10 +62,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
         categories: rowsBySlug[post.slug]?.categories || post.categories || [],
       })) });
     }).catch(() => update({ loading: false, posts: [] }));
-    getTzofonStories({ limit: 6 }).then((ciphers) => update({ ciphers: ciphers || [] })).catch(() => {});
     if (includeWorld) {
-      getHomeVideos({ limit: 6 }).then((videos) => update({ videos: videos || [] })).catch(() => {});
-      getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }).then((result) => update({ dimensionPost: result?.posts?.[0] || null })).catch(() => {});
       fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [] })).catch(() => {});
     }
     return () => { live = false; };
@@ -90,19 +90,33 @@ function Section({ title, link, label, children, className = "" }) {
 }
 
 export default function HomeComposition2029({
-  projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
+  projection, loading, nowHero, story, arrivals, calculator, entry, continuity, pulsePanel,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
 }) {
-  const data = useHomeCompositionData({ includeWorld: !corePublic });
+  const data = useHomeCompositionData({ includeWorld: worldOpen });
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
   const lead = data.posts[0] || null;
+  const heroPostSlug = nowHero ? null : lead?.slug;
+  const showFixedStory = Boolean(story) && heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";
+
+  // Display priority, shared across all Home blocks: Hero > dedicated story > updates
+  // > source arrivals > discovery gateways. Same Post = one representation on Home.
+  let reserved = new Set();
+  if (heroPostSlug) reserved = reserveHomePost(reserved, lead);
+  if (showFixedStory) reserved = reserveHomePost(reserved, { slug: "flydubai-fz1073-363-14000-remzei-geula" });
+  const latestPlacement = claimHomeItems(data.posts, reserved, 4);
+  const visiblePosts = latestPlacement.items;
+  const sourceRows = projection?.worldPreview?.arrivals || projection?.worldPreview?.items || [];
+  const sourcePlacement = claimHomeItems(sourceRows.filter(item => item.kind === "source"), latestPlacement.reserved, 4);
+  const homeArrivals = sourcePlacement.items;
+  const reservedPostKeys = [...sourcePlacement.reserved];
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
   return <div className="h29" data-experience-capability="home-composition">
-    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={!corePublic} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
+    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
@@ -111,10 +125,10 @@ export default function HomeComposition2029({
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
       <div className="h29-updates">
-        {data.posts.map((post, index) => {
+        {visiblePosts.map((post, index) => {
           const unseen = Boolean(post.update) && !seen[post.update.key];
-          // One pulse at a time: the first card repeats the main item (which pulses itself), so only the first other unseen update pulses.
-          const pulses = unseen && index === data.posts.findIndex((item, i) => i > 0 && item.update && !seen[item.update.key]);
+          // One pulse at a time, only among visible updates (never the featured Hero).
+          const pulses = unseen && index === visiblePosts.findIndex(item => item.update && !seen[item.update.key]);
           return <article key={post.slug} style={{ "--i": index }} className={`h29-card k29-rv${selectedSlug === post.slug ? " is-selected" : ""}${pulses ? " is-pulse" : ""}`}>
             <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>
               <Media src={post.poster} fallback={post.number || "✦"} />
@@ -130,7 +144,7 @@ export default function HomeComposition2029({
       </div>
     </Section>
 
-    {!corePublic && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
+    {worldOpen && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
       <div className="h29-notable">
         {data.notable.map((card, index) => {
@@ -149,44 +163,20 @@ export default function HomeComposition2029({
       </div>
     </Section> : null}
 
-    {story ? <Reveal id="story">{story}</Reveal> : null}
+    {story && showFixedStory ? <Reveal id="story">{story}</Reveal> : null}
 
-    <Section label="צפנים וסרטים">
-      <div className="h29-strips">
-        <div className="h29-strip k29-rv">
-          <div className="h29-sec-h"><h2>הצפנים האחרונים בתורה</h2><Link to="/els">כל הצפנים ←</Link></div>
-          <div className="h29-strip-row">
-            {data.ciphers.map((cipher) => <Link key={cipher.id} className="h29-tile" to={postHref(cipher.link_url)}>
-              <Media src={cipher.thumb_url} fallback="✦" /><span>{clean(cipher.text)}</span>
-            </Link>)}
-            {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
-          </div>
-        </div>
-        {!corePublic ? <div className="h29-strip k29-rv">
-          <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><a href="/archive">כל הסרטים ←</a></div>
-          <div className="h29-strip-row">
-            {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? `/${video.slug}` : "/archive"}>
-              <Media src={video.poster_url || (video.yt ? `https://i.ytimg.com/vi/${video.yt}/hqdefault.jpg` : null)} fallback="▶" />
-              <span>{clean(video.title)}</span>
-            </a>)}
-            {!data.loading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
-          </div>
-        </div> : null}
-      </div>
-    </Section>
+    <DiscoveryGateways2029 excludedPostKeys={reservedPostKeys} />
 
-    {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
+    {arrivals ? <Reveal id="arrivals">{typeof arrivals === "function" ? arrivals(homeArrivals) : arrivals}</Reveal> : null}
 
-    {!corePublic ? <Section label="מוקדי זהות">
+    <Section label="כותבים וערוצים">
       <div className="h29-anchors">
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
-        <Link className="h29-anchor k29-rv" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/2029/posts"}><span className="h29-glyph is-dim"><NavigationIcon2029 name="cosmos" /></span>
-          <span><b>מימד חמש</b><small>{data.dimensionPost ? clean(data.dimensionPost.title) : "עשר הספירות, מפת ישראל ותודעה"}</small></span></Link>
         <a className="h29-anchor k29-rv" href="/or-geula"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>אור הגאולה</b><small>רמזי הגאולה לאורך השנים</small></span></a>
       </div>
-    </Section> : null}
+    </Section>
 
     <Section label="כלים וכניסות">
       <div className="h29-portions">
@@ -202,6 +192,8 @@ export default function HomeComposition2029({
         <button className="h29-portion k29-rv" type="button" onClick={onOpenWorkspace} data-home-user-area="open"><span className="h29-portion-h"><NavigationIcon2029 name="community" />האזור האישי שלי</span><small>חשבון, פרופיל והדברים ששמרתם</small></button>
       </div>
     </Section>
+
+    <HomeBuildSignup2029 pulsePanel={pulsePanel} />
 
     {entry}
     {continuity}
