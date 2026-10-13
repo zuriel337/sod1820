@@ -189,10 +189,10 @@ export default function ContributorFindingsLens({
 
   const availability = projection.availability || {};
   const unavailable = [
-    availability.research === "unavailable" ? "ממצאי המחקר" : null,
+    availability.research === "unavailable" && projection.mode === "admin_all" ? "נתונים נוספים" : null,
     availability.sources === "unavailable" ? "הודעות המקור" : null,
     availability.contributions === "unavailable" ? "התרומות" : null,
-    availability.topics === "unavailable" ? "ההתכנסויות" : null,
+    availability.topics === "unavailable" ? "הנושאים" : null,
   ].filter(Boolean);
   const countOrUnknown = (key, value) => (availability[key] === "unavailable" ? "—" : value);
   const worlds = Object.entries(projection.worldCounts || {}).sort((a, b) => b[1] - a[1]);
@@ -206,7 +206,7 @@ export default function ContributorFindingsLens({
     <header style={{ ...S.box, padding: SPACE[4] }}>
       <h2 style={{ margin: 0, ...TYPE_SCALE.title, fontFamily: F.ui }}>המקורות של {projection.contributor.displayName}</h2>
       <p style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: 0 }}>
-        {countOrUnknown("sources", projection.counts.sourceGroups)} מקורות זמינים · הלקריאה מתוך הפרסומים המקוריים.
+        {countOrUnknown("sources", projection.counts.sourceGroups)} מקורות זמינים · לקריאה מתוך הפרסומים המקוריים.
       </p>
     </header>
 
@@ -221,7 +221,7 @@ export default function ContributorFindingsLens({
           ["all", "כל המקורות"],
           ["verified", "עם נתונים נוספים"],
           ["topics", `נושאים · ${projection.counts.topics}`],
-        ].map(([key, label]) => <button
+        ].filter(([key]) => key !== "verified" || projection.counts.engineVerified > 0).map(([key, label]) => <button
           key={key}
           type="button"
           onClick={() => setMode(key)}
