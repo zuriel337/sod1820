@@ -3,7 +3,10 @@
 // פרטיות: בלי IP / בלי PII. מזהה-גולש = מחרוזת אקראית ב-localStorage (לספירת ייחודיים בלבד).
 import { supabase } from "./supabase.js";
 import { emit, isBot } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events), בלי לגעת בישן
-import { getDayContext, annotateTrafficRows, attachTrafficDayContext, annotateTrafficPayloadDaily } from "./dayContext.js";
+// dayContext מושך את @hebcal/core (~650KB מקור) — נטען רק כשצריך, לא בחבילה הראשית של כל דף.
+// החישוב עצמו זהה; רק מועד הטעינה השתנה (פונקציות מנהל async ממילא).
+let dayContextModule;
+const loadDayContext = () => (dayContextModule ||= import("./dayContext.js"));
 // IDENTITY_UNIFICATION_V1: מפסיקים ליצור מזהה-מבקר נפרד ("sod_visitor") — זה היה
 // שכפול-בטעות של שכבת ה-Browser Visitor, ש-visitorId.js כבר "בעלים יחיד" שלה לפי
 // החוזה שלו (ONE TREE). לא מוחקים את המפתח הישן (מבקרים קיימים עם sod_visitor
@@ -57,8 +60,8 @@ export async function trackVisit(path) {
 }
 
 // 🌙🕯️ הקשר-יום משותף לכל צרכני התנועה. READ/PURE בלבד — לא משנה policy או classification.
-export function getTrafficDayContext(day = new Date()) {
-  return getDayContext(day);
+export async function getTrafficDayContext(day = new Date()) {
+  return (await loadDayContext()).getDayContext(day);
 }
 
 // ── שני מונים אחידים (מנהל) ─────────────────────────────────────────────────
@@ -67,7 +70,7 @@ export async function getVisitsTwoMeter(days = 21) {
   if (!supabase) return [];
   const { data, error } = await supabase.rpc("visits_two_meter", { p_days: days });
   if (error) throw error;
-  return annotateTrafficRows(data || []);
+  return (await loadDayContext()).annotateTrafficRows(data || []);
 }
 // (ב) הרכב-תנועה אחיד ל-3 שבועות מ-edge_geo_log (יחידות-בקשות, ה-middleware מתעד הכל):
 //     total(כולל בוטים) · humans(browser) · bots(bot+goodbot). אחיד לכל התקופה, בלי מדרגה.
@@ -75,14 +78,14 @@ export async function getTrafficComposition(days = 21) {
   if (!supabase) return [];
   const { data, error } = await supabase.rpc("traffic_composition", { p_days: days });
   if (error) throw error;
-  return annotateTrafficRows(data || []);
+  return (await loadDayContext()).annotateTrafficRows(data || []);
 }
 // 🕷️ Crawl Intelligence — מגמות בוטים: מוגש/חסום · לפי בוט · Top דליי-תוכן · מי-סורק.
 export async function getCrawlIntel(days = 7) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_crawl_intel", { p_days: days });
   if (error || data?.error) return null;
-  return annotateTrafficPayloadDaily(data || null);
+  return (await loadDayContext()).annotateTrafficPayloadDaily(data || null);
 }
 // (ג) פירוט יום נבחר (לחיצה על עמודה): דפים (site_visits) · מקורות-הגעה (events) · מדינות (edge_geo_log).
 export async function getTrafficDayDetail(day) {
@@ -90,10 +93,10 @@ export async function getTrafficDayDetail(day) {
   const { data, error } = await supabase.rpc("traffic_day_detail", { p_day: day });
   if (error) throw error;
   if (Array.isArray(data)) {
-    const ctx = getDayContext(day);
+    const ctx = (await loadDayContext()).getDayContext(day);
     return (data || []).map((row) => row && typeof row === "object" ? { ...row, day_context: ctx } : row);
   }
-  return attachTrafficDayContext(data || null, day);
+  return (await loadDayContext()).attachTrafficDayContext(data || null, day);
 }
 
 // קריאת אגרגציה (למנהל בלבד — נחסם ב-DB ל-anon).
@@ -101,7 +104,7 @@ export async function getVisitStats(days = 90) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("visits_stats", { p_days: days });
   if (error) throw error;
-  return annotateTrafficPayloadDaily(data);
+  return (await loadDayContext()).annotateTrafficPayloadDaily(data);
 }
 
 // פירוט דפים/מקורות עבור יום (או חודש) בודד שנבחר בגרף (key תואם sel.key).
@@ -135,7 +138,7 @@ export async function getGrowthCenter(days = 30) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_growth_center", { p_days: days });
   if (error) throw error;
-  return annotateTrafficPayloadDaily(data);
+  return (await loadDayContext()).annotateTrafficPayloadDaily(data);
 }
 
 // ── 🩺 עומסים ותשתית (מנהל) — תנועת-גולשים יומית מול עומס-רקע שעתי (cron) ──
@@ -144,7 +147,7 @@ export async function getInfraLoad(days = 10, hours = 48) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_infra_load", { p_days: days, p_hours: hours });
   if (error) throw error;
-  return annotateTrafficPayloadDaily(data);
+  return (await loadDayContext()).annotateTrafficPayloadDaily(data);
 }
 
 // 🚀 טבלת-השגרירים — מי מפיץ קישורים (rid) ומביא אנשים/הרשמות. עצמאי מ-getGrowthCenter
@@ -198,7 +201,7 @@ export async function getEntriesDaily(days = 30) {
   if (!supabase) return [];
   const { data, error } = await supabase.rpc("admin_entries_daily", { p_days: days });
   if (error) throw error;
-  return annotateTrafficRows(data || []);
+  return (await loadDayContext()).annotateTrafficRows(data || []);
 }
 export async function getEntriesBreakdown(days = 30) {
   if (!supabase) return null;
@@ -210,7 +213,7 @@ export async function getEntryDayDetail(day) {
   if (!supabase || !day) return [];
   const { data, error } = await supabase.rpc("admin_entries_day_detail", { p_day: day });
   if (error) throw error;
-  const ctx = getDayContext(day);
+  const ctx = (await loadDayContext()).getDayContext(day);
   return (data || []).map((row) => row && typeof row === "object" ? { ...row, day_context: ctx } : row);
 }
 export async function getMeasurementGap(days = 30) {
@@ -231,7 +234,7 @@ export async function getEntriesSeries(gran = "day") {
   if (!supabase) return [];
   const { data, error } = await supabase.rpc("admin_entries_series", { p_gran: gran });
   if (error) throw error;
-  return gran === "day" ? annotateTrafficRows(data || [], ["day", "date", "period"]) : (data || []);
+  return gran === "day" ? (await loadDayContext()).annotateTrafficRows(data || [], ["day", "date", "period"]) : (data || []);
 }
 // פאזה 2: Funnel התנהגותי + Insights אוטומטיים (על נטו-אנושי)
 export async function getFunnel(days = 30) {
@@ -251,7 +254,7 @@ export async function getCommandCenter() {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc("admin_command_center");
   if (error) throw error;
-  return attachTrafficDayContext(data || null);
+  return (await loadDayContext()).attachTrafficDayContext(data || null);
 }
 // 🩺 G3_2029_CONTROL_PLANE_FOUNDATION_V1 — bounded admin health projection; no UI coupling.
 export async function getSystemHealth() {
@@ -383,7 +386,7 @@ export async function getGaInsights(days = 28) {
   const r = await fetch(`/api/ga-insights?days=${days}`, { headers: { Authorization: "Bearer " + token } });
   if (!r.ok) throw new Error("ga-insights " + r.status);
   const payload = await r.json();
-  return annotateTrafficPayloadDaily(payload);
+  return (await loadDayContext()).annotateTrafficPayloadDaily(payload);
 }
 
 // ── Vercel Web Analytics — מקור משלים, read-only, דרך endpoint אדמין בצד-שרת ──
@@ -396,7 +399,7 @@ export async function getVercelInsights(days = 30) {
   const r = await fetch(`/api/vercel-insights?days=${days}`, { headers: { Authorization: "Bearer " + token } });
   if (!r.ok) throw new Error("vercel-insights " + r.status);
   const payload = await r.json();
-  return annotateTrafficPayloadDaily(payload);
+  return (await loadDayContext()).annotateTrafficPayloadDaily(payload);
 }
 
 // ── סנכרון Google Analytics → traffic_history (source='ga') דרך api/ga-sync ──
