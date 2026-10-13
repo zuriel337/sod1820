@@ -72,20 +72,18 @@
   }
   .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-identity{
     grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"root" "expr" "seal";
     justify-items:center;
     text-align:center;
     gap:10px;
     padding:20px 14px 16px;
   }
-  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root{order:1;min-width:0}
-  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-expression{order:2}
-  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-life-seal{order:3}
-  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root b{
-    font-size:clamp(54px,4.8cqw,76px);
+    .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root b{
+    font-size:clamp(48px,20cqi,68px);
     line-height:1;
   }
   .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-expression>strong{
-    font-size:clamp(20px,1.9cqw,28px);
+    font-size:clamp(20px,8cqi,28px);
   }
   .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-search{
     grid-template-columns:minmax(0,1fr);
@@ -119,6 +117,7 @@
   }
   .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-identity{
     grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"root" "expr" "seal";
     justify-items:center;
     text-align:center;
     gap:8px;
@@ -126,15 +125,12 @@
     border-color:transparent;
     background:transparent;
   }
-  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-root{order:1;min-width:0}
-  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-expression{order:2}
-  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-life-seal{order:3}
-  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-root b{
-    font-size:clamp(104px,11cqw,180px);
+    .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-root b{
+    font-size:clamp(96px,22cqi,168px);
     line-height:.95;
   }
   .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-expression>strong{
-    font-size:clamp(24px,2.4cqw,36px);
+    font-size:clamp(24px,5cqi,36px);
   }
   .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-search{
     width:min(100%,560px);
@@ -179,3 +175,63 @@
 .sod29-number-v12-compare small{color:var(--s29-muted);font-size:12px}
 .sod29-number-v12-compare-methods{display:flex;flex-wrap:wrap;gap:6px}
 .sod29-number-v12-compare-methods span{border:1px solid var(--s29-line);border-radius:999px;padding:3px 10px;font-size:12px;font-variant-numeric:tabular-nums}
+
+
+/* NUMBER_IDENTITY_CARD_V1: the identity card sizes itself from its own width (container units), never the viewport.
+   Narrow card: number and orbit share one row, the expression gets the full width below.
+   Wide card: expression | number | orbit on one row. */
+.sod29-number-page .sod29-number-v10-identity{
+  container:n-identity/inline-size;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"root seal" "expr expr";
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:14px;
+  row-gap:10px;
+  padding:16px 16px 14px;
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-root{grid-area:root;min-width:0;text-align:start}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression{grid-area:expr;min-width:0}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-seal,
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-raziel-orb{grid-area:seal}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-value{
+  display:block;
+  max-width:100%;
+  margin:0;
+  font-size:clamp(36px,14cqi,76px);
+  line-height:1;
+  letter-spacing:.02em;
+  text-shadow:0 0 26px color-mix(in srgb,var(--s29-glow) 34%,transparent);
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-root>small{
+  display:block;margin-bottom:2px;font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--s29-muted);
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression>span{font-size:12px;letter-spacing:.06em}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression>strong{
+  font-size:clamp(18px,5.6cqi,32px);
+  line-height:1.25;
+  text-wrap:balance;
+  font-weight:800;
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression>small{
+  font-size:12px;line-height:1.5;color:var(--s29-muted);
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-seal.sod29-number-v10-life-orbit{width:76px;height:76px;min-width:76px}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-orbit strong{font-size:20px}
+@container n-identity (min-width:620px){
+  .sod29-number-page .sod29-number-v10-identity{
+    grid-template-areas:"expr root seal";
+    grid-template-columns:minmax(0,1fr) auto auto;
+    column-gap:20px;
+  }
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-value{font-size:clamp(52px,8cqi,80px)}
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-v10-root{text-align:center}
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-seal.sod29-number-v10-life-orbit{width:96px;height:96px;min-width:96px}
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-orbit strong{font-size:24px}
+}
+@container sod-number-hero (min-width:940px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-identity .sod29-number-v10-root{text-align:center;justify-self:center}
+}
+@container sod-number-hero (min-width:900px){
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-identity .sod29-number-v10-root{text-align:center;justify-self:center}
+}
