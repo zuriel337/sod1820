@@ -9,6 +9,8 @@ assert.match(t,/THEME_PRESETS.*light.*parchment.*dark/);
 assert.match(p,/NUMBER_RESEARCH_NIGHT_V2/);
 assert.match(p,/numberResearch: NUMBER_RESEARCH_NIGHT_V2/);
 assert.match(p,/accentBtn: "#315DD5"/);
+assert.match(p,/accentSecondary: "#C2A8FA"/);
+assert.match(p,/accentDiscovery: "#69DED7"/);
 assert.match(f,/"--s29-number-panel": palette.numberResearch.card/);
 assert.match(s,/precisionHybrid2029-preview.css/);
 assert.match(c,/data-frame-theme-preset="dark"/);
