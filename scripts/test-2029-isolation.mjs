@@ -125,7 +125,7 @@ assert.deepEqual(
   { source: "/books/(.*)", destination: "/book/$1", permanent: true },
   "plural detail alias must converge permanently to canonical /book/:slug"
 );
-const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/index.html" && !r.has);
+const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/legacy.html" && !r.has);
 assert.ok(catchAllIndex >= 0, "legacy SPA catch-all must remain present");
 for (const source of expected) {
   const idx = rewrites.findIndex((r) => r.source === source);

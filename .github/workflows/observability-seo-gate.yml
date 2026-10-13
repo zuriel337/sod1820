@@ -40,6 +40,9 @@ jobs:
       - name: Observability/SEO route coverage check
         run: node scripts/check-observability-seo-gate.mjs
 
+      - name: Public deployment document contract
+        run: node --test test/public-entry-build.test.mjs
+
       - name: Email OTP length compatibility
         run: node --test src/lib/emailOtp.test.js
 

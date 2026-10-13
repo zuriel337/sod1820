@@ -1,5 +1,11 @@
 {
+  "buildCommand": "npm run build && node scripts/prepare-public-entry.mjs",
   "redirects": [
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
     {
       "source": "/:path*",
       "has": [
@@ -868,14 +874,6 @@
       "destination": "/api/og?path=/video/$1&crawler=search"
     },
     {
-      "source": "/post/(.*)",
-      "destination": "/2029.html"
-    },
-    {
-      "source": "/video/(.*)",
-      "destination": "/2029.html"
-    },
-    {
       "source": "/(.*)",
       "has": [
         {
@@ -885,6 +883,14 @@
         }
       ],
       "destination": "/api/og?path=/$1"
+    },
+    {
+      "source": "/post/(.*)",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/video/(.*)",
+      "destination": "/2029.html"
     },
     {
       "source": "/",
@@ -976,10 +982,19 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/legacy.html"
     }
   ],
   "headers": [
+    {
+      "source": "/legacy.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
     {
       "source": "/community/chat",
       "headers": [
