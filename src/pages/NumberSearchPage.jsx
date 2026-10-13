@@ -27,7 +27,7 @@ export default function NumberSearchPage() {
   const inputRef = useRef(null);
   const sugRef = useRef(null);
 
-  useEffect(() => { applySeo({ title: "מנוע המספרים · הגוגל של המספרים", path: "/number" }); }, []);
+  useEffect(() => { applySeo({ title: "דף המספר", path: "/number" }); }, []);
   useEffect(() => { const t = setTimeout(() => inputRef.current?.focus(), 200); return () => clearTimeout(t); }, []);
   useEffect(() => {
     let live = true;

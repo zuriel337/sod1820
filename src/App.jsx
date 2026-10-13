@@ -392,10 +392,11 @@ export default function App() {
           <Route path="/theme-preview" element={<ThemePreviewPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/tag/:slug" element={<TagPage />} />
-          <Route path="/number" element={<Locked flag="lock_number" requireFlag><NumberSearchPage /></Locked>} />
+          {/* Active Legacy Number/phrase URLs remain public until a verified replacement (ZURIEL, 13.10.2026). */}
+          <Route path="/number" element={<NumberSearchPage />} />
           <Route path="/name" element={<NamePage />} />
           <Route path="/שם" element={<NamePage />} />
-          <Route path="/number/:phrase" element={<Locked flag="lock_number" requireFlag><LegacyNumberTransitionRoute /></Locked>} />
+          <Route path="/number/:phrase" element={<LegacyNumberTransitionRoute />} />
           <Route path="/topic/:slug" element={<TopicPage />} />
           {/* 🗂️ עמוד-נושא — עדשה חוצה-תוכן (theme_links): צפני שבת, פוסטי שבת, מספרים ומודלים במקום אחד */}
           <Route path="/theme/:slug" element={<ThemePage />} />

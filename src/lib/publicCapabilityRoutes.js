@@ -1,10 +1,12 @@
 // Address projection of existing site_flags. No new availability state or owner.
 const ROUTES = [
-  [/^\/numbers(?:\/|$)/, 'lock_convergence_tree', 'מפת המספרים'],
-  [/^\/(?:number|2029\/number)(?:\/|$)/, 'lock_number', 'דף המספר'],
+  [/^\/numbers(?:\/|$)/, 'lock_convergence_tree', 'עץ ההתכנסויות'],
+  // The active /number and /number/:phrase compatibility readers are not the new Number surface.
+  // ZURIEL keeps those public until verified replacement; lock_number still gates the native surface.
+  [/^\/2029\/number(?:\/|$)/, 'lock_number', 'דף המספר'],
   [/^\/books?(?:\/|$)/, 'lock_books', 'ספרים ומקורות'],
-  [/^\/(?:heichal(?:\.html)?|היכל)(?:\/|$)/, 'lock_heichal', 'ההיכל'],
-  [/^\/(?:journey|journey-beta|מסע|2029\/journey)(?:\/|$)/, 'lock_life_journey', 'המסע האישי'],
+  [/^\/(?:heichal(?:\.html)?|היכל)(?:\/|$)/, 'lock_heichal', 'היכל'],
+  [/^\/(?:journey|journey-beta|מסע|2029\/journey)(?:\/|$)/, 'lock_life_journey', 'מסעות'],
   [/^\/forum(?:\/|$)/, 'lock_forum', 'פורום המחקר'],
   [/^\/(?:cross|הצלבה)(?:\/|$)/, 'lock_cross', 'הצלבת שיטות'],
   [/^\/research(?:\/|$)/, 'lock_research', 'סביבת המחקר'],

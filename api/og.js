@@ -292,9 +292,9 @@ export default async function handler(req, res) {
     image = `${SITE}/api/card?w=${encodeURIComponent('גימטריה מרחבית')}&sub=${encodeURIComponent('הגיאומטריה של העץ')}&cap=${encodeURIComponent('מספר → צורה → משמעות · מתכנס ל-1820')}&sig=gem`;
   } else if (key === '/number') {
     // "הגוגל של המספרים" — דף הנחיתה
-    title = "מנוע המספרים — הגוגל של המספרים · " + SITE_NAME;
+    title = "דף המספר · " + SITE_NAME;
     desc = "הקלידו מספר, שם או פסוק — וגלו את עץ הקשרים הנסתר שלו. המנוע מזהה לבד.";
-    image = `${SITE}/api/card?w=${encodeURIComponent('מנוע המספרים')}&sub=${encodeURIComponent('הגוגל של המספרים')}&cap=${encodeURIComponent('הקלידו מספר או שם — וגלו את עץ הקשרים')}&sig=gem`;
+    image = cardUrl({ w: 'דף המספר', sub: 'מספר · שם · ביטוי', cap: 'מה מתחבר?', sig: 'gem' });
   } else if (key === '/name' || key === '/שם') {
     // השער הויראלי — "מה השם שלך מסתיר?"
     title = "מה השם שלך מסתיר? · " + SITE_NAME;
@@ -414,25 +414,38 @@ export default async function handler(req, res) {
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
     const n = parseInt(raw, 10);
     if (Number.isFinite(n)) {
-      title = `${n} · דף המספר 2029 · ${SITE_NAME}`;
-      desc = 'דף המספר 2029 — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
+      title = `${n} · דף המספר · ${SITE_NAME}`;
+      desc = 'דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
       type = 'website';
       robots = 'noindex, nofollow';
       image = `${SITE}/api/card?n=${n}`;
     } else {
       robots = 'noindex, nofollow';
-      title = `דף המספר 2029 · ${SITE_NAME}`;
-      desc = 'תצוגת Number 2029 אינה זמינה לערך הזה.';
+      title = `דף המספר · ${SITE_NAME}`;
+      desc = 'דף המספר אינו זמין לערך הזה.';
     }
   } else if (key.startsWith('/number/')) {
     // עמוד מספר — תמונה מייצגת (primary_value)
     let raw = key.slice('/number/'.length);
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
-    const n = parseInt(raw, 10);
-    if (Number.isFinite(n)) {
-      title = `${n} — מרכז ההתכנסות · ${SITE_NAME}`;
+    const isNumber = /^\d+$/.test(raw);
+    const n = isNumber ? Number(raw) : null;
+    // Availability and index admission are different: Legacy readers stay accessible.
+    // Indexability comes from the same read-only DB owner used by the hydrated page and sitemap.
+    let admitted = false;
+    try {
+      const admission = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${isNumber ? 'is_number_indexable' : 'is_phrase_indexable'}`, {
+        method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify(isNumber ? { p_value: n } : { p_phrase: raw.trim() }),
+        signal: AbortSignal.timeout(5000),
+      });
+      admitted = admission.ok && await admission.json() === true;
+    } catch { /* unknown admission remains noindex; content access stays public */ }
+    robots = admitted ? 'index, follow' : 'noindex, nofollow';
+    type = 'website';
+    if (isNumber && Number.isFinite(n)) {
+      title = `${n} · דף המספר · ${SITE_NAME}`;
       desc = `כל מה שמתכנס למספר ${n} בסוד 1820 — גימטריה, גלריות, פוסטים וצירי התכנסות במקום אחד.`;
-      type = 'article';
       // ✦ עוגן-המהות (number_anchors) — אם למספר יש מהות מאומתת, מציגים אותה בתצוגת-השיתוף.
       try {
         const ar = await fetch(`${SUPABASE_URL}/rest/v1/number_anchors?value=eq.${n}&select=fact,hint&limit=1`, { headers: ogHeaders });
@@ -445,6 +458,10 @@ export default async function handler(req, res) {
       } catch { /* fallback to generic */ }
       // תמונת שיתוף דינמית: המספר ענק + הביטויים השווים לו + כיתוב ויראלי.
       image = `${SITE}/api/card?n=${n}`;
+    } else {
+      title = `${stripHtml(raw)} · דף המספר · ${SITE_NAME}`;
+      desc = `דף הביטוי «${stripHtml(raw)}» בסוד 1820 — גימטריה, מקורות וקשרים מתוך דף המספר הקיים.`;
+      image = cardUrl({ w: raw, n: ragil(raw) || undefined, sub: 'דף המספר', sig: 'gem' });
     }
   } else if (key.startsWith('/codes/')) {
     // 🔠 עמוד-צופן קנוני (els_records) — כרטיס-שיתוף ממותג עם המונח והדילוג.
