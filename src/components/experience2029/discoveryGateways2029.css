@@ -1,0 +1,35 @@
+/* Compact discovery portals inherit System Frame semantic roles in all three presets. */
+.dg29 { display: grid; gap: 12px; min-width: 0; }
+.dg29-intro { color: var(--s29-muted); font: 400 14px/1.45 var(--s29-font-ui); }
+.dg29-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.dg29-gateway {
+  display: flex; flex-direction: column; min-width: 0; gap: 9px;
+  padding: 12px; border: 1px solid var(--s29-line); border-radius: 14px;
+  background: var(--s29-panel);
+}
+.dg29-gateway-head { display: flex; align-items: start; gap: 9px; min-width: 0; }
+.dg29-gateway-head > div { min-width: 0; }
+.dg29-gateway h3 { margin: 0; font: 600 16px/1.4 var(--s29-font-ui); }
+.dg29-gateway p { margin: 0; }
+.dg29-gateway-head p { color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
+.dg29-glyph { flex: 0 0 34px; width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center; border: 1px solid var(--s29-line);
+  color: var(--s29-discovery); background: var(--s29-panel-soft); font: 600 19px var(--s29-font-ui); }
+.dg29-sources { display: grid; gap: 4px; align-content: start; flex: 1; }
+.dg29-source { display: flex; flex-direction: column; justify-content: center; min-height: 44px;
+  padding: 7px 9px; border: 1px solid transparent; border-radius: 9px; background: var(--s29-panel-soft);
+  font: 400 14px/1.4 var(--s29-font-ui); }
+.dg29-source:hover, .dg29-source:focus-visible { border-color: var(--s29-line-strong); }
+.dg29-source small { color: var(--s29-muted); font: 400 14px/1.4 var(--s29-font-ui); }
+.dg29-empty { padding: 8px 3px; color: var(--s29-muted); font: 400 14px/1.45 var(--s29-font-ui); }
+.dg29-gateway-action { display: flex; align-items: center; min-height: 44px; border-top: 1px solid var(--s29-line);
+  color: var(--s29-accent-text) !important; font: 500 14px/1.4 var(--s29-font-ui); }
+.dg29-gateway a:focus-visible { outline: 2px solid var(--s29-discovery); outline-offset: 2px; }
+@container h29 (max-width: 1000px) {
+  .dg29-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container h29 (max-width: 620px) {
+  .dg29-grid { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+  .dg29-gateway { flex: 0 0 min(85%, 290px); scroll-snap-align: start; }
+  .dg29-intro { display: none; }
+}
