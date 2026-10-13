@@ -24,6 +24,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const { user } = useAuth();
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [followError, setFollowError] = useState("");
   const [justFollowed, setJustFollowed] = useState(false);
   const [showReg, setShowReg] = useState(false);
   const [pushOn, setPushOn] = useState(false);
@@ -46,13 +47,15 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   async function toggle() {
     if (!topic || busy) return;
     setBusy(true);
+    setFollowError("");
     const next = !following;
     setFollowing(next);
     try {
-      await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
+      const result = await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
+      if (result?.following !== next) throw new Error("follow-not-saved");
       if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
       else setJustFollowed(false);
-    } catch { setFollowing(!next); }
+    } catch { setFollowing(!next); setFollowError("השינוי במעקב לא נשמר. אפשר לנסות שוב."); }
     finally { setBusy(false); }
   }
 
@@ -150,6 +153,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     return (
       <div style={{ marginTop: 30, paddingTop: 22, borderTop: `1px solid ${P.border}`, textAlign: "center", direction: "rtl" }}>
         <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "18px 18px", maxWidth: 460, margin: "0 auto" }}>
+          {followError && <div role="alert" style={{ color: P.ink, fontSize: ui2029 ? 16 : 13, marginBottom: 10 }}>{followError}</div>}
           {!following ? (
             <>
               <div style={{ color: gold, fontFamily: F.regal, fontSize: ui2029 ? 18 : 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
