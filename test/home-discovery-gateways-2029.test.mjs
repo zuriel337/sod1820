@@ -27,6 +27,23 @@ test("automatic gateway membership comes ONLY from categories, not tags/keywords
   assert.doesNotMatch(gateway, /getRealityCodePosts|getRealityVideos|\.tags|isCinemaPost|includes\("מטריקס"\)/);
 });
 
+
+test("Shvilei Safa exposes source-backed highlights in place of a duplicate Post tile", () => {
+  assert.match(gateway, /function languagePostHighlights\(post\)/);
+  assert.ok(gateway.includes('post.id !== "post:5018"'));
+  assert.ok(gateway.includes('post.slug !== "chibur-bein-hasafot-mafteach-lagan"'));
+  for (const value of ["26", "86", "611", "1820"]) {
+    assert.ok(gateway.includes(`value: "${value}"`), `missing source example ${value}`);
+  }
+  assert.match(gateway, /\.filter\(item => item\.exists\)/);
+  assert.match(gateway, /languageHighlights\.length/);
+  assert.match(gateway, /language\.items\.filter\(item => item !== languagePost\)/);
+  assert.ok(gateway.includes('feature={languageFeature} items={languageLinks}'));
+  assert.match(style, /\.dg29-language-metrics \{ display: grid;/);
+  assert.match(style, /\.dg29-language-metric b \{/);
+  assert.match(style, /--s29-discovery/);
+});
+
 test("canonical followers cover each configured category and ELS without a second notification engine", () => {
   assert.match(gateway, /import WatchButton from/);
   for (const category of ["שבילי שפה", "הצופן בסרטים", "צפונות בתורה"]) {
