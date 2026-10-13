@@ -41,6 +41,8 @@ const NUMBER_PAGE_PROJECTION_CACHE = new Map();
 const NUMBER_REGULAR_PHRASE_CACHE = new Map();
 const NUMBER_HIDDEN_CROSS_CACHE = new Map();
 const NUMBER_SYSTEM_METHODS_CACHE = new Map();
+const NUMBER_METHOD_PROFILE_CACHE = new Map();
+const NUMBER_METHOD_PROFILE_INFLIGHT = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function rememberBounded(cache, key, value, max = 36) {
@@ -48,6 +50,43 @@ function rememberBounded(cache, key, value, max = 36) {
   cache.set(key, value);
   while (cache.size > max) cache.delete(cache.keys().next().value);
   return value;
+}
+
+// Engine-returned method profiles are deterministic per expression, so a bounded cache is safe.
+// In-flight requests are shared so a prefetch and a real selection never double-fetch.
+function loadMethodProfileCached(expression) {
+  const expr = clean(expression);
+  const cached = NUMBER_METHOD_PROFILE_CACHE.get(expr);
+  if (cached) return Promise.resolve(cached);
+  const inflight = NUMBER_METHOD_PROFILE_INFLIGHT.get(expr);
+  if (inflight) return inflight;
+  const pending = fetchNumberMethodProfile(expr)
+    .then((rows) => {
+      if (Array.isArray(rows) && rows.length) rememberBounded(NUMBER_METHOD_PROFILE_CACHE, expr, rows, 48);
+      return rows;
+    })
+    .finally(() => { NUMBER_METHOD_PROFILE_INFLIGHT.delete(expr); });
+  NUMBER_METHOD_PROFILE_INFLIGHT.set(expr, pending);
+  return pending;
+}
+
+function hiddenCrossCacheKey(expression, profileRows) {
+  const profileKey = (profileRows || [])
+    .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
+    .join("|");
+  return `${clean(expression)}::${profileKey}`;
+}
+
+function railNeighbourPhrases(rows, active, reach = 2) {
+  const list = (rows || []).map((row) => clean(row?.phrase)).filter(Boolean);
+  const at = list.indexOf(clean(active));
+  if (at < 0) return [];
+  const out = [];
+  for (let step = 1; step <= reach; step += 1) {
+    if (list[at + step]) out.push(list[at + step]);
+    if (list[at - step]) out.push(list[at - step]);
+  }
+  return out;
 }
 
 function deferClientWork(callback, { delay = 120, timeout = 700 } = {}) {
@@ -226,6 +265,14 @@ function NumberPageBody() {
       const value = requested || sessionStorage.getItem("sod29-number-wide");
       return value === "c" || value === "0" ? value : "a";
     } catch { return "a"; }
+  }, [location.search]);
+  // Smart expression rail preview: ?rail=smart enables cached profiles, idle neighbour prefetch and keyboard stepping.
+  const smartRail = useMemo(() => {
+    try {
+      const requested = new URLSearchParams(location.search).get("rail");
+      if (requested) sessionStorage.setItem("sod29-number-rail", requested);
+      return (requested || sessionStorage.getItem("sod29-number-rail")) === "smart";
+    } catch { return false; }
   }, [location.search]);
 
   const [state, setState] = useState({ loading: true, data: null, error: null });
@@ -515,8 +562,17 @@ function NumberPageBody() {
       return undefined;
     }
     let alive = true;
+    const warm = smartRail ? NUMBER_METHOD_PROFILE_CACHE.get(expr) : null;
+    if (warm) {
+      // Prefetched by the smart rail: settle instantly, no empty/loading flash between neighbours.
+      setMethodProfileState({ loading: false, rows: warm, expression: expr, error: null });
+      const selectedWarm = warm.find((row) => row.methodKey === selectedMethodKey)
+        || (!focusExplicit ? warm.find((row) => isRegularMethodIdentity(row.methodKey)) || warm[0] : null);
+      if (selectedWarm && selectedWarm.methodKey !== selectedMethodKey) setSelectedMethodKey(selectedWarm.methodKey);
+      return undefined;
+    }
     setMethodProfileState({ loading: true, rows: [], error: null });
-    fetchNumberMethodProfile(expr)
+    (smartRail ? loadMethodProfileCached : fetchNumberMethodProfile)(expr)
       .then((rows) => {
         if (!alive) return;
         setMethodProfileState({ loading: false, rows, expression: expr, error: null });
@@ -543,10 +599,7 @@ function NumberPageBody() {
       return undefined;
     }
 
-    const profileKey = methodProfileState.rows
-      .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
-      .join("|");
-    const cacheKey = `${expr}::${profileKey}`;
+    const cacheKey = hiddenCrossCacheKey(expr, methodProfileState.rows);
     const cached = NUMBER_HIDDEN_CROSS_CACHE.get(cacheKey);
     if (cached) {
       setHiddenCrossState({ loading: false, rows: cached, error: null });
@@ -622,6 +675,49 @@ function NumberPageBody() {
 
     return rows;
   }, [activeExpression, regularMethodProfile, regularGroup, regularPhraseState, root]);
+
+  // Smart rail: crossing counts appear on a chip only after the canonical reader computed them (unknown stays blank).
+  const [railSignals, setRailSignals] = useState({});
+  useEffect(() => {
+    if (!smartRail) return;
+    const expr = clean(activeExpression);
+    if (!expr || methodProfileState.expression !== expr || methodProfileState.loading || !methodProfileState.rows.length) return;
+    const known = NUMBER_HIDDEN_CROSS_CACHE.get(hiddenCrossCacheKey(expr, methodProfileState.rows));
+    if (!Array.isArray(known)) return;
+    setRailSignals((prev) => (prev[expr] === known.length ? prev : { ...prev, [expr]: known.length }));
+  }, [smartRail, activeExpression, methodProfileState, hiddenCrossState]);
+
+  // Idle-time warm-up of the nearest rail neighbours, one request chain at a time, cancelled on any selection.
+  useEffect(() => {
+    if (!smartRail || typeof window === "undefined") return undefined;
+    const expr = clean(activeExpression);
+    if (!expr || methodProfileState.expression !== expr || methodProfileState.loading || hiddenCrossState.loading) return undefined;
+    const connection = typeof navigator !== "undefined" ? navigator.connection : null;
+    if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || "")) return undefined;
+    const targets = railNeighbourPhrases(regularExpressions, expr, 2).filter((phrase) => !/^\d+$/.test(phrase));
+    if (!targets.length) return undefined;
+    let alive = true;
+    const run = async () => {
+      for (const phrase of targets) {
+        if (!alive) return;
+        try {
+          const rows = await loadMethodProfileCached(phrase);
+          if (!alive || !Array.isArray(rows) || !rows.length) continue;
+          const key = hiddenCrossCacheKey(phrase, rows);
+          let crossings = NUMBER_HIDDEN_CROSS_CACHE.get(key);
+          if (!Array.isArray(crossings)) {
+            crossings = await fetchNumberHiddenCrossings(phrase, rows, { limit: 13 });
+            crossings = Array.isArray(crossings) ? crossings : [];
+            rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, key, crossings, 48);
+          }
+          if (alive) setRailSignals((prev) => (prev[phrase] === crossings.length ? prev : { ...prev, [phrase]: crossings.length }));
+        } catch { /* warm-up is best effort; a real selection still loads normally */ }
+        await new Promise((resolve) => window.setTimeout(resolve, 150));
+      }
+    };
+    const cancel = deferClientWork(() => { if (alive) void run(); }, { delay: 600, timeout: 2500 });
+    return () => { alive = false; cancel(); };
+  }, [smartRail, activeExpression, methodProfileState.expression, methodProfileState.loading, hiddenCrossState.loading, regularExpressions]);
 
   const selectedGroup = useMemo(
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
@@ -1276,6 +1372,8 @@ function NumberPageBody() {
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
+        smartRail={smartRail}
+        railSignals={railSignals}
         onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}

@@ -1,6 +1,6 @@
 import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
 import SignatureResearchIcon from "../SignatureResearchIcon.jsx";
-import React, { useEffect, useId, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
 import CurationMark2029 from "../experience2029/CurationMark2029.jsx";
@@ -174,6 +174,8 @@ export default function NumberCore2029({
   languageBridges = [],
   regularExpressions = [],
   regularExpressionsLoading = false,
+  smartRail = false,
+  railSignals = {},
   hiddenCrossings = [],
   hiddenCrossingsLoading = false,
   systemMethods = [],
@@ -209,6 +211,34 @@ export default function NumberCore2029({
   const [showMoreMethods, setShowMoreMethods] = useState(false);
   const [focusedCrossingPartner, setFocusedCrossingPartner] = useState(null);
   const [query, setQuery] = useState("");
+  // Smart rail: arrow keys step through same-value expressions; the stage commits once stepping settles.
+  const [railPreview, setRailPreview] = useState(null);
+  const railSettleTimer = useRef(null);
+  useEffect(() => () => { if (railSettleTimer.current) window.clearTimeout(railSettleTimer.current); }, []);
+  const stepRail = (event) => {
+    if (!smartRail || compact) return;
+    const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    if (!keys.includes(event.key)) return;
+    const buttons = [...event.currentTarget.querySelectorAll("button.sod29-number-v11-regular-select")];
+    const at = buttons.indexOf(document.activeElement);
+    if (at < 0 || !buttons.length) return;
+    // The rail is right-to-left: ArrowLeft moves to the next item, ArrowRight to the previous one.
+    const target = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1
+      : Math.max(0, Math.min(buttons.length - 1, at + (event.key === "ArrowLeft" ? 1 : -1)));
+    event.preventDefault();
+    const next = buttons[target];
+    if (!next || target === at) return;
+    next.focus();
+    next.scrollIntoView?.({ block: "nearest", inline: "center", behavior: "auto" });
+    const phrase = next.getAttribute("data-phrase");
+    setRailPreview(phrase);
+    if (railSettleTimer.current) window.clearTimeout(railSettleTimer.current);
+    railSettleTimer.current = window.setTimeout(() => {
+      railSettleTimer.current = null;
+      if (phrase) onExpressionSelect?.(phrase);
+      setRailPreview(null);
+    }, 170);
+  };
 
   if (!projection) return null;
   const compact = mode === "drawer";
@@ -409,7 +439,7 @@ export default function NumberCore2029({
         </div>
         <small>{regularExpressions.length} ביטויים · ↔ גרור ימינה / שמאלה</small>
       </div>
-      <div className="sod29-number-v11-regular-track" data-experience-capability="number-regular-expressions" role="list" key={`regular-rail:${root}`}>
+      <div className="sod29-number-v11-regular-track" data-experience-capability="number-regular-expressions" role="list" key={`regular-rail:${root}`} onKeyDown={stepRail}>
         {regularExpressions.map((item) => {
           const phrase = String(item?.phrase || item || "").trim();
           const selected = phrase === String(projection.expression || "").trim();
@@ -417,16 +447,17 @@ export default function NumberCore2029({
           return <div
             role="listitem"
             key={phrase}
-            className={`sod29-number-v11-regular-item${selected ? " is-active" : ""}`}
+            className={`sod29-number-v11-regular-item${selected ? " is-active" : ""}${railPreview === phrase && !selected ? " is-preview" : ""}`}
           >
             <button
               type="button"
               className="sod29-number-v11-regular-select"
               aria-pressed={selected}
+              data-phrase={phrase}
               onClick={() => onExpressionSelect?.(phrase)}
             >
               <strong>{phrase}</strong>
-              <small>= {root} · רגיל</small>
+              <small>= {root} · רגיל{smartRail && Number.isInteger(railSignals?.[phrase]) && railSignals[phrase] > 0 ? <em className="sod29-number-v11-regular-signal" title="הצלבות שנמצאו לביטוי"> · ◇ {railSignals[phrase] >= 13 ? "13+" : railSignals[phrase]}</em> : null}</small>
             </button>
             {curatedPhrase?.type === "entity" ? <CurationMark2029
               item={curatedPhrase}

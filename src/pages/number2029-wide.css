@@ -157,3 +157,7 @@
 .sod29-root.number-page-route .sod29-main-stage.has-context-rail>.sod29-content:has(.sod29-number-page[data-wide-layout="c"]){
   width:min(1720px,100%);
 }
+
+/* Smart expression rail preview (?rail=smart): stepping preview + computed crossing signal. */
+.sod29-number-v11-regular-item.is-preview{outline:1.5px dashed color-mix(in srgb,var(--s29-accent) 70%,transparent);outline-offset:2px;border-radius:14px}
+.sod29-number-v11-regular-signal{font-style:normal;color:var(--s29-accent-text,var(--s29-accent));font-weight:800}
