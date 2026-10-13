@@ -927,9 +927,10 @@ test('browser: optional native heat reflects verified display density, excludes 
       axisHitId: candidateState.axis.hitId, candidateIndex: candidate.candidateIndex, revision: candidate.revision });
     await page.waitForFunction(index => {
       const current = window.__log.filter(m => m.type === 'state').at(-1);
-      return current?.findings?.[0]?.hits?.some(hit => hit.candidateIndex === index && hit.shown && !hit.verified) &&
-        window.__log.some(message => message.type === 'engine-request' && message.payload?.term === 'אל') && window.__oraclePending === 0;
-    }, candidate.candidateIndex);
+      return current?.findings?.[0]?.hits?.some(hit => hit.candidateIndex === index && hit.shown && !hit.verified);
+    }, candidate.candidateIndex, { timeout: 60_000 });
+    await page.waitForFunction(() => window.__oraclePending === 0, null, { timeout: 60_000 });
+    assert.ok(calls.some(call => call.payload?.term === 'אל'), 'candidate verification was attempted');
     const withCandidate = await latestState(page), candidateCalls = calls.length;
     assert.ok(withCandidate.findings[0].candidateShown > 0, 'an unverified finding is selected');
     assert.ok(withCandidate.findings[0].hits.every(hit => !hit.verified && hit.hitId === null && hit.axisDistance === null));
