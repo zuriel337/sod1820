@@ -213,7 +213,7 @@ function NumberPageBody() {
   const shell = use2029Shell();
   const research = useResearch();
   // The literal "0" is valid. Empty, malformed or unsafe root strings are not.
-  const root = /^\\d+$/.test(String(value || "")) && Number.isSafeInteger(Number(value))
+  const root = /^\d+$/.test(String(value || "")) && Number.isSafeInteger(Number(value))
     ? Number(value)
     : null;
   const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
