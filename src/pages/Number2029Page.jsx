@@ -892,6 +892,20 @@ function NumberPageBody() {
     navigate(href);
   };
 
+  const clearCrossingFocus = () => {
+    setFocusedCrossingPartner("");
+    const href = numberExpressionFocusHref(root, {
+      expression: focusExpression || null,
+      method: focusExplicit ? focusMethodKey : null,
+    });
+    // Preserve the selected expression/method, while clearing only the crossing.
+    research.updateResearchContext?.({
+      selection: { ...focusSelection(root), focusKind: focusExpression ? "expression" : null, crossingPartner: null },
+      dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: Boolean(focusExpression) },
+    });
+    if (href) navigate(href, { replace: true });
+  };
+
   const activateExpressionFocus = (expression, preferredMethod = null) => {
     const expr = clean(expression);
     if (!expr) return;
@@ -1210,6 +1224,8 @@ function NumberPageBody() {
         hiddenCrossingsLoading={hiddenCrossState.loading}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
+        activeCrossingPartner={focusExplicit ? focusedCrossingPartner : null}
+        onClearCrossing={clearCrossingFocus}
         onOpenCrossing={(crossing) => {
           const partner = clean(crossing?.partner);
           if (partner && clean(activeExpression)) {
@@ -1233,7 +1249,7 @@ function NumberPageBody() {
             });
             if (href) navigate(href, { replace: true });
           }
-          askRaziel("explain_crossing", { kind: "crossing", partner: partner || null, methods: crossing?.methods || [] });
+          // Selection is navigation, not consent to run the gated/paid Raziel tool.
         }}
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
