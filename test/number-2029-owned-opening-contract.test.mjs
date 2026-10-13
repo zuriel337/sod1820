@@ -15,8 +15,8 @@ const vercel = JSON.parse(source("vercel.json"));
 const palette = source("src/lib/palette.js");
 
 test("zero is a literal addressable root, missing/unsafe roots are not zero", () => {
-  assert.equal(numberExpressionFocusHref(0), "/2029/number/0");
-  assert.equal(numberExpressionFocusHref("0"), "/2029/number/0");
+  assert.equal(numberExpressionFocusHref(0), "/number/0");
+  assert.equal(numberExpressionFocusHref("0"), "/number/0");
   for (const invalid of [null, undefined, "", " ", "1.2", -1, Number.NaN, Number.MAX_SAFE_INTEGER + 1]) {
     assert.equal(numberExpressionFocusHref(invalid), null, `invalid root ${String(invalid)}`);
   }
@@ -27,7 +27,7 @@ test("zero is a literal addressable root, missing/unsafe roots are not zero", ()
 
 test("crossing focus persists in the existing URL and exact-return model", () => {
   const href = numberExpressionFocusHref(376, { expression: "שלום", method: "רגיל", crossingPartner: "מבחן" });
-  assert.match(href, /^\/2029\/number\/376\?/);
+  assert.match(href, /^\/number\/376\?/);
   const state = parseNumberExpressionFocus(href.split("?")[1]);
   assert.deepEqual(state, { expression: "שלום", method: "רגיל", crossingPartner: "מבחן", explicit: true });
   assert.match(core, /activeCrossingPartner = null/);
@@ -41,13 +41,13 @@ test("crossing focus persists in the existing URL and exact-return model", () =>
     "choosing a crossing must not auto-run gated/paid Raziel");
 });
 
-test("G4 menu full-page route remains preview only; public cutover stays blocked", () => {
-  assert.match(frame, /\{ to: "\/2029\/number\/1820", label: "דף המספר"/);
-  assert.match(app, /<Route path="\/2029\/number\/:value" element=\{<Number2029Page \/>\}/);
+test("Number uses clean full-page routes with its existing launch lock", () => {
+  assert.match(frame, /\{ to: "\/number\/1820", label: "דף המספר"/);
+  assert.match(app, /<Route path="\/number\/:value" element=\{<Locked flag="lock_number" requireFlag[^>]*><Number2029Page \/><\/Locked>/);
   assert.match(page, /noindex: true/);
   assert.match(page, /DESIGN PREVIEW/);
-  assert.match(legacy, /<Route path="\/number\/:phrase" element=\{<LegacyNumberTransitionRoute \/>\}/);
-  assert.ok(vercel.rewrites.some((r) => r.source === "/2029/number/(.*)" && r.destination === "/2029.html"));
+  assert.match(legacy, /<Route path="\/number\/:phrase" element=\{<Locked flag="lock_number" requireFlag/);
+  assert.ok(vercel.rewrites.some((r) => r.source === "/number/(.*)" && r.destination === "/2029.html"));
   assert.ok(!vercel.redirects.some((r) => r.source?.startsWith("/number") && r.destination?.includes("2029")),
     "old inbound /number links must not be auto-redirected before Number release");
 });
@@ -68,8 +68,8 @@ test("full-page responsive Number text respects V2 minimum; crossing never trunc
 
 test("Night tokens use the one shared black/gold/brown V2 owner", () => {
   const night = palette.slice(palette.indexOf('  dark: Object.freeze({', palette.indexOf("export const DESIGN_V2_PALETTES")));
-  for (const token of ['pageBg: "#0D0A09"', 'card: "#1B1512"', 'cardSoft: "#251D18"', 'brandGold: "#F9BA3F"']) {
+  for (const token of ['pageBg: "#0B0907"', 'card: "#17120E"', 'cardSoft: "#211A13"', 'brandGold: "#F9BA3F"']) {
     assert.ok(night.includes(token), `missing ${token}`);
   }
-  assert.ok(night.includes('accent: "#315DD5"'), "blue stays action role, not Night canvas");
+  assert.ok(night.includes('accent: "#D4AF37"'), "preserve the user-approved warm gold palette");
 });

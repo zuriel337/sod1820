@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
-const BASE = 'http://127.0.0.1:4173';
+const BASE = process.env.G4_PREVIEW_BASE_URL || 'http://127.0.0.1:4173';
 const CLOSED_FLAGS = [
   'lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books',
 ].map((key) => ({ key, enabled: true, mode: 'all', message: `${key} בבנייה` }));
