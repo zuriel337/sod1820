@@ -33,10 +33,10 @@ async function installStorageEgressGuard(page) {
 
   await page.route(`${STORAGE_ORIGIN}/storage/v1/**`, async (route) => {
     const request = route.request();
-    if (!['GET', 'HEAD'].includes(request.method())) return route.continue();
+    if (!['GET', 'HEAD'].includes(request.method())) return route.fallback();
 
     const url = request.url();
-    if (!STORAGE_PUBLIC_RE.test(url)) return route.continue();
+    if (!STORAGE_PUBLIC_RE.test(url)) return route.fallback();
 
     const headers = request.headers();
     const accept = String(headers.accept || '');
@@ -65,7 +65,7 @@ async function installStorageEgressGuard(page) {
       });
     }
 
-    return route.continue();
+    return route.fallback();
   });
 }
 
