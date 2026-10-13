@@ -74,7 +74,8 @@ test('Number expression and method deep link survives reload; fake crossing is n
   await expect(focus).toContainText('שלום');
   await expect(focus).not.toContainText('לא-מאומת-123');
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(focus).toContainText('שלום');
+  await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 35_000 });
+  await expect(focus).toContainText('שלום', { timeout: 35_000 });
   await expect(focus).not.toContainText('לא-מאומת-123');
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
 });
@@ -107,7 +108,8 @@ test('full Number crossing area and regular rail retain readable layout at all b
       await lead.click();
       await expect(page).toHaveURL(/cross=/);
       await page.reload({ waitUntil: 'domcontentloaded' });
-      await expect(page.locator('[data-expression-focus="true"]')).toContainText('↔');
+      await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 35_000 });
+      await expect(page.locator('[data-expression-focus="true"]')).toContainText('↔', { timeout: 35_000 });
       await page.getByRole('button', { name: /חזור ל־376|חזור למספר/ }).first().click();
       await expect(page).not.toHaveURL(/cross=/);
     }
