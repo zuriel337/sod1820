@@ -4,6 +4,7 @@ import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroupSource.js";
 import { publicProvenPostSourceUpdate } from "./postSourceUpdates2029.js";
+import { buildPublicPostSequenceBundle } from "./publicSourceSequence2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
@@ -200,6 +201,8 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
 
   return {
     items,
+    // Same public source set, same declared lineage owner, no extra watcher.
+    sourceSequenceBundle: buildPublicPostSequenceBundle(postRows),
     // Source movement stays available even when a burst of research fills the mixed window.
     // This is the same bounded public set, not another feed or reader.
     // Public arrival rail shows recently EDITED posts first without rewriting the
@@ -309,3 +312,4 @@ export function watchWorldDiscoveryStream({ onResult, onError, immediate = true,
     window.removeEventListener("focus", refresh);
   };
 }
+

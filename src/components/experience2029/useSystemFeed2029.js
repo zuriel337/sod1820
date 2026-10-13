@@ -5,8 +5,9 @@ import { feedRows, feedSeenKey } from "../../lib/systemFeed2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
+import { projectPublicSourceSequences, sourceSequenceAttention, sourceSequenceFeedSeenKey } from "../../lib/research/publicSourceSequence2029.js";
 
-export function useSystemFeed2029({ enabled = true } = {}) {
+export function useSystemFeed2029({ enabled = true, reducedMotion = false } = {}) {
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});
@@ -29,6 +30,7 @@ export function useSystemFeed2029({ enabled = true } = {}) {
             error: false,
             unavailableSources: Array.isArray(result?.unavailableSources) ? result.unavailableSources : [],
             groupArrivals: result?.groupArrivals || null,
+            sourceSequenceBundle: result?.sourceSequenceBundle || null,
           });
         },
         onError: () => { if (live) setState((current) => ({ ...current, loading: false, error: current.items.length === 0 })); },
@@ -49,9 +51,19 @@ export function useSystemFeed2029({ enabled = true } = {}) {
     });
   }, [state.items]);
 
-  const rows = useMemo(() => feedRows(state.items, { seen, strongIds }), [state.items, seen, strongIds]);
+  const sourceSequences = useMemo(() => projectPublicSourceSequences(state.sourceSequenceBundle, { seen, reducedMotion }), [state.sourceSequenceBundle, seen, reducedMotion]);
+  const rows = useMemo(() => feedRows(state.items, { seen, strongIds }).map(row => ({ ...row,
+    sourceSequence: sourceSequenceAttention(row.item, sourceSequences),
+  })), [state.items, seen, strongIds, sourceSequences]);
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
   const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
-  return { ...state, rows, newCount, newest, see };
+  const seeOccurrence = useCallback((update) => {
+    const known = sourceSequences.sequences.flatMap(sequence => sequence.updates).find(row => row.seenKey === update?.seenKey);
+    if (!known) return;
+    const key = sourceSequenceFeedSeenKey(known);
+    setSeen(current => current[key] ? current : markSeen(key, current));
+  }, [sourceSequences]);
+  return { ...state, rows, newCount, newest, see, sourceSequences, seeOccurrence };
 }
+
