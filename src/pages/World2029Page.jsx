@@ -2,6 +2,7 @@ import WorldSourceConnections from '../components/research/WorldSourceConnection
 import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
+import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import React, { useEffect, useMemo, useState } from "react";
@@ -1102,6 +1103,7 @@ function LiveWorldLanding({ research, shell, context }) {
     {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
     <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
       availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+    <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
     {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
 
     <section className="sod29-world-source-homes" id="world-source-homes" aria-label="המקורות והכותבים בעולם">
@@ -1294,6 +1296,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </section>
 
     <WorldSourceStory research={research} shell={shell} />
+    <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
 
           {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
             key={spec.key}
