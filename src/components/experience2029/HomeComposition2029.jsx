@@ -16,6 +16,7 @@ import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
 import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
+import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
@@ -36,15 +37,14 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData() {
-  const [state, setState] = useState({ loading: true, posts: [], dimensionPost: null, notable: [] });
+  const [state, setState] = useState({ loading: true, posts: [], notable: [] });
   useEffect(() => {
     let live = true;
     Promise.allSettled([
-      getLatestPostCards({ limit: 4 }),
-      getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }),
+      getLatestPostCards({ limit: 5 }),
       getPostsFromSupabase({ limit: 8 }),
       fetchExplorerFacetPage("topic", { limit: 4 }),
-    ]).then(async ([posts, dimension, tagged, notable]) => {
+    ]).then(async ([posts, tagged, notable]) => {
       if (!live) return;
       const value = (result, fallback) => (result.status === "fulfilled" && result.value) || fallback;
       // Real update marks come from the post rows themselves (modified more than a day after publishing).
@@ -61,7 +61,6 @@ function useHomeCompositionData() {
       setState({
         loading: false,
         posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null, update: realUpdate(rowsBySlug[post.slug]), categories: rowsBySlug[post.slug]?.categories || post.categories || [] })),
-        dimensionPost: (value(dimension, {}).posts || [])[0] || null,
         notable: value(notable, {}).cards || [],
       });
     });
@@ -90,7 +89,7 @@ function Section({ title, link, label, children, className = "" }) {
 }
 
 export default function HomeComposition2029({
-  projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
+  projection, loading, nowHero, story, arrivals, calculator, entry, continuity, pulsePanel,
   selectedSlug, onSelectPost,
 }) {
   const data = useHomeCompositionData();
@@ -98,6 +97,11 @@ export default function HomeComposition2029({
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
   const lead = data.posts[0] || null;
+  // The source shown as the Hero is not repeated immediately underneath in Recent Updates.
+  // If Temporal Now owns the Hero, the latest post has not been featured yet and stays in the list.
+  const visiblePosts = (nowHero ? data.posts : data.posts.filter(post => post.slug !== lead?.slug)).slice(0, 4);
+  const heroPostSlug = nowHero ? null : lead?.slug;
+  const showFixedStory = heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
@@ -106,10 +110,10 @@ export default function HomeComposition2029({
 
     <Section title="עדכונים אחרונים" link={<Link to="/2029/posts">כל העדכונים ←</Link>}>
       <div className="h29-updates">
-        {data.posts.map((post, index) => {
+        {visiblePosts.map((post, index) => {
           const unseen = Boolean(post.update) && !seen[post.update.key];
-          // One pulse at a time: the first card repeats the main item (which pulses itself), so only the first other unseen update pulses.
-          const pulses = unseen && index === data.posts.findIndex((item, i) => i > 0 && item.update && !seen[item.update.key]);
+          // One pulse at a time, only among visible updates (never the featured Hero).
+          const pulses = unseen && index === visiblePosts.findIndex(item => item.update && !seen[item.update.key]);
           return <article key={post.slug} style={{ "--i": index }} className={`h29-card k29-rv${selectedSlug === post.slug ? " is-selected" : ""}${pulses ? " is-pulse" : ""}`}>
             <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>
               <Media src={post.poster} fallback={post.number || "✦"} />
@@ -143,18 +147,16 @@ export default function HomeComposition2029({
       </div>
     </Section> : null}
 
-    {story ? <Reveal id="story">{story}</Reveal> : null}
+    {story && showFixedStory ? <Reveal id="story">{story}</Reveal> : null}
 
     <DiscoveryGateways2029 />
 
     {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
 
-    <Section label="מוקדי זהות">
+    <Section label="כותבים וערוצים">
       <div className="h29-anchors">
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
-        <Link className="h29-anchor k29-rv" to={data.dimensionPost?.slug ? postHref(data.dimensionPost.slug) : "/2029/posts"}><span className="h29-glyph is-dim"><NavigationIcon2029 name="cosmos" /></span>
-          <span><b>מימד חמש</b><small>{data.dimensionPost ? clean(data.dimensionPost.title) : "עשר הספירות, מפת ישראל ותודעה"}</small></span></Link>
         <a className="h29-anchor k29-rv" href="/or-geula"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
           <span><b>אור הגאולה</b><small>רמזי הגאולה לאורך השנים</small></span></a>
       </div>
@@ -170,6 +172,8 @@ export default function HomeComposition2029({
         <a className="h29-portion k29-rv" href="/community"><span className="h29-portion-h"><NavigationIcon2029 name="community" />קהילה</span><small>מחקר משותף ותרומות</small></a>
       </div>
     </Section>
+
+    <HomeBuildSignup2029 pulsePanel={pulsePanel} />
 
     {entry}
     {continuity}
