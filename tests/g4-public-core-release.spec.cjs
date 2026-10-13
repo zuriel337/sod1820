@@ -177,7 +177,8 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-number-core-root="888"]')).toBeVisible({ timeout: 30_000 });
   await page.goBack();
-  await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible();
+  await expect(page).toHaveURL(`${BASE}/topic/888-yeshua`);
+  await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   await page.goBack();
   await expect(page).toHaveURL(`${BASE}/world`);
   await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
