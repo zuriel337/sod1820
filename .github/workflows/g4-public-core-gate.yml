@@ -15,6 +15,9 @@ on:
       - 'src/lib/community/communityArchive.test.js'
       - 'src/lib/community/communityRefresh.js'
       - 'src/lib/community/communityRefresh.test.js'
+      - 'src/components/ReactionBar.jsx'
+      - 'src/lib/reactionMutation.js'
+      - 'src/lib/reactionMutation.test.js'
       - 'api/og.js'
       - 'api/sitemap-public.js'
       - 'test/public-launch-seo-gates.test.mjs'
@@ -53,7 +56,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Public capability metadata and Community reader acceptance
-        run: node --test test/public-launch-seo-gates.test.mjs test/convergence-tree-closure.test.mjs test/post-comments-2029.test.mjs src/lib/community/communityArchive.test.js src/lib/community/communityRefresh.test.js
+        run: node --test test/public-launch-seo-gates.test.mjs test/convergence-tree-closure.test.mjs test/post-comments-2029.test.mjs src/lib/community/communityArchive.test.js src/lib/community/communityRefresh.test.js src/lib/reactionMutation.test.js
       - run: node --test src/lib/research/worldGroupSource.test.js
       - name: Group source v3 real HTTP role acceptance on disposable fixtures
         run: bash scripts/test-world-group-source-http.sh

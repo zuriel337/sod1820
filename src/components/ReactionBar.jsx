@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { supabase } from "../lib/supabase.js";
+import { commitReactionMutation, isReactionBoostMap } from "../lib/reactionMutation.js";
 
 // 👍 ReactionBar — ריאקציות לתרומת-מחקר. עמודת reactions jsonb: { "👍": ["uid|v:visitor", …] }.
 // toggle דרך RPC (per-user/visitor), עדכון אופטימי. פתוח גם לאורח (v:<visitor>). מקור-אמת אחד.
@@ -31,6 +32,8 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const [rx, setRx] = useState(reactions || {});
   const [bx, setBx] = useState(boosts || {});   // 👑 בוסטים (אדמין)
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const errorId = useId();
 
   const boostOf = (e) => Number(bx[e]) || 0;
   // OpenWeb's imported archive stores its historical 👍 count in reactions.likes.
@@ -43,16 +46,17 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const toggle = async (e) => {
     if (busy || !id) return;
     setBusy(true);
-    setRx(prev => {
-      const arr = Array.isArray(prev[e]) ? [...prev[e]] : [];
-      const i = arr.indexOf(myKey);
-      if (i >= 0) arr.splice(i, 1); else arr.push(myKey);
-      return { ...prev, [e]: arr };
+    setError("");
+    const arr = Array.isArray(rx[e]) ? [...rx[e]] : [];
+    const i = arr.indexOf(myKey);
+    if (i >= 0) arr.splice(i, 1); else arr.push(myKey);
+    const saved = await commitReactionMutation({
+      previous: rx,
+      optimistic: { ...rx, [e]: arr },
+      request: () => supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: user ? null : getVisitorId() }),
+      apply: setRx,
     });
-    try {
-      const { data } = await supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: user ? null : getVisitorId() });
-      if (data && typeof data === "object") setRx(data);
-    } catch { /* משאירים אופטימי */ }
+    if (!saved) setError("לא נשמרה התגובה. נסו שוב.");
     setBusy(false);
   };
 
@@ -60,13 +64,19 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const boost = async (e, delta) => {
     if (busy || !id || !isAdmin) return;
     setBusy(true);
-    setBx(prev => ({ ...prev, [e]: Math.max(0, (Number(prev[e]) || 0) + delta) }));
-    try {
-      const { data } = await supabase.rpc("admin_boost_reaction", { p_id: id, p_emoji: e, p_delta: delta });
-      if (data && typeof data === "object") setBx(data);
-    } catch { /* משאירים אופטימי */ }
+    setError("");
+    const saved = await commitReactionMutation({
+      previous: bx,
+      optimistic: { ...bx, [e]: Math.max(0, (Number(bx[e]) || 0) + delta) },
+      request: () => supabase.rpc("admin_boost_reaction", { p_id: id, p_emoji: e, p_delta: delta }),
+      apply: setBx,
+      isValid: isReactionBoostMap,
+    });
+    if (!saved) setError("לא נשמרה התגובה. נסו שוב.");
     setBusy(false);
   };
+
+  const feedback = error ? <span id={errorId} role="alert" style={{ flexBasis: "100%", fontFamily: F.heading, fontSize: 13, color: P.accentDim }}>{error}</span> : null;
 
   // תצוגה קומפקטית (רשימת-פורום ישנה) — רק ריאקציות שקיימות, לא-לחיץ
   if (compact) {
@@ -101,12 +111,13 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   if (variant === "row") {
     const e = "👍", c = count(e), on = mine(e);
     return (
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }} onClick={(ev) => ev.stopPropagation()}>
-        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy} aria-pressed={on} title={on ? "בטל לייק" : "אהבתי"}
+      <span style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: "100%", alignItems: "center", gap: 4 }} onClick={(ev) => ev.stopPropagation()}>
+        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy} aria-pressed={on} aria-describedby={error ? errorId : undefined} title={on ? "בטל לייק" : "אהבתי"}
           style={pill(e, on)}>
           <span style={{ fontSize: 14 }}>{e}</span>{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
         </button>
         {adminBoost(e)}
+        {feedback}
       </span>
     );
   }
@@ -117,12 +128,13 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
       {EMOJIS.map(e => {
         const c = count(e), on = mine(e);
         return (
-          <button key={e} onClick={() => toggle(e)} disabled={busy} aria-pressed={on} title={on ? "בטל" : "הגב"} style={pill(e, on)}>
+          <button key={e} onClick={() => toggle(e)} disabled={busy} aria-pressed={on} aria-describedby={error ? errorId : undefined} title={on ? "בטל" : "הגב"} style={pill(e, on)}>
             <span style={{ fontSize: 14 }}>{e}</span>{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
           </button>
         );
       })}
       {isAdmin && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, marginInlineStart: 2 }}>{adminBoost("👍")}</span>}
+      {feedback}
     </div>
   );
 }
