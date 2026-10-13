@@ -253,7 +253,7 @@ export default function Campaign718Page2029() {
 
         <Link
           className="sod29-campaign718-text-link"
-          to={`/2029/gematria?q=${encodeURIComponent(expression.trim() || DEFAULT_EXPRESSION)}`}
+          to={`/gematria?q=${encodeURIComponent(expression.trim() || DEFAULT_EXPRESSION)}`}
         >
           פתחו את מחשבון הגימטריה המלא ←
         </Link>

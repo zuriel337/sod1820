@@ -1,5 +1,15 @@
 # SOD1820 — Codex session bootstrap
 
+## Mandatory review and release sequence · ZURIEL · 13 October 2026
+
+Before integration, preview acceptance or release work, read
+[`docs/release-review-20261013.md`](docs/release-review-20261013.md).
+Preserve the exact approved Home, Heichal, Number and frame provenance. Public
+URLs must not expose the internal codename. Performance and browser route gates
+cannot be skipped. A preview is not production authorization. Run
+`npm run release:check -- <evidence.json>` before proposing production release;
+missing, stale or failed evidence means NO_GO. Record test gaps honestly.
+
 > This file is a **runtime routing adapter**, not a new system, contract, owner map, memory store, queue or source of project truth.
 > The current authoritative pointers are `CLAUDE.md`, `SOD1820_MASTER_OWNER_INDEX.md`, the canonical Supabase project `linswmnnkjxvweumprav`, and live `origin/main`.
 

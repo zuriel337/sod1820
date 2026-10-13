@@ -179,7 +179,7 @@ export default function SurfaceContextRail2029({
       id: String(number),
       type: "number",
       label: String(number),
-      href: `/2029/number/${number}`,
+      href: `/number/${number}`,
       source: "contextual-learn",
     });
   };
@@ -207,7 +207,7 @@ export default function SurfaceContextRail2029({
       title={title}
       subtitle={subtitle}
       actions={<div className="sod29-surface-context-actions">
-        {hasNumber ? <button type="button" onClick={() => onOpenNumber?.({ id: String(number), type: "number", label: String(number), href: `/2029/number/${number}` })}>פתח את {number}</button> : null}
+        {hasNumber ? <button type="button" onClick={() => onOpenNumber?.({ id: String(number), type: "number", label: String(number), href: `/number/${number}` })}>פתח את {number}</button> : null}
         {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
         <button className="is-raziel" type="button" onClick={onAskRaziel} disabled={!onAskRaziel}>{onAskRaziel ? "✦ שאל את רזיאל" : "✦ רזיאל · נעול"}</button>
       </div>}

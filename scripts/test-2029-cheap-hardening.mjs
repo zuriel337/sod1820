@@ -16,7 +16,7 @@ function routePattern(route) {
 
 // Conditional review routes are absent from the production build. Verify their
 // explicit guards, then compare every production route with document rewrites.
-for (const [flag, route] of [['integratedPreviewEnabled', '/2029/preview'], ['kingdomPreviewEnabled', '/2029/kingdom']]) {
+for (const [flag, route] of [['integratedPreviewEnabled', '/preview'], ['kingdomPreviewEnabled', '/kingdom']]) {
   assert.ok(app2029.includes(`{${flag} && <Route path="${route}"`), `${route} must remain flag-gated`);
 }
 const productionApp = app2029.replace(/\{(?:integratedPreviewEnabled|kingdomPreviewEnabled) && <Route[^\n]+\/>\}/g, '');
@@ -29,14 +29,15 @@ const appRoutes = [...productionApp.matchAll(/<Route\s+path="([^"]+)"/g)]
 // These branch-only surfaces are registered only behind Vite preview flags.
 // Their absence from public document rewrites is intentional; the parity gate
 // applies to routes that are present in the default public build.
-const previewRoutes = ["/2029/kingdom", "/2029/preview"];
-assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
-assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
-const publicAppRoutes = appRoutes.filter((route) => !previewRoutes.includes(route));
+const previewRoutes = ["/kingdom", "/preview"];
+assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/kingdom"/);
+assert.match(app2029, /integratedPreviewEnabled && <Route path="\/preview"/);
+const publicAppRoutes = appRoutes.filter((route) => route !== "/2029/*");
 
 const documentRoutes = (vercel.rewrites || [])
   .filter((row) => row.destination === "/2029.html")
   .map((row) => row.source)
+  .filter((route) => !previewRoutes.includes(route))
   .sort();
 
 assert.deepEqual(
@@ -45,7 +46,7 @@ assert.deepEqual(
   "every explicit App2029 route must have exactly one isolated /2029.html document rewrite and vice versa",
 );
 assert.ok(publicAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
-for (const route of previewRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay outside the public document rewrites`);
+for (const route of previewRoutes) assert.ok(vercel.rewrites.some(row => row.source === route && row.destination === "/2029.html"), `${route} must load its isolated document when the preview flag is enabled`);
 
 // Legacy Journey telemetry: direct table reads are not a browser capability.
 assert.match(migration, /drop policy if exists journey_saves_public_read on public\.journey_saves/i);

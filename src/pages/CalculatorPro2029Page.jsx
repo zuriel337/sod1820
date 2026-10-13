@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
@@ -164,9 +164,10 @@ function useIsDesktop(minWidth = 1100) {
 
 function ProExperience() {
   const navigate = useNavigate();
+  const location = useLocation();
   const research = useResearch();
   const shell = use2029Shell();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const seedExpression = clean(params.get("q"));
   const seedMethod = clean(params.get("m"));
   const inputRef = useRef(null);
@@ -272,14 +273,18 @@ function ProExperience() {
   // Only the settled expression is written, so typing never churns the router.
   const urlExpression = clean(row.profile.expression) || (info.expression === seedExpression ? seedExpression : "");
   useEffect(() => {
-    const next = new URLSearchParams();
+    const next = new URLSearchParams(params);
+    // Update calculator-owned state while keeping incoming attribution and anchors.
+    for (const key of ["q", "m", "tab", "mode", "view", "w", "calc"]) next.delete(key);
     if (urlExpression) next.set("q", urlExpression);
     if (canonicalSelection?.methodKey) next.set("m", canonicalSelection.methodKey);
     else if (selectedKey && isEnglishMethodKey(selectedKey)) next.set("m", selectedKey);
     if (view === "ledger") next.set("tab", "ledger");
     if (advanced) next.set("mode", "adv");
     if (wideRequested) next.set("view", "wide");
-    if (next.toString() !== params.toString()) setParams(next, { replace: true });
+    if (next.toString() !== params.toString()) {
+      navigate({ pathname: location.pathname, search: next.toString(), hash: location.hash }, { replace: true, state: location.state });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlExpression, canonicalSelection?.methodKey, selectedKey, view, advanced, wideRequested]);
 
@@ -292,7 +297,7 @@ function ProExperience() {
   const shareUrl = useMemo(() => {
     if (!canonicalSelection) return null;
     const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
-    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/2029/gematria/viral" });
+    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/gematria/viral" });
   }, [canonicalSelection, shareDiscovery, shareId]);
 
   const openNumber = () => {
@@ -497,7 +502,7 @@ function ProExperience() {
 
       {isNumeric ? (
         <div className="sod29-calcpro-empty">
-          <Link to={`/2029/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
+          <Link to={`/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
         </div>
       ) : null}
 

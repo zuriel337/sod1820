@@ -234,7 +234,8 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
   if (!supabase) return [];
   try {
     const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags, home_hidden")
+      .eq("home_hidden", false)
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
@@ -242,7 +243,7 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
     return data
       .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
       .slice(0, limit)
-      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+      .map(p => ({ id: p.id, slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
   } catch { return []; }
 }
 
@@ -3375,10 +3376,10 @@ export function isGovernedMethod(states, method) { return !!(states && states[me
 // 🧩 Number Page Integration v1: המקור עבר מ-select ישיר על bidim ל-fn_number_lookup (אותו מקור-נתונים,
 // אך מורחב — atomic_or_composite/component_methods/component_values) כדי שקבוצות-Composite (רגיל+מילוי וכו')
 // יסומנו ויוסברו במפורש, לא רק יופיעו כמפתח-שיטה גולמי. אין שינוי-חישוב — כל ערך כבר-מחושב במנוע.
-export async function getValueFamilies(value, perMethod = 20) {
+export async function getValueFamilies(value, perMethod = 20, { lookup = getNumberLookup } = {}) {
   if (!supabase || !value || value < 1) return [];
   try {
-    const data = await getNumberLookup(value);
+    const data = await lookup(value);
     if (!data || !data.length) return [];
     // סדר-תצוגה בלבד (לא ערך-מחושב) — אותה מיפוי-עדיפות המשמש ב-bidim_sync להצגה קודם של השיטות הליבתיות.
     const DISPLAY_PRIORITY = { "רגיל": 1, "מסתתר": 1, "קדמי": 1, "מילוי": 2, "אתבש": 3 };

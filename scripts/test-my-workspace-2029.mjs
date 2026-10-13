@@ -19,7 +19,7 @@ for (const label of [
   "החיבור לרזיאל",
 ]) assert.match(frame, new RegExp(label));
 
-assert.match(frame, /go\("\/2029\/journey"\)/);
+assert.match(frame, /go\("\/journey"\)/);
 assert.match(frame, /data-workspace-section="research"/);
 assert.match(frame, /שמירה · חזרה מדויקת/);
 assert.match(frame, /בבנייה/);
@@ -32,7 +32,7 @@ assert.match(frame, /verifyEmailOtp/);
 assert.match(frame, /isValidEmailOtp/);
 assert.match(frame, /sanitizeEmailOtp/);
 assert.match(frame, /data-workspace-section="account"/);
-assert.match(frame, /אותו חשבון SOD1820 · בתוך 2029/);
+assert.match(frame, /החשבון שלכם ב־SOD1820/);
 assert.match(frame, /התחברו כדי לקחת את המחקר איתכם/);
 assert.match(frame, /שלחו לי קוד כניסה/);
 assert.match(frame, /כניסה \/ הרשמה/);
@@ -68,7 +68,7 @@ assert.match(frame, /getUnreadCount\(\)/);
 assert.match(frame, /markNotificationRead/);
 assert.match(frame, /getMyProfile/);
 assert.match(frame, /data-workspace-section="follow"/);
-assert.match(frame, /\/2029\/number\/\$\{m\[1\]\}/);
+assert.match(frame, /\/number\/\$\{m\[1\]\}/);
 assert.match(frame, /אחרי מה אני עוקב/);
 assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
 // follow list sits after research section; summary count near top

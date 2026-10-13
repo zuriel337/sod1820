@@ -157,7 +157,7 @@ const STATIC = [
   { loc: '/code',         priority: '0.6', changefreq: 'monthly' },
   { loc: '/codes',        priority: '0.7', changefreq: 'weekly'  },
   { loc: '/codes/' + encodeURIComponent('מחקר'), priority: '0.6', changefreq: 'weekly' },
-  { loc: '/post',         priority: '0.9', changefreq: 'daily'   },
+  { loc: '/posts',         priority: '0.9', changefreq: 'daily'   },
   { loc: '/archive',      priority: '0.8', changefreq: 'weekly'  },
   { loc: '/verified',     priority: '0.7', changefreq: 'weekly'  },
   { loc: '/sulamot',      priority: '0.5', changefreq: 'monthly' },
@@ -214,9 +214,9 @@ export default async function handler(req, res) {
       // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-%
       // ל-%25 → קידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק עברית "נקייה".
       const encodedSlug = p.slug.includes('%') ? p.slug : encodeURI(p.slug);
-      const postPath = ('/' + encodedSlug).toLowerCase();
+      const postPath = ('/post/' + encodedSlug).toLowerCase();
       if (videoPrimaryPaths.has(postPath)) continue;
-      urls.push({ loc: '/' + encodedSlug, lastmod, changefreq: 'monthly', priority: '0.7' });
+      urls.push({ loc: '/post/' + encodedSlug, lastmod, changefreq: 'monthly', priority: '0.7' });
     }
   } catch (e) { /* ממשיכים גם בלי פוסטים */ }
 

@@ -85,7 +85,7 @@ function CodeClosed({ message }) {
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2.4, marginBottom: 8 }}>הצופן החדש מתקרב</div>
         <h2 style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(24px,4vw,32px)", margin: "0 0 10px", lineHeight: 1.35 }}>עוד שבוע פותחים את השער</h2>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, margin: "0 auto 18px", maxWidth: 650 }}>
-          אנחנו בונים את הצופן החדש בתוך 2029. הירשמו עכשיו — אתם תהיו הראשונים שתיהנו מהתוכנה החדשה כשהיא תיפתח.
+          אנחנו בונים את הצופן החדש באתר. הירשמו עכשיו — אתם תהיו הראשונים שתיהנו מהתוכנה החדשה כשהיא תיפתח.
         </p>
 
         <div aria-label="ספירה לאחור לפתיחת הצופן החדש" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(68px,1fr))", gap: 10, maxWidth: 560, margin: "0 auto 24px" }}>

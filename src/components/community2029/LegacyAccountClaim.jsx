@@ -26,7 +26,7 @@ export default function LegacyAccountClaim({ contributorId, palette }) {
   };
 
   return <section className="sod29-community-claim" aria-label="תביעת חשבון ישן">
-    <Link className="sod29-community-text-action" to="/2029?preview=community&data=live">→ חזרה לקהילה</Link>
+    <Link className="sod29-community-text-action" to="/?preview=community&data=live">→ חזרה לקהילה</Link>
     <h1>אימות החשבון הישן</h1>
     <p>הודעות ולייקים שפורסמו בעבר נשמרים בארכיון. כדי לקשר פרופיל ישן לחשבון באתר, יש להיכנס עם כתובת המייל ששימשה אותו.</p>
     {known ? <div className="sod29-community-claim-person"><strong>{known.name}</strong>{known.handle ? <span dir="ltr">@{known.handle}</span> : null}</div> : null}
@@ -36,6 +36,6 @@ export default function LegacyAccountClaim({ contributorId, palette }) {
       {!loading && user ? <div className="sod29-community-claim-actions"><p>התביעה תתבצע רק אם המייל המאומת של החשבון המחובר תואם למייל השמור בפרופיל הישן. הקישור לבדו אינו מקנה בעלות.</p><button type="button" className="sod29-community-primary" disabled={claiming} onClick={claim}>{claiming ? "בודק שיוך…" : "אימות ותביעת החשבון הישן"}</button></div> : null}
       {error ? <p role="alert" className="sod29-community-sign-in-error">{error} <a href="mailto:zyz997@gmail.com">פנייה במייל</a></p> : null}
     </> : null}
-    {claimed ? <div className="sod29-community-claim-editor"><h2>החשבון הישן קושר בהצלחה</h2><p>אפשר כעת לקבוע את שם המשתמש, שם התצוגה והתמונה בחשבון הקיים.</p><ProfileSettings t={{ fieldBg: palette.cardRaised, ink: palette.ink, line: palette.line, sub: palette.ink, acc: palette.accent || "#ba8b42", btnText: "#fff" }} /><Link to={`/2029?preview=community&data=live&member=${contributorId}`}>הפרופיל הציבורי ←</Link><br /><Link to="/profile">הגדרות החשבון המלאות ←</Link></div> : null}
+    {claimed ? <div className="sod29-community-claim-editor"><h2>החשבון הישן קושר בהצלחה</h2><p>אפשר כעת לקבוע את שם המשתמש, שם התצוגה והתמונה בחשבון הקיים.</p><ProfileSettings t={{ fieldBg: palette.cardRaised, ink: palette.ink, line: palette.line, sub: palette.ink, acc: palette.accent || "#ba8b42", btnText: "#fff" }} /><Link to={`/?preview=community&data=live&member=${contributorId}`}>הפרופיל הציבורי ←</Link><br /><Link to="/profile">הגדרות החשבון המלאות ←</Link></div> : null}
   </section>;
 }

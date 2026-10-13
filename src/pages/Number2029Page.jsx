@@ -15,6 +15,7 @@ import {
   buildNumberCoreProjection,
   fetchNumberMethodProfile,
   fetchNumberHiddenCrossings,
+  deriveHiddenCrossings,
   methodProfileEntry,
 } from "../lib/research/numberCoreProjection.js";
 import NumberCore2029 from "../components/number2029/NumberCore2029.jsx";
@@ -30,6 +31,7 @@ import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/resear
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
 import "./number2029.css";
+import "./number2029-wide.css";
 
 const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
 const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
@@ -40,6 +42,8 @@ const NUMBER_PAGE_PROJECTION_CACHE = new Map();
 const NUMBER_REGULAR_PHRASE_CACHE = new Map();
 const NUMBER_HIDDEN_CROSS_CACHE = new Map();
 const NUMBER_SYSTEM_METHODS_CACHE = new Map();
+const NUMBER_METHOD_PROFILE_CACHE = new Map();
+const NUMBER_METHOD_PROFILE_INFLIGHT = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function rememberBounded(cache, key, value, max = 36) {
@@ -47,6 +51,43 @@ function rememberBounded(cache, key, value, max = 36) {
   cache.set(key, value);
   while (cache.size > max) cache.delete(cache.keys().next().value);
   return value;
+}
+
+// Engine-returned method profiles are deterministic per expression, so a bounded cache is safe.
+// In-flight requests are shared so a prefetch and a real selection never double-fetch.
+function loadMethodProfileCached(expression) {
+  const expr = clean(expression);
+  const cached = NUMBER_METHOD_PROFILE_CACHE.get(expr);
+  if (cached) return Promise.resolve(cached);
+  const inflight = NUMBER_METHOD_PROFILE_INFLIGHT.get(expr);
+  if (inflight) return inflight;
+  const pending = fetchNumberMethodProfile(expr)
+    .then((rows) => {
+      if (Array.isArray(rows) && rows.length) rememberBounded(NUMBER_METHOD_PROFILE_CACHE, expr, rows, 48);
+      return rows;
+    })
+    .finally(() => { NUMBER_METHOD_PROFILE_INFLIGHT.delete(expr); });
+  NUMBER_METHOD_PROFILE_INFLIGHT.set(expr, pending);
+  return pending;
+}
+
+function hiddenCrossCacheKey(expression, profileRows) {
+  const profileKey = (profileRows || [])
+    .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
+    .join("|");
+  return `${clean(expression)}::${profileKey}`;
+}
+
+function railNeighbourPhrases(rows, active, reach = 2) {
+  const list = (rows || []).map((row) => clean(row?.phrase)).filter(Boolean);
+  const at = list.indexOf(clean(active));
+  if (at < 0) return [];
+  const out = [];
+  for (let step = 1; step <= reach; step += 1) {
+    if (list[at + step]) out.push(list[at + step]);
+    if (list[at - step]) out.push(list[at - step]);
+  }
+  return out;
 }
 
 function deferClientWork(callback, { delay = 120, timeout = 700 } = {}) {
@@ -212,8 +253,28 @@ function NumberPageBody() {
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
-  const root = Number(value);
+  // The literal "0" is valid. Empty, malformed or unsafe root strings are not.
+  const root = /^\d+$/.test(String(value || "")) && Number.isSafeInteger(Number(value))
+    ? Number(value)
+    : null;
   const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
+  // Wide-screen layout preview: ?wide=a (default) | c | 0 (current single column). Remembered per tab.
+  const wideLayout = useMemo(() => {
+    try {
+      const requested = new URLSearchParams(location.search).get("wide");
+      if (requested) sessionStorage.setItem("sod29-number-wide", requested);
+      const value = requested || sessionStorage.getItem("sod29-number-wide");
+      return value === "c" || value === "0" ? value : "a";
+    } catch { return "a"; }
+  }, [location.search]);
+  // Smart expression rail preview: ?rail=smart enables cached profiles, idle neighbour prefetch and keyboard stepping.
+  const smartRail = useMemo(() => {
+    try {
+      const requested = new URLSearchParams(location.search).get("rail");
+      if (requested) sessionStorage.setItem("sod29-number-rail", requested);
+      return (requested || sessionStorage.getItem("sod29-number-rail")) === "smart";
+    } catch { return false; }
+  }, [location.search]);
 
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
@@ -241,11 +302,10 @@ function NumberPageBody() {
   const deepSentinelRef = useRef(null);
 
   useEffect(() => {
-    if (!Number.isInteger(root) || root < 0) {
+    if (!Number.isSafeInteger(root) || root < 0) {
       setState({ loading: false, data: null, error: new Error("invalid-number") });
       return undefined;
     }
-    let alive = true;
     const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
     const contextExplicit = sameContextRoot && research.context?.dimensions?.expressionFocusExplicit === true;
     const contextExpression = contextExplicit ? clean(research.context?.selection?.expression) : "";
@@ -265,41 +325,60 @@ function NumberPageBody() {
       limit: DEFAULT_VERSE_GEMATRIA_LIMIT,
       error: null,
     });
+  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
 
+  useEffect(() => {
+    if (!Number.isSafeInteger(root) || root < 0) return undefined;
+    let alive = true;
+    let settled = false;
     const cacheKey = String(root);
     const cached = NUMBER_PAGE_PROJECTION_CACHE.get(cacheKey);
-    if (cached?.data) {
+    if (cached?.data && !cached.promise) {
       setState({ loading: false, data: cached.data, error: null });
       return () => { alive = false; };
     }
-    setState({ loading: true, data: null, error: null });
+    setState({ loading: true, data: cached?.data || null, error: null });
 
-    const pending = cached?.promise || fetchEntityHubProjection({
+    const entry = cached || { data: null, promise: null };
+    entry.listeners ||= new Set();
+    const receiveCore = (partial) => {
+      if (alive) setState({ loading: true, data: partial, error: null });
+    };
+    entry.listeners.add(receiveCore);
+    const pending = entry.promise || fetchEntityHubProjection({
       type: "number",
       key: cacheKey,
       relationLimit: 140,
       researchLimit: 80,
       topicLimit: 24,
+      onNumberCore: (partial) => {
+        if (settled) return;
+        entry.data = partial;
+        for (const receive of entry.listeners) receive(partial);
+      },
     });
-    if (!cached?.promise) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { promise: pending }, 20);
+    entry.promise = pending;
+    rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, entry, 20);
 
     pending
       .then((data) => {
+        settled = true;
         if (data) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { data }, 20);
         else NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
         if (alive) setState({ loading: false, data, error: null });
       })
       .catch((error) => {
+        settled = true;
         NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
-        if (alive) setState({ loading: false, data: null, error });
+        if (alive) setState((current) => ({ loading: false, data: current.data, error }));
       });
-    return () => { alive = false; };
-  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
+    return () => { alive = false; entry.listeners.delete(receiveCore); };
+  }, [root]);
 
   const data = state.data;
 
   useEffect(() => {
-    if (!data || !Number.isSafeInteger(root)) return undefined;
+    if (!data || data.numberPagePending || !Number.isSafeInteger(root)) return undefined;
     let alive = true;
     fetchVersesByGematria(root, { limit: DEFAULT_VERSE_GEMATRIA_LIMIT })
       .then((result) => {
@@ -323,7 +402,7 @@ function NumberPageBody() {
 
   useEffect(() => {
     const node = deepSentinelRef.current;
-    if (!node || deepRequested) return undefined;
+    if (!node || deepRequested || state.loading) return undefined;
     if (typeof IntersectionObserver === "undefined") {
       setDeepRequested(true);
       return undefined;
@@ -336,7 +415,7 @@ function NumberPageBody() {
     }, { rootMargin: "900px 0px", threshold: 0 });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [data, root, deepRequested]);
+  }, [data, root, deepRequested, state.loading]);
 
   useEffect(() => {
     if (!deepRequested || !data?.identity || data.identity.type !== "number") {
@@ -484,8 +563,17 @@ function NumberPageBody() {
       return undefined;
     }
     let alive = true;
+    const warm = smartRail ? NUMBER_METHOD_PROFILE_CACHE.get(expr) : null;
+    if (warm) {
+      // Prefetched by the smart rail: settle instantly, no empty/loading flash between neighbours.
+      setMethodProfileState({ loading: false, rows: warm, expression: expr, error: null });
+      const selectedWarm = warm.find((row) => row.methodKey === selectedMethodKey)
+        || (!focusExplicit ? warm.find((row) => isRegularMethodIdentity(row.methodKey)) || warm[0] : null);
+      if (selectedWarm && selectedWarm.methodKey !== selectedMethodKey) setSelectedMethodKey(selectedWarm.methodKey);
+      return undefined;
+    }
     setMethodProfileState({ loading: true, rows: [], error: null });
-    fetchNumberMethodProfile(expr)
+    (smartRail ? loadMethodProfileCached : fetchNumberMethodProfile)(expr)
       .then((rows) => {
         if (!alive) return;
         setMethodProfileState({ loading: false, rows, expression: expr, error: null });
@@ -512,10 +600,7 @@ function NumberPageBody() {
       return undefined;
     }
 
-    const profileKey = methodProfileState.rows
-      .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
-      .join("|");
-    const cacheKey = `${expr}::${profileKey}`;
+    const cacheKey = hiddenCrossCacheKey(expr, methodProfileState.rows);
     const cached = NUMBER_HIDDEN_CROSS_CACHE.get(cacheKey);
     if (cached) {
       setHiddenCrossState({ loading: false, rows: cached, error: null });
@@ -524,7 +609,7 @@ function NumberPageBody() {
 
     let alive = true;
     let cancelDeferred = null;
-    setHiddenCrossState({ loading: false, rows: [], error: null });
+    setHiddenCrossState({ loading: true, rows: [], error: null });
     cancelDeferred = deferClientWork(() => {
       if (!alive) return;
       setHiddenCrossState({ loading: true, rows: [], error: null });
@@ -591,6 +676,82 @@ function NumberPageBody() {
 
     return rows;
   }, [activeExpression, regularMethodProfile, regularGroup, regularPhraseState, root]);
+
+  // Smart rail compare: pin one expression, slide another. Uses the existing pure same-method crossing rule
+  // (equivalence collapse, anagram exclusion, at least two distinct methods) over engine-returned profiles only.
+  const [pinnedCompare, setPinnedCompare] = useState(null);
+  const pinCompare = (expression) => {
+    const expr = clean(expression);
+    if (!expr) { setPinnedCompare(null); return; }
+    if (methodProfileState.expression !== expr || !methodProfileState.rows.length) return;
+    setPinnedCompare({ expression: expr, rows: methodProfileState.rows });
+  };
+  const compareModel = useMemo(() => {
+    if (!smartRail || !pinnedCompare) return null;
+    const a = pinnedCompare.expression;
+    const b = clean(activeExpression);
+    if (!b || b === a) return { state: "same", a };
+    if (methodProfileState.loading || methodProfileState.expression !== b || !methodProfileState.rows.length) return { state: "loading", a, b };
+    const columnByMethod = new Map(pinnedCompare.rows.map((row) => [row.methodKey, row.dbColumn]));
+    const candidate = { phrase: b, lead_rank: null };
+    let compared = 0;
+    let equal = 0;
+    const ownByMethod = new Map(pinnedCompare.rows.map((row) => [row.methodKey, traceNumber(row.computedValue)]));
+    for (const row of methodProfileState.rows) {
+      const column = columnByMethod.get(row.methodKey);
+      const other = traceNumber(row.computedValue);
+      const own = ownByMethod.get(row.methodKey);
+      if (!column || other == null || own == null) continue;
+      candidate[column] = other;
+      compared += 1;
+      if (other === own) equal += 1;
+    }
+    const [crossing = null] = deriveHiddenCrossings({ expression: a, methodProfile: pinnedCompare.rows, candidates: [candidate], limit: 1 });
+    return { state: "ready", a, b, compared, equal, crossing };
+  }, [smartRail, pinnedCompare, activeExpression, methodProfileState]);
+
+  // Smart rail: crossing counts appear on a chip only after the canonical reader computed them (unknown stays blank).
+  const [railSignals, setRailSignals] = useState({});
+  useEffect(() => {
+    if (!smartRail) return;
+    const expr = clean(activeExpression);
+    if (!expr || methodProfileState.expression !== expr || methodProfileState.loading || !methodProfileState.rows.length) return;
+    const known = NUMBER_HIDDEN_CROSS_CACHE.get(hiddenCrossCacheKey(expr, methodProfileState.rows));
+    if (!Array.isArray(known)) return;
+    setRailSignals((prev) => (prev[expr] === known.length ? prev : { ...prev, [expr]: known.length }));
+  }, [smartRail, activeExpression, methodProfileState, hiddenCrossState]);
+
+  // Idle-time warm-up of the nearest rail neighbours, one request chain at a time, cancelled on any selection.
+  useEffect(() => {
+    if (!smartRail || typeof window === "undefined") return undefined;
+    const expr = clean(activeExpression);
+    if (!expr || methodProfileState.expression !== expr || methodProfileState.loading || hiddenCrossState.loading) return undefined;
+    const connection = typeof navigator !== "undefined" ? navigator.connection : null;
+    if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || "")) return undefined;
+    const targets = railNeighbourPhrases(regularExpressions, expr, 2).filter((phrase) => !/^\d+$/.test(phrase));
+    if (!targets.length) return undefined;
+    let alive = true;
+    const run = async () => {
+      for (const phrase of targets) {
+        if (!alive) return;
+        try {
+          const rows = await loadMethodProfileCached(phrase);
+          if (!alive || !Array.isArray(rows) || !rows.length) continue;
+          const key = hiddenCrossCacheKey(phrase, rows);
+          let crossings = NUMBER_HIDDEN_CROSS_CACHE.get(key);
+          if (!Array.isArray(crossings)) {
+            crossings = await fetchNumberHiddenCrossings(phrase, rows, { limit: 13 });
+            crossings = Array.isArray(crossings) ? crossings : [];
+            rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, key, crossings, 48);
+          }
+          if (alive) setRailSignals((prev) => (prev[phrase] === crossings.length ? prev : { ...prev, [phrase]: crossings.length }));
+        } catch { /* warm-up is best effort; a real selection still loads normally */ }
+        await new Promise((resolve) => window.setTimeout(resolve, 150));
+      }
+    };
+    const cancel = deferClientWork(() => { if (alive) void run(); }, { delay: 600, timeout: 2500 });
+    return () => { alive = false; cancel(); };
+  }, [smartRail, activeExpression, methodProfileState.expression, methodProfileState.loading, hiddenCrossState.loading, regularExpressions]);
 
   const selectedGroup = useMemo(
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
@@ -830,6 +991,11 @@ function NumberPageBody() {
     };
   }, [contextualWorld]);
 
+  // An inbound `cross` parameter is untrusted navigation state, not evidence.
+  // Show/persist a crossing only after the existing verified reader found it.
+  const verifiedCrossingPartner = (Array.isArray(hiddenCrossState.rows) ? hiddenCrossState.rows : [])
+    .some((item) => clean(item?.partner) === clean(focusedCrossingPartner))
+    ? clean(focusedCrossingPartner) : "";
   const activeMethodLabel = selectedMethodProfile ? methodProfileLabel(selectedMethodProfile) : methodLabel(selectedGroup);
   const focusMethodKey = selectedMethodProfile?.methodKey || selectedMethodKey || null;
   const focusExpression = focusExplicit ? clean(activeExpression) : "";
@@ -840,8 +1006,8 @@ function NumberPageBody() {
   const currentNumberHref = numberExpressionFocusHref(root, {
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
-    crossingPartner: focusExplicit ? focusedCrossingPartner : null,
-  }) || `/2029/number/${root}`;
+    crossingPartner: focusExplicit ? verifiedCrossingPartner : null,
+  }) || `/number/${root}`;
   const focusSelection = (entityId = root) => ({
     ...(research.context?.selection?.entityId === String(entityId)
       && (research.context.selection.expression || "") === focusExpression ? {
@@ -856,8 +1022,8 @@ function NumberPageBody() {
     methodVersion: focusExplicit ? focusTrace?.method_version ?? focusProfile?.definitionVersion ?? null : null,
     findingId: focusTrace ? traceState.finding?.id || null : null,
     resultValue: focusExplicit && (traceNumber(activeResult) != null) ? Number(activeResult) : null,
-    focusKind: focusExplicit ? (focusedCrossingPartner ? "crossing" : "expression") : null,
-    crossingPartner: focusExplicit ? focusedCrossingPartner || null : null,
+    focusKind: focusExplicit ? (verifiedCrossingPartner ? "crossing" : "expression") : null,
+    crossingPartner: focusExplicit ? verifiedCrossingPartner || null : null,
   });
 
   const clearExpressionFocus = () => {
@@ -871,7 +1037,7 @@ function NumberPageBody() {
       lens: "number",
       dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: false },
     });
-    navigate(`/2029/number/${root}`, { replace: true });
+    navigate(`/number/${root}`, { replace: true });
   };
 
   const returnToOriginTopic = () => {
@@ -887,6 +1053,20 @@ function NumberPageBody() {
       returnTo: null,
     });
     navigate(href);
+  };
+
+  const clearCrossingFocus = () => {
+    setFocusedCrossingPartner("");
+    const href = numberExpressionFocusHref(root, {
+      expression: focusExpression || null,
+      method: focusExplicit ? focusMethodKey : null,
+    });
+    // Preserve the selected expression/method, while clearing only the crossing.
+    research.updateResearchContext?.({
+      selection: { ...focusSelection(root), focusKind: focusExpression ? "expression" : null, crossingPartner: null },
+      dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: Boolean(focusExpression) },
+    });
+    if (href) navigate(href, { replace: true });
   };
 
   const activateExpressionFocus = (expression, preferredMethod = null) => {
@@ -928,7 +1108,7 @@ function NumberPageBody() {
     // captured the selected Topic source after this render was scheduled.
     research.updateResearchContext?.({ subject, selection, lens: "number",
       dimensions: { expressionFocusExplicit: Boolean(focusExplicit) } });
-  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, verifiedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [pathError, setPathError] = useState(null);
   const sourceReturnRequest = useRef(0);
@@ -951,7 +1131,7 @@ function NumberPageBody() {
         subject: { id: String(root), type: "number", label: String(root), href: currentNumberHref },
         selection: focusSelection(root), lens: "number" },
       href: currentNumberHref, surface: "number", kind: "number_expression",
-      reason: focusExplicit ? (focusedCrossingPartner ? "selected_crossing" : "selected_method") : "selected_number",
+      reason: focusExplicit ? (verifiedCrossingPartner ? "selected_crossing" : "selected_method") : "selected_number",
     });
     setPathError(result?.ok ? null : "הבחירה לא נוספה. אפשר לשמור את המסע ולנסות שוב.");
     if (!result?.ok) return;
@@ -1033,7 +1213,7 @@ function NumberPageBody() {
     }
     const focusPatch = focus && typeof focus === "object" ? focus : {};
     const forcedExpression = clean(focusPatch.expression) || (intent === "explain_crossing" ? clean(activeExpression) : focusExpression);
-    const forcedCrossing = clean(focusPatch.partner || focusPatch.crossingPartner) || focusedCrossingPartner;
+    const forcedCrossing = clean(focusPatch.partner || focusPatch.crossingPartner) || verifiedCrossingPartner;
     const numberCoreFocus = {
       root,
       expression: forcedExpression || activeExpression || null,
@@ -1069,7 +1249,7 @@ function NumberPageBody() {
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
       setFocusExplicit(false);
       setFocusedCrossingPartner("");
-      navigate(`/2029/number/${Number(raw)}`);
+      navigate(`/number/${Number(raw)}`);
       return;
     }
     try {
@@ -1131,7 +1311,7 @@ function NumberPageBody() {
     const selection = focusSelection(root);
     const nextHref = keepFocus
       ? numberExpressionFocusHref(next, { expression: focusExpression, method: focusMethodKey })
-      : `/2029/number/${next}`;
+      : `/number/${next}`;
     const nextSelection = keepFocus
       ? { ...focusSelection(next), resultValue: next }
       : { entityId: String(next), entityType: "number" };
@@ -1158,20 +1338,45 @@ function NumberPageBody() {
     navigate(nextHref);
   };
 
-  if (!Number.isInteger(root) || root < 0) {
+  if (!Number.isSafeInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
-  if (state.loading) {
+  if (state.loading && !data) {
     return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
   }
-  if (state.error || !data) {
+  // A valid numeric zero currently has no public Number node. Render a bounded
+  // full-page empty state, not a fabricated Research/Graph or a fake 0 result.
+  // A real canonical node, if approved later, naturally uses NumberCore instead.
+  if (root === 0 && !state.error && !data) {
+    return <div className="sod29-number-page" data-experience-surface="number" data-number-root="0" data-number-empty="true">
+      <section className="sod29-number-zero-empty" aria-label="דף המספר 0">
+        <div className="sod29-number-zero-identity">
+          <span>דף המספר · Root</span>
+          <strong>0</strong>
+        </div>
+        <div>
+          <h1>אין עדיין חומר מחקרי מקושר ל־0</h1>
+          <p>המספר 0 הוא ערך תקין. מאגר המחקר לא החזיר עבורו כרגע רשומת מספר ציבורית. אין כאן חישוב, מקור או הצלבה שנוצרו באופן מלאכותי.</p>
+          <form className="sod29-number-zero-search" onSubmit={(event) => {
+            event.preventDefault();
+            const input = event.currentTarget.elements.namedItem("number");
+            void resolveNumberQuery(input?.value || "");
+          }}>
+            <input name="number" placeholder="חפש מספר או ביטוי אחר" aria-label="חפש מספר או ביטוי אחר" required />
+            <button type="submit">חפש</button>
+          </form>
+        </div>
+      </section>
+    </div>;
+  }
+  if (!data) {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
   }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
-        <strong>{focusedCrossingPartner ? `${focusExpression} ↔ ${focusedCrossingPartner}` : focusExpression}</strong>
+        <strong>{verifiedCrossingPartner ? `${focusExpression} ↔ ${verifiedCrossingPartner}` : focusExpression}</strong>
         <small>{activeMethodLabel || focusMethodKey || "שיטה"} {(traceNumber(activeResult) != null) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
       </div>
       <div className="sod29-actions">
@@ -1194,19 +1399,29 @@ function NumberPageBody() {
         traceSteps={traceSteps}
         traceDetail={trace}
         stageProjection={stageProjection}
-        stageLoading={methodResultState.loading}
-        methodsLoading={methodProfileState.loading}
+        stageLoading={methodResultState.loading || (stageRoot === root && state.loading)}
+        contentPending={Boolean(data.numberPagePending)}
+        contentError={Boolean(state.error)}
+        methodsLoading={methodProfileState.loading || (!methodProfileState.rows.length && !state.error && (Boolean(data.gematria?.pending) || (state.loading && !activeExpression)))}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
+        smartRail={smartRail}
+        railSignals={railSignals}
+        compareModel={compareModel}
+        pinnedExpression={pinnedCompare?.expression || null}
+        onPinCompare={pinCompare}
+        onClearCompare={() => setPinnedCompare(null)}
         onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}
         hiddenCrossings={hiddenCrossState.rows}
-        hiddenCrossingsLoading={hiddenCrossState.loading}
+        hiddenCrossingsLoading={hiddenCrossState.loading || methodProfileState.loading}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
+        activeCrossingPartner={focusExplicit ? verifiedCrossingPartner : null}
+        onClearCrossing={clearCrossingFocus}
         onOpenCrossing={(crossing) => {
           const partner = clean(crossing?.partner);
           if (partner && clean(activeExpression)) {
@@ -1230,7 +1445,7 @@ function NumberPageBody() {
             });
             if (href) navigate(href, { replace: true });
           }
-          askRaziel("explain_crossing", { kind: "crossing", partner: partner || null, methods: crossing?.methods || [] });
+          // Selection is navigation, not consent to run the gated/paid Raziel tool.
         }}
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
@@ -1247,7 +1462,7 @@ function NumberPageBody() {
 
     <NumberPathContinuation2029
       active={research.context?.dimensions?.journey2029Active === true}
-      selectionLabel={focusExpression ? `${focusExpression} · ${activeMethodLabel}${focusedCrossingPartner ? ` · ${focusedCrossingPartner}` : ""}` : `המספר ${root}`}
+      selectionLabel={focusExpression ? `${focusExpression} · ${activeMethodLabel}${verifiedCrossingPartner ? ` · ${verifiedCrossingPartner}` : ""}` : `המספר ${root}`}
       steps={research.researchPathSteps || []}
       onContinue={continueJourney}
       onWorkspace={() => shell.openWorkspace()}
@@ -1267,7 +1482,9 @@ function NumberPageBody() {
       error={pathError}
     />
 
-    <NumberLivingWorld2029
+    {state.loading ? <FrameState kind="loading" title="טוען את הקשרים והמקורות">אפשר כבר לחקור את המספר והשיטות.</FrameState>
+      : state.error ? <FrameState kind="unavailable" title="הקשרים והמקורות לא זמינים כרגע">אפשר להמשיך עם המידע שכבר נטען.</FrameState>
+      : <NumberLivingWorld2029
       root={root}
       data={data}
       activeExpression={activeExpression}
@@ -1308,7 +1525,7 @@ function NumberPageBody() {
         expression: activeExpression || null,
         method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       })}
-    />
+    />}
 
     <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
     {deepRequested && deepViewModel ? <NumberDeepView2029
@@ -1328,7 +1545,7 @@ export default function Number2029Page() {
     applySeo({
       title: `${value || "מספר"} · דף המספר`,
       description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
-      path: `/2029/number/${value || ""}`,
+      path: `/number/${value || ""}`,
       noindex: true,
     });
   }, [value]);
@@ -1338,6 +1555,6 @@ export default function Number2029Page() {
     symbol={<NavigationIcon2029 name="number" />}
     status="LIVING NUMBER · DESIGN PREVIEW"
   >
-    <NumberPageBody />
+    <NumberPageBody key={value} />
   </Sod2029Shell>;
 }

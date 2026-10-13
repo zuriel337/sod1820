@@ -74,6 +74,7 @@ export default function VideoAssetPage() {
   const { assetId } = useParams();
   const P = usePalette();
   const [state, setState] = useState({ loading: true, asset: null, error: null });
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -81,16 +82,19 @@ export default function VideoAssetPage() {
       setState({ loading: false, asset: null, error: null });
       return () => { alive = false; };
     }
+    setState({ loading: true, asset: null, error: null });
+    const controller = new AbortController();
     supabase.from("video_media_assets_v1")
       .select("public_id,video_kind,media_url,youtube_id,title,poster_url,thumb_url,primary_page_url,uses_generic_page,google_indexable,placement_count,source_types,series_keys,cipher_slugs,topics,placements,first_seen_at,last_seen_at")
       .eq("public_id", assetId)
+      .abortSignal(controller.signal)
       .maybeSingle()
       .then(({ data, error }) => {
         if (!alive) return;
         setState({ loading: false, asset: data || null, error: error || null });
       });
-    return () => { alive = false; };
-  }, [assetId]);
+    return () => { alive = false; controller.abort(); };
+  }, [assetId, retry]);
 
   const asset = state.asset;
   const title = decodeHtml(asset?.title || "סרטון");
@@ -100,13 +104,13 @@ export default function VideoAssetPage() {
   useEffect(() => {
     if (state.loading || asset) return;
     applySeo({
-      title: "הסרטון לא נמצא",
-      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820 2029.",
+      title: state.error ? "טעינת הסרטון לא הושלמה" : "הסרטון לא נמצא",
+      description: "נכס הווידאו המבוקש אינו זמין ב-SOD1820.",
       path: `/video/${assetId || ""}`,
       noindex: true,
     });
     clearUnifiedVideoJsonLd();
-  }, [state.loading, asset, assetId]);
+  }, [state.loading, state.error, asset, assetId]);
 
   useEffect(() => {
     if (!asset || !asset.uses_generic_page) return;
@@ -117,6 +121,7 @@ export default function VideoAssetPage() {
       description: topics.length ? `${title} — ${topics.slice(0, 5).join(" · ")}` : `${title} — וידאו ב-SOD1820`,
       path,
       image: poster,
+      noindex: asset.google_indexable !== true,
     });
     setUnifiedVideoJsonLd({ ...asset, title }, path);
     return () => clearUnifiedVideoJsonLd();
@@ -135,7 +140,12 @@ export default function VideoAssetPage() {
   if (target) return <Navigate replace to={target} />;
 
   if (state.loading) return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: P.inkSoft }}>טוען סרטון…</div>;
-  if (state.error || !asset) return <div style={{ direction: "rtl", maxWidth: 780, margin: "60px auto", padding: 24, color: P.ink }}>
+  if (state.error) return <div role="alert" style={{ direction: "rtl", maxWidth: 780, margin: "60px auto", padding: 24, color: P.ink }}>
+    <h1>טעינת הסרטון לא הושלמה</h1>
+    <p style={{ color: P.inkSoft }}>אפשר לנסות שוב בעוד רגע.</p>
+    <button type="button" className="sod29-action" onClick={() => setRetry(value => value + 1)}>נסה שוב</button>
+  </div>;
+  if (!asset) return <div style={{ direction: "rtl", maxWidth: 780, margin: "60px auto", padding: 24, color: P.ink }}>
     <h1>הסרטון לא נמצא</h1><p style={{ color: P.inkSoft }}>הקישור אינו קיים או שהמדיה אינה ציבורית.</p>
     <Link to="/world">חזרה לעולם</Link>
   </div>;

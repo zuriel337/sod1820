@@ -17,7 +17,7 @@ export function feedKindLabel(item) {
 export function feedHref(item) {
   if (item?.kind === "source") return item.href || (item.sourceKind === "group_message" ? "/world#world-sources" : null);
   if (item?.kind === "convergence" && item.slug) return `/topic/${encodeURIComponent(item.slug)}`;
-  if (item?.kind === "finding") return item.value != null ? `/2029/number/${item.value}` : "/world";
+  if (item?.kind === "finding") return item.value != null ? `/number/${item.value}` : "/world";
   return null;
 }
 

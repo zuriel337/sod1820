@@ -1,4 +1,4 @@
-// SOD1820 2029 Web Vitals core — pure metric state, no browser or transport imports.
+// SOD1820 Web Vitals core — pure metric state, no browser or transport imports.
 // Owner: Experience release acceptance + Traffic Intelligence measurement truth.
 // This module intentionally keeps the Google-compatible thresholds explicit and versioned.
 

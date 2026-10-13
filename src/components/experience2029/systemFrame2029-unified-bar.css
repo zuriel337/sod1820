@@ -304,10 +304,33 @@
   .sod29-root[data-frame-theme-preset="dark"].closed-shell.native-frame .sod29-companion.is-peek { box-shadow: inset 0 1px 0 var(--s29-glass-shine), 0 20px 60px color-mix(in srgb, var(--s29-page) 65%, transparent); }
 }
 
-/* Phone top bar: the three modes live in the navigation drawer (already there), and the orientation shows only the page name,
-   so the bar keeps menu, title, search and account without crowding. */
+.sod29-theme-options { display: contents; }
+.sod29-theme-presets .sod29-theme-trigger { display: none; }
+@media (min-width: 981px) {
+  .sod29-header-actions .sod29-theme-presets .sod29-theme-trigger { display: none !important; }
+}
+
+/* The compact top-bar control opens the same three theme choices on phones.
+   Keep one 44px target visible alongside menu, page name, search and account. */
 @media (max-width: 980px) {
-  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control {
+    position: relative; display: flex; flex: 0 0 44px; width: 44px; min-width: 44px;
+    padding: 0; gap: 0; border: 0; border-radius: 14px; background: transparent;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-trigger { display: inline-flex; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-trigger b { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-options { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control.is-open .sod29-theme-options {
+    position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 3;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
+    width: 228px; max-width: calc(100vw - 20px); padding: 6px;
+    border: 1px solid var(--s29-line-strong); border-radius: 16px; background: var(--s29-panel);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-options button {
+    display: grid !important; width: auto; min-width: 44px; height: 52px; min-height: 44px;
+    padding: 4px !important; border-radius: 12px;
+  }
   .sod29-root.closed-shell.native-frame .sod29-orientation > span:first-child,
   .sod29-root.closed-shell.native-frame .sod29-orientation > i:first-of-type { display: none; }
 }

@@ -162,7 +162,7 @@ function intentFor(kind) {
 function projectionHints({ kind, resolution, input }) {
   const primary = resolution?.primary || null;
   const numberValue = primary?.type === "number" ? Number(primary.value ?? primary.label) : null;
-  const fullHref = Number.isFinite(numberValue) ? `/2029/number/${numberValue}` : null;
+  const fullHref = Number.isFinite(numberValue) ? `/number/${numberValue}` : null;
   const intakeRequired = [INPUT_KIND.MEDIA, INPUT_KIND.MIXED].includes(kind) && Boolean(input?.mediaRef || input?.file || input?.image || input?.assetRef);
 
   return Object.freeze({

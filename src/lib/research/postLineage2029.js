@@ -34,7 +34,7 @@ function changedAt(postId, presentIds) {
 }
 
 const AXES = Object.freeze({
-  631: Object.freeze({ id: "axis-631", label: "ציר 631", href: "/2029/number/631", opensIn: 5107, continuesIn: 5113 }),
+  631: Object.freeze({ id: "axis-631", label: "ציר 631", href: "/number/631", opensIn: 5107, continuesIn: 5113 }),
 });
 
 const rootOf = (postId) => { let id = Number(postId); while (POSTS[id]?.parent) id = POSTS[id].parent; return id; };

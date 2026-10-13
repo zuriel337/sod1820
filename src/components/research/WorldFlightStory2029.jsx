@@ -54,7 +54,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const image = (home ? post.thumb_url : post.image_url) || post.image_url || media?.poster;
   const openWorld = () => {
     research.updateResearchContext?.({ subject: null, selection: null, lens: 'world',
-      returnTo: { href: '/2029#home-plane', label: 'סיפור המטוס בבית', subject: null,
+      returnTo: { href: '/#home-plane', label: 'סיפור המטוס בבית', subject: null,
         selection: null, lens: 'home', dimensions: {}, journey: research.context?.journey || null } });
     shell.go('/world#world-plane-story', { preserve: false });
   };
@@ -67,7 +67,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   };
   const date = post.date ? relativeTimeLabel(post.date) : null;
   return <section id={anchor} className={`sod29-flight-story is-${surface}`} data-flight-story={surface} aria-label="סיפור המטוס וכיווני הגילוי">
-    {!home ? <div className="sod29-flight-breadcrumb"><button onClick={() => shell.go('/2029#home-plane')}>הבית</button><span aria-hidden="true">/</span><span>סיפור המטוס בעולם</span></div> : null}
+    {!home ? <div className="sod29-flight-breadcrumb"><button onClick={() => shell.go('/#home-plane')}>הבית</button><span aria-hidden="true">/</span><span>סיפור המטוס בעולם</span></div> : null}
     <div className="sod29-flight-feature">
       <div className="sod29-flight-copy">
         <div className="sod29-kicker">רמזי גאולה · מתוך המקור</div>

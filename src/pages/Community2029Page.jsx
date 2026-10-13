@@ -95,7 +95,7 @@ function CommunityDesignPreview() {
   }, [memberId]);
 
   useEffect(() => {
-    applySeo({ title: "הקהילה — תצוגת עיצוב", description: "תצוגת עיצוב של דף הקהילה, עם תוכן דוגמה בלבד.", path: "/2029?preview=community", noindex: true });
+    applySeo({ title: "הקהילה — תצוגת עיצוב", description: "תצוגת עיצוב של דף הקהילה, עם תוכן דוגמה בלבד.", path: "/?preview=community", noindex: true });
   }, []);
 
   const threads = useMemo(() => {

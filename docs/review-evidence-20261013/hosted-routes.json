@@ -1,0 +1,89 @@
+{
+  "origin": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "location": null,
+      "robots": "noindex",
+      "title": "SOD1820",
+      "native": true,
+      "canonical": "https://sod1820.co.il"
+    },
+    {
+      "path": "/posts",
+      "status": 200,
+      "location": null,
+      "robots": "noindex",
+      "title": "SOD1820",
+      "native": true
+    },
+    {
+      "path": "/2029?ref=old",
+      "status": 308,
+      "location": "/?ref=old",
+      "robots": "noindex",
+      "native": false
+    },
+    {
+      "path": "/2029/posts?page=2",
+      "status": 308,
+      "location": "/posts?page=2",
+      "robots": "noindex",
+      "native": false
+    },
+    {
+      "path": "/2029.html",
+      "status": 308,
+      "location": "/",
+      "robots": "noindex",
+      "native": false
+    },
+    {
+      "path": "/post",
+      "status": 308,
+      "location": "/posts",
+      "robots": "noindex",
+      "native": false
+    },
+    {
+      "path": "/gematria/viral?q=test",
+      "status": 200,
+      "location": null,
+      "robots": "noindex, nofollow, noarchive",
+      "title": "SOD1820",
+      "native": true
+    },
+    {
+      "path": "/video/5c31d5a39af321bc109b06c074af1e11",
+      "status": 200,
+      "location": null,
+      "robots": "noindex",
+      "title": "SOD1820",
+      "native": true
+    },
+    {
+      "path": "/code",
+      "status": 200,
+      "location": null,
+      "robots": "noindex",
+      "title": "SOD1820",
+      "native": true
+    },
+    {
+      "path": "/community/chat",
+      "status": 200,
+      "location": null,
+      "robots": "noindex, nofollow, noarchive",
+      "title": "SOD1820",
+      "native": true
+    },
+    {
+      "path": "/flydubai-fz1073-363-14000-remzei-geula",
+      "status": 308,
+      "location": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "robots": "noindex",
+      "native": false
+    }
+  ]
+}

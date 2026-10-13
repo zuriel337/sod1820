@@ -3495,10 +3495,10 @@ function TrafficDashboardPage({ onNav }) {
               <div>
                 <div style={panelTitle}>SYSTEM HEALTH · MEDIA / EGRESS</div>
                 <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>
-                  אותה הקרנה של admin_system_health() שמזינה את /2029/control. אין מערכת ניטור שנייה.
+                  אותה הקרנה של admin_system_health() שמזינה את /control. אין מערכת ניטור שנייה.
                 </div>
               </div>
-              <a href="/2029/control" style={{ ...smallBtn, textDecoration: "none" }}>Control Plane 2029 ↗</a>
+              <a href="/control" style={{ ...smallBtn, textDecoration: "none" }}>Control Plane 2029 ↗</a>
             </div>
             {!isAdmin ? (
               <div style={{ color: C.goldDim, fontFamily: F.body, lineHeight: 1.8 }}>

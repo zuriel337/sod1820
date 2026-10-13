@@ -42,6 +42,11 @@ function HomeEntry2029() {
     ? <Community2029Page />
     : <Home2029Page />;
 }
+
+function HomeAddressAlias2029() {
+  const location = useLocation();
+  return <Navigate replace to={`${location.pathname.replace(/^\/2029(?=\/|$)/, "") || "/"}${location.search || ""}${location.hash || ""}`} state={location.state} />;
+}
 const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx"));
 
 // Branch-only prototype. Production builds do not register or import this surface
@@ -65,7 +70,7 @@ function RouteEffects2029() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -74,9 +79,9 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
-    if (pathname.startsWith("/2029/control")) return undefined;
+    if (pathname.startsWith("/control")) return undefined;
     const timer = setTimeout(() => {
       trackPageview(pathname);
       trackMarketingPageview();
@@ -93,7 +98,8 @@ function RouteEffects2029() {
 // Exact-return or an explicit navigation to a non-2029 URL crosses the document boundary instead.
 function CanonicalBookAlias2029() {
   const { slug } = useParams();
-  return <Navigate replace to={slug ? `/book/${slug}` : "/books"} />;
+  const location = useLocation();
+  return <Navigate replace to={`${slug ? `/book/${slug}` : "/books"}${location.search}${location.hash}`} state={location.state} />;
 }
 
 function ElsAddressAlias2029() {
@@ -111,7 +117,14 @@ function LegacyDocumentHandoff() {
 }
 
 function GematriaEntry2029() {
-  const { search } = useLocation();
+  const location = useLocation();
+  const { search } = location;
+  const params = new URLSearchParams(search);
+  const oldExpression = params.get("w") || params.get("calc");
+  if (!params.get("q") && oldExpression) {
+    params.set("q", oldExpression);
+    return <Navigate replace to={`${location.pathname}?${params.toString()}${location.hash}`} state={location.state} />;
+  }
   // Existing shared result links retain their original result presentation.
   return parseCalculatorShareState(search).isShared
     ? <Calculator2029Page />
@@ -126,33 +139,34 @@ export default function App2029() {
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>
             <Routes>
-              <Route path="/2029" element={<HomeEntry2029 />} />
-              {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
-              <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
+              <Route path="/" element={<HomeEntry2029 />} />
+              <Route path="/2029/*" element={<HomeAddressAlias2029 />} />
+              {integratedPreviewEnabled && <Route path="/preview" element={<IntegratedPreview2029Page />} />}
+              <Route path="/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
-              {kingdomPreviewEnabled && <Route path="/2029/kingdom" element={<Kingdom2029Page />} />}
-              <Route path="/2029/gematria" element={<GematriaEntry2029 />} />
-              <Route path="/2029/gematria/viral" element={<Calculator2029Page />} />
-              <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
-              <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><World2029Page /></Locked>} />
-              <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
-              <Route path="/2029/posts" element={<Posts2029Page />} />
+              {kingdomPreviewEnabled && <Route path="/kingdom" element={<Kingdom2029Page />} />}
+              <Route path="/gematria" element={<GematriaEntry2029 />} />
+              <Route path="/gematria/viral" element={<Calculator2029Page />} />
+              <Route path="/calculator" element={<CalculatorPro2029Page />} />
+              <Route path="/world" element={<Locked flag="lock_world" homeHref="/"><World2029Page /></Locked>} />
+              <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/"><Topic2029Page /></Locked>} />
+              <Route path="/posts" element={<Posts2029Page />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
-              <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
+              <Route path="/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
-              <Route path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
+              <Route path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/"><Books2029Page /></Locked>} />
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
-              <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>} />
+              <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/"><Books2029Page /></Locked>} />
               <Route path="/code" element={<Els2029Page />} />
               <Route path="/els" element={<ElsAddressAlias2029 />} />
-              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
-              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
-              <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Researcher2029Page /></Locked>} />
-              <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
+              <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/"><Heichal2029Page /></Locked>} />
+              <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/"><Heichal2029Page /></Locked>} />
+              <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/"><Researcher2029Page /></Locked>} />
+              <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
-              <Route path="/2029/control" element={<ControlPlane2029Page />} />
+              <Route path="/control" element={<ControlPlane2029Page />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
             </Routes>
           </Suspense>

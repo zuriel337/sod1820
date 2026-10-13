@@ -139,7 +139,7 @@ jobs:
               await expect(home.locator('.h29-updates > .h29-card')).toHaveCount(4, { timeout: 30_000 });
               await expect(home.locator('[data-home-launch-notice="gradual-opening"]')).toBeVisible();
               await expect(home.locator('[data-home-world="open"]')).toBeVisible();
-              await expect(home.locator('#home-sources')).toHaveCount(0);
+              await expect(home.locator('#home-sources')).toHaveCount(1);
               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
               expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
               await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
@@ -261,7 +261,7 @@ jobs:
             await page.setViewportSize({ width, height });
             await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
 
-            expect(await page.title()).toBe('SOD1820 · 2029');
+            expect(await page.title()).toBe('SOD1820');
             await expect(page.locator('script[src*="/assets/2029-"]')).toHaveCount(1);
             const golden = page.locator('[data-experience-surface="golden-1237-focus"]');
             await expect(golden).toBeVisible({ timeout: 20_000 });
@@ -697,7 +697,7 @@ jobs:
 
           test('Calculator 2029 viral Golden completes compute discovery Raziel share loop', async ({ page }) => {
             test.setTimeout(120_000);
-            const calculatorPath = '/2029/gematria/viral';
+            const calculatorPath = '/gematria/viral';
             const goldens = ['שלום', 'ברכה', 'שער נון', 'אנכי'];
             // This loop verifies the open Raziel capability independently of the launch lock.
             await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
@@ -706,7 +706,7 @@ jobs:
               body: JSON.stringify([{ key: 'lock_raziel_site', enabled: false, mode: 'all', message: '' }]),
             }));
             const install2029Rewrite = async (targetPage) => {
-              await targetPage.route('**/2029/gematria/viral*', async (route) => {
+              await targetPage.route('**/gematria/viral*', async (route) => {
                 const response = await targetPage.request.get(`${BASE}/2029.html`);
                 await route.fulfill({
                   status: response.status(),

@@ -89,7 +89,7 @@ function KingdomGame() {
     research.setResearchContext?.({
       subject: { id: String(item.answer), type: 'number', label: String(item.answer), href },
       selection: null, lens: 'number', dimensions: {},
-      returnTo: { href: `/2029/kingdom?building=${selected}`, label: 'ממלכת המספרים', subject: null,
+      returnTo: { href: `/kingdom?building=${selected}`, label: 'ממלכת המספרים', subject: null,
         selection: null, lens: 'journey', dimensions: {}, journey: null },
     });
     shell.go(href, { preserve: false });

@@ -1,4 +1,4 @@
-// SOD1820 2029 media resumable transport.
+// SOD1820 media resumable transport.
 export const TUS_VERSION = "1.0.0";
 export const TUS_CHUNK_SIZE = 6 * 1024 * 1024;
 

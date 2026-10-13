@@ -49,7 +49,7 @@ function numberRouteSelection(pathname, search = "") {
       id,
       type: numeric ? "number" : "phrase",
       label: id,
-      href: `${native2029 ? "/2029" : ""}/number/${encodeURIComponent(id)}${native2029 ? search || "" : ""}`,
+      href: `${native2029 ? "/" : ""}/number/${encodeURIComponent(id)}${native2029 ? search || "" : ""}`,
     },
     selection: {
       entityId: id,

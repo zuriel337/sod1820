@@ -34,9 +34,9 @@ const STATIC = {
   '/': { title: "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
     desc: "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים.",
     card: { w: 'סוד 1820', sub: "כי לה' המלוכה · לגלות את המציאות בשפת המספרים", cap: 'מה המספרים יודעים עליך?' } },
-  '/2029': { title: "SOD1820 2029 — מערכת המחקר החדשה",
-    desc: "שער הכניסה למערכת SOD1820 החדשה — עולם, מספרים, מקורות, ELS, היכל ורזיאל על עץ ידע אחד.",
-    card: { w: 'SOD1820 2029', sub: 'מערכת מחקר אחת · עץ ידע אחד', cap: 'לגלות · לחקור · להמשיך' } },
+  '/posts': { title: "פוסטים · SOD1820",
+    desc: "פוסטים, סיפורים ועדכונים — מספרים, מילים ומקורות לקריאת המציאות.",
+    card: { w: 'פוסטים', sub: 'סוד 1820', cap: 'סיפורים · רמזים · עדכונים' } },
   '/world': { title: "העולם · SOD1820",
     desc: "מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך — העולם של SOD1820.",
     card: { w: 'העולם', sub: 'מה מתחבר?', cap: 'מספרים · מקורות · אנשים · אירועים' } },
@@ -201,6 +201,7 @@ export default async function handler(req, res) {
   const safeVideoThumb = (thumb, fallback) => thumb && !isVideoUrl(thumb) ? thumb : fallback;
   let path = String((req.query && req.query.path) || '/').split('?')[0];
   if (!path.startsWith('/')) path = '/' + path;
+  path = path.replace(/^\/2029(?=\/|$)/, '') || '/';
 
   let title = STATIC['/'].title;
   let desc = DEFAULT_DESC;
@@ -214,6 +215,11 @@ export default async function handler(req, res) {
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  if (key === '/posts') {
+    const sourceQuery = new URLSearchParams(String(req.query?.path || '').split('?')[1] || '');
+    const page = Number(req.query?.page || sourceQuery.get('page') || 1);
+    canonical = SITE + '/posts' + (Number.isSafeInteger(page) && page > 1 && page <= 10000 ? '?page=' + page : '');
+  }
   // This public collection shares the /codes prefix with cipher slugs. Resolve
   // its encoded Hebrew address before the individual-record metadata branch.
   let researchFolderPath = false;
@@ -262,7 +268,7 @@ export default async function handler(req, res) {
     title = STATIC['/community/chat'].title;
     desc = STATIC['/community/chat'].desc;
     image = cardUrl(STATIC['/community/chat'].card);
-  } else if (key === '/2029/gematria') {
+  } else if ((key === '/gematria/viral' || key === '/gematria' && Boolean(req.query?.q || /[?&]q=/.test(String(req.query?.path || ''))))) {
     // 2029 viral Gematria result — projection only. Never recalculate in OG.
     // The live page re-verifies q+m+v through fn_method_profile before presenting it as canonical.
     const rawPath = String((req.query && req.query.path) || '');
@@ -296,12 +302,12 @@ export default async function handler(req, res) {
       const canonicalParams = new URLSearchParams({ q, m, v: String(v) });
       if (d) canonicalParams.set('d', d);
       if (s) canonicalParams.set('s', s);
-      canonical = `${SITE}/2029/gematria?${canonicalParams.toString()}`;
+      canonical = `${SITE}/gematria/viral?${canonicalParams.toString()}`;
     } else {
       title = `מה מסתתר בשם שלך? · ${SITE_NAME}`;
       desc = 'חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.';
-      image = cardUrl({ w: 'מה מסתתר בשם שלך?', sub: 'מחשבון גימטריה 2029', cap: 'חשב · גלה · שתף', sig: 'gem' });
-      canonical = SITE + '/2029/gematria';
+      image = cardUrl({ w: 'מה מסתתר בשם שלך?', sub: 'מחשבון גימטריה', cap: 'חשב · גלה · שתף', sig: 'gem' });
+      canonical = SITE + '/gematria';
     }
   } else if (key === '/gematria' || key === '/גימטריה') {
     // מחשבון הגימטריה — אם שותפו מילה+ערך (?w=&n=) → תמונת כרטיס ויראלית עם המילה.
@@ -402,7 +408,7 @@ export default async function handler(req, res) {
           const nm = stripHtml(v.title || 'וידאו').trim();
           title = `${nm || 'וידאו'} · ${SITE_NAME}`;
           const topics = Array.isArray(v.topics) ? v.topics.filter(Boolean).slice(0, 5) : [];
-          desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820 2029`, 180) || DEFAULT_DESC;
+          desc = cleanDesc(topics.length ? `${nm} — ${topics.join(' · ')}` : `${nm} — וידאו ב-SOD1820`, 180) || DEFAULT_DESC;
           image = waSafeImage(safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, DEFAULT_IMAGE)));
           type = 'video.other';
           robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
@@ -455,22 +461,22 @@ export default async function handler(req, res) {
         convergenceLd = { name: ct, description: desc, numbers: nums };
       }
     } catch { /* fallback to defaults */ }
-  } else if (key.startsWith('/2029/number/')) {
+  } else if (key.startsWith('/number/')) {
     // Native Number 2029 is still a Golden preview and is intentionally noindex.
     // Match the client applySeo contract; do not project legacy Number semantics here.
-    let raw = key.slice('/2029/number/'.length);
+    let raw = key.slice('/number/'.length);
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
     const n = parseInt(raw, 10);
     if (Number.isFinite(n)) {
-      title = `${n} · דף המספר 2029 · ${SITE_NAME}`;
-      desc = 'דף המספר 2029 — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
+      title = `${n} · דף המספר · ${SITE_NAME}`;
+      desc = 'דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
       type = 'website';
       robots = 'noindex, nofollow';
       image = `${SITE}/api/card?n=${n}`;
     } else {
       robots = 'noindex, nofollow';
-      title = `דף המספר 2029 · ${SITE_NAME}`;
-      desc = 'תצוגת Number 2029 אינה זמינה לערך הזה.';
+      title = `דף המספר · ${SITE_NAME}`;
+      desc = 'דף המספר אינה זמינה לערך הזה.';
     }
   } else if (key.startsWith('/number/')) {
     // עמוד מספר — תמונה מייצגת (primary_value)
@@ -555,8 +561,8 @@ export default async function handler(req, res) {
     robots = 'noindex, nofollow';
     type = 'website';
     title = `קורפוס חוקר · SOD1820 · ${SITE_NAME}`;
-    desc = 'Admin researcher corpus projection in SOD1820 2029';
-    image = cardUrl({ w: 'קורפוס חוקר', sub: 'SOD1820 2029', cap: 'ממשק מחקר פנימי' });
+    desc = 'Admin researcher corpus projection in SOD1820';
+    image = cardUrl({ w: 'קורפוס חוקר', sub: 'SOD1820', cap: 'ממשק מחקר פנימי' });
   } else if (key.startsWith('/community/researcher/')) {
     // 👤 דף חוקר קנוני (contributors) — כרטיס-שיתוף ממותג עם שם החוקר ותפקידו.
     // המשטח הציבורי/SEO של האדם (canonical_ui_components_law — כל URL קנוני = ענף OG).
@@ -589,7 +595,7 @@ export default async function handler(req, res) {
     const variants = [slug];
     const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
     if (encLower !== slug) variants.push(encLower);
-    const SEL = 'select=title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
+    const SEL = 'select=slug,title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
     for (const v of variants) {
       try {
         const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(v)}&${SEL}`;
@@ -597,6 +603,9 @@ export default async function handler(req, res) {
         const rows = await r.json();
         if (Array.isArray(rows) && rows[0]) {
           post = rows[0];
+          if (Array.isArray(post.tags) && post.tags.some(tag => ['טיוטה', 'פורום'].includes(String(tag)))) robots = 'noindex, follow';
+          const postSlug = post.slug || v;
+          canonical = SITE + '/post/' + (postSlug.includes('%') ? postSlug : encodeURI(postSlug));
           title = stripHtml(post.title) + ' · ' + SITE_NAME;
           desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
           // 🛡 post_og_image_law: og:image חייב רסטר (זחלנים לא מציגים SVG, ולא raw.githubusercontent).
@@ -620,7 +629,7 @@ export default async function handler(req, res) {
     if (key.startsWith('/post/') && !post) {
       robots = 'noindex, follow';
       title = 'הפוסט לא נמצא · ' + SITE_NAME;
-      desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
+      desc = 'המקור המבוקש אינו זמין ב-SOD1820.';
     }
   }
 

@@ -18,7 +18,7 @@ const CLS_ROUTES = [
   // unopened Heichal entrypoint acceptance) and the isolated preview server, unlike production
   // Vercel routing, serves the legacy dist/heichal.html static artifact for this path instead of
   // the 2029 SPA shell — a preview-harness artifact unrelated to Web Vitals, so it is excluded here.
-  '/2029/number/1237',
+  '/number/1237',
 ];
 
 async function installClsObserver(page) {
@@ -262,7 +262,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
 
   const article = page.locator('article[data-entity-type="convergence"]');
   await expect(article).toBeVisible({ timeout: 30_000 });
-  const heroNumber = article.locator('a[href="/2029/number/888"]').first();
+  const heroNumber = article.locator('a[href="/number/888"]').first();
   await expect(heroNumber).toBeVisible({ timeout: 20_000 });
   await expect(heroNumber).toHaveText('888');
   await expect(article.locator('h1')).toContainText('אלהים משיח מקדש');
@@ -285,7 +285,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(chinam).toBeVisible({ timeout: 20_000 });
   await chinam.click();
 
-  await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/\/number\/98\?focus=.*method=/, { timeout: 30_000 });
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
   const focusRibbon = numberPage.locator('[data-expression-focus="true"]');
@@ -303,7 +303,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   await expect(worldFocus).toContainText('98');
 
   await worldFocus.getByRole('button', { name: 'חזור לחישוב' }).click();
-  await expect(page).toHaveURL(/\/2029\/number\/98\?focus=.*method=/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/\/number\/98\?focus=.*method=/, { timeout: 20_000 });
   await expect(page.locator('[data-expression-focus="true"]')).toContainText('חנם');
 
   const heichalAction = numberPage.locator('[data-number-core-root="98"] [data-stage-root="98"]').getByRole('button', { name: /חקור בהיכל/ });
@@ -318,7 +318,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
 
 test('Number 2029 preview opens 1237 with all available methods visible in one wrapped research stage', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/1237`, { waitUntil: 'domcontentloaded' });
 
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
@@ -371,7 +371,7 @@ test('Number 2029 preview opens 1237 with all available methods visible in one w
 
 test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as a live hidden crossing', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029/number/596`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/596`, { waitUntil: 'domcontentloaded' });
 
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
@@ -412,7 +412,7 @@ test('Number 2029 596 keeps six methods visible and finds Jerusalem↔Shomrim as
 
 test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria value after the verse', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029/number/1118`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/1118`, { waitUntil: 'domcontentloaded' });
 
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
@@ -430,7 +430,7 @@ test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
   await openLaunchFlagForAcceptance(page, 'lock_raziel_site');
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/1237`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="number"]')).toBeVisible({ timeout: 30_000 });
 
   await openNumberCapabilityFromIsland(page);
@@ -491,7 +491,7 @@ test('Number 2029 global drawer reuses the same method-first Core and carries Ra
 
 test('Contextual Number Surface stays one desktop sidecar through focus → preview → back', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 960 });
-  await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/1237`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="number"]')).toBeVisible({ timeout: 30_000 });
 
   await openNumberCapabilityFromIsland(page);
@@ -522,7 +522,7 @@ test('Contextual Number Surface stays one desktop sidecar through focus → prev
 
 test('Number 2029 Miluy switches the whole stage to 878 with language bridges and in-place explain', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029/number/358`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/358`, { waitUntil: 'domcontentloaded' });
 
   const core = page.locator('.sod29-number-core2029');
   await expect(core).toBeVisible({ timeout: 30_000 });
@@ -565,7 +565,7 @@ test('Number 2029 Miluy switches the whole stage to 878 with language bridges an
 
 test('Number 2029 878 keeps its general research path but no longer opens the locked Golden Journey', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029/number/878`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/number/878`, { waitUntil: 'domcontentloaded' });
 
   const numberPage = page.locator('[data-experience-surface="number"]');
   await expect(numberPage).toBeVisible({ timeout: 30_000 });
@@ -578,7 +578,7 @@ test('Number 2029 878 keeps its general research path but no longer opens the lo
   await expect(page.getByRole('button', { name: /צא למסע 878/ })).toHaveCount(0);
   await generalPath.click();
   await page.waitForTimeout(1_000);
-  expect(new URL(page.url()).pathname).toBe('/2029/number/878');
+  expect(new URL(page.url()).pathname).toBe('/number/878');
   const journeyDimensions = await page.evaluate(() => {
     const raw = sessionStorage.getItem('sod_research_context_v2:guest');
     return raw ? JSON.parse(raw)?.dimensions || {} : {};
@@ -590,7 +590,7 @@ test('Number 2029 878 keeps its general research path but no longer opens the lo
 test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual target in Page and Drawer', async ({ page }) => {
   for (const root of [878, 358, 1326]) {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${BASE}/2029/number/${root}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/number/${root}`, { waitUntil: 'domcontentloaded' });
 
     const numberPage = page.locator('[data-experience-surface="number"]');
     await expect(numberPage).toBeVisible({ timeout: 30_000 });

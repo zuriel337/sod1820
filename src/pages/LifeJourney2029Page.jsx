@@ -9,7 +9,7 @@ export default function LifeJourney2029Page() {
     applySeo({
       title: "מסע החיים · SOD1820",
       description: "מרחב אישי ופרטי לחיבור שם, תאריך ומשפחה אל מסע מחקר אחד.",
-      path: "/2029/journey",
+      path: "/journey",
       noindex: true,
     });
   }, []);
