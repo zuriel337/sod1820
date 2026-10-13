@@ -223,7 +223,7 @@ export default function CommunityLive2029() {
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
           <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>
           <header className="sod29-community-card-header"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
-          {profileSummary.archiveLikes != null ? <p className="sod29-community-card-note">ההיסטוריה כוללת את שני פרופילי OpenWeb המאומתים, עם סימון שם הכותב המקורי בכל הודעה.</p> : null}
+          {profileSummary.archiveLikes != null ? <p className="sod29-community-card-note">ההיסטוריה כוללת את פרופיל OpenWeb התואם לחשבון הזה בלבד.</p> : null}
           {baseline?.isPrivate ? <p className="sod29-community-card-note">פרטי הפרופיל פרטיים; ההודעות שכבר פורסמו ציבוריות.</p> : null}
           <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
           {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}

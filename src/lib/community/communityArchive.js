@@ -22,24 +22,20 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
 });
 
-// The owner explicitly confirmed both site accounts and both OpenWeb profiles.
-// This is a public-history display group, not a Person merge or an ownership grant.
-const VERIFIED_OWNER_ACCOUNT_IDS = Object.freeze([
-  "36f5cb84-71c3-4977-a2c7-d6413e973443", // 444861
-  "b6ce542a-2b07-4749-8aba-532c886f6de7", // yosiviner7
-]);
-const VERIFIED_OWNER_CONTRIBUTOR_IDS = Object.freeze([
-  "4cd9c034-0464-4600-a35d-7156f0584d9b", // Sod1820
-  "19936860-6b35-4386-bc44-113289858ff0", // YosiViner559
+// These are two separately owned accounts. Each public reader joins only its
+// exact account and source contributor; ownership of both never merges them.
+const VERIFIED_OWNER_PAIRS = Object.freeze([
+  { accountId: "36f5cb84-71c3-4977-a2c7-d6413e973443", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // 444861 ↔ Sod1820
+  { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // yosiviner7 ↔ YosiViner559
 ]);
 
 export function communityAuthorIdentity(authorKey) {
   const isUser = authorKey?.startsWith("user:");
   const id = isUser ? authorKey.slice(5) : authorKey;
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")) throw new Error("invalid author id");
-  const isVerifiedOwner = isUser ? VERIFIED_OWNER_ACCOUNT_IDS.includes(id) : VERIFIED_OWNER_CONTRIBUTOR_IDS.includes(id);
-  return isVerifiedOwner
-    ? { accountIds: VERIFIED_OWNER_ACCOUNT_IDS, contributorIds: VERIFIED_OWNER_CONTRIBUTOR_IDS, verifiedOwner: true }
+  const pair = VERIFIED_OWNER_PAIRS.find((candidate) => isUser ? candidate.accountId === id : candidate.contributorId === id);
+  return pair
+    ? { accountIds: [pair.accountId], contributorIds: [pair.contributorId], verifiedOwner: true }
     : { accountIds: isUser ? [id] : [], contributorIds: isUser ? [] : [id], verifiedOwner: false };
 }
 

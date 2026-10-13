@@ -49,8 +49,11 @@ test("a signed-in message uses the account identity even when a new contributor 
   });
   assert.equal(row.authorKey, "user:b6ce542a-2b07-4749-8aba-532c886f6de7");
   const identity = communityAuthorIdentity(row.authorKey);
-  assert.deepEqual(identity.accountIds, ["36f5cb84-71c3-4977-a2c7-d6413e973443", "b6ce542a-2b07-4749-8aba-532c886f6de7"]);
-  assert.deepEqual(identity.contributorIds, ["4cd9c034-0464-4600-a35d-7156f0584d9b", "19936860-6b35-4386-bc44-113289858ff0"]);
+  assert.deepEqual(identity.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(identity.contributorIds, ["19936860-6b35-4386-bc44-113289858ff0"]);
+  const other = communityAuthorIdentity("4cd9c034-0464-4600-a35d-7156f0584d9b");
+  assert.deepEqual(other.accountIds, ["36f5cb84-71c3-4977-a2c7-d6413e973443"]);
+  assert.deepEqual(other.contributorIds, ["4cd9c034-0464-4600-a35d-7156f0584d9b"]);
   assert.equal(communityAuthorIdentity("e7581ab5-8c15-4832-b602-f361e41ff373").verifiedOwner, false);
 });
 
