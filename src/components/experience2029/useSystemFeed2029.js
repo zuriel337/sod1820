@@ -7,7 +7,7 @@ import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
 
 export function useSystemFeed2029({ enabled = true } = {}) {
-  const [state, setState] = useState({ loading: true, items: [], error: false });
+  const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});
   const asked = useRef(new Set());
@@ -19,7 +19,18 @@ export function useSystemFeed2029({ enabled = true } = {}) {
       if (!live) return;
       stop = watchWorldDiscoveryStream({
         limit: 40, includeResearch: false,
-        onResult: (result) => { if (live) setState({ loading: false, items: result.items || [], error: false }); },
+        onResult: (result) => {
+          if (!live) return;
+          // Share the public stream's availability with BOTH the desktop left rail and
+          // the mobile Now sheet. One subscription, no second reader or private payload.
+          setState({
+            loading: false,
+            items: Array.isArray(result?.items) ? result.items : [],
+            error: false,
+            unavailableSources: Array.isArray(result?.unavailableSources) ? result.unavailableSources : [],
+            groupArrivals: result?.groupArrivals || null,
+          });
+        },
         onError: () => { if (live) setState((current) => ({ ...current, loading: false, error: current.items.length === 0 })); },
       });
     }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); });
