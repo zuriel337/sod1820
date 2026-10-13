@@ -1251,14 +1251,14 @@ function LiveWorldLanding({ research, shell, context }) {
               <span className="sod29-world-stream-pulse" aria-hidden="true" />
               <div className="sod29-world-stream-copy">
                 <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "ממצא מחקר" : CONVERGENCE_LABEL}</span>
+                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "גילוי נוסף" : CONVERGENCE_LABEL}</span>
                   <span>{item.creator}</span>
                   <span>{discoveryDate(item.at)}</span>
                 </div>
                 <strong>{item.label}</strong>
                 {item.summary ? <small>{item.summary}</small> : null}
                 {item.stateLabel ? <small>{item.stateLabel}</small> : null}
-                {item.kind === "source" && item.researchCount > 0 ? <small>למקור זה קשורים {item.researchCount} פריטי מחקר מורשים</small> : null}
+                {item.kind === "source" && item.researchCount > 0 ? <small>יש חיבורים נוספים למקור הזה</small> : null}
               </div>
               {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
               </>;
@@ -1274,14 +1274,14 @@ function LiveWorldLanding({ research, shell, context }) {
               return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
             })}
           </div> : null}
-          <div className="sod29-world-stream-truth-note">הזרם מציג רק את העדכונים האחרונים — לא את הספרייה המלאה. הזרם מציג גם כתבי מקור ציבוריים ללא ממצא. דברי המקור נפתחים לקריאה; המחקר נשאר בהעמקה. מקורות חדשים מופיעים כאן כפי שנשלחו.</div>
+          <div className="sod29-world-stream-truth-note">העדכונים האחרונים מופיעים כאן, והחומר המלא נשאר בספריית המקורות. בחרו מקור כדי לקרוא ולהמשיך אל החיבורים שלו.</div>
         </div>
 
         <div className="sod29-world-spatial-gateway">
           <div className="sod29-world-spatial-copy">
             <span className="sod29-kicker">לב העולם</span>
             <h3>לא רשימה — מרחב.</h3>
-            <p>כל שער הוא projection של אותה מציאות: מספרים, מקורות, אירועים, ספרים והתכנסויות.</p>
+            <p>כל שער פותח צד אחר של אותה מציאות: מספרים, מקורות, אירועים, ספרים וחיבורים.</p>
           </div>
           <WorldCoreMap
             sections={landing.sections}
@@ -1309,23 +1309,23 @@ function LiveWorldLanding({ research, shell, context }) {
     />
 
 
-    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
+    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">נושאים, מקורות, מסעות וקשרים נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
     {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
 
-    {!landing.loading ? <section className="sod29-section sod29-world-people-section" id="world-researchers" aria-label="חוקרים וכתבים">
+    {!landing.loading ? <section className="sod29-section sod29-world-people-section" id="world-researchers" aria-label="כותבים ומקורות">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">מי מביא את החומר</div>
-          <h2>חוקרים וכתבים</h2>
-          <div className="sod29-muted">בחר חוקר כדי לראות קודם את חומר המחקר שמיוחס אליו. התכנסויות הן שכבה נוספת — לא תחליף לממצאים ולמקורות.</div>
+          <h2>כותבים ומקורות</h2>
+          <div className="sod29-muted">בחרו כותב כדי לקרוא את דבריו ולגלות לאילו נושאים ומקורות הם מתחברים.</div>
         </div>
 
       </div>
-      {landing.contributorError ? <FrameState kind="unavailable" title="שכבת החוקרים לא זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
-      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="בחירת חוקר או כותב">
+      {landing.contributorError ? <FrameState kind="unavailable" title="רשימת הכותבים אינה זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
+      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="בחירת כותב">
         <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
-          <strong>הכול</strong><small>ללא סינון חוקר</small>
+          <strong>הכול</strong><small>כל הכותבים</small>
         </button>
         {landing.contributors.people.map((person) => <button
           type="button"
@@ -1335,8 +1335,8 @@ function LiveWorldLanding({ research, shell, context }) {
           onClick={() => setWriterFilter(person.slug)}
         >
           <strong>{person.displayName}</strong>
-          <small>{person.role || "חוקר / כותב"}</small>
-          <span>פתח את חומר המחקר שלו בעולם</span>
+          <small>{person.role || "כותב"}</small>
+          <span>לקריאת המקורות והחיבורים שלו</span>
         </button>)}
       </div> : null}
     </section> : null}
@@ -1428,12 +1428,12 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">מה נפגש כאן</div>
           <h2>{`${CONVERGENCES_LABEL} של ${selectedWriter.displayName}`}</h2>
-          <div className="sod29-muted">התכנסות היא מקום שבו כמה ביטויים, מספרים, מקורות או שכבות מחקר מתכנסים סביב אותו עוגן. קשר הוא יחס נקודתי בין דברים; הצלבה היא תוצאה חישובית מסוג אחר; התכנסות היא התמונה המחקרית הרחבה.</div>
+          <div className="sod29-muted">כאן מופיעים חיבורים מתועדים בין ביטויים, מספרים ומקורות. אפשר לפתוח כל נושא ולגלות את הקשרים שלו.</div>
         </div>
       </div>
       {writerMeetings.length ? <div className="sod29-book-grid">
         {writerMeetings.map((meeting) => <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}
-      </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>החוקר נשאר זמין לסינון, אבל לא ננחש התכנסות שאין לה attribution ציבורי.</FrameState>}
+      </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>אפשר להמשיך לקרוא את המקורות של הכותב, גם כשאין עדיין נושא ציבורי מקושר.</FrameState>}
     </section> : null}
 
     {goldenJourneySection}
