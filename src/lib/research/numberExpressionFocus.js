@@ -20,6 +20,7 @@ export function numberExpressionFocusHref(root, {
   method = null,
   crossingPartner = null,
 } = {}) {
+  if (root == null || String(root).trim() === "") return null;
   const numeric = Number(root);
   if (!Number.isSafeInteger(numeric) || numeric < 0) return null;
   const params = new URLSearchParams();
