@@ -212,7 +212,10 @@ function NumberPageBody() {
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
-  const root = Number(value);
+  // The literal "0" is valid. Empty, malformed or unsafe root strings are not.
+  const root = /^\\d+$/.test(String(value || "")) && Number.isSafeInteger(Number(value))
+    ? Number(value)
+    : null;
   const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
 
   const [state, setState] = useState({ loading: true, data: null, error: null });
@@ -241,7 +244,7 @@ function NumberPageBody() {
   const deepSentinelRef = useRef(null);
 
   useEffect(() => {
-    if (!Number.isInteger(root) || root < 0) {
+    if (!Number.isSafeInteger(root) || root < 0) {
       setState({ loading: false, data: null, error: new Error("invalid-number") });
       return undefined;
     }
@@ -1158,7 +1161,7 @@ function NumberPageBody() {
     navigate(nextHref);
   };
 
-  if (!Number.isInteger(root) || root < 0) {
+  if (!Number.isSafeInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
   if (state.loading) {
