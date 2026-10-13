@@ -14,6 +14,16 @@ const sb = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession
 let signingSecretCache = EXPLICIT_WEBHOOK_SECRET;
 
 const j = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
+function protectAdminMetadata(query: any, existing: any) {
+  // Only scalar guards enter the URL: never serialize private source text/headers
+  // into PostgREST filters. Every central route mutation advances this revision.
+  const revision = existing.meta?.intake_projection_v1?.revision;
+  const held = existing.meta?.source_email_v1?.held;
+  query = revision == null ? query.is("meta->intake_projection_v1->>revision",null)
+    : query.eq("meta->intake_projection_v1->>revision",String(revision));
+  return held == null ? query.is("meta->source_email_v1->>held",null)
+    : query.eq("meta->source_email_v1->>held",String(held));
+}
 function stripHtml(h: string): string {
   return (h || "").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|div|tr|li|h[1-6])>/gi, "\n").replace(/<[^>]+>/g, " ")
@@ -139,10 +149,15 @@ Deno.serve(async (req: Request) => {
     const prior = dup.meta.source_email_v1;
     const deniedTest = technicalTest || prior.technical_test === true;
     const currentAuthor = deniedTest ? null : author;
-    const { error: refreshError } = await sb.from("inbound_emails").update({ meta: { ...dup.meta,
+    const refresh = sb.from("inbound_emails").update({ meta: { ...dup.meta,
       source_email_v1: { ...prior, author: currentAuthor, identity_proof: currentAuthor?.identity_proof || null,
-        admission: currentAuthor ? "approved_source_candidate" : "unresolved", technical_test: deniedTest } } }).eq("id",dup.id);
+        admission: currentAuthor ? "approved_source_candidate" : "unresolved", technical_test: deniedTest } } })
+      .eq("id",dup.id);
+    const { data: refreshed, error: refreshError } = await protectAdminMetadata(refresh,dup).select("id").maybeSingle();
     if (refreshError) return j({ ok:false,error:"admission_refresh_failed" },500);
+    // Compare the admin revision and source hold atomically; a concurrent admin route
+    // decision/hold must survive. Let the signed provider retry from a fresh row.
+    if (!refreshed) return j({ ok:false,error:"source_changed_retry" },503);
     return j({ ok: true, dup: true, id: dup.id,
       publication: "private" });
   }
@@ -171,8 +186,9 @@ Deno.serve(async (req: Request) => {
         technical_test: technicalTest, publication_state: "private", media_state: "provider_references_only" } },
   };
   // Hydrate old metadata-only rows on provider replay without resetting read/reply state.
-  const write = existing ? sb.from("inbound_emails").update(payload).eq("id", existing.id)
+  let write = existing ? sb.from("inbound_emails").update(payload).eq("id", existing.id)
     : sb.from("inbound_emails").insert(payload);
+  if (existing) write = protectAdminMetadata(write,existing);
   const { data: row, error } = await write.select("id").maybeSingle();
   if (error?.code === "23505") {
     const replay = await sb.from("inbound_emails").select("id,from_email,meta").eq("message_id", dedupKey).maybeSingle();
@@ -180,6 +196,7 @@ Deno.serve(async (req: Request) => {
     return j({ ok: true, dup: true, id: replay.data.id });
   }
   if (error) return j({ ok: false, error: "store_failed" }, 500);
+  if (existing && !row) return j({ ok:false,error:"source_changed_retry" },503);
   // Source receiving ends in the private center. Routing/publication is an explicit admin operation.
   return j({ ok: true, id: row?.id, publication: "private" });
 });

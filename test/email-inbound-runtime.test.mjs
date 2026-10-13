@@ -9,7 +9,7 @@ import { createHmac } from 'node:crypto';
 const secretBytes = Buffer.from('synthetic-test-secret-only');
 const env = { RESEND_API_KEY: 'test-only', RESEND_WEBHOOK_SECRET: `whsec_${secretBytes.toString('base64')}`,
   SUPABASE_URL: 'https://test.invalid', SUPABASE_SERVICE_ROLE_KEY: 'test-only' };
-let handler, writes, existing, providerStatus, providerMessage, records, approvals, publishError, publishCalls, writeError;
+let handler, writes, existing, providerStatus, providerMessage, records, approvals, publishError, publishCalls, writeError, concurrentRoute, concurrentHold;
 globalThis.Deno = { env: { get: key => env[key] }, serve: callback => { handler = callback; } };
 globalThis.__emailTestDb = { rpc: async (name, args) => {
   if (name === 'email_source_author_v1') return { data: approvals, error: null };
@@ -18,8 +18,21 @@ globalThis.__emailTestDb = { rpc: async (name, args) => {
 }, from: table => {
   assert.ok(['inbound_emails', 'contributors'].includes(table), 'only existing canonical carriers');
   let payload, operation, lookup;
+  const guards=[];
+  const guard=(key,value)=>{
+    if(key.startsWith('meta->')) {
+      assert.ok(String(value ?? '').length < 20,'never put private source metadata into URL filters');
+      guards.push({key,value});
+      if(concurrentRoute) existing.meta={...existing.meta,intake_projection_v1:{revision:1,state:'draft',destinations:['writer']}};
+      if(concurrentHold && key.includes('held')) existing.meta={...existing.meta,source_email_v1:{...existing.meta.source_email_v1,held:true}};
+    }
+  };
   const query = {
-    select() { return this; }, eq(key, value) { if (key === 'message_id') lookup=value; return this; }, is() { return this; },
+    select() { return this; }, eq(key, value) {
+      if (key === 'message_id') lookup=value;
+      guard(key,value);
+      return this;
+    }, is(key,value) { guard(key,value); return this; },
     then(resolve) {
       if(payload) { writes.push({operation,payload});return Promise.resolve({data:{id:7},error:writeError}).then(resolve); }
       return Promise.resolve({ data: approvals, error: null }).then(resolve);
@@ -28,6 +41,10 @@ globalThis.__emailTestDb = { rpc: async (name, args) => {
     update(value) { payload = value; operation = 'update'; return this; },
     async maybeSingle() {
       if (!payload) return { data: records.get(lookup) || existing, error: null };
+      if (operation==='update' && guards.some(g=>{
+        const actual=g.key.includes('revision') ? existing.meta?.intake_projection_v1?.revision : existing.meta?.source_email_v1?.held;
+        return (actual == null ? null : String(actual)) !== g.value;
+      })) return {data:null,error:null};
       writes.push({ operation, payload }); return { data: { id: 7 }, error: writeError };
     },
   };
@@ -40,7 +57,7 @@ await import(`data:text/javascript;base64,${Buffer.from(stripTypeScriptTypes(sou
 const originalFetch = globalThis.fetch;
 test.after(() => { globalThis.fetch = originalFetch; delete globalThis.Deno; delete globalThis.__emailTestDb; });
 test.beforeEach(() => {
-  writes = []; existing = null; records = new Map(); approvals = []; publishCalls = []; publishError = null; writeError = null; providerStatus = 200;
+  writes = []; existing = null; records = new Map(); approvals = []; publishCalls = []; publishError = null; writeError = null; providerStatus = 200; concurrentRoute=false; concurrentHold=false;
   providerMessage = { id: 'provider-1',from: 'Demo <source@example.invalid>', to: ['inbox@example.invalid'],
     subject: 'Test', text: 'טקסט מלא '.repeat(4000), html: '', message_id: '<root@example.invalid>',
     created_at: '2026-10-13T06:40:38.713Z', headers: { 'in-reply-to': '<parent@example.invalid>' },
@@ -83,6 +100,28 @@ test('completed replay refreshes only admission, never the stored body or reply 
   assert.equal((await handler(request())).status, 200);
   assert.equal(writes.length, 1);
   assert.deepEqual(Object.keys(writes[0].payload),['meta']);
+});
+test('a simultaneous admin destination decision survives receiving replay and triggers a safe retry',async()=>{
+  existing={id:7,from_email:'source@example.invalid',meta:{provider_id:'provider-1',source_email_v1:{id:'stable-source'}}};
+  concurrentRoute=true;
+  assert.equal((await handler(request())).status,503);
+  assert.equal(writes.length,0);
+  assert.deepEqual(existing.meta.intake_projection_v1.destinations,['writer']);
+  concurrentRoute=false;
+  assert.equal((await handler(request())).status,200);
+  assert.deepEqual(writes[0].payload.meta.intake_projection_v1.destinations,['writer']);
+});
+test('legacy source hydration cannot overwrite a simultaneous destination decision',async()=>{
+  existing={id:7,from_email:'source@example.invalid',meta:{provider_id:'provider-1'}};
+  concurrentRoute=true;
+  assert.equal((await handler(request())).status,503);assert.equal(writes.length,0);
+  assert.deepEqual(existing.meta.intake_projection_v1.destinations,['writer']);
+});
+test('a simultaneous source hold survives receiving replay',async()=>{
+  existing={id:7,from_email:'source@example.invalid',meta:{provider_id:'provider-1',source_email_v1:{id:'stable-source',held:false}}};
+  concurrentHold=true;
+  assert.equal((await handler(request())).status,503);assert.equal(writes.length,0);
+  assert.equal(existing.meta.source_email_v1.held,true);
 });
 test('legacy metadata row gets hydration without resetting read/reply status', async () => {
   existing = { id: 7, from_email: 'source@example.invalid', meta: { provider_id: 'provider-1', preserved: true } };

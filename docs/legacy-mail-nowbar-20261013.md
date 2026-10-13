@@ -64,3 +64,16 @@ two RPCs, preserving all source and routing metadata. No global publication flag
 Next: independent Claude architecture/privacy/action-family review and real legacy preview.
 Public destination execution and thread Follow require their existing owners to accept
 identity/event/notification seams. No bulk historical publication or source backfill.
+
+## Independent review and receiving concurrency closure
+
+Claude AFTER fa894a18 independently PASSed exact9bf3c7bc private stage: live RLS/role
+ACL verified, all68 tests independently pass. Full Vercel preview9bf3c7bc READY,
+dpl_A6Sa4C3riBvK5MmMTW9Kx2GgE8xq. Browser anonymous admin gate verified; no signed-in
+private UI acceptance is claimed.
+
+The noted replay read/modify/write race is now addressed on the receiving path.
+Atomic scalar PostgREST guards compare current route revision and source hold; a
+concurrent decision returns503 for provider retry. No private source/headers/body
+are serialized into URL filters. Both normalized replay and legacy hydration are
+covered, including PostgreSQL revision-guard and adversarial handler tests.

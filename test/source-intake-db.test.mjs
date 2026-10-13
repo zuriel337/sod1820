@@ -53,3 +53,12 @@ test('clearing destinations remains draft, revision advances, no notification/pu
   assert.deepEqual(r.rows[0].result.destinations,[]);assert.equal(r.rows[0].result.revision,2);
   assert.equal(r.rows[0].result.state,'draft');
 });
+test('PostgreSQL revision guard rejects a receiving writer snapshot after an admin decision',async()=>{
+  const snapshot=(await db.query('select meta from inbound_emails where id=1')).rows[0].meta;
+  await as('authenticated',admin,()=>route(['world'],2));
+  const attempted={...snapshot,source_email_v1:{admission:'refreshed'}};
+  const stale=await db.query("update inbound_emails set meta=$1::jsonb where id=1 and meta->'intake_projection_v1'->>'revision'=$2 returning id",[JSON.stringify(attempted),String(snapshot.intake_projection_v1.revision)]);
+  assert.equal(stale.rows.length,0);
+  const current=(await db.query('select meta from inbound_emails where id=1')).rows[0].meta;
+  assert.deepEqual(current.intake_projection_v1.destinations,['world']);assert.equal(current.source_email_v1.held,true);
+});
