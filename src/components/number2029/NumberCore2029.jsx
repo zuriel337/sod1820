@@ -8,6 +8,7 @@ import MethodLens2029 from "../gematria2029/MethodLens2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import NumberAiAnalysis2029 from "./NumberAiAnalysis2029.jsx";
 import MethodRing2029 from "./MethodRing2029.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import "./numberCore2029.css";
 
 // The embedded Number window inherits the same semantic palette as its Frame.
@@ -399,7 +400,7 @@ export default function NumberCore2029({
           /> : null}
         </div>
         {onOpenWorld ? <button type="button" className="sod29-number-v10-open-world" data-experience-action="number-open-world" onClick={() => onOpenWorld()}>
-          <span aria-hidden="true">🗺</span> פתח עולם ↗
+          <NavigationIcon2029 name="world" size={20} /> פתח עולם
         </button> : null}
       </div>
       {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
