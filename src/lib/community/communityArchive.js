@@ -18,15 +18,15 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "f499536a-e993-4a7d-8706-a2e69337c320": { sourceUserId: "u_zawiGiUO", name: "שינשין", ...PROFILE_BASELINES["שינשין"] },
   "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"] },
   "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
-  "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "36f5cb84-71c3-4977-a2c7-d6413e973443" },
-  "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
+  "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
+  "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "36f5cb84-71c3-4977-a2c7-d6413e973443" },
 });
 
 // These are two separately owned accounts. Each public reader joins only its
 // exact account and source contributor; ownership of both never merges them.
 const VERIFIED_OWNER_PAIRS = Object.freeze([
-  { accountId: "36f5cb84-71c3-4977-a2c7-d6413e973443", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // 444861 ↔ Sod1820
-  { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // yosiviner7 ↔ YosiViner559
+  { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // yosiviner7 ↔ Sod1820
+  { accountId: "36f5cb84-71c3-4977-a2c7-d6413e973443", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // 444861 ↔ YosiViner559
 ]);
 
 export function communityAuthorIdentity(authorKey) {
