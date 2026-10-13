@@ -85,14 +85,23 @@ function sourceMeta(row) {
   };
 }
 
-function groupTitle(group) {
-  const sourceText = clean(group?.source?.text);
-  if (sourceText && sourceText !== "📷 עדכון") {
+const PLACEHOLDER_SOURCE_COPY = new Set(["📷 עדכון", "🎬 עדכון וידאו", "עדכון", "מקור ללא טקסט"]);
+
+export function readableSourceTitle(source, fallback = null) {
+  const sourceText = clean(source?.text);
+  if (sourceText && !PLACEHOLDER_SOURCE_COPY.has(sourceText)) {
     const first = sourceText.split(/\n+/).map(clean).find(Boolean);
     if (first) return first.slice(0, 110);
   }
+  const media = clean(source?.imageUrl);
+  if (media) return /\.(mp4|mov|webm|m4v)(?:[?#]|$)/i.test(media) ? "סרטון מהמקור" : "תמונה מהמקור";
+  if (clean(source?.linkUrl)) return "קישור מהמקור";
+  return clean(fallback) || "עדכון מהמקור";
+}
+
+function groupTitle(group) {
   const first = (group?.rows || []).find((row) => clean(row?.statement));
-  return clean(first?.statement).slice(0, 110) || (group?.source ? "מקור ללא טקסט" : "ממצא מחקר");
+  return readableSourceTitle(group?.source, clean(first?.statement).slice(0, 110));
 }
 
 function topicKey(topic) {
