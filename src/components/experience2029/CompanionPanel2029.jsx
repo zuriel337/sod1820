@@ -20,8 +20,8 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
       {hasSequence ? <button type="button" className={`sod29-companion-ico is-seq${tab === "seq" ? " is-on" : ""}`} onClick={() => onOpenPanel("seq")} aria-label="רצף האירועים"><span className="sod29-companion-seq" aria-hidden="true">⋮</span></button> : null}
       <div className="sod29-companion-source-quick is-slim" aria-label="מקורות ציבוריים">
         <OrGeulaStoryColumn variant="shortcut" limit={12} />
-        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=tzvi-opoc#world-contributor-material")} aria-label="מקורות ציבוריים של צבי"><span aria-hidden="true">צ</span></button>
-        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=sod-hashmal#world-corpus-sod-hashmal")} aria-label="ספריית סוד החשמל"><span aria-hidden="true">⚡</span></button>
+        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-all-convergences")} aria-label="מקורות ציבוריים של צבי"><span aria-hidden="true">צ</span></button>
+        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-all-convergences")} aria-label="ספריית סוד החשמל"><span aria-hidden="true">⚡</span></button>
       </div>
     </div> : <div className="sod29-companion-full">
       <div className="sod29-companion-top">
@@ -37,8 +37,8 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
       {tab === "seq" && hasSequence ? <div className="sod29-companion-seqbody">{sequenceNode}</div> : tab === "ctx" && hasContext ? <div className="sod29-companion-ctxbody">{contextNode}</div> : <div className="sod29-companion-feed">
         <div className="sod29-companion-source-quick is-expanded" aria-label="ערוצי מקור ציבוריים">
           <OrGeulaStoryColumn variant="shortcut" limit={12} />
-          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=tzvi-opoc#world-contributor-material")} aria-label="לקריאת מקורות צבי"><span className="sod29-companion-source-icon" aria-hidden="true">צ</span><span>צבי · הודעות מקור</span></button>
-          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?source=sod-hashmal#world-corpus-sod-hashmal")} aria-label="לקריאת סוד החשמל"><span className="sod29-companion-source-icon" aria-hidden="true">⚡</span><span>סוד החשמל · ספרייה</span></button>
+          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-all-convergences")} aria-label="לקריאת מקורות צבי"><span className="sod29-companion-source-icon" aria-hidden="true">צ</span><span>צבי · הנושאים</span></button>
+          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-all-convergences")} aria-label="לקריאת סוד החשמל"><span className="sod29-companion-source-icon" aria-hidden="true">⚡</span><span>סוד החשמל · הנושאים</span></button>
         </div>
         <div className="sod29-companion-note">חזקים קודם, ובתוכם החדשים. חדש אינו ממצא מאומת.</div>
         {feed.loading ? <p className="sod29-companion-empty" role="status">טוען את מה שנכנס…</p> : null}
