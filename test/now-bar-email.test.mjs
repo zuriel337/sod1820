@@ -6,7 +6,7 @@ test('legacy bar consumes complete sanitized conversations and latest reply time
   const root = { ...sourceEmailRows[0], full_text: 'מקור מלא '.repeat(300) };
   const rows = [root, sourceEmailRows[1]];
   const result = await loadNowBarEmail({ rpc: async (name, args) => {
-    assert.equal(name, 'email_source_threads_v1'); assert.deepEqual(args, { p_limit: 15 });
+    assert.equal(name, 'email_source_threads_v1'); assert.deepEqual(args, { p_limit: 15, p_destination: 'nowbar' });
     return { data: rows, error: null };
   } });
   assert.equal(result.length, 1);

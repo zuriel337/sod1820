@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import SourceIntakeInbox from "../components/admin/SourceIntakeInbox.jsx";
 import RoadmapCommandCenter from "../components/admin/RoadmapCommandCenter.jsx";
 import NumberResearcher from "../components/admin/RazielRoom.jsx";
 import { GA_ENABLED } from "../lib/analytics.js";
@@ -20,7 +21,7 @@ import { judgeLastVisit, markJudgeVisited, getSeenMap, markCandidateSeen, markAl
 const LOOKER_URL = import.meta.env.VITE_LOOKER_URL || "";
 import {
   getTrafficStats, adminGetMessages, adminSetMessageRead, adminGetSubscribers,
-  adminGetInbound, adminSetInboundRead, adminReplyEmail,
+  adminSetInboundRead, adminReplyEmail,
   getNumberSets, saveNumberSet, deleteNumberSet, getOcrCounts, runOcrBatch,
   getTopicCards, setTopicCardStatus, updateTopicCard, mergeTopicCards, getGalleryImagesByIds,
   getImageConnections, findGalleryImages, createTopicCardDraft,
@@ -222,8 +223,11 @@ function PulseBar({ goto }) {
 
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [tab, setTab] = useState("warroom");
-  const [group, setGroup] = useState("command");
+  const [tab, setTab] = useState(() => {
+    const requested = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null;
+    return TABS.some(t => t.key === requested) ? requested : "warroom";
+  });
+  const [group, setGroup] = useState(() => GROUPS.find(g => g.subs.includes(tab))?.key || "command");
   const mobile = useIsMobile();
   const activeGroup = GROUPS.find(g => g.key === group) || GROUPS[0];
   const selectGroup = g => { setGroup(g.key); setTab(g.subs[0]); };
@@ -5910,27 +5914,6 @@ function InboundRow({ m, onChange }) {
     </div>
   );
 }
-function InboundInbox() {
-  const [rows, setRows] = useState(null);
-  const [err, setErr] = useState("");
-  const load = useCallback(() => { adminGetInbound().then(setRows).catch(e => setErr(e.message || "שגיאה")); }, []);
-  useEffect(() => { load(); }, [load]);
-  if (err) return null; // אם הטבלה עוד לא נגישה — לא לשבור את הטאב
-  if (!rows) return null;
-  const unread = rows.filter(r => !r.read).length;
-  return (
-    <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
-      <H>📥 מיילים נכנסים · {rows.length}{unread ? ` · ${unread} חדשים` : ""}</H>
-      {rows.length === 0 ? (
-        <div style={{ color: C.muted, fontFamily: F.body, fontSize: 13, lineHeight: 1.7, ...card }}>
-          עדיין לא נכנסו מיילים. כשמישהו ישיב לניוזלטר (או ישלח ל-reply@) — זה יופיע כאן, ותוכל להשיב ישירות.
-          <div style={{ color: C.goldDim, fontSize: 12, marginTop: 6 }}>נדרש חיבור קליטת-דואר (רשומות MX + webhook) — ראה ההנחיות שנמסרו.</div>
-        </div>
-      ) : rows.map(m => <InboundRow key={m.id} m={m} onChange={load} />)}
-    </div>
-  );
-}
-
 // ===== ✉️ פניות =====
 function MessagesTab() {
   const [rows, setRows] = useState(null);
@@ -5943,7 +5926,7 @@ function MessagesTab() {
   const unread = rows.filter(r => !r.read).length;
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      <InboundInbox />
+      <SourceIntakeInbox renderMessage={(m, onChange) => <InboundRow key={m.id} m={m} onChange={onChange} />} />
       <H>✉️ פניות מטופס «צור קשר» · {rows.length} · {unread} שלא נקראו</H>
       {rows.map(m => (
         <div key={m.id} style={{ ...card, borderColor: m.read ? C.border : C.borderGold, opacity: m.read ? 0.75 : 1 }}>
@@ -7116,3 +7099,4 @@ function BroadcastTab() {
     </div>
   );
 }
+

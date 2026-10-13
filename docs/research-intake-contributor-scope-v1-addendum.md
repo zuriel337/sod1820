@@ -263,3 +263,40 @@ Points to Research DNA v1 §18 and `reality_graph_law`. **`WS-CROSS-ENGINE` Foun
 ספר הפליאה (HebrewBooks 6355) is **stress-test provenance** for §9 — it does not become universal contract semantics. Source-specific research (checkpoints, page loci, family closures) remains in Research OS (`research_objects`) and `work_log` handoffs; `work_log` is not SSOT (see `work_log_authority_law`). Full detail: `nodes.rule_id='research_intake_foundation_contract_law'` metadata key `v8_source_deep_research_orchestration_2026_09_03`.
 
 **0 new schema/table/RPC/engine/store/graph/`research_objects` were created in this pass.**
+
+
+## Shared source reception and legacy projection — 13 October 2026
+
+Human direction: ZURIEL, 23:38 Asia/Jerusalem. EXTEND_EXISTING Research Intake v13,
+writer_material_home v6, canonical_ui_components and subscription_funnel; no new owner.
+
+The receiving home is the existing private source ingress. Email remains in
+inbound_emails; WhatsApp remains in its existing owner-native ingress. A channel
+adapter projects source occurrences through Research Intake. Legacy admin is one
+consumer, not a second store, topic tree, publication system or action engine.
+
+Incoming source, draft destination intent, publication, verification and canonicality
+are separate. Email reception never invokes publication automatically. Destination
+intent is kept on the existing occurrence at meta.intake_projection_v1 with an
+optimistic revision, explicit actor/time, state=draft and destinations world/nowbar/writer.
+Saving this intent does not insert channel_updates, create research objects, publish,
+notify followers or change truth/verification. This delivery implements PRIVATE INTAKE
+and DRAFT ROUTING only. Activation of public destinations is a separate reviewed seam.
+
+An eventual public projection references the same source; it requires explicit
+publication state and selected destination as well as existing current author,
+provider proof, hold, source fidelity, privacy and release gates. No bulk historical
+publication is authorized. Missing/ambiguous/cyclic parents stay explicitly unresolved;
+mail subject, sender name and dates never substitute for source lineage identity.
+
+Actions consume existing families: ShareActions owns public sharing; private inbox
+content has no public share action. WatchButton and canonical_follow_subject own
+Follow. Unsupported/unresolved source-thread subjects do not create a new mail Follow
+namespace. Existing admin reply/read actions are reused. Research adapters consume
+buildResearchIntakeTransport with private access; source text is not a Finding or an
+instruction to an agent. The existing Design V2 controls geometry/palette for 2029;
+legacy presentation uses the current shared legacy palette without creating another.
+
+The legacy adapter may be adopted independently after its compatible release gates.
+A branch or preview is not proof of a live migration or production activation.
+

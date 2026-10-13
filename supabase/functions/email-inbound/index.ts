@@ -14,13 +14,6 @@ const sb = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession
 let signingSecretCache = EXPLICIT_WEBHOOK_SECRET;
 
 const j = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
-async function attemptPublication(id: number, source: any, author: any, technicalTest: boolean) {
-  if (!author || technicalTest || source.text_state !== "available" || !source.arrival_at) return "private";
-  try {
-    const result = await sb.rpc("admit_email_source_v1", { p_inbound_id: id });
-    return result.error ? "reader_not_ready" : result.data?.state || "private";
-  } catch { return "reader_not_ready"; }
-}
 function stripHtml(h: string): string {
   return (h || "").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|div|tr|li|h[1-6])>/gi, "\n").replace(/<[^>]+>/g, " ")
@@ -151,7 +144,7 @@ Deno.serve(async (req: Request) => {
         admission: currentAuthor ? "approved_source_candidate" : "unresolved", technical_test: deniedTest } } }).eq("id",dup.id);
     if (refreshError) return j({ ok:false,error:"admission_refresh_failed" },500);
     return j({ ok: true, dup: true, id: dup.id,
-      publication: await attemptPublication(dup.id, source, currentAuthor, deniedTest) });
+      publication: "private" });
   }
   let legacy: any = null;
   if (!dup && source.message_id) {
@@ -187,8 +180,6 @@ Deno.serve(async (req: Request) => {
     return j({ ok: true, dup: true, id: replay.data.id });
   }
   if (error) return j({ ok: false, error: "store_failed" }, 500);
-  // The migration/reader is a separate reviewed release prerequisite. Missing RPC
-  // must never lose a private delivery or fall back to the old unrestricted ingest.
-  const publication = await attemptPublication(row?.id, source, author, technicalTest);
-  return j({ ok: true, id: row?.id, publication });
+  // Source receiving ends in the private center. Routing/publication is an explicit admin operation.
+  return j({ ok: true, id: row?.id, publication: "private" });
 });

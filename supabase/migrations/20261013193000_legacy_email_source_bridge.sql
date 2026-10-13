@@ -44,6 +44,8 @@ returns boolean language sql stable security definer set search_path = public, p
     join public.contributors c on c.id = u.contributor_id
     where u.id = p_update_id and u.source = 'email' and u.status = 'live'
       and exists(select 1 from public.site_flags where key='mail_source_publication' and enabled is true and mode='all')
+      and i.meta->'intake_projection_v1'->>'state' = 'published'
+      and jsonb_array_length(i.meta->'intake_projection_v1'->'destinations') > 0
       and u.page_only is false and (u.expires_at is null or u.expires_at > now())
       and c.active is true and c.merged_into is null
       and c.page_config->'email_source_public' = 'true'::jsonb
@@ -92,6 +94,11 @@ begin
   end if;
   select * into mail from public.inbound_emails where id=p_inbound_id for update;
   if not found then return jsonb_build_object('state','missing_source'); end if;
+  if mail.meta->'intake_projection_v1'->>'state' is distinct from 'published'
+    or jsonb_typeof(mail.meta->'intake_projection_v1'->'destinations') is distinct from 'array'
+    or jsonb_array_length(mail.meta->'intake_projection_v1'->'destinations') = 0 then
+    return jsonb_build_object('state','routing_pending');
+  end if;
   src := mail.meta->'source_email_v1';
   if mail.id in (56,57) or src is null
     or src->'technical_test' is distinct from 'false'::jsonb
@@ -149,7 +156,7 @@ grant execute on function public.admit_email_source_v1(bigint) to service_role;
 
 -- Paginate conversations, then include all admitted messages in each selected
 -- conversation. Withheld ancestors never enter this graph or the returned DTO.
-create or replace function public.email_source_threads_v1(p_limit integer default 15)
+create or replace function public.email_source_threads_v1(p_limit integer default 15,p_destination text default 'world')
 returns table(id text,parent_id text,full_text text,author_key text,author_display text,
   arrival_at timestamptz,source_published_at text,quoted_omitted boolean,
   source_admitted boolean,status text,held boolean,source_state text,text_state text)
@@ -161,6 +168,9 @@ language sql stable security definer set search_path=public,pg_temp as $$
       u.source_email_v1->'quoted_omitted' = 'true'::jsonb as omitted
     from public.channel_updates u join public.contributors c on c.id=u.contributor_id
     where u.source='email' and public.email_source_eligible_v1(u.id)
+      and p_destination in ('world','nowbar','writer')
+      and exists(select 1 from public.inbound_emails i where i.id::text=u.source_email_v1->>'inbound_id'
+        and i.meta->'intake_projection_v1'->'destinations' ? p_destination)
   ), lineage as (
     select e.sid as member,e.sid as root,e.pid,array[e.sid] as path,0 as depth,false as cycle from eligible e
     union all
@@ -180,7 +190,7 @@ language sql stable security definer set search_path=public,pg_temp as $$
   from eligible e join terminal t on t.member=e.sid join selected s using(thread_key)
   order by s.latest desc,e.created_at,e.sid;
 $$;
-revoke all on function public.email_source_threads_v1(integer) from public;
-grant execute on function public.email_source_threads_v1(integer) to anon,authenticated,service_role;
+revoke all on function public.email_source_threads_v1(integer,text) from public;
+grant execute on function public.email_source_threads_v1(integer,text) to anon,authenticated,service_role;
 
 commit;

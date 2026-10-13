@@ -45,7 +45,7 @@ async function seed(id, overrides={}) {
     ...overrides.source };
   await db.query('insert into inbound_emails values($1,$2,$3)',[id,
     contributor===authorA?'a@example.invalid':'b@example.invalid',
-    JSON.stringify({provider:'resend',provider_id:`provider-${id}`,verified_webhook:true,source_email_v1:source})]);
+    JSON.stringify({provider:'resend',provider_id:`provider-${id}`,verified_webhook:true,intake_projection_v1: {state:'published',destinations:['world']},source_email_v1:source})]);
   return source;
 }
 async function admit(id) { return (await db.query('select admit_email_source_v1($1) as result',[id])).rows[0].result; }
@@ -137,4 +137,19 @@ test('publication hold keeps all admitted mails hidden and blocks admission, ind
   assert.deepEqual(await anon('select * from email_source_threads_v1(15)'),[]);
   assert.deepEqual(await anon("select * from channel_updates where source='email'"),[]);
   assert.equal((await admit(2)).state,'standby');
+});
+test('positive sender proof and global flag do not publish a draft destination decision',async()=>{
+  await db.exec("update site_flags set enabled=true where key='mail_source_publication'");
+  await seed(21,{contributor:authorB});
+  await db.exec(`update inbound_emails set meta=jsonb_set(meta,'{intake_projection_v1}','{"state":"draft","destinations":["nowbar"]}') where id=21`);
+  assert.equal((await admit(21)).state,'routing_pending');
+  assert.equal((await anon("select * from channel_updates where source_email_v1->>'id'='source-21'")).length,0);
+});
+test('future published projection only reaches the explicitly selected destination',async()=>{
+  await db.exec(`update inbound_emails set meta=jsonb_set(meta,'{intake_projection_v1}','{"state":"published","destinations":["nowbar"]}') where id=21`);
+  assert.equal((await admit(21)).state,'public');
+  assert.ok((await anon("select * from email_source_threads_v1(50,'nowbar')")).some(row=>row.id==='source-21'));
+  assert.ok((await anon("select * from email_source_threads_v1(50,'world')")).every(row=>row.id!=='source-21'));
+  assert.ok((await anon("select * from email_source_threads_v1(50,'writer')")).every(row=>row.id!=='source-21'));
+  assert.deepEqual(await anon("select * from email_source_threads_v1(50,'unknown')"),[]);
 });

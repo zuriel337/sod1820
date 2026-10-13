@@ -1,144 +1,66 @@
-# Legacy mail NowBar bridge — review handoff
+# Shared source intake — legacy adapter handoff
 
-Actor: GPT. Task: LEGACY_MAIL_NOWBAR_BRIDGE_20261013.
-Owners: existing Research Intake / writer material / canonical contributor identity;
-existing channel_updates broadcast carrier and legacy NowBar presentation.
-Status: IMPLEMENTED / TESTED / BRANCH_ONLY. Provider proof verified; canonical author
-provisioning and independent security review pending. Website release remains ON_HOLD
-by ZURIEL: preview first, upload later. Combined legacy runtime gates remain required.
+Actor GPT · task CENTRAL_SOURCE_INTAKE_LEGACY_ADAPTER_20261013.
+Owners: existing Research Intake v13 / writer_material_home v6, canonical UI and subscription funnel.
+User direction 13 October 2026 23:38 Asia/Jerusalem supersedes automatic NowBar mail delivery.
 
-## Verified live baseline
+## Implemented on branch
 
-Checked canonical Supabase linswmnnkjxvweumprav and Vercel sod1820 in
-sod1820-s-projects on 2026-10-13. Public sod1820.co.il resolves to deployment
-dpl_46k9WvaD5QBUo969obYzJ7pKkNyq, commit 99249526e91f1d720fae1aa43e82bbbe51ee5c45.
-Claude's candidate 1e56a934670cbdbac2442a160d19b9f69766c49d is READY in preview
-dpl_398yXyjT5KhsRJ7BmvsTXZKUaQ1o, not assigned to the public domain.
-The isolated fix starts from that candidate, not current main 4651042d.
-It preserves the candidate's existing Stage0 scope. It does not clear Stage0's
-independent release/performance review blockers or authorize a Legacy→2029 cutover.
+One private receiving home: existing inbound_emails. Shared source projection and
+Research Intake transport adapter, parent-first threads, explicit missing/ambiguous/cyclic
+parents, latest arrival/unread state. Same subjects never merge; pagination is explicit.
+No source store, topic tree, queue, palette, Follow or Share engine added.
 
-Diagnosis: zero channel_updates rows with source=email. Live email-inbound v5
-stores only private inbound_emails. There are 53 private rows, zero normalized
-source_email_v1 rows. Latest arrival is the synthetic reply at 06:41:12 UTC;
-no later arrivals were observed. The successful bounded Gmail forwarding test
-does not prove there have been new substantive messages since then.
-Promoting 1e56a93 alone cannot manufacture the missing public mail producer.
+Legacy Admin -> פניות projects this shared model; original read/reply handlers are reused.
+/admin?tab=messages opens that existing tab. Explicit draft destinations world/nowbar/writer
+persist on the original occurrence at meta.intake_projection_v1. Admin-only SECURITY INVOKER
+RPC uses current users.role plus existing RLS, row lock and optimistic revision; a stale
+window cannot overwrite a later decision. Body/proof/holds/read/reply metadata is preserved.
+Missing capability RPC disables Save honestly rather than pretending a local choice saved.
 
-## Implemented
+Follow resolves canonical_follow_subject and renders existing WatchButton only for a
+resolved canonical author subject. Unsupported thread subjects never mint a mail namespace.
+Private inbox has no public sharing control; public sharing stays owned by ShareActions.
+Source adapters consume buildResearchIntakeTransport with private access.
 
-- Private normalization is derived from PR1078, with provider-ID delivery dedup,
-  positive-identity-only legacy hydration, collision preservation, full bounded
-  text, retryable provider failure, provider/event arrival time and explicit
-  oversize/HTML-only/cleaned-empty states. Original source stays private.
-- Outlook/wrapped Gmail quotation boundaries are cut before prior bodies;
-  contact redaction preserves dates and research numerals. Sanitizer version is
-  mail-source-v2. Links remain redacted under the existing privacy decision.
-- Known synthetic provider IDs and private rows 56/57 are denied explicitly.
-- Canonical contributors provide the single approval home. Server-only
-  page_config.email_source_public=true is opt-in, requires exact unique active
-  email and canonical contributor identity, and is re-evaluated on every read.
-  Current live contributors RLS is enabled and both anon/authenticated UPDATE
-  grants are false; no UPDATE/ALL policy was found. Provisioning is NOT done.
-- Branch-only migration extends existing channel_updates with source lineage,
-  a service-role-only admission RPC, a complete-conversation public reader, and
-  public RLS checks. Private/held/revoked/unproved sources remain invisible even
-  through direct anonymous SELECT. Non-email source behavior is preserved.
-- NowBar uses the sanitized server reader instead of the unpopulated direct
-  email table query. Replies appear with their own author, chronological
-  parent-first ordering and last-arrival activity. Full source text replaces
-  the previous 600-character slice. An unavailable reader has a distinct status.
-- Admin email-reply reads preserved RFC Message-ID from private metadata, so
-  provider-based storage keys do not break existing outgoing reply threading.
-  No email was sent by this work.
+email-inbound never calls public admission, including on replay. It retains verified
+webhook/provider identity, delivery dedup, full bounded original text and native From-aligned
+Resend DKIM/DMARC admission proof. Legacy NowBar email is OFF by default. Future public
+reads require explicit published destination state in addition to current author, proof,
+privacy, hold and global release gates. Saving destinations always creates a private draft;
+no channel row, research object, notification or canonical content is created.
 
-## Verification
+The existing Intake contract addendum records these owner/actions/routing boundaries.
+No 2029 visual/shell/palette/Home/World changes. WhatsApp retains its existing source home;
+a combined WhatsApp inbox UI is not claimed in this email-first delivery.
 
-Node 24: 53 tests PASS across normalization, actual Edge-handler mocks,
-thread projection, legacy bar adapter, and real isolated PostgreSQL via PGlite.
-Twelve database tests apply the exact migration and exercise actual SQL/RLS:
-private inbox/read/write denial, approved root/reply admission, full thread
-pagination, synthetic/missing-proof/held exclusion, revocation, collisions,
-cyclic lineage, unchanged other sources, and duplicate-identity revocation.
-PostgreSQL SQL/PLpgSQL parser passes; NowBar JSX syntax build passes.
+## Live versus branch
 
-```sh
-node --test test/source-email-threads.test.mjs test/email-inbound-runtime.test.mjs test/now-bar-email.test.mjs
-# Install @electric-sql/pglite in an isolated temporary runtime, then:
-PGLITE_MODULE_PATH=/absolute/path/to/pglite/dist/index.js node --test test/legacy-email-source-db.test.mjs
-```
+Production read-back: restored legacy 99249526, deployment dpl_46k9WvaD5QBUo969obYzJ7pKkNyq.
+PR1089 starts from legacy-candidate-20261013@1e56a934, not main@4651042d.
+Candidate Stage0 runtime/performance gates remain independently open.
+Live inbox: 53 rows including tests; normalized count 0, public source=email rows 0.
+Source/public/provision RPCs are absent. Prior apply_migration calls failed Invalid or
+expired requestState, nothing applied. Only email-reply v4 was previously deployed as
+private RFC reply compatibility. email-inbound remains v5. No email sent by this work.
 
-Automated positive identity cases use synthetic fixtures. A separate actual provider
-API receipt above now proves the live native authentication contract.
-PGlite supplies actual PostgreSQL execution against a narrow fixture schema;
-it is not a canonical Supabase migration, complete production-schema test,
-Edge-runtime deployment, mobile/browser acceptance or production build receipt.
+All new central code/migrations/provisioning/public projections remain BRANCH ONLY.
+No main push/merge/production site/env/production-branch change. Website hold persists.
+The preview can read existing private rows after admin sign-in; Save stays unavailable
+until the independent private routing migration is applied. Public publication remains future work.
 
-## Exact activation prerequisites
+## Verification and activation seam
 
-1. **Real identity adapter VERIFIED.** On 2026-10-13 the original Resend API log
-   899e10c0-4d3a-4d87-b35a-225bdc6c7479 for the known private technical message
-   3aff2258-5acb-4c07-99d3-055c19416c0e returned native authentication
-   {spf:pass, dkim:pass, dmarc:pass}. The tool formatting omitted this object;
-   the original authenticated response contains it. The actual pure adapter
-   accepted the resource-matched real response. The source remains a denied
-   technical test, not a public content or publication receipt.
-   Official API now documents the receiving-server-owned object and From-aligned
-   DKIM. No trusted result is read from email headers; null/gray/fail are held.
-   The invented verified_from/provider_authenticated fields were removed.
-   https://resend.com/docs/api-reference/emails/retrieve-received-email.
-2. **Exact author provisioning prepared.** The approved Gmail source metadata
-   from message 1a12c47d7932f8b4 contains exactly 13 unique identities and names.
-   Live exact matching resolves four existing contributors: two directly by
-   contributor email and two through existing canonical user_id/users.email.
-   Nine missing identities receive PRIVATE source-registry entries, not public
-   account/phone claims. Account-linked emails are never copied to public
-   contributor rows. Existing public/person metadata is otherwise preserved.
-   Operator-only provision_email_source_authors_v1 validates exact count,
-   uniqueness, inactive/merged/ambiguous identity gates and uses existing
-   contributors with private dossier visibility, building=false, trusted=false,
-   and user_id=NULL for new source registrations. It has NOT been applied yet.
-   Actual names/addresses stay out of git and public handoffs.
-3. **Security owner review.** Reconcile PR1078's prior B1-B4 review against this
-   exact change. Source proof remains BLOCKED; schema/RLS requires independent
-   review and owner acceptance. No specialist delivery/review is claimed.
-4. **Compatible release.** Apply the reviewed migration, deploy email-inbound AND
-   email-reply together, and stage the exact legacy UI build. Verify an actual
-   approved root/reply roundtrip and anon/private/held behavior, plus current
-   combined legacy Stage0/browser/canary gates before promotion. Preserve the
-   known rollback SHA 99249526. Do not merge into main or change environment
-   variables as a shortcut. No production branch/settings change was performed.
-5. **Historical/private data.** Never bulk-copy the old inbox or synthetic tests
-   into public updates. Backfill requires current identity proof/approval,
-   normalization and the same bounded admission RPC. Public media is withheld
-   until an authorized durable image path exists; no raw HTML or signed private
-   download URL enters the public DTO.
+Isolated Node/Edge/PGlite tests cover source proof, dedup, fidelity, thread lineage,
+admin/ordinary/anonymous permissions, metadata preservation, stale-window rejection,
+draft versus publication, and selected-destination public filtering. JSX syntax checked.
+These are not signed-in browser, production database or source-to-public release receipts.
 
-No live product DB write, migration, function deployment, main push, production
-promotion, environment mutation or 2029 activation occurred in this work.
-Handoff: existing authorized coordinator / original source-security reviewer.
+Migration 20261013204540_central_email_intake_destinations is independently applicable:
+only private draft-routing and read-only capability RPCs over existing inbound metadata.
+It does not require the older public bridge or author provisioning. Rollback drops its
+two RPCs, preserving all source and routing metadata. No global publication flag enable.
 
-## Standby operation
-
-The existing site_flags carrier has a new mail_source_publication capability,
-initialized disabled. SQL admission AND direct/public reads fail closed while
-it is disabled or missing. This separates the already-authorized author
-permissions and private authentication/normalization from the held website
-release. Deploying the private receiving adapter does not publish mail.
-Replays can repair derived admission after provisioning without overwriting
-original bodies, holds or read/reply state. Enable only with the exact approved
-legacy release and its remaining gates.
-
-## Independent privacy review correction
-
-Claude review 22bf9c5f blocked kind=source/building=true registration because
-the existing public contributors_feed SECURITY DEFINER bypassed dossier RLS.
-The provisioner now uses existing kind=private AND building=false. An isolated
-PostgreSQL test runs the exact live contributors_feed definition and proves
-new source identities are absent. Other reviewed anon definers: research_level_of
-requires a user_id (new sources have NULL); rc_normalize_author_name is a trigger
-on account-linked contributions; sync_writer_gematria_findings requires admin;
-studio_verify does not return names/contacts; studio_list has no new source
-content, and studio mutations require admin/access_code/user_id, all unavailable
-to anonymous callers for these new identities. No existing reader was changed.
-Re-review required before private author creation.
+Next: independent Claude architecture/privacy/action-family review and real legacy preview.
+Public destination execution and thread Follow require their existing owners to accept
+identity/event/notification seams. No bulk historical publication or source backfill.

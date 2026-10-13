@@ -8,7 +8,8 @@ import { F } from "../../theme.js";
 
 // ⏱ «עכשיו» — סרגל דק יחיד בתחתית כל דפי הלגאסי, לכל הגולשים (גם לא מחוברים).
 // מחליף את ה-Bottom Bar ואת הכפתור הצף של LiveChannelFeed (בקשת צוריאל 13.10.2026).
-// שני מקורות בלבד, read-only: (1) הודעות צבי (tzvi-opoc) דרך אותו RPC מסונן-שרת של 2029,
+// מיילים כבויים כברירת מחדל: מרכז הקבלה הוא הבית הראשי. חיבור עתידי דורש בחירת יעד מפורשת.
+// מקורות read-only: (1) הודעות צבי (tzvi-opoc) דרך אותו RPC מסונן-שרת של 2029,
 // (2) שרשורי מייל שאושרו דרך הקורא המסונן-שרת email_source_threads_v1.
 // «חדש» = מאז הביקור האחרון באותו דפדפן (localStorage). לא נוגע ב-status/publish.
 export const NOW_BAR_HEIGHT = 34;
@@ -41,7 +42,7 @@ async function loadZvi() {
   }));
 }
 
-export default function NowBar() {
+export default function NowBar({ includeEmail = false }) {
   const [items, setItems] = useState([]);
   const [mailState, setMailState] = useState("loading");
   const [open, setOpen] = useState(false);
@@ -51,7 +52,7 @@ export default function NowBar() {
   useEffect(() => {
     let alive = true;
     const load = async () => {
-      const [m, z] = await Promise.allSettled([loadEmail(), loadZvi()]);
+      const [m, z] = await Promise.allSettled([includeEmail ? loadEmail() : Promise.resolve([]), loadZvi()]);
       if (!alive) return;
       const all = [...(m.status === "fulfilled" ? m.value : []), ...(z.status === "fulfilled" ? z.value : [])]
         .sort((a, b) => ts(b.at) - ts(a.at));
@@ -61,7 +62,7 @@ export default function NowBar() {
     load();
     const id = setInterval(load, POLL_MS);
     return () => { alive = false; clearInterval(id); };
-  }, []);
+  }, [includeEmail]);
 
   const unseen = useMemo(() => items.filter((i) => i.at && i.at > cutoff).length, [items, cutoff]);
 
@@ -83,7 +84,7 @@ export default function NowBar() {
           border: "1px solid rgba(212,175,55,.35)", borderBottom: "none", borderRadius: "12px 12px 0 0",
           boxShadow: "0 -8px 28px rgba(0,0,0,.45)", fontFamily: F.body,
         }}>
-          {mailState !== "available" && <div role="status" style={{ padding: "8px 14px", fontSize: 12, opacity: 0.7 }}>
+          {includeEmail && mailState !== "available" && <div role="status" style={{ padding: "8px 14px", fontSize: 12, opacity: 0.7 }}>
             {mailState === "loading" ? "טוען עדכוני מייל…" : mailState === "unavailable" ? "עדכוני המייל אינם זמינים כרגע" : "אין כרגע עדכוני מייל שאושרו להצגה"}
           </div>}
           {items.length === 0 && <div style={{ padding: 18, textAlign: "center", opacity: 0.7, fontSize: 14 }}>אין עדכונים כרגע</div>}

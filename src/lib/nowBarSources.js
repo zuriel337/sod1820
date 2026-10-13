@@ -4,7 +4,7 @@ import { projectSourceEmailThreads } from './research/sourceEmailThreads.js';
 // No client query of private inbound_emails or unrestricted broadcast fallback.
 export async function loadNowBarEmail(client) {
   if (!client?.rpc) throw new Error('mail_reader_unavailable');
-  const { data, error } = await client.rpc('email_source_threads_v1', { p_limit: 15 });
+  const { data, error } = await client.rpc('email_source_threads_v1', { p_limit: 15, p_destination: 'nowbar' });
   if (error) throw error;
   if (!Array.isArray(data)) throw new Error('invalid_mail_reader_response');
   return projectSourceEmailThreads(data).map(item => ({

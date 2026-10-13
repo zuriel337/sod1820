@@ -114,11 +114,11 @@ test('explicit canonical approval without provider proof remains private', async
   assert.equal(publishCalls.length, 0);
   assert.equal(writes[0].payload.meta.source_email_v1.author, null);
 });
-test('authenticated approved source invokes bounded publication after private persistence', async () => {
+test('authenticated approved source stays private for an explicit destination decision', async () => {
   approvedSource();
   const result = await (await handler(request())).json();
-  assert.equal(result.publication, 'public');
-  assert.deepEqual(publishCalls, [{ p_inbound_id: 7 }]);
+  assert.equal(result.publication, 'private');
+  assert.deepEqual(publishCalls, []);
   assert.equal(writes[0].payload.received_at, '2026-10-13T06:40:38.713Z');
 });
 test('known technical test provider ids never publish, even with positive mock proof', async () => {
@@ -127,14 +127,15 @@ test('known technical test provider ids never publish, even with positive mock p
   assert.equal(publishCalls.length, 0);
   assert.equal(writes[0].payload.meta.source_email_v1.technical_test, true);
 });
-test('failed publication preserves private delivery and can retry on provider replay', async () => {
+test('provider replay preserves private delivery and never initiates publication', async () => {
   approvedSource(); publishError = { message: 'RPC not installed' };
   const first = await (await handler(request())).json();
-  assert.equal(first.publication, 'reader_not_ready');
+  assert.equal(first.publication, 'private');
   existing = { id: 7, from_email: 'source@example.invalid', meta: writes[0].payload.meta };
   publishError = null;
   const replay = await (await handler(request())).json();
-  assert.equal(replay.publication, 'public');
+  assert.equal(replay.publication, 'private');
+  assert.equal(publishCalls.length,0);
   assert.equal(replay.dup, true);
   assert.equal(writes.length, 2);
   assert.equal('body_text' in writes[1].payload,false);
@@ -144,7 +145,8 @@ test('replay after canonical author provisioning repairs a previously private un
   existing={id:7,from_email:'source@example.invalid',meta:writes[0].payload.meta};
   approvedSource();
   const replay=await(await handler(request())).json();
-  assert.equal(replay.publication,'public');
+  assert.equal(replay.publication,'private');
+  assert.equal(publishCalls.length,0);
   assert.equal(writes[1].payload.meta.source_email_v1.author.contributor_id,'canonical-demo');
   assert.equal(writes[1].payload.meta.source_email_v1.identity_proof.basis,'resend_receiving_api_v1');
 });
