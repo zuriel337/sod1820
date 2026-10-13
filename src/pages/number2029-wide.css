@@ -1,0 +1,159 @@
+/* NUMBER_WIDE_LAYOUT_PREVIEW_V1
+   Wide-screen layouts for the Number page, selected by ?wide=a (default) | c | 0.
+   Everything keys off the hero's own inline size (container query), never the viewport,
+   so opening or collapsing the global rail / research sidecar re-flows the page live.
+   Presentation only: no data, route, engine or permission change. */
+
+.sod29-number-v10-anchor{display:contents}
+
+/* Life orbit: one arc per evidence channel (convergences, sources, worlds, activity).
+   Arc length follows that channel's real count (square-root scale); an empty channel stays a bare
+   track and a pending load shows "…", never a zero. Replaces the conic-gradient life seal. */
+.sod29-number-v10-life-seal.sod29-number-v10-life-orbit{
+  width:96px;height:96px;min-width:96px;
+  display:grid;place-items:center;align-content:center;gap:0;
+  border:0;border-radius:50%;background:none;box-shadow:none;
+  position:relative;
+}
+.sod29-number-v10-life-orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sod29-number-v10-life-orbit circle{fill:none}
+.sod29-number-v10-life-orbit .orbit-halo{
+  fill:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel));
+  stroke:color-mix(in srgb,var(--s29-accent) 22%,var(--s29-line));stroke-width:.6;
+}
+.sod29-number-v10-life-orbit .orbit-track{
+  stroke:color-mix(in srgb,var(--s29-line) 85%,transparent);stroke-width:3.6;stroke-linecap:round;
+}
+.sod29-number-v10-life-orbit .orbit-arc{stroke:var(--s29-accent);stroke-width:4.6;stroke-linecap:round}
+.sod29-number-v10-life-orbit .orbit-sources{stroke:var(--s29-accent-text,var(--s29-accent))}
+.sod29-number-v10-life-orbit .orbit-worlds{stroke:var(--s29-hero,var(--s29-accent))}
+.sod29-number-v10-life-orbit .orbit-activity{stroke:color-mix(in srgb,var(--s29-accent) 60%,var(--s29-ink))}
+.sod29-number-v10-life-orbit.is-live .orbit-arc{filter:drop-shadow(0 0 2.2px color-mix(in srgb,var(--s29-glow) 70%,transparent))}
+.sod29-number-v10-life-orbit.is-pending .orbit-track{stroke-dasharray:2 3.2;opacity:.7}
+.sod29-number-v10-life-orbit .orbit-spark{transform-origin:50px 50px}
+.sod29-number-v10-life-orbit .orbit-spark circle{fill:var(--s29-hero,var(--s29-accent));filter:drop-shadow(0 0 3px var(--s29-glow))}
+.sod29-number-v10-life-orbit:not(.is-live) .orbit-spark{display:none}
+.sod29-number-v10-life-orbit.is-live .orbit-spark{animation:sod29-orbit-spin 14s linear infinite}
+@keyframes sod29-orbit-spin{to{transform:rotate(360deg)}}
+.sod29-number-v10-life-orbit strong{
+  position:relative;z-index:1;color:var(--s29-ink);font-size:24px;line-height:1;font-variant-numeric:tabular-nums;
+}
+.sod29-number-v10-life-seal.sod29-number-v10-life-orbit>small{
+  position:relative;z-index:1;color:var(--s29-muted);font-size:9px;line-height:1.2;font-weight:800;
+}
+.sod29-number-v10-life-orbit:hover .orbit-halo{fill:color-mix(in srgb,var(--s29-accent) 16%,var(--s29-panel))}
+.sod29-number-v10-life-orbit:focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.sod29-number-v10-life-orbit .orbit-spark{animation:none!important}}
+
+.sod29-number-page[data-wide-layout="a"] .sod29-number-hero,
+.sod29-number-page[data-wide-layout="c"] .sod29-number-hero{
+  container:sod-number-hero/inline-size;
+  overflow:clip; /* clip, not hidden: keeps position:sticky working inside the hero */
+}
+
+/* ---------- A: sticky identity column + content stream (hero >= 1000px) ---------- */
+@container sod-number-hero (min-width:940px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page{
+    max-width:1680px;
+    grid-template-columns:minmax(250px,290px) minmax(0,1fr);
+    column-gap:18px;
+    row-gap:12px;
+    align-items:start;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page>*{grid-column:2;min-width:0}
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page>.sod29-number-v10-anchor{
+    grid-column:1;
+    grid-row:1/span 6;
+    position:sticky;
+    top:92px;
+    display:grid;
+    gap:12px;
+    align-content:start;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-identity{
+    grid-template-columns:minmax(0,1fr);
+    justify-items:center;
+    text-align:center;
+    gap:10px;
+    padding:20px 14px 16px;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root{order:1;min-width:0}
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-expression{order:2}
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-life-seal{order:3}
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root b{
+    font-size:clamp(54px,4.8cqw,76px);
+    line-height:1;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-expression>strong{
+    font-size:clamp(20px,1.9cqw,28px);
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-search{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-method-grid{
+    grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  }
+  /* The crossing lead only splits in two when the content column really is wide. */
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page .sod29-number-v10-research-grid:has(.sod29-number-v10-crossing-lead){
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+@container sod-number-hero (min-width:1360px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page .sod29-number-v10-research-grid:has(.sod29-number-v10-crossing-lead){
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+/* ---------- C: airy centred stage, wide bands (hero >= 1100px) ---------- */
+@container sod-number-hero (min-width:900px){
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-core2029.is-page{
+    max-width:1560px;
+    row-gap:22px;
+    padding:28px clamp(18px,3cqw,48px) 32px;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor{
+    display:grid;
+    justify-items:center;
+    gap:14px;
+    padding-block:10px 4px;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-identity{
+    grid-template-columns:minmax(0,1fr);
+    justify-items:center;
+    text-align:center;
+    gap:8px;
+    width:min(100%,640px);
+    border-color:transparent;
+    background:transparent;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-root{order:1;min-width:0}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-expression{order:2}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-life-seal{order:3}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-root b{
+    font-size:clamp(104px,11cqw,180px);
+    line-height:.95;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-expression>strong{
+    font-size:clamp(24px,2.4cqw,36px);
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-search{
+    width:min(100%,560px);
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-method-grid{
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-method-card{min-height:72px}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-stage{padding:20px;gap:16px}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-core2029.is-page .sod29-number-v10-research-grid:has(.sod29-number-v10-crossing-lead){
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  }
+}
+
+/* The shell caps Number content at 1180px. Lift the cap for the wide layouts only;
+   it still never exceeds the space left between the two rails. */
+.sod29-root.number-page-route .sod29-main-stage.has-context-rail>.sod29-content:has(.sod29-number-page[data-wide-layout="a"]),
+.sod29-root.number-page-route .sod29-main-stage.has-context-rail>.sod29-content:has(.sod29-number-page[data-wide-layout="c"]){
+  width:min(1720px,100%);
+}

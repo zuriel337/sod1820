@@ -325,13 +325,14 @@ export default function NumberCore2029({
     { key: "worlds", label: "עולמות", count: Number(rootPulse.worldCount) || 0 },
     { key: "activity", label: "פעילות", count: Number(rootPulse.activityCount) || 0 },
   ];
+  const lifeMaxCount = Math.max(1, ...lifeChannels.map((item) => item.count));
   const liveChannelCount = lifeChannels.filter((item) => item.count > 0).length;
-  const lifeCoverageValue = Math.max(0, Math.min(100, Number(rootCoverage.percent) || 0));
   const lifeAria = contentPending
     ? (contentError ? "חומר העומק לא זמין כרגע" : "טוען את חומר העומק")
     : `חיי המספר ${root}: ${Number(rootCoverage.present) || 0} שכבות פעילות, ${lifeChannels.map((item) => `${item.count} ${item.label}`).join(", ")}. זהו כיסוי חומר, לא ציון אמת.`;
 
   return <section className={`sod29-number-core2029 sod29-number-v10 ${compact ? "is-drawer" : "is-page"}`} data-number-core-root={root}>
+    <div className="sod29-number-v10-anchor">
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
@@ -365,21 +366,27 @@ export default function NumberCore2029({
         <span>רזיאל</span>
       </button> : <button
         type="button"
-        className={`sod29-number-v10-life-seal${liveChannelCount ? " is-live" : " is-quiet"}`}
+        className={`sod29-number-v10-life-seal sod29-number-v10-life-orbit${liveChannelCount ? " is-live" : " is-quiet"}${contentPending ? " is-pending" : ""}`}
         data-experience-action="number-life-seal"
         onClick={() => onOpenLife?.()}
         aria-label={lifeAria}
         title={lifeAria}
-        style={{ "--life-coverage": `${lifeCoverageValue * 3.6}deg` }}
       >
-        <span className="sod29-number-v10-life-ring" aria-hidden="true">
-          <i className="sod29-number-v10-life-core" />
-          <span className="sod29-number-v10-life-dots">
-            {lifeChannels.map((item) => <i key={item.key} className={item.count > 0 ? "is-on" : ""} />)}
-          </span>
-        </span>
-        <span>חיים</span>
-        <small>{contentPending ? (contentError ? "לא זמין" : "טוען…") : `${Number(rootCoverage.present) || 0} שכבות`}</small>
+        <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+          <circle className="orbit-halo" cx="50" cy="50" r="30" />
+          {lifeChannels.map((item, index) => {
+            const weight = item.count > 0 ? Math.sqrt(item.count / lifeMaxCount) : 0;
+            const lit = item.count > 0 ? 6 + 15.5 * weight : 0;
+            const rotate = -90 + index * 90 + 5;
+            return <g key={item.key} transform={`rotate(${rotate} 50 50)`}>
+              <circle className="orbit-track" cx="50" cy="50" r="40" pathLength="100" strokeDasharray="21.5 78.5" />
+              {lit ? <circle className={`orbit-arc orbit-${item.key}`} cx="50" cy="50" r="40" pathLength="100" strokeDasharray={`${lit} ${100 - lit}`} /> : null}
+            </g>;
+          })}
+          <g className="orbit-spark"><circle cx="50" cy="10" r="2.4" /></g>
+        </svg>
+        <strong>{contentPending ? "…" : Number(rootCoverage.present) || 0}</strong>
+        <small>{contentPending ? (contentError ? "לא זמין" : "טוען") : "שכבות"}</small>
       </button>}
     </header>
 
@@ -392,6 +399,7 @@ export default function NumberCore2029({
       />
       <button type="submit">חפש ✦</button>
     </form> : null}
+    </div>
 
     {regularExpressions.length ? <section className={`sod29-number-v11-regular-rail${regularExpressions.length > 1 ? " has-overflow-hint" : ""}`} aria-label={`ביטויים רגילים על ${root}`}>
       <div className="sod29-number-v11-regular-head">

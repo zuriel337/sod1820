@@ -30,6 +30,7 @@ import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/resear
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
 import "./number2029.css";
+import "./number2029-wide.css";
 
 const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
 const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
@@ -217,6 +218,15 @@ function NumberPageBody() {
     ? Number(value)
     : null;
   const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
+  // Wide-screen layout preview: ?wide=a (default) | c | 0 (current single column). Remembered per tab.
+  const wideLayout = useMemo(() => {
+    try {
+      const requested = new URLSearchParams(location.search).get("wide");
+      if (requested) sessionStorage.setItem("sod29-number-wide", requested);
+      const value = requested || sessionStorage.getItem("sod29-number-wide");
+      return value === "c" || value === "0" ? value : "a";
+    } catch { return "a"; }
+  }, [location.search]);
 
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
@@ -1232,7 +1242,7 @@ function NumberPageBody() {
   if (!data) {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
   }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
