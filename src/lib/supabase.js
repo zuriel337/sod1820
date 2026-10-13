@@ -1753,14 +1753,27 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
-export async function getSiteFlags() {
+// ⚡ קריאה אחת משותפת לכל ה-hooks בדף: בקשות מקבילות מתאחדות לבקשה אחת, ותוצאה תקפה
+// FLAGS_TTL_MS בלבד — כך דגל שהשתנה נקלט בתוך דקה לכל היותר (ואילו {fresh:true} מדלג על ה-cache).
+// שגיאה אינה נשמרת: מוחזר ה-cache האחרון הידוע (או {} כמו קודם), והבקשה הבאה מנסה שוב.
+const FLAGS_TTL_MS = 30000;
+let flagsCache = null, flagsAt = 0, flagsInflight = null;
+export async function getSiteFlags({ fresh = false } = {}) {
   if (!supabase) return {};
-  try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-    const m = {};
-    for (const r of (data || [])) m[r.key] = r;
-    return m;
-  } catch { return {}; }
+  if (!fresh && flagsCache && Date.now() - flagsAt < FLAGS_TTL_MS) return flagsCache;
+  if (flagsInflight) return flagsInflight;
+  flagsInflight = (async () => {
+    try {
+      const { data, error } = await supabase.from('site_flags').select('key,enabled,message,mode');
+      if (error || !Array.isArray(data)) return flagsCache || {};
+      const m = {};
+      for (const r of data) m[r.key] = r;
+      flagsCache = m; flagsAt = Date.now();
+      return m;
+    } catch { return flagsCache || {}; }
+    finally { flagsInflight = null; }
+  })();
+  return flagsInflight;
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
