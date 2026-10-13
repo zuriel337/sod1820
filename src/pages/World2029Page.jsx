@@ -1096,7 +1096,7 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
-      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a><a href="#world-all-convergences">עיון לפי נושא</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
+      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a><a href="#world-all-convergences">עיון לפי נושאים</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
     </section>
     <WorldFlightStory2029 research={research} shell={shell} />
     <WorldSourceStory research={research} shell={shell} compact />
@@ -1133,8 +1133,8 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null}
 
     <WorldDiscoveryDoors />
-    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושא">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושא</div><h2>כל חיבור פותח עוד עולם.</h2>
+    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושאים">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושאים</div><h2>כל חיבור פותח עוד עולם.</h2>
         <p className="sod29-muted">בחרו נושא קיים כדי לראות אילו ביטויים, מספרים ומקורות נפגשים בו.</p></div>
         {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} התכנסויות ציבוריות</span> : null}</div>
       <WorldPublicSourceSubjects2029 />
