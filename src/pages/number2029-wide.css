@@ -261,3 +261,38 @@
 .sod29-method-ring .ring-node-value{fill:var(--s29-ink);font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 .sod29-method-ring .ring-node.is-placeholder circle{stroke-dasharray:3 4;fill:none}
 .sod29-method-ring.is-loading .ring-node{cursor:progress}
+
+/* NUMBER_WIDE_LANES_V1 (wide layouts a/c): below the hero, related sections sit side by side instead of one long column.
+   Pairs: verses | math+sequences, connections | expressions, sources | timeline. Context (essential + worlds), people,
+   about, journey and the deep gate keep the full row.
+   Presentation only: same sections, same data, no new reader. A pair collapses to full width when its partner is absent. */
+.sod29-number-page[data-wide-layout="a"],
+.sod29-number-page[data-wide-layout="c"]{container:n-page/inline-size}
+@container n-page (min-width:1180px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-lw,
+  .sod29-number-page[data-wide-layout="c"] .sod29-lw{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+    gap:20px;
+  }
+  .sod29-number-page[data-wide-layout] .sod29-lw>*{grid-column:1/-1;min-width:0}
+  .sod29-number-page[data-wide-layout] .sod29-lw>.sod29-lw-context{order:1}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-verses{grid-column:auto;order:2}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-math{grid-column:auto;order:3}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-connections-live{grid-column:auto;order:4}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-expressions{grid-column:auto;order:5}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-content-live{grid-column:auto;order:6}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-timeline-live{grid-column:auto;order:7}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-people{order:8}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-about{order:9}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-journey-gate{order:10}
+  /* A section whose partner is missing takes the full row. */
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-verses))>#number-math,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-math))>#number-verses,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-expressions))>#number-connections-live,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-connections-live))>#number-expressions,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-timeline-live))>#number-content-live,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-content-live))>#number-timeline-live{grid-column:1/-1}
+  /* Half-width verses: two cards per row instead of three. */
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-verses .sod29-lw-verse-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
