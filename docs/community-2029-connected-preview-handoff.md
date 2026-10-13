@@ -12,7 +12,7 @@ The original fixture comparison remains at `/2029?preview=community`.
 
 ## Implemented
 
-- Connected preview reads approved `research_contributions` through the existing RLS-protected Data API, 40 rows at a time. The current live count observed in the preview is 25,610 public rows out of 41,080 imported archive rows; hidden/pending content is not exposed.
+- Connected preview reads approved OpenWeb messages and new `community_2029` messages from `research_contributions` through the existing RLS-protected Data API, 40 rows at a time. The imported archive has 41,080 rows, of which 25,524 are approved. The previous all-origin count of 25,610 included 86 unrelated approved research contributions and was corrected by an origin filter. Hidden/pending content is not exposed.
 - Existing canonical writers are reused: `add_contribution` for messages/replies and `toggle_contribution_reaction` for likes. No second message or reaction store was added.
 - Imported numeric `reactions.likes` is displayed together with new canonical `👍` reaction identities. The imported baseline is never converted into fabricated voters.
 - Author click opens a Community profile. User-authorized screenshot totals are carried for five named profiles: 648, 427, 2.9K, 22.9K, and 20.3K. Screenshot-marked private profiles hide message history.
@@ -28,6 +28,16 @@ The original fixture comparison remains at `/2029?preview=community`.
 - Deep profile fields (about, location, profile privacy controls) are not in the current self-service contract. Do not add writable fields until Person/Identity ownership and RLS are approved.
 - Loaded-page search is local. A full archive search needs the governed search projection; do not expose raw hidden rows.
 - The connected route remains `noindex` and does not replace `/community/chat`.
+
+## Verified identity links added 2026-10-13
+
+The site owner explicitly verified the historical OpenWeb profiles of Shinshin, Amily, and Avizohar, plus both of their own OpenWeb profiles. The branch now resolves those five authors by the original `openweb_user` source ID and the existing contributor UUID. It never groups archive messages by display name. Author pages query the matching contributor ID across the approved archive, so opening an author is not limited to the currently loaded feed page. The screenshot-private profiles remain private.
+
+The owner also confirmed both site accounts and their exact pairing: `YosiViner559` (`u_3kuB1woMg6wz`, contributor `19936860-6b35-4386-bc44-113289858ff0`) belongs to site user `b6ce542a-2b07-4749-8aba-532c886f6de7`; `Sod1820` (`u_3knnZ5YC`, contributor `4cd9c034-0464-4600-a35d-7156f0584d9b`) belongs to site user `36f5cb84-71c3-4977-a2c7-d6413e973443`. Public display name/avatar on those two archive profiles are read from the exact site accounts, and the editor link is shown only when `auth.uid()` matches the linked account ID. The two live `persons` rows remain separate; this branch performs no person merge or identity-edge/database write.
+
+Canonical ownership remains to be materialized. Read-only eligibility check found the `YosiViner559` contributor unclaimed, with a source email exactly matching the confirmed email of the paired account; the existing `contributors_claim_legacy` RPC can be used by that signed-in account, followed by the governed admin Person materialization path. The `Sod1820` contributor is also unclaimed, but its source email differs from the confirmed email of account `444861`; the self-claim RPC correctly rejects that pair. The owner's explicit identity decision is recorded here, but the canonical DB bind requires an audited admin route that does not overwrite source email or merge the two account Persons. Do not treat this branch's exact-ID display binding as a completed DB identity edge.
+
+The OpenWeb handles `torahtamima` and `greenraz` from the screenshots still have no exact source ID match in the imported stage. Their approved like labels remain recorded but are not attached to an arbitrary archive contributor.
 
 ## Main-session close sequence
 
