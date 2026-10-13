@@ -49,7 +49,7 @@ test("completed tools + quota denial: trace execution success, rejected output, 
   }
   assert.deepEqual(r.spans.map((s) => s.p_detail.resources.latency_ms), [7, 9]);
   assert.deepEqual(r.calls.filter((c) => c.name !== "fn_raziel_plan").map((c) => c.name), [
-    "fn_raziel_answer", "ai_quota_check", "op_trace_begin_v1", "op_trace_record_span_v1", "op_trace_record_span_v1", "op_trace_finish_v1",
+    "fn_capability_execution_gate_v1", "fn_raziel_answer", "ai_quota_check", "op_trace_begin_v1", "op_trace_record_span_v1", "op_trace_record_span_v1", "op_trace_finish_v1",
   ]);
 });
 
@@ -122,4 +122,50 @@ test("advanced gate still blocks allowed requests and quota denial still takes p
   assert.equal(gated.result.engine, "gated");
   assert.equal(gated.result.model, "none");
   assert.equal(gated.result.raziel.under_construction, true);
+});
+
+function assertAvailabilityDenied(r) {
+  assert.equal(r.status, 200);
+  assert.equal(r.result.error, "availability");
+  assert.equal(r.result.analysis, null);
+  assert.equal(r.models.length, 0);
+  assert.equal(r.personal.length, 0);
+  assert.equal(r.traces.length, 0);
+  assert.equal(r.calls.filter((call) => call.name === "fn_capability_execution_gate_v1").length, 1);
+  assert.equal(r.calls.some((call) => [
+    "fn_raziel_answer", "fn_raziel_plan", "ai_quota_check", "ai_token_log",
+    "fn_raziel_identity", "fn_raziel_persona", "fn_raziel_context", "fn_raziel_remember",
+    "research_state_snapshot_v1", "fn_research_path_resume_v1", "metatron_context",
+  ].includes(call.name)), false, "availability denial precedes deterministic, quota, model, memory and personal execution");
+}
+
+test("closed site denies a guest before execution even with forged admin and trusted-channel body", async () => {
+  const r = await runAiAnalyze({ siteAllowed: false, allowed: true, body: {
+    tier: "admin", user_ref: OTHER_UID, uid: OTHER_UID,
+    trusted_channel: { channel: "whatsapp", sender: "972555000111" },
+  } });
+  assertAvailabilityDenied(r);
+  const gate = r.calls.find((call) => call.name === "fn_capability_execution_gate_v1");
+  assert.equal(gate.payload.p_user_ref, null);
+  assert.equal(gate.payload.p_identity, "v:fixture-visitor");
+});
+
+test("closed site denies a verified ordinary user's advanced request and keeps real caller identity", async () => {
+  const r = await runAiAnalyze({ siteAllowed: false, allowed: true, bearer: USER_JWT, verifiedUid: UID, body: {
+    mode: "advanced", tier: "admin", user_id: OTHER_UID, user_ref: OTHER_UID, uid: OTHER_UID,
+    trusted_channel: { channel: "whatsapp", sender: "972555000111" },
+  } });
+  assertAvailabilityDenied(r);
+  const gate = r.calls.find((call) => call.name === "fn_capability_execution_gate_v1");
+  assert.equal(gate.payload.p_user_ref, UID);
+  assert.equal(gate.payload.p_identity, `u:${UID}`);
+  assert.equal(r.calls.find((call) => call.name === "user").headers.authorization, `Bearer ${USER_JWT}`);
+});
+
+test("unavailable site gate fails closed on HTTP and transport failure with zero downstream execution", async () => {
+  for (const mode of ["http", "throw"]) {
+    const r = await runAiAnalyze({ siteAllowed: true, allowed: true,
+      traceFailure: { rpc: "fn_capability_execution_gate_v1", mode }, body: { mode: "advanced", tier: "admin" } });
+    assertAvailabilityDenied(r);
+  }
 });

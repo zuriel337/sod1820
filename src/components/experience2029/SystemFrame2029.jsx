@@ -1,5 +1,6 @@
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
+import { createPortal } from "react-dom";
 import React, {
   createContext,
   useCallback,
@@ -12,13 +13,14 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
-import { timeAgoHe } from "../../lib/format.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
-import { buildExactReturnPatch } from "../../lib/research/researchContext.js";
+import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { useFeatureState } from "../MaintenanceLock.jsx";
+import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { makeEntity } from "../../lib/research/entity.js";
@@ -38,6 +40,7 @@ import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
@@ -75,6 +78,7 @@ const TRANSIENT = Object.freeze({
   ATTENTION: "attention",
   TOOLS: "tools",
   RAZIEL: "raziel",
+  RAZIEL_LOCKED: "raziel_locked",
   WORKSPACE: "workspace",
   ISSUE: "issue",
   CONTEXT: "context",
@@ -89,6 +93,7 @@ const ShellContext = createContext({
   openAttention: () => {},
   openTools: () => {},
   openRaziel: () => {},
+  razielLocked: true,
   closeRaziel: () => {},
   openWorkspace: () => {},
   openIssueReport: () => {},
@@ -96,6 +101,7 @@ const ShellContext = createContext({
   closeTransient: () => {},
   go: () => {},
   returnExact: () => {},
+  registerOrientationHost: () => {},
   experience: null,
 });
 
@@ -107,13 +113,29 @@ const HOME_NAV = [
   { to: "/heichal", label: "היכל", icon: "◇" },
   { to: "/2029/posts", label: "פוסטים", icon: "↟" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
-  { label: "קהילה", icon: "◎", status: "בקרוב" },
+  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
 ];
 
 const DIRECT_NAV = [
-  { label: "דף המספר", icon: "123", action: "number" },
+  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/els", label: "ELS", icon: "✦" },
+  { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
+];
+
+const CORE_HOME_NAV = [
+  { to: "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: "/community/chat", label: "צ׳אט", icon: "◉" },
+  HOME_NAV[1],
+  { to: "/heichal", label: "היכל", icon: "◇" },
+  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+];
+
+const CORE_DIRECT_NAV = [
+  { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
+  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
 const FOCUSABLE = [
@@ -140,7 +162,8 @@ function normalizeTarget(input, source = "context") {
   if (rawId == null || !type) return null;
   const id = String(rawId).trim();
   if (!id) return null;
-  const resultValue = Number(input.resultValue ?? input.number);
+  const resultValue = researchContextNumber(input.resultValue ?? input.number);
+  const number = researchContextNumber(input.number);
   return {
     id,
     type: String(type),
@@ -151,7 +174,7 @@ function normalizeTarget(input, source = "context") {
     expression: input.expression || null,
     method: input.method || input.methodKey || null,
     resultValue: Number.isSafeInteger(resultValue) ? resultValue : null,
-    number: Number.isSafeInteger(Number(input.number)) ? Number(input.number) : null,
+    number: Number.isSafeInteger(number) ? number : null,
     sectionLabel: input.sectionLabel || null,
     sourceLabel: input.sourceLabel || null,
   };
@@ -273,7 +296,12 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
   return (
     <div className="sod29-nav-group">
       <div className="sod29-nav-group-title">{title}</div>
-      {items.map((item) => item.to ? (
+      {items.map((item) => item.locked ? (
+        <button className="sod29-nav-link is-gated" key={item.label} type="button" disabled aria-label={`${item.label} · נעול`} title={`${item.label} · נעול`}>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-copy">{item.label} · נעול</span>
+        </button>
+      ) : item.to ? (
         <NavLink
           key={item.to}
           to={item.to}
@@ -305,29 +333,31 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
 
 // Typed "Now": what is happening in the world, for me, and what Raziel can continue.
 // Each tab opens an existing frame surface; no data is invented here.
-function NowTabs2029({ activeKind, onWorld, onMe, onRaziel }) {
+function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false }) {
   const tabs = [
     { id: "world", label: "בעולם", hint: "מה חדש בעולם", on: onWorld, pressed: activeKind === TRANSIENT.ATTENTION },
     { id: "me", label: "בשבילי", hint: "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
-    { id: "rz", label: "רזיאל מציע", hint: "המשך עם רזיאל", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL },
+    { id: "rz", label: razielLocked ? "רזיאל · נעול" : "רזיאל מציע", hint: razielLocked ? "רזיאל נעול זמנית" : "המשך עם רזיאל", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL, disabled: razielLocked },
   ];
   return <div className="sod29-now" role="group" aria-label="עכשיו">
-    {tabs.map((tab) => <button key={tab.id} type="button" className={`sod29-now-tab is-${tab.id}`} aria-pressed={tab.pressed} aria-label={`עכשיו · ${tab.label}`} title={tab.hint} onClick={tab.on}>
+    {tabs.map((tab) => <button key={tab.id} type="button" className={`sod29-now-tab is-${tab.id}`} aria-pressed={tab.pressed} aria-label={`עכשיו · ${tab.label}`} title={tab.hint} onClick={tab.on} disabled={tab.disabled}>
       <span className="sod29-now-dot" aria-hidden="true" /><span className="sod29-now-label">{tab.label}</span>
     </button>)}
   </div>;
 }
 
-function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל" }) {
+function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false }) {
   return (
     <button
       type="button"
-      className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}`}
+      className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={title}
+      aria-label={locked ? "רזיאל · בבנייה" : title}
+      title={locked ? "רזיאל בבנייה" : title}
       aria-pressed={active}
+      disabled={locked}
     >
-      <span className="sod29-raziel-orb-core" aria-hidden="true" />
+      <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
   );
@@ -520,7 +550,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
     </>
   );
 }
-function ContextualActionButtons({ actions, target, onInspect, onCapability, onRaziel, go }) {
+function ContextualActionButtons({ actions, target, onInspect, onCapability, onRaziel, razielLocked, go }) {
   return <div className="sod29-panel-actions-grid">{actions.map((action) => {
     const className = `sod29-action${action.primary ? " primary" : ""}`;
     if (action.kind === CONTEXT_ACTION_KIND.INSPECT) {
@@ -530,7 +560,7 @@ function ContextualActionButtons({ actions, target, onInspect, onCapability, onR
       return <button key={action.id} className={className} type="button" onClick={() => onCapability?.(action.capability, target)}>{action.label}</button>;
     }
     if (action.kind === CONTEXT_ACTION_KIND.RAZIEL) {
-      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()}>{action.label}</button>;
+      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()} disabled={razielLocked}>{razielLocked ? `${action.label} · נעול` : action.label}</button>;
     }
     if (action.kind === CONTEXT_ACTION_KIND.ROUTE) {
       return <button key={action.id} className={className} type="button" onClick={() => go?.(action.href)}>{action.label}</button>;
@@ -546,6 +576,7 @@ function ActionProjection({
   onInspect,
   onCapability,
   onRaziel,
+  razielLocked,
   go,
 }) {
   const actions = resolveContextActions({ surface, target });
@@ -564,7 +595,7 @@ function ActionProjection({
         <strong>{target.label}</strong>
         <small>{target.type}</small>
       </div> : null}
-      <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} go={go} />
+      <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} razielLocked={razielLocked} go={go} />
       <div className="sod29-panel-context-card">
         <b>אותו הקשר</b>
         <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
@@ -574,29 +605,12 @@ function ActionProjection({
   );
 }
 
-function AttentionProjection({ context, onWorkspace, onOpen }) {
-  const [arrivals, setArrivals] = useState({ loading: true, items: [], error: false, partial: false });
-
-  // SAME owner/reader as /world. Loaded only on opening the bottom attention sheet;
-  // never copy a private/admin research bundle into global Context or local storage.
-  useEffect(() => {
-    let stop;
-    let mounted = true;
-    import("../../lib/research/worldDiscoveryStream.js")
-      .then(({ watchWorldDiscoveryStream }) => {
-        if (!mounted) return;
-        stop = watchWorldDiscoveryStream({
-          limit: 10, includeResearch: false,
-          onResult: (result) => setArrivals({
-            loading: false, items: result.items || [], groupArrivals: result.groupArrivals,
-            error: false, partial: (result.unavailableSources || []).length > 0,
-          }),
-          onError: () => setArrivals({ loading: false, items: [], error: true, partial: false }),
-        });
-      })
-      .catch(() => { if (mounted) setArrivals({ loading: false, items: [], error: true, partial: false }); });
-    return () => { mounted = false; stop?.(); };
-  }, []);
+function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
+  // The mobile Now sheet and left Companion show the SAME authorized public rows.
+  // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
+  // independent ordering, research read or seen-state cache.
+  const rows = Array.isArray(feed?.rows) ? feed.rows : [];
+  const partial = Array.isArray(feed?.unavailableSources) && feed.unavailableSources.length > 0;
 
   return (
     <>
@@ -606,27 +620,24 @@ function AttentionProjection({ context, onWorkspace, onOpen }) {
         <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
       </div>
       <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
-        {arrivals.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
-        {arrivals.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!arrivals.loading && !arrivals.error && !arrivals.items.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
-        {arrivals.groupArrivals ? <p role="status">{arrivals.groupArrivals.message}</p> : null}
-        {arrivals.partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
-        {arrivals.items.slice(0, 8).map((item) => {
-          const href = item.kind === "source"
-            ? item.href
-            : item.kind === "convergence" && item.slug
-              ? `/topic/${encodeURIComponent(item.slug)}`
-              : null;
+        {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
+        {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
+        {!feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
+        {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
+        {rows.slice(0, 8).map((row) => {
+          const item = row.item || {};
+          const href = row.href;
           return <button
             type="button"
-            key={item.id}
+            key={row.id}
             className="sod29-action"
             disabled={!href}
-            onClick={() => onOpen?.(href)}
+            onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
             style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
           >
-            <small>{item.kind === "source" ? "כתב מקור" : "התכנסות"} · {item.creator} · {timeAgoHe(item.at) || "זמן לא צוין"}</small>
-            <strong>{item.label}</strong>
+            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
+            <strong>{row.title}</strong>
             {item.summary ? <small>{item.summary}</small> : null}
             {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
           </button>;
@@ -1154,7 +1165,7 @@ function AccountConnection2029({ user, profile, signOut }) {
   );
 }
 
-function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
+function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
@@ -1244,20 +1255,28 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
     document.querySelector('[data-workspace-section="account"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
   };
 
+  const openExistingModule = (module) => {
+    if (!userId) { openAccount(); return; }
+    const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    go(`/profile?module=${encodeURIComponent(module)}&returnTo=${encodeURIComponent(returnTo)}`, { preserve: false });
+  };
+
   const core = [
     { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "כניסה / הרשמה ושמירה בין מכשירים", state: "live", onClick: openAccount },
-    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "building" },
+    { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
+    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "live", onClick: () => openExistingModule("public-page") },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
     { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
   ];
 
   const personal = [
-    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: "שם, תאריך ומשפחה — פרטי", state: "live", onClick: () => go("/2029/journey") },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "מה ששמרתי אצלי", state: "building" },
-    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "building" },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits}` : "יתרה והיסטוריה", state: stats?.credits != null ? "live" : "building", readOnly: true },
+    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/2029/journey") },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "הרמזים ששמרתי ויצרתי", state: "live", onClick: () => openExistingModule("hints") },
+    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "live", onClick: () => openExistingModule("contrib") },
+    { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · פירוט` : "יתרה והיסטוריה", state: "live", onClick: () => openExistingModule("credits") },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
-    { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: "המשך עם אותו הקשר אישי", state: "live", onClick: onRaziel },
+    { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך עם אותו הקשר אישי", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : onRaziel },
   ];
 
   return (
@@ -1329,12 +1348,12 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
               <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small>
             </div>
           ) : item.onClick ? (
-            <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" onClick={item.onClick}>
+            <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" data-workspace-card={item.id} onClick={item.onClick}>
               <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>פתח</b>
             </button>
           ) : (
-            <div key={item.id} className="sod29-workspace-mini-card is-building" aria-disabled="true">
-              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>בבנייה</b>
+            <div key={item.id} className="sod29-workspace-mini-card is-building" aria-disabled="true" data-workspace-card={item.id}>
+              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>{item.locked ? "נעול" : "בבנייה"}</b>
             </div>
           ))}
         </div>
@@ -1349,7 +1368,7 @@ function WorkspaceProjection({ context, go, onRaziel, research, onInspect, onOpe
             <div className="sod29-actions">
               {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
               <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
-              <button className="sod29-action" type="button" onClick={onRaziel}>✦ המשך עם רזיאל</button>
+              <button className="sod29-action" type="button" onClick={onRaziel} disabled={razielLocked}>{razielLocked ? "✦ רזיאל · נעול" : "✦ המשך עם רזיאל"}</button>
             </div>
           </section>
         ) : null}
@@ -1441,7 +1460,22 @@ export default function SystemFrame2029({
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
+  const corePublicViewer = CORE_PUBLIC_LAUNCH_2029 && !isAdmin;
+  const worldFeature = useFeatureState("lock_world");
+  const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
+  const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
+  const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
+  const booksFeature = useFeatureState("lock_books", { requireFlag: true });
+  const numberFeature = useFeatureState("lock_number", { requireFlag: true });
+  const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
+  const razielLocked = razielFeature.loading || razielFeature.blocked;
+  const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
+  const booksLocked = booksFeature.loading || booksFeature.blocked;
+  const numberLocked = numberFeature.loading || numberFeature.blocked;
+  const worldLocked = worldFeature.loading || worldFeature.blocked;
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.to.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -1510,6 +1544,8 @@ export default function SystemFrame2029({
     historyIndex,
     locationKey: location.key,
   }), [location.key, location.state, historyIndex]);
+  // A surface may host the orientation pill inside its own compact header (Post): same LearnMark, one owner, no extra bar.
+  const [orientationHost, setOrientationHost] = useState(null);
   const orientation = useMemo(() => resolveEntryOrientation({
     surface,
     arrival,
@@ -1640,7 +1676,7 @@ export default function SystemFrame2029({
 
   const openTransient = useCallback((kind, payload = null) => {
     returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
-    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL].includes(kind)) {
+    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
       completeSurfaceEntry(kind === TRANSIENT.CAPABILITY ? (payload?.capability || "capability") : kind);
     }
     setTransient({ kind, payload });
@@ -1649,11 +1685,8 @@ export default function SystemFrame2029({
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   const handleGlobalNavAction = useCallback((action) => {
-    if (action === "number") {
-      setCommandQuery("");
-      openCommand();
-    }
-  }, [openCommand]);
+    if (action === "workspace") openTransient(TRANSIENT.WORKSPACE);
+  }, [openTransient]);
 
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
@@ -1667,9 +1700,9 @@ export default function SystemFrame2029({
     if (
       normalized?.expression
       && normalized?.method
-      && Number.isSafeInteger(Number(normalized?.resultValue))
+      && Number.isSafeInteger(normalized?.resultValue)
     ) {
-      const resultValue = Number(normalized.resultValue);
+      const resultValue = normalized.resultValue;
       const currentSelection = context?.selection || null;
       const sameSelection = Boolean(
         currentSelection?.entityId
@@ -1701,14 +1734,18 @@ export default function SystemFrame2029({
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
+    if (razielLocked) {
+      openTransient(TRANSIENT.RAZIEL_LOCKED);
+      return;
+    }
     const boundedPayload = payload?.numberCoreFocus || payload?.razielMicroIntent || payload?.readingFocus || payload?.elsSurfaceContext || payload?.razielRouteAction
       ? payload
       : null;
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
-  }, [openTransient]);
+  }, [openTransient, razielLocked]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
   const openIssueReport = useCallback((payload = null) => openTransient(TRANSIENT.ISSUE, payload), [openTransient]);
-  const closeRaziel = useCallback(() => { if (transient?.kind === TRANSIENT.RAZIEL) closeTransient(); }, [transient?.kind, closeTransient]);
+  const closeRaziel = useCallback(() => { if ([TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(transient?.kind)) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
 
   useEffect(() => {
@@ -1854,6 +1891,7 @@ export default function SystemFrame2029({
     openAttention,
     openTools,
     openRaziel,
+    razielLocked,
     closeRaziel,
     openWorkspace,
     openIssueReport,
@@ -1861,7 +1899,8 @@ export default function SystemFrame2029({
     closeTransient,
     go,
     returnExact,
-  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
+    registerOrientationHost: setOrientationHost,
+  }), [experience, openCommand, openAction, openCapability, openInspect, openNumber, openAttention, openTools, openRaziel, razielLocked, closeRaziel, openWorkspace, openIssueReport, closeWorkspace, closeTransient, go, returnExact]);
 
   const shellStyle = useMemo(() => ({
     "--s29-page": palette.pageBg,
@@ -1912,7 +1951,10 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
-  const nowTabs = <NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} />;
+  const nowTabs = <NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />;
+  useEffect(() => {
+    if (razielLocked && transientKind === TRANSIENT.RAZIEL) setTransient(null);
+  }, [razielLocked, transientKind]);
   const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = context?.subject?.href || "";
   const postTrail = surface === "post"
@@ -1939,12 +1981,23 @@ export default function SystemFrame2029({
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
+  // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
+  const progressSections = (surface === "post" || surface === "topic") && Array.isArray(context?.dimensions?.surfaceSections)
+    ? context.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
+  const progressIndex = progressSections.findIndex((item) => item.id === context?.dimensions?.activeSectionId);
+  const readingProgress = showBottomTrail && progressSections.length >= 2 && progressIndex >= 0
+    ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
+    : null;
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
-  const showContextRail = surface !== "control" && surface !== "els"
+  const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || context?.subject);
+  // Core-public launch permits this source-only Companion, not the admin Context/
+  // Golden Projector or Event Sequence. The existing public World/RLS readers remain
+  // the only source of truth; gated research and private controls stay inaccessible.
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
-  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
+  const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
+  const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
@@ -1953,6 +2006,7 @@ export default function SystemFrame2029({
     if (contextSubjectKey) setCompanionPeek(true);
   }, [contextSubjectKey, companionHasContext]);
   const focusCompanionRaziel = () => {
+    if (razielLocked) return;
     setCompanionPeek(true);
     setTimeout(() => { document.querySelector(".sod29-companion-raziel input")?.focus(); }, 80);
   };
@@ -1965,7 +2019,7 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
@@ -1978,14 +2032,18 @@ export default function SystemFrame2029({
       context={context}
       focus={surfaceFocus || activeTarget}
       onOpenNumber={(target) => openNumber(target || activeTarget)}
-      onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+      onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
       onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם"><AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם">{corePublicViewer ? worldLocked
+      ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
+      : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
+      : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
       pathname={location.pathname}
       surface={surface}
@@ -2000,7 +2058,9 @@ export default function SystemFrame2029({
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
-      onRaziel={() => openTransient(TRANSIENT.RAZIEL)}
+      onRaziel={openRaziel}
+      journeyLocked={journeyLocked}
+      razielLocked={razielLocked}
       research={research}
       onInspect={openInspect}
       onOpenNumber={openNumber}
@@ -2042,8 +2102,8 @@ export default function SystemFrame2029({
             <span className="sod29-rail-identity-copy"><b>ניווט ראשי</b><small>SOD1820</small></span>
           </Link>
           <nav className="sod29-nav" aria-label="יעדים וכלי מחקר">
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onAction={handleGlobalNavAction} />
           </nav>
           <div className="sod29-rail-utilities" aria-label="פעולות נוספות">
             <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
@@ -2081,8 +2141,8 @@ export default function SystemFrame2029({
             </div>
           </header>
 
-          {orientation.mode !== "hidden" && orientation.manifest ? <div className="sod29-entry-orientation-slot">
-            <LearnMark2029
+          {orientation.mode !== "hidden" && orientation.manifest ? (() => {
+            const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
               label={orientation.manifest.label}
               compact={orientation.mode === "compact"}
@@ -2092,8 +2152,11 @@ export default function SystemFrame2029({
             >
               <p>{orientation.manifest.body}</p>
               <p><strong>{experience.experience.question}</strong></p>
-            </LearnMark2029>
-          </div> : null}
+            </LearnMark2029>;
+            return orientationHost && surface === "post"
+              ? createPortal(<span className="sod29-entry-orientation-slot is-in-header">{mark}</span>, orientationHost)
+              : <div className="sod29-entry-orientation-slot">{mark}</div>;
+          })() : null}
 
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
@@ -2110,12 +2173,12 @@ export default function SystemFrame2029({
               ) : null}
               {children}
             </main>
-            {showContextRail && !(companionActive && !numberPageRoute) ? <SurfaceContextRail2029
+            {showContextRail && !(companionActive && companionHasContext) ? <SurfaceContextRail2029
               surface={surface}
               context={context}
               focus={surfaceFocus || activeTarget}
               onOpenNumber={(target) => openNumber(target || activeTarget)}
-              onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+              onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
               onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
               onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
               onNeedHelp={openIssueReport}
@@ -2141,8 +2204,8 @@ export default function SystemFrame2029({
                 <span aria-hidden="true">×</span>
               </button>
             </div>
-            <NavGroup title="בתים מרכזיים" items={HOME_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
-            <NavGroup title="גילוי וכלים" items={DIRECT_NAV} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
+            <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
               <small>מראה</small>
               <ThemePresetControl2029 />
@@ -2158,24 +2221,26 @@ export default function SystemFrame2029({
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
         {companionActive ? <CompanionPanel2029
-          feed={feed} mode={companionMode} tab={companionHasContext ? companionTab : "feed"} onTab={setCompanionTab}
+          feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={setCompanionTab}
           onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
           pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
           hasContext={companionHasContext}
+          hasSequence={companionHasSequence}
+          sequenceNode={companionHasSequence ? <EventSequencePanel2029 context={context} surface={surface} /> : null}
           contextNode={companionHasContext ? <SurfaceContextRail2029
             surface={surface} context={context} focus={surfaceFocus || activeTarget}
             onOpenNumber={(target) => openNumber(target || activeTarget)}
-            onAskRaziel={() => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
+            onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
             onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
             onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
             onNeedHelp={openIssueReport}
             suppressLearn
           /> : null}
           onOpenHref={(href) => go(href)}
-          razielNode={<RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
+          razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
-        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`מה נכנס למערכת: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
+        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context">
@@ -2202,6 +2267,9 @@ export default function SystemFrame2029({
               >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
             </React.Fragment>)}
           </nav> : null}
+              {readingProgress ? <button type="button" className="sod29-reading-progress" onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={`מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}${readingProgress.label ? `, ${readingProgress.label}` : ""}`} aria-haspopup="dialog" data-reading-progress={`${readingProgress.index}/${readingProgress.total}`}>
+                <span className="sod29-reading-progress-track" aria-hidden="true">{readingProgress.ids.map((id, i) => <i key={id} className={i < readingProgress.index - 1 ? "is-done" : i === readingProgress.index - 1 ? "is-now" : ""} />)}</span>
+              </button> : null}
               <div className="sod29-command-actions">
                 {showBottomTrail && surface === "number" ? <button
                   className="sod29-number-island-action"
@@ -2215,7 +2283,7 @@ export default function SystemFrame2029({
               </div>
             </>}
           </div>
-          <RazielOrb compact active={transientKind === TRANSIENT.RAZIEL || (companionActive && companionMode !== "slim")} onClick={companionActive ? focusCompanionRaziel : openRaziel} />
+          <RazielOrb compact active={!razielLocked && (transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim"))} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} locked={razielLocked} />
           <div className="sod29-bar-zone is-actions">
             {toolMode ? <>
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />

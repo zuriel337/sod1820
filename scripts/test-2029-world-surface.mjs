@@ -108,9 +108,9 @@ assert.match(world, /onSearch=\{\(\) => shell\.openCommand\(\)\}/);
 assert.match(world, /aria-controls=\{landingSectionId\(facet\.key\)\}/);
 assert.match(world, /section\.scrollIntoView/);
 assert.match(world, /בחר שער כדי לקפוץ ישר אליו/);
-assert.match(world, /חוקרים וכתבים/);
+assert.match(world, /כותבים ומקורות/);
 assert.match(world, /world-auth-identity-bridge/, "World must expose account/admin identity state");
-assert.ok(world.indexOf("world-auth-identity-bridge") < world.indexOf("חוקרים וכתבים"), "World auth/admin identity must be visible before the lower researcher section");
+assert.ok(world.indexOf("world-auth-identity-bridge") < world.indexOf("כותבים ומקורות"), "World auth/admin identity must be visible before the lower researcher section");
 assert.match(world, /התחברות \/ מנהל/, "World guests need a visible bridge to the canonical login");
 assert.match(world, /href="\/login"/, "World login bridge must reuse the canonical legacy Auth route");
 assert.match(world, /isAdmin \? "מנהל" : "מחובר"/, "World must visibly distinguish an admin session from a regular signed-in session");
@@ -128,10 +128,10 @@ assert.match(contributorFindingsSource, /mode === PROJECTOR_MODE\.ADMIN_ALL \? s
 assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
 assert.match(attributionAttentionMigration, /פער ייחוס למחקר אישי/, "Attribution gap must be visible in Hebrew");
 assert.match(world, /מסע 878/);
-assert.match(world, /התכנסות היא מקום שבו כמה ביטויים/);
+assert.match(world, /כאן מופיעים חיבורים מתועדים בין ביטויים/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /בחירת חוקר או כותב/);
-assert.match(world, /פתח את חומר המחקר שלו בעולם/);
+assert.match(world, /בחירת כותב/);
+assert.match(world, /לקריאת המקורות והחיבורים שלו/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(worldCss, /sod29-world-core-map/);
 assert.match(worldCss, /sod29-world-core-ring/);
@@ -519,10 +519,10 @@ assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: 
 assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
-assert.match(world, /בחר חוקר כדי לראות קודם את חומר המחקר/);
+assert.match(world, /בחרו כותב כדי לקרוא את דבריו/);
 assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
 assert.ok(
-  world.indexOf('aria-label="חוקרים וכתבים"') < world.indexOf('id="world-admin-tools"'),
+  world.indexOf('aria-label="כותבים ומקורות"') < world.indexOf('id="world-admin-tools"'),
   "researcher/content discovery must appear before internal admin tooling",
 );
 assert.match(world, /controlMode \? <section id="world-admin-tools"/);

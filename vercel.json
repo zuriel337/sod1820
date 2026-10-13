@@ -1,6 +1,31 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "destination": "/2029",
+      "permanent": false
+    },
+    {
+      "source": "/post",
+      "destination": "/2029/posts",
+      "permanent": false
+    },
+    {
+      "source": "/forum",
+      "destination": "/community/chat",
+      "permanent": false
+    },
+    {
+      "source": "/numbers",
+      "destination": "/number",
+      "permanent": false
+    },
+    {
+      "source": "/heichal.html",
+      "destination": "/heichal",
+      "permanent": false
+    },
+    {
       "source": "/whatsapp/kod-hametsiut",
       "destination": "/early-access",
       "permanent": false
@@ -463,6 +488,31 @@
   ],
   "rewrites": [
     {
+      "source": "/forum/(.*)",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/forum/$1&crawler=search"
+    },
+    {
+      "source": "/journey",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/journey&crawler=search"
+    },
+    {
+      "source": "/journey-beta",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/journey-beta&crawler=search"
+    },
+    {
+      "source": "/מסע",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/מסע&crawler=search"
+    },
+    {
+      "source": "/number",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
+      "destination": "/api/og?path=/number&crawler=search"
+    },
+    {
       "source": "/favicon.ico",
       "destination": "/logo.png"
     },
@@ -605,6 +655,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/community/chat",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/2029/home-preview",
       "destination": "/2029.html"
     },
@@ -651,6 +705,39 @@
         }
       ],
       "destination": "/api/og?path=/book/$1&crawler=search"
+    },
+    {
+      "source": "/code",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/code&crawler=search"
+    },
+    {
+      "source": "/codes",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/codes&crawler=search"
+    },
+    {
+      "source": "/codes/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|bingbot|Baiduspider).*"
+        }
+      ],
+      "destination": "/api/og?path=/codes/$1&crawler=search"
     },
     {
       "source": "/els",
@@ -768,6 +855,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/gematria/viral",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/2029/calculator",
       "destination": "/2029.html"
     },
@@ -793,6 +884,10 @@
     },
     {
       "source": "/book/(.*)",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/code",
       "destination": "/2029.html"
     },
     {
@@ -838,6 +933,15 @@
   ],
   "headers": [
     {
+      "source": "/community/chat",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
       "source": "/early-access",
       "headers": [
         {
@@ -857,6 +961,15 @@
     },
     {
       "source": "/2029/gematria",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/gematria/viral",
       "headers": [
         {
           "key": "X-Robots-Tag",

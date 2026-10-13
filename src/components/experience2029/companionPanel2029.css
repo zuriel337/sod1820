@@ -20,9 +20,9 @@
   }
   .sod29-root.has-companion .sod29-content.wide { width: min(1450px, calc(100% - var(--s29-companion-gutter))); }
 }
-.sod29-companion-slim { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-block: 14px; }
+.sod29-companion-slim { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-block: 12px; }
 .sod29-companion-ico {
-  position: relative; inline-size: 38px; block-size: 38px; border-radius: 12px; border: 1.5px solid var(--s29-line-strong); background: transparent;
+  position: relative; inline-size: 44px; block-size: 44px; border-radius: 14px; border: 1.5px solid var(--s29-line-strong); background: transparent;
   color: var(--s29-ink); cursor: pointer; display: grid; place-items: center; padding: 0;
 }
 .sod29-companion-ico:hover { background: var(--s29-panel-soft); }
@@ -37,14 +37,14 @@
 .sod29-companion-full { display: flex; flex-direction: column; min-block-size: 0; block-size: 100%; }
 .sod29-companion-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 16px 8px; }
 .sod29-companion-top b { font: 600 15px/1.2 var(--s29-font-ui); }
-.sod29-companion-pin { font: 500 12px var(--s29-font-ui); color: var(--s29-muted); background: transparent; border: 1px solid var(--s29-line-strong); border-radius: 999px; padding: 6px 12px; min-block-size: 32px; cursor: pointer; }
+.sod29-companion-pin { font: 500 12px var(--s29-font-ui); color: var(--s29-muted); background: transparent; border: 1px solid var(--s29-line-strong); border-radius: 999px; padding: 6px 14px; min-block-size: 44px; min-inline-size: 44px; cursor: pointer; }
 .sod29-companion-pin[aria-pressed="true"] { color: var(--s29-ink); border-color: var(--s29-brand-gold); }
 .sod29-companion-tabs { display: flex; gap: 4px; padding: 0 12px 8px; }
-.sod29-companion-tabs button { flex: 1; min-block-size: 36px; font: 500 13px var(--s29-font-ui); color: var(--s29-muted); background: none; border: 1px solid var(--s29-line); border-radius: 999px; cursor: pointer; }
+.sod29-companion-tabs button { flex: 1; min-block-size: 44px; min-inline-size: 44px; font: 500 13px var(--s29-font-ui); color: var(--s29-muted); background: none; border: 1px solid var(--s29-line); border-radius: 999px; cursor: pointer; }
 .sod29-companion-tabs button[aria-pressed="true"] { color: var(--s29-page); background: var(--s29-ink); border-color: var(--s29-ink); }
 .sod29-companion-tabs em { font-style: normal; margin-inline-start: 6px; color: var(--s29-brand-gold); font-family: var(--s29-font-numeric); }
 .sod29-companion-tabs button[aria-pressed="true"] em { color: var(--s29-page); }
-.sod29-companion-feed, .sod29-companion-ctxbody { flex: 1; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.sod29-companion-feed, .sod29-companion-ctxbody, .sod29-companion-seqbody { flex: 1; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
 .sod29-companion-note { font: 400 12px/1.5 var(--s29-font-ui); color: var(--s29-muted); padding-inline: 4px; }
 .sod29-companion-empty { margin: 0; font: 400 13px/1.5 var(--s29-font-ui); color: var(--s29-muted); padding: 6px 4px; }
 .sod29-companion-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -65,6 +65,16 @@
 .sod29-companion-raziel[hidden] { display: none; }
 /* the existing context rail, embedded as a static body */
 .sod29-companion-ctxbody .sod29-surface-context-rail { position: static !important; inline-size: auto !important; block-size: auto !important; max-block-size: none !important; overflow: visible !important; inset: auto !important; margin: 0 !important; }
+/* Admin Golden projector stays nested in Context, compact (logic untouched). */
+.sod29-companion-ctxbody .sod29-golden-mode { font-size: 12px; }
+.sod29-companion-ctxbody .sod29-golden-mode-toggle button { min-block-size: 44px; }
+/* Narrow desktop: less cramped content under 1100px (pinned capsule narrows, tabs and rows tighten). */
+@media (min-width: 981px) and (max-width: 1099px) {
+  .sod29-root.has-companion .sod29-companion.is-peek, .sod29-root.has-companion .sod29-companion.is-pinned { inline-size: 300px; }
+  .sod29-root.has-companion.companion-pinned { --s29-companion-gutter: 326px; }
+  .sod29-companion-note { display: none; }
+  .sod29-companion-ctxbody, .sod29-companion-feed { padding-inline: 8px; }
+}
 @media (prefers-reduced-motion: reduce) { .sod29-companion { transition: none !important; } }
 
 /* Phone: the latest entered item as one chip above the bar; it opens the existing "what is new in the world" sheet. */
@@ -72,8 +82,61 @@
 @media (max-width: 980px) {
   .sod29-feed-chip {
     display: inline-flex; align-items: center; gap: 8px; position: fixed; z-index: 28; inset-inline-start: 12px; bottom: calc(var(--s29-bar-height, 66px) + 10px);
-    min-block-size: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--s29-line-strong); background: color-mix(in srgb, var(--s29-panel) 96%, transparent);
+    min-block-size: 44px; min-inline-size: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--s29-line-strong); background: color-mix(in srgb, var(--s29-panel) 96%, transparent);
     color: var(--s29-ink); font: 500 13px var(--s29-font-ui); cursor: pointer; max-inline-size: calc(100vw - 24px);
   }
   .sod29-feed-chip i { inline-size: 8px; block-size: 8px; border-radius: 50%; background: var(--s29-brand-gold); flex: 0 0 auto; }
+}
+.sod29-companion-tabs button { padding-inline: 6px; }
+.sod29-companion-seq { font: 700 18px/1 var(--s29-font-ui); color: var(--s29-brand-gold); }
+.sod29-companion-seqbody .sod29-event-tree { position: static; box-shadow: none; }
+.sod29-companion-seqbody .sod29-event-tree-list { max-height: none; overflow: visible; }
+@media (max-width: 980px) { .sod29-event-tree-details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font: 700 13px var(--s29-font-ui); color: var(--s29-accent-text); } }
+.sod29-companion-tabs button { font-size: 12.5px; line-height: 1.15; }
+
+
+/* Canonical media circle + direct links to EXISTING PUBLIC source readers.
+   The circle signals only unseen stories, never research verification or Gold. */
+.sod29-companion-source-quick { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.sod29-companion-source-quick.is-slim { align-items: center; }
+.sod29-companion-source-quick.is-expanded { padding: 0 12px 10px; }
+.sod29-companion-source-link,
+.sod29-or-geula-shortcut {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-block-size: 44px; min-inline-size: 44px; border-radius: 13px;
+  border: 1px solid var(--s29-line-strong); background: transparent;
+  color: var(--s29-ink); font: 500 12px/1.35 var(--s29-font-ui);
+  text-align: start; padding: 3px 8px; cursor: pointer;
+}
+.sod29-companion-source-link:hover,
+.sod29-or-geula-shortcut:hover { background: var(--s29-panel-soft); }
+.sod29-companion-source-link:focus-visible,
+.sod29-or-geula-shortcut:focus-visible { outline: 2px solid var(--s29-accent); outline-offset: 2px; }
+.sod29-companion-source-quick.is-slim .sod29-companion-source-link,
+.sod29-companion-source-quick.is-slim .sod29-or-geula-shortcut {
+  inline-size: 44px; block-size: 44px; border-radius: 50%;
+  padding: 2px; justify-content: center; font-size: 17px;
+}
+.sod29-companion-source-quick.is-expanded .sod29-companion-source-link,
+.sod29-companion-source-quick.is-expanded .sod29-or-geula-shortcut { width: 100%; }
+.sod29-companion-source-icon {
+  display: grid; place-items: center; flex: 0 0 34px;
+  inline-size: 34px; block-size: 34px; border-radius: 50%;
+  background: var(--s29-panel-soft); font-size: 16px;
+}
+.sod29-or-geula-ring {
+  display: grid; place-items: center; flex: 0 0 38px;
+  inline-size: 38px; block-size: 38px; padding: 2px;
+  background: var(--s29-line-strong); border-radius: 50%;
+}
+.sod29-or-geula-ring img {
+  inline-size: 34px; block-size: 34px; border-radius: 50%;
+  display: block; object-fit: cover; background: var(--s29-panel);
+}
+.sod29-or-geula-shortcut.is-new .sod29-or-geula-ring {
+  background: conic-gradient(from 210deg, #d6336c, #8b5cf6, #f6c453, #d6336c);
+}
+.sod29-companion-source-quick.is-slim .sod29-or-geula-label { display: none; }
+@media (max-width: 1099px) and (min-width: 981px) {
+  .sod29-companion-source-quick.is-expanded { padding-inline: 8px; }
 }

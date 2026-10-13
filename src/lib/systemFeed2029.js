@@ -1,7 +1,7 @@
 // "What entered the system" rows, built from the EXISTING world discovery stream (worldDiscoveryStream.js):
 // public source posts, source-group arrivals, approved convergences. Pure helpers, no network.
-// Order: strong first (a convergence with a designated Gold/Diamond entity), then newest. A strong item is a
-// presentation hint only; it is never derived from quality, stars or strength (golden_entity_law v4).
+// Updates are chronological. Gold/Diamond is a distinct curated signal shown
+// on a row; it must not conceal a newer, directly relevant source update.
 // Time is shown as relative time (relative_time_display_law); "new" = recent and not yet seen on this browser.
 import { isRecent, recentSource, recentConvergence } from "./homeMotion2029.js";
 
@@ -27,14 +27,22 @@ export function isNewItem(item, now = Date.now()) {
   return recentSource(item?.arrivalAt || item?.at, now);
 }
 
-export const feedSeenKey = (item) => `feed:${item.id}`;
+// A second meaningful revision of the same source fragment is NEW again.
+export const feedSeenKey = (item) => `feed:${item?.sourceUpdate?.eventKey || item?.id}`;
 
-/** Rows for the panel: strong first, then newest; `isNew` only while unseen. */
-export const FEED_CAPS = Object.freeze({ group: 4, post: 2, convergence: 3, finding: 1 });
+/** Rows for the panel: newest authorized activity first, across fair source-type caps. */
+export const FEED_CAPS = Object.freeze({ group: 4, post: 4, convergence: 3, finding: 1 });
 export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = {}, limit = 8, caps = FEED_CAPS } = {}) {
   const rows = (Array.isArray(items) ? items : []).filter((item) => item && item.id && item.label).map((item, index) => ({
-    id: item.id, item, index, kind: item.kind, typeLabel: feedKindLabel(item), title: item.label, at: item.at || null,
-    href: feedHref(item), strong: Boolean(strongIds[item.id]), isNew: isNewItem(item, now) && !seen[feedSeenKey(item)],
+    id: item.id, item, index, kind: item.kind,
+    typeLabel: item.sourceUpdate ? "פוסט · עדכון מקור" : feedKindLabel(item),
+    title: item.sourceUpdate?.label || item.label,
+    sourceTitle: item.sourceUpdate ? item.label : null,
+    at: item.at || null,
+    href: feedHref(item),
+    sourceUpdate: item.sourceUpdate || null,
+    strong: Boolean(strongIds[item.id]),
+    isNew: isNewItem(item, now) && !seen[feedSeenKey(item)],
   }));
   // One kind must not drown the others (source-group messages arrive in bursts): cap each bucket by newest first.
   const bucket = (row) => (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : "post") : row.kind);
@@ -44,6 +52,6 @@ export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = 
     const key = bucket(row); taken[key] = (taken[key] || 0) + 1;
     return taken[key] <= (caps[key] ?? 2);
   });
-  kept.sort((a, b) => (Number(b.strong) - Number(a.strong)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
+  kept.sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
   return kept.slice(0, limit);
 }

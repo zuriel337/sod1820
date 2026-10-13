@@ -11,7 +11,7 @@ import { LOGO_URL } from "../theme.js";
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
 
-export function MaintenanceLock({ message, showLogin = false, alternatives = false }) {
+export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
   return (
     <div className="mlock" role="status" aria-live="polite">
       <style>{`
@@ -57,7 +57,7 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
           <Link className="mlock-cta" to="/code">🔠 לדילוגי אותיות</Link>
         </div>
       )}
-      <div className="sub"><Link to="/">← לעמוד הבית</Link></div>
+      <div className="sub"><Link to={homeHref}>← לעמוד הבית</Link></div>
     </div>
   );
 }
@@ -102,7 +102,17 @@ export function useSiteFlag(flag) {
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
 // שפה/locale אינה פרמטר בכוונה: לפי content_translation_law v2 היא Projection בלבד.
-export function resolveFeatureState(lock, { user = null, isAdmin = false } = {}) {
+export function resolveFeatureState(lock, { user = null, isAdmin = false, requireFlag = false } = {}) {
+  // A named launch gate must exist explicitly before it can open, including to
+  // admins. The server capability gate also denies unknown flags.
+  if (!lock && requireFlag) {
+    return {
+      enabled: true, mode: "all", blocked: true, allowed: false,
+      adminBypass: false, registeredBypass: false,
+      publicState: "closed", viewerState: "closed",
+      message: DEFAULT_MSG, showLogin: false, status: "building",
+    };
+  }
   const enabled = !!lock?.enabled;
   const mode = lock?.mode || "all";
   const adminBypass = !!isAdmin;
@@ -128,21 +138,21 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false } = {})
 }
 
 // canonical hook for every feature-controlled surface.
-export function useFeatureState(flag) {
-  const { user, isAdmin } = useAuth();
+export function useFeatureState(flag, { requireFlag = false } = {}) {
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { loading, lock } = useSiteFlag(flag);
   return useMemo(() => ({
     flag,
-    loading,
+    loading: loading || authLoading,
     lock,
-    ...resolveFeatureState(lock, { user, isAdmin }),
-  }), [flag, loading, lock, user, isAdmin]);
+    ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
+  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
-export default function Locked({ flag, children }) {
-  const state = useFeatureState(flag);
+export default function Locked({ flag, children, requireFlag = false, homeHref = "/" }) {
+  const state = useFeatureState(flag, { requireFlag });
   if (state.loading) return null;
-  if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} />;
+  if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
   return children;
 }

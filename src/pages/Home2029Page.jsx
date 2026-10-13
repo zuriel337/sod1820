@@ -12,6 +12,8 @@ import { applySeo } from "../lib/seo.js";
 import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
+import { useFeatureState } from "../components/MaintenanceLock.jsx";
+import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
 
 
 function TemporalTreasures({ item }) {
@@ -83,12 +85,12 @@ function TemporalNowCard({ item, onOpen }) {
   </article>;
 }
 
-function ConnectedGoldenStory({ onOpenPost }) {
+function ConnectedGoldenStory({ onOpenPost, razielLocked }) {
   return <article className="sod29-connected-golden-story" aria-label="המשך מהעת אל המקור">
     <div>
       <div className="sod29-kicker">מקור חי</div>
       <h3>רמזי הגאולה, הבינה המלאכותית וסוד השיר — תשפ״ז</h3>
-      <p>החיבור של 787 לא נשאר ככרטיס בבית: הוא ממשיך אל המקור, אל העולם, אל המספר ואל רזיאל — עם חזרה מדויקת לאותה נקודה.</p>
+      <p>החיבור של 787 לא נשאר ככרטיס בבית: הוא ממשיך אל המקור, אל העולם ואל המספר{razielLocked ? " — עם חזרה מדויקת לאותה נקודה. רזיאל ייפתח בהמשך." : " ואל רזיאל — עם חזרה מדויקת לאותה נקודה."}</p>
     </div>
     <div className="sod29-actions">
       <button className="sod29-action primary" type="button" onClick={onOpenPost}>פתח את הפוסט ←</button>
@@ -304,19 +306,25 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 // Release the adopted Home independently of preview-only tools and disabled telemetry.
-const HOME_COMPOSED = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
+const HOME_COMPOSED = CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
 
 function HomeBody() {
   const navigate = useNavigate();
   const research = useResearch();
   const shell = use2029Shell();
+  const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
+  const razielFeature = useFeatureState("lock_raziel_site", { requireFlag: true });
+  const worldFeature = useFeatureState("lock_world");
+  const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
+  const razielLocked = razielFeature.loading || razielFeature.blocked;
+  const worldOpen = !worldFeature.loading && worldFeature.allowed;
   const [query, setQuery] = useState("");
   const [homeState, setHomeState] = useState({ loading: true, projection: null });
   const context = research.context || null;
 
   useEffect(() => {
     let live = true;
-    fetchHome2029Projection()
+    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
     return () => { live = false; };
@@ -428,7 +436,7 @@ function HomeBody() {
           <div className="sod29-muted">{context.subject.label || context.subject.id} · {CONTEXT_TYPE_LABEL[context.subject.type] || context.subject.type}</div>
           <div className="sod29-actions">
             <button className="sod29-action primary" type="button" onClick={() => navigate(context.subject.href || "/world")}>המשך</button>
-            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()}>המשך עם רזיאל</button>
+            <button className="sod29-action" type="button" onClick={() => shell.openRaziel()} disabled={razielLocked}>{razielLocked ? "רזיאל · נעול" : "המשך עם רזיאל"}</button>
           </div>
         </> : <>
           <div className="sod29-muted">כשתתחיל לגלות משהו, הבית יידע להחזיר אותך בדיוק לשם.</div>
@@ -459,16 +467,19 @@ function HomeBody() {
   if (HOME_COMPOSED) return <HomeComposition2029
     projection={homeState.projection}
     loading={homeState.loading}
+    corePublic={CORE_PUBLIC_LAUNCH_2029}
+    onOpenWorkspace={shell.openWorkspace}
+    worldOpen={worldOpen}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
-    story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
-    arrivals={<div className="h29-stream">
+    story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
       <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
         items={worldPreview?.arrivals || worldPreview?.items || []}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
-    entry={
+    entry={CORE_PUBLIC_LAUNCH_2029 ? null :
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
         <form className="sod29-command-bar" onSubmit={start}>
@@ -478,7 +489,8 @@ function HomeBody() {
         {context?.journey ? <div className="sod29-actions"><button className="sod29-action" onClick={() => shell.go(context.subject?.href || '/world')}>להמשך המסע האישי</button></div> : null}
       </section>
     }
-    continuity={continuity}
+    continuity={CORE_PUBLIC_LAUNCH_2029 ? null : continuity}
+    journeyLocked={journeyLocked}
     selectedSlug={context?.subject?.type === "post" ? context.subject.id : null}
     onSelectPost={selectPost}
   />;
@@ -497,6 +509,7 @@ function HomeBody() {
       {homeState.loading ? <div className="sod29-home-now-empty">בודק מה באמת התחבר לעת הזאת…</div> : null}
       {!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
       <ConnectedGoldenStory
+        razielLocked={razielLocked}
         onOpenPost={() => shell.go("/post/remzei-geula-ai-sod-hashir")}
       />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
@@ -512,13 +525,13 @@ function HomeBody() {
         <div className="sod29-command-copy">
           <div className="sod29-kicker">גלה משהו משלך</div>
           <h2>פתח מספר, ביטוי או נושא.<br />משם העולם נפתח.</h2>
-          <div className="sod29-muted">החיפוש שומר את ההקשר וממשיך איתך לעולם, למקורות, להיכל ולרזיאל בלי להתחיל מחדש.</div>
+          <div className="sod29-muted">החיפוש שומר את ההקשר וממשיך איתך לעולם ולמקורות בלי להתחיל מחדש.</div>
           <form className="sod29-command-bar" onSubmit={start}>
             <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="למשל 358 · משיח · 1820" aria-label="חיפוש או התחלת גילוי" />
             <button className="sod29-action primary" type="submit">פתח בעולם ←</button>
           </form>
           <div className="sod29-actions">
-            <button className="sod29-action" type="button" onClick={() => navigate("/2029/journey")}>מסע החיים שלי</button>
+            <button className="sod29-action" type="button" onClick={() => navigate("/2029/journey")} disabled={journeyLocked}>{journeyLocked ? "מסע החיים שלי · נעול" : "מסע החיים שלי"}</button>
             <span className="sod29-muted">מידע אישי נכנס רק מתוך המסע — החיפוש הכללי לא מנחש מי הוא אדם.</span>
           </div>
         </div>
@@ -548,7 +561,9 @@ function HomeBody() {
 
 export default function Home2029Page() {
   useEffect(() => {
-    applySeo({ title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
+    applySeo(CORE_PUBLIC_LAUNCH_2029
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: "/2029" }
+      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title="SOD1820 · העולם החדש" description="מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;
 }

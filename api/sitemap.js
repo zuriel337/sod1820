@@ -156,6 +156,7 @@ const STATIC = [
   { loc: '/world',        priority: '0.9', changefreq: 'daily'   },
   { loc: '/code',         priority: '0.6', changefreq: 'monthly' },
   { loc: '/codes',        priority: '0.7', changefreq: 'weekly'  },
+  { loc: '/codes/' + encodeURIComponent('מחקר'), priority: '0.6', changefreq: 'weekly' },
   { loc: '/post',         priority: '0.9', changefreq: 'daily'   },
   { loc: '/archive',      priority: '0.8', changefreq: 'weekly'  },
   { loc: '/verified',     priority: '0.7', changefreq: 'weekly'  },

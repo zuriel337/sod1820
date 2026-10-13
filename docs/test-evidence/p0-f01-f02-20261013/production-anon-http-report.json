@@ -1,0 +1,8 @@
+{
+  "http_status": 401,
+  "code": "42501",
+  "permission_denied": true,
+  "returned_rows": false,
+  "checked_at": "2026-10-13T07:47:33.500Z",
+  "result": "PASS_ANONYMOUS_HTTP_DENIED"
+}

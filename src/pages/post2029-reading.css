@@ -78,8 +78,8 @@
   width:min(1180px,100%);
   margin:0 auto;
   display:grid;
-  grid-template-columns:270px 34px minmax(0,790px);
-  grid-template-areas:"rail spine source";
+  grid-template-columns:270px minmax(0,790px);
+  grid-template-areas:"rail source";
   gap:18px;
   align-items:start;
   direction:ltr;
@@ -289,7 +289,7 @@
 
 @media(max-width:1120px){
   .sod29-reading-layout{
-    grid-template-columns:230px 26px minmax(0,760px);
+    grid-template-columns:230px minmax(0,760px);
     gap:12px;
   }
   .sod29-reading-rail{padding:15px;border-radius:20px}
@@ -1346,5 +1346,118 @@
 #post-sources{scroll-margin-top:120px}
 @media(max-width:620px){.sod29-post-continuation-grid{grid-template-columns:1fr}.sod29-post-continuation{padding:20px}}
 
+/* G4 compact reading — cover, single page title, thinner hero. Tokens only. */
+.sod29-reading-hero{margin-bottom:20px;padding:clamp(14px,2.4vw,24px);border-radius:18px;box-shadow:none}
+.sod29-reading-hero-grid{gap:clamp(14px,2.4vw,28px)}
+.sod29-reading-hero h1{margin:6px 0 8px;font-size:clamp(24px,2.6vw,34px);line-height:1.22}
+/* Authored h1 inside the source: never a second giant page title. */
+.sod29-reading-source h1{margin:22px 0 10px;font-size:clamp(21px,2.2vw,27px);line-height:1.28;letter-spacing:-.02em}
+.sod29-reading-source h1[data-source-title="duplicate"]{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;
+}
+@media (max-width:620px){
+  .sod29-reading-hero{padding:14px;border-radius:14px;margin-bottom:14px}
+  .sod29-reading-hero h1{font-size:23px}
+}
+
+/* Source update strip: one compact row, only for proven source fragments. */
+.sod29-update-strip{display:flex;align-items:center;gap:.6rem;margin:.5rem 0;padding:.35rem .7rem;border:1px solid color-mix(in srgb,currentColor 18%,transparent);border-radius:999px;min-height:44px;font-size:.88rem}
+.sod29-update-strip-kicker{font-weight:700;opacity:.75;white-space:nowrap}
+.sod29-update-strip-link{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:.1rem;min-height:44px;justify-content:center;cursor:pointer;min-width:0}
+.sod29-update-strip-link:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:8px}
+.sod29-update-strip-link strong{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sod29-update-strip-link small{opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sod29-update-target{outline:2px solid currentColor;outline-offset:6px;border-radius:6px;transition:outline-color .4s}
+@media(max-width:480px){.sod29-update-strip{border-radius:16px;padding:.3rem .6rem}}
+
+/* G4 visual composition fix: single-column hero that wraps title/meta (no blank 2-col height); the duplicate
+   reading spine is gone (page map / context rail own navigation); oversized authored inline type is clamped.
+   Presentation only: the source DOM and text are untouched. */
+.sod29-reading-hero-grid{display:flex;flex-direction:column;align-items:stretch;gap:clamp(8px,1.4vw,14px)}
+.sod29-reading-hero{padding:clamp(10px,1.6vw,16px) clamp(12px,2vw,20px)}
+.sod29-reading-hero-copy h1{margin:2px 0 6px}
+.sod29-reading-source{padding:clamp(18px,3vw,32px) clamp(16px,3.4vw,44px) clamp(24px,3.4vw,40px);border-radius:18px;box-shadow:none}
+.sod29-reading-source :is(p,li,div,span,blockquote,font)[style*="font-size"]{font-size:clamp(16px,1.2vw + 11px,19px)!important;line-height:1.9!important}
+.sod29-reading-source :is(h1,h2,h3,h4)[style*="font-size"],
+.sod29-reading-source :is(h1,h2,h3,h4)[style*="font-size"] :is(span,strong,b,font){font-size:clamp(20px,1.6vw + 12px,26px)!important;line-height:1.3!important}
+.sod29-reading-source :is(h1,h2,h3,h4) :is(span,strong,b,font)[style*="font-size"]{font-size:inherit!important}
+.sod29-reading-source img,.sod29-reading-source video,.sod29-reading-source iframe{max-width:100%;height:auto}
+.sod29-reading-post>.k29-pcm{width:min(1180px,100%);margin:18px auto;padding:10px 14px;border-radius:12px;gap:6px}
+.sod29-reading-post>.k29-pcm>ul>li{padding:8px 10px;border-radius:10px}
+.sod29-reading-post>.k29-pcm h2{font-size:15px}
+.sod29-reading-post{padding-top:10px}
+/* Post summary row (all posts): badge, category chips and the details label are separate items with real gaps,
+   wrap on narrow screens and keep a 44px target; no item may touch the next one. */
+.sod29-post-details>summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:44px;cursor:pointer;list-style:none}
+.sod29-post-details>summary::-webkit-details-marker{display:none}
+.sod29-post-details>summary>.k29-cats{gap:8px;flex:0 1 auto}
+.sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:auto;padding-inline-start:12px;white-space:nowrap;color:var(--s29-accent-text);font-size:14px}
+@media(max-width:480px){.sod29-post-details>summary>.sod29-post-details-label{margin-inline-start:0;padding-inline-start:0;flex-basis:100%}}
+
+/* Source update strip: newest in one slim row, the rest behind one disclosure (bounded). */
+.sod29-update-strip{flex-wrap:wrap;border-radius:14px;width:min(1180px,100%);margin-inline:auto}
+.sod29-update-strip-more{margin-inline-start:auto;min-width:0}
+.sod29-update-strip-more>summary{display:inline-flex;align-items:center;min-height:44px;padding-inline:10px;cursor:pointer;font-size:.82rem;opacity:.85}
+.sod29-update-strip-more ul{margin:0;padding:0;list-style:none;display:grid;gap:2px}
+.sod29-update-strip-more button{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:44px;width:100%;cursor:pointer;font-size:.84rem}
+.sod29-update-strip-more button:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:6px}
+.sod29-update-strip-more small{opacity:.7;white-space:nowrap}
+.sod29-reading-source [id]{scroll-margin-top:96px}
+
+/* Shared Post reading presentation: relation colors mark only proven connections;
+   other numerals use reading ink and the canonical type roles. */
+.sod29-reading-source{font-family:var(--s29-font-body,inherit)}
+/* Colour marks a RELATION, not every number: items that belong to the same relation (e.g. 27.10 -> 2710 -> 271 and the words equal to 271)
+   share one colour (group a / b); everything else stays in the reading ink. Day/parchment use deeper tones for contrast. */
+.sod29-reading-post{--post-link-a:#A56F00;--post-link-b:#B3172F}
+html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-link-b:#FF6B6B}
+.sod29-reading-source :is(.sod29-gematria-value,.sod-numlink,.sod29-gematria-hero,.sod29-gematria-expression,[data-gem]:not(a):not(button)){color:var(--s29-ink)!important}
+.sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
+.sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}
+.sod29-reading-source :is(p[style*="--gold"],p[data-gem]){color:var(--s29-ink)!important;font-family:var(--s29-font-numeric,inherit)}
+.sod29-reading-source .sod29-gematria-hero{min-width:0;min-height:44px;font-size:clamp(2.6rem,5vw,3.8rem)!important;margin:6px auto 8px}
+.sod29-reading-source :is(blockquote,.sod29-source-quote){
+  margin:18px auto;padding:2px 16px;border:0;
+  border-inline-start:2px solid color-mix(in srgb,var(--s29-brand-gold,var(--s29-line-strong)) 55%,transparent);
+  color:var(--s29-ink)!important;font-weight:650;text-align:start;
+}
+.sod29-reading-source small{font-size:14px}
+.sod29-reading-source :is(a,button,summary){min-height:0}
+.sod29-reading-source .sod29-bennet-section{margin-bottom:28px}
+/* Section tabs duplicate the pinned left context (sections) on wide screens; they stay as the compact selector elsewhere. */
+@media(min-width:1280px){.sod29-main-stage.has-context-rail .sod29-reading-post>.sod29-surface-tabs{display:none}}
 /* Post reading cover: one compact whole image (shared media kit does the contain/lightbox work). */
-.sod29-reading-cover{margin:0 auto 20px;max-width:min(100%,760px)}
+.sod29-reading-cover{margin:0 auto 20px;width:min(100%,560px);aspect-ratio:1586/992;max-height:min(46vh,360px)}
+/* Space is reserved (reading derivative is 1586x992) so the late-loading image can never shift the page; whole image stays visible. */
+.sod29-reading-cover .sod29-canonical-media-figure{height:100%}
+.sod29-reading-cover .sod29-canonical-media-image.is-primary{height:100%!important;max-height:none;object-fit:contain!important}
+
+
+/* Hero copy: title on its own row, then details + orientation share one row (wraps on narrow screens). */
+.sod29-reading-hero-copy{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
+.sod29-reading-hero-copy>h1{flex:1 0 100%}
+.sod29-reading-hero-copy>.sod29-post-details{flex:1 1 55%;min-width:0}
+.sod29-reading-hero-copy>.sod29-orientation-host{order:2;flex:0 1 auto;min-width:0}
+.sod29-reading-hero-copy>.sod29-orientation-host:empty{display:none}
+@media(max-width:620px){.sod29-reading-hero-copy>.sod29-post-details,.sod29-reading-hero-copy>.sod29-orientation-host{flex:1 1 100%}}
+/* Number controls inside the story keep clear of the fixed header and command island when scrolled into view. */
+.sod29-reading-source :is([data-contextual-number-focus],[data-gem],.sod-numlink){scroll-margin-block:132px}
+
+/* Inline expressions (פלוני = 123): no box, background or border; real button semantics, 44px target, keyboard focus ring kept. */
+.sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]){
+  appearance:none;-webkit-appearance:none;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:6px;
+  padding:0 .12em;margin:0;font:inherit;font-weight:inherit;cursor:pointer;
+  text-decoration:underline dotted currentColor;text-underline-offset:.28em;
+  display:inline;min-height:0;line-height:inherit;
+}
+.sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]):hover{background:color-mix(in srgb,var(--s29-accent) 8%,transparent)!important}
+.sod29-reading-source :is(button.sod29-gematria-expression,button.sod29-gematria-value:not(.sod29-gematria-hero),button[data-gem]:not(.sod29-gematria-hero),span[data-gem][role="button"]):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+/* Equality lines read as one sentence-weight line, not as rows of controls. */
+.sod29-reading-source .sod29-post-equality{font-weight:800}
+/* Elections numerals share Bennett's compact numeric typography. */
+.sod29-reading-source p[style*="--gold"]{font-size:clamp(2.6rem,5vw,3.8rem)!important;line-height:1.05!important;margin-block:.4em .15em!important}
+
+/* Relation colours win over the neutral reading ink above. */
+.sod29-reading-post .sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
+.sod29-reading-post .sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}

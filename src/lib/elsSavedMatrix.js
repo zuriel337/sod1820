@@ -30,6 +30,6 @@ export function savedMatrixMatchesAxis(row, state) {
 }
 
 export function savedMatrixWorkspaceHref(row) {
-  return row?.slug ? `/els?cipher=${encodeURIComponent(row.slug)}`
-    : row?.id ? `/els?record=${encodeURIComponent(row.id)}` : "/els";
+  return row?.slug ? `/code?cipher=${encodeURIComponent(row.slug)}`
+    : row?.id ? `/code?record=${encodeURIComponent(row.id)}` : "/code";
 }

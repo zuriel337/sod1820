@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import handler from "../api/og.js";
+import sitemapHandler from "../api/sitemap.js";
 
 function makeRes() {
   return {
@@ -30,6 +31,16 @@ async function render(path, fetchImpl, query = {}) {
   return (await renderResponse(path, fetchImpl, query)).body;
 }
 
+function withOpenLaunchFlag(key, fetchImpl) {
+  return async (url, options) => {
+    if (String(url).includes('/site_flags?')) {
+      return { ok: true, json: async () => [{ key, enabled: false, mode: 'all' }] };
+    }
+    if (!fetchImpl) throw new Error('unexpected data fetch: ' + url);
+    return fetchImpl(url, options);
+  };
+}
+
 
 const homeSearchCrawler = await renderResponse("/", async () => {
   throw new Error("home server document must not require Supabase fetch");
@@ -38,22 +49,22 @@ assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il
 assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
 
-const number = await render("/2029/number/123");
+const number = await render("/2029/number/123", withOpenLaunchFlag("lock_number"));
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(number, /123 · דף המספר 2029/);
 assert.match(number, /og:type" content="website"/);
 assert.equal(number.includes('"@type":"Article"'), false);
 
 let researcherFetches = [];
-const researcher = await render("/researcher/admin-only", async (url) => {
+const researcher = await render("/researcher/admin-only", withOpenLaunchFlag("lock_world", async (url) => {
   researcherFetches.push(String(url));
   throw new Error("native researcher OG must not fetch corpus or contributor data");
-});
+}));
 assert.match(researcher, /<meta name="robots" content="noindex, nofollow"\/>/);
 assert.match(researcher, /קורפוס חוקר/);
 assert.equal(researcherFetches.length, 0);
 
-const topic = await render("/topic/98-test", async (url) => {
+const topic = await render("/topic/98-test", withOpenLaunchFlag("lock_world", async (url) => {
   const u = String(url);
   if (u.includes("/topic_cards_public?")) {
     return {
@@ -64,13 +75,13 @@ const topic = await render("/topic/98-test", async (url) => {
     };
   }
   throw new Error("unexpected topic fetch: " + u);
-});
+}));
 assert.match(topic, /og:type" content="website"/);
 assert.match(topic, /"@type":"WebPage"/);
 assert.match(topic, /"@type":"BreadcrumbList"/);
 assert.equal(topic.includes('"@type":"Article"'), false);
 
-const topicSearchCrawler = await renderResponse("/topic/98-test", async (url) => {
+const topicSearchCrawler = await renderResponse("/topic/98-test", withOpenLaunchFlag("lock_world", async (url) => {
   const u = String(url);
   if (u.includes("/topic_cards_public?")) {
     return {
@@ -81,7 +92,7 @@ const topicSearchCrawler = await renderResponse("/topic/98-test", async (url) =>
     };
   }
   throw new Error("unexpected topic fetch: " + u);
-}, { crawler: "search" });
+}), { crawler: "search" });
 assert.match(topicSearchCrawler.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/topic\/98-test"\/>/);
 assert.match(topicSearchCrawler.body, /"@type":"WebPage"/);
 assert.doesNotMatch(topicSearchCrawler.body, /http-equiv="refresh"/);
@@ -178,7 +189,7 @@ assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/exampl
 
 
 
-const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (url) => {
+const legacyNumberSearchCrawler = await renderResponse("/number/1237", withOpenLaunchFlag("lock_number", async (url) => {
   const u = String(url);
   if (u.includes("/number_anchors?")) {
     return {
@@ -189,7 +200,7 @@ const legacyNumberSearchCrawler = await renderResponse("/number/1237", async (ur
     };
   }
   throw new Error("unexpected legacy number fetch: " + u);
-}, { crawler: "search" });
+}), { crawler: "search" });
 assert.match(legacyNumberSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il\/number\/1237"/);
 assert.match(legacyNumberSearchCrawler.body, /עוגן 1237/);
 assert.equal(legacyNumberSearchCrawler.headers.get("x-robots-tag"), "index, follow");
@@ -213,6 +224,72 @@ assert.doesNotMatch(elsLocked, /מחקר דילוגי אותיות מעל מנו
 const elsFailClosed = await render("/els", async () => { throw new Error("flag unavailable"); });
 assert.match(elsFailClosed, /ELS סגור זמנית לציבור לצורך בנייה מחדש/);
 assert.doesNotMatch(elsFailClosed, /מחקר דילוגי אותיות מעל מנוע ELS קנוני אחד/);
+const codeOpen = await renderResponse("/code", async (url) => {
+  assert.match(String(url), /site_flags\?/);
+  return { ok: true, async json() { return [{ key: "lock_els", enabled: false, mode: "all" }]; } };
+}, { crawler: "search" });
+assert.match(codeOpen.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/code"\/>/);
+assert.match(codeOpen.body, /חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים/);
+const elsAlias = await renderResponse("/els", async () => ({ ok: true, async json() { return [{ key: "lock_els", enabled: false, mode: "all" }]; } }), { crawler: "search" });
+assert.match(elsAlias.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/code"\/>/);
+
+for (const path of ["/heichal", "/היכל"]) {
+  const closed = await renderResponse(path, async (url) => {
+    assert.match(String(url), /site_flags\?/);
+    return { ok: true, async json() { return [{ key: "lock_heichal", enabled: true, mode: "all", message: "ההיכל סגור לבדיקה" }]; } };
+  }, { crawler: "search" });
+  assert.match(closed.body, /ההיכל סגור לבדיקה/);
+  assert.equal(closed.headers.get("x-robots-tag"), "noindex, follow");
+  assert.doesNotMatch(closed.body, /סביבת המחקר העמוקה של SOD1820/);
+}
+const heichalUnknown = await renderResponse("/heichal", async () => { throw new Error("flag unavailable"); }, { crawler: "search" });
+assert.equal(heichalUnknown.headers.get("x-robots-tag"), "noindex, follow");
+const heichalOpen = await renderResponse("/heichal", async () => ({ ok: true, async json() { return [{ key: "lock_heichal", enabled: false, mode: "all" }]; } }), { crawler: "search" });
+assert.equal(heichalOpen.headers.get("x-robots-tag"), "index, follow");
+
+for (const [path, title] of [["/code", "ELS"], ["/codes", "ספריית הצפנים"]]) {
+  const page = await renderResponse(path, async () => { throw new Error("static ELS metadata must not fetch records"); }, { crawler: "search" });
+  assert.match(page.body, new RegExp(`<title>${title}`));
+  assert.match(page.body, new RegExp(`<link rel="canonical" href="https://sod1820\\.co\\.il${path}"\\/>`));
+  assert.equal(page.headers.get("x-robots-tag"), "index, follow");
+}
+
+const cipherSlug = encodeURIComponent("תורה-50");
+const publishedCipher = await renderResponse(`/codes/${cipherSlug}`, async (url) => {
+  assert.match(String(url), /els_records\?slug=eq\./);
+  return { ok: true, json: async () => [{ title: "תורה", search_term: "תורה", skip_distance: 50, scope: "torah", positions: {} }] };
+}, { crawler: "search" });
+assert.match(publishedCipher.body, /הצופן «תורה» — דילוג 50/);
+assert.match(publishedCipher.body, /og:type" content="article"/);
+assert.match(publishedCipher.body, new RegExp(`<link rel="canonical" href="https://sod1820\\.co\\.il/codes/${cipherSlug}"\\/>`));
+assert.equal(publishedCipher.headers.get("x-robots-tag"), "index, follow");
+
+const missingCipher = await renderResponse("/codes/unknown-cipher", async () => ({ ok: true, json: async () => [] }), { crawler: "search" });
+assert.match(missingCipher.body, /הצופן לא נמצא/);
+assert.equal(missingCipher.headers.get("x-robots-tag"), "noindex, follow");
+
+// The public research collection is a real page, never a cipher slug. Both URL
+// spellings must share its own metadata and canonical without a record lookup.
+for (const path of ["/codes/מחקר", `/codes/${encodeURIComponent("מחקר")}`]) {
+  const researchFolder = await renderResponse(path, async () => {
+    throw new Error("research collection metadata must not fetch a cipher record");
+  }, { crawler: "search" });
+  assert.match(researchFolder.body, /<title>תיקיית המחקר — צירים ארוכים \(ELS\) בתנ״ך/);
+  assert.match(researchFolder.body, /<link rel="canonical" href="https:\/\/sod1820\.co\.il\/codes\/מחקר"\/>/);
+  assert.match(researchFolder.body, /og:type" content="website"/);
+  assert.equal(researchFolder.headers.get("x-robots-tag"), "index, follow");
+}
+
+const previousSitemapFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async () => ({ ok: true, json: async () => [] });
+  const sitemap = makeRes();
+  await sitemapHandler({}, sitemap);
+  assert.equal(sitemap.statusCode, 200);
+  assert.match(sitemap.body, new RegExp(`<loc>https://sod1820\\.co\\.il/codes/${encodeURIComponent("מחקר")}</loc>`));
+} finally {
+  globalThis.fetch = previousSitemapFetch;
+}
 
 const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
 const uaRules = vercel.rewrites.filter((r) => Array.isArray(r.has) && r.has.some((h) => h.key === "user-agent"));
@@ -224,7 +301,8 @@ for (const token of ["GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot", "C
 }
 
 const searchRules = uaRules.filter((r) => String(r.destination || "").includes("crawler=search"));
-assert.equal(searchRules.length, 14, "search crawlers must be routed only across the explicit native/public document family");
+const expectedSearchRoutes = ["/forum/(.*)", "/journey", "/journey-beta", "/מסע", "/number", "/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/code", "/codes", "/codes/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"];
+assert.equal(searchRules.length, expectedSearchRoutes.length, "search crawlers must be routed only across the explicit native/public and closed alias document families");
 for (const rule of searchRules) {
   const ua = rule.has.find((h) => h.key === "user-agent").value;
   assert.ok(ua.includes("Googlebot"), `Googlebot must receive server document for ${rule.source}`);
@@ -232,7 +310,7 @@ for (const rule of searchRules) {
   assert.ok(ua.includes("Baiduspider"), `Baiduspider must receive server document for ${rule.source}`);
   assert.equal(rule.destination.includes("crawler=search"), true);
 }
-for (const route of ["/", "/2029", "/world", "/topic/(.*)", "/post/(.*)", "/video/(.*)", "/books", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)", "/2029/number/(.*)", "/number/(.*)"]) {
+for (const route of expectedSearchRoutes) {
   assert.ok(searchRules.some((r) => r.source === route), `missing search crawler server-document route: ${route}`);
 }
 assert.equal(searchRules.some((r) => r.source === "/(.*)"), false, "search crawlers must never be sent through a global crawler catch-all");

@@ -1,0 +1,32 @@
+/* Compact chronological source reader; deliberately no badges implying verification. */
+.sod29-zvi-timeline { border: 1px solid var(--s29-line); border-radius: 16px;
+  padding: 14px; margin-block: 16px; color: var(--s29-ink);
+  background: var(--s29-panel-soft); }
+.sod29-zvi-timeline-head { display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.sod29-zvi-timeline-head h2 { margin: 3px 0; font: 700 18px/1.4 var(--s29-font-ui); }
+.sod29-zvi-timeline-head p { margin: 4px 0 0; color: var(--s29-muted);
+  font: 400 13px/1.5 var(--s29-font-ui); }
+.sod29-zvi-timeline-body { display: grid; gap: 12px; margin-block-start: 14px; }
+.sod29-zvi-timeline-body label { display: grid; gap: 6px; font: 500 12px/1.4 var(--s29-font-ui); }
+.sod29-zvi-timeline-body input { min-height: 44px; width: 100%; box-sizing: border-box;
+  color: var(--s29-ink); background: var(--s29-panel); border: 1px solid var(--s29-line-strong);
+  border-radius: 12px; padding: 8px 12px; font: 400 14px var(--s29-font-ui); }
+.sod29-zvi-timeline-count { color: var(--s29-muted); font: 500 12px var(--s29-font-ui); }
+.sod29-zvi-timeline-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.sod29-zvi-timeline-list li { min-width: 0; }
+.sod29-zvi-timeline-list details { background: var(--s29-panel); border: 1px solid var(--s29-line);
+  border-radius: 12px; min-width: 0; overflow: hidden; }
+.sod29-zvi-timeline-list summary { display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: 7px; padding: 12px; cursor: pointer; min-height: 44px; font: 500 13px/1.5 var(--s29-font-ui); }
+.sod29-zvi-timeline-list summary strong { font: 600 13px/1.5 var(--s29-font-ui); min-width: 0;
+  overflow-wrap: anywhere; }
+.sod29-zvi-timeline-list summary span, .sod29-zvi-timeline-list summary small { color: var(--s29-muted);
+  font: 400 11px/1.4 var(--s29-font-ui); }
+.sod29-zvi-timeline-list details > p { white-space: pre-wrap; overflow-wrap: anywhere;
+  padding: 4px 12px 12px; margin: 0; font: 400 14px/1.65 var(--s29-font-ui); }
+.sod29-zvi-timeline-list details > small { display: block; padding: 0 12px 12px;
+  color: var(--s29-muted); font: 400 11px var(--s29-font-ui); }
+.sod29-zvi-timeline :is(summary, button, input):focus-visible {
+  outline: 2px solid var(--s29-accent); outline-offset: 2px; }
+@media (max-width: 600px) { .sod29-zvi-timeline { padding: 10px; } }

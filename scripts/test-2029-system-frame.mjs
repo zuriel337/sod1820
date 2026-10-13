@@ -16,6 +16,7 @@ const shellHtml = read("2029.html");
 const tokens = read("src/lib/designTokens.js");
 const app = read("src/App2029.jsx");
 const home = read("src/pages/Home2029Page.jsx");
+const feedHook = read("src/components/experience2029/useSystemFeed2029.js");
 
 // One implementation owner: old import path is a compatibility export, not a second frame.
 assert.match(compat, /single active 2029 frame implementation/i);
@@ -139,9 +140,10 @@ assert.match(frame, /channels=\{\["native", "copy"\]\}/);
 assert.match(frame, /force/);
 
 // Navigation + the explicitly opened "מה חדש בעולם" panel may route to World.
+// The panel has a public-core link when World is open and the full-feed action.
 // Generic inspect/search/tool actions must still never force navigation to World.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 2, "Only main navigation and the user-opened World updates panel may link to World");
+assert.equal(worldLiteralCount, 3, "Only main navigation and the user-opened World updates panel may link to World");
 assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.
@@ -187,8 +189,14 @@ assert.match(css, /position:fixed/);
 assert.equal(css.includes("#b94c4c"), false, "status/error styling must not introduce a local semantic color owner");
 
 // Design V2 typography must be real at runtime, not token-only.
-assert.match(shellHtml, /family=Rubik/);
-assert.match(shellHtml, /Noto\+Sans\+Hebrew/);
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Hebrew\.woff2'\)/);
+assert.match(shellHtml, /font-family:'Rubik';\s*src:url\('\/fonts\/Rubik-Latin\.woff2'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Hebrew.woff2")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/Rubik-Latin.woff2")), true);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Bold\.ttf'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Regular.ttf")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Bold.ttf")), true);
 assert.match(shellHtml, /IBM\+Plex\+Mono/);
 assert.equal(shellHtml.includes("family=Assistant"), false, "2029 runtime must not load Legacy Assistant as its primary font family");
 assert.match(baseCss, /DESIGN_V2_TYPOGRAPHY_ROOT/);
@@ -237,7 +245,12 @@ assert.match(frame, /hint: "מה חדש בעולם", on: onWorld/);
 assert.match(frame, /onWorld=\{openAttention\} onMe=\{openWorkspace\}/);
 assert.match(frame, /className="sod29-bar-zone is-context"/);
 assert.match(frame, /className="sod29-bar-zone is-actions"/);
-assert.match(frame, /watchWorldDiscoveryStream\(\{\s*limit: 10, includeResearch: false,/);
+// Typed Now uses one public World source watcher shared across the desktop
+// Companion and the mobile Attention sheet; no second polling or private research read.
+assert.match(feedHook, /watchWorldDiscoveryStream\(\{/);
+assert.match(feedHook, /limit:\s*40, includeResearch:\s*false/);
+assert.doesNotMatch(frame, /watchWorldDiscoveryStream\(\{/);
+assert.match(frame, /<AttentionProjection[\s\S]{0,240}?feed=\{feed\}/);
 assert.match(frame, /data-raziel-anchor="center"/);
 assert.match(frame, /TRANSIENT\.CAPABILITY/);
 assert.match(frame, /TRANSIENT\.ACTION/);

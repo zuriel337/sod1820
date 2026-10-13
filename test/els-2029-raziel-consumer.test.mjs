@@ -14,7 +14,7 @@ test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived
   assert.match(page, /elsSurfaceContext: surfaceContext/);
   assert.match(page, /surfaceContext\?\.occurrence\?\.occurrenceRef/);
   assert.doesNotMatch(page, /surfaceContext\?\.occurrence\?\.occurrenceId/);
-  assert.match(page, /disabled=\{!available\}/);
+  assert.match(page, /disabled=\{!available \|\| shell\.razielLocked\}/);
   assert.doesNotMatch(page, /includeText:\s*true/);
   assert.doesNotMatch(page, /askRazielAdvanced|askRaziel\s*\(/);
 });

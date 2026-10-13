@@ -3,6 +3,7 @@ import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentat
 import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroupSource.js";
+import { publicProvenPostSourceUpdate } from "./postSourceUpdates2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
@@ -63,6 +64,10 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
   const person = publicPersonForName(author, publicPeople);
   const summary = stripHtml(clean(row.excerpt));
   const arrivalAt = safeDate(row.date) || safeDate(row.created_at);
+  // An audited, public-source fragment revision may be presented as an update.
+  // Source publication/arrival and recorded times always remain unchanged.
+  // Never query admin-only post_revisions from the public World reader.
+  const sourceUpdate = publicProvenPostSourceUpdate(row);
   return {
     id: `post:${row.id}`,
     kind: "source",
@@ -72,15 +77,16 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     summary: summary ? summary.slice(0, 240) : null,
     creator: person?.displayName || author || "יצירה באתר",
     creatorSlug: person?.slug || null,
-    at: arrivalAt,
+    at: sourceUpdate?.at || arrivalAt,
     arrivalAt,
+    sourceUpdate,
     sourcePublishedAt: safeDate(row.date),
     recordedAt: safeDate(row.created_at),
     discoveredAt: null,
     sourceUpdatedAt: safeDate(row.modified),
     researchUpdatedAt: null,
     sourceRef: `posts:${row.id}`,
-    href: `/post/${encodeURIComponent(clean(row.slug))}`,
+    href: sourceUpdate?.targetHref || `/post/${encodeURIComponent(clean(row.slug))}`,
     value: null,
     numbers: [],
     researchCount: 0,
@@ -145,12 +151,15 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
   const postRows = Array.isArray(input) ? [] : (Array.isArray(input?.posts) ? input.posts : []);
   const groupItems = Array.isArray(input?.groupItems) ? input.groupItems : [];
   const sourceByOccurrence = new Map();
+  const sourceItems = [];
   for (const item of [...postRows.map((row) => postRowToWorldUpdate(row, { publicPeople })).filter(Boolean), ...groupItems]) {
-    if (item?.kind === "source" && item.sourceRef && !sourceByOccurrence.has(item.sourceRef)) {
-      sourceByOccurrence.set(item.sourceRef, { ...item });
+    if (item?.kind !== "source" || !item.sourceRef || sourceByOccurrence.has(item.sourceRef)) continue;
+    const source = { ...item };
+    sourceItems.push(source);
+    for (const ref of new Set([item.sourceRef, ...(Array.isArray(item.sourceRefs) ? item.sourceRefs : [])])) {
+      if (ref && !sourceByOccurrence.has(ref)) sourceByOccurrence.set(ref, source);
     }
   }
-  const sourceItems = [...sourceByOccurrence.values()];
   // Collapse authorized research on the SAME source occurrence; do not multiply arrivals
   // or treat repeated findings as independent sources. Unrelated findings keep their identities.
   const findingItems = researchRows.map((row) => researchRowToWorldUpdate(row, { publicPeople }))

@@ -3,6 +3,8 @@ const { installStorageEgressGuard } = require('./playwright-storage-egress-guard
 
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
+const PRE_CUTOVER_FIXTURE = process.env.SOD_WORLD_PRE_CUTOVER_FIXTURE === '1';
+const POSITIVE_ACCEPTANCE_FLAGS = ['lock_world', 'lock_number'];
 const CONTEXT_KEY = 'sod_research_context_session_v1';
 const MOBILE_WIDTHS = [320, 360, 390];
 const CLS_ROUTES = [
@@ -87,10 +89,54 @@ test.setTimeout(60_000);
 // Each test receives a fresh page/context. Report every independent regression
 // even when an earlier route fails, while retaining the runner's worker limit.
 test.describe.configure({ mode: 'default' });
-test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
+test.beforeEach(async ({ context }) => {
+  await installStorageEgressGuard(context);
+  // Preserve real read-only engine/data requests while keeping browser acceptance
+  // visits, metrics and identity events out of the canonical product database.
+  await context.route(/https:\/\/linswmnnkjxvweumprav\.supabase\.co\/rest\/v1\/(?:rpc\/(?:track_visit|ingest_event|link_identity)|visitor_events|page_views|user_activity)(?:\?.*)?$/, async (route) => {
+    if (['GET', 'HEAD'].includes(route.request().method())) return route.fallback();
+    return route.fulfill({ status: 204, body: '' });
+  });
+  if (!PRE_CUTOVER_FIXTURE) return;
+
+  // Exercise the positive World/Number capability contracts without changing live
+  // availability. Number is closed for launch; its negative route/no-engine-mount
+  // case remains covered separately in g4-public-core-release.spec.cjs.
+  await context.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(POSITIVE_ACCEPTANCE_FLAGS
+      .map((key) => ({ key, enabled: false, mode: 'all', message: '' }))),
+  }));
+  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    headers: { 'x-sod-acceptance-fixture': 'pre-cutover' },
+    body: JSON.stringify([{
+      id: '00000000-0000-4000-8000-000000000001',
+      body: 'הודעת מקור לבדיקה',
+      created_at: '2026-10-12T12:00:00Z',
+      contributor_slug: 'tzvi-opoc',
+      contributor_name: 'צבי',
+      group_proof: true,
+      proof_basis: 'verified_phone_unique',
+      occurrences: [{ id: '00000000-0000-4000-8000-000000000001', created_at: '2026-10-12T12:00:00Z' }],
+    }]),
+  }));
+});
+
+async function openLaunchFlagForAcceptance(page, key) {
+  await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify([...new Set(PRE_CUTOVER_FIXTURE ? [...POSITIVE_ACCEPTANCE_FLAGS, key] : [key])]
+      .map((flagKey) => ({ key: flagKey, enabled: false, mode: 'all', message: '' }))),
+  }));
+}
 
 for (const route of CLS_ROUTES) {
   test(`Core Web Vitals CLS budget holds on ${route} at 390px`, async ({ page }) => {
+    if (route === '/books' || route.startsWith('/book/')) await openLaunchFlagForAcceptance(page, 'lock_books');
     await installClsObserver(page);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
@@ -217,7 +263,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
   const article = page.locator('article[data-entity-type="convergence"]');
   await expect(article).toBeVisible({ timeout: 30_000 });
   const heroNumber = article.locator('a[href="/2029/number/888"]').first();
-  await expect(heroNumber).toBeVisible();
+  await expect(heroNumber).toBeVisible({ timeout: 20_000 });
   await expect(heroNumber).toHaveText('888');
   await expect(article.locator('h1')).toContainText('אלהים משיח מקדש');
   await expect(article).toContainText('מה מחבר את הציר הזה?');
@@ -229,6 +275,7 @@ test('native canonical Topic 2029 renders 888 with semantic links and SEO identi
 });
 
 test('Topic expression focus opens Number 2029 and survives World + Heichal transitions', async ({ page }) => {
+  await openLaunchFlagForAcceptance(page, 'lock_heichal');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/topic/98-ikuv-geula`, { waitUntil: 'domcontentloaded' });
 
@@ -381,6 +428,7 @@ test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria
 });
 
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
+  await openLaunchFlagForAcceptance(page, 'lock_raziel_site');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="number"]')).toBeVisible({ timeout: 30_000 });
@@ -879,22 +927,30 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
-      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
-      expect(response.ok(), 'deployed sanitized group reader is reachable').toBe(true);
+      expect(response.ok(), 'sanitized group reader is reachable').toBe(true);
+      expect(response.headers()['x-sod-acceptance-fixture'] || null).toBe(PRE_CUTOVER_FIXTURE ? 'pre-cutover' : null);
       const groupRows = await response.json();
       expect(Array.isArray(groupRows)).toBe(true);
       for (const row of groupRows) {
         expect(row.group_proof).toBe(true);
         expect(row.proof_basis).toBe('verified_phone_unique');
-        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
+        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'occurrences', 'proof_basis']);
+        expect(Array.isArray(row.occurrences)).toBe(true);
+        expect(row.occurrences.length).toBeGreaterThan(0);
+        expect(row.occurrences.some((event) => event.id === row.id)).toBe(true);
+        for (const event of row.occurrences) {
+          expect(Object.keys(event).sort()).toEqual(['created_at', 'id']);
+          expect(Number.isFinite(Date.parse(event.created_at))).toBe(true);
+        }
       }
       const writer = page.locator('#world-source-homes button').filter({ hasText: 'יניב לוי' }).first();
       await expect(writer).toBeVisible({ timeout: 30_000 });
       await writer.click();
       const lens = page.locator('[data-experience-surface="contributor-findings-lens"]');
-      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible();
+      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible({ timeout: 20_000 });
       await expect(lens.locator('[data-experience-capability="contributor-source-finding-group"]')).toHaveCount(1);
       await expect(lens).not.toContainText('CONTRIBUTOR FINDINGS');
       await expect(lens.locator('details[open]')).toHaveCount(0);

@@ -17,6 +17,13 @@ test('saved legacy skip 15 is recovered independently of the capped discovery sa
  assert.equal(c.f('אחרית',0).length,0);
 });
 
+test('the single canonical engine finds an exact skip above the page bridge ceiling',()=>{
+ const c=context([normalization,'const scopeN=()=>304805;',...['lb','fwdSetup','fwdScan','fixedSkipCandidates'].map(source),'this.f=fixedSkipCandidates;'].join('\n'),{T:letters});
+ const hits=c.f('תורה קדשה',10065);
+ assert.ok(hits.some(h=>h.skip===10065&&h.dir===1&&h.start===50890));
+ assert.ok(hits.every(h=>h.positions.every((p,k)=>letters[p]==='תורהקדשה'[k])));
+});
+
 test('axis dictionary scan finds both reading directions with correct displayed offsets and no palindrome duplicates',()=>{
  const c=context(normalization+'\n'+source('scanLineWords')+'\nthis.scan=scanLineWords;',{DICT:['המן','תורה','אבא']});
  const scan=c.scan(Array.from('תורהנמהאבא',(letter,i)=>({letter,i})),'ציר');

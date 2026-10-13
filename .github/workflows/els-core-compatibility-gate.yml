@@ -51,21 +51,6 @@ on:
 jobs:
   els-core-compatibility:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        # Docker Official Images mirror avoids shared-runner Docker Hub pull limits.
-        image: public.ecr.aws/docker/library/postgres:17
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: sod1820_els_compat
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-
     steps:
       - uses: actions/checkout@v4
 
@@ -109,7 +94,14 @@ jobs:
             test/els-raziel-context.test.mjs
 
       - name: Install PostgreSQL server + client
-        run: sudo apt-get update && sudo apt-get install -y postgresql postgresql-client
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y postgresql postgresql-client
+          sudo service postgresql start
+          sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER ROLE postgres WITH PASSWORD 'postgres'"
+          sudo -u postgres createdb sod1820_els_compat
+          PGPASSWORD=postgres psql -h localhost -U postgres -d sod1820_els_compat -v ON_ERROR_STOP=1 -Atqc 'select version()'
 
       - name: Install Playwright Chromium
         env:
@@ -127,7 +119,7 @@ jobs:
           ELS_REQUIRE_EXECUTABLE: '1'
           PLAYWRIGHT_BROWSERS_PATH: '0'
         run: |
-          node --test test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs test/els-native-ui-browser.test.mjs
+          node --test --test-concurrency=1 test/els-tanakh-canonical-stream.test.mjs test/els-verify-batch.test.mjs test/els-browser-cutover.test.mjs test/els-native-ui-browser.test.mjs
 
       - name: Compile migrations and run executable SQL acceptance
         env:

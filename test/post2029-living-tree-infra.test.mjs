@@ -81,7 +81,7 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   // The adopted tools rail now exposes the existing Heichal destination.
   assert.match(frame, /to: "\/heichal", label: "היכל"/);
   assert.match(frame, /label: "מסעות"/);
-  assert.match(frame, /label: "קהילה"/);
+  assert.match(frame, /label: "אזור משתמשים"/);
   assert.match(frame, /data-raziel-anchor="center"/);
 });
 
@@ -234,7 +234,7 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
 test("Bennett and FZ1073 remain the two Post Master fixtures", () => {
   const { BENNETT_SALT_SLUG, BENNETT_SALT_REGIONS, FZ1073_SLUG, FZ1073_REGIONS } = post2029ReadingInternals;
   assert.equal(BENNETT_SALT_SLUG, "bennett-melach-631-78");
-  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number ?? null), [null, 631, null]);
+  assert.deepEqual(BENNETT_SALT_REGIONS.map((region) => region.number ?? null), [null, null, null, 78, null, 631, null]);
   assert.equal(FZ1073_SLUG, "flydubai-fz1073-363-14000-remzei-geula");
   assert.equal(FZ1073_REGIONS.length, 7);
 });

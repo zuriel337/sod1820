@@ -24,7 +24,7 @@ import "./calculatorPro2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "—";
-const EXAMPLES = Object.freeze(["צוריאל", "אהבה", "משיח", "David"]);
+const EXAMPLES = Object.freeze(["אהבה", "משיח", "David"]);
 const CORE_FAMILY_KEY = "base";
 const EXCEPTIONAL_STATE_HE = Object.freeze({
   composite: "מורכב",
@@ -292,7 +292,7 @@ function ProExperience() {
   const shareUrl = useMemo(() => {
     if (!canonicalSelection) return null;
     const origin = typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il";
-    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/2029/gematria" });
+    return buildCalculatorShareUrl(canonicalSelection, { discovery: shareDiscovery, shareId, baseUrl: origin + "/2029/gematria/viral" });
   }, [canonicalSelection, shareDiscovery, shareId]);
 
   const openNumber = () => {
@@ -596,7 +596,7 @@ export default function CalculatorPro2029Page() {
     applySeo({
       title: "מחשבון גימטריה מקצועי · SOD1820",
       description: "כל שיטות הגימטריה במבט אחד, עם פנקס פירוק אותיות מהמנוע הקנוני, מצב מתקדם להשוואה ומצב מורחב.",
-      path: "/2029/calculator",
+      path: window.location.pathname,
       noindex: true,
     });
   }, []);

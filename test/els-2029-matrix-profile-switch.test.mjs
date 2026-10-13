@@ -17,11 +17,13 @@ test("Classic/Research switch stays controlled and uses the released v9 profile 
   assert.doesNotMatch(source, /fetch\s*\(|supabase|localStorage|sessionStorage/);
 });
 
-test("ELS 2029 defaults to Research and switches presentation without replay/search ownership", async () => {
+test("ELS 2029 opens in Classic and gates Research presentation without replay/search ownership", async () => {
   const page = await readFile(PAGE, "utf8");
-  assert.match(page, /useState\(ELS_MATRIX_PROFILE\.RESEARCH\)/);
+  assert.match(page, /Els2029Page\(\{ previewAdvanced = false \}\)/);
+  assert.match(page, /useState\(previewAdvanced \? ELS_MATRIX_PROFILE\.RESEARCH : ELS_MATRIX_PROFILE\.CLASSIC\)/);
+  assert.match(page, /const matrixProfile = previewAdvanced \? previewProfile : ELS_MATRIX_PROFILE\.CLASSIC/);
   assert.match(page, /projectElsMatrixProfile/);
-  assert.match(page, /<ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setMatrixProfile\}/);
+  assert.match(page, /previewAdvanced \? <ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setPreviewProfile\} \/> : null/);
   assert.match(page, /const researchProfile = profileModel\.profile === ELS_MATRIX_PROFILE\.RESEARCH/);
   assert.match(page, /<Els2029Representation layers=\{replayLayers\} profile=\{matrixProfile\}/);
 
@@ -32,7 +34,7 @@ test("ELS 2029 defaults to Research and switches presentation without replay/sea
   assert.match(page, /aria-label="ELS adaptive action slots"/);
   assert.match(page, /aria-label="סביבת המחקר של הצופן"/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
-  assert.match(page, /<ElsNativeClassic2029 initialSeed=\{savedRecord.row \? "" : classicSeed\} matrix=\{savedRecord.row\}\s/);
+  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
   assert.match(page, /one canonical Tzofen engine/);
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);

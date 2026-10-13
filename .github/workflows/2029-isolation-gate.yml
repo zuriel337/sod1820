@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "2029.html"
+      - "public/fonts/**"
       - "src/main2029.jsx"
       - "src/App2029.jsx"
       - "src/App.jsx"
@@ -26,6 +27,14 @@ on:
       - "src/lib/research/researchRunRequest.js"
       - "src/lib/research/ResearchProvider.jsx"
       - "src/lib/research/numberExpressionFocus.js"
+      - "src/lib/research/postSourceUpdates2029.js"
+      - "src/lib/research/postSourceUpdates2029.test.js"
+      - "src/lib/research/worldDiscoveryStream.js"
+      - "src/lib/research/worldDiscoveryStream.test.js"
+      - "src/lib/systemFeed2029.js"
+      - "src/lib/systemFeed2029.test.js"
+      - "src/lib/heroUpdate2029.js"
+      - "src/lib/heroUpdate2029.test.js"
       - "src/lib/research/world2029Presentation.js"
       - "src/lib/research/topic2029Projection.js"
       - "src/lib/research/topicConvergence.js"
@@ -52,6 +61,10 @@ on:
       - "scripts/test-replayable-golden-no-black-box.mjs"
       - "scripts/test-web-vitals-2029.mjs"
       - "supabase/functions/ai-analyze/index.ts"
+      - "supabase/functions/_shared/supabaseServiceHeaders.js"
+      - "scripts/test-ai-analyze-service-headers.mjs"
+      - "test/helpers/ai-analyze-handler.mjs"
+      - "test/raziel-quota-trace.test.mjs"
       - "supabase/functions/research-run/index.ts"
       - "scripts/package-research-run.mjs"
       - "scripts/test-research-run-contract.mjs"
@@ -99,7 +112,10 @@ jobs:
       - name: Operational Trace Runtime persistence acceptance
         run: npm run test:operational-trace-runtime
       - name: AI-Analyze early paid paths trace coverage acceptance
-        run: node test/ai-analyze-early-trace-coverage.test.mjs
+        run: |
+          node test/ai-analyze-early-trace-coverage.test.mjs
+          node scripts/test-ai-analyze-service-headers.mjs
+          node --test test/raziel-quota-trace.test.mjs
       - name: Replayable Golden No-Black-Box acceptance
         run: npm run test:replayable-golden
       - name: Server capability execution gate acceptance
@@ -120,6 +136,8 @@ jobs:
         run: npm run test:legacy-research-containment
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
+      - name: G4 source-section update / World / Companion public-read acceptance
+        run: node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js
       - name: Native System Frame acceptance
         run: node scripts/test-2029-system-frame.mjs
       - name: Raziel server-gated Result Bundle consumer acceptance
@@ -179,8 +197,8 @@ jobs:
         run: |
           mkdir -p test-results/release-visual
           npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
-      - name: Real World browser acceptance
-        run: npx playwright test tests/world2029-release.spec.cjs --reporter=line
+      - name: World browser acceptance on pre-cutover preview
+        run: SOD_WORLD_PRE_CUTOVER_FIXTURE=1 npx playwright test tests/world2029-release.spec.cjs --reporter=line
       - name: Upload native World screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -131,7 +131,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
             id="calculator-2029-input"
             value={draft}
             onChange={(event) => handleDraftChange(event.target.value)}
-            placeholder="למשל: צוריאל"
+            placeholder="שם, מילה או ביטוי"
             dir="rtl"
             autoComplete="off"
             spellCheck="false"
@@ -402,7 +402,7 @@ function CalculatorExperience() {
     setShowOpening(false);
     setShareDiscovery(null);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria", { replace: true });
+    if (location.search) navigate("/2029/gematria/viral", { replace: true });
   }, [location.search, navigate]);
 
   const settleFastExpression = useCallback((raw) => {
@@ -472,7 +472,7 @@ function CalculatorExperience() {
     return buildCalculatorShareUrl(selection, {
       discovery: shareDiscovery,
       shareId,
-      baseUrl: origin + "/2029/gematria",
+      baseUrl: origin + "/2029/gematria/viral",
     });
   }, [selection, shareDiscovery, shareId]);
 
@@ -502,7 +502,7 @@ function CalculatorExperience() {
     setShowCompare(false);
     setShowOpening(false);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria", { replace: true });
+    if (location.search) navigate("/2029/gematria/viral", { replace: true });
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
@@ -546,6 +546,7 @@ function CalculatorExperience() {
             <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
+            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח דף מספר</button>
             <button type="button" className="is-raziel" onClick={openRaziel} disabled={selection.resultValue == null}>
               ✦ רזיאל · תסביר לי
             </button>
@@ -563,7 +564,6 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח מספר</button>
               <button type="button" onClick={openHeichal}>חקור בהיכל</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
@@ -657,7 +657,7 @@ export default function Calculator2029Page() {
     applySeo({
       title: "מחשבון גימטריה 2029 · SOD1820",
       description: "חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.",
-      path: "/2029/gematria",
+      path: "/2029/gematria/viral",
       noindex: true,
     });
   }, []);

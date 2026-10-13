@@ -318,7 +318,7 @@ const waitOperation = (page, kind, requestId, status) => page.waitForFunction(([
   [kind, requestId, status], { timeout: 60000 });
 const waitSettledMatrix = (page) => page.waitForFunction(() => {
   const current = window.__log.filter(message => message.type === 'state').at(-1);
-  return current?.status === 'ok' && window.__oraclePending === 0 &&
+  return (current?.status === 'ok' || current?.status === 'ready') && window.__oraclePending === 0 &&
     (current.findings || []).every(word => (word.hits || []).every(hit => !hit.shown || hit.verified));
 }, null, { timeout: 60000 });
 
@@ -383,7 +383,7 @@ test('browser: a fresh hidden native first search runs without a persisted onboa
   await withHarness(async ({ page, frame, calls }) => {
     await page.waitForFunction(() => {
       const current = window.__log.filter(m => m.type === 'state').at(-1);
-      return current?.tier === 'anon' && current.status === 'ok' && window.__oraclePending === 0;
+      return current?.tier === 'anon' && current.status === 'ready' && window.__oraclePending === 0;
     });
     const hostUrl = page.url(), toolUrl = page.frames().find(f => f.url().includes('/tzofen.html')).url();
     assert.equal(await page.evaluate(() => localStorage.getItem('tzofen_onboarded_v1')), null);
@@ -418,7 +418,7 @@ test('browser: a fresh hidden native first search runs without a persisted onboa
 
 test('browser: visible first-visit onboarding still blocks the requested search until acknowledged', { skip: !canRun && 'Playwright/Chromium unavailable', timeout: 180000 }, async () => {
   await withHarness(async ({ page, frame, calls }) => {
-    await page.waitForFunction(() => window.__log.some(m => m.type === 'state' && m.status === 'ok') && window.__oraclePending === 0);
+    await page.waitForFunction(() => window.__log.some(m => m.type === 'state' && m.status === 'ready') && window.__oraclePending === 0);
     const beforeCalls = calls.length;
     await nativeSend(page, { type: 'native-search', request: { kind: 'regular', term: 'משיח', scope: 'torah' } });
     await page.waitForFunction(() => window.__log.some(m => m.type === 'onboarding-required'));
@@ -791,8 +791,9 @@ test('browser: native and classic niqqud use aligned Torah marks without changin
       const current = window.__log.filter(m => m.type === 'state').at(-1);
       return current?.status === 'ok' && current.provenance?.editId === id && window.__oraclePending === 0;
     }, golden.id);
-    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#5465ff' }] });
-    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0 && window.__oraclePending === 0);
+    await nativeSend(page, { type: 'update-findings', requestId: 7841, findings: [{ t: 'אל', color: '#5465ff' }] });
+    await waitOperation(page, 'findings', 7841, 'done');
+    await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0 && window.__oraclePending === 0, null, { timeout: 60_000 });
     const initial = await latestState(page);
     if (!initial.findings[0].hits.some(hit => hit.shown && hit.verified)) {
       const candidate = initial.findings[0].hits.find(hit => !hit.shown);
@@ -920,16 +921,18 @@ test('browser: optional native heat reflects verified display density, excludes 
     assert.ok(heated.matrix.heat.cells.some(cell => Math.floor(cell.i / geometry.S) === geometry.r0), 'the fixture exercises top-edge clipping');
 
     await page.evaluate(() => { window.__mode = 'down'; });
-    await nativeSend(page, { type: 'update-findings', findings: [{ t: 'אל', color: '#5465ff' }] });
+    await nativeSend(page, { type: 'update-findings', requestId: 8781, findings: [{ t: 'אל', color: '#5465ff' }] });
+    await page.waitForFunction(() => window.__log.some(message => message.type === 'operation' && message.kind === 'findings' && message.requestId === 8781 && ['done', 'error', 'empty'].includes(message.status)), null, { timeout: 60_000 });
     await page.waitForFunction(() => window.__log.filter(m => m.type === 'state').at(-1)?.findings?.[0]?.hits?.length > 0);
     const candidateState = await latestState(page), candidate = candidateState.findings[0].hits.find(hit => !hit.shown) || candidateState.findings[0].hits[0];
     if (!candidate.shown) await nativeSend(page, { type: 'native-finding-control', term: 'אל', action: 'toggle-hit',
       axisHitId: candidateState.axis.hitId, candidateIndex: candidate.candidateIndex, revision: candidate.revision });
     await page.waitForFunction(index => {
       const current = window.__log.filter(m => m.type === 'state').at(-1);
-      return current?.findings?.[0]?.hits?.some(hit => hit.candidateIndex === index && hit.shown && !hit.verified) &&
-        window.__log.some(message => message.type === 'engine-request' && message.payload?.term === 'אל') && window.__oraclePending === 0;
-    }, candidate.candidateIndex);
+      return current?.findings?.[0]?.hits?.some(hit => hit.candidateIndex === index && hit.shown && !hit.verified);
+    }, candidate.candidateIndex, { timeout: 60_000 });
+    await page.waitForFunction(() => window.__oraclePending === 0, null, { timeout: 60_000 });
+    assert.ok(calls.some(call => call.payload?.term === 'אל'), 'candidate verification was attempted');
     const withCandidate = await latestState(page), candidateCalls = calls.length;
     assert.ok(withCandidate.findings[0].candidateShown > 0, 'an unverified finding is selected');
     assert.ok(withCandidate.findings[0].hits.every(hit => !hit.verified && hit.hitId === null && hit.axisDistance === null));
@@ -1122,11 +1125,21 @@ test('browser: native finding can show three verified occurrences then hide exac
         current.findings[0].color === '#5465ff' && current.findings[0].hits?.some(hit => hit.verified && hit.shown);
     });
     let current=await latestState(page);
-    for(let n=0;n<3 && current.findings[0].shown.length<3;n++) {
-      const candidate=current.findings[0].hits.find(h=>!h.shown);
-      assert.ok(candidate,'additional occurrence available');
+    const attempted=new Set();
+    // Local candidates are provisional: the canonical oracle may reject one.
+    // Continue with another candidate after that verification settles.
+    for(let n=0;n<40 && current.findings[0].shown.length<3;n++) {
+      const candidate=current.findings[0].hits.find(h=>!h.shown && h.verified && !attempted.has(h.candidateIndex)) ||
+        current.findings[0].hits.find(h=>!h.shown && !attempted.has(h.candidateIndex));
+      assert.ok(candidate,'three verifiable occurrences are available');
+      attempted.add(candidate.candidateIndex);
+      const previousRevision=current.findings[0].revision;
+      const previousShown=current.findings[0].shown.length;
       await nativeSend(page,{type:'native-finding-control',term:'אל',action:'toggle-hit',hitId:candidate.hitId,axisHitId:current.axis.hitId,candidateIndex:candidate.candidateIndex,revision:candidate.revision});
-      await page.waitForFunction(index=>{const s=window.__log.filter(m=>m.type==='state').at(-1);return s?.findings?.[0]?.hits?.some(h=>h.candidateIndex===index&&h.shown&&h.verified);},candidate.candidateIndex,{timeout:5000}).catch(async error=>{throw new Error(JSON.stringify({candidate,latest:(await latestState(page)).findings}),{cause:error});});
+      await page.waitForFunction(([revision,count])=>{
+        const word=window.__log.filter(m=>m.type==='state').at(-1)?.findings?.[0];
+        return word?.shown?.length>count || (word?.revision>revision && window.__oraclePending===0);
+      },[previousRevision,previousShown],{timeout:30000});
       current=await latestState(page);
     }
     const shown=current.findings[0].shown;

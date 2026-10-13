@@ -140,3 +140,10 @@
   font-weight:950;
 }
 .sod29-learn-mark-help:hover{color:var(--learn-ink)}
+
+/* Post reading: the "new here?" pill lives in the compact Post header (portal from the frame), never as its own bar. */
+.sod29-root.surface-post .sod29-entry-orientation-slot:not(.is-in-header){padding:4px clamp(14px,2vw,24px) 0}
+.sod29-entry-orientation-slot.is-in-header{display:block;padding:0;min-width:0}
+.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark{max-width:100%}
+.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark-trigger{min-height:44px;max-width:100%}
+.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark-disclosure{max-width:min(520px,100%)}

@@ -1,0 +1,80 @@
+name: G4 Public Core Gate
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/g4-public-core-gate.yml'
+      - '2029.html'
+      - 'public/fonts/**'
+      - 'tests/g4-public-core-release.spec.cjs'
+      - 'src/App2029.jsx'
+      - 'src/App.jsx'
+      - 'src/components/community2029/**'
+      - 'src/pages/CommunityChatTransition2029Page.jsx'
+      - 'src/lib/community/communityArchive.js'
+      - 'src/lib/community/communityArchive.test.js'
+      - 'src/lib/community/communityRefresh.js'
+      - 'src/lib/community/communityRefresh.test.js'
+      - 'src/components/ReactionBar.jsx'
+      - 'src/lib/reactionMutation.js'
+      - 'src/lib/reactionMutation.test.js'
+      - 'api/og.js'
+      - 'api/sitemap-public.js'
+      - 'test/public-launch-seo-gates.test.mjs'
+      - 'test/convergence-tree-closure.test.mjs'
+      - 'test/post-comments-2029.test.mjs'
+      - 'src/components/MaintenanceLock.jsx'
+      - 'src/components/experience2029/**'
+      - 'src/components/number2029/**'
+      - 'src/pages/Home2029Page.jsx'
+      - 'src/pages/Posts2029Page.jsx'
+      - 'src/pages/Els2029Page.jsx'
+      - 'src/pages/Calculator2029Page.jsx'
+      - 'src/pages/Number2029Page.jsx'
+      - 'src/pages/World2029Page.jsx'
+      - 'src/pages/Topic2029Page.jsx'
+      - 'src/lib/research/worldGroupSource.js'
+      - 'src/lib/research/worldGroupSource.test.js'
+      - 'scripts/test-world-group-source-http.sh'
+      - 'tests/sql/world_group_source_provenance_v2.sql'
+      - 'scripts/test-2029-system-frame.mjs'
+      - 'supabase/migrations/20261012170000_public_launch_closed_capabilities.sql'
+      - 'supabase/migrations/20261013100000_world_group_source_repeat_projection_v3.sql'
+      - 'vercel.json'
+  workflow_dispatch:
+
+jobs:
+  public-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Public capability metadata and Community reader acceptance
+        run: node --test test/public-launch-seo-gates.test.mjs test/convergence-tree-closure.test.mjs test/post-comments-2029.test.mjs src/lib/community/communityArchive.test.js src/lib/community/communityRefresh.test.js src/lib/reactionMutation.test.js
+      - run: node --test src/lib/research/worldGroupSource.test.js
+      - name: Group source v3 real HTTP role acceptance on disposable fixtures
+        run: bash scripts/test-world-group-source-http.sh
+      - run: node scripts/test-2029-system-frame.mjs
+      - run: npm install --no-save --no-package-lock @playwright/test@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Start isolated 2029 preview
+        run: |
+          cp dist/2029.html dist/index.html
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-g4-public-core.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/2029 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/sod1820-g4-public-core.log
+          exit 1
+      - name: Public core browser acceptance
+        run: npx playwright test tests/g4-public-core-release.spec.cjs --workers=1 --reporter=line
+      - name: Show preview log on failure
+        if: failure()
+        run: cat /tmp/sod1820-g4-public-core.log || true

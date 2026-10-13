@@ -473,7 +473,7 @@ export default function NumberCore2029({
             </button>;
           })}
         </div> : null}
-      </> : null}
+      </> : <div className="sod29-number-v10-more-methods" aria-hidden="true" />}
     </section>
 
     <section className="sod29-number-v10-stage" data-stage-root={stageRoot} aria-live="polite">

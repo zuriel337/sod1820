@@ -55,10 +55,26 @@ test("no fake new items when reader returns nothing; reader error propagates (ca
   assert.deepEqual(await fetchGroupSourceArrivals({ rpc: async () => ({ data: [], error: null }) }), []);
   await assert.rejects(fetchGroupSourceArrivals({ rpc: async () => ({ data: null, error: new Error("503") }) }));
 });
-test("reader calls v2 RPC with cursor", async () => {
+test("reader calls v3 RPC with cursor", async () => {
   let seen;
   await fetchGroupSourceArrivals({ limit: 5, before: "2026-10-01T00:00:00Z", rpc: async (n, a) => { seen = [n, a]; return { data: [], error: null }; } });
-  assert.deepEqual(seen, ["world_group_source_arrivals_v2", { p_limit: 5, p_before: "2026-10-01T00:00:00Z" }]);
+  assert.deepEqual(seen, ["world_group_source_arrivals_v3", { p_limit: 5, p_before: "2026-10-01T00:00:00Z" }]);
+});
+test("grouped card retains both exact source occurrences and research links", () => {
+  const g = groupRowToWorldUpdate(row({
+    created_at: "2026-10-01T10:18:00Z",
+    occurrences: [
+      { id: "u1", created_at: "2026-10-01T10:00:00Z" },
+      { id: "u2", created_at: "2026-10-01T10:18:00Z" },
+    ],
+  }));
+  assert.equal(g.occurrenceCount, 2);
+  assert.deepEqual(g.sourceRefs, ["channel_updates:u1", "channel_updates:u2"]);
+  const feed = buildWorldDiscoveryStream({ groupItems: [g], research: [
+    { id: "f2", status: "approved", source_ref: "channel_updates:u2#finding:1", created_at: "2026-10-03T10:00:00Z" },
+  ] });
+  assert.equal(feed.items.filter((item) => item.sourceKind === "group_message").length, 1);
+  assert.equal(feed.items.find((item) => item.id === "group:u1").researchCount, 1);
 });
 test("v2 migration contract: private proof table, service-only writer, hold, no pushname trust, no channel_updates grants", () => {
   const sql = readFileSync(new URL("../../../supabase/migrations/20261008190000_world_group_source_provenance_v2.sql", import.meta.url), "utf8");
@@ -88,4 +104,38 @@ test("ingest sends proof from senderId, never senderName", () => {
   const call = ts.slice(at, at + 400);
   assert.ok(guard.includes("!outgoing") && guard.includes("!imageUrl") && guard.includes("@g.us"));
   assert.ok(call.includes("p_sender_jid: senderId") && !call.includes("senderName"));
+});
+
+
+// Live backend may still expose v2 but not v3. Fallback stays inside
+// the same anonymized proof-only server reader, never raw WhatsApp.
+test("missing v3 RPC safely falls back to existing public v2 and preserves proof", async () => {
+  const calls = [];
+  const item = row({ id: "u-safe", created_at: "2026-10-13T00:00:00Z" });
+  const result = await fetchGroupSourceArrivals({
+    limit: 40, before: "2026-10-12T00:00:00Z",
+    rpc: async (name, args) => {
+      calls.push({ name, args });
+      return name.endsWith("_v3")
+        ? { data: null, error: { code: "PGRST202", message: "Could not find function public.world_group_source_arrivals_v3" } }
+        : { data: [item], error: null };
+    },
+  });
+  assert.deepEqual(calls.map((c) => c.name), ["world_group_source_arrivals_v3", "world_group_source_arrivals_v2"]);
+  assert.deepEqual(calls[1].args, { p_limit: 40, p_before: "2026-10-12T00:00:00Z" });
+  assert.equal(result.length, 1);
+  assert.equal(result[0].publicState, "group_source_message_unverified");
+  assert.equal(result[0].sourceRef, "channel_updates:u-safe");
+  assert.equal(groupRowToWorldUpdate({ ...item, group_proof: false }), null);
+});
+
+test("group timeline is accessible without mandatory topical classification or research gating", () => {
+  const component = readFileSync(new URL("../../components/research/ZviGroupTimeline2029.jsx", import.meta.url), "utf8");
+  const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
+  assert.match(component, /fetchGroupSourceArrivals\(\{ limit: PAGE, before:/);
+  assert.match(component, /group_message/);
+  assert.match(component, /עוד הודעות ישנות יותר/);
+  assert.match(component, /סיווג|שיוך לנושא אינו תנאי/);
+  assert.doesNotMatch(component, /\.from\("research_objects"\)|fetchResearchObjects|\.from\("channel_updates"\)/);
+  assert.equal((world.match(/<ZviGroupTimeline2029 /g) || []).length, 2);
 });

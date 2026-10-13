@@ -9,12 +9,16 @@ import { mergeContextPackWithConnections } from "../lib/research/goldenPostConte
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
+import { logView, logActivity } from "../lib/supabase.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
+import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
+import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
 import "./post2029-reading.css";
 
 const normalize = (value) => String(value || "")
@@ -55,6 +59,7 @@ function PostReadingBody() {
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
+  const [sourceUpdates, setSourceUpdates] = useState([]);
 
   useEffect(() => {
     let live = true;
@@ -92,6 +97,16 @@ function PostReadingBody() {
   }, [state.projection]);
 
   useEffect(() => {
+    const projection = state.projection;
+    const post = projection?.post;
+    if (!post?.slug || projection.draft || projection.privateStage || projection.previewSnapshot) return;
+    // Reuse the legacy sinks so 2029 readings count toward the same hot-post
+    // view meter and signed-in reading history. logView deduplicates per session.
+    void logView("post", post.slug);
+    void logActivity("post", post.slug, post.title);
+  }, [state.projection]);
+
+  useEffect(() => {
     if (state.loading || state.projection) return;
     applySeo({
       title: "הפוסט לא נמצא",
@@ -107,14 +122,75 @@ function PostReadingBody() {
     [regions, activeRegionId],
   );
   const activeRegionFocus = activeFocus;
+  const commentArchiveId = publicPostCommentArchiveId(state.projection);
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
     ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
     ...(state.projection?.experience?.connections?.some((item) => item.href)
       ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
     { id: "post-sources", label: "מקורות", targetId: "post-sources" },
+    ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection]);
+  ], [regions, state.projection, commentArchiveId]);
+
+  useEffect(() => {
+    setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
+  }, [state.projection]);
+
+  const jumpToSourceUpdate = (entry) => {
+    const target = sourceRef.current?.querySelector(`[id="${entry.targetId}"]`);
+    if (!target) return;
+    revealReadingAnchor(target);
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    // Exact entry survives refresh/share: the hash names the source unit.
+    try { window.history.replaceState(window.history.state, "", `${location.pathname}${location.search}#${encodeURIComponent(entry.targetId)}`); } catch { /* hash is a convenience */ }
+    target.setAttribute("tabindex", "-1");
+    target.focus?.({ preventScroll: true });
+    target.classList.add("sod29-update-target");
+    window.setTimeout(() => target.classList.remove("sod29-update-target"), 2600);
+  };
+
+  useEffect(() => {
+    // Native hash entry (refresh / shared link) into a proven source unit: land exactly on it.
+    const entry = state.projection ? provenUpdateForHash(state.projection.post?.id, location.hash) : null;
+    const root = sourceRef.current;
+    const target = entry && root ? root.querySelector(`[id="${entry.targetId}"]`) : null;
+    if (!target) return undefined;
+    let frame = null;
+    let released = false;
+    const land = () => {
+      if (released) return;
+      revealReadingAnchor(target);
+      target.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+    land();
+    target.setAttribute("tabindex", "-1");
+    target.focus?.({ preventScroll: true });
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => {
+      if (frame != null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(land);
+    });
+    observer?.observe(root);
+    const release = () => { released = true; observer?.disconnect(); };
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    for (const name of events) window.addEventListener(name, release, { passive: true, once: true });
+    return () => { release(); if (frame != null) cancelAnimationFrame(frame); for (const name of events) window.removeEventListener(name, release); };
+  }, [state.projection, location.hash]);
+
+  useEffect(() => {
+    // The hero owns the page h1. An authored h1 inside the source stays in the
+    // DOM and text is untouched; it is exposed as a level-2 heading, and when it
+    // only repeats the hero title it is visually collapsed (still readable by AT).
+    const root = sourceRef.current;
+    if (!state.projection || !root) return;
+    const heroTitle = normalize(humanContentTitle(state.projection.post?.title, { max: 0 }));
+    for (const heading of root.querySelectorAll("h1")) {
+      heading.setAttribute("role", "heading");
+      heading.setAttribute("aria-level", "2");
+      heading.setAttribute("data-source-title", normalize(heading.textContent) === heroTitle ? "duplicate" : "own");
+    }
+  }, [state.projection]);
 
   useEffect(() => {
     if (!state.projection || !sourceRef.current || !regions.length) return undefined;
@@ -332,7 +408,7 @@ function PostReadingBody() {
   const isFz1073Master = post.slug === "flydubai-fz1073-363-14000-remzei-geula";
   const isElectionsMaster = post.slug === "sharshar-elections-redemption-hints-draft";
   const heroNumbers = isElectionsMaster
-    ? [631, 271, 2701, 1820, 26, 66]
+    ? [26, 271, 2701, 1820, 631, 66]
     : isBennettMaster
     ? [631]
     : isFz1073Master
@@ -340,6 +416,7 @@ function PostReadingBody() {
       : [...new Set(
           regions.map((region) => Number(region.number)).filter((value) => Number.isSafeInteger(value) && value > 0)
         )].slice(0, 5);
+  // One cover only: the sharp whole-image reading cover below the header (shared media kit). No second thumbnail above the title.
   const heroCategories = (Array.isArray(post.categories) ? post.categories : []).slice(0, 3);
   const heroDate = isBennettMaster
     ? "2026-10-01"
@@ -671,6 +748,7 @@ function PostReadingBody() {
       <div className="sod29-reading-hero-grid">
         <div className="sod29-reading-hero-copy">
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
+          <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
           <details className="sod29-post-details">
             <summary>
               <span className="sod29-reading-source-badge">{visibleSourceLabel}</span>
@@ -690,8 +768,6 @@ function PostReadingBody() {
             </div>
           </details>
         </div>
-
-        <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
 
         {heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
           <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
@@ -713,6 +789,23 @@ function PostReadingBody() {
       </div>
     </header>
 
+    {sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
+      <span className="sod29-update-strip-kicker">עודכן</span>
+      <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
+        <strong>{sourceUpdates[0].label}</strong>
+        <small>{sourceUpdates[0].attribution} · <time dateTime={sourceUpdates[0].updatedAt}>{formatUpdateDate(sourceUpdates[0].updatedAt)}</time></small>
+      </button>
+      {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
+        <summary>עוד {sourceUpdates.length - 1}</summary>
+        <ul>
+          {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
+            <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
+              <span>{entry.label}</span><small><time dateTime={entry.updatedAt}>{formatUpdateDate(entry.updatedAt)}</time></small>
+            </button>
+          </li>)}
+        </ul>
+      </details> : null}
+    </aside> : null}
     {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
       <CanonicalMediaFigure2029 item={coverItem} primary alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
@@ -721,14 +814,7 @@ function PostReadingBody() {
 
     <PostEvidenceMedia2029 media={experience.media} />
 
-    {(experience.trail || []).length >= 2 ? <nav className="sod29-chain-trail" aria-label="מקומו של הפוסט בשרשרת" data-chain-trail="true">
-      {experience.trail.map((step, index) => <React.Fragment key={step.id}>
-        {index > 0 ? <span className="sod29-chain-trail-sep" aria-hidden="true">←</span> : null}
-        {step.active
-          ? <span className="sod29-chain-trail-step is-here" aria-current="page">{step.label} <small>(אתה כאן)</small></span>
-          : <a className="sod29-chain-trail-step" href={step.href} onClick={(event) => openConnection(event, step.href)}>{step.label}</a>}
-      </React.Fragment>)}
-    </nav> : null}
+    {/* The event sequence lives in the context rail (tree) and the bottom path: no third inline copy. */}
 
     <div className="sod29-reading-layout">
       <section
@@ -745,23 +831,10 @@ function PostReadingBody() {
         dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
       />
 
-      <nav className="sod29-reading-spine" aria-label="עומק זמין לאורך המקור">
-        <span className="sod29-reading-spine-line" aria-hidden="true" />
-        {regions.map((region) => <button
-          key={region.id}
-          type="button"
-          className={region.id === activeFocus?.id ? "is-active" : ""}
-          onClick={() => {
-            restoredRegionRef.current = null;
-            setActiveRegionId(region.id);
-            revealReadingAnchor(document.getElementById(`source-region-${region.id}`))?.scrollIntoView({ behavior: "smooth", block: "center" });
-          }}
-          aria-label={`עבור אל ${region.label}`}
-          aria-current={region.id === activeFocus?.id ? "true" : undefined}
-        ><span /></button>)}
-      </nav>
 
     </div>
+
+    <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
 
     {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
       <header>
@@ -797,6 +870,7 @@ function PostReadingBody() {
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
+    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
