@@ -1,4 +1,4 @@
-// Four compact discovery gateways over existing public readers, not new research stores.
+// Three discovery gateways plus a separate Dimension Five row over existing public readers.
 // Language research is an existing legacy deep-link until its 2029 projection is ready.
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -19,19 +19,49 @@ const postHref = slug => {
   return `/post/${encodeURIComponent(decoded)}`;
 };
 
-function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, empty, loading, followTopics = [] }) {
+// Presentation only: these four published relationships are shown solely while they
+// remain supported by the original, category-admitted Post 5018. No duplicate Post.
+function languagePostHighlights(post) {
+  if (!post || post.id !== "post:5018" || post.slug !== "chibur-bein-hasafot-mafteach-lagan") return [];
+  const sourceText = `${clean(post.content)} ${clean(post.excerpt)}`.replace(/\s+/g, " ");
+  return [
+    { value: "26", expression: "God ↔ יהוה", exists: /God\s*=\s*26/i.test(sourceText) && /יהוה\s*=\s*26/.test(sourceText) },
+    { value: "86", expression: "Bereshit ↔ אלהים", exists: /Bereshit\s*=\s*86/i.test(sourceText) && /אלהים\s*=\s*86/.test(sourceText) },
+    { value: "611", expression: "מפתח לגן ↔ תורה", exists: /מפתח לגן\s*=\s*611/.test(sourceText) && /611\s*=\s*תורה/.test(sourceText) },
+    { value: "1820", expression: "70 × 26", exists: /70\s*[×x]\s*26\s*=\s*1820/i.test(sourceText) },
+  ].filter(item => item.exists);
+}
+
+function LanguagePostPreview({ post, highlights }) {
+  if (!post || !highlights.length) return null;
+  return <Link to={post.href} className="dg29-language-preview"
+    aria-label="לקריאת שבילי שפה — מפתח לגן, עם ארבע דוגמאות מתוך המחקר">
+    <span className="dg29-language-kicker">מתוך הפוסט · מפתח לגן</span>
+    <strong>איך שפות שונות נפגשות במספרים?</strong>
+    <span className="dg29-language-metrics">
+      {highlights.map(({ value, expression }) => <span className="dg29-language-metric" key={value}>
+        <b>{value}</b><span>{expression}</span>
+      </span>)}
+    </span>
+    <span className="dg29-language-evidence">שיטות חישוב שונות · קשרים מספריים המוצגים כרמזים</span>
+    <span className="dg29-language-open">למחקר המלא ולמקורות ←</span>
+  </Link>;
+}
+
+function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [] }) {
   return <article className="dg29-gateway">
     <div className="dg29-gateway-head">
       <span className="dg29-glyph" aria-hidden="true">{symbol}</span>
       <div><h3>{title}</h3><p>{subtitle}</p></div>
     </div>
     <div className="dg29-sources">
+      {feature}
       {items.map(item => <Link to={item.href} key={item.id} className="dg29-source">
         <span>{item.title}</span>
         {item.detail ? <small>{item.detail}</small> : null}
       </Link>)}
-      {!loading && items.length === 0 ? <p className="dg29-empty">{empty}</p> : null}
-      {loading && items.length === 0 ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}
+      {!loading && items.length === 0 && !feature ? <p className="dg29-empty">{empty}</p> : null}
+      {loading && items.length === 0 && !feature ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}
     </div>
     <Link className="dg29-gateway-action" to={href}>{action} ←</Link>
     {secondaryHref ? <Link className="dg29-gateway-secondary" to={secondaryHref}>{secondaryAction} ←</Link> : null}
@@ -100,7 +130,8 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
       setState({
         loading: false,
         language: languagePosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,
-          title: clean(post.title), href: postHref(post.slug) })),
+          title: clean(post.title), href: postHref(post.slug),
+          content: post.content || "", excerpt: post.excerpt || "" })),
         cinema: cinemaPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,
           title: clean(post.title), href: postHref(post.slug) })),
         videos: cipherVideos.map(video => ({ id: `video:${video.slug}`, slug: video.slug,
@@ -119,6 +150,13 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
   }, []);
 
   const language = claimHomeItems(state.language, excludedPostKeys, 2);
+  const languagePost = language.items.find(post => post.id === "post:5018") || null;
+  const languageHighlights = languagePostHighlights(languagePost);
+  // The featured excerpt replaces the ordinary Post link: one Home tile per Post.
+  const languageFeature = languageHighlights.length
+    ? <LanguagePostPreview post={languagePost} highlights={languageHighlights} /> : null;
+  const languageLinks = languageFeature
+    ? language.items.filter(item => item !== languagePost) : language.items;
   const cinema = claimHomeItems(state.cinema, language.reserved, 3);
   const videos = claimHomeItems(state.videos, cinema.reserved, 3);
   const dimension = claimHomeItems(state.dimension, videos.reserved, 4);
@@ -139,7 +177,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
       <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"
         href="/languages" action="למחקר השפות"
         followTopics={[{ category: "שבילי שפה" }]}
-        items={language.items} loading={state.loading} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
+        feature={languageFeature} items={languageLinks} loading={state.loading} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
       <Gateway title="הצופן בקולנוע" subtitle="מחקרים על סרטים, סדרות ומספרים" symbol="🎬"
         href="/category/הצופן בסרטים" action="לכל מחקרי הקולנוע"
         followTopics={[{ category: "הצופן בסרטים" }]}
