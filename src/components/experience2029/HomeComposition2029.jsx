@@ -17,6 +17,7 @@ import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.
 import PostCategories2029 from "./PostCategories2029.jsx";
 import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
 import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";
+import { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
@@ -41,7 +42,7 @@ function useHomeCompositionData() {
   useEffect(() => {
     let live = true;
     Promise.allSettled([
-      getLatestPostCards({ limit: 5 }),
+      getLatestPostCards({ limit: 16 }),
       getPostsFromSupabase({ limit: 8 }),
       fetchExplorerFacetPage("topic", { limit: 4 }),
     ]).then(async ([posts, tagged, notable]) => {
@@ -97,11 +98,20 @@ export default function HomeComposition2029({
   const people = projection?.worldPreview?.people || [];
   const pulse = projection?.systemPulse || null;
   const lead = data.posts[0] || null;
-  // The source shown as the Hero is not repeated immediately underneath in Recent Updates.
-  // If Temporal Now owns the Hero, the latest post has not been featured yet and stays in the list.
-  const visiblePosts = (nowHero ? data.posts : data.posts.filter(post => post.slug !== lead?.slug)).slice(0, 4);
   const heroPostSlug = nowHero ? null : lead?.slug;
-  const showFixedStory = heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";
+  const showFixedStory = Boolean(story) && heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";
+
+  // Display priority, shared across all Home blocks: Hero > dedicated story > updates
+  // > source arrivals > discovery gateways. Same Post = one representation on Home.
+  let reserved = new Set();
+  if (heroPostSlug) reserved = reserveHomePost(reserved, lead);
+  if (showFixedStory) reserved = reserveHomePost(reserved, { slug: "flydubai-fz1073-363-14000-remzei-geula" });
+  const latestPlacement = claimHomeItems(data.posts, reserved, 4);
+  const visiblePosts = latestPlacement.items;
+  const sourceRows = projection?.worldPreview?.arrivals || projection?.worldPreview?.items || [];
+  const sourcePlacement = claimHomeItems(sourceRows.filter(item => item.kind === "source"), latestPlacement.reserved, 4);
+  const homeArrivals = sourcePlacement.items;
+  const reservedPostKeys = [...sourcePlacement.reserved];
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
@@ -149,9 +159,9 @@ export default function HomeComposition2029({
 
     {story && showFixedStory ? <Reveal id="story">{story}</Reveal> : null}
 
-    <DiscoveryGateways2029 />
+    <DiscoveryGateways2029 excludedPostKeys={reservedPostKeys} />
 
-    {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
+    {arrivals ? <Reveal id="arrivals">{typeof arrivals === "function" ? arrivals(homeArrivals) : arrivals}</Reveal> : null}
 
     <Section label="כותבים וערוצים">
       <div className="h29-anchors">
