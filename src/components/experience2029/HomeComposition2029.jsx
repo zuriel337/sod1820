@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
-import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
+import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
 import { stripHtml } from "../../lib/format.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
@@ -15,6 +15,7 @@ import { useReveal } from "./useReveal2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
+import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
@@ -35,17 +36,15 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData() {
-  const [state, setState] = useState({ loading: true, posts: [], ciphers: [], videos: [], dimensionPost: null, notable: [] });
+  const [state, setState] = useState({ loading: true, posts: [], dimensionPost: null, notable: [] });
   useEffect(() => {
     let live = true;
     Promise.allSettled([
       getLatestPostCards({ limit: 4 }),
-      getTzofonStories({ limit: 6 }),
-      getHomeVideos({ limit: 6 }),
       getPostsFromSupabase({ limit: 1, tag: "מימד חמש" }),
       getPostsFromSupabase({ limit: 8 }),
       fetchExplorerFacetPage("topic", { limit: 4 }),
-    ]).then(async ([posts, ciphers, videos, dimension, tagged, notable]) => {
+    ]).then(async ([posts, dimension, tagged, notable]) => {
       if (!live) return;
       const value = (result, fallback) => (result.status === "fulfilled" && result.value) || fallback;
       // Real update marks come from the post rows themselves (modified more than a day after publishing).
@@ -62,8 +61,6 @@ function useHomeCompositionData() {
       setState({
         loading: false,
         posts: value(posts, []).map((post) => ({ ...post, number: numberByTitle.get(clean(post.title)) ?? null, update: realUpdate(rowsBySlug[post.slug]), categories: rowsBySlug[post.slug]?.categories || post.categories || [] })),
-        ciphers: value(ciphers, []),
-        videos: value(videos, []),
         dimensionPost: (value(dimension, {}).posts || [])[0] || null,
         notable: value(notable, {}).cards || [],
       });
@@ -148,29 +145,7 @@ export default function HomeComposition2029({
 
     {story ? <Reveal id="story">{story}</Reveal> : null}
 
-    <Section label="צפנים וסרטים">
-      <div className="h29-strips">
-        <div className="h29-strip k29-rv">
-          <div className="h29-sec-h"><h2>הצפנים האחרונים בתורה</h2><Link to="/els">כל הצפנים ←</Link></div>
-          <div className="h29-strip-row">
-            {data.ciphers.map((cipher) => <Link key={cipher.id} className="h29-tile" to={postHref(cipher.link_url)}>
-              <Media src={cipher.thumb_url} fallback="✦" /><span>{clean(cipher.text)}</span>
-            </Link>)}
-            {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
-          </div>
-        </div>
-        <div className="h29-strip k29-rv">
-          <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><a href="/archive">כל הסרטים ←</a></div>
-          <div className="h29-strip-row">
-            {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? `/${video.slug}` : "/archive"}>
-              <Media src={video.poster_url || (video.yt ? `https://i.ytimg.com/vi/${video.yt}/hqdefault.jpg` : null)} fallback="▶" />
-              <span>{clean(video.title)}</span>
-            </a>)}
-            {!data.loading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
-          </div>
-        </div>
-      </div>
-    </Section>
+    <DiscoveryGateways2029 />
 
     {arrivals ? <Reveal id="arrivals">{arrivals}</Reveal> : null}
 
