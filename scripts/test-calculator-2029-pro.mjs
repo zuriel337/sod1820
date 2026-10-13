@@ -112,7 +112,7 @@ assert.equal(ledgerFromFinding({ projection: { dimensions: { trace: { steps: ["�
 const pro = fs.readFileSync("src/pages/CalculatorPro2029Page.jsx", "utf8");
 assert.match(pro, /data-experience-surface="calculator-pro-2029"/);
 assert.match(pro, /<Sod2029Shell[\s\S]*?surface="number"/);
-assert.match(pro, /path:\s*"\/2029\/calculator"/);
+assert.match(pro, /path:\s*window.location.pathname/);
 assert.match(pro, /noindex:\s*true/);
 assert.match(pro, /useCalculatorRow/);
 assert.match(pro, /useMethodLedger/);
@@ -139,10 +139,10 @@ assert.doesNotMatch(pro, /getAiAnalysis|ai-analyze|functions\.invoke/);
 assert.match(pro, /selectedMethod && !selectedMethod\.previewOnly && row\.canonicalSettled/);
 assert.match(pro, /useIsDesktop/);
 const app = fs.readFileSync("src/App2029.jsx", "utf8");
-assert.match(app, /path="\/2029\/calculator" element=\{<CalculatorPro2029Page \/>\}/);
+assert.match(app, /path="\/calculator" element=\{<CalculatorPro2029Page \/>\}/);
 const vercel = fs.readFileSync("vercel.json", "utf8");
-assert.match(vercel, /"source": "\/2029\/calculator",\s*"destination": "\/2029\.html"/);
-assert.match(vercel, /"source": "\/2029\/calculator",\s*"headers"/);
+assert.match(vercel, /"source": "\/calculator",\s*"destination": "\/2029\.html"/);
+assert.match(vercel, /"source": "\/calculator",\s*"headers"/);
 
 // ── AI analysis card: explicit click, same Raziel transport, engine facts only ──
 const ai = fs.readFileSync("src/components/gematria2029/CalculatorAiAnalysis2029.jsx", "utf8");
@@ -159,7 +159,7 @@ assert.match(pro, /CalculatorAiAnalysis2029/);
 const community = fs.readFileSync("src/pages/Calculator2029Page.jsx", "utf8");
 assert.match(community, /classifyCalculatorInput/);
 assert.match(community, /filterProfileRowsForInput/);
-assert.match(community, /\/2029\/calculator\?q=/);
+assert.match(community, /\/calculator\?q=/);
 assert.match(community, /המשך במחשבון המקצועי/);
 
 console.log("calculator 2029 professional + input/English lane contract: PASS");

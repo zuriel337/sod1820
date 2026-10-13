@@ -123,7 +123,8 @@
 @container h29 (max-width: 620px) {
   .h29 { gap: 22px; }
   /* Reserve the final post hero height while its post and update metadata load. */
-  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 16px; min-height: 540px; }
+  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 16px; min-height: 750px; align-content: start; }
+  .h29-hero2 .h29-hero-copy { min-block-size: 470px; }
   .h29-hero .h29-hero-img { justify-self: center; width: min(100%, 320px); }
   .h29-hero h1 { font-size: 21px; }
   .h29-updates, .h29-notable { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
