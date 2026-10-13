@@ -54,6 +54,26 @@ test('public navigation opens the same user area', async ({ page }) => {
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
 });
 
+test('a large signed-in profile image cannot squeeze the account text', async ({ page }) => {
+  for (const width of [320, 390, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
+    await page.locator('[data-home-user-area="open"]').click();
+    const sizes = await page.locator('[data-workspace-section="account"]').evaluate((account) => {
+      const card = document.createElement('div');
+      card.className = 'sod29-workspace-account-connected';
+      card.innerHTML = `<span class="sod29-user-avatar is-normal"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Crect width='1200' height='1200' fill='gold'/%3E%3C/svg%3E"></span><div><strong>משתמש לדוגמה</strong><small>member@example.com</small><p>זה החשבון שמחובר במכשיר הזה.</p></div><button class="sod29-action">התנתקות</button>`;
+      account.append(card);
+      const avatar = card.querySelector('.sod29-user-avatar').getBoundingClientRect();
+      const copy = card.querySelector('div').getBoundingClientRect();
+      return { avatar: avatar.width, copy: copy.width, card: card.getBoundingClientRect().width };
+    });
+    expect(sizes.avatar).toBeLessThanOrEqual(46);
+    expect(sizes.copy).toBeGreaterThanOrEqual(160);
+    expect(sizes.card).toBeLessThanOrEqual(520);
+  }
+});
+
 test('posts, ELS, calculator and Number are reachable on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/posts`, { waitUntil: 'domcontentloaded' });
