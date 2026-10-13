@@ -14,6 +14,7 @@ import {
 } from "../../lib/research/numberCoreProjection.js";
 import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
 import { buildNumberExpressionHandoff, numberWindowSourceReturn } from "../../lib/research/numberExpressionFocus.js";
+import { PaletteProvider, useNumber2029Scope } from "../../lib/palette.js";
 import "./numberDrawer2029.css";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -54,6 +55,7 @@ export default function NumberDrawer2029({
   openRaziel,
   sourceReturn: sourceReturnFromShell = null,
 } = {}) {
+  const numberScope = useNumber2029Scope();
   const location = useLocation();
   const sourceReturn = useMemo(() => sourceReturnFromShell || numberWindowSourceReturn(context, {
     href: `${location.pathname}${location.search}${location.hash}`,
@@ -604,15 +606,17 @@ export default function NumberDrawer2029({
   const openWorld = () => leaveWindow("world");
 
   if (!target && !context?.subject) {
-    return <div className="sod29-number-drawer-empty">
+    return <PaletteProvider value={numberScope.palette}><div className="sod29-number-drawer2029 sod29-number-drawer-empty" style={numberScope.style} data-number-scope={numberScope.scopeAttr}>
       <strong>מספר / ביטוי</strong>
       <p>בחר מספר או ביטוי בעמוד, או הקלד כאן.</p>
       <form onSubmit={commitInput}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder="התגלות · 1237" /><button type="submit">פתח</button></form>
-    </div>;
+    </div></PaletteProvider>;
   }
 
-  return <div
+  return <PaletteProvider value={numberScope.palette}><div
     className="sod29-number-drawer2029"
+    style={numberScope.style}
+    data-number-scope={numberScope.scopeAttr}
     data-contextual-number-surface="v1"
     data-contextual-number-mode={surfaceMode}
   >
@@ -679,5 +683,5 @@ export default function NumberDrawer2029({
       onRazielAction={razielIntent}
       onExpandRaziel={() => razielIntent("expand_panel")}
     /> : !dataState.loading ? <div className="sod29-number-drawer-status">הקלד ביטוי כדי לקבל שיטות, או מספר כדי לפתוח את ה־Root.</div> : null}
-  </div>;
+  </div></PaletteProvider>;
 }
