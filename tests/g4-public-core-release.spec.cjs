@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
 const CLOSED_FLAGS = [
@@ -25,6 +26,7 @@ test.beforeEach(async ({ context }) => {
       await route.abort();
     }
   });
+  await installStorageEgressGuard(context);
   await context.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
