@@ -19,7 +19,7 @@ const postHref = slug => {
   return `/post/${encodeURIComponent(decoded)}`;
 };
 
-function Gateway({ title, subtitle, symbol, href, action, items, empty, loading, followTopics = [] }) {
+function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, empty, loading, followTopics = [] }) {
   return <article className="dg29-gateway">
     <div className="dg29-gateway-head">
       <span className="dg29-glyph" aria-hidden="true">{symbol}</span>
@@ -34,6 +34,7 @@ function Gateway({ title, subtitle, symbol, href, action, items, empty, loading,
       {loading && items.length === 0 ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}
     </div>
     <Link className="dg29-gateway-action" to={href}>{action} ←</Link>
+    {secondaryHref ? <Link className="dg29-gateway-secondary" to={secondaryHref}>{secondaryAction} ←</Link> : null}
     {followTopics.length ? <div className="dg29-follow" aria-label={`מעקב אחרי ${title}`}>
       {followTopics.map(({ category, topic, title: followTitle }) => <WatchButton
         key={topic || category} topic={topic || `cat:${category}`}
@@ -41,6 +42,33 @@ function Gateway({ title, subtitle, symbol, href, action, items, empty, loading,
         label={followTitle || `עקבו אחרי ${category}`} explainer="" />)}
     </div> : null}
   </article>;
+}
+
+function DimensionFiveFeature({ items, loading }) {
+  return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">
+    <div className="dg29-dimension-head">
+      <span className="dg29-glyph" aria-hidden="true">🎥</span>
+      <div>
+        <h3>מימד חמש</h3>
+        <p>סרטים ומסרים — רצועה עצמאית מתוך הקטגוריה</p>
+      </div>
+    </div>
+    <div className="dg29-dimension-sources">
+      {items.map(item => <Link key={item.id} className="dg29-dimension-source" to={item.href}>
+        <span className="dg29-dimension-poster" aria-hidden="true">
+          {item.poster ? <img src={item.poster} alt="" loading="lazy" decoding="async" width="100" height="72" /> : "✦"}
+        </span>
+        <span>{item.title}</span>
+      </Link>)}
+      {loading && !items.length ? <p role="status" className="dg29-empty">טוען את הסרטים והמסרים…</p> : null}
+      {!loading && !items.length ? <p className="dg29-empty">כל התכנים זמינים בקטגוריה; אין פריט נוסף להצגה כאן ללא כפילות.</p> : null}
+    </div>
+    <div className="dg29-dimension-foot">
+      <Link className="dg29-gateway-action" to="/category/מימד חמש">לכל תכני מימד חמש ←</Link>
+      <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"
+        noPush compact icon="🔔" label="עקבו אחרי מימד חמש" explainer="" />
+    </div>
+  </section>;
 }
 
 export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
@@ -53,7 +81,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
       getPostsFromSupabase({ category: "שבילי שפה", limit: 24, orderBy: "modified" }),
       getPostsFromSupabase({ category: "הצופן בסרטים", limit: 30, orderBy: "modified" }),
       getCategoryVideos("צפונות בתורה", { limit: 80 }),
-      getPostsFromSupabase({ category: "מימד חמש", limit: 16, orderBy: "modified" }),
+      getPostsFromSupabase({ category: "מימד חמש", limit: 60, orderBy: "modified" }),
       getMatrixLibraryPage({ view: "public", pageSize: 4 }),
     ]).then(([language, cinema, videos, dimension, matrices]) => {
       if (!active) return;
@@ -78,7 +106,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
         videos: cipherVideos.map(video => ({ id: `video:${video.slug}`, slug: video.slug,
           title: clean(video.title), href: postHref(video.slug) })),
         dimension: dimensionPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,
-          title: clean(post.title), href: postHref(post.slug) })),
+          title: clean(post.title), href: postHref(post.slug), poster: post.thumb_url || null })),
         matrices: publicMatrices.map(row => ({
           id: `els:${row.id || row.slug}`,
           title: clean(row.title || row.search_term),
@@ -92,32 +120,36 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
 
   const language = claimHomeItems(state.language, excludedPostKeys, 2);
   const cinema = claimHomeItems(state.cinema, language.reserved, 3);
-  const dimension = claimHomeItems(state.dimension, cinema.reserved, 1);
-  const videos = claimHomeItems(state.videos, dimension.reserved, 3 - dimension.items.length);
+  const videos = claimHomeItems(state.videos, cinema.reserved, 3);
+  const dimension = claimHomeItems(state.dimension, videos.reserved, 4);
+  // ELS records are distinct research sources, not extra Post copies.
+  const biblicalSources = [
+    ...videos.items.slice(0, 2).map(item => ({ ...item, detail: "סרטון מתוך צפונות בתורה" })),
+    ...state.matrices.slice(0, 2).map(item => ({
+      ...item, detail: item.detail ? `צופן ELS · ${item.detail}` : "צופן ELS שמור",
+    })),
+  ];
 
   return <section className="dg29" aria-label="שערי הגילוי">
     <div className="h29-sec-h">
       <h2>שערי הגילוי</h2>
-      <span className="dg29-intro">ארבע דרכים להעמיק באותו עולם מחקר</span>
+      <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>
     </div>
     <div className="dg29-grid">
       <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"
         href="/languages" action="למחקר השפות"
         followTopics={[{ category: "שבילי שפה" }]}
-        items={language.items} loading={state.loading} empty="אין כרגע פוסטים מסווגים בקטגוריה זו" />
+        items={language.items} loading={state.loading} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
       <Gateway title="הצופן בקולנוע" subtitle="מחקרים על סרטים, סדרות ומספרים" symbol="🎬"
         href="/category/הצופן בסרטים" action="לכל מחקרי הקולנוע"
         followTopics={[{ category: "הצופן בסרטים" }]}
         items={cinema.items} loading={state.loading} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
-      <Gateway title="הצפנים בסרטונים" subtitle="תוכן חזותי מתוך הקטגוריות המאושרות" symbol="▶"
-        href="/category/צפונות בתורה" action="לכל סרטוני הצפנים"
-        followTopics={[{ category: "צפונות בתורה" }, { category: "מימד חמש" }]}
-        items={[...dimension.items.map(item => ({ ...item, detail: "מימד חמש · תוכן חזותי" })), ...videos.items]}
-        loading={state.loading} empty="אין כרגע סרטוני צופן זמינים בקטגוריות" />
-      <Gateway title="הצופן התנ״כי" subtitle="דילוגי אותיות, מטריצות וצפנים שמורים" symbol="✦"
-        href="/els?library=public" action="לספריית ELS ולמנוע הדילוגים"
-        followTopics={[{ topic: "codes:new", title: "עקבו אחרי צפני ELS חדשים" }]}
-        items={state.matrices} loading={state.loading} empty="אין כרגע מטריצות ציבוריות להצגה" />
+      <Gateway title="הצופן התנ״כי" subtitle="סרטוני צפונות התורה, דילוגי אותיות ומטריצות ELS" symbol="✦"
+        href="/category/צפונות בתורה" action="לכל מחקרי הצופן התנ״כי"
+        secondaryHref="/els?library=public" secondaryAction="לספריית ELS ולמנוע הדילוגים"
+        followTopics={[{ category: "צפונות בתורה" }, { topic: "codes:new", title: "עקבו אחרי צפני ELS חדשים" }]}
+        items={biblicalSources} loading={state.loading} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
     </div>
+    <DimensionFiveFeature items={dimension.items} loading={state.loading} />
   </section>;
 }
