@@ -641,6 +641,27 @@ function LiveWorldLanding({ research, shell, context }) {
   const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
 
+  // Deep links from the shared Companion use existing World source readers.
+  // Query params only choose a PUBLIC display focus; they never grant read access.
+  useEffect(() => {
+    const source = new URLSearchParams(location.search).get("source");
+    if (source === "tzvi-opoc") { setWriterFilter("tzvi-opoc"); setCorpusKey(null); }
+    else if (source === "sod-hashmal") { setCorpusKey("sod-hashmal"); setWriterFilter("all"); }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (landing.loading) return;
+    const source = new URLSearchParams(location.search).get("source");
+    const target = source === "tzvi-opoc" && writerFilter === "tzvi-opoc"
+      ? "world-contributor-material"
+      : source === "sod-hashmal" && corpusKey === "sod-hashmal"
+        ? "world-corpus-sod-hashmal" : null;
+    if (!target) return;
+    const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [landing.loading, location.search, writerFilter, corpusKey]);
+
+
   const load = async () => {
     setLanding((prev) => ({
       ...prev,
