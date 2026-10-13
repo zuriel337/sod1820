@@ -2171,7 +2171,7 @@ export default function SystemFrame2029({
               ) : null}
               {children}
             </main>
-            {showContextRail && !(companionActive && !numberPageRoute) ? <SurfaceContextRail2029
+            {showContextRail && !(companionActive && companionHasContext) ? <SurfaceContextRail2029
               surface={surface}
               context={context}
               focus={surfaceFocus || activeTarget}
