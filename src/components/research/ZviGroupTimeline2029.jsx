@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
@@ -21,6 +22,7 @@ export function mergeZviTimelineRows(previous = [], next = []) {
 }
 
 export default function ZviGroupTimeline2029({ recentItems = [] }) {
+  const location = useLocation();
   const [opened, setOpened] = useState(false);
   const [state, setState] = useState(EMPTY);
   const [search, setSearch] = useState("");
@@ -45,6 +47,12 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
       setState((v) => ({ ...v, loading: false, loadingMore: false, error: true }));
     }
   };
+
+  useEffect(() => {
+    if (location.hash !== "#world-zvi-source-timeline" || opened) return;
+    setOpened(true);
+    if (!state.rows.length) void load();
+  }, [location.hash]); // deliberate deep-link trigger, not an extra fetch watcher
 
   // This World section is lazy by user choice; the existing World watcher can
   // append newer proven occurrences without a second poller or API subscription.
@@ -93,7 +101,7 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
                 <small>{isSeen ? "נקראה" : "טרם נקראה"} · הודעת מקור</small>
               </summary>
               <p>{item.fullText}</p>
-              <small>דברי צבי · תוכן המקור מוצג בלי חותמת אימות מחקרי</small>
+              <small>דברי צבי · הודעת מקור</small>
             </details>
           </li>;
         })}
