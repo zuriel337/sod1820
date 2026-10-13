@@ -35,7 +35,7 @@ test("crossing focus persists in the existing URL and exact-return model", () =>
   assert.match(core, /if \(!compact\) onClearCrossing\?\.\(\)/);
   assert.match(core, /onClick=\{\(\) => chooseCrossing\(stageCrossing\)\}/);
   assert.match(core, /onClick=\{\(\) => chooseCrossing\(item\)\}/);
-  assert.match(page, /activeCrossingPartner=\\{focusExplicit \\? verifiedCrossingPartner : null\\}/);
+  assert.ok(page.includes("activeCrossingPartner={focusExplicit ? verifiedCrossingPartner : null}"));
   assert.match(page, /onClearCrossing=\{clearCrossingFocus\}/);
   assert.doesNotMatch(page.slice(page.indexOf("onOpenCrossing={(crossing) => {"), page.indexOf("onOpenZero={(next)")), /askRaziel\(/,
     "choosing a crossing must not auto-run gated/paid Raziel");
