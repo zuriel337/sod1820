@@ -190,7 +190,10 @@ assert.equal(css.includes("#b94c4c"), false, "status/error styling must not intr
 
 // Design V2 typography must be real at runtime, not token-only.
 assert.match(shellHtml, /family=Rubik/);
-assert.match(shellHtml, /Noto\+Sans\+Hebrew/);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Regular\.ttf'\)/);
+assert.match(shellHtml, /@font-face\s*\{\s*font-family:'Noto Sans Hebrew';\s*src:url\('\/fonts\/NotoSansHebrew-Bold\.ttf'\)/);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Regular.ttf")), true);
+assert.equal(fs.existsSync(path.join(root, "public/fonts/NotoSansHebrew-Bold.ttf")), true);
 assert.match(shellHtml, /IBM\+Plex\+Mono/);
 assert.equal(shellHtml.includes("family=Assistant"), false, "2029 runtime must not load Legacy Assistant as its primary font family");
 assert.match(baseCss, /DESIGN_V2_TYPOGRAPHY_ROOT/);
