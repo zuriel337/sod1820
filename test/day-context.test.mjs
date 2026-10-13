@@ -50,7 +50,9 @@ assert.equal(rows[0].goodbot, 17, "context must not rewrite bot counts");
 
 // Wiring guard: all day-granularity traffic entry points should consume the shared owner.
 const visits = readFileSync(new URL("../src/lib/visits.js", import.meta.url), "utf8");
-assert.match(visits, /from ["']\.\/dayContext\.js["']/);
+// Same single owner, loaded on demand: a static import would pull @hebcal/core into every page's entry bundle.
+assert.match(visits, /import\(["']\.\/dayContext\.js["']\)/);
+assert.doesNotMatch(visits, /^import[^\n]*from ["']\.\/dayContext\.js["']/m);
 for (const fn of ["getVisitsTwoMeter", "getTrafficComposition", "getEntriesDaily", "getEntriesSeries"]) {
   const start = visits.indexOf(`function ${fn}(`);
   assert.ok(start > -1, `${fn} must exist`);
