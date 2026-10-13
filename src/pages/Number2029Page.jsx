@@ -1186,6 +1186,31 @@ function NumberPageBody() {
   if (state.loading) {
     return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
   }
+  // A valid numeric zero currently has no public Number node. Render a bounded
+  // full-page empty state, not a fabricated Research/Graph or a fake 0 result.
+  // A real canonical node, if approved later, naturally uses NumberCore instead.
+  if (root === 0 && !state.error && !data) {
+    return <div className="sod29-number-page" data-experience-surface="number" data-number-root="0" data-number-empty="true">
+      <section className="sod29-number-zero-empty" aria-label="דף המספר 0">
+        <div className="sod29-number-zero-identity">
+          <span>דף המספר · Root</span>
+          <strong>0</strong>
+        </div>
+        <div>
+          <h1>אין עדיין חומר מחקרי מקושר ל־0</h1>
+          <p>המספר 0 הוא ערך תקין. מאגר המחקר לא החזיר עבורו כרגע רשומת מספר ציבורית. אין כאן חישוב, מקור או הצלבה שנוצרו באופן מלאכותי.</p>
+          <form className="sod29-number-zero-search" onSubmit={(event) => {
+            event.preventDefault();
+            const input = event.currentTarget.elements.namedItem("number");
+            void resolveNumberQuery(input?.value || "");
+          }}>
+            <input name="number" placeholder="חפש מספר או ביטוי אחר" aria-label="חפש מספר או ביטוי אחר" required />
+            <button type="submit">חפש</button>
+          </form>
+        </div>
+      </section>
+    </div>;
+  }
   if (state.error || !data) {
     return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
   }
