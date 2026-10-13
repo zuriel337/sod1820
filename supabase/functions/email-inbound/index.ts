@@ -126,13 +126,13 @@ Deno.serve(async (req: Request) => {
   const mailbox = exactMailbox(from);
   let approvals: any[] = [];
   if (mailbox) {
-    const approved = await sb.from("contributors").select("id,slug,display_name,email,page_config")
-      .eq("email", mailbox).eq("active", true).is("merged_into", null);
-    if (!approved.error) approvals = (approved.data || []).filter((c: any) => c.page_config?.email_source_public === true)
-      .map((c: any) => ({ email: c.email, active: true, author_key: c.slug, author_display: c.display_name, contributor_id: c.id }));
+    try {
+      const approved = await sb.rpc("email_source_author_v1", { p_mailbox: mailbox });
+      if (!approved.error) approvals = (approved.data || []);
+    } catch { /* keep the private source; permission lookup can recover on replay */ }
   }
   const technicalTest = TECHNICAL_TEST_PROVIDER_IDS.includes(emailId);
-  const author = technicalTest ? null : resolveApprovedSender(fetched, approvals);
+  const author = technicalTest ? null : resolveApprovedSender(fetched, approvals, { provider: "resend", providerId: emailId });
 
   const bodyText = text.trim() ? text.trim() : stripHtml(html);
   const parsed = parseFrom(from);
@@ -140,8 +140,19 @@ Deno.serve(async (req: Request) => {
   const { data: dup, error: lookupError } = await sb.from("inbound_emails").select("id,from_email,meta").eq("message_id", dedupKey).maybeSingle();
   if (lookupError) return j({ ok: false, error: "lookup_failed" }, 500);
   if (dup && (dup.from_email !== mailbox || dup.meta?.provider_id !== emailId)) return j({ ok: false, error: "provider_identity_conflict" }, 409);
-  if (dup?.meta?.source_email_v1) return j({ ok: true, dup: true, id: dup.id,
-    publication: await attemptPublication(dup.id, source, author, technicalTest) });
+  if (dup?.meta?.source_email_v1) {
+    // Re-evaluate derived admission after permission/reader installation without
+    // rewriting the original body, read/reply state, holds or public-state history.
+    const prior = dup.meta.source_email_v1;
+    const deniedTest = technicalTest || prior.technical_test === true;
+    const currentAuthor = deniedTest ? null : author;
+    const { error: refreshError } = await sb.from("inbound_emails").update({ meta: { ...dup.meta,
+      source_email_v1: { ...prior, author: currentAuthor, identity_proof: currentAuthor?.identity_proof || null,
+        admission: currentAuthor ? "approved_source_candidate" : "unresolved", technical_test: deniedTest } } }).eq("id",dup.id);
+    if (refreshError) return j({ ok:false,error:"admission_refresh_failed" },500);
+    return j({ ok: true, dup: true, id: dup.id,
+      publication: await attemptPublication(dup.id, source, currentAuthor, deniedTest) });
+  }
   let legacy: any = null;
   if (!dup && source.message_id) {
     const old = await sb.from("inbound_emails").select("id,from_email,meta").eq("message_id", source.message_id).maybeSingle();
@@ -163,7 +174,7 @@ Deno.serve(async (req: Request) => {
     ...(source.arrival_at && !existing ? { received_at: source.arrival_at } : {}),
     meta: { ...(existing?.meta || {}), raw_from: from, raw_to: to, provider: "resend", provider_id: emailId, verified_webhook: true,
       source_email_v1: { ...source, author, admission: author ? "approved_source_candidate" : "unresolved",
-        identity_proof: author ? { provider: "resend", provider_id: emailId, dmarc: "pass", from_aligned: true } : null,
+        identity_proof: author?.identity_proof || null,
         technical_test: technicalTest, publication_state: "private", media_state: "provider_references_only" } },
   };
   // Hydrate old metadata-only rows on provider replay without resetting read/reply state.

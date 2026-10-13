@@ -1,5 +1,33 @@
 -- Branch-only: SECURITY/HUMAN/PROVIDER gates are prerequisites, not an approval receipt.
 begin;
+-- Approval and activation are separate. This shared capability stays off until
+-- the explicitly held legacy release; private normalization may operate now.
+insert into public.site_flags(key,enabled,mode,message)
+values('mail_source_publication',false,'all','פרסום עדכוני מייל ממתין להפעלת גרסת הלגאסי המאושרת')
+on conflict(key) do nothing;
+
+-- Keep source contact identity private. Existing account-linked contributors use
+-- the canonical users mailbox without copying it into a public contributor row.
+create or replace function public.email_source_mailbox_v1(p_contributor_id uuid)
+returns text language sql stable security definer set search_path=public,pg_temp as $$
+  select coalesce(lower(nullif(trim(c.email),'')),lower(nullif(trim(u.email),'')))
+  from public.contributors c left join public.users u on u.id=c.user_id where c.id=p_contributor_id;
+$$;
+revoke all on function public.email_source_mailbox_v1(uuid) from public,anon,authenticated;
+grant execute on function public.email_source_mailbox_v1(uuid) to service_role;
+
+create or replace function public.email_source_author_v1(p_mailbox text)
+returns table(email text,active boolean,author_key text,author_display text,contributor_id uuid)
+language sql stable security definer set search_path=public,pg_temp as $$
+  select public.email_source_mailbox_v1(c.id),true,c.slug,c.display_name,c.id
+  from public.contributors c where c.active is true and c.merged_into is null
+    and public.email_source_mailbox_v1(c.id)=lower(trim(p_mailbox))
+    and c.page_config->'email_source_public'='true'::jsonb
+    and (select count(*) from public.contributors unique_author where unique_author.active is true
+      and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=lower(trim(p_mailbox)))=1;
+$$;
+revoke all on function public.email_source_author_v1(text) from public,anon,authenticated;
+grant execute on function public.email_source_author_v1(text) to service_role;
 
 alter table public.channel_updates add column if not exists source_email_v1 jsonb;
 create unique index if not exists channel_updates_email_lineage_unique
@@ -15,12 +43,13 @@ returns boolean language sql stable security definer set search_path = public, p
     join public.inbound_emails i on i.id::text = u.source_email_v1->>'inbound_id'
     join public.contributors c on c.id = u.contributor_id
     where u.id = p_update_id and u.source = 'email' and u.status = 'live'
+      and exists(select 1 from public.site_flags where key='mail_source_publication' and enabled is true and mode='all')
       and u.page_only is false and (u.expires_at is null or u.expires_at > now())
       and c.active is true and c.merged_into is null
       and c.page_config->'email_source_public' = 'true'::jsonb
-      and lower(c.email) = i.from_email
+      and public.email_source_mailbox_v1(c.id) = i.from_email
       and (select count(*) from public.contributors unique_author where unique_author.active is true
-        and unique_author.merged_into is null and lower(unique_author.email)=i.from_email) = 1
+        and unique_author.merged_into is null and public.email_source_mailbox_v1(unique_author.id)=i.from_email) = 1
       and i.id not in (56,57)
       and i.meta->>'provider' = 'resend' and i.meta->'verified_webhook' = 'true'::jsonb
       and i.meta->'source_email_v1'->'technical_test' = 'false'::jsonb
@@ -35,6 +64,8 @@ returns boolean language sql stable security definer set search_path = public, p
       and i.meta->'source_email_v1'->'identity_proof'->>'provider' = 'resend'
       and i.meta->'source_email_v1'->'identity_proof'->>'provider_id' = i.meta->>'provider_id'
       and i.meta->'source_email_v1'->'identity_proof'->>'dmarc' = 'pass'
+      and i.meta->'source_email_v1'->'identity_proof'->>'dkim' = 'pass'
+      and i.meta->'source_email_v1'->'identity_proof'->>'basis' = 'resend_receiving_api_v1'
       and i.meta->'source_email_v1'->'identity_proof'->'from_aligned' = 'true'::jsonb
   );
 $$;
@@ -56,6 +87,9 @@ declare
   existing_id uuid;
   update_id uuid;
 begin
+  if not exists(select 1 from public.site_flags where key='mail_source_publication' and enabled is true and mode='all') then
+    return jsonb_build_object('state','standby');
+  end if;
   select * into mail from public.inbound_emails where id=p_inbound_id for update;
   if not found then return jsonb_build_object('state','missing_source'); end if;
   src := mail.meta->'source_email_v1';
@@ -73,16 +107,18 @@ begin
     or mail.meta->'verified_webhook' is distinct from 'true'::jsonb
     or src->'identity_proof'->>'provider' is distinct from 'resend'
     or src->'identity_proof'->>'dmarc' is distinct from 'pass'
+    or src->'identity_proof'->>'dkim' is distinct from 'pass'
+    or src->'identity_proof'->>'basis' is distinct from 'resend_receiving_api_v1'
     or src->'identity_proof'->'from_aligned' is distinct from 'true'::jsonb
     or src->'identity_proof'->>'provider_id' is distinct from mail.meta->>'provider_id'
     then return jsonb_build_object('state','private'); end if;
   -- Count before selecting: a duplicate canonical mailbox must not resolve by LIMIT 1.
   if (select count(*) from public.contributors c where c.active is true and c.merged_into is null
-      and lower(c.email)=mail.from_email) <> 1 then
+      and public.email_source_mailbox_v1(c.id)=mail.from_email) <> 1 then
     return jsonb_build_object('state','unresolved_author');
   end if;
   select * into author from public.contributors c where c.active is true and c.merged_into is null
-    and lower(c.email)=mail.from_email;
+    and public.email_source_mailbox_v1(c.id)=mail.from_email;
   if author.page_config->'email_source_public' is distinct from 'true'::jsonb
     or src->'author'->>'contributor_id' is distinct from author.id::text then
     return jsonb_build_object('state','author_not_approved');

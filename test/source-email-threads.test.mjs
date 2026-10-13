@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanSourceText, messageId, replyMessageId, exactMailbox, normalizeReceivedEmail, resolveApprovedSender } from '../supabase/functions/_shared/sourceEmail.mjs';
+import { cleanSourceText, messageId, replyMessageId, exactMailbox, normalizeReceivedEmail, resolveApprovedSender,providerSenderProof } from '../supabase/functions/_shared/sourceEmail.mjs';
 import { projectSourceEmailThreads, fetchSourceEmailThreads } from '../src/lib/research/sourceEmailThreads.js';
 import { sourceEmailRows } from './fixtures/sourceEmailThreads.fixture.mjs';
 
-const source = (changes = {}) => ({ from: 'Demo <source@example.invalid>', message_id: '<first@example.invalid>',
+const source = (changes = {}) => ({ id:'provider-1',from: 'Demo <source@example.invalid>', message_id: '<first@example.invalid>',
   text: 'כותרת\n' + 'מקור מלא '.repeat(400), headers: {}, attachments: [], ...changes });
 const normalize = input => normalizeReceivedEmail(input, { providerId: 'provider-1', receivedAt: '2026-10-11T12:00:00Z' });
+const providerContext = {provider:'resend',providerId:'provider-1'};
 
 test('source text beyond old 900-character limit survives; mail identity survives provider replays', async () => {
   const a = await normalize(source());
@@ -60,11 +61,11 @@ test('attachments keep durable provider references, never arbitrary URLs or SVG'
 });
 test('sender admission requires exactly one server-owned approval plus provider DMARC', () => {
   const approvals = [{ email: 'source@example.invalid', active: true, author_key: 'demo', author_display: 'דוגמה', contributor_id: 'canonical-demo' }];
-  const input = source({ authentication: { dmarc: 'pass', verified_from: 'source@example.invalid', provider_authenticated: true } });
-  assert.equal(resolveApprovedSender(input, approvals)?.author_key, 'demo');
+  const input = source({ authentication: { dmarc: 'pass', dkim:'pass' } });
+  assert.equal(resolveApprovedSender(input, approvals,providerContext)?.author_key, 'demo');
   assert.equal(resolveApprovedSender(source(), approvals), null);
   assert.equal(resolveApprovedSender({ ...input, from: 'other@example.invalid' }, approvals), null);
-  assert.equal(resolveApprovedSender(input, [...approvals, ...approvals]), null);
+  assert.equal(resolveApprovedSender(input, [...approvals, ...approvals],providerContext), null);
   assert.equal(exactMailbox('a@example.invalid, b@example.invalid'), null);
 });
 
@@ -85,11 +86,19 @@ test('quote-only messages are explicitly cleaned_empty', async () => {
 });
 test('headers, misaligned proof, revoked and unresolved contributors cannot admit a sender', () => {
   const approval = { email: 'source@example.invalid', active: true, author_key: 'demo', author_display: 'דוגמה', contributor_id: 'canonical-demo' };
-  const proof = { dmarc: 'pass', verified_from: 'source@example.invalid', provider_authenticated: true };
+  const proof = { dmarc: 'pass',dkim:'pass' };
   assert.equal(resolveApprovedSender(source({ headers: { 'Authentication-Results': 'dmarc=pass' } }), [approval]), null);
-  assert.equal(resolveApprovedSender(source({ authentication: { ...proof, verified_from: 'other@example.invalid' } }), [approval]), null);
-  assert.equal(resolveApprovedSender(source({ authentication: proof }), [{ ...approval, active: false }]), null);
-  assert.equal(resolveApprovedSender(source({ authentication: proof }), [{ ...approval, contributor_id: null }]), null);
+  assert.equal(resolveApprovedSender(source({ authentication: { ...proof, dkim:'gray' } }), [approval],providerContext), null);
+  assert.equal(resolveApprovedSender(source({ authentication: proof }), [{ ...approval, active: false }],providerContext), null);
+  assert.equal(resolveApprovedSender(source({ authentication: proof }), [{ ...approval, contributor_id: null }],providerContext), null);
+});
+test('documented native Resend proof is tied to authenticated provider resource identity',()=>{
+  const email=source({authentication:{spf:'fail',dkim:'pass',dmarc:'pass'}});
+  assert.equal(providerSenderProof(email,providerContext)?.basis,'resend_receiving_api_v1');
+  assert.equal(providerSenderProof(email,{...providerContext,providerId:'different'}),null);
+  assert.equal(providerSenderProof(email),null);
+  assert.equal(providerSenderProof(source({authentication:{spf:'pass',dkim:'fail',dmarc:'pass'}}),providerContext),null);
+  for(const state of ['gray','unknown','processing_failed','fail']) assert.equal(providerSenderProof(source({authentication:{dkim:'pass',dmarc:state}}),providerContext),null);
 });
 test('provider delivery keys differ for forged identical RFC IDs and survive replay', async () => {
   const a = await normalize(source());

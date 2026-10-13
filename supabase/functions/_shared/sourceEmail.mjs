@@ -99,17 +99,28 @@ export async function normalizeReceivedEmail(email, { provider = 'resend', provi
 
 // Only server-owned approval configuration and provider-authenticated identity may admit a source.
 // Never use a sender display name, To/Cc membership, body text or client-supplied approval bit.
-export function resolveApprovedSender(email, approvals) {
+export function providerSenderProof(email, { provider, providerId } = {}) {
+  const mailbox = exactMailbox(email?.from);
+  if (provider !== 'resend' || !providerId || email?.id !== providerId || !mailbox) return null;
+  // This object is read ONLY from authenticated GET /emails/receiving/:id.
+  // Resend computes these results at reception; never derive them from headers.
+  // DKIM pass is From-aligned per Resend's documented contract. SPF alone is
+  // insufficient after Gmail forwarding; null/gray/fail remain closed.
+  const proof = email.authentication;
+  if (proof?.dmarc !== 'pass' || proof?.dkim !== 'pass') return null;
+  return { provider, provider_id: providerId, basis: 'resend_receiving_api_v1',
+    dmarc: 'pass', dkim: 'pass', from_aligned: true };
+}
+
+export function resolveApprovedSender(email, approvals, providerContext) {
   const mailbox = exactMailbox(email.from);
   if (!mailbox) return null;
   const matches = Array.isArray(approvals) ? approvals.filter(a => a.email === mailbox && a.active === true) : [];
   if (matches.length !== 1 || !matches[0].author_key || !matches[0].author_display || !matches[0].contributor_id) return null;
-  // Only an independently verified provider adapter may populate this proof. The live
-  // Resend response has not proved this contract; headers must never supply the proof.
-  const proof = email.authentication;
-  if (proof?.dmarc !== 'pass' || proof?.verified_from !== mailbox || proof?.provider_authenticated !== true) return null;
+  const proof = providerSenderProof(email, providerContext);
+  if (!proof) return null;
   const { author_key, author_display, contributor_id = null } = matches[0];
-  return { author_key, author_display, contributor_id };
+  return { author_key, author_display, contributor_id, identity_proof: proof };
 }
 
 export const TECHNICAL_TEST_PROVIDER_IDS = Object.freeze([
