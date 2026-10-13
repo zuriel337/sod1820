@@ -398,6 +398,9 @@ export default function NumberCore2029({
             compact
           /> : null}
         </div>
+        {onOpenWorld ? <button type="button" className="sod29-number-v10-open-world" data-experience-action="number-open-world" onClick={() => onOpenWorld()}>
+          <span aria-hidden="true">🗺</span> פתח עולם ↗
+        </button> : null}
       </div>
       {compact ? <button type="button" className="sod29-number-v10-raziel-orb" onClick={() => onExpandRaziel?.()} aria-label="פתח את רזיאל">
         <i aria-hidden="true" />
