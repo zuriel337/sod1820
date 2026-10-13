@@ -81,7 +81,7 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   // The adopted tools rail now exposes the existing Heichal destination.
   assert.match(frame, /to: "\/heichal", label: "היכל"/);
   assert.match(frame, /label: "מסעות"/);
-  assert.match(frame, /label: "קהילה"/);
+  assert.match(frame, /label: "אזור משתמשים"/);
   assert.match(frame, /data-raziel-anchor="center"/);
 });
 
