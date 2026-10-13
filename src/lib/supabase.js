@@ -1753,14 +1753,29 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
+// All useFeatureState hooks of one mounted frame ask for the same public flags at the same time.
+// Only simultaneous requests are coalesced. Resolved values are deliberately NOT cached: every later
+// route/lock check re-reads, so an open->locked change is seen on the next check and an expired
+// result can never stand in for a failed one. A request that has already been pending longer than
+// SITE_FLAGS_JOIN_MS is not joined by a new caller, which bounds how old a shared answer can be.
+// A failed read returns {} (as before): requireFlag consumers then fail closed, and nothing is stored.
+// UI checks are not a substitute for server-side access enforcement.
+const SITE_FLAGS_JOIN_MS = 1000;
+let siteFlagsInflight = null, siteFlagsInflightAt = 0;
 export async function getSiteFlags() {
   if (!supabase) return {};
-  try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-    const m = {};
-    for (const r of (data || [])) m[r.key] = r;
-    return m;
-  } catch { return {}; }
+  if (siteFlagsInflight && Date.now() - siteFlagsInflightAt <= SITE_FLAGS_JOIN_MS) return siteFlagsInflight;
+  const run = (async () => {
+    try {
+      const { data, error } = await supabase.from('site_flags').select('key,enabled,message,mode');
+      if (error || !Array.isArray(data)) return {};
+      const m = {};
+      for (const r of data) m[r.key] = r;
+      return m;
+    } catch { return {}; }
+  })();
+  siteFlagsInflight = run; siteFlagsInflightAt = Date.now();
+  try { return await run; } finally { if (siteFlagsInflight === run) siteFlagsInflight = null; }
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
