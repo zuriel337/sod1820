@@ -7,21 +7,25 @@ const gateways = readFileSync(new URL("../src/components/experience2029/Discover
 const signup = readFileSync(new URL("../src/components/experience2029/HomeBuildSignup2029.jsx", import.meta.url), "utf8");
 const page = readFileSync(new URL("../src/pages/Home2029Page.jsx", import.meta.url), "utf8");
 
-test("Home 2029 does not repeat the featured post under itself", () => {
-  assert.match(home, /getLatestPostCards\(\{ limit: 5 \}\)/);
-  assert.match(home, /visiblePosts = \(nowHero \? data\.posts : data\.posts\.filter\(post => post\.slug !== lead\?\.slug\)\)/);
+test("Home 2029 never repeats featured, story, updated or arrived Post identities", () => {
+  assert.match(home, /getLatestPostCards\(\{ limit: 16 \}\)/);
+  assert.match(home, /reserveHomePost\(reserved, lead\)/);
+  assert.match(home, /reserveHomePost\(reserved, \{ slug: "flydubai-fz1073/);
+  assert.match(home, /claimHomeItems\(data.posts, reserved, 4\)/);
+  assert.match(home, /claimHomeItems\(sourceRows.filter\(item => item.kind === "source"\), latestPlacement.reserved, 4\)/);
   assert.match(home, /visiblePosts\.map\(\(post, index\)/);
-  assert.match(home, /showFixedStory/);
+  assert.match(page, /arrivals=\{\(homeArrivals\) =>/);
+  assert.match(page, /items=\{homeArrivals\}/);
 });
 
-test("Dimension Five is a video-series gateway, never one of the writer identities", () => {
-  assert.match(gateways, /href: "\/category\/מימד חמש"/);
-  assert.match(gateways, /מימד חמש · סדרת סרטונים/);
+test("Dimension Five is a video-series category, never a writer identity", () => {
+  assert.match(gateways, /category: "מימד חמש"/);
+  assert.match(gateways, /getPostsFromSupabase\(\{ category: "מימד חמש"/);
   assert.doesNotMatch(home, /is-dim|data\.dimensionPost|<b>מימד חמש<\/b>/);
   assert.match(home, /<Section label="כותבים וערוצים"/);
 });
 
-test("Construction meter is sourced from release map and pulse from existing public reader", () => {
+test("construction meter is sourced from canonical release map and public pulse reader", () => {
   assert.match(signup, /BUILD_PROGRESS, FIRST_STAGE_RELEASE_GATES/);
   assert.match(signup, /זה אינו אחוז ההשלמה של האתר כולו/);
   assert.match(signup, /role="progressbar"/);
@@ -29,7 +33,7 @@ test("Construction meter is sourced from release map and pulse from existing pub
   assert.match(page, /pulsePanel=\{<HomeSystemPulse/);
 });
 
-test("Newsletter form is opt-in and uses existing signup Edge function with attribution", () => {
+test("newsletter signup uses canonical opt-in endpoint with attribution", () => {
   assert.match(signup, /newsletter-signup\?format=json/);
   assert.match(signup, /signupAttribution\(\)/);
   assert.match(signup, /getVisitorId\(\)/);
