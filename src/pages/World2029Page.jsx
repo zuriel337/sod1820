@@ -14,7 +14,7 @@ import WorldConvergenceLens from "../components/research/WorldConvergenceLens.js
 import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
 import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
-import WorldSourceDepth from "../components/research/WorldSourceDepth.jsx";
+
 import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
@@ -629,7 +629,6 @@ function LiveWorldLanding({ research, shell, context }) {
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
-  const [sourceDepthOpen, setSourceDepthOpen] = useState(false);
   const [catalogExpanded, setCatalogExpanded] = useState(false);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
@@ -1165,11 +1164,8 @@ function LiveWorldLanding({ research, shell, context }) {
           onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}
         {catalogExpanded && allConvergences.hasMore ? <button className="sod29-action" disabled={allConvergences.loadingMore}
           onClick={loadMoreConvergences}>{allConvergences.loadingMore ? "טוען עוד…" : "טען עוד נושאים"}</button> : null}
-        <button className="sod29-action" aria-expanded={sourceDepthOpen} aria-controls="world-source-depth"
-          onClick={() => setSourceDepthOpen(!sourceDepthOpen)}>{sourceDepthOpen ? "סגור את ספריית הנושאים" : "נושאים מתוך ספריית המקורות"}</button>
       </div>
     </section>
-    {sourceDepthOpen ? <WorldSourceDepth /> : null}
 
     {goldenJourneySection}
     <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
@@ -1312,7 +1308,6 @@ function LiveWorldLanding({ research, shell, context }) {
       onOpen={openAnchorValue}
     />
 
-    <WorldSourceDepth />
 
     {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">התכנסויות, חוקרים, מסעות, קשרים ומקורות נטענים עכשיו.</FrameState></NativeStateSection> : null}
     {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
