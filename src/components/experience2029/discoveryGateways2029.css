@@ -25,6 +25,30 @@
 .dg29-gateway-action { display: flex; align-items: center; min-height: 44px; border-top: 1px solid var(--s29-line);
   color: var(--s29-accent-text) !important; font: 500 14px/1.4 var(--s29-font-ui); }
 .dg29-gateway a:focus-visible { outline: 2px solid var(--s29-discovery); outline-offset: 2px; }
+
+/* The original language introduction is projected once, as one compact linked
+   feature over Post 5018; each numeric cue must still exist in that Post. */
+.dg29-language-preview {
+  display: grid; gap: 7px; min-width: 0; padding: 11px;
+  border: 1px solid var(--s29-line-strong); border-radius: 10px;
+  color: inherit; text-decoration: none; background: var(--s29-panel-soft);
+}
+.dg29-language-preview:hover, .dg29-language-preview:focus-visible {
+  border-color: var(--s29-discovery);
+}
+.dg29-language-kicker { color: var(--s29-discovery); font: 600 14px/1.4 var(--s29-font-ui); }
+.dg29-language-preview > strong { font: 600 16px/1.45 var(--s29-font-ui); }
+.dg29-language-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; min-width: 0; }
+.dg29-language-metric {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-width: 0; padding: 7px 4px; border: 1px solid var(--s29-line);
+  border-radius: 8px; background: var(--s29-panel); text-align: center;
+}
+.dg29-language-metric b { color: var(--s29-discovery); font: 600 24px/1.1 var(--s29-font-numeric, var(--s29-font-ui)); font-variant-numeric: tabular-nums; }
+.dg29-language-metric span { font: 400 14px/1.45 var(--s29-font-ui); overflow-wrap: anywhere; }
+.dg29-language-evidence { color: var(--s29-muted); font: 400 14px/1.45 var(--s29-font-ui); }
+.dg29-language-open { color: var(--s29-accent-text); font: 600 14px/1.45 var(--s29-font-ui); }
+
 @container h29 (max-width: 1000px) {
   .dg29-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
