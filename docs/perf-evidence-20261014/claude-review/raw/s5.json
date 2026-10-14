@@ -1,0 +1,859 @@
+{
+ "label": "s5",
+ "theme": "dark",
+ "runs": 3,
+ "stages": {
+  "scrollHome": {
+   "y": {
+    "med": 2063,
+    "range": [
+     2032,
+     2083
+    ]
+   },
+   "block": {
+    "med": 3,
+    "range": [
+     0,
+     26
+    ]
+   },
+   "longTasks": {
+    "med": 1,
+    "range": [
+     0,
+     2
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "frames": {
+    "med": 236,
+    "range": [
+     236,
+     237
+    ]
+   },
+   "p95": {
+    "med": 16.800000000000182,
+    "range": [
+     17,
+     17
+    ]
+   },
+   "jank50": {
+    "med": 2,
+    "range": [
+     1,
+     3
+    ]
+   },
+   "jank100": {
+    "med": 0,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "okRuns": 3,
+   "req": {
+    "rest": 1,
+    "img": 5
+   }
+  },
+  "toPost": {
+   "ms": {
+    "med": 1379,
+    "range": [
+     1363,
+     1451
+    ]
+   },
+   "block": {
+    "med": 198,
+    "range": [
+     169,
+     220
+    ]
+   },
+   "maxTask": {
+    "med": 254,
+    "range": [
+     222,
+     272
+    ]
+   },
+   "cls": {
+    "med": 0.042,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 72,
+    "range": [
+     56,
+     96
+    ]
+   },
+   "evInputDelay": {
+    "med": 42,
+    "range": [
+     32,
+     52
+    ]
+   },
+   "okRuns": 3,
+   "req": {
+    "js": 6,
+    "css": 2,
+    "img": 4,
+    "rest": 7
+   }
+  },
+  "scrollPost": {
+   "y": {
+    "med": 1797,
+    "range": [
+     1792,
+     1851
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "longTasks": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "frames": {
+    "med": 225,
+    "range": [
+     224,
+     226
+    ]
+   },
+   "p95": {
+    "med": 16.799999999999272,
+    "range": [
+     17,
+     17
+    ]
+   },
+   "jank50": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "jank100": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "okRuns": 3,
+   "req": {}
+  },
+  "backHome": {
+   "ms": {
+    "med": 540,
+    "range": [
+     538,
+     644
+    ]
+   },
+   "block": {
+    "med": 148,
+    "range": [
+     108,
+     173
+    ]
+   },
+   "maxTask": {
+    "med": 143,
+    "range": [
+     135,
+     143
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evInputDelay": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yRestored": {
+    "med": 33,
+    "range": [
+     33,
+     33
+    ]
+   },
+   "yBefore": {
+    "med": 2063,
+    "range": [
+     2032,
+     2083
+    ]
+   },
+   "okRuns": 3,
+   "req": {
+    "img": 6,
+    "rest": 52
+   }
+  },
+  "toWorld": {
+   "ms": {
+    "med": 1456,
+    "range": [
+     1434,
+     1629
+    ]
+   },
+   "block": {
+    "med": 63,
+    "range": [
+     37,
+     71
+    ]
+   },
+   "maxTask": {
+    "med": 94,
+    "range": [
+     87,
+     121
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 192,
+    "range": [
+     160,
+     200
+    ]
+   },
+   "evInputDelay": {
+    "med": 70,
+    "range": [
+     58,
+     71
+    ]
+   },
+   "menuOpenEvMax": {
+    "med": 232,
+    "range": [
+     208,
+     240
+    ]
+   },
+   "okRuns": 3,
+   "req": {
+    "rest": 15,
+    "js": 7,
+    "css": 3,
+    "img": 1
+   }
+  },
+  "scrollWorld": {
+   "y": {
+    "med": 2718,
+    "range": [
+     2713,
+     2726
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "longTasks": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "frames": {
+    "med": 291,
+    "range": [
+     290,
+     292
+    ]
+   },
+   "p95": {
+    "med": 16.799999999999272,
+    "range": [
+     17,
+     17
+    ]
+   },
+   "jank50": {
+    "med": 1,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "jank100": {
+    "med": 1,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "okRuns": 3,
+   "req": {}
+  },
+  "backFromWorld": {
+   "ms": {
+    "med": 601,
+    "range": [
+     586,
+     655
+    ]
+   },
+   "block": {
+    "med": 200,
+    "range": [
+     150,
+     226
+    ]
+   },
+   "maxTask": {
+    "med": 190,
+    "range": [
+     148,
+     216
+    ]
+   },
+   "cls": {
+    "med": 0.67,
+    "range": [
+     1,
+     1
+    ]
+   },
+   "evMax": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evInputDelay": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yRestored": {
+    "med": 10,
+    "range": [
+     10,
+     10
+    ]
+   },
+   "okRuns": 3,
+   "req": {}
+  },
+  "forwardWorld": {
+   "ms": {
+    "med": 246,
+    "range": [
+     220,
+     264
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     2
+    ]
+   },
+   "maxTask": {
+    "med": 0,
+    "range": [
+     0,
+     53
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evInputDelay": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yRestored": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yBefore": {
+    "med": 2718,
+    "range": [
+     2713,
+     2726
+    ]
+   },
+   "okRuns": 3,
+   "req": {}
+  }
+ },
+ "failure": {
+  "afterFailedChunk": {
+   "url": "/world",
+   "rootText": 10658,
+   "rootTextBefore": 10018,
+   "blankPage": false,
+   "hasRetryOrMessage": true
+  },
+  "pageErrors": []
+ },
+ "coldHome": {
+  "med": 4352,
+  "range": [
+   4254,
+   4396
+  ]
+ },
+ "errors": {
+  "runsWithError": 0,
+  "pageErrors": 0,
+  "unmappedRpc": [],
+  "missesPerRun": [
+   0,
+   0,
+   0
+  ],
+  "overflowRuns": 0,
+  "blockedWrites": 28
+ },
+ "raw": [
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2063,
+     "block": 3,
+     "longTasks": 1,
+     "cls": 0,
+     "req": {
+      "rest": 1,
+      "img": 5
+     },
+     "frames": 236,
+     "p95": 16.80000000000109,
+     "jank50": 2,
+     "jank100": 1
+    },
+    "toPost": {
+     "ok": true,
+     "ms": 1379,
+     "block": 220,
+     "maxTask": 272,
+     "cls": 0.042,
+     "evMax": 72,
+     "evInputDelay": 42,
+     "req": {
+      "js": 6,
+      "css": 2,
+      "img": 4,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 1851,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 226,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "ok": true,
+     "ms": 644,
+     "block": 173,
+     "maxTask": 143,
+     "cls": 0.437,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 6,
+      "rest": 52
+     },
+     "yRestored": 33,
+     "yBefore": 2063
+    },
+    "toWorld": {
+     "ok": true,
+     "ms": 1456,
+     "block": 71,
+     "maxTask": 121,
+     "cls": 0,
+     "evMax": 200,
+     "evInputDelay": 58,
+     "req": {
+      "rest": 15,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 208,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2713,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 291,
+     "p95": 16.799999999999272,
+     "jank50": 1,
+     "jank100": 1
+    },
+    "backFromWorld": {
+     "ok": true,
+     "ms": 586,
+     "block": 200,
+     "maxTask": 190,
+     "cls": 0.572,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 10
+    },
+    "forwardWorld": {
+     "ok": true,
+     "ms": 246,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0,
+     "yBefore": 2713
+    },
+    "rootHasContent": 10252
+   },
+   "coldHome": 4254,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2032,
+     "block": 26,
+     "longTasks": 2,
+     "cls": 0,
+     "req": {
+      "img": 5
+     },
+     "frames": 237,
+     "p95": 16.800000000000182,
+     "jank50": 3,
+     "jank100": 0
+    },
+    "toPost": {
+     "ok": true,
+     "ms": 1363,
+     "block": 198,
+     "maxTask": 254,
+     "cls": 0.042,
+     "evMax": 56,
+     "evInputDelay": 32,
+     "req": {
+      "js": 6,
+      "css": 2,
+      "img": 4,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 1797,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 225,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "ok": true,
+     "ms": 540,
+     "block": 108,
+     "maxTask": 143,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 6,
+      "rest": 51
+     },
+     "yRestored": 33,
+     "yBefore": 2032
+    },
+    "toWorld": {
+     "ok": true,
+     "ms": 1434,
+     "block": 37,
+     "maxTask": 87,
+     "cls": 0,
+     "evMax": 192,
+     "evInputDelay": 70,
+     "req": {
+      "rest": 15,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 240,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2726,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 292,
+     "p95": 16.799999999999272,
+     "jank50": 1,
+     "jank100": 1
+    },
+    "backFromWorld": {
+     "ok": true,
+     "ms": 601,
+     "block": 150,
+     "maxTask": 148,
+     "cls": 1.058,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 10
+    },
+    "forwardWorld": {
+     "ok": true,
+     "ms": 264,
+     "block": 2,
+     "maxTask": 53,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0,
+     "yBefore": 2726
+    },
+    "rootHasContent": 10252
+   },
+   "coldHome": 4352,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2083,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "rest": 1,
+      "img": 5
+     },
+     "frames": 236,
+     "p95": 16.800000000000182,
+     "jank50": 1,
+     "jank100": 0
+    },
+    "toPost": {
+     "ok": true,
+     "ms": 1451,
+     "block": 169,
+     "maxTask": 222,
+     "cls": 0.042,
+     "evMax": 96,
+     "evInputDelay": 52,
+     "req": {
+      "js": 6,
+      "css": 2,
+      "img": 4,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 1792,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 224,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "ok": true,
+     "ms": 538,
+     "block": 148,
+     "maxTask": 135,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 6,
+      "rest": 37
+     },
+     "yRestored": 33,
+     "yBefore": 2083
+    },
+    "toWorld": {
+     "ok": true,
+     "ms": 1629,
+     "block": 63,
+     "maxTask": 94,
+     "cls": 0,
+     "evMax": 160,
+     "evInputDelay": 71,
+     "req": {
+      "rest": 14,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 232,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2718,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 290,
+     "p95": 16.799999999995634,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "ok": true,
+     "ms": 655,
+     "block": 226,
+     "maxTask": 216,
+     "cls": 0.67,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 10
+    },
+    "forwardWorld": {
+     "ok": true,
+     "ms": 220,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0,
+     "yBefore": 2718
+    },
+    "rootHasContent": 10252
+   },
+   "coldHome": 4396,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "label": "ws0",
+ "runs": 7,
+ "routes": {
+  "/world": {
+   "ready": {
+    "med": 4919.4000000003725,
+    "range": [
+     4815,
+     5086
+    ]
+   },
+   "lead": {
+    "med": 7406.100000000559,
+    "range": [
+     7203,
+     7834
+    ]
+   },
+   "fcp": {
+    "med": 2356
+   },
+   "jsBeforeKB": 476.068359375,
+   "jsBeforeN": 45,
+   "jsAfterKB": 0,
+   "jsAfterN": 0,
+   "jsAfterNames": [],
+   "jsTotalKB": 476.068359375,
+   "jsTotalN": 45,
+   "cssBeforeKB": 50.9853515625,
+   "restBefore": 7,
+   "restTotal": 70,
+   "firstRestStart": 2044.4000000003725,
+   "slugReads": 6,
+   "dupReads": [
+    [
+     "/rest/v1/site_flags?select=key,enabled,message,mode",
+     2
+    ],
+    [
+     "/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image",
+     4
+    ],
+    [
+     "/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qualit",
+     5
+    ],
+    [
+     "/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,c",
+     2
+    ],
+    [
+     "/rest/v1/rpc/world_group_source_arrivals_v3",
+     2
+    ],
+    [
+     "/rest/v1/rpc/convergence_meter",
+     12
+    ],
+    [
+     "/rest/v1/rpc/gematria_method_trace",
+     6
+    ],
+    [
+     "/rest/v1/nodes?select=rule_id,rule_version&type=eq.rule&is_active=eq.true&rule_id=in.(zero",
+     2
+    ],
+    [
+     "/rest/v1/rpc/fn_zero_scale",
+     2
+    ]
+   ],
+   "misses": 0,
+   "readyRuns": 7
+  }
+ }
+}

@@ -1,0 +1,19 @@
+s4 sample 1/7
+s4 sample 2/7
+s4 sample 3/7
+s4 sample 4/7
+s4 sample 5/7
+s4 sample 6/7
+s4 sample 7/7
+
+## s4 theme=dark n=7 coldHomeREADY 4376 [4248,4588] errors={"runsWithError":0,"pageErrors":0,"unmappedRpc":[],"missesPerRun":[0,0,0,0,0,0,0],"overflowRuns":0,"blockedWrites":28}
+step | tap/back->READY ms | block ms | evMax | CLS | scroll restore (after vs before)
+toPost | 1407 [1187,1482] | 183 [148,239] | 80 [64,120] | 0.042 [0,0]
+backHome | 702 [561,820] | 181 [114,280] | 0 [0,0] | 0.997 [1,1] | y 33 [33,33] vs 2038 [1816,2083]
+toWorld | 1420 [1408,1576] | 32 [3,55] | 144 [112,232] | 0 [0,0]
+backFromWorld | 649 [580,758] | 160 [111,237] | 0 [0,0] | 0.99 [0,1] | y 10 [10,10] vs -
+forwardWorld | 249 [243,293] | 0 [0,21] | 0 [0,0] | 0 [0,0] | y 0 [0,0] vs 2773 [2698,2820]
+scrollHome | jank>50 2 [1,4] | p95 16.800000000000182 [17,33] | block 1 [0,18] | cls 0 [0,0] | y 2038 [1816,2083]
+scrollPost | jank>50 0 [0,0] | p95 16.700000000000728 [17,17] | block 0 [0,0] | cls 0 [0,0] | y 1797 [1720,1820]
+scrollWorld | jank>50 0 [0,1] | p95 16.799999999999272 [17,17] | block 0 [0,6] | cls 0 [0,0] | y 2773 [2698,2820]
+failure: {"afterFailedChunk":{"url":"/world","rootText":10658,"rootTextBefore":10018,"blankPage":false,"hasRetryOrMessage":true},"pageErrors":[]}
