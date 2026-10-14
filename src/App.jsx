@@ -304,7 +304,7 @@ export default function App() {
           <Route path="/books/:slug" element={<Book2029DocumentHandoff />} />
           <Route path="/book" element={<Book2029DocumentHandoff />} />
           <Route path="/book/:slug" element={<Book2029DocumentHandoff />} />
-          <Route path="/els" element={<Els2029Page />} />
+          <Route path="/els" element={<CodePage />} />
           <Route path="/היכל" element={<Heichal2029Page />} />
           <Route path="/heichal" element={<Heichal2029Page />} />
 
