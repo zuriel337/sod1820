@@ -32,9 +32,24 @@ export function useSiteUpdates() {
   );
 }
 
-// 📍 מקור-אמת יחיד למסלולים שבהם LiveChannelFeed (חלון העדכונים) ממופה בפועל (Layout.jsx) —
-// כדי שה-Bottom Bar ידע איפה יש כפתור אמיתי בלי לשכפל את הרג'קס liveChrome.
-const SITE_UPDATES_ROUTES = [/^\/$/, /^\/home-new$/, /^\/בית-חדש$/, /^\/community\/chat$/];
+// The existing Legacy updates window lives once at App's router root.
+// Greenfield surfaces retain their own shell; no Legacy UI enters 2029.
+const GREENFIELD_ROUTES = [
+  /^\/2029(?:\/|$)/, /^\/(?:world|els|heichal|היכל)(?:\/|$)/,
+  /^\/books?(?:\/|$)/,
+  /^\/(?:entity-hub-preview|explorer-preview|community-shadow-preview-2029)(?:\/|$)/,
+];
 export function isSiteUpdatesRoute(pathname) {
-  return SITE_UPDATES_ROUTES.some(re => re.test(pathname));
+  return typeof pathname === "string" && pathname.startsWith("/") && !GREENFIELD_ROUTES.some(re => re.test(pathname));
 }
+
+// These existing App routes bypass Layout and therefore have no admin BottomBar.
+// Keep the public launcher available there even for an authenticated admin.
+const STANDALONE_LEGACY_ROUTES = [
+  /^\/(?:enter|stream|ניסיון|experience|חישוב|reveal|galaxy|research|meaning-lab|מעבדת-משמעות|research-viewer|cheder)(?:\/|$)/,
+  /^\/sulamot(?:5|6|7|8|9|10|11)(?:\/|$)/,
+];
+export function isLegacyLayoutUpdatesRoute(pathname) {
+  return isSiteUpdatesRoute(pathname) && !STANDALONE_LEGACY_ROUTES.some(re => re.test(pathname));
+}
+
