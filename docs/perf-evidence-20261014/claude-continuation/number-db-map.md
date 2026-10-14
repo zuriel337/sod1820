@@ -1,5 +1,7 @@
 # Number research: RPC map and database-side measurement
 
+**עודכן: השינוי הוחל לאחר אישור בעלים (migration `number_lookup_method_flags_20261014`).** תוצאות אחרי ההחלה בסוף המסמך. המדידות שלפני ההחלה:
+
 Read-only. Project `linswmnnkjxvweumprav`, role `anon` inside `begin … rollback`, warm cache, one session
 (no network, no browser). Nothing was applied; temp objects (`pg_temp`) lived only inside rolled-back transactions.
 DB execution time, network time and browser time are different quantities and are **not** added here.
@@ -66,3 +68,19 @@ These are warm single-session numbers on the DB, not user-perceived time: networ
 ## What must arrive before the first result is shown
 
 Nothing in the lens set depends on another: `Promise.all` waits for the slowest. With today's functions that is the dossier (≈ lookup + extras). Reducing the dossier's nested lookup lowers that wait; making journey on-demand (already the case) keeps it out of the first result.
+
+## אחרי ההחלה (אושר ע"י בעל האתר, הוחל 14.10.2026)
+
+אומת לפני ההחלה (anon, בטרנזקציה שנגללה חזרה): `fn_number_lookup` החדש זהה לישן **כולל סדר ועימוד** (`p_limit` 10/ללא, עם `p_after_bid_id` ובלי) לערכים 26 ו־1820; מקור השורות הרזה זהה לישן ב־dossier (אגרגציה לפי שיטה) וב־journey (מונחים/שיטות/ספירה) לערכים 1, 26, 300, 363, 541, 613, 1820, 2026, 5112, 99999 תחת postgres (הקשר ה־definer שבו הענפים הללו רצים בפועל). לא נבדק במפורש תפקיד `authenticated` (הלוגיקה אינה תלויה בתפקיד מלבד RLS, שלא שונה).
+
+הערה על RLS: בעל הפונקציות `postgres` עוקף RLS, כך שה־dossier/journey הציבוריים כבר קודם כללו את 16 המילים המוצפנות־מאומתות־מפורסמות; המקור הרזה שומר על ההתנהגות הזו בדיוק. **זה ממצא קיים שמצריך את החלטתך** (האם הענף הציבורי אמור לחשוף אותן).
+
+תיקון מדידה: ה־110ms של `fn_number_journey` שדווחו קודם נמדדו בענף הפנימי (`session_user=postgres`), לא בציבורי. בציבורי (עם claims של anon) לפני התיקון לא נמדד.
+
+| (חם, anon, 1820) | לפני | אחרי |
+|---|---:|---:|
+| `fn_number_lookup` | 178–203ms | 81ms |
+| `fn_number_dossier` (ציבורי) | 211ms | 8.2–8.4ms |
+| `fn_number_journey` (ציבורי) | לא נמדד | 21ms |
+
+ACL נשמר: lookup/journey ל־anon/authenticated/service_role כמקודם, dossier ללא שינוי; `fn_number_lookup_core` — `postgres` בלבד. חזרה לאחור: `number-lookup.ROLLBACK.sql`.
