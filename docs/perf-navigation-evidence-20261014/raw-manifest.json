@@ -73,5 +73,15 @@
     "name": "role-a-home-after.json.gz",
     "originalSha256": "c98c016488d22370aeaed2d0ecaaf4df274c47d856dbc405cd715a6c7d0cfd2b",
     "compressedSha256": "3cc84ff9c238ff69ae9584b3e1d90823c07d9989024a5d906cb050433af282df"
+  },
+  {
+    "name": "role-a-hosted-before.json.gz",
+    "originalSha256": "848094cd13360e68cedc4c92895e7c931711b5fac6e9cc41e6a53c9b427e5c3d",
+    "compressedSha256": "ef2610358ce862ec7c73f386391106880a70281e5d0288365b319815193b35aa"
+  },
+  {
+    "name": "role-a-hosted-combined.json.gz",
+    "originalSha256": "1c352d8f85a0e7d8c8178a0433a5fe2b62a8642731a9cf6d3bd34d345e090103",
+    "compressedSha256": "3f653f8d6bad7bad0fcbde6d6134c7b9c23d31dc687be677ac3aab7b5b168730"
   }
 ]

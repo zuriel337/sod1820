@@ -1,0 +1,18 @@
+
+> sod1820@1.0.0 test:2029-bundle-budget
+> node --test scripts/test-2029-bundle-budget.mjs
+
+# built route graphs: entry 7 chunks 177.7 KB gz · Home +26 chunks +153.5 KB gz · World +40 chunks +283.5 KB gz · Post +29 chunks +180.7 KB gz
+✔ Hebrew-calendar libraries are not in the entry static closure (0.70493ms)
+✔ surface-specific code is behind lazy boundaries (0.193655ms)
+✔ static entry graph stays small (0.535831ms)
+✔ primary route graphs stay within budget and keep deferred code out (skipped without dist/) (45.88289ms)
+✔ built entry chunk is under budget (skipped without dist/) (29.299458ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143.98419
