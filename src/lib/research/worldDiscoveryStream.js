@@ -285,8 +285,9 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
 }
 
 // Visibility-bound refresh of the existing reader. No feed cache/store or private bundle sharing.
-export function watchWorldDiscoveryStream({ onResult, onError, immediate = true, intervalMs = 60000, ...options } = {}) {
+export function watchWorldDiscoveryStream({ onResult, onError, immediate = true, firstRefreshInMs = 0, intervalMs = 60000, ...options } = {}) {
   let active = true;
+  let firstTimer = null;
   let pending = false;
   const refresh = async () => {
     if (!active || pending || document.visibilityState === "hidden") return;
@@ -302,8 +303,11 @@ export function watchWorldDiscoveryStream({ onResult, onError, immediate = true,
   document.addEventListener("visibilitychange", refresh);
   window.addEventListener("focus", refresh);
   if (immediate) refresh();
+  // A caller that seeded fresh data (immediate:false) still gets its first refresh at the original freshness bound.
+  else if (firstRefreshInMs > 0) firstTimer = window.setTimeout(refresh, firstRefreshInMs);
   return () => {
     active = false;
+    window.clearTimeout(firstTimer);
     window.clearInterval(timer);
     document.removeEventListener("visibilitychange", refresh);
     window.removeEventListener("focus", refresh);
