@@ -39,3 +39,47 @@ No message was sent to or received from any other session; nothing here claims d
 Worktrees: `git fetch origin pull/1105/head:refs/review/pr1105`; tests `node --test test/perf-two-switches-2029.test.mjs test/runtime-switches-2029.test.mjs`; builds `SOD_BUILD_TARGET=legacy|2029 npx vite build`; gates `node scripts/test-2029-isolation.mjs`, `node scripts/test-2029-built-graph.mjs`, `node scripts/test-2029-control-plane.mjs`, `node --test scripts/test-2029-bundle-budget.mjs`; SQL `PGLITE_MODULE=…/pglite/dist/index.js node docs/perf-evidence-20261015/two-switches/run-sql-parity.mjs` and `node sql-walk.mjs <checkout>` (this folder); live checks were `SELECT`-only on the catalog and on `bidim` counts.
 
 Limits of this review: Chromium/Node versions differ from the author's; PGlite is PostgreSQL 17.5 compiled to WASM while live is 17.6; no installed candidate to test live RLS; no authenticated admin session; the merged tree was resolved by me only in a private scratch worktree and nothing was pushed to any branch other than this evidence folder on `claude/perf-testing-2029-5ayyow`.
+
+---
+
+# Follow-up (2026-10-15) — against the switches session's merged head `dd898ed2` (merge `0de29e31`)
+
+## Blocker B1 (row 1) — CLOSED
+`0de29e31` resolves the `World2029Page.jsx` import as `{ runtimeOff, frozenOr, readRuntimeSwitches }`. I compared the PR delta (370 lines) with the merge-vs-parent delta (370 lines): identical apart from that union import. No other change to `src/` beyond what the PR carried.
+
+## Measurement row 16/17 — website claim for `fx_world_relation_identity` independently replicated
+Method: **their own harness copy** (`wd-replication/wd-measure-copy.mjs`, only the `serve.mjs` import path changed to `scripts/perf/serve.mjs`, which is byte-identical to theirs), a fresh 2029 build of exactly `dd898ed2`, my own freshly recorded fixtures, same flow (World, open "קשרים", click first "העמק" of a number / non-number), mobile 390×844 DPR2, CPU×4, fixed 150 ms Supabase delay, cold context per run, one discarded warm-up, **7 measured runs per arm, two passes in opposite order (14 per cell)**, 0 fixture misses. Raw: `wd-replication/wd-*.json`.
+
+| Target | Metric | OFF (median, range) | ON (median, range) | Their report |
+|---|---|---|---|---|
+| number (776) | click → context change | ≈1.86–1.89 s | ≈0.23–0.24 s | — |
+| number | click → "העיקר סביב" content | 4.17–4.23 s [4.13–4.31] | 2.56–2.63 s [2.44–2.67] | 3.94 → 2.33 s |
+| number | requests after click | 92 | 55 | 92 → 55 |
+| other (Post) | click → content | 2.70–2.75 s [2.66–2.82] | 1.71 s [1.65–1.77] | 2.53 → 1.56 s |
+| other | requests after click | 29 | 16 | 29 / 16 |
+| both | CLS in window | 0.052 (number) / 0.227 (other) — **identical OFF vs ON**, same content text length | | same |
+
+Verdict: **PASS (replicated, direction and request counts exact; absolute ms about 0.2–0.3 s higher on my machine, same ordering in both passes)**. Subject, selection, returnTo and text length equal across arms.
+
+What this does and does not prove (kept separate):
+- Proven in the lab: removing the full projection from the click path removes 37 (number) / 13 (other) serial-ish requests and the saving scales with request count under a **fixed 150 ms delay per request**. The ms figures are therefore "requests × fixed latency", not real PostgreSQL/PostgREST time or real bandwidth; a hosted measurement is still NOT TESTED.
+- No layout-shift change: the click→content CLS (0.052 / 0.227) is the **same with the switch OFF** — it is not caused or fixed by this switch.
+- Content equivalence at the UI level (same subject/selection/returnTo/text length) is observed, not a live-data node comparison.
+
+## Rows updated
+| # | Status now |
+|---|---|
+| 1 | PASS (closed by `0de29e31`) |
+| 11 / R2 | **still open** — `numberLookupTransport2029.js` at `dd898ed2` has no session memory of `PGRST202`; unchanged by the follow-up commit |
+| 9 / R3 | still open (anon EXECUTE probe is an activation step, no installed function) |
+| 16 | World switch: PASS (replicated, lab conditions above). Lookup switch, both-ON, DB-ON: NOT TESTED (function not installed) |
+| 17 | fewer DB work (212 → 20) and fewer requests (92 → 55) are separate, lab-proven; real-site time NOT PROVEN |
+
+Still NOT TESTED: back/forward and scroll **after** a "העמק" navigation, Number page pagination with flag ON, authenticated admin toggle on the live control plane, hosted/phone.
+
+## Visual / geometry needs — documented separately, NOT implemented (no visual owner active)
+Constraint: keep Design V2 and the existing kit; the switches session remains the implementer; no new design language. Needs are about **reserving geometry**, not restyling:
+1. **Return to Home (back → `/`)**: CLS ≈ 2 in 7/7 runs from sections whose height changes after restore (`SECTION.dg29` 131 → 44 → 366 px, `h29-sec` reveals, `k29-reveal` hero). Proposal: reserve their final height (min-height from the existing token/spacing scale) until data or reveal finishes. Scopes 75/839, DiscoveryGateways2029.jsx belongs to a Codex row.
+2. **Forward → World** after F2 restore: CLS appears in 3/7 because the correct region is revealed; same reservation idea for the flight-feature block.
+3. **World → non-number destination**: pre-existing CLS 0.23–0.28 (also visible above with the switch OFF and ON, 0.227): the destination page's lead block grows after first paint.
+4. Position restore (F2 patch) is independent of these and can ship without them; it fixes *where* the page lands, not *how much moves*.
