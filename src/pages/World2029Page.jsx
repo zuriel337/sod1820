@@ -5,7 +5,7 @@ import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -633,6 +633,13 @@ function LiveWorldLanding({ research, shell, context }) {
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
   const [catalogExpanded, setCatalogExpanded] = useState(false);
+  const [catalogDepthMounted, setCatalogDepthMounted] = useState(false);
+  // Reuse the existing Topic context on Back/exact return: keep its original
+  // eight-card window. Fresh public entry starts with two actual reader results.
+  const restoringTopicCatalog = useRef(context?.subject?.type === "topic");
+  const catalogCollapsedSize = controlMode || restoringTopicCatalog.current ? 8 : 2;
+  const catalogGeneration = useRef(0);
+  const catalogMorePending = useRef(false);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
   const [allCreatorOptions, setAllCreatorOptions] = useState([]);
@@ -782,14 +789,18 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => {
     let alive = true;
+    const generation = ++catalogGeneration.current;
+    catalogMorePending.current = false;
+    const fullWindow = controlMode || restoringTopicCatalog.current || catalogExpanded;
+    setCatalogDepthMounted(false);
     const timer = setTimeout(async () => {
       setAllConvergences((prev) => ({ ...prev, loading: true, loadingMore: false, cards: [], error: null }));
       try {
         const result = await fetchExplorerFacetPage("topic", {
           q: allQuery.trim() || null,
           creator: allCreator === "all" ? null : allCreator,
-          includeTotal: true,
-          limit: ALL_CONVERGENCES_PAGE_SIZE,
+          includeTotal: fullWindow,
+          limit: fullWindow ? ALL_CONVERGENCES_PAGE_SIZE : 2,
           offset: 0,
         });
         if (!alive) return;
@@ -805,20 +816,26 @@ function LiveWorldLanding({ research, shell, context }) {
         if (alive) setAllConvergences({ loading: false, loadingMore: false, cards: [], hasMore: false, total: null, error });
       }
     }, allQuery ? 260 : 0);
-    return () => { alive = false; clearTimeout(timer); };
-  }, [allQuery, allCreator]);
+    return () => { alive = false; if (catalogGeneration.current === generation) catalogGeneration.current += 1; clearTimeout(timer); };
+  }, [allQuery, allCreator, controlMode]);
 
   const loadMoreConvergences = async () => {
-    if (allConvergences.loading || allConvergences.loadingMore || !allConvergences.hasMore) return;
+    if (allConvergences.loading || allConvergences.loadingMore || catalogMorePending.current || !allConvergences.hasMore) return;
+    const generation = catalogGeneration.current;
+    catalogMorePending.current = true;
     setAllConvergences((prev) => ({ ...prev, loadingMore: true, error: null }));
     try {
       const result = await fetchExplorerFacetPage("topic", {
         q: allQuery.trim() || null,
         creator: allCreator === "all" ? null : allCreator,
         includeTotal: true,
-        limit: ALL_CONVERGENCES_PAGE_SIZE,
+        // First demand completes the same ordered24-item window as before;
+        // later pages keep the existing24-item continuation and public reader.
+        limit: allConvergences.cards.length === 2 && !controlMode && !restoringTopicCatalog.current
+          ? ALL_CONVERGENCES_PAGE_SIZE - 2 : ALL_CONVERGENCES_PAGE_SIZE,
         offset: allConvergences.cards.length,
       });
+      if (catalogGeneration.current !== generation) return;
       setAllConvergences((prev) => ({
         ...prev,
         loadingMore: false,
@@ -827,8 +844,8 @@ function LiveWorldLanding({ research, shell, context }) {
         total: result?.total != null && Number.isFinite(Number(result.total)) ? Number(result.total) : prev.total,
       }));
     } catch (error) {
-      setAllConvergences((prev) => ({ ...prev, loadingMore: false, error }));
-    }
+      if (catalogGeneration.current === generation) setAllConvergences((prev) => ({ ...prev, loadingMore: false, error }));
+    } finally { if (catalogGeneration.current === generation) catalogMorePending.current = false; }
   };
 
   const openCard = async (card) => {
@@ -1153,8 +1170,9 @@ function LiveWorldLanding({ research, shell, context }) {
       {allConvergences.loading ? <p role="status">פותח את הנושאים…</p> : null}
       {allConvergences.error ? <p role="status">חלק מהנושאים לא נטענו כרגע. מה שכבר נפתח נשאר זמין.</p> : null}
       {!allConvergences.loading && !allConvergences.error && !allConvergences.cards.length ? <p role="status">לא נמצאו נושאים במסנן הזה.</p> : null}
-      <div className="sod29-world-catalog-grid">{allConvergences.cards.slice(0, catalogExpanded ? undefined : 8).map((card, cardIndex) =>
-        <div className="sod29-world-catalog-item" key={card.id}>
+      <div className="sod29-world-catalog-grid">{allConvergences.cards.slice(0, catalogExpanded || catalogDepthMounted ? undefined : catalogCollapsedSize).map((card, cardIndex) =>
+        <div className="sod29-world-catalog-item" key={card.id} hidden={!catalogExpanded && cardIndex >= catalogCollapsedSize}
+          style={{ display: !catalogExpanded && cardIndex >= catalogCollapsedSize ? "none" : undefined }}>
         <Link className="sod29-world-catalog-card" to={card.href} data-world-topic={card.refId}>
           <div className="sod29-world-catalog-meta"><span>{CONVERGENCE_LABEL}</span>{publicCreator(card.creator) ? <span>{publicCreator(card.creator).displayName}</span> : null}</div>
           <strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}
@@ -1164,8 +1182,8 @@ function LiveWorldLanding({ research, shell, context }) {
         <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
         </div>)}</div>
       <div className="sod29-actions">
-        {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}
-          onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}
+        {(allConvergences.hasMore || allConvergences.cards.length > catalogCollapsedSize) ? <button className="sod29-action" aria-expanded={catalogExpanded}
+          onClick={() => { if (!catalogExpanded) { setCatalogDepthMounted(true); if (allConvergences.cards.length === 2 && allConvergences.hasMore) void loadMoreConvergences(); } setCatalogExpanded(!catalogExpanded); }}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}
         {catalogExpanded && allConvergences.hasMore ? <button className="sod29-action" disabled={allConvergences.loadingMore}
           onClick={loadMoreConvergences}>{allConvergences.loadingMore ? "טוען עוד…" : "טען עוד נושאים"}</button> : null}
       </div>
