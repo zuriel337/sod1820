@@ -65,6 +65,7 @@ const output = { label: args.label, mode, runs, browser: browser.version(), play
   viewport: desktop ? { width: 1366, height: 768 } : { width: 390, height: 844 }, dpr: desktop ? 1 : 2, routes: {} };
 if (args.theme && !['light', 'parchment', 'dark'].includes(args.theme)) throw new Error('Unknown theme');
 output.theme = args.theme || 'dark';
+if (args.navfrom) output.navigation = { from: args.navfrom, note: 'Soft navigation; FCP/LCP are not navigation performance metrics' };
 output.extensionInjection = { delay: Number(args.extensiondelay || 0), failure: args.extensionfail === '1' };
 try {
   for (const pathname of routes) {
@@ -83,11 +84,12 @@ try {
         const check = () => {
           const stage = document.querySelector('[data-experience-capability="post-master-reading-stage"]');
           const ready = pathname === '/' ? document.querySelector('[data-experience-capability="home-composition"] a[href^="/post/"]')
-            : pathname === '/world' ? document.querySelector('.sod29-flight-feature') : stage && stage.innerText.length > 800;
+            : pathname === '/world' ? document.querySelector('[data-flight-story="world"] .sod29-flight-feature') : stage && stage.innerText.length > 800;
           if (ready && window.__perf.ready == null) window.__perf.ready = performance.now();
           if (window.__perf.ready == null) requestAnimationFrame(check);
         };
         requestAnimationFrame(check);
+        window.__checkPrimaryReady = check;
       }, { pathname });
       await page.route('**/*', async route => {
         const req = route.request(), url = req.url(), method = req.method();
@@ -139,7 +141,23 @@ try {
         await cdp.send('Emulation.setCPUThrottlingRate', { rate: output.cpu });
       }
       await cdp.send('Performance.enable');
-      await page.goto(origin + pathname, { waitUntil: 'load', timeout: 60000 });
+      let navStart = 0, beforePerformance = null;
+      await page.goto(origin + (args.navfrom || pathname), { waitUntil: 'load', timeout: 60000 });
+      if (args.navfrom) {
+        await page.waitForFunction(from => from === '/' ? document.querySelector('[data-experience-capability="home-composition"] a[href^="/post/"]')
+          : document.querySelector('[data-flight-story="world"] .sod29-flight-feature'), args.navfrom, { timeout: 30000 });
+        await page.waitForLoadState('networkidle', { timeout: 30000 });
+        beforePerformance = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(m => [m.name, m.value]));
+        reads.length = 0;
+        navStart = await page.evaluate(pathname => {
+          window.__perf = { ready: null, lcp: 0, cls: 0 };
+          const start = performance.now();
+          history.pushState({ ...history.state, idx: (history.state?.idx || 0) + 1, key: 'perf-navigation', usr: null }, '', pathname);
+          dispatchEvent(new PopStateEvent('popstate', { state: history.state }));
+          window.__checkPrimaryReady();
+          return start;
+        }, pathname);
+      }
       await page.waitForFunction(() => window.__perf.ready != null, null, { timeout: 30000 }).catch(() => errors.push('Primary content did not become ready'));
       await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => errors.push('Network did not settle'));
       await page.waitForTimeout(1000);
@@ -155,8 +173,12 @@ try {
       const pm = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(m => [m.name, m.value]));
       const primaryReads = reads.filter(r => r.primary);
       const textHash = hash(metrics.text), textLength = metrics.text.length; delete metrics.text;
-      samples.push({ ...metrics, textHash, textLength, script: pm.ScriptDuration * 1000, task: pm.TaskDuration * 1000,
-        firstPrimaryReq: primaryReads.length ? Math.min(...primaryReads.map(r => r.start)) : null, restCount: reads.length,
+      if (args.navfrom) {
+        metrics.ready -= navStart;
+        metrics.lastRestEnd -= navStart;
+      }
+      samples.push({ ...metrics, textHash, textLength, script: (pm.ScriptDuration - (beforePerformance?.ScriptDuration || 0)) * 1000, task: (pm.TaskDuration - (beforePerformance?.TaskDuration || 0)) * 1000,
+        firstPrimaryReq: primaryReads.length ? Math.min(...primaryReads.map(r => r.start)) - navStart : null, restCount: reads.length,
         errors, misses, blocked: [...new Set(blocked)], reads });
       await context.close();
     }
