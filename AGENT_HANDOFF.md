@@ -1,5 +1,14 @@
 # SOD1820 — AGENT HANDOFF
 
+## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+
+**אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+**ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
+
+
 Status: coordination / provenance pointer only. It does not replace live verification, the Owner Index, or the active `inter_agent_coordination_law`.
 
 ## When to read this file
