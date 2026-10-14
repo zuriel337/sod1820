@@ -41,35 +41,3 @@ out = (tmpl.replace("__TORAH_DATA__", gz64(tk)).replace("__NIQQUD_DATA__", gz64(
           .replace("__CORPUS_ID_TORAH__", corpus_torah).replace("__CORPUS_ID_TANAKH__", corpus_tanakh))
 open(OUT, "w", encoding="utf-8").write(out)
 print("wrote", OUT, "| KB:", round(len(out.encode("utf-8")) / 1024))
-
-# ── גרסה עצמאית «קריאה-בלבד» (Legacy, לא קנונית): אותו מנוע, בלי שמירה, בלי תלות באתר ובלי מסך פתיחה.
-# פלט: ../../public/tzofen-standalone.html — ניתן לאירוח סטטי חינמי. הפלט הקנוני לעיל לא משתנה.
-STANDALONE = r"""<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
-<style>
- #lgBanner{position:sticky;top:0;z-index:99999;background:#480b13;color:#f6da78;font:600 13px/1.5 Arial,sans-serif;text-align:center;padding:6px 10px;direction:rtl;border-bottom:1px solid rgba(232,200,74,.4)}
- .save-act,.save,.share-act,.sh-save,#xsaved,.gal-reopen,.gal-lbl,.gal-empty,#gallery,.saved,[class*="gal-close"],.post-link-act,#howto,#alwaystip,#guidebtn,.locked{display:none!important}
-</style>
-<div id="lgBanner">הצופן התנ״כי החדש והמתקדם עדיין בבנייה · בינתיים אפשר לחפש כאן</div>
-<script>
- (function(){
-  // אין שמירה: כל כתיבה ל-localStorage/sessionStorage מושתקת, ואין תקשורת עם דף-אב.
-  try{Storage.prototype.setItem=function(){};var _g=Storage.prototype.getItem;Storage.prototype.getItem=function(k){return k==="tzofen_onboarded_v1"?"1":_g.call(this,k);};}catch(e){}
-  try{window.addEventListener("message",function(e){e.stopImmediatePropagation();},true);}catch(e){}
-  document.addEventListener("click",function(e){
-    var b=e.target&&e.target.closest&&e.target.closest(".save-act,.save,.share-act");
-    if(b){e.stopImmediatePropagation();e.preventDefault();alert("אין אפשרות שמירה בגרסה זו");}
-  },true);
- })();
-</script>
-"""
-# אין שרת באירוח העצמאי: המועמדים נמצאו בהתאמה מדויקת בקורפוס המוטמע, ולכן מסומנים כמאומתים מקומית.
-_vb = 'const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,\n        candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))},undefined,operation);'
-assert out.count(_vb) == 1, "verify_batch call site changed"
-_local = 'const r={ok:true,result:{status:"OK",corpus_id:cid,verified:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))}};'
-_ia = 'const isAnon=()=>st.tier==="anon"&&!st.admin;'
-assert out.count(_ia) == 1, "isAnon call site changed"
-sa = STANDALONE + out.replace(_vb, _local).replace(_ia, "const isAnon=()=>false;")   # חופשי לכולם: בלי מגבלת חיפושים/רישום
-sa = sa.replace("https://sod1820.co.il/codes/", "#").replace("https://sod1820.co.il/", "#")
-OUT2 = os.path.join(os.path.dirname(OUT), "tzofen-standalone.html")
-open(OUT2, "w", encoding="utf-8").write(sa)
-print("wrote", OUT2, "| KB:", round(len(sa.encode("utf-8")) / 1024))
