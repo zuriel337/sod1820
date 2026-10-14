@@ -14,6 +14,18 @@ test('head URL and client URL are identical for original slug variants and lates
   assert.equal(entryPrimaryReads2029('/number/1820').length, 0);
   assert.equal(entryPrimaryReads2029('/post/a/b').length, 0);
 });
+test('definitions preserve original reader URL semantics, including encoded and reserved-character slugs', async () => {
+  let seen;
+  const client = createClient('https://example.supabase.co', 'anon', { auth: { persistSession: false }, global: { fetch: async url => { seen = String(url); return new Response('[]'); } } });
+  for (const slug of ['hello', '%D7%A9%D7%9C%D7%95%D7%9D', 'a,b', 'a(b)', 'a"b']) {
+    const decoded = decodeURIComponent(slug), encoded = encodeURIComponent(decoded).toLowerCase();
+    await client.from('posts').select('*').in('slug', [...new Set([slug, decoded, encoded])]).limit(1);
+    assert.equal(postReadUrl('https://example.supabase.co', postBySlugRead(slug)), seen);
+  }
+  await client.from('posts').select('id, slug, title, image_url, thumb_url, date, modified, tags, home_hidden')
+    .eq('home_hidden', false).not('slug', 'is', null).order('modified', { ascending: false, nullsFirst: false }).limit(21);
+  assert.equal(postReadUrl('https://example.supabase.co', latestPostCardsRead({ limit: 16 })), seen);
+});
 function setup({ storedSession = null, pathname = '/' } = {}) {
   let bootCalls = 0, normalCalls = 0;
   const host = { localStorage: { getItem: () => storedSession }, location: { pathname }, setTimeout() {},
@@ -54,4 +66,16 @@ test('HTTP failure, rejection, stale handoff and aborted consumer preserve norma
   await stale.fetch(stale.url, stale.init); assert.equal(stale.counts().normalCalls, 1);
   const aborted = setup(); const controller = new AbortController(); controller.abort();
   await assert.rejects(aborted.fetch(aborted.url, { ...aborted.init, signal: controller.signal }), { name: 'AbortError' });
+});
+test('an aborted consumer stops immediately without aborting another initial consumer', async () => {
+  const s = setup(); let complete;
+  s.host.__sodPrimaryReads2029.get(s.url).promise = new Promise(resolve => { complete = resolve; });
+  const controller = new AbortController();
+  const cancelled = s.fetch(s.url, { ...s.init, signal: controller.signal });
+  const other = s.fetch(s.url, s.init);
+  controller.abort();
+  await assert.rejects(cancelled, { name: 'AbortError' });
+  complete(new Response('[{"id":3}]'));
+  assert.deepEqual(await (await other).json(), [{ id: 3 }]);
+  assert.equal(s.counts().normalCalls, 0);
 });

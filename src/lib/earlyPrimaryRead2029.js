@@ -24,16 +24,22 @@ export function createEarlyReadFetch2029({ anonKey, baseFetch = (...args) => fet
       || headers.has('prefer') || headers.has('range') || headers.has('content-profile')
       || (headers.get('accept') || 'application/json') !== hit.accept || (headers.get('accept-profile') || 'public') !== hit.profile
       || host.location.pathname !== hit.route || Date.now() - hit.created > 15000) return baseFetch(input, init);
-    if (init.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    const signal = init.signal || input?.signal;
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    let onAbort;
     try {
-      const response = await hit.promise;
-      if (init.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+      const response = await (signal ? Promise.race([hit.promise, new Promise((_, reject) => {
+        onAbort = () => reject(new DOMException('Aborted', 'AbortError'));
+        signal.addEventListener('abort', onAbort, { once: true });
+      })]) : hit.promise);
+      if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
       if (!response.ok) return baseFetch(input, init);
       return response.clone();
     } catch (error) {
-      if (init.signal?.aborted) throw error;
+      if (signal?.aborted) throw error;
       return baseFetch(input, init);
     } finally {
+      if (onAbort) signal.removeEventListener('abort', onAbort);
       // Concurrent initial consumers may clone the same pending response. Later reads fetch fresh.
       if (host.__sodPrimaryReads2029?.get(url) === hit) host.__sodPrimaryReads2029.delete(url);
     }

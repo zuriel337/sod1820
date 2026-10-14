@@ -16,7 +16,10 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
 // חוזרת בלי Cache-Control → הדפדפן חופשי להגיש JSON ישן). ראה getMatrixBySlug.
 export { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } });
+const earlyReadOptions = typeof window !== 'undefined' && window.__sodPrimaryReads2029
+  ? { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } }
+  : undefined;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, earlyReadOptions);
 
 export default supabase;
 export { supabase };
