@@ -88,7 +88,7 @@ export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) 
     : `עודכן ${relativeTimeLabel(update.at)}`;
 
   return <section ref={heroRef} className={`h29-hero h29-hero2${entering ? " is-enter" : ""}${unseen ? " is-pulse" : ""}`} aria-label="העדכון האחרון" data-hero-motion={entering ? "enter" : "quiet"}>
-    {lead.poster ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="eager" /> : null}
+    {lead.poster ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="eager" fetchPriority="high" /> : null}
     <div className="h29-hero-copy">
       <div className="h29-kicker k29-in" style={{ "--i": 0 }}>העדכון האחרון</div>
       <h1 className="k29-in" style={{ "--i": 1 }}>{clean(lead.title)}</h1>
