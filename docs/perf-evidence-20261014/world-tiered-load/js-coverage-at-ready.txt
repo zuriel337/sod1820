@@ -1,0 +1,15 @@
+files 45 total KB 1566 executed-at-ready KB 415 pct 27
+ 217 KB unused of  337 KB (gz 108) 2029.js
+ 199 KB unused of  230 KB (gz 60) supabase.js
+ 189 KB unused of  210 KB (gz 60) World2029Page.js
+ 161 KB unused of  214 KB (gz 68) Sod2029Shell.js
+  75 KB unused of  125 KB (gz 48) post2029ReadingProjection.js
+  41 KB unused of   46 KB (gz 14) entityHubProjection.js
+  27 KB unused of   33 KB (gz 11) topicSourceContext.js
+  23 KB unused of   40 KB (gz 13) SpatialMethodStage2029.js
+  22 KB unused of   42 KB (gz 16) WorldSourceStory.js
+  17 KB unused of   19 KB (gz 7) momentClockSystemMethod.js
+  16 KB unused of   17 KB (gz 6) numberSystemMethods.js
+  15 KB unused of   17 KB (gz 6) researchResultBundle.js
+  14 KB unused of   14 KB (gz 5) worldContextualProminence.js
+  13 KB unused of   33 KB (gz 9) semanticSceneCompiler.js

@@ -1,0 +1,342 @@
+diff --git a/scripts/perf/harness-data.mjs b/scripts/perf/harness-data.mjs
+new file mode 100644
+index 00000000..d9274660
+--- /dev/null
++++ b/scripts/perf/harness-data.mjs
+@@ -0,0 +1,71 @@
++// Shared 2029 load harness (fixture replay, deterministic). See docs/perf-measurement-conditions-2029.md
++// Usage: node harness.mjs <record|run> --dist DIR --label L [--routes /,/world,/post/x] [--runs 7] [--cpu 4] [--rtt 150] [--fixtures f.json] [--out out.json] [--sbdelay 150]
++import { createRequire } from 'node:module'; import fs from 'node:fs'; import zlib from 'node:zlib'; import { execFileSync } from 'node:child_process';
++import { serve } from './serve.mjs';
++const require=createRequire((process.env.PLAYWRIGHT_DIR||'/opt/node-tools')+'/node_modules/'); const { chromium }=require('playwright');
++const args=Object.fromEntries(process.argv.slice(3).reduce((a,v,i,arr)=>v.startsWith('--')?[...a,[v.slice(2),arr[i+1]]]:a,[]));
++const mode=process.argv[2]; const dist=args.dist; const runs=+(args.runs||7); const cpu=+(args.cpu||4); const rtt=+(args.rtt||150);
++const sbdelay=+(args.sbdelay||150); const extdelay=+(args.extdelay||400); const routes=(args.routes||'/').split(',');
++const fixFile=args.fixtures||new URL('./fixtures.json.gz',import.meta.url).pathname; const norm=u=>decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(Z|\+00:00| ?00:00)?/g,'TS');
++const fixtures=fs.existsSync(fixFile)?JSON.parse(zlib.gunzipSync(fs.readFileSync(fixFile))):{};
++const { srv, port }=await serve(dist); const origin=`http://127.0.0.1:${port}`;
++const browser=await chromium.launch({executablePath:process.env.PERF_CHROME||'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
++const median=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:null};
++const READY={'/':`document.querySelector("[data-experience-capability='home-composition'] a[href^='/post/']")`,'/world':`document.querySelector('[data-world-topic]')`,post:`(()=>{const e=document.querySelector("[data-experience-capability='post-master-reading-stage']");return e&&e.innerText.length>800})()`};
++const INIT=(route)=>`(()=>{const READY=()=>${READY[route]||READY.post};window.__m={lt:[],rootAt:null,lcp:0,cls:0};new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)__m.cls+=e.value}).observe({type:'layout-shift',buffered:true});
++new PerformanceObserver(l=>{for(const e of l.getEntries())__m.lt.push([e.startTime,e.duration])}).observe({type:'longtask',buffered:true});
++new PerformanceObserver(l=>{for(const e of l.getEntries())__m.lcp=e.startTime}).observe({type:'largest-contentful-paint',buffered:true});
++const ro=new MutationObserver(()=>{if(__m.ready==null&&READY())__m.ready=performance.now()});document.addEventListener('DOMContentLoaded',()=>ro.observe(document.documentElement,{childList:true,subtree:true,characterData:true}));
++const mo=new MutationObserver(()=>{const r=document.getElementById('root');if(r&&r.childElementCount&&__m.rootAt==null){__m.rootAt=performance.now();mo.disconnect()}});
++document.addEventListener('DOMContentLoaded',()=>{const r=document.getElementById('root');if(r)mo.observe(r,{childList:true})});})()`;
++async function one(route){const routeKey=route;
++  const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,locale:'he-IL',timezoneId:'Asia/Jerusalem',userAgent:'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141 Mobile Safari/537.36'});
++  await ctx.addInitScript(INIT(route)); const page=await ctx.newPage(); const cdp=await ctx.newCDPSession(page);
++  const misses=[]; const sb=[]; const ext=[];
++  await page.route('**/*',async route=>{
++    const req=route.request(); const u=req.url();
++    if(u.startsWith(origin)){ if(new URL(u).pathname.startsWith('/api/')) return route.fulfill({status:200,contentType:'application/json',body:'{}'}); return route.continue(); }
++    if(u.includes('.supabase.co')){
++      if(req.method()!=='GET') return route.fulfill({status:204,body:'',headers:{'access-control-allow-origin':'*'}});
++      const k=norm(u);
++      if(mode==='record'){ try{ const o=execFileSync('curl',['-s','-m','30','-D','-',u,...Object.entries(req.headers()).filter(([h])=>['apikey','accept-profile','prefer','range','accept'].includes(h.toLowerCase())).flatMap(([h,v])=>['-H',h+': '+v])],{maxBuffer:1<<28}).toString('utf8'); const i=o.lastIndexOf('\r\n\r\n'); const head=o.slice(0,i), body=o.slice(i+4); const hv=n=>(head.match(new RegExp('^'+n+': (.*)$','mi'))||[])[1]?.trim()||null; const status=+head.split(' ')[1]; fixtures[k]={status,body,ct:hv('content-type'),cr:hv('content-range')}; return route.fulfill({status,body,headers:{'content-type':fixtures[k].ct||'application/json','access-control-allow-origin':'*','access-control-expose-headers':'content-range',...(fixtures[k].cr?{'content-range':fixtures[k].cr}:{})}}); }catch(e){ console.error('rec fail',k.slice(0,80),e.message.slice(0,80)); return route.abort(); } }
++      const f=fixtures[k]; if(!f){ misses.push(k); }
++      await new Promise(r=>setTimeout(r,sbdelay));
++      return route.fulfill({status:f?f.status:200,body:f?f.body:'[]',headers:{'content-type':f?.ct||'application/json','access-control-allow-origin':'*','access-control-expose-headers':'content-range',...(f?.cr?{'content-range':f.cr}:{})}});
++    }
++    ext.push(u.slice(0,80)); if(mode==='run') await new Promise(r=>setTimeout(r,extdelay)); return route.fulfill({status:200,body:'',contentType:u.endsWith('.css')||u.includes('css2')?'text/css':'text/javascript'});
++  });
++  if(mode==='run'){ await cdp.send('Network.enable'); await cdp.send('Network.emulateNetworkConditions',{offline:false,latency:rtt,downloadThroughput:1.6*1024*1024/8,uploadThroughput:750*1024/8}); await cdp.send('Emulation.setCPUThrottlingRate',{rate:cpu}); }
++  await cdp.send('Performance.enable'); if(args.profile){await cdp.send('Profiler.enable');await cdp.send('Profiler.setSamplingInterval',{interval:500});await cdp.send('Profiler.start');}
++  await page.goto(origin+route,{waitUntil:'load',timeout:120000}).catch(()=>{});
++  await page.waitForLoadState('networkidle',{timeout:30000}).catch(()=>{}); await page.waitForTimeout(1500);
++  const m=await page.evaluate(()=>{const nav=performance.getEntriesByType('navigation')[0];const res=performance.getEntriesByType('resource');
++    const fcp=performance.getEntriesByName('first-contentful-paint')[0]?.startTime??null;
++    const sbr=res.filter(r=>r.name.includes('.supabase.co')); const js=res.filter(r=>/\.js(\?|$)/.test(r.name)&&r.name.includes('/assets/'));
++    const cr=sbr.filter(r=>!/rpc\/(link_identity|track_visit|ingest_event)|\/auth\/v1/.test(r.name)); const lt=__m.lt; const tbt=lt.filter(x=>x[0]>=(fcp||0)).reduce((s,x)=>s+Math.max(0,x[1]-50),0); const tbtAll=lt.reduce((s,x)=>s+Math.max(0,x[1]-50),0);
++    return {ttfb:nav.responseStart,dcl:nav.domContentLoadedEventEnd,load:nav.loadEventEnd,fcp,lcp:__m.lcp,rootAt:__m.rootAt,ready:__m.ready,cls:__m.cls,
++      firstSbReq:sbr.length?Math.min(...sbr.map(r=>r.startTime)):null,firstSbEnd:sbr.length?Math.min(...sbr.map(r=>r.responseEnd)):null,lastSbEnd:sbr.length?Math.max(...sbr.map(r=>r.responseEnd)):null,
++      firstContentReq:cr.length?Math.min(...cr.map(r=>r.startTime)):null,firstContentEnd:cr.length?Math.min(...cr.map(r=>r.responseEnd)):null,sbCount:sbr.length,jsCount:js.length,jsLastEnd:js.length?Math.max(...js.map(r=>r.responseEnd)):null,
++      jsBytes:js.reduce((s,r)=>s+(r.encodedBodySize||0),0),allBytes:res.reduce((s,r)=>s+(r.encodedBodySize||0),0)+nav.encodedBodySize,
++      tbt,tbtAll,ltl:lt.map(x=>[Math.round(x[0]),Math.round(x[1])]),ltCount:lt.length,reqs:res.length,tl:res.filter(r=>!r.name.includes('.supabase.co')).map(r=>[r.name.replace(/^https?:\/\/[^/]+/,'').slice(0,60),Math.round(r.startTime),Math.round(r.responseEnd),Math.round((r.encodedBodySize||0)/1024),r.initiatorType]),sbList:sbr.map(r=>[Math.round(r.startTime),r.name.split('.supabase.co')[1].slice(0,90)])};});
++  const pm=Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(x=>[x.name,x.value]));
++  m.script=pm.ScriptDuration*1000; m.task=pm.TaskDuration*1000; m.layout=pm.LayoutDuration*1000; m.style=pm.RecalcStyleDuration*1000;
++  if(args.profile){const {profile}=await cdp.send('Profiler.stop');const self={};const byId=new Map(profile.nodes.map(n=>[n.id,n]));const dt=profile.timeDeltas;
++    profile.samples.forEach((id,i)=>{const n=byId.get(id);const u=(n.callFrame.url||'(native:'+n.callFrame.functionName+')').replace(/^https?:\/\/[^/]+/,'');self[u]=(self[u]||0)+dt[i]/1000;});
++    m.prof=Object.entries(self).sort((a,b)=>b[1]-a[1]).slice(0,14).map(([u,t])=>[u,Math.round(t)]);}
++  m.misses=misses; m.ext=ext; await ctx.close(); return m;
++}
++const out={label:args.label,mode,cpu,rtt,sbdelay,routes:{}};
++for(const r of routes){ const rs=[]; for(let i=0;i<(mode==='record'?1:runs);i++){ rs.push(await one(r)); }
++  const keys=Object.keys(rs[0]).filter(k=>typeof rs[0][k]==='number'||rs[0][k]===null);
++  const med={}; for(const k of keys) med[k]=median(rs.map(x=>x[k]).filter(v=>v!=null)); 
++  const spread={}; for(const k of ['fcp','lcp','ready','firstContentReq','tbtAll','script']){const v=rs.map(x=>x[k]).filter(v=>v!=null).sort((a,b)=>a-b);spread[k]=[v[0],v[v.length-1]]}
++  out.routes[r]={median:med,spread,sbList:rs[0].sbList,tl:rs[0].tl,ltl:rs[0].ltl,prof:rs[0].prof,misses:[...new Set(rs.flatMap(x=>x.misses))],ext:[...new Set(rs.flatMap(x=>x.ext))]}; console.error(r,'done'); }
++if(mode==='record') fs.writeFileSync(fixFile,zlib.gzipSync(JSON.stringify(fixtures)));
++if(args.out) fs.writeFileSync(args.out,JSON.stringify(out,null,1));
++const R=n=>n==null?'-':Math.round(n);
++console.log(`\n## ${args.label} (cpu x${cpu}, rtt ${rtt}ms, sb ${sbdelay}ms, n=${runs})`);
++console.log('route | FCP | LCP | root | READY | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#');
++for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.ready),R(m.firstContentReq),R(m.firstContentEnd),R(m.lastSbEnd),R(m.tbtAll),m.cls?.toFixed(3),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
++  if(v.misses.length)console.log('  fixture misses:',v.misses.length);}
++await browser.close(); srv.close();
+diff --git a/src/components/experience2029/useSystemFeed2029.js b/src/components/experience2029/useSystemFeed2029.js
+index e499dee6..ea2cf2a8 100644
+--- a/src/components/experience2029/useSystemFeed2029.js
++++ b/src/components/experience2029/useSystemFeed2029.js
+@@ -1,6 +1,7 @@
+ // One watcher of the EXISTING world discovery stream for the whole frame (panel, phone chip). Visibility-bound polling
+ // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
+ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
++import { WORLD_TIER, idleRun } from "../../lib/worldPostsMode.js";
+ import { feedRows, feedSeenKey } from "../../lib/systemFeed2029.js";
+ import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
+ import { tierLookupNumbers } from "../../lib/ratings2029.js";
+@@ -15,7 +16,8 @@ export function useSystemFeed2029({ enabled = true } = {}) {
+   useEffect(() => {
+     if (!enabled) return undefined;
+     let live = true; let stop;
+-    import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
++    const start = (fn) => (WORLD_TIER ? idleRun(fn, 4000) : fn());
++    start(() => import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
+       if (!live) return;
+       stop = watchWorldDiscoveryStream({
+         limit: 40, includeResearch: false,
+@@ -33,7 +35,7 @@ export function useSystemFeed2029({ enabled = true } = {}) {
+         },
+         onError: () => { if (live) setState((current) => ({ ...current, loading: false, error: current.items.length === 0 })); },
+       });
+-    }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); });
++    }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); }));
+     return () => { live = false; stop?.(); };
+   }, [enabled]);
+ 
+diff --git a/src/components/research/SourceArrivalList2029.jsx b/src/components/research/SourceArrivalList2029.jsx
+index f0f9d369..bb0a0aa4 100644
+--- a/src/components/research/SourceArrivalList2029.jsx
++++ b/src/components/research/SourceArrivalList2029.jsx
+@@ -4,6 +4,7 @@ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
+ import SourceRepeatInfo2029 from './SourceRepeatInfo2029.jsx';
+ import '../../pages/home-world-story2029.css';
+ import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
++import { WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
+ import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
+ 
+ function date(value) {
+@@ -16,7 +17,8 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
+   const [seen, setSeen] = useState(readSeen);
+   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
+   const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, limit);
+-  return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות">
++  return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות"
++    style={WORLD_POSTS_OFF && surface === 'world' ? { minHeight: window.matchMedia('(max-width:760px)').matches ? 6204 : 3003 } : undefined}>
+     <header><div className="sod29-kicker">קולות מן המקור</div><h2>מה מגיע עכשיו</h2>
+       <p>דברי הכותבים והפוסטים האחרונים פתוחים לקריאה, גם לפני שנוצר מהם חיבור במחקר.</p></header>
+     <div className="sod29-actions" aria-label="סוג המקורות">{[['all', 'העדכונים האחרונים'], ['group_message', 'הודעות מקור'], ['post', 'פוסטים אחרונים']].map(([key, label]) =>
+diff --git a/src/components/research/WorldFlightStory2029.jsx b/src/components/research/WorldFlightStory2029.jsx
+index 37c49360..b2d4ef37 100644
+--- a/src/components/research/WorldFlightStory2029.jsx
++++ b/src/components/research/WorldFlightStory2029.jsx
+@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
+ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
+ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
+ import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
+-import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
++import { WORLD_TIER, idleRun, WORLD_POSTS_FULL, WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
+ import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
+ import '../../pages/home-world-story2029.css';
+ import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
+@@ -30,7 +30,18 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
+   useEffect(() => {
+     let live = true;
+     setState({ loading: true, projection: null });
+-    fetchPost2029ReadingProjection(slug).then((projection) => {
++    // EXPERIMENT: full = the reading projection (connections, timeline, traces); basic = one narrow
++    // row for the card; off = no post request, reserved space only.
++    const readNow = () => WORLD_POSTS_FULL
++      ? import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug))
++      : WORLD_POSTS_OFF ? Promise.resolve(null)
++      : import('../../lib/supabase.js').then(async ({ supabase }) => {
++        const { data, error } = await supabase.from('posts').select('id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,image_url,thumb_url,categories').eq('slug', slug).limit(1);
++        if (error || !data?.length) return null;
++        return { post: data[0], identity: { href: `/post/${encodeURIComponent(data[0].slug)}` }, experience: { timeline: [], media: null } };
++      });
++    const read = new Promise((resolve, reject) => { const go = () => readNow().then(resolve, reject); if (WORLD_TIER && surface === 'world') idleRun(go, 2500); else go(); });
++    read.then((projection) => {
+       // This consumer never adopts a private stage or preview snapshot as public material.
+       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
+         && postRowToWorldUpdate(projection.post);
+@@ -43,6 +54,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
+     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
+     return () => cancelAnimationFrame(frame);
+   }, [anchor, location.hash, state.loading]);
++  if (WORLD_POSTS_OFF) return <section id={anchor} className="sod29-flight-story is-world is-loading" data-world-posts-reserved aria-hidden="true" style={{ height: window.matchMedia('(max-width:760px)').matches ? 668 : 573 }} />;
+   if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
+     <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
+   </section>;
+diff --git a/src/lib/earlyWorld.js b/src/lib/earlyWorld.js
+new file mode 100644
+index 00000000..f0ee156e
+--- /dev/null
++++ b/src/lib/earlyWorld.js
+@@ -0,0 +1,13 @@
++// EXPERIMENT (private worktree only): start the World's first data read from the boot script,
++// in parallel with the route chunk. Same reader (fetchExplorerFacetPage), same arguments.
++let slot = null;
++export function startEarlyWorld(pathname = '') {
++  if (import.meta.env.VITE_WORLD_EARLY !== '1') return;
++  try {
++    if (pathname === '/world' || pathname === '/world/') {
++      slot = import('./research/explorerFacets.js').then((m) => m.fetchExplorerFacetPage('topic', { limit: 8, offset: 0 }));
++      slot.catch(() => {});
++    }
++  } catch { /* optimisation only */ }
++}
++export function takeEarlyWorld() { const p = slot; slot = null; return p; }
+diff --git a/src/lib/research/entityHubProjection.js b/src/lib/research/entityHubProjection.js
+index 21ce2654..74d09442 100644
+--- a/src/lib/research/entityHubProjection.js
++++ b/src/lib/research/entityHubProjection.js
+@@ -1,4 +1,5 @@
+ import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
++import { WORLD_POSTS_FULL } from "../worldPostsMode.js";
+ import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
+ import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
+ import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
+@@ -863,7 +864,7 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
+       ? publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
+         .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
+       : Promise.resolve({ data: [], count: 0 }),
+-    slug === INDIA_CAPTAIN_SOURCE.topicSlug
++    slug === INDIA_CAPTAIN_SOURCE.topicSlug && WORLD_POSTS_FULL
+       ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
+         .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
+       : Promise.resolve({ data: null }),
+diff --git a/src/lib/research/worldDiscoveryStream.js b/src/lib/research/worldDiscoveryStream.js
+index f3f4b193..b55e1be7 100644
+--- a/src/lib/research/worldDiscoveryStream.js
++++ b/src/lib/research/worldDiscoveryStream.js
+@@ -1,4 +1,5 @@
+ import { fetchTopicCardList } from "./topicConvergence.js";
++import { WORLD_POSTS_OFF } from "../worldPostsMode.js";
+ import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
+ import { stripHtml } from "../format.js";
+ import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
+@@ -245,7 +246,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
+ 
+   // Public Source is read from the existing posts RLS boundary, never a privileged
+   // legacy WhatsApp endpoint. Group messages require a separately verified source reader.
+-  const postsPromise = import("../supabase.js").then(async ({ supabase }) => {
++  const postsPromise = WORLD_POSTS_OFF ? Promise.resolve([]) : import("../supabase.js").then(async ({ supabase }) => {
+     const { data, error } = await supabase
+       .from("posts")
+       .select("id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at")
+diff --git a/src/lib/worldPostsMode.js b/src/lib/worldPostsMode.js
+new file mode 100644
+index 00000000..be44463f
+--- /dev/null
++++ b/src/lib/worldPostsMode.js
+@@ -0,0 +1,14 @@
++// EXPERIMENT (isolation of the Posts system from the World page). Build-time constant:
++//   full  = unchanged World
++//   basic = post cards from the basic list row only: no post-reading projection, connection
++//           resolution, method verification, gematria traces or post-body reads
++//   off   = no post data requests at all (reserved space is rendered instead of the card)
++// Resolved at build time so the branches below are removed from the bundle, not just hidden.
++export const WORLD_POSTS_MODE = import.meta.env.VITE_WORLD_POSTS || 'full';
++export const WORLD_POSTS_FULL = WORLD_POSTS_MODE === 'full';
++export const WORLD_POSTS_OFF = WORLD_POSTS_MODE === 'off';
++
++// EXPERIMENT: tiered World requests (draw first / after paint / on demand). Build constant.
++export const WORLD_TIER = import.meta.env.VITE_WORLD_TIER === '1';
++export const idleRun = (fn, timeout = 1500) => (typeof window !== 'undefined' && window.requestIdleCallback
++  ? window.requestIdleCallback(fn, { timeout }) : setTimeout(fn, 300));
+diff --git a/src/main2029.jsx b/src/main2029.jsx
+index afdf4cb9..b77e6834 100644
+--- a/src/main2029.jsx
++++ b/src/main2029.jsx
+@@ -2,6 +2,7 @@ import { StrictMode } from "react";
+ import { createRoot } from "react-dom/client";
+ import App2029 from "./App2029.jsx";
+ import { initRuntimeErrorCapture } from "./lib/tracking.js";
++import { startEarlyWorld } from "./lib/earlyWorld.js";
+ 
+ // Bounded visual review on the existing app; production and legacy stay outside it.
+ if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
+@@ -10,6 +11,7 @@ if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
+ }
+ 
+ initRuntimeErrorCapture();
++startEarlyWorld(window.location.pathname);
+ 
+ const root = createRoot(document.getElementById("root"));
+ async function warmLocalFonts() {
+diff --git a/src/pages/World2029Page.jsx b/src/pages/World2029Page.jsx
+index 270daaeb..28190802 100644
+--- a/src/pages/World2029Page.jsx
++++ b/src/pages/World2029Page.jsx
+@@ -72,6 +72,8 @@ import { applySeo } from "../lib/seo.js";
+ import "./world2029-human.css";
+ import "./worldComposition2029.css";
+ import { levelNumbers } from "../lib/ratings2029.js";
++import { WORLD_TIER, idleRun } from "../lib/worldPostsMode.js";
++import { takeEarlyWorld } from "../lib/earlyWorld.js";
+ import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
+ import { relativeTimeLabel } from "../lib/relativeTime2029.js";
+ 
+@@ -534,14 +536,16 @@ function WorldSourceStory({ research, shell, compact = false }) {
+   const [state, setState] = useState({ loading: true, story: null });
+   const [attempt, setAttempt] = useState(0);
+   const expanded = location.hash === `#${WORLD_SOURCE_STORY_ANCHOR}`;
++  const hiddenCompact = WORLD_TIER && compact && !expanded && !/^#world-(direction|source)-/.test(location.hash);
+   useEffect(() => {
++    if (hiddenCompact) return undefined; // EXPERIMENT: a section that renders nothing must not read anything
+     let alive = true;
+     setState({ loading: true, story: null });
+     fetchTopicSourceContext({ topicSlug: INDIA_CAPTAIN_SOURCE.topicSlug })
+       .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection), projection }); })
+       .catch(() => { if (alive) setState({ loading: false, story: null }); });
+     return () => { alive = false; };
+-  }, [attempt]);
++  }, [attempt, hiddenCompact]);
+   const story = state.story;
+   useEffect(() => {
+     if (!expanded || !story) return;
+@@ -673,6 +677,33 @@ function LiveWorldLanding({ research, shell, context }) {
+       journeyError: null,
+     }));
+ 
++    if (WORLD_TIER) {
++      // Tier 1: only what is drawn first (the Topic facet). Everything else after paint.
++      const first = await Promise.allSettled([takeEarlyWorld() || fetchExplorerFacetPage(WORLD_FACETS[0].key, { limit: WORLD_FACETS[0].limit, offset: 0 })]);
++      setLanding((prev) => ({ ...prev, loading: false, sections: { [WORLD_FACETS[0].key]: first[0].status === "fulfilled" ? first[0].value?.cards || [] : [] },
++        error: first[0].status === "rejected" ? first[0].reason : null }));
++      idleRun(async () => {
++        const contributorPromise2 = fetchWorldLandingContributorProjection();
++        const [more, extras2] = await Promise.all([
++          Promise.allSettled(WORLD_FACETS.slice(1).map((facet) => fetchExplorerFacetPage(facet.key, { limit: facet.limit, offset: 0 }))),
++          Promise.allSettled([
++            contributorPromise2,
++            contributorPromise2.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
++            fetchGoldenWorldJourney878(),
++          ]),
++        ]);
++        const add = {};
++        more.forEach((result, index) => { if (result.status === "fulfilled") add[WORLD_FACETS[index + 1].key] = result.value?.cards || []; });
++        setLanding((prev) => ({ ...prev, sections: { ...prev.sections, ...add },
++          contributors: extras2[0]?.status === "fulfilled" ? extras2[0].value : null,
++          discovery: extras2[1]?.status === "fulfilled" ? extras2[1].value : null,
++          journey: extras2[2]?.status === "fulfilled" ? extras2[2].value : null,
++          contributorError: extras2[0]?.status === "rejected" ? extras2[0].reason : null,
++          discoveryError: extras2[1]?.status === "rejected" ? extras2[1].reason : null,
++          journeyError: extras2[2]?.status === "rejected" ? extras2[2].reason : null }));
++      });
++      return;
++    }
+     const contributorPromise = fetchWorldLandingContributorProjection();
+     const [facetResults, extras] = await Promise.all([
+       Promise.allSettled(
+@@ -1159,7 +1190,7 @@ function LiveWorldLanding({ research, shell, context }) {
+           {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
+           <small>לגלות את החיבורים ←</small>
+         </Link>
+-        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
++        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={!WORLD_TIER && cardIndex < 8} popover />
+         </div>)}</div>
+       <div className="sod29-actions">
+         {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}
