@@ -62,9 +62,14 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
         categories: rowsBySlug[post.slug]?.categories || post.categories || [],
       })) });
     }).catch(() => update({ loading: false, posts: [] }));
-    if (includeWorld) {
-      fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [] })).catch(() => {});
-    }
+    return () => { live = false; };
+  }, []);
+  useEffect(() => {
+    if (!includeWorld) return;
+    let live = true;
+    fetchExplorerFacetPage("topic", { limit: 4 })
+      .then((result) => { if (live) setState((current) => ({ ...current, notable: result?.cards || [] })); })
+      .catch(() => {});
     return () => { live = false; };
   }, [includeWorld]);
   return state;
