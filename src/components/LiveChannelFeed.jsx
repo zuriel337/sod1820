@@ -196,7 +196,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
   return (
     <>
       <style>{`
-        /* חלונית העדכונים הגלובלית — חדש בעולם, עם אותו פיד ופעולות קיימות. */
+        /* חלונית העדכונים הגלובלית — עכשיו, עם אותו פיד ופעולות קיימות. */
         .lcf-fab{position:fixed;inset-inline-start:14px;bottom:16px;z-index:150;cursor:pointer;border:none;direction:rtl;text-align:start;
           display:inline-flex;align-items:center;gap:10px;border-radius:16px;padding:8px 13px 8px 9px;max-width:min(345px,calc(100vw - 28px));
           background:${dark ? "#1f2c33" : "#ffffff"};color:${dark ? "#e9edef" : "#111b21"};box-shadow:0 8px 26px rgba(0,0,0,${dark ? ".5" : ".22"});border:1px solid ${dark ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.08)"}}
@@ -280,7 +280,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
             <span aria-hidden="true" style={{ fontSize: 23, lineHeight: 1 }}>🌍</span>
           </span>
           <span className="ftxt">
-            <span className="flbl">חדש בעולם{unseen > 0 && <span className="badge">{unseen}</span>}</span>
+            <span className="flbl">עכשיו{unseen > 0 && <span className="badge">{unseen}</span>}</span>
             <span className="flatest" key={tick} style={{ animation: "lcf-swap .4s ease" }}>
               {cur
                 ? <>{cur.credit || CH[cur.ch]?.name} · {previewOf(cur)}<em className="ftime"> · {timeAgoHe(cur.created_at)}</em></>
@@ -298,7 +298,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
               <span className="ava" aria-hidden>
                 <span aria-hidden="true" style={{ fontSize: 23, lineHeight: 1 }}>🌍</span>
               </span>
-              <div><div className="nm">חדש בעולם</div><div className="st"><i />ערוצים · פורום · פעילות · עכשיו</div></div>
+              <div><div className="nm">עכשיו</div><div className="st"><i />ערוצים · פורום · פעילות · עכשיו</div></div>
               <button className="x" onClick={() => closeSiteUpdates()} aria-label={docked ? "מזער" : "סגור"}>{docked ? "–" : "✕"}</button>
             </div>
             <div className="lcf-chips">
