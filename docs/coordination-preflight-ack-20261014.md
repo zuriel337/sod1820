@@ -8,6 +8,7 @@ Technical base: `5dd7032e1ba32af350c1179a543dde69400d146f`. No live migration, r
 - `SYSTEMFRAME_ONE_SHELL_WORLD_HOME_20261014` (`379606a8`) was deferred by the emitter's branch-only release check.
 - `G4_SOURCE_SEQUENCE_FRAME_ADOPTION_V1_20261013` (`01722689`) was deferred by its incomplete governance check.
 - Both had empty `dispatch_context`. The sender and legacy INSERT adapter admit incomplete tasks; validation was only downstream in emit. The old claim path did not revalidate governance or require receiver ACK.
+- The shell row used `PREVIEW_ONLY_NO_MAIN_PUSH_NO_PRODUCTION`, which did not satisfy the emitter's explicit branch-only/no-merge/no-deploy vocabulary; the sequence row had NULL release authorization. Neither was repaired by changing its status.
 - Scope equality was the only writer conflict predicate; differently named tasks could overlap files. Existing unique scope and assignment indexes are retained.
 - Recovery still produced Claude-to-GPT RESULT_WAKE on exhausted leases, contrary to the passive-result policy.
 - A transport fire or created session does not prove reading. Some runtime results had explicit ACK only in separate evidence rows, not correlated receipt fields.
@@ -17,6 +18,7 @@ Technical base: `5dd7032e1ba32af350c1179a543dde69400d146f`. No live migration, r
 The CLI-generated migration extends existing functions and `work_log.dispatch_context`. No table, queue, dispatcher, cron, public access grant or new authority is introduced.
 It adds preflight before outgoing transport and before claim, a structured overload of the existing sender, explicit receiver ACK, lease-bound lifecycle progress, file/directory overlap reservations, payload-sensitive idempotency, safe requeue and passive recovery results.
 Unknown delivery timeouts block instead of spawning duplicate sessions. Expired WRITE leases retain reservation until explicit owner reconciliation. Invalid rows remain visible with a specific blocking reason; changing status alone cannot release them.
+Independent Claude review `a0baee13-d908-4216-8130-eb6dc52a29f5` reproduced missing path grammar/normalization coverage, blocked-result dependency admission and lack of lease renewal. The revision rejects interior wildcards/dot segments, conservatively compares case and directory prefixes, admits only PASS-class dependencies, and renews leases through progress. Known transport session IDs are checked against receiver ACKs.
 The recipient's Git observations and authorization reference are evidence assertions from a trusted runtime; SQL cannot inspect Git or prove a human's decision by itself. The receiver must verify them independently and stop all writes on lease expiry. Raw direct SQL is privileged administration, not a replacement for the canonical APIs.
 
 ```mermaid
@@ -42,3 +44,4 @@ The existing one-directional SQL suite and architecture contract are also run. C
 
 This PR is branch-only. Structured ACK enforcement is NOT live until an authorized migration/receiver rollout passes its gates. The existing GPT→Claude Routine works; direct addressing of arbitrary already-open GPT/Claude chat sessions is not exposed by this runtime. Do not claim all active chats were notified. GPT collects passive AFTERs on its next bounded coordination scan, not through unauthorized wake/polling.
 Keep both original DEFERRED WRITE tasks blocked. Do not requeue them as part of this repair. An authorized operator must deploy the migration and compatible receiver instructions together; test a fresh READ_ONLY task, then an isolated approved WRITE fixture, before production infrastructure adoption. No product deployment is part of that rollout.
+The migration has explicit apply prerequisites: reconcile existing legacy WRITE claims lacking paths (332 were reported by the independent reviewer; not mass-retired), and record verified compatible Routine ACK-before-claim instructions. Missing prerequisites reject application before function changes. Existing source-only instructions do not prove the hosted Routine prompt was updated. These remain runtime rollout blockers, not user message-relay tasks.

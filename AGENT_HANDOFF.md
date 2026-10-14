@@ -68,6 +68,9 @@ WRITE ACK must include the independently observed base/head. Never manufacture a
 session's ACK. `agent_dispatch_claim` then acquires the lease. Record `WORKING` and
 `TESTED` with `agent_dispatch_progress`; TESTED requires test evidence. The transport
 state stays CLAIMED while these lifecycle receipts are in `dispatch_context`.
+Progress is the bounded heartbeat and renews a valid lease for 15 minutes; it cannot
+revive an expired lease. Dependencies require an accepted PASS/AFTER_TESTED result,
+not merely a transport outcome COMPLETED. BLOCKER results never satisfy dependencies.
 `agent_dispatch_finish` records a parent-linked AFTER; completed WRITE requires TESTED.
 Claude results remain passive TO=GPT, with no RESULT_WAKE.
 
@@ -86,6 +89,13 @@ cancels/transfers explicitly; agents must stop writes when their lease expires.
 READ_ONLY retries reuse the same assignment ID and bounded attempt budget.
 FAILED is terminal with retained evidence; an explicit authorized retry revalidates
 the envelope, ownership and current head. Do not unstick blocked tasks by status alone.
+
+Before applying the proposed migration, reconcile legacy CLAIMED_WRITE rows without
+file paths through their real owners; never bulk-archive or infer abandonment by age.
+Also update and verify the actual Routine prompt to ACK-before-claim before rollout.
+Record that verification under existing task `SESSION_COORDINATION_ACK_PROTOCOL_ROLLOUT_V16`
+with `ACK_PROTOCOL_ROLLOUT_VERIFIED` and the receiver protocol/test evidence. The migration
+refuses application while either prerequisite is missing. This record is not release authority.
 
 For a user decision affecting several known owners, make bounded READ_ONLY notification
 assignments per existing owner with a stable key containing the decision reference and

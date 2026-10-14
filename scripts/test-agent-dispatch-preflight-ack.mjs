@@ -20,7 +20,7 @@ CREATE TABLE public.work_log(
  task_key text,from_actor text,to_actor text,assignment_mode text,assignment_scope text,primary_owner text,release_authorization_state text,
  parent_assignment_id uuid,dispatch_kind text,dispatch_state text,dispatch_next_attempt_at timestamptz,dispatch_context jsonb DEFAULT '{}',dispatch_attempts integer DEFAULT 0,
  dispatch_lease_owner text,dispatch_lease_expires_at timestamptz,dispatch_last_error text,dispatch_completed_at timestamptz,superseded_by_id uuid,archived boolean DEFAULT false,
- dispatch_last_emitted_at timestamptz,dispatch_last_request_id bigint);
+ dispatch_last_emitted_at timestamptz,dispatch_last_request_id bigint,dispatch_session_id text);
 CREATE UNIQUE INDEX work_log_assignment_idempotency_uidx ON work_log(task_key,to_actor,dispatch_kind) WHERE dispatch_kind='ASSIGNMENT';
 CREATE UNIQUE INDEX work_log_one_active_writer_scope_uidx ON work_log(lower(assignment_scope)) WHERE assignment_mode='WRITE' AND dispatch_kind='ASSIGNMENT' AND archived=false AND superseded_by_id IS NULL AND coalesce(dispatch_state,'QUEUED') NOT IN ('FAILED','CANCELLED','COMPLETED');
 `);
@@ -32,6 +32,11 @@ await db.exec(`CREATE TRIGGER trg_work_log_dispatch_prepare BEFORE INSERT OR UPD
 const v16=readFileSync(new URL('20261011172200_agent_dispatch_one_directional_results_v16.sql',root),'utf8');
 await db.exec(v16);
 const migration=readdirSync(root).find(n=>n.endsWith('_agent_dispatch_preflight_ack_v16.sql'));
+await assert.rejects(db.exec(readFileSync(new URL(migration,root),'utf8')),/ACK-before-claim instructions/);
+await db.exec("INSERT INTO work_log(task_key,from_actor,status,dispatch_context) VALUES('SESSION_COORDINATION_ACK_PROTOCOL_ROLLOUT_V16','GPT','ACK_PROTOCOL_ROLLOUT_VERIFIED','{\"receiver_protocol\":\"ACK_BEFORE_CLAIM_V16\",\"tested\":true}')");
+const legacyClaim=(await db.query("INSERT INTO work_log(assignment_mode,status,assignment_scope) VALUES('WRITE','CLAIMED_WRITE_LEGACY','legacy') RETURNING id")).rows[0].id;
+await assert.rejects(db.exec(readFileSync(new URL(migration,root),'utf8')),/reconcile legacy WRITE owners/);
+await db.query('DELETE FROM work_log WHERE id=$1',[legacyClaim]); // isolated fixture setup only
 await db.exec(readFileSync(new URL(migration,root),'utf8'));
 await db.exec(`CREATE FUNCTION public.work_log_dispatch_after_write() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF new.dispatch_state IN ('QUEUED','RETRY_WAIT') THEN PERFORM agent_dispatch_emit(new.id); END IF; RETURN NULL; END $$;
 CREATE TRIGGER trg_work_log_dispatch_event AFTER INSERT OR UPDATE OF dispatch_state,dispatch_next_attempt_at ON work_log FOR EACH ROW EXECUTE FUNCTION work_log_dispatch_after_write();`);
@@ -65,6 +70,8 @@ await check('fire and delivery response do not fabricate ACK',async()=>{
  assert.equal((await row(readId)).dispatch_context.receipt,undefined);assert.equal(await claim(readId),null);
 });
 await check('real receiver ACK is persistent and idempotent; another receiver cannot steal it',async()=>{
+ await query("UPDATE work_log SET dispatch_session_id='session-fixture' WHERE id=$1",[readId]);
+ await assert.rejects(query("SELECT agent_dispatch_ack($1,'receiver-one','wrong-session',$2,$2)",[readId,sha]),/transport session mismatch/);
  const receipt=await ack(readId);assert.ok(receipt.ack_at);assert.deepEqual(await ack(readId),receipt);
  await assert.rejects(ack(readId,'receiver-two'),/receipt conflict/);assert.ok(await claim(readId));assert.equal(await claim(readId,'receiver-two'),null);
 });
@@ -81,10 +88,15 @@ await check('WRITE verifies exact base/head and receives sole file ownership',as
  await ack(writeId);assert.ok(await claim(writeId));
  const conflict=await assign('DIFFERENT_SCOPE_SAME_FILE','WRITE');assert.equal((await row(conflict)).dispatch_state,'DEFERRED');assert.match((await row(conflict)).dispatch_last_error,/file_conflict/);
  const prefix=await assign('DIRECTORY_CONFLICT','WRITE',governance,['test/**']);assert.match((await row(prefix)).dispatch_last_error,/file_conflict/);
+ for(const [key,path,reason] of [['WILDCARD','test/*/**','write_path_invalid'],['DOT','test/./coordination-fixture.txt','write_path_invalid'],['CASE','TEST/coordination-fixture.txt','file_conflict'],['BARE_DIR','test','file_conflict'],['REPEATED_GLOB','test/**/**','write_path_invalid']]){
+  const candidate=await assign('PATH_'+key,'WRITE',governance,[path]);assert.match((await row(candidate)).dispatch_last_error,new RegExp(reason));
+ }
 });
 await check('tested evidence required; successful WRITE operates only on authorized fixture branch',async()=>{
  await assert.rejects(query("SELECT agent_dispatch_finish($1,'receiver-one','COMPLETED','AFTER','x','none',false,null)",[writeId]),/tested evidence required/);
  await query("SELECT agent_dispatch_progress($1,'receiver-one','WORKING','{}')",[writeId]);
+ const shortened=new Date(Date.now()+60000);await query('UPDATE work_log SET dispatch_lease_expires_at=$2 WHERE id=$1',[writeId,shortened]);
+ await query("SELECT agent_dispatch_progress($1,'receiver-one','WORKING','{}')",[writeId]);assert.ok(new Date((await row(writeId)).dispatch_lease_expires_at)>shortened);
  const directory=mkdtempSync(join(tmpdir(),'coordination-write-fixture-'));
  try {
   const git=(...args)=>execFileSync('git',args,{cwd:directory,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
@@ -117,7 +129,10 @@ await check('exhausted READ_ONLY lease produces passive AFTER in recovery',async
  await query('SELECT agent_dispatch_recover()');const after=(await query('SELECT * FROM work_log WHERE parent_assignment_id=$1',[id]))[0];assert.equal(after.dispatch_kind,null);assert.equal(after.to_actor,'GPT');
 });
 await check('dependencies must be completed, no implicit approval from a name',async()=>{
- const pending=await assign('DEPENDENCY_PENDING');const id=await assign('DEPENDENT_WRITE','WRITE',{...governance,dependency_ids:[pending]});assert.match((await row(id)).dispatch_last_error,/dependency_not_completed/);
+ const pending=await assign('DEPENDENCY_PENDING');const id=await assign('DEPENDENT_WRITE','WRITE',{...governance,dependency_ids:[pending]});assert.match((await row(id)).dispatch_last_error,/dependency_not_accepted/);
+ const blocked=await assign('COMPLETED_BUT_BLOCKED');await ack(blocked);await claim(blocked);
+ const result=(await query("SELECT agent_dispatch_finish($1,'receiver-one','COMPLETED','AFTER_BLOCKER','cannot proceed','needs fix',false,null) result",[blocked]))[0].result;
+ const dependent=await assign('DEPENDENCY_BLOCKER_REJECTED','WRITE',{...governance,dependency_ids:[result.after_id]});assert.match((await row(dependent)).dispatch_last_error,/dependency_not_accepted/);
 });
 await check('invalid governance cannot be released by requeue or changing status alone',async()=>{
  const id=await assign('UNAPPROVED_REQUEUE','WRITE',{...governance,authorization_ref:null});

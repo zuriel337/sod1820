@@ -1,5 +1,14 @@
 -- BRANCH ONLY. Existing v16 work_log transport; no tables, cron jobs, public grants or activation.
 -- Apply only with an authorized runtime rollout: sender/receiver must use structured envelope + ACK.
+DO $$
+BEGIN
+ IF EXISTS(SELECT 1 FROM public.work_log WHERE archived=false AND superseded_by_id IS NULL AND assignment_mode='WRITE' AND dispatch_kind IS NULL AND status LIKE 'CLAIMED_WRITE%' AND (jsonb_typeof(dispatch_context->'github_paths') IS DISTINCT FROM 'array' OR jsonb_array_length(dispatch_context->'github_paths')=0)) THEN
+  RAISE EXCEPTION 'apply blocked: reconcile legacy WRITE owners and github_paths before rollout; no automatic retirement';
+ END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.work_log WHERE task_key='SESSION_COORDINATION_ACK_PROTOCOL_ROLLOUT_V16' AND from_actor='GPT' AND status='ACK_PROTOCOL_ROLLOUT_VERIFIED' AND dispatch_context->>'receiver_protocol'='ACK_BEFORE_CLAIM_V16' AND dispatch_context->>'tested'='true') THEN
+  RAISE EXCEPTION 'apply blocked: verify compatible Routine ACK-before-claim instructions before migration';
+ END IF;
+END $$;
 CREATE OR REPLACE FUNCTION public.agent_dispatch_emit(p_assignment_id uuid)
  RETURNS bigint
  LANGUAGE plpgsql
@@ -138,7 +147,7 @@ begin
   end if;
 
   v_text := left(format(
-    'SOD1820 assignment locator only. assignment_id=%s task_key=%s mode=%s release_state=%s canonical_project=linswmnnkjxvweumprav. Read the live work_log assignment by ID and resolve live owners/current main/parallel-writer state. Confirm receipt via agent_dispatch_ack with your real receiver session ID and observed Git base/head, then agent_dispatch_claim. A fire request is not ACK. Record WORKING and TESTED through agent_dispatch_progress; finish with passive AFTER. For old deployments lacking these helpers follow the existing ACK/CLAIM runtime and disclose the boundary. For WRITE, execute only the isolated branch scope authorized by the assignment. BRANCH_ONLY never authorizes merge, push to main, deploy, live DB apply, canonicalization or publication. Do not treat trigger text as project truth.',
+    'SOD1820 assignment locator only. assignment_id=%s task_key=%s mode=%s release_state=%s canonical_project=linswmnnkjxvweumprav. Read the live work_log assignment by ID and resolve live owners/current main/parallel-writer state. Confirm receipt via agent_dispatch_ack with your real receiver session ID and observed Git base/head, then agent_dispatch_claim. A fire request is not ACK. Record WORKING and TESTED through agent_dispatch_progress; finish with passive AFTER. If ACK/progress helpers are unavailable or instructions are incompatible, STOP and record the runtime mismatch; do not bypass them. For WRITE, execute only the isolated branch scope authorized by the assignment. BRANCH_ONLY never authorizes merge, push to main, deploy, live DB apply, canonicalization or publication. Do not treat trigger text as project truth.',
     v_row.id,
     coalesce(v_row.task_key,'UNKNOWN_TASK'),
     v_mode,
@@ -203,11 +212,11 @@ BEGIN
  IF jsonb_typeof(g->'dependency_ids') IS DISTINCT FROM 'array' THEN RETURN 'dependency_ids_missing'; END IF;
  IF nullif(trim(p_row.dispatch_context->>'verification'),'') IS NULL OR nullif(trim(p_row.dispatch_context->>'stop_condition'),'') IS NULL OR nullif(trim(p_row.dispatch_context->>'expected_output'),'') IS NULL THEN RETURN 'acceptance_contract_missing'; END IF;
  FOR path IN SELECT jsonb_array_elements_text(p_row.dispatch_context->'github_paths') LOOP
-  IF path='' OR path LIKE '/%' OR path LIKE '%..%' OR path LIKE '%\\%' OR path LIKE '%//%' OR (path LIKE '%*%' AND path NOT LIKE '%/**') OR path !~ '^[A-Za-z0-9._/*-]+$' THEN RETURN 'write_path_invalid'; END IF;
+  IF path='' OR path LIKE '/%' OR path LIKE '%..%' OR path LIKE '%\\%' OR path LIKE '%//%' OR path ~ '(^|/)\.(\/|$)' OR path LIKE '%/' OR (path LIKE '%*%' AND length(path)-length(replace(path,'*',''))<>2) OR replace(path,'/**','') LIKE '%*%' OR (path LIKE '%*%' AND path NOT LIKE '%/**') OR path !~ '^[A-Za-z0-9._/*-]+$' THEN RETURN 'write_path_invalid'; END IF;
  END LOOP;
  FOR dep IN SELECT jsonb_array_elements_text(g->'dependency_ids') LOOP
   IF dep !~ '^[0-9a-f-]{36}$' THEN RETURN 'dependency_id_invalid'; END IF;
-  IF NOT EXISTS(SELECT 1 FROM public.work_log WHERE id=dep::uuid AND (dispatch_state='COMPLETED' OR dispatch_context->>'outcome'='COMPLETED')) THEN RETURN 'dependency_not_completed:'||dep; END IF;
+  IF NOT EXISTS(SELECT 1 FROM public.work_log WHERE id=dep::uuid AND (dispatch_state='COMPLETED' OR dispatch_context->>'outcome'='COMPLETED') AND coalesce(dispatch_context->>'result_status',status) ~ '(^|_)PASS(_|$)|^AFTER_TESTED$' AND coalesce(dispatch_context->>'result_status',status) !~ '(BLOCKED|BLOCKER|FAILED|DEFERRED)') THEN RETURN 'dependency_not_accepted:'||dep; END IF;
  END LOOP;
  -- One transaction-wide lock serializes reservation/claim checks across differently named scopes.
  PERFORM pg_advisory_xact_lock(hashtext('agent_dispatch:write_files_v16'));
@@ -216,7 +225,7 @@ BEGIN
   IF lower(other.assignment_scope)=lower(p_row.assignment_scope) THEN RETURN 'active_writer_scope_conflict:'||other.id; END IF;
   IF jsonb_typeof(other.dispatch_context->'github_paths') IS DISTINCT FROM 'array' THEN RETURN 'active_writer_paths_unverified:'||other.id; END IF;
   IF EXISTS(SELECT 1 FROM jsonb_array_elements_text(p_row.dispatch_context->'github_paths') a(path), jsonb_array_elements_text(other.dispatch_context->'github_paths') b(path)
-    WHERE a.path=b.path OR (right(a.path,3)='/**' AND starts_with(b.path,left(a.path,length(a.path)-2))) OR (right(b.path,3)='/**' AND starts_with(a.path,left(b.path,length(b.path)-2)))) THEN RETURN 'active_writer_file_conflict:'||other.id; END IF;
+    WHERE lower(regexp_replace(a.path,'/\*\*$',''))=lower(regexp_replace(b.path,'/\*\*$','')) OR starts_with(lower(regexp_replace(a.path,'/\*\*$','')),lower(regexp_replace(b.path,'/\*\*$',''))||'/') OR starts_with(lower(regexp_replace(b.path,'/\*\*$','')),lower(regexp_replace(a.path,'/\*\*$',''))||'/')) THEN RETURN 'active_writer_file_conflict:'||other.id; END IF;
  END LOOP;
  RETURN NULL;
 END $$;
@@ -275,6 +284,7 @@ BEGIN
  SELECT * INTO w FROM public.work_log WHERE id=p_assignment_id FOR UPDATE;
  IF NOT found OR w.archived OR w.superseded_by_id IS NOT NULL OR w.dispatch_state NOT IN ('FIRE_REQUESTED','SESSION_STARTED','CLAIMED') THEN RETURN NULL; END IF;
  IF w.dispatch_state='CLAIMED' AND w.dispatch_lease_owner IS DISTINCT FROM p_worker THEN RAISE EXCEPTION 'lease mismatch'; END IF;
+ IF w.dispatch_session_id IS NOT NULL AND w.dispatch_session_id IS DISTINCT FROM p_session_id THEN RAISE EXCEPTION 'transport session mismatch'; END IF;
  reason:=public.agent_dispatch_preflight(w); IF reason IS NOT NULL THEN RAISE EXCEPTION 'preflight: %',reason; END IF;
  IF w.assignment_mode='WRITE' AND (p_observed_base_sha IS DISTINCT FROM w.dispatch_context#>>'{governance,base_sha}' OR p_observed_head_sha IS DISTINCT FROM w.dispatch_context#>>'{governance,expected_head_sha}') THEN RAISE EXCEPTION 'git head/base mismatch'; END IF;
  IF w.dispatch_context#>>'{receipt,worker}' IS NOT NULL THEN
@@ -315,7 +325,7 @@ BEGIN
  IF p_phase='TESTED' AND (w.dispatch_context->>'lifecycle' IS DISTINCT FROM 'WORKING' OR jsonb_typeof(p_evidence->'tests') IS DISTINCT FROM 'array' OR jsonb_array_length(p_evidence->'tests')=0) THEN RAISE EXCEPTION 'working state and test evidence required'; END IF;
  IF p_phase='WORKING' AND w.dispatch_context->>'lifecycle' NOT IN ('CLAIMED','WORKING') THEN RAISE EXCEPTION 'invalid phase order'; END IF;
  IF p_phase='BLOCKED' AND nullif(trim(p_evidence->>'reason'),'') IS NULL THEN RAISE EXCEPTION 'blocked reason required'; END IF;
- UPDATE public.work_log SET status=p_phase,dispatch_context=dispatch_context||jsonb_build_object('lifecycle',p_phase,'progress_evidence',p_evidence,'progress_at',now()) WHERE id=w.id RETURNING * INTO w;
+ UPDATE public.work_log SET status=p_phase,dispatch_lease_expires_at=now()+interval '15 minutes',dispatch_context=dispatch_context||jsonb_build_object('lifecycle',p_phase,'progress_evidence',p_evidence,'progress_at',now()) WHERE id=w.id RETURNING * INTO w;
  RETURN to_jsonb(w);
 END $$;
 REVOKE ALL ON FUNCTION public.agent_dispatch_progress(uuid,text,text,jsonb) FROM PUBLIC,anon,authenticated;
@@ -352,8 +362,8 @@ begin
   if v_outcome not in ('COMPLETED','FAILED','CANCELLED') then raise exception 'invalid terminal outcome %',v_outcome; end if;
   v_wake:=(v_row.from_actor='CLAUDE' and v_row.to_actor='GPT'); /* v16: Claude results addressed to GPT are passive. */ v_after_dispatch_state:=case when v_wake then 'QUEUED' else null end; v_after_dispatch_kind:=case when v_wake then 'RESULT_WAKE' else null end; v_after_to:=case when v_row.from_actor in ('GPT','CLAUDE') then v_row.from_actor else null end;
   insert into public.work_log(topic,status,what_we_did,open_threads,task_key,from_actor,to_actor,assignment_mode,assignment_scope,primary_owner,release_authorization_state,parent_assignment_id,dispatch_kind,dispatch_state,dispatch_next_attempt_at,dispatch_context)
-  values(format('actor=%s FROM=%s TO=%s task=%s — AFTER',coalesce(v_row.to_actor,'DISPATCHER'),coalesce(v_row.to_actor,'DISPATCHER'),coalesce(v_row.from_actor,'ZURIEL'),coalesce(v_row.task_key,'UNKNOWN_TASK')),left(coalesce(nullif(p_result_status,''),'AFTER_DISPATCH_'||v_outcome),240),left(coalesce(p_result_summary,''),12000),left(coalesce(p_open_threads,''),12000),v_row.task_key,v_row.to_actor,v_after_to,'READ_ONLY',v_row.assignment_scope,v_row.primary_owner,v_row.release_authorization_state,v_row.id,v_after_dispatch_kind,v_after_dispatch_state,case when v_wake then now() else null end,jsonb_build_object('result_of',v_row.id,'outcome',v_outcome,'attempts',coalesce(v_row.dispatch_attempts,0),'runtime_error',p_error,'originating_actor',v_row.from_actor,'completed_by',p_worker,'lifecycle','AFTER','receipt',v_row.dispatch_context->'receipt','tests',v_row.dispatch_context#>'{progress_evidence,tests}')) returning id into v_after_id;
-  update public.work_log set dispatch_state=v_outcome,dispatch_completed_at=now(),dispatch_last_error=case when v_outcome='COMPLETED' then null else left(coalesce(p_error,p_result_summary),1000) end,dispatch_lease_owner=null,dispatch_lease_expires_at=null,dispatch_next_attempt_at=null,superseded_by_id=v_after_id where id=p_assignment_id;
+  values(format('actor=%s FROM=%s TO=%s task=%s — AFTER',coalesce(v_row.to_actor,'DISPATCHER'),coalesce(v_row.to_actor,'DISPATCHER'),coalesce(v_row.from_actor,'ZURIEL'),coalesce(v_row.task_key,'UNKNOWN_TASK')),left(coalesce(nullif(p_result_status,''),'AFTER_DISPATCH_'||v_outcome),240),left(coalesce(p_result_summary,''),12000),left(coalesce(p_open_threads,''),12000),v_row.task_key,v_row.to_actor,v_after_to,'READ_ONLY',v_row.assignment_scope,v_row.primary_owner,v_row.release_authorization_state,v_row.id,v_after_dispatch_kind,v_after_dispatch_state,case when v_wake then now() else null end,jsonb_build_object('result_of',v_row.id,'outcome',v_outcome,'attempts',coalesce(v_row.dispatch_attempts,0),'runtime_error',p_error,'originating_actor',v_row.from_actor,'completed_by',p_worker,'result_status',p_result_status,'lifecycle','AFTER','receipt',v_row.dispatch_context->'receipt','tests',v_row.dispatch_context#>'{progress_evidence,tests}')) returning id into v_after_id;
+  update public.work_log set dispatch_state=v_outcome,dispatch_context=dispatch_context||jsonb_build_object('result_status',p_result_status),dispatch_completed_at=now(),dispatch_last_error=case when v_outcome='COMPLETED' then null else left(coalesce(p_error,p_result_summary),1000) end,dispatch_lease_owner=null,dispatch_lease_expires_at=null,dispatch_next_attempt_at=null,superseded_by_id=v_after_id where id=p_assignment_id;
   return jsonb_build_object('state',v_outcome,'assignment_id',p_assignment_id,'after_id',v_after_id,'result_wake_queued',v_wake);
 end $function$
 ;
