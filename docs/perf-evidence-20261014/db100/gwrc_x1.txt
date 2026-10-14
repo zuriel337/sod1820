@@ -1,0 +1,75 @@
+== GW1 public total count (count=exact, HEAD)
+   Buffers: shared hit=443
+   ->  Seq Scan on gematria_words 
+   Buffers: shared hit=443
+   Buffers: shared hit=183
+   Execution Time: 3.782 ms
+== GW2 public created in last 7d count
+   Buffers: shared hit=443
+   ->  Seq Scan on gematria_words 
+   Buffers: shared hit=443
+   Buffers: shared hit=12
+   Execution Time: 3.959 ms
+== GW3 public visibility_changed in last 7d count
+   Buffers: shared hit=443
+   ->  Seq Scan on gematria_words 
+   Buffers: shared hit=443
+   Buffers: shared hit=4
+   Execution Time: 3.813 ms
+== GW4 latest 3 by created_at
+   Buffers: shared hit=446
+   Sort Method: top-N heapsort  Memory: 25kB
+   Buffers: shared hit=446
+   ->  Seq Scan on gematria_words 
+   Buffers: shared hit=443
+   Buffers: shared hit=46
+   Execution Time: 4.689 ms
+== GW5 latest 3 by visibility_changed_at
+   Buffers: shared hit=443
+   Sort Method: top-N heapsort  Memory: 25kB
+   Buffers: shared hit=443
+   ->  Seq Scan on gematria_words 
+   Buffers: shared hit=443
+   Buffers: shared hit=1
+   Execution Time: 4.546 ms
+== GW6 treasure tag (verified, tags @> x, limit 40)
+   Buffers: shared hit=449
+   ->  Seq Scan on gematria_words 
+   Buffers: shared hit=449
+   Buffers: shared hit=58
+   Execution Time: 2.801 ms
+== GW7 number lookup ragil=787 verified
+   Buffers: shared hit=2 read=2
+   ->  Bitmap Heap Scan on gematria_words 
+   Buffers: shared hit=2 read=2
+   ->  Bitmap Index Scan on idx_gw_ragil 
+   Buffers: shared hit=1
+   Execution Time: 0.051 ms
+== RC1 approved last 7d, order created desc limit 1000 (with count exact)
+   Sort Method: quicksort  Memory: 25kB
+   ->  Bitmap Heap Scan on research_contributions 
+   ->  Bitmap Index Scan on rc_status_idx 
+   Buffers: shared hit=135
+   Execution Time: 0.088 ms
+== RC1c count exact same filter
+   Buffers: shared hit=3
+   ->  Index Only Scan using rc_status_idx on research_contributions 
+   Buffers: shared hit=3
+   Execution Time: 0.064 ms
+== RC2 by 4 authors + convergence slug
+   Buffers: shared hit=1373
+   Sort Method: quicksort  Memory: 25kB
+   Buffers: shared hit=1373
+   Buffers: shared hit=1373
+   ->  Seq Scan on research_contributions 
+   Buffers: shared hit=1372
+   Buffers: shared hit=1
+   Buffers: shared hit=1
+   ->  Seq Scan on research_contributions research_contributions_1 
+   Buffers: shared hit=1
+   Buffers: shared hit=99
+   Execution Time: 6.190 ms
+== RC3 target number 787 approved limit 12
+   ->  Index Scan using rc_target_idx on research_contributions 
+   Buffers: shared hit=3
+   Execution Time: 0.051 ms

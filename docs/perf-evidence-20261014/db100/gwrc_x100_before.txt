@@ -1,0 +1,79 @@
+== GW1 public total count (count=exact, HEAD)
+Buffers: shared hit=274 read=43998
+->  Seq Scan on gematria_words 
+Buffers: shared hit=274 read=43998
+Buffers: shared hit=180
+Execution Time: 480.666 ms
+== GW2 public created in last 7d count
+Buffers: shared hit=306 read=43966
+->  Seq Scan on gematria_words 
+Buffers: shared hit=306 read=43966
+Buffers: shared hit=12
+Execution Time: 531.440 ms
+== GW3 public visibility_changed in last 7d count
+Buffers: shared hit=338 read=43934
+->  Seq Scan on gematria_words 
+Buffers: shared hit=338 read=43934
+Buffers: shared hit=4
+Execution Time: 483.085 ms
+== GW4 latest 3 by created_at
+Buffers: shared hit=373 read=43902
+Sort Method: top-N heapsort  Memory: 25kB
+Buffers: shared hit=373 read=43902
+->  Seq Scan on gematria_words 
+Buffers: shared hit=370 read=43902
+Buffers: shared hit=46
+Execution Time: 535.267 ms
+== GW5 latest 3 by visibility_changed_at
+Buffers: shared hit=402 read=43870
+Sort Method: top-N heapsort  Memory: 25kB
+Buffers: shared hit=402 read=43870
+->  Seq Scan on gematria_words 
+Buffers: shared hit=402 read=43870
+Buffers: shared hit=1
+Execution Time: 573.558 ms
+== GW6 treasure tag (verified, tags @> x, limit 40)
+Buffers: shared hit=261 read=35529
+->  Seq Scan on gematria_words 
+Buffers: shared hit=261 read=35529
+Buffers: shared hit=58
+Execution Time: 373.308 ms
+== GW7 number lookup ragil=787 verified
+Buffers: shared hit=53
+->  Bitmap Heap Scan on gematria_words 
+Buffers: shared hit=53
+->  Bitmap Index Scan on idx_gw_ragil 
+Buffers: shared hit=3
+Buffers: shared hit=1
+Execution Time: 0.147 ms
+== RC1 approved last 7d, order created desc limit 1000 (with count exact)
+Buffers: shared hit=144
+->  Index Scan using rc_status_idx on research_contributions 
+Buffers: shared hit=144
+Buffers: shared hit=134
+Execution Time: 0.141 ms
+== RC1c count exact same filter
+Buffers: shared hit=4
+->  Index Only Scan using rc_status_idx on research_contributions 
+Heap Fetches: 0
+Buffers: shared hit=4
+Execution Time: 0.071 ms
+== RC2 by 4 authors + convergence slug
+Buffers: shared hit=111305 read=26935
+Sort Method: top-N heapsort  Memory: 37kB
+Buffers: shared hit=111305 read=26935
+Buffers: shared hit=111305 read=26935
+->  Seq Scan on research_contributions 
+Buffers: shared hit=111304 read=26935
+Buffers: shared hit=1
+Buffers: shared hit=1
+->  Seq Scan on research_contributions research_contributions_1 
+Buffers: shared hit=1
+Buffers: shared hit=99
+Execution Time: 855.435 ms
+== RC3 target number 787 approved limit 12
+Buffers: shared hit=3
+->  Index Scan using rc_target_idx on research_contributions 
+Buffers: shared hit=3
+Buffers: shared hit=3
+Execution Time: 0.028 ms

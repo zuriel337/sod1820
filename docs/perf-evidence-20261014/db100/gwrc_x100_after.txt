@@ -1,0 +1,73 @@
+== GW1 public total count (count=exact, HEAD)
+Buffers: shared hit=399288
+->  Index Only Scan using gw_public_created on gematria_words 
+Heap Fetches: 0
+Buffers: shared hit=399288
+Buffers: shared hit=237
+Execution Time: 208.488 ms
+== GW2 public created in last 7d count
+Buffers: shared hit=4
+->  Index Only Scan using gw_public_created on gematria_words 
+Heap Fetches: 0
+Buffers: shared hit=4
+Buffers: shared hit=10
+Execution Time: 0.072 ms
+== GW3 public visibility_changed in last 7d count
+Buffers: shared hit=14398
+->  Index Only Scan using gw_public_visibility on gematria_words 
+Heap Fetches: 0
+Buffers: shared hit=14398
+Buffers: shared hit=2
+Execution Time: 10.047 ms
+== GW4 latest 3 by created_at
+Buffers: shared hit=6
+->  Index Scan using gw_public_created on gematria_words 
+Buffers: shared hit=6
+Buffers: shared hit=47
+Execution Time: 0.047 ms
+== GW5 latest 3 by visibility_changed_at
+Buffers: shared hit=6
+->  Index Scan using gw_public_visibility on gematria_words 
+Buffers: shared hit=6
+Buffers: shared hit=2
+Execution Time: 0.042 ms
+== GW6 treasure tag (verified, tags @> x, limit 40)
+Buffers: shared hit=42
+->  Bitmap Heap Scan on gematria_words 
+Buffers: shared hit=42
+->  Bitmap Index Scan on gw_tags_gin 
+Buffers: shared hit=2
+Buffers: shared hit=65
+Execution Time: 0.273 ms
+== GW7 number lookup ragil=787 verified
+Buffers: shared hit=53
+->  Bitmap Heap Scan on gematria_words 
+Buffers: shared hit=53
+->  Bitmap Index Scan on idx_gw_ragil 
+Buffers: shared hit=3
+Buffers: shared hit=2
+Execution Time: 0.348 ms
+== RC1 approved last 7d, order created desc limit 1000 (with count exact)
+Buffers: shared hit=144
+->  Index Scan using rc_status_idx on research_contributions 
+Buffers: shared hit=144
+Buffers: shared hit=169
+Execution Time: 0.209 ms
+== RC1c count exact same filter
+Buffers: shared hit=4
+->  Index Only Scan using rc_status_idx on research_contributions 
+Heap Fetches: 0
+Buffers: shared hit=4
+Execution Time: 0.087 ms
+== RC2 by 4 authors + convergence slug (literal ids)
+Buffers: shared hit=92
+->  Index Scan using rc_author_contrib_idx on research_contributions 
+Buffers: shared hit=92
+Buffers: shared hit=3
+Execution Time: 0.117 ms
+== RC3 target number 787 approved limit 12
+Buffers: shared hit=3
+->  Index Scan using rc_target_idx on research_contributions 
+Buffers: shared hit=3
+Buffers: shared hit=3
+Execution Time: 0.025 ms
