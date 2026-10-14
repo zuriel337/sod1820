@@ -1,23 +1,24 @@
-import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
-import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
+const lazyC = (loader) => { const C = lazy(loader); return function LazyC(props) { return <Suspense fallback={null}><C {...props} /></Suspense>; }; };
+const WorldSourceConnections = lazyC(() => import('../components/research/WorldSourceConnections.jsx'));
+const WorldConnectedDiscovery = lazyC(() => import('../components/research/WorldSourceStory.jsx'));
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
-import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
-import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
-import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
+const TopicConvergenceContent = lazyC(() => import("../components/research/TopicConvergenceContent.jsx"));
+const WorldAllResearchTable = lazyC(() => import("../components/research/WorldAllResearchTable.jsx"));
+const WorldConvergenceLens = lazyC(() => import("../components/research/WorldConvergenceLens.jsx"));
+const WorldAnchorMap = lazyC(() => import("../components/research/WorldAnchorMap.jsx"));
+const WorldSourceCorpus = lazyC(() => import("../components/research/WorldSourceCorpus.jsx"));
 import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
 
 import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
-import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
+const ContributorFindingsLens = lazyC(() => import("../components/research/ContributorFindingsLens.jsx"));
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -72,6 +73,8 @@ import { applySeo } from "../lib/seo.js";
 import "./world2029-human.css";
 import "./worldComposition2029.css";
 import { levelNumbers } from "../lib/ratings2029.js";
+import { WORLD_TIER, idleRun } from "../lib/worldPostsMode.js";
+import { takeEarlyWorld, markWorldPainted } from "../lib/earlyWorld.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 
@@ -534,14 +537,16 @@ function WorldSourceStory({ research, shell, compact = false }) {
   const [state, setState] = useState({ loading: true, story: null });
   const [attempt, setAttempt] = useState(0);
   const expanded = location.hash === `#${WORLD_SOURCE_STORY_ANCHOR}`;
+  const hiddenCompact = WORLD_TIER && compact && !expanded && !/^#world-(direction|source)-/.test(location.hash);
   useEffect(() => {
+    if (hiddenCompact) return undefined; // EXPERIMENT: a section that renders nothing must not read anything
     let alive = true;
     setState({ loading: true, story: null });
     fetchTopicSourceContext({ topicSlug: INDIA_CAPTAIN_SOURCE.topicSlug })
       .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection), projection }); })
       .catch(() => { if (alive) setState({ loading: false, story: null }); });
     return () => { alive = false; };
-  }, [attempt]);
+  }, [attempt, hiddenCompact]);
   const story = state.story;
   useEffect(() => {
     if (!expanded || !story) return;
@@ -673,6 +678,33 @@ function LiveWorldLanding({ research, shell, context }) {
       journeyError: null,
     }));
 
+    if (WORLD_TIER) {
+      // Tier 1: only what is drawn first (the Topic facet). Everything else after paint.
+      const first = await Promise.allSettled([takeEarlyWorld() || fetchExplorerFacetPage(WORLD_FACETS[0].key, { limit: WORLD_FACETS[0].limit, offset: 0 })]);
+      setLanding((prev) => ({ ...prev, loading: false, sections: { [WORLD_FACETS[0].key]: first[0].status === "fulfilled" ? first[0].value?.cards || [] : [] },
+        error: first[0].status === "rejected" ? first[0].reason : null }));
+      idleRun(async () => {
+        const contributorPromise2 = fetchWorldLandingContributorProjection();
+        const [more, extras2] = await Promise.all([
+          Promise.allSettled(WORLD_FACETS.slice(1).map((facet) => fetchExplorerFacetPage(facet.key, { limit: facet.limit, offset: 0 }))),
+          Promise.allSettled([
+            contributorPromise2,
+            contributorPromise2.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
+            fetchGoldenWorldJourney878(),
+          ]),
+        ]);
+        const add = {};
+        more.forEach((result, index) => { if (result.status === "fulfilled") add[WORLD_FACETS[index + 1].key] = result.value?.cards || []; });
+        setLanding((prev) => ({ ...prev, sections: { ...prev.sections, ...add },
+          contributors: extras2[0]?.status === "fulfilled" ? extras2[0].value : null,
+          discovery: extras2[1]?.status === "fulfilled" ? extras2[1].value : null,
+          journey: extras2[2]?.status === "fulfilled" ? extras2[2].value : null,
+          contributorError: extras2[0]?.status === "rejected" ? extras2[0].reason : null,
+          discoveryError: extras2[1]?.status === "rejected" ? extras2[1].reason : null,
+          journeyError: extras2[2]?.status === "rejected" ? extras2[2].reason : null }));
+      });
+      return;
+    }
     const contributorPromise = fetchWorldLandingContributorProjection();
     const [facetResults, extras] = await Promise.all([
       Promise.allSettled(
@@ -707,6 +739,7 @@ function LiveWorldLanding({ research, shell, context }) {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (WORLD_TIER && !landing.loading) requestAnimationFrame(() => requestAnimationFrame(markWorldPainted)); }, [landing.loading]);
 
   useEffect(() => {
     if (landing.loading) return;
@@ -1159,7 +1192,7 @@ function LiveWorldLanding({ research, shell, context }) {
           {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
           <small>לגלות את החיבורים ←</small>
         </Link>
-        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
+        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={!WORLD_TIER && cardIndex < 8} popover />
         </div>)}</div>
       <div className="sod29-actions">
         {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}

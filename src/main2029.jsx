@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App2029 from "./App2029.jsx";
 import { initRuntimeErrorCapture } from "./lib/tracking.js";
+import { startEarlyWorld } from "./lib/earlyWorld.js";
 
 // Bounded visual review on the existing app; production and legacy stay outside it.
 if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
@@ -10,6 +11,7 @@ if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
 }
 
 initRuntimeErrorCapture();
+startEarlyWorld(window.location.pathname);
 
 const root = createRoot(document.getElementById("root"));
 async function warmLocalFonts() {

@@ -1,6 +1,7 @@
 // One watcher of the EXISTING world discovery stream for the whole frame (panel, phone chip). Visibility-bound polling
 // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { WORLD_TIER, idleRun } from "../../lib/worldPostsMode.js";
 import { feedRows, feedSeenKey } from "../../lib/systemFeed2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
@@ -15,7 +16,8 @@ export function useSystemFeed2029({ enabled = true } = {}) {
   useEffect(() => {
     if (!enabled) return undefined;
     let live = true; let stop;
-    import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
+    const start = (fn) => (WORLD_TIER ? idleRun(fn, 4000) : fn());
+    start(() => import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
       if (!live) return;
       stop = watchWorldDiscoveryStream({
         limit: 40, includeResearch: false,
@@ -33,7 +35,7 @@ export function useSystemFeed2029({ enabled = true } = {}) {
         },
         onError: () => { if (live) setState((current) => ({ ...current, loading: false, error: current.items.length === 0 })); },
       });
-    }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); });
+    }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); }));
     return () => { live = false; stop?.(); };
   }, [enabled]);
 

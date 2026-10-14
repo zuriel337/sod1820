@@ -7,3 +7,8 @@
 export const WORLD_POSTS_MODE = import.meta.env.VITE_WORLD_POSTS || 'full';
 export const WORLD_POSTS_FULL = WORLD_POSTS_MODE === 'full';
 export const WORLD_POSTS_OFF = WORLD_POSTS_MODE === 'off';
+
+// EXPERIMENT: tiered World requests (draw first / after paint / on demand). Build constant.
+export const WORLD_TIER = import.meta.env.VITE_WORLD_TIER !== '0';
+export const idleRun = (fn, timeout = 1500) => (typeof window !== 'undefined' && window.requestIdleCallback
+  ? window.requestIdleCallback(fn, { timeout }) : setTimeout(fn, 300));

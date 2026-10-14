@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
-import { WORLD_POSTS_FULL, WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
+import { worldPainted } from '../../lib/earlyWorld.js';
+import { WORLD_TIER, idleRun, WORLD_POSTS_FULL, WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
@@ -32,7 +33,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     setState({ loading: true, projection: null });
     // EXPERIMENT: full = the reading projection (connections, timeline, traces); basic = one narrow
     // row for the card; off = no post request, reserved space only.
-    const read = WORLD_POSTS_FULL
+    const readNow = () => WORLD_POSTS_FULL
       ? import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug))
       : WORLD_POSTS_OFF ? Promise.resolve(null)
       : import('../../lib/supabase.js').then(async ({ supabase }) => {
@@ -40,6 +41,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         if (error || !data?.length) return null;
         return { post: data[0], identity: { href: `/post/${encodeURIComponent(data[0].slug)}` }, experience: { timeline: [], media: null } };
       });
+    const read = new Promise((resolve, reject) => { const go = () => readNow().then(resolve, reject); if (WORLD_TIER && surface === 'world') worldPainted.then(() => idleRun(go, 1500)); else go(); });
     read.then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
