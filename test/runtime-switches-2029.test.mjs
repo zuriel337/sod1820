@@ -37,3 +37,29 @@ test("every switch has a label, a group and (when measured) a well-formed cost; 
   }
   assert.equal(new Set(RUNTIME_SWITCHES_2029.map((entry) => entry.key)).size, RUNTIME_SWITCHES_2029.length);
 });
+
+test("number research: switched-off journey/dossier lenses send no RPC and are reported as disabled_by_owner", async () => {
+  globalThis.window = {};
+  globalThis.__SOD_2029_BUILD__ = true;
+  try {
+    const { primeRuntimeSwitches } = await import("../src/lib/runtimeSwitches2029.js");
+    const { researchNumber } = await import("../src/lib/research/numericResearchBase.js");
+    const calls = [];
+    const rpc = async (name) => { calls.push(name); return { data: name === "fn_number_lookup" ? [] : {}, error: null }; };
+    const run = (lenses) => researchNumber(1820, { rpc, lenses });
+
+    primeRuntimeSwitches({});
+    calls.length = 0; await run(["number_lookup", "number_dossier", "number_journey"]);
+    assert.deepEqual([...calls].sort(), ["fn_number_dossier", "fn_number_journey", "fn_number_lookup"]);
+
+    primeRuntimeSwitches({ fx_number_journey: false });
+    calls.length = 0; let result = await run(["number_lookup", "number_dossier", "number_journey"]);
+    assert.deepEqual([...calls].sort(), ["fn_number_dossier", "fn_number_lookup"]);
+    assert.equal(result.per_lens.number_journey.status, "disabled_by_owner");
+
+    primeRuntimeSwitches({ fx_number_dossier: false, fx_number_journey: false });
+    calls.length = 0; result = await run(["number_lookup", "number_dossier", "number_journey"]);
+    assert.deepEqual(calls, ["fn_number_lookup"]);
+    assert.equal(result.per_lens.number_dossier.status, "disabled_by_owner");
+  } finally { delete globalThis.window; delete globalThis.__SOD_2029_BUILD__; }
+});

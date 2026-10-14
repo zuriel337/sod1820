@@ -43,6 +43,8 @@ export async function readRuntimeSwitches({ fresh = false } = {}) {
   cache = { at: Date.now(), map };
   return map;
 }
+// Test hook: seed the in-memory window with an exact switch map.
+export function primeRuntimeSwitches(map) { cache = { at: Date.now(), map: { ...switchesFromFlags({}), ...map } }; }
 export async function isRuntimeSwitchOn(key) {
   return (await readRuntimeSwitches())[key] !== false;
 }
