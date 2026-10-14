@@ -124,7 +124,7 @@ function NoContextEntry() {
     if (numeric) {
       const id = String(Number(raw));
       research.setResearchContext?.({
-        subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
+        subject: { id, type: "number", label: id, href: `/number/${id}` },
         selection: { entityId: id, entityType: "number" },
         lens: "heichal",
         locale: "he",
@@ -401,7 +401,7 @@ function ActiveResearchEnvironment() {
 
 export default function Heichal2029Page() {
   const research = useResearch();
-  useEffect(() => { applySeo({ title: "היכל · SOD1820", description: "סביבת המחקר העמוקה של SOD1820 2029", path: "/heichal" }); }, []);
+  useEffect(() => { applySeo({ title: "היכל · SOD1820", description: "סביבת המחקר העמוקה של SOD1820", path: "/heichal" }); }, []);
   const hasContext = Boolean(research.context?.subject);
   return <Sod2029Shell wide surface="heichal" symbol="◇" eyebrow="DEEP RESEARCH ENVIRONMENT" title="היכל" description="Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence, Findings ופעולות שמסתגלים למחקר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
 }

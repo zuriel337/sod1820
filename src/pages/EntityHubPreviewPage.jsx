@@ -162,7 +162,7 @@ function EntityHubPreviewBody() {
       research.updateResearchContext?.({ selection, lens: "number", dimensions });
     } else {
       research.setResearchContext?.({
-        subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
+        subject: { id: String(root), type: "number", label: String(root), href: `/number/${root}` },
         selection,
         lens: "number",
         locale: current?.locale || "he",

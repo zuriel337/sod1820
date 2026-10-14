@@ -1,0 +1,1 @@
+create index idx_posts_slug_route on posts (slug); create index idx_posts_source on posts (source); create index idx_posts_space on posts (space); create index idx_posts_tree_priority on posts (tree_priority); analyze posts;

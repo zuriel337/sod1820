@@ -12,7 +12,7 @@ assert.match(page, /<Sod2029Shell[\s\S]*?surface="number"/);
 assert.doesNotMatch(page, /surface="calculator"/);
 
 // Route/visibility/engine contract must be unchanged by the surface fix.
-assert.match(page, /path:\s*"\/2029\/gematria"/);
+assert.match(page, /path:\s*"\/gematria\/viral"/);
 assert.match(page, /noindex:\s*true/);
 assert.match(page, /fetchNumberMethodProfile/);
 assert.match(page, /data-experience-surface="calculator-2029"/);

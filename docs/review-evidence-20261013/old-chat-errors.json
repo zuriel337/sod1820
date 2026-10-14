@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-10-13T11:05:51.156Z",
+  "origin": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+  "checks": [
+    {
+      "name": "direct_entry",
+      "host": "https://sod1820-7u52dsxwh-sod1820-s-projects.vercel.app",
+      "path": "/community/chat",
+      "finalPath": "/community/chat",
+      "title": "הקהילה — סוד 1820 · SOD1820",
+      "canonical": "https://sod1820.co.il/community/chat"
+    }
+  ],
+  "pageErrors": [
+    "Uncaught Error: called without required arguments\n    at _ (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:67560)\n    at <anonymous> (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/social-bundle.js:0:12034)\n    at u.onmessage (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/social-bundle.js:0:14724)",
+    "Uncaught (in promise) #<Object>\n    at h (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:82808)\n    at s (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:83012)",
+    "Uncaught Error: called without required arguments\n    at _ (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:67560)\n    at <anonymous> (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/social-bundle.js:0:12034)\n    at u.onmessage (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/social-bundle.js:0:14724)",
+    "Uncaught (in promise) #<Object>\n    at h (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:82808)\n    at s (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:83012)"
+  ],
+  "assetFailures": [],
+  "blockedWrites": 19,
+  "failure": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'Uncaught Error: called without required arguments\\n' +\n+     '    at _ (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:67560)\\n' +\n+     '    at <anonymous> (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/social-bundle.js:0:12034)\\n' +\n+     '    at u.onmessage (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/social-bundle.js:0:14724)',\n+   'Uncaught (in promise) #<Object>\\n' +\n+     '    at h (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-bundle.js:0:82808)\\n' +\n+     '    at s (https://static-cdn.spot.im/production/social/tags/social-v1.7.3/social/511-b",
+  "failedPath": "/community/chat",
+  "title": "הקהילה — סוד 1820 · SOD1820",
+  "pass": false
+}

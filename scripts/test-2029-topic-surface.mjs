@@ -83,14 +83,14 @@ assert.match(page, /הרמזים המרכזיים/);
 assert.match(page, /sod29-topic-hero-number/);
 assert.match(page, /\/post\//);
 assert.match(page, /resolveExpressionFocus/);
-assert.match(page, /\/2029\/number\//);
-assert.equal(/to=\{"\/number\//.test(page), false, "Topic 2029 must not hand Number interactions to the legacy /number route");
+assert.match(page, /\/number\//);
+assert.match(read("src/App2029.jsx"), /path="\/number\/:value"[^\n]*Number2029Page/, "Topic Number links must use the native Number route");
 assert.equal(page.includes("getTopicCardBySlug"), false);
 assert.equal(page.includes("getGalleryImagesByIds"), false);
 assert.equal(page.includes("BeitMidrash"), false);
 assert.equal(page.includes("TopicPage.jsx"), false);
 
-assert.match(app, /path="\/topic\/:slug" element=\{<Locked flag="lock_world" homeHref="\/2029"><Topic2029Page \/><\/Locked>\}/);
+assert.match(app, /path="\/topic\/:slug" element=\{<Locked flag="lock_world" homeHref="\/"><Topic2029Page \/><\/Locked>\}/);
 const config = JSON.parse(vercel);
 assert.equal(config.rewrites.some((row) => row.source === "/topic/(.*)" && row.destination === "/2029.html"), true);
 assert.match(seo, /export function setConvergenceJsonLd/);
@@ -158,7 +158,7 @@ const goldenFixture = buildTopicGoldenProjection({
   },
 });
 assert.equal(goldenFixture.density, "rich");
-assert.equal(goldenFixture.graphConnections[0].href, "/2029/number/424");
+assert.equal(goldenFixture.graphConnections[0].href, "/number/424");
 assert.deepEqual(goldenFixture.people, ["צבי (OPOC)"]);
 assert.equal(goldenFixture.sources.length, 1);
 assert.equal(goldenFixture.media.length, 1);
@@ -190,7 +190,7 @@ assert.equal(/update public\.research_objects/.test(slugMigration), false, "hist
 
 
 const focusHref = numberExpressionFocusHref(98, { expression: "חנם", method: "רגיל", crossingPartner: "סלח" });
-assert.equal(focusHref, "/2029/number/98?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&cross=%D7%A1%D7%9C%D7%97");
+assert.equal(focusHref, "/number/98?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C&cross=%D7%A1%D7%9C%D7%97");
 assert.deepEqual(parseNumberExpressionFocus("?focus=%D7%97%D7%A0%D7%9D&method=%D7%A8%D7%92%D7%99%D7%9C"), {
   expression: "חנם",
   method: "רגיל",
@@ -208,7 +208,7 @@ assert.match(number2029Source, /resolveExpressionFocus/);
 assert.match(number2029Source, /shell\.returnExact/);
 assert.match(world2029Source, /focusedExpression/);
 assert.match(world2029Source, /חזור לחישוב/);
-assert.match(world2029Source, /\/2029\/number\//);
+assert.match(world2029Source, /\/number\//);
 assert.match(heichal2029Source, /ביטוי:/);
 assert.match(heichal2029Source, /resolveExpressionFocus/);
 assert.match(researchProviderSource, /expressionFocusExplicit/);

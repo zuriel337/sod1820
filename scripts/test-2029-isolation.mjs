@@ -54,7 +54,6 @@ for (const forbidden of [
   assert.equal(app2029.includes(forbidden), false, `App2029 must not load legacy presentation/effect: ${forbidden}`);
 }
 assert.match(app2029, /window\.location\.assign\(href\)/, "non-2029 navigation must cross the document boundary, not render legacy in the 2029 tree");
-assert.equal(/Navigate\s+to=["']\/["']/.test(app2029), false, "2029 runtime must not auto-navigate to legacy root");
 
 // 2029 shell isolation: old wallpaper, heritage logo and legacy Raziel presentation are removed.
 for (const forbidden of ["SpaceBackground", "AskRaziel", "LOGO_URL", "/logo.png", "royal-bg.jpg"]) {
@@ -71,7 +70,7 @@ assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_B
 
 // Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/community/chat", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/", "/posts", "/gematria", "/calculator", "/community/chat", "/melech-hamisparim/718", "/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
   assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
@@ -80,8 +79,8 @@ for (const source of expected) {
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
 // The plural detail path survives only as a compatibility alias and must never become a second canonical.
-assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>}' ), true, "canonical Book detail must render natively behind the launch gate in App2029");
-assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>}' ), true, "Book library must share the launch gate");
+assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/"><Books2029Page /></Locked>}' ), true, "canonical Book detail must render natively behind the launch gate in App2029");
+assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/"><Books2029Page /></Locked>}' ), true, "Book library must share the launch gate");
 assert.equal(app2029.includes('path="/books/:slug" element={<CanonicalBookAlias2029 />}' ), true, "plural Book detail must remain alias-only");
 assert.equal(books2029.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "Book cards must link to canonical singular detail URL");
 assert.equal(books2029.includes('path: slug ? `/book/${slug}` : "/books"' ), true, "Book detail SEO must use canonical singular path");
@@ -109,6 +108,11 @@ for (const route of ["/books", "/books/:slug", "/book", "/book/:slug"]) {
 }
 
 const redirects = vercel.redirects || [];
+assert.equal(redirects.some((item) => item.source === "/"), false, "public Home must render at the root address without a redirect");
+assert.ok(app2029.includes('path="/" element={<HomeEntry2029 />}'), "the native root must mount the real Home before wildcard handoff");
+assert.ok(app2029.includes('path="/2029/*" element={<HomeAddressAlias2029 />}'), "the former Home address must remain a compatibility alias");
+assert.match(app2029, /function HomeAddressAlias2029\(\)[\s\S]*?location\.search[\s\S]*?location\.hash[\s\S]*?state=\{location\.state\}/, "old addresses preserve query, fragment and return state");
+assert.match(legacyApp, /function HomeRoute\(\)[\s\S]*?CORE_PUBLIC_LAUNCH_2029\) return <Product2029DocumentHandoff to=\{`\/\$\{location\.search \|\| ""\}\$\{location\.hash \|\| ""\}`\}/, "legacy Home must cross to the native root document with callback state intact");
 const bookIndexRedirect = redirects.find((r) => r.source === "/book");
 assert.deepEqual(
   bookIndexRedirect,
@@ -121,7 +125,7 @@ assert.deepEqual(
   { source: "/books/(.*)", destination: "/book/$1", permanent: true },
   "plural detail alias must converge permanently to canonical /book/:slug"
 );
-const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/index.html" && !r.has);
+const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/legacy.html" && !r.has);
 assert.ok(catchAllIndex >= 0, "legacy SPA catch-all must remain present");
 for (const source of expected) {
   const idx = rewrites.findIndex((r) => r.source === source);

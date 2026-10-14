@@ -380,6 +380,11 @@ export default async function middleware(request, context) {
     if (isSingleSegmentRoute(path) && !isKnownSingleSegmentRoute(path)) {
       const exists = await publicPostSlugExists(path);
       if (exists === false) return routeNotFoundResponse();
+      if (exists === true) {
+        const canonical = new URL(request.url);
+        canonical.pathname = '/post' + canonical.pathname;
+        return Response.redirect(canonical.toString(), 308);
+      }
       // null = Supabase unavailable/uncertain -> fail-open, preserving site availability.
     }
 

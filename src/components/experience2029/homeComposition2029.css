@@ -1,13 +1,13 @@
 /* Approved Home composition inside the System Frame (reference fa0e26f).
    Colors come only from the frame's --s29-* palette variables; widths follow the content column. */
-.h29 { container-type: inline-size; container-name: h29; display: flex; flex-direction: column; gap: 28px; color: var(--s29-ink); min-width: 0; }
+.h29 { container-type: inline-size; container-name: h29; display: flex; flex-direction: column; gap: 20px; color: var(--s29-ink); min-width: 0; }
 .h29 *, .h29 *::before, .h29 *::after { box-sizing: border-box; }
 .h29 a { color: inherit; text-decoration: none; }
 .h29-kicker { font: 500 14px var(--s29-font-ui); letter-spacing: .02em; color: var(--s29-discovery); }
 .h29-empty { margin: 0; color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
 .h29-sec { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .h29-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.h29-sec-h h2 { margin: 0; font: 600 18px/1.3 var(--s29-font-ui); }
+.h29-sec-h h2 { margin: 0; font: 600 clamp(18px, 2vw, 24px)/1.3 var(--s29-font-ui); }
 .h29-sec-h a { font: 500 14px var(--s29-font-ui); color: var(--s29-accent-text); white-space: nowrap; }
 
 .h29-btn {
@@ -19,13 +19,13 @@
 .h29-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 
 .h29-hero {
-  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; padding: 22px 24px;
-  border-radius: 20px; border: 1px solid var(--s29-line); overflow: hidden;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; padding: 16px 18px;
+  border-radius: 14px; border: 1px solid var(--s29-line); overflow: hidden;
   background: linear-gradient(135deg, color-mix(in srgb, var(--s29-bar-hue, var(--s29-brand-gold)) 10%, transparent), var(--s29-panel) 62%);
 }
-.h29-hero-img { width: 220px; max-width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; }
+.h29-hero-img { width: clamp(150px, 21vw, 210px); max-width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; }
 .h29-hero-copy { min-width: 0; }
-.h29-hero h1 { margin: 4px 0 8px; font: 600 26px/1.25 var(--s29-font-ui); text-wrap: balance; }
+.h29-hero h1 { margin: 4px 0 8px; font: 600 clamp(21px, 2.4vw, 30px)/1.3 var(--s29-font-ui); text-wrap: balance; }
 
 .h29-updates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .h29-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
@@ -39,8 +39,8 @@
   background: linear-gradient(140deg, var(--s29-panel-soft), var(--s29-panel));
 }
 .h29-card-body { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 4px; }
-.h29-card-t { font: 500 15px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.h29-meta { font: 400 13px var(--s29-font-ui); color: var(--s29-muted); }
+.h29-card-t { font: 500 16px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-meta { font: 400 14px var(--s29-font-ui); color: var(--s29-muted); }
 .h29-skel { min-height: 200px; border-radius: 14px; background: var(--s29-panel-soft); }
 
 .h29-strips { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -51,11 +51,11 @@
 .h29-tile.is-video .h29-media { aspect-ratio: 16 / 10; }
 .h29-tile span:last-child { font: 500 13px/1.35 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-.h29-anchors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.h29-anchors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .h29-anchor { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
 .h29-anchor > span:last-child { min-width: 0; }
 .h29-anchor b { display: block; font: 600 16px var(--s29-font-ui); }
-.h29-anchor small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 400 13px/1.45 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-anchor small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 400 14px/1.45 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-glyph { width: 48px; height: 48px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; color: var(--s29-brand-gold); background: var(--s29-panel-soft); border: 1px solid var(--s29-line-strong); }
 .h29-glyph.is-dim { color: var(--s29-warm-accent); }
 .h29-glyph.is-geula { color: var(--s29-brand-gold); background: color-mix(in srgb, var(--s29-brand-gold) 14%, var(--s29-panel-soft)); }
@@ -67,7 +67,7 @@
 .h29-portion.is-locked { border-style: dashed; opacity: .72; }
 .h29-portion-h { display: flex; align-items: center; gap: 8px; font: 600 15px var(--s29-font-ui); }
 .h29-portion-h .sod29-ui-icon { width: 20px; height: 20px; color: var(--s29-accent-text); }
-.h29-portion small { font: 400 13px/1.45 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-portion small { font: 400 14px/1.45 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-daynum { font: 600 28px var(--s29-font-numeric); color: var(--s29-brand-gold); }
 
 .h29-quiet {
@@ -106,7 +106,7 @@
 }
 
 /* Notable convergences with their separate ratings */
-.h29-note { margin: -4px 0 0; font: 400 13px/1.5 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-note { margin: -4px 0 0; font: 400 14px/1.5 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-notable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .h29-notable-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
 .h29-notable-card:hover { border-color: var(--s29-line-strong); }
@@ -121,13 +121,26 @@
   .h29-strips { grid-template-columns: 1fr; }
 }
 @container h29 (max-width: 620px) {
-  .h29 { gap: 22px; }
-  /* Reserve the final post hero height while its post and update metadata load. */
-  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 16px; min-height: 540px; }
-  .h29-hero .h29-hero-img { justify-self: center; width: min(100%, 320px); }
+  .h29 { gap: 18px; }
+  /* No oversized blank hero reserve: its height follows actual source content. */
+  .h29-hero { grid-template-columns: 1fr; gap: 10px; padding: 12px; min-height: 0; align-content: start; }
+  .h29-hero2 .h29-hero-copy { min-block-size: 0; }
+  .h29-hero .h29-hero-img { justify-self: center; width: min(100%, 280px); max-height: 180px; object-fit: contain; }
   .h29-hero h1 { font-size: 21px; }
-  .h29-updates, .h29-notable { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
-  .h29-updates .h29-card, .h29-notable .h29-notable-card { flex: 0 0 74%; scroll-snap-align: start; }
+  /* Loading geometry: reserve the loaded hero's phone height (poster + two-line title + copy + actions) so the
+     content below does not jump whether the hero is loading or loaded. Same component, no new visual. */
+  .h29-hero.is-loading, .h29-hero2 { min-height: 418px; align-content: start; }
+  .h29-hero2 h1 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  /* All recent items visible at once, rather than clipped jumbo carousel cards. */
+  .h29-updates, .h29-notable { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; overflow: visible; scroll-snap-type: none; }
+  .h29-updates .h29-card { display: flex; width: 100%; }
+  .h29-updates .h29-card-main { flex-direction: row; align-items: stretch; }
+  .h29-updates .h29-media { flex: 0 0 108px; width: 108px; min-height: 92px; height: 100%; aspect-ratio: auto; object-fit: cover; }
+  .h29-updates .h29-card-body { flex: 1; min-width: 0; padding: 9px 11px 5px; gap: 4px; }
+  .h29-updates .h29-card-t { -webkit-line-clamp: 2; font-size: 16px; }
+  .h29-updates .h29-card-cats { padding: 0 11px; }
+  .h29-updates .h29-card-open { padding: 0 11px; }
+  .h29-notable .h29-notable-card { width: 100%; }
   .h29-anchors { grid-template-columns: 1fr; }
   .h29-portions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -137,7 +150,7 @@
 .h29 .sod29-flight-feature { grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 16px; padding: 14px 18px; border-radius: 14px; align-items: center; }
 .h29 .sod29-flight-story h2 { font: 600 18px/1.35 var(--s29-font-ui); letter-spacing: 0; margin: 2px 0 6px; }
 .h29 .sod29-flight-lead { font: 400 14px/1.6 var(--s29-font-ui); margin: 0 0 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.h29 .sod29-flight-meta { margin-bottom: 8px; font-size: 13px; }
+.h29 .sod29-flight-meta { margin-bottom: 8px; font-size: 14px; }
 .h29 .sod29-flight-media img { max-height: 110px; }
 .h29 .sod29-flight-media figcaption { display: none; }
 .h29 .sod29-flight-directions { display: none; }
@@ -146,3 +159,12 @@
   .h29 .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 14px; }
 }
 .h29-card-cats { padding: 2px 12px 4px; }
+
+/* Home-owned focus and metadata polish; colors stay with System Frame. */
+.h29 :is(a, button, input):focus-visible { outline: 2px solid var(--s29-discovery); outline-offset: 2px; }
+.h29 .h29-card-main { min-height: 44px; }
+.h29 .h29-card-open { text-decoration: underline; text-underline-offset: 3px; }
+.h29 .h29-stream .sod29-source-arrival-label,
+.h29 .h29-stream .sod29-source-arrival-copy small,
+.h29 .h29-notable-nums span { font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .h29 * { scroll-behavior: auto; } }

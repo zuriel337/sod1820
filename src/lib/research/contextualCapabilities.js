@@ -1,4 +1,4 @@
-// SOD1820 2029 contextual capability resolver.
+// SOD1820 contextual capability resolver.
 // Pure presentation/runtime composition only.
 // It is NOT a capability registry, store, router, truth owner or permission system.
 // Research Strategy v15 owns Capability Fabric; this resolver composes already-existing homes.

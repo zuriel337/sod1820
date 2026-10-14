@@ -113,7 +113,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
 }
 
 
-export default function CommunityLive2029({ leadingContent = null, canonicalPath = "/2029?preview=community&data=live" }) {
+export default function CommunityLive2029({ leadingContent = null, canonicalPath = "/?preview=community&data=live" }) {
   const palette = use2029Palette();
   const { user, profile } = useAuth();
   const [params, setParams] = useSearchParams();
@@ -299,7 +299,10 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
         uploaded.push(result);
         if (!item.url) setAttachments((current) => current.map((entry) => entry.file === item.file ? { ...entry, ...result } : entry));
       }
-      await publishCommunityMessage({ body: appendCommunityAttachments(body, uploaded), parentId: replyTo?.id || null, authorName: profile?.display_name || profile?.username || null });
+      const messageId = await publishCommunityMessage({ body: appendCommunityAttachments(body, uploaded), parentId: replyTo?.id || null, authorName: profile?.display_name || profile?.username || null });
+      if (typeof messageId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(messageId)) {
+        throw new Error("community_message_not_confirmed");
+      }
       if (replyTo) {
         requestedReplyCounts.current.delete(replyTo.id);
         setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });

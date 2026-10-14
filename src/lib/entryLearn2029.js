@@ -1,6 +1,6 @@
 import { emit } from "./events.js";
 
-// SOD1820 2029 — Entry Orientation + Contextual Learn projection.
+// SOD1820 — Entry Orientation + Contextual Learn projection.
 // Presentation/learning state only. No truth, research state, graph state, router or course store.
 
 export const ENTRY_LEARN_SURFACE = "entry_2029";

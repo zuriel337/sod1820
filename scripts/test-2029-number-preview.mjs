@@ -56,7 +56,6 @@ for (const forbidden of [
   "/research?",
   "AskRaziel",
   "QuickActions",
-  "WatchButton",
   "conditionalFamily",
   "noFinalMap",
   "gematria_methods",
@@ -64,6 +63,14 @@ for (const forbidden of [
 ]) {
   assert.equal(page.includes(forbidden), false, `Number 2029 preview must not inherit legacy/local authority: ${forbidden}`);
 }
+
+// Follow v19 explicitly adopts the existing canonical WatchButton after content.
+// Reject a local follow engine while requiring the approved separate gate.
+assert.match(page, /import WatchButton from "\.\.\/components\/WatchButton\.jsx"/);
+assert.match(page, /data-follow-placement="after-content"/);
+assert.match(drawer, /data-follow-placement="after-core"/);
+assert.match(page, /<WatchButton topic=\{`number:\$\{root\}`\} source="number_page" gate ui2029/);
+assert.doesNotMatch(page, /supabase\.rpc\(["'](?:watch_toggle|follow_subject_toggle)["']/);
 
 assert.equal(page.includes("מפגש"), false, "public 2029 Number convergence vocabulary must use התכנסות");
 assert.match(page, /fetchNumberMethodProfile/);
@@ -182,7 +189,7 @@ assert.match(page, /if \(GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNE
 assert.match(fs.readFileSync("src/lib/research/worldJourneyProjection.js", "utf8"), /id: "golden:878:v1"[\s\S]*locked: true/);
 assert.match(page, /journeySemanticId:\s*GOLDEN_878_JOURNEY_ID/);
 assert.match(page, /navigate\("\/world"\)/);
-assert.match(app, /path="\/2029\/number\/:value"/);
+assert.match(app, /path="\/number\/:value"/);
 assert.match(app, /Number2029Page/);
 
 assert.match(page, /numberExpressionFocusHref/);
@@ -351,7 +358,7 @@ for (const selector of new Set(numberBrowserSelectors)) {
 }
 
 const rewrite = (vercel.rewrites || []).find(
-  (row) => row.source === "/2029/number/(.*)" && !Array.isArray(row.has),
+  (row) => row.source === "/number/(.*)" && !Array.isArray(row.has),
 );
 assert.ok(rewrite, "missing unconditional human Number 2029 preview rewrite");
 assert.equal(rewrite.destination, "/2029.html");

@@ -1,4 +1,5 @@
 import React from "react";
+import "./community2029.css";
 import CommunityLive2029 from "../components/community2029/CommunityLive2029.jsx";
 import LegacyOpenWebChat2029 from "../components/community2029/LegacyOpenWebChat2029.jsx";
 

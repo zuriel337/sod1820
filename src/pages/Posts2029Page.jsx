@@ -69,10 +69,10 @@ export default function Posts2029Page() {
 
   useEffect(() => {
     applySeo({
-      title: "פוסטים · SOD1820 2029",
+      title: "פוסטים · SOD1820",
       description: "אינדקס הפוסטים של SOD1820.",
-      path: "/2029/posts",
-      noindex: true,
+      path: page > 1 ? `/posts?page=${page}` : "/posts",
+      noindex: false,
     });
 
     let live = true;

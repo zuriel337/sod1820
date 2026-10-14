@@ -11,7 +11,7 @@ const PLANE_VIDEOS = Object.freeze([
     title: "החיבור בין שביעי לעשירי למטוס — שלוש שנים לשביעי באוקטובר",
     mediaUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/d808d3ce-9312-4c15-b5ed-4fbf45a3c8a9/original.mp4",
     posterUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/b9be2ae0-1d08-40a2-bdcf-346ea7ffbbbb.jpg",
-    treeHref: "/2029/number/718",
+    treeHref: "/number/718",
     isNew: true,
     tags: [
       "1073", "73", "חכמה", "Free Zion", "שחררו את ציון", "14000",
@@ -26,7 +26,7 @@ const PLANE_VIDEOS = Object.freeze([
     title: "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה",
     mediaUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
     posterUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg",
-    treeHref: "/2029/number/1073",
+    treeHref: "/number/1073",
     isNew: false,
     tags: [
       "1073", "FZ1073", "Free Zion", "שחררו את ציון", "14000",
@@ -37,7 +37,7 @@ const PLANE_VIDEOS = Object.freeze([
 ]);
 
 function tightRoute(pathname) {
-  return pathname === "/2029"
+  return pathname === "/"
     || pathname === "/world"
     || pathname === "/els"
     || pathname === "/heichal"
@@ -54,8 +54,8 @@ function tightRoute(pathname) {
 
 function tagHref(tag) {
   const value = String(tag || "").trim();
-  if (/^\d+$/.test(value)) return `/2029/number/${encodeURIComponent(value)}`;
-  return `/2029/gematria?q=${encodeURIComponent(value)}`;
+  if (/^\d+$/.test(value)) return `/number/${encodeURIComponent(value)}`;
+  return `/gematria?q=${encodeURIComponent(value)}`;
 }
 
 function VideoCard({ video, P }) {

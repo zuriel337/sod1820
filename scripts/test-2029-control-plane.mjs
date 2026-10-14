@@ -18,12 +18,12 @@ const legacy = read("src/legacy/legacy.jsx");
 const post2029 = read("src/pages/Post2029Page.jsx");
 
 assert.match(app, /ControlPlane2029Page/);
-assert.match(app, /path="\/2029\/control"/);
-assert.match(app, /pathname\.startsWith\("\/2029\/control"\).*return undefined/s,
+assert.match(app, /path="\/control"/);
+assert.match(app, /pathname\.startsWith\("\/control"\).*return undefined/s,
   "internal Control Plane must not enter public product analytics");
 
 assert.match(page, /useAuth\(\)/);
-assert.match(page, /if \(!isAdmin\) return <Navigate replace to="\/2029" \/>/,
+assert.match(page, /if \(!isAdmin\) return <Navigate replace to="\/" \/>/,
   "Control Plane must gate before rendering operational data");
 assert.match(page, /getSystemHealth\(\)/);
 assert.match(page, /getOperationalTraceList\(7, 100\)/);
@@ -39,11 +39,11 @@ assert.match(visits, /Math\.max\(1, Math\.min\(Number\(days\).*90/s);
 assert.match(visits, /Math\.max\(1, Math\.min\(Number\(limit\).*500/s);
 
 assert.match(workflow, /Native 2029 Control Plane trace drill-down acceptance/);
-const controlRewrite = (vercel.rewrites || []).filter(row => row.source === "/2029/control" && row.destination === "/2029.html");
+const controlRewrite = (vercel.rewrites || []).filter(row => row.source === "/control" && row.destination === "/2029.html");
 assert.equal(controlRewrite.length, 1, "internal Control Plane must have one isolated 2029 document rewrite");
-const controlHeaders = (vercel.headers || []).find(row => row.source === "/2029/control")?.headers || [];
+const controlHeaders = (vercel.headers || []).find(row => row.source === "/control")?.headers || [];
 assert.ok(controlHeaders.some(row => row.key === "X-Robots-Tag" && /noindex/.test(row.value)), "internal Control Plane must stay noindex");
-assert.equal(frame.includes("/2029/control"), false, "internal Control Plane must not enter public 2029 navigation");
+assert.equal(frame.includes("/control"), false, "internal Control Plane must not enter public 2029 navigation");
 assert.doesNotMatch(page, /create table|create or replace function|new WebSocket|localStorage/,
   "Control Plane projection must not invent a store/runtime owner");
 
@@ -99,10 +99,10 @@ assert.match(legacy, /hardenPassiveMediaHtml\(\(post\?\.content \?\? ""\)/);
 assert.match(post2029, /hardenPassiveMediaHtml\(post\.content \|\| ""\)/);
 
 // ONE OWNER / NO ISLANDS: Legacy /traffic is only a temporary projection of the exact same
-// canonical System Health RPC consumed by /2029/control.
+// canonical System Health RPC consumed by /control.
 assert.match(legacy, /import \{ getSystemHealth \} from "\.\.\/lib\/visits\.js"/);
 assert.match(legacy, /isAdmin \? getSystemHealth\(\)/);
-assert.match(legacy, /אותה הקרנה של admin_system_health\(\) שמזינה את \/2029\/control/);
+assert.match(legacy, /אותה הקרנה של admin_system_health\(\) שמזינה את \/control/);
 assert.match(legacy, /Control Plane 2029/);
 assert.equal((legacy.match(/admin_system_health/g) || []).length, 1,
   "Legacy /traffic may name the canonical RPC in copy only; it must not define/call a second health RPC directly");

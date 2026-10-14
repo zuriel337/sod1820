@@ -1,0 +1,78 @@
+
+## desktop home cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+base     5  1849     2172      408    0.153       48       22     1151       60       55        2      ready same-content
+dedupe   5  1928 +79 2168  -4  440 +320.153+0.000   56  +8    2 -20  968-183   60  +0   55  +0    2  +0  ready same-content
+defer    5  1789 -60 2064-108  404  -40.154+0.001   64 +16    4 -18 1117 -34   60  +0   55  +0    2  +0  ready same-content
+nopre    5  1484-365 1804-368  472 +640.110-0.043   48  +0    9 -13 1000-151   61  +1   22 -33    3  +1  ready same-content
+all      5   932-917 1284-888  428 +200.053-0.100   40  -8   17  -5  975-176   62  +2   22 -33    2  +0  ready same-content
+en       5   944-905 1472-700  428 +200.058-0.095   48  +0    9 -13  976-175   61  +1   22 -33    2  +0  ready same-content
+enl      5   993-856 1440-732  436 +280.053-0.100   48  +0   16  -6 1063 -88   61  +1   22 -33    2  +0  ready same-content
+dn       5  1723-126 2272+100  416  +80.111-0.042   56  +8   20  -2 1191 +40   61  +1   56  +1    2  +0  ready same-content
+cls      5  1925 +76 2236 +64  472 +640.110-0.043   56  +8   11 -11 1074 -77   60  +0   55  +0    2  +0  ready same-content
+sfw      5  1810 -39 2076 -96  404  -40.110-0.043   64 +16   12 -10 1041-110   60  +0   55  +0    2  +0  ready same-content
+
+## desktop home warm
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+base     5  1213     1364      220    0.153       56        5     1034       60        5        2      ready same-content
+dedupe   5  1119 -94 1288 -76  232 +120.128-0.025   32 -24   10  +5  942 -92   60  +0    5  +0    2  +0  ready same-content
+defer    5   863-350 1024-340  220  +00.109-0.044   40 -16    1  -4  885-149   62  +2    5  +0    4  +2  ready same-content
+nopre    5  1134 -79 1396 +32  220  +00.206+0.053   48  -8    0  -5  990 -44   60  +0    4  -1    2  +0  ready same-content
+all      5   608-605 1020-344  220  +00.053-0.100   48  -8    2  -3  962 -72   62  +2    4  -1    2  +0  ready same-content
+en       5   620-593 1060-304  224  +40.058-0.095   48  -8    0  -5  961 -73   61  +1    4  -1    2  +0  ready same-content
+enl      5   619-594 1032-332  224  +40.053-0.100   40 -16    6  +1  956 -78   61  +1    4  -1    2  +0  ready same-content
+dn       5  1146 -67 1368  +4  224  +40.153+0.000   32 -24    0  -5  901-133   61  +1    5  +0    2  +0  ready same-content
+cls      5  1214  +1 1392 +28  220  +00.153+0.000   40 -16    6  +1  949 -85   60  +0    5  +0    2  +0  ready same-content
+sfw      5  1116 -97 1340 -24  216  -40.152-0.001   48  -8    2  -3  942 -92   60  +0    5  +0    2  +0  ready same-content
+
+## desktop post cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+en       5  2620-751 3684-732  404  -80.172+0.000   24  +0   42 +14 1041 -10   32  +0   12 -17    1  +0  ready same-content
+base     5  3371     4416      412    0.172       24       28     1051       32       29        1      ready same-content
+enl      5  2783-588 2960-1456  412  +00.171-0.001   16  -8   61 +33 1019 -32   32  +0   12 -17    1  +0  ready same-content
+nopre    5  3299 -72 4344 -72  488 +760.172+0.000    0 -24   30  +2 1117 +66   32  +0   12 -17    1  +0  ready same-content
+sfw      5  3410 +39 4420  +4  424 +120.174+0.002    0 -24   49 +21 1053  +2   32  +0   29  +0    1  +0  ready same-content
+dn       5  3395 +24 4444 +28  440 +280.174+0.002   24  +0   14 -14 1055  +4   32  +0   29  +0    1  +0  ready same-content
+all      5  3057-314 3220-1196  440 +280.073-0.099   16  -8   56 +28 1043  -8   32  +0   12 -17    1  +0  ready same-content
+defer    5  3264-107 4252-164  396 -160.172+0.000   16  -8   64 +36 1060  +9   32  +0   29  +0    1  +0  ready same-content
+dedupe   5  3388 +17 4440 +24  472 +600.174+0.002   16  -8   44 +16 1068 +17   32  +0   29  +0    1  +0  ready same-content
+cls      5  3368  -3 4408  -8  400 -120.071-0.101    0 -24   40 +12 1084 +33   32  +0   29  +0    1  +0  ready same-content
+
+## desktop post warm
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+en       5  2297-215 2608-268  216  -40.174+0.001   16 +16   44  +2  883  -6   32  +0    0  -1    1  +0  ready same-content
+base     5  2512     2876      220    0.173        0       42      889       32        1        1      ready same-content
+enl      5  2338-174 2520-356  228  +80.174+0.001   24 +24   58 +16  897  +8   32  +0    0  -1    1  +0  ready same-content
+nopre    5  2497 -15 2836 -40  220  +00.171-0.002   24 +24   22 -20  871 -18   32  +0    0  -1    1  +0  ready same-content
+sfw      5  2559 +47 2844 -32  224  +40.174+0.001    0  +0   32 -10  896  +7   32  +0    1  +0    1  +0  ready same-content
+dn       5  2560 +48 2852 -24  220  +00.172-0.001   24 +24   32 -10  966 +77   32  +0    1  +0    1  +0  ready same-content
+all      5  2251-261 2416-460  216  -40.070-0.103   24 +24   46  +4  871 -18   32  +0    0  -1    1  +0  ready same-content
+defer    5  2531 +19 2824 -52  212  -80.169-0.004   16 +16   27 -15  913 +24   32  +0    1  +0    1  +0  ready same-content
+dedupe   5  2531 +19 2828 -48  216  -40.171-0.002    0  +0   37  -5  850 -39   32  +0    1  +0    1  +0  ready same-content
+cls      5  2528 +16 2860 -16  212  -80.069-0.104   24 +24   31 -11  925 +36   32  +0    1  +0    1  +0  ready same-content
+
+## mobile home cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+dedupe   5  5445 -28 6576 -20 2120  +00.018+0.000   56  +0  301  +4 3754 -91   59  +0   54  +0    2  +0  ready same-content
+all      5  4602-871 4528-2068 2240+1200.021+0.003   56  +0  312 +15 3612-233   62  +3   22 -32    2  +0  ready same-content
+base     5  5473     6596     2120    0.018       56      297     3845       59       54        2      ready same-content
+sfw      5  5635+162 6632 +36 2108 -120.018+0.000   56  +0  266 -31 3820 -25   59  +0   54  +0    2  +0  ready same-content
+cls      5  5324-149 6496-100 2116  -40.018+0.000   56  +0  280 -17 3748 -97   59  +0   54  +0    2  +0  ready same-content
+defer    5  5508 +35 6684 +88 2108 -120.018+0.000   64  +8  254 -43 3778 -67   60  +1   54  +0    2  +0  ready same-content
+nopre    5  5424 -49 6528 -68 2084 -360.018+0.000   64  +8  250 -47 3623-222   59  +0   22 -32    2  +0  ready same-content
+en       5  4467-1006 6116-480 2116  -40.020+0.002   56  +0  243 -54 3753 -92   61  +2   22 -32    2  +0  ready same-content
+dn       5  5255-218 6304-292 2116  -40.020+0.002   48  -8  249 -48 3677-168   61  +2   55  +1    3  +1  ready same-content
+enl      5  4575-898 4552-2044 2232+1120.021+0.003   56  +0  255 -42 3611-234   61  +2   22 -32    2  +0  ready same-content
+
+## mobile post cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+enl      5  7173 +93 7296+136 2388+2800.033+0.000   56  +0  454  -6 2840-333   31  +0   12 -16    1  +0  ready same-content
+en       5  6491-589 6548-612 2148 +400.033+0.000   56  +0  402 -58 2858-315   31  +0   12 -16    1  +0  ready same-content
+sfw      5  7060 -20 7128 -32 2092 -160.033+0.000   56  +0  329-131 2980-193   31  +0   28  +0    1  +0  ready same-content
+cls      5  6917-163 6984-176 2100  -80.023-0.010   56  +0  425 -35 3163 -10   31  +0   28  +0    1  +0  ready same-content
+all      5  7109 +29 7212 +52 2432+3240.023-0.010   56  +0  368 -92 2876-297   31  +0   12 -16    1  +0  ready same-content
+defer    5  7177 +97 7244 +84 2092 -160.033+0.000   56  +0  513 +53 3187 +14   31  +0   28  +0    1  +0  ready same-content
+dedupe   5  7228+148 7284+124 2108  +00.033+0.000   56  +0  459  -1 3050-123   31  +0   28  +0    1  +0  ready same-content
+base     5  7080     7160     2108    0.033       56      460     3173       31       28        1      ready same-content
+dn       5  7323+243 7296+136 2144 +360.033+0.000   56  +0  553 +93 3352+179   31  +0   28  +0    1  +0  ready same-content
+nopre    5  7378+298 7444+284 2104  -40.033+0.000   56  +0  464  +4 3375+202   31  +0   12 -16    1  +0  ready same-content

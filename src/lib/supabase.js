@@ -234,7 +234,8 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
   if (!supabase) return [];
   try {
     const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags, home_hidden")
+      .eq("home_hidden", false)
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
@@ -242,7 +243,7 @@ export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {})
     return data
       .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
       .slice(0, limit)
-      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
+      .map(p => ({ id: p.id, slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
   } catch { return []; }
 }
 
@@ -1753,14 +1754,27 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
+// All useFeatureState hooks in the mounted frame request the same public flags.
+// Coalesce only simultaneous requests; deliberately do NOT cache resolved values:
+// route changes and lock changes must still receive a fresh authorization view.
+// UI checks are not a substitute for server-side access enforcement.
+let siteFlagsInflight = null;
 export async function getSiteFlags() {
   if (!supabase) return {};
+  if (siteFlagsInflight) return siteFlagsInflight;
+  siteFlagsInflight = (async () => {
+    try {
+      const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
+      const m = {};
+      for (const r of (data || [])) m[r.key] = r;
+      return m;
+    } catch { return {}; }
+  })();
   try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-    const m = {};
-    for (const r of (data || [])) m[r.key] = r;
-    return m;
-  } catch { return {}; }
+    return await siteFlagsInflight;
+  } finally {
+    siteFlagsInflight = null;
+  }
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
@@ -3375,10 +3389,10 @@ export function isGovernedMethod(states, method) { return !!(states && states[me
 // 🧩 Number Page Integration v1: המקור עבר מ-select ישיר על bidim ל-fn_number_lookup (אותו מקור-נתונים,
 // אך מורחב — atomic_or_composite/component_methods/component_values) כדי שקבוצות-Composite (רגיל+מילוי וכו')
 // יסומנו ויוסברו במפורש, לא רק יופיעו כמפתח-שיטה גולמי. אין שינוי-חישוב — כל ערך כבר-מחושב במנוע.
-export async function getValueFamilies(value, perMethod = 20) {
+export async function getValueFamilies(value, perMethod = 20, { lookup = getNumberLookup } = {}) {
   if (!supabase || !value || value < 1) return [];
   try {
-    const data = await getNumberLookup(value);
+    const data = await lookup(value);
     if (!data || !data.length) return [];
     // סדר-תצוגה בלבד (לא ערך-מחושב) — אותה מיפוי-עדיפות המשמש ב-bidim_sync להצגה קודם של השיטות הליבתיות.
     const DISPLAY_PRIORITY = { "רגיל": 1, "מסתתר": 1, "קדמי": 1, "מילוי": 2, "אתבש": 3 };

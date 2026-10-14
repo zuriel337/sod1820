@@ -1,5 +1,4 @@
 import { supabase } from "../supabase.js";
-import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
@@ -351,6 +350,8 @@ export async function fetchHome2029Projection({ includeWorld = true, includeTemp
   const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
   const worldPreviewPromise = includeWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
   if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  // timeFlow מושך את @hebcal/core — נטען במקביל לקריאות הנתונים, לא בחבילת הדף. החישוב זהה.
+  const { getCurrentTemporalContext } = await import("../timeFlow.js");
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
   if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };

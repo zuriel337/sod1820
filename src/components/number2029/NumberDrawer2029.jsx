@@ -1,5 +1,9 @@
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import WatchButton from "../WatchButton.jsx";
+import { SHARE_SITE } from "../../lib/share.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import NumberCore2029 from "./NumberCore2029.jsx";
 import { fetchEntityHubProjection } from "../../lib/research/entityHubProjection.js";
 import { fetchGematriaMethodTrace } from "../../lib/research/gematriaTrace.js";
@@ -12,6 +16,8 @@ import {
   phraseOf,
 } from "../../lib/research/numberCoreProjection.js";
 import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
+import { buildNumberExpressionHandoff, numberWindowSourceReturn } from "../../lib/research/numberExpressionFocus.js";
+import { PaletteProvider, useNumber2029Scope } from "../../lib/palette.js";
 import "./numberDrawer2029.css";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
@@ -50,7 +56,15 @@ export default function NumberDrawer2029({
   research,
   go,
   openRaziel,
+  sourceReturn: sourceReturnFromShell = null,
 } = {}) {
+  const numberScope = useNumber2029Scope();
+  const location = useLocation();
+  const sourceReturn = useMemo(() => sourceReturnFromShell || numberWindowSourceReturn(context, {
+    href: `${location.pathname}${location.search}${location.hash}`,
+    locator: target?.locator || context?.selection?.locator,
+  // The window may change Research Context; its underlying source stays fixed.
+  }), [sourceReturnFromShell, location.pathname, location.search, location.hash, target?.type, target?.id, target?.locator]); // eslint-disable-line react-hooks/exhaustive-deps
   const targetNumber = target?.type === "number" ? traceNumber(target?.id) : null;
   // A contextual Learn/Inspect handoff may carry an already-selected phrase + method + result.
   // These values seed selection/navigation only; NumberDrawer still fetches the canonical
@@ -73,14 +87,16 @@ export default function NumberDrawer2029({
     root: traceNumber(initialRoot),
   } : null);
   const [dataState, setDataState] = useState({ loading: false, data: null, error: null, key: null });
-  const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null });
+  const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null, expression: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState(initialMethodKey);
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
   const [traceOpen, setTraceOpen] = useState(false);
-  const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [] });
+  const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], expression: null });
+  const [crossingFocus, setCrossingFocus] = useState(null);
+  useEffect(() => { setCrossingFocus(null); }, [root, expression, selectedMethodKey]);
   const internalContextSignatureRef = useRef(null);
   const modeRef = useRef(null);
   const previousSurfaceModeRef = useRef(surfaceMode);
@@ -105,6 +121,7 @@ export default function NumberDrawer2029({
       root: traceNumber(nextRoot),
     } : null);
     setTraceOpen(false);
+    setCrossingFocus(null);
   }, [
     target?.type,
     target?.id,
@@ -167,39 +184,39 @@ export default function NumberDrawer2029({
   useEffect(() => {
     const expr = clean(expression);
     if (!expr || /^\d+$/.test(expr)) {
-      setProfileState({ loading: false, rows: [], error: null });
+      setProfileState({ loading: false, rows: [], error: null, expression: expr });
       return undefined;
     }
     let alive = true;
-    setProfileState({ loading: true, rows: [], error: null });
+    setProfileState({ loading: true, rows: [], error: null, expression: expr });
     fetchNumberMethodProfile(expr)
       .then((rows) => {
         if (!alive) return;
-        setProfileState({ loading: false, rows, error: null });
+        setProfileState({ loading: false, rows, error: null, expression: expr });
         const requested = clean(selectedMethodKey);
         const selected = rows.find((row) => row.methodKey === requested) || rows[0] || null;
         if (selected && selected.methodKey !== requested) setSelectedMethodKey(selected.methodKey);
         if (!Number.isSafeInteger(root) && selected?.computedValue != null) setRoot(Number(selected.computedValue));
       })
       .catch((error) => {
-        if (alive) setProfileState({ loading: false, rows: [], error });
+        if (alive) setProfileState({ loading: false, rows: [], error, expression: expr });
       });
     return () => { alive = false; };
   }, [expression]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const expr = clean(expression);
-    if (!expr || /^\d+$/.test(expr) || !profileState.rows.length) {
-      setHiddenCrossState({ loading: false, rows: [] });
+    if (!expr || /^\d+$/.test(expr) || profileState.expression !== expr || !profileState.rows.length) {
+      setHiddenCrossState({ loading: false, rows: [], expression: expr });
       return undefined;
     }
     let alive = true;
-    setHiddenCrossState({ loading: true, rows: [] });
+    setHiddenCrossState({ loading: true, rows: [], expression: expr });
     fetchNumberHiddenCrossings(expr, profileState.rows, { limit: 13 })
-      .then((rows) => { if (alive) setHiddenCrossState({ loading: false, rows: Array.isArray(rows) ? rows : [] }); })
-      .catch(() => { if (alive) setHiddenCrossState({ loading: false, rows: [] }); });
+      .then((rows) => { if (alive) setHiddenCrossState({ loading: false, rows: Array.isArray(rows) ? rows : [], expression: expr }); })
+      .catch(() => { if (alive) setHiddenCrossState({ loading: false, rows: [], expression: expr }); });
     return () => { alive = false; };
-  }, [expression, profileState.rows]);
+  }, [expression, profileState.rows, profileState.expression]);
 
   useEffect(() => {
     const expr = clean(expression);
@@ -224,8 +241,8 @@ export default function NumberDrawer2029({
   }, [expression]);
 
   const selectedProfile = useMemo(
-    () => methodProfileEntry(profileState.rows, selectedMethodKey),
-    [profileState.rows, selectedMethodKey],
+    () => methodProfileEntry(profileState.expression === clean(expression) ? profileState.rows : [], selectedMethodKey),
+    [profileState.rows, profileState.expression, expression, selectedMethodKey],
   );
 
   useEffect(() => {
@@ -352,6 +369,12 @@ export default function NumberDrawer2029({
   const trace = isVerifiedMethodTrace(rawTrace, { expression: expression, methodKey: selectedProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
   const traceSteps = gematriaTraceLines(trace, { expression: expression, methodKey: selectedMethodKey });
   const activeResult = traceNumber(trace?.result ?? selectedProfile?.computedValue);
+  const crossingFocusKey = numberContextSignature(root, expression, selectedProfile?.methodKey || selectedMethodKey);
+  const verifiedCrossings = hiddenCrossState.expression === clean(expression) && !hiddenCrossState.loading
+    ? hiddenCrossState.rows : [];
+  const verifiedCrossingPartner = crossingFocus?.key === crossingFocusKey
+    && verifiedCrossings.some((item) => item.kind === "hidden_crossing" && item.partner === crossingFocus.partner)
+    ? crossingFocus.partner : null;
 
   useEffect(() => {
     const next = traceNumber(activeResult);
@@ -432,7 +455,7 @@ export default function NumberDrawer2029({
   }), [stageRoot, expression, selectedMethodKey, profileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
   const updateContext = (patch = {}, selectionOverride = null) => {
-    if (!Number.isSafeInteger(root)) return;
+    if (!Number.isSafeInteger(root) || root < 0) return;
     const hasOverride = selectionOverride && typeof selectionOverride === "object";
     const activeExpression = hasOverride && Object.prototype.hasOwnProperty.call(selectionOverride, "expression")
       ? clean(selectionOverride.expression) || null
@@ -450,13 +473,15 @@ export default function NumberDrawer2029({
       method: activeMethodKey,
       resultValue: activeResultValue,
     };
-    const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
     internalContextSignatureRef.current = numberContextSignature(root, selection.expression, activeMethodKey);
-    if (context?.subject?.type === "number" && String(context.subject.id) === String(root)) {
-      research?.updateResearchContext?.({ selection, lens: "number", ...patch });
-    } else {
-      research?.setResearchContext?.({ subject, selection, lens: "number", locale: context?.locale || "he", ...patch });
-    }
+    research?.updateResearchContext?.((current) => {
+      const handoff = buildNumberExpressionHandoff({
+        context: current, root, expression: activeExpression, method: activeMethodKey,
+        resultValue: activeResultValue, sourceReturn,
+      });
+      return { ...handoff.context, ...patch,
+        dimensions: { ...handoff.context.dimensions, ...patch.dimensions } };
+    });
   };
 
   const resolveInputValue = async (rawValue) => {
@@ -480,7 +505,7 @@ export default function NumberDrawer2029({
         const label = clean(row?.displayLabel || row?.methodKey).replace(/[\s"'״׳’‘\-_/]/g, "");
         return label === "רגיל" || clean(row?.methodKey) === "רגיל";
       }) || rows[0] || null;
-      setProfileState({ loading: false, rows, error: null });
+      setProfileState({ loading: false, rows, error: null, expression: raw });
       if (regular?.methodKey) setSelectedMethodKey(regular.methodKey);
       const next = traceNumber(regular?.computedValue);
       if (next != null) setRoot(next);
@@ -564,50 +589,37 @@ export default function NumberDrawer2029({
     openRaziel?.({ razielMicroIntent: intent, numberCoreFocus });
   };
 
-  const openPage = () => {
-    if (!Number.isSafeInteger(root)) return;
-    updateContext();
-    go?.(`/2029/number/${root}`);
-  };
-
-  const openWorld = () => {
-    if (!Number.isSafeInteger(root)) return;
-    const current = context || {};
-    const selection = {
-      entityId: String(root),
-      entityType: "number",
-      expression: clean(expression) || null,
-      method: selectedProfile?.methodKey || null,
-      resultValue: selectedProfile?.computedValue ?? null,
+  const leaveWindow = (lens) => {
+    const focus = {
+      root, expression: surfaceMode === "focus" ? expression : null,
+      method: selectedProfile?.methodKey || selectedMethodKey,
+      resultValue: activeResult,
+      methodVersion: trace?.method_version || selectedProfile?.definitionVersion || null,
+      findingId: trace ? traceState.finding?.id : null,
+      crossingPartner: verifiedCrossingPartner, verifiedCrossings, sourceReturn, lens,
     };
-    research?.setResearchContext?.({
-      subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
-      selection,
-      lens: "world",
-      dimensions: { ...(current.dimensions || {}), numberHome: `/2029/number/${root}` },
-      returnTo: {
-        href: current?.subject?.href || `/2029/number/${root}`,
-        label: current?.subject?.label || `דף ${root}`,
-        subject: current?.subject || null,
-        selection: current?.selection || null,
-        lens: current?.lens || null,
-        dimensions: current?.dimensions || {},
-        journey: current?.journey || null,
-      },
-    });
-    go?.("/world", { preserve: false });
+    const handoff = buildNumberExpressionHandoff({ ...focus, context });
+    if (!handoff) return;
+    research?.updateResearchContext?.((current) => buildNumberExpressionHandoff({ ...focus, context: current }).context);
+    // The source was captured before Number changed focus. Shell's default
+    // preserve would replace it with the window's already-updated context.
+    go?.(lens === "world" ? "/world" : handoff.href, { preserve: false });
   };
+  const openPage = () => leaveWindow("number");
+  const openWorld = () => leaveWindow("world");
 
   if (!target && !context?.subject) {
-    return <div className="sod29-number-drawer-empty">
+    return <PaletteProvider value={numberScope.palette}><div className="sod29-number-drawer2029 sod29-number-drawer-empty" style={numberScope.style} data-number-scope={numberScope.scopeAttr}>
       <strong>מספר / ביטוי</strong>
       <p>בחר מספר או ביטוי בעמוד, או הקלד כאן.</p>
       <form onSubmit={commitInput}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder="התגלות · 1237" /><button type="submit">פתח</button></form>
-    </div>;
+    </div></PaletteProvider>;
   }
 
-  return <div
+  return <PaletteProvider value={numberScope.palette}><div
     className="sod29-number-drawer2029"
+    style={numberScope.style}
+    data-number-scope={numberScope.scopeAttr}
     data-contextual-number-surface="v1"
     data-contextual-number-mode={surfaceMode}
   >
@@ -645,24 +657,31 @@ export default function NumberDrawer2029({
       methodsLoading={profileState.loading}
       languageBridges={languageBridgeState.rows}
       regularExpressions={regularExpressions}
-      hiddenCrossings={hiddenCrossState.rows}
+      hiddenCrossings={verifiedCrossings}
       hiddenCrossingsLoading={hiddenCrossState.loading}
       mode="drawer"
+      shareUrl={`${SHARE_SITE}${numberExpressionFocusHref(root, surfaceMode === "focus" && clean(expression) ? { expression: clean(expression), method: selectedProfile?.methodKey || clean(selectedMethodKey) || null } : {}) || `/number/${root}`}`}
+      shareTitle={`SOD1820 · ${surfaceMode === "focus" && clean(expression) ? clean(expression) : root}`}
       traceState={traceState}
       traceOpen={traceOpen}
       traceSteps={traceSteps}
       traceDetail={trace}
-      onExpressionSelect={(phrase) => {
+      onExpressionSelect={(phrase, preferredMethod = null) => {
         setExpression(phrase);
         setInput(phrase);
         setSurfaceMode("focus");
-        if (regularProfile?.methodKey) setSelectedMethodKey(regularProfile.methodKey);
+        const nextMethod = clean(preferredMethod) || regularProfile?.methodKey;
+        if (nextMethod) setSelectedMethodKey(nextMethod);
         setTraceOpen(false);
       }}
       onResolveQuery={resolveInputValue}
       onMethodSelect={selectMethod}
       onToggleTrace={() => setTraceOpen((value) => !value)}
-      onOpenCrossing={(crossing) => razielIntent("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
+      activeCrossingPartner={verifiedCrossingPartner}
+      onCrossingFocusChange={(crossing) => {
+        setCrossingFocus(crossing ? { key: crossingFocusKey, partner: crossing.partner } : null);
+        if (crossing) setSurfaceMode("focus");
+      }}
       onOpenZero={openExplicitRoot}
       onOpenResult={openExplicitRoot}
       onOpenPage={openPage}
@@ -670,5 +689,8 @@ export default function NumberDrawer2029({
       onRazielAction={razielIntent}
       onExpandRaziel={() => razielIntent("expand_panel")}
     /> : !dataState.loading ? <div className="sod29-number-drawer-status">הקלד ביטוי כדי לקבל שיטות, או מספר כדי לפתוח את ה־Root.</div> : null}
-  </div>;
+    {projection && Number.isSafeInteger(Number(root)) ? <div className="sod29-number-follow-gate" data-follow-owner="WatchButton" data-follow-placement="after-core">
+      <WatchButton topic={`number:${root}`} source="number_drawer" gate ui2029 heading={`לעקוב אחרי ${root}?`} explainer="נשמור את המספר במעקב שלך באתר. עדכונים יופיעו כאן בתוך האתר; מייל או התראות נבחרים בנפרד ורק בהסכמה." label="עקוב אחרי המספר" followLabel="עוקב" />
+    </div> : null}
+  </div></PaletteProvider>;
 }

@@ -56,6 +56,31 @@ function assertLocs(result, present, absent) {
   for (const path of absent) assert.ok(!result.body.includes(`<loc>${SITE}${encodeURI(path)}</loc>`), `closed URL leaked ${path}`);
 }
 
+test('public Posts and former codename addresses expose indexable canonical metadata', async () => {
+  for (const path of ['/posts', '/2029/posts']) {
+    const result = await invoke(ogHandler, async () => { throw new Error('Static list should need no database'); }, { path, crawler: 'search' });
+    assert.equal(result.headers.get('x-robots-tag'), 'index, follow');
+    assert.match(result.body, /rel="canonical" href="https:\/\/sod1820.co.il\/posts"/);
+    assert.doesNotMatch(result.body, /SOD1820 2029|\/2029/);
+    assert.equal(result.calls.length, 0);
+  }
+});
+
+test('legacy and native post addresses agree on the stored post canonical identity', async () => {
+  for (const path of ['/canonical-fixture', '/post/canonical-fixture']) {
+    const result = await invoke(ogHandler, async () => flagResponse([{ slug: 'canonical-fixture', title: 'פוסט ציבורי', content: '<p>תוכן</p>', tags: [], categories: [] }]), { path, crawler: 'search' });
+    assert.match(result.body, /rel="canonical" href="https:\/\/sod1820.co.il\/post\/canonical-fixture"/);
+    assert.match(result.body, /property="og:url" content="https:\/\/sod1820.co.il\/post\/canonical-fixture"/);
+  }
+});
+
+test('the native Number address remains noindex when explicitly open for verification', async () => {
+  const result = await invoke(ogHandler, async () => flagResponse([{ key: 'lock_number', enabled: false, mode: 'all' }]), { path: '/number/1237', crawler: 'search' });
+  assert.equal(result.headers.get('x-robots-tag'), 'noindex, nofollow');
+  assert.match(result.body, /1237/);
+  assert.doesNotMatch(result.body, /דף המספר 2029/);
+});
+
 test('sitemap preserves default-open World when flags are missing while unfinished launch gates stay closed', async () => {
   const result = await invoke(sitemapHandler, sitemapFetch(async () => flagResponse([])));
   assertLocs(result, [...publicPaths, ...existingWorldPaths], [...strictPaths, ...retiredPaths]);
@@ -229,11 +254,10 @@ test('explicitly open static gates retain their public titles, including encoded
   }
 });
 
-test('explicitly open book and legacy number flags preserve their existing identity reads', async () => {
+test('explicitly open book flags preserve their existing identity reads', async () => {
   for (const [path, key, source, rows, title] of [
     ['/book/public', 'lock_books', '/nodes?', [{ label: 'ספר ציבורי', description: 'מקור', metadata: {} }], 'ספר ציבורי'],
     ['/books/public', 'lock_books', '/nodes?', [{ label: 'ספר ציבורי', description: 'מקור', metadata: {} }], 'ספר ציבורי'],
-    ['/number/1237', 'lock_number', '/number_anchors?', [{ fact: 'עוגן ציבורי', hint: 'רמז' }], 'עוגן ציבורי'],
   ]) {
     const result = await invoke(ogHandler, async url => {
       if (url.includes('/site_flags?')) return flagResponse([{ key, enabled: false, mode: 'all' }]);

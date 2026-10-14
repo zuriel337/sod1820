@@ -16,9 +16,9 @@ export const VISUAL_REVIEW_OPTIONS = Object.freeze([
   { id: "8", name: "שחור · אור הכתר", preset: "dark", detail: "שחור עמוק, כתב מואר; זהב, ספיר וטורקיז בתפקידים נפרדים." },
 ]);
 const reviewPages = [
-  { label: "פוסטים", href: "/2029/posts" },
+  { label: "פוסטים", href: "/posts" },
   { label: "דילוגים", href: "/els" },
-  { label: "מחשבון", href: "/2029/gematria" },
+  { label: "מחשבון", href: "/gematria" },
   { label: "פוסט", href: "/post/mah-kore-nza-hasoara" },
 ];
 const fromUrl = () => new URLSearchParams(location.search).get("visual");
