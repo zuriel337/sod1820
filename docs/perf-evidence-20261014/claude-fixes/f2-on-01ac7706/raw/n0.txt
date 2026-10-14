@@ -1,0 +1,57 @@
+n0 1/7
+n0 2/7
+n0 3/7
+n0 4/7
+n0 5/7
+n0 6/7
+n0 7/7
+{
+ "POSITION": {
+  "backHome_restored_within120px": "0/7",
+  "forwardWorld_restored_within120px": "0/7",
+  "newEntryPost_atTop": "7/7",
+  "newEntryWorld_atTop": "7/7",
+  "anchors": {
+   "direct_plane_india_in_view": "7/7",
+   "inPage": "7/7",
+   "crossPage_world_sources_landing": [
+    "0/1207",
+    "0/1207",
+    "0/1207",
+    "0/1207",
+    "0/1207",
+    "0/1207",
+    "0/1207"
+   ]
+  }
+ },
+ "TIMING_ms": {
+  "backHome": "511 [434,575] n=7",
+  "newEntryWorld": "2032 [1949,2115] n=7",
+  "forwardWorld": "237 [227,263] n=7"
+ },
+ "LAYOUT_SHIFT_cls": {
+  "newEntryPost": "0.018 [0,0] n=7",
+  "backHome": "2.003 [2,2] n=7",
+  "newEntryWorld": "0 [0,0] n=7",
+  "forwardWorld": "0 [0,0] n=7",
+  "runs_over_0_1": {
+   "backHome": "7/7",
+   "forwardWorld": "0/7"
+  }
+ },
+ "VALIDITY": {
+  "invalidRuns": 0,
+  "errors": [],
+  "pageErrors": 0,
+  "fixtureMissesPerRun": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+}

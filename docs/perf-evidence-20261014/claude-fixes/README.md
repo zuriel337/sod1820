@@ -1,5 +1,8 @@
 # CLAUDE_2029_FIXES_FROM_REVIEW_20261014 — two fixes for the review findings (patches, not applied to PR1100)
 
+> **UPDATE (supersedes the patches below):** PR1100 moved to `01ac7706`; it already contains the Hebrew-slug fix (`67d07abf`), so F1 here is superseded and its patch is in `superseded/`. F2 was reworked (anchoring pause, stable-height wait, new-entry reset, anchor preservation) and re-measured with 7 samples per side: see `f2-on-01ac7706/README.md`. In particular the statement below that the browser restores Home on back correctly is wrong — it restores, then scroll anchoring moves the page 1000+ px away.
+
+
 Base: PR1100 `gpt/perf-execution-20261014` **53fa46c8** (it had moved from 5dd4afaa during this work; the review ran on 5dd4afaa).
 Delivery: `patches/*.patch` (`git am`), made on a private worktree branch `fix/review-20261014` (not pushed — PR1100 belongs to the GPT/Codex lane, and my designated branch has a different base). Verified: both patches apply cleanly to 53fa46c8, 17 unit tests pass (`test/early-primary-read-2029.test.mjs`, `test/scroll-restore-2029.test.mjs`), `build:2029` passes. Not run: the CI workflows, the browser release specs, hosted preview.
 Measurement: `claude-review/review.mjs` and `coldload.mjs` (same conditions as the review: mobile 390×844 touch, CPU ×4, 1.6 Mbps/150 ms, cold context, fixtures recorded live for both builds, replay 150 ms, n=7 flow / n=5 cold). Lab replay, not a device.
