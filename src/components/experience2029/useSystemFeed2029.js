@@ -7,20 +7,21 @@ import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 
-// Navigation remounts the frame. Freshness policy: the PUBLIC stream (includeResearch:false, anonymous-safe readers
-// only) is reused for at most the existing 60s poll bound, never across a principal change, never after an error.
-// The first refresh is still scheduled at that bound, so staleness is not extended. Tier signals use the same bound.
-const FEED_FRESH_MS = 60000;
+// Navigation remounts the frame. Freshness policy (docs/perf-bounded-cost-2029-20261014.md §7): the PUBLIC stream
+// (includeResearch:false) is reused in memory for at most 30s, for the anonymous principal ONLY, never after an error.
+// A signed-in viewer always re-reads under their own RLS. The first refresh is scheduled at the 30s bound, so staleness
+// is not extended. Tier signals (public ratings) use the same bound.
+const FEED_FRESH_MS = 30000;
 let sharedFeed = null; // { at, principal, state }
 const tierMemo = new Map(); // item.id -> { at, strong }
-const freshFeed = (principal) => (sharedFeed && sharedFeed.principal === principal && Date.now() - sharedFeed.at < FEED_FRESH_MS ? sharedFeed : null);
+const freshFeed = (principal) => (principal === "guest" && sharedFeed && sharedFeed.principal === principal && Date.now() - sharedFeed.at < FEED_FRESH_MS ? sharedFeed : null);
 
 export function useSystemFeed2029({ enabled = true } = {}) {
   const { user, loading: authLoading } = useAuth() || {};
   const principal = authLoading ? "auth-loading" : user?.id || "guest";
   const [state, setState] = useState(() => freshFeed(principal)?.state || { loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
-  const [strongIds, setStrongIds] = useState(() => Object.fromEntries([...tierMemo].filter(([, v]) => Date.now() - v.at < FEED_FRESH_MS).map(([k, v]) => [k, v.strong])));
+  const [strongIds, setStrongIds] = useState(() => principal !== "guest" ? {} : Object.fromEntries([...tierMemo].filter(([, v]) => Date.now() - v.at < FEED_FRESH_MS).map(([k, v]) => [k, v.strong])));
   const asked = useRef(new Set());
 
   useEffect(() => {
@@ -56,16 +57,16 @@ export function useSystemFeed2029({ enabled = true } = {}) {
     state.items.filter((item) => item.kind === "convergence").slice(0, 3).forEach((item) => {
       if (asked.current.has(item.id)) return;
       asked.current.add(item.id);
-      const memo = tierMemo.get(item.id);
+      const memo = principal === "guest" ? tierMemo.get(item.id) : null;
       if (memo && Date.now() - memo.at < FEED_FRESH_MS) return;
       const numbers = tierLookupNumbers(item.numbers, item.numbers);
       if (!numbers.length) return;
       fetchNumberTierSignals(numbers).then((tiers) => {
-        if (tiers?.loaded) tierMemo.set(item.id, { at: Date.now(), strong: (tiers.diamond || 0) > 0 || (tiers.gold || 0) > 0 });
+        if (tiers?.loaded && principal === "guest") tierMemo.set(item.id, { at: Date.now(), strong: (tiers.diamond || 0) > 0 || (tiers.gold || 0) > 0 });
         if (tiers?.loaded) setStrongIds((current) => ({ ...current, [item.id]: (tiers.diamond || 0) > 0 || (tiers.gold || 0) > 0 }));
       });
     });
-  }, [state.items]);
+  }, [state.items, principal]);
 
   const rows = useMemo(() => feedRows(state.items, { seen, strongIds }), [state.items, seen, strongIds]);
   const newCount = rows.filter((row) => row.isNew).length;

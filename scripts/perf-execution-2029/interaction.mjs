@@ -43,6 +43,7 @@ for (let i = 0; i < runs; i++) {
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   const reqs = []; const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  let lastResp = 0; const respAt = []; page.on('response', r => { if (r.url().includes('supabase.co') && !r.url().includes('/storage/')) { lastResp = Date.now(); respAt.push([Date.now(), new URL(r.url()).pathname.split('/').pop()]); } });
   page.on('request', r => { if (r.url().includes('supabase.co')) reqs.push(r.method() + ' ' + new URL(r.url()).pathname.replace('/rest/v1/', '')); });
   await page.route('**/*', route => {
     const r = route.request(), u = r.url();
@@ -144,10 +145,12 @@ for (let i = 0; i < runs; i++) {
         for (let k = 0; k < 40; k++) { const box = await loc.boundingBox(); if (box && box.y > 80 && box.y + box.height < 760) break; await page.mouse.wheel(0, box && box.y < 80 ? -500 : 500); await page.waitForTimeout(250); }
         const box = await loc.boundingBox();
         const b0 = await page.evaluate(() => ({ lt: window.__p.longtasks.length, cls: window.__p.cls })); const r0 = reqs.length;
+        const clickWall = Date.now();
         await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
         await waitDrawer();
         sample[`${pass}_post_to_number_ms`] = await page.evaluate(() => Math.round(performance.now() - window.__p.clickAt));
         await page.waitForTimeout(900);
+        { const heavy = respAt.filter(([t, n]) => t >= clickWall && /fn_number_(dossier|journey|lookup)|posts_by_number_strict|number_neighbors/.test(n)); sample[`${pass}_post_to_number_numberRpcDoneMs`] = heavy.length ? Math.max(...heavy.map(h => h[0])) - clickWall : null; sample[`${pass}_post_to_number_restSettleMs`] = lastResp - clickWall; }
         const a0 = await page.evaluate(() => ({ lt: window.__p.longtasks.slice(), cls: window.__p.cls }));
         sample[`${pass}_post_to_number_longMs`] = a0.lt.slice(b0.lt).reduce((x, y) => x + y[1], 0);
         sample[`${pass}_post_to_number_reqs`] = reqs.length - r0; sample[`${pass}_post_to_number_reqlist`] = Object.entries(reqs.slice(r0).reduce((o, r) => (o[r] = (o[r] || 0) + 1, o), {})).map(([k, v]) => v + 'x ' + k.slice(0, 90));
