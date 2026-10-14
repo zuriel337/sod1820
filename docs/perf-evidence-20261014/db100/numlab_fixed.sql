@@ -21,7 +21,7 @@ with hits as (
   select h.*, f.ev, f.executable, f.engine_verified, (f.ev = 'governed') governed,
          gm.mathematical_family, gm.order_sensitive, gm.word_boundary_sensitive, gm.final_letter_sensitive, gm.category mcat, gm.operator, gm.derived_from,
          gm.active, gm.scannable, gm.execution_kind
-  from hits h join mflags f on f.method = h.method left join public.gematria_methods gm on gm.method_key = h.method
+  from hits h join mflags f on f.method is not distinct from h.method left join public.gematria_methods gm on gm.method_key = h.method
 ), cursor_row as (
   select x.governed, x.mcat, x.method, x.phrase, x.bid_id from base x where x.bid_id = p_after_bid_id limit 1
 ), page_rows as (

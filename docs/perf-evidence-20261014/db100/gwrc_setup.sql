@@ -34,7 +34,7 @@ create temp table contrib_arr as select array_agg(id) a from contrib;
 insert into research_contributions (status, target_type, target_id, author_contributor_id, author_name, title, created_at, convergence_slug, gematria_claim, body)
 select (array['approved','approved','approved','hidden','hidden','pending'])[1+floor(random()*6)::int],
   (array['number','number','phrase','els','home','insight'])[1+floor(random()*6)::int], (floor(power(random(),2)*149))::int::text,
-  (select a[1 + floor(random()*cardinality(a))::int] from contrib_arr),
+  md5((floor(random()*23000))::int::text)::uuid,
   'כותב '||(g%2300), 'כותרת '||g,
   case when g <= 3*:S then now() - (random()*7||' days')::interval else timestamptz '2023-01-01' + random()*(now()-interval '7 days' - timestamptz '2023-01-01') end,
   case when random()<0.0001 then 'conv-'||g end, jsonb_build_object('value', floor(random()*5000)::int), repeat('b', 60)

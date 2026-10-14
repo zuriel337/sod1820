@@ -6,7 +6,7 @@ create temp table wids as select array_agg(id) a from (select id from gematria_w
 create temp table mk as select array_agg(method_key order by method_key) a from (select method_key from gematria_methods where execution_kind <> 'unimplemented' limit 29) s;
 -- background: 368,153 rows / 28,769 distinct values (avg 13)
 insert into bidim (word_id, phrase, method, value, bid_id, provenance_state, computed_at, method_version)
-select (select a[1+floor(random()*cardinality(a))::int] from wids), 'ביטוי '||g, (select a[1+floor(random()*cardinality(a))::int] from mk), 1+floor(power(random(),1.5)*28769)::int, 'b'||g, 'ok', now(), 1 from generate_series(1, 368153) g;
+select w.a[1+floor(random()*cardinality(w.a))::int], 'ביטוי '||g, m.a[1+floor(random()*cardinality(m.a))::int], 1+floor(power(random(),1.5)*28769)::int, 'b'||g, 'ok', now(), 1 from wids w, mk m, generate_series(1, 368153) g;
 -- test values with N rows (x1 = value 787: 106 rows; x10; x100; max-per-value x100)
 insert into bidim (word_id, phrase, method, value, bid_id, provenance_state, computed_at, method_version)
 select (select a[1+floor(random()*cardinality(a))::int] from wids), 'מילה '||v||'-'||g, (select a[1+floor(random()*cardinality(a))::int] from mk), v, 'v'||v||'-'||g, 'ok', now(), 1

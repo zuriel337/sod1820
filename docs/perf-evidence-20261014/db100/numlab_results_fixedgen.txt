@@ -1,0 +1,16 @@
+fn_number_lookup value=787 limit=20 | 29.587 ms
+fn_number_lookup value=787 limit=null | 22.699 ms
+fn_number_lookup_v2 value=787 limit=20 | 4.396 ms
+fn_number_lookup_v2 value=787 limit=null | 3.822 ms
+fn_number_lookup value=7871 limit=20 | 192.505 ms
+fn_number_lookup value=7871 limit=null | 276.032 ms
+fn_number_lookup_v2 value=7871 limit=20 | 12.397 ms
+fn_number_lookup_v2 value=7871 limit=null | 12.716 ms
+fn_number_lookup value=7872 limit=20 | 1602.484 ms
+fn_number_lookup value=7872 limit=null | 1687.774 ms
+fn_number_lookup_v2 value=7872 limit=20 | 67.230 ms
+fn_number_lookup_v2 value=7872 limit=null | 120.633 ms
+fn_number_lookup value=7873 limit=20 | 8086.114 ms
+fn_number_lookup value=7873 limit=null | 8611.475 ms
+fn_number_lookup_v2 value=7873 limit=20 | 274.339 ms
+fn_number_lookup_v2 value=7873 limit=null | 596.052 ms

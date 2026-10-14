@@ -1,0 +1,16 @@
+     scope     | tested | row_differences 
+ edge requests |     10 |               0
+          scope           | tested | row_differences 
+ random numbers (1..2100) |    300 |               0
+       scope        | d787 | d31337 
+ after title update |    0 |      0
+      scope       | d787 | d99999 
+ after tag update |    0 |      0
+    scope     | d4242 | dbig 
+ after delete |     0 |    0
+           scope           | d555555 | v3_rows 
+ after insert (wp_id null) |       0 |       1
+      scope      | d555555 | stale_tokens 
+ after id change |       0 |            0
+                  scope                   | count 
+ rows with wp_id NULL found by v3 for 787 |     1
