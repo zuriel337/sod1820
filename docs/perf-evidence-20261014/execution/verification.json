@@ -1,0 +1,100 @@
+{
+  "reviewedRuntimeCommit": "64b303e4e69c43f56b59d80ccbcdbd7b300ce9dc",
+  "ciCommit": "f2908cea280f4f9e4a48f6f17993a381bf39d657",
+  "runtimeTreeDiff": "empty for src/public/2029.html/vite/package/preview-deploy/build-integrated-preview",
+  "ci": {
+    "headRefOid": "f2908cea280f4f9e4a48f6f17993a381bf39d657",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-14T06:45:25Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/zuriel337/sod1820/actions/runs/38523487965/job/115718351188",
+        "name": "performance-replay",
+        "startedAt": "2026-10-14T06:39:28Z",
+        "status": "COMPLETED",
+        "workflowName": "2029 Isolation Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-14T06:48:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/zuriel337/sod1820/actions/runs/38523487987/job/115718349156",
+        "name": "els-core-compatibility",
+        "startedAt": "2026-10-14T06:39:28Z",
+        "status": "COMPLETED",
+        "workflowName": "ELS Core Compatibility Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-14T06:42:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/zuriel337/sod1820/actions/runs/38523487963/job/115718349145",
+        "name": "isolated-postgres17-auth-rls",
+        "startedAt": "2026-10-14T06:39:28Z",
+        "status": "COMPLETED",
+        "workflowName": "Follow Identity Isolated DB Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-14T06:41:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/zuriel337/sod1820/actions/runs/38523487979/job/115718349100",
+        "name": "public-core",
+        "startedAt": "2026-10-14T06:39:28Z",
+        "status": "COMPLETED",
+        "workflowName": "G4 Public Core Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-14T06:41:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/zuriel337/sod1820/actions/runs/38523488007/job/115718349422",
+        "name": "number-2029",
+        "startedAt": "2026-10-14T06:39:28Z",
+        "status": "COMPLETED",
+        "workflowName": "Number 2029 Owner Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-14T06:45:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/zuriel337/sod1820/actions/runs/38523487965/job/115718350926",
+        "name": "hard-isolation",
+        "startedAt": "2026-10-14T06:39:28Z",
+        "status": "COMPLETED",
+        "workflowName": "2029 Isolation Gate"
+      }
+    ]
+  },
+  "hostedBuilds": {
+    "before": {
+      "commit": "6deea84c46efbc8449fd39decbc5cae1e46d8b4f",
+      "buildTarget": "2029",
+      "readOnly": true,
+      "manifestSha256": "25f1dca9b8049be6aee9b270e145079ac3badba395511614ba515c4472e8f285"
+    },
+    "after": {
+      "commit": "64b303e4e69c43f56b59d80ccbcdbd7b300ce9dc",
+      "buildTarget": "2029",
+      "readOnly": true,
+      "manifestSha256": "220de083f1bb2b561972b02f930c98d4e0fff0e49028cff60221ced00f42b44e"
+    }
+  },
+  "hostedHomeRepeatReason": "Original sample2 network not settled; retained, excluded; repeated full seven samples",
+  "release": {
+    "merged": false,
+    "productionDeployed": false,
+    "dbChangesApplied": false,
+    "speedClosed": false
+  },
+  "productionReverified": {
+    "id": "dpl_2GCNEwwThjZwJBExhf5z2e4APCxh",
+    "commit": "12fea7a33ea2367f590050f8e499389b7e508561",
+    "target": "production",
+    "state": "READY",
+    "unchanged": true
+  },
+  "matchedReplayGate": "PASS before/final same fixture union, seven samples each",
+  "focusedTests": "37/37 PASS"
+}

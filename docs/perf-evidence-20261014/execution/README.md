@@ -1,89 +1,99 @@
-# 2029 performance execution — measurement checkpoint, 2026-10-14
+# 2029 performance execution — review report
 
-**Partial execution. Speed is NOT closed.** This branch contains measurement evidence and an evidence-validity gate; it changes no application behavior. Active ownership prevents the next ordered boot/frame work. No merge, deployment, Legacy change, product-DB write, migration, cache, RPC replacement or agent message occurred.
+**Branch-only implementation; speed acceptance remains OPEN.** PR [1100](https://github.com/zuriel337/sod1820/pull/1100) targets the integrated preview branch. No merge, production deployment, Legacy entry change, product-data write, index, migration, cache, RPC replacement or message to another agent was performed. Protected static Preview builds are the explicitly requested review artifacts.
 
-## Verified baseline and DRIFT
+## Ownership, baseline and DRIFT
 
-| Source | Verified SHA | Reconciliation |
-|---|---|---|
-| origin/main | `12fea7a33ea2367f590050f8e499389b7e508561` | DRIFT from local `5dd7032e`; v17 reporting pointers are on main |
-| PR1092 / gpt/shared-preview-integration-20261014 | `18821815e4e7addf9d09f19b2d4eeff6a71ca77a` | Selected integrated application baseline |
-| claude/perf-testing-2029-5ayyow | `ef8a51ade0a946238eaab790256af81f2e13837a` | DRIFT from handed-off `13fccd0b`; contains new active-owner experiments |
-| Shared harness snapshot | `13fccd0b86f11ba972ecc9fc55eef39ba2fd2254` | Copied unchanged to scratch, never edited in its owner branch |
+The user explicitly transferred all performance execution ownership after the initial checkpoint. Passive BEFORE `8fe3aa84-ab54-4f57-bc14-ee3009ce0571` records the bounded 2029 performance scope. Other sessions' journal entries and unrelated ownership were not altered. Active v17, Owner Index, frame contracts and the relevant 48-hour journal were read. No ACK was requested.
 
-`git diff 13fccd0b 18821815 -- src 2029.html vite.config.js package.json package-lock.json` is empty. The integrated application is the existing `0e4e2d577ec8e935db5be1305ab943ba7021d6aa` code. The earlier Home `/2029` measurement is invalid; this run uses `/`.
+- Initial/live `origin/main`: `12fea7a33ea2367f590050f8e499389b7e508561`, DRIFT from handed-off `5dd7032e`.
+- Immutable integrated application base: `18821815e4e7addf9d09f19b2d4eeff6a71ca77a`, app-equivalent to `0e4e2d57`/`13fccd0b`.
+- Integrated remote moved to `d9d809654d29e3eca06f151a1f41cdfb8d4a85ca` during execution: three performance documentation files only, zero application changes. The measured base remains immutable; no savings from the new experiment report are added.
+- Prior Claude performance branch verified at `2059292d5082991d9aefc9264372e20ec2f0c7e0`, DRIFT from handed-off `13fccd0b`.
+- Reused font experiments `8fd9c701`/`ef8a51ad`, lazy World projection `c642d448`, frame/trail patch, existing lazy boundaries/bundle budget and DB drafts. The persistent-shell prototype was already measured and rejected: larger cold entry, slower FCP and worse navigation/CLS. It was not restarted or adopted.
 
-Read: live-main AGENTS/CLAUDE/Owner Index routing, live active coordination v17 (including metadata), existing System Frame contract/addendum, fixed measurement conditions, relevant 48h work_log_current and prior experiment evidence. General Supabase connector used for bounded read-only checks; only the separately authorized passive work-log records were written. BEFORE `54f7b262-d34b-40a6-8c0c-6f73fb6a8024` was reread from work_log_current with to_actor=ZURIEL and dispatch_kind/state=NULL.
+## Implemented behavior
 
-## Ownership transfer needed — consolidated, no takeover
+1. Replace render-time `innerWidth` with the existing responsive breakpoint via `matchMedia`, with cleaned-up change listener. Reserve the trail row height without changing content.
+2. Remove the font wait and retain only Noto body-font preloads, reusing completed experiments. No mobile Post image preload.
+3. Start only canonical anonymous Home/Post/World primary GETs in the head. Query definitions, limits and slug handling are shared with the existing readers. One-shot promises are consumed by the same Supabase client, not a second request. Stored auth/blocked storage, changed auth/profile/headers/route, abort, failure and expiry all fail to the normal reader. No persistent result cache.
+4. Separate Home primary cards from World availability changes, removing repeated reads. Fetch bounded card columns, not every body; retain the admitted language highlights through one guarded body read. The captured Home bodies drop **582,534 → 74,717 bytes (87%)**, with zero selected-column differences. Extra singleton request is included in counts.
+5. Use the installed, permission-checked arrivals v2 directly. v3 is absent; no function was created. Load the World post projection lazily and defer a local compact source story's reads until it is actually visible. This removes six hidden World reads without removing visible content.
+6. Render admitted public World source content before optional canonical verification/context finishes. Pending/error state is explicit; original verification functions, rules, claims, permissions and final content remain. Private stage data cannot take this path. A two-second extension delay plus six failed trace reads leaves primary content ready well before extensions end.
+7. Keep fallback snapshot bytes out of ordinary post reading and load golden executors only after existing golden-pack admission. Same executors and arguments, parallel trace reads. Timing differences inside noise are not claimed as wins; deterministic bytes/chunk reductions justify these boundaries.
 
-| Work needed | Existing owner / claim | Files and outcome |
-|---|---|---|
-| Font/boot barriers, early primary reads, measurement harness | `PERF_LOAD_BEFORE_DATA_2029_20261014`, BEFORE `8a3d9c6d-c447-4f18-a3e9-8ca38ab62500` | `src/main2029.jsx`, `2029.html`, `src/App2029.jsx`, `vite.config.js`, shell lazy-panel hunks, `scripts/perf/**`; no matching AFTER/release found in the bounded live scan |
-| Frame layout barrier / fixed shell / transitions | Existing System Frame visual lane, with the above active shell scope | `SystemFrame2029.jsx`, shell CSS, App layout and page wrappers, feed/watcher and shared feature-state integration; require exact scope/branch handoff before writing, visual acceptance stays with Claude |
+## Measurement validity
 
-Unique execution artifacts only were claimed here. Existing owner claims were not modified or released. Passive reporting only; no ACK or automatic specialist activation. Base isolation does not transfer ownership.
+The original GET-only harness fulfilled every POST RPC as 204 and substituted empty external assets. Its old 19-Post-resource count is **not** product proof. It is retained in `initial-checkpoint.md` and rejected by the product evidence gate.
 
-## New baseline (fixture lab only)
+Corrected replay captures real anonymous public GET/read-RPC responses and real external assets. Private fixture bodies remain outside Git; committed files contain status, query, hashes and raw timing samples only. Anonymous capture has a 200-request/asset ceiling and audited RPC allowlist. Product mutations, telemetry and auth calls are blocked. The only expected baseline 404 is the absent arrivals v3 followed by v2.
 
-Unmodified shared harness; 390×844, DPR2, CPU×4, cold contexts, brotli, 150ms RTT, download `1.6*1024*1024/8` bytes/s, upload `750*1024/8` bytes/s, 7 samples/route. Chromium 141.0.7390.37 / Playwright 1.56.1, build 1194. Environment geography unverified; do not compare absolute numbers to the prior Ohio runner as if location were established. Full manifest and hashes are in `baseline-manifest.json`.
+Mobile: 390×844, DPR2, CPU×4, cold contexts, Chromium 141.0.7390.37 / Playwright 1.56.1; RTT150ms, download209715.2B/s (1.6MiMbps), upload96000B/s. Each matched comparison uses exactly the same captured union and browser conditions, median of seven plus full range. Replay deliberately fixes RPC delay and does not reproduce REST body bandwidth, live DB duration or CORS OPTIONS. It is separate from hosted live measurements; numbers and isolated savings are never summed.
 
-All times below are milliseconds. After is unavailable because no runtime change was made; there is no speed delta to claim.
+### Combined matched replay
 
-| Surface | FCP before | LCP before | READY before [min–max] | First harness content request | Last Supabase end | Supabase resources | CLS | After |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| `/` | 1796 | 3940 | 4226 [4190–4348] | 3941 | 5049 | 73 | 0.021 | Not measured |
-| `/world` | 1960 | 5520 | 4327 [4280–4342] | 1723 | 5581 | 71 | 0.037 | Not measured |
-| `/post/seventh-to-tenth-sefirot-2027` | 1776 | 3948 | 3899 [3863–3961] | 3579 | 4207 | 19 | 0.008 | Not measured |
+Final table is generated from `combined-before.json` and `combined-final.json`; all times are milliseconds. The baseline includes complete content, not the invalid GET-only shortcut.
 
-Fixture misses: **0 for all routes**. The fixture set contains 63 GET entries, all status 200. Data replay is fixed-delay and does not measure DB time. The shared harness stores medians/ranges rather than individual samples; provenance records the actual seven-run invocation.
+| Surface | FCP before→after | LCP before [range]→after [range] | READY before [range]→after [range] | First primary before→after | Last REST before→after | Audited REST reads | CLS before→after |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `/` | 1780→1584 | 4520 [4460–4856]→3988 [3956–4036] | 4283 [4209–4564]→3747 [3727–3804] | 3953→209 | 5537→5539 | 60→59 | 0.02052→0.01995 |
+| `/world` | 2028→1840 | 6196 [6108–6296]→4772 [4652–4868] | 6102 [5991–6177]→4788 [4565–4888] | 4617→213 | 6050→5989 | 62→55 | 0.00024→0.03709 |
+| `/post/seventh-to-tenth-sefirot-2027` | 1780→1592 | 4152 [4092–4240]→3884 [3796–4072] | 3895 [3834–3969]→3606 [3512–3736] | 3567→213 | 4311→3870 | 7→6 | 0.00849→0.00008 |
 
-**Measurement limitations that block product acceptance:**
+### Navigation and layout
 
-- Every non-GET Supabase call, including read-only POST RPCs, is fulfilled as 204. World arrivals and gematria/convergence responses are omitted. This is not complete live content or request behavior. In particular, 19 Post resources cannot satisfy the requested 17–20 live-request target.
-- `firstContentReq` excludes some telemetry but still includes flags and stubbed RPCs; it is not a dedicated first-primary-content request. `lastSbEnd` covers all Supabase resource entries, not a method/status-specific last successful REST read.
-- External fonts, images and third-party resources are replaced by empty responses. Visual/content/permission parity and mobile responsiveness are unproven.
-- A post marker with >800 characters proves the marker appeared, not that optional extensions cannot block primary content.
+Five cold source sessions per transition; READY is relative to actual client navigation. Navigation FCP/LCP entries belong to the initial document and are not used as transition metrics.
 
-The new gate therefore accepts this evidence for `lab` and **rejects it for `product`**. It checks routes, complete numeric metrics, ranges, fixture misses, declared fixed conditions and before/after comparability. Product evidence additionally requires seven successful individual samples, primary-content identity/status/error proof, bounded reads, delayed/failed-extension acceptance and exact-SHA hosted proof. These are reviewer-verifiable evidence declarations, not independent browser assertions. The gate is a standalone review tool; shared harness corrections and CI wiring remain pending owner transfer. No product performance budget is calibrated from this incomplete-content run.
+| Transition | READY before [range] | READY after [range] | REST before→after |
+|---|---:|---:|---:|
+| עולם→בית | 1016 [964–1085] | 949 [874–963] | 54→52 |
+| בית→עולם | 2638 [2617–2737] | 1514 [1510–1516] | 57→50 |
+| בית→פוסט | 858 [808–921] | 790 [777–800] | 6→6 |
 
-## Prior work reused, not restarted
+Desktop Post trail: matched seven samples, 1366×768/DPR1/CPU1/40ms/10MiMbps. CLS **0.17936 [0.06791–0.18103] → 0.07815 [0.06436–0.07959]**. All live source-query fixtures succeed; zero misses/errors; same primary source/text hash. Initial missing desktop assets were captured anonymously and both sides remeasured; invalid earlier runs are not used.
 
-- PR1092 already contains lazy boundaries, lazy day context, in-flight flags dedupe and bundle-budget work. No replacement cache or duplicate implementation was introduced.
-- `e79da717` starts the existing Home/Post reader from the **boot module**, not from a central head request registry. Auth/error/StrictMode double-effect equivalence still needs acceptance before adoption.
-- `c642d448` lazily imports WorldFlightStory's post projection; `8fd9c701` removes font waiting; `ef8a51ad` changes body-font preload. These are active-owner experiments, not integrated here; do not add their isolated savings.
-- Existing `experiments.patch` carries the `matchMedia` CPU and trail-height CLS experiments. It was inspected as evidence and not applied to claimed files.
-- World/posts isolation evidence `57e49066` gives fixture READY 4503→4282ms for lazy full-content projection; basic/off mostly reduce CPU/requests and alter content. Live-v2 evidence `38097b6c` is a separate dataset. Neither is summed with boot savings.
-- Live DB catalog confirms `world_group_source_arrivals_v2` exists (STABLE, anon EXECUTE); v3 does not. The integrated `worldGroupSource.js` already handles missing-v3 errors with vetted v2 fallback. The first 404 attempt remains avoidable; this fixture harness cannot measure it because both POSTs are stubbed. No DB/RPC change made.
-- Existing `db100/proposed-migration.DRAFT.sql` remains the index/read-model draft. No duplicate synthetic DB experiment or migration was run.
-- `measure-2029-v2.mjs` hardcodes a **different Post slug** (`flydubai-fz1073-363-14000-remzei-geula`), gzip and real-RPC behavior. It cannot be mixed with this seventh-to-tenth fixture run or treated as the same baseline without a declared protocol correction.
+World source-first isolated run: READY6025 [5967–6115] →4789 [4747–4847]; same read body hashes and links. Functional delay/failure run: READY4760 versus last REST11882, six deliberate trace failures, successful primary source, no runtime errors or missing fixtures. This is functional evidence, not a normal timing result.
 
-## Validation and remaining gates
+### Hosted live verification
 
-Build: `npm ci --ignore-scripts` then `npm run build:2029` PASS. The initially preinstalled incomplete dependency set failed on missing @react-three/fiber; it was replaced in this isolated worktree using the lockfile, and no measurement used that failed build. Legacy source and lockfile are unchanged.
+Protected, noindex, static, read-only Preview; product GET and audited read RPCs use the live Supabase database. An existing deployment protection was retained. Temporary sharing is limited to these preview aliases; no project-wide protection, production alias or environment setting changed.
 
-`node --test test/perf-execution-2029.test.mjs`: 7 PASS. `git diff --check`: PASS. Product-mode gate fails intentionally; lab-mode gate passes. No behavioral test or visual acceptance is claimed for application changes, since there are none.
+- After artifact: `64b303e4e69c43f56b59d80ccbcdbd7b300ce9dc`, [Preview](https://sod1820-git-64b303e4-sod1820-s-projects.vercel.app), deployment `dpl_D1nqrMbLtZhFCJ1gm5o2BX6Nbigr`, READY, target=null (Preview), region iad1.
+- Baseline artifact: `6deea84c46efbc8449fd39decbc5cae1e46d8b4f`, deployment `dpl_7H2eeus6TRTmeSfQ3JvAqQp3pBrT`. Baseline runtime (`src`, `public`, 2029 HTML, Vite, package/lock) is verified byte-for-byte against `18821815`; only review guard/build metadata are newer. This is a disposable baseline branch, not a proposed application rollback.
+- Exact source SHA and manifest hash are read from `/preview-build.json`. Service-worker read guard must control every measured page. Seven new contexts per surface, matching CPU/network/browser/theme; no fixture interception. PostgreSQL cache and upstream time vary and are not claimed cold.
 
-Hosted preview: **not available for the exact baseline** in the checked GitHub deployment/status records (no deployments for 18821815 or 0e4e2d57, no status URL). No hosted preview was created or substituted. No direct Vercel readiness/commit check was available in this checkpoint. Hosted server, Israel, physical phone, mobile interaction responsiveness, Postgres cold cache, same-origin proxy, integrated after measurement, extension isolation, data bounds and live calibrated budgets all remain OPEN. Do not advance to structural shell/state/cache/DB work on the strength of this local build.
+| Surface | FCP before→after | LCP before [range]→after [range] | READY before [range]→after [range] | First primary before→after | Last REST before→after | REST incl. OPTIONS | CLS before→after |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `/` | 2004→1820 | 6176 [5832–6284]→5284 [5176–5444] | 5131 [4979–5530]→3950 [3839–4016] | 4060→200 | 6929→7154 | 123→123 | 0.01817→0.01825 |
+| `/world` | 2304→1944 | 7544 [7512–8012]→4984 [4804–5144] | 7455 [7418–7883]→4897 [4742–5062] | 4885→205 | 7394→7007 | 124→110 | 0.03165→0.03132 |
+| `/post/seventh-to-tenth-sefirot-2027` | 2000→1780 | 5680 [5616–5824]→5228 [5136–5336] | 4264 [4168–4417]→3765 [3707–3882] | 3786→202 | 4780→4518 | 15→13 | 0.00862→0.00008 |
 
-Release state: DOCUMENTED / IMPLEMENTED / TESTED / BRANCH-ONLY for the evidence guard only. Application fixes, hosted preview, full performance PR acceptance and speed closure are NOT VERIFIED. MERGED / DEPLOYED / LIVE = false. Release advice: BLOCKED_BY(active boot/frame ownership and valid hosted/live acceptance); user forbids merge/publication in this task.
+Original Home baseline sample2 did not settle its network within30s. Its full raw run remains in `hosted-before.json`, excluded from accepted Home statistics. `hosted-before-home-repeat.json` is a complete repeat of all seven Home samples, with zero settle/runtime errors; World and Post use the original complete seven-run baseline. All accepted samples have the read guard and zero horizontal overflow. The known baseline v3 404 and Preview guard403 for `ingest_event` / unaudited `notification_prefs_guest_get_v1` are explicit. No other failed REST status was observed. These guard restrictions mean hosted verification covers primary public content and the admitted readers, not every optional product flow.
 
-Rollback: revert this branch's single evidence/gate commit. It affects only the execution documents, standalone gate and its tests; no application or DB rollback is necessary.
+Post hosted READY improves498ms, meeting the400ms criterion in this method; LCP5228ms misses3600ms. Live Preview Post REST15→13 includes preflight; this does not establish the production count because the review guard rejects telemetry/unaudited operations. Home REST123→123 remains high and last REST6929→7154ms does not improve, despite primary READY and payload improvement. World REST124→110. No proxy or SQL savings are assumed.
 
-## Reproduce
+Hosted REST counts include observed OPTIONS and blocked preview telemetry; they are not comparable to replay's audited product-read counts. Raw files record methods/status/errors. Preview guard rejection of telemetry is expected. Any other denied/missing read is reported separately and cannot be silently accepted as content equivalence.
 
-```sh
-npm ci --ignore-scripts
-npm run build:2029
-# Extract scripts/perf unchanged from 13fccd0b into a separate scratch directory.
-PLAYWRIGHT_DIR=/workspace/perf-execution-scratch/tools \
-PERF_CHROME=/home/agent/.cache/ms-playwright/chromium-1194/chrome-linux/chrome \
-node /workspace/perf-execution-scratch/protocol/scripts/perf/harness.mjs run \
-  --dist /workspace/sod1820-perf-execution/dist --label baseline-18821815 \
-  --routes /,/world,/post/seventh-to-tenth-sefirot-2027 --runs 7 --out baseline.json
-node --test test/perf-execution-2029.test.mjs
-node scripts/perf-execution-2029/evidence-gate.mjs \
-  docs/perf-evidence-20261014/execution/baseline-fixture.json \
-  docs/perf-evidence-20261014/execution/baseline-manifest.json lab
-# Replacing lab with product must return exit code 1 for this dataset.
-```
+## Regression enforcement and checks
+
+- Bounded metadata columns, existing card limits and single admitted body; Home reader limit cannot drift independently from the head registry.
+- CI builds exact base/head independently, captures one bounded anonymous union, runs seven matched replay samples and rejects timing/read-count/CLS regression. Artifact upload excludes fixture bodies.
+- CI additionally injects delayed/failed World extensions and rejects a primary-content barrier. Test evidence validates successful primary requests, non-missing content, request/condition equivalence, auth fallback, cancellation and one-shot reuse.
+- Relative replay budgets: at most 10% plus100ms timing noise, zero additional REST reads, CLS≤0.1. These are regression budgets, not absolute production targets.
+- Relevant auth/readers/budget/golden-pack/public-connection tests: **37/37 PASS**. Earlier focused feature/public-admission/privacy/placement checks:32/32 PASS. Both isolated builds, built dependency graph, frame and four bundle budgets passed. Final CI status is recorded in `verification.json`; no local-build-only speed closure.
+
+The original `measure-2029-v2.mjs` hardcodes a different Post (FZ1073), compression/protocol and runner. Its completed live experiments were reused as evidence, not mixed with the seventh-to-tenth table. New live acceptance uses the corrected protected-hosted harness with the requested three routes and exact source metadata. The production deployment was reread as READY/main12fea7a3, unchanged.
+
+## Human gates and deliberately open work
+
+`public-enrichment-batch.DRAFT.sql` is guarded, bounded, invoker-security SQL with grants disabled and an unconditional execution stop. No function was created or called. Twenty native anonymous read calls gave zero native-value/wrapped-value differences and identical JSONB MD5 in `batch-native-value-parity.json`; this does **not** prove an unapplied batch wrapper's execution/errors, signed-in permission behavior or live batching savings. Existing index/read-model and number-helper drafts remain unexecuted. No RPC client replacement.
+
+Same-origin proxy, bot controls/edge cache, rate limits and number-helper rewrite remain evidence/approval gated. No infrastructure change or speculative cache. Persistent shell/provider/feed consolidation and idle chunk prefetch remain deferred following the documented shell regression and unproven state/freshness compatibility. The existing engines and their independent state owners are preserved.
+
+Still OPEN: physical phone in Israel; measurement from near Israel; true mobile interaction/INP; controlled cold PostgreSQL cache; proxy jump/OPTIONS benefit; signed-in complete end-to-end parity; Number transition acceptance. Post LCP≈3.6s and 17–20 live requests are not automatically satisfied by six replay reads; use the separate live table. Post READY improvement≥400ms is assessed per measured method, never inferred from first-request lead or summed experiments. Production AFTER requires a separately authorized release, followed by the same protocol.
+
+## Rollback and state
+
+Small commits isolate responsive frame, fonts, head handoff, repeated cards, lazy projection, v2 fallback, narrow cards, trail, hidden story, source-first rendering and byte boundaries. Roll back a runtime change by reverting its commit and rebuilding the protected Preview; do not undo another session's branch or apply SQL. Head handoff can be reverted independently because existing readers and defaults remain the fallback. Source-first can be reverted independently to await the full canonical projection. No data migration needs reversal.
+
+DOCUMENTED / IMPLEMENTED / BRANCH-ONLY / TESTED: yes for the listed changes. PREVIEW-DEPLOYED: exact artifacts above. HOSTED-VERIFIED: use recorded browser evidence and its limitations. MERGED / PRODUCTION-DEPLOYED / LIVE-VERIFIED / SPEED-CLOSED: **no**. Passive final work_log record and its readback are referenced in the PR; no automatic reviewer/agent activation.
