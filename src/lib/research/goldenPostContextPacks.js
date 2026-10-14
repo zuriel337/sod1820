@@ -17,7 +17,6 @@ import { gematriaTraceToFinding } from "./gematriaTrace.js";
 import { buildSourceBundles } from "./sourceBundleProjection.js";
 import { EVENT_MEMBER_TYPE, EVENT_SURFACE, FZ1073_EVENT_CANDIDATE_DECLARATION, projectEventContextForSurface } from "./eventObservationCompiler.js";
 import { ATTRIBUTION_ROLE, compileEventObservationWithSystemMethods, normalizeAttribution } from "./eventSystemMethodRuntime.js";
-import { compileNasrallahPost92Golden } from "./nasrallahPost92Golden.js";
 
 export const GOLDEN_CONTEXT_PACK_MAX_ROWS = 6;
 
@@ -257,7 +256,7 @@ export async function buildGoldenPostContextPack({ postId, post = null, traces =
         supportNumbers: pack.supportNumbers || [],
         receiptResolver,
       })
-      : await compileNasrallahPost92Golden({
+      : await (await import("./nasrallahPost92Golden.js")).compileNasrallahPost92Golden({
         post: subject,
         clockObservation: pack.clockObservation,
         dayOrdinal: pack.dayOrdinal,
