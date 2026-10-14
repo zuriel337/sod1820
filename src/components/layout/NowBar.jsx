@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
+import { loadNowBarEmail } from "../../lib/nowBarSources.js";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { seenCutoff, markSeenKey } from "../../lib/crossesNew.js";
-import { timeAgoHe, stripHtml } from "../../lib/format.js";
+import { timeAgoHe } from "../../lib/format.js";
 import { F } from "../../theme.js";
 
 // ⏱ «עכשיו» — סרגל דק יחיד בתחתית כל דפי הלגאסי, לכל הגולשים (גם לא מחוברים).
 // מחליף את ה-Bottom Bar ואת הכפתור הצף של LiveChannelFeed (בקשת צוריאל 13.10.2026).
-// שני מקורות בלבד, read-only: (1) הודעות צבי (tzvi-opoc) דרך אותו RPC מסונן-שרת של 2029,
-// (2) הודעות המייל (channel_updates.source='email', status='live').
+// מיילים כבויים כברירת מחדל: מרכז הקבלה הוא הבית הראשי. חיבור עתידי דורש בחירת יעד מפורשת.
+// מקורות read-only: (1) הודעות צבי (tzvi-opoc) דרך אותו RPC מסונן-שרת של 2029,
+// (2) שרשורי מייל שאושרו דרך הקורא המסונן-שרת email_source_threads_v1.
 // «חדש» = מאז הביקור האחרון באותו דפדפן (localStorage). לא נוגע ב-status/publish.
 export const NOW_BAR_HEIGHT = 34;
 const SEEN_KEY = "now-bar";
@@ -31,19 +33,7 @@ const WhatsAppIcon = () => (
 
 const ts = (iso) => Date.parse(iso || "") || 0;
 
-async function loadEmail() {
-  if (!supabase) return [];
-  const { data } = await supabase.from("channel_updates")
-    .select("id,text,credit,created_at")
-    .eq("status", "live").eq("source", "email").eq("page_only", false)
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-    .order("created_at", { ascending: false }).limit(15);
-  return (data || []).map((r) => ({
-    key: `mail:${r.id}`, kind: "mail", who: r.credit || "מייל",
-    text: stripHtml(r.text || "").replace(/\s+/g, " ").trim().slice(0, 600),
-    at: r.created_at,
-  })).filter((r) => r.text);
-}
+const loadEmail = () => loadNowBarEmail(supabase);
 
 async function loadZvi() {
   const rows = await fetchGroupSourceArrivals({ limit: 40 });
@@ -52,8 +42,9 @@ async function loadZvi() {
   }));
 }
 
-export default function NowBar() {
+export default function NowBar({ includeEmail = false }) {
   const [items, setItems] = useState([]);
+  const [mailState, setMailState] = useState("loading");
   const [open, setOpen] = useState(false);
   const [exp, setExp] = useState({});
   const [cutoff, setCutoff] = useState(() => seenCutoff(SEEN_KEY));
@@ -61,16 +52,17 @@ export default function NowBar() {
   useEffect(() => {
     let alive = true;
     const load = async () => {
-      const [m, z] = await Promise.allSettled([loadEmail(), loadZvi()]);
+      const [m, z] = await Promise.allSettled([includeEmail ? loadEmail() : Promise.resolve([]), loadZvi()]);
       if (!alive) return;
       const all = [...(m.status === "fulfilled" ? m.value : []), ...(z.status === "fulfilled" ? z.value : [])]
         .sort((a, b) => ts(b.at) - ts(a.at));
+      setMailState(m.status === "rejected" ? "unavailable" : m.value.length ? "available" : "empty");
       setItems(all);
     };
     load();
     const id = setInterval(load, POLL_MS);
     return () => { alive = false; clearInterval(id); };
-  }, []);
+  }, [includeEmail]);
 
   const unseen = useMemo(() => items.filter((i) => i.at && i.at > cutoff).length, [items, cutoff]);
 
@@ -92,6 +84,9 @@ export default function NowBar() {
           border: "1px solid rgba(212,175,55,.35)", borderBottom: "none", borderRadius: "12px 12px 0 0",
           boxShadow: "0 -8px 28px rgba(0,0,0,.45)", fontFamily: F.body,
         }}>
+          {includeEmail && mailState !== "available" && <div role="status" style={{ padding: "8px 14px", fontSize: 12, opacity: 0.7 }}>
+            {mailState === "loading" ? "טוען עדכוני מייל…" : mailState === "unavailable" ? "עדכוני המייל אינם זמינים כרגע" : "אין כרגע עדכוני מייל שאושרו להצגה"}
+          </div>}
           {items.length === 0 && <div style={{ padding: 18, textAlign: "center", opacity: 0.7, fontSize: 14 }}>אין עדכונים כרגע</div>}
           {items.map((i) => {
             const fresh = i.at && i.at > cutoff;
@@ -131,3 +126,4 @@ export default function NowBar() {
     </>
   );
 }
+

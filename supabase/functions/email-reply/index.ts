@@ -2,6 +2,7 @@
 // אדמין-בלבד (JWT → users.role='admin'). שולח מ-From המותג, עם Reply-To, וכותרות שרשור
 // (In-Reply-To/References) כדי שהתשובה תישב באותו שרשור אצל הנמען. מסמן replied_at על השורה.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { replyMessageId } from "../_shared/sourceEmail.mjs";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -53,8 +54,8 @@ Deno.serve(async (req) => {
     const reSubject = /^re:/i.test(subj) ? subj : ("Re: " + (subj || "הודעה"));
     const bodyHtml = String(body.body_html || "").trim() || ("<p>" + esc(bodyText).replace(/\n/g, "<br />") + "</p>");
 
-    const rawMid = String(row.message_id || "");
-    const isRealMid = rawMid.includes("@") && !rawMid.startsWith("in_");
+    const rawMid = replyMessageId(row);
+    const isRealMid = !!rawMid;
     const threadHeaders: Record<string, string> = {};
     if (isRealMid) {
       const mid = `<${rawMid}>`;
@@ -88,3 +89,4 @@ Deno.serve(async (req) => {
     return json({ error: String(e).slice(0, 200) }, 500);
   }
 });
+

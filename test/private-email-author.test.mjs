@@ -1,0 +1,109 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+const { PGlite } = await import(process.env.PGLITE_MODULE_PATH || '@electric-sql/pglite');
+const db=new PGlite();
+await db.exec(`create role anon; create role authenticated; create role service_role;
+create table users(id uuid primary key,email text);
+create table contributors(id uuid primary key,slug text,display_name text,email text,
+active boolean,merged_into text,page_config jsonb,user_id uuid,kind text,source text,
+building boolean,engaged boolean,trusted boolean,dossier_settings jsonb,updated_at timestamptz);`);
+await db.exec(await readFile('supabase/migrations/20261013203500_provision_email_source_authors.sql','utf8'));
+const batch=Array.from({length:13},(_,i)=>({email:`approved-${i}@example.invalid`,display:`Source ${i}`}));
+const call=async(name,input=batch)=>(await db.query(`select ${name}($1::jsonb) result`,[JSON.stringify(input)])).rows[0].result;
+test.after(()=>db.close());
+test('private stage installs independently without public tables, policies or grants',async()=>{
+  assert.equal((await db.query("select count(*) n from pg_tables where schemaname='public'")).rows[0].n,2);
+  for(const role of ['anon','authenticated']) {
+    await db.exec(`set role ${role}`);
+    try {
+      await assert.rejects(()=>call('preview_email_source_authors_v1'),/permission denied/);
+      await assert.rejects(()=>call('provision_email_source_authors_v1'),/permission denied/);
+      await assert.rejects(()=>db.query("select * from email_source_author_v1('approved-0@example.invalid')"),/permission denied/);
+      await assert.rejects(()=>db.query("select email_source_aliases_valid_v1('approved-0@example.invalid')"),/permission denied/);
+    } finally {await db.exec('reset role');}
+  }
+});
+test('preflight is a dry run; private source approval never enables public publication',async()=>{
+  const plan=await call('preview_email_source_authors_v1');
+  assert.equal(plan.blocked,0);assert.ok(plan.entries.every(x=>x.state==='would_create_private'));
+  assert.equal((await db.query('select count(*) n from contributors')).rows[0].n,0);
+  const created=await call('provision_email_source_authors_v1');assert.equal(created.created_private_sources,13);
+  const rows=(await db.query('select * from contributors')).rows;
+  assert.ok(rows.every(x=>x.kind==='private'&&!x.building&&!x.trusted&&x.user_id===null&&x.dossier_settings.visibility==='private'));
+  assert.ok(rows.every(x=>x.page_config.email_source_approved===true && x.page_config.email_source_public!==true));
+  const author=(await db.query("select * from email_source_author_v1('approved-0@example.invalid')")).rows;
+  assert.equal(author.length,1,'private canonical approval is usable without public authorization');
+  assert.equal((await call('provision_email_source_authors_v1')).created_private_sources,0,'replay reuses source identity');
+});
+test('revoked private approval immediately removes canonical sender resolution',async()=>{
+  await db.exec("update contributors set page_config='{}' where email='approved-0@example.invalid'");
+  assert.deepEqual((await db.query("select * from email_source_author_v1('approved-0@example.invalid')")).rows,[]);
+});
+test('two profiles for one mailbox are reported and the entire provisioning batch stays unchanged',async()=>{
+  await db.exec("insert into contributors(id,email,active) values(gen_random_uuid(),'approved-12@example.invalid',true)");
+  const before=(await db.query('select id,page_config from contributors order by id')).rows;
+  const plan=await call('preview_email_source_authors_v1');
+  assert.equal(plan.blocked,1);assert.equal(plan.entries[12].state,'ambiguous');assert.equal(plan.entries[12].contributor_ids.length,2);
+  assert.equal(JSON.stringify(plan).includes('@'),false,'preflight receipt omits private mailboxes');
+  await assert.rejects(()=>call('provision_email_source_authors_v1'),/reconciliation required/);
+  assert.deepEqual((await db.query('select id,page_config from contributors order by id')).rows,before);
+  assert.deepEqual((await db.query("select * from email_source_author_v1('approved-12@example.invalid')")).rows,[]);
+});
+test('an existing unlinked account is held instead of minting a second unlinked Person identity',async()=>{
+  const fresh=batch.map((x,i)=>({...x,email:`fresh-${i}@example.invalid`}));
+  await db.exec("insert into users values(gen_random_uuid(),'fresh-4@example.invalid')");
+  const plan=await call('preview_email_source_authors_v1',fresh);
+  assert.equal(plan.blocked,1);assert.equal(plan.entries[4].state,'account_link_required');
+  await assert.rejects(()=>call('provision_email_source_authors_v1',fresh),/reconciliation required/);
+  assert.equal((await db.query("select count(*) n from contributors where email like 'fresh-%'")).rows[0].n,0);
+});
+test('wrong batch, duplicate mailbox and malformed input cannot reach provisioning',async()=>{
+  await assert.rejects(()=>call('preview_email_source_authors_v1',[]),/thirteen/);
+  await assert.rejects(()=>call('preview_email_source_authors_v1',batch.map(()=>batch[0])),/duplicate/);
+  await assert.rejects(()=>call('preview_email_source_authors_v1',batch.map((x,i)=>i===0?{...x,display:''}:x)),/invalid/);
+});
+test('a governed merge alias no longer counts as a competing canonical identity',async()=>{
+  const matches=(await db.query("select id,slug,kind from contributors where email='approved-12@example.invalid'")).rows;
+  const target=matches.find(x=>x.kind==='private'),canonical=target.id,alias=matches.find(x=>x.kind!== 'private').id;
+  // Native ContributorPage routes merged_into as a slug, never as a UUID.
+  await db.query('update contributors set merged_into=$1 where id=$2',[target.slug,alias]);
+  const plan=await call('preview_email_source_authors_v1');
+  assert.equal(plan.blocked,0);assert.equal(plan.entries[12].state,'resolved');
+  assert.deepEqual(plan.entries[12].contributor_ids,[canonical]);
+  const result=await call('provision_email_source_authors_v1');assert.equal(result.created_private_sources,0);
+  assert.equal((await db.query("select count(*) n from contributors where email='approved-12@example.invalid'")).rows[0].n,2,'merge history preserved');
+});
+test('merged-only contact aliases are held instead of creating another source identity',async()=>{
+  const aliases=batch.map((x,i)=>({...x,email:`alias-${i}@example.invalid`}));
+  const canonical=(await db.query("select id from contributors where email='approved-1@example.invalid'")).rows[0].id;
+  await db.query("insert into contributors(id,email,active,merged_into) values(gen_random_uuid(),'alias-0@example.invalid',true,$1)",[canonical]);
+  const plan=await call('preview_email_source_authors_v1',aliases);
+  assert.equal(plan.blocked,1);assert.equal(plan.entries[0].state,'merged_identity_link_required');
+  await assert.rejects(()=>call('provision_email_source_authors_v1',aliases),/reconciliation required/);
+});
+test('invalid alias pointers cannot hide competing identity rows or bypass private batch gating',async()=>{
+  const target=(await db.query("select id,slug from contributors where email='approved-1@example.invalid'")).rows[0];
+  for(const fault of ['missing','self','inactive','cycle','foreign_mailbox','duplicate_slug','uuid_slug_collision']) {
+    await db.exec('begin');
+    try {
+      const alias=(await db.query("insert into contributors(id,slug,email,active,merged_into) values(gen_random_uuid(),'test-alias','approved-1@example.invalid',true,$1) returning id",[fault==='missing'?'nonexistent':fault==='self'?'test-alias':target.slug])).rows[0];
+      if(fault==='inactive') await db.query('update contributors set active=false where id=$1',[target.id]);
+      if(fault==='cycle') await db.query("update contributors set merged_into='test-alias' where id=$1",[target.id]);
+      if(fault==='foreign_mailbox') await db.query("update contributors set email='other@example.invalid' where id=$1",[target.id]);
+      if(fault==='duplicate_slug') await db.query("insert into contributors(id,slug,email,active) values(gen_random_uuid(),$1,'other@example.invalid',true)",[target.slug]);
+      if(fault==='uuid_slug_collision') {
+        const other=(await db.query("insert into contributors(id,slug,email,active) values(gen_random_uuid(),'uuid-slug-collision','other@example.invalid',true) returning id")).rows[0];
+        await db.query('update contributors set slug=$1 where id=$2',[other.id,target.id]);
+        await db.query('update contributors set merged_into=$1 where id=$2',[other.id,alias.id]);
+      }
+      assert.equal((await db.query("select email_source_aliases_valid_v1('approved-1@example.invalid') valid")).rows[0].valid,false,fault);
+      const plan=await call('preview_email_source_authors_v1');assert.ok(plan.blocked>0,fault);
+      await db.exec('savepoint expected_denial');
+      await assert.rejects(()=>call('provision_email_source_authors_v1'),/reconciliation required/);
+      await db.exec('rollback to savepoint expected_denial');
+      assert.deepEqual((await db.query("select * from email_source_author_v1('approved-1@example.invalid')")).rows,[],fault);
+      assert.ok(alias.id);
+    } finally {await db.exec('rollback');}
+  }
+});
