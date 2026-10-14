@@ -40,10 +40,10 @@ async function one(route){
   const m=await page.evaluate(()=>{const nav=performance.getEntriesByType('navigation')[0];const res=performance.getEntriesByType('resource');
     const fcp=performance.getEntriesByName('first-contentful-paint')[0]?.startTime??null;
     const sbr=res.filter(r=>r.name.includes('.supabase.co')); const js=res.filter(r=>/\.js(\?|$)/.test(r.name)&&r.name.includes('/assets/'));
-    const lt=__m.lt; const tbt=lt.filter(x=>x[0]>=(fcp||0)).reduce((s,x)=>s+Math.max(0,x[1]-50),0); const tbtAll=lt.reduce((s,x)=>s+Math.max(0,x[1]-50),0);
+    const cr=sbr.filter(r=>!/rpc\/(link_identity|track_visit|ingest_event)|\/auth\/v1/.test(r.name)); const lt=__m.lt; const tbt=lt.filter(x=>x[0]>=(fcp||0)).reduce((s,x)=>s+Math.max(0,x[1]-50),0); const tbtAll=lt.reduce((s,x)=>s+Math.max(0,x[1]-50),0);
     return {ttfb:nav.responseStart,dcl:nav.domContentLoadedEventEnd,load:nav.loadEventEnd,fcp,lcp:__m.lcp,rootAt:__m.rootAt,cls:__m.cls,
       firstSbReq:sbr.length?Math.min(...sbr.map(r=>r.startTime)):null,firstSbEnd:sbr.length?Math.min(...sbr.map(r=>r.responseEnd)):null,lastSbEnd:sbr.length?Math.max(...sbr.map(r=>r.responseEnd)):null,
-      sbCount:sbr.length,jsCount:js.length,jsLastEnd:js.length?Math.max(...js.map(r=>r.responseEnd)):null,
+      firstContentReq:cr.length?Math.min(...cr.map(r=>r.startTime)):null,firstContentEnd:cr.length?Math.min(...cr.map(r=>r.responseEnd)):null,sbCount:sbr.length,jsCount:js.length,jsLastEnd:js.length?Math.max(...js.map(r=>r.responseEnd)):null,
       jsBytes:js.reduce((s,r)=>s+(r.encodedBodySize||0),0),allBytes:res.reduce((s,r)=>s+(r.encodedBodySize||0),0)+nav.encodedBodySize,
       tbt,tbtAll,ltl:lt.map(x=>[Math.round(x[0]),Math.round(x[1])]),ltCount:lt.length,reqs:res.length,tl:res.filter(r=>!r.name.includes('.supabase.co')).map(r=>[r.name.replace(/^https?:\/\/[^/]+/,'').slice(0,60),Math.round(r.startTime),Math.round(r.responseEnd),Math.round((r.encodedBodySize||0)/1024),r.initiatorType]),sbList:sbr.map(r=>[Math.round(r.startTime),r.name.split('.supabase.co')[1].slice(0,90)])};});
   const pm=Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(x=>[x.name,x.value]));
@@ -63,7 +63,7 @@ if(mode==='record') fs.writeFileSync(fixFile,zlib.gzipSync(JSON.stringify(fixtur
 if(args.out) fs.writeFileSync(args.out,JSON.stringify(out,null,1));
 const R=n=>n==null?'-':Math.round(n);
 console.log(`\n## ${args.label} (cpu x${cpu}, rtt ${rtt}ms, sb ${sbdelay}ms, n=${runs})`);
-console.log('route | FCP | LCP | root | 1stSbReq | 1stSbEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#');
-for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.firstSbReq),R(m.firstSbEnd),R(m.lastSbEnd),R(m.tbtAll),m.cls?.toFixed(3),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
+console.log('route | FCP | LCP | root | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#');
+for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.firstContentReq),R(m.firstContentEnd),R(m.lastSbEnd),R(m.tbtAll),m.cls?.toFixed(3),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
   if(v.misses.length)console.log('  fixture misses:',v.misses.length);}
 await browser.close(); srv.close();
