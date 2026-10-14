@@ -27,3 +27,22 @@ Status: measurement protocol only. Not a product contract. Branch-only, no merge
 
 ## Correction (same day)
 The first revision used `/2029` as the home route. On this base `/2029/*` is an alias redirect and home is `/`; the first fixtures and any Home number measured via `/2029` are INVALID. Use route `/` and the re-recorded fixtures in the correcting commit.
+
+## Runs table (lane A is the only writer)
+Experiment key = base SHA + route + change + metric. Check here and in work_log (task_key) before repeating a run; re-run only if base or conditions changed, and say why.
+Base for all rows below: product code of `91a4c925` (== `13fccd0b` product; tool commits differ only in `scripts/perf`). Harness `scripts/perf/harness.mjs` / `nav.mjs`, conditions above, median of 7 (nav n=5), range in `docs/perf-evidence-20261014/load-before-data/res-*.json`. Journal: `PERF_LOAD_BEFORE_DATA_2029_20261014` (AFTER row 048514de).
+
+| key (change) | routes | result vs base (median; non-overlapping range = real) | comparable |
+|---|---|---|---|
+| base | `/` `/world` `/post/…` | Home FCP 1940 / READY 4746 · World 2184 / 4660 · Post 1912 / 4305 | yes (main baseline) |
+| F1 no font wait | all | neutral | yes |
+| F2 Google CSS non-blocking | all | neutral in lab (3rd-party cost not modelled) | yes |
+| F3 no font preloads (needs F1) | all | FCP −400, READY −170…−290; post CLS 0.008→0.038 | yes |
+| s3a Noto-only preloads | all | CLS 0.009 kept; FCP −210 | yes |
+| E4 early content read | `/`, post | first content req Home 4308→2513, Post 3880→2834; READY −180 / −350 | yes |
+| E5 lazy ContactGateway | all | shell −8KB br; READY noise | yes (not on branch) |
+| E7 lazy post projection (WorldFlightStory) | `/` | READY −220, LCP −290 | yes; lane B reports World −221 with same change |
+| final stack (E4+E7+F1+s3a, tip `879ad70a`) | all | Home READY 4282, World 4398, Post 3904, CLS unchanged | yes (product differs from base: 4 commits) |
+| persistent shell (patch only) | cold + nav | cold FCP +800; nav no gain; blocking/CLS worse | yes |
+
+Other lanes' rows (not mine, cited): lane B `PERF_POSTS_WORLD_ISOLATION` (base 91a4c925, measure-2029-v2, n=14: small READY effect, CPU −21…−32%) — NOT comparable to this harness; lane B `PERF_POSTS_WORLD_FIXTURE_RERUN` (base 13fccd0b + patch, this harness, 3×7) — comparable; lane C live DB single-call EXPLAIN (anon) — DB time, different method, not comparable to harness numbers (the harness replays Supabase at a fixed 150 ms and does not measure DB time).
