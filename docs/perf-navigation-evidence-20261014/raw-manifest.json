@@ -33,5 +33,45 @@
     "name": "role-a-claude-scroll-heavy.json.gz",
     "originalSha256": "563e91698a098c366c7e1607fe53128b1e57f46475a88e5941b53c7dae3266e2",
     "compressedSha256": "a944a31fced0746cb3e02e46d0b37135c4c273ec01985addfaf245d49a33d0a9"
+  },
+  {
+    "name": "role-a-navigation-feed-only.json.gz",
+    "originalSha256": "bcb4725f44d1d90fbab425cc9c582d8902ebd1da89eb25fa51c99fa0cdb7b899",
+    "compressedSha256": "b69191e020f950c9973a1099d5b7bbca9f37c47999c1d562e86be8cb8a6b96b3"
+  },
+  {
+    "name": "role-a-navigation-feed-comparison.json.gz",
+    "originalSha256": "3b450433a81bc829c8830e5d55232912bffa1b58a870cbac92fdf3770eb1799e",
+    "compressedSha256": "e00fdd53d914358f4ac2e45226312fa14ad4cdcfe96a5d862b305e60b3473706"
+  },
+  {
+    "name": "role-a-feed-cold-before.json.gz",
+    "originalSha256": "6cfc44aa4efb7cff84665e68408088dfb2bc549709334ac1b6f5bd4d75fff133",
+    "compressedSha256": "fd5e191f91de168432292061561052a16e60487690d4f8fc5683581d71552e41"
+  },
+  {
+    "name": "role-a-feed-cold-after.json.gz",
+    "originalSha256": "afb5d6b2b44e4b2dc91378949af96406a43c701b5b23292e83bfc33a46475bd2",
+    "compressedSha256": "2e5d274839dfe302d029befbd6c63caa4d15a2c97a508cb9cb0daabe4c56ccdd"
+  },
+  {
+    "name": "role-a-navigation-combined.json.gz",
+    "originalSha256": "07a00cd51fbd83c2c1ed5f01416ff4cd7fc252673cbf7cb36e5ed7e4db68ccd4",
+    "compressedSha256": "8191693c370d4d55866ae62d65cd7f2600577dfdd88b943f98b272c7fde43e52"
+  },
+  {
+    "name": "role-a-navigation-combined-comparison.json.gz",
+    "originalSha256": "3b2bb16d3a9e4bc31ebb160646379c4fcd9146b3ebe8c3b193718c6010d8772c",
+    "compressedSha256": "00d577df8469515a9193714c6aef856157c1fc36b03fc7ecc36da295f59f1f1c"
+  },
+  {
+    "name": "role-a-home-before.json.gz",
+    "originalSha256": "dc85ae916d3c47037905a25ecce8c560924a3e712769c7da4aa83e42f331b725",
+    "compressedSha256": "d2dee217bf0858b27a81b176eca4dd94fd8d538223019ffcfd59fdee66a235b9"
+  },
+  {
+    "name": "role-a-home-after.json.gz",
+    "originalSha256": "c98c016488d22370aeaed2d0ecaaf4df274c47d856dbc405cd715a6c7d0cfd2b",
+    "compressedSha256": "3cc84ff9c238ff69ae9584b3e1d90823c07d9989024a5d906cb050433af282df"
   }
 ]
