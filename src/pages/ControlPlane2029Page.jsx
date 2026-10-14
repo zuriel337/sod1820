@@ -64,6 +64,25 @@ function costLine(cost) {
   return parts.length ? `עלות בטעינה — ${parts.join(" | ")}` : "עלות: אפסית בעמודים שנמדדו";
 }
 
+// Which measurement tags THIS build was compiled with (build-time env; public identifiers). Read-only diagnostic.
+function MeasurementStatus() {
+  const env = import.meta.env;
+  const rows = [
+    ["Google Analytics 4", env.VITE_GA_ID || null, "VITE_GA_ID — נקבע בזמן הבנייה; בלי ערך התג לא נטען בכלל"],
+    ["Google Ads", env.VITE_GOOGLE_ADS_ID || null, "VITE_GOOGLE_ADS_ID"],
+    ["Meta Pixel", env.VITE_META_PIXEL_ID || null, "VITE_META_PIXEL_ID"],
+    ["Microsoft Clarity", "לא נטען ב־2029", "הקוד של 2029 אינו מפעיל Clarity (ב־Legacy הוא מופעל)"],
+  ];
+  return <section className="sod29-section" aria-label="מדידה בבנייה הזו">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">MEASUREMENT</div><h2>מזהי מדידה בבנייה הזו</h2>
+      <div className="sod29-muted">אם הערך ריק כאן, הפריסה הזו נבנתה בלי המשתנה (למשל פריסת Preview שקודמה לפרודקשן) ואין איסוף. כדי לאמת שני מזהים — הפעל ובדוק את הערך בכל פריסה.</div></div></div>
+    <div className="sod29-list">{rows.map(([label, value, note]) => <div className="sod29-row" key={label}>
+      <div><strong>{label}</strong><small>{note}</small></div>
+      <span className="sod29-chip">{value || "לא מוגדר"}</span>
+    </div>)}</div>
+  </section>;
+}
+
 // Owner switches for secondary functions (site_flags fx_*). OFF means the function sends no request at all.
 // Never gates user saves, authorization, primary content or consent; analytics is intentionally not listed.
 function RuntimeSwitches() {
@@ -290,6 +309,8 @@ export default function ControlPlane2029Page() {
     </section>
 
     <RuntimeSwitches />
+
+    <MeasurementStatus />
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>
