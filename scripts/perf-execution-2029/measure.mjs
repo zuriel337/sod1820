@@ -25,7 +25,8 @@ const normalize = u => decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(?:
 function keyOf(req) {
   let body = req.postData() || '';
   try { body = JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(body)).sort(([a], [b]) => a.localeCompare(b)))); } catch {}
-  return `${req.method()} ${normalize(req.url())} ${body}`;
+  const signature = args.headers === '1' ? ` ${JSON.stringify(Object.fromEntries(['prefer', 'range', 'accept-profile'].map(name => [name, req.headers()[name] || ''])))}` : '';
+  return `${req.method()} ${normalize(req.url())} ${body}${signature}`;
 }
 function primary(pathname, req) {
   const u = new URL(req.url());

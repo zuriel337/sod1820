@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 const [beforeFile,afterFile,outFile]=process.argv.slice(2);
 const before=JSON.parse(fs.readFileSync(beforeFile)),after=JSON.parse(fs.readFileSync(afterFile));
 assert.equal(before.mode,after.mode,'Replay and hosted measurements cannot be mixed');
+assert.ok(['replay','hosted'].includes(before.mode),'Functional capture is not timing acceptance');
 assert.deepEqual(before.profile,after.profile,'Profile mismatch');
 assert.equal(before.fixtureSha256,after.fixtureSha256,'Different public snapshots');
 assert.equal(before.runs,7);assert.equal(after.runs,7);
