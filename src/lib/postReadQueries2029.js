@@ -1,5 +1,7 @@
 // Query definitions used by the existing client readers AND the 2029 head.
 // No independent boot query list; the same filters/order/limit define both URLs.
+export const HOME_LATEST_POST_LIMIT_2029 = 16;
+export const WORLD_FLIGHT_POST_SLUG = 'flydubai-fz1073-363-14000-remzei-geula';
 export function postBySlugRead(slug) {
   const decoded = decodeURIComponent(slug);
   const slugs = [...new Set([slug, decoded, encodeURIComponent(decoded).toLowerCase()])];
@@ -29,8 +31,8 @@ export function postReadUrl(base, definition) {
   return url.href;
 }
 export function entryPrimaryReads2029(pathname) {
-  if (pathname === '/') return [latestPostCardsRead({ limit: 16 })];
+  if (pathname === '/') return [latestPostCardsRead({ limit: HOME_LATEST_POST_LIMIT_2029 })];
   if (/^\/post\/[^/]+\/?$/.test(pathname)) return [postBySlugRead(pathname.slice(6).replace(/\/$/, ''))];
-  if (pathname === '/world') return [postBySlugRead('flydubai-fz1073-363-14000-remzei-geula')];
+  if (pathname === '/world') return [postBySlugRead(WORLD_FLIGHT_POST_SLUG)];
   return [];
 }

@@ -4,11 +4,12 @@ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
+import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
 import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
-const slug = 'flydubai-fz1073-363-14000-remzei-geula';
+const slug = WORLD_FLIGHT_POST_SLUG;
 const directions = [
   { id: 'people', icon: 'community', label: 'האנשים והמקומות', value: 'הודו',
     reason: 'צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו.', href: '/world#world-plane-india' },
