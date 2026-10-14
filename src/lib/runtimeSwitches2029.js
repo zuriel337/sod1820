@@ -19,7 +19,7 @@ export const RUNTIME_SWITCHES_2029 = Object.freeze([
   { key: "fx_home_pulse", group: "בית", label: "דופק המערכת — מילים חדשות", note: "ספירות ומילים אחרונות מ־gematria_words" },
   { key: "fx_home_temporal", group: "בית", label: "״העת עכשיו״ בבית", note: "אימות שנה, ממצאים, תרומות ואוצרות" },
   { key: "fx_home_world_preview", group: "בית", label: "תצוגת העולם בבית", note: "זרם גילוי, כותבים ותרומות" },
-  { key: "fx_home_convergences", group: "בית", label: "התכנסויות בולטות", note: "הרצועה מתחת לעדכונים האחרונים" },
+  { key: "fx_home_convergences", group: "בית", label: "התכנסויות בולטות", mode: "freeze", note: "הרצועה מתחת לעדכונים האחרונים. כבוי = ממשיכה להציג את מה שנשמר אצל הגולש, בלי בקשות ובלי עדכון" },
   { key: "fx_world_discovery", group: "עולם", label: "זרם הגילוי בעולם", note: "פוסטים, ממצאי מחקר, הגעות קבוצה; מתרענן כל דקה" },
   { key: "fx_els_gallery", group: "צפנים", label: "גלריית הצפנים השמורים בכלי", note: "60 מטריצות מהענן בכל פתיחה" },
 ]);
@@ -43,6 +43,17 @@ export async function readRuntimeSwitches({ fresh = false } = {}) {
   cache = { at: Date.now(), map };
   return map;
 }
+// "Freeze" switches (entry.mode === "freeze"): ON = fetch and refresh the saved copy; OFF = show the last saved copy
+// (kept in this browser) with no request and no update. No saved copy yet => nothing is shown.
+const SNAP_PREFIX = "sod_fx_snapshot:";
+const SNAP_MAX_CHARS = 200_000;
+export function readFrozenSnapshot(key) {
+  try { const raw = localStorage.getItem(SNAP_PREFIX + key); const row = raw ? JSON.parse(raw) : null; return row && "data" in row ? row.data : null; } catch { return null; }
+}
+export function saveFrozenSnapshot(key, data) {
+  try { const raw = JSON.stringify({ at: new Date().toISOString(), data }); if (raw.length <= SNAP_MAX_CHARS) localStorage.setItem(SNAP_PREFIX + key, raw); } catch { /* storage unavailable: nothing to keep */ }
+}
+
 // Test hook: seed the in-memory window with an exact switch map.
 export function primeRuntimeSwitches(map) { cache = { at: Date.now(), map: { ...switchesFromFlags({}), ...map } }; }
 export async function isRuntimeSwitchOn(key) {

@@ -63,3 +63,18 @@ test("number research: switched-off journey/dossier lenses send no RPC and are r
     assert.equal(result.per_lens.number_dossier.status, "disabled_by_owner");
   } finally { delete globalThis.window; delete globalThis.__SOD_2029_BUILD__; }
 });
+
+test("freeze snapshots: saved copy is returned unchanged, absent/corrupt/oversized copies are safe", async () => {
+  const store = new Map();
+  globalThis.localStorage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
+  try {
+    const { readFrozenSnapshot, saveFrozenSnapshot } = await import("../src/lib/runtimeSwitches2029.js");
+    assert.equal(readFrozenSnapshot("fx_home_convergences"), null);
+    saveFrozenSnapshot("fx_home_convergences", [{ slug: "a", title: "ב" }]);
+    assert.deepEqual(readFrozenSnapshot("fx_home_convergences"), [{ slug: "a", title: "ב" }]);
+    saveFrozenSnapshot("fx_home_convergences", "x".repeat(300_000));                 // too large: previous copy kept
+    assert.deepEqual(readFrozenSnapshot("fx_home_convergences"), [{ slug: "a", title: "ב" }]);
+    store.set("sod_fx_snapshot:fx_home_convergences", "{not json");
+    assert.equal(readFrozenSnapshot("fx_home_convergences"), null);
+  } finally { delete globalThis.localStorage; }
+});

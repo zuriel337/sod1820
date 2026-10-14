@@ -119,9 +119,9 @@ function RuntimeSwitches() {
             <div><strong>{entry.label}</strong><small>{entry.note} · {entry.key}</small>
               <small>{costLine(cost)}</small></div>
             <div className="sod29-actions">
-              <span className="sod29-chip">{state.loading ? "טוען" : on ? "פעיל" : "כבוי"}</span>
+              <span className="sod29-chip">{state.loading ? "טוען" : on ? "פעיל" : entry.mode === "freeze" ? "מוקפא" : "כבוי"}</span>
               <button type="button" className="sod29-action" disabled={state.loading || state.busy === entry.key}
-                aria-pressed={on} onClick={() => toggle(entry.key, !on)}>{on ? "כבה" : "הדלק"}</button>
+                aria-pressed={on} onClick={() => toggle(entry.key, !on)}>{on ? (entry.mode === "freeze" ? "הקפא" : "כבה") : "הדלק"}</button>
             </div>
           </div>;
         })}

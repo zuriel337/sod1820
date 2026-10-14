@@ -70,11 +70,15 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
     // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it
     // imports) loads with this same trigger instead of being part of Home's code before the first cards.
     // Same read, arguments and result; a failed module load stays silent like a failed read (strip hidden).
-    // Owner switch fx_home_convergences: when OFF the reader module is never even imported.
+    // Owner switch fx_home_convergences (freeze): ON = read and keep a copy; OFF = show the last kept copy, no request, no update.
     import("../../lib/runtimeSwitches2029.js")
-      .then(({ isRuntimeSwitchOn }) => isRuntimeSwitchOn("fx_home_convergences"))
-      .then((on) => on ? import("../../lib/research/explorerFacets.js") : null)
-      .then((module) => module ? module.fetchExplorerFacetPage("topic", { limit: 4 }) : null)
+      .then(async (switches) => {
+        if (!(await switches.isRuntimeSwitchOn("fx_home_convergences"))) return { cards: switches.readFrozenSnapshot("fx_home_convergences") || [] };
+        const { fetchExplorerFacetPage } = await import("../../lib/research/explorerFacets.js");
+        const fresh = await fetchExplorerFacetPage("topic", { limit: 4 });
+        if (Array.isArray(fresh?.cards) && fresh.cards.length) switches.saveFrozenSnapshot("fx_home_convergences", fresh.cards);
+        return fresh;
+      })
       .then((result) => { if (live && result) setState((current) => ({ ...current, notable: result?.cards || [] })); })
       .catch(() => {});
     return () => { live = false; };
