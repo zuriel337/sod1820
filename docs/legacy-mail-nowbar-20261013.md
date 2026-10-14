@@ -30,7 +30,16 @@ legacy Resend receiver. A later native receipt can arrive normally; source linea
 reconciliation stays private and must not infer authentication for the archive.
 The private input remains outside git. Input revision, existing-row fingerprints,
 RLS/anon ACL, duplicate RFC IDs, atomic mandatory audit and replay are guarded.
-This operator is PREPARED, not yet live; independent exact-code review is required.
+This operator is now LIVE privately: exact9b5f8ca18db7918f21cf8bff0adaa00e59cfb777
+was independently PASSed by Claude91d4a0d4 (8 actual DML tests; original baseline
+PASS7d5f02f3), then applied as one guarded transaction. Fresh readback: selected13,
+inserted11, both existing Resend originals unchanged, all11 archived texts exact,
+all11 held/unattributed/proof-null/private-draft,3 private image locators, inbox66,
+anonymous inbox SELECT false, public email0. Actual private projection reconstructs
+4 threads with sizes1/3/4/5,0 ambiguous/cyclic parents and2 explicit missing parents.
+Quoted missing originals were not fabricated or admitted. Four mandatory private
+staging receipts are applied in the existing decision_ledger. Full local109 tests
+pass. No original attachment bytes or public images have been imported.
 
 Completion requires source-bound sender evidence for the historical messages
 through an accepted native-provider or authenticated canonical-writer flow, plus
