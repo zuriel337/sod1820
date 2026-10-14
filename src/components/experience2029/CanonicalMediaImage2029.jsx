@@ -11,7 +11,7 @@ export default function CanonicalMediaImage2029({
   alt = "",
   primary = false,
   thumbnail = false,
-  loading = primary ? "eager" : "lazy",
+  loading = "lazy",
   className = "",
 }) {
   const resolvedSrc = src || (
@@ -26,7 +26,6 @@ export default function CanonicalMediaImage2029({
     src={resolvedSrc}
     alt={resolvedAlt}
     loading={loading}
-    fetchPriority={primary && loading === "eager" ? "high" : "auto"}
     className={[
       "sod29-canonical-media-image",
       primary ? "is-primary" : "",
