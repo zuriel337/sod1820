@@ -11,7 +11,7 @@ const fixtures=fs.existsSync(fixFile)?JSON.parse(zlib.gunzipSync(fs.readFileSync
 const { srv, port }=await serve(dist); const origin=`http://127.0.0.1:${port}`;
 const browser=await chromium.launch({executablePath:process.env.PERF_CHROME||'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
 const median=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:null};
-const INIT=`(()=>{window.__m={lt:[],rootAt:null,lcp:0};
+const INIT=`(()=>{window.__m={lt:[],rootAt:null,lcp:0,cls:0};new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)__m.cls+=e.value}).observe({type:'layout-shift',buffered:true});
 new PerformanceObserver(l=>{for(const e of l.getEntries())__m.lt.push([e.startTime,e.duration])}).observe({type:'longtask',buffered:true});
 new PerformanceObserver(l=>{for(const e of l.getEntries())__m.lcp=e.startTime}).observe({type:'largest-contentful-paint',buffered:true});
 const mo=new MutationObserver(()=>{const r=document.getElementById('root');if(r&&r.childElementCount&&__m.rootAt==null){__m.rootAt=performance.now();mo.disconnect()}});
@@ -41,7 +41,7 @@ async function one(route){
     const fcp=performance.getEntriesByName('first-contentful-paint')[0]?.startTime??null;
     const sbr=res.filter(r=>r.name.includes('.supabase.co')); const js=res.filter(r=>/\.js(\?|$)/.test(r.name)&&r.name.includes('/assets/'));
     const lt=__m.lt; const tbt=lt.filter(x=>x[0]>=(fcp||0)).reduce((s,x)=>s+Math.max(0,x[1]-50),0); const tbtAll=lt.reduce((s,x)=>s+Math.max(0,x[1]-50),0);
-    return {ttfb:nav.responseStart,dcl:nav.domContentLoadedEventEnd,load:nav.loadEventEnd,fcp,lcp:__m.lcp,rootAt:__m.rootAt,
+    return {ttfb:nav.responseStart,dcl:nav.domContentLoadedEventEnd,load:nav.loadEventEnd,fcp,lcp:__m.lcp,rootAt:__m.rootAt,cls:__m.cls,
       firstSbReq:sbr.length?Math.min(...sbr.map(r=>r.startTime)):null,firstSbEnd:sbr.length?Math.min(...sbr.map(r=>r.responseEnd)):null,lastSbEnd:sbr.length?Math.max(...sbr.map(r=>r.responseEnd)):null,
       sbCount:sbr.length,jsCount:js.length,jsLastEnd:js.length?Math.max(...js.map(r=>r.responseEnd)):null,
       jsBytes:js.reduce((s,r)=>s+(r.encodedBodySize||0),0),allBytes:res.reduce((s,r)=>s+(r.encodedBodySize||0),0)+nav.encodedBodySize,
@@ -63,7 +63,7 @@ if(mode==='record') fs.writeFileSync(fixFile,zlib.gzipSync(JSON.stringify(fixtur
 if(args.out) fs.writeFileSync(args.out,JSON.stringify(out,null,1));
 const R=n=>n==null?'-':Math.round(n);
 console.log(`\n## ${args.label} (cpu x${cpu}, rtt ${rtt}ms, sb ${sbdelay}ms, n=${runs})`);
-console.log('route | FCP | LCP | root | 1stSbReq | 1stSbEnd | lastSbEnd | TBTall | script | task | jsKB(br) | totKB | sb#');
-for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.firstSbReq),R(m.firstSbEnd),R(m.lastSbEnd),R(m.tbtAll),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
+console.log('route | FCP | LCP | root | 1stSbReq | 1stSbEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#');
+for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.firstSbReq),R(m.firstSbEnd),R(m.lastSbEnd),R(m.tbtAll),m.cls?.toFixed(3),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
   if(v.misses.length)console.log('  fixture misses:',v.misses.length);}
 await browser.close(); srv.close();
