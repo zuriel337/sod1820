@@ -1,0 +1,37 @@
+{
+  "commit": "18821815e4e7addf9d09f19b2d4eeff6a71ca77a",
+  "productCodeReference": "0e4e2d577ec8e935db5be1305ab943ba7021d6aa",
+  "harnessCommit": "13fccd0b86f11ba972ecc9fc55eef39ba2fd2254",
+  "harnessSha256": "50abdcca8f01403911bc5b4915f2d7715ec28b9f05a9db5fbdf676ec30587f63",
+  "fixturesSha256": "060207a18376de004ebea74208dd462e0d6a57eb82375f8d01db4e4e1b2e6310",
+  "browserVersion": "141.0.7390.37",
+  "playwrightVersion": "1.56.1",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "dpr": 2,
+  "cpu": 4,
+  "network": {
+    "rtt": 150,
+    "downloadBytesPerSecond": 209715.2,
+    "uploadBytesPerSecond": 96000.0
+  },
+  "cache": "cold",
+  "encoding": "br",
+  "dataMode": "fixture-get-only",
+  "sbdelay": 150,
+  "extdelay": 400,
+  "runs": 7,
+  "location": "managed cloud executor; geographic region unverified",
+  "authMode": "fresh guest context",
+  "rpcPolicy": "all non-GET answered 204; no live writes or RPCs",
+  "thirdPartyPolicy": "empty response after 400ms",
+  "buildTarget": "2029",
+  "applicationChanges": [],
+  "hostedPreview": null,
+  "physicalDevice": false,
+  "israelMeasurement": false,
+  "postgresColdCache": false,
+  "sameOriginProxy": false
+}

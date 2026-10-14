@@ -1,0 +1,25 @@
+{
+  "valid": false,
+  "purpose": "product",
+  "errors": [
+    "GET-only fixture evidence cannot establish product acceptance or product budgets",
+    "/: successful primary content and runtime trace required",
+    "/: seven successful individual samples required",
+    "/: delayed/failed-extension acceptance required",
+    "/: bounded-data acceptance required",
+    "/world: successful primary content and runtime trace required",
+    "/world: seven successful individual samples required",
+    "/world: delayed/failed-extension acceptance required",
+    "/world: bounded-data acceptance required",
+    "/post/seventh-to-tenth-sefirot-2027: successful primary content and runtime trace required",
+    "/post/seventh-to-tenth-sefirot-2027: seven successful individual samples required",
+    "/post/seventh-to-tenth-sefirot-2027: delayed/failed-extension acceptance required",
+    "/post/seventh-to-tenth-sefirot-2027: bounded-data acceptance required",
+    "Hosted preview must be verified against the exact application commit"
+  ],
+  "limitations": [
+    "RPC reads are answered 204; content parity, real DB cost, and complete request counts are unproven",
+    "firstContentReq includes flags and non-primary reads; it is not a primary-content start marker",
+    "Shared output contains medians/ranges, not individual samples or runtime-error/status traces"
+  ]
+}
