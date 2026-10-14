@@ -1511,6 +1511,7 @@ export default function SystemFrame2029({
   // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
   const feed = useSystemFeed2029({ enabled: surface !== "control" });
   const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
+  const [companionXWide, setCompanionXWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1560px)").matches);
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
   const [companionTab, setCompanionTab] = useState("feed");
@@ -1520,7 +1521,13 @@ export default function SystemFrame2029({
     const query = window.matchMedia("(min-width: 981px)");
     const onChange = () => setCompanionWide(query.matches);
     query.addEventListener?.("change", onChange);
-    return () => query.removeEventListener?.("change", onChange);
+    const xQuery = window.matchMedia("(min-width: 1560px)");
+    const onXChange = () => setCompanionXWide(xQuery.matches);
+    xQuery.addEventListener?.("change", onXChange);
+    return () => {
+      query.removeEventListener?.("change", onChange);
+      xQuery.removeEventListener?.("change", onXChange);
+    };
   }, []);
   const toggleCompanionPin = useCallback((pinned) => {
     const next = pinned ? "slim" : "pinned";
@@ -2030,7 +2037,7 @@ export default function SystemFrame2029({
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = hasEventSequence(context, surface);
-  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
+  const companionPinned = companionPref === "pinned" || (companionPref === null && companionXWide && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
