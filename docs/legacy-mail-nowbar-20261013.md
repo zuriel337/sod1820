@@ -24,6 +24,10 @@ per thread, keeps normalized archives held/unattributed/unverified, and stores
 draft whole-thread intent for world/nowbar/writer. Image locators remain private;
 no original image bytes or public URLs have been staged. No persistent RPC,
 schema/store, public grant, public carrier or site release is part of this operator.
+Archives use provider-specific hashed storage keys; RFC IDs remain in normalized
+private metadata for lineage. They never occupy the RFC dedup key used by the live
+legacy Resend receiver. A later native receipt can arrive normally; source lineage
+reconciliation stays private and must not infer authentication for the archive.
 The private input remains outside git. Input revision, existing-row fingerprints,
 RLS/anon ACL, duplicate RFC IDs, atomic mandatory audit and replay are guarded.
 This operator is PREPARED, not yet live; independent exact-code review is required.

@@ -23,7 +23,7 @@ async function fixture(){
   records.push({gmail_id:gmail,thread_id:`thread-${t}`,from_email:'sender@example.invalid',from_name:'Synthetic Author',
    message_id:message,in_reply_to:n?`source-${counter-1}@example.invalid`:null,
    subject:'Synthetic source',body_text:`Private source ${counter}`,received_at:'2026-10-10T00:00:00Z',
-   payload_sha256:'a'.repeat(64),normalized:{id:`mail_${counter}`,provider:'gmail',provider_id:gmail,
+   payload_sha256:'a'.repeat(64),normalized:{id:`mail_${counter}`,storage_key:`provider_${counter.toString(16).padStart(64,'0')}`,provider:'gmail',provider_id:gmail,
     message_id:message,source_state:'unverified',admission:'archive_unverified',held:true,author:null,identity_proof:null,
     images:counter===9?[{id:'private-image-reference',state:'provider_reference'}]:[]}});
  }
@@ -59,7 +59,7 @@ test('actual native-schema DML stages 11 sources, preserves both Resend original
   }
   const audit=JSON.stringify(after.audit);assert.equal(audit.includes('sender@example.invalid'),false);
   assert.equal(audit.includes('Private source'),false);assert.equal(audit.includes('Synthetic Author'),false);
-  assert.equal(after.inbox.find(r=>r.message_id==='source-9@example.invalid').meta.source_email_v1.images[0].state,'provider_reference');
+  assert.equal(after.inbox.find(r=>r.meta?.source_email_v1?.message_id==='source-9@example.invalid').meta.source_email_v1.images[0].state,'provider_reference');
   await db.exec('set role authenticated');assert.deepEqual((await db.query('select * from inbound_emails')).rows,[]);
   await db.exec('reset role;set role anon');await assert.rejects(()=>db.query('select * from inbound_emails'),/permission denied/);
   await db.exec('reset role');
@@ -70,6 +70,15 @@ test('exact replay is a no-op, while changed archived content refuses replay wit
   await run(db,ctx);const before=await dump(db);await run(db,ctx);assert.deepEqual(await dump(db),before);
   await db.exec("update inbound_emails set body_text='changed' where id=3");const changed=await dump(db);
   await assert.rejects(()=>run(db,ctx),/staged archive changed/);assert.deepEqual(await dump(db),changed);
+ }finally{await db.close();}
+});
+test('private archive storage never occupies the RFC key used by the existing live Resend receiver',async()=>{
+ const{db,ctx}=await fixture();try{
+  await run(db,ctx);
+  assert.equal((await db.query('select count(*) n from inbound_emails where message_id=$1',[ctx.records[0].message_id])).rows[0].n,0);
+  await db.query("insert into inbound_emails(message_id,meta) values($1,'{\"provider\":\"resend\"}')",[ctx.records[0].message_id]);
+  assert.equal((await db.query('select count(*) n from inbound_emails')).rows[0].n,14);
+  assert.equal((await db.query('select count(*) n from channel_updates')).rows[0].n,0);
  }finally{await db.close();}
 });
 test('ordinary and anonymous roles cannot spoof approval',async()=>{

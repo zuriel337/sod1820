@@ -33,6 +33,7 @@ BEGIN
     OR nullif(i->>'payload_sha256','') IS NULL OR length(i->>'payload_sha256')<>64
     OR i->'normalized'->>'provider' IS DISTINCT FROM 'gmail'
     OR i->'normalized'->>'provider_id' IS DISTINCT FROM i->>'gmail_id'
+    OR coalesce(i->'normalized'->>'storage_key','') !~ '^provider_[0-9a-f]{64}$'
     OR i->'normalized'->>'message_id' IS DISTINCT FROM i->>'message_id'
     OR i->'normalized'->>'admission' IS DISTINCT FROM 'archive_unverified'
     OR i->'normalized'->>'source_state' IS DISTINCT FROM 'unverified'
@@ -67,12 +68,13 @@ BEGIN
       THEN RAISE EXCEPTION 'existing source changed; no hydration or overwrite allowed'; END IF;
     ELSIF NOT v_replay THEN
       IF EXISTS(SELECT 1 FROM public.inbound_emails e WHERE e.message_id=v_item->>'message_id'
+        OR e.message_id=v_item->'normalized'->>'storage_key'
         OR e.meta->'archive_curated_v1'->>'gmail_id'=v_item->>'gmail_id') THEN
         RAISE EXCEPTION 'archive source already present; reconcile instead of duplicate';
       END IF;
       INSERT INTO public.inbound_emails(from_email,from_name,subject,body_text,message_id,in_reply_to,received_at,meta)
       VALUES(v_item->>'from_email',v_item->>'from_name',v_item->>'subject',v_item->>'body_text',
-        v_item->>'message_id',v_item->>'in_reply_to',(v_item->>'received_at')::timestamptz,
+        v_item->'normalized'->>'storage_key',v_item->>'in_reply_to',(v_item->>'received_at')::timestamptz,
         jsonb_build_object('provider','gmail','provider_id',v_item->>'gmail_id','source_held',true,
           'source_email_v1',v_item->'normalized',
           'archive_curated_v1',jsonb_build_object('basis','admin_curated_archive_v1',
@@ -87,7 +89,9 @@ BEGIN
   FOR v_thread IN SELECT DISTINCT i->>'thread_id' FROM jsonb_array_elements(v_records) i LOOP
     SELECT array_agg(e.id ORDER BY e.id),md5(jsonb_agg(to_jsonb(e) ORDER BY e.id)::text)
     INTO v_ids,v_revision FROM public.inbound_emails e JOIN jsonb_array_elements(v_records) i
-      ON e.message_id=i->>'message_id' WHERE i->>'thread_id'=v_thread;
+      ON (i->>'expected_id' IS NOT NULL AND e.id=(i->>'expected_id')::bigint)
+        OR (i->>'expected_id' IS NULL AND e.message_id=i->'normalized'->>'storage_key')
+      WHERE i->>'thread_id'=v_thread;
     IF cardinality(v_ids)<>(SELECT count(*) FROM jsonb_array_elements(v_records) i WHERE i->>'thread_id'=v_thread)
       THEN RAISE EXCEPTION 'archive staging readback incomplete'; END IF;
     IF v_replay THEN
