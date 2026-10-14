@@ -1,0 +1,327 @@
+{
+ "scenario": "chain",
+ "runs": 1,
+ "dist": "/tmp/claude-0/ev/dist-e1",
+ "browser": "141.0.7390.37",
+ "profile": "mobile 390x844 dpr2 cpu4",
+ "samples": [
+  {
+   "i": 0,
+   "first_home_to_world_ms": 1063,
+   "first_home_to_world_longMs": 0,
+   "first_home_to_world_reqs": 49,
+   "first_home_to_world_cls": 0,
+   "first_home_to_world_stores": 8,
+   "first_home_to_world_reqlist": [
+    "7x GET nodes",
+    "1x POST rpc/track_visit",
+    "2x GET site_flags",
+    "1x POST rpc/ingest_event",
+    "1x POST rpc/fn_zero_scale",
+    "2x GET gallery_images",
+    "10x GET topic_cards_public",
+    "6x GET posts",
+    "2x GET contributors",
+    "1x GET edges",
+    "1x GET research_contributions",
+    "1x GET /storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+    "5x POST rpc/convergence_meter",
+    "6x POST rpc/gematria_method_trace",
+    "1x GET research_objects",
+    "1x POST rpc/world_group_source_arrivals_v2",
+    "1x GET galleries"
+   ],
+   "first_world_to_post_ms": 2867,
+   "first_world_to_post_longMs": 292,
+   "first_world_to_post_reqs": 31,
+   "first_world_to_post_cls": 0.0883,
+   "first_world_to_post_stores": 11,
+   "first_world_to_post_reqlist": [
+    "1x POST rpc/track_visit",
+    "5x GET posts",
+    "1x GET site_flags",
+    "1x POST rpc/ingest_event",
+    "6x GET topic_cards_public",
+    "6x POST rpc/gematria_method_trace",
+    "2x GET nodes",
+    "2x POST rpc/fn_zero_scale",
+    "1x GET /storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg",
+    "1x GET /storage/v1/object/public/gallery/sod1820/channel-thumbs/b9be2ae0-1d08-40a2-bdcf-346ea7ffbbbb.jpg",
+    "1x GET /storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png",
+    "1x GET /storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg",
+    "1x GET /storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+    "1x GET comments",
+    "1x GET /storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg"
+   ],
+   "first_post_back_world_ms": 837,
+   "first_post_back_world_reqs": 20,
+   "first_world_to_topic_ms": 1827,
+   "first_world_to_topic_longMs": 738,
+   "first_world_to_topic_reqs": 31,
+   "first_world_to_topic_cls": 0.0322,
+   "first_world_to_topic_stores": 7,
+   "first_world_to_topic_reqlist": [
+    "1x POST rpc/fn_zero_scale",
+    "1x GET /storage/v1/object/public/media/_thumb/6232be42-82a3-41ac-b4d3-004a21e48c7f.jpg",
+    "1x GET /storage/v1/object/public/media/uploads/2018/10/vrayt-at.png",
+    "1x GET /storage/v1/object/public/media/_thumb/62ffc447-fd91-4027-9fe9-4a19d09679fd.jpg",
+    "1x GET /storage/v1/object/public/media/_thumb/c502fa89-96f1-495b-aeb7-b16deaaa96b3.jpg",
+    "4x GET topic_cards_public",
+    "6x GET posts",
+    "1x POST rpc/track_visit",
+    "1x GET site_flags",
+    "1x POST rpc/ingest_event",
+    "4x GET nodes",
+    "4x GET edges",
+    "1x GET entity_types",
+    "4x GET research_objects"
+   ],
+   "again_home_to_world_ms": 1031,
+   "again_home_to_world_longMs": 0,
+   "again_home_to_world_reqs": 40,
+   "again_home_to_world_cls": 0.0002,
+   "again_home_to_world_stores": 7,
+   "again_home_to_world_reqlist": [
+    "1x POST rpc/track_visit",
+    "2x GET site_flags",
+    "1x POST rpc/ingest_event",
+    "1x POST rpc/fn_zero_scale",
+    "2x GET gallery_images",
+    "9x GET topic_cards_public",
+    "7x GET nodes",
+    "5x GET posts",
+    "2x GET contributors",
+    "1x GET edges",
+    "1x GET research_contributions",
+    "1x GET galleries",
+    "1x GET /storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+    "6x POST rpc/gematria_method_trace"
+   ],
+   "again_world_to_post_ms": 8368,
+   "again_world_to_post_longMs": 166,
+   "again_world_to_post_reqs": 36,
+   "again_world_to_post_cls": 0.0554,
+   "again_world_to_post_stores": 11,
+   "again_world_to_post_reqlist": [
+    "7x GET topic_cards_public",
+    "1x POST rpc/world_group_source_arrivals_v2",
+    "1x GET research_objects",
+    "6x GET posts",
+    "1x POST rpc/track_visit",
+    "1x GET site_flags",
+    "1x POST rpc/ingest_event",
+    "3x POST rpc/fn_zero_scale",
+    "6x POST rpc/gematria_method_trace",
+    "2x GET nodes",
+    "1x GET /storage/v1/object/public/media/sod1820/2029/image/2026/10/plane-14000-14-75/poster-final-20261001-v3.jpg",
+    "1x GET /storage/v1/object/public/gallery/sod1820/channel-thumbs/b9be2ae0-1d08-40a2-bdcf-346ea7ffbbbb.jpg",
+    "1x GET /storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png",
+    "1x GET /storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg",
+    "1x GET /storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+    "1x GET comments",
+    "1x GET /storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg"
+   ],
+   "again_post_back_world_ms": 817,
+   "again_post_back_world_reqs": 22,
+   "again_world_to_topic_ms": 1759,
+   "again_world_to_topic_longMs": 343,
+   "again_world_to_topic_reqs": 31,
+   "again_world_to_topic_cls": 0.0353,
+   "again_world_to_topic_stores": 7,
+   "again_world_to_topic_reqlist": [
+    "1x POST rpc/fn_zero_scale",
+    "1x GET /storage/v1/object/public/media/_thumb/6232be42-82a3-41ac-b4d3-004a21e48c7f.jpg",
+    "1x GET /storage/v1/object/public/media/uploads/2018/10/vrayt-at.png",
+    "1x GET /storage/v1/object/public/media/_thumb/62ffc447-fd91-4027-9fe9-4a19d09679fd.jpg",
+    "1x GET /storage/v1/object/public/media/_thumb/c502fa89-96f1-495b-aeb7-b16deaaa96b3.jpg",
+    "4x GET topic_cards_public",
+    "6x GET posts",
+    "1x POST rpc/track_visit",
+    "1x GET site_flags",
+    "1x POST rpc/ingest_event",
+    "4x GET nodes",
+    "4x GET edges",
+    "1x GET entity_types",
+    "4x GET research_objects"
+   ],
+   "errors": []
+  }
+ ],
+ "summary": {
+  "i": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "first_home_to_world_ms": {
+   "median": 1063,
+   "min": 1063,
+   "max": 1063
+  },
+  "first_home_to_world_longMs": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "first_home_to_world_reqs": {
+   "median": 49,
+   "min": 49,
+   "max": 49
+  },
+  "first_home_to_world_cls": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "first_home_to_world_stores": {
+   "median": 8,
+   "min": 8,
+   "max": 8
+  },
+  "first_world_to_post_ms": {
+   "median": 2867,
+   "min": 2867,
+   "max": 2867
+  },
+  "first_world_to_post_longMs": {
+   "median": 292,
+   "min": 292,
+   "max": 292
+  },
+  "first_world_to_post_reqs": {
+   "median": 31,
+   "min": 31,
+   "max": 31
+  },
+  "first_world_to_post_cls": {
+   "median": 0.0883,
+   "min": 0.0883,
+   "max": 0.0883
+  },
+  "first_world_to_post_stores": {
+   "median": 11,
+   "min": 11,
+   "max": 11
+  },
+  "first_post_back_world_ms": {
+   "median": 837,
+   "min": 837,
+   "max": 837
+  },
+  "first_post_back_world_reqs": {
+   "median": 20,
+   "min": 20,
+   "max": 20
+  },
+  "first_world_to_topic_ms": {
+   "median": 1827,
+   "min": 1827,
+   "max": 1827
+  },
+  "first_world_to_topic_longMs": {
+   "median": 738,
+   "min": 738,
+   "max": 738
+  },
+  "first_world_to_topic_reqs": {
+   "median": 31,
+   "min": 31,
+   "max": 31
+  },
+  "first_world_to_topic_cls": {
+   "median": 0.0322,
+   "min": 0.0322,
+   "max": 0.0322
+  },
+  "first_world_to_topic_stores": {
+   "median": 7,
+   "min": 7,
+   "max": 7
+  },
+  "again_home_to_world_ms": {
+   "median": 1031,
+   "min": 1031,
+   "max": 1031
+  },
+  "again_home_to_world_longMs": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "again_home_to_world_reqs": {
+   "median": 40,
+   "min": 40,
+   "max": 40
+  },
+  "again_home_to_world_cls": {
+   "median": 0.0002,
+   "min": 0.0002,
+   "max": 0.0002
+  },
+  "again_home_to_world_stores": {
+   "median": 7,
+   "min": 7,
+   "max": 7
+  },
+  "again_world_to_post_ms": {
+   "median": 8368,
+   "min": 8368,
+   "max": 8368
+  },
+  "again_world_to_post_longMs": {
+   "median": 166,
+   "min": 166,
+   "max": 166
+  },
+  "again_world_to_post_reqs": {
+   "median": 36,
+   "min": 36,
+   "max": 36
+  },
+  "again_world_to_post_cls": {
+   "median": 0.0554,
+   "min": 0.0554,
+   "max": 0.0554
+  },
+  "again_world_to_post_stores": {
+   "median": 11,
+   "min": 11,
+   "max": 11
+  },
+  "again_post_back_world_ms": {
+   "median": 817,
+   "min": 817,
+   "max": 817
+  },
+  "again_post_back_world_reqs": {
+   "median": 22,
+   "min": 22,
+   "max": 22
+  },
+  "again_world_to_topic_ms": {
+   "median": 1759,
+   "min": 1759,
+   "max": 1759
+  },
+  "again_world_to_topic_longMs": {
+   "median": 343,
+   "min": 343,
+   "max": 343
+  },
+  "again_world_to_topic_reqs": {
+   "median": 31,
+   "min": 31,
+   "max": 31
+  },
+  "again_world_to_topic_cls": {
+   "median": 0.0353,
+   "min": 0.0353,
+   "max": 0.0353
+  },
+  "again_world_to_topic_stores": {
+   "median": 7,
+   "min": 7,
+   "max": 7
+  }
+ }
+}

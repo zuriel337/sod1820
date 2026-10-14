@@ -1,0 +1,132 @@
+{
+ "scenario": "scroll",
+ "runs": 3,
+ "dist": "/tmp/claude-0/ev/dist-base",
+ "browser": "141.0.7390.37",
+ "profile": "mobile 390x844 dpr2 cpu4",
+ "samples": [
+  {
+   "i": 0,
+   "scrolled": 15602,
+   "regionsVisited": 0,
+   "pageH": 16446,
+   "longtasks": 2,
+   "longtaskMs": 168,
+   "maxLongtask": 87,
+   "storeWrites": 0,
+   "storeMs": 0,
+   "storeKB": 0,
+   "frames": 352,
+   "slowFrames": 8,
+   "worstFrame": 233,
+   "wallMs": 7020,
+   "errors": []
+  },
+  {
+   "i": 1,
+   "scrolled": 15602,
+   "regionsVisited": 0,
+   "pageH": 16446,
+   "longtasks": 2,
+   "longtaskMs": 102,
+   "maxLongtask": 52,
+   "storeWrites": 0,
+   "storeMs": 0,
+   "storeKB": 0,
+   "frames": 354,
+   "slowFrames": 7,
+   "worstFrame": 183,
+   "wallMs": 6660,
+   "errors": []
+  },
+  {
+   "i": 2,
+   "scrolled": 15602,
+   "regionsVisited": 0,
+   "pageH": 16446,
+   "longtasks": 0,
+   "longtaskMs": 0,
+   "maxLongtask": 0,
+   "storeWrites": 0,
+   "storeMs": 0,
+   "storeKB": 0,
+   "frames": 362,
+   "slowFrames": 6,
+   "worstFrame": 133,
+   "wallMs": 6563,
+   "errors": []
+  }
+ ],
+ "summary": {
+  "i": {
+   "median": 1,
+   "min": 0,
+   "max": 2
+  },
+  "scrolled": {
+   "median": 15602,
+   "min": 15602,
+   "max": 15602
+  },
+  "regionsVisited": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "pageH": {
+   "median": 16446,
+   "min": 16446,
+   "max": 16446
+  },
+  "longtasks": {
+   "median": 2,
+   "min": 0,
+   "max": 2
+  },
+  "longtaskMs": {
+   "median": 102,
+   "min": 0,
+   "max": 168
+  },
+  "maxLongtask": {
+   "median": 52,
+   "min": 0,
+   "max": 87
+  },
+  "storeWrites": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "storeMs": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "storeKB": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "frames": {
+   "median": 354,
+   "min": 352,
+   "max": 362
+  },
+  "slowFrames": {
+   "median": 7,
+   "min": 6,
+   "max": 8
+  },
+  "worstFrame": {
+   "median": 183,
+   "min": 133,
+   "max": 233
+  },
+  "wallMs": {
+   "median": 6660,
+   "min": 6563,
+   "max": 7020
+  }
+ }
+}
