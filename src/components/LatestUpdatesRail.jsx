@@ -176,11 +176,15 @@ export default function LatestUpdatesRail({ posts = [], convergences = [], hints
     );
   };
 
-  if (!items.length) return <div style={{ color: P.inkSoft, fontFamily: F.ui, textAlign: "center", padding: 24 }}>אין עדכונים כרגע — בקרוב.</div>;
 
   return (
     <>
       {heading && <HomeHeader title="📜 עדכונים אחרונים" />}
+      <Link to="/code" data-site-update="legacy-els-open-20261014" style={{ display: "flex", alignItems: "center", gap: 9, direction: "rtl", maxWidth: homeCompact ? 760 : 1120, margin: "0 auto 12px", padding: "10px 14px", boxSizing: "border-box", borderRadius: 12, background: P.card, border: `1px solid ${P.border}`, color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
+        <img src="/els-icon.png" alt="" width="24" height="24" style={{ borderRadius: 5 }} />
+        <span>הצופן התנ״כי נפתח</span>
+        <span aria-hidden="true" style={{ marginInlineStart: "auto" }}>←</span>
+      </Link>
       <style>{`
         .lur-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;max-width:1120px;margin:0 auto}
         .lur-grid.home-compact{max-width:820px}
