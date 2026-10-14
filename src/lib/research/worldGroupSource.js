@@ -66,9 +66,7 @@ export function groupRowToWorldUpdate(row) {
 // temporarily expose only the earlier vetted v2 provenance reader. This is a
 // READ-only compatibility fallback, never a fallback to raw channel_updates,
 // Legacy WhatsApp feeds, personal DMs or an admin research query.
-// Live catalog verified for this 2029 performance branch: v2 is present and
-// authorized; v3 is not installed. Do not spend a round trip probing a draft RPC.
-let availableReader = "world_group_source_arrivals_v2";
+let availableReader = "world_group_source_arrivals_v3";
 function missingGroupRpc(error) {
   const code = clean(error?.code);
   const message = clean(error?.message || error);

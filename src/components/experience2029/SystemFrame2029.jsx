@@ -1511,7 +1511,6 @@ export default function SystemFrame2029({
   // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
   const feed = useSystemFeed2029({ enabled: surface !== "control" });
   const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
-  const [companionXWide, setCompanionXWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1560px)").matches);
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
   const [companionTab, setCompanionTab] = useState("feed");
@@ -1521,13 +1520,7 @@ export default function SystemFrame2029({
     const query = window.matchMedia("(min-width: 981px)");
     const onChange = () => setCompanionWide(query.matches);
     query.addEventListener?.("change", onChange);
-    const xQuery = window.matchMedia("(min-width: 1560px)");
-    const onXChange = () => setCompanionXWide(xQuery.matches);
-    xQuery.addEventListener?.("change", onXChange);
-    return () => {
-      query.removeEventListener?.("change", onChange);
-      xQuery.removeEventListener?.("change", onXChange);
-    };
+    return () => query.removeEventListener?.("change", onChange);
   }, []);
   const toggleCompanionPin = useCallback((pinned) => {
     const next = pinned ? "slim" : "pinned";
@@ -2022,7 +2015,6 @@ export default function SystemFrame2029({
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
-  const reserveTrail = (surface === "post" || surface === "topic") && !toolMode && !activeToolDock && bottomTrail.length === 0;
   // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
   const progressSections = (surface === "post" || surface === "topic") && Array.isArray(context?.dimensions?.surfaceSections)
     ? context.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
@@ -2038,7 +2030,7 @@ export default function SystemFrame2029({
   const companionActive = companionWide && surface !== "control";
   const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = hasEventSequence(context, surface);
-  const companionPinned = companionPref === "pinned" || (companionPref === null && companionXWide && feed.rows.length > 0);
+  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
@@ -2282,10 +2274,9 @@ export default function SystemFrame2029({
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
-        <div className={`sod29-command-island is-unified-bar${!activeToolDock && (bottomTrail.length || reserveTrail) ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
+        <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context">
             {toolMode ? <SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /> : <>
-              {reserveTrail ? <nav className="sod29-command-trail is-reserved" aria-hidden="true"><span className="sod29-command-trail-item">&nbsp;</span></nav> : null}
               {showBottomTrail ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}

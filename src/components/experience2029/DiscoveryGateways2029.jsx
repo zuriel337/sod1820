@@ -2,8 +2,7 @@
 // Language research is an existing legacy deep-link until its 2029 projection is ready.
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getCategoryVideos } from "../../lib/supabase.js";
-import { fetchHomePostCards2029 } from "../../lib/research/homePostCards2029.js";
+import { getPostsFromSupabase, getCategoryVideos } from "../../lib/supabase.js";
 import { claimHomeItems } from "../../lib/research/homePlacement2029.js";
 import WatchButton from "../WatchButton.jsx";
 import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
@@ -113,10 +112,10 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
     // Categories are the ONLY automatic admission rule. Do not derive a gateway
     // from tags, title keywords, a shared word or video metadata.
     Promise.allSettled([
-      fetchHomePostCards2029({ category: "שבילי שפה", limit: 24 }),
-      fetchHomePostCards2029({ category: "הצופן בסרטים", limit: 30 }),
+      getPostsFromSupabase({ category: "שבילי שפה", limit: 24, orderBy: "modified" }),
+      getPostsFromSupabase({ category: "הצופן בסרטים", limit: 30, orderBy: "modified" }),
       getCategoryVideos("צפונות בתורה", { limit: 80 }),
-      fetchHomePostCards2029({ category: "מימד חמש", limit: 60 }),
+      getPostsFromSupabase({ category: "מימד חמש", limit: 60, orderBy: "modified" }),
       getMatrixLibraryPage({ view: "public", pageSize: 4 }),
     ]).then(([language, cinema, videos, dimension, matrices]) => {
       if (!active) return;
