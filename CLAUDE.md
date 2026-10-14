@@ -1,5 +1,14 @@
 # SOD1820 — Claude Runtime Adapter
 
+## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+
+**אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+**ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
+
+
 > **STATUS:** runtime adapter / pointer only. This file is **not** project truth, a domain contract, a context database, or a second owner map.
 > Canonical coordination owner: current active `inter_agent_coordination_law` in Supabase.
 > Canonical routing index: `SOD1820_MASTER_OWNER_INDEX.md` on current `origin/main`.
@@ -130,7 +139,7 @@ Before WRITE, rescan for overlapping active writers.
 
 **ONE SCOPE — ONE ACTIVE WRITER.** READ_ONLY challenge/cross-verification may run in parallel.
 
-Use one task key across ACK/claim/AFTER. Handoff should preserve:
+Use one task key across ownership claim and passive AFTER to ZURIEL; no GPT ACK. Handoff should preserve:
 
 `actor · from/to · task_key · owner · scope · status · facts_changed · decisions · branch/PR/commit · blockers · open_threads · handoff_to`
 
