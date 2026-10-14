@@ -1,3 +1,6 @@
+import { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
+import { createEarlyReadFetch2029 } from './earlyPrimaryRead2029.js';
+import { postBySlugRead, latestPostCardsRead, applyPostRead } from './postReadQueries2029.js';
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
@@ -11,10 +14,9 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
 // חוזרת בלי Cache-Control → הדפדפן חופשי להגיש JSON ישן). ראה getMatrixBySlug.
-export const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+export { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } });
 
 export default supabase;
 export { supabase };
@@ -233,12 +235,7 @@ export async function getRealityVideos({ limit = 40 } = {}) {
 export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {}) {
   if (!supabase) return [];
   try {
-    const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags, home_hidden")
-      .eq("home_hidden", false)
-      .not("slug", "is", null)
-      .order("modified", { ascending: false, nullsFirst: false })
-      .limit(limit + 5);
+    const { data, error } = await applyPostRead(supabase, latestPostCardsRead({ limit }));
     if (error || !data) return [];
     return data
       .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
@@ -523,14 +520,7 @@ export async function getGalleryNumberTags() {
 
 export async function getPostBySlug(slug) {
   if (!supabase) return null;
-  const decoded = decodeURIComponent(slug);
-  const encoded = encodeURIComponent(decoded).toLowerCase();
-  const slugs = [...new Set([slug, decoded, encoded])];
-  const { data, error } = await supabase
-    .from('posts')
-    .select('*')
-    .in('slug', slugs)
-    .limit(1);
+  const { data, error } = await applyPostRead(supabase, postBySlugRead(slug));
   if (error || !data?.length) return null;
   return data[0];
 }
