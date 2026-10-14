@@ -3,9 +3,13 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { serve } from './serve.mjs';
 const require = createRequire(`${process.env.PLAYWRIGHT_DIR || '/workspace/perf-execution-scratch/tools'}/node_modules/`);
 const { chromium } = require('playwright');
+const exec = promisify(execFile), recording = process.argv[5] === 'record';
+let captured = 0;
 const fixtures = JSON.parse(zlib.gunzipSync(fs.readFileSync(process.argv[4] || '/workspace/perf-execution-scratch/mobile-image-fixtures.json.gz')));
 const norm = u => decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(?:Z|\+00:00| ?00:00)?/g,'TS');
 const allow = new Set(['convergence_meter','fn_method_value','fn_zero_scale','gematria_api','gematria_method_trace','get_category_videos','number_neighbors','posts_by_number_strict','world_group_source_arrivals_v2']);
@@ -42,7 +46,18 @@ try {
    const rpc=u.pathname.match(/^\/rest\/v1\/rpc\/([^/]+)$/)?.[1];
    if(/link_identity|track_visit|ingest_event|analytics|clarity|googletagmanager|facebook|doubleclick|openweb|spot\.im/.test(req.url()) || u.pathname.startsWith('/auth/') || (!['GET','HEAD'].includes(req.method())&&!allow.has(rpc))) return route.fulfill({status:204,body:''});
    let body=req.postData()||'';try{body=JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(body)).sort(([a],[b])=>a.localeCompare(b))));}catch{}
-   const key=`${req.method()} ${norm(req.url())} ${body}`,row=fixtures[key];if(!row){misses.push(key);return route.abort();}
+   const key=`${req.method()} ${norm(req.url())} ${body}`;let row=fixtures[key];
+   if(!row&&recording){
+    assert.ok(++captured<=64,'Functional public capture budget exceeded');
+    const headers=req.headers();assert.ok(!headers.authorization||headers.authorization===`Bearer ${headers.apikey}`,'Authenticated capture forbidden');
+    const argv=['--silent','--show-error','--compressed','--max-time','30','--request',req.method(),req.url()];
+    for(const[name,value]of Object.entries(headers))if(['apikey','authorization','accept-profile','prefer','range','accept','content-type'].includes(name))argv.push('-H',`${name}: ${value}`);
+    if(req.postData())argv.push('--data-binary',req.postData());
+    argv.push('--write-out','\n__META__%{http_code}|%{content_type}|%header{content-range}');
+    const {stdout}=await exec('curl',argv,{encoding:'buffer',maxBuffer:16*1024*1024});const split=stdout.lastIndexOf(Buffer.from('\n__META__'));assert.ok(split>=0);
+    const[status,type,range]=stdout.subarray(split+9).toString().split('|');assert.ok(Number(status)>0);row=fixtures[key]={status:Number(status),type,range,body:stdout.subarray(0,split).toString('base64')};
+   }
+   if(!row){misses.push(key);return route.abort();}
    await route.fulfill({status:row.status,contentType:row.type||'application/json',body:Buffer.from(row.body,'base64'),headers:{'access-control-allow-origin':'*',...(row.range?{'content-range':row.range}:{})}});
   });
   await page.goto(origin+'/post/seventh-to-tenth-sefirot-2027');
@@ -58,11 +73,12 @@ try {
   const dialog=page.getByRole('dialog');await dialog.waitFor();const full=dialog.locator('img').first();await full.waitFor();
   assert.equal(await full.getAttribute('src'),original,'Lightbox source changed');
   await page.keyboard.press('Escape');await dialog.waitFor({state:'detached'});
-  assert.equal(misses.length,0,'fixture miss');assert.equal(errors.length,0,'runtime error');
+  assert.equal(misses.length,0,`fixture miss: ${JSON.stringify(misses)}`);assert.equal(errors.length,0,`runtime error: ${JSON.stringify(errors)}`);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow');
   results.push({...test,initial,requests,passed:true});console.log('PASS',JSON.stringify(test));await context.close();
  }
 } catch(error) {results.push({failed:true,error:String(error)});throw error;} finally {
- fs.writeFileSync(process.argv[3],JSON.stringify({mode:'fixture-functional',results},null,2)+'\n');
+ if(recording)fs.writeFileSync(process.argv[4],zlib.gzipSync(JSON.stringify(fixtures)));
+ fs.writeFileSync(process.argv[3],JSON.stringify({mode:recording?'functional-public-capture':'fixture-functional',results},null,2)+'\n');
  await browser.close();srv.close();
 }

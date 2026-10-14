@@ -137,6 +137,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/perf-results"
           node scripts/perf-execution-2029/measure.mjs --mode record --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/base-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label base-record
           node scripts/perf-execution-2029/measure.mjs --mode record --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/head-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label head-record
+          # Complete responsive/original/Lightbox dependencies before freezing the common snapshot.
+          node scripts/perf-execution-2029/mobile-image-gate.mjs "$GITHUB_WORKSPACE/dist" "$RUNNER_TEMP/perf-results/mobile-image-capture.json" "$RUNNER_TEMP/perf-fixtures.gz" record
           node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/before.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label before
           node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/after.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label after
           node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json"
