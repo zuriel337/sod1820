@@ -82,6 +82,9 @@ on:
       - "test/ai-analyze-early-trace-coverage.test.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
+      - "scripts/test-2029-bundle-budget.mjs"
+      - "src/components/research/WorldSourceConnections.jsx"
+      - "src/components/research/WorldSourceStory.jsx"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"
       - "scripts/test-2029-world-surface.mjs"
@@ -235,6 +238,8 @@ jobs:
         run: npm run build
       - name: Built dependency graph isolation
         run: node scripts/test-2029-built-graph.mjs
+      - name: 2029 load-time budget (entry + primary route graphs, deferred code stays deferred)
+        run: npm run test:2029-bundle-budget
       - name: Verify isolated HTML artifact
         run: |
           test -f dist/2029.html
