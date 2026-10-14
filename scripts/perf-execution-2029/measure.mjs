@@ -3,6 +3,8 @@
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import crypto from 'node:crypto';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createRequire } from 'node:module';
@@ -192,4 +194,20 @@ try {
   output.fixturesSha256 = hash(fs.readFileSync(fixturePath));
   fs.writeFileSync(args.out, JSON.stringify(output, null, 2) + '\n');
   await browser.close(); srv.close();
+}
+
+// The existing CI workflow owns this entrypoint. Run source-fidelity guards only
+// after the head's seven-sample timing capture has finished, using that same
+// private snapshot. Baseline capture/replay and failure-injection probes stay separate.
+const workspaceRoot = fileURLToPath(new URL('../../', import.meta.url));
+if (process.env.GITHUB_ACTIONS === 'true' && mode === 'replay' && runs === 7
+  && process.env.GITHUB_WORKSPACE && path.resolve(args.dist) === path.resolve(process.env.GITHUB_WORKSPACE, 'dist')) {
+  const { stdout } = await run(process.execPath, [path.join(workspaceRoot, 'scripts/perf-execution-2029/mobile-image-gate.mjs'),
+    args.dist, path.join(path.dirname(args.out), 'mobile-image-functional.json'), fixturePath],
+    { cwd: workspaceRoot, maxBuffer: 1024 * 1024 });
+  process.stdout.write(stdout);
+  const tests = ['src/lib/research/goldenPostContextPacks.test.js', 'src/lib/research/nasrallahPost92Golden.test.js',
+    'src/components/experience2029/mobileReadingImage2029.test.js'];
+  const checked = await run(process.execPath, ['--test', ...tests], { cwd: workspaceRoot, maxBuffer: 1024 * 1024 });
+  process.stdout.write(checked.stdout);
 }
