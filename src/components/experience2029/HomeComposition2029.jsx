@@ -7,7 +7,6 @@ import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
 import { HOME_LATEST_POST_LIMIT_2029 } from "../../lib/postReadQueries2029.js";
 import { stripHtml } from "../../lib/format.js";
-import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
@@ -68,7 +67,11 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
   useEffect(() => {
     if (!includeWorld) return;
     let live = true;
-    fetchExplorerFacetPage("topic", { limit: 4 })
+    // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it
+    // imports) loads with this same trigger instead of being part of Home's code before the first cards.
+    // Same read, arguments and result; a failed module load stays silent like a failed read (strip hidden).
+    import("../../lib/research/explorerFacets.js")
+      .then(({ fetchExplorerFacetPage }) => fetchExplorerFacetPage("topic", { limit: 4 }))
       .then((result) => { if (live) setState((current) => ({ ...current, notable: result?.cards || [] })); })
       .catch(() => {});
     return () => { live = false; };

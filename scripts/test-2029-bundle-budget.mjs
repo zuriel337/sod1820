@@ -59,7 +59,10 @@ test('static entry graph stays small', () => {
 //    Post +180.3/29) and on accepted deferrals; tighten only, never raise to admit a regression.
 //    `deferred` = code that only an action, scroll or deep link needs; it must stay out of the route graph.
 const ROUTE_GRAPHS = {
-  Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 195, maxExtraChunks: 33, deferred: [] },
+  // Home: the notable-convergence strip reader (explorerFacets -> entity hub / topic / book projections)
+  // loads with its own includeWorld trigger, after the first cards.
+  Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 160, maxExtraChunks: 27,
+    deferred: ['explorerFacets', 'entityHubProjection', 'topicSourceContext', 'bookResearchProjection'] },
   World: { src: 'src/pages/World2029Page.jsx', maxExtraGzKb: 290, maxExtraChunks: 40, deferred: [] },
   Post: { src: 'src/pages/Post2029Page.jsx', maxExtraGzKb: 185, maxExtraChunks: 30, deferred: [] },
 };
