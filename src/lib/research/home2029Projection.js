@@ -2,6 +2,7 @@ import { supabase } from "../supabase.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
+import { runtimeOff } from "../runtimeSwitches2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -347,9 +348,11 @@ async function fetchTemporalTreasures(catalog) {
 }
 
 export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
-  const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
-  const worldPreviewPromise = includeWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
-  if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  // Owner switches (control panel): each secondary section resolves to null without any request when OFF.
+  const [offPulse, offWorld, offTemporal] = await Promise.all([runtimeOff("fx_home_pulse"), runtimeOff("fx_home_world_preview"), runtimeOff("fx_home_temporal")]);
+  const pulsePromise = offPulse ? Promise.resolve(null) : fetchHomeSystemPulse2029().catch(() => null);
+  const worldPreviewPromise = includeWorld && !offWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
+  if (!includeTemporal || offTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
   // timeFlow מושך את @hebcal/core — נטען במקביל לקריאות הנתונים, לא בחבילת הדף. החישוב זהה.
   const { getCurrentTemporalContext } = await import("../timeFlow.js");
   const temporalContext = getCurrentTemporalContext();

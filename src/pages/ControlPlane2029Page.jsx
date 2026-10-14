@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { RUNTIME_SWITCHES_2029, readRuntimeSwitches, setRuntimeSwitch } from "../lib/runtimeSwitches2029.js";
+import { RUNTIME_SWITCHES_2029, RUNTIME_SWITCH_COSTS_2029, readRuntimeSwitches, setRuntimeSwitch } from "../lib/runtimeSwitches2029.js";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -55,6 +55,15 @@ function SpanRow({ span }) {
 }
 
 
+const PAGE_LABEL = { home: "בית", world: "עולם", code: "צפנים", number: "מספר", all: "כל עמוד" };
+// "מה זה לוקח": per page load, measured by switching the function off and diffing the real requests (see the report).
+function costLine(cost) {
+  if (!cost) return "עלות: לא נמדדה (פונקציה שנפתחת לפי בקשה)";
+  const parts = Object.entries(cost).filter(([page]) => page !== "measuredAt" && page !== "note")
+    .map(([page, c]) => `${PAGE_LABEL[page] || page}: ${c.n} בקשות · ${c.kb}KB · ${c.ms}ms שרת`);
+  return parts.length ? `עלות בטעינה — ${parts.join(" | ")}` : "עלות: אפסית בעמודים שנמדדו";
+}
+
 // Owner switches for secondary functions (site_flags fx_*). OFF means the function sends no request at all.
 // Never gates user saves, authorization, primary content or consent; analytics is intentionally not listed.
 function RuntimeSwitches() {
@@ -77,19 +86,28 @@ function RuntimeSwitches() {
     <div className="sod29-section-head"><div><div className="sod29-kicker">RUNTIME SWITCHES</div><h2>מתגי פונקציות</h2>
       <div className="sod29-muted">כיבוי עוצר את הפונקציה כולה, כולל הקריאות שלה. הערך נקרא עד חצי דקה אחרי שינוי. שמירת משתמש, הרשאות, תוכן ראשי והסכמה אינם תלויים במתגים.</div></div></div>
     {state.error ? <FrameState kind="error" title="לא ניתן לשנות מתג">{state.error}</FrameState> : null}
-    <div className="sod29-list">
-      {RUNTIME_SWITCHES_2029.map(entry => {
-        const on = state.map[entry.key] !== false;
-        return <div className="sod29-row" key={entry.key}>
-          <div><strong>{entry.label}</strong><small>{entry.note} · {entry.key}</small></div>
-          <div className="sod29-actions">
-            <span className="sod29-chip">{state.loading ? "טוען" : on ? "פעיל" : "כבוי"}</span>
-            <button type="button" className="sod29-action" disabled={state.loading || state.busy === entry.key}
-              aria-pressed={on} onClick={() => toggle(entry.key, !on)}>{on ? "כבה" : "הדלק"}</button>
-          </div>
-        </div>;
-      })}
-    </div>
+    {RUNTIME_SWITCHES_2029.reduce((groups, entry) => {
+      const last = groups[groups.length - 1];
+      if (last && last.group === entry.group) last.items.push(entry); else groups.push({ group: entry.group, items: [entry] });
+      return groups;
+    }, []).map(({ group, items }) => <div key={group}>
+      <div className="sod29-kicker">{group}</div>
+      <div className="sod29-list">
+        {items.map(entry => {
+          const on = state.map[entry.key] !== false;
+          const cost = RUNTIME_SWITCH_COSTS_2029[entry.key];
+          return <div className="sod29-row" key={entry.key}>
+            <div><strong>{entry.label}</strong><small>{entry.note} · {entry.key}</small>
+              <small>{costLine(cost)}</small></div>
+            <div className="sod29-actions">
+              <span className="sod29-chip">{state.loading ? "טוען" : on ? "פעיל" : "כבוי"}</span>
+              <button type="button" className="sod29-action" disabled={state.loading || state.busy === entry.key}
+                aria-pressed={on} onClick={() => toggle(entry.key, !on)}>{on ? "כבה" : "הדלק"}</button>
+            </div>
+          </div>;
+        })}
+      </div>
+    </div>)}
   </section>;
 }
 

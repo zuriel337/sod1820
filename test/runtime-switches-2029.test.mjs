@@ -25,3 +25,15 @@ test("wiring: feed, lenses, Home strip and control panel use the one owner", asy
   assert.match(await read("../src/lib/supabase.js"), /fx_analytics/);
   assert.match(await read("../src/pages/ControlPlane2029Page.jsx"), /<RuntimeSwitches \/>/);
 });
+
+test("every switch has a label, a group and (when measured) a well-formed cost; the writer accepts only fx_ keys", async () => {
+  const { RUNTIME_SWITCH_COSTS_2029 } = await import("../src/lib/runtimeSwitches2029.js");
+  for (const entry of RUNTIME_SWITCHES_2029) {
+    assert.match(entry.key, /^fx_[a-z0-9_]{3,60}$/);
+    assert.ok(entry.label && entry.group && entry.note);
+    for (const cost of Object.values(RUNTIME_SWITCH_COSTS_2029[entry.key] || {})) {
+      assert.ok(Number.isFinite(cost.n) && Number.isFinite(cost.kb) && Number.isFinite(cost.ms));
+    }
+  }
+  assert.equal(new Set(RUNTIME_SWITCHES_2029.map((entry) => entry.key)).size, RUNTIME_SWITCHES_2029.length);
+});

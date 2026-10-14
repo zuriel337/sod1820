@@ -63,6 +63,7 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
+import { runtimeOff } from "../lib/runtimeSwitches2029.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
@@ -708,7 +709,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         contributorPromise,
-        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
+        contributorPromise.then(async (projection) => (await runtimeOff("fx_world_discovery")) ? null : fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
         fetchGoldenWorldJourney878(),
       ]),
     ]);
@@ -738,11 +739,17 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => {
     if (landing.loading) return;
-    return watchWorldDiscoveryStream({
-      limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
-      onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
-      onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
+    let live = true; let stop = null;
+    // Owner switch fx_world_discovery: when OFF the polling watcher is never started.
+    runtimeOff("fx_world_discovery").then((off) => {
+      if (off || !live) return;
+      stop = watchWorldDiscoveryStream({
+        limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
+        onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
+        onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
+      });
     });
+    return () => { live = false; stop?.(); };
   }, [landing.loading, landing.contributors]);
 
 

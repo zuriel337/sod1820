@@ -6,14 +6,25 @@
 import { useEffect, useState } from "react";
 import { getSiteFlags, supabase } from "./supabase.js";
 
+// `group` is only for display. Costs (requests / KB / server ms per page load) live in runtimeSwitchCosts2029.js,
+// measured by switching each function off and diffing the real requests; see docs/perf-evidence-20261014/claude-continuation.
 export const RUNTIME_SWITCHES_2029 = Object.freeze([
-  { key: "fx_now_feed", label: "סרגל ״עכשיו״ ופיד העדכונים", note: "3 קריאות בכל מעבר ובכל דקה; מונה חדשים ופאנל המסגרת" },
-  { key: "fx_number_journey", label: "מסע המספר", note: "fn_number_journey; נקרא רק כשמבקשים את המסע" },
-  { key: "fx_number_dossier", label: "תיק המספר", note: "fn_number_dossier; חלק מפתיחת מספר" },
-  { key: "fx_analytics", label: "אנליטיקה וטלמטריה", note: "אירועי צפייה, מעורבות, ביצועי דפדפן, Google Analytics ופיקסל שיווק; כיבוי = לא נשלח דבר" },
-  { key: "fx_home_convergences", label: "התכנסויות בולטות בבית", note: "הרצועה מתחת לעדכונים האחרונים" },
+  { key: "fx_now_feed", group: "מסגרת", label: "סרגל ״עכשיו״ ופיד העדכונים", note: "מונה חדשים ופאנל; מתרענן כל דקה" },
+  { key: "fx_analytics", group: "מסגרת", label: "אנליטיקה וטלמטריה", note: "Google Analytics, פיקסל שיווק, ביקורים, מעורבות וביצועי דפדפן; כיבוי = לא נשלח דבר" },
+  { key: "fx_tier_signals", group: "מספרים", label: "סימוני זהב ויהלום על מספרים", note: "convergence_meter לכל מספר מוצג" },
+  { key: "fx_number_dossier", group: "מספרים", label: "תיק המספר", note: "fn_number_dossier; חלק מפתיחת מספר" },
+  { key: "fx_number_journey", group: "מספרים", label: "מסע המספר", note: "fn_number_journey; נקרא רק כשמבקשים את המסע" },
+  { key: "fx_home_videos", group: "בית", label: "סרטוני הצפנים בשערי הגילוי", note: "get_category_videos, עד 80 סרטונים" },
+  { key: "fx_home_gateways", group: "בית", label: "שערי הגילוי: שפה, קולנוע, מימד חמש, צפנים", note: "ארבע שאילתות קטגוריה" },
+  { key: "fx_home_pulse", group: "בית", label: "דופק המערכת — מילים חדשות", note: "ספירות ומילים אחרונות מ־gematria_words" },
+  { key: "fx_home_temporal", group: "בית", label: "״העת עכשיו״ בבית", note: "אימות שנה, ממצאים, תרומות ואוצרות" },
+  { key: "fx_home_world_preview", group: "בית", label: "תצוגת העולם בבית", note: "זרם גילוי, כותבים ותרומות" },
+  { key: "fx_home_convergences", group: "בית", label: "התכנסויות בולטות", note: "הרצועה מתחת לעדכונים האחרונים" },
+  { key: "fx_world_discovery", group: "עולם", label: "זרם הגילוי בעולם", note: "פוסטים, ממצאי מחקר, הגעות קבוצה; מתרענן כל דקה" },
+  { key: "fx_els_gallery", group: "צפנים", label: "גלריית הצפנים השמורים בכלי", note: "60 מטריצות מהענן בכל פתיחה" },
 ]);
 export const RUNTIME_SWITCH_KEYS = new Set(RUNTIME_SWITCHES_2029.map((entry) => entry.key));
+export { RUNTIME_SWITCH_COSTS_2029 } from "./runtimeSwitchCosts2029.js";
 
 const TTL_MS = 30_000;
 let cache = null;
@@ -34,6 +45,11 @@ export async function readRuntimeSwitches({ fresh = false } = {}) {
 }
 export async function isRuntimeSwitchOn(key) {
   return (await readRuntimeSwitches())[key] !== false;
+}
+// True only when the owner switched the function OFF (2029 build; a failed read means ON, i.e. unchanged behavior).
+export async function runtimeOff(key) {
+  if (typeof __SOD_2029_BUILD__ === "undefined" || !__SOD_2029_BUILD__) return false;
+  return (await readRuntimeSwitches())[key] === false;
 }
 export async function setRuntimeSwitch(key, on) {
   if (!RUNTIME_SWITCH_KEYS.has(key)) throw new Error("unknown runtime switch");

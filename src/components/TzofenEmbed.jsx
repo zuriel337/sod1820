@@ -184,6 +184,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (experience2029 && !force && (state.promise || Date.now() - state.at < 3000)) return state.promise;
     const run = (async () => {
       try {
+        if (experience2029 && await import("../lib/runtimeSwitches2029.js").then(m => m.runtimeOff("fx_els_gallery"))) return;   // owner switch: no request
         const rows = await getSavedMatrices(60);
         const items = (rows || []).map(rowToItem).filter(Boolean);
         postToTool({ type: "saved-matrices", items });
