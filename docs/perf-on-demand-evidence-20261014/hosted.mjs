@@ -12,6 +12,7 @@ const output = { mode: 'hosted-live-lcp-diagnostic', browser: browser.version(),
   coldBrowserCache: true, completion: 'REST requests finished and quiet for1s, primary images complete; external streaming/text tracks recorded separately', excludedReviewTooling: 'vercel.live only, both arms', postgresCache: 'uncontrolled', runnerLocation: 'unverified; deployment iad1', routes: {} };
 try {
   for (const path of (args.routes || '/,/world,/post/seventh-to-tenth-sefirot-2027').split(',')) {
+    const primarySlug = path === '/world' ? 'flydubai-fz1073-363-14000-remzei-geula' : path.startsWith('/post/') ? decodeURIComponent(path.slice(6).replace(/\/$/, '')).replace(/%2F/g, '/') : null;
     const samples = [];
     for (let i = 0; i < output.runs; i++) {
       const context = await browser.newContext({ viewport: output.viewport, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'he-IL', timezoneId: 'Asia/Jerusalem', userAgent: 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36' });
@@ -81,24 +82,25 @@ try {
       if (!restSettled || [...reads.values()].some(r => r.failure)) errors.push('REST did not finish cleanly');
       await page.waitForFunction(() => [...document.querySelectorAll('img.sod29-canonical-media-image.is-primary')].every(img => img.complete && img.naturalWidth > 0), null, { timeout: 30000 }).catch(() => errors.push('Primary image incomplete'));
       await page.waitForTimeout(1000);
-      const row = await page.evaluate(path => {
+      const row = await page.evaluate(({ path, primarySlug }) => {
         const resources = performance.getEntriesByType('resource'), rest = resources.filter(r => r.name.includes('/rest/v1/'));
         const primary = rest.filter(r => {
-          const u = new URL(r.name); return u.pathname === '/rest/v1/posts' && (path === '/' || (u.searchParams.get('slug') || '').includes(path === '/world' ? 'flydubai-fz1073-363-14000-remzei-geula' : path.slice(6)));
+          const u = new URL(r.name); return u.pathname === '/rest/v1/posts' && (path === '/' || (primarySlug && (u.searchParams.get('slug') || '').includes(primarySlug)));
         });
         return { ...window.__hosted, fcp: performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? null,
           firstPrimaryReq: primary.length ? Math.min(...primary.map(r => r.startTime)) : null,
           lastRestEnd: rest.length ? Math.max(...rest.map(r => r.responseEnd)) : null, restCount: rest.length,
           requests: resources.length, overflow: document.documentElement.scrollWidth > innerWidth,
           guard: !!navigator.serviceWorker.controller?.scriptURL.endsWith('/preview-readonly-sw.js') };
-      }, path);
+      }, { path, primarySlug });
       const resourceRows = [...resources.values()].map(r => ({ url: r.url, method: r.method, type: r.type, initiator: r.initiator, priority: r.priority, status: r.status, mime: r.mime, response: r.responseClock ? (r.responseClock - startClock) * 1000 : null, timing: r.timing, encodedBytes: r.encodedBytes ?? null, start: (r.startClock - startClock) * 1000, end: r.endClock ? (r.endClock - startClock) * 1000 : null }));
       row.lcpResource = resourceRows.find(r => r.url === row.lcpElement?.url) ?? null;
       const observed = [...reads.values()].map(r => ({ url: r.url, method: r.method, status: r.status ?? null,
         start: (r.startClock - startClock) * 1000, end: r.endClock ? (r.endClock - startClock) * 1000 : null, failure: r.failure ?? null, headCompletedWithoutBody: !!r.headCompletedWithoutBody }));
       const primaryReads = observed.filter(r => {
-        const u = new URL(r.url); return r.method === 'GET' && u.pathname === '/rest/v1/posts' && (path === '/' || (u.searchParams.get('slug') || '').includes(path === '/world' ? 'flydubai-fz1073-363-14000-remzei-geula' : path.slice(6)));
+        const u = new URL(r.url); return r.method === 'GET' && u.pathname === '/rest/v1/posts' && (path === '/' || (primarySlug && (u.searchParams.get('slug') || '').includes(primarySlug)));
       });
+      if (!primaryReads.some(r => r.status >= 200 && r.status < 300 && r.end != null && !r.failure)) errors.push('Successful primary read not observed');
       row.firstPrimaryReq = primaryReads.length ? Math.min(...primaryReads.map(r => r.start)) : null;
       row.lastRestEnd = observed.length ? Math.max(...observed.map(r => r.end ?? 0)) : null;
       row.restCount = observed.length;

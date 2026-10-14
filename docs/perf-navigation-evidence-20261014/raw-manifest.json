@@ -198,5 +198,35 @@
     "name": "role-a-0710-els-ci-failure.txt.gz",
     "originalSha256": "1cc1006612f3caddebe9fd32a1a73e10947dfbbc878dba3bd796922c2fe6fcb4",
     "compressedSha256": "bcddf7113e35c7afa5f004d504fe05933e26b3bcbd295267f2a3ace2ca6014e2"
+  },
+  {
+    "name": "role-a-final-revised-after.json.gz",
+    "originalSha256": "dcddba76f3dcd094feba93876df29211afdca3fedb455cc4d08a657afd8a464b",
+    "compressedSha256": "c0a1853ebab01c76443a7c58fc33d6dfa9c893d89af7838f3e66ba152ed29366"
+  },
+  {
+    "name": "role-a-final-revised-comparison.json.gz",
+    "originalSha256": "44118420146e3b84db1835862a5a87a15e6f40036c9fae05ac649dc6fafb3898",
+    "compressedSha256": "a8fd1897809b3fb589b815cae8a369ca1b3e6aa36bb71a7797e09beb3f8f43f2"
+  },
+  {
+    "name": "role-a-hosted-hebrew-before.json.gz",
+    "originalSha256": "ccaf8b15715a56620a6186d34c5f6d672df892f57ddb400903a386bc1adfa933",
+    "compressedSha256": "fad5060c5b627ea9aa730744beaf960d0629d0a04a88e8df210691bf75d08dbd"
+  },
+  {
+    "name": "role-a-hosted-hebrew-after.json.gz",
+    "originalSha256": "70050a1e23a8128740a1402b5df06ebf3797b8819f37499c68c94d39388ec7e5",
+    "compressedSha256": "9fedfc7ac9898334ac815d2299ca750f4333295d59bf14e209a67038fcbcd417"
+  },
+  {
+    "name": "role-a-hosted-hebrew-reanalysis.json.gz",
+    "originalSha256": "40b2a822f17941e376ec33ba3b639c4235c6cccfba641543a4a2c58f5066db91",
+    "compressedSha256": "8c06be5dadfe561ac883ed88c876f9e7ccc7abbb0cee66d784c90259b2b48620"
+  },
+  {
+    "name": "role-a-hebrew-entry-tests.log.gz",
+    "originalSha256": "ce88a439eb2cf4fe250ad0878ec1592363722e75585b514e825eebcb3171f1fa",
+    "compressedSha256": "bdd52c39157ff1a933378e09897051f03653802e2ff6848fb845b70473c27e95"
   }
 ]

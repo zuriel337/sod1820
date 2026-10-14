@@ -44,7 +44,7 @@ Combined matched navigation budget PASS, response body parity PASS, no errors/mi
 
 ## Tests, enforcement and open gates
 
-64 targeted tests PASS; five real-built route/entry budget tests PASS (zero skips). Six guard unit tests reject synthetic clicks, fewer samples, errors/misses/failed primary, profile/snapshot/method mixing, timing/read regression and changed response bytes. Image functional16 Chromium cases/64KiB budget/fallback/Lightbox/no double-fetch enforced in existing CI; negative original-sized rendition fails. All **seven remote checks PASS at1e15404b**; final exact-head CI/provenance are recorded in PR and passive AFTER, not inferred from an earlier SHA. Hosted and replay remain distinct.
+64 targeted tests PASS at the catalog checkpoint; two added router/handoff regressions bring the focused set to66 (nine early-read tests PASS at67d07abf); five real-built route/entry budget tests PASS (zero skips). Six guard unit tests reject synthetic clicks, fewer samples, errors/misses/failed primary, profile/snapshot/method mixing, timing/read regression and changed response bytes. Image functional16 Chromium cases/64KiB budget/fallback/Lightbox/no double-fetch enforced in existing CI; negative original-sized rendition fails. All **seven remote checks PASS at1e15404b**; final exact-head CI/provenance are recorded in PR and passive AFTER, not inferred from an earlier SHA. Hosted and replay remain distinct.
 
 The four original tests are reproduced **identically before and after**: two date-display tests and Home identity/Dimension Five historical-reader wiring assertions;28 tests24PASS4FAIL. They are preserved in before/after logs; no threshold/assertion weakened and no hidden PASS. Earlier remote0825 image-fixture/ELS failures and946 archived baseline provenance failure were exposed and fixed/rechecked; later source head passes all seven CI checks.
 
@@ -120,7 +120,7 @@ of physical-device/Israel/INP verification.
 
 ## Final combined cold replay · separate from hosted evidence
 
-Matched source0825 baseline (already native image) vs381 final application,
+Matched source0825 baseline (already native image) vs381 application checkpoint,
 common header-sensitive public snapshot, seven samples per arm per route,
 World then Post then Home last. Both arms clean, zero misses/errors, matched
 10%+100ms timing allowance, no additional REST reads and CLS≤0.1: PASS.
@@ -150,3 +150,77 @@ no latency/bounds/parity assertion or production reader was changed. The same
 suite had a separate no-hit Research-probe assertion failure70/71, zero skips;
 its excerpt is preserved. Exact-head later result is reported explicitly in
 PR/AFTER, never buried in the four original date/Home failures.
+
+
+## Late independent review reconciled · b0540d18 / e5cd3159
+
+Fetched exact `b0540d18009067f627afe8ad59fb01d802815469` from the existing
+Claude review branch. Its reported5dd base and inaccessible image describe the
+reviewer's earlier snapshot, not the verified current PR1100 state. Do not merge
+its10-stage lab percentages into the hosted tables: different flow/markers and
+fixed-latency replay. Review correctly separates graph bytes from scheduling,
+and identifies two concrete residual bugs:
+
+1. Hebrew entry route generated an encoded-original variant list, while the
+   real React Router reader receives a decoded `:slug`: no exact URL handoff and
+   an extra full-body read. **Fixed67d07abf**, entry normalization only. Original
+   `postBySlugRead` variant order/filter/limit and authenticated reader untouched.
+   Nine tests PASS, including actual `matchRoutes` params for uppercase/lowercase
+   Hebrew, trailing slash, encoded/double-encoded slash/comma/percent, malformed
+   fallback, and SDK client consuming one anonymous head promise with0 normal
+   fetches. Existing auth/failure/abort/freshness checks all retain assertions.
+2. Browser Back/Forward does **not** restore the departed Home/World scroll
+   position; leaving a long scrolled Post and returning to remounting Home can
+   produce CLS≈0.5–1.0 as its height grows. **OPEN / TRANSFER REQUIRED**, not fixed
+   by the accepted import/catalog changes. App navigation overlaps75 scope;
+   Home data-hook scope overlaps839 and reveal/section geometry belongs to the
+   visual owner. No takeover or new scroll store/cache. Owner-qualified task:
+   restore existing history position only once target height is ready, reset
+   fresh forward navigation, reserve adopted Home reveal/Discovery heights, then
+   repeat seven real tap/Back/Forward/swipe samples and report every CLS>0.1 case
+   (not just median). Existing timing/parity CI is not proof of scroll restoration.
+
+Final combined replay repeated after67d07abf, same0825 captured baseline and
+header-sensitive snapshot,21 samples, World→Post→Home last, no errors/misses:
+matched regression budget PASS. It agrees with the prior checkpoint decision.
+
+| Surface | FCP ms | LCP ms | READY ms (ranges) | First content request ms | Last REST end ms | API reads | CLS |
+|---|---|---|---|---|---|---|---|
+| /world | 1792→1744 | 4824→4756 | 4843 [4553,4912]→4762 [4458,4964] | 217→209 | 6079→5965 | 55→48 | 0.03144→0.03143 |
+| /post/seventh-to-tenth-sefirot-2027 | 1568→1564 | 3892→3844 | 3612 [3541,3686]→3587 [3546,3614] | 212→212 | 3892→3855 | 6→6 | 0.000077→0.000077 |
+| / | 1576→1548 | 4108→3820 | 3842 [3774,3907]→3557 [3529,3594] | 212→209 | 5753→5377 | 59→59 | 0.02072→0.02072 |
+
+No new percentage/time claim for this route-correctness repair. The built
+application manifest remains924a6a97 because early route query code is in the
+inline head; manifest equality alone is insufficient proof of that fix. Compare
+final runtime source/HTML and exact source commit as well as readonly worker and
+manifest provenance. Final docs-only head must have zero runtime diff from67.
+
+
+## Hebrew entry fix: hosted correctness and time acceptance
+
+Seven cold real-anonymous samples each, before exact53fa46c8 vs after67d07abf,
+same mobile/network/CPU/browser/theme/readonly conditions as above, encoded route
+`/post/קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב`. In every sample primary GET2→1,
+REST incl.OPTIONS15→13; no errors/overflow/unsettled REST. Existing SDK consumes
+exactly the early canonical client query. No RPC/reader variant/order rewrite.
+
+| Surface | FCP ms | LCP ms (ranges) | READY ms (ranges) | First content request ms | Last REST end ms | REST incl.OPTIONS | CLS |
+|---|---|---|---|---|---|---|---|
+| Hebrew-slug Post | 1672→1696 | 5088 [4932,6580]→4784 [4728,5060] | 4030 [3833,4219]→3657 [3584,3804] | 204→205 (corrected from recorded events) | 4458→4476 | 15→13 | 0.000109→0.000077 |
+
+READY373.5ms (**9.27%**) faster for this route/cohort; bootstrap delta95%
+[-550.2,-136]ms and observed ranges do not overlap. LCP ranges overlap, so no
+independent LCP percentage claimed. Separate from native-image and Home cohorts;
+never summed. Live auth/cold Postgres/geography remain uncontrolled/unverified.
+
+Measurement defect exposed: old hosted helper matched the uppercase encoded
+pathname against a query that now correctly contains decoded Hebrew and lowercase
+encoded variants. It emitted `firstPrimaryReq:null` (range[0,0]) after the fix.
+These original files are retained unmodified. The primary event fields are
+explicitly recomputed in `role-a-hosted-hebrew-reanalysis.json.gz` from the same
+successful CDP GET events using decoded router semantics, giving204→205ms and
+2→1 GET. Other timing/count fields are unchanged; no null is counted as faster.
+`reconcile-hebrew-hosted.mjs` reproduces that analysis after gunzipping the two raw
+files into a supplied directory. The hosted helper now uses decoded slugs in
+both resource/CDP matching and fails if no successful primary read is observed.
