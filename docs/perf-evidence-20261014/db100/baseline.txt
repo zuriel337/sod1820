@@ -1,0 +1,87 @@
+##### S=1
+psql:db100/setup.sql:2: NOTICE:  table "posts" does not exist, skipping
+ count | pg_size_pretty 
+-------+----------------
+  1302 | 784 kB
+(1 row)
+
+== Q1 home category list (cat overlap, not draft/forum, order modified desc, limit 24) narrow
+   Buffers: shared hit=91
+   ->  Sort (actual rows=24 loops=1)
+         Sort Key: modified DESC NULLS LAST
+         Sort Method: top-N heapsort  Memory: 31kB
+         Buffers: shared hit=91
+         ->  Seq Scan on posts (actual rows=86 loops=1)
+               Buffers: shared hit=88
+   Buffers: shared hit=184
+ Execution Time: 0.467 ms
+== Q1b same with count exact (what getPostsFromSupabase does)
+   Buffers: shared hit=82
+   ->  Seq Scan on posts (actual rows=86 loops=1)
+         Buffers: shared hit=82
+   Buffers: shared hit=3
+ Execution Time: 0.455 ms
+== Q2 latest feed (home_hidden=false, not draft/forum, source in, order modified desc, limit 21)
+   Buffers: shared hit=82
+   ->  Sort (actual rows=21 loops=1)
+         Sort Key: modified DESC NULLS LAST
+         Sort Method: top-N heapsort  Memory: 29kB
+         Buffers: shared hit=82
+         ->  Seq Scan on posts (actual rows=619 loops=1)
+               Buffers: shared hit=82
+   Buffers: shared hit=23
+ Execution Time: 0.803 ms
+== Q3 slug lookup
+   Buffers: shared hit=49
+   ->  Seq Scan on posts (actual rows=1 loops=1)
+         Buffers: shared hit=49
+   Buffers: shared hit=18
+ Execution Time: 0.141 ms
+== Q4 ai_addition-like leading wildcard scan (as in Home query ilike %787%) on title
+   Buffers: shared hit=82
+   ->  Seq Scan on posts (actual rows=1 loops=1)
+         Buffers: shared hit=82
+ Execution Time: 0.542 ms
+##### S=100
+ count  | pg_size_pretty 
+--------+----------------
+ 130200 | 69 MB
+(1 row)
+
+== Q1 home category list (cat overlap, not draft/forum, order modified desc, limit 24) narrow
+   Buffers: shared hit=8147
+   ->  Sort (actual rows=24 loops=1)
+         Sort Key: modified DESC NULLS LAST
+         Sort Method: top-N heapsort  Memory: 33kB
+         Buffers: shared hit=8147
+         ->  Seq Scan on posts (actual rows=8266 loops=1)
+               Buffers: shared hit=8144
+   Buffers: shared hit=187
+ Execution Time: 41.863 ms
+== Q1b same with count exact (what getPostsFromSupabase does)
+   Buffers: shared hit=8138
+   ->  Seq Scan on posts (actual rows=8266 loops=1)
+         Buffers: shared hit=8138
+   Buffers: shared hit=3
+ Execution Time: 37.017 ms
+== Q2 latest feed (home_hidden=false, not draft/forum, source in, order modified desc, limit 21)
+   Buffers: shared hit=8138
+   ->  Sort (actual rows=21 loops=1)
+         Sort Key: modified DESC NULLS LAST
+         Sort Method: top-N heapsort  Memory: 29kB
+         Buffers: shared hit=8138
+         ->  Seq Scan on posts (actual rows=61927 loops=1)
+               Buffers: shared hit=8138
+   Buffers: shared hit=23
+ Execution Time: 97.524 ms
+== Q3 slug lookup
+   Buffers: shared hit=49
+   ->  Seq Scan on posts (actual rows=1 loops=1)
+         Buffers: shared hit=49
+   Buffers: shared hit=18
+ Execution Time: 0.128 ms
+== Q4 ai_addition-like leading wildcard scan (as in Home query ilike %787%) on title
+   Buffers: shared hit=493
+   ->  Seq Scan on posts (actual rows=12 loops=1)
+         Buffers: shared hit=493
+ Execution Time: 2.869 ms
