@@ -1,11 +1,11 @@
 // Shared 2029 load harness (fixture replay, deterministic). See docs/perf-measurement-conditions-2029.md
-// Usage: node harness.mjs <record|run> --dist DIR --label L [--routes /2029,/world,/post/x] [--runs 7] [--cpu 4] [--rtt 150] [--fixtures f.json] [--out out.json] [--sbdelay 150]
+// Usage: node harness.mjs <record|run> --dist DIR --label L [--routes /,/world,/post/x] [--runs 7] [--cpu 4] [--rtt 150] [--fixtures f.json] [--out out.json] [--sbdelay 150]
 import { createRequire } from 'node:module'; import fs from 'node:fs'; import zlib from 'node:zlib'; import { execFileSync } from 'node:child_process';
 import { serve } from './serve.mjs';
 const require=createRequire((process.env.PLAYWRIGHT_DIR||'/opt/node-tools')+'/node_modules/'); const { chromium }=require('playwright');
 const args=Object.fromEntries(process.argv.slice(3).reduce((a,v,i,arr)=>v.startsWith('--')?[...a,[v.slice(2),arr[i+1]]]:a,[]));
 const mode=process.argv[2]; const dist=args.dist; const runs=+(args.runs||7); const cpu=+(args.cpu||4); const rtt=+(args.rtt||150);
-const sbdelay=+(args.sbdelay||150); const extdelay=+(args.extdelay||400); const routes=(args.routes||'/2029').split(',');
+const sbdelay=+(args.sbdelay||150); const extdelay=+(args.extdelay||400); const routes=(args.routes||'/').split(',');
 const fixFile=args.fixtures||new URL('./fixtures.json.gz',import.meta.url).pathname; const norm=u=>decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(Z|\+00:00| ?00:00)?/g,'TS');
 const fixtures=fs.existsSync(fixFile)?JSON.parse(zlib.gunzipSync(fs.readFileSync(fixFile))):{};
 const { srv, port }=await serve(dist); const origin=`http://127.0.0.1:${port}`;
