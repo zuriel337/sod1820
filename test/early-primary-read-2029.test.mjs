@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
+import { matchRoutes } from 'react-router-dom';
 import { entryPrimaryReads2029, postBySlugRead, latestPostCardsRead, applyPostRead, postReadUrl } from '../src/lib/postReadQueries2029.js';
 import { startPrimaryReads2029, createEarlyReadFetch2029 } from '../src/lib/earlyPrimaryRead2029.js';
 
@@ -25,6 +26,32 @@ test('definitions preserve original reader URL semantics, including encoded and 
   await client.from('posts').select('id, slug, title, image_url, thumb_url, date, modified, tags, home_hidden')
     .eq('home_hidden', false).not('slug', 'is', null).order('modified', { ascending: false, nullsFirst: false }).limit(21);
   assert.equal(postReadUrl('https://example.supabase.co', latestPostCardsRead({ limit: 16 })), seen);
+});
+test('entry Hebrew/escaped route uses the real router parameter and the same client query', async () => {
+  for (const segment of ['hello', 'שלום', '%D7%A9%D7%9C%D7%95%D7%9D', '%d7%a9%d7%9c%d7%95%d7%9d', 'a%2Fb', 'a%252Fb', 'a%2525', 'a%2Cb']) {
+    const pathname = `/post/${segment}`;
+    const slug = matchRoutes([{ path: '/post/:slug' }], pathname).at(-1).params.slug;
+    let seen;
+    const client = createClient('https://example.supabase.co', 'anon', { auth: { persistSession: false }, global: { fetch: async url => { seen = String(url); return new Response('[]'); } } });
+    await applyPostRead(client, postBySlugRead(slug));
+    for (const path of [pathname, `${pathname}/`])
+      assert.equal(postReadUrl('https://example.supabase.co', entryPrimaryReads2029(path)[0]), seen);
+  }
+  assert.deepEqual(entryPrimaryReads2029('/post/%broken'), []);
+});
+test('encoded Hebrew boot and actual router reader share one anonymous request', async () => {
+  const pathname = '/post/%D7%A9%D7%9C%D7%95%D7%9D';
+  const slug = matchRoutes([{ path: '/post/:slug' }], pathname).at(-1).params.slug;
+  let bootCalls = 0, normalCalls = 0;
+  const host = { localStorage: { getItem: () => null }, location: { pathname }, setTimeout() {},
+    fetch: async () => { bootCalls++; return new Response('[{"id":1}]'); } };
+  const urls = entryPrimaryReads2029(pathname).map(d => postReadUrl('https://example.supabase.co', d));
+  startPrimaryReads2029({ route: pathname, urls, anonKey: 'anon', host });
+  const fetch = createEarlyReadFetch2029({ anonKey: 'anon', host, baseFetch: async () => { normalCalls++; return new Response('[{"id":2}]'); } });
+  const client = createClient('https://example.supabase.co', 'anon', { auth: { persistSession: false }, global: { fetch } });
+  const result = await applyPostRead(client, postBySlugRead(slug));
+  assert.deepEqual(result.data, [{ id: 1 }]);
+  assert.equal(bootCalls, 1); assert.equal(normalCalls, 0);
 });
 function setup({ storedSession = null, pathname = '/' } = {}) {
   let bootCalls = 0, normalCalls = 0;

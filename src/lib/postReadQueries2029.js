@@ -32,7 +32,14 @@ export function postReadUrl(base, definition) {
 }
 export function entryPrimaryReads2029(pathname) {
   if (pathname === '/') return [latestPostCardsRead({ limit: HOME_LATEST_POST_LIMIT_2029 })];
-  if (/^\/post\/[^/]+\/?$/.test(pathname)) return [postBySlugRead(pathname.slice(6).replace(/\/$/, ''))];
+  if (/^\/post\/[^/]+\/?$/.test(pathname)) {
+    try {
+      // Match the existing router's decoded :slug, including its encoded-slash
+      // handling. Keep postBySlugRead's original variant order unchanged.
+      const slug = decodeURIComponent(pathname.slice(6).replace(/\/$/, '')).replace(/%2F/g, '/');
+      return [postBySlugRead(slug)];
+    } catch { return []; } // Malformed route: let the normal reader report it.
+  }
   if (pathname === '/world') return [postBySlugRead(WORLD_FLIGHT_POST_SLUG)];
   return [];
 }
