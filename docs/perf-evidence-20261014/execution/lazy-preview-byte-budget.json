@@ -1,0 +1,7 @@
+{
+  "scope": "Ordinary Post reading chunk; fallback snapshot remains available via dynamic import with unchanged data. READY change is inside timing noise.",
+  "beforeRawBytes": 167634,
+  "afterRawBytes": 93599,
+  "removedFromOrdinaryReadBytes": 74035,
+  "snapshotRawBytes": 74527
+}

@@ -2,7 +2,6 @@ import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
 import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
 import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
-import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
@@ -775,7 +774,8 @@ export async function fetchGoldenContextPackBySlug(slug) {
 export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
   const publicPost = await getPostBySlug(slug);
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
-  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
+  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG
+    ? (await import("./post2029PreviewSnapshot.js")).POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
   if (!post) return null;
 
