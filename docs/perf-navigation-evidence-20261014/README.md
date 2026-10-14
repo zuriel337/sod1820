@@ -48,14 +48,105 @@ Combined matched navigation budget PASS, response body parity PASS, no errors/mi
 
 The four original tests are reproduced **identically before and after**: two date-display tests and Home identity/Dimension Five historical-reader wiring assertions;28 tests24PASS4FAIL. They are preserved in before/after logs; no threshold/assertion weakened and no hidden PASS. Earlier remote0825 image-fixture/ELS failures and946 archived baseline provenance failure were exposed and fixed/rechecked; later source head passes all seven CI checks.
 
-Live anonymous `/number/376` is **GATED** by real maintenance flag, not a fast successful Number measurement. No override. Authorized full-page Number, real auth A/B/logout flow, physical phone/Israel, field INP, controlled cold Postgres, same-origin proxy remain OPEN. Two-example secondary World/cipher continuation remains NOT IMPLEMENTED: needs a genuine bounded work boundary and existing approved continuation/visual owner, not merely hiding already computed rows.
+Live anonymous `/number/376` is **GATED** by real maintenance flag, not a fast successful Number measurement. No override. Authorized full-page Number, real auth A/B/logout flow, physical phone/Israel, field INP, controlled cold Postgres, same-origin proxy remain OPEN. World secondary topic catalog now has a genuine two-item reader boundary through the existing More control; see the catalog addendum below. Cipher two-sample work and other secondary families remain open.
 
 Active transfer list:75ebfac4 App/vite/supabase/general public-read cache/prefetch/Home post-reader scope;839c2af4 Post technical reader scope for52f6188f batch (also requires slug-variant/duplicate/row-bound/RLS equivalence). No takeover. Shared visual frame/major composition stays Claude. Role B SQL package is [draft-only reference](database-lab-reference.md), with permission finding and exact cold/growth/admin-stub gaps; no migration applied.
 
 ## DRIFT / status / rollback
 
-main12fea7a3→aebfcadb during role A (other PR1103 standalone ELS,3 files); integrated base001c3b05 remains unchanged. Earlier18821815 local ref was stale and resolved by explicit fetch. No merge/rebase onto main and no Legacy/public deployment by this session. Target branch documentation/SQL-only drift does not justify rebasing runtime or adopting a whole historical branch.
+main12fea7a3→aebfcadb (PR1103 standalone ELS)→503b52ef169b6e51f967187491398d153090aa45 (PR1104 reverts that change, same3 files) during role A; integrated base001c3b05 remains unchanged. Earlier18821815 local ref was stale and resolved by explicit fetch. No merge/rebase onto main and no Legacy/public deployment by this session. Target branch documentation/SQL-only drift does not justify rebasing runtime or adopting a whole historical branch.
 
-DOCUMENTED / IMPLEMENTED / COMMITTED / PUSHED / PREVIEW / VERIFIED are tracked separately. Branch-only review candidate; **NOT MERGED / NOT LIVE / SPEED OPEN**. The final readonly Preview must report its exact commit and the same application manifest fingerprint as tested32201; CI must pass that final head.
+DOCUMENTED / IMPLEMENTED / COMMITTED / PUSHED / PREVIEW / VERIFIED are tracked separately. Branch-only review candidate; **NOT MERGED / NOT LIVE / SPEED OPEN**. The final readonly Preview must report its exact commit and the same application manifest fingerprint as tested381e663e (`924a6a972b93f2e4459374bd8c9e53561a78982fd6d1d6d2665b04bc2361ff29`); CI must pass that final head. Exact final SHA/deployment/check results are recorded in PR1100 and the verified passive AFTER without a self-referential evidence-commit loop.
 
 Rollback Home runtime via32201c4d; mobile rendition via15af7aff; positive fixture viaa23cdd9d. Guards/evidence remain independently reviewable commits. No DB rollback required because none applied. Do not revert rejected experiment commits onto1100 (they were never adopted).
+
+
+## Accepted World catalog work boundary · 7274cdca / 381e663e
+
+Fresh public World entry reads2 topics (+1 has-more sentinel), renders2, and does
+not request exact total/count until the existing More action. First demand reads
+22 at offset2 and reconstructs the identical ordered24-item page; subsequent
+pages preserve the original24-item continuation. Reusing an existing Topic
+context on Back keeps the original24-item read/eight-visible window. Admin
+control remains24. Expanded filters preserve the original full-window behavior.
+No new control/palette/style owner/store/cache/RPC or permission is introduced.
+The inline display/hidden attributes only retain already-demanded component
+state on collapse; before demand the extra data and components do not exist.
+
+Captured full public columns/order/duplicates match, SHA256 before and after
+`c2a62f2a8611f9bafdabdaa6ef5b574b409aa8bb52f6427d04e8de99144d1510`.
+Functional cases: persistent503 including SDK retries keeps initial2 visible;
+explicit retry returns24; collapse/reopen yields zero extra REST/tier reads;
+late continuation cannot overwrite a new filter; third-topic Back restores the
+original eight-item window. Light320/Parchment390/Dark1440 pass. A wide-screen
+initial guard counted an unrelated lazy image as a data read; it now records
+all reopen requests and rejects new REST data reads, keeping asset observations
+separate. Captures preserve prefer/range/accept-profile in fixture keys.
+
+Seven cold replay World samples: REST55→48 (**12.73% fewer**); Task2069→1838ms;
+READY4782.3→4804.7ms, LCP4840→4800ms (time differences not proven). Seven matched
+input sequences on World/ordinary Post pass regression/parity: World chain173→173
+reads because Topic Back deliberately restores the full original window;
+Post→World/Back/revisit chain119→112 reads. **WORK/REQUEST_REDUCTION_ONLY**, not a
+new speed claim. Hosted World and final all-route evidence are below. Exact final CI/provenance is
+recorded in the PR and passive AFTER; isolated savings are never added.
+
+Tradeoff: six previously visible secondary topics move behind the existing More
+control; initial exact public total waits for demand. All remain accessible in
+the same order through the same reader. Creator-option scanning and SQL growth
+cost are still open; this is a bounded initial topic page, not complete global
+DB-scale closure. Roll back the World change through7274cdca independently.
+
+
+## Hosted World catalog acceptance · real anonymous DB, seven cold samples per arm
+
+Before readonly Preview1f749dbd (Home+image, full catalog), after381e663e
+(Home+image, two-topic catalog). Conditions identical to the hosted table above;
+all14 samples have no errors, REST settled, no overflow. First requests exclude
+telemetry. READY is primary-content readiness, not completion of all extensions.
+
+| Surface | FCP ms (range) | LCP ms (range) | READY ms (range) | First content request ms | Last REST end ms | REST incl.OPTIONS (range) | CLS |
+|---|---|---|---|---|---|---|---|
+| /world | 2024 [1924,2268]→1976 [1936,2084] | 5032 [4864,5440]→4960 [4888,5380] | 4948 [4785,5329]→4887 [4788,5320] | 224→207 | 6986→6721 | 110 [110,110]→96 [96,96] | 0.000080→0.000077 |
+
+**12.73% fewer requests** including OPTIONS, consistently in every sample;
+55→48 actual API reads in the matching replay. READY median delta−61.5ms,
+bootstrap95%[-446.4,80.4]ms, includes0; LCP ranges also overlap. Accept as
+**REQUEST_REDUCTION_ONLY**, not a newly proven time gain. All original ordered24
+items/count still appear after More; six of the previous initial eight are now
+behind demand. Restoring the original Topic return remains an explicit exception.
+No product DB write, proxy/cache/RPC replacement, production deployment or claim
+of physical-device/Israel/INP verification.
+
+## Final combined cold replay · separate from hosted evidence
+
+Matched source0825 baseline (already native image) vs381 final application,
+common header-sensitive public snapshot, seven samples per arm per route,
+World then Post then Home last. Both arms clean, zero misses/errors, matched
+10%+100ms timing allowance, no additional REST reads and CLS≤0.1: PASS.
+This isolates the combined Home+catalog effects, not an aggregate site percentage.
+
+| Surface | FCP ms | LCP ms | READY ms (ranges) | First content request ms | Last REST end ms | API reads | CLS |
+|---|---|---|---|---|---|---|---|
+| /world | 1792→1780 | 4824→4792 | 4843 [4553,4912]→4799 [4554,4916] | 217→214 | 6079→5964 | 55→48 | 0.03144→0.03142 |
+| /post/seventh-to-tenth-sefirot-2027 | 1568→1572 | 3892→3896 | 3612 [3541,3686]→3622 [3550,3692] | 212→213 | 3892→3945 | 6→6 | 0.000077→0.000077 |
+| / | 1576→1564 | 4108→3796 | 3842 [3774,3907]→3549 [3501,3649] | 212→206 | 5753→5389 | 59→59 | 0.02072→0.02072 |
+
+Do not substitute replay timings/reads for live results (OPTIONS appear only in
+hosted counts). Combined Home sends one extra small dynamic JS request133→134,
+while its data requests remain59; boundary changes graph scheduling rather than
+eliminating the public reader. Home time acceptance rests on its separate hosted
+6.31% READY improvement; no addition of image or World savings.
+
+## CI behavior correction and honest failure history
+
+7274 changed an explicit contract: exact public catalog total arrives only after
+demand. 0710 requires exactly2/no initial total, then original24+total, search888,
+clear and overflow. Its first remote run failed because its accessible-role
+locator still used `עוד נושאים בעולם` after the existing button changed its label
+to `הצג פחות נושאים`. 9fe2bb87 follows that label for `aria-expanded=true`;
+no latency/bounds/parity assertion or production reader was changed. The same
+0710 remote navigation/performance replays pass. Remote ELS executable browser
+suite had a separate no-hit Research-probe assertion failure70/71, zero skips;
+its excerpt is preserved. Exact-head later result is reported explicitly in
+PR/AFTER, never buried in the four original date/Home failures.
