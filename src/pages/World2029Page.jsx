@@ -1,11 +1,10 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
-import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -74,6 +73,33 @@ import "./worldComposition2029.css";
 import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
+
+// Connected discovery (#world-discovery-* deep links) is not part of the World opening: its component,
+// method Stage and topic styles load when that view is actually rendered. The opening flight story,
+// sources and connections never wait for it.
+const WorldConnectedDiscoveryView = lazy(() => import('../components/research/WorldSourceStory.jsx'));
+
+// A failed module cannot be re-imported in the same document, so recovery is an explicit,
+// user-initiated reload; the URL hash is kept and the same discovery reopens.
+class WorldDiscoveryLoadBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return <div role="status" data-deferred-state="failed">
+      <p>תצוגת החיבורים לא נטענה כעת. שאר העולם זמין.</p>
+      <button type="button" className="sod29-action" onClick={() => window.location.reload()}>טען מחדש וחזור לאותה תצוגה</button>
+    </div>;
+  }
+}
+
+function WorldConnectedDiscovery(props) {
+  return <WorldDiscoveryLoadBoundary>
+    <Suspense fallback={<p role="status">פותח את המקורות ובודק את החיבורים…</p>}>
+      <WorldConnectedDiscoveryView {...props} />
+    </Suspense>
+  </WorldDiscoveryLoadBoundary>;
+}
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
