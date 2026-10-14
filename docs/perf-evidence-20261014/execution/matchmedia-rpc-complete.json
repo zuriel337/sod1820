@@ -1,0 +1,799 @@
+{
+  "label": "matchmedia-only",
+  "mode": "replay",
+  "runs": 7,
+  "browser": "141.0.7390.37",
+  "playwright": "1.56.1",
+  "dataMode": "anonymous-rpc-complete-replay",
+  "cpu": 4,
+  "rtt": 150,
+  "download": 209715.2,
+  "upload": 96000,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "dpr": 2,
+  "routes": {
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "median": {
+        "fcp": 1780,
+        "lcp": 4132,
+        "ready": 3886.1999999999534,
+        "cls": 0.008488896411838061,
+        "firstPrimaryReq": 3591.4000000001397,
+        "lastRestEnd": 4289.300000000047,
+        "restCount": 7,
+        "reqs": 69,
+        "script": 490.47,
+        "task": 1058.403
+      },
+      "ranges": {
+        "fcp": [
+          1752,
+          1808
+        ],
+        "lcp": [
+          4100,
+          4192
+        ],
+        "ready": [
+          3857,
+          3946.8000000000466
+        ],
+        "cls": [
+          0.008486080030332847,
+          0.008492906837863606
+        ],
+        "firstPrimaryReq": [
+          3573.5999999998603,
+          3653.100000000093
+        ],
+        "lastRestEnd": [
+          4238,
+          4352.800000000047
+        ],
+        "restCount": [
+          7,
+          7
+        ],
+        "reqs": [
+          69,
+          69
+        ],
+        "script": [
+          454.866,
+          515.479
+        ],
+        "task": [
+          937.6949999999999,
+          1127.175
+        ]
+      },
+      "samples": [
+        {
+          "ready": 3946.8000000000466,
+          "lcp": 4192,
+          "cls": 0.008492906837863606,
+          "fcp": 1804,
+          "lastRestEnd": 4352.800000000047,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 509.10599999999994,
+          "task": 1127.175,
+          "firstPrimaryReq": 3653.100000000093,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3653.100000000093,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3654.600000000093,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3970,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 4018,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 4018.6999999999534,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 4020.3000000000466,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4200.5,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        },
+        {
+          "ready": 3886.1999999999534,
+          "lcp": 4136,
+          "cls": 0.008492892495830979,
+          "fcp": 1788,
+          "lastRestEnd": 4304.699999999953,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 473.03299999999996,
+          "task": 1032.5539999999999,
+          "firstPrimaryReq": 3586.0999999998603,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3586.0999999998603,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3586.1999999999534,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3911.899999999907,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 3975,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 3985,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 3988.6999999999534,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4151.899999999907,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        },
+        {
+          "ready": 3936.3000000000466,
+          "lcp": 4176,
+          "cls": 0.008488896411838061,
+          "fcp": 1780,
+          "lastRestEnd": 4270.300000000047,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 510.633,
+          "task": 1106.413,
+          "firstPrimaryReq": 3601.1999999999534,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3601.1999999999534,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3601.3000000000466,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 3770.8000000000466,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 3947.1999999999534,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 3948.399999999907,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3959.899999999907,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4117.100000000093,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        },
+        {
+          "ready": 3892.4000000001397,
+          "lcp": 4128,
+          "cls": 0.00848889500575643,
+          "fcp": 1764,
+          "lastRestEnd": 4292.800000000047,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 472.387,
+          "task": 1044.092,
+          "firstPrimaryReq": 3591.4000000001397,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3591.4000000001397,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3591.5,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3915.5,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 3915.600000000093,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 3975.2000000001863,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 3975.9000000001397,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4140.5,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        },
+        {
+          "ready": 3881.6999999999534,
+          "lcp": 4124,
+          "cls": 0.008486080030332847,
+          "fcp": 1808,
+          "lastRestEnd": 4289.300000000047,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 515.479,
+          "task": 1100.74,
+          "firstPrimaryReq": 3588.8000000000466,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3588.8000000000466,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3588.8000000000466,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3909.6999999999534,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 3943.1999999999534,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 3969.3000000000466,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 3970.600000000093,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4136.300000000047,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        },
+        {
+          "ready": 3883.1999999999534,
+          "lcp": 4132,
+          "cls": 0.008492897838941173,
+          "fcp": 1760,
+          "lastRestEnd": 4285.5,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 490.47,
+          "task": 1058.403,
+          "firstPrimaryReq": 3593.3000000000466,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3593.3000000000466,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3593.399999999907,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3906.100000000093,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 3964.600000000093,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 3964.6999999999534,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 3964.8000000000466,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4133.300000000047,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        },
+        {
+          "ready": 3857,
+          "lcp": 4100,
+          "cls": 0.008488890506295213,
+          "fcp": 1752,
+          "lastRestEnd": 4238,
+          "reqs": 69,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 454.866,
+          "task": 937.6949999999999,
+          "firstPrimaryReq": 3573.5999999998603,
+          "restCount": 7,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 3573.5999999998603,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3574.399999999907,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3884.0999999998603,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 3904.5,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 3915,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v3",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 404,
+              "start": 3915.0999999998603,
+              "primary": false,
+              "bytes": 72,
+              "bodyHash": "1775706c322436cf4385b60f9ddb4a3eb8c091188a770fe808a68211a8d3a60e"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 4086.1999999999534,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "fixturesSha256": "a2629ac2399e960df31f7b82ecffa8060fd26ed6cadb67fd475a9f4a66ff4d18"
+}

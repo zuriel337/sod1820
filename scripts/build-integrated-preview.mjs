@@ -3,6 +3,8 @@ import { build } from "vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
@@ -12,7 +14,7 @@ await build({ root, define: {
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
-const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v3"];
+const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v3", "world_group_source_arrivals_v2", "convergence_meter", "get_category_videos"];
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
 self.addEventListener('install',()=>self.skipWaiting());
@@ -53,6 +55,12 @@ if (!entry) throw new Error("missing2029Entry");
 html = html.replace(entry[0], bootstrap.replace("__ENTRY__", entry[1]));
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
+let commit = process.env.VERCEL_GIT_COMMIT_SHA;
+if (!commit) commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Exact preview source commit required');
+const manifestBytes = await readFile(resolve(output, '.vite/manifest.json'));
+await writeFile(resolve(output, 'preview-build.json'), JSON.stringify({ commit, buildTarget: '2029',
+  readOnly: true, manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') }, null, 2));
 await mkdir(resolve(output, "preview-evidence"), { recursive: true });
 for (const name of ["corrected-answer.png", "fresh-session-next-question.png", "failed-save-reopens-question.png", "fresh-session-completes-pending-save.png"]) {
   await copyFile(resolve(root, "preview-deploy/evidence", name), resolve(output, "preview-evidence", name));

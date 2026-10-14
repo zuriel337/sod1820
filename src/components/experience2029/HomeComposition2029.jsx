@@ -5,8 +5,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
+import { HOME_LATEST_POST_LIMIT_2029 } from "../../lib/postReadQueries2029.js";
 import { stripHtml } from "../../lib/format.js";
-import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
@@ -42,7 +42,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
-    getLatestPostCards({ limit: 16 }).then(async (posts) => {
+    getLatestPostCards({ limit: HOME_LATEST_POST_LIMIT_2029 }).then(async (posts) => {
       if (!live) return;
       const cards = Array.isArray(posts) ? posts : [];
       update({ loading: false, posts: cards });
@@ -62,9 +62,18 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
         categories: rowsBySlug[post.slug]?.categories || post.categories || [],
       })) });
     }).catch(() => update({ loading: false, posts: [] }));
-    if (includeWorld) {
-      fetchExplorerFacetPage("topic", { limit: 4 }).then((result) => update({ notable: result?.cards || [] })).catch(() => {});
-    }
+    return () => { live = false; };
+  }, []);
+  useEffect(() => {
+    if (!includeWorld) return;
+    let live = true;
+    // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it
+    // imports) loads with this same trigger instead of being part of Home's code before the first cards.
+    // Same read, arguments and result; a failed module load stays silent like a failed read (strip hidden).
+    import("../../lib/research/explorerFacets.js")
+      .then(({ fetchExplorerFacetPage }) => fetchExplorerFacetPage("topic", { limit: 4 }))
+      .then((result) => { if (live) setState((current) => ({ ...current, notable: result?.cards || [] })); })
+      .catch(() => {});
     return () => { live = false; };
   }, [includeWorld]);
   return state;

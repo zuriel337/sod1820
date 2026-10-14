@@ -1,0 +1,473 @@
+✔ Home carries the same readable group source occurrence as World before research (1.625749ms)
+✔ Home retains post opening and approved topic slug as distinct destinations (0.756196ms)
+✖ 2029 UI shows record times as relative time, not as calendar dates (14.060029ms)
+✖ relative time stays on Home and World; other surfaces use the Hebrew + Gregorian date (5.035881ms)
+✖ Home 2029 never repeats featured, story, updated or arrived Post identities (2.561911ms)
+✖ Dimension Five is a video-series category, never a writer identity (0.69132ms)
+✔ construction meter is sourced from canonical release map and public pulse reader (0.220265ms)
+✔ newsletter signup uses canonical opt-in endpoint with attribution (0.200766ms)
+✔ 2029 Home presents three research gateways and an independent Dimension Five full-width row (0.833219ms)
+✔ automatic gateway membership comes ONLY from categories, not tags/keywords (0.265923ms)
+✔ Shvilei Safa exposes source-backed highlights in place of a duplicate Post tile (0.191853ms)
+✔ canonical followers cover each configured category and ELS without a second notification engine (0.233795ms)
+✔ Follow is the same canonical WatchButton with shared compact control projection (0.665217ms)
+✔ ELS uses canonical reader, source identity and replay, no duplicate research store (0.414622ms)
+✔ home discovery controls remain compact and accessible (0.185894ms)
+✔ Home placement resolves the same post across numeric ID, sourceRef, slug and href (1.644897ms)
+✔ Dedicated secondary story is never repeated as a Recent card or World arrival (0.288456ms)
+✔ If a category overlaps across cinema and visual series, the same Post appears only once (0.18995ms)
+✔ Encoded and decoded legacy video slug share the same canonical identity (0.161829ms)
+✔ No item may be rendered when remaining budget is zero (0.167857ms)
+✔ preview route is served by the 2029 document with noindex (0.824157ms)
+✔ preview is not linked from existing public surfaces (1.320199ms)
+✔ colors come from the palette owner, not page-local values (0.221306ms)
+✔ reads only through existing readers and never writes (0.354933ms)
+✔ Home V2 uses only shared System Frame semantic color roles (0.868211ms)
+✔ mobile hero has no permanent oversized blank reserve (0.166205ms)
+✔ mobile editorial cards are fully visible and support accessible targets (0.195658ms)
+✔ the Home does not create a theme or change the Number page (0.17604ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 24
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 177.049671
+
+✖ failing tests:
+
+test at test/date-display-rule-2029.test.mjs:40:1
+✖ 2029 UI shows record times as relative time, not as calendar dates (14.060029ms)
+  AssertionError [ERR_ASSERTION]: use relativeTimeLabel (src/lib/relativeTime2029.js) or mark an event date with date-rule-exempt
+  + actual - expected
+  
+  + [
+  +   'src/components/research/SourceRepeatInfo2029.jsx:4'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-execution/test/date-display-rule-2029.test.mjs:51:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'src/components/research/SourceRepeatInfo2029.jsx:4' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/date-display-rule-2029.test.mjs:54:1
+✖ relative time stays on Home and World; other surfaces use the Hebrew + Gregorian date (5.035881ms)
+  AssertionError [ERR_ASSERTION]: outside Home/World use bilingualDateLabel (src/lib/relativeTime2029.js)
+  + actual - expected
+  
+  + [
+  +   'src/components/research/ZviGroupTimeline2029.jsx'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-execution/test/date-display-rule-2029.test.mjs:63:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'src/components/research/ZviGroupTimeline2029.jsx' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/home-build-and-classification-2029.test.mjs:10:1
+✖ Home 2029 never repeats featured, story, updated or arrived Post identities (2.561911ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /getLatestPostCards\(\{ limit: 16 \}\)/. Input:
+  
+  '// Approved Home composition (reference fa0e26f) inside the single System Frame.\n' +
+    '// Presentation over existing public readers: latest posts, cipher posts, home videos and the\n' +
+    '// Home projection. Existing capability components arrive as slots so none is duplicated here.\n' +
+    'import React, { useEffect, useState } from "react";\n' +
+    'import { Link } from "react-router-dom";\n' +
+    'import NavigationIcon2029 from "./NavigationIcon2029.jsx";\n' +
+    'import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";\n' +
+    'import { HOME_LATEST_POST_LIMIT_2029 } from "../../lib/postReadQueries2029.js";\n' +
+    'import { stripHtml } from "../../lib/format.js";\n' +
+    'import { levelNumbers } from "../../lib/ratings2029.js";\n' +
+    'import { relativeTimeLabel } from "../../lib/relativeTime2029.js";\n' +
+    'import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";\n' +
+    'import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";\n' +
+    'import { useReveal } from "./useReveal2029.js";\n' +
+    'import { realUpdate } from "../../lib/heroUpdate2029.js";\n' +
+    'import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";\n' +
+    'import PostCategories2029 from "./PostCategories2029.jsx";\n' +
+    'import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";\n' +
+    'import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";\n' +
+    'import { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";\n' +
+    'import "./homeMotion2029.css";\n' +
+    'import "./homeComposition2029.css";\n' +
+    '\n' +
+    'const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();\n' +
+    '\n' +
+    '\n' +
+    'function postHref(slugOrPath) {\n' +
+    '  const slug = String(slugOrPath || "").replace(/^\\/+/, "");\n' +
+    '  return slug ? `/post/${slug}` : "/posts";\n' +
+    '}\n' +
+    '\n' +
+    'function titleNumber(title, tags) {\n' +
+    '  const digits = clean(title).replace(/,/g, "");\n' +
+    '  for (const tag of Array.isArray(tags) ? tags : []) {\n' +
+    '    if (/^\\d{2,5}$/.test(String(tag)) && new RegExp(`(^|\\\\D)${tag}(\\\\D|$)`).test(digits)) return Number(tag);\n' +
+    '  }\n' +
+    '  return null;\n' +
+    '}\n' +
+    '\n' +
+    'function useHomeCompositionData({ includeWorld = true } = {}) {\n' +
+    '  const [state, setState] = useState({ loading: true, posts: [], notable: [] });\n' +
+    '  useEffect(() => {\n' +
+    '    let live = true;\n' +
+    '    const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };\n' +
+    '    getLatestPostCards({ limit: HOME_LATEST_POST_LIMIT_2029 }).then(async (posts) => {\n' +
+    '      if (!live) return;\n' +
+    '      const cards = Array.isArray(posts) ? posts : [];\n' +
+    '      update({ loading: false, posts: cards });\n' +
+    '      // Enrichment must not hold back the latest post and its hero.\n' +
+    '      const slugs = cards.map((post) => post.slug).filter(Boolean);\n' +
+    '      let rowsBySlug = {};\n' +
+    '      try {\n' +
+    '        if (supabase && slugs.length) {\n' +
+    '          const { data: rows } = await supabase.from("posts").select("id,slug,date,modified,categories,source,tags,home_hidden").in("slug", slugs);\n' +
+    '          rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));\n' +
+    '        }\n' +
+    '      } catch (_) { /* the cards simply show no mark */ }\n' +
+    '      update({ posts: cards.map((post) => ({\n' +
+    '        ...post,\n' +
+    '        number: titleNumber(post.title, rowsBySlug[post.slug]?.tags),\n' +
+    '        update: realUpdate(rowsBySlug[post.slug]),\n' +
+    '        categories: rowsBySlug[post.slug]?.categories || post.categories || [],\n' +
+    '      })) });\n' +
+    '    }).catch(() => update({ loading: false, posts: [] }));\n' +
+    '    return () => { live = false; };\n' +
+    '  }, []);\n' +
+    '  useEffect(() => {\n' +
+    '    if (!includeWorld) return;\n' +
+    '    let live = true;\n' +
+    '    // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it\n' +
+    "    // imports) loads with this same trigger instead of being part of Home's code before the first cards.\n" +
+    '    // Same read, arguments and result; a failed module load stays silent like a failed read (strip hidden).\n' +
+    '    import("../../lib/research/explorerFacets.js")\n' +
+    '      .then(({ fetchExplorerFacetPage }) => fetchExplorerFacetPage("topic", { limit: 4 }))\n' +
+    '      .then((result) => { if (live) setState((current) => ({ ...current, notable: result?.cards || [] })); })\n' +
+    '      .catch(() => {});\n' +
+    '    return () => { live = false; };\n' +
+    '  }, [includeWorld]);\n' +
+    '  return state;\n' +
+    '}\n' +
+    '\n' +
+    'function Media({ src, fallback, className = "" }) {\n' +
+    '  return src\n' +
+    '    ? <img className={`h29-media ${className}`} src={src} alt="" loading="lazy" />\n' +
+    '    : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;\n' +
+    '}\n' +
+    '\n' +
+    'function Reveal({ id, children }) {\n' +
+    '  const [ref, reveal] = useReveal(`home:${id}`);\n' +
+    '  return <div ref={ref} data-reveal={reveal} className="k29-reveal k29-rv-self">{children}</div>;\n' +
+    '}\n' +
+    '\n' +
+    'function Section({ title, link, label, children, className = "" }) {\n' +
+    '  const [ref, reveal] = useReveal(`home:${label || title}`);\n' +
+    '  return <section ref={ref} data-reveal={reveal} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>\n' +
+    '    {title ? <div className="h29-sec-h"><h2>{title}</h2>{link}</div> : null}\n' +
+    '    {children}\n' +
+    '  </section>;\n' +
+    '}\n' +
+    '\n' +
+    'export default function HomeComposition2029({\n' +
+    '  projection, loading, nowHero, story, arrivals, calculator, entry, continuity, pulsePanel,\n' +
+    '  selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,\n' +
+    '}) {\n' +
+    '  const data = useHomeCompositionData({ includeWorld: worldOpen });\n' +
+    '  const now = projection?.temporalNow || null;\n' +
+    '  const people = projection?.worldPreview?.people || [];\n' +
+    '  const pulse = projection?.systemPulse || null;\n' +
+    '  const lead = data.posts[0] || null;\n' +
+    '  const heroPostSlug = nowHero ? null : lead?.slug;\n' +
+    '  const showFixedStory = Boolean(story) && heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";\n' +
+    '\n' +
+    '  // Display priority, shared across all Home blocks: Hero > dedicated story > updates\n' +
+    '  // > source arrivals > discovery gateways. Same Post = one representation on Home.\n' +
+    '  let reserved = new Set();\n' +
+    '  if (heroPostSlug) reserved = reserveHomePost(reserved, lead);\n' +
+    '  if (showFixedStory) reserved = reserveHomePost(reserved, { slug: "flydubai-fz1073-363-14000-remzei-geula" });\n' +
+    '  const latestPlacement = claimHomeItems(data.posts, reserved, 4);\n' +
+    '  const visiblePosts = latestPlacement.items;\n' +
+    '  const sourceRows = projection?.worldPreview?.arrivals || projection?.worldPreview?.items || [];\n' +
+    '  const sourcePlacement = claimHomeItems(sourceRows.filter(item => item.kind === "source"), latestPlacement.reserved, 4);\n' +
+    '  const homeArrivals = sourcePlacement.items;\n' +
+    '  const reservedPostKeys = [...sourcePlacement.reserved];\n' +
+    '  const [seen, setSeen] = useState(readSeen);\n' +
+    '  const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));\n' +
+    '\n' +
+    '  return <div className="h29" data-experience-capability="home-composition">\n' +
+    '    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}\n' +
+    '\n' +
+    '    {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">\n' +
+    '      <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>\n' +
+    '      <span>כבר עכשיו אפשר לקרוא פוסטים{worldOpen ? ", לגלות את העולם" : ""}, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט.</span>\n' +
+    '    </section> : null}\n' +
+    '\n' +
+    '    <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>\n' +
+    '      <div className="h29-updates">\n' +
+    '        {visiblePosts.map((post, index) => {\n' +
+    '          const unseen = Boolean(post.update) && !seen[post.update.key];\n' +
+    '          // One pulse at a time, only among visible updates (never the featured Hero).\n' +
+    '          const pulses = unseen && index === visiblePosts.findIndex(item => item.update && !seen[item.update.key]);\n' +
+    '          return <article key={post.slug} style={{ "--i": index }} className={`h29-card k29-rv${selectedSlug === post.slug ? " is-selected" : ""}${pulses ? " is-pulse" : ""}`}>\n' +
+    '            <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>\n' +
+    '              <Media src={post.poster} fallback={post.number || "✦"} />\n' +
+    '              <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{relativeTimeLabel(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>\n' +
+    '                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)} · {post.update.label}</span> : null}</span>\n' +
+    '            </button>\n' +
+    '            <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />\n' +
+    '            <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>\n' +
+    '          </article>;\n' +
+    '        })}\n' +
+    '        {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}\n' +
+    '        {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}\n' +
+    '      </div>\n' +
+    '    </Section>\n' +
+    '\n' +
+    '    {worldOpen && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>\n' +
+    '      <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>\n' +
+    '      <div className="h29-notable">\n' +
+    '        {data.notable.map((card, index) => {\n' +
+    '          const fresh = recentConvergence(card.approvedAt);\n' +
+    '          const freshKey = `topic:${card.id}:approved:${card.approvedAt}`;\n' +
+    '          const unseen = fresh && !seen[freshKey];\n' +
+    '          return <article className={`h29-notable-card k29-rv${unseen ? " is-pulse" : ""}`} style={{ "--i": index }} key={card.id}>\n' +
+    '          <Link className="h29-notable-main" to={card.href} onClick={() => { if (unseen) see(freshKey); }}>\n' +
+    '            <span className="h29-card-t">{clean(card.label)}</span>\n' +
+    '            {card.n'... 3813 more characters
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-execution/test/home-build-and-classification-2029.test.mjs:11:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '// Approved Home composition (reference fa0e26f) inside the single System Frame.\n// Presentation over existing public readers: latest posts, cipher posts, home videos and the\n// Home projection. Existing capability components arrive as slots so none is duplicated here.\nimport React, { useEffect, useState } from "react";\nimport { Link } from "react-router-dom";\nimport NavigationIcon2029 from "./NavigationIcon2029.jsx";\nimport { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";\nimport { HOME_LATEST_POST_LIMIT_2029 } from "../../lib/postReadQueries2029.js";\nimport { stripHtml } from "../../lib/format.js";\nimport { levelNumbers } from "../../lib/ratings2029.js";\nimport { relativeTimeLabel } from "../../lib/relativeTime2029.js";\nimport ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";\nimport HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";\nimport { useReveal } from "./useReveal2029.js";\nimport { realUpdate } from "../../lib/heroUpdate2029.js";\nimport { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";\nimport PostCategories2029 from "./PostCategories2029.jsx";\nimport DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";\nimport HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";\nimport { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";\nimport "./homeMotion2029.css";\nimport "./homeComposition2029.css";\n\nconst clean = (value) => stripHtml(value == null ? "" : String(value)).trim();\n\n\nfunction postHref(slugOrPath) {\n  const slug = String(slugOrPath || "").replace(/^\\/+/, "");\n  return slug ? `/post/${slug}` : "/posts";\n}\n\nfunction titleNumber(title, tags) {\n  const digits = clean(title).replace(/,/g, "");\n  for (const tag of Array.isArray(tags) ? tags : []) {\n    if (/^\\d{2,5}$/.test(String(tag)) && new RegExp(`(^|\\\\D)${tag}(\\\\D|$)`).test(digits)) return Number(tag);\n  }\n  return null;\n}\n\nfunction useHomeCompositionData({ includeWorld = true } = {}) {\n  const [state, setState] = useState({ loading: true, posts: [], notable: [] });\n  useEffect(() => {\n    let live = true;\n    const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };\n    getLatestPostCards({ limit: HOME_LATEST_POST_LIMIT_2029 }).then(async (posts) => {\n      if (!live) return;\n      const cards = Array.isArray(posts) ? posts : [];\n      update({ loading: false, posts: cards });\n      // Enrichment must not hold back the latest post and its hero.\n      const slugs = cards.map((post) => post.slug).filter(Boolean);\n      let rowsBySlug = {};\n      try {\n        if (supabase && slugs.length) {\n          const { data: rows } = await supabase.from("posts").select("id,slug,date,modified,categories,source,tags,home_hidden").in("slug", slugs);\n          rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));\n        }\n      } catch (_) { /* the cards simply show no mark */ }\n      update({ posts: cards.map((post) => ({\n        ...post,\n        number: titleNumber(post.title, rowsBySlug[post.slug]?.tags),\n        update: realUpdate(rowsBySlug[post.slug]),\n        categories: rowsBySlug[post.slug]?.categories || post.categories || [],\n      })) });\n    }).catch(() => update({ loading: false, posts: [] }));\n    return () => { live = false; };\n  }, []);\n  useEffect(() => {\n    if (!includeWorld) return;\n    let live = true;\n    // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it\n    // imports) loads with this same trigger instead of being part of Home\'s code before the first cards.\n    // Same read, arguments and result; a failed module load stays silent like a failed read (strip hidden).\n    import("../../lib/research/explorerFacets.js")\n      .then(({ fetchExplorerFacetPage }) => fetchExplorerFacetPage("topic", { limit: 4 }))\n      .then((result) => { if (live) setState((current) => ({ ...current, notable: result?.cards || [] })); })\n      .catch(() => {});\n    return () => { live = false; };\n  }, [includeWorld]);\n  return state;\n}\n\nfunction Media({ src, fallback, className = "" }) {\n  return src\n    ? <img className={`h29-media ${className}`} src={src} alt="" loading="lazy" />\n    : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;\n}\n\nfunction Reveal({ id, children }) {\n  const [ref, reveal] = useReveal(`home:${id}`);\n  return <div ref={ref} data-reveal={reveal} className="k29-reveal k29-rv-self">{children}</div>;\n}\n\nfunction Section({ title, link, label, children, className = "" }) {\n  const [ref, reveal] = useReveal(`home:${label || title}`);\n  return <section ref={ref} data-reveal={reveal} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>\n    {title ? <div className="h29-sec-h"><h2>{title}</h2>{link}</div> : null}\n    {children}\n  </section>;\n}\n\nexport default function HomeComposition2029({\n  projection, loading, nowHero, story, arrivals, calculator, entry, continuity, pulsePanel,\n  selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,\n}) {\n  const data = useHomeCompositionData({ includeWorld: worldOpen });\n  const now = projection?.temporalNow || null;\n  const people = projection?.worldPreview?.people || [];\n  const pulse = projection?.systemPulse || null;\n  const lead = data.posts[0] || null;\n  const heroPostSlug = nowHero ? null : lead?.slug;\n  const showFixedStory = Boolean(story) && heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";\n\n  // Display priority, shared across all Home blocks: Hero > dedicated story > updates\n  // > source arrivals > discovery gateways. Same Post = one representation on Home.\n  let reserved = new Set();\n  if (heroPostSlug) reserved = reserveHomePost(reserved, lead);\n  if (showFixedStory) reserved = reserveHomePost(reserved, { slug: "flydubai-fz1073-363-14000-remzei-geula" });\n  const latestPlacement = claimHomeItems(data.posts, reserved, 4);\n  const visiblePosts = latestPlacement.items;\n  const sourceRows = projection?.worldPreview?.arrivals || projection?.worldPreview?.items || [];\n  const sourcePlacement = claimHomeItems(sourceRows.filter(item => item.kind === "source"), latestPlacement.reserved, 4);\n  const homeArrivals = sourcePlacement.items;\n  const reservedPostKeys = [...sourcePlacement.reserved];\n  const [seen, setSeen] = useState(readSeen);\n  const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));\n\n  return <div className="h29" data-experience-capability="home-composition">\n    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}\n\n    {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">\n      <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>\n      <span>כבר עכשיו אפשר לקרוא פוסטים{worldOpen ? ", לגלות את העולם" : ""}, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט.</span>\n    </section> : null}\n\n    <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>\n      <div className="h29-updates">\n        {visiblePosts.map((post, index) => {\n          const unseen = Boolean(post.update) && !seen[post.update.key];\n          // One pulse at a time, only among visible updates (never the featured Hero).\n          const pulses = unseen && index === visiblePosts.findIndex(item => item.update && !seen[item.update.key]);\n          return <article key={post.slug} style={{ "--i": index }} className={`h29-card k29-rv${selectedSlug === post.slug ? " is-selected" : ""}${pulses ? " is-pulse" : ""}`}>\n            <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>\n              <Media src={post.poster} fallback={post.number || "✦"} />\n              <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{relativeTimeLabel(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>\n                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)} · {post.update.label}</span> : null}</span>\n            </button>\n            <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />\n            <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>\n          </article>;\n        })}\n        {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}\n        {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}\n      </div>\n    </Section>\n\n    {worldOpen && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>\n      <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>\n      <div className="h29-notable">\n        {data.notable.map((card, index) => {\n          const fresh = recentConvergence(card.approvedAt);\n          const freshKey = `topic:${card.id}:approved:${card.approvedAt}`;\n          const unseen = fresh && !seen[freshKey];\n          return <article className={`h29-notable-card k29-rv${unseen ? " is-pulse" : ""}`} style={{ "--i": index }} key={card.id}>\n          <Link className="h29-notable-main" to={card.href} onClick={() => { if (unseen) see(freshKey); }}>\n            <span className="h29-card-t">{clean(card.label)}</span>\n            {card.n'... 3813 more characters,
+    expected: /getLatestPostCards\(\{ limit: 16 \}\)/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/home-build-and-classification-2029.test.mjs:21:1
+✖ Dimension Five is a video-series category, never a writer identity (0.69132ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /getPostsFromSupabase\(\{ category: "מימד חמש"/. Input:
+  
+  '// Three discovery gateways plus a separate Dimension Five row over existing public readers.\n' +
+    '// Language research is an existing legacy deep-link until its 2029 projection is ready.\n' +
+    'import React, { useEffect, useState } from "react";\n' +
+    'import { Link } from "react-router-dom";\n' +
+    'import { getCategoryVideos } from "../../lib/supabase.js";\n' +
+    'import { fetchHomePostCards2029 } from "../../lib/research/homePostCards2029.js";\n' +
+    'import { claimHomeItems } from "../../lib/research/homePlacement2029.js";\n' +
+    'import WatchButton from "../WatchButton.jsx";\n' +
+    'import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";\n' +
+    'import { savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";\n' +
+    'import { stripHtml } from "../../lib/format.js";\n' +
+    'import "./discoveryGateways2029.css";\n' +
+    '\n' +
+    'const clean = value => stripHtml(String(value || "")).trim();\n' +
+    '\n' +
+    'const postHref = slug => {\n' +
+    '  if (!slug) return "/posts";\n' +
+    '  let decoded = String(slug);\n' +
+    '  try { decoded = decodeURIComponent(decoded); } catch { /* preserve original */ }\n' +
+    '  return `/post/${encodeURIComponent(decoded)}`;\n' +
+    '};\n' +
+    '\n' +
+    '// Presentation only: these four published relationships are shown solely while they\n' +
+    '// remain supported by the original, category-admitted Post 5018. No duplicate Post.\n' +
+    'function languagePostHighlights(post) {\n' +
+    '  if (!post || post.id !== "post:5018" || post.slug !== "chibur-bein-hasafot-mafteach-lagan") return [];\n' +
+    '  const sourceText = `${clean(post.content)} ${clean(post.excerpt)}`.replace(/\\s+/g, " ");\n' +
+    '  return [\n' +
+    '    { value: "26", expression: "God ↔ יהוה", exists: /God\\s*=\\s*26/i.test(sourceText) && /יהוה\\s*=\\s*26/.test(sourceText) },\n' +
+    '    { value: "86", expression: "Bereshit ↔ אלהים", exists: /Bereshit\\s*=\\s*86/i.test(sourceText) && /אלהים\\s*=\\s*86/.test(sourceText) },\n' +
+    '    { value: "611", expression: "מפתח לגן ↔ תורה", exists: /מפתח לגן\\s*=\\s*611/.test(sourceText) && /611\\s*=\\s*תורה/.test(sourceText) },\n' +
+    '    { value: "1820", expression: "70 × 26", exists: /70\\s*[×x]\\s*26\\s*=\\s*1820/i.test(sourceText) },\n' +
+    '  ].filter(item => item.exists);\n' +
+    '}\n' +
+    '\n' +
+    'function LanguagePostPreview({ post, highlights }) {\n' +
+    '  if (!post || !highlights.length) return null;\n' +
+    '  return <Link to={post.href} className="dg29-language-preview"\n' +
+    '    aria-label="לקריאת שבילי שפה — מפתח לגן, עם דוגמאות מספריות מתוך המחקר">\n' +
+    '    <span className="dg29-language-kicker">מתוך הפוסט · מפתח לגן</span>\n' +
+    '    <strong>איך שפות שונות נפגשות במספרים?</strong>\n' +
+    '    <span className="dg29-language-metrics">\n' +
+    '      {highlights.map(({ value, expression }) => <span className="dg29-language-metric" key={value}>\n' +
+    '        <b>{value}</b><span>{expression}</span>\n' +
+    '      </span>)}\n' +
+    '    </span>\n' +
+    '    <span className="dg29-language-evidence">שיטות חישוב שונות · קשרים מספריים המוצגים כרמזים</span>\n' +
+    '    <span className="dg29-language-open">למחקר המלא ולמקורות ←</span>\n' +
+    '  </Link>;\n' +
+    '}\n' +
+    '\n' +
+    'function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [] }) {\n' +
+    '  const followControl = ({ category, topic, title: followTitle }) => <WatchButton\n' +
+    '    key={topic || category} topic={topic || `cat:${category}`}\n' +
+    '    source="home_2029_discovery" noPush variant="icon"\n' +
+    '    label={followTitle || `עקבו אחרי ${category}`} explainer="" />;\n' +
+    '  return <article className="dg29-gateway">\n' +
+    '    <div className="dg29-gateway-head">\n' +
+    '      <span className="dg29-glyph" aria-hidden="true">{symbol}</span>\n' +
+    '      <div className="dg29-heading"><h3>{title}</h3><p>{subtitle}</p></div>\n' +
+    '      {followTopics.length ? <div className="dg29-head-follow" aria-label={`מעקב אחרי ${title}`}>\n' +
+    '        {followTopics.slice(0, 1).map(followControl)}\n' +
+    '      </div> : null}\n' +
+    '    </div>\n' +
+    '    <div className="dg29-sources">\n' +
+    '      {feature}\n' +
+    '      {items.map(item => <Link to={item.href} key={item.id} className="dg29-source">\n' +
+    '        <span>{item.title}</span>\n' +
+    '        {item.detail ? <small>{item.detail}</small> : null}\n' +
+    '      </Link>)}\n' +
+    '      {!loading && items.length === 0 && !feature ? <p className="dg29-empty">{empty}</p> : null}\n' +
+    '      {loading && items.length === 0 && !feature ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}\n' +
+    '    </div>\n' +
+    '    <Link className="dg29-gateway-action" to={href}>{action} ←</Link>\n' +
+    '    {secondaryHref ? <div className="dg29-secondary-row">\n' +
+    '      <Link className="dg29-gateway-secondary" to={secondaryHref}>{secondaryAction} ←</Link>\n' +
+    '      {followTopics.slice(1).map(followControl)}\n' +
+    '    </div> : null}\n' +
+    '  </article>;\n' +
+    '}\n' +
+    '\n' +
+    'function DimensionFiveFeature({ items, loading }) {\n' +
+    '  return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">\n' +
+    '    <div className="dg29-dimension-head">\n' +
+    '      <span className="dg29-glyph" aria-hidden="true">🎥</span>\n' +
+    '      <div>\n' +
+    '        <h3>מימד חמש</h3>\n' +
+    '        <p>סרטים ומסרים — רצועה עצמאית מתוך הקטגוריה</p>\n' +
+    '      </div>\n' +
+    '      <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"\n' +
+    '        noPush variant="icon" label="עקבו אחרי מימד חמש" explainer="" />\n' +
+    '    </div>\n' +
+    '    <div className="dg29-dimension-sources">\n' +
+    '      {items.map(item => <Link key={item.id} className="dg29-dimension-source" to={item.href}>\n' +
+    '        <span className="dg29-dimension-poster" aria-hidden="true">\n' +
+    '          {item.poster ? <img src={item.poster} alt="" loading="lazy" decoding="async" width="100" height="72" /> : "✦"}\n' +
+    '        </span>\n' +
+    '        <span>{item.title}</span>\n' +
+    '      </Link>)}\n' +
+    '      {loading && !items.length ? <p role="status" className="dg29-empty">טוען את הסרטים והמסרים…</p> : null}\n' +
+    '      {!loading && !items.length ? <p className="dg29-empty">כל התכנים זמינים בקטגוריה; אין פריט נוסף להצגה כאן ללא כפילות.</p> : null}\n' +
+    '    </div>\n' +
+    '    <div className="dg29-dimension-foot">\n' +
+    '      <Link className="dg29-gateway-action" to="/category/מימד חמש">לכל תכני מימד חמש ←</Link>\n' +
+    '    </div>\n' +
+    '  </section>;\n' +
+    '}\n' +
+    '\n' +
+    'export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {\n' +
+    '  const [state, setState] = useState({ loading: true, language: [], cinema: [], videos: [], dimension: [], matrices: [] });\n' +
+    '  useEffect(() => {\n' +
+    '    let active = true;\n' +
+    '    // Categories are the ONLY automatic admission rule. Do not derive a gateway\n' +
+    '    // from tags, title keywords, a shared word or video metadata.\n' +
+    '    Promise.allSettled([\n' +
+    '      fetchHomePostCards2029({ category: "שבילי שפה", limit: 24 }),\n' +
+    '      fetchHomePostCards2029({ category: "הצופן בסרטים", limit: 30 }),\n' +
+    '      getCategoryVideos("צפונות בתורה", { limit: 80 }),\n' +
+    '      fetchHomePostCards2029({ category: "מימד חמש", limit: 60 }),\n' +
+    '      getMatrixLibraryPage({ view: "public", pageSize: 4 }),\n' +
+    '    ]).then(([language, cinema, videos, dimension, matrices]) => {\n' +
+    '      if (!active) return;\n' +
+    '      const value = (result, fallback) => result.status === "fulfilled" ? result.value : fallback;\n' +
+    '      const languagePosts = (value(language, { posts: [] }).posts || [])\n' +
+    '        .filter(post => post?.slug && post.home_hidden !== true);\n' +
+    '      const cinemaPosts = (value(cinema, { posts: [] }).posts || [])\n' +
+    '        .filter(post => post?.slug && post.home_hidden !== true);\n' +
+    '      const cipherVideos = (value(videos, []) || [])\n' +
+    '        .filter(video => video?.slug && (video.video_url || video.yt));\n' +
+    '      const dimensionPosts = (value(dimension, { posts: [] }).posts || [])\n' +
+    '        .filter(post => post?.slug && post.home_hidden !== true\n' +
+    '          && !(post.categories || []).includes("הצופן בסרטים"));\n' +
+    '      const publicMatrices = (value(matrices, { rows: [] })?.rows || [])\n' +
+    '        .filter(row => row?.slug || row?.id).slice(0, 3);\n' +
+    '      setState({\n' +
+    '        loading: false,\n' +
+    '        language: languagePosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,\n' +
+    '          title: clean(post.title), href: postHref(post.slug),\n' +
+    '          content: post.content || "", excerpt: post.excerpt || "" })),\n' +
+    '        cinema: cinemaPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,\n' +
+    '          title: clean(post.title), href: postHref(post.slug) })),\n' +
+    '        videos: cipherVideos.map(video => ({ id: `video:${video.slug}`, slug: video.slug,\n' +
+    '          title: clean(video.title), href: postHref(video.slug) })),\n' +
+    '        dimension: dimensionPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,\n' +
+    '          title: clean(post.title), href: postHref(post.slug), poster: post.thumb_url || null })),\n' +
+    '        matrices: publicMatrices.map(row => ({\n' +
+    '          id: `els:${row.id || row.slug}`,\n' +
+    '          title: clean(row.title || row.search_term),\n' +
+    '          detail: Number.isInteger(row.skip_distance) ? `דילוג ${Math.abs(row.skip_distance)}` : null,\n' +
+    '          href: savedMatrixWorkspaceHref(row),\n' +
+    '        })),\n' +
+    '      });\n' +
+    '    });\n' +
+    '    return () => { active = false; };\n' +
+    '  }, []);\n' +
+    '\n' +
+    '  const language = claimHomeItems(state.language, excludedPostKeys, 2);\n' +
+    '  const languagePost = language.items.find(post => post.id === "post:5018") || null;\n' +
+    '  const languageHighlights = languagePostHighlights(languagePost);\n' +
+    '  // The featured excerpt replaces the ordinary Post link: one Home tile per Post.\n' +
+    '  const languageFeature = languageHighlights.length\n' +
+    '    ? <LanguagePostPreview post={languagePost} highlights={languageHighlights} /> : null;\n' +
+    '  const languageLinks = languageFeature\n' +
+    '    ? language.items.filter(item => item !== languagePost) : language.items;\n' +
+    '  const cinema = claimHomeItems(state.cinema, language.reserved, 3);\n' +
+    '  const videos = claimHomeItems(state.videos, cinema.reserved, 2);\n' +
+    '  const dimension = claimHomeItems(state.dimension, videos.reserved, 4);\n' +
+    '  // ELS records are distinct research sources, not extra Post copies.\n' +
+    '  const biblicalSources = [\n' +
+    '    ...videos.items.slice(0, 2).map(item => ({ ...item, detail: "סרטון מתוך צפונות בתורה" })),\n' +
+    '    ...state.matrices.slice(0, 2).map(item => ({\n' +
+    '      ...item, detail: item.detail ? `צופן ELS · ${item.detail}` : "צופן ELS שמור",\n' +
+    '    })),\n' +
+    '  ];\n' +
+    '\n' +
+    '  return <section className="dg29" aria-label="שערי הגילוי">\n' +
+    '    <div className="h29-sec-h">\n' +
+    '      <h2>שערי הגילוי</h2>\n' +
+    '      <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>\n' +
+    '    </div>\n' +
+    '    <div className="dg29-grid">\n' +
+    '      <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"\n' +
+    '    '... 1126 more characters
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-execution/test/home-build-and-classification-2029.test.mjs:23:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '// Three discovery gateways plus a separate Dimension Five row over existing public readers.\n// Language research is an existing legacy deep-link until its 2029 projection is ready.\nimport React, { useEffect, useState } from "react";\nimport { Link } from "react-router-dom";\nimport { getCategoryVideos } from "../../lib/supabase.js";\nimport { fetchHomePostCards2029 } from "../../lib/research/homePostCards2029.js";\nimport { claimHomeItems } from "../../lib/research/homePlacement2029.js";\nimport WatchButton from "../WatchButton.jsx";\nimport { getMatrixLibraryPage } from "../../lib/elsMatrices.js";\nimport { savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";\nimport { stripHtml } from "../../lib/format.js";\nimport "./discoveryGateways2029.css";\n\nconst clean = value => stripHtml(String(value || "")).trim();\n\nconst postHref = slug => {\n  if (!slug) return "/posts";\n  let decoded = String(slug);\n  try { decoded = decodeURIComponent(decoded); } catch { /* preserve original */ }\n  return `/post/${encodeURIComponent(decoded)}`;\n};\n\n// Presentation only: these four published relationships are shown solely while they\n// remain supported by the original, category-admitted Post 5018. No duplicate Post.\nfunction languagePostHighlights(post) {\n  if (!post || post.id !== "post:5018" || post.slug !== "chibur-bein-hasafot-mafteach-lagan") return [];\n  const sourceText = `${clean(post.content)} ${clean(post.excerpt)}`.replace(/\\s+/g, " ");\n  return [\n    { value: "26", expression: "God ↔ יהוה", exists: /God\\s*=\\s*26/i.test(sourceText) && /יהוה\\s*=\\s*26/.test(sourceText) },\n    { value: "86", expression: "Bereshit ↔ אלהים", exists: /Bereshit\\s*=\\s*86/i.test(sourceText) && /אלהים\\s*=\\s*86/.test(sourceText) },\n    { value: "611", expression: "מפתח לגן ↔ תורה", exists: /מפתח לגן\\s*=\\s*611/.test(sourceText) && /611\\s*=\\s*תורה/.test(sourceText) },\n    { value: "1820", expression: "70 × 26", exists: /70\\s*[×x]\\s*26\\s*=\\s*1820/i.test(sourceText) },\n  ].filter(item => item.exists);\n}\n\nfunction LanguagePostPreview({ post, highlights }) {\n  if (!post || !highlights.length) return null;\n  return <Link to={post.href} className="dg29-language-preview"\n    aria-label="לקריאת שבילי שפה — מפתח לגן, עם דוגמאות מספריות מתוך המחקר">\n    <span className="dg29-language-kicker">מתוך הפוסט · מפתח לגן</span>\n    <strong>איך שפות שונות נפגשות במספרים?</strong>\n    <span className="dg29-language-metrics">\n      {highlights.map(({ value, expression }) => <span className="dg29-language-metric" key={value}>\n        <b>{value}</b><span>{expression}</span>\n      </span>)}\n    </span>\n    <span className="dg29-language-evidence">שיטות חישוב שונות · קשרים מספריים המוצגים כרמזים</span>\n    <span className="dg29-language-open">למחקר המלא ולמקורות ←</span>\n  </Link>;\n}\n\nfunction Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [] }) {\n  const followControl = ({ category, topic, title: followTitle }) => <WatchButton\n    key={topic || category} topic={topic || `cat:${category}`}\n    source="home_2029_discovery" noPush variant="icon"\n    label={followTitle || `עקבו אחרי ${category}`} explainer="" />;\n  return <article className="dg29-gateway">\n    <div className="dg29-gateway-head">\n      <span className="dg29-glyph" aria-hidden="true">{symbol}</span>\n      <div className="dg29-heading"><h3>{title}</h3><p>{subtitle}</p></div>\n      {followTopics.length ? <div className="dg29-head-follow" aria-label={`מעקב אחרי ${title}`}>\n        {followTopics.slice(0, 1).map(followControl)}\n      </div> : null}\n    </div>\n    <div className="dg29-sources">\n      {feature}\n      {items.map(item => <Link to={item.href} key={item.id} className="dg29-source">\n        <span>{item.title}</span>\n        {item.detail ? <small>{item.detail}</small> : null}\n      </Link>)}\n      {!loading && items.length === 0 && !feature ? <p className="dg29-empty">{empty}</p> : null}\n      {loading && items.length === 0 && !feature ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}\n    </div>\n    <Link className="dg29-gateway-action" to={href}>{action} ←</Link>\n    {secondaryHref ? <div className="dg29-secondary-row">\n      <Link className="dg29-gateway-secondary" to={secondaryHref}>{secondaryAction} ←</Link>\n      {followTopics.slice(1).map(followControl)}\n    </div> : null}\n  </article>;\n}\n\nfunction DimensionFiveFeature({ items, loading }) {\n  return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">\n    <div className="dg29-dimension-head">\n      <span className="dg29-glyph" aria-hidden="true">🎥</span>\n      <div>\n        <h3>מימד חמש</h3>\n        <p>סרטים ומסרים — רצועה עצמאית מתוך הקטגוריה</p>\n      </div>\n      <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"\n        noPush variant="icon" label="עקבו אחרי מימד חמש" explainer="" />\n    </div>\n    <div className="dg29-dimension-sources">\n      {items.map(item => <Link key={item.id} className="dg29-dimension-source" to={item.href}>\n        <span className="dg29-dimension-poster" aria-hidden="true">\n          {item.poster ? <img src={item.poster} alt="" loading="lazy" decoding="async" width="100" height="72" /> : "✦"}\n        </span>\n        <span>{item.title}</span>\n      </Link>)}\n      {loading && !items.length ? <p role="status" className="dg29-empty">טוען את הסרטים והמסרים…</p> : null}\n      {!loading && !items.length ? <p className="dg29-empty">כל התכנים זמינים בקטגוריה; אין פריט נוסף להצגה כאן ללא כפילות.</p> : null}\n    </div>\n    <div className="dg29-dimension-foot">\n      <Link className="dg29-gateway-action" to="/category/מימד חמש">לכל תכני מימד חמש ←</Link>\n    </div>\n  </section>;\n}\n\nexport default function DiscoveryGateways2029({ excludedPostKeys = [] }) {\n  const [state, setState] = useState({ loading: true, language: [], cinema: [], videos: [], dimension: [], matrices: [] });\n  useEffect(() => {\n    let active = true;\n    // Categories are the ONLY automatic admission rule. Do not derive a gateway\n    // from tags, title keywords, a shared word or video metadata.\n    Promise.allSettled([\n      fetchHomePostCards2029({ category: "שבילי שפה", limit: 24 }),\n      fetchHomePostCards2029({ category: "הצופן בסרטים", limit: 30 }),\n      getCategoryVideos("צפונות בתורה", { limit: 80 }),\n      fetchHomePostCards2029({ category: "מימד חמש", limit: 60 }),\n      getMatrixLibraryPage({ view: "public", pageSize: 4 }),\n    ]).then(([language, cinema, videos, dimension, matrices]) => {\n      if (!active) return;\n      const value = (result, fallback) => result.status === "fulfilled" ? result.value : fallback;\n      const languagePosts = (value(language, { posts: [] }).posts || [])\n        .filter(post => post?.slug && post.home_hidden !== true);\n      const cinemaPosts = (value(cinema, { posts: [] }).posts || [])\n        .filter(post => post?.slug && post.home_hidden !== true);\n      const cipherVideos = (value(videos, []) || [])\n        .filter(video => video?.slug && (video.video_url || video.yt));\n      const dimensionPosts = (value(dimension, { posts: [] }).posts || [])\n        .filter(post => post?.slug && post.home_hidden !== true\n          && !(post.categories || []).includes("הצופן בסרטים"));\n      const publicMatrices = (value(matrices, { rows: [] })?.rows || [])\n        .filter(row => row?.slug || row?.id).slice(0, 3);\n      setState({\n        loading: false,\n        language: languagePosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,\n          title: clean(post.title), href: postHref(post.slug),\n          content: post.content || "", excerpt: post.excerpt || "" })),\n        cinema: cinemaPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,\n          title: clean(post.title), href: postHref(post.slug) })),\n        videos: cipherVideos.map(video => ({ id: `video:${video.slug}`, slug: video.slug,\n          title: clean(video.title), href: postHref(video.slug) })),\n        dimension: dimensionPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,\n          title: clean(post.title), href: postHref(post.slug), poster: post.thumb_url || null })),\n        matrices: publicMatrices.map(row => ({\n          id: `els:${row.id || row.slug}`,\n          title: clean(row.title || row.search_term),\n          detail: Number.isInteger(row.skip_distance) ? `דילוג ${Math.abs(row.skip_distance)}` : null,\n          href: savedMatrixWorkspaceHref(row),\n        })),\n      });\n    });\n    return () => { active = false; };\n  }, []);\n\n  const language = claimHomeItems(state.language, excludedPostKeys, 2);\n  const languagePost = language.items.find(post => post.id === "post:5018") || null;\n  const languageHighlights = languagePostHighlights(languagePost);\n  // The featured excerpt replaces the ordinary Post link: one Home tile per Post.\n  const languageFeature = languageHighlights.length\n    ? <LanguagePostPreview post={languagePost} highlights={languageHighlights} /> : null;\n  const languageLinks = languageFeature\n    ? language.items.filter(item => item !== languagePost) : language.items;\n  const cinema = claimHomeItems(state.cinema, language.reserved, 3);\n  const videos = claimHomeItems(state.videos, cinema.reserved, 2);\n  const dimension = claimHomeItems(state.dimension, videos.reserved, 4);\n  // ELS records are distinct research sources, not extra Post copies.\n  const biblicalSources = [\n    ...videos.items.slice(0, 2).map(item => ({ ...item, detail: "סרטון מתוך צפונות בתורה" })),\n    ...state.matrices.slice(0, 2).map(item => ({\n      ...item, detail: item.detail ? `צופן ELS · ${item.detail}` : "צופן ELS שמור",\n    })),\n  ];\n\n  return <section className="dg29" aria-label="שערי הגילוי">\n    <div className="h29-sec-h">\n      <h2>שערי הגילוי</h2>\n      <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>\n    </div>\n    <div className="dg29-grid">\n      <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"\n    '... 1126 more characters,
+    expected: /getPostsFromSupabase\(\{ category: "מימד חמש"/,
+    operator: 'match',
+    diff: 'simple'
+  }

@@ -108,7 +108,7 @@ test.beforeEach(async ({ context }) => {
     body: JSON.stringify(POSITIVE_ACCEPTANCE_FLAGS
       .map((key) => ({ key, enabled: false, mode: 'all', message: '' }))),
   }));
-  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v2', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     headers: { 'x-sod-acceptance-fixture': 'pre-cutover' },
@@ -241,18 +241,19 @@ test('public World catalog remains searchable and paginated inside the new compo
   const catalog = page.locator('#world-all-convergences');
   await expect(catalog).toBeVisible({ timeout: 30_000 });
   await expect(catalog.getByRole('heading', { name: 'כל חיבור פותח עוד עולם.' })).toBeVisible();
-  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
   const cards = catalog.locator('.sod29-world-catalog-card');
-  expect(await cards.count()).toBeGreaterThan(0);
+  await expect(cards).toHaveCount(2, { timeout: 30_000 });
+  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toHaveCount(0);
+  const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
+  await expect(expand).toBeVisible();
+  await expand.click();
+  await expect(catalog.getByRole('button', { name: 'הצג פחות נושאים' })).toHaveAttribute('aria-expanded', 'true');
+  await expect(cards).toHaveCount(24, { timeout: 30_000 });
+  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
   const search = catalog.getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' });
   await search.fill('888');
   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
   await search.fill('');
-  const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
-  if (await expand.count()) {
-    await expand.click();
-    await expect(expand).toHaveAttribute('aria-expanded', 'true');
-  }
   await assertNoHorizontalOverflow(page);
 });
 
@@ -927,7 +928,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
-      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);

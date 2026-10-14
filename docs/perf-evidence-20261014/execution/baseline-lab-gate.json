@@ -1,0 +1,10 @@
+{
+  "valid": true,
+  "purpose": "lab",
+  "errors": [],
+  "limitations": [
+    "RPC reads are answered 204; content parity, real DB cost, and complete request counts are unproven",
+    "firstContentReq includes flags and non-primary reads; it is not a primary-content start marker",
+    "Shared output contains medians/ranges, not individual samples or runtime-error/status traces"
+  ]
+}

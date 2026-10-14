@@ -3,6 +3,17 @@ name: 2029 Isolation Gate
 on:
   pull_request:
     paths:
+      - "src/lib/earlyPrimaryRead2029.js"
+      - "src/lib/postReadQueries2029.js"
+      - "src/lib/supabasePublicConfig.js"
+      - "src/lib/research/homePostCards2029.js"
+      - "src/lib/research/post2029ReadingProjection.js"
+      - "src/components/research/WorldFlightStory2029.jsx"
+      - "scripts/perf-execution-2029/**"
+      - "scripts/perf-navigation-2029/**"
+      - "test/perf*2029*.test.mjs"
+      - "test/early-primary-read-2029.test.mjs"
+      - "test/home-post-cards-2029.test.mjs"
       - "2029.html"
       - "public/fonts/**"
       - "src/main2029.jsx"
@@ -72,6 +83,9 @@ on:
       - "test/ai-analyze-early-trace-coverage.test.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
+      - "scripts/test-2029-bundle-budget.mjs"
+      - "src/components/research/WorldSourceConnections.jsx"
+      - "src/components/research/WorldSourceStory.jsx"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"
       - "scripts/test-2029-world-surface.mjs"
@@ -87,6 +101,107 @@ on:
   workflow_dispatch:
 
 jobs:
+  navigation-replay:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Prepare accepted PR1100 navigation baseline and browser
+        env:
+          # Reviewed checkpoint includes accepted image work. Update only with new measured evidence.
+          PERF_NAV_BASE_SHA: 0825b326ea0fd9faa57b41d0d48bdadada9f3c7f
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/nav-base" "$RUNNER_TEMP/nav-tools" "$RUNNER_TEMP/nav-results"
+          git archive "$PERF_NAV_BASE_SHA" | tar -x -C "$RUNNER_TEMP/nav-base"
+          npm ci --prefix "$RUNNER_TEMP/nav-base" --ignore-scripts --no-audit --no-fund
+          npm install --prefix "$RUNNER_TEMP/nav-tools" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          node "$RUNNER_TEMP/nav-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/nav-tools" >> "$GITHUB_ENV"
+          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/nav-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      - name: Build both readonly Preview trees
+        run: |
+          set -e
+          (cd "$RUNNER_TEMP/nav-base" && VERCEL_GIT_COMMIT_SHA=0825b326ea0fd9faa57b41d0d48bdadada9f3c7f node scripts/build-integrated-preview.mjs)
+          node scripts/build-integrated-preview.mjs
+      - name: Actual clicks, Back, revisit and scrolling against one bounded public snapshot
+        run: |
+          set -e
+          node --test test/perf-navigation-2029.test.mjs
+          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$RUNNER_TEMP/nav-base/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha 0825b326 --out "$RUNNER_TEMP/nav-results/base-record.json"
+          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$GITHUB_WORKSPACE/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha "$(git rev-parse HEAD)" --out "$RUNNER_TEMP/nav-results/head-record.json"
+          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$RUNNER_TEMP/nav-base/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world --headers 1 --catalog 1 --catalogsize 8 --sha 0825b326 --out "$RUNNER_TEMP/nav-results/catalog-base.json"
+          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$GITHUB_WORKSPACE/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world --headers 1 --catalog 1 --catalogsize 2 --catalogfail 1 --catalogreturn 1 --sha "$(git rev-parse HEAD)" --out "$RUNNER_TEMP/nav-results/catalog-head.json"
+          node scripts/perf-navigation-2029/catalog-parity.mjs "$RUNNER_TEMP/nav-fixtures.gz" "$RUNNER_TEMP/nav-results/catalog-parity.json"
+          node scripts/perf-navigation-2029/run.mjs --mode replay --dist "$RUNNER_TEMP/nav-base/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 7 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha 0825b326 --out "$RUNNER_TEMP/nav-results/before.json"
+          node scripts/perf-navigation-2029/run.mjs --mode replay --dist "$GITHUB_WORKSPACE/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 7 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha "$(git rev-parse HEAD)" --out "$RUNNER_TEMP/nav-results/after.json"
+          node scripts/perf-navigation-2029/compare.mjs "$RUNNER_TEMP/nav-results/before.json" "$RUNNER_TEMP/nav-results/after.json" "$RUNNER_TEMP/nav-results/comparison.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 2029-actual-navigation-evidence
+          path: ${{ runner.temp }}/nav-results
+          retention-days: 14
+  performance-replay:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Prepare immutable base and Chromium 1194
+        env:
+          PERF_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/perf-base" "$RUNNER_TEMP/perf-tools"
+          git archive "$PERF_BASE_SHA" | tar -x -C "$RUNNER_TEMP/perf-base"
+          npm ci --prefix "$RUNNER_TEMP/perf-base" --ignore-scripts --no-audit --no-fund
+          npm install --prefix "$RUNNER_TEMP/perf-tools" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          node "$RUNNER_TEMP/perf-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/perf-tools" >> "$GITHUB_ENV"
+          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/perf-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      - name: Build both 2029 trees
+        run: |
+          set -e
+          (cd "$RUNNER_TEMP/perf-base" && npm run build:2029)
+          npm run build:2029
+      - name: Capture bounded anonymous reads and measure the same snapshot
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/perf-results"
+          node scripts/perf-execution-2029/measure.mjs --mode record --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/base-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label base-record
+          node scripts/perf-execution-2029/measure.mjs --mode record --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/head-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label head-record
+          # Complete responsive/original/Lightbox dependencies before freezing the common snapshot.
+          node scripts/perf-execution-2029/mobile-image-gate.mjs "$GITHUB_WORKSPACE/dist" "$RUNNER_TEMP/perf-results/mobile-image-capture.json" "$RUNNER_TEMP/perf-fixtures.gz" record
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/before.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label before
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/after.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label after
+          node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json"
+          node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json" "$RUNNER_TEMP/perf-results/after.json" scripts/perf-execution-2029/replay-budgets.json
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/extension-failure.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --routes /world --runs 1 --extensiondelay 2000 --extensionfail 1 --label delayed-failed-extensions
+          node scripts/perf-execution-2029/extension-gate.mjs "$RUNNER_TEMP/perf-results/extension-failure.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-replay-evidence
+          path: ${{ runner.temp }}/perf-results/*.json
+          # Raw upstream bodies stay in the ephemeral runner; never upload fixtures.
   hard-isolation:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -97,6 +212,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Performance evidence, auth-safe early reads and bounded Home data
+        run: node --test test/perf-execution-2029.test.mjs test/perf-replay-gate-2029.test.mjs test/early-primary-read-2029.test.mjs test/home-post-cards-2029.test.mjs
       - name: Experience Context 2029 acceptance
         run: npm run test:experience-context
       - name: Entry Orientation + Contextual Learn 2029 acceptance
@@ -174,6 +291,8 @@ jobs:
         run: npm run build
       - name: Built dependency graph isolation
         run: node scripts/test-2029-built-graph.mjs
+      - name: 2029 load-time budget (entry + primary route graphs, deferred code stays deferred)
+        run: npm run test:2029-bundle-budget
       - name: Verify isolated HTML artifact
         run: |
           test -f dist/2029.html

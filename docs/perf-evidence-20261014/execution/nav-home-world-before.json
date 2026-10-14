@@ -1,0 +1,3198 @@
+{
+  "label": "original-home-world",
+  "mode": "replay",
+  "runs": 5,
+  "browser": "141.0.7390.37",
+  "playwright": "1.56.1",
+  "dataMode": "anonymous-rpc-complete-replay",
+  "profile": "mobile",
+  "cpu": 4,
+  "rtt": 150,
+  "download": 209715.2,
+  "upload": 96000,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "dpr": 2,
+  "routes": {
+    "/world": {
+      "median": {
+        "fcp": 1796,
+        "lcp": 9044,
+        "ready": 2637.5999999996275,
+        "cls": 0.000225160913331594,
+        "firstPrimaryReq": 1190.5999999996275,
+        "lastRestEnd": 2593.2000000011176,
+        "restCount": 57,
+        "reqs": 210,
+        "script": 262.11699999999996,
+        "task": 1542.7780000000002
+      },
+      "ranges": {
+        "fcp": [
+          1784,
+          1804
+        ],
+        "lcp": [
+          8956,
+          9248
+        ],
+        "ready": [
+          2616.5999999996275,
+          2737.4000000003725
+        ],
+        "cls": [
+          0.00021225280275038744,
+          0.03710175235026657
+        ],
+        "firstPrimaryReq": [
+          1180.5999999996275,
+          1221.2999999988824
+        ],
+        "lastRestEnd": [
+          2574.0999999996275,
+          2700.2999999988824
+        ],
+        "restCount": [
+          57,
+          57
+        ],
+        "reqs": [
+          210,
+          210
+        ],
+        "script": [
+          246.02099999999993,
+          293.22499999999997
+        ],
+        "task": [
+          1495.609,
+          1754.5590000000004
+        ]
+      },
+      "samples": [
+        {
+          "ready": 2660.199999999255,
+          "lcp": 9060,
+          "cls": 0.03710175235026657,
+          "fcp": 1796,
+          "lastRestEnd": 2616,
+          "reqs": 210,
+          "links": [
+            "#world-sources",
+            "#world-connections",
+            "#world-all-convergences",
+            "#world-journey-entry",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/world#world-discovery-rails--india-health",
+            "/world#world-discovery-wall--see-my-back",
+            "/world#world-discovery-wall--wall-clock",
+            "/world#world-discovery-wisdom-set--wisdom-methods",
+            "/world?source=tzvi-opoc#world-contributor-material",
+            "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/topic/gapfill-644",
+            "/topic/98-ikuv-geula",
+            "/topic/%D7%A6%D7%99%D7%A8-%D7%94%D7%9E%D7%A6%D7%95%D7%A8-2212",
+            "/topic/atzirut-hageula",
+            "/topic/tevet-asiri-hitgalut",
+            "/topic/yerushalayim-shomrim",
+            "/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "620358da5b10967d4a5c68fc1d7d8a032d38f9fcb845dd31b974a3378fac9e63",
+          "textLength": 10658,
+          "script": 293.22499999999997,
+          "task": 1542.7780000000002,
+          "firstPrimaryReq": 1221.2999999988824,
+          "restCount": 57,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event",
+            "POST /rest/v1/rpc/notification_prefs_guest_get_v1"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 6340.300000000745,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7506,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&slug=eq.india-axis&status=eq.approved",
+              "args": null,
+              "status": 200,
+              "start": 7506.800000000745,
+              "primary": false,
+              "bytes": 765,
+              "bodyHash": "87eeb6024f34e6876a506707aeb276e48ddfb8bcd33fed24204b1e65fe70cffa"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 7506.9000000003725,
+              "primary": false,
+              "bytes": 8437,
+              "bodyHash": "033e63ce2b652cbd8f339128222ef5d6ed49378ec75d7450d0bd2824fee00a48"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+              "args": null,
+              "status": 200,
+              "start": 7507,
+              "primary": false,
+              "bytes": 4845,
+              "bodyHash": "b2a382fb58e1675b900479fbbf9cc75e5555b29621773686d84aafff6239b5fd"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+              "args": null,
+              "status": 200,
+              "start": 7507,
+              "primary": false,
+              "bytes": 2572,
+              "bodyHash": "8e681d02c3859ffc8364029c94892c58d96fae36a89fc0917a14722aa922d501"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+              "args": null,
+              "status": 200,
+              "start": 7507.800000000745,
+              "primary": false,
+              "bytes": 17971,
+              "bodyHash": "acc1217856f76017e52cb16fbbd5a4ff49729160b14f92d9ae8efe5fd69c93f7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7507.9000000003725,
+              "primary": false,
+              "bytes": 3708,
+              "bodyHash": "585587da6e27e7ebec41dc34a4986f85ccf64e3e9ca01bc62a7d16e7ad1a131c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7507.9000000003725,
+              "primary": false,
+              "bytes": 2036,
+              "bodyHash": "cbad65c154dc2d69e82a457fbad261a087f2ff8a1a5c2b4e851d70747ac07677"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+              "args": null,
+              "status": 200,
+              "start": 7508.5,
+              "primary": false,
+              "bytes": 771,
+              "bodyHash": "48565598954b91d2b8058cc1392393f2ebca785b4c48dd9f3f6e5766cd3fa7e3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+              "args": null,
+              "status": 200,
+              "start": 7508.5999999996275,
+              "primary": false,
+              "bytes": 7663,
+              "bodyHash": "0eb194ad0e486b27bd320478f9e70b0d77f6fefb25080f71a8e74a161e5479c4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 7508.5999999996275,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 206,
+              "start": 7516.300000000745,
+              "primary": false,
+              "bytes": 13118,
+              "bodyHash": "0453194bf9e9797d9894281a242531267ae0cab7746bd544cffd81fbf477eb72"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 7550.700000001118,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 7551.4000000003725,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+              "args": null,
+              "status": 200,
+              "start": 7551.4000000003725,
+              "primary": false,
+              "bytes": 1706,
+              "bodyHash": "a4ef945f7f93d5666e53d686865b66661ebe8588b1d81c84f79fb440daa149a5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 7555.9000000003725,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 7566.0999999996275,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 7566.9000000003725,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7700.5999999996275,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%281ab8cc24-cc46-46ab-b267-f2debb65085c%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2Cbdecbe7d-3bf8-475c-b8d8-788308adf3be%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C00155e62-5627-4127-b57c-2784afa3f22d%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C469059b8-749b-4809-83ea-68df62283cda%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2C58b3b31c-9119-439c-81cc-22de18176827%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=64",
+              "args": null,
+              "status": 200,
+              "start": 7707.200000001118,
+              "primary": false,
+              "bytes": 39823,
+              "bodyHash": "781c0da109035a48d3db0b31b26e906c4572cc405155104a6cb240606cf1c33e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7707.200000001118,
+              "primary": false,
+              "bytes": 12216,
+              "bodyHash": "4f34de29f993f4ed226a3b4e40bce2d94635826fb71404074d92f05a43058a77"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/edges?select=id%2Cfrom_node%2Cto_node%2Crelation_type%2Cmetadata%2Ccreated_at&from_node=in.%289cd22c3e-be5c-4283-ba6d-f974530d4dbc%2C9e59d335-0e40-4646-817f-f683d30d6619%29&relation_type=eq.related&metadata-%3E%3Erelation_role=eq.research_anchor_branch&order=created_at.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7754.9000000003725,
+              "primary": false,
+              "bytes": 6516,
+              "bodyHash": "ddee8214c5bc756c96a3e88b77b92ac7eccbc53dba588eda3e74d03b70b053bf"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":2212}",
+              "status": 200,
+              "start": 7849.5999999996275,
+              "primary": false,
+              "bytes": 2423,
+              "bodyHash": "f080a4bdf6b94545024205a6339529f12db44163d87a36208515849567d2e61a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":776}",
+              "status": 200,
+              "start": 7849.700000001118,
+              "primary": false,
+              "bytes": 9946,
+              "bodyHash": "9f73b840aef1ccf861e21d9184fabf19e849e195f4b8a41f84954c60e956af8c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1359}",
+              "status": 200,
+              "start": 7849.800000000745,
+              "primary": false,
+              "bytes": 2898,
+              "bodyHash": "991b5f81aee7fc427d82dcce46f1211962f82f71ac6693064278cd195c22ac04"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 7850.9000000003725,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 7939,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 7940.300000000745,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 7940.300000000745,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 7940.5999999996275,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7940.700000001118,
+              "primary": false,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7940.700000001118,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7940.700000001118,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7940.700000001118,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 7940.800000000745,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 7943.300000000745,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 7943.5,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 7943.5,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 7943.5,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 7943.5999999996275,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F09%2Fhvdv-svd-hvyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2Frash-mmshlt-hvdv.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2F140-avbdym.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2021%2F06%2Fbnyymynh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F06%2Fkvkb.png%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F08%2Frkbt-216.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F11%2Fhvdv-14.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F02%2F450-ltvrkyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F07%2Fdvyd-vgvlyt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fpsl-hachdvt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F03%2Frmzy-140-1932020.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2022%2F09%2Fhvdv-45.jpg%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7944.5999999996275,
+              "primary": false,
+              "bytes": 42469,
+              "bodyHash": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ccontent%2Ctags%2Cauthor%2Cauthors%2Cdate%2Cmodified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula",
+              "args": null,
+              "status": 200,
+              "start": 7944.5999999996275,
+              "primary": true,
+              "bytes": 34004,
+              "bodyHash": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2C56971760-384f-42b0-8032-f2a0eb72cb0d%2C32ea3aab-afb4-45c6-bb2b-0c8498aed173%2C897946f3-c551-42a1-b504-ea1f9bf45172%29&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7944.5999999996275,
+              "primary": false,
+              "bytes": 501,
+              "bodyHash": "0c8969fedd901488f4634e120a7bf56fd5e9317081dfbb974744ffa50be0c124"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&id=in.%289e59d335-0e40-4646-817f-f683d30d6619%2C9d1f698b-3f01-47c8-b7ce-c6236e3cf013%2Cea54fec9-15bd-4f22-b06a-1f3387884244%2C153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d%2Cc6b8f925-fcd4-4247-ba1a-c7b7d630b225%2C16519589-d5ef-4475-8641-db02546bcd10%2Cdf5f3644-4e3c-4736-b725-7b3f1e511a8c%2C476e609c-1407-4499-ac24-bd66f1eeb721%2Ca1000001-0000-0000-0000-000000000009%29&is_active=eq.true&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7955.4000000003725,
+              "primary": false,
+              "bytes": 2500,
+              "bodyHash": "f612400589f726b5f71a233442af334bce7b33c1381258f620b1f78d1fa97263"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":596}",
+              "status": 200,
+              "start": 8019.5999999996275,
+              "primary": false,
+              "bytes": 6080,
+              "bodyHash": "c6dbada733b12089edafc25c85130cc1f2b589d65cd3f1b0a19388cf6ac65d2d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1156}",
+              "status": 200,
+              "start": 8019.9000000003725,
+              "primary": false,
+              "bytes": 3689,
+              "bodyHash": "e6c4848a9ce6209014731a42993a692e6eeecf4e01b97f192300a329cd6124b3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 8028.9000000003725,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_objects?select=id%2Ccreated_at%2Ckind%2Cstatement%2Cevidence%2Cvalue%2Csource_ref%2Ccontributor%2Cstatus&status=in.%28approved%2Ccanonical%29&order=created_at.desc&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 8036.200000001118,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 8037.0999999996275,
+              "primary": false,
+              "bytes": 40449,
+              "bodyHash": "ce3c7ea9de881498ab45e5d8782e272d2b01ea2bec128c966b29d49d41018d82"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":24,\"p_before\":null}",
+              "status": 200,
+              "start": 8042.9000000003725,
+              "primary": false,
+              "bytes": 23538,
+              "bodyHash": "f3bb2e14075010c376a6ed743f25c95dfc6bef4a4f42a79bcbded8bd02387f2c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8165.700000001118,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2Cf7c33f71-6c09-4ba2-9650-4ff1047764a6%2C74701536-ff1c-4184-99cf-e088971ecf74%2Cfd827e46-d3cc-48e9-8013-ab56ac8a4ead%2C2d1c54b9-9a67-4872-b7da-e24c5bf98167%2Cbc53d79f-e54d-4667-ab9b-aa059873cc2f%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2Cc7c0c9ed-cf6a-403e-8ce5-d998a328a491%2C554073f3-4ac4-4459-badd-04b3752bfd70%29&limit=320",
+              "args": null,
+              "status": 200,
+              "start": 8166.700000001118,
+              "primary": false,
+              "bytes": 913,
+              "bodyHash": "b40bdc3934084f3c668a9fc1c2f68e7903febae492fe0faf17ce45721d283ea5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&status=eq.approved&image_ids=ov.%7B00155e62-5627-4127-b57c-2784afa3f22d%2C1ab8cc24-cc46-46ab-b267-f2debb65085c%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2C58b3b31c-9119-439c-81cc-22de18176827%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2C4d0b8d36-0801-449b-a0a6-0c7ff543c5b0%7D&order=slug.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 8166.800000000745,
+              "primary": false,
+              "bytes": 1466,
+              "bodyHash": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 8410.099999999627,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8582.800000000745,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 8749.400000000373,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            }
+          ]
+        },
+        {
+          "ready": 2737.4000000003725,
+          "lcp": 9248,
+          "cls": 0.00022831925388926228,
+          "fcp": 1784,
+          "lastRestEnd": 2700.2999999988824,
+          "reqs": 210,
+          "links": [
+            "#world-sources",
+            "#world-connections",
+            "#world-all-convergences",
+            "#world-journey-entry",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/world#world-discovery-rails--india-health",
+            "/world#world-discovery-wall--see-my-back",
+            "/world#world-discovery-wall--wall-clock",
+            "/world#world-discovery-wisdom-set--wisdom-methods",
+            "/world?source=tzvi-opoc#world-contributor-material",
+            "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/topic/gapfill-644",
+            "/topic/98-ikuv-geula",
+            "/topic/%D7%A6%D7%99%D7%A8-%D7%94%D7%9E%D7%A6%D7%95%D7%A8-2212",
+            "/topic/atzirut-hageula",
+            "/topic/tevet-asiri-hitgalut",
+            "/topic/yerushalayim-shomrim",
+            "/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "620358da5b10967d4a5c68fc1d7d8a032d38f9fcb845dd31b974a3378fac9e63",
+          "textLength": 10658,
+          "script": 288.49199999999996,
+          "task": 1754.5590000000004,
+          "firstPrimaryReq": 1212.9000000003725,
+          "restCount": 57,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event",
+            "POST /rest/v1/rpc/notification_prefs_guest_get_v1"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 6409.5999999996275,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7569.9000000003725,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&slug=eq.india-axis&status=eq.approved",
+              "args": null,
+              "status": 200,
+              "start": 7569.9000000003725,
+              "primary": false,
+              "bytes": 765,
+              "bodyHash": "87eeb6024f34e6876a506707aeb276e48ddfb8bcd33fed24204b1e65fe70cffa"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 7570,
+              "primary": false,
+              "bytes": 8437,
+              "bodyHash": "033e63ce2b652cbd8f339128222ef5d6ed49378ec75d7450d0bd2824fee00a48"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+              "args": null,
+              "status": 200,
+              "start": 7570,
+              "primary": false,
+              "bytes": 4845,
+              "bodyHash": "b2a382fb58e1675b900479fbbf9cc75e5555b29621773686d84aafff6239b5fd"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+              "args": null,
+              "status": 200,
+              "start": 7571,
+              "primary": false,
+              "bytes": 2572,
+              "bodyHash": "8e681d02c3859ffc8364029c94892c58d96fae36a89fc0917a14722aa922d501"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+              "args": null,
+              "status": 200,
+              "start": 7571,
+              "primary": false,
+              "bytes": 17971,
+              "bodyHash": "acc1217856f76017e52cb16fbbd5a4ff49729160b14f92d9ae8efe5fd69c93f7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7571,
+              "primary": false,
+              "bytes": 3708,
+              "bodyHash": "585587da6e27e7ebec41dc34a4986f85ccf64e3e9ca01bc62a7d16e7ad1a131c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7571.0999999996275,
+              "primary": false,
+              "bytes": 2036,
+              "bodyHash": "cbad65c154dc2d69e82a457fbad261a087f2ff8a1a5c2b4e851d70747ac07677"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+              "args": null,
+              "status": 200,
+              "start": 7571.0999999996275,
+              "primary": false,
+              "bytes": 771,
+              "bodyHash": "48565598954b91d2b8058cc1392393f2ebca785b4c48dd9f3f6e5766cd3fa7e3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+              "args": null,
+              "status": 200,
+              "start": 7571.0999999996275,
+              "primary": false,
+              "bytes": 7663,
+              "bodyHash": "0eb194ad0e486b27bd320478f9e70b0d77f6fefb25080f71a8e74a161e5479c4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 7572.699999999255,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 206,
+              "start": 7580.299999998882,
+              "primary": false,
+              "bytes": 13118,
+              "bodyHash": "0453194bf9e9797d9894281a242531267ae0cab7746bd544cffd81fbf477eb72"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 7601.9000000003725,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 7602.0999999996275,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+              "args": null,
+              "status": 200,
+              "start": 7608.699999999255,
+              "primary": false,
+              "bytes": 1706,
+              "bodyHash": "a4ef945f7f93d5666e53d686865b66661ebe8588b1d81c84f79fb440daa149a5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 7609.5999999996275,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 7620.299999998882,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 7621.199999999255,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7779.799999998882,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%281ab8cc24-cc46-46ab-b267-f2debb65085c%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2Cbdecbe7d-3bf8-475c-b8d8-788308adf3be%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C00155e62-5627-4127-b57c-2784afa3f22d%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C469059b8-749b-4809-83ea-68df62283cda%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2C58b3b31c-9119-439c-81cc-22de18176827%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=64",
+              "args": null,
+              "status": 200,
+              "start": 7788.199999999255,
+              "primary": false,
+              "bytes": 39823,
+              "bodyHash": "781c0da109035a48d3db0b31b26e906c4572cc405155104a6cb240606cf1c33e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7789.799999998882,
+              "primary": false,
+              "bytes": 12216,
+              "bodyHash": "4f34de29f993f4ed226a3b4e40bce2d94635826fb71404074d92f05a43058a77"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/edges?select=id%2Cfrom_node%2Cto_node%2Crelation_type%2Cmetadata%2Ccreated_at&from_node=in.%289cd22c3e-be5c-4283-ba6d-f974530d4dbc%2C9e59d335-0e40-4646-817f-f683d30d6619%29&relation_type=eq.related&metadata-%3E%3Erelation_role=eq.research_anchor_branch&order=created_at.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7802.699999999255,
+              "primary": false,
+              "bytes": 6516,
+              "bodyHash": "ddee8214c5bc756c96a3e88b77b92ac7eccbc53dba588eda3e74d03b70b053bf"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 7909.0999999996275,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":2212}",
+              "status": 200,
+              "start": 7920.5,
+              "primary": false,
+              "bytes": 2423,
+              "bodyHash": "f080a4bdf6b94545024205a6339529f12db44163d87a36208515849567d2e61a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":776}",
+              "status": 200,
+              "start": 7920.699999999255,
+              "primary": false,
+              "bytes": 9946,
+              "bodyHash": "9f73b840aef1ccf861e21d9184fabf19e849e195f4b8a41f84954c60e956af8c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1359}",
+              "status": 200,
+              "start": 7920.699999999255,
+              "primary": false,
+              "bytes": 2898,
+              "bodyHash": "991b5f81aee7fc427d82dcce46f1211962f82f71ac6693064278cd195c22ac04"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 7993.199999999255,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 7993.299999998882,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 7993.299999998882,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 7993.9000000003725,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7994.0999999996275,
+              "primary": false,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7994.0999999996275,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7994.0999999996275,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7994.0999999996275,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 7994.9000000003725,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 7995,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 7995,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 7995,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 7995.5999999996275,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 7996.4000000003725,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F09%2Fhvdv-svd-hvyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2Frash-mmshlt-hvdv.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2F140-avbdym.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2021%2F06%2Fbnyymynh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F06%2Fkvkb.png%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F08%2Frkbt-216.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F11%2Fhvdv-14.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F02%2F450-ltvrkyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F07%2Fdvyd-vgvlyt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fpsl-hachdvt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F03%2Frmzy-140-1932020.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2022%2F09%2Fhvdv-45.jpg%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7997.0999999996275,
+              "primary": false,
+              "bytes": 42469,
+              "bodyHash": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ccontent%2Ctags%2Cauthor%2Cauthors%2Cdate%2Cmodified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula",
+              "args": null,
+              "status": 200,
+              "start": 7997.0999999996275,
+              "primary": true,
+              "bytes": 34004,
+              "bodyHash": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2C56971760-384f-42b0-8032-f2a0eb72cb0d%2C32ea3aab-afb4-45c6-bb2b-0c8498aed173%2C897946f3-c551-42a1-b504-ea1f9bf45172%29&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 8009.5999999996275,
+              "primary": false,
+              "bytes": 501,
+              "bodyHash": "0c8969fedd901488f4634e120a7bf56fd5e9317081dfbb974744ffa50be0c124"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&id=in.%289e59d335-0e40-4646-817f-f683d30d6619%2C9d1f698b-3f01-47c8-b7ce-c6236e3cf013%2Cea54fec9-15bd-4f22-b06a-1f3387884244%2C153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d%2Cc6b8f925-fcd4-4247-ba1a-c7b7d630b225%2C16519589-d5ef-4475-8641-db02546bcd10%2Cdf5f3644-4e3c-4736-b725-7b3f1e511a8c%2C476e609c-1407-4499-ac24-bd66f1eeb721%2Ca1000001-0000-0000-0000-000000000009%29&is_active=eq.true&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 8020.799999998882,
+              "primary": false,
+              "bytes": 2500,
+              "bodyHash": "f612400589f726b5f71a233442af334bce7b33c1381258f620b1f78d1fa97263"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 8102.4000000003725,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":596}",
+              "status": 200,
+              "start": 8102.5,
+              "primary": false,
+              "bytes": 6080,
+              "bodyHash": "c6dbada733b12089edafc25c85130cc1f2b589d65cd3f1b0a19388cf6ac65d2d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1156}",
+              "status": 200,
+              "start": 8103.5,
+              "primary": false,
+              "bytes": 3689,
+              "bodyHash": "e6c4848a9ce6209014731a42993a692e6eeecf4e01b97f192300a329cd6124b3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_objects?select=id%2Ccreated_at%2Ckind%2Cstatement%2Cevidence%2Cvalue%2Csource_ref%2Ccontributor%2Cstatus&status=in.%28approved%2Ccanonical%29&order=created_at.desc&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 8138.5,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 8139.699999999255,
+              "primary": false,
+              "bytes": 40449,
+              "bodyHash": "ce3c7ea9de881498ab45e5d8782e272d2b01ea2bec128c966b29d49d41018d82"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":24,\"p_before\":null}",
+              "status": 200,
+              "start": 8140.4000000003725,
+              "primary": false,
+              "bytes": 23538,
+              "bodyHash": "f3bb2e14075010c376a6ed743f25c95dfc6bef4a4f42a79bcbded8bd02387f2c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8247.599999999627,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2Cf7c33f71-6c09-4ba2-9650-4ff1047764a6%2C74701536-ff1c-4184-99cf-e088971ecf74%2Cfd827e46-d3cc-48e9-8013-ab56ac8a4ead%2C2d1c54b9-9a67-4872-b7da-e24c5bf98167%2Cbc53d79f-e54d-4667-ab9b-aa059873cc2f%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2Cc7c0c9ed-cf6a-403e-8ce5-d998a328a491%2C554073f3-4ac4-4459-badd-04b3752bfd70%29&limit=320",
+              "args": null,
+              "status": 200,
+              "start": 8247.699999999255,
+              "primary": false,
+              "bytes": 913,
+              "bodyHash": "b40bdc3934084f3c668a9fc1c2f68e7903febae492fe0faf17ce45721d283ea5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&status=eq.approved&image_ids=ov.%7B00155e62-5627-4127-b57c-2784afa3f22d%2C1ab8cc24-cc46-46ab-b267-f2debb65085c%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2C58b3b31c-9119-439c-81cc-22de18176827%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2C4d0b8d36-0801-449b-a0a6-0c7ff543c5b0%7D&order=slug.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 8247.699999999255,
+              "primary": false,
+              "bytes": 1466,
+              "bodyHash": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 8506.299999998882,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8733.699999999255,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 8905.900000000373,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            }
+          ]
+        },
+        {
+          "ready": 2637.5999999996275,
+          "lcp": 8956,
+          "cls": 0.000225160913331594,
+          "fcp": 1792,
+          "lastRestEnd": 2592.5999999996275,
+          "reqs": 210,
+          "links": [
+            "#world-sources",
+            "#world-connections",
+            "#world-all-convergences",
+            "#world-journey-entry",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/world#world-discovery-rails--india-health",
+            "/world#world-discovery-wall--see-my-back",
+            "/world#world-discovery-wall--wall-clock",
+            "/world#world-discovery-wisdom-set--wisdom-methods",
+            "/world?source=tzvi-opoc#world-contributor-material",
+            "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/topic/gapfill-644",
+            "/topic/98-ikuv-geula",
+            "/topic/%D7%A6%D7%99%D7%A8-%D7%94%D7%9E%D7%A6%D7%95%D7%A8-2212",
+            "/topic/atzirut-hageula",
+            "/topic/tevet-asiri-hitgalut",
+            "/topic/yerushalayim-shomrim",
+            "/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "620358da5b10967d4a5c68fc1d7d8a032d38f9fcb845dd31b974a3378fac9e63",
+          "textLength": 10658,
+          "script": 248.23000000000008,
+          "task": 1543.8520000000003,
+          "firstPrimaryReq": 1180.5999999996275,
+          "restCount": 57,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event",
+            "POST /rest/v1/rpc/notification_prefs_guest_get_v1"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 6208.800000000745,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7358.9000000003725,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&slug=eq.india-axis&status=eq.approved",
+              "args": null,
+              "status": 200,
+              "start": 7359.9000000003725,
+              "primary": false,
+              "bytes": 765,
+              "bodyHash": "87eeb6024f34e6876a506707aeb276e48ddfb8bcd33fed24204b1e65fe70cffa"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 7360.10000000149,
+              "primary": false,
+              "bytes": 8437,
+              "bodyHash": "033e63ce2b652cbd8f339128222ef5d6ed49378ec75d7450d0bd2824fee00a48"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+              "args": null,
+              "status": 200,
+              "start": 7360.10000000149,
+              "primary": false,
+              "bytes": 4845,
+              "bodyHash": "b2a382fb58e1675b900479fbbf9cc75e5555b29621773686d84aafff6239b5fd"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+              "args": null,
+              "status": 200,
+              "start": 7360.10000000149,
+              "primary": false,
+              "bytes": 2572,
+              "bodyHash": "8e681d02c3859ffc8364029c94892c58d96fae36a89fc0917a14722aa922d501"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+              "args": null,
+              "status": 200,
+              "start": 7360.200000001118,
+              "primary": false,
+              "bytes": 17971,
+              "bodyHash": "acc1217856f76017e52cb16fbbd5a4ff49729160b14f92d9ae8efe5fd69c93f7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7360.800000000745,
+              "primary": false,
+              "bytes": 3708,
+              "bodyHash": "585587da6e27e7ebec41dc34a4986f85ccf64e3e9ca01bc62a7d16e7ad1a131c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7360.800000000745,
+              "primary": false,
+              "bytes": 2036,
+              "bodyHash": "cbad65c154dc2d69e82a457fbad261a087f2ff8a1a5c2b4e851d70747ac07677"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+              "args": null,
+              "status": 200,
+              "start": 7360.800000000745,
+              "primary": false,
+              "bytes": 771,
+              "bodyHash": "48565598954b91d2b8058cc1392393f2ebca785b4c48dd9f3f6e5766cd3fa7e3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+              "args": null,
+              "status": 200,
+              "start": 7360.800000000745,
+              "primary": false,
+              "bytes": 7663,
+              "bodyHash": "0eb194ad0e486b27bd320478f9e70b0d77f6fefb25080f71a8e74a161e5479c4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 7360.800000000745,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 206,
+              "start": 7362.700000001118,
+              "primary": false,
+              "bytes": 13118,
+              "bodyHash": "0453194bf9e9797d9894281a242531267ae0cab7746bd544cffd81fbf477eb72"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 7394.10000000149,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 7394.9000000003725,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+              "args": null,
+              "status": 200,
+              "start": 7394.9000000003725,
+              "primary": false,
+              "bytes": 1706,
+              "bodyHash": "a4ef945f7f93d5666e53d686865b66661ebe8588b1d81c84f79fb440daa149a5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 7395,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 7395,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 7395,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7559.700000001118,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%281ab8cc24-cc46-46ab-b267-f2debb65085c%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2Cbdecbe7d-3bf8-475c-b8d8-788308adf3be%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C00155e62-5627-4127-b57c-2784afa3f22d%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C469059b8-749b-4809-83ea-68df62283cda%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2C58b3b31c-9119-439c-81cc-22de18176827%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=64",
+              "args": null,
+              "status": 200,
+              "start": 7564.4000000003725,
+              "primary": false,
+              "bytes": 39823,
+              "bodyHash": "781c0da109035a48d3db0b31b26e906c4572cc405155104a6cb240606cf1c33e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7564.5,
+              "primary": false,
+              "bytes": 12216,
+              "bodyHash": "4f34de29f993f4ed226a3b4e40bce2d94635826fb71404074d92f05a43058a77"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/edges?select=id%2Cfrom_node%2Cto_node%2Crelation_type%2Cmetadata%2Ccreated_at&from_node=in.%289cd22c3e-be5c-4283-ba6d-f974530d4dbc%2C9e59d335-0e40-4646-817f-f683d30d6619%29&relation_type=eq.related&metadata-%3E%3Erelation_role=eq.research_anchor_branch&order=created_at.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7564.60000000149,
+              "primary": false,
+              "bytes": 6516,
+              "bodyHash": "ddee8214c5bc756c96a3e88b77b92ac7eccbc53dba588eda3e74d03b70b053bf"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 7686.5,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":2212}",
+              "status": 200,
+              "start": 7699.4000000003725,
+              "primary": false,
+              "bytes": 2423,
+              "bodyHash": "f080a4bdf6b94545024205a6339529f12db44163d87a36208515849567d2e61a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":776}",
+              "status": 200,
+              "start": 7699.4000000003725,
+              "primary": false,
+              "bytes": 9946,
+              "bodyHash": "9f73b840aef1ccf861e21d9184fabf19e849e195f4b8a41f84954c60e956af8c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1359}",
+              "status": 200,
+              "start": 7699.9000000003725,
+              "primary": false,
+              "bytes": 2898,
+              "bodyHash": "991b5f81aee7fc427d82dcce46f1211962f82f71ac6693064278cd195c22ac04"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 7771.9000000003725,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 7772,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 7772.800000000745,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 7772.800000000745,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7772.800000000745,
+              "primary": false,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7773.4000000003725,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7773.5,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7773.5,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 7773.5,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 7773.5,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 7773.60000000149,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 7773.60000000149,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 7773.60000000149,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 7773.60000000149,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F09%2Fhvdv-svd-hvyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2Frash-mmshlt-hvdv.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2F140-avbdym.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2021%2F06%2Fbnyymynh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F06%2Fkvkb.png%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F08%2Frkbt-216.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F11%2Fhvdv-14.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F02%2F450-ltvrkyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F07%2Fdvyd-vgvlyt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fpsl-hachdvt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F03%2Frmzy-140-1932020.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2022%2F09%2Fhvdv-45.jpg%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7774.60000000149,
+              "primary": false,
+              "bytes": 42469,
+              "bodyHash": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ccontent%2Ctags%2Cauthor%2Cauthors%2Cdate%2Cmodified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula",
+              "args": null,
+              "status": 200,
+              "start": 7774.700000001118,
+              "primary": true,
+              "bytes": 34004,
+              "bodyHash": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2C56971760-384f-42b0-8032-f2a0eb72cb0d%2C32ea3aab-afb4-45c6-bb2b-0c8498aed173%2C897946f3-c551-42a1-b504-ea1f9bf45172%29&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7774.700000001118,
+              "primary": false,
+              "bytes": 501,
+              "bodyHash": "0c8969fedd901488f4634e120a7bf56fd5e9317081dfbb974744ffa50be0c124"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&id=in.%289e59d335-0e40-4646-817f-f683d30d6619%2C9d1f698b-3f01-47c8-b7ce-c6236e3cf013%2Cea54fec9-15bd-4f22-b06a-1f3387884244%2C153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d%2Cc6b8f925-fcd4-4247-ba1a-c7b7d630b225%2C16519589-d5ef-4475-8641-db02546bcd10%2Cdf5f3644-4e3c-4736-b725-7b3f1e511a8c%2C476e609c-1407-4499-ac24-bd66f1eeb721%2Ca1000001-0000-0000-0000-000000000009%29&is_active=eq.true&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7774.700000001118,
+              "primary": false,
+              "bytes": 2500,
+              "bodyHash": "f612400589f726b5f71a233442af334bce7b33c1381258f620b1f78d1fa97263"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 7866.5,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_objects?select=id%2Ccreated_at%2Ckind%2Cstatement%2Cevidence%2Cvalue%2Csource_ref%2Ccontributor%2Cstatus&status=in.%28approved%2Ccanonical%29&order=created_at.desc&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 7866.700000001118,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 7868.60000000149,
+              "primary": false,
+              "bytes": 40449,
+              "bodyHash": "ce3c7ea9de881498ab45e5d8782e272d2b01ea2bec128c966b29d49d41018d82"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":24,\"p_before\":null}",
+              "status": 200,
+              "start": 7869.60000000149,
+              "primary": false,
+              "bytes": 23538,
+              "bodyHash": "f3bb2e14075010c376a6ed743f25c95dfc6bef4a4f42a79bcbded8bd02387f2c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":596}",
+              "status": 200,
+              "start": 7884.4000000003725,
+              "primary": false,
+              "bytes": 6080,
+              "bodyHash": "c6dbada733b12089edafc25c85130cc1f2b589d65cd3f1b0a19388cf6ac65d2d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1156}",
+              "status": 200,
+              "start": 7884.5,
+              "primary": false,
+              "bytes": 3689,
+              "bodyHash": "e6c4848a9ce6209014731a42993a692e6eeecf4e01b97f192300a329cd6124b3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8001.60000000149,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2Cf7c33f71-6c09-4ba2-9650-4ff1047764a6%2C74701536-ff1c-4184-99cf-e088971ecf74%2Cfd827e46-d3cc-48e9-8013-ab56ac8a4ead%2C2d1c54b9-9a67-4872-b7da-e24c5bf98167%2Cbc53d79f-e54d-4667-ab9b-aa059873cc2f%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2Cc7c0c9ed-cf6a-403e-8ce5-d998a328a491%2C554073f3-4ac4-4459-badd-04b3752bfd70%29&limit=320",
+              "args": null,
+              "status": 200,
+              "start": 8001.700000001118,
+              "primary": false,
+              "bytes": 913,
+              "bodyHash": "b40bdc3934084f3c668a9fc1c2f68e7903febae492fe0faf17ce45721d283ea5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&status=eq.approved&image_ids=ov.%7B00155e62-5627-4127-b57c-2784afa3f22d%2C1ab8cc24-cc46-46ab-b267-f2debb65085c%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2C58b3b31c-9119-439c-81cc-22de18176827%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2C4d0b8d36-0801-449b-a0a6-0c7ff543c5b0%7D&order=slug.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 8001.800000000745,
+              "primary": false,
+              "bytes": 1466,
+              "bodyHash": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 8270.10000000149,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8448.5,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 8619.200000001118,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            }
+          ]
+        },
+        {
+          "ready": 2616.5999999996275,
+          "lcp": 9044,
+          "cls": 0.00021225280275038744,
+          "fcp": 1796,
+          "lastRestEnd": 2574.0999999996275,
+          "reqs": 210,
+          "links": [
+            "#world-sources",
+            "#world-connections",
+            "#world-all-convergences",
+            "#world-journey-entry",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/world#world-discovery-rails--india-health",
+            "/world#world-discovery-wall--see-my-back",
+            "/world#world-discovery-wall--wall-clock",
+            "/world#world-discovery-wisdom-set--wisdom-methods",
+            "/world?source=tzvi-opoc#world-contributor-material",
+            "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/topic/gapfill-644",
+            "/topic/98-ikuv-geula",
+            "/topic/%D7%A6%D7%99%D7%A8-%D7%94%D7%9E%D7%A6%D7%95%D7%A8-2212",
+            "/topic/atzirut-hageula",
+            "/topic/tevet-asiri-hitgalut",
+            "/topic/yerushalayim-shomrim",
+            "/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "620358da5b10967d4a5c68fc1d7d8a032d38f9fcb845dd31b974a3378fac9e63",
+          "textLength": 10658,
+          "script": 262.11699999999996,
+          "task": 1515.7250000000001,
+          "firstPrimaryReq": 1190.5999999996275,
+          "restCount": 57,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event",
+            "POST /rest/v1/rpc/notification_prefs_guest_get_v1"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 6350.199999999255,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7512.199999999255,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&slug=eq.india-axis&status=eq.approved",
+              "args": null,
+              "status": 200,
+              "start": 7512.199999999255,
+              "primary": false,
+              "bytes": 765,
+              "bodyHash": "87eeb6024f34e6876a506707aeb276e48ddfb8bcd33fed24204b1e65fe70cffa"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 7512.299999998882,
+              "primary": false,
+              "bytes": 8437,
+              "bodyHash": "033e63ce2b652cbd8f339128222ef5d6ed49378ec75d7450d0bd2824fee00a48"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+              "args": null,
+              "status": 200,
+              "start": 7513.199999999255,
+              "primary": false,
+              "bytes": 4845,
+              "bodyHash": "b2a382fb58e1675b900479fbbf9cc75e5555b29621773686d84aafff6239b5fd"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+              "args": null,
+              "status": 200,
+              "start": 7513.4000000003725,
+              "primary": false,
+              "bytes": 2572,
+              "bodyHash": "8e681d02c3859ffc8364029c94892c58d96fae36a89fc0917a14722aa922d501"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+              "args": null,
+              "status": 200,
+              "start": 7514.199999999255,
+              "primary": false,
+              "bytes": 17971,
+              "bodyHash": "acc1217856f76017e52cb16fbbd5a4ff49729160b14f92d9ae8efe5fd69c93f7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7514.5999999996275,
+              "primary": false,
+              "bytes": 3708,
+              "bodyHash": "585587da6e27e7ebec41dc34a4986f85ccf64e3e9ca01bc62a7d16e7ad1a131c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7514.699999999255,
+              "primary": false,
+              "bytes": 2036,
+              "bodyHash": "cbad65c154dc2d69e82a457fbad261a087f2ff8a1a5c2b4e851d70747ac07677"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+              "args": null,
+              "status": 200,
+              "start": 7514.799999998882,
+              "primary": false,
+              "bytes": 771,
+              "bodyHash": "48565598954b91d2b8058cc1392393f2ebca785b4c48dd9f3f6e5766cd3fa7e3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+              "args": null,
+              "status": 200,
+              "start": 7514.9000000003725,
+              "primary": false,
+              "bytes": 7663,
+              "bodyHash": "0eb194ad0e486b27bd320478f9e70b0d77f6fefb25080f71a8e74a161e5479c4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 7515.9000000003725,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 206,
+              "start": 7522.299999998882,
+              "primary": false,
+              "bytes": 13118,
+              "bodyHash": "0453194bf9e9797d9894281a242531267ae0cab7746bd544cffd81fbf477eb72"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 7537.5,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 7538.299999998882,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+              "args": null,
+              "status": 200,
+              "start": 7542.799999998882,
+              "primary": false,
+              "bytes": 1706,
+              "bodyHash": "a4ef945f7f93d5666e53d686865b66661ebe8588b1d81c84f79fb440daa149a5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 7542.9000000003725,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 7553.199999999255,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 7560.699999999255,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7740.199999999255,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%281ab8cc24-cc46-46ab-b267-f2debb65085c%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2Cbdecbe7d-3bf8-475c-b8d8-788308adf3be%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C00155e62-5627-4127-b57c-2784afa3f22d%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C469059b8-749b-4809-83ea-68df62283cda%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2C58b3b31c-9119-439c-81cc-22de18176827%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=64",
+              "args": null,
+              "status": 200,
+              "start": 7741,
+              "primary": false,
+              "bytes": 39823,
+              "bodyHash": "781c0da109035a48d3db0b31b26e906c4572cc405155104a6cb240606cf1c33e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7741.4000000003725,
+              "primary": false,
+              "bytes": 12216,
+              "bodyHash": "4f34de29f993f4ed226a3b4e40bce2d94635826fb71404074d92f05a43058a77"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/edges?select=id%2Cfrom_node%2Cto_node%2Crelation_type%2Cmetadata%2Ccreated_at&from_node=in.%289cd22c3e-be5c-4283-ba6d-f974530d4dbc%2C9e59d335-0e40-4646-817f-f683d30d6619%29&relation_type=eq.related&metadata-%3E%3Erelation_role=eq.research_anchor_branch&order=created_at.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7770.5999999996275,
+              "primary": false,
+              "bytes": 6516,
+              "bodyHash": "ddee8214c5bc756c96a3e88b77b92ac7eccbc53dba588eda3e74d03b70b053bf"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 7823.5999999996275,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":2212}",
+              "status": 200,
+              "start": 7853.4000000003725,
+              "primary": false,
+              "bytes": 2423,
+              "bodyHash": "f080a4bdf6b94545024205a6339529f12db44163d87a36208515849567d2e61a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":776}",
+              "status": 200,
+              "start": 7853.5,
+              "primary": false,
+              "bytes": 9946,
+              "bodyHash": "9f73b840aef1ccf861e21d9184fabf19e849e195f4b8a41f84954c60e956af8c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1359}",
+              "status": 200,
+              "start": 7854.199999999255,
+              "primary": false,
+              "bytes": 2898,
+              "bodyHash": "991b5f81aee7fc427d82dcce46f1211962f82f71ac6693064278cd195c22ac04"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 7951.0999999996275,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 7951.199999999255,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 7951.299999998882,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 7952.299999998882,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7952.299999998882,
+              "primary": false,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7952.299999998882,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7952.299999998882,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7952.299999998882,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 7952.299999998882,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 7952.5,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 7952.5,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 7953.299999998882,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 7953.299999998882,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 7953.299999998882,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F09%2Fhvdv-svd-hvyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2Frash-mmshlt-hvdv.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2F140-avbdym.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2021%2F06%2Fbnyymynh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F06%2Fkvkb.png%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F08%2Frkbt-216.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F11%2Fhvdv-14.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F02%2F450-ltvrkyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F07%2Fdvyd-vgvlyt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fpsl-hachdvt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F03%2Frmzy-140-1932020.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2022%2F09%2Fhvdv-45.jpg%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7962.799999998882,
+              "primary": false,
+              "bytes": 42469,
+              "bodyHash": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ccontent%2Ctags%2Cauthor%2Cauthors%2Cdate%2Cmodified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula",
+              "args": null,
+              "status": 200,
+              "start": 7962.9000000003725,
+              "primary": true,
+              "bytes": 34004,
+              "bodyHash": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2C56971760-384f-42b0-8032-f2a0eb72cb0d%2C32ea3aab-afb4-45c6-bb2b-0c8498aed173%2C897946f3-c551-42a1-b504-ea1f9bf45172%29&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7963.4000000003725,
+              "primary": false,
+              "bytes": 501,
+              "bodyHash": "0c8969fedd901488f4634e120a7bf56fd5e9317081dfbb974744ffa50be0c124"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&id=in.%289e59d335-0e40-4646-817f-f683d30d6619%2C9d1f698b-3f01-47c8-b7ce-c6236e3cf013%2Cea54fec9-15bd-4f22-b06a-1f3387884244%2C153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d%2Cc6b8f925-fcd4-4247-ba1a-c7b7d630b225%2C16519589-d5ef-4475-8641-db02546bcd10%2Cdf5f3644-4e3c-4736-b725-7b3f1e511a8c%2C476e609c-1407-4499-ac24-bd66f1eeb721%2Ca1000001-0000-0000-0000-000000000009%29&is_active=eq.true&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7982.299999998882,
+              "primary": false,
+              "bytes": 2500,
+              "bodyHash": "f612400589f726b5f71a233442af334bce7b33c1381258f620b1f78d1fa97263"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 7994.799999998882,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_objects?select=id%2Ccreated_at%2Ckind%2Cstatement%2Cevidence%2Cvalue%2Csource_ref%2Ccontributor%2Cstatus&status=in.%28approved%2Ccanonical%29&order=created_at.desc&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 8000.699999999255,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 8001.799999998882,
+              "primary": false,
+              "bytes": 40449,
+              "bodyHash": "ce3c7ea9de881498ab45e5d8782e272d2b01ea2bec128c966b29d49d41018d82"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":24,\"p_before\":null}",
+              "status": 200,
+              "start": 8001.9000000003725,
+              "primary": false,
+              "bytes": 23538,
+              "bodyHash": "f3bb2e14075010c376a6ed743f25c95dfc6bef4a4f42a79bcbded8bd02387f2c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":596}",
+              "status": 200,
+              "start": 8020.799999998882,
+              "primary": false,
+              "bytes": 6080,
+              "bodyHash": "c6dbada733b12089edafc25c85130cc1f2b589d65cd3f1b0a19388cf6ac65d2d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1156}",
+              "status": 200,
+              "start": 8038.799999998882,
+              "primary": false,
+              "bytes": 3689,
+              "bodyHash": "e6c4848a9ce6209014731a42993a692e6eeecf4e01b97f192300a329cd6124b3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8138.4000000003725,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2Cf7c33f71-6c09-4ba2-9650-4ff1047764a6%2C74701536-ff1c-4184-99cf-e088971ecf74%2Cfd827e46-d3cc-48e9-8013-ab56ac8a4ead%2C2d1c54b9-9a67-4872-b7da-e24c5bf98167%2Cbc53d79f-e54d-4667-ab9b-aa059873cc2f%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2Cc7c0c9ed-cf6a-403e-8ce5-d998a328a491%2C554073f3-4ac4-4459-badd-04b3752bfd70%29&limit=320",
+              "args": null,
+              "status": 200,
+              "start": 8159,
+              "primary": false,
+              "bytes": 913,
+              "bodyHash": "b40bdc3934084f3c668a9fc1c2f68e7903febae492fe0faf17ce45721d283ea5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&status=eq.approved&image_ids=ov.%7B00155e62-5627-4127-b57c-2784afa3f22d%2C1ab8cc24-cc46-46ab-b267-f2debb65085c%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2C58b3b31c-9119-439c-81cc-22de18176827%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2C4d0b8d36-0801-449b-a0a6-0c7ff543c5b0%7D&order=slug.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 8161,
+              "primary": false,
+              "bytes": 1466,
+              "bodyHash": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 8391.400000000373,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8570.299999998882,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 8742,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            }
+          ]
+        },
+        {
+          "ready": 2628.4000000003725,
+          "lcp": 9004,
+          "cls": 0.00021452137485248964,
+          "fcp": 1804,
+          "lastRestEnd": 2593.2000000011176,
+          "reqs": 210,
+          "links": [
+            "#world-sources",
+            "#world-connections",
+            "#world-all-convergences",
+            "#world-journey-entry",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/world#world-discovery-rails--india-health",
+            "/world#world-discovery-wall--see-my-back",
+            "/world#world-discovery-wall--wall-clock",
+            "/world#world-discovery-wisdom-set--wisdom-methods",
+            "/world?source=tzvi-opoc#world-contributor-material",
+            "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/topic/gapfill-644",
+            "/topic/98-ikuv-geula",
+            "/topic/%D7%A6%D7%99%D7%A8-%D7%94%D7%9E%D7%A6%D7%95%D7%A8-2212",
+            "/topic/atzirut-hageula",
+            "/topic/tevet-asiri-hitgalut",
+            "/topic/yerushalayim-shomrim",
+            "/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "textHash": "620358da5b10967d4a5c68fc1d7d8a032d38f9fcb845dd31b974a3378fac9e63",
+          "textLength": 10658,
+          "script": 246.02099999999993,
+          "task": 1495.609,
+          "firstPrimaryReq": 1180.7000000011176,
+          "restCount": 57,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event",
+            "POST /rest/v1/rpc/notification_prefs_guest_get_v1"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 6301.4000000003725,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7440.9000000003725,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&slug=eq.india-axis&status=eq.approved",
+              "args": null,
+              "status": 200,
+              "start": 7441.5,
+              "primary": false,
+              "bytes": 765,
+              "bodyHash": "87eeb6024f34e6876a506707aeb276e48ddfb8bcd33fed24204b1e65fe70cffa"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 7441.5999999996275,
+              "primary": false,
+              "bytes": 8437,
+              "bodyHash": "033e63ce2b652cbd8f339128222ef5d6ed49378ec75d7450d0bd2824fee00a48"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+              "args": null,
+              "status": 200,
+              "start": 7441.5999999996275,
+              "primary": false,
+              "bytes": 4845,
+              "bodyHash": "b2a382fb58e1675b900479fbbf9cc75e5555b29621773686d84aafff6239b5fd"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+              "args": null,
+              "status": 200,
+              "start": 7442.300000000745,
+              "primary": false,
+              "bytes": 2572,
+              "bodyHash": "8e681d02c3859ffc8364029c94892c58d96fae36a89fc0917a14722aa922d501"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+              "args": null,
+              "status": 200,
+              "start": 7442.4000000003725,
+              "primary": false,
+              "bytes": 17971,
+              "bodyHash": "acc1217856f76017e52cb16fbbd5a4ff49729160b14f92d9ae8efe5fd69c93f7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7442.5,
+              "primary": false,
+              "bytes": 3708,
+              "bodyHash": "585587da6e27e7ebec41dc34a4986f85ccf64e3e9ca01bc62a7d16e7ad1a131c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 7443,
+              "primary": false,
+              "bytes": 2036,
+              "bodyHash": "cbad65c154dc2d69e82a457fbad261a087f2ff8a1a5c2b4e851d70747ac07677"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+              "args": null,
+              "status": 200,
+              "start": 7443,
+              "primary": false,
+              "bytes": 771,
+              "bodyHash": "48565598954b91d2b8058cc1392393f2ebca785b4c48dd9f3f6e5766cd3fa7e3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+              "args": null,
+              "status": 200,
+              "start": 7443.0999999996275,
+              "primary": false,
+              "bytes": 7663,
+              "bodyHash": "0eb194ad0e486b27bd320478f9e70b0d77f6fefb25080f71a8e74a161e5479c4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 7443.5,
+              "primary": false,
+              "bytes": 3775,
+              "bodyHash": "f4f10c2ca1233750cb5946f58f80b2f2eeea0693b709fc8911b608b1a51a546f"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 206,
+              "start": 7447,
+              "primary": false,
+              "bytes": 13118,
+              "bodyHash": "0453194bf9e9797d9894281a242531267ae0cab7746bd544cffd81fbf477eb72"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 7470.300000000745,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 7471.199999999255,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+              "args": null,
+              "status": 200,
+              "start": 7479.0999999996275,
+              "primary": false,
+              "bytes": 1706,
+              "bodyHash": "a4ef945f7f93d5666e53d686865b66661ebe8588b1d81c84f79fb440daa149a5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=41",
+              "args": null,
+              "status": 200,
+              "start": 7480.4000000003725,
+              "primary": false,
+              "bytes": 16282,
+              "bodyHash": "2354394118beac0d5c39e264de5945c9ffce5aae67a3ea1889615b65b01a652c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=80",
+              "args": null,
+              "status": 200,
+              "start": 7490.4000000003725,
+              "primary": false,
+              "bytes": 65322,
+              "bodyHash": "e11880a33f5cbdf8ba1802fd53110733c277e5b5d0715e81d0674d522a80bc40"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":40,\"p_before\":null}",
+              "status": 200,
+              "start": 7491.699999999255,
+              "primary": false,
+              "bytes": 36679,
+              "bodyHash": "05da73f20c897a9e5cd08f0ea1d6bcb71eb1eca94160f67f9a9b6c2ca3e1263b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7646.0999999996275,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%281ab8cc24-cc46-46ab-b267-f2debb65085c%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2Cbdecbe7d-3bf8-475c-b8d8-788308adf3be%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C00155e62-5627-4127-b57c-2784afa3f22d%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C469059b8-749b-4809-83ea-68df62283cda%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2C58b3b31c-9119-439c-81cc-22de18176827%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=64",
+              "args": null,
+              "status": 200,
+              "start": 7646.0999999996275,
+              "primary": false,
+              "bytes": 39823,
+              "bodyHash": "781c0da109035a48d3db0b31b26e906c4572cc405155104a6cb240606cf1c33e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7646.199999999255,
+              "primary": false,
+              "bytes": 12216,
+              "bodyHash": "4f34de29f993f4ed226a3b4e40bce2d94635826fb71404074d92f05a43058a77"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/edges?select=id%2Cfrom_node%2Cto_node%2Crelation_type%2Cmetadata%2Ccreated_at&from_node=in.%289cd22c3e-be5c-4283-ba6d-f974530d4dbc%2C9e59d335-0e40-4646-817f-f683d30d6619%29&relation_type=eq.related&metadata-%3E%3Erelation_role=eq.research_anchor_branch&order=created_at.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7648.300000000745,
+              "primary": false,
+              "bytes": 6516,
+              "bodyHash": "ddee8214c5bc756c96a3e88b77b92ac7eccbc53dba588eda3e74d03b70b053bf"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":2212}",
+              "status": 200,
+              "start": 7742.800000000745,
+              "primary": false,
+              "bytes": 2423,
+              "bodyHash": "f080a4bdf6b94545024205a6339529f12db44163d87a36208515849567d2e61a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":776}",
+              "status": 200,
+              "start": 7743.5,
+              "primary": false,
+              "bytes": 9946,
+              "bodyHash": "9f73b840aef1ccf861e21d9184fabf19e849e195f4b8a41f84954c60e956af8c"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1359}",
+              "status": 200,
+              "start": 7743.5,
+              "primary": false,
+              "bytes": 2898,
+              "bodyHash": "991b5f81aee7fc427d82dcce46f1211962f82f71ac6693064278cd195c22ac04"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 7775.199999999255,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 7839.300000000745,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 7840.5999999996275,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 7840.699999999255,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 7840.699999999255,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7840.800000000745,
+              "primary": false,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7840.800000000745,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7840.9000000003725,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 7841.699999999255,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 7841.9000000003725,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 7842,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 7843.199999999255,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 7843.199999999255,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 7843.199999999255,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 7843.300000000745,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F09%2Fhvdv-svd-hvyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2Frash-mmshlt-hvdv.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F07%2F140-avbdym.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2021%2F06%2Fbnyymynh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F06%2Fkvkb.png%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F08%2Frkbt-216.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F11%2Fhvdv-14.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2023%2F02%2F450-ltvrkyh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F07%2Fdvyd-vgvlyt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fpsl-hachdvt.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F03%2Frmzy-140-1932020.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2022%2F09%2Fhvdv-45.jpg%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7852.800000000745,
+              "primary": false,
+              "bytes": 42469,
+              "bodyHash": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ccontent%2Ctags%2Cauthor%2Cauthors%2Cdate%2Cmodified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula",
+              "args": null,
+              "status": 200,
+              "start": 7852.9000000003725,
+              "primary": true,
+              "bytes": 34004,
+              "bodyHash": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2C56971760-384f-42b0-8032-f2a0eb72cb0d%2C32ea3aab-afb4-45c6-bb2b-0c8498aed173%2C897946f3-c551-42a1-b504-ea1f9bf45172%29&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 7867.699999999255,
+              "primary": false,
+              "bytes": 501,
+              "bodyHash": "0c8969fedd901488f4634e120a7bf56fd5e9317081dfbb974744ffa50be0c124"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&id=in.%289e59d335-0e40-4646-817f-f683d30d6619%2C9d1f698b-3f01-47c8-b7ce-c6236e3cf013%2Cea54fec9-15bd-4f22-b06a-1f3387884244%2C153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d%2Cc6b8f925-fcd4-4247-ba1a-c7b7d630b225%2C16519589-d5ef-4475-8641-db02546bcd10%2Cdf5f3644-4e3c-4736-b725-7b3f1e511a8c%2C476e609c-1407-4499-ac24-bd66f1eeb721%2Ca1000001-0000-0000-0000-000000000009%29&is_active=eq.true&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 7868.300000000745,
+              "primary": false,
+              "bytes": 2500,
+              "bodyHash": "f612400589f726b5f71a233442af334bce7b33c1381258f620b1f78d1fa97263"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":596}",
+              "status": 200,
+              "start": 7922.4000000003725,
+              "primary": false,
+              "bytes": 6080,
+              "bodyHash": "c6dbada733b12089edafc25c85130cc1f2b589d65cd3f1b0a19388cf6ac65d2d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1156}",
+              "status": 200,
+              "start": 7922.5,
+              "primary": false,
+              "bytes": 3689,
+              "bodyHash": "e6c4848a9ce6209014731a42993a692e6eeecf4e01b97f192300a329cd6124b3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 7942,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_objects?select=id%2Ccreated_at%2Ckind%2Cstatement%2Cevidence%2Cvalue%2Csource_ref%2Ccontributor%2Cstatus&status=in.%28approved%2Ccanonical%29&order=created_at.desc&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 7949,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 7949.5,
+              "primary": false,
+              "bytes": 40449,
+              "bodyHash": "ce3c7ea9de881498ab45e5d8782e272d2b01ea2bec128c966b29d49d41018d82"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":24,\"p_before\":null}",
+              "status": 200,
+              "start": 7950.300000000745,
+              "primary": false,
+              "bytes": 23538,
+              "bodyHash": "f3bb2e14075010c376a6ed743f25c95dfc6bef4a4f42a79bcbded8bd02387f2c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8055.300000000745,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2Cf7c33f71-6c09-4ba2-9650-4ff1047764a6%2C74701536-ff1c-4184-99cf-e088971ecf74%2Cfd827e46-d3cc-48e9-8013-ab56ac8a4ead%2C2d1c54b9-9a67-4872-b7da-e24c5bf98167%2Cbc53d79f-e54d-4667-ab9b-aa059873cc2f%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2Cc7c0c9ed-cf6a-403e-8ce5-d998a328a491%2C554073f3-4ac4-4459-badd-04b3752bfd70%29&limit=320",
+              "args": null,
+              "status": 200,
+              "start": 8056,
+              "primary": false,
+              "bytes": 913,
+              "bodyHash": "b40bdc3934084f3c668a9fc1c2f68e7903febae492fe0faf17ce45721d283ea5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Cstatus%2Cnode_id%2Cimage_ids&status=eq.approved&image_ids=ov.%7B00155e62-5627-4127-b57c-2784afa3f22d%2C1ab8cc24-cc46-46ab-b267-f2debb65085c%2C465bf326-6d0c-4fa9-b755-6f831b3b199e%2C5579cca1-ff12-4a9a-87ee-e32e89ca9af3%2C58b3b31c-9119-439c-81cc-22de18176827%2C6232be42-82a3-41ac-b4d3-004a21e48c7f%2C8940efb2-8423-4a27-a10a-d3fdd07cf595%2C96207e5d-ac80-4344-9e50-f50a8cc0a726%2C9709efef-1c9a-47ad-8f21-a7e9f9da3714%2Caec24537-aec2-44d0-b513-1941cf80c629%2Cc6a63e40-48fa-46dd-82c4-ccbebd0be10f%2Cf532a507-fa0c-444f-9a4e-6fbf4051cdd0%2Cfcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e%2C4d0b8d36-0801-449b-a0a6-0c7ff543c5b0%7D&order=slug.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 8056.0999999996275,
+              "primary": false,
+              "bytes": 1466,
+              "bodyHash": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 8334.199999999255,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 8513.300000000745,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 8701.900000000373,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "theme": "dark",
+  "navigation": {
+    "from": "/",
+    "note": "Soft navigation; FCP/LCP are not navigation performance metrics"
+  },
+  "extensionInjection": {
+    "delay": 0,
+    "failure": false
+  },
+  "fixturesSha256": "271788bc295e57591abb208c4c9442cd387cc6d68e4ad4412aace95357c4422b"
+}
