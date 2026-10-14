@@ -1,0 +1,52 @@
+##### fn_number_lookup_v2 (REAL composite engine)
+ anon     |   169 |    72 |     0
+(1 row)
+
+   ?column?    | count | count | count 
+---------------+-------+-------+-------
+ authenticated |   169 |    72 |     0
+(1 row)
+
+-- first differing cases (owner)
+  v  | lim | cursor_kind | old_only | new_only | ordered_equal | old_n | new_n | left 
+-----+-----+-------------+----------+----------+---------------+-------+-------+------
+ 787 |     | mid         |       72 |       67 | f             |    72 |    67 | 
+ 787 |     | none        |       93 |       88 | f             |    93 |    88 | 
+ 787 |     | page1_last  |       92 |       87 | f             |    92 |    87 | 
+ 787 |  -5 | mid         |        1 |        1 | f             |     1 |     1 | 
+ 787 |  -5 | none        |        1 |        1 | f             |     1 |     1 | 
+ 787 |  -5 | page1_last  |        1 |        1 | f             |     1 |     1 | 
+ 787 |   0 | mid         |        1 |        1 | f             |     1 |     1 | 
+ 787 |   0 | none        |        1 |        1 | f             |     1 |     1 | 
+(8 rows)
+
+
+real	10m25.914s
+user	0m0.029s
+sys	0m0.005s
+##### fn_number_lookup_v3 (REAL composite engine)
+####  fn_number_lookup_v3  matrix summary per role (cases, cases with any diff)
+ role  | cases | diff_cases | err_cases 
+-------+-------+------------+-----------
+ owner |   169 |          0 |         0
+(1 row)
+
+ ?column? | count | count | count 
+----------+-------+-------+-------
+ anon     |   169 |     0 |     0
+(1 row)
+
+   ?column?    | count | count | count 
+---------------+-------+-------+-------
+ authenticated |   169 |     0 |     0
+(1 row)
+
+-- first differing cases (owner)
+ v | lim | cursor_kind | old_only | new_only | ordered_equal | old_n | new_n | left 
+---+-----+-------------+----------+----------+---------------+-------+-------+------
+(0 rows)
+
+
+real	9m53.911s
+user	0m0.031s
+sys	0m0.009s

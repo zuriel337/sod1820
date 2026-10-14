@@ -1,0 +1,32 @@
+## fn_number_lookup clients=1
+number of transactions actually processed: 569
+latency average = 26.448 ms
+tps = 37.809578 (without initial connection time)
+## fn_number_lookup_v3 clients=1
+number of transactions actually processed: 2516
+latency average = 5.960 ms
+tps = 167.786723 (without initial connection time)
+## fn_number_dossier clients=1
+number of transactions actually processed: 506
+latency average = 29.651 ms
+tps = 33.726159 (without initial connection time)
+## fn_number_dossier_v3 clients=1
+number of transactions actually processed: 8826
+latency average = 1.699 ms
+tps = 588.556478 (without initial connection time)
+## fn_number_lookup clients=8
+number of transactions actually processed: 1941
+latency average = 61.987 ms
+tps = 129.058400 (without initial connection time)
+## fn_number_lookup_v3 clients=8
+number of transactions actually processed: 9799
+latency average = 12.249 ms
+tps = 653.104697 (without initial connection time)
+## fn_number_dossier clients=8
+number of transactions actually processed: 1814
+latency average = 66.495 ms
+tps = 120.309313 (without initial connection time)
+## fn_number_dossier_v3 clients=8
+number of transactions actually processed: 37798
+latency average = 3.173 ms
+tps = 2520.988338 (without initial connection time)

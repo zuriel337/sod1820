@@ -1,0 +1,47 @@
+== definer RPC parity matrix (LIVE definition vs v3 candidate), per caller context. cases / differing / raised an error / same error in both
+           ctx           |    k    | cases | differing | raised_error | same_error 
+-------------------------+---------+-------+-----------+--------------+------------
+ anon                    | dossier |    29 |         0 |            0 |          0
+ anon                    | journey |    29 |         0 |            3 |          3
+ authenticated_admin     | dossier |    29 |         0 |            0 |          0
+ authenticated_admin     | journey |    29 |         0 |            3 |          3
+ authenticated_non_admin | dossier |    29 |         0 |            0 |          0
+ authenticated_non_admin | journey |    29 |         0 |            3 |          3
+ owner_no_claims         | dossier |    29 |         0 |            0 |          0
+ owner_no_claims         | journey |    29 |         0 |            3 |          3
+ service_role_claim      | dossier |    29 |         0 |            0 |          0
+ service_role_claim      | journey |    29 |         0 |            3 |          3
+(10 rows)
+
+-- context really applied? (db user, rd_is_admin(), projection_scope of the live function output)
+           ctx           |    k    |    db_user    | all_admin | any_admin |       scopes        
+-------------------------+---------+---------------+-----------+-----------+---------------------
+ anon                    | dossier | anon          | f         | f         | public
+ anon                    | journey | anon          | f         | f         | public
+ authenticated_admin     | dossier | authenticated | t         | t         | internal_authorized
+ authenticated_admin     | journey | authenticated | t         | t         | internal_authorized
+ authenticated_non_admin | dossier | authenticated | f         | f         | public
+ authenticated_non_admin | journey | authenticated | f         | f         | public
+ owner_no_claims         | dossier | postgres      | f         | f         | public
+ owner_no_claims         | journey | postgres      | f         | f         | internal_authorized
+ service_role_claim      | dossier | postgres      | f         | f         | public
+ service_role_claim      | journey | postgres      | f         | f         | internal_authorized
+(10 rows)
+
+-- first differing cases
+ ctx | k | v | err_old | err_new 
+-----+---+---+---------+---------
+(0 rows)
+
+-- distinct error messages (same in both)
+    k    |      v      |                            left                            
+---------+-------------+------------------------------------------------------------
+ journey | -2147483648 | 22003:value "8463847412-" is out of range for type integer
+ journey |          -1 | 22P02:invalid input syntax for type integer: "1-"
+ journey |  2147483647 | 22003:value "7463847412" is out of range for type integer
+(3 rows)
+
+
+real	0m18.397s
+user	0m0.022s
+sys	0m0.012s

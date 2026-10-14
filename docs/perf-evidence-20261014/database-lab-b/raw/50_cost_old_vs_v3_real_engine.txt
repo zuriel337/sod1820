@@ -1,0 +1,40 @@
+     fn      |  v   | min_ms | med_ms | max_ms 
+-------------+------+--------+--------+--------
+ dossier_old |    1 |   64.4 |   65.4 |   85.7
+ dossier_v3  |    1 |    2.7 |    3.2 |    3.2
+ journey_old |    1 |    1.6 |    1.7 |    1.7
+ journey_v3  |    1 |    1.4 |    1.5 |    1.6
+ lookup_old  |    1 |   61.6 |   65.7 |   67.2
+ lookup_v3   |    1 |    6.7 |    6.7 |    9.2
+ dossier_old |   26 |   12.7 |   13.4 |   13.7
+ dossier_v3  |   26 |    1.2 |    1.3 |    1.3
+ journey_old |   26 |    1.8 |    2.0 |    2.0
+ journey_v3  |   26 |    1.6 |    1.9 |    1.9
+ lookup_old  |   26 |   12.9 |   13.1 |   13.2
+ lookup_v3   |   26 |    3.2 |    3.4 |    3.5
+ dossier_old |  613 |    6.5 |    6.7 |    6.9
+ dossier_v3  |  613 |    0.9 |    1.1 |    1.3
+ journey_old |  613 |    2.1 |    2.2 |    2.9
+ journey_v3  |  613 |    1.6 |    1.7 |    2.4
+ lookup_old  |  613 |    6.1 |    6.2 |    6.5
+ lookup_v3   |  613 |    3.1 |    3.2 |    3.5
+ dossier_old |  787 |   23.6 |   25.6 |   33.1
+ dossier_v3  |  787 |    2.4 |    2.6 |    2.9
+ journey_old |  787 |    2.3 |    2.8 |    4.1
+ journey_v3  |  787 |    2.5 |    2.6 |    3.3
+ lookup_old  |  787 |   22.7 |   30.6 |   30.7
+ lookup_v3   |  787 |    5.1 |    5.2 |    6.8
+ dossier_old | 1820 |    6.4 |    6.7 |   10.4
+ dossier_v3  | 1820 |    1.3 |    1.5 |    2.2
+ journey_old | 1820 |    2.2 |    2.5 |    3.3
+ journey_v3  | 1820 |    1.9 |    2.0 |    3.3
+ lookup_old  | 1820 |    5.6 |    6.5 |    6.9
+ lookup_v3   | 1820 |    3.8 |    4.1 |    5.0
+ dossier_old | 2029 |   11.7 |   13.3 |   13.5
+ dossier_v3  | 2029 |    1.1 |    1.3 |    1.6
+ journey_old | 2029 |    2.4 |    2.4 |    2.7
+ journey_v3  | 2029 |    1.9 |    2.4 |    2.6
+ lookup_old  | 2029 |    7.2 |   11.4 |   14.6
+ lookup_v3   | 2029 |    6.1 |    6.4 |    6.6
+(36 rows)
+
