@@ -11,7 +11,7 @@ const output = { mode: 'hosted-live-anonymous', browser: browser.version(), play
   runs: Number(args.runs || 7), viewport: { width: 390, height: 844 }, dpr: 2, cpu: 4, rtt: 150, download: 209715.2, upload: 96000,
   coldBrowserCache: true, postgresCache: 'uncontrolled', runnerLocation: 'unverified; deployment iad1', routes: {} };
 try {
-  for (const path of ['/', '/world', '/post/seventh-to-tenth-sefirot-2027']) {
+  for (const path of (args.routes || '/,/world,/post/seventh-to-tenth-sefirot-2027').split(',')) {
     const samples = [];
     for (let i = 0; i < output.runs; i++) {
       const context = await browser.newContext({ viewport: output.viewport, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'he-IL', timezoneId: 'Asia/Jerusalem', userAgent: 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36' });
@@ -35,7 +35,7 @@ try {
         new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__hosted.cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
         const check = () => {
           const el = path === '/' ? document.querySelector('[data-experience-capability="home-composition"] a[href^="/post/"]') : path === '/world' ? document.querySelector('[data-flight-story="world"] .sod29-flight-feature') : document.querySelector('[data-experience-capability="post-master-reading-stage"]');
-          if (window.__hosted.ready == null && el && (path === '/' || el.innerText.length > 800)) window.__hosted.ready = performance.now();
+          if (window.__hosted.ready == null && el && (path !== '/post/seventh-to-tenth-sefirot-2027' || el.innerText.length > 800)) window.__hosted.ready = performance.now();
         };
         new MutationObserver(check).observe(document, { subtree: true, childList: true, characterData: true });
       }, path);
@@ -79,9 +79,11 @@ try {
       row.restCount = observed.length;
       row.optionsCount = observed.filter(r => r.method === 'OPTIONS').length;
       samples.push({ ...row, errors, reads: observed }); await context.close();
+      console.error(path, `sample ${i + 1}/${output.runs}`, 'ready', row.ready, 'errors', errors);
     }
     const keys = ['fcp', 'lcp', 'ready', 'firstPrimaryReq', 'lastRestEnd', 'restCount', 'cls'];
     output.routes[path] = { median: Object.fromEntries(keys.map(k => [k, samples.map(s => s[k]).sort((a, b) => a - b)[Math.floor(samples.length / 2)]])), ranges: Object.fromEntries(keys.map(k => [k, [Math.min(...samples.map(s => s[k])), Math.max(...samples.map(s => s[k]))]])), samples };
     console.error(path, JSON.stringify(output.routes[path].median));
+    fs.writeFileSync(args.out, JSON.stringify(output, null, 2) + '\n');
   }
 } finally { fs.writeFileSync(args.out, JSON.stringify(output, null, 2) + '\n'); await browser.close(); }
