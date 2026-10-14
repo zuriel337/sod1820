@@ -5,6 +5,9 @@ on:
     paths:
       - "supabase/migrations/*agent_event_dispatch_runtime*.sql"
       - "supabase/migrations/*claude_code_routine_transport*.sql"
+      - "supabase/migrations/*agent_dispatch*.sql"
+      - "scripts/test-agent-dispatch-*.mjs"
+      - "AGENT_HANDOFF.md"
       - "supabase/migrations/*openai_agents_gpt_wake*.sql"
       - "supabase/migrations/*unified_ai_cost_truth*.sql"
       - "src/lib/aiProviderRouter.js"
@@ -33,6 +36,16 @@ jobs:
 
       - name: Work-log + Claude Code Routine architecture contract
         run: node test/agent-dispatch-contract.test.mjs
+
+      - name: Install pinned isolated SQL test runtime
+        run: npm install --prefix "$RUNNER_TEMP/dispatch-test" --no-audit --no-fund @electric-sql/pglite@0.3.14
+
+      - name: Envelope, receiver ACK, ownership and passive-result acceptance
+        env:
+          PGLITE_MODULE: ${{ runner.temp }}/dispatch-test/node_modules/@electric-sql/pglite/dist/index.js
+        run: |
+          node scripts/test-agent-dispatch-preflight-ack.mjs
+          node scripts/test-agent-dispatch-one-directional-v16.mjs
 
       - name: GPT OpenAI Agents API wake architecture contract
         run: node test/gpt-agent-wake-contract.test.mjs
