@@ -1,7 +1,8 @@
-import test from 'node:test';
+import test, { beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveWorldRelationIdentity } from '../src/lib/research/worldRelationIdentity2029.js';
-import { createNumberLookupTransport } from '../src/lib/research/numberLookupTransport2029.js';
+import { createNumberLookupTransport, resetNumberLookupTransportMemory } from '../src/lib/research/numberLookupTransport2029.js';
+beforeEach(() => resetNumberLookupTransportMemory());
 import { switchesFromFlags, RUNTIME_SWITCHES_2029, setRuntimeSwitch, primeRuntimeSwitches } from '../src/lib/runtimeSwitches2029.js';
 import { supabase } from '../src/lib/supabase.js';
 import { researchNumber } from '../src/lib/research/numericResearch.js';
