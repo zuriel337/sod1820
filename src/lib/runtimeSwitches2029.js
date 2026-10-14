@@ -16,11 +16,11 @@ export const RUNTIME_SWITCHES_2029 = Object.freeze([
   { key: "fx_number_journey", group: "מספרים", label: "מסע המספר", note: "fn_number_journey; נקרא רק כשמבקשים את המסע" },
   { key: "fx_home_videos", group: "בית", label: "סרטוני הצפנים בשערי הגילוי", note: "get_category_videos, עד 80 סרטונים" },
   { key: "fx_home_gateways", group: "בית", label: "שערי הגילוי: שפה, קולנוע, מימד חמש, צפנים", note: "ארבע שאילתות קטגוריה" },
-  { key: "fx_home_pulse", group: "בית", label: "דופק המערכת — מילים חדשות", note: "ספירות ומילים אחרונות מ־gematria_words" },
-  { key: "fx_home_temporal", group: "בית", label: "״העת עכשיו״ בבית", note: "אימות שנה, ממצאים, תרומות ואוצרות" },
-  { key: "fx_home_world_preview", group: "בית", label: "תצוגת העולם בבית", note: "זרם גילוי, כותבים ותרומות" },
+  { key: "fx_home_pulse", group: "בית", label: "דופק המערכת — מילים חדשות", mode: "freeze", note: "ספירות ומילים אחרונות מ־gematria_words. כבוי = מציג את האחרון שנשמר, בלי עדכון" },
+  { key: "fx_home_temporal", group: "בית", label: "״העת עכשיו״ בבית", mode: "freeze", note: "אימות שנה, ממצאים, תרומות ואוצרות. כבוי = מציג את האחרון שנשמר, בלי עדכון" },
+  { key: "fx_home_world_preview", group: "בית", label: "תצוגת העולם בבית", mode: "freeze", note: "זרם גילוי, כותבים ותרומות. כבוי = מציג את האחרון שנשמר, בלי עדכון" },
   { key: "fx_home_convergences", group: "בית", label: "התכנסויות בולטות", mode: "freeze", note: "הרצועה מתחת לעדכונים האחרונים. כבוי = ממשיכה להציג את מה שנשמר אצל הגולש, בלי בקשות ובלי עדכון" },
-  { key: "fx_world_discovery", group: "עולם", label: "זרם הגילוי בעולם", note: "פוסטים, ממצאי מחקר, הגעות קבוצה; מתרענן כל דקה" },
+  { key: "fx_world_discovery", group: "עולם", label: "זרם הגילוי בעולם", mode: "freeze", note: "פוסטים, ממצאי מחקר, הגעות קבוצה; מתרענן כל דקה. כבוי = מציג את האחרון שנשמר, בלי עדכון ובלי רענון" },
   { key: "fx_els_gallery", group: "צפנים", label: "גלריית הצפנים השמורים בכלי", note: "60 מטריצות מהענן בכל פתיחה" },
 ]);
 export const RUNTIME_SWITCH_KEYS = new Set(RUNTIME_SWITCHES_2029.map((entry) => entry.key));
@@ -46,12 +46,22 @@ export async function readRuntimeSwitches({ fresh = false } = {}) {
 // "Freeze" switches (entry.mode === "freeze"): ON = fetch and refresh the saved copy; OFF = show the last saved copy
 // (kept in this browser) with no request and no update. No saved copy yet => nothing is shown.
 const SNAP_PREFIX = "sod_fx_snapshot:";
-const SNAP_MAX_CHARS = 200_000;
+const SNAP_MAX_CHARS = 600_000;
 export function readFrozenSnapshot(key) {
   try { const raw = localStorage.getItem(SNAP_PREFIX + key); const row = raw ? JSON.parse(raw) : null; return row && "data" in row ? row.data : null; } catch { return null; }
 }
 export function saveFrozenSnapshot(key, data) {
   try { const raw = JSON.stringify({ at: new Date().toISOString(), data }); if (raw.length <= SNAP_MAX_CHARS) localStorage.setItem(SNAP_PREFIX + key, raw); } catch { /* storage unavailable: nothing to keep */ }
+}
+
+// ON: run the fetcher, keep its (non-null) result and return it. OFF: return the last kept copy (or null) with no fetch.
+export async function frozenOr(key, fetcher) {
+  if (typeof __SOD_2029_BUILD__ === "undefined" || !__SOD_2029_BUILD__ || await isRuntimeSwitchOn(key)) {
+    const data = await fetcher();
+    if (data != null && typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__) saveFrozenSnapshot(key, data);
+    return data;
+  }
+  return readFrozenSnapshot(key);
 }
 
 // Test hook: seed the in-memory window with an exact switch map.

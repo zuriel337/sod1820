@@ -72,9 +72,28 @@ test("freeze snapshots: saved copy is returned unchanged, absent/corrupt/oversiz
     assert.equal(readFrozenSnapshot("fx_home_convergences"), null);
     saveFrozenSnapshot("fx_home_convergences", [{ slug: "a", title: "ב" }]);
     assert.deepEqual(readFrozenSnapshot("fx_home_convergences"), [{ slug: "a", title: "ב" }]);
-    saveFrozenSnapshot("fx_home_convergences", "x".repeat(300_000));                 // too large: previous copy kept
+    saveFrozenSnapshot("fx_home_convergences", "x".repeat(700_000));                 // too large: previous copy kept
     assert.deepEqual(readFrozenSnapshot("fx_home_convergences"), [{ slug: "a", title: "ב" }]);
     store.set("sod_fx_snapshot:fx_home_convergences", "{not json");
     assert.equal(readFrozenSnapshot("fx_home_convergences"), null);
   } finally { delete globalThis.localStorage; }
+});
+
+test("frozenOr: ON fetches and keeps a copy; OFF returns the kept copy without calling the fetcher", async () => {
+  const store = new Map();
+  globalThis.localStorage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
+  globalThis.__SOD_2029_BUILD__ = true;
+  try {
+    const { frozenOr, primeRuntimeSwitches } = await import("../src/lib/runtimeSwitches2029.js");
+    let calls = 0; const fetcher = async () => { calls += 1; return { n: calls }; };
+    primeRuntimeSwitches({});
+    assert.deepEqual(await frozenOr("fx_home_pulse", fetcher), { n: 1 });
+    primeRuntimeSwitches({ fx_home_pulse: false });
+    assert.deepEqual(await frozenOr("fx_home_pulse", fetcher), { n: 1 });   // kept copy, fetcher not called
+    assert.equal(calls, 1);
+    primeRuntimeSwitches({ fx_home_world_preview: false });
+    assert.equal(await frozenOr("fx_home_world_preview", fetcher), null);   // OFF and nothing kept: nothing shown, no fetch
+    assert.equal(calls, 1);
+    primeRuntimeSwitches({}); assert.deepEqual(await frozenOr("fx_home_pulse", fetcher), { n: calls });  // ON again refreshes
+  } finally { delete globalThis.localStorage; delete globalThis.__SOD_2029_BUILD__; }
 });

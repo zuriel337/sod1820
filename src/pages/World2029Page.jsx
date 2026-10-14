@@ -63,7 +63,7 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
-import { runtimeOff } from "../lib/runtimeSwitches2029.js";
+import { runtimeOff, frozenOr } from "../lib/runtimeSwitches2029.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
@@ -709,7 +709,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         contributorPromise,
-        contributorPromise.then(async (projection) => (await runtimeOff("fx_world_discovery")) ? null : fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
+        contributorPromise.then((projection) => frozenOr("fx_world_discovery", () => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true }))),
         fetchGoldenWorldJourney878(),
       ]),
     ]);

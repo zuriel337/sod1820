@@ -2,7 +2,7 @@ import { supabase } from "../supabase.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
-import { runtimeOff } from "../runtimeSwitches2029.js";
+import { frozenOr } from "../runtimeSwitches2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -347,20 +347,16 @@ async function fetchTemporalTreasures(catalog) {
   return out.slice(0, 3);
 }
 
-export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
-  // Owner switches (control panel): each secondary section resolves to null without any request when OFF.
-  const [offPulse, offWorld, offTemporal] = await Promise.all([runtimeOff("fx_home_pulse"), runtimeOff("fx_home_world_preview"), runtimeOff("fx_home_temporal")]);
-  const pulsePromise = offPulse ? Promise.resolve(null) : fetchHomeSystemPulse2029().catch(() => null);
-  const worldPreviewPromise = includeWorld && !offWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
-  if (!includeTemporal || offTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+// "העת עכשיו": resolves to { temporalNow } or null (not verified / not enough sources).
+async function fetchTemporalNow2029() {
   // timeFlow מושך את @hebcal/core — נטען במקביל לקריאות הנתונים, לא בחבילת הדף. החישוב זהה.
   const { getCurrentTemporalContext } = await import("../timeFlow.js");
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
-  if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!Number.isSafeInteger(value)) return null;
 
   const yearVerification = await verifyCurrentYear(temporalContext);
-  if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!yearVerification.verified) return null;
 
   const curationCatalog = await fetchCurationCatalog2029().catch(() => null);
   const [contributions, postFindings, treasures] = await Promise.all([
@@ -385,11 +381,9 @@ export async function fetchHome2029Projection({ includeWorld = true, includeTemp
   const sourceCount = new Set(findings.map((row) => row.sourceKey)).size;
 
   // Materiality gate: Global Now should stay silent rather than manufacture a story.
-  if (sourceCount < 2 || findings.length < 2) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (sourceCount < 2 || findings.length < 2) return null;
 
   return {
-    systemPulse: await pulsePromise,
-    worldPreview: await worldPreviewPromise,
     temporalNow: {
       kind: "temporal_now",
       publicLabel: "העת עכשיו",
@@ -407,4 +401,13 @@ export async function fetchHome2029Projection({ includeWorld = true, includeTemp
       worldDimension: "now",
     },
   };
+}
+
+export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
+  // Owner switches (freeze mode): ON = read and keep a copy; OFF = the last kept copy, no request, no update.
+  const pulsePromise = frozenOr("fx_home_pulse", fetchHomeSystemPulse2029).catch(() => null);
+  const worldPreviewPromise = includeWorld ? frozenOr("fx_home_world_preview", fetchHomeWorldPreview2029).catch(() => null) : Promise.resolve(null);
+  if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  const temporal = await frozenOr("fx_home_temporal", fetchTemporalNow2029).catch(() => null);
+  return { temporalNow: temporal?.temporalNow || null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 }
