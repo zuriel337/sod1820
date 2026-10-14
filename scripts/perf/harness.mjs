@@ -11,14 +11,16 @@ const fixtures=fs.existsSync(fixFile)?JSON.parse(zlib.gunzipSync(fs.readFileSync
 const { srv, port }=await serve(dist); const origin=`http://127.0.0.1:${port}`;
 const browser=await chromium.launch({executablePath:process.env.PERF_CHROME||'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
 const median=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:null};
-const INIT=`(()=>{window.__m={lt:[],rootAt:null,lcp:0,cls:0};new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)__m.cls+=e.value}).observe({type:'layout-shift',buffered:true});
+const READY={'/':`document.querySelector("[data-experience-capability='home-composition'] a[href^='/post/']")`,'/world':`document.querySelector('[data-world-topic],[data-world-discovery-door]')`,post:`(()=>{const e=document.querySelector("[data-experience-capability='post-master-reading-stage']");return e&&e.innerText.length>800})()`};
+const INIT=(route)=>`(()=>{const READY=()=>${READY[route]||READY.post};window.__m={lt:[],rootAt:null,lcp:0,cls:0};new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)__m.cls+=e.value}).observe({type:'layout-shift',buffered:true});
 new PerformanceObserver(l=>{for(const e of l.getEntries())__m.lt.push([e.startTime,e.duration])}).observe({type:'longtask',buffered:true});
 new PerformanceObserver(l=>{for(const e of l.getEntries())__m.lcp=e.startTime}).observe({type:'largest-contentful-paint',buffered:true});
+const ro=new MutationObserver(()=>{if(__m.ready==null&&READY())__m.ready=performance.now()});document.addEventListener('DOMContentLoaded',()=>ro.observe(document.documentElement,{childList:true,subtree:true,characterData:true}));
 const mo=new MutationObserver(()=>{const r=document.getElementById('root');if(r&&r.childElementCount&&__m.rootAt==null){__m.rootAt=performance.now();mo.disconnect()}});
 document.addEventListener('DOMContentLoaded',()=>{const r=document.getElementById('root');if(r)mo.observe(r,{childList:true})});})()`;
-async function one(route){
+async function one(route){const routeKey=route;
   const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,locale:'he-IL',timezoneId:'Asia/Jerusalem',userAgent:'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141 Mobile Safari/537.36'});
-  await ctx.addInitScript(INIT); const page=await ctx.newPage(); const cdp=await ctx.newCDPSession(page);
+  await ctx.addInitScript(INIT(route)); const page=await ctx.newPage(); const cdp=await ctx.newCDPSession(page);
   const misses=[]; const sb=[]; const ext=[];
   await page.route('**/*',async route=>{
     const req=route.request(); const u=req.url();
@@ -41,7 +43,7 @@ async function one(route){
     const fcp=performance.getEntriesByName('first-contentful-paint')[0]?.startTime??null;
     const sbr=res.filter(r=>r.name.includes('.supabase.co')); const js=res.filter(r=>/\.js(\?|$)/.test(r.name)&&r.name.includes('/assets/'));
     const cr=sbr.filter(r=>!/rpc\/(link_identity|track_visit|ingest_event)|\/auth\/v1/.test(r.name)); const lt=__m.lt; const tbt=lt.filter(x=>x[0]>=(fcp||0)).reduce((s,x)=>s+Math.max(0,x[1]-50),0); const tbtAll=lt.reduce((s,x)=>s+Math.max(0,x[1]-50),0);
-    return {ttfb:nav.responseStart,dcl:nav.domContentLoadedEventEnd,load:nav.loadEventEnd,fcp,lcp:__m.lcp,rootAt:__m.rootAt,cls:__m.cls,
+    return {ttfb:nav.responseStart,dcl:nav.domContentLoadedEventEnd,load:nav.loadEventEnd,fcp,lcp:__m.lcp,rootAt:__m.rootAt,ready:__m.ready,cls:__m.cls,
       firstSbReq:sbr.length?Math.min(...sbr.map(r=>r.startTime)):null,firstSbEnd:sbr.length?Math.min(...sbr.map(r=>r.responseEnd)):null,lastSbEnd:sbr.length?Math.max(...sbr.map(r=>r.responseEnd)):null,
       firstContentReq:cr.length?Math.min(...cr.map(r=>r.startTime)):null,firstContentEnd:cr.length?Math.min(...cr.map(r=>r.responseEnd)):null,sbCount:sbr.length,jsCount:js.length,jsLastEnd:js.length?Math.max(...js.map(r=>r.responseEnd)):null,
       jsBytes:js.reduce((s,r)=>s+(r.encodedBodySize||0),0),allBytes:res.reduce((s,r)=>s+(r.encodedBodySize||0),0)+nav.encodedBodySize,
@@ -57,13 +59,13 @@ const out={label:args.label,mode,cpu,rtt,sbdelay,routes:{}};
 for(const r of routes){ const rs=[]; for(let i=0;i<(mode==='record'?1:runs);i++){ rs.push(await one(r)); }
   const keys=Object.keys(rs[0]).filter(k=>typeof rs[0][k]==='number'||rs[0][k]===null);
   const med={}; for(const k of keys) med[k]=median(rs.map(x=>x[k]).filter(v=>v!=null)); 
-  const spread={}; for(const k of ['fcp','lcp','firstSbReq','tbtAll','script']){const v=rs.map(x=>x[k]).filter(v=>v!=null).sort((a,b)=>a-b);spread[k]=[v[0],v[v.length-1]]}
+  const spread={}; for(const k of ['fcp','lcp','ready','firstContentReq','tbtAll','script']){const v=rs.map(x=>x[k]).filter(v=>v!=null).sort((a,b)=>a-b);spread[k]=[v[0],v[v.length-1]]}
   out.routes[r]={median:med,spread,sbList:rs[0].sbList,tl:rs[0].tl,ltl:rs[0].ltl,prof:rs[0].prof,misses:[...new Set(rs.flatMap(x=>x.misses))],ext:[...new Set(rs.flatMap(x=>x.ext))]}; console.error(r,'done'); }
 if(mode==='record') fs.writeFileSync(fixFile,zlib.gzipSync(JSON.stringify(fixtures)));
 if(args.out) fs.writeFileSync(args.out,JSON.stringify(out,null,1));
 const R=n=>n==null?'-':Math.round(n);
 console.log(`\n## ${args.label} (cpu x${cpu}, rtt ${rtt}ms, sb ${sbdelay}ms, n=${runs})`);
-console.log('route | FCP | LCP | root | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#');
-for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.firstContentReq),R(m.firstContentEnd),R(m.lastSbEnd),R(m.tbtAll),m.cls?.toFixed(3),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
+console.log('route | FCP | LCP | root | READY | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#');
+for(const [r,v] of Object.entries(out.routes)){const m=v.median;console.log([r,R(m.fcp),R(m.lcp),R(m.rootAt),R(m.ready),R(m.firstContentReq),R(m.firstContentEnd),R(m.lastSbEnd),R(m.tbtAll),m.cls?.toFixed(3),R(m.script),R(m.task),R(m.jsBytes/1024),R(m.allBytes/1024),m.sbCount].join(' | '));
   if(v.misses.length)console.log('  fixture misses:',v.misses.length);}
 await browser.close(); srv.close();
