@@ -13,6 +13,7 @@ const is2029 = process.env.SOD_BUILD_TARGET === '2029'
 // This prevents Rollup from re-sharing a common chunk that carries legacy-only presentation
 // into the 2029 document merely because both runtimes consume Foundation modules.
 export default defineConfig({
+  define: { __SOD_2029_BUILD__: JSON.stringify(is2029) },
   plugins: [react(), {
     name: '2029-entry-primary-reads',
     transformIndexHtml: {
