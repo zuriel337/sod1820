@@ -1,0 +1,37 @@
+[
+  {
+    "name": "role-a-navigation-before-clean.json.gz",
+    "originalSha256": "185c916df7f98029cdb034f2521e8646f4e4c2d7222fe29fb5857df84616911b",
+    "compressedSha256": "b120159c682edb98bdb7cb8550c6a3ca83eb38dcf1f12531e34fa080b49f5f23"
+  },
+  {
+    "name": "role-a-navigation-world-only.json.gz",
+    "originalSha256": "1c9379b33d9f9b05058bafd3bf4d33aec911f4d05f505fd03ea287a766e989e9",
+    "compressedSha256": "eee2af5033206ae714b48c7b9024d586211c49ca540230dfaa0b7fcab61e2023"
+  },
+  {
+    "name": "role-a-navigation-world-comparison.json.gz",
+    "originalSha256": "c8b28c63236ecf86ae0e2ed6d9e081799950d08534549d9deae1146c9684529d",
+    "compressedSha256": "8eee4e6d3dce577c078271ade986b860f872d752e9719777d201331961235109"
+  },
+  {
+    "name": "role-a-number-pilot.json.gz",
+    "originalSha256": "44db882adecdbc80149c1d724bbedc56889cebb06c6451be2b5b75fcada55f03",
+    "compressedSha256": "ecdf6f850d3719ec47a87e05de28fef4e72ed521f0d59f854c5daae7ca9cf0d9"
+  },
+  {
+    "name": "role-a-hosted-pilot.json.gz",
+    "originalSha256": "201561aea3d7dcbadd36ebc2374605fae71dac20e2f7f1df85ed1e28b5da1fa7",
+    "compressedSha256": "6f9c644a8e5e22f7d93caa799e5758e594b6ae55fab87d9c2791b46fe94832c6"
+  },
+  {
+    "name": "role-a-da15-ci-final.json.gz",
+    "originalSha256": "7f0dd87137090f9bffed6699b0145356590fbb4908625fa573b3ba65e8b0c798",
+    "compressedSha256": "9ac3528f5e6d8f24a8581a91ac9a44b07ed17ca414c716812ecab51207362429"
+  },
+  {
+    "name": "role-a-claude-scroll-heavy.json.gz",
+    "originalSha256": "563e91698a098c366c7e1607fe53128b1e57f46475a88e5941b53c7dae3266e2",
+    "compressedSha256": "a944a31fced0746cb3e02e46d0b37135c4c273ec01985addfaf245d49a33d0a9"
+  }
+]
