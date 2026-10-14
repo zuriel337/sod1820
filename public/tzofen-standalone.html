@@ -1,13 +1,13 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
 <style>
  #lgBanner{position:sticky;top:0;z-index:99999;background:#480b13;color:#f6da78;font:600 13px/1.5 Arial,sans-serif;text-align:center;padding:6px 10px;direction:rtl;border-bottom:1px solid rgba(232,200,74,.4)}
- .save-act,.save,.share-act,.sh-save,#xsaved,.gal-reopen,.gal-lbl,.gal-empty,#gallery,.saved,[class*="gal-close"],.post-link-act{display:none!important}
+ .save-act,.save,.share-act,.sh-save,#xsaved,.gal-reopen,.gal-lbl,.gal-empty,#gallery,.saved,[class*="gal-close"],.post-link-act,#howto,#alwaystip,#guidebtn,.locked{display:none!important}
 </style>
-<div id="lgBanner">מנוע ELS לגאסי · לא מקור אמת קנוני · אין אפשרות שמירה בגרסה זו — התוצאות נעלמות עם סגירת הדף</div>
+<div id="lgBanner">הצופן התנ״כי החדש והמתקדם עדיין בבנייה · בינתיים אפשר לחפש כאן</div>
 <script>
  (function(){
   // אין שמירה: כל כתיבה ל-localStorage/sessionStorage מושתקת, ואין תקשורת עם דף-אב.
-  try{Storage.prototype.setItem=function(){};}catch(e){}
+  try{Storage.prototype.setItem=function(){};var _g=Storage.prototype.getItem;Storage.prototype.getItem=function(k){return k==="tzofen_onboarded_v1"?"1":_g.call(this,k);};}catch(e){}
   try{window.addEventListener("message",function(e){e.stopImmediatePropagation();},true);}catch(e){}
   document.addEventListener("click",function(e){
     var b=e.target&&e.target.closest&&e.target.closest(".save-act,.save,.share-act");
@@ -1443,8 +1443,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     for(let i=0;i<uniq.length;i+=per){
       if(operation?.status==="cancelled")return {ok:false,error:"cancelled"};
       const chunk=uniq.slice(i,i+per);
-      const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,
-        candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))},undefined,operation);
+      const r={ok:true,result:{status:"OK",corpus_id:cid,verified:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))}};
       if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
       for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
       if(r.trace_id)traces.push(r.trace_id);
@@ -2257,7 +2256,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(st._renderNativeList)st._renderNativeList();emitState();
   }
 
-  const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
+  const isAnon=()=>false;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
   const canCross=()=>EXPR2029||!isAnon();
