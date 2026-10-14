@@ -129,19 +129,20 @@ index f0f9d369..bb0a0aa4 100644
        <p>דברי הכותבים והפוסטים האחרונים פתוחים לקריאה, גם לפני שנוצר מהם חיבור במחקר.</p></header>
      <div className="sod29-actions" aria-label="סוג המקורות">{[['all', 'העדכונים האחרונים'], ['group_message', 'הודעות מקור'], ['post', 'פוסטים אחרונים']].map(([key, label]) =>
 diff --git a/src/components/research/WorldFlightStory2029.jsx b/src/components/research/WorldFlightStory2029.jsx
-index 37c49360..b2d4ef37 100644
+index 37c49360..17de8700 100644
 --- a/src/components/research/WorldFlightStory2029.jsx
 +++ b/src/components/research/WorldFlightStory2029.jsx
-@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
+@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
  import { FrameState } from '../experience2029/Sod2029Shell.jsx';
  import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
  import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 -import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
++import { worldPainted } from '../../lib/earlyWorld.js';
 +import { WORLD_TIER, idleRun, WORLD_POSTS_FULL, WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
  import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
  import '../../pages/home-world-story2029.css';
  import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
-@@ -30,7 +30,18 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
+@@ -30,7 +31,18 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
    useEffect(() => {
      let live = true;
      setState({ loading: true, projection: null });
@@ -156,12 +157,12 @@ index 37c49360..b2d4ef37 100644
 +        if (error || !data?.length) return null;
 +        return { post: data[0], identity: { href: `/post/${encodeURIComponent(data[0].slug)}` }, experience: { timeline: [], media: null } };
 +      });
-+    const read = new Promise((resolve, reject) => { const go = () => readNow().then(resolve, reject); if (WORLD_TIER && surface === 'world') idleRun(go, 2500); else go(); });
++    const read = new Promise((resolve, reject) => { const go = () => readNow().then(resolve, reject); if (WORLD_TIER && surface === 'world') worldPainted.then(() => idleRun(go, 1500)); else go(); });
 +    read.then((projection) => {
        // This consumer never adopts a private stage or preview snapshot as public material.
        const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
          && postRowToWorldUpdate(projection.post);
-@@ -43,6 +54,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
+@@ -43,6 +55,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
      const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
      return () => cancelAnimationFrame(frame);
    }, [anchor, location.hash, state.loading]);
@@ -171,10 +172,10 @@ index 37c49360..b2d4ef37 100644
    </section>;
 diff --git a/src/lib/earlyWorld.js b/src/lib/earlyWorld.js
 new file mode 100644
-index 00000000..f0ee156e
+index 00000000..17020594
 --- /dev/null
 +++ b/src/lib/earlyWorld.js
-@@ -0,0 +1,13 @@
+@@ -0,0 +1,17 @@
 +// EXPERIMENT (private worktree only): start the World's first data read from the boot script,
 +// in parallel with the route chunk. Same reader (fetchExplorerFacetPage), same arguments.
 +let slot = null;
@@ -188,6 +189,10 @@ index 00000000..f0ee156e
 +  } catch { /* optimisation only */ }
 +}
 +export function takeEarlyWorld() { const p = slot; slot = null; return p; }
++
++// First-paint gate: work that is not drawn first (flight story data, its code chunk) waits for it.
++let paintedResolve; export const worldPainted = new Promise((r) => { paintedResolve = r; });
++export function markWorldPainted() { paintedResolve(); }
 diff --git a/src/lib/research/entityHubProjection.js b/src/lib/research/entityHubProjection.js
 index 21ce2654..74d09442 100644
 --- a/src/lib/research/entityHubProjection.js
@@ -267,19 +272,53 @@ index afdf4cb9..b77e6834 100644
  const root = createRoot(document.getElementById("root"));
  async function warmLocalFonts() {
 diff --git a/src/pages/World2029Page.jsx b/src/pages/World2029Page.jsx
-index 270daaeb..28190802 100644
+index 270daaeb..032e77b8 100644
 --- a/src/pages/World2029Page.jsx
 +++ b/src/pages/World2029Page.jsx
-@@ -72,6 +72,8 @@ import { applySeo } from "../lib/seo.js";
+@@ -1,23 +1,24 @@
+-import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
+-import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
++const lazyC = (loader) => { const C = lazy(loader); return function LazyC(props) { return <Suspense fallback={null}><C {...props} /></Suspense>; }; };
++const WorldSourceConnections = lazyC(() => import('../components/research/WorldSourceConnections.jsx'));
++const WorldConnectedDiscovery = lazyC(() => import('../components/research/WorldSourceStory.jsx'));
+ import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
+ import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
+ import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
+ import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
+ import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
+-import React, { useEffect, useMemo, useState } from "react";
++import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
+ import { Link } from "react-router-dom";
+ import { useLocation, useNavigate } from "react-router-dom";
+ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+-import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
+-import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
+-import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
+-import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
+-import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
++const TopicConvergenceContent = lazyC(() => import("../components/research/TopicConvergenceContent.jsx"));
++const WorldAllResearchTable = lazyC(() => import("../components/research/WorldAllResearchTable.jsx"));
++const WorldConvergenceLens = lazyC(() => import("../components/research/WorldConvergenceLens.jsx"));
++const WorldAnchorMap = lazyC(() => import("../components/research/WorldAnchorMap.jsx"));
++const WorldSourceCorpus = lazyC(() => import("../components/research/WorldSourceCorpus.jsx"));
+ import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
+ 
+ import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
+-import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
++const ContributorFindingsLens = lazyC(() => import("../components/research/ContributorFindingsLens.jsx"));
+ import { usePalette } from "../lib/palette.js";
+ import { useAuth } from "../lib/AuthContext.jsx";
+ import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
+@@ -72,6 +73,8 @@ import { applySeo } from "../lib/seo.js";
  import "./world2029-human.css";
  import "./worldComposition2029.css";
  import { levelNumbers } from "../lib/ratings2029.js";
 +import { WORLD_TIER, idleRun } from "../lib/worldPostsMode.js";
-+import { takeEarlyWorld } from "../lib/earlyWorld.js";
++import { takeEarlyWorld, markWorldPainted } from "../lib/earlyWorld.js";
  import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
  import { relativeTimeLabel } from "../lib/relativeTime2029.js";
  
-@@ -534,14 +536,16 @@ function WorldSourceStory({ research, shell, compact = false }) {
+@@ -534,14 +537,16 @@ function WorldSourceStory({ research, shell, compact = false }) {
    const [state, setState] = useState({ loading: true, story: null });
    const [attempt, setAttempt] = useState(0);
    const expanded = location.hash === `#${WORLD_SOURCE_STORY_ANCHOR}`;
@@ -297,7 +336,7 @@ index 270daaeb..28190802 100644
    const story = state.story;
    useEffect(() => {
      if (!expanded || !story) return;
-@@ -673,6 +677,33 @@ function LiveWorldLanding({ research, shell, context }) {
+@@ -673,6 +678,33 @@ function LiveWorldLanding({ research, shell, context }) {
        journeyError: null,
      }));
  
@@ -331,7 +370,15 @@ index 270daaeb..28190802 100644
      const contributorPromise = fetchWorldLandingContributorProjection();
      const [facetResults, extras] = await Promise.all([
        Promise.allSettled(
-@@ -1159,7 +1190,7 @@ function LiveWorldLanding({ research, shell, context }) {
+@@ -707,6 +739,7 @@ function LiveWorldLanding({ research, shell, context }) {
+   };
+ 
+   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
++  useEffect(() => { if (WORLD_TIER && !landing.loading) requestAnimationFrame(() => requestAnimationFrame(markWorldPainted)); }, [landing.loading]);
+ 
+   useEffect(() => {
+     if (landing.loading) return;
+@@ -1159,7 +1192,7 @@ function LiveWorldLanding({ research, shell, context }) {
            {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
            <small>לגלות את החיבורים ←</small>
          </Link>
