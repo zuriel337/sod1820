@@ -19,6 +19,9 @@ import LabDock from "./components/hub/LabDock.jsx";
 import UpdatesBar from "./components/UpdatesBar.jsx";
 
 import Layout from "./components/layout/Layout.jsx";
+import LiveChannelFeed from "./components/LiveChannelFeed.jsx";
+import { isSiteUpdatesRoute, isLegacyLayoutUpdatesRoute } from "./lib/siteUpdates.js";
+import { isBottomBarRoute, BOTTOM_BAR_CLEARANCE } from "./lib/bottomBar.js";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import { useStream } from "./lib/stream.js";
 import UpdateBanner from "./components/UpdateBanner.jsx";
@@ -274,6 +277,16 @@ function GlobalChrome({ children }) {
   return <>{children}</>;
 }
 
+// One updates window at the Legacy router root, including full-screen Legacy routes.
+// Existing admin dock remains its launcher where Layout actually mounts that dock.
+function GlobalLegacyUpdates() {
+  const { pathname } = useLocation();
+  const { isAdmin, loading } = useAuth();
+  if (!isSiteUpdatesRoute(pathname)) return null;
+  const dockVisible = !loading && isAdmin && isLegacyLayoutUpdatesRoute(pathname) && isBottomBarRoute(pathname);
+  return <LiveChannelFeed hideFab={dockVisible} bottomClearance={dockVisible ? BOTTOM_BAR_CLEARANCE : undefined} />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -283,6 +296,7 @@ export default function App() {
         <RouteEffects />
         <LegacyRedirect />
         <OnboardingGate />
+        <GlobalLegacyUpdates />
         <GlobalChrome>
           <UpdateBanner />
           {/* הוסר לבקשת צוריאל — כל הפופ-אפים הקופצים של האתר הישן: סרטוני המטוס (PlaneHintSpotlight),
@@ -474,3 +488,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

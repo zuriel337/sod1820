@@ -16,7 +16,6 @@ import PromoTicker from "./PromoTicker.jsx"; // 🎗️ טיקר יחיד מתח
 import Footer from "./Footer.jsx";
 import RevelationAxis from "../axis/RevelationAxis.jsx";
 import NumberDrawer from "../NumberDrawer.jsx";
-import LiveChannelFeed from "../LiveChannelFeed.jsx";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import DimensionFiveFeed from "../DimensionFiveFeed.jsx"; // 🎬 נגן-רצף מימד חמש (Shorts) — גלובלי
 import BottomBar from "./BottomBar.jsx"; // 🧭 Bottom Bar — Experience Shell קבוע (כאן·מספר·עכשיו·רזיאל·עוד)
@@ -104,12 +103,12 @@ export default function Layout() {
           (כפתור «123 מספר»), והפאנל מקבל bottomClearance כדי שה-Dock לא יכסה/יחתוך אותו.
           לציבור-רגיל (בלי Dock) — בדיוק אותו legacy hide-condition כמו לפני ה-Dock, בלי שינוי. */}
       <NumberDrawer hideLauncher={showBottomBar || legacyHideNumberLauncher} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />
-      {/* 🧭 חלון-העדכונים: ל-admin ה-fab הצף מוסתר — הפעולה עברה ל-Bottom Bar (כפתור «◉ עכשיו»),
-          והפאנל-הנייד מקבל bottomClearance כנ"ל. לציבור-רגיל — בדיוק אותו legacy fab, בלי שינוי. */}
-      {liveChrome && <LiveChannelFeed hideFab={showBottomBar} bottomClearance={showBottomBar ? BOTTOM_BAR_CLEARANCE : undefined} />}
+      {/* חלונית העדכונים חיה פעם אחת בשורש App, בכל מסלולי הלגאסי.
+          כפתור «עכשיו» של ה-Dock מפעיל את אותה חלונית קיימת. */}
       {/* 🎬 נגן-רצף «מימד חמש» (Shorts) — גלובלי, נפתח מכל כרטיס-מימד-חמש */}
       <DimensionFiveFeed />
       {showBottomBar && <BottomBar />}
     </div>
   );
 }
+
