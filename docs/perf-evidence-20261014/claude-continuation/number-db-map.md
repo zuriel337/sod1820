@@ -84,3 +84,7 @@ Nothing in the lens set depends on another: `Promise.all` waits for the slowest.
 | `fn_number_journey` (ציבורי) | לא נמדד | 21ms |
 
 ACL נשמר: lookup/journey ל־anon/authenticated/service_role כמקודם, dossier ללא שינוי; `fn_number_lookup_core` — `postgres` בלבד. חזרה לאחור: `number-lookup.ROLLBACK.sql`.
+
+## סינון מילים מוצפנות (אושר והוחל, migration `number_core_exclude_encrypted_20261014`)
+
+`fn_number_lookup_core` מוציא עכשיו `is_encrypted`. אומת חי כ־anon: סכום הקבוצות ב־dossier שווה בדיוק למה שה־lookup הישיר מחזיר לאורח, בערכים 22, 77, 81, 92, 500, 1820; אפס ביטויים מוצפנים ב־dossier וב־journey. חזרה לאחור: `number-lookup.ROLLBACK.sql` (לא מחזיר את הסינון; להסירו יש להריץ את הגרסה הקודמת של הליבה ידנית).
