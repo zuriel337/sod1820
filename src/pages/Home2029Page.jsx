@@ -6,6 +6,7 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
+import { takeEarlyContent2029 } from "../lib/earlyContent2029.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo } from "../lib/seo.js";
@@ -324,7 +325,7 @@ function HomeBody() {
 
   useEffect(() => {
     let live = true;
-    fetchHome2029Projection({ includeWorld: true, includeTemporal: true })
+    (takeEarlyContent2029("home") || fetchHome2029Projection({ includeWorld: true, includeTemporal: true }))
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
     return () => { live = false; };

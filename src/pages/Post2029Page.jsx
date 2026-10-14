@@ -4,6 +4,7 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
+import { takeEarlyContent2029 } from "../lib/earlyContent2029.js";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion } from "../lib/research/post2029ReadingProjection.js";
 import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
@@ -66,7 +67,7 @@ function PostReadingBody() {
     explicitGematriaFocusRef.current = null;
     restoredRegionRef.current = null;
     setState({ loading: true, projection: null, error: null });
-    fetchPost2029ReadingProjection(slug)
+    (takeEarlyContent2029(`post:${slug}`) || fetchPost2029ReadingProjection(slug))
       .then((projection) => {
         if (!live) return;
         setState({
