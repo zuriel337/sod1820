@@ -93,7 +93,14 @@ async function newSample(extra = {}) {
   return { ctx, page, cdp, st };
 }
 const settle = (page, ms = 2200) => page.waitForTimeout(ms);
-async function tap(page, sel) { const el = page.locator(sel).first(); await el.scrollIntoViewIfNeeded().catch(() => {}); await el.tap({ timeout: 8000 }); }
+// Tap like a user: prefer a matching control that is ALREADY inside the viewport (no programmatic scroll).
+// Playwright's scrollIntoViewIfNeeded would scroll the page to the first match and silently change the
+// position the user "left" (this made an earlier review read Home as restored to 33px — a harness artifact).
+async function tap(page, sel) {
+  const loc = page.locator(sel); const n = Math.min(await loc.count(), 80); const vh = await page.evaluate(() => innerHeight);
+  for (let i = 0; i < n; i++) { const bb = await loc.nth(i).boundingBox().catch(() => null); if (bb && bb.y >= 90 && bb.y + bb.height <= vh - 90) { await page.touchscreen.tap(bb.x + bb.width / 2, bb.y + bb.height / 2); return 'inview'; } }
+  const el = loc.first(); await el.scrollIntoViewIfNeeded().catch(() => {}); await el.tap({ timeout: 8000 }); return 'scrolled';
+}
 // real touch swipe (touchStart/Move/End with momentum) — Input.synthesizeScrollGesture did not scroll in this mobile context
 async function swipe(cdp, dist) { const x = 195; let y = 760; await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] }); const n = 24;
   for (let i = 0; i < n; i++) { y -= dist / n; await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] }); await new Promise(r => setTimeout(r, 16)); }
@@ -108,11 +115,11 @@ async function scrollBy(page, cdp, dist, steps = 3) {
 }
 // one interaction: tap a real control, wait for the target READY, report window metrics
 async function go(page, selector, key, how = 'tap') {
-  const t0 = await page.evaluate(() => window.__mark());
-  if (how === 'back') await page.goBack({ waitUntil: 'commit' }); else if (how === 'forward') await page.goForward({ waitUntil: 'commit' }); else await tap(page, selector);
+  let out_tap = null; const t0 = await page.evaluate(() => window.__mark());
+  if (how === 'back') await page.goBack({ waitUntil: 'commit' }); else if (how === 'forward') await page.goForward({ waitUntil: 'commit' }); else out_tap = await tap(page, selector);
   const r = await page.evaluate(k => window.__wait(k), key); await page.waitForTimeout(900);
   const w = await page.evaluate(([a, b]) => window.__win(a, b), [t0, r.t1]);
-  return { ok: r.ok, ms: r.ok ? Math.round(r.t1 - t0) : null, block: Math.round(w.block), maxTask: Math.round(w.maxTask), cls: +w.cls.toFixed(3), evMax: Math.round(w.evMax), evInputDelay: Math.round(w.evInputDelay), req: w.req };
+  return { tapMode: out_tap, ok: r.ok, ms: r.ok ? Math.round(r.t1 - t0) : null, block: Math.round(w.block), maxTask: Math.round(w.maxTask), cls: +w.cls.toFixed(3), evMax: Math.round(w.evMax), evInputDelay: Math.round(w.evInputDelay), req: w.req };
 }
 const MENU = '.sod29-mobile-menu-trigger', NAV_WORLD = "#sod29-mobile-navigation a[href='/world']", NAV_HOME = "#sod29-mobile-navigation a[href='/']", POST_LINK = "a[href^='/post/']:visible";
 // open the real mobile navigation drawer, then tap the destination (menu open/close cost reported separately)

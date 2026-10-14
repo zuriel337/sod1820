@@ -1,0 +1,254 @@
+From 25863f3668197cd45158d01b1e6208d32de367d3 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 14 Oct 2026 19:28:21 +0000
+Subject: [PATCH 2/2] fix(2029): complete a failed back/forward scroll restore
+ (downwards only)
+
+Measured on PR1100: the browser restores the offset on back, but after forward the World
+stayed at 0 instead of ~2750 because its content arrives later. scrollRestore2029 leaves the
+browser in charge and only completes a restore it did not do: remembers each history entry's
+offset (session storage, bounded; ignores the clamp caused by the page being swapped out), and on
+POP waits (bounded) until the document is tall enough, then scrolls down to the offset if the
+page is more than 40px above it. Never scrolls up, cancelled by touch/wheel/key/pointer, hash
+navigation untouched.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01BbS7vk9U2kCFptg4LtYTMg
+---
+ src/App2029.jsx                   | 19 +++++--
+ src/lib/scrollRestore2029.js      | 84 +++++++++++++++++++++++++++++
+ test/scroll-restore-2029.test.mjs | 90 +++++++++++++++++++++++++++++++
+ 3 files changed, 190 insertions(+), 3 deletions(-)
+ create mode 100644 src/lib/scrollRestore2029.js
+ create mode 100644 test/scroll-restore-2029.test.mjs
+
+diff --git a/src/App2029.jsx b/src/App2029.jsx
+index 25fcc73b..6ea34258 100644
+--- a/src/App2029.jsx
++++ b/src/App2029.jsx
+@@ -1,5 +1,5 @@
+-import React, { Suspense, lazy, useEffect } from "react";
+-import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
++import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef } from "react";
++import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigationType, useParams } from "react-router-dom";
+ import { AuthProvider } from "./lib/AuthContext.jsx";
+ import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+ import { initGA, trackPageview } from "./lib/analytics.js";
+@@ -8,6 +8,7 @@ import { trackVisit } from "./lib/visits.js";
+ import { startPageEngagement } from "./lib/engagement.js";
+ import { ensureIdentity } from "./lib/identity.js";
+ import { startWebVitals2029 } from "./lib/webVitals2029.js";
++import { createScrollRestorer2029 } from "./lib/scrollRestore2029.js";
+ import { use2029Palette } from "./lib/palette.js";
+ import { TYPEFACE } from "./lib/designTokens.js";
+ import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
+@@ -67,7 +68,19 @@ function Loading2029() {
+ 
+ // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
+ function RouteEffects2029() {
+-  const { pathname } = useLocation();
++  const { pathname, key, hash } = useLocation();
++  const navType = useNavigationType();
++  const restorer = useRef(null);
++
++  // Scroll position: the browser restores on back/forward; complete it (downwards only) when it could not.
++  useLayoutEffect(() => {
++    if (!restorer.current) restorer.current = createScrollRestorer2029();
++    restorer.current.start();
++    return () => restorer.current?.stop();
++  }, []);
++  useLayoutEffect(() => {
++    restorer.current?.onLocation({ key, hash, navType });
++  }, [key]);
+ 
+   useEffect(() => {
+     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
+diff --git a/src/lib/scrollRestore2029.js b/src/lib/scrollRestore2029.js
+new file mode 100644
+index 00000000..e148fe8e
+--- /dev/null
++++ b/src/lib/scrollRestore2029.js
+@@ -0,0 +1,84 @@
++// Scroll safety net for the 2029 runtime (BrowserRouter has no <ScrollRestoration>).
++// The browser already restores the offset on back/forward when the document is tall enough early enough
++// (measured: Home after back). It fails when the page content arrives later (measured: World after
++// forward stayed at 0 instead of ~2750). This module leaves the browser in charge and only completes
++// a restore the browser did not do:
++//   - the offset of every history entry is remembered (session storage, bounded);
++//   - on back/forward (POP) with a remembered offset, wait (bounded) until the document is tall enough,
++//     then scroll DOWN to it if the browser left the page more than 40px above;
++//   - never scroll up, never fight the user (touch/wheel/key/pointer cancels), hash navigation untouched.
++export const SCROLL_STORE_KEY = 'sod2029-scroll-v1';
++export const SCROLL_STORE_MAX = 60;
++export const RESTORE_MAX_WAIT_MS = 4000;
++export const RESTORE_TOLERANCE_PX = 40;
++
++export function planNavigation({ navType, hash, saved }) {
++  if (hash) return { action: 'none' };
++  if (navType === 'POP' && Number.isFinite(saved) && saved > 0) return { action: 'restore', y: saved };
++  return { action: 'none' };
++}
++
++export function readStore(storage) {
++  try { const v = JSON.parse(storage.getItem(SCROLL_STORE_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; } catch { return {}; }
++}
++export function trimStore(store, max = SCROLL_STORE_MAX) {
++  const keys = Object.keys(store);
++  if (keys.length <= max) return store;
++  return Object.fromEntries(keys.slice(keys.length - max).map((k) => [k, store[k]]));
++}
++
++export function createScrollRestorer2029(win = window) {
++  const store = readStore(win.sessionStorage || { getItem: () => null });
++  let currentKey = null, restoring = null, queued = false, stopListening = null, last = null;
++
++  const persist = () => { try { win.sessionStorage.setItem(SCROLL_STORE_KEY, JSON.stringify(trimStore(store))); } catch { /* storage may be blocked */ } };
++  const record = () => {
++    queued = false;
++    if (currentKey == null || restoring) return;
++    const y = Math.max(0, Math.round(win.scrollY || 0));
++    const h = win.document.documentElement.scrollHeight;
++    // When the page is swapped out the document shrinks and the browser clamps scrollY to the new maximum
++    // before the router's location key changes; that clamped value is not where the user was.
++    if (last && h < last.h - 1 && y < last.y && y >= h - win.innerHeight - 1) return;
++    last = { y, h };
++    delete store[currentKey]; store[currentKey] = y; // re-insert: most recent last, for trimming
++  };
++  const onScroll = () => { if (!queued) { queued = true; win.requestAnimationFrame(record); } };
++  const flush = () => { record(); persist(); };
++  const cancelRestore = () => { if (restoring) { restoring.cancel(); restoring = null; } };
++
++  function restore(y) {
++    cancelRestore();
++    const started = Date.now(); let done = false;
++    const inputs = ['touchstart', 'wheel', 'keydown', 'pointerdown'];
++    const finish = () => { if (done) return; done = true; inputs.forEach((e) => win.removeEventListener(e, finish)); if (restoring === handle) restoring = null; };
++    const handle = { cancel: finish };
++    restoring = handle;
++    inputs.forEach((e) => win.addEventListener(e, finish, { passive: true, once: true }));
++    const tick = () => {
++      if (done) return;
++      const reachable = win.document.documentElement.scrollHeight - win.innerHeight >= y - 1;
++      if (reachable) { if ((win.scrollY || 0) < y - RESTORE_TOLERANCE_PX) win.scrollTo(0, y); finish(); return; }
++      if (Date.now() - started > RESTORE_MAX_WAIT_MS) { finish(); return; }
++      win.requestAnimationFrame(tick);
++    };
++    win.requestAnimationFrame(tick);
++  }
++
++  return {
++    start() {
++      win.addEventListener('scroll', onScroll, { passive: true });
++      win.addEventListener('pagehide', flush);
++      stopListening = () => { win.removeEventListener('scroll', onScroll); win.removeEventListener('pagehide', flush); cancelRestore(); };
++    },
++    stop() { flush(); stopListening?.(); },
++    // call from a layout effect when the router location changes
++    onLocation({ key, hash, navType }) {
++      const plan = planNavigation({ navType, hash, saved: store[key] });
++      currentKey = key; last = null;
++      cancelRestore();
++      if (plan.action === 'restore') restore(plan.y);
++      return plan;
++    },
++  };
++}
+diff --git a/test/scroll-restore-2029.test.mjs b/test/scroll-restore-2029.test.mjs
+new file mode 100644
+index 00000000..d72259d0
+--- /dev/null
++++ b/test/scroll-restore-2029.test.mjs
+@@ -0,0 +1,90 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { planNavigation, trimStore, createScrollRestorer2029, SCROLL_STORE_KEY, RESTORE_MAX_WAIT_MS } from '../src/lib/scrollRestore2029.js';
++
++test('plan: only back/forward with a remembered offset restores; hash and everything else are left alone', () => {
++  assert.deepEqual(planNavigation({ navType: 'POP', hash: '', saved: 1800 }), { action: 'restore', y: 1800 });
++  assert.deepEqual(planNavigation({ navType: 'POP', hash: '#x', saved: 1800 }), { action: 'none' });
++  assert.deepEqual(planNavigation({ navType: 'POP', hash: '', saved: 0 }), { action: 'none' });
++  assert.deepEqual(planNavigation({ navType: 'POP', hash: '', saved: undefined }), { action: 'none' });
++  assert.deepEqual(planNavigation({ navType: 'PUSH', hash: '', saved: 500 }), { action: 'none' });
++  assert.deepEqual(planNavigation({ navType: 'REPLACE', hash: '', saved: 500 }), { action: 'none' });
++});
++test('store keeps the most recent entries', () => {
++  const s = Object.fromEntries(Array.from({ length: 70 }, (_, i) => [`k${i}`, i]));
++  const t = trimStore(s, 60);
++  assert.equal(Object.keys(t).length, 60); assert.equal(t.k69, 69); assert.equal(t.k0, undefined);
++});
++
++function fakeWindow({ height = 800 } = {}) {
++  const listeners = {}; let raf = []; const calls = [];
++  const win = {
++    scrollY: 0, innerHeight: 800, sessionStorage: { _: {}, getItem(k) { return this._[k] ?? null; }, setItem(k, v) { this._[k] = v; } },
++    document: { documentElement: { scrollHeight: height } },
++    addEventListener(e, f) { (listeners[e] ||= new Set()).add(f); }, removeEventListener(e, f) { listeners[e]?.delete(f); },
++    requestAnimationFrame(f) { raf.push(f); return raf.length; },
++    scrollTo(x, y) { calls.push(y); win.scrollY = y; },
++  };
++  return { win, calls, flushRaf: () => { const q = raf; raf = []; q.forEach((f) => f()); }, emit: (e) => [...(listeners[e] || [])].forEach((f) => f()) };
++}
++function leaveAndReturn(f, r, y) {
++  r.onLocation({ key: 'home', hash: '', navType: 'POP' });
++  f.win.scrollY = y; f.emit('scroll'); f.flushRaf();
++  r.onLocation({ key: 'post', hash: '', navType: 'PUSH' });
++}
++
++test('forward/back: waits until the document is tall enough, then scrolls down to the remembered offset', () => {
++  const f = fakeWindow({ height: 7000 }); const r = createScrollRestorer2029(f.win); r.start();
++  leaveAndReturn(f, r, 2750);
++  f.win.scrollY = 0; f.win.document.documentElement.scrollHeight = 900;   // browser could not restore, page still short
++  r.onLocation({ key: 'home', hash: '', navType: 'POP' });
++  f.flushRaf(); assert.equal(f.win.scrollY, 0);
++  f.win.document.documentElement.scrollHeight = 7000; f.flushRaf();
++  assert.equal(f.win.scrollY, 2750);
++});
++test('when the browser already restored the offset nothing is scrolled, and the page is never scrolled up', () => {
++  const f = fakeWindow({ height: 7000 }); const r = createScrollRestorer2029(f.win); r.start();
++  leaveAndReturn(f, r, 2000);
++  f.win.scrollY = 2000; const before = f.calls.length;
++  r.onLocation({ key: 'home', hash: '', navType: 'POP' }); f.flushRaf();
++  assert.equal(f.calls.length, before);
++  f.win.scrollY = 3500;                                                      // browser/user is further down than remembered
++  r.onLocation({ key: 'home', hash: '', navType: 'POP' }); f.flushRaf();
++  assert.equal(f.win.scrollY, 3500);
++});
++test('user input cancels a pending restore', () => {
++  const f = fakeWindow({ height: 900 }); const r = createScrollRestorer2029(f.win); r.start();
++  r.onLocation({ key: 'a', hash: '', navType: 'POP' });
++  f.win.scrollY = 1500; f.win.document.documentElement.scrollHeight = 7000; f.emit('scroll'); f.flushRaf();
++  r.onLocation({ key: 'b', hash: '', navType: 'PUSH' });
++  f.win.scrollY = 0; f.win.document.documentElement.scrollHeight = 900;
++  r.onLocation({ key: 'a', hash: '', navType: 'POP' });
++  f.emit('touchstart'); f.win.document.documentElement.scrollHeight = 7000; f.flushRaf();
++  assert.equal(f.win.scrollY, 0);
++});
++test('a restore that never becomes reachable gives up after the bounded wait without scrolling', () => {
++  const f = fakeWindow({ height: 7000 }); const r = createScrollRestorer2029(f.win); r.start();
++  leaveAndReturn(f, r, 3000);
++  f.win.scrollY = 0; f.win.document.documentElement.scrollHeight = 900;
++  const realNow = Date.now; let t = realNow(); Date.now = () => t;
++  try { r.onLocation({ key: 'home', hash: '', navType: 'POP' }); t += RESTORE_MAX_WAIT_MS + 10; f.flushRaf(); f.flushRaf(); } finally { Date.now = realNow; }
++  assert.equal(f.win.scrollY, 0);
++});
++test('a clamp caused by the page being swapped out is not recorded as the user position', () => {
++  const f = fakeWindow({ height: 7000 }); const r = createScrollRestorer2029(f.win); r.start();
++  r.onLocation({ key: 'home', hash: '', navType: 'POP' });
++  f.win.scrollY = 2114; f.emit('scroll'); f.flushRaf();
++  f.win.document.documentElement.scrollHeight = 880; f.win.scrollY = 80; f.emit('scroll'); f.flushRaf(); // clamp to the new maximum
++  r.onLocation({ key: 'post', hash: '', navType: 'PUSH' });
++  f.win.document.documentElement.scrollHeight = 7000; f.win.scrollY = 0;
++  r.onLocation({ key: 'home', hash: '', navType: 'POP' }); f.flushRaf();
++  assert.equal(f.win.scrollY, 2114);
++});
++test('hash navigation is untouched and positions persist for reloads', () => {
++  const f = fakeWindow(); const r = createScrollRestorer2029(f.win); r.start();
++  r.onLocation({ key: 'a', hash: '', navType: 'POP' });
++  r.onLocation({ key: 'b', hash: '#world-sources', navType: 'PUSH' });
++  assert.equal(f.calls.length, 0);
++  f.win.scrollY = 640; f.emit('scroll'); f.flushRaf(); r.stop();
++  assert.equal(JSON.parse(f.win.sessionStorage._[SCROLL_STORE_KEY]).b, 640);
++});
+-- 
+2.43.0
+

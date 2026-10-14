@@ -1,0 +1,1375 @@
+{
+ "label": "fixv3",
+ "theme": "dark",
+ "runs": 7,
+ "stages": {
+  "scrollHome": {
+   "y": {
+    "med": 2065,
+    "range": [
+     1830,
+     2118
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "longTasks": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "frames": {
+    "med": 231,
+    "range": [
+     230,
+     236
+    ]
+   },
+   "p95": {
+    "med": 16.799999999999272,
+    "range": [
+     17,
+     17
+    ]
+   },
+   "jank50": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "jank100": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "okRuns": 7,
+   "req": {
+    "img": 4
+   }
+  },
+  "toPost": {
+   "block": {
+    "med": 2,
+    "range": [
+     0,
+     124
+    ]
+   },
+   "maxTask": {
+    "med": 52,
+    "range": [
+     0,
+     177
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 72,
+    "range": [
+     48,
+     104
+    ]
+   },
+   "evInputDelay": {
+    "med": 37,
+    "range": [
+     26,
+     65
+    ]
+   },
+   "okRuns": 3,
+   "req": {
+    "js": 5,
+    "css": 2,
+    "img": 1,
+    "rest": 7
+   }
+  },
+  "scrollPost": {
+   "y": {
+    "med": 0,
+    "range": [
+     0,
+     1846
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "longTasks": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "frames": {
+    "med": 294,
+    "range": [
+     223,
+     295
+    ]
+   },
+   "p95": {
+    "med": 16.700000000004366,
+    "range": [
+     17,
+     17
+    ]
+   },
+   "jank50": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "jank100": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "okRuns": 7,
+   "req": {}
+  },
+  "backHome": {
+   "ms": {
+    "med": 506,
+    "range": [
+     378,
+     568
+    ]
+   },
+   "block": {
+    "med": 110,
+    "range": [
+     44,
+     152
+    ]
+   },
+   "maxTask": {
+    "med": 132,
+    "range": [
+     93,
+     179
+    ]
+   },
+   "cls": {
+    "med": 0.059,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "evMax": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evInputDelay": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yRestored": {
+    "med": 2730,
+    "range": [
+     33,
+     2823
+    ]
+   },
+   "yBefore": {
+    "med": 2065,
+    "range": [
+     1830,
+     2118
+    ]
+   },
+   "okRuns": 7,
+   "req": {
+    "img": 11,
+    "rest": 52
+   }
+  },
+  "toWorld": {
+   "ms": {
+    "med": 1271,
+    "range": [
+     1187,
+     1317
+    ]
+   },
+   "block": {
+    "med": 32,
+    "range": [
+     4,
+     39
+    ]
+   },
+   "maxTask": {
+    "med": 82,
+    "range": [
+     54,
+     89
+    ]
+   },
+   "cls": {
+    "med": 0.032,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 144,
+    "range": [
+     88,
+     240
+    ]
+   },
+   "evInputDelay": {
+    "med": 44,
+    "range": [
+     29,
+     64
+    ]
+   },
+   "menuOpenEvMax": {
+    "med": 184,
+    "range": [
+     168,
+     232
+    ]
+   },
+   "okRuns": 7,
+   "req": {
+    "rest": 12,
+    "js": 7,
+    "css": 3,
+    "img": 1
+   }
+  },
+  "scrollWorld": {
+   "y": {
+    "med": 2749,
+    "range": [
+     2630,
+     2822
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "longTasks": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "frames": {
+    "med": 289,
+    "range": [
+     288,
+     292
+    ]
+   },
+   "p95": {
+    "med": 16.799999999999272,
+    "range": [
+     17,
+     17
+    ]
+   },
+   "jank50": {
+    "med": 0,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "jank100": {
+    "med": 0,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "okRuns": 7,
+   "req": {}
+  },
+  "backFromWorld": {
+   "ms": {
+    "med": 503,
+    "range": [
+     468,
+     580
+    ]
+   },
+   "block": {
+    "med": 140,
+    "range": [
+     91,
+     197
+    ]
+   },
+   "maxTask": {
+    "med": 133,
+    "range": [
+     107,
+     187
+    ]
+   },
+   "cls": {
+    "med": 0.172,
+    "range": [
+     0,
+     1
+    ]
+   },
+   "evMax": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evInputDelay": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yRestored": {
+    "med": 0,
+    "range": [
+     0,
+     10
+    ]
+   },
+   "okRuns": 7,
+   "req": {}
+  },
+  "forwardWorld": {
+   "ms": {
+    "med": 244,
+    "range": [
+     228,
+     289
+    ]
+   },
+   "block": {
+    "med": 0,
+    "range": [
+     0,
+     28
+    ]
+   },
+   "maxTask": {
+    "med": 0,
+    "range": [
+     0,
+     78
+    ]
+   },
+   "cls": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evMax": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "evInputDelay": {
+    "med": 0,
+    "range": [
+     0,
+     0
+    ]
+   },
+   "yRestored": {
+    "med": 2755,
+    "range": [
+     2630,
+     2897
+    ]
+   },
+   "yBefore": {
+    "med": 2749,
+    "range": [
+     2630,
+     2822
+    ]
+   },
+   "okRuns": 7,
+   "req": {}
+  }
+ },
+ "failure": {
+  "afterFailedChunk": {
+   "url": "/world",
+   "rootText": 9472,
+   "rootTextBefore": 9472,
+   "blankPage": false,
+   "hasRetryOrMessage": true
+  },
+  "pageErrors": []
+ },
+ "coldHome": {
+  "med": 3983,
+  "range": [
+   3823,
+   4054
+  ]
+ },
+ "errors": {
+  "runsWithError": 0,
+  "pageErrors": 0,
+  "unmappedRpc": [],
+  "missesPerRun": [
+   2,
+   1,
+   1,
+   2,
+   1,
+   2,
+   2
+  ],
+  "overflowRuns": 0,
+  "blockedWrites": 28
+ },
+ "raw": [
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2100,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "img": 4
+     },
+     "frames": 230,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "inview",
+     "ok": false,
+     "ms": null,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 72,
+     "evInputDelay": 37,
+     "req": {
+      "js": 5,
+      "css": 2,
+      "img": 1,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 0,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 294,
+     "p95": 16.799999999995634,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 449,
+     "block": 110,
+     "maxTask": 123,
+     "cls": 0.02,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 11,
+      "rest": 52
+     },
+     "yRestored": 2765,
+     "yBefore": 2100
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1187,
+     "block": 4,
+     "maxTask": 54,
+     "cls": 0.032,
+     "evMax": 88,
+     "evInputDelay": 29,
+     "req": {
+      "rest": 12,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 168,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2749,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 288,
+     "p95": 16.799999999995634,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 580,
+     "block": 197,
+     "maxTask": 187,
+     "cls": 0.515,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 236,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2749,
+     "yBefore": 2749
+    },
+    "rootHasContent": 18185
+   },
+   "coldHome": 4009,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(chibur-bein-hasafot-mafteach-lagan)&limit=1",
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 1990,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "img": 4
+     },
+     "frames": 231,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "scrolled",
+     "ok": true,
+     "ms": 1428,
+     "block": 114,
+     "maxTask": 166,
+     "cls": 0.034,
+     "evMax": 56,
+     "evInputDelay": 39,
+     "req": {
+      "js": 6,
+      "css": 2,
+      "img": 4,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 1808,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 227,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 568,
+     "block": 152,
+     "maxTask": 179,
+     "cls": 0.44,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 7,
+      "rest": 49
+     },
+     "yRestored": 33,
+     "yBefore": 1990
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1317,
+     "block": 38,
+     "maxTask": 88,
+     "cls": 0,
+     "evMax": 240,
+     "evInputDelay": 64,
+     "req": {
+      "rest": 12,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 232,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2822,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 288,
+     "p95": 16.799999999999272,
+     "jank50": 1,
+     "jank100": 1
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 486,
+     "block": 125,
+     "maxTask": 133,
+     "cls": 0.172,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 10
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 260,
+     "block": 12,
+     "maxTask": 64,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2897,
+     "yBefore": 2822
+    },
+    "rootHasContent": 18419
+   },
+   "coldHome": 3823,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 1830,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "rest": 1,
+      "img": 4
+     },
+     "frames": 236,
+     "p95": 16.800000000000182,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "scrolled",
+     "ok": true,
+     "ms": 1670,
+     "block": 124,
+     "maxTask": 177,
+     "cls": 0.034,
+     "evMax": 104,
+     "evInputDelay": 65,
+     "req": {
+      "js": 6,
+      "css": 2,
+      "img": 4,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 1846,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 223,
+     "p95": 16.700000000000728,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 541,
+     "block": 146,
+     "maxTask": 158,
+     "cls": 0.054,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 7,
+      "rest": 52
+     },
+     "yRestored": 33,
+     "yBefore": 1830
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1271,
+     "block": 39,
+     "maxTask": 89,
+     "cls": 0,
+     "evMax": 144,
+     "evInputDelay": 54,
+     "req": {
+      "rest": 12,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 184,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2733,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 290,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 537,
+     "block": 142,
+     "maxTask": 126,
+     "cls": 0.247,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 10
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 289,
+     "block": 28,
+     "maxTask": 78,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2808,
+     "yBefore": 2733
+    },
+    "rootHasContent": 18419
+   },
+   "coldHome": 4054,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2118,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "img": 4
+     },
+     "frames": 232,
+     "p95": 16.800000000000182,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "inview",
+     "ok": false,
+     "ms": null,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 80,
+     "evInputDelay": 37,
+     "req": {
+      "js": 5,
+      "css": 2,
+      "img": 1,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 0,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 295,
+     "p95": 16.700000000004366,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 528,
+     "block": 144,
+     "maxTask": 140,
+     "cls": 0.778,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 11,
+      "rest": 52
+     },
+     "yRestored": 2823,
+     "yBefore": 2118
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1246,
+     "block": 21,
+     "maxTask": 71,
+     "cls": 0.032,
+     "evMax": 144,
+     "evInputDelay": 40,
+     "req": {
+      "rest": 12,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 184,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2781,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 289,
+     "p95": 16.80000000000291,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 546,
+     "block": 142,
+     "maxTask": 139,
+     "cls": 0.681,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 239,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2781,
+     "yBefore": 2781
+    },
+    "rootHasContent": 18185
+   },
+   "coldHome": 4016,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(chibur-bein-hasafot-mafteach-lagan)&limit=1",
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 1978,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "img": 4
+     },
+     "frames": 232,
+     "p95": 16.700000000000728,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "scrolled",
+     "ok": true,
+     "ms": 1599,
+     "block": 114,
+     "maxTask": 164,
+     "cls": 0.034,
+     "evMax": 56,
+     "evInputDelay": 39,
+     "req": {
+      "js": 6,
+      "css": 2,
+      "img": 4,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 1638,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 226,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 506,
+     "block": 103,
+     "maxTask": 132,
+     "cls": 0.06,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 7,
+      "rest": 52
+     },
+     "yRestored": 33,
+     "yBefore": 1978
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1271,
+     "block": 33,
+     "maxTask": 83,
+     "cls": 0,
+     "evMax": 136,
+     "evInputDelay": 33,
+     "req": {
+      "rest": 12,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 200,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2630,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 289,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 470,
+     "block": 134,
+     "maxTask": 107,
+     "cls": 0.101,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 10
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 261,
+     "block": 5,
+     "maxTask": 55,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2630,
+     "yBefore": 2630
+    },
+    "rootHasContent": 18419
+   },
+   "coldHome": 3914,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2102,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "img": 4
+     },
+     "frames": 231,
+     "p95": 16.799999999999272,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "inview",
+     "ok": false,
+     "ms": null,
+     "block": 2,
+     "maxTask": 52,
+     "cls": 0,
+     "evMax": 48,
+     "evInputDelay": 26,
+     "req": {
+      "js": 5,
+      "css": 2,
+      "img": 1,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 0,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 294,
+     "p95": 16.700000000004366,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 454,
+     "block": 44,
+     "maxTask": 93,
+     "cls": 0.059,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 11,
+      "rest": 48
+     },
+     "yRestored": 2807,
+     "yBefore": 2102
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1281,
+     "block": 21,
+     "maxTask": 71,
+     "cls": 0.032,
+     "evMax": 144,
+     "evInputDelay": 44,
+     "req": {
+      "rest": 12,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 184,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2755,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 292,
+     "p95": 16.700000000004366,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 468,
+     "block": 91,
+     "maxTask": 116,
+     "cls": 0.069,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 228,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2755,
+     "yBefore": 2755
+    },
+    "rootHasContent": 18185
+   },
+   "coldHome": 3983,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(chibur-bein-hasafot-mafteach-lagan)&limit=1",
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  },
+  {
+   "steps": {
+    "scrollHome": {
+     "y": 2065,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {
+      "img": 4
+     },
+     "frames": 231,
+     "p95": 16.700000000000728,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "toPost": {
+     "tapMode": "inview",
+     "ok": false,
+     "ms": null,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 72,
+     "evInputDelay": 37,
+     "req": {
+      "js": 5,
+      "css": 2,
+      "img": 1,
+      "rest": 7
+     }
+    },
+    "scrollPost": {
+     "y": 0,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 294,
+     "p95": 16.700000000004366,
+     "jank50": 0,
+     "jank100": 0
+    },
+    "backHome": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 378,
+     "block": 58,
+     "maxTask": 98,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {
+      "img": 11,
+      "rest": 53
+     },
+     "yRestored": 2730,
+     "yBefore": 2065
+    },
+    "toWorld": {
+     "tapMode": "inview",
+     "ok": true,
+     "ms": 1301,
+     "block": 32,
+     "maxTask": 82,
+     "cls": 0.032,
+     "evMax": 144,
+     "evInputDelay": 54,
+     "req": {
+      "rest": 11,
+      "js": 7,
+      "css": 3,
+      "img": 1
+     },
+     "menuOpenEvMax": 224,
+     "menuExpanded": "true"
+    },
+    "scrollWorld": {
+     "y": 2748,
+     "block": 0,
+     "longTasks": 0,
+     "cls": 0,
+     "req": {},
+     "frames": 291,
+     "p95": 16.700000000004366,
+     "jank50": 1,
+     "jank100": 0
+    },
+    "backFromWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 503,
+     "block": 140,
+     "maxTask": 143,
+     "cls": 0.07,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 0
+    },
+    "forwardWorld": {
+     "tapMode": null,
+     "ok": true,
+     "ms": 244,
+     "block": 0,
+     "maxTask": 0,
+     "cls": 0,
+     "evMax": 0,
+     "evInputDelay": 0,
+     "req": {},
+     "yRestored": 2748,
+     "yBefore": 2748
+    },
+    "rootHasContent": 18185
+   },
+   "coldHome": 3935,
+   "overflowX": false,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": [
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(chibur-bein-hasafot-mafteach-lagan)&limit=1",
+    "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,date,home_hidden,tags&or=(categories.cs.{\"סוד+החשמל\""
+   ],
+   "unmappedRpc": [],
+   "blockedWrites": 28
+  }
+ ]
+}

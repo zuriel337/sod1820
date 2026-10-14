@@ -1,6 +1,6 @@
 // prints a comparison table from raw/<stage>.json  (usage: node summarize.mjs s0 s3 s4 ...)
 import fs from 'node:fs';
-const st = process.argv.slice(2); const R = {}; for (const s of st) { try { R[s] = JSON.parse(fs.readFileSync(new URL(`./raw/${s}.json`, import.meta.url))); } catch { } }
+const st = process.argv.slice(2); const R = {}; for (const s of st) { try { R[s] = JSON.parse(fs.readFileSync(process.env.RAWDIR + '/' + s + '.json')); } catch { } }
 const cl = (s, step) => { const a = (R[s]?.raw || []).map(r => r.steps?.[step]?.cls).filter(x => x != null); if (!a.length) return '-'; const sorted = [...a].sort((x, y) => x - y); return `${sorted[Math.floor(sorted.length / 2)].toFixed(2)} bad${a.filter(x => x > 0.1).length}/${a.length}`; };
 const g = (s, step, f) => { if (f === 'cls') return cl(s, step); const v = R[s]?.stages?.[step]?.[f]; return v ? `${Math.round(v.med)}[${v.range?.join('-')}]` : '-'; };
 const row = (title, step, f) => console.log(title.padEnd(28), st.map(s => (R[s] ? g(s, step, f) : '-').padEnd(16)).join(''));

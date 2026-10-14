@@ -4,6 +4,8 @@ Role C of journal row `5070f5af`. READ_ONLY on product code, CI and PR1100; this
 Candidates (exact SHAs, re-verified by fetch before the run): PR1100 `gpt/perf-execution-20261014` **5dd4afaa**; continuation `claude/perf-continuation-20261014` **5de85cfe** (= `eac046a` CI, `5d709c4` Home, `5de85cf` World); base of PR1100 **18821815**. GPT's local `9009b245` / native image `15af7aff` are not pushed → **UNMEASURED**, not reviewed. Main `12fea7a3`.
 Not comparable with lane-A tables (different product tree and different flow). Fixtures (GET + allow-listed read-RPC POST, recorded live per SHA, fixed 150 ms) and hosted results are never mixed. Every number below is a lab replay, not a device.
 
+> **CORRECTION (same day, see `../claude-fixes/README.md`):** every statement below that Home is "restored to 33 px instead of ≈2047" after back is a harness artifact (the tap helper scrolled Home to the first card before tapping). With a tap on a control already in view, unpatched PR1100 restores Home on back (≈2709–2800 px). Still valid: forward → World is not restored (0 vs ≈2749), the carried-offset mechanism behind the back-to-Home CLS, the Hebrew-slug handoff defect, and all size/time findings. The recommended fix #2 should read: complete a failed forward/back restore downwards only, and reserve heights for `dg29`/hero reveals; do not take over scroll restoration.
+
 ## 1. Method (what was actually run)
 - 10 cumulative stages built from PR1100's own commits plus the continuation (`static-s*.json`, `raw/*`):
   s0 `18821815` · s1 `15fb1e83` · s2 `44dd9824` · s3 `2b97b058` · s4 `e8c3a2cf` · s5 `aa626181` · s6 `1f2f4758` · s7 `5dd4afaa` (= product of `568c783b`) · s8 `5d709c47` · s9 `5de85cfe`.

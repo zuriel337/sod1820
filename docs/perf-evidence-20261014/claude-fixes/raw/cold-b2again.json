@@ -1,0 +1,230 @@
+{
+ "label": "b2-again",
+ "runs": 5,
+ "routes": {
+  "/": {
+   "ready": {
+    "med": 4062.899999999907,
+    "range": [
+     4004,
+     4313
+    ]
+   },
+   "lead": {
+    "med": null,
+    "range": null
+   },
+   "fcp": {
+    "med": 1748
+   },
+   "jsBeforeKB": 311.63671875,
+   "jsBeforeN": 33,
+   "jsAfterKB": 27.9091796875,
+   "jsAfterN": 6,
+   "jsAfterNames": [
+    "explorerFacets.js",
+    "entityHubProjection.js",
+    "canonicalGematria.js",
+    "bookResearchProjection.js",
+    "researchW2Executors.js",
+    "numberSystemMethods.js"
+   ],
+   "jsTotalKB": 444.1376953125,
+   "jsTotalN": 49,
+   "cssBeforeKB": 36.67578125,
+   "restBefore": 26,
+   "restTotal": 70,
+   "firstRestStart": 229.20000000018626,
+   "slugReads": 9,
+   "dupReads": [
+    [
+     "/rest/v1/rpc/notification_prefs_guest_get_v1",
+     5
+    ],
+    [
+     "/rest/v1/posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,tags,home_hidde",
+     3
+    ],
+    [
+     "/rest/v1/gematria_words?select=phrase,ragil,created_at,visibility_changed_at&is_verified=e",
+     2
+    ],
+    [
+     "/rest/v1/posts?select=id,slug,date,modified,tags,categories,source,home_hidden&slug=eq.mah",
+     2
+    ],
+    [
+     "/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qualit",
+     3
+    ],
+    [
+     "/rest/v1/rpc/world_group_source_arrivals_v2",
+     2
+    ],
+    [
+     "/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,c",
+     2
+    ],
+    [
+     "/rest/v1/rpc/gematria_method_trace",
+     6
+    ],
+    [
+     "/rest/v1/rpc/convergence_meter",
+     4
+    ],
+    [
+     "/rest/v1/nodes?select=rule_id,rule_version&type=eq.rule&is_active=eq.true&rule_id=in.(zero",
+     2
+    ],
+    [
+     "/rest/v1/rpc/fn_zero_scale",
+     2
+    ]
+   ],
+   "misses": 0,
+   "readyRuns": 5
+  },
+  "/world": {
+   "ready": {
+    "med": 4589.5,
+    "range": [
+     4527,
+     4605
+    ]
+   },
+   "lead": {
+    "med": 5372.799999999814,
+    "range": [
+     5291,
+     5440
+    ]
+   },
+   "fcp": {
+    "med": 2032
+   },
+   "jsBeforeKB": 432.994140625,
+   "jsBeforeN": 47,
+   "jsAfterKB": 27.7744140625,
+   "jsAfterN": 2,
+   "jsAfterNames": [
+    "post2029ReadingProjection.js",
+    "researchW2Executors.js"
+   ],
+   "jsTotalKB": 460.7685546875,
+   "jsTotalN": 49,
+   "cssBeforeKB": 50.9853515625,
+   "restBefore": 8,
+   "restTotal": 54,
+   "firstRestStart": 227.60000000009313,
+   "slugReads": 5,
+   "dupReads": [
+    [
+     "/rest/v1/site_flags?select=key,enabled,message,mode",
+     2
+    ],
+    [
+     "/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image",
+     2
+    ],
+    [
+     "/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qualit",
+     5
+    ],
+    [
+     "/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,c",
+     2
+    ],
+    [
+     "/rest/v1/rpc/world_group_source_arrivals_v2",
+     2
+    ],
+    [
+     "/rest/v1/rpc/convergence_meter",
+     2
+    ],
+    [
+     "/rest/v1/rpc/gematria_method_trace",
+     6
+    ],
+    [
+     "/rest/v1/nodes?select=rule_id,rule_version&type=eq.rule&is_active=eq.true&rule_id=in.(zero",
+     2
+    ],
+    [
+     "/rest/v1/rpc/fn_zero_scale",
+     2
+    ]
+   ],
+   "misses": 0,
+   "readyRuns": 5
+  },
+  "/post/mah-kore-mokesh-har-naftali": {
+   "ready": {
+    "med": 3947.399999999907,
+    "range": [
+     3913,
+     4018
+    ]
+   },
+   "lead": {
+    "med": null,
+    "range": null
+   },
+   "fcp": {
+    "med": 1744
+   },
+   "jsBeforeKB": 347.359375,
+   "jsBeforeN": 38,
+   "jsAfterKB": 0,
+   "jsAfterN": 0,
+   "jsAfterNames": [],
+   "jsTotalKB": 351.3876953125,
+   "jsTotalN": 39,
+   "cssBeforeKB": 37.94921875,
+   "restBefore": 9,
+   "restTotal": 12,
+   "firstRestStart": 231,
+   "slugReads": 1,
+   "dupReads": [
+    [
+     "/storage/v1/object/public/media/sod1820/2029/video/2026/10/b3b67517-7c04-49aa-b2bb-986533e",
+     2
+    ]
+   ],
+   "misses": 0,
+   "readyRuns": 5
+  },
+  "/post/%D7%A7%D7%95%D7%9C-%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA-%D7%94%D7%A2%D7%95%D7%9C%D7%9D-%D7%90%D7%9C%D7%95%D7%94%D7%99-%D7%90%D7%91%D7%A8%D7%94%D7%9D-%D7%99%D7%A6%D7%97%D7%A7-%D7%95%D7%99%D7%A2%D7%A7%D7%91": {
+   "ready": {
+    "med": 4123,
+    "range": [
+     4081,
+     4230
+    ]
+   },
+   "lead": {
+    "med": null,
+    "range": null
+   },
+   "fcp": {
+    "med": 1728
+   },
+   "jsBeforeKB": 347.359375,
+   "jsBeforeN": 38,
+   "jsAfterKB": 0,
+   "jsAfterN": 0,
+   "jsAfterNames": [],
+   "jsTotalKB": 351.3876953125,
+   "jsTotalN": 39,
+   "cssBeforeKB": 37.94921875,
+   "restBefore": 10,
+   "restTotal": 14,
+   "firstRestStart": 247.6999999997206,
+   "slugReads": 2,
+   "dupReads": [],
+   "misses": 0,
+   "readyRuns": 5
+  }
+ }
+}

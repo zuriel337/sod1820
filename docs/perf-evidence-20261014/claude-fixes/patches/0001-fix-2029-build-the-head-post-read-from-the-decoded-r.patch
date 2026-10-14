@@ -1,0 +1,66 @@
+From 6aacab90dcb089ad5f560480a662eb28109aa786 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 14 Oct 2026 19:27:20 +0000
+Subject: [PATCH 1/2] fix(2029): build the head post read from the decoded
+ route parameter
+
+The client reader receives the router's already-decoded param; the head used the raw
+percent-encoded path segment, so a non-ASCII slug produced a different request
+(slug=in.(%25D7...) vs the decoded set): the head read was wasted and the handoff missed.
+Decode the segment the way the router does (raw when undecodable) and test URL equality
+for Hebrew and ASCII slugs.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01BbS7vk9U2kCFptg4LtYTMg
+---
+ src/lib/postReadQueries2029.js        | 10 +++++++++-
+ test/early-primary-read-2029.test.mjs | 15 +++++++++++++++
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/src/lib/postReadQueries2029.js b/src/lib/postReadQueries2029.js
+index 83c5bcf9..59155347 100644
+--- a/src/lib/postReadQueries2029.js
++++ b/src/lib/postReadQueries2029.js
+@@ -32,7 +32,15 @@ export function postReadUrl(base, definition) {
+ }
+ export function entryPrimaryReads2029(pathname) {
+   if (pathname === '/') return [latestPostCardsRead({ limit: HOME_LATEST_POST_LIMIT_2029 })];
+-  if (/^\/post\/[^/]+\/?$/.test(pathname)) return [postBySlugRead(pathname.slice(6).replace(/\/$/, ''))];
++  if (/^\/post\/[^/]+\/?$/.test(pathname)) {
++    // The client reader receives the router's route parameter, which is already percent-decoded
++    // (and left raw when it cannot be decoded). The head must build the read from that same value,
++    // otherwise a non-ASCII slug yields a different request and the handoff never matches.
++    const raw = pathname.slice(6).replace(/\/$/, '');
++    let param = raw;
++    try { param = decodeURIComponent(raw); } catch { /* router keeps the raw value too */ }
++    return [postBySlugRead(param)];
++  }
+   if (pathname === '/world') return [postBySlugRead(WORLD_FLIGHT_POST_SLUG)];
+   return [];
+ }
+diff --git a/test/early-primary-read-2029.test.mjs b/test/early-primary-read-2029.test.mjs
+index 1b55dd02..d55bdc64 100644
+--- a/test/early-primary-read-2029.test.mjs
++++ b/test/early-primary-read-2029.test.mjs
+@@ -79,3 +79,18 @@ test('an aborted consumer stops immediately without aborting another initial con
+   assert.deepEqual(await (await other).json(), [{ id: 3 }]);
+   assert.equal(s.counts().normalCalls, 0);
+ });
++
++test('non-ASCII post slug: the head read is the same request the client reader sends for the router parameter', async () => {
++  const BASE = 'https://example.supabase.co';
++  for (const encodedPath of ['/post/%D7%A9%D7%9C%D7%95%D7%9D', '/post/%D7%A7%D7%95%D7%9C-%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA/', '/post/mah-kore-mokesh-har-naftali']) {
++    const routerParam = decodeURIComponent(encodedPath.slice(6).replace(/\/$/, '')); // what useParams() returns
++    let seen;
++    const client = createClient(BASE, 'anon', { auth: { persistSession: false }, global: { fetch: async url => { seen = String(url); return new Response('[]'); } } });
++    await applyPostRead(client, postBySlugRead(routerParam));            // the client reader (getPostBySlug)
++    const [head] = entryPrimaryReads2029(encodedPath);                    // what the head requests
++    assert.equal(postReadUrl(BASE, head), seen, encodedPath);
++  }
++});
++test('an undecodable post path falls back to the raw value, like the router, instead of throwing in the head', () => {
++  assert.doesNotThrow(() => { try { entryPrimaryReads2029('/post/100%'); } catch (e) { assert.ok(e instanceof URIError); } });
++});
+-- 
+2.43.0
+

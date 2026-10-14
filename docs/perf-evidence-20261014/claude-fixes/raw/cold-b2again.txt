@@ -1,0 +1,11 @@
+b2-again / done
+b2-again /world done
+b2-again /post/mah-kore-mokesh-har-naftali done
+b2-again /post/%D7%A7%D7%95%D7%9C-%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA-%D7%94%D7%A2%D7%95%D7%9C%D7%9D-%D7%90%D7%9C%D7%95%D7%94%D7%99-%D7%90%D7%91%D7%A8%D7%94%D7%9D-%D7%99%D7%A6%D7%97%D7%A7-%D7%95%D7%99%D7%A2%D7%A7%D7%91 done
+
+## cold b2-again n=5
+route | READY med [range] | FCP | JS before READY (KB br / files) | JS after READY (KB / files) | JS total | REST before READY / total | slug reads | dup reads | misses
+/ | 4063 [4004,4313] | 1748 | 312/33 | 28/6 | 444/49 | 26/70 | 9 | 11 | 0
+/world | 4590 [4527,4605] lead 5373 [5291,5440] | 2032 | 433/47 | 28/2 | 461/49 | 8/54 | 5 | 9 | 0
+/post/mah-kore-mokesh-har-naftali | 3947 [3913,4018] | 1744 | 347/38 | 0/0 | 351/39 | 9/12 | 1 | 1 | 0
+/post/קול-מאומות-העולם-אלוהי-אברהם | 4123 [4081,4230] | 1728 | 347/38 | 0/0 | 351/39 | 10/14 | 2 | 0 | 0
