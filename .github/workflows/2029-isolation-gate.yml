@@ -138,6 +138,8 @@ jobs:
           node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/after.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label after
           node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json"
           node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json" "$RUNNER_TEMP/perf-results/after.json" scripts/perf-execution-2029/replay-budgets.json
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/extension-failure.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --routes /world --runs 1 --extensiondelay 2000 --extensionfail 1 --label delayed-failed-extensions
+          node scripts/perf-execution-2029/extension-gate.mjs "$RUNNER_TEMP/perf-results/extension-failure.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

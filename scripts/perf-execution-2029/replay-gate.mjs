@@ -22,7 +22,7 @@ export function validateReplay(data, { functional = false } = {}) {
 }
 export function compareReplay(before, after) {
   const errors = [...validateReplay(before).errors, ...validateReplay(after).errors];
-  for (const key of ['browser', 'playwright', 'cpu', 'rtt', 'download', 'upload', 'viewport', 'dpr', 'fixturesSha256', 'extensionInjection']) {
+  for (const key of ['browser', 'playwright', 'cpu', 'rtt', 'download', 'upload', 'viewport', 'dpr', 'theme', 'navigation', 'fixturesSha256', 'extensionInjection']) {
     if (JSON.stringify(before[key] ?? null) !== JSON.stringify(after[key] ?? null)) errors.push(`Conditions differ: ${key}`);
   }
   const deltas = {};
