@@ -1,0 +1,5 @@
+/world done
+
+## base-r1 (cpu x4, rtt 150ms, sb 150ms, n=7)
+route | FCP | LCP | root | READY | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#
+/world | 2076 | 5864 | 2056 | 4518 | 1820 | 1979 | 5921 | 248 | 0.037 | 693 | 2004 | 476 | 613 | 71

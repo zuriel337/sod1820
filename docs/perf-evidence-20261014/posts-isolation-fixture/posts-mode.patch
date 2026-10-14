@@ -1,0 +1,115 @@
+diff --git a/src/components/research/SourceArrivalList2029.jsx b/src/components/research/SourceArrivalList2029.jsx
+index f0f9d369..bb0a0aa4 100644
+--- a/src/components/research/SourceArrivalList2029.jsx
++++ b/src/components/research/SourceArrivalList2029.jsx
+@@ -4,6 +4,7 @@ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
+ import SourceRepeatInfo2029 from './SourceRepeatInfo2029.jsx';
+ import '../../pages/home-world-story2029.css';
+ import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
++import { WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
+ import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
+ 
+ function date(value) {
+@@ -16,7 +17,8 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
+   const [seen, setSeen] = useState(readSeen);
+   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
+   const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, limit);
+-  return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות">
++  return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות"
++    style={WORLD_POSTS_OFF && surface === 'world' ? { minHeight: window.matchMedia('(max-width:760px)').matches ? 6204 : 3003 } : undefined}>
+     <header><div className="sod29-kicker">קולות מן המקור</div><h2>מה מגיע עכשיו</h2>
+       <p>דברי הכותבים והפוסטים האחרונים פתוחים לקריאה, גם לפני שנוצר מהם חיבור במחקר.</p></header>
+     <div className="sod29-actions" aria-label="סוג המקורות">{[['all', 'העדכונים האחרונים'], ['group_message', 'הודעות מקור'], ['post', 'פוסטים אחרונים']].map(([key, label]) =>
+diff --git a/src/components/research/WorldFlightStory2029.jsx b/src/components/research/WorldFlightStory2029.jsx
+index 37c49360..4c93848e 100644
+--- a/src/components/research/WorldFlightStory2029.jsx
++++ b/src/components/research/WorldFlightStory2029.jsx
+@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
+ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
+ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
+ import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
+-import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
++import { WORLD_POSTS_FULL, WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
+ import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
+ import '../../pages/home-world-story2029.css';
+ import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
+@@ -30,7 +30,17 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
+   useEffect(() => {
+     let live = true;
+     setState({ loading: true, projection: null });
+-    fetchPost2029ReadingProjection(slug).then((projection) => {
++    // EXPERIMENT: full = the reading projection (connections, timeline, traces); basic = one narrow
++    // row for the card; off = no post request, reserved space only.
++    const read = WORLD_POSTS_FULL
++      ? import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug))
++      : WORLD_POSTS_OFF ? Promise.resolve(null)
++      : import('../../lib/supabase.js').then(async ({ supabase }) => {
++        const { data, error } = await supabase.from('posts').select('id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,image_url,thumb_url,categories').eq('slug', slug).limit(1);
++        if (error || !data?.length) return null;
++        return { post: data[0], identity: { href: `/post/${encodeURIComponent(data[0].slug)}` }, experience: { timeline: [], media: null } };
++      });
++    read.then((projection) => {
+       // This consumer never adopts a private stage or preview snapshot as public material.
+       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
+         && postRowToWorldUpdate(projection.post);
+@@ -43,6 +53,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
+     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
+     return () => cancelAnimationFrame(frame);
+   }, [anchor, location.hash, state.loading]);
++  if (WORLD_POSTS_OFF) return <section id={anchor} className="sod29-flight-story is-world is-loading" data-world-posts-reserved aria-hidden="true" style={{ height: window.matchMedia('(max-width:760px)').matches ? 668 : 573 }} />;
+   if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
+     <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
+   </section>;
+diff --git a/src/lib/research/entityHubProjection.js b/src/lib/research/entityHubProjection.js
+index 21ce2654..74d09442 100644
+--- a/src/lib/research/entityHubProjection.js
++++ b/src/lib/research/entityHubProjection.js
+@@ -1,4 +1,5 @@
+ import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
++import { WORLD_POSTS_FULL } from "../worldPostsMode.js";
+ import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
+ import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
+ import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
+@@ -863,7 +864,7 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
+       ? publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
+         .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
+       : Promise.resolve({ data: [], count: 0 }),
+-    slug === INDIA_CAPTAIN_SOURCE.topicSlug
++    slug === INDIA_CAPTAIN_SOURCE.topicSlug && WORLD_POSTS_FULL
+       ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
+         .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
+       : Promise.resolve({ data: null }),
+diff --git a/src/lib/research/worldDiscoveryStream.js b/src/lib/research/worldDiscoveryStream.js
+index f3f4b193..b55e1be7 100644
+--- a/src/lib/research/worldDiscoveryStream.js
++++ b/src/lib/research/worldDiscoveryStream.js
+@@ -1,4 +1,5 @@
+ import { fetchTopicCardList } from "./topicConvergence.js";
++import { WORLD_POSTS_OFF } from "../worldPostsMode.js";
+ import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
+ import { stripHtml } from "../format.js";
+ import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
+@@ -245,7 +246,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
+ 
+   // Public Source is read from the existing posts RLS boundary, never a privileged
+   // legacy WhatsApp endpoint. Group messages require a separately verified source reader.
+-  const postsPromise = import("../supabase.js").then(async ({ supabase }) => {
++  const postsPromise = WORLD_POSTS_OFF ? Promise.resolve([]) : import("../supabase.js").then(async ({ supabase }) => {
+     const { data, error } = await supabase
+       .from("posts")
+       .select("id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at")
+diff --git a/src/lib/worldPostsMode.js b/src/lib/worldPostsMode.js
+new file mode 100644
+index 00000000..09241909
+--- /dev/null
++++ b/src/lib/worldPostsMode.js
+@@ -0,0 +1,9 @@
++// EXPERIMENT (isolation of the Posts system from the World page). Build-time constant:
++//   full  = unchanged World
++//   basic = post cards from the basic list row only: no post-reading projection, connection
++//           resolution, method verification, gematria traces or post-body reads
++//   off   = no post data requests at all (reserved space is rendered instead of the card)
++// Resolved at build time so the branches below are removed from the bundle, not just hidden.
++export const WORLD_POSTS_MODE = import.meta.env.VITE_WORLD_POSTS || 'full';
++export const WORLD_POSTS_FULL = WORLD_POSTS_MODE === 'full';
++export const WORLD_POSTS_OFF = WORLD_POSTS_MODE === 'off';

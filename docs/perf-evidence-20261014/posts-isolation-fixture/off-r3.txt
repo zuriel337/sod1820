@@ -1,0 +1,5 @@
+/world done
+
+## off-r3 (cpu x4, rtt 150ms, sb 150ms, n=7)
+route | FCP | LCP | root | READY | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#
+/world | 2088 | 4496 | 2072 | 4305 | 1835 | 1991 | 5219 | 222 | 0.015 | 645 | 1615 | 430 | 567 | 49

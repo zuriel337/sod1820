@@ -1,0 +1,5 @@
+/world done
+
+## full-r2 (cpu x4, rtt 150ms, sb 150ms, n=7)
+route | FCP | LCP | root | READY | 1stContentReq | 1stContentEnd | lastSbEnd | TBTall | CLS | script | task | jsKB(br) | totKB | sb#
+/world | 2072 | 6004 | 2054 | 4282 | 1820 | 1976 | 6049 | 255 | 0.037 | 683 | 2153 | 477 | 614 | 71
