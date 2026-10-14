@@ -10,6 +10,7 @@ export const RUNTIME_SWITCHES_2029 = Object.freeze([
   { key: "fx_now_feed", label: "סרגל ״עכשיו״ ופיד העדכונים", note: "3 קריאות בכל מעבר ובכל דקה; מונה חדשים ופאנל המסגרת" },
   { key: "fx_number_journey", label: "מסע המספר", note: "fn_number_journey; נקרא רק כשמבקשים את המסע" },
   { key: "fx_number_dossier", label: "תיק המספר", note: "fn_number_dossier; חלק מפתיחת מספר" },
+  { key: "fx_analytics", label: "אנליטיקה וטלמטריה", note: "אירועי צפייה, מעורבות, ביצועי דפדפן, Google Analytics ופיקסל שיווק; כיבוי = לא נשלח דבר" },
   { key: "fx_home_convergences", label: "התכנסויות בולטות בבית", note: "הרצועה מתחת לעדכונים האחרונים" },
 ]);
 export const RUNTIME_SWITCH_KEYS = new Set(RUNTIME_SWITCHES_2029.map((entry) => entry.key));

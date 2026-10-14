@@ -16,9 +16,23 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
 // חוזרת בלי Cache-Control → הדפדפן חופשי להגיש JSON ישן). ראה getMatrixBySlug.
 export { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
 
+// 2029 build only: owner switch fx_analytics. When OFF the first-party telemetry RPCs are not sent at all
+// (callers get an empty success so nothing retries). Everything else passes through untouched.
+const TELEMETRY_RPC = /\/rest\/v1\/rpc\/(ingest_event|track_visit|link_identity)(\?|$)/;
+const gateTelemetry2029 = (base) => async (input, init) => {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url;
+  if (url && TELEMETRY_RPC.test(url)) {
+    try {
+      const { isRuntimeSwitchOn } = await import('./runtimeSwitches2029.js');
+      if (!(await isRuntimeSwitchOn('fx_analytics'))) return new Response('null', { status: 200, headers: { 'content-type': 'application/json' } });
+    } catch { /* switch unavailable: send as before */ }
+  }
+  return base(input, init);
+};
+const is2029Build = typeof __SOD_2029_BUILD__ !== 'undefined' && __SOD_2029_BUILD__;
 const earlyReadOptions = typeof window !== 'undefined' && window.__sodPrimaryReads2029
-  ? { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } }
-  : undefined;
+  ? { global: { fetch: is2029Build ? gateTelemetry2029(createEarlyReadFetch2029({ anonKey: SUPABASE_ANON })) : createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } }
+  : is2029Build ? { global: { fetch: gateTelemetry2029((...args) => fetch(...args)) } } : undefined;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, earlyReadOptions);
 
 export default supabase;

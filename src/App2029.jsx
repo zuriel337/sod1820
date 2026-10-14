@@ -12,6 +12,7 @@ import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
+import { useRuntimeSwitch } from "./lib/runtimeSwitches2029.js";
 
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
@@ -68,17 +69,22 @@ function Loading2029() {
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
   const { pathname } = useLocation();
+  // Owner switch fx_analytics (control panel): while OFF nothing below starts. Nothing starts before the switch is known.
+  const analyticsSwitch = useRuntimeSwitch("fx_analytics");
+  const analyticsOn = !analyticsSwitch.loading && analyticsSwitch.on;
 
   useEffect(() => {
+    if (!analyticsOn) return undefined;
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
     const stopWebVitals = startWebVitals2029();
     return () => { try { stopWebVitals?.(); } catch { /* observability never blocks runtime */ } };
-  }, []);
+  }, [analyticsOn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!analyticsOn) return undefined;
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/control")) return undefined;
@@ -89,7 +95,7 @@ function RouteEffects2029() {
     trackVisit(pathname);
     startPageEngagement(pathname);
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, analyticsOn]);
 
   return null;
 }
