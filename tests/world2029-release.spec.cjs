@@ -247,7 +247,7 @@ test('public World catalog remains searchable and paginated inside the new compo
   const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
   await expect(expand).toBeVisible();
   await expand.click();
-  await expect(expand).toHaveAttribute('aria-expanded', 'true');
+  await expect(catalog.getByRole('button', { name: 'הצג פחות נושאים' })).toHaveAttribute('aria-expanded', 'true');
   await expect(cards).toHaveCount(24, { timeout: 30_000 });
   await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
   const search = catalog.getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' });
