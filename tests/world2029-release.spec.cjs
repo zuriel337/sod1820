@@ -241,18 +241,19 @@ test('public World catalog remains searchable and paginated inside the new compo
   const catalog = page.locator('#world-all-convergences');
   await expect(catalog).toBeVisible({ timeout: 30_000 });
   await expect(catalog.getByRole('heading', { name: 'כל חיבור פותח עוד עולם.' })).toBeVisible();
-  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
   const cards = catalog.locator('.sod29-world-catalog-card');
-  expect(await cards.count()).toBeGreaterThan(0);
+  await expect(cards).toHaveCount(2, { timeout: 30_000 });
+  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toHaveCount(0);
+  const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
+  await expect(expand).toBeVisible();
+  await expand.click();
+  await expect(expand).toHaveAttribute('aria-expanded', 'true');
+  await expect(cards).toHaveCount(24, { timeout: 30_000 });
+  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
   const search = catalog.getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' });
   await search.fill('888');
   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
   await search.fill('');
-  const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
-  if (await expand.count()) {
-    await expand.click();
-    await expect(expand).toHaveAttribute('aria-expanded', 'true');
-  }
   await assertNoHorizontalOverflow(page);
 });
 
