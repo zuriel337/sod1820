@@ -4,7 +4,39 @@ Actor GPT · task CENTRAL_SOURCE_INTAKE_LEGACY_ADAPTER_20261013.
 Owners: existing Research Intake v13 / writer_material_home v6, canonical UI and subscription funnel.
 User direction 13 October 2026 23:38 Asia/Jerusalem supersedes automatic NowBar mail delivery.
 
-Current 14 October status: the two identity choices explicitly approved by ZURIEL
+Current 14 October publication request: ZURIEL explicitly approved all four
+previously summarized threads and their Legacy visibility. A fresh bounded Gmail
+read contains13 direct messages (3+5+1+4) and3 image attachment references. This
+content approval is retained; it does not waive his original sender-authentication
+and independent-security requirements. No additional content approval is needed.
+
+Independent Claude review aed2cb09 returned BLOCKER for author-attributed public
+archival email: only two recent replies have native Resend authentication; no
+trusted Gmail archive-proof verifier exists in the reviewed receiving path. A
+scratch DKIM/ARC probe could not retrieve selector keys (DNS NoNameservers), so
+it did NOT establish invalid authorship or valid authentication. Header strings,
+mailbox membership and a MIME payload hash must not become sender proof.
+
+Secure bounded preparation: scripts/sql/stage-private-email-archive-v1.sql stages
+the11 missing sources in existing private inbound_emails, preserving the two
+existing Resend rows byte-for-byte. It records one existing decision_ledger receipt
+per thread, keeps normalized archives held/unattributed/unverified, and stores
+draft whole-thread intent for world/nowbar/writer. Image locators remain private;
+no original image bytes or public URLs have been staged. No persistent RPC,
+schema/store, public grant, public carrier or site release is part of this operator.
+The private input remains outside git. Input revision, existing-row fingerprints,
+RLS/anon ACL, duplicate RFC IDs, atomic mandatory audit and replay are guarded.
+This operator is PREPARED, not yet live; independent exact-code review is required.
+
+Completion requires source-bound sender evidence for the historical messages
+through an accepted native-provider or authenticated canonical-writer flow, plus
+independent approval of the complete public path. Admin-curated archive provenance
+is a separate honest private fallback; it does not claim original email sender
+authentication. The normalizing runtime, source identities, public thread/media
+distribution and a bounded release from restored Legacy99249526 remain pending.
+Candidate Stage0 or 2029 must not be promoted to satisfy this request.
+
+Earlier current 14 October identity status: the two identity choices explicitly approved by ZURIEL
 were APPLIED privately and verified (see final LIVE closure). Exact13 read now
 shows4 canonical matches,9 would-create-private and0 identity blockers. Source
 approval/provisioning helpers, private normalized ingress/routing activation and
