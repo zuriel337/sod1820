@@ -70,9 +70,12 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
     // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it
     // imports) loads with this same trigger instead of being part of Home's code before the first cards.
     // Same read, arguments and result; a failed module load stays silent like a failed read (strip hidden).
-    import("../../lib/research/explorerFacets.js")
-      .then(({ fetchExplorerFacetPage }) => fetchExplorerFacetPage("topic", { limit: 4 }))
-      .then((result) => { if (live) setState((current) => ({ ...current, notable: result?.cards || [] })); })
+    // Owner switch fx_home_convergences: when OFF the reader module is never even imported.
+    import("../../lib/runtimeSwitches2029.js")
+      .then(({ isRuntimeSwitchOn }) => isRuntimeSwitchOn("fx_home_convergences"))
+      .then((on) => on ? import("../../lib/research/explorerFacets.js") : null)
+      .then((module) => module ? module.fetchExplorerFacetPage("topic", { limit: 4 }) : null)
+      .then((result) => { if (live && result) setState((current) => ({ ...current, notable: result?.cards || [] })); })
       .catch(() => {});
     return () => { live = false; };
   }, [includeWorld]);

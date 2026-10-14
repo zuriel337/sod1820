@@ -5,12 +5,17 @@ import { feedRows, feedSeenKey } from "../../lib/systemFeed2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
+import { useRuntimeSwitch } from "../../lib/runtimeSwitches2029.js";
 
-export function useSystemFeed2029({ enabled = true } = {}) {
+export function useSystemFeed2029({ enabled = true } = {}) { // eslint-disable-line no-param-reassign
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});
   const asked = useRef(new Set());
+  // Owner switch (control panel). Nothing starts until the switch is known, so a function that is OFF never fires a request.
+  const switchState = useRuntimeSwitch("fx_now_feed");
+  const off = !switchState.loading && !switchState.on;
+  enabled = enabled && !switchState.loading && switchState.on;
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -53,5 +58,5 @@ export function useSystemFeed2029({ enabled = true } = {}) {
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
   const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
-  return { ...state, rows, newCount, newest, see };
+  return { ...state, loading: off ? false : state.loading, off, rows: off ? [] : rows, newCount: off ? 0 : newCount, newest: off ? null : newest, see };
 }

@@ -304,8 +304,18 @@ export async function researchNumber(numberInput, options = {}) {
 
   let lookupBounds = null;
   const wantsLookup = requested.includes('number_lookup') || requested.includes('gematria_reverse');
-  const wantsDossier = requested.includes('number_dossier') || requested.includes('gematria_reverse');
-  const wantsJourney = requested.includes('number_journey');
+  let wantsDossier = requested.includes('number_dossier') || requested.includes('gematria_reverse');
+  let wantsJourney = requested.includes('number_journey');
+  // Owner switches (control panel, site_flags fx_*): a switched-off lens is not requested at all. Browser-only; a failed read keeps it ON.
+  const switchedOff = {};
+  if ((wantsDossier || wantsJourney) && typeof window !== 'undefined') {
+    try {
+      const { readRuntimeSwitches } = await import('../runtimeSwitches2029.js');
+      const switches = await readRuntimeSwitches();
+      if (switches.fx_number_dossier === false && wantsDossier) { wantsDossier = false; switchedOff.number_dossier = 'fx_number_dossier'; }
+      if (switches.fx_number_journey === false && wantsJourney) { wantsJourney = false; switchedOff.number_journey = 'fx_number_journey'; }
+    } catch { /* switches unavailable: keep current behavior */ }
+  }
   const wantsNeighbors = requested.includes('neighbors');
   const wantsHotContext = requested.includes('hot_context');
   const wantsResearchObjects = requested.includes('research_objects');
@@ -336,6 +346,7 @@ export async function researchNumber(numberInput, options = {}) {
   }
   if (dossierResult) perLens.number_dossier = dossierResult;
   if (journeyResult) perLens.number_journey = journeyResult;
+  for (const [lens, flag] of Object.entries(switchedOff)) perLens[lens] = { status: 'disabled_by_owner', switch: flag };
   if (neighborsResult) perLens.neighbors = neighborsResult;
   if (hotContextResult) perLens.hot_context = hotContextResult;
   if (researchObjectsResult) perLens.research_objects = researchObjectsResult;
