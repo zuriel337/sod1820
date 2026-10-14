@@ -44,7 +44,11 @@ import ContactGateway from "../ContactGateway.jsx";
 // Opened on demand from the capability panel: its research/spatial dependencies stay out of every page's first load.
 const NumberDrawer2029 = lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
-import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import CompanionBoundary2029, { CompanionPlaceholder2029 } from "./CompanionBoundary2029.jsx";
+// Desktop-only capsule: its story column + viewer load only when companionActive is true (never on phones). The stylesheet
+// stays in the shell so the content gutter and capsule geometry are identical before and after the module arrives.
+const CompanionPanel2029 = lazy(() => import("./CompanionPanel2029.jsx"));
+import "./companionPanel2029.css";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
@@ -2260,7 +2264,7 @@ export default function SystemFrame2029({
 
         {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        {companionActive ? <CompanionPanel2029
+        {companionActive ? <CompanionBoundary2029 mode={companionMode} hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}><Suspense fallback={<CompanionPlaceholder2029 mode={companionMode} hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false) }} />}><CompanionPanel2029
           feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={setCompanionTab}
           onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
           pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
@@ -2279,7 +2283,7 @@ export default function SystemFrame2029({
           onOpenHref={(href) => go(href)}
           razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
-        /> : null}
+        /></Suspense></CompanionBoundary2029> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && (bottomTrail.length || reserveTrail) ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
