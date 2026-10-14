@@ -4,6 +4,7 @@ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import SourceRepeatInfo2029 from './SourceRepeatInfo2029.jsx';
 import '../../pages/home-world-story2029.css';
 import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
+import { WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
 import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
 function date(value) {
@@ -16,7 +17,8 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
   const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, limit);
-  return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות">
+  return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות"
+    style={WORLD_POSTS_OFF && surface === 'world' ? { minHeight: window.matchMedia('(max-width:760px)').matches ? 6204 : 3003 } : undefined}>
     <header><div className="sod29-kicker">קולות מן המקור</div><h2>מה מגיע עכשיו</h2>
       <p>דברי הכותבים והפוסטים האחרונים פתוחים לקריאה, גם לפני שנוצר מהם חיבור במחקר.</p></header>
     <div className="sod29-actions" aria-label="סוג המקורות">{[['all', 'העדכונים האחרונים'], ['group_message', 'הודעות מקור'], ['post', 'פוסטים אחרונים']].map(([key, label]) =>

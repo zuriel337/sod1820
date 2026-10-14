@@ -1,0 +1,11 @@
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+const { chromium } = await import('/opt/node-tools/node_modules/playwright/index.mjs');
+const dir = process.argv[2], route = process.argv[3]||'/world';
+const srv = http.createServer((q,rs)=>{let p=decodeURIComponent(new URL(q.url,'http://x').pathname);let f=path.join(dir,p);if(!fs.existsSync(f)||fs.statSync(f).isDirectory())f=path.join(dir,'2029.html');rs.writeHead(200,{'content-type':{'.html':'text/html','.js':'text/javascript','.css':'text/css'}[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(rs)}).listen(4999);
+const br = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox']});
+const pg = await br.newPage(); const out=[];
+pg.on('request',r=>{if(/supabase\.co/.test(r.url())&&r.method()!=='OPTIONS')out.push(r.method()+' '+decodeURIComponent(r.url()).replace(/^https:\/\/[^/]+/,'').slice(0,200))});
+pg.on('requestfailed',r=>out.push('FAILED '+r.url().slice(0,100)+' '+r.failure()?.errorText));
+await pg.goto('http://127.0.0.1:4999'+route,{waitUntil:'commit'}).catch(e=>console.log('goto',e.message));
+await pg.waitForTimeout(12000);
+console.log(out.join('\n')); console.log('count',out.length); await br.close(); srv.close();

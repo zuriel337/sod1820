@@ -1,0 +1,11 @@
+chunks loaded: base 55 basic 55 off 55 | total gz KB 561 514 512
+-- basic
+ CHANGED explorerFacets.js 5352 -> 5657
+ GONE post2029ReadingProjection.js 49165
+ CHANGED researchResultBundle.js 6321 -> 3442
+ NEW researchPlanV2.js 3330
+-- off
+ CHANGED explorerFacets.js 5352 -> 3752
+ GONE post2029ReadingProjection.js 49165
+ CHANGED researchResultBundle.js 6321 -> 3441
+ NEW researchPlanV2.js 3330

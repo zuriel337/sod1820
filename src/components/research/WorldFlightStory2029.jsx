@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
-import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
+import { WORLD_POSTS_FULL, WORLD_POSTS_OFF } from '../../lib/worldPostsMode.js';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
@@ -30,7 +30,17 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   useEffect(() => {
     let live = true;
     setState({ loading: true, projection: null });
-    fetchPost2029ReadingProjection(slug).then((projection) => {
+    // EXPERIMENT: full = the reading projection (connections, timeline, traces); basic = one narrow
+    // row for the card; off = no post request, reserved space only.
+    const read = WORLD_POSTS_FULL
+      ? import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug))
+      : WORLD_POSTS_OFF ? Promise.resolve(null)
+      : import('../../lib/supabase.js').then(async ({ supabase }) => {
+        const { data, error } = await supabase.from('posts').select('id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,image_url,thumb_url,categories').eq('slug', slug).limit(1);
+        if (error || !data?.length) return null;
+        return { post: data[0], identity: { href: `/post/${encodeURIComponent(data[0].slug)}` }, experience: { timeline: [], media: null } };
+      });
+    read.then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
         && postRowToWorldUpdate(projection.post);
@@ -43,6 +53,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
     return () => cancelAnimationFrame(frame);
   }, [anchor, location.hash, state.loading]);
+  if (WORLD_POSTS_OFF) return <section id={anchor} className="sod29-flight-story is-world is-loading" data-world-posts-reserved aria-hidden="true" style={{ height: window.matchMedia('(max-width:760px)').matches ? 668 : 573 }} />;
   if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
     <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
   </section>;

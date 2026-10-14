@@ -1,4 +1,5 @@
 import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
+import { WORLD_POSTS_FULL } from "../worldPostsMode.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
@@ -863,7 +864,7 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
       ? publicImages(client.from("gallery_images").select(TOPIC_MEDIA_FIELDS, { count: "exact" }).in("image_url", urls))
         .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
       : Promise.resolve({ data: [], count: 0 }),
-    slug === INDIA_CAPTAIN_SOURCE.topicSlug
+    slug === INDIA_CAPTAIN_SOURCE.topicSlug && WORLD_POSTS_FULL
       ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
         .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
       : Promise.resolve({ data: null }),

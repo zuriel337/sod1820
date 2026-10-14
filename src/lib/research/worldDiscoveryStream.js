@@ -1,4 +1,5 @@
 import { fetchTopicCardList } from "./topicConvergence.js";
+import { WORLD_POSTS_OFF } from "../worldPostsMode.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
@@ -245,7 +246,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
 
   // Public Source is read from the existing posts RLS boundary, never a privileged
   // legacy WhatsApp endpoint. Group messages require a separately verified source reader.
-  const postsPromise = import("../supabase.js").then(async ({ supabase }) => {
+  const postsPromise = WORLD_POSTS_OFF ? Promise.resolve([]) : import("../supabase.js").then(async ({ supabase }) => {
     const { data, error } = await supabase
       .from("posts")
       .select("id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at")
