@@ -30,7 +30,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   const contextKey = principalContextKey(principal);
   let restoredFrom = null, restoredRaw = null, storageFault = false;
   let cached = {}, journal = { revision: null, queue: [], inflight: null }, activeContext = null;
-  let legacyContextKeyToRetire = null;
+  let legacyContextKeyToRetire = null, contextBlobWritten = false;
   try {
     if (disabled) { storage = null; session = null; }
     cached = read(storage, key, {});
@@ -98,13 +98,18 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   }
   // Every mounted tab owns a separate journal. Copy-on-resume retains exact batch IDs/revisions;
   // duplicated tabs cannot overwrite another tab's pending operations. Version conflicts fail closed.
-  function persist() {
+  // `contextOnly`: the commit changed nothing but the active context, which is restored from
+  // sessionStorage and never from this blob, so the (possibly large) state blob is not rewritten.
+  function persist({ contextOnly = false } = {}) {
     if (disabled || storageFault) return false;
     try {
       if (!storage || !session) throw new Error('RESEARCH_STORAGE_UNAVAILABLE');
       storage.setItem(journalKey, JSON.stringify({ principal, revision, queue, inflight }));
       session.setItem(pointerKey, journalKey);
-      storage.setItem(key, JSON.stringify({ state, mode, revision }));
+      if (!contextOnly || !contextBlobWritten) {
+        storage.setItem(key, JSON.stringify({ state, mode, revision }));
+        contextBlobWritten = true;
+      }
       if (state.context == null) session.removeItem(contextKey);
       else session.setItem(contextKey, JSON.stringify(state.context));
       // Retire the legacy unscoped key only once its content is durably persisted under the
@@ -194,11 +199,19 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     const safe = clone(ops);
     if (!safe.length || safe.length > 100) throw new Error('RESEARCH_OPS_BATCH_TOO_LARGE');
     state = applyResearchOps(state, safe);
+    const contextOnly = safe.every(op => op.kind === 'context_set');
     if (userId) {
-      queue = [...queue, { batch_id: idFactory(), ops: safe }];
+      // Passive reading emits one context_set per region. A trailing, never-sent context-only
+      // batch is superseded by the next one (context_set replaces), so the journal and the
+      // cloud write stay one batch long instead of growing with every scroll step.
+      const last = queue[queue.length - 1];
+      const unsent = last && !(inflight && inflight.batch_id === last.batch_id);
+      if (contextOnly && unsent && last.ops.every(op => op.kind === 'context_set')) {
+        queue = [...queue.slice(0, -1), { batch_id: last.batch_id, ops: safe }];
+      } else queue = [...queue, { batch_id: idFactory(), ops: safe }];
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }
-    const ok = persist(); notify();
+    const ok = persist({ contextOnly }); notify();
     if (safe.some(op => op.kind === 'context_set')) onContext(state.context);
     if (ok) schedule();
     return ok;
