@@ -1,0 +1,7 @@
+{
+  "scope": "Anonymous RPC-complete replay, same runner and captured snapshot for base/head. These are regression budgets, not field targets.",
+  "maxTimingRatio": 1.1,
+  "timingNoiseMs": 100,
+  "maxAdditionalRestReads": 0,
+  "maxCls": 0.1
+}

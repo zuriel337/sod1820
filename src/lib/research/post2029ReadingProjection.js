@@ -1,8 +1,5 @@
 import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
-import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
-import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
-import { POST2029_PREVIEW_SNAPSHOT } from "./post2029PreviewSnapshot.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
@@ -322,10 +319,53 @@ export async function readPostIdentityBySlug(slug) {
   return data[0];
 }
 
-export async function resolvePostExperienceConnections(experience, { readPost = readPostIdentityBySlug, readTopic = async (slug) => {
-  const { data, error } = await supabase.from("topic_cards_public").select("slug,title").eq("slug", slug).maybeSingle();
-  return error ? null : data;
-} } = {}) {
+// Default readers are backed by ONE topic query and ONE post query for all declared connections (same columns,
+// same RLS reader, same slug candidates as readPostIdentityBySlug). Injected readers keep the per-connection path.
+function postSlugCandidates(slug) {
+  const decoded = decodeURIComponent(slug);
+  return [...new Set([slug, decoded, encodeURIComponent(decoded).toLowerCase()])];
+}
+function connectionTargets(experience) {
+  const topics = new Set(), posts = new Set();
+  for (const connection of experience?.connections || []) {
+    const raw = clean(connection.href);
+    const href = raw === "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar" ? raw.slice(0, raw.indexOf("#")) : raw;
+    if (!href.startsWith("/") || href.startsWith("//") || /[?#]/.test(href) || /^\/(?:2029\/)?number\/\d+$/.test(href)) continue;
+    const parts = href.split("/").filter(Boolean);
+    try {
+      if (parts.length === 2 && parts[0] === "topic") topics.add(decodeURIComponent(parts[1]));
+      else {
+        const slug = parts.length === 2 && parts[0] === "post" ? parts[1]
+          : parts.length === 1 && !["world", "els", "heichal", "books", "2029"].includes(parts[0]) ? parts[0] : null;
+        if (slug) postSlugCandidates(slug).forEach((candidate) => posts.add(candidate));
+      }
+    } catch { /* malformed escape resolves to unavailable below */ }
+  }
+  return { topics: [...topics], posts: [...posts] };
+}
+function batchedConnectionReaders(experience) {
+  const { topics, posts } = connectionTargets(experience);
+  const topicRows = topics.length && supabase
+    ? supabase.from("topic_cards_public").select("slug,title").in("slug", topics).then(({ data, error }) => (error ? null : data || []), () => null)
+    : Promise.resolve([]);
+  const postRows = posts.length && supabase
+    ? supabase.from("posts").select("id,slug").in("slug", posts).then(({ data, error }) => (error ? null : data || []), () => null)
+    : Promise.resolve([]);
+  return {
+    readTopic: async (slug) => (await topicRows)?.find((row) => row.slug === slug) || null,
+    readPost: async (slug) => {
+      const rows = await postRows;
+      if (!rows) return null;
+      for (const candidate of postSlugCandidates(slug)) { const hit = rows.find((row) => row.slug === candidate); if (hit) return hit; }
+      return null;
+    },
+  };
+}
+
+export async function resolvePostExperienceConnections(experience, injected = {}) {
+  const defaults = injected.readPost && injected.readTopic ? null : batchedConnectionReaders(experience);
+  const readPost = injected.readPost || defaults.readPost;
+  const readTopic = injected.readTopic || defaults.readTopic;
   const connections = await Promise.all((experience?.connections || []).map(async (connection) => {
     const unavailable = () => ({ ...connection, href: null });
     const rawHref = clean(connection.href);
@@ -757,10 +797,15 @@ async function fetchGoldenPackTraces(postId) {
 // Governed owners are injected with live dependencies; the pack adapter itself never touches the DB.
 export async function fetchGoldenContextPack(post) {
   if (!goldenContextPackClaims(post?.id).length) return null;
+  const [{ createCanonicalNumberW2Executors }, { fetchLiveNumericRuleVersions }, traces] = await Promise.all([
+    import("./researchW2Executors.js"),
+    import("./numberSystemMethods.js"),
+    fetchGoldenPackTraces(post.id),
+  ]);
   return buildGoldenPostContextPack({
     postId: post.id,
     post: { id: post.id, slug: post.slug, date: post.date },
-    traces: await fetchGoldenPackTraces(post.id),
+    traces,
     numericOperators: createCanonicalNumberW2Executors({ supabase, numericRuleVersions: fetchLiveNumericRuleVersions }).numeric_operators,
     ruleVersions: fetchLiveNumericRuleVersions,
   });
@@ -772,12 +817,28 @@ export async function fetchGoldenContextPackBySlug(slug) {
   return post ? fetchGoldenContextPack(post) : null;
 }
 
-export async function fetchPost2029ReadingProjection(slug) {
+export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
   const publicPost = await getPostBySlug(slug);
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
-  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
+  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG
+    ? (await import("./post2029PreviewSnapshot.js")).POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
   if (!post) return null;
+
+  // Source-first delivery is opt-in. Only the real public reader can produce it;
+  // private stages and preview snapshots never become an early public source.
+  // No verification/context-pack result is fabricated while enrichment runs.
+  if (publicPost && typeof onPrimary === 'function') {
+    try {
+      onPrimary({
+        post: publicPost,
+        identity: { type: 'post', id: String(publicPost.id), slug: publicPost.slug, href: `/post/${publicPost.slug}` },
+        experience: { media: projectPost2029Experience(publicPost).media, timeline: [] },
+        draft: Array.isArray(publicPost.tags) && publicPost.tags.includes('טיוטה'),
+        privateStage: false, previewSnapshot: false, extensionsPending: true,
+      });
+    } catch { /* An optional early consumer cannot prevent the normal full reader. */ }
+  }
 
   const isGolden = post.slug === GOLDEN_SLUG;
   const isFz1073Pilot = post.slug === FZ1073_SLUG;

@@ -55,10 +55,10 @@ test("no fake new items when reader returns nothing; reader error propagates (ca
   assert.deepEqual(await fetchGroupSourceArrivals({ rpc: async () => ({ data: [], error: null }) }), []);
   await assert.rejects(fetchGroupSourceArrivals({ rpc: async () => ({ data: null, error: new Error("503") }) }));
 });
-test("reader calls v3 RPC with cursor", async () => {
+test("reader calls the installed v2 RPC with cursor", async () => {
   let seen;
   await fetchGroupSourceArrivals({ limit: 5, before: "2026-10-01T00:00:00Z", rpc: async (n, a) => { seen = [n, a]; return { data: [], error: null }; } });
-  assert.deepEqual(seen, ["world_group_source_arrivals_v3", { p_limit: 5, p_before: "2026-10-01T00:00:00Z" }]);
+  assert.deepEqual(seen, ["world_group_source_arrivals_v2", { p_limit: 5, p_before: "2026-10-01T00:00:00Z" }]);
 });
 test("grouped card retains both exact source occurrences and research links", () => {
   const g = groupRowToWorldUpdate(row({
@@ -109,7 +109,7 @@ test("ingest sends proof from senderId, never senderName", () => {
 
 // Live backend may still expose v2 but not v3. Fallback stays inside
 // the same anonymized proof-only server reader, never raw WhatsApp.
-test("missing v3 RPC safely falls back to existing public v2 and preserves proof", async () => {
+test("installed v2 preserves the same public proof without probing absent v3", async () => {
   const calls = [];
   const item = row({ id: "u-safe", created_at: "2026-10-13T00:00:00Z" });
   const result = await fetchGroupSourceArrivals({
@@ -121,8 +121,8 @@ test("missing v3 RPC safely falls back to existing public v2 and preserves proof
         : { data: [item], error: null };
     },
   });
-  assert.deepEqual(calls.map((c) => c.name), ["world_group_source_arrivals_v3", "world_group_source_arrivals_v2"]);
-  assert.deepEqual(calls[1].args, { p_limit: 40, p_before: "2026-10-12T00:00:00Z" });
+  assert.deepEqual(calls.map((c) => c.name), ["world_group_source_arrivals_v2"]);
+  assert.deepEqual(calls[0].args, { p_limit: 40, p_before: "2026-10-12T00:00:00Z" });
   assert.equal(result.length, 1);
   assert.equal(result[0].publicState, "group_source_message_unverified");
   assert.equal(result[0].sourceRef, "channel_updates:u-safe");

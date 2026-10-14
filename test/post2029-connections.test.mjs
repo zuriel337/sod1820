@@ -51,5 +51,29 @@ import { readFileSync } from "node:fs";
   const reader = src.slice(src.indexOf("export async function readPostIdentityBySlug"), src.indexOf("export async function resolvePostExperienceConnections"));
   assert.match(reader, /\.select\("id,slug"\)/, "connection existence check selects only id and slug");
   assert.doesNotMatch(reader, /select\(["']\*["']\)/);
-  assert.match(src, /resolvePostExperienceConnections\(experience, \{ readPost = readPostIdentityBySlug/);
+  // Default readers share ONE topic query and ONE post query for all connections (never one query per connection).
+  assert.match(src, /export async function resolvePostExperienceConnections\(experience, injected = \{\}\)/);
+  assert.match(src, /from\("topic_cards_public"\)\.select\("slug,title"\)\.in\("slug", topics\)/);
+  assert.match(src, /from\("posts"\)\.select\("id,slug"\)\.in\("slug", posts\)/);
 }
+
+// Behavioural: the default (batched) path issues exactly one topic and one post read, whatever the connection count.
+test('default connection readers batch existence checks into one topic and one post query', async () => {
+  const { supabase } = await import('../src/lib/supabase.js');
+  if (!supabase) return;
+  const queries = [];
+  const realFrom = supabase.from.bind(supabase);
+  supabase.from = (table) => {
+    const q = { table, cols: null, slugs: null };
+    queries.push(q);
+    const chain = { select(cols) { q.cols = cols; return chain; }, in(_c, slugs) { q.slugs = slugs; return chain;
+      }, then(res, rej) { return Promise.resolve({ data: table === 'posts' ? [{ id: 1, slug: 'a' }, { id: 2, slug: 'b' }] : [{ slug: 't1', title: 'T' }], error: null }).then(res, rej); } };
+    return chain;
+  };
+  try {
+    const result = await resolvePostExperienceConnections({ connections: [{ href: '/post/a', id: 'a' }, { href: '/post/b', id: 'b' }, { href: '/topic/t1', id: 't' }, { href: '/topic/t2', id: 't2' }, { href: '/post/zzz', id: 'z' }] });
+    assert.equal(queries.filter(q => q.table === 'posts').length, 1);
+    assert.equal(queries.filter(q => q.table === 'topic_cards_public').length, 1);
+    assert.deepEqual(result.connections.map(c => c.href), ['/post/a', '/post/b', '/topic/t1', null, null]);
+  } finally { supabase.from = realFrom; }
+});

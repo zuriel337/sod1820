@@ -3,6 +3,16 @@ name: 2029 Isolation Gate
 on:
   pull_request:
     paths:
+      - "src/lib/earlyPrimaryRead2029.js"
+      - "src/lib/postReadQueries2029.js"
+      - "src/lib/supabasePublicConfig.js"
+      - "src/lib/research/homePostCards2029.js"
+      - "src/lib/research/post2029ReadingProjection.js"
+      - "src/components/research/WorldFlightStory2029.jsx"
+      - "scripts/perf-execution-2029/**"
+      - "test/perf*2029*.test.mjs"
+      - "test/early-primary-read-2029.test.mjs"
+      - "test/home-post-cards-2029.test.mjs"
       - "2029.html"
       - "public/fonts/**"
       - "src/main2029.jsx"
@@ -87,6 +97,55 @@ on:
   workflow_dispatch:
 
 jobs:
+  performance-replay:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Prepare immutable base and Chromium 1194
+        env:
+          PERF_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/perf-base" "$RUNNER_TEMP/perf-tools"
+          git archive "$PERF_BASE_SHA" | tar -x -C "$RUNNER_TEMP/perf-base"
+          npm ci --prefix "$RUNNER_TEMP/perf-base" --ignore-scripts --no-audit --no-fund
+          npm install --prefix "$RUNNER_TEMP/perf-tools" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          node "$RUNNER_TEMP/perf-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/perf-tools" >> "$GITHUB_ENV"
+          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/perf-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      - name: Build both 2029 trees
+        run: |
+          set -e
+          (cd "$RUNNER_TEMP/perf-base" && npm run build:2029)
+          npm run build:2029
+      - name: Capture bounded anonymous reads and measure the same snapshot
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/perf-results"
+          node scripts/perf-execution-2029/measure.mjs --mode record --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/base-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label base-record
+          node scripts/perf-execution-2029/measure.mjs --mode record --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/head-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label head-record
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/before.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label before
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/after.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label after
+          node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json"
+          node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json" "$RUNNER_TEMP/perf-results/after.json" scripts/perf-execution-2029/replay-budgets.json
+          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/extension-failure.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --routes /world --runs 1 --extensiondelay 2000 --extensionfail 1 --label delayed-failed-extensions
+          node scripts/perf-execution-2029/extension-gate.mjs "$RUNNER_TEMP/perf-results/extension-failure.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-replay-evidence
+          path: ${{ runner.temp }}/perf-results/*.json
+          # Raw upstream bodies stay in the ephemeral runner; never upload fixtures.
   hard-isolation:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -97,6 +156,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Performance evidence, auth-safe early reads and bounded Home data
+        run: node --test test/perf-execution-2029.test.mjs test/perf-replay-gate-2029.test.mjs test/early-primary-read-2029.test.mjs test/home-post-cards-2029.test.mjs
       - name: Experience Context 2029 acceptance
         run: npm run test:experience-context
       - name: Entry Orientation + Contextual Learn 2029 acceptance

@@ -212,3 +212,40 @@ test("future cover edit and hidden/draft source cannot propagate the certified s
   assert.equal(postRowToWorldUpdate({ ...base, home_hidden: true }), null);
   assert.equal(postRowToWorldUpdate({ ...base, tags: ["טיוטה"] }), null);
 });
+
+// Navigation freshness policy (docs/perf-bounded-cost-2029-20261014.md §7): a caller that seeded fresh data may skip the
+// immediate read but must still get its first refresh at the freshness bound; cleanup cancels it.
+test("watchWorldDiscoveryStream: immediate:false defers the first read to firstRefreshInMs and cleanup cancels it", async (t) => {
+  const { supabase } = await import("../supabase.js");
+  const { watchWorldDiscoveryStream } = await import("./worldDiscoveryStream.js");
+  let reads = 0;
+  t.mock.method(supabase, "from", () => { reads += 1; throw new Error("blocked in test"); });
+  t.mock.method(supabase, "rpc", () => { reads += 1; return Promise.reject(new Error("blocked in test")); });
+  t.mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  const realWindow = globalThis.window, realDocument = globalThis.document;
+  globalThis.window = { setTimeout: (...a) => setTimeout(...a), clearTimeout: (...a) => clearTimeout(...a), setInterval: (...a) => setInterval(...a), clearInterval: (...a) => clearInterval(...a), addEventListener() {}, removeEventListener() {} };
+  globalThis.document = { visibilityState: "visible", addEventListener() {}, removeEventListener() {} };
+  try {
+    let errors = 0;
+    const stop = watchWorldDiscoveryStream({ immediate: false, firstRefreshInMs: 5000, onError: () => { errors += 1; } });
+    assert.equal(reads, 0, "no read at mount when fresh data was seeded");
+    t.mock.timers.tick(4999);
+    assert.equal(reads, 0, "no read before the freshness bound");
+    t.mock.timers.tick(1);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.ok(reads > 0 && errors === 1, "first refresh runs at the freshness bound");
+    stop();
+    const before = reads;
+    t.mock.timers.tick(120000);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(reads, before, "cleanup cancels the scheduled refresh");
+  } finally { globalThis.window = realWindow; globalThis.document = realDocument; }
+});
+
+test("frame feed reuse is bounded to the cache contract: 30s, anonymous principal only, dropped on error", () => {
+  const hook = readFileSync(new URL("../../components/experience2029/useSystemFeed2029.js", import.meta.url), "utf8");
+  assert.match(hook, /FEED_FRESH_MS = 30000/);
+  assert.match(hook, /principal === "guest" && sharedFeed/);
+  assert.match(hook, /onError: \(\) => \{ sharedFeed = null;/);
+  assert.match(hook, /firstRefreshInMs: reuse/);
+});

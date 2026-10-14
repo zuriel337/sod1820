@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
-import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
+import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
 import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
-const slug = 'flydubai-fz1073-363-14000-remzei-geula';
+const slug = WORLD_FLIGHT_POST_SLUG;
 const directions = [
   { id: 'people', icon: 'community', label: 'האנשים והמקומות', value: 'הודו',
     reason: 'צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו.', href: '/world#world-plane-india' },
@@ -30,12 +30,21 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   useEffect(() => {
     let live = true;
     setState({ loading: true, projection: null });
-    fetchPost2029ReadingProjection(slug).then((projection) => {
+    // Loaded on demand: the reading-projection builder is ~42KB br that must not gate the first paint of Home/World.
+    import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
+      onPrimary: (projection) => {
+        const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
+          && postRowToWorldUpdate(projection.post);
+        if (live && admitted) setState({ loading: false, projection, extensionsLoading: true });
+      },
+    })).then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
         && postRowToWorldUpdate(projection.post);
-      if (live) setState({ loading: false, projection: admitted ? projection : null });
-    }).catch(() => { if (live) setState({ loading: false, projection: null }); });
+      if (live) setState({ loading: false, projection: admitted ? projection : null, extensionsLoading: false });
+    }).catch(() => { if (live) setState((current) => current.projection
+      ? { ...current, loading: false, extensionsLoading: false, extensionsError: true }
+      : { loading: false, projection: null }); });
     return () => { live = false; };
   }, [attempt]);
   useEffect(() => {
@@ -98,7 +107,10 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         </button>)}
       </div>
       <details className="sod29-flight-time"><summary>הסיפור לאורך הזמן</summary>
-        <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />
+        {state.extensionsLoading ? <FrameState kind="loading" title="המקור והחיבורים נטענים" />
+          : state.extensionsError ? <FrameState kind="unavailable" title="החיבורים אינם זמינים כרגע">
+            <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב</button>
+          </FrameState> : <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />}
         {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
         <p>מועד גילוי החיבורים לא תועד במקור הזמין. תאריכי הפרסום, האירוע ושמירת המדיה נשמרים בנפרד.</p>
       </details>

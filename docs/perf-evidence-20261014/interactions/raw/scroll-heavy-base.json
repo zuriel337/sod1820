@@ -1,0 +1,132 @@
+{
+ "scenario": "scroll",
+ "runs": 3,
+ "dist": "/tmp/claude-0/ev/dist-base",
+ "browser": "141.0.7390.37",
+ "profile": "mobile 390x844 dpr2 cpu4",
+ "samples": [
+  {
+   "i": 0,
+   "scrolled": 6825,
+   "regionsVisited": 0,
+   "pageH": 7669,
+   "longtasks": 1,
+   "longtaskMs": 76,
+   "maxLongtask": 76,
+   "storeWrites": 4,
+   "storeMs": 2.5,
+   "storeKB": 153.6,
+   "frames": 373,
+   "slowFrames": 1,
+   "worstFrame": 83,
+   "wallMs": 6381,
+   "errors": []
+  },
+  {
+   "i": 1,
+   "scrolled": 6825,
+   "regionsVisited": 0,
+   "pageH": 7669,
+   "longtasks": 0,
+   "longtaskMs": 0,
+   "maxLongtask": 0,
+   "storeWrites": 4,
+   "storeMs": 2.6,
+   "storeKB": 153.6,
+   "frames": 370,
+   "slowFrames": 0,
+   "worstFrame": 33,
+   "wallMs": 6263,
+   "errors": []
+  },
+  {
+   "i": 2,
+   "scrolled": 6825,
+   "regionsVisited": 0,
+   "pageH": 7669,
+   "longtasks": 0,
+   "longtaskMs": 0,
+   "maxLongtask": 0,
+   "storeWrites": 4,
+   "storeMs": 5.5,
+   "storeKB": 153.6,
+   "frames": 370,
+   "slowFrames": 0,
+   "worstFrame": 17,
+   "wallMs": 6201,
+   "errors": []
+  }
+ ],
+ "summary": {
+  "i": {
+   "median": 1,
+   "min": 0,
+   "max": 2
+  },
+  "scrolled": {
+   "median": 6825,
+   "min": 6825,
+   "max": 6825
+  },
+  "regionsVisited": {
+   "median": 0,
+   "min": 0,
+   "max": 0
+  },
+  "pageH": {
+   "median": 7669,
+   "min": 7669,
+   "max": 7669
+  },
+  "longtasks": {
+   "median": 0,
+   "min": 0,
+   "max": 1
+  },
+  "longtaskMs": {
+   "median": 0,
+   "min": 0,
+   "max": 76
+  },
+  "maxLongtask": {
+   "median": 0,
+   "min": 0,
+   "max": 76
+  },
+  "storeWrites": {
+   "median": 4,
+   "min": 4,
+   "max": 4
+  },
+  "storeMs": {
+   "median": 2.6,
+   "min": 2.5,
+   "max": 5.5
+  },
+  "storeKB": {
+   "median": 153.6,
+   "min": 153.6,
+   "max": 153.6
+  },
+  "frames": {
+   "median": 370,
+   "min": 370,
+   "max": 373
+  },
+  "slowFrames": {
+   "median": 0,
+   "min": 0,
+   "max": 1
+  },
+  "worstFrame": {
+   "median": 33,
+   "min": 17,
+   "max": 83
+  },
+  "wallMs": {
+   "median": 6263,
+   "min": 6201,
+   "max": 6381
+  }
+ }
+}

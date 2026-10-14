@@ -534,14 +534,16 @@ function WorldSourceStory({ research, shell, compact = false }) {
   const [state, setState] = useState({ loading: true, story: null });
   const [attempt, setAttempt] = useState(0);
   const expanded = location.hash === `#${WORLD_SOURCE_STORY_ANCHOR}`;
+  const visible = !compact || expanded || /^#world-(direction|source)-/.test(location.hash);
   useEffect(() => {
+    if (!visible) return;
     let alive = true;
     setState({ loading: true, story: null });
     fetchTopicSourceContext({ topicSlug: INDIA_CAPTAIN_SOURCE.topicSlug })
       .then((projection) => { if (alive) setState({ loading: false, story: buildWorldSourceStory(projection), projection }); })
       .catch(() => { if (alive) setState({ loading: false, story: null }); });
     return () => { alive = false; };
-  }, [attempt]);
+  }, [attempt, visible]);
   const story = state.story;
   useEffect(() => {
     if (!expanded || !story) return;
@@ -566,7 +568,7 @@ function WorldSourceStory({ research, shell, compact = false }) {
     } });
     shell.go(href, { preserve: false });
   };
-  if (compact && !expanded && !/^#world-(direction|source)-/.test(location.hash)) return null;
+  if (!visible) return null;
   return <section className="sod29-world-source-story" aria-label="מהמטוס אל הודו">
     {state.loading ? <p role="status">טוען את הסיפור והמקור…</p> : !story ? <div role="status">
       <p>המקור לסיפור המטוס אינו זמין כרגע.</p>

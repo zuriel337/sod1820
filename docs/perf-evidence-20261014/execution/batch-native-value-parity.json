@@ -1,0 +1,79 @@
+{
+  "scope": "Live SELECT under anon in a READ ONLY transaction; native result vs indexed-envelope data expression. This does NOT test the unapplied draft RPC or signed-in/error paths.",
+  "differences": 0,
+  "sampleSize": 10,
+  "schemaChanged": false,
+  "rpcApplied": false,
+  "checks": [
+    {
+      "kind": "meter",
+      "input": 1820,
+      "originalMd5": "8b7ee84d106fee9a0f429dc72faf4f6b",
+      "wrappedDataMd5": "8b7ee84d106fee9a0f429dc72faf4f6b",
+      "equal": true
+    },
+    {
+      "kind": "meter",
+      "input": 1202,
+      "originalMd5": "25ea4d452e6dcdc9111132baa4a3f406",
+      "wrappedDataMd5": "25ea4d452e6dcdc9111132baa4a3f406",
+      "equal": true
+    },
+    {
+      "kind": "meter",
+      "input": 644,
+      "originalMd5": "f46ef5b5bdc1534c1fac51b470edc6d2",
+      "wrappedDataMd5": "f46ef5b5bdc1534c1fac51b470edc6d2",
+      "equal": true
+    },
+    {
+      "kind": "meter",
+      "input": 98,
+      "originalMd5": "bdc74687e5e7d6c77d914beba24cd111",
+      "wrappedDataMd5": "bdc74687e5e7d6c77d914beba24cd111",
+      "equal": true
+    },
+    {
+      "kind": "trace",
+      "input": "אשר בשמים ממעל",
+      "originalMd5": "fea9ec431948f2bd7f84a310f28c80a2",
+      "wrappedDataMd5": "fea9ec431948f2bd7f84a310f28c80a2",
+      "equal": true
+    },
+    {
+      "kind": "trace",
+      "input": "ולמות לא נתנני",
+      "originalMd5": "93df9ce666ead6ac6682f88930800783",
+      "wrappedDataMd5": "93df9ce666ead6ac6682f88930800783",
+      "equal": true
+    },
+    {
+      "kind": "trace",
+      "input": "משיח בן דוד",
+      "originalMd5": "d1c177e549ca694a91f2ddde3f402764",
+      "wrappedDataMd5": "d1c177e549ca694a91f2ddde3f402764",
+      "equal": true
+    },
+    {
+      "kind": "trace",
+      "input": "ולדימיר פוטין",
+      "originalMd5": "bea7fc989f8e35e025690a4446e77002",
+      "wrappedDataMd5": "bea7fc989f8e35e025690a4446e77002",
+      "equal": true
+    },
+    {
+      "kind": "trace",
+      "input": "שבעים וחמש",
+      "originalMd5": "4a6e0fddf47be0af0e7cbbaa3b9b48f7",
+      "wrappedDataMd5": "4a6e0fddf47be0af0e7cbbaa3b9b48f7",
+      "equal": true
+    },
+    {
+      "kind": "trace",
+      "input": "ביאת המשיח",
+      "originalMd5": "ae0030405ce96219fd1793c18df369a2",
+      "wrappedDataMd5": "ae0030405ce96219fd1793c18df369a2",
+      "equal": true
+    }
+  ]
+}

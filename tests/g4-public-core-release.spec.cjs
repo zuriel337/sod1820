@@ -357,7 +357,7 @@ test('existing gematria share links still open the shared result', async ({ page
 test('World opens from Home and requests its grouped source reader', async ({ page }) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+  await page.route('**/rest/v1/rpc/world_group_source_arrivals_v2', async (route) => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify([{
       id: '00000000-0000-4000-8000-000000000001', body: 'הודעת מקור לבדיקה',
       created_at: '2026-10-12T12:00:00Z', contributor_slug: 'tzvi-opoc', contributor_name: 'צבי',
@@ -366,7 +366,7 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
     }]),
   }));
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-  const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'));
+  const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'));
   await page.locator('[data-home-world="open"]').click();
   await expect(page).toHaveURL(`${BASE}/world`);
   await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
