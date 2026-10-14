@@ -12,7 +12,7 @@ const clock = { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut",
 const day = { ordinal: 358, counting_context: "day of the war (source claim)", source_ref: "post:92", accessTier: "public" };
 const ruleVersions = { moment_clock_law: 2 };
 const receiptResolver = (m) => (m.expression === "משיח" && m.method_key === "רגיל"
-  ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1" }, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" })
+  ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1", verification: { parity: true, trace_value: 358, canonical_value: 358 } }, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" })
   : null);
 const run = (over = {}) => compileNasrallahPost92Golden({ post, clockObservation: clock, dayOrdinal: day, ruleVersions, receiptResolver, ...over });
 const find = (pack, id) => pack.bundle.findings.find(f => f.id === id);
