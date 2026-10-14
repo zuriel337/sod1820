@@ -328,7 +328,7 @@ export default function App() {
           <Route path="/books/:slug" element={<Product2029DocumentHandoff />} />
           <Route path="/book" element={<Product2029DocumentHandoff />} />
           <Route path="/book/:slug" element={<Product2029DocumentHandoff />} />
-          <Route path="/els" element={<Product2029DocumentHandoff />} />
+          <Route path="/els" element={<CodePage />} />
           <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
           <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag><Heichal2029Page /></Locked>} />
 

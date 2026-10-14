@@ -935,11 +935,11 @@
     },
     {
       "source": "/code",
-      "destination": "/tzofen-standalone.html"
+      "destination": "/index.html"
     },
     {
       "source": "/els",
-      "destination": "/tzofen-standalone.html"
+      "destination": "/index.html"
     },
     {
       "source": "/heichal",

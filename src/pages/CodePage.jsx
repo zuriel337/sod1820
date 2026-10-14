@@ -72,7 +72,7 @@ function CodeClosed({ message }) {
           הצופן התנ״כי נבנה מחדש
         </h1>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: P.cardSoft || P.card, border: `1px solid ${P.borderStrong || P.border}`, borderRadius: 999, padding: "8px 17px", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 800, marginBottom: 20 }}>
-          🚧 סגור זמנית · עולם חדש נבנה כאן מתחת
+          החיפוש הישן פתוח למעלה · הצופן החדש בבנייה
         </div>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 17, lineHeight: 2, margin: "0 auto 10px" }}>
           אנחנו לא מוחקים את מנוע ה־ELS ולא מתחילים מערכת שנייה. המנוע הקיים נשמר מתחת — ומסביבו נבנית חוויית מחקר חדשה: שכבות, מסלולים, הקשרים, מרחב ועץ ידע אחד.
@@ -85,7 +85,7 @@ function CodeClosed({ message }) {
         <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, letterSpacing: 2.4, marginBottom: 8 }}>הצופן החדש מתקרב</div>
         <h2 style={{ color: P.accentText, fontFamily: F.heading, fontSize: "clamp(24px,4vw,32px)", margin: "0 0 10px", lineHeight: 1.35 }}>עוד שבוע פותחים את השער</h2>
         <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15.5, lineHeight: 1.9, margin: "0 auto 18px", maxWidth: 650 }}>
-          אנחנו בונים את הצופן החדש באתר. הירשמו עכשיו — אתם תהיו הראשונים שתיהנו מהתוכנה החדשה כשהיא תיפתח.
+          אנחנו בונים את הצופן החדש. הירשמו עכשיו — אתם תהיו הראשונים שתיהנו מהתוכנה החדשה כשהיא תיפתח.
         </p>
 
         <div aria-label="ספירה לאחור לפתיחת הצופן החדש" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(68px,1fr))", gap: 10, maxWidth: 560, margin: "0 auto 24px" }}>
@@ -148,58 +148,12 @@ function CodeClosed({ message }) {
 }
 
 export default function CodePage() {
-  const P = usePalette();
-  const { loading } = useAuth();
-  const elsState = useFeatureState("lock_els");
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [sp, setSp] = useSearchParams();
-  const elsTerm = sp.get("term") || sp.get("q") || "";
-  const elsSkip = sp.get("skip");
-  const elsMatrix = useMemo(
-    () => (elsTerm && elsSkip) ? { search_term: elsTerm, skip_distance: parseInt(elsSkip, 10) || 0, scope: sp.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null } : null,
-    [elsTerm, elsSkip, sp]);
-  const findingId = sp.get("finding") || "";
-  const { journeyLoad: elsJourneyLoad, status: reopenStatus } = useElsJourneyReopen(findingId);
-  const [reopenNotice, setReopenNotice] = useState(null);
-  useEffect(() => { setReopenNotice(null); }, [findingId]);
-  useEffect(() => {
-    if (!findingId || reopenStatus === "none" || reopenStatus === "ok" || reopenStatus === "not-els") return;
-    const t = setTimeout(() => {
-      setReopenNotice(reopenStatus === "not-found"
-        ? "הממצא לא נמצא בסביבת המחקר שלך."
-        : "לא נשמר מיקום מדויק לממצא הזה — אפשר לחפש את המונח מחדש.");
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [findingId, reopenStatus]);
-  if (loading || elsState.loading) {
-    return <div style={{ direction: "rtl", textAlign: "center", color: P.accentDim, fontFamily: F.body, padding: "120px 20px", position: "relative", zIndex: 1 }}>טוען…</div>;
-  }
-  return <CodeClosed message={elsState.message} />;
-
-  return (
-    <div dir="rtl" style={{ position: "relative", zIndex: 1 }}>
-      <ElsChallengeStrip onPick={(term) => setSp(prev => { const n = new URLSearchParams(prev); n.set("term", term); n.delete("q"); return n; })} />
-      {reopenNotice && (
-        <div style={{ margin: "0 auto 10px", maxWidth: 900, padding: "10px 14px", borderRadius: 12, background: P.card, border: `1px solid ${P.border}`, color: P.ink, fontFamily: F.body, fontSize: 13 }}>
-          {reopenNotice}
-        </div>
-      )}
-      <TzofenEmbed full seed={elsMatrix ? "" : elsTerm} matrix={elsMatrix} fromTopic={sp.get("from")}
-        journeyLoad={elsJourneyLoad}
-        onLoadError={() => setReopenNotice("לא נמצא המיקום המדויק שנשמר — ייתכן שהטקסט השתנה. אפשר לחפש את המונח מחדש.")} />
-      <div style={{ position: "fixed", bottom: 12, insetInlineStart: 12, zIndex: 30, display: "flex", gap: 8 }}>
-        <button
-          onClick={() => setGalleryOpen(true)}
-          title="גלריית המטריצות השמורות"
-          style={{
-            background: "rgba(8,5,2,.72)", color: "#f0d879", cursor: "pointer",
-            border: "1px solid rgba(212,175,55,.42)", borderRadius: 999,
-            padding: "6px 14px", fontFamily: "'Heebo', sans-serif", fontWeight: 800,
-            fontSize: 12.5, backdropFilter: "blur(4px)",
-          }}
-        >🖼️ מטריצות שמורות</button>
-      </div>
-      <SavedMatricesGallery open={galleryOpen} onClose={() => setGalleryOpen(false)} />
-    </div>
-  );
+  const [sp] = useSearchParams();
+  const params = new URLSearchParams(sp);
+  if (params.has("term") && !params.has("q")) params.set("q", params.get("term"));
+  const src = "/tzofen-standalone.html" + (params.size ? "?" + params.toString() : "");
+  return <div dir="rtl">
+    <iframe src={src} title="הצופן התנ״כי — חיפוש ללא שמירות" style={{ width: "100%", height: "85vh", minHeight: 620, border: 0, display: "block" }} />
+    <CodeClosed />
+  </div>;
 }
