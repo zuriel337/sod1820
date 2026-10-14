@@ -21,7 +21,8 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, resolveEntityHubNode, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { resolveWorldRelationIdentity } from "../lib/research/worldRelationIdentity2029.js";
 import { REVIEWED_SOURCE_WITNESSES, discoveryHref, witnessSource } from "../lib/research/worldSourceConnections.js";
 import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
 import {
@@ -63,7 +64,7 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
-import { runtimeOff } from "../lib/runtimeSwitches2029.js";
+import { runtimeOff, readRuntimeSwitches } from "../lib/runtimeSwitches2029.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
@@ -1896,16 +1897,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
     setDeepening({ id: finding?.id || targetNodeId, error: false });
     try {
-      const target = await fetchEntityHubProjection({ nodeId: targetNodeId, relationLimit: 1, researchLimit: 1, topicLimit: 1 });
-      if (!target?.identity) throw new Error("target unavailable");
+      const identity = await resolveWorldRelationIdentity(targetNodeId, {
+        readSwitches: readRuntimeSwitches, resolveNode: resolveEntityHubNode, project: fetchEntityHubProjection,
+      });
+      if (!identity) throw new Error("target unavailable");
       research.setResearchContext?.({
         subject: {
-          id: String(target.identity.label),
-          type: target.identity.type,
-          label: target.identity.label,
+          id: String(identity.label),
+          type: identity.type,
+          label: identity.label,
           href: "/world",
         },
-        selection: { entityId: String(target.identity.nodeId), entityType: target.identity.type },
+        selection: { entityId: String(identity.nodeId), entityType: identity.type },
         lens: "world",
         dimensions: context?.dimensions || {},
         journey: context?.journey || null,

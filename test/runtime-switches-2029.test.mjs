@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { switchesFromFlags, RUNTIME_SWITCHES_2029 } from "../src/lib/runtimeSwitches2029.js";
 
-test("absent rows and lock flags leave every switch ON; only fx_* enabled=false turns one OFF", () => {
+test("absent rows preserve capability defaults and keep opt-in optimizations OFF; lock flags are separate", () => {
   const all = switchesFromFlags({});
-  assert.ok(RUNTIME_SWITCHES_2029.every(({ key }) => all[key] === true));
+  assert.ok(RUNTIME_SWITCHES_2029.every(({ key, defaultOn = true }) => all[key] === defaultOn));
+  assert.equal(all.fx_world_relation_identity, false);
+  assert.equal(all.fx_number_lookup_page, false);
   const off = switchesFromFlags({ fx_now_feed: { enabled: false }, fx_number_journey: { enabled: true }, lock_world: { enabled: false } });
   assert.equal(off.fx_now_feed, false);
   assert.equal(off.fx_number_journey, true);

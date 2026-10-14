@@ -12,6 +12,7 @@ import {
 } from './numericResearchBase.js';
 
 export * from './numericResearchBase.js';
+import { createNumberLookupTransport } from './numberLookupTransport2029.js';
 
 function clean(value) {
   if (value == null) return null;
@@ -78,7 +79,7 @@ function serverBoundedFromRows(rows, window, legacyBounded = null, transportFall
 }
 
 export async function researchNumber(numberInput, options = {}) {
-  const originalRpc = options.rpc;
+  const originalRpc = createNumberLookupTransport(options.rpc);
   const window = normalizedLookupWindow(options.lookupWindow || {});
 
   // MERGE-ORDER SAFETY (W2.2d closure). The server-side keyset page lives in migration

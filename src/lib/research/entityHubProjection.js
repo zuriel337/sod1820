@@ -3,6 +3,7 @@ import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
+import { createNumberLookupTransport } from "./numberLookupTransport2029.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
@@ -1065,11 +1066,11 @@ export async function fetchEntityHubProjection({
   const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
   // Share reads only inside this projection request, never across user/access contexts.
   const numberReads = new Map();
-  const numberRpc = (name, args) => {
+  const numberRpc = createNumberLookupTransport((name, args) => {
     const key = JSON.stringify([name, args]);
     if (!numberReads.has(key)) numberReads.set(key, Promise.resolve(supabase.rpc(name, args)));
     return numberReads.get(key);
-  };
+  });
   const lookupLimit = safeLimit(numberLookupLimit, 500, 500);
   const familyLookup = async (value) => {
     const page = await numberRpc("fn_number_lookup", { p_value: value, p_limit: lookupLimit, p_after_bid_id: null });
