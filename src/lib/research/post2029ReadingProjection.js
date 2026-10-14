@@ -1,7 +1,5 @@
 import { getPostBySlug, supabase } from "../supabase.js";
 import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
-import { createCanonicalNumberW2Executors } from "./researchW2Executors.js";
-import { fetchLiveNumericRuleVersions } from "./numberSystemMethods.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
@@ -756,10 +754,15 @@ async function fetchGoldenPackTraces(postId) {
 // Governed owners are injected with live dependencies; the pack adapter itself never touches the DB.
 export async function fetchGoldenContextPack(post) {
   if (!goldenContextPackClaims(post?.id).length) return null;
+  const [{ createCanonicalNumberW2Executors }, { fetchLiveNumericRuleVersions }, traces] = await Promise.all([
+    import("./researchW2Executors.js"),
+    import("./numberSystemMethods.js"),
+    fetchGoldenPackTraces(post.id),
+  ]);
   return buildGoldenPostContextPack({
     postId: post.id,
     post: { id: post.id, slug: post.slug, date: post.date },
-    traces: await fetchGoldenPackTraces(post.id),
+    traces,
     numericOperators: createCanonicalNumberW2Executors({ supabase, numericRuleVersions: fetchLiveNumericRuleVersions }).numeric_operators,
     ruleVersions: fetchLiveNumericRuleVersions,
   });
