@@ -1,0 +1,24 @@
+
+## desktop home cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+en       5  1011-861 1576-528  444 +360.058-0.053   40 -40    0  -9  924-100   61  +1   22 -33    2  +0  ready same-content
+early    5   964-908 1516-588  428 +200.053-0.058   48 -32   13  +4  985 -39   61  +1   54  -1    2  +0  ready same-content
+base     5  1872     2104      408    0.111       80        9     1024       60       55        2      ready same-content
+
+## desktop post cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+early    5  2749-554 3752-580  448 +280.173-0.001    0 -16   40 +11  992 -13   32  +0   27  -2    1  +0  ready same-content
+base     5  3303     4332      420    0.174       16       29     1005       32       29        1      ready same-content
+en       5  2607-696 3744-588  404 -160.172-0.002   24  +8   20  -9  964 -41   32  +0   12 -17    1  +0  ready same-content
+
+## mobile home cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+early    5  4520-807 6100-632 2164 +320.020+0.002   64  +8  280  -3 3782+152   61  +2   53  -1    2  +0  ready same-content
+base     5  5327     6732     2132    0.018       56      283     3630       59       54        2      ready same-content
+en       5  4498-829 6204-528 2152 +200.020+0.002   64  +8  290  +7 3772+142   61  +2   22 -32    2  +0  ready same-content
+
+## mobile post cold
+variant  n      ready      LCP      FCP      CLS click ms      TBT      cpu      api   preflt      dup  integrity
+base     5  7111     7184     2104    0.033       56      459     3245       31       28        1      ready same-content
+en       5  6396-715 6472-712 2144 +400.033+0.000   56  +0  436 -23 3136-109   31  +0   12 -16    1  +0  ready same-content
+early    5  6676-435 6736-448 2188 +840.033+0.000   56  +0  542 +83 3106-139   31  +0   26  -2    1  +0  ready same-content

@@ -1,0 +1,364 @@
+{
+ "scen": "home",
+ "reps": 3,
+ "dir": "var-base-sm",
+ "sampledMsPerRun": 7139,
+ "specialsMs": [
+  [
+   "(idle)",
+   3916
+  ],
+  [
+   "(program)",
+   2090
+  ],
+  [
+   "(anonymous)",
+   210
+  ],
+  [
+   "(garbage collector)",
+   29
+  ]
+ ],
+ "byCategoryMs": [
+  [
+   "lib: react-dom",
+   331
+  ],
+  [
+   "unmapped",
+   162
+  ],
+  [
+   "lib: @supabase/postgrest-js",
+   54
+  ],
+  [
+   "lib: react-router",
+   45
+  ],
+  [
+   "unif/src/components/experience2029/SystemFrame2029.jsx",
+   19
+  ],
+  [
+   "unif/src/lib/research/worldDiscoveryStream.js",
+   19
+  ],
+  [
+   "lib: react",
+   14
+  ],
+  [
+   "unif/src/components/experience2029/HomeComposition2029.jsx",
+   14
+  ],
+  [
+   "unif/src/lib/research/home2029Projection.js",
+   14
+  ],
+  [
+   "lib: @hebcal/hdate",
+   14
+  ],
+  [
+   "lib: @supabase/supabase-js",
+   13
+  ],
+  [
+   "lib: scheduler",
+   13
+  ],
+  [
+   "unif/src/lib/research/post2029ReadingProjection.js",
+   11
+  ],
+  [
+   "lib: @supabase/auth-js",
+   10
+  ],
+  [
+   "unif/src/lib/identity.js",
+   9
+  ],
+  [
+   "unif/src/lib/botVerdict.js",
+   8
+  ],
+  [
+   "lib: @hebcal/core",
+   8
+  ],
+  [
+   "lib: temporal-polyfill",
+   8
+  ],
+  [
+   "unif/src/lib/format.js",
+   8
+  ],
+  [
+   "unif/src/pages/Home2029Page.jsx",
+   7
+  ],
+  [
+   "unif/src/components/WatchButton.jsx",
+   6
+  ],
+  [
+   "unif/src/lib/supabase.js",
+   5
+  ],
+  [
+   "unif/src/lib/timeFlow.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/worldContributorLens.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/homePlacement2029.js",
+   4
+  ]
+ ],
+ "byFileMs": [
+  [
+   "home/user/sod1820/node_modules/react-dom/cjs/react-dom-client.production.js",
+   331
+  ],
+  [
+   "",
+   152
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/postgrest-js/dist/index.mjs",
+   54
+  ],
+  [
+   "home/user/sod1820/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs",
+   45
+  ],
+  [
+   "unif/src/components/experience2029/SystemFrame2029.jsx",
+   19
+  ],
+  [
+   "unif/src/lib/research/worldDiscoveryStream.js",
+   19
+  ],
+  [
+   "unif/src/components/experience2029/HomeComposition2029.jsx",
+   14
+  ],
+  [
+   "unif/src/lib/research/home2029Projection.js",
+   14
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/supabase-js/dist/index.mjs",
+   13
+  ],
+  [
+   "home/user/sod1820/node_modules/scheduler/cjs/scheduler.production.js",
+   13
+  ],
+  [
+   "unif/src/lib/research/post2029ReadingProjection.js",
+   11
+  ],
+  [
+   "home/user/sod1820/node_modules/react/cjs/react.production.js",
+   10
+  ],
+  [
+   "unif/src/lib/identity.js",
+   9
+  ],
+  [
+   "unif/src/lib/botVerdict.js",
+   8
+  ],
+  [
+   "unif/src/lib/format.js",
+   8
+  ],
+  [
+   "home/user/sod1820/node_modules/@hebcal/core/dist/esm/holidays.js",
+   7
+  ],
+  [
+   "home/user/sod1820/node_modules/temporal-polyfill/chunks/internal.js",
+   7
+  ],
+  [
+   "unif/src/pages/Home2029Page.jsx",
+   7
+  ],
+  [
+   "preload-helper-BZ1Pz5am.js",
+   6
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/auth-js/dist/module/GoTrueClient.js",
+   6
+  ],
+  [
+   "unif/src/components/WatchButton.jsx",
+   6
+  ],
+  [
+   "home/user/sod1820/node_modules/@hebcal/hdate/dist/esm/hdate.js",
+   6
+  ],
+  [
+   "unif/src/lib/supabase.js",
+   5
+  ],
+  [
+   "unif/src/lib/timeFlow.js",
+   5
+  ],
+  [
+   "home/user/sod1820/node_modules/react/cjs/react-jsx-runtime.production.js",
+   5
+  ]
+ ],
+ "byFuncMs": [
+  [
+   " :: fetch",
+   67
+  ],
+  [
+   "cjs/react-dom-client.production.js :: es",
+   52
+  ],
+  [
+   " :: appendChild",
+   35
+  ],
+  [
+   "dist/index.mjs :: processResponse",
+   18
+  ],
+  [
+   "cjs/react-dom-client.production.js :: yl",
+   16
+  ],
+  [
+   " :: window.fetch",
+   14
+  ],
+  [
+   "cjs/react-dom-client.production.js :: Sl",
+   14
+  ],
+  [
+   "experience2029/SystemFrame2029.jsx :: wo",
+   13
+  ],
+  [
+   "cjs/react-dom-client.production.js :: $t",
+   10
+  ],
+  [
+   "experience2029/HomeComposition2029.jsx :: nt",
+   9
+  ],
+  [
+   "cjs/react-dom-client.production.js :: $",
+   9
+  ],
+  [
+   "cjs/react-dom-client.production.js :: pl",
+   8
+  ],
+  [
+   "cjs/react-dom-client.production.js :: en",
+   8
+  ],
+  [
+   "cjs/react-dom-client.production.js :: ip",
+   8
+  ],
+  [
+   "dist/index.mjs :: rpc",
+   7
+  ],
+  [
+   " :: querySelector",
+   7
+  ],
+  [
+   "lib/format.js :: Na",
+   7
+  ],
+  [
+   "cjs/react-dom-client.production.js :: Au",
+   6
+  ],
+  [
+   "lib/botVerdict.js :: ya",
+   6
+  ],
+  [
+   "development/chunk-OB3PAWPO.mjs :: fe",
+   6
+  ],
+  [
+   "components/WatchButton.jsx :: _",
+   6
+  ],
+  [
+   "cjs/react-dom-client.production.js :: Pl",
+   6
+  ],
+  [
+   "cjs/react-dom-client.production.js :: ef",
+   6
+  ],
+  [
+   "chunks/internal.js :: i",
+   6
+  ],
+  [
+   "dist/index.mjs :: oe",
+   5
+  ],
+  [
+   "cjs/react-dom-client.production.js :: Fd",
+   5
+  ],
+  [
+   " :: createElement",
+   5
+  ],
+  [
+   "cjs/react-dom-client.production.js :: gn",
+   5
+  ],
+  [
+   "research/worldDiscoveryStream.js :: h",
+   5
+  ],
+  [
+   "cjs/react-dom-client.production.js :: Zd",
+   5
+  ]
+ ],
+ "runs": [
+  {
+   "readyWait": 5553,
+   "sampledMs": 7247
+  },
+  {
+   "readyWait": 5319,
+   "sampledMs": 7002
+  },
+  {
+   "readyWait": 5471,
+   "sampledMs": 7168
+  }
+ ]
+}

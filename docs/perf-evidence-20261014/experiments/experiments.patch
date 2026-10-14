@@ -1,0 +1,609 @@
+diff --git a/src/components/experience2029/DiscoveryGateways2029.jsx b/src/components/experience2029/DiscoveryGateways2029.jsx
+index bf8e1f54..0fdeda29 100644
+--- a/src/components/experience2029/DiscoveryGateways2029.jsx
++++ b/src/components/experience2029/DiscoveryGateways2029.jsx
+@@ -2,7 +2,7 @@
+ // Language research is an existing legacy deep-link until its 2029 projection is ready.
+ import React, { useEffect, useState } from "react";
+ import { Link } from "react-router-dom";
+-import { getPostsFromSupabase, getCategoryVideos } from "../../lib/supabase.js";
++import { getPostsFromSupabase, getCategoryVideos, supabase } from "../../lib/supabase.js";
+ import { claimHomeItems } from "../../lib/research/homePlacement2029.js";
+ import WatchButton from "../WatchButton.jsx";
+ import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
+@@ -105,19 +105,30 @@ function DimensionFiveFeature({ items, loading }) {
+   </section>;
+ }
+ 
++// Gateway tiles only render title/link (+ excerpt, poster). The full Post body is needed for ONE featured
++// Post (5018) and is read on its own, instead of downloading `content` for up to 114 Posts.
++const CARD_FIELDS = "id,slug,title,home_hidden,categories,modified";
++const LANGUAGE_FIELDS = `${CARD_FIELDS},excerpt`;
++const DIMENSION_FIELDS = `${CARD_FIELDS},thumb_url`;
++const FEATURED_LANGUAGE_POST_ID = 5018;
++const NARROW = import.meta.env.VITE_PERF_NARROW !== "0"; // experiment switch
++
+ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
+   const [state, setState] = useState({ loading: true, language: [], cinema: [], videos: [], dimension: [], matrices: [] });
+   useEffect(() => {
+     let active = true;
+     // Categories are the ONLY automatic admission rule. Do not derive a gateway
+     // from tags, title keywords, a shared word or video metadata.
+-    Promise.allSettled([
+-      getPostsFromSupabase({ category: "שבילי שפה", limit: 24, orderBy: "modified" }),
+-      getPostsFromSupabase({ category: "הצופן בסרטים", limit: 30, orderBy: "modified" }),
++    const run = () => Promise.allSettled([
++      getPostsFromSupabase({ category: "שבילי שפה", limit: 24, orderBy: "modified", fields: NARROW ? LANGUAGE_FIELDS : "*" }),
++      getPostsFromSupabase({ category: "הצופן בסרטים", limit: 30, orderBy: "modified", fields: NARROW ? CARD_FIELDS : "*" }),
+       getCategoryVideos("צפונות בתורה", { limit: 80 }),
+-      getPostsFromSupabase({ category: "מימד חמש", limit: 60, orderBy: "modified" }),
++      getPostsFromSupabase({ category: "מימד חמש", limit: 60, orderBy: "modified", fields: NARROW ? DIMENSION_FIELDS : "*" }),
+       getMatrixLibraryPage({ view: "public", pageSize: 4 }),
+-    ]).then(([language, cinema, videos, dimension, matrices]) => {
++      // Full body of the single featured Post, requested in parallel with the lists (not after them) so the
++      // preview tile never swaps in late and moves the layout.
++      NARROW && supabase ? supabase.from("posts").select("id,content").eq("id", FEATURED_LANGUAGE_POST_ID).maybeSingle() : Promise.resolve({ data: null }),
++    ]).then(([language, cinema, videos, dimension, matrices, featuredBody]) => {
+       if (!active) return;
+       const value = (result, fallback) => result.status === "fulfilled" ? result.value : fallback;
+       const languagePosts = (value(language, { posts: [] }).posts || [])
+@@ -135,7 +146,8 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
+         loading: false,
+         language: languagePosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,
+           title: clean(post.title), href: postHref(post.slug),
+-          content: post.content || "", excerpt: post.excerpt || "" })),
++          content: Number(post.id) === FEATURED_LANGUAGE_POST_ID ? (value(featuredBody, { data: null }).data?.content || "") : (post.content || ""),
++          excerpt: post.excerpt || "" })),
+         cinema: cinemaPosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,
+           title: clean(post.title), href: postHref(post.slug) })),
+         videos: cipherVideos.map(video => ({ id: `video:${video.slug}`, slug: video.slug,
+@@ -150,7 +162,12 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
+         })),
+       });
+     });
+-    return () => { active = false; };
++    // EXPERIMENT (VITE_PERF_DEFER=1): the gateway tiles are secondary content, start them when the browser is idle.
++    let idle = null;
++    if (import.meta.env.VITE_PERF_DEFER === "1" && typeof window !== "undefined") {
++      idle = window.requestIdleCallback ? window.requestIdleCallback(run, { timeout: 2500 }) : window.setTimeout(run, 1200);
++    } else run();
++    return () => { active = false; if (idle != null) { if (window.cancelIdleCallback) window.cancelIdleCallback(idle); window.clearTimeout(idle); } };
+   }, []);
+ 
+   const language = claimHomeItems(state.language, excludedPostKeys, 2);
+diff --git a/src/components/experience2029/SystemFrame2029.jsx b/src/components/experience2029/SystemFrame2029.jsx
+index 3c332d35..01bf52be 100644
+--- a/src/components/experience2029/SystemFrame2029.jsx
++++ b/src/components/experience2029/SystemFrame2029.jsx
+@@ -1511,6 +1511,8 @@ export default function SystemFrame2029({
+   // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
+   const feed = useSystemFeed2029({ enabled: surface !== "control" });
+   const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
++  // EXPERIMENT (VITE_PERF_SFFIX=1): `window.innerWidth` inside render forces a synchronous layout of the whole page (large on Post).
++  const [companionXWide, setCompanionXWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1560px)").matches);
+   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
+   const [companionPeek, setCompanionPeek] = useState(false);
+   const [companionTab, setCompanionTab] = useState("feed");
+@@ -1520,7 +1522,10 @@ export default function SystemFrame2029({
+     const query = window.matchMedia("(min-width: 981px)");
+     const onChange = () => setCompanionWide(query.matches);
+     query.addEventListener?.("change", onChange);
+-    return () => query.removeEventListener?.("change", onChange);
++    const xQuery = window.matchMedia("(min-width: 1560px)");
++    const onXChange = () => setCompanionXWide(xQuery.matches);
++    xQuery.addEventListener?.("change", onXChange);
++    return () => { query.removeEventListener?.("change", onChange); xQuery.removeEventListener?.("change", onXChange); };
+   }, []);
+   const toggleCompanionPin = useCallback((pinned) => {
+     const next = pinned ? "slim" : "pinned";
+@@ -2015,6 +2020,8 @@ export default function SystemFrame2029({
+       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
+       : [];
+   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
++  // EXPERIMENT (VITE_PERF_CLS=1): Post/Topic gain their trail row only when the context resolves; reserve that row from the first frame.
++  const reserveTrail = import.meta.env.VITE_PERF_CLS === "1" && (surface === "post" || surface === "topic") && !toolMode && !activeToolDock && bottomTrail.length === 0;
+   // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
+   const progressSections = (surface === "post" || surface === "topic") && Array.isArray(context?.dimensions?.surfaceSections)
+     ? context.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
+@@ -2030,7 +2037,7 @@ export default function SystemFrame2029({
+   const companionActive = companionWide && surface !== "control";
+   const companionHasContext = showContextRail && !numberPageRoute;
+   const companionHasSequence = hasEventSequence(context, surface);
+-  const companionPinned = companionPref === "pinned" || (companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
++  const companionPinned = companionPref === "pinned" || (companionPref === null && (import.meta.env.VITE_PERF_SFFIX === "1" ? companionXWide : (typeof window !== "undefined" && window.innerWidth >= 1560)) && feed.rows.length > 0);
+   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
+   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
+   useEffect(() => {
+@@ -2274,9 +2281,10 @@ export default function SystemFrame2029({
+         /> : null}
+         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
+ 
+-        <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
++        <div className={`sod29-command-island is-unified-bar${!activeToolDock && (bottomTrail.length || reserveTrail) ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
+           <div className="sod29-bar-zone is-context">
+             {toolMode ? <SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /> : <>
++              {reserveTrail ? <nav className="sod29-command-trail is-reserved" aria-hidden="true"><span className="sod29-command-trail-item">&nbsp;</span></nav> : null}
+               {showBottomTrail ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
+             {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
+               {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
+diff --git a/src/lib/publicReadCache.js b/src/lib/publicReadCache.js
+new file mode 100644
+index 00000000..1e887d85
+--- /dev/null
++++ b/src/lib/publicReadCache.js
+@@ -0,0 +1,87 @@
++// Anonymous public READ coalescing + short-lived reuse for PostgREST GET requests.
++//
++// Why: every in-app navigation re-sent the whole page data (Home: ~34 requests / ~780 KB, World: ~45 / ~380 KB),
++// including on browser Back, and identical simultaneous reads were sent more than once.
++//
++// Contract (deliberately narrow so access and freshness semantics do not change):
++//  - only GET /rest/v1/<table> for the allowlisted public content tables below; never site_flags, rpc,
++//    storage, auth, or any user/admin table;
++//  - only ANONYMOUS requests (no Authorization header, or Authorization equal to the anon key). A signed-in
++//    user's token is never cached: RLS may personalise the answer;
++//  - simultaneous identical requests share one network request (no TTL involved);
++//  - a successful (200/206) response may be reused for ttlMs (default 30 s) and is then discarded; errors are
++//    never stored; at most maxEntries bodies of at most maxBodyBytes are kept;
++//  - the caller's AbortSignal only rejects that caller; it never cancels the shared request.
++// Public content can therefore be at most ttlMs old on a repeat visit. Locks (site_flags) are always read fresh.
++export const PUBLIC_READ_TTL_MS = 30000;
++export const PUBLIC_READ_TABLES = Object.freeze([
++  "posts", "topic_cards_public", "nodes", "edges", "gallery_images", "galleries", "contributors",
++  "channel_updates", "els_records", "gematria_words", "research_contributions", "research_objects",
++]);
++const ALLOWED = new Set(PUBLIC_READ_TABLES);
++const KEY_HEADERS = ["accept", "accept-profile", "prefer", "range", "range-unit", "apikey"];
++
++function headerMap(init, input) {
++  const h = new Headers(init?.headers || (typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined));
++  return h;
++}
++
++export function createPublicReadFetch({ baseFetch, anonKey, ttlMs = PUBLIC_READ_TTL_MS, maxEntries = 120, maxBodyBytes = 1_500_000, now = Date.now }) {
++  const inflight = new Map();   // key -> Promise<{status,statusText,headers,body}|Response>
++  const done = new Map();       // key -> {at, status, statusText, headers, body}
++  const base = baseFetch || ((...args) => fetch(...args));
++
++  function cacheable(input, init) {
++    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input?.url;
++    const method = String(init?.method || (typeof Request !== "undefined" && input instanceof Request ? input.method : "GET")).toUpperCase();
++    if (method !== "GET" || !url) return null;
++    let u; try { u = new URL(url); } catch { return null; }
++    const m = u.pathname.match(/^\/rest\/v1\/([a-z0-9_]+)$/);
++    if (!m || !ALLOWED.has(m[1])) return null;
++    const h = headerMap(init, input);
++    const auth = h.get("authorization");
++    if (auth && auth !== `Bearer ${anonKey}`) return null;   // signed-in or unknown credential: never cache
++    const key = u.href + "\n" + KEY_HEADERS.map((n) => `${n}=${h.get(n) || ""}`).join("&");
++    return { key, signal: init?.signal || null };
++  }
++
++  const toResponse = (e) => new Response(e.body.byteLength && ![204, 205, 304].includes(e.status) ? e.body.slice(0) : null, { status: e.status, statusText: e.statusText, headers: e.headers });
++  function withAbort(p, signal) {
++    if (!signal) return p;
++    if (signal.aborted) return Promise.reject(new DOMException("Aborted", "AbortError"));
++    return new Promise((resolve, reject) => {
++      const onAbort = () => reject(new DOMException("Aborted", "AbortError"));
++      signal.addEventListener("abort", onAbort, { once: true });
++      p.then((v) => { signal.removeEventListener("abort", onAbort); resolve(v); }, (e) => { signal.removeEventListener("abort", onAbort); reject(e); });
++    });
++  }
++  function evict() {
++    while (done.size > maxEntries) done.delete(done.keys().next().value);
++  }
++
++  function publicReadFetch(input, init) {
++    const c = cacheable(input, init);
++    if (!c) return base(input, init);
++    const hit = done.get(c.key);
++    if (hit) {
++      if (now() - hit.at < ttlMs) return withAbort(Promise.resolve(toResponse(hit)), c.signal);
++      done.delete(c.key);
++    }
++    let shared = inflight.get(c.key);
++    if (!shared) {
++      const { signal, ...rest } = init || {};
++      shared = (async () => {
++        const res = await base(input instanceof Request ? input.url : input, rest);
++        const body = await res.arrayBuffer();
++        const entry = { at: now(), status: res.status, statusText: res.statusText, headers: [...res.headers.entries()], body };
++        if ((res.status === 200 || res.status === 206) && body.byteLength <= maxBodyBytes) { done.set(c.key, entry); evict(); }
++        return entry;
++      })().finally(() => { inflight.delete(c.key); });
++      inflight.set(c.key, shared);
++    }
++    return withAbort(shared.then(toResponse), c.signal);
++  }
++  publicReadFetch.clear = () => { done.clear(); };
++  publicReadFetch.size = () => done.size;
++  return publicReadFetch;
++}
+diff --git a/src/lib/publicReadTransport.js b/src/lib/publicReadTransport.js
+new file mode 100644
+index 00000000..67537aa7
+--- /dev/null
++++ b/src/lib/publicReadTransport.js
+@@ -0,0 +1,56 @@
++// EXPERIMENT transport under the Supabase client (anonymous public reads only). Three independently switchable behaviours:
++//  noPreflight: an anonymous GET carries the public anon key as the `apikey` query parameter and NO custom headers, so the browser
++//               sends one simple CORS request instead of OPTIONS + GET (each cross-origin URL otherwise costs an extra round trip).
++//  early:       a response started from <head> (window.__sodEarly, see vite.config.js) is handed to the first matching GET.
++//  dedupeRpc:   identical simultaneous POSTs to allow-listed read-only RPCs share one network request.
++// Never touches requests that carry a signed-in token, Prefer/Range headers, non-REST URLs or non-allow-listed RPCs.
++export const READ_ONLY_RPC = Object.freeze(["convergence_meter", "fn_method_value", "fn_number_dossier", "fn_number_journey", "fn_number_lookup",
++  "fn_zero_scale", "gematria_api", "gematria_method_trace", "get_category_videos", "number_neighbors", "posts_by_number_strict",
++  "world_group_source_arrivals_v2", "world_group_source_arrivals_v3"]);
++const norm = (u) => { try { return decodeURIComponent(u).replace(/([?&])apikey=[^&]*&?/, "$1").replace(/[?&]$/, ""); } catch { return u; } };
++
++export function createPublicTransport({ baseFetch, anonKey, noPreflight = false, early = false, dedupeRpc = false }) {
++  const base = baseFetch || ((...a) => fetch(...a));
++  const inflight = new Map();
++  const toRes = (e) => new Response(e.body.byteLength ? e.body.slice(0) : null, { status: e.status, statusText: e.statusText, headers: e.headers });
++  return function transport(input, init) {
++    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input?.url;
++    const method = String(init?.method || (input instanceof Request ? input.method : "GET")).toUpperCase();
++    if (!url || !/\/rest\/v1\//.test(url)) return base(input, init);
++    const h = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
++    const auth = h.get("authorization");
++    if (auth && auth !== `Bearer ${anonKey}`) return base(input, init);        // signed-in/unknown credential: untouched
++    if (method === "GET" && !h.get("prefer") && !h.get("range")) {
++      if (early && typeof window !== "undefined" && window.__sodEarly) {
++        const hit = window.__sodEarly.get(norm(url));
++        if (hit && (h.get("accept") || "application/json") === hit.accept) {
++          window.__sodEarly.delete(norm(url)); window.__earlyHits = (window.__earlyHits || 0) + 1;
++          return hit.p.then((r) => r || base(input, init), () => base(input, init));
++        }
++      }
++      const profile = h.get("accept-profile");   // supabase-js sends Accept-Profile: public for the default schema; it is not needed
++      if (noPreflight && h.get("apikey") === anonKey && (!profile || profile === "public") && !h.get("content-profile")) {
++        const u = new URL(url); u.searchParams.set("apikey", anonKey);
++        const accept = h.get("accept");
++        const { signal } = init || {};
++        return base(u.href, { method: "GET", signal, headers: accept && accept !== "*/*" ? { Accept: accept } : undefined });
++      }
++      return base(input, init);
++    }
++    if (dedupeRpc && method === "POST" && typeof init?.body === "string") {
++      const rpc = (url.match(/\/rpc\/([a-z0-9_]+)/) || [])[1];
++      if (rpc && READ_ONLY_RPC.includes(rpc)) {
++        const key = url + "\n" + init.body + "\n" + (h.get("authorization") || "");
++        let shared = inflight.get(key);
++        if (!shared) {
++          const { signal, ...rest } = init;
++          shared = (async () => { const res = await base(input, rest); const body = await res.arrayBuffer();
++            return { status: res.status, statusText: res.statusText, headers: [...res.headers.entries()], body }; })().finally(() => inflight.delete(key));
++          inflight.set(key, shared);
++        }
++        return shared.then(toRes);
++      }
++    }
++    return base(input, init);
++  };
++}
+diff --git a/src/lib/supabase.js b/src/lib/supabase.js
+index 265b7893..11537fa6 100644
+--- a/src/lib/supabase.js
++++ b/src/lib/supabase.js
+@@ -1,4 +1,6 @@
+ import { createClient } from '@supabase/supabase-js';
++import { createPublicReadFetch } from './publicReadCache.js';
++import { createPublicTransport } from './publicReadTransport.js';
+ import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
+ import { signupAttribution } from './acquisition.js';
+ import { isAnon } from './privacy.js';
+@@ -14,16 +16,24 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
+ export const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
+ export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+ 
+-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
++// Anonymous public content reads are coalesced and reused for 30 s (see publicReadCache.js). site_flags,
++// rpc, signed-in requests and every non-allowlisted table go straight to the network.
++const PERF_CACHE = import.meta.env.VITE_PERF_CACHE || 'ttl'; // experiment switch: off | coalesce | ttl
++const E = import.meta.env;
++const transport = createPublicTransport({ baseFetch: (...args) => fetch(...args), anonKey: SUPABASE_ANON,
++  noPreflight: E.VITE_PERF_NOPRE === '1', early: E.VITE_PERF_EARLY === '1', dedupeRpc: E.VITE_PERF_DEDUPE === '1' });
++export const publicReadFetch = PERF_CACHE === 'off' ? transport
++  : createPublicReadFetch({ baseFetch: transport, anonKey: SUPABASE_ANON, ttlMs: PERF_CACHE === 'coalesce' ? 0 : undefined });
++const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, { global: { fetch: publicReadFetch } });
+ 
+ export default supabase;
+ export { supabase };
+ 
+-export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false, stableOrder = false } = {}) {
++export async function getPostsFromSupabase({ limit = 10, page = 1, category = null, tag = null, year = null, author = null, orderBy = 'date', ascending = false, stableOrder = false, fields = '*' } = {}) {
+   if (!supabase) return { posts: [], total: 0 };
+   let query = supabase
+     .from('posts')
+-    .select('*', { count: 'exact' })
++    .select(fields, { count: 'exact' })   // fields: callers that only render cards pass a narrow list (no content)
+     .order(orderBy, { ascending, nullsFirst: false })
+     .range((page - 1) * limit, page * limit - 1);
+ 
+diff --git a/test/public-read-cache.test.mjs b/test/public-read-cache.test.mjs
+new file mode 100644
+index 00000000..476b8536
+--- /dev/null
++++ b/test/public-read-cache.test.mjs
+@@ -0,0 +1,101 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { createPublicReadFetch, PUBLIC_READ_TABLES } from '../src/lib/publicReadCache.js';
++
++const ANON = 'anon-key-fixture';
++const URL_POSTS = 'https://x.supabase.co/rest/v1/posts?select=id,slug&limit=3';
++const anonHeaders = () => ({ apikey: ANON, authorization: `Bearer ${ANON}` });
++
++function setup(opts = {}) {
++  const h = { t: 1_000_000, calls: [], status: 200, fail: false, gate: null };
++  const base = async (input, init) => {
++    h.calls.push({ url: String(input), method: init?.method || 'GET', hadSignal: !!init?.signal });
++    if (h.gate) await h.gate;
++    if (h.fail) throw new Error('network');
++    return new Response(JSON.stringify([{ id: h.calls.length }]), { status: h.status, headers: { 'content-type': 'application/json', 'content-range': '0-0/1' } });
++  };
++  h.fetch = createPublicReadFetch({ baseFetch: base, anonKey: ANON, now: () => h.t, ...opts });
++  return h;
++}
++
++test('simultaneous identical anonymous reads share one request and each caller can read its own body', async () => {
++  const h = setup(); let release; h.gate = new Promise((r) => { release = r; });
++  const reads = Array.from({ length: 6 }, () => h.fetch(URL_POSTS, { headers: anonHeaders() }));
++  assert.equal(h.calls.length, 1);
++  release();
++  const bodies = await Promise.all((await Promise.all(reads)).map((r) => r.json()));
++  assert.ok(bodies.every((b) => b[0].id === 1));
++});
++
++test('a completed read is reused inside the TTL and expires after it', async () => {
++  const h = setup();
++  await h.fetch(URL_POSTS, { headers: anonHeaders() });
++  h.t += 29_999; const second = await h.fetch(URL_POSTS, { headers: anonHeaders() });
++  assert.equal(h.calls.length, 1);
++  assert.equal(second.headers.get('content-range'), '0-0/1', 'headers (count) are preserved');
++  h.t += 2; await h.fetch(URL_POSTS, { headers: anonHeaders() });
++  assert.equal(h.calls.length, 2);
++});
++
++test('never cached or shared: site_flags, rpc, other tables, non-GET, signed-in tokens', async () => {
++  const h = setup();
++  const send = (url, init = {}) => h.fetch(url, init);
++  await send('https://x.supabase.co/rest/v1/site_flags?select=key', { headers: anonHeaders() });
++  await send('https://x.supabase.co/rest/v1/site_flags?select=key', { headers: anonHeaders() });
++  await send('https://x.supabase.co/rest/v1/rpc/world_group_source_arrivals_v2', { method: 'POST', headers: anonHeaders() });
++  await send('https://x.supabase.co/rest/v1/profiles?select=*', { headers: anonHeaders() });
++  await send(URL_POSTS, { method: 'POST', headers: anonHeaders() });
++  await send(URL_POSTS, { headers: { apikey: ANON, authorization: 'Bearer user-session-jwt' } });
++  await send(URL_POSTS, { headers: { apikey: ANON, authorization: 'Bearer user-session-jwt' } });
++  assert.equal(h.calls.length, 7, 'every one of those hit the network');
++  assert.equal(PUBLIC_READ_TABLES.includes('site_flags'), false);
++});
++
++test('different query or Prefer/Range header is a different key', async () => {
++  const h = setup();
++  await h.fetch(URL_POSTS, { headers: anonHeaders() });
++  await h.fetch(URL_POSTS.replace('limit=3', 'limit=4'), { headers: anonHeaders() });
++  await h.fetch(URL_POSTS, { headers: { ...anonHeaders(), prefer: 'count=exact' } });
++  assert.equal(h.calls.length, 3);
++});
++
++test('errors and non-2xx are never stored; the next call retries', async () => {
++  const h = setup(); h.fail = true;
++  await assert.rejects(() => h.fetch(URL_POSTS, { headers: anonHeaders() }));
++  h.fail = false; h.status = 503;
++  assert.equal((await h.fetch(URL_POSTS, { headers: anonHeaders() })).status, 503);
++  h.status = 200;
++  assert.equal((await h.fetch(URL_POSTS, { headers: anonHeaders() })).status, 200);
++  assert.equal(h.calls.length, 3);
++  await h.fetch(URL_POSTS, { headers: anonHeaders() });
++  assert.equal(h.calls.length, 3, 'the success is now reused');
++});
++
++test('aborting one caller rejects only that caller; the shared request is not cancelled', async () => {
++  const h = setup(); let release; h.gate = new Promise((r) => { release = r; });
++  const ac = new AbortController();
++  const a = h.fetch(URL_POSTS, { headers: anonHeaders(), signal: ac.signal });
++  const b = h.fetch(URL_POSTS, { headers: anonHeaders() });
++  ac.abort();
++  await assert.rejects(a, { name: 'AbortError' });
++  release();
++  assert.equal((await b).status, 200);
++  assert.equal(h.calls.length, 1);
++  assert.equal(h.calls[0].hadSignal, false, 'the caller signal is never passed to the shared request');
++});
++
++test('entry and size limits', async () => {
++  const h = setup({ maxEntries: 2 });
++  for (const n of [1, 2, 3]) await h.fetch(URL_POSTS.replace('limit=3', `limit=${n}`), { headers: anonHeaders() });
++  assert.equal(h.fetch.size(), 2);
++  const big = setup({ maxBodyBytes: 5 });
++  await big.fetch(URL_POSTS, { headers: anonHeaders() }); await big.fetch(URL_POSTS, { headers: anonHeaders() });
++  assert.equal(big.calls.length, 2, 'an oversized body is not stored');
++});
++
++test('clear() drops stored reads', async () => {
++  const h = setup();
++  await h.fetch(URL_POSTS, { headers: anonHeaders() }); h.fetch.clear();
++  await h.fetch(URL_POSTS, { headers: anonHeaders() });
++  assert.equal(h.calls.length, 2);
++});
+diff --git a/test/public-read-transport.test.mjs b/test/public-read-transport.test.mjs
+new file mode 100644
+index 00000000..248eea88
+--- /dev/null
++++ b/test/public-read-transport.test.mjs
+@@ -0,0 +1,67 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { createPublicTransport } from "../src/lib/publicReadTransport.js";
++
++const KEY = "anon-key";
++const URL_POSTS = "https://x.supabase.co/rest/v1/posts?select=id&limit=1";
++const hdr = (extra = {}) => new Headers({ apikey: KEY, Authorization: `Bearer ${KEY}`, "x-client-info": "t", "accept-profile": "public", ...extra });
++function harness(opts) {
++  const calls = [];
++  const baseFetch = async (input, init) => { calls.push({ url: typeof input === "string" ? input : input.url, init }); return new Response(JSON.stringify([{ id: 1 }]), { status: 200, headers: { "content-type": "application/json" } }); };
++  return { calls, transport: createPublicTransport({ baseFetch, anonKey: KEY, ...opts }) };
++}
++
++test("noPreflight: anonymous GET moves the public key into the query and sends no custom header", async () => {
++  const { calls, transport } = harness({ noPreflight: true });
++  await transport(URL_POSTS, { method: "GET", headers: hdr() });
++  assert.equal(calls.length, 1);
++  assert.ok(calls[0].url.includes(`apikey=${KEY}`));
++  assert.equal(calls[0].init.headers, undefined);
++});
++
++test("noPreflight never touches a signed-in token, Prefer/Range requests, writes or other schemas", async () => {
++  const { calls, transport } = harness({ noPreflight: true });
++  await transport(URL_POSTS, { method: "GET", headers: hdr({ Authorization: "Bearer user-jwt" }) });
++  await transport(URL_POSTS, { method: "GET", headers: hdr({ Prefer: "count=exact" }) });
++  await transport(URL_POSTS, { method: "GET", headers: hdr({ Range: "0-9" }) });
++  await transport(URL_POSTS, { method: "GET", headers: hdr({ "accept-profile": "private" }) });
++  await transport("https://x.supabase.co/rest/v1/rpc/convergence_meter", { method: "POST", headers: hdr(), body: "{}" });
++  await transport("https://x.supabase.co/auth/v1/user", { method: "GET", headers: hdr() });
++  assert.equal(calls.length, 6);
++  for (const c of calls) assert.ok(!c.url.includes("apikey="), c.url);
++});
++
++test("early: the first matching GET takes the head response once; a different Accept or a failed early read falls through", async () => {
++  globalThis.window = { __sodEarly: new Map() };
++  const key = decodeURIComponent(URL_POSTS);
++  window.__sodEarly.set(key, { accept: "application/json", p: Promise.resolve(new Response('[{"id":9}]', { status: 200 })) });
++  const { calls, transport } = harness({ early: true });
++  const first = await (await transport(URL_POSTS, { method: "GET", headers: hdr() })).json();
++  assert.deepEqual(first, [{ id: 9 }]);
++  assert.equal(calls.length, 0);
++  const second = await (await transport(URL_POSTS, { method: "GET", headers: hdr() })).json();
++  assert.deepEqual(second, [{ id: 1 }]);          // the early entry was consumed once
++  assert.equal(calls.length, 1);
++  window.__sodEarly.set(key, { accept: "application/json", p: Promise.resolve(new Response("x")) });
++  await transport(URL_POSTS, { method: "GET", headers: hdr({ accept: "application/vnd.pgrst.object+json" }) });
++  assert.equal(calls.length, 2);                   // object-mode read does not receive the array response
++  window.__sodEarly.set(key, { accept: "application/json", p: Promise.reject(new Error("net")) });
++  const r = await transport(URL_POSTS, { method: "GET", headers: hdr() });
++  assert.equal(r.status, 200);
++  assert.equal(calls.length, 3);
++  delete globalThis.window;
++});
++
++test("dedupeRpc: identical simultaneous read-only RPCs share one request; other RPCs and bodies do not", async () => {
++  const { calls, transport } = harness({ dedupeRpc: true });
++  const u = "https://x.supabase.co/rest/v1/rpc/convergence_meter";
++  const post = (body, url = u) => transport(url, { method: "POST", headers: hdr({ "content-type": "application/json" }), body });
++  const rs = await Promise.all([post('{"a":1}'), post('{"a":1}'), post('{"a":1}')]);
++  assert.equal(calls.length, 1);
++  for (const r of rs) assert.deepEqual(await r.json(), [{ id: 1 }]);
++  await post('{"a":2}');
++  assert.equal(calls.length, 2);
++  await post("{}", "https://x.supabase.co/rest/v1/rpc/track_visit");
++  await post("{}", "https://x.supabase.co/rest/v1/rpc/track_visit");
++  assert.equal(calls.length, 4);                    // not on the read-only list: never merged
++});
+diff --git a/vite.config.js b/vite.config.js
+index c155475f..e766179c 100644
+--- a/vite.config.js
++++ b/vite.config.js
+@@ -1,16 +1,101 @@
+ import { resolve } from 'node:path'
+ import { fileURLToPath } from 'node:url'
++import { readFileSync } from 'node:fs'
+ import { defineConfig } from 'vite'
+ import react from '@vitejs/plugin-react'
+ 
+ const rootDir = fileURLToPath(new URL('.', import.meta.url))
+ const is2029 = process.env.SOD_BUILD_TARGET === '2029'
+ 
++// 2029 document only: the SPA discovers a route's page chunk only after the entry chunk has executed, then
++// that chunk's own imports (shared frame, projections), one request wave after another. This hint lists, per
++// first path segment, the page chunk plus every static dependency that is not already part of the entry
++// closure, and an inline script in <head> issues modulepreload (JS) / preload as=style (CSS) for the current
++// route immediately, so those downloads overlap the entry download. Other main routes are prefetched at low
++// priority after the page finished loading and the browser is idle (skipped on Save-Data and 2g/slow-2g).
++// Build-time only; no route, flag or runtime behaviour changes.
++const ROUTE_CHUNKS_2029 = {
++  '/': 'Home2029Page', '/2029': 'Home2029Page', '/world': 'World2029Page', '/post': 'Post2029Page',
++  '/number': 'Number2029Page', '/topic': 'Topic2029Page', '/posts': 'Posts2029Page',
++}
++function route2029Preload() {
++  return {
++    name: 'sod-route-preload-2029',
++    apply: 'build',
++    transformIndexHtml: {
++      order: 'post',
++      handler(html, ctx) {
++        if (!is2029 || !ctx.bundle || process.env.PERF_PRELOAD === '0') return html
++        const chunks = Object.values(ctx.bundle).filter((c) => c.type === 'chunk')
++        const byFile = new Map(chunks.map((c) => [c.fileName, c]))
++        const closure = (file, seen = new Set()) => {
++          if (seen.has(file) || !byFile.has(file)) return seen
++          seen.add(file)
++          for (const dep of byFile.get(file).imports || []) closure(dep, seen)
++          return seen
++        }
++        const inEntry = new Set()
++        for (const c of chunks.filter((x) => x.isEntry)) closure(c.fileName).forEach((f) => inEntry.add(f))
++        const css = (files) => [...new Set([...files].flatMap((f) => [...(byFile.get(f)?.viteMetadata?.importedCss || [])]))]
++        const map = {}
++        for (const [prefix, name] of Object.entries(ROUTE_CHUNKS_2029)) {
++          const page = chunks.find((c) => c.name === name)
++          if (!page) continue
++          const files = [...closure(page.fileName)].filter((f) => !inEntry.has(f))
++          map[prefix] = { js: files.map((f) => `/${f}`), css: css(files).map((f) => `/${f}`) }
++        }
++        if (!Object.keys(map).length) return html
++        const code = `(function(){try{var m=${JSON.stringify(map)},p=location.pathname,s=p.split('/')[1]||'',k=p==='/'?'/':'/'+s;
++function add(r,h,a){var l=document.createElement('link');l.rel=r;l.href=h;if(a)l.as=a;if(r==='modulepreload')l.crossOrigin='';document.head.appendChild(l)}
++var cur=m[k];if(cur){cur.js.forEach(function(h){add('modulepreload',h)});cur.css.forEach(function(h){add('preload',h,'style')})}
++var c=navigator.connection||{};if(c.saveData||/(^|-)2g$/.test(c.effectiveType||''))return;
++addEventListener('load',function(){setTimeout(function(){var run=window.requestIdleCallback||function(f){setTimeout(f,1)};run(function(){var seen={};(cur?cur.js:[]).concat(cur?cur.css:[]).forEach(function(h){seen[h]=1});
++['/','/world','/post','/number'].forEach(function(r){var e=m[r];if(!e||r===k)return;e.js.forEach(function(h){if(!seen[h]){seen[h]=1;add('prefetch',h,'script')}});e.css.forEach(function(h){if(!seen[h]){seen[h]=1;add('prefetch',h,'style')}})})})},4000)})}catch(e){}})()`
++        return { html, tags: [{ tag: 'script', children: code, injectTo: 'head-prepend' }] }
++      },
++    },
++  }
++}
++
++
++// EXPERIMENT (PERF_EARLY=1, 2029 only): start the primary-content reads of the current route from <head>, in parallel with the code
++// download. The Supabase client hands the finished response to its first identical GET (src/lib/publicReadTransport.js), so no
++// app code changes. Anonymous visitors only (no stored session); the request is a simple CORS GET (public anon key as query param).
++// PERF_LCP=1 additionally preloads the route's first cover image from that response with fetchpriority=high.
++function earlyPrimaryReads2029() {
++  return {
++    name: 'sod-early-primary-reads-2029',
++    apply: 'build',
++    transformIndexHtml: {
++      order: 'post',
++      handler(html) {
++        if (!is2029 || process.env.PERF_EARLY !== '1') return html
++        const src = readFileSync(new URL('./src/lib/supabase.js', import.meta.url), 'utf8')
++        const url = src.match(/SUPABASE_URL\s*=\s*'([^']+)'/)[1]
++        const key = src.match(/SUPABASE_ANON\s*=\s*'([^']+)'/)[1]
++        const lcp = process.env.PERF_LCP === '1'
++        const code = `(function(){try{
++for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.+-auth-token$/.test(k)&&localStorage.getItem(k))return}
++var U=${JSON.stringify(url)}+'/rest/v1/',K=${JSON.stringify(key)},p=location.pathname,m=window.__sodEarly=new Map(),list=[['site_flags?select=key,enabled,message,mode',0]];
++if(p==='/')list.push(['posts?select=id,slug,title,image_url,thumb_url,date,modified,tags,home_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21','home']);
++else if(p.indexOf('/post/')===0){var s=decodeURIComponent(p.slice(6)).replace(/[/]+$/,'');if(s&&s.indexOf('/')<0)list.push(['posts?select=*&slug=in.('+s+')&limit=1','post'])}
++list.forEach(function(e){var full=U+e[0];
++var pr=fetch(full+'&apikey='+encodeURIComponent(K),{headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw 0;return r});
++m.set(decodeURIComponent(full),{accept:'application/json',p:pr});
++${lcp ? `if(e[1])pr.then(function(r){return r.clone().json()}).then(function(rows){var row=e[1]==='post'?rows[0]:rows.filter(function(x){return x.thumb_url||x.image_url})[0];var img=row&&(e[1]==='post'?row.image_url:(row.thumb_url||row.image_url));if(img){var l=document.createElement('link');l.rel='preload';l.as='image';l.href=img;l.setAttribute('fetchpriority','high');document.head.appendChild(l)}}).catch(function(){});` : ''}
++pr.catch(function(){})})
++}catch(e){}})()`
++        return { html, tags: [{ tag: 'script', children: code, injectTo: 'head-prepend' }] }
++      },
++    },
++  }
++}
++
+ // G3-A hard isolation: legacy and 2029 are built as two independent module graphs.
+ // This prevents Rollup from re-sharing a common chunk that carries legacy-only presentation
+ // into the 2029 document merely because both runtimes consume Foundation modules.
+ export default defineConfig({
+-  plugins: [react()],
++  plugins: [react(), route2029Preload(), earlyPrimaryReads2029()],
+   build: {
+     emptyOutDir: !is2029,
+     manifest: is2029,

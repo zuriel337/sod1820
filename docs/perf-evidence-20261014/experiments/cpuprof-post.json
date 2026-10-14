@@ -1,0 +1,466 @@
+{
+ "scen": "post",
+ "reps": 3,
+ "dir": "var-nm",
+ "sampledMsPerRun": 10056,
+ "specialsMs": [
+  [
+   "(idle)",
+   6856
+  ],
+  [
+   "(program)",
+   1965
+  ],
+  [
+   "(anonymous)",
+   195
+  ],
+  [
+   "(garbage collector)",
+   20
+  ]
+ ],
+ "byCategoryMs": [
+  [
+   "lib: react-dom",
+   316
+  ],
+  [
+   "unif/src/components/experience2029/SystemFrame2029.jsx",
+   214
+  ],
+  [
+   "unmapped",
+   151
+  ],
+  [
+   "lib: @supabase/postgrest-js",
+   49
+  ],
+  [
+   "lib: react-router",
+   36
+  ],
+  [
+   "unif/src/lib/research/worldDiscoveryStream.js",
+   19
+  ],
+  [
+   "unif/src/lib/identity.js",
+   16
+  ],
+  [
+   "unif/src/lib/research/post2029ReadingProjection.js",
+   16
+  ],
+  [
+   "lib: @supabase/auth-js",
+   12
+  ],
+  [
+   "lib: @supabase/supabase-js",
+   12
+  ],
+  [
+   "lib: scheduler",
+   12
+  ],
+  [
+   "unif/src/lib/research/goldenPostContextPacks.js",
+   10
+  ],
+  [
+   "lib: react",
+   10
+  ],
+  [
+   "unif/src/lib/research/eventSystemMethodRuntime.js",
+   9
+  ],
+  [
+   "unif/src/lib/publicReadTransport.js",
+   6
+  ],
+  [
+   "unif/src/lib/botVerdict.js",
+   6
+  ],
+  [
+   "unif/src/lib/research/eventObservationCompiler.js",
+   5
+  ],
+  [
+   "lib: @supabase/realtime-js",
+   5
+  ],
+  [
+   "unif/src/lib/research/researchSyncRuntime.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/researchW2ExecutorsBase.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/universalFinding.js",
+   4
+  ],
+  [
+   "unif/src/lib/seo.js",
+   4
+  ],
+  [
+   "unif/src/lib/research/researchResultBundle.js",
+   4
+  ],
+  [
+   "unif/src/lib/format.js",
+   4
+  ],
+  [
+   "unif/src/pages/Post2029Page.jsx",
+   4
+  ]
+ ],
+ "byFileMs": [
+  [
+   "home/user/sod1820/node_modules/react-dom/cjs/react-dom-client.production.js",
+   316
+  ],
+  [
+   "unif/src/components/experience2029/SystemFrame2029.jsx",
+   214
+  ],
+  [
+   "",
+   141
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/postgrest-js/dist/index.mjs",
+   49
+  ],
+  [
+   "home/user/sod1820/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs",
+   36
+  ],
+  [
+   "unif/src/lib/research/worldDiscoveryStream.js",
+   19
+  ],
+  [
+   "unif/src/lib/identity.js",
+   16
+  ],
+  [
+   "unif/src/lib/research/post2029ReadingProjection.js",
+   16
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/supabase-js/dist/index.mjs",
+   12
+  ],
+  [
+   "home/user/sod1820/node_modules/scheduler/cjs/scheduler.production.js",
+   12
+  ],
+  [
+   "unif/src/lib/research/goldenPostContextPacks.js",
+   10
+  ],
+  [
+   "unif/src/lib/research/eventSystemMethodRuntime.js",
+   9
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/auth-js/dist/module/GoTrueClient.js",
+   8
+  ],
+  [
+   "home/user/sod1820/node_modules/react/cjs/react.production.js",
+   7
+  ],
+  [
+   "preload-helper-CJkh2MBB.js",
+   7
+  ],
+  [
+   "unif/src/lib/publicReadTransport.js",
+   6
+  ],
+  [
+   "unif/src/lib/botVerdict.js",
+   6
+  ],
+  [
+   "unif/src/lib/research/eventObservationCompiler.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/researchSyncRuntime.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/researchW2ExecutorsBase.js",
+   5
+  ],
+  [
+   "home/user/sod1820/node_modules/@supabase/auth-js/dist/module/lib/helpers.js",
+   5
+  ],
+  [
+   "unif/src/lib/research/universalFinding.js",
+   4
+  ],
+  [
+   "unif/src/lib/seo.js",
+   4
+  ],
+  [
+   "unif/src/lib/research/researchResultBundle.js",
+   4
+  ],
+  [
+   "unif/src/lib/format.js",
+   4
+  ]
+ ],
+ "byFuncMs": [
+  [
+   "experience2029/SystemFrame2029.jsx :: SystemFrame2029 L1477",
+   208
+  ],
+  [
+   "cjs/react-dom-client.production.js :: renderWithHooks",
+   52
+  ],
+  [
+   " :: fetch",
+   47
+  ],
+  [
+   " :: appendChild",
+   44
+  ],
+  [
+   "dist/index.mjs :: processResponse",
+   17
+  ],
+  [
+   "cjs/react-dom-client.production.js :: commitHookEffectListMount",
+   17
+  ],
+  [
+   "cjs/react-dom-client.production.js :: setProp",
+   13
+  ],
+  [
+   "cjs/react-dom-client.production.js :: completeWork",
+   13
+  ],
+  [
+   " :: window.fetch",
+   9
+  ],
+  [
+   "cjs/react-dom-client.production.js :: beginWork",
+   9
+  ],
+  [
+   "research/eventSystemMethodRuntime.js :: compileEventObservationWithSystemMethods L253",
+   7
+  ],
+  [
+   "cjs/react-dom-client.production.js :: setInitialProperties",
+   7
+  ],
+  [
+   "cjs/react-dom-client.production.js :: completeUnitOfWork",
+   7
+  ],
+  [
+   "lib/identity.js :: ensureIdentity L115",
+   7
+  ],
+  [
+   "dist/index.mjs :: rpc",
+   7
+  ],
+  [
+   "cjs/react-dom-client.production.js :: commitMutationEffectsOnFiber",
+   6
+  ],
+  [
+   "lib/publicReadTransport.js :: transport L16",
+   6
+  ],
+  [
+   "cjs/react-dom-client.production.js :: setTextContent",
+   6
+  ],
+  [
+   "cjs/scheduler.production.js :: performWorkUntilDeadline",
+   6
+  ],
+  [
+   "cjs/react-dom-client.production.js :: setValueForAttribute",
+   5
+  ],
+  [
+   "cjs/react-dom-client.production.js :: setValueForKnownAttribute",
+   5
+  ],
+  [
+   " :: querySelector",
+   5
+  ],
+  [
+   " :: setTimeout",
+   5
+  ],
+  [
+   "cjs/react-dom-client.production.js :: reconcileChildFibersImpl",
+   5
+  ],
+  [
+   "dist/index.mjs :: executeWithRetry",
+   5
+  ],
+  [
+   " :: createElement",
+   5
+  ],
+  [
+   "preload-helper-CJkh2MBB.js :: importMetaResolve",
+   5
+  ],
+  [
+   "cjs/react-dom-client.production.js :: performUnitOfWork",
+   4
+  ],
+  [
+   "dist/index.mjs :: from",
+   4
+  ],
+  [
+   "lib/botVerdict.js :: serverBotVerdict L20",
+   4
+  ]
+ ],
+ "runs": [
+  {
+   "readyWait": 8051,
+   "sampledMs": 9744
+  },
+  {
+   "readyWait": 8383,
+   "sampledMs": 10065
+  },
+  {
+   "readyWait": 8673,
+   "sampledMs": 10360
+  }
+ ],
+ "lines": [
+  [
+   "SystemFrame2029.jsx:2033",
+   128
+  ],
+  [
+   "SystemFrame2029.jsx:314",
+   3
+  ],
+  [
+   "SystemFrame2029.jsx:161",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:326",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:2277",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:1505",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:328",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:313",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:1512",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:1559",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:2105",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:2188",
+   1
+  ],
+  [
+   "SystemFrame2029.jsx:2120",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:317",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:2126",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:1580",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:1918",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:1477",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:2275",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:1506",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:2032",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:278",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:2162",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:371",
+   0
+  ],
+  [
+   "SystemFrame2029.jsx:2318",
+   0
+  ]
+ ]
+}
