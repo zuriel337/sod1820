@@ -1,0 +1,121 @@
+diff --git a/src/lib/earlyPrimaryRead2029.js b/src/lib/earlyPrimaryRead2029.js
+index 6ab7504a..4a26c559 100644
+--- a/src/lib/earlyPrimaryRead2029.js
++++ b/src/lib/earlyPrimaryRead2029.js
+@@ -1,5 +1,5 @@
+ // A one-shot anonymous entry-route response handoff, never a general response cache.
+-export function startPrimaryReads2029({ route, urls, anonKey, host = window }) {
++export function startPrimaryReads2029({ route, urls, anonKey, host = window, simple = false }) {
+   try {
+     // Do not run ahead of auth. Unknown/blocked storage is conservative: normal reader wins.
+     if (host.localStorage.getItem('sb-linswmnnkjxvweumprav-auth-token')) return;
+@@ -7,7 +7,9 @@ export function startPrimaryReads2029({ route, urls, anonKey, host = window }) {
+     host.__sodPrimaryReads2029 = slots;
+     for (const url of urls) {
+       const entry = { route, created: Date.now(), accept: 'application/json', profile: 'public' };
+-      entry.promise = host.fetch(url, { method: 'GET', headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, Accept: entry.accept, 'Accept-Profile': entry.profile } });
++      entry.promise = simple
++        ? host.fetch(url + (url.includes('?') ? '&' : '?') + 'apikey=' + encodeURIComponent(anonKey), { method: 'GET', headers: { Accept: entry.accept } })   // EXPERIMENT: simple CORS GET, no preflight
++        : host.fetch(url, { method: 'GET', headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, Accept: entry.accept, 'Accept-Profile': entry.profile } });
+       entry.promise.catch(() => {});
+       slots.set(url, entry);
+     }
+diff --git a/src/lib/publicReadTransport.js b/src/lib/publicReadTransport.js
+new file mode 100644
+index 00000000..67537aa7
+--- /dev/null
++++ b/src/lib/publicReadTransport.js
+@@ -0,0 +1,56 @@
++// EXPERIMENT transport under the Supabase client (anonymous public reads only). Three independently switchable behaviours:
++//  noPreflight: an anonymous GET carries the public anon key as the `apikey` query parameter and NO custom headers, so the browser
++//               sends one simple CORS request instead of OPTIONS + GET (each cross-origin URL otherwise costs an extra round trip).
++//  early:       a response started from <head> (window.__sodEarly, see vite.config.js) is handed to the first matching GET.
++//  dedupeRpc:   identical simultaneous POSTs to allow-listed read-only RPCs share one network request.
++// Never touches requests that carry a signed-in token, Prefer/Range headers, non-REST URLs or non-allow-listed RPCs.
++export const READ_ONLY_RPC = Object.freeze(["convergence_meter", "fn_method_value", "fn_number_dossier", "fn_number_journey", "fn_number_lookup",
++  "fn_zero_scale", "gematria_api", "gematria_method_trace", "get_category_videos", "number_neighbors", "posts_by_number_strict",
++  "world_group_source_arrivals_v2", "world_group_source_arrivals_v3"]);
++const norm = (u) => { try { return decodeURIComponent(u).replace(/([?&])apikey=[^&]*&?/, "$1").replace(/[?&]$/, ""); } catch { return u; } };
++
++export function createPublicTransport({ baseFetch, anonKey, noPreflight = false, early = false, dedupeRpc = false }) {
++  const base = baseFetch || ((...a) => fetch(...a));
++  const inflight = new Map();
++  const toRes = (e) => new Response(e.body.byteLength ? e.body.slice(0) : null, { status: e.status, statusText: e.statusText, headers: e.headers });
++  return function transport(input, init) {
++    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input?.url;
++    const method = String(init?.method || (input instanceof Request ? input.method : "GET")).toUpperCase();
++    if (!url || !/\/rest\/v1\//.test(url)) return base(input, init);
++    const h = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
++    const auth = h.get("authorization");
++    if (auth && auth !== `Bearer ${anonKey}`) return base(input, init);        // signed-in/unknown credential: untouched
++    if (method === "GET" && !h.get("prefer") && !h.get("range")) {
++      if (early && typeof window !== "undefined" && window.__sodEarly) {
++        const hit = window.__sodEarly.get(norm(url));
++        if (hit && (h.get("accept") || "application/json") === hit.accept) {
++          window.__sodEarly.delete(norm(url)); window.__earlyHits = (window.__earlyHits || 0) + 1;
++          return hit.p.then((r) => r || base(input, init), () => base(input, init));
++        }
++      }
++      const profile = h.get("accept-profile");   // supabase-js sends Accept-Profile: public for the default schema; it is not needed
++      if (noPreflight && h.get("apikey") === anonKey && (!profile || profile === "public") && !h.get("content-profile")) {
++        const u = new URL(url); u.searchParams.set("apikey", anonKey);
++        const accept = h.get("accept");
++        const { signal } = init || {};
++        return base(u.href, { method: "GET", signal, headers: accept && accept !== "*/*" ? { Accept: accept } : undefined });
++      }
++      return base(input, init);
++    }
++    if (dedupeRpc && method === "POST" && typeof init?.body === "string") {
++      const rpc = (url.match(/\/rpc\/([a-z0-9_]+)/) || [])[1];
++      if (rpc && READ_ONLY_RPC.includes(rpc)) {
++        const key = url + "\n" + init.body + "\n" + (h.get("authorization") || "");
++        let shared = inflight.get(key);
++        if (!shared) {
++          const { signal, ...rest } = init;
++          shared = (async () => { const res = await base(input, rest); const body = await res.arrayBuffer();
++            return { status: res.status, statusText: res.statusText, headers: [...res.headers.entries()], body }; })().finally(() => inflight.delete(key));
++          inflight.set(key, shared);
++        }
++        return shared.then(toRes);
++      }
++    }
++    return base(input, init);
++  };
++}
+diff --git a/src/lib/supabase.js b/src/lib/supabase.js
+index 1d2ad5b2..e89d159c 100644
+--- a/src/lib/supabase.js
++++ b/src/lib/supabase.js
+@@ -1,5 +1,6 @@
+ import { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
+ import { createEarlyReadFetch2029 } from './earlyPrimaryRead2029.js';
++import { createPublicTransport } from './publicReadTransport.js';
+ import { postBySlugRead, latestPostCardsRead, applyPostRead } from './postReadQueries2029.js';
+ import { createClient } from '@supabase/supabase-js';
+ import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
+@@ -16,8 +17,10 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
+ // חוזרת בלי Cache-Control → הדפדפן חופשי להגיש JSON ישן). ראה getMatrixBySlug.
+ export { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
+ 
+-const earlyReadOptions = typeof window !== 'undefined' && window.__sodPrimaryReads2029
+-  ? { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } }
++const NOPRE = import.meta.env.VITE_PERF_NOPRE === '1'; // EXPERIMENT
++const transport = createPublicTransport({ baseFetch: (...a) => fetch(...a), anonKey: SUPABASE_ANON, noPreflight: NOPRE });
++const earlyReadOptions = (typeof window !== 'undefined' && window.__sodPrimaryReads2029) || NOPRE
++  ? { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON, baseFetch: transport }) } }
+   : undefined;
+ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, earlyReadOptions);
+ 
+diff --git a/vite.config.js b/vite.config.js
+index 7bb72cfc..ab9ae2c1 100644
+--- a/vite.config.js
++++ b/vite.config.js
+@@ -20,7 +20,7 @@ export default defineConfig({
+       handler(html) {
+         if (!is2029) return html;
+         // Slug routes use the same pure query definition, serialized here without loading React or supabase-js.
+-        const code = `(()=>{try{const route=location.pathname;const HOME_LATEST_POST_LIMIT_2029=${HOME_LATEST_POST_LIMIT_2029};const WORLD_FLIGHT_POST_SLUG=${JSON.stringify(WORLD_FLIGHT_POST_SLUG)};const postBySlugRead=${postBySlugRead.toString()};const postReadUrl=${postReadUrl.toString()};const entryPrimaryReads2029=${entryPrimaryReads2029.toString()};const latestPostCardsRead=${latestPostCardsRead.toString()};const urls=entryPrimaryReads2029(route).map(d=>postReadUrl(${JSON.stringify(SUPABASE_URL)},d));(${startPrimaryReads2029.toString()})({route,urls,anonKey:${JSON.stringify(SUPABASE_ANON)}})}catch{}})();`;
++        const code = `(()=>{try{const route=location.pathname;const HOME_LATEST_POST_LIMIT_2029=${HOME_LATEST_POST_LIMIT_2029};const WORLD_FLIGHT_POST_SLUG=${JSON.stringify(WORLD_FLIGHT_POST_SLUG)};const postBySlugRead=${postBySlugRead.toString()};const postReadUrl=${postReadUrl.toString()};const entryPrimaryReads2029=${entryPrimaryReads2029.toString()};const latestPostCardsRead=${latestPostCardsRead.toString()};const urls=entryPrimaryReads2029(route).map(d=>postReadUrl(${JSON.stringify(SUPABASE_URL)},d));(${startPrimaryReads2029.toString()})({route,urls,anonKey:${JSON.stringify(SUPABASE_ANON)},simple:${process.env.VITE_PERF_EARLYSIMPLE==='1'}})}catch{}})();`;
+         return html.replace('    <link rel="preload"', `    <script id="sod2029-primary-reads">${code}</script>\n    <link rel="preload"`);
+       },
+     },
