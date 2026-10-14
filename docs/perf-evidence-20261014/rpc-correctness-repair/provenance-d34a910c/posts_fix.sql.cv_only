@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION public.get_category_videos_v2(p_category text DEFAULT 'וידאו', p_limit integer DEFAULT 60) RETURNS TABLE(slug text, title text, poster_url text, video_url text, yt text, uploaded_at date, author text, post_only boolean, is_cipher boolean)
+ LANGUAGE sql STABLE SET search_path TO 'public' AS $function$
+  SELECT p.slug, p.title, coalesce(p.image_url, p.thumb_url), (regexp_match(p.content, 'https?://[^"''\s]+\.mp4', 'i'))[1],
+    (regexp_match(p.content, '(?:youtube\.com/(?:watch\?v=|embed/)|youtu\.be/|youtube-nocookie\.com/embed/)([A-Za-z0-9_-]{11})', 'i'))[1], p.date::date, p.author,
+    (p.content !~* 'https?://[^"''\s]+\.mp4' AND p.content !~* '(?:youtube\.com/(?:watch\?v=|embed/)|youtu\.be/|youtube-nocookie\.com/embed/)[A-Za-z0-9_-]{11}'),
+    (coalesce(p.tags,'{}') @> ARRAY['הצופן התנכי'])
+  FROM (SELECT * FROM public.posts q WHERE q.categories @> ARRAY[p_category] AND NOT (coalesce(q.tags,'{}') @> ARRAY['טיוטה']) ORDER BY q.date DESC NULLS LAST LIMIT p_limit) p
+  ORDER BY p.date DESC NULLS LAST; $function$;

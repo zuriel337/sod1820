@@ -1,0 +1,161 @@
+== distribution (per value): rows, distinct methods, NULL-method rows, unknown-method rows
+ value | hits  | methods | null_method | unknown_method 
+-------+-------+---------+-------------+----------------
+   787 |   132 |      35 |          10 |             10
+  7871 |  1076 |      36 |          70 |             65
+  7872 | 10606 |      36 |         711 |            580
+(3 rows)
+
+== dossier convergences JSON equality (cur vs v2 grouped), owner / anon / authenticated, 8 values
+ role_name | v | equal 
+-----------+---+-------
+(0 rows)
+
+   r   | n | eq 
+-------+---+----
+ owner | 9 |  9
+(1 row)
+
+  r   | count | count 
+------+-------+-------
+ anon |     9 |     9
+(1 row)
+
+       r       | count | count 
+---------------+-------+-------
+ authenticated |     9 |     9
+(1 row)
+
+== timing (owner role, warm cache, 3 runs each, ms) -- fn_composite_calc is a STUB (lower bound): NOT end-to-end function speed
+ count 
+-------
+    20
+(1 row)
+
+Time: 11.942 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 11.787 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 11.742 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 3.517 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 3.179 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 3.223 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 102.113 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 105.784 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 106.270 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 9.701 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 8.953 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 9.013 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 1129.841 ms (00:01.130)
+ count 
+-------
+    20
+(1 row)
+
+Time: 977.471 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 941.591 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 87.963 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 74.685 ms
+ count 
+-------
+    20
+(1 row)
+
+Time: 64.587 ms
+ count 
+-------
+     1
+(1 row)
+
+Time: 1184.266 ms (00:01.184)
+ count 
+-------
+     1
+(1 row)
+
+Time: 1066.924 ms (00:01.067)
+ count 
+-------
+     1
+(1 row)
+
+Time: 25.917 ms
+ count 
+-------
+     1
+(1 row)
+
+Time: 24.851 ms
