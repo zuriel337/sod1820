@@ -32,6 +32,12 @@ create index concurrently if not exists rc_author_contrib_idx on public.research
   where status = 'approved' and convergence_slug is not null;
 -- already served by existing indexes at x100 (measured): rc_status_idx (approved last 7d, 0.14 ms), rc_target_idx (0.03 ms), idx_gw_ragil (number lookup, 0.15 ms)
 
+-- ===== Part 1c: function rewrites measured in the isolated lab (NOT applied; the new names are additive, switching callers is a separate gated step)
+--   fn_number_lookup_v2       -> numlab_fixed.sql        (identical result incl. total_count and cursor pages; 7,634 -> 234 ms at max x100)
+--   dossier convergences      -> numlab_groups.sql       (identical JSON; 8,286 -> 98 ms)
+--   get_category_videos_v2    -> posts_fix.sql           (identical rows; 7,120 -> 131 ms at x100)
+--   post_numbers + posts_by_number_strict_v2 -> posts_fix.sql (trigger-maintained; 423 -> 0.13 ms at x100)
+
 -- ===== Part 2: candidates (NOT measured yet)
 -- topic_cards: `numbers && ARRAY[...]` and `highlight_numbers` have no GIN (only pkey + slug indexes today)
 --   create index concurrently on public.topic_cards using gin (numbers);

@@ -1,0 +1,9 @@
+ISOLATED RPC LAB RESULTS (ms, warm, single call, no concurrent load). Live-definition functions + live method registry copied as config; synthetic data.
+Live x1 (single call, live DB, EXPLAIN ANALYZE of SELECT fn(): dossier(787) 137, journey(787) 90, fn_number_lookup(787,20) 95, get_category_videos 71, convergence_meter 23 (x7 on Home), number_neighbors 11,
+ posts_by_number_strict 10, gematria_method_trace 10 (x6 on Home), world_group_source_arrivals_v2 11, fn_zero_scale 7, fn_method_value 4.
+Lab (rows for the looked-up number: 134 ~ x1 "787", 1,060 = x10, 10,6xx = x100, 49,8xx = max-per-value x100):
+ fn_number_lookup(limit 20)    current 26 / 160 / 1515 / 7634      v2 2.5 / 10.8 / 46 / 234       (results identical incl. total_count and cursor page 2)
+ fn_number_lookup(no limit)    current 20 / 198 / 1688 / 7957      v2 2.1 / 15 / 113 / 570
+ dossier convergences block    current 40 / 162 / 1688 / 8286      grouped v2 1.9 / 3.3 / 22.6 / 98 (identical JSON)
+ get_category_videos x100 posts (20K in the category)  current 7120   v2 131     (identical rows)
+ posts_by_number_strict x100 posts (130K)              current 423    v2 0.13    (identical wp_id sets over 20 numbers)
