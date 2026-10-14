@@ -41,3 +41,29 @@ out = (tmpl.replace("__TORAH_DATA__", gz64(tk)).replace("__NIQQUD_DATA__", gz64(
           .replace("__CORPUS_ID_TORAH__", corpus_torah).replace("__CORPUS_ID_TANAKH__", corpus_tanakh))
 open(OUT, "w", encoding="utf-8").write(out)
 print("wrote", OUT, "| KB:", round(len(out.encode("utf-8")) / 1024))
+
+# ── גרסה עצמאית «קריאה-בלבד» (Legacy, לא קנונית): אותו מנוע, בלי שמירה, בלי תלות באתר ובלי מסך פתיחה.
+# פלט: ../../public/tzofen-standalone.html — ניתן לאירוח סטטי חינמי. הפלט הקנוני לעיל לא משתנה.
+STANDALONE = r"""<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<style>
+ #lgBanner{position:sticky;top:0;z-index:99999;background:#480b13;color:#f6da78;font:600 13px/1.5 Arial,sans-serif;text-align:center;padding:6px 10px;direction:rtl;border-bottom:1px solid rgba(232,200,74,.4)}
+ .save-act,.save,.share-act,.sh-save,#xsaved,.gal-reopen,.gal-lbl,.gal-empty,#gallery,.saved,[class*="gal-close"],.post-link-act{display:none!important}
+</style>
+<div id="lgBanner">מנוע ELS לגאסי · לא מקור אמת קנוני · אין אפשרות שמירה בגרסה זו — התוצאות נעלמות עם סגירת הדף</div>
+<script>
+ (function(){
+  // אין שמירה: כל כתיבה ל-localStorage/sessionStorage מושתקת, ואין תקשורת עם דף-אב.
+  try{Storage.prototype.setItem=function(){};}catch(e){}
+  try{window.addEventListener("message",function(e){e.stopImmediatePropagation();},true);}catch(e){}
+  document.addEventListener("click",function(e){
+    var b=e.target&&e.target.closest&&e.target.closest(".save-act,.save,.share-act");
+    if(b){e.stopImmediatePropagation();e.preventDefault();alert("אין אפשרות שמירה בגרסה זו");}
+  },true);
+ })();
+</script>
+"""
+sa = STANDALONE + out
+sa = sa.replace("https://sod1820.co.il/codes/", "#").replace("https://sod1820.co.il/", "#")
+OUT2 = os.path.join(os.path.dirname(OUT), "tzofen-standalone.html")
+open(OUT2, "w", encoding="utf-8").write(sa)
+print("wrote", OUT2, "| KB:", round(len(sa.encode("utf-8")) / 1024))
