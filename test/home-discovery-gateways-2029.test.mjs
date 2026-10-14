@@ -20,9 +20,9 @@ test("2029 Home presents three research gateways and an independent Dimension Fi
 });
 
 test("automatic gateway membership comes ONLY from categories, not tags/keywords", () => {
-  assert.match(gateway, /getPostsFromSupabase\(\{ category: "שבילי שפה"/);
-  assert.match(gateway, /getPostsFromSupabase\(\{ category: "הצופן בסרטים"/);
-  assert.match(gateway, /getPostsFromSupabase\(\{ category: "מימד חמש"/);
+  assert.match(gateway, /fetchHomePostCards2029\(\{ category: "שבילי שפה"/);
+  assert.match(gateway, /fetchHomePostCards2029\(\{ category: "הצופן בסרטים"/);
+  assert.match(gateway, /fetchHomePostCards2029\(\{ category: "מימד חמש"/);
   assert.match(gateway, /getCategoryVideos\("צפונות בתורה"/);
   assert.doesNotMatch(gateway, /getRealityCodePosts|getRealityVideos|\.tags|isCinemaPost|includes\("מטריקס"\)/);
 });

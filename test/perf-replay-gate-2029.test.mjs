@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { validateReplay, compareReplay, checkReplayBudget, checkMatchedRegressionBudget } from '../scripts/perf-execution-2029/replay-gate.mjs';
+const load = () => JSON.parse(readFileSync(new URL('../docs/perf-evidence-20261014/execution/world-primary-before-enrichment.json', import.meta.url)));
+test('recorded complete replay passes; missing responses and failed primary reads fail closed', () => {
+  const data = load(); assert.equal(validateReplay(data).valid, true);
+  data.routes['/world'].samples[0].misses.push('missing'); assert.equal(validateReplay(data).valid, false);
+  const failed = load(); failed.routes['/world'].samples[0].reads.find(r => r.primary).status = 403;
+  assert.equal(validateReplay(failed).valid, false);
+});
+test('fixtures/browser differences prevent comparison and isolated savings are not added', () => {
+  const before = load(), after = load(); after.fixturesSha256 = 'different';
+  assert.equal(compareReplay(before, after).comparable, false);
+  assert.deepEqual(compareReplay(before, after).deltas, {});
+});
+test('a replay budget rejects request or readiness regression', () => {
+  const data = load(); const ready = data.routes['/world'].median.ready;
+  assert.equal(checkReplayBudget(data, { routes: { '/world': { ready: ready + 1, restCount: 55 } } }).valid, true);
+  assert.equal(checkReplayBudget(data, { routes: { '/world': { ready: ready - 1 } } }).valid, false);
+});
+test('matched budgets reject slower timing and extra reads on the same runner', () => {
+  const before = load(), after = load();
+  const budget = { maxTimingRatio: 1.1, timingNoiseMs: 100, maxAdditionalRestReads: 0, maxCls: 0.1 };
+  assert.equal(checkMatchedRegressionBudget(before, after, budget).valid, true);
+  after.routes['/world'].median.ready *= 1.3;
+  assert.equal(checkMatchedRegressionBudget(before, after, budget).valid, false);
+});
+test('intentional extension failures are functional evidence only; primary still becomes ready first', () => {
+  const data = JSON.parse(readFileSync(new URL('../docs/perf-evidence-20261014/execution/world-extension-failure.json', import.meta.url)));
+  assert.equal(validateReplay(data, { functional: true }).valid, true);
+  assert.equal(validateReplay(data).valid, false);
+  const s = data.routes['/world'].samples[0];
+  assert.ok(s.ready < s.lastRestEnd - 2000);
+  assert.equal(s.reads.filter(r => r.intentionalFailure).length, 6);
+});
