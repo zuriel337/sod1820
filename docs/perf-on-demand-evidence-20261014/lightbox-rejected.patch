@@ -1,0 +1,46 @@
+diff --git a/src/components/experience2029/CanonicalMediaFigure2029.jsx b/src/components/experience2029/CanonicalMediaFigure2029.jsx
+index 6a8b7fdb..7453762f 100644
+--- a/src/components/experience2029/CanonicalMediaFigure2029.jsx
++++ b/src/components/experience2029/CanonicalMediaFigure2029.jsx
+@@ -1,5 +1,5 @@
+-import React, { useState } from "react";
+-import Lightbox from "../Lightbox.jsx";
++import React, { useEffect, useState } from "react";
++import CanonicalProgress from "../CanonicalProgress.jsx";
+ import CanonicalMediaImage2029 from "./CanonicalMediaImage2029.jsx";
+ import { mediaResearchDetails, mediaToLightboxImage } from "../../lib/research/galleryMediaEnvelope.js";
+ 
+@@ -20,6 +20,18 @@ export default function CanonicalMediaFigure2029({
+   children = null,
+ }) {
+   const [open, setOpen] = useState(false);
++  const [Lightbox, setLightbox] = useState(null);
++  const [loadError, setLoadError] = useState(false);
++  useEffect(() => {
++    if (!open || Lightbox) return undefined;
++    let active = true;
++    setLoadError(false);
++    import("../Lightbox.jsx").then(
++      module => { if (active) setLightbox(() => module.default); },
++      () => { if (active) setLoadError(true); },
++    );
++    return () => { active = false; };
++  }, [open, Lightbox]);
+   if (!item || !(item.imageUrl || item.thumbUrl)) return null;
+   const lightboxImage = mediaToLightboxImage(item);
+   return <>
+@@ -34,7 +46,13 @@ export default function CanonicalMediaFigure2029({
+       <CanonicalMediaImage2029 item={item} alt={alt} primary={primary} thumbnail={thumbnail} />
+       {children}
+     </button>
+-    {open && lightboxImage ? <Lightbox
++    {open && lightboxImage && !Lightbox ? <CanonicalProgress
++      compact
++      title={loadError ? "לא ניתן לפתוח את התמונה כרגע" : "פותחים את התמונה"}
++      detail={loadError ? "אפשר לסגור ולנסות לפתוח שוב." : null}
++      onCancel={() => setOpen(false)}
++    /> : null}
++    {open && lightboxImage && Lightbox ? <Lightbox
+       images={[lightboxImage]}
+       initialIndex={0}
+       onClose={() => setOpen(false)}

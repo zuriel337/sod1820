@@ -1,0 +1,137 @@
+✔ gate preserved: only 5112 and 92; packs exist only for those posts (2.116823ms)
+✔ adapter declares no static domain law: clock/day/convergence/interpretation prose lives only in owners (0.507439ms)
+✔ Pack A: governed event/convergence rows + source-claimed calculations only; no חכמה/604/730 calculation (14.835558ms)
+✔ Pack B: values exactly 73/358/1202 via correct traces; no 424/776/יבא שילה; governed clock/day/interpretation (9.601767ms)
+✔ claims allowlist: 604/730 never admitted; Post 92 never claims 424/776; Post 5112 never claims חכמה (0.352039ms)
+✔ fail-closed: no/failed/non-parity/wrong-method/wrong-value traces never produce calculation rows (5.158811ms)
+✔ Zvi bundle: no findings supplied => explicitly unavailable, no static/fake row; supplied access-filtered findings => presentation-only bundle, private never leaks (19.299635ms)
+✔ no duplicate Finding identity across rows (2.340113ms)
+✔ merge: repeated pack values become references; other existing connections (e.g. 718) are preserved; bounded summary-only context (3.856821ms)
+✔ wiring: same Post surfaceFindings path; governed owners + live deps injected in the projection; no DB write (1.418392ms)
+✔ typed clock occurrence preserves display/hour/minute/timezone/context/source_ref and is not a Number (8.021585ms)
+✔ moment_clock_law v2: 24h=1820 and 12h=620, same-occurrence derivations, not independent (1.551509ms)
+✔ display digits stay separate; zero in display never triggers zero-scale (1.132871ms)
+✔ fail closed: no attestation, v1, free text, ambiguous or incomplete observation (0.763216ms)
+✖ day ordinal typed separately; anchors Number 358 without claiming gematria (6.193859ms)
+✖ canonical Trace משיח=358 is a separate engine finding; no receipt -> no engine fact and no interpretation (1.103578ms)
+✖ site interpretation composes 1820+358, attributed כי לה׳ המלוכה, depends on observations + engine, not independent (0.815563ms)
+✔ PublishedAt != OccurredAt; legacy auto_from_post graph date is never event time; Post != Event (1.252077ms)
+✔ alternate observation: separate source finding, default reading and ids unchanged, deeper prominence (3.636515ms)
+✔ same finding ids across all surfaces; bounded; no per-surface copies; no source-name branches (1.017962ms)
+✔ REV1-A: private research_object absent under default access; capability_trace reports access_filtered (20.004504ms)
+✔ REV1-B: attested private descriptor admits SAME row; verification not fabricated (1.091681ms)
+✔ REV1-C: same research-object Finding id (== canonical adapter id) on all event surfaces; no Number (0.959245ms)
+✔ REV1-D: duplicate row yields one Finding; public_candidate governed by descriptor; base ids unchanged (1.336021ms)
+✖ REV2-A: public Post92 unchanged (18:20 -> 1820/620, day 358, משיח=358, interpretation visible) (0.909082ms)
+✖ REV2-B: private clock leaks nothing publicly; attested admin sees same ids with tier (1.265507ms)
+✖ REV2-C: private day leaks nothing publicly; admin sees (0.866749ms)
+✔ REV2-D: private alternate absent publicly incl. metadata/depth; admin sees (0.965394ms)
+✔ REV2-E: missing/invalid tier fails closed for clock/day/alternate (0.889262ms)
+✖ REV2-F: site interpretation tier is the most restrictive parent (0.430265ms)
+✔ REV2-H: no source-name branches in temporal adapters (1.507124ms)
+✔ fixture evidence is accepted only for its declared lab purpose (1.674791ms)
+✔ a fixture miss must fail even when the page reports READY (1.18648ms)
+✔ Home redirect and absent readiness cannot be used as a baseline (0.277079ms)
+✔ real DB and fixtures, or different browsers, cannot be compared (1.0035ms)
+✔ overlapping READY ranges do not prove improvement (0.301394ms)
+✔ output metadata and missing conditions fail closed (0.186465ms)
+✔ product gate requires extension isolation and exact hosted SHA (0.321194ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 31
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 234.980205
+
+✖ failing tests:
+
+test at src/lib/research/nasrallahPost92Golden.test.js:76:1
+✖ day ordinal typed separately; anchors Number 358 without claiming gematria (6.193859ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(n358.finding_ids.includes(p.golden.engine_trace_finding_id))
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:87:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src/lib/research/nasrallahPost92Golden.test.js:93:1
+✖ canonical Trace משיח=358 is a separate engine finding; no receipt -> no engine fact and no interpretation (1.103578ms)
+  TypeError: Cannot read properties of undefined (reading 'source')
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:96:18)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at src/lib/research/nasrallahPost92Golden.test.js:103:1
+✖ site interpretation composes 1820+358, attributed כי לה׳ המלוכה, depends on observations + engine, not independent (0.815563ms)
+  TypeError: Cannot read properties of undefined (reading 'stage')
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:106:18)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at src/lib/research/nasrallahPost92Golden.test.js:222:1
+✖ REV2-A: public Post92 unchanged (18:20 -> 1820/620, day 358, משיח=358, interpretation visible) (0.909082ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(p.golden.interpretation_finding_id)
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:226:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src/lib/research/nasrallahPost92Golden.test.js:237:1
+✖ REV2-B: private clock leaks nothing publicly; attested admin sees same ids with tier (1.265507ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(adm.golden.clock_occurrence_finding_id && adm.golden.interpretation_finding_id)
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:250:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src/lib/research/nasrallahPost92Golden.test.js:258:1
+✖ REV2-C: private day leaks nothing publicly; admin sees (0.866749ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(adm.golden.day_ordinal_finding_id && adm.golden.interpretation_finding_id)
+  
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:268:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src/lib/research/nasrallahPost92Golden.test.js:295:1
+✖ REV2-F: site interpretation tier is the most restrictive parent (0.430265ms)
+  TypeError: Cannot read properties of undefined (reading 'access')
+      at TestContext.<anonymous> (file:///workspace/sod1820-perf-on-demand/src/lib/research/nasrallahPost92Golden.test.js:298:65)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

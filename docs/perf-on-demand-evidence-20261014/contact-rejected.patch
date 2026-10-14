@@ -1,0 +1,32 @@
+diff --git a/src/components/experience2029/SystemFrame2029.jsx b/src/components/experience2029/SystemFrame2029.jsx
+index 4506c52b..ee719682 100644
+--- a/src/components/experience2029/SystemFrame2029.jsx
++++ b/src/components/experience2029/SystemFrame2029.jsx
+@@ -40,7 +40,17 @@ import {
+ } from "../../lib/research/contextualCapabilities.js";
+ import ShareActions from "../ShareActions.jsx";
+ import CanonicalProgress from "../CanonicalProgress.jsx";
+-import ContactGateway from "../ContactGateway.jsx";
++// Closed until the issue-report panel opens. React.lazy caches a rejected import, so retry recreates it.
++class ContactGatewayOnDemand extends React.Component {
++  state = { failed: false, Lazy: lazy(() => import("../ContactGateway.jsx")) };
++  static getDerivedStateFromError() { return { failed: true }; }
++  retry = () => this.setState({ failed: false, Lazy: lazy(() => import("../ContactGateway.jsx")) });
++  render() {
++    if (this.state.failed) return <FrameState kind="error" title="הטופס לא נטען" action={<button type="button" onClick={this.retry}>נסו שוב</button>}>בדקו את החיבור ונסו שוב.</FrameState>;
++    const { Lazy } = this.state;
++    return <Suspense fallback={<FrameState kind="loading" title="פותח את הטופס…" />}><Lazy {...this.props} /></Suspense>;
++  }
++}
+ // Opened on demand from the capability panel: its research/spatial dependencies stay out of every page's first load.
+ const NumberDrawer2029 = lazy(() => import("../number2029/NumberDrawer2029.jsx"));
+ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
+@@ -2084,7 +2094,7 @@ export default function SystemFrame2029({
+     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
+     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
+     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
+-    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
++    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGatewayOnDemand
+       pathname={location.pathname}
+       surface={surface}
+       capability={transient?.payload?.capability || null}

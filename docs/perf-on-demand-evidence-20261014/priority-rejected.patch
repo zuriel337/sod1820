@@ -1,0 +1,21 @@
+diff --git a/src/components/experience2029/CanonicalMediaImage2029.jsx b/src/components/experience2029/CanonicalMediaImage2029.jsx
+index 322fcac0..71a17e9a 100644
+--- a/src/components/experience2029/CanonicalMediaImage2029.jsx
++++ b/src/components/experience2029/CanonicalMediaImage2029.jsx
+@@ -11,7 +11,7 @@ export default function CanonicalMediaImage2029({
+   alt = "",
+   primary = false,
+   thumbnail = false,
+-  loading = "lazy",
++  loading = primary ? "eager" : "lazy",
+   className = "",
+ }) {
+   const resolvedSrc = src || (
+@@ -26,6 +26,7 @@ export default function CanonicalMediaImage2029({
+     src={resolvedSrc}
+     alt={resolvedAlt}
+     loading={loading}
++    fetchPriority={primary && loading === "eager" ? "high" : "auto"}
+     className={[
+       "sod29-canonical-media-image",
+       primary ? "is-primary" : "",

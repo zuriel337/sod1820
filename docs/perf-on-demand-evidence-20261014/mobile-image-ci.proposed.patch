@@ -1,0 +1,20 @@
+--- a/.github/workflows/2029-isolation-gate.yml
++++ b/.github/workflows/2029-isolation-gate.yml
+@@ -140,6 +140,8 @@
+           node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json" "$RUNNER_TEMP/perf-results/after.json" scripts/perf-execution-2029/replay-budgets.json
+           node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/extension-failure.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --routes /world --runs 1 --extensiondelay 2000 --extensionfail 1 --label delayed-failed-extensions
+           node scripts/perf-execution-2029/extension-gate.mjs "$RUNNER_TEMP/perf-results/extension-failure.json"
++      - name: Mobile reading source fidelity and rendition availability
++        run: node scripts/perf-execution-2029/mobile-image-gate.mjs "$GITHUB_WORKSPACE/dist" "$RUNNER_TEMP/perf-results/mobile-image-functional.json" "$RUNNER_TEMP/perf-fixtures.gz"
+       - uses: actions/upload-artifact@v4
+         if: always()
+         with:
+@@ -157,7 +159,7 @@
+           cache: npm
+       - run: npm ci
+       - name: Performance evidence, auth-safe early reads and bounded Home data
+-        run: node --test test/perf-execution-2029.test.mjs test/perf-replay-gate-2029.test.mjs test/early-primary-read-2029.test.mjs test/home-post-cards-2029.test.mjs
++        run: node --test test/perf-execution-2029.test.mjs test/perf-replay-gate-2029.test.mjs test/early-primary-read-2029.test.mjs test/home-post-cards-2029.test.mjs src/lib/research/goldenPostContextPacks.test.js src/lib/research/nasrallahPost92Golden.test.js src/components/experience2029/mobileReadingImage2029.test.js
+       - name: Experience Context 2029 acceptance
+         run: npm run test:experience-context
+       - name: Entry Orientation + Contextual Learn 2029 acceptance
