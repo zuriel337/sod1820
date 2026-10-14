@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
-import { fetchPost2029ReadingProjection } from '../../lib/research/post2029ReadingProjection.js';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
@@ -30,7 +29,8 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   useEffect(() => {
     let live = true;
     setState({ loading: true, projection: null });
-    fetchPost2029ReadingProjection(slug).then((projection) => {
+    // Loaded on demand: the reading-projection builder is ~42KB br that must not gate the first paint of Home/World.
+    import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug)).then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
         && postRowToWorldUpdate(projection.post);
