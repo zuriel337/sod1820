@@ -24,6 +24,7 @@ for(const path of paths){
  const mismatches=[...next].filter(([key,hash])=>old.has(key)&&old.get(key)!==hash);
  if(mismatches.length)result.errors.push(`${path}: changed response bytes for same request`);
  const row={measures:{},restRequests:{before:stats(a.map(s=>s.reads.length)),after:stats(b.map(s=>s.reads.length))},responseParity:{differentBodies:mismatches.length,removedKeys:[...old.keys()].filter(k=>!next.has(k)),addedKeys:[...next.keys()].filter(k=>!old.has(k))}};
+ if(row.restRequests.after.median>row.restRequests.before.range[1])result.errors.push(`${path}: repeated data reads exceed observed baseline range`);
  for(const name of a[0].measures.map(m=>m.name)){
   const av=a.map(s=>s.measures.find(m=>m.name===name)),bv=b.map(s=>s.measures.find(m=>m.name===name));assert.ok(av.every(Boolean)&&bv.every(Boolean),'Missing input action');
   if(name==='actual-click')assert.ok([...av,...bv].every(m=>m.trustedClicks.some(c=>c.trusted)),'Synthetic click must not be accepted');

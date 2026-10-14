@@ -56,7 +56,7 @@ try{
   },report.profile.theme);
   await page.route('**/*',async route=>{
    const req=route.request(),u=new URL(req.url()),rpc=u.pathname.match(/^\/rest\/v1\/rpc\/([^/]+)$/)?.[1],up=u.hostname==='linswmnnkjxvweumprav.supabase.co';
-   if(/vercel\.live|link_identity|track_visit|ingest_event|analytics|clarity|googletagmanager|facebook|doubleclick|openweb|spot\.im/.test(req.url())||u.pathname.startsWith('/auth/')||(!['GET','HEAD','OPTIONS'].includes(req.method())&&!(up&&allowed.has(rpc)))){blocked.push({method:req.method(),path:u.pathname});return route.fulfill({status:204,body:''});}
+   if(/vercel\.live|link_identity|track_visit|ingest_event|analytics|clarity|googletagmanager|facebook|doubleclick|openweb|spot\.im/.test(req.url())||u.pathname.startsWith('/auth/')||(up&&rpc&&!allowed.has(rpc))||(!['GET','HEAD','OPTIONS'].includes(req.method())&&!(up&&allowed.has(rpc)))){blocked.push({method:req.method(),path:u.pathname});return route.fulfill({status:204,body:''});}
    if(req.url().startsWith(base))return u.pathname.startsWith('/api/')?route.fulfill({status:200,body:'{}',contentType:'application/json'}):route.continue();
    if(hosted)return route.continue();
    let body=req.postData()||'';try{body=JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(body)).sort(([a],[b])=>a.localeCompare(b))));}catch{}
