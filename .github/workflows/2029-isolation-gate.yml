@@ -131,7 +131,7 @@ jobs:
       - name: Build both readonly Preview trees
         run: |
           set -e
-          (cd "$RUNNER_TEMP/nav-base" && node scripts/build-integrated-preview.mjs)
+          (cd "$RUNNER_TEMP/nav-base" && VERCEL_GIT_COMMIT_SHA=0825b326ea0fd9faa57b41d0d48bdadada9f3c7f node scripts/build-integrated-preview.mjs)
           node scripts/build-integrated-preview.mjs
       - name: Actual clicks, Back, revisit and scrolling against one bounded public snapshot
         run: |
