@@ -175,13 +175,26 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   }, []);
 
   // 🖼️ שולף את מטריצות-הענן המאושרות (els_records published) ומזרים אותן לכלי לגלריה
-  const pushSavedMatrices = useCallback(async () => {
-    try {
-      const rows = await getSavedMatrices(60);
-      const items = (rows || []).map(rowToItem).filter(Boolean);
-      postToTool({ type: "saved-matrices", items });
-    } catch { /* noop */ }
-  }, [postToTool]);
+  // 2029 (experience2029) only: the tool pings "ready" up to 8 times in ~3s until it learns the tier, and each ping used to
+  // refetch the same 60 rows. A push already in flight, or finished in the last 3s, is reused; explicit refreshes
+  // after a save/update/delete pass {force:true} and always fetch. Legacy keeps the exact previous behavior.
+  const savedPushRef = useRef({ promise: null, at: 0 });
+  const pushSavedMatrices = useCallback(async ({ force = false } = {}) => {
+    const state = savedPushRef.current;
+    if (experience2029 && !force && (state.promise || Date.now() - state.at < 3000)) return state.promise;
+    const run = (async () => {
+      try {
+        const rows = await getSavedMatrices(60);
+        const items = (rows || []).map(rowToItem).filter(Boolean);
+        postToTool({ type: "saved-matrices", items });
+      } catch { /* noop */ }
+    })();
+    if (experience2029) {
+      state.promise = run;
+      run.finally(() => { if (state.promise === run) { state.promise = null; state.at = Date.now(); } });
+    }
+    return run;
+  }, [postToTool, experience2029]);
 
   // 🎴 מעלה את כרטיס-הצופן (dataURL מהכלי) ל-Storage (bucket gallery, קריאה-ציבורית) → מחזיר URL קבוע.
   //    מקור-אמת אחד לתמונה: שורה · ספרייה · OG-שיתוף, כולם מושכים את אותו image_url.
@@ -284,7 +297,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
             completeNative({ ok: true, id: editId, row: row || editMatrix, status: "updated" });
           }
           if (user) setSavedToast({ status: "updated" });   // 💾 קישור חוזר לדף-המחקר
-          pushSavedMatrices();   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
+          pushSavedMatrices({ force: true });   // הצופן הקיים עודכן במקום → מרעננים את הגלריה בכלי
           return;
         }
         // עדכון נכשל: אם המשתמש התכוון *במפורש* לעדכן (editId מהכלי) — לא יוצרים כפילות שקטה, מדווחים כשל.
@@ -321,7 +334,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         let firstTime = false;
         try { firstTime = !localStorage.getItem("sod_dossier_prompted_v1"); if (firstTime) localStorage.setItem("sod_dossier_prompted_v1", "1"); } catch { /* noop */ }
         if (firstTime && !privateSave) setDossierPrompt(true); else setSavedToast({ status: st });
-        if (isAdmin) pushSavedMatrices();   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
+        if (isAdmin) pushSavedMatrices({ force: true });   // אדמין → פורסם מיד → מרעננים את הגלריה בכלי
       } else {
         // 👤 לא-רשום: שמירה עם visitor_id → «ממתין לאישור» (לא מתפרסם מיד)
         await saveMatrixAnon({ ...common, visitorId: getVisitorId(), authorName: d.author || null });
@@ -452,7 +465,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         //    ואז ריענון מיידי של מטריצות-הענן בכלי כך שהכרטיס נעלם.
         if (!isAdmin) { postToTool({ type: "deleted", ok: false }); return; }
         moderateMatrix(d.id, "hidden")
-          .then(() => { postToTool({ type: "deleted", ok: true }); pushSavedMatrices(); })
+          .then(() => { postToTool({ type: "deleted", ok: true }); pushSavedMatrices({ force: true }); })
           .catch(() => postToTool({ type: "deleted", ok: false }));
       } else if (d.type === "navigate" && typeof d.to === "string") {
         navigate(d.to);   // 📚 «כל הצפנים →» מהכלי → ניווט האתר לספריית /codes
