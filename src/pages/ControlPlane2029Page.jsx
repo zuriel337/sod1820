@@ -83,8 +83,8 @@ function MeasurementStatus() {
   </section>;
 }
 
-// Owner switches for secondary functions (site_flags fx_*). OFF means the function sends no request at all.
-// Never gates user saves, authorization, primary content or consent; analytics is intentionally not listed.
+// Existing site_flags controls: capability switches stop work; optimization switches choose an execution path.
+// Neither kind changes authorization or consent.
 function RuntimeSwitches() {
   const [state, setState] = useState({ loading: true, map: {}, busy: null, error: null });
   useEffect(() => {
@@ -98,12 +98,12 @@ function RuntimeSwitches() {
       const map = await setRuntimeSwitch(key, on);
       setState({ loading: false, map, busy: null, error: null });
     } catch (error) {
-      setState(current => ({ ...current, busy: null, error: String(error?.message || error) }));
+      setState(current => ({ ...current, busy: null, unverified: error?.code === "RUNTIME_SWITCH_STATE_UNVERIFIED" ? key : current.unverified, error: String(error?.message || error) }));
     }
   };
   return <section className="sod29-section" aria-label="מתגי פונקציות">
     <div className="sod29-section-head"><div><div className="sod29-kicker">RUNTIME SWITCHES</div><h2>מתגי פונקציות</h2>
-      <div className="sod29-muted">כיבוי עוצר את הפונקציה כולה, כולל הקריאות שלה. הערך נקרא עד חצי דקה אחרי שינוי. שמירת משתמש, הרשאות, תוכן ראשי והסכמה אינם תלויים במתגים.</div></div></div>
+      <div className="sod29-muted">מתגי פונקציות עוצרים את העבודה המתוארת לידם. מתגי האצה מחליפים את דרך הביצוע ושומרים את התוכן. אחרי שינוי רענן את המסך הנבדק; לשוניות אחרות מתעדכנות בקריאה חדשה של ההגדרות. שמירת משתמש, הרשאות והסכמה אינם משתנים.</div></div></div>
     {state.error ? <FrameState kind="error" title="לא ניתן לשנות מתג">{state.error}</FrameState> : null}
     {RUNTIME_SWITCHES_2029.reduce((groups, entry) => {
       const last = groups[groups.length - 1];
@@ -113,15 +113,16 @@ function RuntimeSwitches() {
       <div className="sod29-kicker">{group}</div>
       <div className="sod29-list">
         {items.map(entry => {
-          const on = state.map[entry.key] !== false;
+          const on = state.map[entry.key] ?? entry.defaultOn ?? true;
+          const unverified = state.unverified === entry.key;
           const cost = RUNTIME_SWITCH_COSTS_2029[entry.key];
           return <div className="sod29-row" key={entry.key}>
             <div><strong>{entry.label}</strong><small>{entry.note} · {entry.key}</small>
               <small>{costLine(cost)}</small></div>
             <div className="sod29-actions">
-              <span className="sod29-chip">{state.loading ? "טוען" : on ? "פעיל" : entry.mode === "freeze" ? "מוקפא" : "כבוי"}</span>
-              <button type="button" className="sod29-action" disabled={state.loading || state.busy === entry.key}
-                aria-pressed={on} onClick={() => toggle(entry.key, !on)}>{on ? (entry.mode === "freeze" ? "הקפא" : "כבה") : "הדלק"}</button>
+              <span className="sod29-chip">{state.loading ? "טוען" : unverified ? "מצב לא מאומת" : entry.mode === "optimization" ? (on ? "האצה פעילה" : "מימוש קיים") : on ? "פעיל" : entry.mode === "freeze" ? "מוקפא" : "כבוי"}</span>
+              <button type="button" className="sod29-action" disabled={state.loading || state.busy !== null || (Boolean(state.unverified) && !unverified)}
+                aria-pressed={unverified ? "mixed" : on} onClick={() => toggle(entry.key, unverified ? false : !on)}>{unverified ? (entry.mode === "optimization" ? "חזור למימוש הקיים" : "כבה") : entry.mode === "optimization" ? (on ? "חזור למימוש הקיים" : "הפעל האצה") : on ? (entry.mode === "freeze" ? "הקפא" : "כבה") : "הדלק"}</button>
             </div>
           </div>;
         })}

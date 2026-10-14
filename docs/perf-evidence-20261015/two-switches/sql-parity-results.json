@@ -1,0 +1,883 @@
+{
+  "started": "2026-10-14T22:05:08.310Z",
+  "environment": "isolated PGlite; synthetic rows; not production timing",
+  "cases": [
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": null,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": -1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 0,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 2,
+      "cursor": null,
+      "rows": 2,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 500,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 501,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 2147483647,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 787,
+      "limit": null,
+      "cursor": null,
+      "rows": 84,
+      "total_count": 84
+    },
+    {
+      "role": "anon",
+      "value": 787,
+      "limit": 1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 84
+    },
+    {
+      "role": "anon",
+      "value": 787,
+      "limit": 20,
+      "cursor": null,
+      "rows": 20,
+      "total_count": 84
+    },
+    {
+      "role": "anon",
+      "value": 787,
+      "limit": 500,
+      "cursor": null,
+      "rows": 84,
+      "total_count": 84
+    },
+    {
+      "role": "anon",
+      "value": 7871,
+      "limit": null,
+      "cursor": null,
+      "rows": 1220,
+      "total_count": 1220
+    },
+    {
+      "role": "anon",
+      "value": 7871,
+      "limit": 20,
+      "cursor": null,
+      "rows": 20,
+      "total_count": 1220
+    },
+    {
+      "role": "anon",
+      "value": 7871,
+      "limit": 500,
+      "cursor": null,
+      "rows": 500,
+      "total_count": 1220
+    },
+    {
+      "role": "anon",
+      "value": 7871,
+      "limit": 501,
+      "cursor": null,
+      "rows": 500,
+      "total_count": 1220
+    },
+    {
+      "role": "anon",
+      "value": null,
+      "limit": 20,
+      "cursor": null,
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": -1,
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "anon",
+      "value": "-9223372036854775808",
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "anon",
+      "value": "9223372036854775807",
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "anon",
+      "value": 999999,
+      "limit": 20,
+      "cursor": null,
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "unknown",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-1",
+      "rows": 3,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-2",
+      "rows": 2,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-null-method",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-null-phrase",
+      "rows": 2,
+      "total_count": 5
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-unknown-method",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-encrypted",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-draft",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "anon",
+      "value": 787,
+      "limit": 20,
+      "cursor": "b-000048",
+      "rows": 20,
+      "total_count": 84
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": null,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": -1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 0,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 2,
+      "cursor": null,
+      "rows": 2,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 500,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 501,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 2147483647,
+      "cursor": null,
+      "rows": 5,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 787,
+      "limit": null,
+      "cursor": null,
+      "rows": 84,
+      "total_count": 84
+    },
+    {
+      "role": "authenticated",
+      "value": 787,
+      "limit": 1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 84
+    },
+    {
+      "role": "authenticated",
+      "value": 787,
+      "limit": 20,
+      "cursor": null,
+      "rows": 20,
+      "total_count": 84
+    },
+    {
+      "role": "authenticated",
+      "value": 787,
+      "limit": 500,
+      "cursor": null,
+      "rows": 84,
+      "total_count": 84
+    },
+    {
+      "role": "authenticated",
+      "value": 7871,
+      "limit": null,
+      "cursor": null,
+      "rows": 1220,
+      "total_count": 1220
+    },
+    {
+      "role": "authenticated",
+      "value": 7871,
+      "limit": 20,
+      "cursor": null,
+      "rows": 20,
+      "total_count": 1220
+    },
+    {
+      "role": "authenticated",
+      "value": 7871,
+      "limit": 500,
+      "cursor": null,
+      "rows": 500,
+      "total_count": 1220
+    },
+    {
+      "role": "authenticated",
+      "value": 7871,
+      "limit": 501,
+      "cursor": null,
+      "rows": 500,
+      "total_count": 1220
+    },
+    {
+      "role": "authenticated",
+      "value": null,
+      "limit": 20,
+      "cursor": null,
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": -1,
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "authenticated",
+      "value": "-9223372036854775808",
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "authenticated",
+      "value": "9223372036854775807",
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "authenticated",
+      "value": 999999,
+      "limit": 20,
+      "cursor": null,
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "unknown",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-1",
+      "rows": 3,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-2",
+      "rows": 2,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-null-method",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-null-phrase",
+      "rows": 2,
+      "total_count": 5
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-unknown-method",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-encrypted",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-draft",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "authenticated",
+      "value": 787,
+      "limit": 20,
+      "cursor": "b-000048",
+      "rows": 20,
+      "total_count": 84
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": null,
+      "cursor": null,
+      "rows": 6,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": -1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 0,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 2,
+      "cursor": null,
+      "rows": 2,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": null,
+      "rows": 6,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 500,
+      "cursor": null,
+      "rows": 6,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 501,
+      "cursor": null,
+      "rows": 6,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 2147483647,
+      "cursor": null,
+      "rows": 6,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 787,
+      "limit": null,
+      "cursor": null,
+      "rows": 88,
+      "total_count": 88
+    },
+    {
+      "role": "lab_admin",
+      "value": 787,
+      "limit": 1,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 88
+    },
+    {
+      "role": "lab_admin",
+      "value": 787,
+      "limit": 20,
+      "cursor": null,
+      "rows": 20,
+      "total_count": 88
+    },
+    {
+      "role": "lab_admin",
+      "value": 787,
+      "limit": 500,
+      "cursor": null,
+      "rows": 88,
+      "total_count": 88
+    },
+    {
+      "role": "lab_admin",
+      "value": 7871,
+      "limit": null,
+      "cursor": null,
+      "rows": 1261,
+      "total_count": 1261
+    },
+    {
+      "role": "lab_admin",
+      "value": 7871,
+      "limit": 20,
+      "cursor": null,
+      "rows": 20,
+      "total_count": 1261
+    },
+    {
+      "role": "lab_admin",
+      "value": 7871,
+      "limit": 500,
+      "cursor": null,
+      "rows": 500,
+      "total_count": 1261
+    },
+    {
+      "role": "lab_admin",
+      "value": 7871,
+      "limit": 501,
+      "cursor": null,
+      "rows": 500,
+      "total_count": 1261
+    },
+    {
+      "role": "lab_admin",
+      "value": null,
+      "limit": 20,
+      "cursor": null,
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "lab_admin",
+      "value": -1,
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "lab_admin",
+      "value": "-9223372036854775808",
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "lab_admin",
+      "value": "9223372036854775807",
+      "limit": 20,
+      "cursor": null,
+      "rows": 1,
+      "total_count": 1
+    },
+    {
+      "role": "lab_admin",
+      "value": 999999,
+      "limit": 20,
+      "cursor": null,
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "unknown",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-1",
+      "rows": 4,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-2",
+      "rows": 3,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-null-method",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-null-phrase",
+      "rows": 2,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-unknown-method",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-encrypted",
+      "rows": 2,
+      "total_count": 6
+    },
+    {
+      "role": "lab_admin",
+      "value": 0,
+      "limit": 20,
+      "cursor": "edge-draft",
+      "rows": 0,
+      "total_count": null
+    },
+    {
+      "role": "lab_admin",
+      "value": 787,
+      "limit": 20,
+      "cursor": "b-000120",
+      "rows": 20,
+      "total_count": 88
+    }
+  ],
+  "checks": [
+    {
+      "baselineBodyMd5": "5fe4585944f7d5ce4eb44ac54b362cc4",
+      "liveReadOnlyFingerprintMatch": true
+    },
+    {
+      "unchangedBaselineAndSecureCore": true,
+      "outputColumns": 37,
+      "signatureParity": true,
+      "securityInvoker": true
+    },
+    {
+      "seedDefaultOff": true,
+      "reapplyPreservesOwnerChoice": true,
+      "otherFlagsUnchanged": true
+    },
+    {
+      "role": "anon",
+      "args": "'invalid'::bigint,20,null",
+      "errorParity": {
+        "state": "22P02",
+        "message": "invalid input syntax for type bigint: \"invalid\""
+      }
+    },
+    {
+      "role": "anon",
+      "args": "9223372036854775808::bigint,20,null",
+      "errorParity": {
+        "state": "22003",
+        "message": "bigint out of range"
+      }
+    },
+    {
+      "role": "anon",
+      "args": "0,2147483648::integer,null",
+      "errorParity": {
+        "state": "22003",
+        "message": "integer out of range"
+      }
+    },
+    {
+      "role": "authenticated",
+      "args": "'invalid'::bigint,20,null",
+      "errorParity": {
+        "state": "22P02",
+        "message": "invalid input syntax for type bigint: \"invalid\""
+      }
+    },
+    {
+      "role": "authenticated",
+      "args": "9223372036854775808::bigint,20,null",
+      "errorParity": {
+        "state": "22003",
+        "message": "bigint out of range"
+      }
+    },
+    {
+      "role": "authenticated",
+      "args": "0,2147483648::integer,null",
+      "errorParity": {
+        "state": "22003",
+        "message": "integer out of range"
+      }
+    },
+    {
+      "role": "lab_admin",
+      "args": "'invalid'::bigint,20,null",
+      "errorParity": {
+        "state": "22P02",
+        "message": "invalid input syntax for type bigint: \"invalid\""
+      }
+    },
+    {
+      "role": "lab_admin",
+      "args": "9223372036854775808::bigint,20,null",
+      "errorParity": {
+        "state": "22003",
+        "message": "bigint out of range"
+      }
+    },
+    {
+      "role": "lab_admin",
+      "args": "0,2147483648::integer,null",
+      "errorParity": {
+        "state": "22003",
+        "message": "integer out of range"
+      }
+    },
+    {
+      "adminPolicyParity": true,
+      "adminBypassRls": false,
+      "authUid": "synthetic JWT subject; live admin encrypted-read predicate"
+    },
+    {
+      "unauthorizedRoleDenied": true,
+      "underlyingPermissionErrorParity": {
+        "state": "42501",
+        "message": "permission denied for table bidim"
+      }
+    },
+    {
+      "actualCompositeInvocationBound": {
+        "value": 7871,
+        "limit": 20,
+        "cursor": "b-001439",
+        "baseline": 212,
+        "candidate": 20,
+        "returnedRows": 20
+      },
+      "instrumentation": "test-only STABLE wrapper, unchanged canonical composite body; not a latency benchmark"
+    },
+    {
+      "selectedCompositeErrorParity": {
+        "state": "22000",
+        "message": "lab selected composite error"
+      }
+    },
+    {
+      "knownEvaluationDifference": {
+        "baseline": {
+          "state": "22000",
+          "message": "lab selected composite error"
+        },
+        "candidate": {
+          "state": null
+        },
+        "reason": "An invalid composite outside the selected page is intentionally not evaluated. Must be accepted before activation."
+      }
+    }
+  ],
+  "version": "PostgreSQL 17.5 on aarch64-unknown-linux-gnu, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.74 (1092ec30a3fb1d46b1782ff1b4db5094d3d06ae5), 32-bit",
+  "status": "PASS",
+  "finished": "2026-10-14T22:05:13.952Z"
+}
