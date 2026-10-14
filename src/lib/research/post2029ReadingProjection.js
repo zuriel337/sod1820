@@ -772,12 +772,27 @@ export async function fetchGoldenContextPackBySlug(slug) {
   return post ? fetchGoldenContextPack(post) : null;
 }
 
-export async function fetchPost2029ReadingProjection(slug) {
+export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
   const publicPost = await getPostBySlug(slug);
   const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
   const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG ? POST2029_PREVIEW_SNAPSHOT : null;
   const post = publicPost || privateStage || previewSnapshot;
   if (!post) return null;
+
+  // Source-first delivery is opt-in. Only the real public reader can produce it;
+  // private stages and preview snapshots never become an early public source.
+  // No verification/context-pack result is fabricated while enrichment runs.
+  if (publicPost && typeof onPrimary === 'function') {
+    try {
+      onPrimary({
+        post: publicPost,
+        identity: { type: 'post', id: String(publicPost.id), slug: publicPost.slug, href: `/post/${publicPost.slug}` },
+        experience: { media: projectPost2029Experience(publicPost).media, timeline: [] },
+        draft: Array.isArray(publicPost.tags) && publicPost.tags.includes('טיוטה'),
+        privateStage: false, previewSnapshot: false, extensionsPending: true,
+      });
+    } catch { /* An optional early consumer cannot prevent the normal full reader. */ }
+  }
 
   const isGolden = post.slug === GOLDEN_SLUG;
   const isFz1073Pilot = post.slug === FZ1073_SLUG;

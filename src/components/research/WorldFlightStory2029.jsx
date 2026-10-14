@@ -30,12 +30,20 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     let live = true;
     setState({ loading: true, projection: null });
     // Loaded on demand: the reading-projection builder is ~42KB br that must not gate the first paint of Home/World.
-    import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug)).then((projection) => {
+    import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
+      onPrimary: (projection) => {
+        const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
+          && postRowToWorldUpdate(projection.post);
+        if (live && admitted) setState({ loading: false, projection, extensionsLoading: true });
+      },
+    })).then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
         && postRowToWorldUpdate(projection.post);
-      if (live) setState({ loading: false, projection: admitted ? projection : null });
-    }).catch(() => { if (live) setState({ loading: false, projection: null }); });
+      if (live) setState({ loading: false, projection: admitted ? projection : null, extensionsLoading: false });
+    }).catch(() => { if (live) setState((current) => current.projection
+      ? { ...current, loading: false, extensionsLoading: false, extensionsError: true }
+      : { loading: false, projection: null }); });
     return () => { live = false; };
   }, [attempt]);
   useEffect(() => {
@@ -98,7 +106,10 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         </button>)}
       </div>
       <details className="sod29-flight-time"><summary>הסיפור לאורך הזמן</summary>
-        <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />
+        {state.extensionsLoading ? <FrameState kind="loading" title="המקור והחיבורים נטענים" />
+          : state.extensionsError ? <FrameState kind="unavailable" title="החיבורים אינם זמינים כרגע">
+            <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב</button>
+          </FrameState> : <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />}
         {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
         <p>מועד גילוי החיבורים לא תועד במקור הזמין. תאריכי הפרסום, האירוע ושמירת המדיה נשמרים בנפרד.</p>
       </details>
