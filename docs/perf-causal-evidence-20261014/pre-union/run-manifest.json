@@ -1,0 +1,31 @@
+{
+  "runtime": "5dd4afaacd9ead2fef5ff43d4c1adec4e4a0ed75",
+  "method": "separate calibrated static transport and replay API latency, not live SQL",
+  "cases": [
+    {
+      "label": "baseline",
+      "factors": {},
+      "fixtureHash": "271788bc295e57591abb208c4c9442cd387cc6d68e4ad4412aace95357c4422b",
+      "valid": true,
+      "finished": "2026-10-14T10:05:11.231Z"
+    },
+    {
+      "label": "api-rtt450",
+      "factors": {
+        "apirtt": 450
+      },
+      "fixtureHash": "271788bc295e57591abb208c4c9442cd387cc6d68e4ad4412aace95357c4422b",
+      "valid": true,
+      "finished": "2026-10-14T10:08:02.739Z"
+    },
+    {
+      "label": "cpu1",
+      "factors": {
+        "cpu": 1
+      },
+      "fixtureHash": "271788bc295e57591abb208c4c9442cd387cc6d68e4ad4412aace95357c4422b",
+      "valid": true,
+      "finished": "2026-10-14T10:10:10.797Z"
+    }
+  ]
+}

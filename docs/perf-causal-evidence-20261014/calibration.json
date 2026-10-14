@@ -1,0 +1,140 @@
+{
+  "purpose": "Prove which requests CDP latency actually affects",
+  "rows": [
+    {
+      "rtt": 0,
+      "samples": [
+        {
+          "transport": "continued",
+          "ms": 9.300000000745058
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 5.299999997019768
+        },
+        {
+          "transport": "continued",
+          "ms": 5.100000001490116
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 4.300000000745058
+        },
+        {
+          "transport": "continued",
+          "ms": 11.199999999254942
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 4.399999998509884
+        },
+        {
+          "transport": "continued",
+          "ms": 4.700000002980232
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 2.899999998509884
+        },
+        {
+          "transport": "continued",
+          "ms": 3.899999998509884
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 3.399999998509884
+        }
+      ]
+    },
+    {
+      "rtt": 150,
+      "samples": [
+        {
+          "transport": "continued",
+          "ms": 163.09999999776483
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 6.100000001490116
+        },
+        {
+          "transport": "continued",
+          "ms": 154.69999999925494
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 3.800000000745058
+        },
+        {
+          "transport": "continued",
+          "ms": 154.69999999925494
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 2.800000000745058
+        },
+        {
+          "transport": "continued",
+          "ms": 154.39999999850988
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 2.400000002235174
+        },
+        {
+          "transport": "continued",
+          "ms": 154
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 26.800000000745058
+        }
+      ]
+    },
+    {
+      "rtt": 300,
+      "samples": [
+        {
+          "transport": "continued",
+          "ms": 304.6000000014901
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 2.699999999254942
+        },
+        {
+          "transport": "continued",
+          "ms": 304.4000000022352
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 3.199999999254942
+        },
+        {
+          "transport": "continued",
+          "ms": 303.69999999925494
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 3
+        },
+        {
+          "transport": "continued",
+          "ms": 303.80000000074506
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 2.5
+        },
+        {
+          "transport": "continued",
+          "ms": 304.79999999701977
+        },
+        {
+          "transport": "fulfilled",
+          "ms": 2.5
+        }
+      ]
+    }
+  ]
+}

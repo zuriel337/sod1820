@@ -1,0 +1,292 @@
+{
+  "valid": true,
+  "errors": [],
+  "method": "105 accepted cold contexts, 5 one-factor cases ×3 routes ×7; calibrated controlled replay; not live DB/network geolocation",
+  "rows": [
+    {
+      "factor": "baseline",
+      "route": "/",
+      "ready": 3781.400000002235,
+      "readyRange": [
+        3705.60000000149,
+        3965.10000000149
+      ],
+      "delta": 0,
+      "beyondBaselineRange": false,
+      "lastRestEnd": 5576.099999997765,
+      "tailDelta": 0,
+      "firstPrimaryReq": 223.60000000149012,
+      "firstPrimaryResponseReleased": 377,
+      "firstRoot": 1569.5,
+      "jsBeforeReadyEnd": 3355.2000000029802,
+      "restCount": 59,
+      "cls": 0.0199979398541901
+    },
+    {
+      "factor": "baseline",
+      "route": "/world",
+      "ready": 4817.199999999255,
+      "readyRange": [
+        4533.39999999851,
+        4920
+      ],
+      "delta": 0,
+      "beyondBaselineRange": false,
+      "lastRestEnd": 6039,
+      "tailDelta": 0,
+      "firstPrimaryReq": 211.10000000149012,
+      "firstPrimaryResponseReleased": 364,
+      "firstRoot": 1806.699999999255,
+      "jsBeforeReadyEnd": 4601.199999999255,
+      "restCount": 55,
+      "cls": 0.037076055646042716
+    },
+    {
+      "factor": "baseline",
+      "route": "/post/seventh-to-tenth-sefirot-2027",
+      "ready": 3570.89999999851,
+      "readyRange": [
+        3532.39999999851,
+        3644.60000000149
+      ],
+      "delta": 0,
+      "beyondBaselineRange": false,
+      "lastRestEnd": 3846,
+      "tailDelta": 0,
+      "firstPrimaryReq": 212.89999999850988,
+      "firstPrimaryResponseReleased": 364.5999999977648,
+      "firstRoot": 1552.4000000022352,
+      "jsBeforeReadyEnd": 3236.300000000745,
+      "restCount": 6,
+      "cls": 0.00007661682559483599
+    },
+    {
+      "factor": "api-rtt450",
+      "route": "/",
+      "ready": 3810,
+      "readyRange": [
+        3781,
+        3890.10000000149
+      ],
+      "delta": 28.599999997764826,
+      "beyondBaselineRange": false,
+      "lastRestEnd": 7573.300000000745,
+      "tailDelta": 1997.2000000029802,
+      "firstPrimaryReq": 212.20000000298023,
+      "firstPrimaryResponseReleased": 664.1000000014901,
+      "firstRoot": 1587.0999999977648,
+      "jsBeforeReadyEnd": 3385.400000002235,
+      "restCount": 59,
+      "cls": 0.02635781669709742
+    },
+    {
+      "factor": "api-rtt450",
+      "route": "/world",
+      "ready": 4918.89999999851,
+      "readyRange": [
+        4832.699999999255,
+        5023.400000002235
+      ],
+      "delta": 101.69999999925494,
+      "beyondBaselineRange": false,
+      "lastRestEnd": 7944.5,
+      "tailDelta": 1905.5,
+      "firstPrimaryReq": 211.19999999925494,
+      "firstPrimaryResponseReleased": 663.8000000007451,
+      "firstRoot": 2113.5,
+      "jsBeforeReadyEnd": 4873.300000000745,
+      "restCount": 55,
+      "cls": 0.03697938387815688
+    },
+    {
+      "factor": "api-rtt450",
+      "route": "/post/seventh-to-tenth-sefirot-2027",
+      "ready": 3533.599999997765,
+      "readyRange": [
+        3493.900000002235,
+        3606.60000000149
+      ],
+      "delta": -37.30000000074506,
+      "beyondBaselineRange": false,
+      "lastRestEnd": 4096,
+      "tailDelta": 250,
+      "firstPrimaryReq": 206.69999999925494,
+      "firstPrimaryResponseReleased": 660.4000000022352,
+      "firstRoot": 1554.300000000745,
+      "jsBeforeReadyEnd": 3228.199999999255,
+      "restCount": 6,
+      "cls": 0.00007661682559483599
+    },
+    {
+      "factor": "cpu1",
+      "route": "/",
+      "ready": 3242.89999999851,
+      "readyRange": [
+        3188.39999999851,
+        3262.199999999255
+      ],
+      "delta": -538.5000000037253,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 4818.5,
+      "tailDelta": -757.5999999977648,
+      "firstPrimaryReq": 176.89999999850988,
+      "firstPrimaryResponseReleased": 328.19999999925494,
+      "firstRoot": 1365.5,
+      "jsBeforeReadyEnd": 3152.89999999851,
+      "restCount": 59,
+      "cls": 0.01825101143838632
+    },
+    {
+      "factor": "cpu1",
+      "route": "/world",
+      "ready": 4153.599999997765,
+      "readyRange": [
+        4102.10000000149,
+        4181.699999999255
+      ],
+      "delta": -663.6000000014901,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 5143.900000002235,
+      "tailDelta": -895.0999999977648,
+      "firstPrimaryReq": 175.19999999925494,
+      "firstPrimaryResponseReleased": 327.30000000074506,
+      "firstRoot": 1547.5,
+      "jsBeforeReadyEnd": 4133.599999997765,
+      "restCount": 55,
+      "cls": 0.00009314222177779545
+    },
+    {
+      "factor": "cpu1",
+      "route": "/post/seventh-to-tenth-sefirot-2027",
+      "ready": 3134.5,
+      "readyRange": [
+        3112.199999999255,
+        3154.400000002235
+      ],
+      "delta": -436.3999999985099,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 3531.89999999851,
+      "tailDelta": -314.1000000014901,
+      "firstPrimaryReq": 180,
+      "firstPrimaryResponseReleased": 332.30000000074506,
+      "firstRoot": 1378.5,
+      "jsBeforeReadyEnd": 3056.5,
+      "restCount": 6,
+      "cls": 0.00007661682559483599
+    },
+    {
+      "factor": "static-rtt300",
+      "route": "/",
+      "ready": 5054.199999999255,
+      "readyRange": [
+        4953.599999997765,
+        5112.400000002235
+      ],
+      "delta": 1272.7999999970198,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 7162,
+      "tailDelta": 1585.9000000022352,
+      "firstPrimaryReq": 370.9000000022352,
+      "firstPrimaryResponseReleased": 523.6999999992549,
+      "firstRoot": 1864.2000000029802,
+      "jsBeforeReadyEnd": 4530.800000000745,
+      "restCount": 59,
+      "cls": 0.0199979398541901
+    },
+    {
+      "factor": "static-rtt300",
+      "route": "/world",
+      "ready": 6279.199999999255,
+      "readyRange": [
+        6178.900000002235,
+        6347.800000000745
+      ],
+      "delta": 1462,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 7524.5,
+      "tailDelta": 1485.5,
+      "firstPrimaryReq": 371,
+      "firstPrimaryResponseReleased": 524.8000000007451,
+      "firstRoot": 2096,
+      "jsBeforeReadyEnd": 6181.89999999851,
+      "restCount": 55,
+      "cls": 0.037121167525415825
+    },
+    {
+      "factor": "static-rtt300",
+      "route": "/post/seventh-to-tenth-sefirot-2027",
+      "ready": 4791.300000000745,
+      "readyRange": [
+        4662.300000000745,
+        4845.79999999702
+      ],
+      "delta": 1220.4000000022352,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 5189.89999999851,
+      "tailDelta": 1343.8999999985099,
+      "firstPrimaryReq": 366.5,
+      "firstPrimaryResponseReleased": 518.2999999970198,
+      "firstRoot": 1863.1000000014901,
+      "jsBeforeReadyEnd": 4394.60000000149,
+      "restCount": 6,
+      "cls": 0.00007661682559483599
+    },
+    {
+      "factor": "bandwidth10",
+      "route": "/",
+      "ready": 2447.10000000149,
+      "readyRange": [
+        2407.300000000745,
+        2526.599999997765
+      ],
+      "delta": -1334.300000000745,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 4125.89999999851,
+      "tailDelta": -1450.199999999255,
+      "firstPrimaryReq": 205.19999999925494,
+      "firstPrimaryResponseReleased": 358.30000000074506,
+      "firstRoot": 852.5,
+      "jsBeforeReadyEnd": 2028.8999999985099,
+      "restCount": 59,
+      "cls": 0.0199979398541901
+    },
+    {
+      "factor": "bandwidth10",
+      "route": "/world",
+      "ready": 3112.300000000745,
+      "readyRange": [
+        2867.300000000745,
+        3171.800000000745
+      ],
+      "delta": -1704.8999999985099,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 4391,
+      "tailDelta": -1648,
+      "firstPrimaryReq": 207.80000000074506,
+      "firstPrimaryResponseReleased": 360.30000000074506,
+      "firstRoot": 1075,
+      "jsBeforeReadyEnd": 3046.39999999851,
+      "restCount": 55,
+      "cls": 0.03696004575628095
+    },
+    {
+      "factor": "bandwidth10",
+      "route": "/post/seventh-to-tenth-sefirot-2027",
+      "ready": 2310.699999999255,
+      "readyRange": [
+        2239.699999999255,
+        2339.199999999255
+      ],
+      "delta": -1260.199999999255,
+      "beyondBaselineRange": true,
+      "lastRestEnd": 2573.10000000149,
+      "tailDelta": -1272.8999999985099,
+      "firstPrimaryReq": 209.29999999701977,
+      "firstPrimaryResponseReleased": 362.80000000074506,
+      "firstRoot": 829,
+      "jsBeforeReadyEnd": 2260.099999997765,
+      "restCount": 6,
+      "cls": 0.00007661682559483599
+    }
+  ]
+}

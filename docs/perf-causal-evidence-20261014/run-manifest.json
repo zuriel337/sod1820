@@ -1,0 +1,49 @@
+{
+  "runtime": "5dd4afaacd9ead2fef5ff43d4c1adec4e4a0ed75",
+  "method": "separate calibrated static transport and replay API latency, not live SQL",
+  "cases": [
+    {
+      "label": "baseline",
+      "factors": {},
+      "fixtureHash": "c086adf2d057c5151e808ff7ed416e3d4aea0650bfbf21f57ce151f258940b62",
+      "valid": true,
+      "finished": "2026-10-14T10:18:05.547Z"
+    },
+    {
+      "label": "api-rtt450",
+      "factors": {
+        "apirtt": 450
+      },
+      "fixtureHash": "c086adf2d057c5151e808ff7ed416e3d4aea0650bfbf21f57ce151f258940b62",
+      "valid": true,
+      "finished": "2026-10-14T10:20:57.217Z"
+    },
+    {
+      "label": "cpu1",
+      "factors": {
+        "cpu": 1
+      },
+      "fixtureHash": "c086adf2d057c5151e808ff7ed416e3d4aea0650bfbf21f57ce151f258940b62",
+      "valid": true,
+      "finished": "2026-10-14T10:23:05.453Z"
+    },
+    {
+      "label": "static-rtt300",
+      "factors": {
+        "staticrtt": 300
+      },
+      "fixtureHash": "c086adf2d057c5151e808ff7ed416e3d4aea0650bfbf21f57ce151f258940b62",
+      "valid": true,
+      "finished": "2026-10-14T10:25:58.878Z"
+    },
+    {
+      "label": "bandwidth10",
+      "factors": {
+        "bandwidth": 10
+      },
+      "fixtureHash": "c086adf2d057c5151e808ff7ed416e3d4aea0650bfbf21f57ce151f258940b62",
+      "valid": true,
+      "finished": "2026-10-14T10:27:51.191Z"
+    }
+  ]
+}

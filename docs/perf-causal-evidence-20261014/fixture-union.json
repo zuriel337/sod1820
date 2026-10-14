@@ -1,0 +1,63 @@
+{
+  "reason": "Higher static latency exposes eight additional public offscreen/lazy assets; initial affected Home/World cells rejected, all accepted factors rerun on same augmented union. Existing entries copied without modification.",
+  "originalSha256": "271788bc295e57591abb208c4c9442cd387cc6d68e4ad4412aace95357c4422b",
+  "unionSha256": "c086adf2d057c5151e808ff7ed416e3d4aea0650bfbf21f57ce151f258940b62",
+  "added": [
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5109.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 25913,
+      "bodyHash": "d2af2db4c67d82aed21a96cab4d61571127c6679acb21ad9c26b5852c039799f"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/cards/dim5-koach-hashtika.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 89563,
+      "bodyHash": "ff30aaea891be0625efbe61276ed7bd039c576f8fe1dcafc65d5478a99144411"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/cards/dim5-ma-becha-nishar.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 166524,
+      "bodyHash": "91e5865786077719fc50c927735b1cb2c811edad01587ac628c5f5db09cd28a3"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5100.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 19372,
+      "bodyHash": "ac6f3a7b8553fd67d92224466be265d34d3261b7a82cd769a50b4c6c06c5c5cf"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/6232be42-82a3-41ac-b4d3-004a21e48c7f.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 27944,
+      "bodyHash": "4f979947c7dcb6a3e1595914ca32ec1736ea2af4d7674f3e83138fd3151fa61e"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png",
+      "status": 200,
+      "type": "image/png",
+      "decodedBytes": 7640,
+      "bodyHash": "d8accd1d9b691f2ed58983fd504d233bf2a5973baaf0e78de634dd4b050d6f49"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/62ffc447-fd91-4027-9fe9-4a19d09679fd.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 31882,
+      "bodyHash": "f97d149823fa3f627a0ee6e34c0de64c0fdc53b01d8d81fd66e065f6a0efc490"
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/c502fa89-96f1-495b-aeb7-b16deaaa96b3.jpg",
+      "status": 200,
+      "type": "image/jpeg",
+      "decodedBytes": 18491,
+      "bodyHash": "7f22173b39204b24007771d143071c19da45e48062df471101dd916d3b871173"
+    }
+  ]
+}
