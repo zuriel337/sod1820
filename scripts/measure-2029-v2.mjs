@@ -20,7 +20,7 @@ const serve = (dir, port) => new Promise(r => { const s = http.createServer((q, 
   const ext = path.extname(f); const h = { 'content-type': types[ext] || 'application/octet-stream', 'cache-control': p.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache' };
   if (['.html', '.js', '.css', '.json', '.svg'].includes(ext)) { let b = gz.get(f); if (!b) { b = zlib.gzipSync(fs.readFileSync(f), { level: 6 }); gz.set(f, b); } h['content-encoding'] = 'gzip'; h['content-length'] = b.length; rs.writeHead(200, h); rs.end(b); }
   else { rs.writeHead(200, h); fs.createReadStream(f).pipe(rs); } }).listen(port, '127.0.0.1', () => r(s)); });
-const servers = []; const ports = {}; let pp = 4950;
+const servers = []; const ports = {}; let pp = Number(process.env.PORT0 || 4950);
 for (const v of VARIANTS) { ports[v] = pp; servers.push(await serve(`${SC}/var-${v}`, pp++)); }
 const profiles = { mobile: { vp: { width: 390, height: 844 }, mobile: true, cpu: 4, lat: 150, down: 1.6e6 / 8, up: 750e3 / 8 }, desktop: { vp: { width: 1366, height: 768 }, mobile: false, cpu: 1, lat: 40, down: 10e6 / 8, up: 5e6 / 8 } };
 const POST = '/post/flydubai-fz1073-363-14000-remzei-geula';
@@ -65,25 +65,39 @@ async function visit(ctx, prof, v, scen, label) {
     new PerformanceObserver(l => { for (const e of l.getEntries()) { window.__m.lcp = e.startTime; window.__m.lcpEl = e.element ? e.element.tagName : ''; window.__m.lcpUrl = e.url || ''; } }).observe({ type: 'largest-contentful-paint', buffered: true });
     new PerformanceObserver(l => { for (const e of l.getEntries()) if (e.name === 'first-contentful-paint') window.__m.fcp = e.startTime; }).observe({ type: 'paint', buffered: true });
     new PerformanceObserver(l => { for (const e of l.getEntries()) { window.__m.lt += Math.max(0, e.duration - 50); window.__m.ltdur += e.duration; window.__m.ltn++; } }).observe({ type: 'longtask', buffered: true });
-    let cls = 0; window.__m.cls = 0; new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__m.cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
+    window.__m.cls = 0; window.__m.shifts = []; window.__m.ev = [];
+    const desc = n => { if (!n || !n.tagName) return ''; let s = n.tagName.toLowerCase(); if (n.id) s += '#' + n.id; if (n.className && typeof n.className === 'string') s += '.' + n.className.trim().split(/\s+/).slice(0, 2).join('.'); return s; };
+    new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) { window.__m.cls += e.value; if (e.value > 0.004) window.__m.shifts.push({ t: Math.round(e.startTime), v: +e.value.toFixed(3), n: (e.sources || []).slice(0, 2).map(x => desc(x.node)).join(' | ') }); } }).observe({ type: 'layout-shift', buffered: true });
+    new PerformanceObserver(l => { for (const e of l.getEntries()) if (e.interactionId) window.__m.ev.push({ n: e.name, d: Math.round(e.duration), delay: Math.round(e.processingStart - e.startTime), t: Math.round(e.startTime) }); }).observe({ type: 'event', durationThreshold: 16, buffered: true });
     const chk = () => { const m = window.__m; if (m.shell < 0 && document.querySelector('.sod29-root')) m.shell = performance.now(); if (m.content < 0) { let ok = false; try { ok = !!eval(ready); } catch {} if (ok) m.content = performance.now(); } if (m.content < 0 && performance.now() < 90000) requestAnimationFrame(chk); };
     requestAnimationFrame(chk);
   }, { ready: READY[scen] });
   await page.goto(`http://127.0.0.1:${port}${routes[scen]}`, { waitUntil: 'commit', timeout: 120000 }).catch(() => {});
   await page.waitForFunction(() => window.__m && window.__m.content >= 0, null, { timeout: 90000, polling: 200 }).catch(() => {});
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(1500);
+  if (process.env.INTERACT !== '0') {
+    const btn = page.locator('.sod29-theme-presets button:not(.is-active)').first();
+    if (await btn.isVisible().catch(() => false)) await btn.click({ timeout: 4000 }).catch(() => {}); else await page.mouse.click(8, 200).catch(() => {});
+  }
+  await page.waitForTimeout(1500);
+  const sig = await page.evaluate(() => { const q = s => document.querySelector(s); const root = q('main') || document.body; const h1 = (q('h1') || {}).innerText || '';
+    const links = [...document.querySelectorAll('a[href^="/post/"]')].slice(0, 12).map(a => a.getAttribute('href')).join(',');
+    let hash = 0; const t = (root.innerText || '').replace(/\s+/g, ' '); for (let i = 0; i < t.length; i++) hash = (hash * 31 + t.charCodeAt(i)) | 0;
+    return { h1: h1.slice(0, 80), len: t.length, links: links.length, linkHash: links.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0), textHash: hash, imgs: document.images.length }; }).catch(() => ({}));
   const m = await page.evaluate(() => window.__m).catch(() => ({})); st.blocked = await page.evaluate(() => window.__blocked).catch(() => []); st.flagsMocked = await page.evaluate(() => window.__flagsMocked).catch(() => false);
   const perf = await page.evaluate(() => { const es = performance.getEntriesByType('resource'); const js = es.filter(e => /\/assets\/.*\.js/.test(e.name)); const rest = es.filter(e => /\/rest\/v1\//.test(e.name)); const font = es.filter(e => /fonts\.g/.test(e.name));
     return { jsLastEnd: Math.max(0, ...js.map(e => e.responseEnd)), jsCount: js.length, restFirstStart: rest.length ? Math.min(...rest.map(e => e.startTime)) : -1, restLastEnd: rest.length ? Math.max(...rest.map(e => e.responseEnd)) : -1, fontLastEnd: Math.max(0, ...font.map(e => e.responseEnd)) }; }).catch(() => ({}));
   const pm = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(x => [x.name, x.value]));
   const R = [...st.reqs.values()]; const local = R.filter(r => r.url.startsWith(`http://127.0.0.1:${port}`)); const sup = R.filter(r => r.url.includes('supabase.co')); const rest = sup.filter(r => r.url.includes('/rest/v1/'));
+  const byM = {}; for (const r of sup) byM[r.method] = (byM[r.method] || 0) + 1; const byT = {}; for (const r of R) byT[r.type || '?'] = (byT[r.type || '?'] || 0) + 1;
+  const restApi = rest.filter(r => r.method !== 'OPTIONS').length;
   const sum = (a, k) => a.reduce((s, r) => s + (r[k] || 0), 0);
   const dupKeys = new Map(); for (const r of rest) if (r.method === 'GET') dupKeys.set(r.url, (dupKeys.get(r.url) || 0) + 1);
-  const out = { t: new Date().toISOString(), label, variant: v, prof, scen, ready: Math.round(m.content), shell: Math.round(m.shell), fcp: Math.round(m.fcp), lcp: Math.round(m.lcp), lcpEl: m.lcpEl, tbt: Math.round(m.lt), longMs: Math.round(m.ltdur), cls: +(m.cls || 0).toFixed(3),
+  const out = { t: new Date().toISOString(), label, variant: v, prof, scen, ready: Math.round(m.content), shell: Math.round(m.shell), fcp: Math.round(m.fcp), lcp: Math.round(m.lcp), lcpEl: m.lcpEl, tbt: Math.round(m.lt), longMs: Math.round(m.ltdur), cls: +(m.cls || 0).toFixed(3), shifts: m.shifts || [], lcpUrl: (m.lcpUrl || '').replace(/^https?:\/\/[^/]+/, '').slice(0, 120), inp: Math.max(0, ...((m.ev || []).filter(e => e.n === 'click' || e.n === 'pointerdown' || e.n === 'keydown').map(e => e.d))), inpDelay: Math.max(0, ...((m.ev || []).map(e => e.delay))), sig,
     jsLastEnd: Math.round(perf.jsLastEnd), jsCount: perf.jsCount, restFirst: Math.round(perf.restFirstStart), restLastEnd: Math.round(perf.restLastEnd), fontEnd: Math.round(perf.fontLastEnd),
     cpuScriptMs: Math.round((pm.ScriptDuration || 0) * 1000), cpuTaskMs: Math.round((pm.TaskDuration || 0) * 1000), layoutMs: Math.round((pm.LayoutDuration || 0) * 1000),
     localEncKB: Math.round(sum(local, 'enc') / 1024), localDecKB: Math.round(sum(local, 'dec') / 1024), localFromCache: local.filter(r => r.cache).length, localReqs: local.length,
-    restReqs: rest.length, restEncKB: Math.round(sum(rest, 'enc') / 1024), restDecKB: Math.round(sum(rest, 'dec') / 1024), restDupGets: [...dupKeys.values()].reduce((a, c) => a + c - 1, 0), supaReqs: sup.length,
+    restReqs: rest.length, restApi, supaByMethod: byM, allReqs: R.length, allByType: byT, preflights: sup.filter(r => r.method === 'OPTIONS').length, restEncKB: Math.round(sum(rest, 'enc') / 1024), restDecKB: Math.round(sum(rest, 'dec') / 1024), restDupGets: [...dupKeys.values()].reduce((a, c) => a + c - 1, 0), supaReqs: sup.length,
     otherReqs: R.length - local.length - sup.length, blocked: st.blocked.length, blockedList: [...new Set(st.blocked)].slice(0, 12), flagsMocked: st.flagsMocked, ok: m.content >= 0 };
   emit(out); await page.close(); return out;
 }
