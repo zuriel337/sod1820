@@ -96,3 +96,14 @@
 .dg29-gateway-head .sod29-watch-icon,
 .dg29-dimension-head .sod29-watch-icon { flex-shrink:0; }
 .dg29-gateway .sod29-watch-icon-popover { min-width:min(280px,calc(100vw - 32px)); }
+
+/* Loading-to-ready geometry (phone): while the public reads are pending, each gateway and the Dimension Five row
+   hold the height they take once their sources arrive, so Home content below (and a restored scroll position
+   inside it) does not move when they fill in. Reservations are released as soon as loading ends; heights follow
+   the typical loaded cards. */
+@container h29 (max-width: 620px) {
+  .dg29.is-loading .dg29-gateway:nth-child(1) { min-block-size: 400px; }
+  .dg29.is-loading .dg29-gateway:nth-child(2) { min-block-size: 224px; }
+  .dg29.is-loading .dg29-gateway:nth-child(3) { min-block-size: 440px; }
+  .dg29-dimension.is-loading { min-block-size: 480px; align-content: start; }
+}

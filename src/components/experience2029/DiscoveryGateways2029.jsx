@@ -81,7 +81,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
 }
 
 function DimensionFiveFeature({ items, loading }) {
-  return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">
+  return <section className={`dg29-dimension${loading ? " is-loading" : ""}`} aria-label="מימד חמש — סרטים ומסרים">
     <div className="dg29-dimension-head">
       <span className="dg29-glyph" aria-hidden="true">🎥</span>
       <div>
@@ -175,7 +175,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
     })),
   ];
 
-  return <section className="dg29" aria-label="שערי הגילוי">
+  return <section className={`dg29${state.loading ? " is-loading" : ""}`} aria-label="שערי הגילוי" aria-busy={state.loading}>
     <div className="h29-sec-h">
       <h2>שערי הגילוי</h2>
       <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>
