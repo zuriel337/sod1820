@@ -9,6 +9,7 @@ import { hintNums } from "../lib/reality.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
+import { parseLegacyManualThread } from "../lib/legacyManualThreads.js";
 import { BRANDS } from "./BrandTicker.jsx";
 import { useSiteFlag } from "./MaintenanceLock.jsx";
 import { useSiteUpdates, openSiteUpdates, closeSiteUpdates, setSiteUpdatesUnseen } from "../lib/siteUpdates.js";
@@ -67,8 +68,10 @@ function hintToMsg(h) {
 // 🔗 הופך קישורים בטקסט ההודעה ללחיצים (כמו וואטסאפ אמיתי). מנקה HTML קודם,
 // מזהה http(s)://… ו-www.…, גוזר סימני-פיסוק נגררים, פותח בכרטיסייה חדשה.
 const URL_RE = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
-function linkify(text) {
-  const t = stripHtml(text || "");
+function linkify(text, preserveLines = false) {
+  const t = preserveLines
+    ? String(text || "").split(/\r?\n/).map(line => stripHtml(line)).join("\n")
+    : stripHtml(text || "");
   if (!t) return null;
   const out = []; let last = 0, m; const re = new RegExp(URL_RE);
   while ((m = re.exec(t))) {
@@ -116,7 +119,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
   // כדי שגם ה-Bottom Bar (וכל מקום אחר) יוכל לפתוח/לסגור בדיוק את אותו חלון קיים.
   const { open } = useSiteUpdates();
   const [raw, setRaw] = useState([]);
-  const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
+  const [focusedThreadId, setFocusedThreadId] = useState(null);
   const [unseen, setUnseen] = useState(0);
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
   const [vid, setVid] = useState(null);     // וידאו לניגון (מתנגן רק בהקשה — Egress)
@@ -165,7 +168,9 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
     return () => { live = false; clearInterval(id); };
   }, [forumBlocked]);
 
-  const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch] && !hidden.has(u.id))).slice(-60), [raw, active, hidden]);
+  const items = useMemo(() => applyCaps(raw.filter(u => !hidden.has(u.id))).slice(-60), [raw, hidden]);
+  const focusedThread = items.find(u => u.id === focusedThreadId);
+  const visibleItems = focusedThread ? [focusedThread] : items;
   // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים
   const latest = useMemo(() => items.slice(-6).reverse(), [items]);
   const cur = latest.length ? latest[tick % latest.length] : null;
@@ -179,8 +184,13 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
     if (!open) return;
     seenTop.current = Math.max(0, ...raw.map(u => +new Date(u.created_at || 0)));
     setUnseen(0);
-    const el = bodyRef.current; if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-  }, [open, items.length, raw]);
+    const el = bodyRef.current;
+    if (el && !focusedThreadId) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }, [open, items.length, raw, focusedThreadId]);
+
+  useEffect(() => {
+    if (focusedThreadId && bodyRef.current) bodyRef.current.scrollTo({ top: 0, behavior: "instant" });
+  }, [focusedThreadId]);
 
   // 🧭 משדר את ה-unseen האמיתי שכבר מחושב כאן (השורה למעלה) החוצה ל-Bottom Bar —
   // lib/siteUpdates.js הוא רק צינור-שידור, לא מקור/מחשב-נתונים משלו.
@@ -226,10 +236,6 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
         .lcf-head .st i{width:6px;height:6px;border-radius:50%;background:${P.accent};display:inline-block;box-shadow:0 0 6px #25d366}
         .lcf-head .x{margin-inline-start:auto;background:none;border:none;color:${WA.headInk};opacity:.85;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:20px}
         .lcf-head .x:hover{opacity:1;background:rgba(255,255,255,.1)}
-        /* מסנני-ערוצים (שורת שבבים דקה) */
-        .lcf-chips{display:flex;gap:6px;flex-wrap:wrap;padding:7px 10px;background:${WA.head};filter:brightness(.9);flex:0 0 auto}
-        .lcf-chip{cursor:pointer;font-family:${F.heading};font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;border:none;background:${WA.chip};color:${WA.chipInk};user-select:none;opacity:.65}
-        .lcf-chip[aria-pressed="true"]{opacity:1;color:#fff}
         /* אזור-הצ'אט + טפט דודל של וואטסאפ */
         .lcf-body{flex:1;overflow-y:auto;padding:14px 12px 16px;display:flex;flex-direction:column;gap:2px;
           background-color:${WA.chat};background-image:${wallpaper};scroll-behavior:smooth}
@@ -250,6 +256,15 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
         .lcf-ai .rb2{width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#25d366,#009e78);display:grid;place-items:center;font-size:9px}
         .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
         .lcf-tx.clamp{display:-webkit-box;-webkit-line-clamp:10;-webkit-box-orient:vertical;overflow:hidden}
+        .lcf-thread-b{max-width:100%;width:100%}
+        .lcf-thread-label{font-family:${F.heading};font-size:11px;font-weight:800;color:${P.accentText};margin:5px 0}
+        .lcf-thread-title{font-family:${F.heading};font-size:15px;line-height:1.4;margin:0 0 7px;color:inherit}
+        .lcf-thread-preview{font-size:12px;line-height:1.5;margin-bottom:5px}
+        .lcf-thread-messages{list-style:none;margin:10px 0 0;padding:0}
+        .lcf-thread-message{border-block-start:1px solid ${WA.edge};border-inline-start:2px solid ${P.accent};padding:10px 9px;margin:0 0 10px}
+        .lcf-thread-byline{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:700;margin-bottom:7px}
+        .lcf-thread-byline a{color:${P.accentText}}
+        .lcf-thread-byline span{font-size:10px;color:${WA.time};font-weight:400}
         .lcf-more{background:none;border:none;cursor:pointer;color:${dark ? "#53bdeb" : "#027eb5"};font-family:${F.heading};font-size:12px;font-weight:800;padding:2px 0 0;margin-top:1px}
         .lcf-tx a.lcf-link{color:${dark ? "#53bdeb" : "#027eb5"};text-decoration:underline;text-underline-offset:2px;word-break:break-all;font-weight:600}
         .lcf-md{margin-top:5px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.16);border-radius:6px;padding:3px 9px;font-size:11px;opacity:.9}
@@ -298,23 +313,19 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
               <span className="ava" aria-hidden>
                 <span aria-hidden="true" style={{ fontSize: 23, lineHeight: 1 }}>🌍</span>
               </span>
-              <div><div className="nm">עכשיו</div><div className="st"><i />ערוצים · פורום · פעילות · עכשיו</div></div>
+              <div className="nm">עכשיו</div>
               <button className="x" onClick={() => closeSiteUpdates()} aria-label={docked ? "מזער" : "סגור"}>{docked ? "–" : "✕"}</button>
             </div>
-            <div className="lcf-chips">
-              {CH_KEYS.map(k => (
-                <button key={k} className="lcf-chip" aria-pressed={active[k]}
-                  style={active[k] ? { background: CH[k].c } : undefined}
-                  onClick={() => setActive(a => ({ ...a, [k]: !a[k] }))}>{CH[k].em} {CH[k].name}</button>
-              ))}
-            </div>
+
             <div className="lcf-body" ref={bodyRef}>
-              {items.length === 0 ? <div className="lcf-empty">העדכונים בדרך — הערוצים יתעוררו בקרוב…</div> :
-                items.map((u, i) => {
+              {focusedThread && <button type="button" className="lcf-more" onClick={() => { setExp(e => ({ ...e, [focusedThread.id + focusedThread.ch]: false })); setFocusedThreadId(null); }}>← חזרה לעדכונים</button>}
+              {visibleItems.length === 0 ? <div className="lcf-empty">העדכונים בדרך — הערוצים יתעוררו בקרוב…</div> :
+                visibleItems.map((u, i) => {
                   const c = CH[u.ch]; const ai = isAi(u);
+                  const thread = parseLegacyManualThread(u);
                   return (
                     <div key={(u.id || i) + "" + u.ch} className={"lcf-row " + (ai ? "sent" : "recv")}>
-                      <div className={"lcf-b " + (ai ? "sb" : "rb")}>
+                      <div className={"lcf-b " + (ai ? "sb" : "rb") + (thread ? " lcf-thread-b" : "")}>
                         {isAdmin && canHideItem(u) && (
                           <button type="button" className="lcf-hide" title="הסתר מהעדכונים ומהטיקר (אדמין)"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); hideItem(u); }}>🙈</button>
@@ -334,8 +345,32 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                           const isOpen = !!exp[rid];
                           return (
                             <>
-                              <div className={"lcf-tx" + (long && !isOpen ? " clamp" : "")}>{linkify(u.text)}</div>
-                              {long && <button className="lcf-more" onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>{isOpen ? "פחות ▴" : "קרא עוד ▾"}</button>}
+                              {thread ? (
+                                <section className="lcf-thread" aria-label={`שרשור: ${thread.title}`}>
+                                  <div className="lcf-thread-label">💬 {thread.count > 1 ? `שרשור · ${thread.count} הודעות` : "הודעה אחת"}</div>
+                                  <h3 className="lcf-thread-title">{thread.title}</h3>
+                                  {!isOpen && <div className="lcf-thread-preview">{thread.messages[0].author}: {snip(thread.messages[0].body)}…</div>}
+                                  <button type="button" className="lcf-more" aria-expanded={isOpen}
+                                    aria-controls={`thread-${u.id}`}
+                                    onClick={() => { setExp(e => ({ ...e, [rid]: !e[rid] })); setFocusedThreadId(isOpen ? null : u.id); }}>
+                                    {isOpen ? "סגור שרשור ▴" : thread.count > 1 ? `פתח שרשור · ${thread.count} הודעות ▾` : "קרא הודעה ▾"}
+                                  </button>
+                                  {isOpen && <ol id={`thread-${u.id}`} className="lcf-thread-messages">
+                                    {thread.messages.map((message, index) => (
+                                      <li key={index} className="lcf-thread-message">
+                                        <div className="lcf-thread-byline">
+                                          <ReporterLink credit={message.author} canonical>{message.author}</ReporterLink>
+                                          <span>{index + 1}/{thread.count} · {message.date}{message.time ? ` · ${message.time}` : ""}</span>
+                                        </div>
+                                        <div className="lcf-tx">{linkify(message.body, true)}</div>
+                                      </li>
+                                    ))}
+                                  </ol>}
+                                </section>
+                              ) : <>
+                                <div className={"lcf-tx" + (long && !isOpen ? " clamp" : "")}>{linkify(u.text)}</div>
+                                {long && <button className="lcf-more" onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>{isOpen ? "פחות ▴" : "קרא עוד ▾"}</button>}
+                              </>}
                             </>
                           );
                         })()}
@@ -349,12 +384,6 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                     </div>
                   );
                 })}
-              {items.length > 0 && (
-                <div className="lcf-foot">
-                  <Link to="/broadcasts" onClick={() => { if (!docked) closeSiteUpdates(); }}>📡 כל העדכונים · מרכז השידורים ←</Link>
-                  <span className="sub">הגעת לסוף — כאן כל הערוצים במלואם</span>
-                </div>
-              )}
             </div>
             {zoom && (
               <div className="lcf-zoom" onClick={() => setZoom(null)} role="dialog" aria-label="תמונה מוגדלת">
