@@ -55,3 +55,24 @@ Lab replay, mobile only; no physical phone, desktop, signed-in, or hosted-previe
 
 ## Integration
 Merge `claude/scroll-navigation-2029-fix-oz90c0` into the PR1100 branch (ff-able at 01ac7706) or `git am` the single patch `1701cf3a`. On main re-apply the effect pair manually (App2029.jsx differs after PR1103/PR1104).
+
+---
+# Revision 3 — combined build (PR1100 + switches + F2) and visible-content tracking
+Harness (`scrolltest.mjs focus`) now follows the **visible content**, not only `scrollY`: at departure a leaf element on screen is recorded by text and, after the return, its viewport offset is compared with the original (displacement 0 = the user is where they left; scrollY can differ from the saved value when the browser compensates for content inserted above). Late content = per-key response delays 150/900/1800/3200 ms (stress profile; harsher than the flat-150ms replay). Fixtures: `fixtures-combined.json.gz` (recorded on the combined build, 106 keys, same as before).
+
+## What it showed (finding, then fix)
+With the F2 as delivered (fixed 1.5 s anchoring hold) AND the baseline alike, the user ended **1460–2130 px below the place they left** in 9/9 valid runs (final visible displacement −1460…−2132, `raw/focus-combined-late.json`, `raw/focus2-base-late.json`): the page restored, the hold ended while later sections were still arriving, and scroll anchoring then locked onto the still-partial layout. This was not a regression caused by F2 (the baseline has it too) but F2 did not fix it. Fixed inside the existing restore mechanism (`src/lib/scrollRestore2029.js`): the hold now extends while the document keeps growing (`RESTORE_HOLD_MS`=2500 quiet, `RESTORE_HOLD_MAX_MS`=8000 cap); input still ends it at once. Unit tests 15/15 (2 new).
+
+## After the fix (`raw/focus-final-*.json`, combined build, same stress profile)
+| | F2 as delivered / baseline | combined + adaptive hold |
+|---|---|---|
+| late content: final scrollY vs saved (valid runs) | 4/5 and 4/4 off by 1460–2132 px | **0 px in 6/6** |
+| late content: final visible displacement | −1460…−2132 px (9/9) | **0 px in 5/5** valid (1 run had no trackable element: invalid, listed apart) |
+| scroll jumps >120px after the restore window | 3–4 per run | **0 in 6/6** |
+| visible-content moves during the hold | n/a | 1–2 per run (up to 203–954 px) — late sections arriving above (pre-existing Home reveal waves; see CLS attribution), settled to 0 at the end |
+| intermediate hold release (earlier 1.5 s / 8 runs of `focus-fix-*`) | | with 1.5 s quiet window 2/5 still lost the place; window raised to 2.5 s from that data |
+| user input while restore pending | 8/8 pending, released, no pull-back | **8/8 pending, released, no pull-back to the saved offset** (interrupt0 + interrupt1) |
+Limits: stress delays are synthetic; content arriving later than the quiet window (>2.5 s gap) or beyond 8 s is left to the browser. After a user's own touch, later content movement is the page settling (baseline too); `visibleDriftFromSwipe` 0–802 px in F2 vs 0–1 px baseline is NOT proven to be restore-related (the tracked element mounts late in a partial layout) and is not claimed either way; no pull-back to the saved offset was seen.
+
+## Combined build, mobile main flow (7 runs, 0 invalid, 0 misses; `raw/final-main.json`)
+position back→Home 7/7, forward→World 7/7, new entry top 7/7+7/7, direct+in-page anchors 7/7+7/7, cross-page `/world#world-sources` not honoured 7/7 (unchanged, page-owned). Time (median [range] ms, separate): back→Home 314 [269–664], forward→World 200 [191–264], new entry World 1589 [1535–2110]. CLS: back→Home 1.70 [0–2] (7/7 >0.1; Home/Discovery reveal, unchanged owner), forward→World 0 (0/7 >0.1).

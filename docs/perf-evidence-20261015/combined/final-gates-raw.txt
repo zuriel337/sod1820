@@ -1,0 +1,50 @@
+rc=0 :: node --test test/perf-execution-2029.test.mjs test/perf-replay-gate-2029.test.mjs test/early-primary-read-2029.test.mjs test/home-post-cards-2029.test.mjs
+rc=0 :: npm run test:experience-context
+rc=0 :: npm run test:entry-learn-2029
+rc=0 :: npm run test:issue-report
+rc=0 :: npm run test:my-workspace-2029
+rc=0 :: npm run test:operational-trace
+rc=0 :: node scripts/test-web-vitals-2029.mjs
+rc=0 :: npm run test:operational-trace-runtime
+rc=0 :: npm run test:replayable-golden
+rc=0 :: npm run test:server-capability-gate
+rc=0 :: npm run test:research-run
+rc=1 :: npm run package:research-run
+        pid: 12513,
+        stdout: <Buffer >,
+        stderr: <Buffer e2 9c 98 20 5b 45 52 52 4f 52 5d 20 43 6f 75 6c 64 20 6e 6f 74 20 72 65 73 6f 6c 76 65 20 22 40 73 75 70 61 62 61 73 65 2f 66 75 6e 63 74 69 6f 6e 73 ... 1936 more bytes>
+      }
+rc=0 :: npm run test:2029-server-seo-ai
+rc=0 :: npm run test:research-path-resume
+rc=0 :: npm run test:home-2029-pulse
+rc=0 :: npm run test:2029-cheap-hardening
+rc=0 :: npm run test:legacy-research-containment
+rc=0 :: node scripts/test-2029-isolation.mjs
+rc=0 :: node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js
+rc=0 :: node scripts/test-2029-system-frame.mjs
+rc=0 :: node --test src/lib/research/razielServerGatedConsumer.currentMain.test.js
+rc=0 :: node scripts/test-2029-canonical-contract-wiring.mjs
+rc=0 :: node test/person-identity-bridge-foundation.test.mjs
+rc=0 :: node test/account-person-completeness-foundation.test.mjs
+rc=0 :: node test/person-public-resolver-foundation.test.mjs
+rc=0 :: node test/people-identity-review-2029-contract.test.mjs
+rc=0 :: node test/person-profile-2029-projection.test.mjs
+rc=0 :: node test/people-directory-2029-projection.test.mjs
+rc=0 :: node scripts/test-2029-world-surface.mjs
+rc=0 :: npm run test:world-convergence-pr591
+rc=0 :: node scripts/test-2029-topic-surface.mjs
+rc=0 :: node scripts/test-2029-researcher-corpus.mjs
+rc=0 :: node scripts/test-2029-number-preview.mjs
+rc=0 :: node scripts/test-2029-control-plane.mjs
+rc=0 :: node scripts/test-a3-client-correlation-live.mjs
+rc=0 :: npm run build
+rc=0 :: node scripts/test-2029-built-graph.mjs
+rc=0 :: npm run test:2029-bundle-budget
+rc=0 :: node --test test/scroll-restore-2029.test.mjs
+rc=0 :: node --test test/runtime-switches-2029.test.mjs test/perf-two-switches-2029.test.mjs test/shell-surface-registry-2029.test.mjs test/number-lookup-transport-memory-2029.test.mjs test/number-lookup-acceptance-2029.test.mjs
+rc=0 :: node --test test/perf-navigation-2029.test.mjs
+rc=0 :: node --test src/lib/research/researchSyncRuntime.test.js
+rc=0 :: node scripts/test-route-legitimacy-2029.mjs
+rc=0 :: npm run build:2029
+rc=0 :: node --test scripts/test-2029-bundle-budget.mjs
+ALLDONE
