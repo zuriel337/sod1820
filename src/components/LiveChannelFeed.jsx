@@ -31,6 +31,18 @@ const CH = {
 };
 // ערוצי-הוואטסאפ בלבד (אלה שנשלפים דרך getChannelUpdates) — נפרד מ«שולחי-האתר» (forum/activity).
 const CHANNEL_KEYS = ["torat-haremez", "gilui-yomi", "site-news", "reality-code", "sod-hachashmal", "or-geula"];
+// Manual one-time Legacy-only publication at user's request, preserving the
+// source item's private ingestion status and all 2029 readers unchanged.
+const LEGACY_ONLY_YANIV_NOTICE = Object.freeze({
+  id: "fev_legacy_manual_yaniv_20261016_1237",
+  ch: "gilui-yomi",
+  source: "legacy-manual",
+  credit: "יניב לוי",
+  created_at: "2026-10-15T21:57:37Z",
+  text: "יש פסוק מיוחד שמוזכר בו פלא\"י\nוגימטריה מעניינת \n\n\nלָמָּה זֶּה תִּשְׁאַל לִשְׁמִי וְהוּא פֶלִאי = 1237  אותיות אחרי\n\nתִּשְׁאַל לִשְׁמִי  = 1111\n\n לִשְׁמִי  =  1400  (ריבוע 1110) (1110 משולש מילה)",
+  image_url: null,
+});
+
 const CH_KEYS = Object.keys(CH);   // כל השולחים (ערוצים + פורום + פעילות) — לשבבים/סינון/מכסות
 const DESKTOP_MQ = "(min-width:900px)";
 const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
@@ -157,7 +169,9 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
         ]);
         if (!live) return;
         const siteEvents = [...(forum || []).map(forumToMsg), ...(hints || []).map(hintToMsg)].filter(Boolean);
-        const all = [...chanArr.flat(), ...siteEvents].filter(u => u.text || u.image_url);
+        const liveItems = chanArr.flat();
+        const alreadyPublishedFromOriginal = liveItems.some(u => u.credit === LEGACY_ONLY_YANIV_NOTICE.credit && u.text === LEGACY_ONLY_YANIV_NOTICE.text);
+        const all = [...liveItems, ...siteEvents, ...(!alreadyPublishedFromOriginal ? [LEGACY_ONLY_YANIV_NOTICE] : [])].filter(u => u.text || u.image_url);
         const newestTs = Math.max(0, ...all.map(u => +new Date(u.created_at || 0)));
         setUnseen(u => (seenTop.current && newestTs > seenTop.current ? u + 1 : u));
         setRaw(all);
