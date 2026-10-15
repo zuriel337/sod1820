@@ -1,5 +1,5 @@
-import React, { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigationType, useParams } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
@@ -8,6 +8,7 @@ import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
+import { createScrollRestorer2029 } from "./lib/scrollRestore2029.js";
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
@@ -68,7 +69,20 @@ function Loading2029() {
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
-  const { pathname } = useLocation();
+  const { pathname, key, hash } = useLocation();
+  const navType = useNavigationType();
+  const restorer = useRef(null);
+
+  // Scroll: the browser restores on back/forward; complete it (downwards only) when it could not,
+  // start a new entry at the top, and leave hash/anchor locations to the page that owns them.
+  useLayoutEffect(() => {
+    if (!restorer.current) restorer.current = createScrollRestorer2029();
+    restorer.current.start();
+    return () => restorer.current?.stop();
+  }, []);
+  useLayoutEffect(() => {
+    restorer.current?.onLocation({ key, pathname, hash, navType });
+  }, [key]);
   // Owner switch fx_analytics (control panel): while OFF nothing below starts. Nothing starts before the switch is known.
   const analyticsSwitch = useRuntimeSwitch("fx_analytics");
   const analyticsOn = !analyticsSwitch.loading && analyticsSwitch.on;

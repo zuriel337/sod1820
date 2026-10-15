@@ -1,0 +1,54 @@
+{
+ "baseline": {
+  "label": "01ac7706",
+  "runs": 7,
+  "validRuns": 7,
+  "excluded": [],
+  "backHome_within120": "0/7",
+  "forwardWorld_within120": "0/7",
+  "ms": {
+   "backHome": "768 [307,1154]",
+   "forwardWorld": "202 [197,298]",
+   "newEntryWorld": "1842 [1795,2020]"
+  },
+  "cls": {
+   "backHome": "2.285 [0.836,2.58] over0.1=7/7",
+   "forwardWorld": "0 [0,0] over0.1=0/7"
+  },
+  "crossPageAnchor": {
+   "validSamples": 7,
+   "notHonoured": 7,
+   "invalidSamples": 0
+  }
+ },
+ "f2_pool": {
+  "label": "F2 original(7)+rerun(5), valid only",
+  "runs": 12,
+  "validRuns": 11,
+  "excluded": [
+   {
+    "run": 7,
+    "misses": 1,
+    "invalid": [],
+    "error": null
+   }
+  ],
+  "backHome_within120": "11/11",
+  "forwardWorld_within120": "11/11",
+  "ms": {
+   "backHome": "404 [357,906]",
+   "forwardWorld": "203 [193,290]",
+   "newEntryWorld": "1810 [1735,2485]"
+  },
+  "cls": {
+   "backHome": "1.85 [0.826,2.348] over0.1=11/11",
+   "forwardWorld": "0 [0,0] over0.1=0/11"
+  },
+  "crossPageAnchor": {
+   "validSamples": 11,
+   "notHonoured": 11,
+   "invalidSamples": 1
+  }
+ },
+ "note": "Original JSONs untouched. Run 7 of f2-integrated (misses=1, forwardWorld.cls=1.785) and anchor sample 5 (invalid) are excluded/listed separately."
+}

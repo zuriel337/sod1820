@@ -1,0 +1,4 @@
+base interrupt1 1/4
+base interrupt1 2/4
+base interrupt1 3/4
+base interrupt1 4/4
