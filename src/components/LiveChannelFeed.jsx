@@ -384,12 +384,6 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                     </div>
                   );
                 })}
-              {items.length > 0 && !focusedThread && (
-                <div className="lcf-foot">
-                  <Link to="/broadcasts" onClick={() => { if (!docked) closeSiteUpdates(); }}>📡 כל העדכונים · מרכז השידורים ←</Link>
-                  <span className="sub">הגעת לסוף — כאן כל הערוצים במלואם</span>
-                </div>
-              )}
             </div>
             {zoom && (
               <div className="lcf-zoom" onClick={() => setZoom(null)} role="dialog" aria-label="תמונה מוגדלת">
