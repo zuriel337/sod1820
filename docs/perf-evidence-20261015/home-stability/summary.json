@@ -1,0 +1,315 @@
+{
+ "A": [
+  {
+   "backHomeCls": 2.396,
+   "yBefore": 2254,
+   "yAfter": 2254,
+   "ms": 618,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "i",
+    "section.h29-sec.k29-reveal",
+    "div.sod29-watch-icon-wrap",
+    "article.dg29-gateway",
+    "span.dg29-dimension-poster"
+   ]
+  },
+  {
+   "backHomeCls": 2.401,
+   "yBefore": 2070,
+   "yAfter": 2070,
+   "ms": 647,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "i",
+    "section.h29-sec.k29-reveal",
+    "div.sod29-watch-icon-wrap",
+    "a.dg29-gateway-action",
+    "article.dg29-gateway",
+    "div.dg29-dimension-foot",
+    "article.h29-notable-card.k29-rv"
+   ]
+  },
+  {
+   "backHomeCls": 2.336,
+   "yBefore": 2263,
+   "yAfter": 2263,
+   "ms": 822,
+   "fixtureMisses": 0,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "i",
+    "section.h29-sec.k29-reveal",
+    "article.dg29-gateway",
+    "span.dg29-dimension-poster",
+    "div.sod29-watch-icon-wrap"
+   ]
+  },
+  {
+   "backHomeCls": 1.956,
+   "yBefore": 2064,
+   "yAfter": 2064,
+   "ms": 517,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "section.h29-sec.k29-reveal",
+    "div.sod29-watch-icon-wrap",
+    "article.dg29-gateway",
+    "section.dg29-dimension",
+    "article.h29-notable-card.k29-rv"
+   ]
+  },
+  {
+   "backHomeCls": 2.343,
+   "yBefore": 2097,
+   "yAfter": 2097,
+   "ms": 637,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "i",
+    "section.h29-sec.k29-reveal",
+    "div.sod29-watch-icon-wrap",
+    "article.dg29-gateway"
+   ]
+  },
+  {
+   "backHomeCls": 2.403,
+   "yBefore": 2073,
+   "yAfter": 2073,
+   "ms": 601,
+   "fixtureMisses": 0,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "i",
+    "section.h29-sec.k29-reveal",
+    "div.sod29-watch-icon-wrap",
+    "a.dg29-gateway-action",
+    "article.dg29-gateway",
+    "div.dg29-dimension-foot"
+   ]
+  },
+  {
+   "backHomeCls": 1.952,
+   "yBefore": 2248,
+   "yAfter": 2248,
+   "ms": 411,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29",
+    "div.sod29-watch-icon-wrap",
+    "div.k29-reveal.k29-rv-self",
+    "section.h29-sec.k29-reveal",
+    "article.dg29-gateway",
+    "div.dg29-dimension-foot",
+    "span.dg29-dimension-poster"
+   ]
+  }
+ ],
+ "B": [
+  {
+   "backHomeCls": 1.502,
+   "yBefore": 2097,
+   "yAfter": 2097,
+   "ms": 617,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self"
+   ]
+  },
+  {
+   "backHomeCls": 1.643,
+   "yBefore": 2296,
+   "yAfter": 2296,
+   "ms": 524,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "a.dg29-gateway-action",
+    "div.dg29-secondary-row",
+    "section.dg29-dimension",
+    "div.dg29-dimension-foot",
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "span.dg29-dimension-poster"
+   ]
+  },
+  {
+   "backHomeCls": 1.086,
+   "yBefore": 2055,
+   "yAfter": 2055,
+   "ms": 540,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "section.dg29",
+    "div.sod29-watch-icon-wrap",
+    "div.k29-reveal.k29-rv-self",
+    "article.h29-notable-card.k29-rv"
+   ]
+  },
+  {
+   "backHomeCls": 1.216,
+   "yBefore": 2303,
+   "yAfter": 2303,
+   "ms": 485,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.dg29",
+    "a.dg29-gateway-action",
+    "div.dg29-secondary-row",
+    "section.dg29-dimension",
+    "div.dg29-dimension-foot",
+    "div.k29-reveal.k29-rv-self",
+    "span.dg29-dimension-poster"
+   ]
+  },
+  {
+   "backHomeCls": 1.183,
+   "yBefore": 2243,
+   "yAfter": 2243,
+   "ms": 547,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.dg29",
+    "a.dg29-gateway-action",
+    "div.dg29-secondary-row",
+    "section.dg29-dimension",
+    "div.dg29-dimension-foot",
+    "div.k29-reveal.k29-rv-self",
+    "span.dg29-dimension-poster"
+   ]
+  },
+  {
+   "backHomeCls": 1.373,
+   "yBefore": 2287,
+   "yAfter": 2287,
+   "ms": 494,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.dg29",
+    "div.dg29-dimension-foot",
+    "div.k29-reveal.k29-rv-self",
+    "span.dg29-dimension-poster"
+   ]
+  },
+  {
+   "backHomeCls": 1.383,
+   "yBefore": 2101,
+   "yAfter": 2101,
+   "ms": 552,
+   "fixtureMisses": 0,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "section.dg29",
+    "a.dg29-gateway-action",
+    "div.sod29-watch-icon-wrap",
+    "div.dg29-dimension-foot",
+    "div.k29-reveal.k29-rv-self"
+   ]
+  }
+ ],
+ "B2": [
+  {
+   "backHomeCls": 1.1,
+   "yBefore": 2116,
+   "yAfter": 2116,
+   "ms": 459,
+   "fixtureMisses": 0,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.dg29",
+    "a.dg29-gateway-action",
+    "div.k29-reveal.k29-rv-self"
+   ]
+  },
+  {
+   "backHomeCls": 1.636,
+   "yBefore": 2272,
+   "yAfter": 2272,
+   "ms": 590,
+   "fixtureMisses": 0,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.h29-sec.k29-reveal",
+    "section.dg29",
+    "a.dg29-gateway-action",
+    "div.dg29-secondary-row",
+    "section.dg29-dimension",
+    "div.dg29-dimension-foot",
+    "div.k29-reveal.k29-rv-self",
+    "span.dg29-dimension-poster",
+    "svg"
+   ]
+  },
+  {
+   "backHomeCls": 1.521,
+   "yBefore": 2070,
+   "yAfter": 2070,
+   "ms": 557,
+   "fixtureMisses": 1,
+   "pageErrors": 0,
+   "invalid": 0,
+   "shiftSources": [
+    "section.dg29.is-loading",
+    "div.sod29-watch-icon-wrap",
+    "section.dg29",
+    "div.k29-reveal.k29-rv-self",
+    "article.h29-notable-card.k29-rv"
+   ]
+  }
+ ]
+}
