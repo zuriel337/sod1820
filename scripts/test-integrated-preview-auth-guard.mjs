@@ -51,3 +51,21 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
   assert.equal((await request('/rest/v1/rpc/fn_method_value')).status, 200);
   assert.equal((await request('/functions/v1/els-search-bridge', { body: { op: 'page' } })).forwarded, 1);
 });
+
+test('guest preference reads pass through while preference writes and foreign RPCs stay blocked', async () => {
+  // This RPC validates a visitor UUID and SELECTs an existing row; it never creates one.
+  const readPath = '/rest/v1/rpc/notification_prefs_guest_get_v1';
+  const body = { p_visitor: '11111111-1111-4111-8111-111111111111' };
+  assert.deepEqual(await request(readPath, { body }), { status: 200, forwarded: 0, blocked: undefined });
+  for (const [path, options] of [
+    [readPath, { body, origin: 'https://other.supabase.co' }],
+    ['/rest/v1/rpc/notification_prefs_guest_save_v1', { body }],
+    ['/rest/v1/notification_prefs', { method: 'POST', body }],
+    ['/rest/v1/notification_prefs', { method: 'PATCH', body }],
+    ['/rest/v1/notification_prefs', { method: 'DELETE' }],
+    ['/rest/v1/rpc/track_visit', { body: {} }],
+    ['/rest/v1/rpc/link_identity', { body: {} }],
+    ['/rest/v1/rpc/ingest_event', { body: {} }],
+    ['/rest/v1/rpc/public_enrichment_batch', { body: {} }],
+  ]) assert.deepEqual(await request(path, options), { status: 403, forwarded: 0, blocked: 'true' }, path);
+});
