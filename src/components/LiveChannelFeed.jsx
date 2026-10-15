@@ -119,7 +119,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
   // כדי שגם ה-Bottom Bar (וכל מקום אחר) יוכל לפתוח/לסגור בדיוק את אותו חלון קיים.
   const { open } = useSiteUpdates();
   const [raw, setRaw] = useState([]);
-  const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
+  const [focusedThreadId, setFocusedThreadId] = useState(null);
   const [unseen, setUnseen] = useState(0);
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
   const [vid, setVid] = useState(null);     // וידאו לניגון (מתנגן רק בהקשה — Egress)
@@ -168,7 +168,9 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
     return () => { live = false; clearInterval(id); };
   }, [forumBlocked]);
 
-  const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch] && !hidden.has(u.id))).slice(-60), [raw, active, hidden]);
+  const items = useMemo(() => applyCaps(raw.filter(u => !hidden.has(u.id))).slice(-60), [raw, hidden]);
+  const focusedThread = items.find(u => u.id === focusedThreadId);
+  const visibleItems = focusedThread ? [focusedThread] : items;
   // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים
   const latest = useMemo(() => items.slice(-6).reverse(), [items]);
   const cur = latest.length ? latest[tick % latest.length] : null;
@@ -182,8 +184,13 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
     if (!open) return;
     seenTop.current = Math.max(0, ...raw.map(u => +new Date(u.created_at || 0)));
     setUnseen(0);
-    const el = bodyRef.current; if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-  }, [open, items.length, raw]);
+    const el = bodyRef.current;
+    if (el && !focusedThreadId) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }, [open, items.length, raw, focusedThreadId]);
+
+  useEffect(() => {
+    if (focusedThreadId && bodyRef.current) bodyRef.current.scrollTo({ top: 0, behavior: "instant" });
+  }, [focusedThreadId]);
 
   // 🧭 משדר את ה-unseen האמיתי שכבר מחושב כאן (השורה למעלה) החוצה ל-Bottom Bar —
   // lib/siteUpdates.js הוא רק צינור-שידור, לא מקור/מחשב-נתונים משלו.
@@ -229,10 +236,6 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
         .lcf-head .st i{width:6px;height:6px;border-radius:50%;background:${P.accent};display:inline-block;box-shadow:0 0 6px #25d366}
         .lcf-head .x{margin-inline-start:auto;background:none;border:none;color:${WA.headInk};opacity:.85;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:20px}
         .lcf-head .x:hover{opacity:1;background:rgba(255,255,255,.1)}
-        /* מסנני-ערוצים (שורת שבבים דקה) */
-        .lcf-chips{display:flex;gap:6px;flex-wrap:wrap;padding:7px 10px;background:${WA.head};filter:brightness(.9);flex:0 0 auto}
-        .lcf-chip{cursor:pointer;font-family:${F.heading};font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;border:none;background:${WA.chip};color:${WA.chipInk};user-select:none;opacity:.65}
-        .lcf-chip[aria-pressed="true"]{opacity:1;color:#fff}
         /* אזור-הצ'אט + טפט דודל של וואטסאפ */
         .lcf-body{flex:1;overflow-y:auto;padding:14px 12px 16px;display:flex;flex-direction:column;gap:2px;
           background-color:${WA.chat};background-image:${wallpaper};scroll-behavior:smooth}
@@ -310,19 +313,14 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
               <span className="ava" aria-hidden>
                 <span aria-hidden="true" style={{ fontSize: 23, lineHeight: 1 }}>🌍</span>
               </span>
-              <div><div className="nm">עכשיו</div><div className="st"><i />ערוצים · פורום · פעילות · עכשיו</div></div>
+              <div className="nm">עכשיו</div>
               <button className="x" onClick={() => closeSiteUpdates()} aria-label={docked ? "מזער" : "סגור"}>{docked ? "–" : "✕"}</button>
             </div>
-            <div className="lcf-chips">
-              {CH_KEYS.map(k => (
-                <button key={k} className="lcf-chip" aria-pressed={active[k]}
-                  style={active[k] ? { background: CH[k].c } : undefined}
-                  onClick={() => setActive(a => ({ ...a, [k]: !a[k] }))}>{CH[k].em} {CH[k].name}</button>
-              ))}
-            </div>
+
             <div className="lcf-body" ref={bodyRef}>
-              {items.length === 0 ? <div className="lcf-empty">העדכונים בדרך — הערוצים יתעוררו בקרוב…</div> :
-                items.map((u, i) => {
+              {focusedThread && <button type="button" className="lcf-more" onClick={() => { setExp(e => ({ ...e, [focusedThread.id + focusedThread.ch]: false })); setFocusedThreadId(null); }}>← חזרה לעדכונים</button>}
+              {visibleItems.length === 0 ? <div className="lcf-empty">העדכונים בדרך — הערוצים יתעוררו בקרוב…</div> :
+                visibleItems.map((u, i) => {
                   const c = CH[u.ch]; const ai = isAi(u);
                   const thread = parseLegacyManualThread(u);
                   return (
@@ -354,7 +352,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                                   {!isOpen && <div className="lcf-thread-preview">{thread.messages[0].author}: {snip(thread.messages[0].body)}…</div>}
                                   <button type="button" className="lcf-more" aria-expanded={isOpen}
                                     aria-controls={`thread-${u.id}`}
-                                    onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>
+                                    onClick={() => { setExp(e => ({ ...e, [rid]: !e[rid] })); setFocusedThreadId(isOpen ? null : u.id); }}>
                                     {isOpen ? "סגור שרשור ▴" : thread.count > 1 ? `פתח שרשור · ${thread.count} הודעות ▾` : "קרא הודעה ▾"}
                                   </button>
                                   {isOpen && <ol id={`thread-${u.id}`} className="lcf-thread-messages">
@@ -386,7 +384,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                     </div>
                   );
                 })}
-              {items.length > 0 && (
+              {items.length > 0 && !focusedThread && (
                 <div className="lcf-foot">
                   <Link to="/broadcasts" onClick={() => { if (!docked) closeSiteUpdates(); }}>📡 כל העדכונים · מרכז השידורים ←</Link>
                   <span className="sub">הגעת לסוף — כאן כל הערוצים במלואם</span>
