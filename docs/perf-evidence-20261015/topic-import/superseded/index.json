@@ -1,0 +1,34 @@
+[
+  {
+    "file": "superseded/navigation-production-renderer-clock-superseded.json.gz",
+    "samples": 14,
+    "completed": 14,
+    "interrupted": 0,
+    "excludedFromAllConclusions": true,
+    "reason": "Renderer clock awaited inside request interception before response delay/fulfillment; biased timing"
+  },
+  {
+    "file": "superseded/navigation-preview-renderer-clock-superseded.json.gz",
+    "samples": 3,
+    "completed": 2,
+    "interrupted": 1,
+    "excludedFromAllConclusions": true,
+    "reason": "Renderer clock awaited inside request interception before response delay/fulfillment; biased timing"
+  },
+  {
+    "file": "superseded/navigation-production-unsettled-dom-superseded.json.gz",
+    "samples": 14,
+    "completed": 14,
+    "interrupted": 0,
+    "excludedFromAllConclusions": true,
+    "reason": "Fixed 1200ms snapshot failed strict final visible-text parity while A still showed Topic loading; interrupted remainder"
+  },
+  {
+    "file": "superseded/navigation-preview-unsettled-dom-superseded.json.gz",
+    "samples": 8,
+    "completed": 7,
+    "interrupted": 1,
+    "excludedFromAllConclusions": true,
+    "reason": "Fixed 1200ms snapshot failed strict final visible-text parity while A still showed Topic loading; interrupted remainder"
+  }
+]

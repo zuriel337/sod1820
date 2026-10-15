@@ -1,0 +1,10 @@
+✔ ordinary Topic code does not statically load the optional source story and method Stage (83.126157ms)
+✔ the existing World deferrals remain intact (49.784927ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 267.186864

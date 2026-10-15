@@ -1,0 +1,370 @@
+{
+  "redaction": "SHA256 replaces live DOM text, dynamic topic paths, source IDs and request URLs/bodies. Only timings/counts/statuses/hashes and repository build asset names are published. Raw snapshots remain local.",
+  "samplesPerArm": 7,
+  "fixtureSha256": "f8517c685264a79587f46574ffb7969ffdb943828503fa81b20417680bcd6d93",
+  "browser": "151.0.7922.173",
+  "profile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "dpr": 2,
+    "cpu": 4,
+    "rtt": 150,
+    "download": 209715.2,
+    "upload": 96000,
+    "theme": "dark",
+    "identity": "anonymous",
+    "motion": "reduce"
+  },
+  "parity": "PASS: per-pair identical request/response multiset, target and ordered visible text/topic identity at all three steps; trusted clicks; zero misses/page errors/unexplained read failures",
+  "knownDenial": "401/42501 on research_objects; actual captured denial body retained unchanged in both arms; authenticated grants not retested by this lane",
+  "readCounts": [
+    [
+      159,
+      159,
+      159,
+      159,
+      159,
+      159,
+      159
+    ],
+    [
+      159,
+      159,
+      159,
+      159,
+      159,
+      159,
+      159
+    ]
+  ],
+  "deniedCounts": [
+    [
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8
+    ],
+    [
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8
+    ]
+  ],
+  "coldReady": {
+    "aMedian": 5735.5,
+    "bMedian": 5750.799999999814,
+    "delta": 15.299999999813735,
+    "percent": 0.26675965477838126,
+    "aRange": [
+      5487.199999999255,
+      7040.899999999441
+    ],
+    "bRange": [
+      5573.5,
+      6145.200000000186
+    ],
+    "pairedBootstrap95": [
+      -688.3999999985099,
+      412.80000000074506
+    ]
+  },
+  "lcp": {
+    "aMedian": 5744,
+    "bMedian": 5764,
+    "delta": 20,
+    "percent": 0.3481894150417775,
+    "aRange": [
+      5492,
+      7028
+    ],
+    "bRange": [
+      5652,
+      6228
+    ],
+    "pairedBootstrap95": [
+      -800,
+      396
+    ]
+  },
+  "coldCls": {
+    "aMedian": 0.03695131061476174,
+    "bMedian": 0.03695131061476174,
+    "delta": 0,
+    "percent": 0,
+    "aRange": [
+      0.03695131061476174,
+      0.03695131061476174
+    ],
+    "bRange": [
+      0.00007661682559483599,
+      0.03695131061476174
+    ],
+    "pairedBootstrap95": [
+      0,
+      0
+    ]
+  },
+  "initialJsEncodedBytes": {
+    "aMedian": 454566,
+    "bMedian": 454594,
+    "delta": 28,
+    "percent": 0.006159721580578648,
+    "aRange": [
+      454566,
+      454566
+    ],
+    "bRange": [
+      454594,
+      454594
+    ],
+    "pairedBootstrap95": [
+      28,
+      28
+    ]
+  },
+  "steps": [
+    {
+      "name": "World→Topic",
+      "timing": {
+        "aMedian": 1766.7000000001863,
+        "bMedian": 1738.3999999994412,
+        "delta": -28.300000000745058,
+        "percent": -1.6018565687859865,
+        "aRange": [
+          1624.2000000001863,
+          3102.2999999998137
+        ],
+        "bRange": [
+          1680.9000000003725,
+          1948.4000000003725
+        ],
+        "pairedBootstrap95": [
+          -225.30000000074506,
+          77
+        ]
+      },
+      "identitySettledObservation": {
+        "aMedian": 4324.700000000186,
+        "bMedian": 4223.299999999814,
+        "delta": -101.40000000037253,
+        "percent": -2.3446713066887503,
+        "aRange": [
+          4080.5,
+          5609.899999999441
+        ],
+        "bRange": [
+          4123.800000000745,
+          4409
+        ],
+        "pairedBootstrap95": [
+          -241.90000000037253,
+          62.799999999813735
+        ]
+      },
+      "task": {
+        "aMedian": 1429.6490000000003,
+        "bMedian": 1721.4340000000004,
+        "delta": 291.7850000000001,
+        "percent": 20.409555072608732,
+        "aRange": [
+          1205.7339999999997,
+          3992.731999999999
+        ],
+        "bRange": [
+          1486.0319999999997,
+          1898.8139999999999
+        ],
+        "pairedBootstrap95": [
+          -79.38700000000017,
+          465.17299999999955
+        ]
+      },
+      "cls": {
+        "aMedian": 0.005686611381156774,
+        "bMedian": 0.005686611381156774,
+        "delta": 0,
+        "percent": 0,
+        "aRange": [
+          0.002535320410592754,
+          0.005686611381156774
+        ],
+        "bRange": [
+          0.005686611381156774,
+          0.005686611381156774
+        ],
+        "pairedBootstrap95": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "name": "Back→World",
+      "timing": {
+        "aMedian": 1026.2310910000087,
+        "bMedian": 1096.0817670000033,
+        "delta": 69.85067599999456,
+        "percent": 6.806525022734267,
+        "aRange": [
+          826.5830150000002,
+          1461.1590069999947
+        ],
+        "bRange": [
+          808.2362739999953,
+          1534.773573999999
+        ],
+        "pairedBootstrap95": [
+          -130.00655699998606,
+          551.3186549999809
+        ]
+      },
+      "identitySettledObservation": {
+        "aMedian": 3625.649096000001,
+        "bMedian": 3882.124339000002,
+        "delta": 256.4752430000008,
+        "percent": 7.073912455647102,
+        "aRange": [
+          3549.146880000015,
+          4081.717074
+        ],
+        "bRange": [
+          3391.7803760000097,
+          4391.866478999989
+        ],
+        "pairedBootstrap95": [
+          -21.574256999971112,
+          672.7087149999934
+        ]
+      },
+      "task": {
+        "aMedian": 1843.0289999999995,
+        "bMedian": 2090.991,
+        "delta": 247.96200000000044,
+        "percent": 13.454047657416158,
+        "aRange": [
+          1705.7440000000001,
+          2374.803999999999
+        ],
+        "bRange": [
+          1651.9679999999992,
+          2445.074
+        ],
+        "pairedBootstrap95": [
+          -183.60099999999943,
+          651.895999999999
+        ]
+      },
+      "cls": {
+        "aMedian": 2.0967193213415856,
+        "bMedian": 2.0967193213415856,
+        "delta": 0,
+        "percent": 0,
+        "aRange": [
+          2.0909413430573167,
+          2.0985753508931824
+        ],
+        "bRange": [
+          2.071984934211038,
+          2.1233272762486326
+        ],
+        "pairedBootstrap95": [
+          -0.003747751979187086,
+          0.0031409730873184216
+        ]
+      }
+    },
+    {
+      "name": "Forward→Topic",
+      "timing": {
+        "aMedian": 980.8017319999926,
+        "bMedian": 988.50667599999,
+        "delta": 7.70494399999734,
+        "percent": 0.7855761005117534,
+        "aRange": [
+          944.8693950000015,
+          1085.7595530000108
+        ],
+        "bRange": [
+          932.235354000004,
+          1203.8180939999875
+        ],
+        "pairedBootstrap95": [
+          -115.57218100000318,
+          141.13646800001152
+        ]
+      },
+      "identitySettledObservation": {
+        "aMedian": 3537.130895999988,
+        "bMedian": 3578.2290090000024,
+        "delta": 41.098113000014564,
+        "percent": 1.1619053466890517,
+        "aRange": [
+          3481.2707410000003,
+          3726.5673739999766
+        ],
+        "bRange": [
+          3457.208564999979,
+          3781.140210999991
+        ],
+        "pairedBootstrap95": [
+          -65.2190020000271,
+          97.06157099999837
+        ]
+      },
+      "task": {
+        "aMedian": 752.4730000000011,
+        "bMedian": 794.6829999999991,
+        "delta": 42.20999999999799,
+        "percent": 5.60950359680652,
+        "aRange": [
+          676.0420000000007,
+          797.6619999999999
+        ],
+        "bRange": [
+          602.9219999999996,
+          1014.5909999999993
+        ],
+        "pairedBootstrap95": [
+          -90.37000000000012,
+          116.96499999999776
+        ]
+      },
+      "cls": {
+        "aMedian": 0.0031512909705640204,
+        "bMedian": 0.0031512909705640204,
+        "delta": 0,
+        "percent": 0,
+        "aRange": [
+          0.0031512909705640204,
+          0.0031512909705640204
+        ],
+        "bRange": [
+          0.0031512909705640204,
+          0.0031512909705640204
+        ],
+        "pairedBootstrap95": [
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "identityHashes": [
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2",
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2",
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2",
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2",
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2",
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2",
+    "16484cdae2a6dce5a1febb070c67959f4f8b1a4b8a1ffd729ef19b3bc26d8fc2"
+  ]
+}

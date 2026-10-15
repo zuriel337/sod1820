@@ -1,0 +1,69 @@
+[
+  {
+    "check": "source-import-boundary",
+    "command": [
+      "node",
+      "--test",
+      "test/topic-source-import-boundary-2029.test.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "isolation",
+    "command": [
+      "node",
+      "scripts/test-2029-isolation.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "world-surface",
+    "command": [
+      "node",
+      "scripts/test-2029-world-surface.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "route-legitimacy",
+    "command": [
+      "node",
+      "scripts/test-route-legitimacy-2029.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "native-bundle-budget",
+    "command": [
+      "node",
+      "--test",
+      "scripts/test-2029-bundle-budget.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "native-built-graph",
+    "command": [
+      "node",
+      "scripts/test-2029-built-graph.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "preview-bundle-budget",
+    "command": [
+      "node",
+      "--test",
+      "scripts/test-2029-bundle-budget.mjs"
+    ],
+    "exit": 0
+  },
+  {
+    "check": "preview-built-graph",
+    "command": [
+      "node",
+      "scripts/test-2029-built-graph.mjs"
+    ],
+    "exit": 0
+  }
+]

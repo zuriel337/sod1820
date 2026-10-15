@@ -1,0 +1,71 @@
+{
+  "decision": "NOT_ADOPTED",
+  "baselineCommit": "a1f7cd0b08674daf89c98a666fc9676efca80998",
+  "candidateProductPath": "src/pages/Topic2029Page.jsx",
+  "candidateProductGitBlob": "a757a78aac0370c5b8cb71170d684ce6f61d9c36",
+  "candidateProductSha256": "fd420e86abef825880f805ce5b308792ab7fef3cfb339a334ff59bedccbdb4cf",
+  "packageLockSha256": "b33e43bc391edaf257042fb088501c8a1cebd3e47b2e80ef3dd567edad202ff5",
+  "node": "v24.19.0",
+  "packageNodeEngine": ">=24.9.0 <25",
+  "buildTarget": "SOD_BUILD_TARGET=2029",
+  "profiles": {
+    "native": {
+      "VITE_INTEGRATED_PREVIEW": "unset/false",
+      "VITE_KINGDOM_PREVIEW": "unset/false"
+    },
+    "preview": {
+      "VITE_INTEGRATED_PREVIEW": "true",
+      "VITE_KINGDOM_PREVIEW": "true",
+      "note": "local Vite build; no read-only service worker wrapper"
+    }
+  },
+  "fixtureSnapshots": {
+    "production": {
+      "sha256": "f8517c685264a79587f46574ffb7969ffdb943828503fa81b20417680bcd6d93",
+      "localOnly": true,
+      "publishedRepresentation": "response status, byte count, body hash and request signature hash within each report"
+    },
+    "preview": {
+      "sha256": "7d4f17b97843847aa13b332d91fe83e2dc53044fa9c9027b5b6b601cc2b0de3d",
+      "localOnly": true,
+      "publishedRepresentation": "response status, byte count, body hash and request signature hash within each report"
+    }
+  },
+  "measurementScriptSha256": "c98e022c7b1f237d62516a3c40cad00f8166f51485d6089674187859fa69929f",
+  "superseded": [
+    {
+      "file": "superseded/navigation-production-renderer-clock-superseded.json.gz",
+      "samples": 14,
+      "completed": 14,
+      "interrupted": 0,
+      "excludedFromAllConclusions": true,
+      "reason": "Renderer clock awaited inside request interception before response delay/fulfillment; biased timing"
+    },
+    {
+      "file": "superseded/navigation-preview-renderer-clock-superseded.json.gz",
+      "samples": 3,
+      "completed": 2,
+      "interrupted": 1,
+      "excludedFromAllConclusions": true,
+      "reason": "Renderer clock awaited inside request interception before response delay/fulfillment; biased timing"
+    },
+    {
+      "file": "superseded/navigation-production-unsettled-dom-superseded.json.gz",
+      "samples": 14,
+      "completed": 14,
+      "interrupted": 0,
+      "excludedFromAllConclusions": true,
+      "reason": "Fixed 1200ms snapshot failed strict final visible-text parity while A still showed Topic loading; interrupted remainder"
+    },
+    {
+      "file": "superseded/navigation-preview-unsettled-dom-superseded.json.gz",
+      "samples": 8,
+      "completed": 7,
+      "interrupted": 1,
+      "excludedFromAllConclusions": true,
+      "reason": "Fixed 1200ms snapshot failed strict final visible-text parity while A still showed Topic loading; interrupted remainder"
+    }
+  ],
+  "scope": "Topic optional technical import only; no reader, flags, World/Home, SQL, product-data, hosting or budget edits",
+  "captureLimit": "Fresh anonymous public bounded captures; known 401/42501 retained; authenticated grants not verified; bodies withheld from publication."
+}

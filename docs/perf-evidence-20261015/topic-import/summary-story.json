@@ -1,0 +1,66 @@
+{
+  "pairs": 7,
+  "fixtureSha256": "7d4f17b97843847aa13b332d91fe83e2dc53044fa9c9027b5b6b601cc2b0de3d",
+  "parity": "PASS: full Topic/source story, method identities, Stage present, disclosure open and exact request/response multiset",
+  "errorRecovery": "PASS: primary survives optional module failure; reload recovers full story and method Stage",
+  "primaryReady": {
+    "aMedian": 5721.899999999441,
+    "bMedian": 5495.800000000745,
+    "delta": -226.09999999869615,
+    "percent": -3.9514846466858655,
+    "pairedBootstrap95": [
+      -582.7000000001863,
+      629
+    ]
+  },
+  "storyReady": {
+    "aMedian": 7000.5999999996275,
+    "bMedian": 7337.200000000186,
+    "delta": 336.6000000005588,
+    "percent": 4.808159300639603,
+    "pairedBootstrap95": [
+      -151.69999999925494,
+      1526.7999999998137
+    ]
+  },
+  "lcp": {
+    "aMedian": 5744,
+    "bMedian": 5664,
+    "delta": -80,
+    "percent": -1.392757660167132,
+    "pairedBootstrap95": [
+      -484,
+      696
+    ]
+  },
+  "cls": {
+    "aMedian": 0.00261193723618759,
+    "bMedian": 0.00261193723618759,
+    "delta": 0,
+    "percent": 0,
+    "pairedBootstrap95": [
+      0,
+      0
+    ]
+  },
+  "readCounts": [
+    [
+      60,
+      60,
+      60,
+      60,
+      60,
+      60,
+      60
+    ],
+    [
+      60,
+      60,
+      60,
+      60,
+      60,
+      60,
+      60
+    ]
+  ]
+}

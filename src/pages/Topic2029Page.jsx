@@ -1,5 +1,5 @@
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
@@ -12,7 +12,6 @@ import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInput
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
 import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
-import WorldSourceStory from '../components/research/WorldSourceStory.jsx';
 import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js';
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
@@ -22,6 +21,20 @@ import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRati
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
 const sourceDiscoveryEnabled = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+
+// This optional source view owns the method Stage. Its code must not gate an
+// ordinary Topic's first read; the existing visibility/access gate below owns mounting.
+const WorldSourceStory = lazy(() => import('../components/research/WorldSourceStory.jsx'));
+class TopicSourceLoadBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return <FrameState kind="unavailable" title="תצוגת החיבורים לא נטענה כעת">
+      <button type="button" className="sod29-action" onClick={() => window.location.reload()}>טען מחדש וחזור לאותה תצוגה</button>
+    </FrameState>;
+  }
+}
 
 function TopicMapNav({ items = [] }) {
   if (!items.length) return null;
@@ -589,7 +602,11 @@ function TopicBody() {
     </section>
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
-      {sourceDiscoveryEnabled ? <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} /> : null}
+      {sourceDiscoveryEnabled && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) ? <TopicSourceLoadBoundary>
+        <Suspense fallback={<p role="status">פותח את המקורות ובודק את החיבורים…</p>}>
+          <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} />
+        </Suspense>
+      </TopicSourceLoadBoundary> : null}
       <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
       {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
       <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
