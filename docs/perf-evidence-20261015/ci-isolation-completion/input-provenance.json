@@ -1,0 +1,48 @@
+{
+  "status": "BLOCKED_NO_COMPLETE_REVIEWED_INPUT",
+  "sources": [
+    {
+      "name": "PR1110 private frozen snapshot",
+      "reference": "docs/perf-evidence-20261015/cold-measurement/build-receipt.json at 8965f1b6",
+      "date": "2026-10-15",
+      "sha256": "224ebd7b6232c72fb9003fb27f90938e2be36372752728ac7ef10cea001c6c9f",
+      "available": false,
+      "access": "private local scratch; no current complete approved staging source identified",
+      "coverage": "not reconstructable from timing reports"
+    },
+    {
+      "name": "scroll integration combined and identical f2",
+      "reference": "339d695bdb6f7888b1883f6d4caa9f291a96bcf5:docs/perf-evidence-20261015/scroll-integration/fixtures-combined.json.gz",
+      "date": "2026-10-15T02:42:16Z (committing source, capture time not independently reconstructed)",
+      "sha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+      "available": true,
+      "access": "already tracked in public repository; NOT approved here for body republication",
+      "responses": 106,
+      "coverage": "partial; no required primary Post bodies, fn_number_lookup or header signatures; images UTF8 damaged"
+    },
+    {
+      "name": "reviewer topic preview",
+      "reference": "/workspace/scratch/topic-import/snapshot-preview.json.gz; central review f63268a3",
+      "date": "2026-10-15 (review date; capture time unknown here)",
+      "sha256": "7d4f17b97843847aa13b332d91fe83e2dc53044fa9c9027b5b6b601cc2b0de3d",
+      "available": false,
+      "access": "reviewer-local scratch absent from current environment",
+      "responsesReportedByReview": 136,
+      "coverage": "partial per review; no claim of reinspection"
+    },
+    {
+      "name": "reviewer topic production-named experiment",
+      "reference": "/workspace/scratch/topic-import/snapshot-production.json.gz; central review f63268a3",
+      "date": "2026-10-15 (review date; capture time unknown here)",
+      "sha256": "f8517c685264a79587f46574ffb7969ffdb943828503fa81b20417680bcd6d93",
+      "available": false,
+      "access": "reviewer-local scratch absent from current environment",
+      "responsesReportedByReview": 86,
+      "coverage": "partial per review; name is not current live parity proof"
+    }
+  ],
+  "newLiveCapture": false,
+  "privateBodyPublication": false,
+  "liveInspection": "read-only relation policies/view/RPC source definitions only; no content export/capture",
+  "artifactInspection": "38783045975 artifact metadata and original upload paths; snapshots deliberately not uploaded; 38791521768 has no complete snapshot artifact"
+}

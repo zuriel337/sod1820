@@ -1,0 +1,51 @@
+{
+  "status": "UDP_FIXED_FULL_GATES_BLOCKED_BY_INPUT",
+  "previousHead": "da86e7e06771391e1b8003461e349fbc7204488f",
+  "beforeWorkLog": "318062ce-52bc-4e5d-af60-62c59e6fed40",
+  "local": {
+    "oldGuardReproduction": {
+      "cases": 4,
+      "localTrapHitsPerCase": 1,
+      "outerExit": 0,
+      "auditBytes": 0,
+      "expectedDefectObserved": true
+    },
+    "udpRegression": {
+      "passed": 14,
+      "forbiddenCases": 4,
+      "forbiddenTrapHits": 0,
+      "swallowedErrorOuterExit": 1
+    },
+    "snapshotContract": {
+      "passed": 11,
+      "semanticIncompleteNegativeKinds": [
+        "performance",
+        "navigation",
+        "browser"
+      ]
+    },
+    "config": {
+      "passed": 3
+    },
+    "finalFocused": {
+      "passed": 28,
+      "auditBytes": 0
+    },
+    "fullHardSource": {
+      "status": "PASS",
+      "auditBytes": 0,
+      "boundary": "native preload + Node + browser fixtures on host; not local GitHub netns",
+      "includes": "A3 5 memory spans/9 persistence failures; production build and budgets; PR1110 tests including 4 Chromium; 17 egress controls; 36 source/image golden tests"
+    },
+    "performanceReplay": "BLOCKED_MISSING_COMPLETE_REVIEWED_SNAPSHOT",
+    "navigationReplay": "BLOCKED_MISSING_COMPLETE_REVIEWED_SNAPSHOT",
+    "fullBrowser": "BLOCKED_MISSING_COMPLETE_REVIEWED_SNAPSHOT",
+    "matchedSamples": 0,
+    "imageFunctionalCasesRun": 0
+  },
+  "remote": "See exact new-head run linked in PR1111 description and passive AFTER; this is the pre-push local receipt",
+  "liveA3Acceptance": "NOT_RUN",
+  "traceFinishProductFix": "OUT_OF_SCOPE_UNCHANGED",
+  "integration": "14e239b47e5ec6b95eaad4e1b368520512642217",
+  "main": "503b52ef169b6e51f967187491398d153090aa45"
+}

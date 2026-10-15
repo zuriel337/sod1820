@@ -1,6 +1,5 @@
 const fs = require('node:fs');
 const crypto = require('node:crypto');
-const zlib = require('node:zlib');
 function requireIsolation() {
   if (process.env.SOD_CI_ISOLATION !== '1' || !process.env.SOD_CI_AUDIT || !process.env.SOD_CI_PORTS || !process.env.LD_PRELOAD)
     throw new Error('Run with scripts/ci-isolation/run.mjs; safe network configuration required before connecting');
@@ -32,13 +31,7 @@ function frozenSnapshot(file=process.env.SOD_CI_SNAPSHOT, digest=process.env.SOD
   if (!file || !/^[a-f0-9]{64}$/.test(digest || '')) throw new Error('A frozen SOD_CI_SNAPSHOT + exact SOD_CI_SNAPSHOT_SHA256 is required; no live fallback');
   const bytes=fs.readFileSync(file);
   if(crypto.createHash('sha256').update(bytes).digest('hex') !== digest) throw new Error('Frozen snapshot SHA256 mismatch');
-  const data=JSON.parse(zlib.gunzipSync(bytes));
-  if(!data || typeof data!=='object' || !Object.keys(data).length) throw new Error('Empty snapshot is not representative test data');
-  for(const [key,row] of Object.entries(data)){
-    if(!/^(GET|HEAD|POST|OPTIONS) https?:\/\//.test(key)||!row||!Number.isInteger(row.status)||row.status<100||row.status>599||typeof row.body!=='string'||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(row.body))
-      throw new Error('Malformed frozen response: '+key.split(' ')[0]);
-  }
-  return data;
+  return require('./snapshot-contract.cjs').decodeSnapshot(bytes);
 }
 const NORMALIZE = u => decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(?:Z|\+00:00| ?00:00)?/g,'TS');
 function fixtureKey(req, headers=false) {

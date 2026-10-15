@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-node -e "require('./scripts/ci-isolation/policy.cjs').frozenSnapshot()"
+node -e "require('./scripts/ci-isolation/snapshot-contract.cjs').requireCoverage(require('./scripts/ci-isolation/policy.cjs').frozenSnapshot(),'performance')"
 (cd "$RUNNER_TEMP/perf-base" && npm run build:2029)
 npm run build:2029
 mkdir -p "$RUNNER_TEMP/perf-results"

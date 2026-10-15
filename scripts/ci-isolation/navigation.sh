@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-node -e "require('./scripts/ci-isolation/policy.cjs').frozenSnapshot()"
+node -e "require('./scripts/ci-isolation/snapshot-contract.cjs').requireCoverage(require('./scripts/ci-isolation/policy.cjs').frozenSnapshot(),'navigation')"
 (cd "$RUNNER_TEMP/nav-base" && VERCEL_GIT_COMMIT_SHA=0825b326ea0fd9faa57b41d0d48bdadada9f3c7f node scripts/build-integrated-preview.mjs)
 node scripts/build-integrated-preview.mjs
 node --test test/perf-navigation-2029.test.mjs

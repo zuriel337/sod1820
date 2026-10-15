@@ -1,0 +1,23 @@
+[
+  {
+    "gate": "navigation",
+    "exit": 1,
+    "status": "BLOCKED_MISSING_REVIEWED_COMPLETE_SNAPSHOT",
+    "browserStarted": false,
+    "comparisonSamples": 0
+  },
+  {
+    "gate": "performance",
+    "exit": 1,
+    "status": "BLOCKED_MISSING_REVIEWED_COMPLETE_SNAPSHOT",
+    "browserStarted": false,
+    "comparisonSamples": 0
+  },
+  {
+    "gate": "browser",
+    "exit": 1,
+    "status": "BLOCKED_MISSING_REVIEWED_COMPLETE_SNAPSHOT",
+    "browserStarted": false,
+    "comparisonSamples": 0
+  }
+]

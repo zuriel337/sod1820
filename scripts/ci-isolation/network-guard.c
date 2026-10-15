@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/uio.h>
 #include <unistd.h>
 static void violation(const char *kind, const char *host, unsigned port) {
   const char *file=getenv("SOD_CI_AUDIT");
@@ -40,6 +41,18 @@ static int peerPermitted(int fd){
   if(!datagram(fd))return 1;
   struct sockaddr_storage sa;socklen_t len=sizeof(sa);
   return getpeername(fd,(struct sockaddr*)&sa,&len)!=0||permitted((struct sockaddr*)&sa,len);
+}
+// Connected UDP also accepts write/writev. Inspect the peer at every packet
+// transmission, while leaving packetless connect probes and ordinary files alone.
+ssize_t write(int fd,const void *buf,size_t n){
+  static ssize_t(*real)(int,const void*,size_t);if(!real)real=dlsym(RTLD_NEXT,"write");
+  int saved=errno;if(!peerPermitted(fd)){errno=EACCES;return -1;}errno=saved;
+  return real(fd,buf,n);
+}
+ssize_t writev(int fd,const struct iovec *iov,int count){
+  static ssize_t(*real)(int,const struct iovec*,int);if(!real)real=dlsym(RTLD_NEXT,"writev");
+  int saved=errno;if(!peerPermitted(fd)){errno=EACCES;return -1;}errno=saved;
+  return real(fd,iov,count);
 }
 ssize_t send(int fd,const void *buf,size_t n,int flags){
   static ssize_t(*real)(int,const void*,size_t,int);if(!real)real=dlsym(RTLD_NEXT,"send");

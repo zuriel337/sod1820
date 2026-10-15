@@ -90,6 +90,7 @@ node scripts/perf-execution-2029/measurement.test.mjs
 node scripts/perf-execution-2029/measurement.browser.test.mjs
 node test/ci-isolation/config.test.mjs
 node test/ci-isolation/egress.test.mjs
+node --test test/ci-isolation/udp-write.test.mjs test/ci-isolation/snapshot-contract.test.mjs
 # Preserve the existing post-replay source-fidelity gates even when a missing
 # snapshot blocks the separate replay step before it can reach its post-hook.
 node --test src/lib/research/goldenPostContextPacks.test.js src/lib/research/nasrallahPost92Golden.test.js src/components/experience2029/mobileReadingImage2029.test.js

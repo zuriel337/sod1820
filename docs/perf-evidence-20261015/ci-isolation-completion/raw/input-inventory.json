@@ -1,0 +1,102 @@
+[
+  {
+    "file": "docs/perf-evidence-20261015/scroll-integration/fixtures-combined.json.gz",
+    "sha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+    "bytes": 2976168,
+    "responses": 106,
+    "endpoints": {
+      "/rest/v1/posts": 22,
+      "/rest/v1/rpc/notification_prefs_guest_get_v1": 1,
+      "/rest/v1/site_flags": 1,
+      "/storage/v1/object/public/media/[asset]": 14,
+      "/rest/v1/rpc/fn_method_value": 1,
+      "/rest/v1/research_contributions": 3,
+      "/rest/v1/topic_cards_public": 17,
+      "/rest/v1/rpc/get_category_videos": 1,
+      "/rest/v1/contributors": 2,
+      "/rest/v1/gematria_words": 3,
+      "/rest/v1/els_records": 1,
+      "/rest/v1/nodes": 10,
+      "/rest/v1/rpc/world_group_source_arrivals_v2": 3,
+      "/rest/v1/rpc/convergence_meter": 6,
+      "/rest/v1/rpc/gematria_method_trace": 6,
+      "/rest/v1/rpc/fn_zero_scale": 2,
+      "/storage/v1/object/public/gallery/[asset]": 3,
+      "/storage/v1/render/image/public/media/[asset]": 1,
+      "/rest/v1/comments": 1,
+      "/rest/v1/gallery_images": 4,
+      "/rest/v1/galleries": 2,
+      "/rest/v1/edges": 1,
+      "/rest/v1/research_objects": 1
+    },
+    "legacyMd5Keys": 20,
+    "headerSignatures": 0,
+    "exactCounts": 10,
+    "requiredPrimaryPostsPresent": [],
+    "images": {
+      "count": 18,
+      "utf8ReplacementBodies": 18
+    },
+    "sensitiveFieldOccurrences": {
+      "author_user_id": 2,
+      "verified_by": 2,
+      "fb_post_id": 2,
+      "fb_error": 2,
+      "wa_names": 7,
+      "dossier_settings": 7,
+      "owner_user_id": 5
+    },
+    "eligibleAsCompleteCiInput": false,
+    "bodyPublication": "NOT_APPROVED_BY_THIS_INVENTORY"
+  },
+  {
+    "file": "docs/perf-evidence-20261015/scroll-integration/fixtures-f2.json.gz",
+    "sha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+    "bytes": 2976168,
+    "responses": 106,
+    "endpoints": {
+      "/rest/v1/posts": 22,
+      "/rest/v1/rpc/notification_prefs_guest_get_v1": 1,
+      "/rest/v1/site_flags": 1,
+      "/storage/v1/object/public/media/[asset]": 14,
+      "/rest/v1/rpc/fn_method_value": 1,
+      "/rest/v1/research_contributions": 3,
+      "/rest/v1/topic_cards_public": 17,
+      "/rest/v1/rpc/get_category_videos": 1,
+      "/rest/v1/contributors": 2,
+      "/rest/v1/gematria_words": 3,
+      "/rest/v1/els_records": 1,
+      "/rest/v1/nodes": 10,
+      "/rest/v1/rpc/world_group_source_arrivals_v2": 3,
+      "/rest/v1/rpc/convergence_meter": 6,
+      "/rest/v1/rpc/gematria_method_trace": 6,
+      "/rest/v1/rpc/fn_zero_scale": 2,
+      "/storage/v1/object/public/gallery/[asset]": 3,
+      "/storage/v1/render/image/public/media/[asset]": 1,
+      "/rest/v1/comments": 1,
+      "/rest/v1/gallery_images": 4,
+      "/rest/v1/galleries": 2,
+      "/rest/v1/edges": 1,
+      "/rest/v1/research_objects": 1
+    },
+    "legacyMd5Keys": 20,
+    "headerSignatures": 0,
+    "exactCounts": 10,
+    "requiredPrimaryPostsPresent": [],
+    "images": {
+      "count": 18,
+      "utf8ReplacementBodies": 18
+    },
+    "sensitiveFieldOccurrences": {
+      "author_user_id": 2,
+      "verified_by": 2,
+      "fb_post_id": 2,
+      "fb_error": 2,
+      "wa_names": 7,
+      "dossier_settings": 7,
+      "owner_user_id": 5
+    },
+    "eligibleAsCompleteCiInput": false,
+    "bodyPublication": "NOT_APPROVED_BY_THIS_INVENTORY"
+  }
+]
