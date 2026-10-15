@@ -1,0 +1,49 @@
+{
+  "experiment": "new-offline-public-corpus-v1",
+  "acceptance": "INCOMPLETE_FAIL_NOT_ACCEPTED",
+  "sourceGate": {
+    "result": "PASS",
+    "auditBytes": 0,
+    "log": "source-full.log.gz",
+    "isolation": "host native + Node guards, local traps; OS network-none separately used for browser probes and image/gate invocations"
+  },
+  "mobileImages": {
+    "result": "PASS",
+    "cases": 16,
+    "snapshotSha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
+    "auditBytes": 0,
+    "isolation": "Docker network=none, cap-drop ALL, no-new-privileges, loopback only, native/Node/browser guards"
+  },
+  "catalog": {
+    "result": "PASS",
+    "initial": 2,
+    "fullPage": 24,
+    "headerCountOrderContinuation": "PASS",
+    "scope": "frozen canonical public-query corpus, not live parity or full browser navigation acceptance"
+  },
+  "privacy": {
+    "result": "PASS",
+    "tests": 12,
+    "negativeCases": 10,
+    "retainedPayloadPrivateFieldPaths": 0,
+    "emailOrContactLinkCandidates": 0
+  },
+  "reproduction": {
+    "result": "PASS",
+    "byteIdenticalFiles": 6
+  },
+  "matchedSevenSampleComparisons": "NOT_RUN_INPUT_PREFLIGHT_FAILED",
+  "navigationBrowserCatalogInteractions": "NOT_RUN_INPUT_PREFLIGHT_FAILED",
+  "extensionScenarios": "NOT_RUN_INPUT_PREFLIGHT_FAILED",
+  "WorldEntrySuites": "NOT_RUN_INPUT_PREFLIGHT_FAILED",
+  "liveA3Acceptance": "NOT_RUN_SEPARATE",
+  "productTraceFinish": "UNCHANGED_SEPARATE_PRODUCT_DEFECT",
+  "productDiffFromMeasurementBase": "EMPTY",
+  "localNode": "24.19.0",
+  "ciNode": "24.21.0",
+  "playwright": "1.56.1",
+  "pglite": "0.5.10",
+  "chromium": "141.0.7390.37",
+  "beforeWorkLog": "9ac4b378-ed6f-44c5-bec3-8b055edb044e",
+  "ownershipRechecked": "only this claim returned since BEFORE; dispatch NULL; branch-only no merge/deploy"
+}

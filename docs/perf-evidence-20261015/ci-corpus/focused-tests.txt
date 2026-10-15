@@ -1,0 +1,11 @@
+✔ test/ci-isolation/snapshot-contract.test.mjs (128.213131ms)
+✔ test/perf-navigation-2029.test.mjs (1158.473594ms)
+✔ test/perf-replay-gate-2029.test.mjs (135.849457ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1180.713808

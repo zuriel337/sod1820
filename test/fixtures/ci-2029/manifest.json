@@ -1,0 +1,161 @@
+{
+  "performance": {
+    "version": 1,
+    "experiment": "new-offline-public-corpus-v1",
+    "liveParity": false,
+    "sha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
+    "source": {
+      "reference": "test/fixtures/ci-2029/source-index.json",
+      "date": "2026-10-15",
+      "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2",
+      "access": "public-reviewed"
+    },
+    "privacyReview": {
+      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission",
+      "decision": "approved-for-this-location",
+      "publicAttribution": {
+        "authors": [
+          "",
+          "SOD1820",
+          "אלון לוי",
+          "בדרך לנצח",
+          "המערכת",
+          "הרב ווינטרוב זצ\"ל",
+          "הרב לוי סודרי",
+          "יניב לוי",
+          "יעקב קירש",
+          "מדריך לריפוי 10 הספירות",
+          "מזכה הרבים",
+          "מערכת כי לה׳ המלוכה",
+          "נריה דויטש",
+          "סוד החשמל",
+          "צבי",
+          "ציון סיבוני"
+        ],
+        "creators": [
+          "SOD1820",
+          "ZURIEL",
+          "agent:sod1820",
+          "ai",
+          "מנוע · gap-fill",
+          "מנוע · זהב אחר",
+          "מנוע · זהב לא-מחובר",
+          "צבי (OPOC)",
+          "רזיאל · כריסטינה",
+          "שמעון חיימוב"
+        ]
+      }
+    },
+    "coverage": {
+      "reference": "test/fixtures/ci-2029/coverage.json",
+      "passed": false
+    },
+    "readiness": "INCOMPLETE_NOT_ACCEPTED"
+  },
+  "navigation": {
+    "version": 1,
+    "experiment": "new-offline-public-corpus-v1",
+    "liveParity": false,
+    "sha256": "265bdbc1ae14a43f932e87427b2e5806d6ab2b9d5e224a7982b4de07c47bbd8f",
+    "source": {
+      "reference": "test/fixtures/ci-2029/source-index.json",
+      "date": "2026-10-15",
+      "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2",
+      "access": "public-reviewed"
+    },
+    "privacyReview": {
+      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission",
+      "decision": "approved-for-this-location",
+      "publicAttribution": {
+        "authors": [
+          "",
+          "SOD1820",
+          "אלון לוי",
+          "בדרך לנצח",
+          "המערכת",
+          "הרב ווינטרוב זצ\"ל",
+          "הרב לוי סודרי",
+          "יניב לוי",
+          "יעקב קירש",
+          "מדריך לריפוי 10 הספירות",
+          "מזכה הרבים",
+          "מערכת כי לה׳ המלוכה",
+          "נריה דויטש",
+          "סוד החשמל",
+          "צבי",
+          "ציון סיבוני"
+        ],
+        "creators": [
+          "SOD1820",
+          "ZURIEL",
+          "agent:sod1820",
+          "ai",
+          "מנוע · gap-fill",
+          "מנוע · זהב אחר",
+          "מנוע · זהב לא-מחובר",
+          "צבי (OPOC)",
+          "רזיאל · כריסטינה",
+          "שמעון חיימוב"
+        ]
+      }
+    },
+    "coverage": {
+      "reference": "test/fixtures/ci-2029/coverage.json",
+      "passed": false
+    },
+    "readiness": "INCOMPLETE_NOT_ACCEPTED"
+  },
+  "browser": {
+    "version": 1,
+    "experiment": "new-offline-public-corpus-v1",
+    "liveParity": false,
+    "sha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
+    "source": {
+      "reference": "test/fixtures/ci-2029/source-index.json",
+      "date": "2026-10-15",
+      "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2",
+      "access": "public-reviewed"
+    },
+    "privacyReview": {
+      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission",
+      "decision": "approved-for-this-location",
+      "publicAttribution": {
+        "authors": [
+          "",
+          "SOD1820",
+          "אלון לוי",
+          "בדרך לנצח",
+          "המערכת",
+          "הרב ווינטרוב זצ\"ל",
+          "הרב לוי סודרי",
+          "יניב לוי",
+          "יעקב קירש",
+          "מדריך לריפוי 10 הספירות",
+          "מזכה הרבים",
+          "מערכת כי לה׳ המלוכה",
+          "נריה דויטש",
+          "סוד החשמל",
+          "צבי",
+          "ציון סיבוני"
+        ],
+        "creators": [
+          "SOD1820",
+          "ZURIEL",
+          "agent:sod1820",
+          "ai",
+          "מנוע · gap-fill",
+          "מנוע · זהב אחר",
+          "מנוע · זהב לא-מחובר",
+          "צבי (OPOC)",
+          "רזיאל · כריסטינה",
+          "שמעון חיימוב"
+        ]
+      }
+    },
+    "coverage": {
+      "reference": "test/fixtures/ci-2029/coverage.json",
+      "passed": false
+    },
+    "readiness": "INCOMPLETE_NOT_ACCEPTED"
+  }
+}

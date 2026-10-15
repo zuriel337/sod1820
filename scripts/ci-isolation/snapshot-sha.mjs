@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import contract from './snapshot-contract.cjs';
+import privacy from './corpus-privacy.cjs';
 const kind=process.argv[2];
 if(!['browser','navigation','performance'].includes(kind))throw new Error('Unknown snapshot contract');
 const dir=path.resolve('test/fixtures/ci-2029'),manifest=path.join(dir,'manifest.json');
@@ -9,5 +10,7 @@ if(!fs.existsSync(manifest))throw new Error('BLOCKED: reviewed frozen CI snapsho
 const entry=JSON.parse(fs.readFileSync(manifest))[kind],file=path.join(dir,`${kind}.json.gz`);
 const bytes=fs.readFileSync(file);
 contract.verifyManifestEntry(entry,bytes);
-contract.requireCoverage(contract.decodeSnapshot(bytes),kind);
+const snapshot=contract.decodeSnapshot(bytes);
+privacy.reviewCorpus(snapshot,entry.privacyReview.publicAttribution);
+contract.requireCoverage(snapshot,kind);
 process.stdout.write(entry.sha256+'\n');

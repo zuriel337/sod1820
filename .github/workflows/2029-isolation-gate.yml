@@ -127,7 +127,7 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install pinned test tools without package hooks
         run: |
-          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2
+          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2 @electric-sql/pglite@0.5.10
           node "$RUNNER_TEMP/ci-tools/node_modules/playwright/cli.js" install --with-deps chromium
           echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/ci-tools" >> "$GITHUB_ENV"
           echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/ci-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
@@ -174,7 +174,7 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install pinned test tools without package hooks
         run: |
-          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2
+          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2 @electric-sql/pglite@0.5.10
           node "$RUNNER_TEMP/ci-tools/node_modules/playwright/cli.js" install --with-deps chromium
           echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/ci-tools" >> "$GITHUB_ENV"
           echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/ci-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
@@ -220,7 +220,7 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Install pinned test tools without package hooks
         run: |
-          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2
+          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2 @electric-sql/pglite@0.5.10
           node "$RUNNER_TEMP/ci-tools/node_modules/playwright/cli.js" install --with-deps chromium
           echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/ci-tools" >> "$GITHUB_ENV"
           echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/ci-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"

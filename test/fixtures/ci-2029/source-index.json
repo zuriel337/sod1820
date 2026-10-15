@@ -1,0 +1,1335 @@
+{
+  "acquisition": "out-of-CI only, read-only as anon; no live site navigation, AI, write/RPC fallback",
+  "coverageLimits": [
+    "Bennett 5113 is tagged draft; full required Golden body not read/exported.",
+    "Canonical 5116 content is full 1778 characters, 760 after HTML removal; unchanged preflight requires >=800.",
+    "Two World contributor requests await explicit public-card approval; no empty stand-in.",
+    "Runtime unknown-request auditing remains required; minimum semantic coverage is not full route parity."
+  ],
+  "date": "2026-10-15",
+  "experiment": "new-offline-public-corpus-v1",
+  "headerResolution": [],
+  "historicalComparison": false,
+  "homeScenario": "21 genuinely public non-draft source cards with actual source ordering and full original fields; 21-card volume preserved, excluding unapproved draft 5113. Explicit new public-only scenario, not raw unfiltered live-list parity.",
+  "liveParity": false,
+  "privacyProjection": {
+    "authors": "Only NULL in retained full Posts; verified NULL on canonical 5112/5116. No whole authors objects exported.",
+    "created_by": "200 independently admitted public display labels in the source catalog; omit unverified byline property on other 5 rows, retaining their approved public content.",
+    "excluded": [
+      "account IDs",
+      "contacts",
+      "emails",
+      "private dossiers",
+      "draft bodies/metadata",
+      "unverified attribution",
+      "operational engine_run_id/verified_run_id",
+      "unreviewed internal metadata"
+    ],
+    "wp_id": "User-approved technical public publication source ID; no routing/product changes."
+  },
+  "publicAttribution": {
+    "authors": [
+      "",
+      "SOD1820",
+      "אלון לוי",
+      "בדרך לנצח",
+      "המערכת",
+      "הרב ווינטרוב זצ\"ל",
+      "הרב לוי סודרי",
+      "יניב לוי",
+      "יעקב קירש",
+      "מדריך לריפוי 10 הספירות",
+      "מזכה הרבים",
+      "מערכת כי לה׳ המלוכה",
+      "נריה דויטש",
+      "סוד החשמל",
+      "צבי",
+      "ציון סיבוני"
+    ],
+    "creators": [
+      "SOD1820",
+      "ZURIEL",
+      "agent:sod1820",
+      "ai",
+      "מנוע · gap-fill",
+      "מנוע · זהב אחר",
+      "מנוע · זהב לא-מחובר",
+      "צבי (OPOC)",
+      "רזיאל · כריסטינה",
+      "שמעון חיימוב"
+    ]
+  },
+  "records": [
+    {
+      "bytes": 888,
+      "key": "GET https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "74ab1753dafbedb8dfb7e5340d24d3b729a05c4189f330fb27fc81e08d32498f",
+      "status": 200,
+      "type": "text/css"
+    },
+    {
+      "bytes": 128812,
+      "key": "GET https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n5ig.ttf  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "a7fdc993f9f0387caedba4e42521136fa97e4c0837ae6239bf0413ccf8af00c2",
+      "status": 200,
+      "type": "font/ttf"
+    },
+    {
+      "bytes": 131040,
+      "key": "GET https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQP8lc.ttf  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "5b2232ff598dd39860f606526399f64be06f0c286a638bad8a83e98c44c41ff6",
+      "status": 200,
+      "type": "font/ttf"
+    },
+    {
+      "bytes": 129916,
+      "key": "GET https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJ8lc.ttf  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "4fc14a73ca53ba9d32fd759ae1ca1a3133326035d0dd337862b3ee1633cc156e",
+      "status": 200,
+      "type": "font/ttf"
+    },
+    {
+      "bytes": 133444,
+      "key": "GET https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAO8lc.ttf  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "754dfc9d50cf7aabfb6b108d2c2f7d20a3f1f2cc6f6c01640c6728091272cec0",
+      "status": 200,
+      "type": "font/ttf"
+    },
+    {
+      "bytes": 9074,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/channel_updates?select=id,text,image_url,thumb_url,created_at,priority,credit,expires_at,link_url&channel=eq.or-geula&image_url=not.is.null&or=(expires_at.is.null,expires_at.gt.TS)&order=priority.desc,created_at.desc&limit=12  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-11/*",
+      "sha256": "fe214b83121093821bb760c0fb7813f99ed1688fee1b8c58aa41569b1fa558bd",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/comments?select=*&post_wp_id=eq.36960&order=date.asc  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3779,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at&from_node=in.(9cd22c3e-be5c-4283-ba6d-f974530d4dbc,9e59d335-0e40-4646-817f-f683d30d6619)&relation_type=eq.related&metadata->>relation_role=eq.research_anchor_branch&order=created_at.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-8/*",
+      "sha256": "66b7f723fb16fbe268913dbd38e652143ab8c16f9a01df3014960babcc6758c8",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6410,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/els_records?select=id,slug,title,search_term,scope,skip_distance,direction,start_index,corpus_id,image_url,description,author_name,primary_number,anchor_numbers,source,created_at,self_published,status,visibility,owner_user_id&status=eq.published&visibility=eq.public&or=(source.is.null,source.neq.research)&order=created_at.desc,id.desc&offset=0&limit=5  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-4/*",
+      "sha256": "17935746aa00534bf1d85da94433a588905e5aa80adaa5954291a76dfaa184f9",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 489,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/galleries?select=id,wp_gallery_id,name&id=in.(9450243f-7d9a-4570-9533-f46116ecbf49,57b1849f-0b08-4709-8544-3f404e7ceed9,56971760-384f-42b0-8032-f2a0eb72cb0d,32ea3aab-afb4-45c6-bb2b-0c8498aed173,897946f3-c551-42a1-b504-ea1f9bf45172)&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-4/*",
+      "sha256": "ccba6b5cf3b2a9688516e04e4ab4fa98d6b22c0f72d6d956ee5ba2f3944aa95e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 889,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/galleries?select=id,wp_gallery_id,name&id=in.(9450243f-7d9a-4570-9533-f46116ecbf49,f7c33f71-6c09-4ba2-9650-4ff1047764a6,74701536-ff1c-4184-99cf-e088971ecf74,fd827e46-d3cc-48e9-8013-ab56ac8a4ead,2d1c54b9-9a67-4872-b7da-e24c5bf98167,bc53d79f-e54d-4667-ab9b-aa059873cc2f,57b1849f-0b08-4709-8544-3f404e7ceed9,c7c0c9ed-cf6a-403e-8ce5-d998a328a491,554073f3-4ac4-4459-badd-04b3752bfd70)&limit=320  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-8/*",
+      "sha256": "50fd46805312bd9490a56ca1e39795e3253aefbe5038d05aefab9060c37d03b7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 39399,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&id=in.(1ab8cc24-cc46-46ab-b267-f2debb65085c,6232be42-82a3-41ac-b4d3-004a21e48c7f,bdecbe7d-3bf8-475c-b8d8-788308adf3be,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,465bf326-6d0c-4fa9-b755-6f831b3b199e,00155e62-5627-4127-b57c-2784afa3f22d,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,96207e5d-ac80-4344-9e50-f50a8cc0a726,469059b8-749b-4809-83ea-68df62283cda,8940efb2-8423-4a27-a10a-d3fdd07cf595,9709efef-1c9a-47ad-8f21-a7e9f9da3714,58b3b31c-9119-439c-81cc-22de18176827)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&limit=64  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-12/*",
+      "sha256": "8c4e7609c776f665f5886cf5c673dd76c798d78b90a76791f1cf25d5ebe1edc5",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 8226,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&id=in.(6232be42-82a3-41ac-b4d3-004a21e48c7f,d9842a5a-5313-4d32-8e58-5f07fa29b887,62ffc447-fd91-4027-9fe9-4a19d09679fd,c502fa89-96f1-495b-aeb7-b16deaaa96b3)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&limit=12  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-3/*",
+      "sha256": "2ee4d00ff4187d20b776ec63d681963ebf76a2fbb2bc65cfcc00c4af7122efe7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 42006,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-13/*",
+      "sha256": "9aab674029746de7558c56fe02d388dfdbc22fbb9aaff7caf0e8f01541ca678f",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 11947,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-5/*",
+      "sha256": "a2b3191b6667c55c1d6c8f4e3ac73b3429d9cb1f4cb7e4b73b81713de0a8e070",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 413,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase,ragil,created_at,visibility_changed_at&is_verified=eq.true&is_published=eq.true&or=(is_encrypted.is.null,is_encrypted.eq.false)&order=created_at.desc.nullslast&limit=3  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "0280b7f7ab5c84755eb997dac44696df31fe3aa58b6def9232e568b5e0cb211d",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 514,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase,ragil,created_at,visibility_changed_at&is_verified=eq.true&is_published=eq.true&or=(is_encrypted.is.null,is_encrypted.eq.false)&order=visibility_changed_at.desc.nullslast&limit=3  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "7fedc9b553a6110b1b49c0cb3ece40923e6b3840bded51e725329576ba7609fe",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 8374,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,identity_key,metadata,is_active,created_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-5/*",
+      "sha256": "62f45c54d1a56773634462882c35221bef86fc28e3eca9961dd785493f92b04c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 248,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,axis_theme,is_active&is_active=eq.true&metadata->>role=eq.crown_anchor&limit=20  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "7f41be04992a9bbe848bb1b7e069496810894fc9b1db460ef65fde1f11434ac6",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1590,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,axis_theme,is_active&is_active=eq.true&metadata->>tier=eq.diamond&limit=40  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-1/*",
+      "sha256": "83c505658ebd7ff67068d0eff1d3442cf1596998c838f70ccc97f0a3f15b39b4",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 5711,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,axis_theme,is_active&is_active=eq.true&metadata->>tier=eq.gold&limit=120  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-22/*",
+      "sha256": "96891244d432339d70705dcbabb076c4156c95330351f1c22097d07428a98cb6",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2787,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&type=eq.event&is_active=eq.true&order=created_at.desc,id.asc&offset=0&limit=7  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-6/*",
+      "sha256": "6776294e509d587872ac8bb38ecfd2fad1a6169d9b582bf413ec913d1dc19969",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2428,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&type=eq.number&is_active=eq.true&order=created_at.desc,id.asc&offset=0&limit=11  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-10/*",
+      "sha256": "9d30f66111dbfd1535e4301553059e222bc76427289c0073e17d580ac991c764",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1541,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&type=eq.phrase&is_active=eq.true&order=created_at.desc,id.asc&offset=0&limit=7  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-6/*",
+      "sha256": "ae346ff43f10b587419901f24e6645fde10a832279345e7d58d0898435b29c3e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1277,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,metadata,is_active&id=in.(9e59d335-0e40-4646-817f-f683d30d6619,9d1f698b-3f01-47c8-b7ce-c6236e3cf013,ea54fec9-15bd-4f22-b06a-1f3387884244,153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d,c6b8f925-fcd4-4247-ba1a-c7b7d630b225,16519589-d5ef-4475-8641-db02546bcd10,df5f3644-4e3c-4736-b725-7b3f1e511a8c,476e609c-1407-4499-ac24-bd66f1eeb721,a1000001-0000-0000-0000-000000000009)&is_active=eq.true&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-8/*",
+      "sha256": "dbdea91176ba4e243cbbbc2a536fef98340137c819d2cda0ac91581f0d5904e8",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 373,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,metadata,is_active&type=eq.number&is_active=eq.true&label=in.(1820,776)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-1/*",
+      "sha256": "67989fa71c0ff1cde58d215f73d656fe223b6975eb4e8cb4b05a1f21b3fd07f6",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 197,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=rule_id,rule_version&type=eq.rule&is_active=eq.true&rule_id=in.(zero_scale_law,shitat_haechad_alef_law,zero_navigation,moment_clock_law)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-3/*",
+      "sha256": "3578213c71899d4435da62fda689269d4299fc022dcc7883d72692ad1f212b50",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 34890,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "83a0d51c1d30b239de26d5663f8e8c97447ee20c0032aac5222e06e545f31a65",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3456,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(seventh-to-tenth-sefirot-2027)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 30426,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,content,excerpt&id=eq.5018&categories=ov.{שבילי+שפה}&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&home_hidden=eq.false&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "f8e2dd636a25b4012c0dbe74f233e31683c687821d6ecb1bda79fc47f7ada083",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 220,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug&slug=in.(%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%a9%d7%94%d7%97%d7%9c%d7%94-%d7%91%d7%90%d7%96%d7%95%d7%a8-%d7%a2%d7%96%d7%94-%d7%91%d7%99%d7%95%d7%9d-%d7%a9%d7%9e%d7%97%d7%aa-%d7%aa%d7%95%d7%a8%d7%94-%d7%aa,המלחמה-שהחלה-באזור-עזה-ביום-שמחת-תורה-ת)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 220,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug&slug=in.(%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a2%d7%91%d7%a8%d7%aa-%d7%94%d7%90%d7%99%d7%99%d7%9d-%d7%94%d7%9e%d7%a6%d7%a8%d7%99%d7%9d-%d7%98%d7%99%d7%a8%d7%90%d7%9f-%d7%95%d7%a1%d7%a0%d7%a4%d7%99,רמזים-מהעברת-האיים-המצרים-טיראן-וסנפי)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 214,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug&slug=in.(710-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%94-%d7%93%d7%99%d7%a0%d7%99%d7%9d-%d7%9e%d7%aa%d7%95%d7%a7%d7%99%d7%9d-%d7%94%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-7-10-%d7%a9%d7%91%d7%a9%d7%95%d7%a8,710-גימטריה-דינים-מתוקים-המרמז-על-7-10-שבשור)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 93,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug&slug=in.(סכסוך-בין-איראן-לערב-הסעודית-לפני-הגאו,%d7%a1%d7%9b%d7%a1%d7%95%d7%9a-%d7%91%d7%99%d7%9f-%d7%90%d7%99%d7%a8%d7%90%d7%9f-%d7%9c%d7%a2%d7%a8%d7%91-%d7%94%d7%a1%d7%a2%d7%95%d7%93%d7%99%d7%aa-%d7%9c%d7%a4%d7%a0%d7%99-%d7%94%d7%92%d7%90%d7%95)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6729,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,categories,source,tags,home_hidden&slug=in.(mah-kore-mokesh-har-naftali,flydubai-fz1073-363-14000-remzei-geula,sharshar-elections-redemption-hints-draft,קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב,lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema,seventh-to-tenth-sefirot-2027,levi-sudri-hazarat-hanevua-habchirot-six-seven,remzei-geula-ai-sod-hashir,yam-hamelach-tiferet-geula,mah-kore-nza-hasoara,tashpav-tashpaz-787-hidden-connection,sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111,torat-haremez-mafteach-lagan-1258,koach-hashtika-dim5,ma-becha-nishar-kshehakol-mishtane-dim5,amcha-israel-party-melech-hamashiach)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-15/*",
+      "sha256": "b56860ec4e171c004964b2f55febeefc996d82c9aa88fcad651732eab3856e4c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6675,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,categories,source,tags,home_hidden&slug=in.(sod-hachashmal-esev-sade-behema-sukkot,mah-kore-mokesh-har-naftali,flydubai-fz1073-363-14000-remzei-geula,sharshar-elections-redemption-hints-draft,קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב,lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema,seventh-to-tenth-sefirot-2027,levi-sudri-hazarat-hanevua-habchirot-six-seven,remzei-geula-ai-sod-hashir,yam-hamelach-tiferet-geula,mah-kore-nza-hasoara,tashpav-tashpaz-787-hidden-connection,sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111,torat-haremez-mafteach-lagan-1258,koach-hashtika-dim5,ma-becha-nishar-kshehakol-mishtane-dim5)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-15/*",
+      "sha256": "54e308e9d189400f8249eb013934c18a30f87308e39e76f31c3975fcc3684290",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 428,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,tags,categories,source,home_hidden&slug=eq.mah-kore-mokesh-har-naftali&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "ffa613e452a42883bc172a1c079538b663911bfc4ab4cd78d1191b633c3b4919",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 370,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,tags,categories,source,home_hidden&slug=eq.sod-hachashmal-esev-sade-behema-sukkot&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "0570e6ca42df5cfeda7f4b11d4dc0ae5a51d919f2f6d6b0360cc0b25d743b6ed",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 65158,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=80  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-79/*",
+      "sha256": "532ce0101512e272d5d1314928c3fccc6d54380ca8209971c6171e7986b0cbc2",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1222,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,tags,home_hidden,date,modified,author,source&order=modified.desc.nullslast&offset=0&limit=24&categories=ov.{שבילי+שפה}&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "a9b6fdf48f553aa0a290e2703c3ce756f07d08e98ebe8538090038e71512cc02",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1876,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,tags,home_hidden,date,modified,author,source&order=modified.desc.nullslast&offset=0&limit=30&categories=ov.{הצופן+בסרטים}&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-1/*",
+      "sha256": "c05ac144c2dd0974611181c1c31bcab5e75d4b65e07429785ca3a2a1b46cb586",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 41073,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,tags,home_hidden,date,modified,author,source&order=modified.desc.nullslast&offset=0&limit=60&categories=ov.{מימד+חמש}&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-39/*",
+      "sha256": "0f336bbb61287171b857fbd6441236a6c9c2ba7acc4e53a444e054e4aa1b8957",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 13964,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,image_url,thumb_url,date,modified,tags,home_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-20/*",
+      "sha256": "13f17eb137c6d062df843949c8cfae08999c53beeb5f1cf99512261ea2f1fbd5",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4127,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/site_flags?select=key,enabled,message,mode  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-26/*",
+      "sha256": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6890,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-199/*",
+      "sha256": "4cbfeef8fef0aa059cebb774bc381b42cc81c2ee4d3485d118cd68cd65109184",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 245,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,numbers,highlight_numbers,quality,meter_score&numbers=ov.{112,89}&order=meter_score.desc.nullslast&limit=3  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "4716597119e1bc76eda173c37615f720aa610b7f06a3c0e60c9b0b9901eb1fdb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 765,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&slug=eq.india-axis&status=eq.approved  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "3b0c2c4ae6d431352b41f61db00b8f29c1d02d88865533023c274315578d0b1b",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1460,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "7942a8b2204f5b4d74fff49ceecb3a41576415bf62efe1a8aa069a70ef28fbe7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 22518,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&created_by=eq.צבי+(OPOC)&order=approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=61  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-60/*",
+      "sha256": "8cd3199e757d5e0c9011289c6cec8fb2ff653b5b183f6b12fbd50a8d6de92502",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6974,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&created_by=eq.צבי+(OPOC)&order=approved_at.desc.nullslast,id.asc.nullslast&offset=60&limit=61  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "60-77/*",
+      "sha256": "66310de5bb3ed56279d6860c5e9f1b6519d63dec68e6c17b8c4a970830411de8",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1700,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&numbers=cs.{878}&order=meter_score.desc.nullslast,approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=13  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "6942d98679bd16b752c005915067dacd011e95a786cc0cce197b3768c9b39acc",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 10154,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=25  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-24/*",
+      "sha256": "9b5f6a8c4ff4385b65cc9dc17e5923befca8adb92b994ede02357b0919bd5af1",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 16162,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=41  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-40/*",
+      "sha256": "ee5c881f6de4cdc9d412e884b7ab37ea0b9720d5367bbb073baf4a05c1670d94",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 12917,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=meter_score.desc.nullslast,approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=25  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-24/205",
+      "sha256": "adbb3eac89759152cafe6b45908bb494104411b268fc872b099ddad71159876d",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1400,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=meter_score.desc.nullslast,approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=3  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "07cbadf309b3bc5c55bf0458df789999463d91fdda360c0d806ae7e30aa8e857",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2454,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=meter_score.desc.nullslast,approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=5  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-4/*",
+      "sha256": "989309a1ee0f202748059f693da83842f75898046f539171a8d88aae48f1a888",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4744,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=meter_score.desc.nullslast,approved_at.desc.nullslast,id.asc.nullslast&offset=0&limit=9  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-8/*",
+      "sha256": "165b3f17d549128de2e6fdec0ebc481a563c861b6bd88d818321f7cb72a6f0fd",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 11884,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,quality,meter_score,created_by,created_at,approved_at,occurred_at&order=meter_score.desc.nullslast,approved_at.desc.nullslast,id.asc.nullslast&offset=2&limit=23  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "2-24/205",
+      "sha256": "8ebed63279b476ec54ea1af968f38984bf3f275e83624f70648f3a8390c69631",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 855,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id,findings,created_by,search_terms,image_ids,occurred_at&slug=eq.888-yeshua  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "92cc47b372f4dc8125b35c96e50f8365f1eafa0c252827c33e3f6f234ea37f5a",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1094,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id,findings,created_by,search_terms,image_ids,occurred_at&slug=eq.98-ikuv-geula  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "bb14a5ea0b4449c0593fd0bdff2e3217c818aab7814e467dcd29dcac62e565cc",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2616,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id,findings,created_by,search_terms,image_ids,occurred_at&slug=eq.india-axis  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "4e723c7687dc32e8cf080ee03e9ed57c42d3f0c332e615dd79fef14b6ea9ab85",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 93,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=slug,title&slug=eq.386-david-ben-yishai-tzipor  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 66,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=slug,title&slug=eq.gapfill-363  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 66,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=slug,title&slug=eq.gapfill-363&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 100,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=slug,title&slug=eq.gapfill-718  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 53,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=slug,title&slug=eq.india-axis  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 82895,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC023805C9B2BA07AADD04FF6A3646F4.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "c65e53f29142fb9c85dec53c35868a5b9729df32cba2c71eb96d305e951bb5e4",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 169091,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC11282B9F9B08C44760F6A158D5F853.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "ed7a3bb146ff213c6806cddce985d9808ce212df60cb30c9fb2db89b61ca1ccd",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 46269,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC8B47EC03D88B1D3840DEC103BEC859.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "bf95bdb1ef54a64d2a5fbe2965d8ad8b8ed59b9f3c440ac0ef976ce8b8588aee",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 88145,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACBA5EBF3A6336E0F4DF7951E3FBDCC3.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "dc4ecf04f4522740f5b626450ab4af0d7114d3316cdc479e12c0103a048d139e",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 425350,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "25892cf2e9a482ed43d67a43fdf13faae2970a40fe380fd7bebbd7c009b8e3f4",
+      "status": 200,
+      "type": "image/png"
+    },
+    {
+      "bytes": 89563,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/cards/dim5-koach-hashtika.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "ff30aaea891be0625efbe61276ed7bd039c576f8fe1dcafc65d5478a99144411",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 166524,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/cards/dim5-ma-becha-nishar.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "91e5865786077719fc50c927735b1cb2c811edad01587ac628c5f5db09cd28a3",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 46981,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/17562bdf-001b-4436-8da7-516d180420ae.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "dd903fa99f40073ae92b6e3f0ec868dd8ff3c4ab7eaf15d130d520346db38230",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 68815,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/24fe5173-a6ac-4a35-855e-5115006f790b.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "f0c3bbcaacacbb9b51ba3a78cd87ed6a8035af6df075685eb0dac3643f098972",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 9561,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/2b9f8ea8-fcfb-4501-b68c-9ff45f7488fc.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "fd30969bfa32cd726e6ddfdf5e59bd23bf6cce932df761c872a409131446191b",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 49194,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/373b1c77-38f6-48ec-907a-76ea0d36a43a.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "4bb600b4fa211d8712227d0d3142979811bc972db1dc409179981bd2ac056e3c",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 64413,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/6a3d5eeb-b8ac-4e3a-a0b1-99f94b4f4844.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "2879d97da2b951c813937d25861848166c6a0bebce05d0b6d5a352d716301995",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 66096,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/a1c37297-31f9-4895-aefe-4f6e305df20a.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "cb76446235347f4a5f7d3407df145f3f97d52417b550682995357d9ace2144b0",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 43437,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/aba409e4-9674-4ba2-a722-93b018e6bd44.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "2b4967d7fd0a15700d7d7615bf5725f6c572e27a0283fef4c18da5639b7fbbde",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 15354,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/channel-thumbs/ecad15ac-97e4-4224-9c20-3fc817b07e30.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "9a7ea16fff5a71be98d5c8b5c26ea542411da4c21645a29f7a8d1f457c32cdd7",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 190253,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "dc86a86e9b9cccf87a9f929347491a9bfebe9106529db58cce887fc1239d1baa",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 27944,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/6232be42-82a3-41ac-b4d3-004a21e48c7f.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "4f979947c7dcb6a3e1595914ca32ec1736ea2af4d7674f3e83138fd3151fa61e",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 31882,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/62ffc447-fd91-4027-9fe9-4a19d09679fd.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "f97d149823fa3f627a0ee6e34c0de64c0fdc53b01d8d81fd66e065f6a0efc490",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 45636,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/c/32fdbfd1-a729-4af3-807c-219c32155a8d.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "87516c62c263237292ba8467060b12438ff7cb8b5fc780e13892b8b79acc6bd3",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 28919,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/c/549495de-8f1b-4f95-bfa1-3ff8688a9a85.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "3cffacd61766fe5ad6d5e19a60ebf76a5344108d07b9c1e470b5d4781d1a638a",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 50974,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/c/944e4fff-2fc7-4ff3-b238-a078ded5ecfb.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "1ce8fa4749903390d640504492bd34d1766caf67dd5ea32e46bda69e92d2d23f",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 64448,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/c/d2e58001-c141-4d37-93f6-38c4ac7758ff.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "4eece8bc501834c6e83ff09e8f32c2c99de898271479a33ca39d736e58dc4269",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 18491,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/c502fa89-96f1-495b-aeb7-b16deaaa96b3.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7f22173b39204b24007771d143071c19da45e48062df471101dd916d3b871173",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 19372,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5100.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "ac6f3a7b8553fd67d92224466be265d34d3261b7a82cd769a50b4c6c06c5c5cf",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 25913,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5109.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "d2af2db4c67d82aed21a96cab4d61571127c6679acb21ad9c26b5852c039799f",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 29754,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/thumb-fast-v1.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "96889ba7b3d02387949f26432668a3267f07a20cdacad97ea59b3325d72320c7",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 296771,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "b34b1b7f661d2bb5a8489aba9ca9fd380b693e9d703f62022e9bfc8e24f79db0",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 23855,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/thumb-fast-v1.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7b85ef4d7b1474a2360fd14a480af8bcfb2b81e45b8d0e39cb669812b8817801",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 27310,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "339f612e42b2af76654bd6e1061f4fd7411a0ef6c3a9de5f6f052689c9284f4b",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 25085,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5115-cover-20261012/thumb-fast-v1.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "6d433390d696f22f84cb62d0f8f943a3ebe26a31060de33f69ae61697459cec3",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 213687,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "30ae8e0b9de79056b0af69b8435eebc590c372ad7fb6f3886b782c039ba37225",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 11426,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/thumb-fast-v1.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "efeba90dd74adfe4c6c42774f2695097b7fb0911e3b42e8395e1e5c8275dba3b",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 2436,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/10b548b4-ab22-40fc-a12c-5a622434f0bd/derivatives/poster.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "8cbaed9007fb35d085429ebcf83c49a0594f30bc1c70af567d1f51b4590d521e",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 16563,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/b3b67517-7c04-49aa-b2bb-986533e8b7c3/derivatives/preview.jpg  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "47a7313912dfbe2386b64df465271a9efe13ea78bc6cb49afd3514a0e8c46917",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 1873471,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "d60ac9ea78c51625f60c37034b17679e3606e2ef1f6b9e23f3bbbde67dcb1862",
+      "status": 200,
+      "type": "image/png"
+    },
+    {
+      "bytes": 7640,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "d8accd1d9b691f2ed58983fd504d233bf2a5973baaf0e78de634dd4b050d6f49",
+      "status": 200,
+      "type": "image/png"
+    },
+    {
+      "bytes": 53538,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "ba07b03256c673ee3eaefee40a18c30b642d089387f4d149e6f11d0dbd7f8d32",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "bytes": 0,
+      "key": "HEAD https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=(is_encrypted.is.null,is_encrypted.eq.false)  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-999/12584",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 0,
+      "key": "HEAD https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=(is_encrypted.is.null,is_encrypted.eq.false)&created_at=gte.TS  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-1/2",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 0,
+      "key": "HEAD https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=(is_encrypted.is.null,is_encrypted.eq.false)&created_at=gte.TS&visibility_changed_at=gte.TS  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/0",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 0,
+      "key": "HEAD https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=(is_encrypted.is.null,is_encrypted.eq.false)&visibility_changed_at=gte.TS  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/0",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 7606,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1202} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "dd52ee1866c4f07d8963d0bfe9d07e129b78f035b401e316864a10770d67acfb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 7780,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1820} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7db978333b3332c81295e40e558b5b1230b736e7710645aa573dd10dfed91f41",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3055,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":644} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "6e410a1b53bedb5be0a5da94722f03fb569c414239b3bad9de41acb54337ba39",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4628,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":878} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "2a8371e21d6959d5dcbc5f9e22dee36a6f584030601d0caeba6d51db7eb19c28",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6675,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":98} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "e8a8e41537e8f1bbee556c54b822be66c62cec5306e386ef8415d1960966c311",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"מילוי\",\"p_phrase\":\"משיח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "f1916530dae6514fd8ba7c17eadab5ba6739cbd9190b7f967adbe8744748c539",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "814fd2e8e45e9a6d3e1f6ff86867aaf2251ccd07f3eed02708fae286192c29e3",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "be1722b1d104ffb2753260682954754d9757b986013823c5df20f28e0f74e655",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "3daebbc6dfd81355f1cc9d9565ab4a4a53bda47f6117529409acc7acb55556bb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"הבחירות\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7b81eb727ed48055fa55c5e03aaa43f27b01bd9b1c8eb38f37a1ca541a79c1f7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "be1722b1d104ffb2753260682954754d9757b986013823c5df20f28e0f74e655",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"מלח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "349c41201b62db851192665c504b350ff98c6b45fb62a8a2161f78b6534d8de9",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"מלך ישראל\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7b81eb727ed48055fa55c5e03aaa43f27b01bd9b1c8eb38f37a1ca541a79c1f7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "814fd2e8e45e9a6d3e1f6ff86867aaf2251ccd07f3eed02708fae286192c29e3",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "62a0eae98b9fc0bd0ad941ae07ae5e2af545a64c8ddc43407bdfe6ae82addb4c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"נפתלי בנט\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7b81eb727ed48055fa55c5e03aaa43f27b01bd9b1c8eb38f37a1ca541a79c1f7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "3daebbc6dfd81355f1cc9d9565ab4a4a53bda47f6117529409acc7acb55556bb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_method_value {\"p_method_key\":\"רגיל\",\"p_phrase\":\"תשפז\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "fc091d39524c9d4b5b11f84f9132996a94ca01c9816d2db3b866bef1b0699d91",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 173803,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":1118} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-148/*",
+      "sha256": "768d7307401cb504c17e5f932e78db5e81e2c85e66dfcb8cf6c29b42b2b1e86b",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 421422,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":122} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-362/*",
+      "sha256": "59a7bdcd6cf14d2e798dda3e476212ea7842a5bc3d9ac5e73047455a07d572ee",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 185936,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":1237} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-158/*",
+      "sha256": "159554213835e87b78308e317d9661173b6284f3b440d2b43d3bb2ef492af77c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 125657,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":1326} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-106/*",
+      "sha256": "c0fcae750c5f8024803c626b870334c6a2f047b0c0f8d9f80fa212d8ca1ef14b",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 220998,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":1820} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-184/*",
+      "sha256": "ce213a9ccfd6e081a05834df4151a488c1f3c1a2e6f390d0be1f4b186989283b",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 215759,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":314} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-185/*",
+      "sha256": "df57443c8b42bb51b8d744b12974021f71bd80c024399066b5df94f3187d883e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 257283,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":358} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-223/*",
+      "sha256": "6ed5a4510dd9c7e0380d2c3032381ba702cbd63e92643764f028c900193f91b8",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 243182,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":596} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-208/*",
+      "sha256": "354374e3ea391383f1a7f6ef0309f5398a2b404b9b47d4675b5d31ba4b04a9dc",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 158117,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":631} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-136/*",
+      "sha256": "5920513021f5bfacdec418fedb82e13d5493c620694de69b6c3d1f01ad05ad86",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 440703,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":776} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-378/*",
+      "sha256": "d07caf74101f868d987c512776b8193603971662b797efbd39189f08c86882e7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 212974,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":878} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-180/*",
+      "sha256": "481195922e82f446066aaa1a8ca52bb075b563d283c94c45043ef9805b2f4af9",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 409180,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_lookup {\"p_value\":98} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-357/*",
+      "sha256": "6dbe3be08b62023a68157d2957f4da70ff1deef4653b682e077a9ed94b44d37b",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 479,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_zero_scale {\"p_value\":1073} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "243ec7245f7acd495961d29d6fc10ec1ebc9294f7a36cd58c09bd9e3d658b32c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 579,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_zero_scale {\"p_value\":730} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "dd8b906d55cf43e55293e30da7ec4d11ea38700a580981564bb172230b7211b1",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1052,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"מילוי\",\"p_phrase\":\"משיח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "54e0766ee8405fad5cdf8c2ff467a7470dd5ebed9cbab17fb3e2c03a871f8ba7",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1219,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "d56c587c17778e22c0ccf14711715eb79baffd1b6d923d4afde7f7c5323e9ad1",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2424,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "cc9ecb95a6e0c25110ab6411a4ef669b22edb6a2743bc92c8ebe71aa0c565f83",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1859,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "b0e26dd44ad6ae5661be8354cd1f2f8f4e9a34f3c25ef37bf662043d7b439ea2",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1448,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"הבחירות\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "1c67dfb519df1b533fda2e6611b7b0ad1d2c6192223fc6bb4f774d63d018f442",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2418,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7730c2a9143d8878e31e9c251cce24639a4260c14b28538a2fbdb4131e88bbab",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 902,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"מלח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "346f581ed57c8ab063163553d41d0409ba66dfba45a5c92c490976f4cbc6be21",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1726,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"מלך ישראל\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7f95fade709017eb41a1e0d7d664dd336caf3808f5214bdbd4484c331d7d79ad",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1993,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "8687334bea8bbdd101b97af0c6e842b0e877e9460ea854be33ab47eb22e48a9e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1046,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "5be7200ab2c0ea42023d8e291cae07275a1838e1ff389872615f8a91630a6f27",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1725,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"נפתלי בנט\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "6c116f71b02b1d1db2ecba80e2d226fb078e475fbaa0adc48c33076ded073946",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1865,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "88b1f824019aa3370bda3bbf5cd4ee4e834be478c21c9c3a37997f339ecaaa64",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1049,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_method_trace {\"p_method_key\":\"רגיל\",\"p_phrase\":\"תשפז\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "21d8f231232fbebca336a15b32e2e3d8da4587c10936c0142960b6e6337ffcdd",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 41636,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/get_category_videos {\"p_category\":\"צפונות בתורה\",\"p_limit\":80} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-79/*",
+      "sha256": "f481c193ffe98669879310430eaedfb2286e19d2be8ea506bcbfcea388b85eb4",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/notification_prefs_guest_get_v1 {\"p_visitor\":\"00000000-0000-4000-8000-000000000002\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": 200,
+      "type": "application/json"
+    }
+  ],
+  "sourceFacts": {
+    "binaryAssets": 40,
+    "canonicalGoldenExpressions": 13,
+    "canonicalNumberRows": 2637,
+    "frozenGuestVisitor": "00000000-0000-4000-8000-000000000002",
+    "numberValues": [
+      98,
+      1237,
+      596,
+      1118,
+      358,
+      878,
+      1326,
+      631,
+      1820,
+      776,
+      314,
+      122
+    ],
+    "publicBroadcasts": 12,
+    "publicBylinesRetained": 200,
+    "publicCategoryVideos": 80,
+    "publicTopics": 205,
+    "syntheticData": "Only isolated fresh-guest identity/storage scenario, independently verified with unmodified canonical SQL and nonempty saved-row control.",
+    "unverifiedBylinesOmitted": 5,
+    "worldBranchEdges": 9,
+    "worldBranchEndpointNodes": 10,
+    "worldRootNodes": 26
+  },
+  "sourceKind": "reviewed public SELECT projections + canonical SQL/math outputs + exact public object/font bytes + controlled fresh-guest storage scenario",
+  "version": 1
+}

@@ -1,0 +1,689 @@
+{
+  "date": "2026-10-15",
+  "source": "live pg_catalog definitions read-only, not invocation based on GET/anon/RPC names",
+  "definitions": [
+    {
+      "name": "_gem",
+      "sha256": "144d70830dd3379aec9c96d7700b64897002f3667b2f014dd4ee51573facd8f4",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "_gem_sofit",
+      "sha256": "3da0ca66e80a8cced3dcd1772139c01ee121c5d559b57961dae23f39da7fc8c0",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "aiq_bekar_calc",
+      "sha256": "38af0d5c1d8d262080733e23b869fedec37fd115faf60e7142fa0f2b4d46c5d8",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "aiq_bekar_transform",
+      "sha256": "7dfe75c679552aa313372059b19a0eecc16a2a8d88a2d243c5ab342eb2368cb2",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "atbash_calc",
+      "sha256": "4af652fff2ebdf6f97388932b336dfdb991be1782f385fbb3788cc0192ca959e",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "convergence_meter",
+      "sha256": "07e7fa231d660dcc5d63733aaab59c3663556b81f894ac957d818cd073c4ccb8",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "convergences_for_author",
+      "sha256": "84495231986d97aac983dfd0c63b67aead974904c75e50bf545f39ffa90abf86",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "digit_reverse",
+      "sha256": "ee655bfe2d1f2530a107869e167ec0ebe4be51817868b74d17f6c9fd15689594",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_active_method_rules",
+      "sha256": "071878a6c0115022f18f11f7ac41e27c053880b906391d612c532b16de8b9168",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "fn_albam",
+      "sha256": "b01c2f6a1f4ffe9b0695c3e7fcdff50595e7e4ff648bb2cdd6806f3b5ff039c1",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_albam_letter",
+      "sha256": "d0f1194ee877c98c4719711a3ffe21a4b8be4a01d29f58faedac10b2be135b93",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_all_methods",
+      "sha256": "e46ff4be0ca7fde6f7de516b007fda95ed35fddfdb51772a6922bff3350857e9",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "fn_atbach",
+      "sha256": "e6e5d8d1cf3d470f2cc618fbf37ab40afee30b23eb235c7604b9cec73067080b",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_atbach_rabenu_hananel",
+      "sha256": "95835d2bbb8a1a9183a736b2cc61a4d74868d6c14565e6498c8eff4cb05abb85",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_atbach_rabenu_hananel_transform",
+      "sha256": "bedd24f3f1ba5c0de8a79548a1d6994cce7121e3816a70d2083a97fcafa77170",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_atbach_transform",
+      "sha256": "0f08ed1eccb6cd09883024d1d3bded2a894fd107b5ab40bd70f6b45e6e414327",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_atbash_letter",
+      "sha256": "c9b4e3d2a3e6ee3e14666b71f590b53c8ce20d02d18fe1b97b202c106a41a1b9",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_composite_calc",
+      "sha256": "0027793ecde2a5649f935960fef8402bc45298f9df1dd8386e44d15e1daa62ae",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_dispatch_method",
+      "sha256": "683273b03c7749fdc2890815e073f2aae2b9ec72b240feef2945711cf02a8d92",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_en_full_reduction",
+      "sha256": "b01428ef225bec3cb21b9b6e00450bd50c10dd7fd3f31425cee7db4f7f9f2a1a",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_en_ordinal",
+      "sha256": "f496b07523b1bcc6e7cfecad3068c31032c5933b1290c29ab4187df1e26eaad6",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_en_reverse_ordinal",
+      "sha256": "b142817266434774f2b70f4bcc95c7e270f6410a67e112cbdb34348dc86a20ab",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_en_reverse_reduction",
+      "sha256": "ad4e57d0f2db54671355d9a76a87efb7d07a4fb8264786304f46c24941f30578",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_gadol",
+      "sha256": "2f36b7e1a47f27fc0f63b6f3c3dd6e3c33360a69bc7eb34904ed2ae27641ca07",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_gadol_letter",
+      "sha256": "510a611c31ee065514f16ecc97c89bb20c6419a2e3f4685fc7e4c6badfd15802",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_graph_space_is_public",
+      "sha256": "699c8c118783540bcb5627ff71fd1bd128f21a9b4fce0a6e84a31d15d05a6118",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_independent_method_set",
+      "sha256": "66e94d8f71d3e82a9f64484b259506a7092459144c0230ed305ce94c6b013e62",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_kadmi_gadol_letter",
+      "sha256": "51b9d9f545529969338e0570d9eef2a08c2de967f1ca6afbdc7e1ad82d33e8ac",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_kadmi_letter",
+      "sha256": "d99aadd3a38a79e23795c5c95aa140186ceaf5d18173d7f7a481581f9852caa4",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_letter_val",
+      "sha256": "2afc39a9072f7afa69e360ed0b114bdaec4f96a0e3f610193c1752767660dd31",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_evidence_class",
+      "sha256": "2a707c590d13a2d04fcd5ef812d21668b2d02f171b5e3ac4ab59700110119423",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_is_engine_verified",
+      "sha256": "02ad9941c1633c3a30b63d0fd9e537a458a7cbc5ca8108c59a46ebfd5a6d7641",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_is_executable",
+      "sha256": "57405ee7df6f9fdd0d1d1e940e868302d622ebaba5e6460094a629aa86ee6d0e",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_is_governed_evidence",
+      "sha256": "47b1b031c5d7974a86a57d6261f15b2f1f0eaf0f8209143b8a995f3957f5c2b7",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_is_scannable",
+      "sha256": "78933a4a8364b5a8b1b5a6499f76a78648f5019b987f6d2b00528fc774749f83",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_profile",
+      "sha256": "50df04bae528fa8e97e6f36b37df901aedc605643edfde7fc2fa6bd6dfd9dd61",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_method_value",
+      "sha256": "da20d5cc1f3235dabe3edcdbf14bf5cdc0f9b887d6efd2a60aae8e1e2358eb66",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_mikum_haot",
+      "sha256": "f73034c787e1f8510ce56165216596b640cff56269c25ff2ce66fed7c2fd451e",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_mikum_haot_letter",
+      "sha256": "db14f6ab3d472da706fef8f3034ed0c11b91b23d7854b900b9ea6b4aaf90fd76",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_miluy",
+      "sha256": "eda3bfe8633905d34e476eeab871012883bc67d9f65fc8481463ae66f1c761c8",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_miluy_demiluy_gadol_letter",
+      "sha256": "4baf235d8e24e453e0e6b32cf3bf8cdd5ed35b190fe79bbab5ec2bdc54d50ba4",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_miluy_demiluy_letter",
+      "sha256": "dfd77c461dcb1a42e29826eade0caff0461c4a01ac6e1105b3d20d06f76d6b27",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_miluy_gadol",
+      "sha256": "8c53f301d1bfe04f796e3851848e91cad2949a1de81e9f611a9301553bea7173",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_miluy_gadol_letter",
+      "sha256": "4222c351def072d090b54b0d28580f919fa33110c9f3738282975fd78100486b",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_miluy_letter",
+      "sha256": "dbdcd6a3d2e124379580040efa77e5748511002e7aec8c714655263c6fce49e5",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_misratar",
+      "sha256": "f098ed900cd3ca40e9e8cd230cf76b6eef53faae5355d88e672619be1ed57c68",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_misratar_word",
+      "sha256": "6b240d1fac5412496da17571983074fba32b658274dc18c99243022b87e3395a",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_number_dossier",
+      "sha256": "9e911fdde503d67d05ca689ff807778915e960ff56faa3af4e465a9b927e3ad1",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "fn_number_journey",
+      "sha256": "0ffcc7ede42c473995b8f1e08a6fa70d5e0e59e54b7cc91f8320d15526e53774",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "fn_number_lookup",
+      "sha256": "cd488f80ff27321f5595da44d53cb14eb8f708d7b2b3d95416884c026a298493",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_number_lookup_core",
+      "sha256": "0a2bd301ca72ad124047ceb6deb8b2703442d14e2b76ca61bd91cdff7e06564b",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_otiot_after",
+      "sha256": "46c56d4f1f051e96299af197dc028eea2ef6b618bc9a52f27a4d450838fcdf4a",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_otiot_after_letter",
+      "sha256": "bf228f81e30577c1a9dd2e20bdf28588be6e4971857a2bfa1af595cbc8c2525b",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_otiot_before",
+      "sha256": "9c9c5acba985129d18a2c6eb6eaf4e9f0002af989c9764274200eb9a294bd708",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_otiot_before_letter",
+      "sha256": "2936d99b84b6c720600222db187dad584a202961e080834b2e0e0de904e768dc",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_rabbati",
+      "sha256": "3f65badff49186026dd4a940b7a4058f5d2684df0505a8151d66f18f3fcfc112",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_ragil",
+      "sha256": "46f0378a57ee486969b34ff27f5380869663ee23636708ba438013dc635b2881",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_ribua",
+      "sha256": "2fb96bd619bea4e1dfa6f292c17387af7b37f20584b4ddea61130e3f9f298074",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_ribua_word",
+      "sha256": "dffa476037d290d604b34d5e1843246a52a58b1921095a9f831553bc8e01045a",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_rules_snapshot",
+      "sha256": "7d6b16b0ed360675d3cdae87513985a6be93d1663663559e737bba3cf22ab040",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "fn_siduri",
+      "sha256": "5c3dfa14b9ec00e5c641a86f58a7fc7bcd2f43e8236b874657843d6977c8adea",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_siduri_letter",
+      "sha256": "0ae9442ab95e77a18f33ed5c5b2ac80ddc5ec9ffc0d4236ca3e3ec96da294301",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "fn_verses_by_gematria",
+      "sha256": "dc31195db5d30475c707a802f33b2e123e470b5d9001299cb0023ac028a30ec6",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "fn_zero_scale",
+      "sha256": "7054e82260e952a2168d85508fd738c1392ed20db90f1b8aca8951fc673a5f1c",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "gem_sum",
+      "sha256": "6fa5d87216aa7b5b1558924811fbfad33fbed17aaec2dd07b1d63daab94d23b4",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "gematria_api",
+      "sha256": "551318b5be539d7bc773df52e140662806b5abfe80161ae00acbdc188886fd02",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "gematria_method_trace",
+      "sha256": "70c476eb5052f2435ef05a635334c7eb80f99f56dbdea4101c03b8623bffc646",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "get_category_videos",
+      "sha256": "3e0897e5cce9f247904f3139576050f50051db0b2fc61ae78f8bb7088807cd78",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "hakpala_calc",
+      "sha256": "0b1b6536647f0364581626167ee6f6159b339541da0a8ac33066f02cca9c56de",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "hakpala_gadol_calc",
+      "sha256": "c63e785b7d8e4ba8b2e98a5e2d28e6efb91122bc311c8a7c1114ee8d4082129f",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "kadmi_calc",
+      "sha256": "4728d0d48dc498dbb468c3e4c0909c9628aa31e5fa33317b8697c98a928a9f69",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "kadmi_gadol_calc",
+      "sha256": "1df8cca113c3b5388208b980418d98cf2425466aaf05c8100c32d8136a01585b",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "lang_links_list",
+      "sha256": "1f6eaa398094cee3951a34fc23d7f7a93adf7c759e70014534422178ea96349c",
+      "language": "sql",
+      "volatility": "v",
+      "securityDefiner": true
+    },
+    {
+      "name": "map_anchor_family",
+      "sha256": "0a79729061b1989b094fe2582a1699f4fe3abf153eae114c6a34843a5c255e6b",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "metatron_context",
+      "sha256": "dcc07663b9949d9d70f859b95551b39b6921560e1f6b27d85e1c40d315aabf33",
+      "language": "plpgsql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "miluy_demiluy_calc",
+      "sha256": "9342968f6174ae754c4084a79d65a492ff103da9fa57ec168e782b2f57c7d516",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "miluy_demiluy_gadol_calc",
+      "sha256": "0df6dff7a61701268dddf121d95f5d44d4f4e486f9a34ed9095c3ff9b89a1424",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "mistater_gadol_calc",
+      "sha256": "e295de3583c47e67479b640d8d566f1caa104691ec57e5f81a57a64712614ab1",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "notification_prefs_guest_get_v1",
+      "sha256": "d9ccd0862e88344294b2e09f07947896e38db99890582c5e43fcd22cf48addbe",
+      "language": "plpgsql",
+      "volatility": "v",
+      "securityDefiner": true
+    },
+    {
+      "name": "number_neighbors",
+      "sha256": "26e3579c9903e4b6fcca6b2305f042eb49cb0a4c7aabfb1d297a1d2c883a6a55",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "posts_by_number_strict",
+      "sha256": "e523428373303127e294f9bb131968af8d9d5912f27f0046282bf5119a0c3c96",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": false
+    },
+    {
+      "name": "rd_is_admin",
+      "sha256": "6de6d3cb54a63a44fa29f02306a52a2e5c8535c8005ebbb1c4717eabd5ba87ea",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "ribua_gadol_calc",
+      "sha256": "3c5a9aca56d69c2cc6e40f2095b7cc1eb0d1bfb4bd9e254a0d17f5fb9f6ca4bf",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "stair_triangle_calc",
+      "sha256": "a6a0cea1ccdac846038af7e7e152acbf171fade75b87b298ae2405c9415ce1bd",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "topic_cards_public_findings",
+      "sha256": "977bf1719f506964a756e78db6a3ff70c3f9316ea6eedeed59752c07d383a639",
+      "language": "plpgsql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "triangle_reverse_calc",
+      "sha256": "2f4e0afd58b0138eb4fdb68edbc0adcd83e7094936968ceca614204874a61241",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "triangle_word_calc",
+      "sha256": "416aa0643f96193cb3b5800a409eb3167c8a94a69ffea9bfdd007e09742f25c0",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    },
+    {
+      "name": "world_group_source_arrivals_v2",
+      "sha256": "1be1603b426cf69490c889a883dc7cc8ce9c887d633e2066200452c208794c08",
+      "language": "sql",
+      "volatility": "s",
+      "securityDefiner": true
+    },
+    {
+      "name": "zero_root",
+      "sha256": "34b30be5d25ccd2596d81d0e494101619b71ed66dea0f37bb8d910694a5d4ed8",
+      "language": "sql",
+      "volatility": "i",
+      "securityDefiner": false
+    }
+  ],
+  "dynamicDispatchReview": "All 41 registry entries and current executable method targets, plus literal trace companions, included in the inspected dependency closure. fn_dispatch_method executes formatted SELECT only. No write/network path found in inspected bodies.",
+  "guestPreferences": "Never called against live visitor records; exact complete canonical SQL executed only against local PGlite controlled storage.",
+  "publicGraph": "Anon SELECT gated by audited pure fn_graph_space_is_public; retained metadata is an explicit presentation allowlist.",
+  "publicTopic": "Approved public view applies recursive underscore scrubbing and excludes _do_not_publish; independent public-byline admission, other bylines omitted.",
+  "storage": {
+    "repository": "supabase/storage",
+    "commit": "ac6b3e57a0ed33c846192d4480bd492433f32569",
+    "files": [
+      {
+        "path": "src/http/routes/object/getPublicObject.ts",
+        "sha256": "4d196846535790e0d4b2d4299648858cee8b91fb1ecacd6e302b1a25e753bc2a",
+        "gitBlob": "aa2cc986f524a2202320e76ee62763d74df8e7bb",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/http/routes/render/renderPublicImage.ts",
+        "sha256": "e5ceb61457f7bb40785299d0fe73819b8ac77aa5d1af6d3e91f0534f382265af",
+        "gitBlob": "09cd93e559a384ce3e6ec445339c1df39f8f746c",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/storage/object.ts",
+        "sha256": "09cd255af5e073990abe572a5b2c7d2cd485222b42e7ddbf1c5b89b316ddd4d2",
+        "gitBlob": "5c616e0f079b67f2f4433ecb24602a15a82fe274",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/storage/storage.ts",
+        "sha256": "8b01c75be892b01930f3516dd5d19bc5a87f44a7cfe4fc35f73eae8d58c891c0",
+        "gitBlob": "b48c04b9db8ae938164118aa4614bfa32eec6aa4",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/storage/renderer/asset.ts",
+        "sha256": "bc619dbded5a1799ecccd2dfdc62a56eb96cc12f8d7581fd2ab68d2052f7f7a2",
+        "gitBlob": "1984ba26cf08428132c55036234ac4c132076fec",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/storage/renderer/image.ts",
+        "sha256": "d37dcb2a4a38ec938520266835ead64bfb40da706636d17c2c17d3ec1101ba93",
+        "gitBlob": "195c5030880ea34bc6818f7ca7409cc1094b3d07",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/storage/renderer/renderer.ts",
+        "sha256": "c63b9927d45d10331b46ec7fbc0a85f0eb0980118133c76cba6c38ecac3d33cd",
+        "gitBlob": "391f3efdcdcbf47636f972acf54250af3aaae706",
+        "matchesInspectedFile": true
+      },
+      {
+        "path": "src/storage/database/pg.ts",
+        "sha256": "d3bcfa58b849cfe17e7fa311ecc3b119f50e0b41fc43e10024d761b03851496e",
+        "gitBlob": "311f41091baf72d15d521e4494b318fd56b83a34",
+        "matchesInspectedFile": true
+      }
+    ],
+    "review": "public object/rendition GET -> public bucket + SELECT object lookup -> object-store getObject/headObject + renderer; no product row mutations in the reviewed path",
+    "deploymentVersion": "managed service deployment binary not separately attested; this is reviewed upstream source, not an attestation of deployed byte identity"
+  }
+}

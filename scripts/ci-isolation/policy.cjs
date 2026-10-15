@@ -53,6 +53,13 @@ function requestPolicy(req, localOrigin, fixtures, key=fixtureKey(req)) {
 const browserArgs=['--no-sandbox','--disable-dev-shm-usage','--disable-background-networking','--disable-component-update','--disable-sync','--no-first-run','--disable-domain-reliability','--disable-features=MediaRouter,OptimizationHints,DnsOverHttps,UseDnsHttpsSvcb,AsyncDns','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1, EXCLUDE [::1]'];
 async function installTransportBoundary(context) {
   requireIsolation();
+  // Explicit corpus scenario: every fresh browser context represents a new
+  // anonymous visitor in isolated storage. The canonical SQL function's NULL
+  // result for this identity is verified by guest-reference.test.mjs, alongside
+  // a nonempty saved-row control. This never reads a live visitor's preferences.
+  await context.addInitScript(()=>{
+    try{if(!localStorage.getItem('sod_vid'))localStorage.setItem('sod_vid','00000000-0000-4000-8000-000000000002');}catch{}
+  });
   // sendBeacon can be discarded during page close before Playwright receives a
   // request event. Record forbidden invocation through the controller binding
   // before shutdown as well as blocking it. Known telemetry goes to its explicit

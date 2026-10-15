@@ -1,8 +1,12 @@
-# Frozen inputs required before full CI acceptance
+# New public frozen inputs: incomplete acceptance
 
-**BLOCKED: no complete, reviewed corpus is provisioned.** This directory is an
-input location, not permission to publish upstream bodies in this public repo.
-Do not copy the legacy scroll captures here or add empty response substitutes.
+The reviewed v1 package is now retained and reproducible from Git. It is a new
+offline experiment, not recovery of the historical private snapshots or live
+parity. All full gates still fail the unchanged semantic preflight. See
+[`ci-corpus`](../../../docs/perf-evidence-20261015/ci-corpus/README.md),
+`manifest.json`, `source-index.json` and `coverage.json` for sources, signatures,
+16 passing image cases, catalog proof, and exact remaining source/access gaps.
+Do not pad text, weaken checks or add empty substitutes to make it pass.
 
 The workflow requires `manifest.json` and `browser.json.gz`,
 `navigation.json.gz`, `performance.json.gz`. Input staging must finish before
@@ -16,12 +20,16 @@ Each manifest entry, keyed by `browser`, `navigation` or `performance`, binds:
   "source": {
     "reference": "<immutable capture/corpus or existing approved artifact>",
     "date": "<capture/corpus date>",
-    "sha256": "<64 lowercase hex characters: original source>",
+    "sha256": "<64 lowercase hex characters: reviewed retained source index>",
     "access": "public-reviewed OR restricted-existing-artifact"
   },
   "privacyReview": {
     "reference": "<content review and allowed staging location>",
-    "decision": "approved-for-this-location"
+    "decision": "approved-for-this-location",
+    "publicAttribution": {
+      "authors": ["<independently reviewed public display byline>"],
+      "creators": ["<independently reviewed public display byline>"]
+    }
   },
   "coverage": { "reference": "<request/route/header/binary coverage evidence>" }
 }
@@ -56,5 +64,5 @@ and extension-failure gates; all 16 image cases; complete Entry and World specs
 (including Topics, Numbers, books/ELS, rich/medium/sparse and failure states).
 Do not substitute a dedicated synthetic corpus for live-data parity claims.
 
-The exact missing inputs, candidate sources and local/remote status are in
+The earlier recovery inventory and historical status are preserved in
 [`ci-isolation-completion`](../../../docs/perf-evidence-20261015/ci-isolation-completion/README.md).

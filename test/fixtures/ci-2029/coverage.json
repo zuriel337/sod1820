@@ -1,0 +1,127 @@
+{
+  "performance": {
+    "kind": "performance",
+    "responses": 155,
+    "checks": [
+      {
+        "name": "request header signatures",
+        "passed": true
+      },
+      {
+        "name": "public flags and World/Home content",
+        "passed": true
+      },
+      {
+        "name": "complete seventh-to-tenth primary body",
+        "passed": false,
+        "reason": "Full authored primary post body required"
+      },
+      {
+        "name": "seventh-to-tenth original and native mobile rendition",
+        "passed": false,
+        "reason": "Full authored primary post body required"
+      },
+      {
+        "name": "nonempty World convergence and post trace data",
+        "passed": true
+      }
+    ],
+    "passed": false
+  },
+  "navigation": {
+    "kind": "navigation",
+    "responses": 155,
+    "checks": [
+      {
+        "name": "request header signatures",
+        "passed": true
+      },
+      {
+        "name": "public flags and World/Home content",
+        "passed": true
+      },
+      {
+        "name": "complete seventh-to-tenth primary body",
+        "passed": false,
+        "reason": "Full authored primary post body required"
+      },
+      {
+        "name": "nonempty World convergence and post trace data",
+        "passed": true
+      },
+      {
+        "name": "catalog 2/8/24 with exact count, order and continuation parity",
+        "passed": true
+      },
+      {
+        "name": "Topic navigation and return source",
+        "passed": true
+      }
+    ],
+    "passed": false
+  },
+  "browser": {
+    "kind": "browser",
+    "responses": 155,
+    "checks": [
+      {
+        "name": "request header signatures",
+        "passed": true
+      },
+      {
+        "name": "public flags and World/Home content",
+        "passed": true
+      },
+      {
+        "name": "complete authored Bennett body and verified focus",
+        "passed": false,
+        "reason": "Missing posts response"
+      },
+      {
+        "name": "Number 98 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 1237 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 596 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 1118 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 358 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 878 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 1326 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Number 631 canonical rows",
+        "passed": true
+      },
+      {
+        "name": "Topic 888-yeshua",
+        "passed": true
+      },
+      {
+        "name": "Topic 98-ikuv-geula",
+        "passed": true
+      },
+      {
+        "name": "published media for rich World anchors",
+        "passed": true
+      }
+    ],
+    "passed": false
+  }
+}
