@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { prepareCurrentRouteCode2029 } from '../src/lib/criticalRouteCode2029.js';
+import { prepareCurrentRouteCode2029, prepareEntryRouteCode2029 } from '../src/lib/criticalRouteCode2029.js';
 import { currentRouteFiles2029 } from '../scripts/criticalRoutePreload2029.mjs';
 
 const files = { home:['/assets/home.js','/assets/shared.js'],world:['/assets/world.js','/assets/shared.js'],post:['/assets/post.js','/assets/shared.js'] };
@@ -39,6 +39,13 @@ test('serialized build function runs without its source module or imports',()=>{
   const {host,links}=browser('/post/a');
   vm.runInNewContext(`(${prepareCurrentRouteCode2029.toString()})(${JSON.stringify(files)})`,{window:host,URLSearchParams});
   assert.deepEqual(links.map(l=>l.href),files.post);
+});
+test('bootstrap consumes an inert build hint; development and invalid hints remain optional',()=>{
+  const {host,links}=browser('/world');
+  host.document.getElementById=()=>({textContent:JSON.stringify(files)});
+  prepareEntryRouteCode2029(host);assert.deepEqual(links.map(l=>l.href),files.world);
+  host.document.getElementById=()=>null;assert.doesNotThrow(()=>prepareEntryRouteCode2029(host));
+  host.document.getElementById=()=>({textContent:'invalid'});assert.doesNotThrow(()=>prepareEntryRouteCode2029(host));
 });
 test('build walks static dependencies only, handles cycles, and fails on missing routes',()=>{
   const chunk=(fileName,facadeModuleId,imports=[],dynamicImports=[])=>({type:'chunk',fileName,facadeModuleId,imports,dynamicImports});

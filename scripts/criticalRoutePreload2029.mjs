@@ -1,5 +1,3 @@
-import { prepareCurrentRouteCode2029 } from '../src/lib/criticalRouteCode2029.js';
-
 // Follow static JS imports only. Dynamic imports and styles retain their existing
 // lifecycle; neither another route nor a deferred feature is prepared speculatively.
 export function currentRouteFiles2029(bundle, base = '/') {
@@ -32,7 +30,7 @@ export function criticalRoutePreload2029() {
       order: 'post',
       handler(html, { bundle }) {
         const files = currentRouteFiles2029(bundle, base);
-        return { html, tags: [{ tag: 'script', attrs: { id: 'sod2029-current-route-code' }, children: `(${prepareCurrentRouteCode2029.toString()})(${JSON.stringify(files)});`, injectTo: 'head' }] };
+        return { html, tags: [{ tag: 'script', attrs: { id: 'sod2029-current-route-code', type: 'application/json' }, children: JSON.stringify(files), injectTo: 'head' }] };
       },
     },
   };
