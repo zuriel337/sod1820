@@ -1,0 +1,79 @@
+[
+  {
+    "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+    "table": "gallery_images",
+    "projection": [
+      "id",
+      "gallery_id",
+      "wp_gallery_id",
+      "ordering",
+      "name",
+      "description",
+      "image_url",
+      "thumb_url",
+      "published",
+      "curator_hidden",
+      "occurred_at",
+      "created_at",
+      "image_type",
+      "space",
+      "tags",
+      "source",
+      "ocr_text",
+      "ocr_status",
+      "ocr_numbers",
+      "primary_value",
+      "all_values",
+      "related_values",
+      "min_tier",
+      "wp_image_id"
+    ],
+    "sql": "SELECT jsonb_build_object('key','GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}','data',CASE WHEN (SELECT count(*) FROM public.\"gallery_images\" WHERE (\"image_url\" IN ('https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png')) AND (\"published\" = '1') AND (\"min_tier\" = '0') AND ((\"curator_hidden\" IS NULL) OR (\"curator_hidden\" = 'false')))=(SELECT count(*) FROM public.\"gallery_images\" WHERE (\"image_url\" IN ('https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png')) AND (\"published\" = '1') AND (\"min_tier\" = '0') AND ((\"curator_hidden\" IS NULL) OR (\"curator_hidden\" = 'false')) AND published=1 AND min_tier=0 AND coalesce(curator_hidden,false)=false) THEN (SELECT coalesce(jsonb_agg(to_jsonb(r)),'[]'::jsonb) FROM (SELECT \"id\",\"gallery_id\",\"wp_gallery_id\",\"ordering\",\"name\",\"description\",\"image_url\",\"thumb_url\",\"published\",\"curator_hidden\",\"occurred_at\",\"created_at\",\"image_type\",\"space\",\"tags\",\"source\",\"ocr_text\",\"ocr_status\",\"ocr_numbers\",\"primary_value\",\"all_values\",\"related_values\",\"min_tier\",\"wp_image_id\" FROM public.\"gallery_images\" WHERE (\"image_url\" IN ('https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png')) AND (\"published\" = '1') AND (\"min_tier\" = '0') AND ((\"curator_hidden\" IS NULL) OR (\"curator_hidden\" = 'false')) AND published=1 AND min_tier=0 AND coalesce(curator_hidden,false)=false ORDER BY \"gallery_id\" ASC,\"ordering\" ASC,\"id\" ASC LIMIT 256 OFFSET 0) r) ELSE NULL END,'total',(SELECT count(*) FROM public.\"gallery_images\" WHERE (\"image_url\" IN ('https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg','https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png')) AND (\"published\" = '1') AND (\"min_tier\" = '0') AND ((\"curator_hidden\" IS NULL) OR (\"curator_hidden\" = 'false'))),'offset',0) AS payload",
+    "request": {
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "baseKey": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256 ",
+      "method": "GET",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+      "body": "",
+      "headers": {
+        "prefer": "count=exact",
+        "range": "",
+        "accept-profile": "public"
+      },
+      "routes": [
+        "/world"
+      ]
+    }
+  },
+  {
+    "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+    "table": "research_contributions",
+    "projection": [
+      "id",
+      "author_contributor_id",
+      "title",
+      "target_type",
+      "target_id",
+      "gematria_claim",
+      "convergence_slug",
+      "status",
+      "created_at"
+    ],
+    "sql": "SELECT jsonb_build_object('key','GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}','data',CASE WHEN (SELECT count(*) FROM public.\"research_contributions\" WHERE (\"author_contributor_id\" IN ('c66f0464-0928-490e-be9b-66d8a87e7fc8','c0459430-6ba0-44a9-b1be-b5952344e74d','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','e4fc2c19-9669-49e5-9564-d27cc3558f67','9594ec7d-159d-4148-ad6d-0371ffca8282')) AND (\"status\" = 'approved') AND (NOT (\"convergence_slug\" IS NULL)))=(SELECT count(*) FROM public.\"research_contributions\" WHERE (\"author_contributor_id\" IN ('c66f0464-0928-490e-be9b-66d8a87e7fc8','c0459430-6ba0-44a9-b1be-b5952344e74d','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','e4fc2c19-9669-49e5-9564-d27cc3558f67','9594ec7d-159d-4148-ad6d-0371ffca8282')) AND (\"status\" = 'approved') AND (NOT (\"convergence_slug\" IS NULL)) AND status='approved') THEN (SELECT coalesce(jsonb_agg(to_jsonb(r)),'[]'::jsonb) FROM (SELECT \"id\",\"author_contributor_id\",\"title\",\"target_type\",\"target_id\",\"gematria_claim\",\"convergence_slug\",\"status\",\"created_at\" FROM public.\"research_contributions\" WHERE (\"author_contributor_id\" IN ('c66f0464-0928-490e-be9b-66d8a87e7fc8','c0459430-6ba0-44a9-b1be-b5952344e74d','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','e4fc2c19-9669-49e5-9564-d27cc3558f67','9594ec7d-159d-4148-ad6d-0371ffca8282')) AND (\"status\" = 'approved') AND (NOT (\"convergence_slug\" IS NULL)) AND status='approved' ORDER BY \"created_at\" DESC LIMIT 100 OFFSET 0) r) ELSE NULL END,'total',(SELECT count(*) FROM public.\"research_contributions\" WHERE (\"author_contributor_id\" IN ('c66f0464-0928-490e-be9b-66d8a87e7fc8','c0459430-6ba0-44a9-b1be-b5952344e74d','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','e4fc2c19-9669-49e5-9564-d27cc3558f67','9594ec7d-159d-4148-ad6d-0371ffca8282')) AND (\"status\" = 'approved') AND (NOT (\"convergence_slug\" IS NULL))),'offset',0) AS payload",
+    "request": {
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "baseKey": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100 ",
+      "method": "GET",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+      "body": "",
+      "headers": {
+        "prefer": "",
+        "range": "",
+        "accept-profile": "public"
+      },
+      "routes": [
+        "/world"
+      ]
+    }
+  }
+]

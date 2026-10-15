@@ -1,0 +1,45 @@
+{
+  "approval": "explicit user yes to the exact seven-field public-profile proposal; test corpus only",
+  "sourceObservedAt": "2026-10-15T22:13:05.939886+00:00",
+  "role": "anon",
+  "transactionReadOnly": true,
+  "slugRows": 4,
+  "trustedRows": 3,
+  "distinctSourceProfiles": 5,
+  "fields": [
+    "id",
+    "slug",
+    "display_name",
+    "kind",
+    "role",
+    "trusted",
+    "active"
+  ],
+  "retainedSourceSha256": "b3ed1c3e730bec298ac6c5dfa38d97af8acf6ab6b1cab030b08609135c04cc7c",
+  "homeAttributionAdmission": {
+    "boundary": "2026-10-08T21:17:21.619Z",
+    "rows": 2,
+    "approvedProfileIdMatches": 0,
+    "approvedProfileDisplayNameMatches": 0,
+    "exportedRows": 0
+  },
+  "groupSource": {
+    "query": "world_group_source_arrivals_v2(p_limit=24,p_before=null)",
+    "privateInclusiveDefinition": true,
+    "privateSourceCountAttempt": "AUTO_REVIEW_REJECTED",
+    "countsOrBodiesRead": false,
+    "liveFallback": false
+  },
+  "researchObjectSafeAlternative": {
+    "anonCount": 0,
+    "rows": [],
+    "privateOrFullEvidencePayloadRead": false,
+    "emptyCountProvenInSameReadOnlyTransaction": true
+  },
+  "postStream": {
+    "requestedRows": 48,
+    "admittedCoreNonDraftRows": 48,
+    "reviewedBylineRows": 48,
+    "bodyRead": false
+  }
+}

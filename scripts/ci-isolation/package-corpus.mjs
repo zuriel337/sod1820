@@ -45,6 +45,6 @@ for(const [kind,data] of [['performance',headerless],['navigation',navigation],[
  fs.writeFileSync(path.join(outDir,kind+'.json.gz'),compressed);
  manifest[kind]={version:1,experiment:review.experiment,liveParity:false,sha256:sha(compressed),source:{reference:'test/fixtures/ci-2029/source-index.json',date:review.date,sha256:sha(indexBytes),access:'public-reviewed'},privacyReview:{reference:'docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission',decision:'approved-for-this-location',publicAttribution:review.publicAttribution},coverage:{reference:'test/fixtures/ci-2029/coverage.json',passed:coverage[kind].passed},readiness:'INCOMPLETE_NOT_ACCEPTED'};
 }
-fs.writeFileSync(path.join(outDir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
+fs.writeFileSync(path.join(outDir,'manifest.json'),JSON.stringify(stable(manifest),null,2)+'\n');
 fs.writeFileSync(path.join(outDir,'coverage.json'),JSON.stringify(coverage,null,2)+'\n');
 console.log(JSON.stringify(Object.fromEntries(Object.entries(manifest).map(([kind,row])=>[kind,{sha256:row.sha256,coverage:row.coverage.passed}]))));

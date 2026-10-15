@@ -1,4 +1,35 @@
-# PR1111: new offline public corpus, incomplete acceptance
+# PR1111: current public-card continuation (revision 2)
+
+The user approved the exact seven-field public-card proposal. The same branch
+continues from `8ce0ecc9bf1733b75ecf96ff749a7a15d05178e7`; PR1111 still targets
+the measurement branch at `8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19`.
+
+Current frozen revision `public-card-approval-v2` contains 161 navigation
+contracts and 160 performance/browser contracts. All previous 155 navigation
+responses are byte-for-byte unchanged. Six contracts were added: the approved
+four/three profile sets, an exact-count gallery request, two approved public
+contributions, 48 reviewed public Post metadata rows and a proven zero-row anon
+research-object request. Equivalent gallery payloads preserve their full bytes
+while the headerless runner retains the newly known exact count.
+
+| Current file | SHA256 |
+| --- | --- |
+| performance.json.gz / browser.json.gz | `bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e` |
+| navigation.json.gz | `9f8f9e4f06b751e917bc98ef994c69fecfcb018de980b01b84760a0af537a9a7` |
+| source-index.json | `0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb` |
+| source/public-profile-cards.json | `b3ed1c3e730bec298ac6c5dfa38d97af8acf6ab6b1cab030b08609135c04cc7c` |
+
+Current evidence, source/privacy receipts, results and exact blockers are in
+[`card-approval-v2/README.md`](card-approval-v2/README.md). The profile gap below
+is now resolved within that narrow DTO approval. Full three-gate acceptance
+remains FAIL at the unchanged body preflight, with zero eligible matched samples.
+Home contribution attribution and the private-inclusive World group source also
+remain unresolved; missing responses are never filled with empty substitutes.
+
+The following is the historical v1 receipt at `8ce0ecc9`, preserved with its
+original hashes/results. It does not describe the current fixture revision.
+
+## Historical v1: incomplete acceptance
 
 Continuation of `gpt/perf-ci-isolation-20261015@5e83540b28ddce1489ff299d66cc9688df4368cf`.
 The PR target remains `gpt/perf-cold-measurement-20261015@8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19`.

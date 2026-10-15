@@ -1,0 +1,74 @@
+[
+  {
+    "label": "performance",
+    "command": "bash scripts/ci-isolation/performance.sh",
+    "snapshotSha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "exitCode": 1,
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0
+  },
+  {
+    "label": "navigation",
+    "command": "bash scripts/ci-isolation/navigation.sh",
+    "snapshotSha256": "9f8f9e4f06b751e917bc98ef994c69fecfcb018de980b01b84760a0af537a9a7",
+    "exitCode": 1,
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0
+  },
+  {
+    "label": "browser",
+    "command": "bash scripts/ci-isolation/hard-browser.sh",
+    "snapshotSha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "exitCode": 1,
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0
+  },
+  {
+    "label": "privacy",
+    "command": "node test/ci-isolation/corpus-privacy.test.mjs",
+    "snapshotSha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "exitCode": 0,
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0
+  },
+  {
+    "label": "mobile-images",
+    "command": "node scripts/perf-execution-2029/mobile-image-gate.mjs /app/dist /corpus/card-v2-mobile-images.json /corpus/performance.json.gz",
+    "snapshotSha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "exitCode": 0,
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0
+  },
+  {
+    "label": "catalog",
+    "command": "node scripts/perf-navigation-2029/catalog-parity.mjs /corpus/navigation.json.gz /corpus/card-v2-catalog.json",
+    "snapshotSha256": "9f8f9e4f06b751e917bc98ef994c69fecfcb018de980b01b84760a0af537a9a7",
+    "exitCode": 0,
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0
+  }
+]

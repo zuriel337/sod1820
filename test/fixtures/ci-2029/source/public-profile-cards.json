@@ -1,0 +1,81 @@
+{
+  "role": "anon",
+  "fields": [
+    "id",
+    "slug",
+    "display_name",
+    "kind",
+    "role",
+    "trusted",
+    "active"
+  ],
+  "source": "public.contributors; anon RLS; explicit user-approved public-card DTO; no account/contact/aliases/dossier payload",
+  "slug_set": [
+    {
+      "id": "e4fc2c19-9669-49e5-9564-d27cc3558f67",
+      "kind": "community",
+      "role": "חוקר רמזים · קוד המציאות",
+      "slug": "shachar-kandro",
+      "active": true,
+      "trusted": false,
+      "display_name": "יצחק שחר קנדרו"
+    },
+    {
+      "id": "c0459430-6ba0-44a9-b1be-b5952344e74d",
+      "kind": "vip",
+      "role": "חוקר רמזים · VIP",
+      "slug": "shimon-haimov",
+      "active": true,
+      "trusted": false,
+      "display_name": "שמעון חיימוב"
+    },
+    {
+      "id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "kind": "contributor",
+      "role": "חוקר גימטריה — ציר 102, גאולה ומשיח",
+      "slug": "tzvi-opoc",
+      "active": true,
+      "trusted": true,
+      "display_name": "צבי (OPOC)"
+    },
+    {
+      "id": "d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86",
+      "kind": "author",
+      "role": "כתב · חוקר רמזים · 👑 חבר מייסד · ותיק מאז 2015",
+      "slug": "yaniv-levi",
+      "active": true,
+      "trusted": true,
+      "display_name": "יניב לוי"
+    }
+  ],
+  "observed_at": "2026-10-15T22:13:05.939886+00:00",
+  "trusted_set": [
+    {
+      "id": "9594ec7d-159d-4148-ad6d-0371ffca8282",
+      "kind": "author",
+      "role": "כתב מיוחד",
+      "slug": "zion-siboni",
+      "active": true,
+      "trusted": true,
+      "display_name": "ציון סיבוני"
+    },
+    {
+      "id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "kind": "contributor",
+      "role": "חוקר גימטריה — ציר 102, גאולה ומשיח",
+      "slug": "tzvi-opoc",
+      "active": true,
+      "trusted": true,
+      "display_name": "צבי (OPOC)"
+    },
+    {
+      "id": "d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86",
+      "kind": "author",
+      "role": "כתב · חוקר רמזים · 👑 חבר מייסד · ותיק מאז 2015",
+      "slug": "yaniv-levi",
+      "active": true,
+      "trusted": true,
+      "display_name": "יניב לוי"
+    }
+  ]
+}

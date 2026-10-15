@@ -1,0 +1,19 @@
+{
+  "exitCode": 0,
+  "auditBytes": 0,
+  "scope": "full hard-source.sh at final changed source and frozen161/160 input revision",
+  "network": "host native/Node guards; Chromium guards and local traps; no local OS namespace claim",
+  "A3": {
+    "storage": "per-test memory actual handler",
+    "spans": 5,
+    "persistenceFailureCases": 9,
+    "liveAcceptance": "NOT_RUN"
+  },
+  "PR1110Measurement": "PASS",
+  "build": "PASS",
+  "privacyAndRepack": {
+    "passed": 18,
+    "negative": 14
+  },
+  "traceFinishProductFix": "NOT_DONE"
+}

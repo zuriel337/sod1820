@@ -1,19 +1,59 @@
 {
   "acquisition": "out-of-CI only, read-only as anon; no live site navigation, AI, write/RPC fallback",
+  "contributorReadReceipt": {
+    "approval": "Explicit user yes to docs/perf-evidence-20261015/ci-corpus/public-profile-read-proposal.md; test-data scope only",
+    "contracts": [
+      {
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/contributors?select=id,slug,display_name,kind,role,wa_names,trusted,active,dossier_settings&slug=in.(tzvi-opoc,shimon-haimov,yaniv-levi,shachar-kandro)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 4,
+        "sha256": "3595acf67f0721031a86c3c589eb7c797821f38ddb8e4f91e8ba1a67290fa419"
+      },
+      {
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/contributors?select=id,slug,display_name,kind,role,wa_names,trusted,active,dossier_settings&active=eq.true&trusted=eq.true&kind=neq.external  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 3,
+        "sha256": "96969ccfbf5a9ef2a4348ba92a3b9928cf85468a984413e1e0beea0bf2e370d4"
+      }
+    ],
+    "fields": [
+      "id",
+      "slug",
+      "display_name",
+      "kind",
+      "role",
+      "trusted",
+      "active"
+    ],
+    "observedAt": "2026-10-15T22:13:05.939886+00:00",
+    "role": "anon",
+    "sha256": "b3ed1c3e730bec298ac6c5dfa38d97af8acf6ab6b1cab030b08609135c04cc7c",
+    "source": "test/fixtures/ci-2029/source/public-profile-cards.json"
+  },
   "coverageLimits": [
     "Bennett 5113 is tagged draft; full required Golden body not read/exported.",
     "Canonical 5116 content is full 1778 characters, 760 after HTML removal; unchanged preflight requires >=800.",
-    "Two World contributor requests await explicit public-card approval; no empty stand-in.",
-    "Runtime unknown-request auditing remains required; minimum semantic coverage is not full route parity."
+    "Runtime unknown-request auditing remains required; minimum semantic coverage is not full route parity.",
+    "Home rolling-week contribution request has2 approved rows;0 match approved public profile IDs/names. No account IDs or unverified attribution read/exported; response remains absent.",
+    "World discovery reaches world_group_source_arrivals_v2({p_before:null,p_limit:24}); source definition includes private channel state. Automatic approval review rejected even private-source admission counts. No group payload/count acquired or empty substitute."
   ],
   "date": "2026-10-15",
   "experiment": "new-offline-public-corpus-v1",
-  "headerResolution": [],
+  "headerResolution": [
+    {
+      "decision": "equal status/type/body; retain exact canonical count metadata; no payload collision accepted",
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256 "
+    }
+  ],
   "historicalComparison": false,
   "homeScenario": "21 genuinely public non-draft source cards with actual source ordering and full original fields; 21-card volume preserved, excluding unapproved draft 5113. Explicit new public-only scenario, not raw unfiltered live-list parity.",
   "liveParity": false,
+  "packageRevision": "public-card-approval-v2",
+  "previousRevision": {
+    "commit": "8ce0ecc9bf1733b75ecf96ff749a7a15d05178e7",
+    "sourceIndexSha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2"
+  },
   "privacyProjection": {
     "authors": "Only NULL in retained full Posts; verified NULL on canonical 5112/5116. No whole authors objects exported.",
+    "contributors": "Explicit user approval of proposed seven-field public-card DTO; source profile id is not an account id. Aliases and dossier objects omitted. Real role/kind/trust/active values preserved, no invented admission flags. SQL-derived partial projection of reader requests, not raw full-response parity.",
     "created_by": "200 independently admitted public display labels in the source catalog; omit unverified byline property on other 5 rows, retaining their approved public content.",
     "excluded": [
       "account IDs",
@@ -46,6 +86,53 @@
       "צבי",
       "ציון סיבוני"
     ],
+    "contributorCards": [
+      {
+        "active": true,
+        "display_name": "יצחק שחר קנדרו",
+        "id": "e4fc2c19-9669-49e5-9564-d27cc3558f67",
+        "kind": "community",
+        "role": "חוקר רמזים · קוד המציאות",
+        "slug": "shachar-kandro",
+        "trusted": false
+      },
+      {
+        "active": true,
+        "display_name": "שמעון חיימוב",
+        "id": "c0459430-6ba0-44a9-b1be-b5952344e74d",
+        "kind": "vip",
+        "role": "חוקר רמזים · VIP",
+        "slug": "shimon-haimov",
+        "trusted": false
+      },
+      {
+        "active": true,
+        "display_name": "צבי (OPOC)",
+        "id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+        "kind": "contributor",
+        "role": "חוקר גימטריה — ציר 102, גאולה ומשיח",
+        "slug": "tzvi-opoc",
+        "trusted": true
+      },
+      {
+        "active": true,
+        "display_name": "יניב לוי",
+        "id": "d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86",
+        "kind": "author",
+        "role": "כתב · חוקר רמזים · 👑 חבר מייסד · ותיק מאז 2015",
+        "slug": "yaniv-levi",
+        "trusted": true
+      },
+      {
+        "active": true,
+        "display_name": "ציון סיבוני",
+        "id": "9594ec7d-159d-4148-ad6d-0371ffca8282",
+        "kind": "author",
+        "role": "כתב מיוחד",
+        "slug": "zion-siboni",
+        "trusted": true
+      }
+    ],
     "creators": [
       "SOD1820",
       "ZURIEL",
@@ -58,6 +145,39 @@
       "רזיאל · כריסטינה",
       "שמעון חיימוב"
     ]
+  },
+  "publicWorldFollowup": {
+    "contracts": [
+      {
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 6,
+        "sha256": "a2b3191b6667c55c1d6c8f4e3ac73b3429d9cb1f4cb7e4b73b81713de0a8e070",
+        "total": 6
+      },
+      {
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 2,
+        "sha256": "4a3b011a2a4c7cd99218dad9800bb02fd177fb440726b5432cba201596a8428e",
+        "total": 2
+      },
+      {
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,evidence,value,source_ref,contributor,status&status=in.(approved,canonical)&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "total": 0
+      },
+      {
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 48,
+        "sha256": "88b8c03215dd0dd6e73a181f52f091c866b3065f7c10c1a69c96d031208aa47c",
+        "total": 48
+      }
+    ],
+    "fieldsExcluded": [
+      "ocr_meta"
+    ],
+    "queryContractsSha256": "206d0b71d17beef210698e685fabdc6eeab0eb465db417ba622b45dcc2c094a5",
+    "source": "anon SELECTs from published tier0 non-hidden gallery_images and approved research_contributions for approved public profile IDs;48 core non-draft public Post metadata rows with reviewed display bylines;research_objects exact anon count0, no statement/evidence/value/source-reference payload read. No account or dossier export."
   },
   "records": [
     {
@@ -125,6 +245,22 @@
       "type": "application/json"
     },
     {
+      "bytes": 629,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/contributors?select=id,slug,display_name,kind,role,wa_names,trusted,active,dossier_settings&active=eq.true&trusted=eq.true&kind=neq.external  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "96969ccfbf5a9ef2a4348ba92a3b9928cf85468a984413e1e0beea0bf2e370d4",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 857,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/contributors?select=id,slug,display_name,kind,role,wa_names,trusted,active,dossier_settings&slug=in.(tzvi-opoc,shimon-haimov,yaniv-levi,shachar-kandro)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-3/*",
+      "sha256": "3595acf67f0721031a86c3c589eb7c797821f38ddb8e4f91e8ba1a67290fa419",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 3779,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at&from_node=in.(9cd22c3e-be5c-4283-ba6d-f974530d4dbc,9e59d335-0e40-4646-817f-f683d30d6619)&relation_type=eq.related&metadata->>relation_role=eq.research_anchor_branch&order=created_at.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-8/*",
@@ -184,6 +320,14 @@
       "bytes": 11947,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-5/*",
+      "sha256": "a2b3191b6667c55c1d6c8f4e3ac73b3429d9cb1f4cb7e4b73b81713de0a8e070",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 11947,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-5/6",
       "sha256": "a2b3191b6667c55c1d6c8f4e3ac73b3429d9cb1f4cb7e4b73b81713de0a8e070",
       "status": 200,
       "type": "application/json"
@@ -373,6 +517,14 @@
       "type": "application/json"
     },
     {
+      "bytes": 40369,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-47/*",
+      "sha256": "88b8c03215dd0dd6e73a181f52f091c866b3065f7c10c1a69c96d031208aa47c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 65158,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=80  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-79/*",
@@ -409,6 +561,22 @@
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,image_url,thumb_url,date,modified,tags,home_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-20/*",
       "sha256": "13f17eb137c6d062df843949c8cfae08999c53beeb5f1cf99512261ea2f1fbd5",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 993,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-1/*",
+      "sha256": "4a3b011a2a4c7cd99218dad9800bb02fd177fb440726b5432cba201596a8428e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,evidence,value,source_ref,contributor,status&status=in.(approved,canonical)&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "status": 200,
       "type": "application/json"
     },
@@ -1305,6 +1473,7 @@
     "binaryAssets": 40,
     "canonicalGoldenExpressions": 13,
     "canonicalNumberRows": 2637,
+    "distinctApprovedPublicCards": 5,
     "frozenGuestVisitor": "00000000-0000-4000-8000-000000000002",
     "numberValues": [
       98,
@@ -1328,8 +1497,10 @@
     "unverifiedBylinesOmitted": 5,
     "worldBranchEdges": 9,
     "worldBranchEndpointNodes": 10,
+    "worldContributorSlugRows": 4,
+    "worldContributorTrustedRows": 3,
     "worldRootNodes": 26
   },
   "sourceKind": "reviewed public SELECT projections + canonical SQL/math outputs + exact public object/font bytes + controlled fresh-guest storage scenario",
-  "version": 1
+  "version": 2
 }

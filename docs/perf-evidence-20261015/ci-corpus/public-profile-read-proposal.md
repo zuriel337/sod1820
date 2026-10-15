@@ -1,4 +1,4 @@
-# Remaining public-profile admission
+# Approved public-profile test DTO
 
 This is a bounded test-data read proposal, not product or surface acceptance.
 
@@ -28,7 +28,15 @@ phone, contacts, `wa_names`, access codes, notes, or any `dossier_settings` obje
 No query would write or invoke AI. The source queries would run once outside CI,
 read-only as anon; only the reviewed public DTO would be frozen in the corpus.
 
-Without explicit approval / independent public verification for the remaining
-profiles, those requests remain missing and replay must fail. They will not be
-replaced with empty arrays or invented people/permissions. Public-only subsets
-are not described as full public-reader parity.
+The user explicitly answered **yes** to this exact proposal in the resumed
+conversation. The bounded read completed as anon in a read-only transaction at
+`2026-10-15T22:13:05.939886+00:00`: four rows plus three rows, five distinct
+profiles. All seven fields, including real false/true trust flags, are preserved
+in `test/fixtures/ci-2029/source/public-profile-cards.json`. No account identifier,
+alias, contact field or dossier object was read/exported in the DTO.
+
+This resolves the proposed card admission only. It does not approve a private
+group source, unrelated authorship, draft Bennett content, a changed body-length
+assertion, product surfaces or publication. The replay DTO deliberately omits
+`wa_names` and `dossier_settings` requested by the current reader: that limited
+projection is explicit and is not raw full-response or alias/dossier parity.

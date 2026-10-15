@@ -1,6 +1,10 @@
 # New public frozen inputs: incomplete acceptance
 
-The reviewed v1 package is now retained and reproducible from Git. It is a new
+The reviewed experiment now has package revision `public-card-approval-v2`,
+retained and reproducible from Git: 161 navigation contracts and 160
+performance/browser contracts. The approved four/three contributor sets contain
+only seven source fields; aliases and dossier objects are omitted explicitly.
+All 155 prior navigation responses remain unchanged. It is a new
 offline experiment, not recovery of the historical private snapshots or live
 parity. All full gates still fail the unchanged semantic preflight. See
 [`ci-corpus`](../../../docs/perf-evidence-20261015/ci-corpus/README.md),

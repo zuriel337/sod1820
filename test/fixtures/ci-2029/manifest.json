@@ -1,17 +1,12 @@
 {
-  "performance": {
-    "version": 1,
+  "browser": {
+    "coverage": {
+      "passed": false,
+      "reference": "test/fixtures/ci-2029/coverage.json"
+    },
     "experiment": "new-offline-public-corpus-v1",
     "liveParity": false,
-    "sha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
-    "source": {
-      "reference": "test/fixtures/ci-2029/source-index.json",
-      "date": "2026-10-15",
-      "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2",
-      "access": "public-reviewed"
-    },
     "privacyReview": {
-      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission",
       "decision": "approved-for-this-location",
       "publicAttribution": {
         "authors": [
@@ -32,6 +27,53 @@
           "צבי",
           "ציון סיבוני"
         ],
+        "contributorCards": [
+          {
+            "active": true,
+            "display_name": "יצחק שחר קנדרו",
+            "id": "e4fc2c19-9669-49e5-9564-d27cc3558f67",
+            "kind": "community",
+            "role": "חוקר רמזים · קוד המציאות",
+            "slug": "shachar-kandro",
+            "trusted": false
+          },
+          {
+            "active": true,
+            "display_name": "שמעון חיימוב",
+            "id": "c0459430-6ba0-44a9-b1be-b5952344e74d",
+            "kind": "vip",
+            "role": "חוקר רמזים · VIP",
+            "slug": "shimon-haimov",
+            "trusted": false
+          },
+          {
+            "active": true,
+            "display_name": "צבי (OPOC)",
+            "id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+            "kind": "contributor",
+            "role": "חוקר גימטריה — ציר 102, גאולה ומשיח",
+            "slug": "tzvi-opoc",
+            "trusted": true
+          },
+          {
+            "active": true,
+            "display_name": "יניב לוי",
+            "id": "d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86",
+            "kind": "author",
+            "role": "כתב · חוקר רמזים · 👑 חבר מייסד · ותיק מאז 2015",
+            "slug": "yaniv-levi",
+            "trusted": true
+          },
+          {
+            "active": true,
+            "display_name": "ציון סיבוני",
+            "id": "9594ec7d-159d-4148-ad6d-0371ffca8282",
+            "kind": "author",
+            "role": "כתב מיוחד",
+            "slug": "zion-siboni",
+            "trusted": true
+          }
+        ],
         "creators": [
           "SOD1820",
           "ZURIEL",
@@ -44,27 +86,27 @@
           "רזיאל · כריסטינה",
           "שמעון חיימוב"
         ]
-      }
+      },
+      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
-    "coverage": {
-      "reference": "test/fixtures/ci-2029/coverage.json",
-      "passed": false
+    "readiness": "INCOMPLETE_NOT_ACCEPTED",
+    "sha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "source": {
+      "access": "public-reviewed",
+      "date": "2026-10-15",
+      "reference": "test/fixtures/ci-2029/source-index.json",
+      "sha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
     },
-    "readiness": "INCOMPLETE_NOT_ACCEPTED"
+    "version": 1
   },
   "navigation": {
-    "version": 1,
+    "coverage": {
+      "passed": false,
+      "reference": "test/fixtures/ci-2029/coverage.json"
+    },
     "experiment": "new-offline-public-corpus-v1",
     "liveParity": false,
-    "sha256": "265bdbc1ae14a43f932e87427b2e5806d6ab2b9d5e224a7982b4de07c47bbd8f",
-    "source": {
-      "reference": "test/fixtures/ci-2029/source-index.json",
-      "date": "2026-10-15",
-      "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2",
-      "access": "public-reviewed"
-    },
     "privacyReview": {
-      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission",
       "decision": "approved-for-this-location",
       "publicAttribution": {
         "authors": [
@@ -85,6 +127,53 @@
           "צבי",
           "ציון סיבוני"
         ],
+        "contributorCards": [
+          {
+            "active": true,
+            "display_name": "יצחק שחר קנדרו",
+            "id": "e4fc2c19-9669-49e5-9564-d27cc3558f67",
+            "kind": "community",
+            "role": "חוקר רמזים · קוד המציאות",
+            "slug": "shachar-kandro",
+            "trusted": false
+          },
+          {
+            "active": true,
+            "display_name": "שמעון חיימוב",
+            "id": "c0459430-6ba0-44a9-b1be-b5952344e74d",
+            "kind": "vip",
+            "role": "חוקר רמזים · VIP",
+            "slug": "shimon-haimov",
+            "trusted": false
+          },
+          {
+            "active": true,
+            "display_name": "צבי (OPOC)",
+            "id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+            "kind": "contributor",
+            "role": "חוקר גימטריה — ציר 102, גאולה ומשיח",
+            "slug": "tzvi-opoc",
+            "trusted": true
+          },
+          {
+            "active": true,
+            "display_name": "יניב לוי",
+            "id": "d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86",
+            "kind": "author",
+            "role": "כתב · חוקר רמזים · 👑 חבר מייסד · ותיק מאז 2015",
+            "slug": "yaniv-levi",
+            "trusted": true
+          },
+          {
+            "active": true,
+            "display_name": "ציון סיבוני",
+            "id": "9594ec7d-159d-4148-ad6d-0371ffca8282",
+            "kind": "author",
+            "role": "כתב מיוחד",
+            "slug": "zion-siboni",
+            "trusted": true
+          }
+        ],
         "creators": [
           "SOD1820",
           "ZURIEL",
@@ -97,27 +186,27 @@
           "רזיאל · כריסטינה",
           "שמעון חיימוב"
         ]
-      }
+      },
+      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
-    "coverage": {
-      "reference": "test/fixtures/ci-2029/coverage.json",
-      "passed": false
+    "readiness": "INCOMPLETE_NOT_ACCEPTED",
+    "sha256": "9f8f9e4f06b751e917bc98ef994c69fecfcb018de980b01b84760a0af537a9a7",
+    "source": {
+      "access": "public-reviewed",
+      "date": "2026-10-15",
+      "reference": "test/fixtures/ci-2029/source-index.json",
+      "sha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
     },
-    "readiness": "INCOMPLETE_NOT_ACCEPTED"
+    "version": 1
   },
-  "browser": {
-    "version": 1,
+  "performance": {
+    "coverage": {
+      "passed": false,
+      "reference": "test/fixtures/ci-2029/coverage.json"
+    },
     "experiment": "new-offline-public-corpus-v1",
     "liveParity": false,
-    "sha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
-    "source": {
-      "reference": "test/fixtures/ci-2029/source-index.json",
-      "date": "2026-10-15",
-      "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2",
-      "access": "public-reviewed"
-    },
     "privacyReview": {
-      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission",
       "decision": "approved-for-this-location",
       "publicAttribution": {
         "authors": [
@@ -138,6 +227,53 @@
           "צבי",
           "ציון סיבוני"
         ],
+        "contributorCards": [
+          {
+            "active": true,
+            "display_name": "יצחק שחר קנדרו",
+            "id": "e4fc2c19-9669-49e5-9564-d27cc3558f67",
+            "kind": "community",
+            "role": "חוקר רמזים · קוד המציאות",
+            "slug": "shachar-kandro",
+            "trusted": false
+          },
+          {
+            "active": true,
+            "display_name": "שמעון חיימוב",
+            "id": "c0459430-6ba0-44a9-b1be-b5952344e74d",
+            "kind": "vip",
+            "role": "חוקר רמזים · VIP",
+            "slug": "shimon-haimov",
+            "trusted": false
+          },
+          {
+            "active": true,
+            "display_name": "צבי (OPOC)",
+            "id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+            "kind": "contributor",
+            "role": "חוקר גימטריה — ציר 102, גאולה ומשיח",
+            "slug": "tzvi-opoc",
+            "trusted": true
+          },
+          {
+            "active": true,
+            "display_name": "יניב לוי",
+            "id": "d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86",
+            "kind": "author",
+            "role": "כתב · חוקר רמזים · 👑 חבר מייסד · ותיק מאז 2015",
+            "slug": "yaniv-levi",
+            "trusted": true
+          },
+          {
+            "active": true,
+            "display_name": "ציון סיבוני",
+            "id": "9594ec7d-159d-4148-ad6d-0371ffca8282",
+            "kind": "author",
+            "role": "כתב מיוחד",
+            "slug": "zion-siboni",
+            "trusted": true
+          }
+        ],
         "creators": [
           "SOD1820",
           "ZURIEL",
@@ -150,12 +286,17 @@
           "רזיאל · כריסטינה",
           "שמעון חיימוב"
         ]
-      }
+      },
+      "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
-    "coverage": {
-      "reference": "test/fixtures/ci-2029/coverage.json",
-      "passed": false
+    "readiness": "INCOMPLETE_NOT_ACCEPTED",
+    "sha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "source": {
+      "access": "public-reviewed",
+      "date": "2026-10-15",
+      "reference": "test/fixtures/ci-2029/source-index.json",
+      "sha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
     },
-    "readiness": "INCOMPLETE_NOT_ACCEPTED"
+    "version": 1
   }
 }
