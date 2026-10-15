@@ -1,0 +1,120 @@
+{
+ "measured": "2026-10-15T00:42:47.085Z",
+ "method": "live HTTPS from sandbox, guest, sequential, 1 warm walk + 3 alternating reps per cell",
+ "out": [
+  {
+   "value": 26,
+   "limit": 20,
+   "rows": 197,
+   "pages": 10,
+   "identicalOrderedRows": true,
+   "oldTotalMs": 2294,
+   "newTotalMs": 1963,
+   "oldPerCallMs": 196,
+   "newPerCallMs": 194,
+   "oldRangeMs": [
+    1950,
+    2667
+   ],
+   "newRangeMs": [
+    1949,
+    2507
+   ]
+  },
+  {
+   "value": 300,
+   "limit": 20,
+   "rows": 330,
+   "pages": 17,
+   "identicalOrderedRows": true,
+   "oldTotalMs": 4923,
+   "newTotalMs": 3694,
+   "oldPerCallMs": 272,
+   "newPerCallMs": 198,
+   "oldRangeMs": [
+    4633,
+    6295
+   ],
+   "newRangeMs": [
+    3409,
+    4687
+   ]
+  },
+  {
+   "value": 1820,
+   "limit": 20,
+   "rows": 185,
+   "pages": 10,
+   "identicalOrderedRows": true,
+   "oldTotalMs": 2325,
+   "newTotalMs": 1972,
+   "oldPerCallMs": 231,
+   "newPerCallMs": 194,
+   "oldRangeMs": [
+    2308,
+    2352
+   ],
+   "newRangeMs": [
+    1939,
+    1996
+   ]
+  },
+  {
+   "value": 26,
+   "limit": 500,
+   "rows": 197,
+   "pages": 1,
+   "identicalOrderedRows": true,
+   "oldTotalMs": 357,
+   "newTotalMs": 344,
+   "oldPerCallMs": 357,
+   "newPerCallMs": 344,
+   "oldRangeMs": [
+    348,
+    363
+   ],
+   "newRangeMs": [
+    342,
+    353
+   ]
+  },
+  {
+   "value": 300,
+   "limit": 500,
+   "rows": 330,
+   "pages": 1,
+   "identicalOrderedRows": true,
+   "oldTotalMs": 448,
+   "newTotalMs": 432,
+   "oldPerCallMs": 448,
+   "newPerCallMs": 432,
+   "oldRangeMs": [
+    439,
+    451
+   ],
+   "newRangeMs": [
+    428,
+    486
+   ]
+  },
+  {
+   "value": 1820,
+   "limit": 500,
+   "rows": 185,
+   "pages": 1,
+   "identicalOrderedRows": true,
+   "oldTotalMs": 358,
+   "newTotalMs": 385,
+   "oldPerCallMs": 358,
+   "newPerCallMs": 385,
+   "oldRangeMs": [
+    259,
+    396
+   ],
+   "newRangeMs": [
+    376,
+    400
+   ]
+  }
+ ]
+}

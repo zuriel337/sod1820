@@ -1,0 +1,92 @@
+{
+ "mode": "live",
+ "flag": "both",
+ "target": "other",
+ "runs": 1,
+ "median": {
+  "cpuMs": 635,
+  "lookupReqs": 0,
+  "fast": 0,
+  "tCtx": 331.4000000001397,
+  "tContent": 2677.2000000001863,
+  "reqs": 16,
+  "longMs": 0,
+  "long": 0,
+  "cls": 0.2780820390318183
+ },
+ "range": {
+  "tCtx": [
+   331,
+   331
+  ],
+  "tContent": [
+   2677,
+   2677
+  ],
+  "reqs": [
+   16,
+   16
+  ],
+  "longMs": [
+   0,
+   0
+  ],
+  "cls": [
+   0,
+   0
+  ]
+ },
+ "subjects": [
+  "{\"label\":\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - תחילת הרמזים\",\"type\":\"post\",\"ret\":\"1820\",\"retHref\":\"/world\",\"sel\":\"792eb8d4-4945-4428-8220-2503e1d74c42\",\"lens\":\"world\"}"
+ ],
+ "textLen": [
+  1151,
+  1151
+ ],
+ "reqLists": [
+  "[\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET gematria_words\",\"GET topic_cards_public\",\"POST rpc/gematria_api {\\\"p_text\\\":\\\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - ת\",\"GET gematria_methods\",\"GET nodes\"]"
+ ],
+ "samples": [
+  {
+   "tCtx": 331.4000000001397,
+   "tContent": 2677.2000000001863,
+   "reqs": 16,
+   "lookupReqs": 0,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET topic_cards_public",
+    "POST rpc/gematria_api {\"p_text\":\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - ת",
+    "GET gematria_methods",
+    "GET nodes"
+   ],
+   "cpuMs": 635,
+   "scriptMs": 49,
+   "headsLen": 186,
+   "long": 0,
+   "longMs": 0,
+   "cls": 0.2780820390318183,
+   "subject": {
+    "label": "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - תחילת הרמזים",
+    "type": "post",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "792eb8d4-4945-4428-8220-2503e1d74c42",
+    "lens": "world"
+   },
+   "text": 1151,
+   "pickedLabel": "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - תחילת הרמזים"
+  }
+ ]
+}

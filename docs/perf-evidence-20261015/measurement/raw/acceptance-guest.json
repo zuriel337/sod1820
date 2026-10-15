@@ -1,0 +1,101 @@
+{
+ "verdict": "INCOMPLETE",
+ "results": [
+  {
+   "identity": "guest",
+   "checks": [
+    {
+     "name": "function executable for this identity (NULL probe 200 + empty)",
+     "ok": true,
+     "detail": {
+      "status": 200
+     }
+    },
+    {
+     "name": "value 26: first page identical (ordered, all fields) and HTTP 200",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 26: cursor page identical",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 92: first page identical (ordered, all fields) and HTTP 200",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 92: cursor page identical",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 300: first page identical (ordered, all fields) and HTTP 200",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 300: cursor page identical",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 1820: first page identical (ordered, all fields) and HTTP 200",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 1820: cursor page identical",
+     "ok": true,
+     "detail": {
+      "rows": 20
+     }
+    },
+    {
+     "name": "value 5112: first page identical (ordered, all fields) and HTTP 200",
+     "ok": true,
+     "detail": {
+      "rows": 15
+     }
+    },
+    {
+     "name": "value 5112: cursor page identical",
+     "ok": true,
+     "detail": {
+      "rows": 10
+     }
+    },
+    {
+     "name": "value 99999: first page identical (ordered, all fields) and HTTP 200",
+     "ok": true,
+     "detail": {
+      "rows": 0
+     }
+    }
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "identity": "member",
+   "verdict": "NOT_RUN",
+   "checks": [],
+   "note": "MEMBER_ACCESS_TOKEN not provided"
+  }
+ ]
+}

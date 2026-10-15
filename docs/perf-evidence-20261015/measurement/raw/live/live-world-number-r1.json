@@ -1,0 +1,131 @@
+{
+ "mode": "live",
+ "flag": "world",
+ "target": "number",
+ "runs": 1,
+ "median": {
+  "cpuMs": 2453,
+  "lookupReqs": 1,
+  "fast": 0,
+  "tCtx": 544.5,
+  "tContent": 5511.699999999953,
+  "reqs": 55,
+  "longMs": 374,
+  "long": 4,
+  "cls": 0.053006264786579396
+ },
+ "range": {
+  "tCtx": [
+   545,
+   545
+  ],
+  "tContent": [
+   5512,
+   5512
+  ],
+  "reqs": [
+   55,
+   55
+  ],
+  "longMs": [
+   374,
+   374
+  ],
+  "cls": [
+   0,
+   0
+  ]
+ },
+ "subjects": [
+  "{\"label\":\"776\",\"type\":\"number\",\"ret\":\"1820\",\"retHref\":\"/world\",\"sel\":\"9e59d335-0e40-4646-817f-f683d30d6619\",\"lens\":\"world\"}"
+ ],
+ "textLen": [
+  1644,
+  1644
+ ],
+ "reqLists": [
+  "[\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET number_anchors\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET research_objects\",\"POST rpc/fn_number_lookup {\\\"p_value\\\":776,\\\"p_limit\\\":500,\\\"p_after_bid_id\\\":null}\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET gematria_words\",\"POST rpc/posts_by_number_strict {\\\"num\\\":776,\\\"lim\\\":3}\",\"GET gematria_words\",\"GET insights\",\"GET nodes\",\"GET topic_cards_public\",\"GET gallery_images\",\"GET gallery_images\",\"GET nodes\",\"GET nodes\",\"POST rpc/fn_zero_scale {\\\"p_value\\\":776}\",\"POST rpc/fn_number_dossier {\\\"p_value\\\":776}\",\"POST rpc/fn_number_journey {\\\"p_value\\\":776}\",\"POST rpc/number_neighbors {\\\"p_value\\\":776,\\\"p_limit\\\":12}\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET gallery_images\",\"GET gematria_methods\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET cross_method_strength\",\"GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg\"]"
+ ],
+ "samples": [
+  {
+   "tCtx": 544.5,
+   "tContent": 5511.699999999953,
+   "reqs": 55,
+   "lookupReqs": 1,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET number_anchors",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET research_objects",
+    "POST rpc/fn_number_lookup {\"p_value\":776,\"p_limit\":500,\"p_after_bid_id\":null}",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET gematria_words",
+    "POST rpc/posts_by_number_strict {\"num\":776,\"lim\":3}",
+    "GET gematria_words",
+    "GET insights",
+    "GET nodes",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gallery_images",
+    "GET nodes",
+    "GET nodes",
+    "POST rpc/fn_zero_scale {\"p_value\":776}",
+    "POST rpc/fn_number_dossier {\"p_value\":776}",
+    "POST rpc/fn_number_journey {\"p_value\":776}",
+    "POST rpc/number_neighbors {\"p_value\":776,\"p_limit\":12}",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gematria_methods",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET cross_method_strength",
+    "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg"
+   ],
+   "cpuMs": 2453,
+   "scriptMs": 219,
+   "headsLen": 223,
+   "long": 4,
+   "longMs": 374,
+   "cls": 0.053006264786579396,
+   "subject": {
+    "label": "776",
+    "type": "number",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "9e59d335-0e40-4646-817f-f683d30d6619",
+    "lens": "world"
+   },
+   "text": 1644,
+   "pickedLabel": "776"
+  }
+ ]
+}

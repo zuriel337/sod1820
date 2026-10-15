@@ -1,0 +1,105 @@
+{
+ "mode": "live",
+ "flag": "db",
+ "target": "other",
+ "runs": 1,
+ "median": {
+  "cpuMs": 1960,
+  "lookupReqs": 0,
+  "fast": 0,
+  "tCtx": 2784.7999999998137,
+  "tContent": 5363.09999999986,
+  "reqs": 29,
+  "longMs": 418,
+  "long": 4,
+  "cls": 0.22721697841138716
+ },
+ "range": {
+  "tCtx": [
+   2785,
+   2785
+  ],
+  "tContent": [
+   5363,
+   5363
+  ],
+  "reqs": [
+   29,
+   29
+  ],
+  "longMs": [
+   418,
+   418
+  ],
+  "cls": [
+   0,
+   0
+  ]
+ },
+ "subjects": [
+  "{\"label\":\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - תחילת הרמזים\",\"type\":\"post\",\"ret\":\"1820\",\"retHref\":\"/world\",\"sel\":\"792eb8d4-4945-4428-8220-2503e1d74c42\",\"lens\":\"world\"}"
+ ],
+ "textLen": [
+  1151,
+  1151
+ ],
+ "reqLists": [
+  "[\"GET nodes\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET gematria_words\",\"GET topic_cards_public\",\"POST rpc/gematria_api {\\\"p_text\\\":\\\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - ת\",\"GET gematria_methods\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET gematria_words\",\"GET topic_cards_public\",\"POST rpc/gematria_api {\\\"p_text\\\":\\\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - ת\",\"GET gematria_methods\",\"GET nodes\"]"
+ ],
+ "samples": [
+  {
+   "tCtx": 2784.7999999998137,
+   "tContent": 5363.09999999986,
+   "reqs": 29,
+   "lookupReqs": 0,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET topic_cards_public",
+    "POST rpc/gematria_api {\"p_text\":\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - ת",
+    "GET gematria_methods",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET topic_cards_public",
+    "POST rpc/gematria_api {\"p_text\":\"הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - ת",
+    "GET gematria_methods",
+    "GET nodes"
+   ],
+   "cpuMs": 1960,
+   "scriptMs": 210,
+   "headsLen": 186,
+   "long": 4,
+   "longMs": 418,
+   "cls": 0.22721697841138716,
+   "subject": {
+    "label": "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - תחילת הרמזים",
+    "type": "post",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "792eb8d4-4945-4428-8220-2503e1d74c42",
+    "lens": "world"
+   },
+   "text": 1151,
+   "pickedLabel": "הבחירות לכנסת ה־26 — כשהמספרים מתחילים להתחבר - תחילת הרמזים"
+  }
+ ]
+}
