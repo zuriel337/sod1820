@@ -193,7 +193,7 @@ export default function ControlPlane2029Page() {
     eyebrow="ניהול"
     description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
     status="ADMIN · READ ONLY"
-    surface="admin"
+    surface="world"
     symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
