@@ -56,12 +56,15 @@ try {
     return { status: r.status, blocked: r.headers.get('X-Preview-Write-Blocked') }; });
   assert.deepEqual(probe, { status: 403, blocked: 'true' }); result.checks.writeGuard = 'PASS';
   const anchor = async () => {
+    await page.waitForURL(url => url.pathname === '/world' && url.hash === '#world-sources');
+    await page.locator('#world-sources [data-source-arrival]').first().waitFor({ timeout: 60000 });
     await page.waitForFunction(() => { const el = document.getElementById('world-sources');
       return el && scrollY > 0 && Math.abs(el.getBoundingClientRect().top - 120) < 30; }, null, { timeout: 60000 });
     await page.waitForTimeout(3500);
     const position = await page.locator('#world-sources').evaluate(el => ({ top: el.getBoundingClientRect().top,
       scrollY, sources: el.querySelectorAll('[data-source-arrival]').length }));
     assert.ok(Math.abs(position.top - 120) < 30, 'Sources anchor must remain aligned after content settles');
+    assert.ok(position.sources > 0, 'An empty or failed sources section is not acceptance evidence');
     return position;
   };
   result.checks.directSources = await anchor();
@@ -70,6 +73,7 @@ try {
   await link.waitFor({ timeout: 60000 }); await link.click();
   result.checks.crossPageSources = await anchor();
   await page.goBack(); await page.waitForURL(url => url.pathname === '/');
+  await page.locator('[data-experience-capability="home-composition"]').waitFor();
   await page.goForward(); result.checks.forwardSources = await anchor();
   await page.goto(`${base}/number/1820`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.getByText('דף המספר נמצא בהכנה וייפתח בהמשך.', { exact: true }).waitFor({ timeout: 45000 });
