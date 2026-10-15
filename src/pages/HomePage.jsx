@@ -25,6 +25,77 @@ function BrandStrip() {
   );
 }
 
+
+// הצצה זמנית באתר הישן — «העת עכשיו».
+// אינו פותח את 2029 ואינו יוצר נתונים חדשים; מציג רק חישובים שכבר אומתו במנוע הקנוני.
+function CurrentTimeTeaser() {
+  const rows = [
+    { expression: "תשפ״ז", value: 787, note: "רגיל" },
+    { expression: "צורת יהלום", value: 787, note: "רגיל · יניב לוי" },
+    { expression: "ושמחת בחגך", value: 787, note: "רגיל · אבני רונן" },
+  ];
+
+  return (
+    <section className="sod-now-teaser" aria-label="העת עכשיו">
+      <div className="sod-now-teaser-head">
+        <div>
+          <span className="sod-now-teaser-kicker">✦ העת עכשיו</span>
+          <h2>תשפ״ז <span>·</span> 787</h2>
+        </div>
+        <span className="sod-now-teaser-live">הצצה</span>
+      </div>
+
+      <div className="sod-now-teaser-grid">
+        {rows.map((row) => (
+          <div className="sod-now-teaser-row" key={row.expression}>
+            <strong>{row.expression} = {row.value}</strong>
+            <small>{row.note}</small>
+          </div>
+        ))}
+      </div>
+
+      <div className="sod-now-teaser-foot">שלושה ביטויים · אותו מספר · אותה עת</div>
+
+      <style>{`
+        .sod-now-teaser{
+          max-width:960px;margin:18px auto 12px;padding:18px 20px;direction:rtl;
+          border:1px solid ${C.borderGold};border-radius:18px;
+          background:
+            radial-gradient(circle at 85% 0%,rgba(212,175,55,.13),transparent 34%),
+            linear-gradient(145deg,rgba(24,17,8,.82),rgba(8,5,2,.72));
+          box-shadow:0 20px 60px rgba(0,0,0,.28);
+        }
+        .sod-now-teaser-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+        .sod-now-teaser-kicker{display:block;color:${C.goldDim};font-family:${F.heading};font-size:12px;font-weight:800;letter-spacing:1.4px}
+        .sod-now-teaser h2{margin:4px 0 0;color:${C.goldBright};font-family:${F.regal};font-size:clamp(26px,5vw,38px);line-height:1}
+        .sod-now-teaser h2 span{opacity:.45;font-size:.72em}
+        .sod-now-teaser-live{
+          border:1px solid ${C.borderGold};border-radius:999px;padding:5px 10px;
+          color:${C.goldBright};font-family:${F.heading};font-size:10px;font-weight:800;
+          background:rgba(212,175,55,.07)
+        }
+        .sod-now-teaser-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:16px}
+        .sod-now-teaser-row{
+          min-width:0;padding:11px 12px;border:1px solid rgba(212,175,55,.18);border-radius:12px;
+          background:rgba(212,175,55,.045)
+        }
+        .sod-now-teaser-row strong{display:block;color:${C.goldLight};font-family:${F.body};font-size:14px;line-height:1.45}
+        .sod-now-teaser-row small{display:block;margin-top:3px;color:${C.goldDim};font-family:${F.body};font-size:10.5px}
+        .sod-now-teaser-foot{
+          margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,175,55,.13);
+          color:${C.muted};font-family:${F.body};font-size:12px;text-align:center
+        }
+        @media(max-width:700px){
+          .sod-now-teaser{margin:14px 14px 8px;padding:15px}
+          .sod-now-teaser-grid{grid-template-columns:1fr}
+          .sod-now-teaser-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+          .sod-now-teaser-row small{margin-top:0;text-align:left}
+        }
+      `}</style>
+    </section>
+  );
+}
+
 // שערי המערכת — כולם סגורים ("🔒 בקרוב"), פרט לבית המדרש שמקושר לדף ("🛠️ בהקמה").
 const GATES = [
   { icon: "🌅", title: "ציר ההתגלות", sub: "ציר הזמן של הגאולה", to: "/timeline" },
@@ -484,6 +555,7 @@ export default function HomePage() {
   return (
     <div style={{ direction: "rtl" }}>
       <BrandStrip />
+      <CurrentTimeTeaser />
 
       {narrow ? (
         /* מובייל: כותרת → עדכונים אחרונים → שערי המערכת → היכל השערים */
