@@ -1,0 +1,4 @@
+Source: GitHub Actions run 38744231965, navigation-replay job 116453533250.
+Status remains FAILED; instrumentation defect does not prove this failure was artificial.
+
+navigation-replay	Actual clicks, Back, revisit and scrolling against one bounded public snapshot	2026-10-15T13:46:19.9068810Z {"regressionPassed":false,"errors":["/world/actual-click: latency exceeds matched10%+100ms regression allowance"]}
