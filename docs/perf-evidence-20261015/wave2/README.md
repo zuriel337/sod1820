@@ -97,6 +97,37 @@ HTTP 200, which is not provenance proof. A new review preview must use the
 committed `preview-deploy/` recipe and verify actual JSON, guarded bootstrap and
 both identical JS workers. This correction is confined to the review artifact.
 
+## Topic import experiment — not integrated
+
+`gpt/perf-topic-import-20261015` tests an optional WorldSourceStory lazy import on
+top of A1. Corrected retained measurements used seven interleaved pairs in each
+native and integrated-preview profile, plus seven source-enabled story pairs.
+All retained ordinary-topic requests and full settled identities matched (159
+reads/sample); source-story requests/identity matched (60 reads/sample), and the
+actual method Stage plus failed-import/reload path worked. However ordinary
+World-to-Topic median changes were -28.3ms native (95% interval -225.3..+77.0) and
+-51.4ms integrated (-652.4..+135.4). Neither establishes an improvement. Story
+complete-ready changed 7000.6→7337.2ms (+4.8%, interval -151.7..+1526.8ms);
+Back/story non-regression remains uncertain. Smaller bytes are not time evidence.
+
+Decision: **NOT_ADOPTED**; retain the experiment and corrected evidence on its
+own branch, without more measurement rounds. No Topic product change is present
+in this integration. Earlier renderer-clock-blocked and unsettled-identity runs
+are diagnostic/excluded, not acceptance samples. Detailed receipts and exclusions
+belong to the experiment's own report; none of its purported gains are combined
+with other historical improvements.
+
+## Integration checks before review deployment
+
+At root code/document head `0adc023f`, full `npm run build` (Legacy + 2029) passed.
+The following all passed on the actual generated dist: scroll restore15/15,
+World/Topic native surface guards, source isolation, built dependency graph121
+reachable records, bundle budgets5/5 with no skipped cases, route legitimacy,
+and actual preview worker/auth guards4/4. World remains37 chunks/260.1KB gz
+within the existing265KB/37-chunk limit; no budget changed. Subsequent report-only
+commits do not alter the product/build/test inputs. Build emits existing large
+chunk warnings; no release performance target is inferred from successful builds.
+
 ## Release boundary
 
 This integration is branch-only. Production/main, existing candidate and shared
