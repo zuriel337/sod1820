@@ -4,7 +4,7 @@ export const MEASUREMENT_PROFILE = Object.freeze({
   requestClock: 'controller-monotonic-calibrated-browser-epoch-v1',
   readiness: 'rendered-primary-source-v2',
   cls: 'max-session-window-1s-gap-5s-span-observed-lab-window-v1',
-  observation: 'load-primary-networkidle-plus-1000ms',
+  observation: 'primary-current-network-quiet-500ms-plus-1000ms-v2',
   collection: 'immutable-read-snapshot-with-pending-response-count-v1',
 });
 

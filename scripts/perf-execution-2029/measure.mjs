@@ -11,6 +11,7 @@ import { createRequire } from 'node:module';
 import { serve } from './serve.mjs';
 import { MEASUREMENT_PROFILE, calibrateRequestClock, documentTime, snapshotReads } from './measurement-profile.mjs';
 import { primaryContentState, sessionWindowCls, installBrowserMetrics } from './browser-metrics.mjs';
+import { observeNetworkQuiet } from './network-quiet.mjs';
 const run = promisify(execFile);
 const require = createRequire(`${process.env.PLAYWRIGHT_DIR || '/workspace/perf-execution-scratch/tools'}/node_modules/`);
 const { chromium } = require('playwright');
@@ -81,6 +82,7 @@ try {
         ...(!desktop ? { userAgent: 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141 Mobile Safari/537.36' } : {}) });
       await context.addInitScript(theme => localStorage.setItem('sod-theme', theme), output.theme);
       const page = await context.newPage(), cdp = await context.newCDPSession(page);
+      const network = observeNetworkQuiet(page);
       const errors = [], misses = [], reads = [], blocked = [], pendingResponses = new Set();
       const requestClock = await calibrateRequestClock(page);
       page.on('pageerror', e => errors.push(e.message));
@@ -145,7 +147,7 @@ try {
       await page.goto(origin + (args.navfrom || pathname), { waitUntil: 'load', timeout: 60000 });
       if (args.navfrom) {
         await page.waitForFunction(from => window.__primaryContentState(from).primary, args.navfrom, { timeout: 30000 });
-        await page.waitForLoadState('networkidle', { timeout: 30000 });
+        await network.wait();
         beforePerformance = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(m => [m.name, m.value]));
         reads.length = 0;
         navStart = await page.evaluate(pathname => {
@@ -159,7 +161,7 @@ try {
       }
       await page.waitForFunction(() => window.__perf.ready != null, null, { timeout: 30000 }).catch(() => errors.push('Primary content did not become ready'));
       let backgroundSettled = null;
-      await page.waitForLoadState('networkidle', { timeout: 30000 })
+      await network.wait()
         .then(async () => { backgroundSettled = await page.evaluate(() => performance.now()); })
         .catch(() => errors.push('Network did not settle'));
       await page.waitForTimeout(1000);

@@ -3,6 +3,7 @@
 import test from 'node:test';
 import { calibrateRequestClock, documentTime } from './measurement-profile.mjs';
 import { primaryContentState, sessionWindowCls, installBrowserMetrics } from './browser-metrics.mjs';
+import { observeNetworkQuiet } from './network-quiet.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -146,4 +147,31 @@ test('browser epoch calibration survives a new document and SPA navigation', asy
     const delta = documentTime(start, timeOrigin) - nav;
     assert.ok(delta >= -clock.uncertaintyMs - 2 && delta < 100);
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
+});
+
+test('late background requests cannot reuse a previously reached networkidle state', async () => {
+  let release;
+  const server = http.createServer((req, res) => {
+    if (req.url === '/late') release = () => { if (!res.writableEnded) res.end('late response'); };
+    else res.end('<!doctype html><main>Primary content is already real</main>');
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: ['--no-sandbox'] });
+  try {
+    const page = await browser.newPage(), network = observeNetworkQuiet(page);
+    await page.goto(`http://127.0.0.1:${server.address().port}`, { waitUntil: 'networkidle' });
+    const requested = page.waitForRequest('**/late');
+    await page.evaluate(() => { window.late = fetch('/late').then(r => r.text()); });
+    await requested;
+    await page.waitForLoadState('networkidle'); // Legacy collector returns while the new request is active.
+    assert.equal(network.pending(), 1);
+    let quiet = false;
+    const waiting = network.wait().then(() => { quiet = true; });
+    await page.waitForTimeout(100);
+    assert.equal(quiet, false, 'Current observation must wait for the held response');
+    release();
+    await waiting;
+    assert.equal(network.pending(), 0);
+    assert.equal(await page.evaluate(() => window.late), 'late response');
+  } finally { release?.(); await browser.close(); await new Promise(resolve => server.close(resolve)); }
 });
