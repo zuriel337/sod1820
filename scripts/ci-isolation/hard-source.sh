@@ -75,6 +75,7 @@ node scripts/test-2029-number-preview.mjs
 node scripts/test-2029-control-plane.mjs
 # A3 isolated client-to-stored-trace correlation acceptance
 node scripts/test-a3-client-correlation-live.mjs
+node test/research-run-trace-finish.test.mjs
 # Production build
 npm run build
 # Built dependency graph isolation

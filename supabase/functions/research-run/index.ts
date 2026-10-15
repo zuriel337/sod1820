@@ -19,7 +19,8 @@
 // Fail-closed trace discipline: unlike the fail-OPEN trace pattern used elsewhere (a trace hiccup
 // must never block a Result the caller is otherwise entitled to), this transport treats the
 // Operational Trace as a REQUIRED witness of its own execution. If the trace cannot be started, or any
-// span in the gate/compose/capability chain cannot be recorded, the Result Bundle is suppressed and an
+// span in the gate/compose/capability chain cannot be recorded, or finalization cannot persist,
+// the Result Bundle is suppressed and an
 // error is returned instead — this function never returns a materially untraced Result.
 
 import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";
@@ -357,13 +358,17 @@ Deno.serve(async (req: Request) => {
   }
 
   const outcome = bundleOutcome(bundle);
-  await serviceRpc("op_trace_finish_v1", {
+  const finished = await serviceRpc("op_trace_finish_v1", {
     p_trace_id: traceId,
     p_root_span_id: rootSpanId,
     p_outcome: outcome,
     p_ended_at: new Date().toISOString(),
     p_stop_reason: null,
   });
+  if (!finished) {
+    // Computed Findings are not a completed Result until the root trace is finalized.
+    return json({ status: "error", error: "trace_incomplete", trace_id: traceId }, 200);
+  }
 
   return json({
     status: "ok",

@@ -16,19 +16,23 @@ assert.equal(success.error,null);assert.equal(success.data.status,'ok');
 const saved=assertSavedWitness(runtime,success.interactionId,success.data.trace_id);
 assert.ok(success.data.bundle.findings.length>0,'actual composer must emit nonempty Findings');
 assert.notEqual(success.data.trace_id,success.interactionId,'server owns canonical trace identity');
-for(const mode of ['http','throw'])for(const failure of [
+const failures=[
   {name:'op_trace_begin_v1',error:'trace_unavailable'},
   {name:'op_trace_record_span_v1',span:'fn_capability_execution_gate_v1',error:'trace_incomplete'},
   {name:'op_trace_record_span_v1',span:'composeResearchW2',error:'trace_incomplete'},
   {name:'op_trace_record_span_v1',span:'w2:numeric',error:'trace_incomplete'},
-]){
+  {name:'op_trace_finish_v1',error:'trace_incomplete'},
+];
+let persistenceFailureCases=0;
+for(const mode of ['http','throw','false'])for(const failure of mode==='false'?failures.filter(f=>f.name==='op_trace_finish_v1'):failures){
   const rt=isolatedResearchRun({failure:{...failure,mode}}),out=await invoke(rt);
   const data=out.data||await out.error.context.json();
-  assert.equal(data.error,failure.error);assert.equal(data.bundle,undefined,'persistence failure suppresses Result');
+  assert.equal(data.status,'error');assert.equal(data.error,failure.error);assert.equal(data.bundle,undefined,'persistence failure suppresses Result');
   if(failure.name==='op_trace_begin_v1')assert.equal(rt.calls.some(c=>c.name==='fn_capability_execution_gate_v1'),false);
+  if(failure.name==='op_trace_finish_v1'){
+    assert.equal(data.trace_id,rt.calls.find(c=>c.name==='op_trace_begin_v1').body.p_trace_id);
+    assert.throws(()=>assertSavedWitness(rt,out.interactionId,data.trace_id),/finalization/);
+  }
+  persistenceFailureCases++;
 }
-// Existing product limitation: finalization's return value is ignored by the Edge
-// handler. The test witness must reject that response, even if it has a valid UUID.
-const unfinished=isolatedResearchRun({failure:{name:'op_trace_finish_v1'}}),out=await invoke(unfinished);
-assert.throws(()=>assertSavedWitness(unfinished,out.interactionId,out.data.trace_id),/finalization/);
-console.log(JSON.stringify({test:'A3_ISOLATED_CLIENT_CORRELATION',storage:'per-test memory; actual Edge handler/composer/executors',interactionId:success.interactionId,traceId:success.data.trace_id,savedSpans:saved.length,persistenceFailureCases:9,liveAcceptance:'NOT_RUN',knownProductLimitation:'finish failure returns ok; independent stored-witness check rejects it'}));
+console.log(JSON.stringify({test:'A3_ISOLATED_CLIENT_CORRELATION',storage:'per-test memory; actual Edge handler/composer/executors',interactionId:success.interactionId,traceId:success.data.trace_id,savedSpans:saved.length,persistenceFailureCases,traceFinishFailureModes:['http','throw','false'],traceFinish:'fail_closed_verified',liveAcceptance:'NOT_RUN'}));

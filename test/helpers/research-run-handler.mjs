@@ -8,8 +8,9 @@ import {randomUUID} from 'node:crypto';
 import {composeResearchW2} from '../../src/lib/research/researchComposerW2.js';
 import {createCanonicalW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
 import {normalizePublicNumberResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
-export function isolatedResearchRun({failure=null,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
+  const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
   const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
   const transport=async(input,init={})=>{
@@ -19,8 +20,10 @@ export function isolatedResearchRun({failure=null,source=readFileSync(new URL('.
     if(u.origin!==origin){unexpected.push(req.url);throw new Error('Unexpected destination');}
     if(u.pathname==='/auth/v1/user')return response({message:'synthetic guest'},401);
     if(req.method!=='POST'||!u.pathname.startsWith('/rest/v1/rpc/')){unexpected.push(req.url);throw new Error('Unexpected request');}
-    if(failure?.name===name && (!failure.span || body.p_name===failure.span)){
-      if(failure.mode==='throw')throw new Error('Isolated persistence outage');
+    const fault=faults.find(f=>f.name===name && (!f.span || body.p_name===f.span));
+    if(fault){
+      if(fault.mode==='throw')throw new Error('Isolated persistence outage');
+      if(fault.mode==='false')return response(false);
       return response({message:'Isolated persistence outage'},503);
     }
     if(name.startsWith('op_trace_')||name==='fn_capability_execution_gate_v1')assert.equal(req.headers.get('authorization'),`Bearer ${service}`);
@@ -36,9 +39,10 @@ export function isolatedResearchRun({failure=null,source=readFileSync(new URL('.
       assert.ok(!spans.has(body.p_span_id));spans.set(body.p_span_id,body);return response({ok:true});
     }
     if(name==='op_trace_finish_v1'){
-      assert.ok(roots.has(body.p_trace_id));Object.assign(roots.get(body.p_trace_id),{finished:true,outcome:body.p_outcome,stopReason:body.p_stop_reason});return response({ok:true});
+      // Canonical migration returns boolean true only after finalization writes.
+      assert.ok(roots.has(body.p_trace_id));Object.assign(roots.get(body.p_trace_id),{finished:true,outcome:body.p_outcome,stopReason:body.p_stop_reason});return response(true);
     }
-    if(name==='fn_capability_execution_gate_v1')return response({allowed:true,entitlement:{entitlement:'public',is_admin:false}});
+    if(name==='fn_capability_execution_gate_v1')return response({allowed:gateAllowed,entitlement:{entitlement:'public',is_admin:false}});
     // Representative numeric source: exact literal, source identity and governed
     // truth axes. The canonical composer/executors, not this fixture, emit Findings.
     if(name==='fn_number_lookup')return response([{bid_id:'11111111-1111-4111-8111-111111111111',phrase:'בדיקת מספר 878',value:878,method_key:'regular',method:'רגיל',source_ref:'test:isolated:878',truth_status:'source_supported',total_count:1}]);
@@ -58,7 +62,8 @@ export function isolatedResearchRun({failure=null,source=readFileSync(new URL('.
   const env={SUPABASE_URL:origin,SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:service};
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm,'')),{
     Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn;}},fetch:transport,
-    composeResearchW2,createCanonicalW2Executors,normalizePublicNumberResearchRunRequest,
+    composeResearchW2:composerFailure?()=>{throw new Error('Isolated composer failure');}:composeResearchW2,
+    createCanonicalW2Executors,normalizePublicNumberResearchRunRequest,
     Request,Response,Headers,URL,crypto:{randomUUID},
   },{filename:'research-run/index.ts',timeout:5000});
   const fetch=async(input,init)=>{
