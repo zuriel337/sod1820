@@ -1,0 +1,8 @@
+{
+  "base": "778400b60b7eb6ea230a3ab123c149c7ad8e8e72",
+  "sourcePath": "supabase/functions/research-run/index.ts",
+  "sourceSha256": "803e20d657aa237d9ff1fb176a0a5bbf0738d121e944d8a7c170cc0a9fa4b52d",
+  "sourceUnmodifiedAtRedRun": true,
+  "fixedSourceSha256": "3f7bd69e9eadb94bb48a8beb287c5f43f680ff47d4ca75ca1a3c7535385240c6",
+  "fixedSourceCommit": "2dc84a2c4398ed7bbcf66ecd2fe97ab83b7b5a13"
+}

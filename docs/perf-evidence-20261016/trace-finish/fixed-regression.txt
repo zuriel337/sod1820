@@ -1,0 +1,32 @@
+✔ successful computation with http finish failure returns trace_incomplete without Result (102.284067ms)
+✔ successful computation with throw finish failure returns trace_incomplete without Result (21.297822ms)
+✔ successful computation with false finish failure returns trace_incomplete without Result (6.202033ms)
+✔ persisted completion still returns the actual nonempty Result and saved witness (6.187221ms)
+✔ unavailable gate keeps its existing error when finish also fails via http (3.742355ms)
+✔ unrecorded gate keeps its existing error when finish also fails via http (3.91419ms)
+✔ denied gate keeps its existing error when finish also fails via http (3.948803ms)
+✔ gate unavailability before gate-span failure keeps its existing error when finish also fails via http (3.257554ms)
+✔ gate-span failure before denied gate keeps its existing error when finish also fails via http (3.604961ms)
+✔ composer exception keeps its existing error when finish also fails via http (3.269031ms)
+✔ unrecorded composeResearchW2 keeps its existing error when finish also fails via http (6.472025ms)
+✔ unrecorded w2:numeric keeps its existing error when finish also fails via http (5.840976ms)
+✔ unrecorded w2:numeric_operators keeps its existing error when finish also fails via http (5.685064ms)
+✔ unavailable gate keeps its existing error when finish also fails via throw (3.528517ms)
+✔ unrecorded gate keeps its existing error when finish also fails via throw (4.096482ms)
+✔ denied gate keeps its existing error when finish also fails via throw (3.225706ms)
+✔ gate unavailability before gate-span failure keeps its existing error when finish also fails via throw (2.869788ms)
+✔ gate-span failure before denied gate keeps its existing error when finish also fails via throw (7.145987ms)
+✔ composer exception keeps its existing error when finish also fails via throw (3.367608ms)
+✔ unrecorded composeResearchW2 keeps its existing error when finish also fails via throw (5.402544ms)
+✔ unrecorded w2:numeric keeps its existing error when finish also fails via throw (7.117664ms)
+✔ unrecorded w2:numeric_operators keeps its existing error when finish also fails via throw (5.981065ms)
+(node:60028) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 234.843855

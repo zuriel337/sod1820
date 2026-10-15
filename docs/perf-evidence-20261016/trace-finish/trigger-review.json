@@ -1,0 +1,11 @@
+{
+  "workflowDefinitionsUnchangedFromBase": true,
+  "workflowCount": 19,
+  "newBranch": "gpt/research-run-trace-finish-20261016",
+  "existingPR1111Untouched": true,
+  "pushWorkflows": [],
+  "gptDeploymentEnabled": false,
+  "newPROpened": false,
+  "decision": "SAFE_TO_PUSH_NEW_BRANCH_ONLY; no Actions push trigger or gpt deployment; no PR workflow activated",
+  "futurePRRequirement": "before opening any PR review its actual target and triggers; full2029 remains input-blocked, no overallPASS"
+}

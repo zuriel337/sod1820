@@ -1,0 +1,3 @@
+{"test":"A3_ISOLATED_CLIENT_CORRELATION","storage":"per-test memory; actual Edge handler/composer/executors","interactionId":"86ccbf77-1d19-478e-bc6b-d83ba0a86eaf","traceId":"f01533c4-4409-430b-a41d-81d8b72a3e0a","savedSpans":5,"persistenceFailureCases":11,"traceFinishFailureModes":["http","throw","false"],"traceFinish":"fail_closed_verified","liveAcceptance":"NOT_RUN"}
+(node:60020) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

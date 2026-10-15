@@ -1,0 +1,3 @@
+Packaged supabase/functions/research-run/index.ts -> supabase/functions/research-run/.build/index.ts (194552 bytes, 21 committed sources, verify_jwt=true).
+Manifest: supabase/functions/research-run/.build/manifest.json
+git HEAD: 2dc84a2c4398ed7bbcf66ecd2fe97ab83b7b5a13

@@ -1,0 +1,8 @@
+PASS: researchRunRequest.js contract validation
+PASS: researchComposerW2.js executionObserver seam
+PASS: researchPlanV2.js capabilityAllowlist seam
+PASS: research-run Edge transport static acceptance
+PASS: research-run public Number runtime contract
+Operational Trace Contract: PASS
+Operational Trace Runtime v1 static acceptance: PASS
+G3 Replayable Golden / No-Black-Box V1: PASS

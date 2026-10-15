@@ -1,0 +1,56 @@
+{
+  "base": "778400b60b7eb6ea230a3ab123c149c7ad8e8e72",
+  "implementationCommit": "2dc84a2c4398ed7bbcf66ecd2fe97ab83b7b5a13",
+  "branch": "gpt/research-run-trace-finish-20261016",
+  "scope": "focused branch-only research-run success-path finalization repair",
+  "oldRegression": {
+    "exitCode": 1,
+    "cases": 22,
+    "pass": 19,
+    "fail": 3,
+    "failingModes": [
+      "http",
+      "throw",
+      "false"
+    ],
+    "reason": "status ok instead of error"
+  },
+  "fixedRegression": {
+    "exitCode": 0,
+    "cases": 22,
+    "pass": 22,
+    "fail": 0,
+    "earlierErrorPrecedenceCases": 18,
+    "successControl": "PASS"
+  },
+  "a3": {
+    "status": "PASS",
+    "savedSpans": 5,
+    "persistenceFailureCases": 11,
+    "finishModes": [
+      "http",
+      "throw",
+      "false"
+    ],
+    "liveAcceptance": "NOT_RUN"
+  },
+  "contracts": {
+    "researchRun": "PASS",
+    "operationalTrace": "PASS",
+    "operationalTraceRuntime": "PASS",
+    "replayableGolden": "PASS"
+  },
+  "edgePackaging": "PASS; pinned esbuild0.28.2;21 committed sources;verify_jwt=true;no deploy",
+  "ciIntegration": "focused test invoked by existing hard-source.sh; workflow unchanged",
+  "remoteCI": "NOT_RUN on this new branch; no new PR opened",
+  "fullPerformanceMeasurement": "NOT_COMPLETED; original PR1111 result unchanged",
+  "overallAcceptance": "BLOCKED; no overallPASS",
+  "openInputBlockers": [
+    "retainable complete authored Bennett Golden Post input (local-only body inspection is insufficient)",
+    "verified public account-free Home contributor attribution/identity/count projection",
+    "Number787 contribution public attribution and exact claims/content",
+    "approved retainable public finding projection of ai_addition for787",
+    "approved retainable exact group-source card/message bodies; aggregate-only permission is insufficient"
+  ],
+  "dataAndReleaseChanges": false
+}
