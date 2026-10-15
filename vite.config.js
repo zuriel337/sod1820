@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import { entryPrimaryReads2029, postReadUrl, postBySlugRead, latestPostCardsRead, HOME_LATEST_POST_LIMIT_2029, WORLD_FLIGHT_POST_SLUG } from './src/lib/postReadQueries2029.js'
 import { startPrimaryReads2029 } from './src/lib/earlyPrimaryRead2029.js'
 import { SUPABASE_URL, SUPABASE_ANON } from './src/lib/supabasePublicConfig.js'
+import { criticalRoutePreload2029 } from './scripts/criticalRoutePreload2029.mjs'
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 const is2029 = process.env.SOD_BUILD_TARGET === '2029'
@@ -14,7 +15,7 @@ const is2029 = process.env.SOD_BUILD_TARGET === '2029'
 // into the 2029 document merely because both runtimes consume Foundation modules.
 export default defineConfig({
   define: { __SOD_2029_BUILD__: JSON.stringify(is2029) },
-  plugins: [react(), {
+  plugins: [react(), ...(is2029 ? [criticalRoutePreload2029()] : []), {
     name: '2029-entry-primary-reads',
     transformIndexHtml: {
       order: 'pre',
