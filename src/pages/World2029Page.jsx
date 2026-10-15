@@ -21,7 +21,7 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection, resolveEntityHubNode, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, fetchNumberLookupStage, mergeNumberLookupStage, resolveEntityHubNode, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { resolveWorldRelationIdentity } from "../lib/research/worldRelationIdentity2029.js";
 import { REVIEWED_SOURCE_WITNESSES, discoveryHref, witnessSource } from "../lib/research/worldSourceConnections.js";
 import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
@@ -1544,6 +1544,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
   const [gematriaQuery, setGematriaQuery] = useState("");
   const [journeyState, setJourneyState] = useState({ loading: false, data: null, error: null });
+  // Owner switch fx_staged_number_results: the full gematria list (number_lookup lens) is loaded when its lane is approached/opened.
+  const [lookupStage, setLookupStage] = useState({ status: "idle", attempt: 0 });
+  const lookupStageRun = useRef({ token: 0, promise: null });
   const key = subjectKey(subject);
   const expressionFocusExplicit = context?.dimensions?.expressionFocusExplicit === true;
   const focusedExpression = expressionFocusExplicit ? String(context?.selection?.expression || "").trim() : "";
@@ -1573,7 +1576,16 @@ function AnchoredWorld({ research, shell, subject, context }) {
     setGematriaMethodFilter("all");
     setGematriaTypeFilter("all");
     setGematriaQuery("");
-    fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40, mediaLimit: 40 })
+    setLookupStage({ status: "idle", attempt: 0 });
+    lookupStageRun.current = { token: lookupStageRun.current.token + 1, promise: null };
+    const loadProjection = async () => {
+      let stagedNumberResults = false;
+      if (subject.type === "number") {
+        try { stagedNumberResults = (await readRuntimeSwitches()).fx_staged_number_results === true; } catch { /* keep the one-shot path */ }
+      }
+      return fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 80, researchLimit: 120, topicLimit: 40, mediaLimit: 40, stagedNumberResults });
+    };
+    loadProjection()
       .then(async (data) => {
         if (!alive) return;
         let prominenceInputs = null;
@@ -1749,10 +1761,34 @@ function AnchoredWorld({ research, shell, subject, context }) {
     const raw = Array.isArray(context?.dimensions?.journeyMeetingSlugs) ? context.dimensions.journeyMeetingSlugs : [];
     return [...new Set(raw.map((value) => String(value || "").trim()).filter(Boolean))];
   }, [context?.dimensions?.journeyMeetingSlugs]);
+  const lookupPending = Boolean(data?.lenses?.numberLookupStage?.deferred);
+  const loadLookupStage = (retry = false) => {
+    const marker = data?.lenses?.numberLookupStage;
+    if (!marker?.deferred) return;
+    const run = lookupStageRun.current;
+    if (run.promise && !retry) return;
+    const token = run.token;
+    setLookupStage((prev) => ({ status: "loading", attempt: prev.attempt + (retry ? 1 : 0) }));
+    run.promise = fetchNumberLookupStage(marker.number, { numberLookupLimit: marker.limit, nodeId: data?.identity?.nodeId })
+      .then((stage) => {
+        // A late answer for a previous entity (or a previous load of this one) is dropped, never attached to the current one.
+        if (lookupStageRun.current.token !== token) return;
+        setState((prev) => (prev.data === null ? prev : { ...prev, data: mergeNumberLookupStage(prev.data, stage) }));
+        setLookupStage((prev) => ({ ...prev, status: "ready" }));
+      })
+      .catch(() => {
+        if (lookupStageRun.current.token !== token) return;
+        lookupStageRun.current.promise = null;
+        setLookupStage((prev) => ({ ...prev, status: "error" }));
+      });
+  };
+  useEffect(() => {
+    if (activeLane === "calculations" && lookupPending) loadLookupStage();
+  }, [activeLane, lookupPending, data?.identity?.nodeId]); // eslint-disable-line react-hooks/exhaustive-deps
   const laneCounts = {
     overview: prominenceItems.length,
     media: mediaItems.length,
-    calculations: visibleGematriaRows.length,
+    calculations: lookupPending ? null : visibleGematriaRows.length,
     sources: sourceRows.length,
     relations: graphRelations.length,
     research: (adminMode ? filteredResearchFindings.length : visibleResearchFindings.length) + visibleTopicFindings.length + contributorConvergences.length + contributorContributions.length + (data?.numberWorlds?.length || 0),
@@ -2075,10 +2111,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
             className={`sod29-action sod29-world-lane${activeLane === lane.key ? " primary" : ""}`}
             type="button"
             aria-pressed={activeLane === lane.key}
-            onClick={() => setActiveLane(lane.key)}
+            onClick={() => { setActiveLane(lane.key); if (lane.key === "calculations") loadLookupStage(); }}
+            onPointerEnter={lane.key === "calculations" ? () => loadLookupStage() : undefined}
+            onFocus={lane.key === "calculations" ? () => loadLookupStage() : undefined}
+            onTouchStart={lane.key === "calculations" ? () => loadLookupStage() : undefined}
           >
             <span>{lane.label}</span>
-            <small>{laneCounts[lane.key] || 0}</small>
+            <small>{laneCounts[lane.key] === null ? <span aria-label="הספירה תיטען בפתיחת הלשונית">…</span> : laneCounts[lane.key] || 0}</small>
           </button>)}
         </div>
         <div className="sod29-muted sod29-world-orientation-note">הבחירה משנה רק את מה שמוצג על המסך. היא לא משנה קשרים, דירוג אמת, אימות או מצב מחקר.</div>
@@ -2243,7 +2282,13 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
       </section> : null}
 
-      {activeLane === "calculations" && gematriaRows.length ? <section className="sod29-section sod29-world-human-section">
+      {activeLane === "calculations" && lookupPending ? <NativeStateSection>
+        {lookupStage.status === "error"
+          ? <FrameState kind="unavailable" title="רשימת הגימטריות לא נטענה" action={<button className="sod29-action" type="button" onClick={() => loadLookupStage(true)}>נסה שוב</button>}>שאר שכבות העולם נשארות פתוחות. הרשימה לא הוחלפה בתוצאה חלקית.</FrameState>
+          : <FrameState kind="loading" title="טוען את כל רשימת הגימטריות">הרשימה המלאה והספירה נטענות עכשיו ולא עם פתיחת העולם.</FrameState>}
+      </NativeStateSection> : null}
+
+      {activeLane === "calculations" && !lookupPending && gematriaRows.length ? <section className="sod29-section sod29-world-human-section">
         <div className="sod29-section-head">
           <div>
             <div className="sod29-kicker">גימטריות וביטויים</div>

@@ -1059,6 +1059,10 @@ export async function fetchEntityHubProjection({
   includeScriptureTermDiscovery = true,
   topicSourceSlug = null,
   onNumberCore = null,
+  // Owner switch fx_staged_number_results (World only, default OFF): the number_lookup lens, the word families and the
+  // phrase->entity links are NOT fetched with the first projection. The surface that displays them loads the lookup lens on
+  // demand through fetchNumberLookupStage and merges it with mergeNumberLookupStage. OFF/undefined = the one-shot projection.
+  stagedNumberResults = false,
 } = {}) {
   const node = await resolveEntityHubNode({ nodeId, type, key });
   if (!node) return null;
@@ -1082,6 +1086,7 @@ export async function fetchEntityHubProjection({
     const full = await numberRpc("fn_number_lookup", { p_value: value });
     return full.error ? [] : full.data || [];
   };
+  const staged = isNumberNode && stagedNumberResults === true;
   const progressive = isNumberNode && typeof onNumberCore === "function";
   const numberIdentity = {
     nodeId: String(node.id), type: node.type, key: node.identity_key || String(node.id),
@@ -1092,6 +1097,17 @@ export async function fetchEntityHubProjection({
   // Start Number identity/method inputs before graph, media and topic hydration. The
   // same promises feed the final projection, so progressive rendering adds no reads.
   const numberCorePromise = isNumberNode ? (async () => {
+    if (staged) {
+      const anchorProfile = await fetchNumberAnchorProfile(Number(node.label));
+      const core = {
+        identity: numberIdentity,
+        gematria: { families: [], registry: [], deferred: true },
+        anchorProfile,
+        numberPagePending: true,
+      };
+      if (progressive) onNumberCore(core);
+      return core;
+    }
     const [families, anchorProfile] = await Promise.all([
       getValueFamilies(Number(node.label), 12, { lookup: familyLookup }),
       fetchNumberAnchorProfile(Number(node.label)),
@@ -1147,17 +1163,16 @@ export async function fetchEntityHubProjection({
 
   if (isNumberNode) {
     const number = Number(node.label);
+    const requestedNumberLenses = Array.isArray(numberResearchLenses) && numberResearchLenses.length
+      ? numberResearchLenses
+      : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"];
+    const initialNumberLenses = staged ? requestedNumberLenses.filter(lens => lens !== "number_lookup") : requestedNumberLenses;
     const [core, topicData, numericData, surfaceData, worldData, signatureData, scaleData] = await Promise.all([
       numberCorePromise,
       fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       researchNumber(number, {
-        lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
-          ? numberResearchLenses
-          : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
-        budget: { maxLenses: Math.max(1, Math.min(
-          5,
-          Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
-        )), depth: 1 },
+        lenses: initialNumberLenses,
+        budget: { maxLenses: Math.max(1, Math.min(5, initialNumberLenses.length)), depth: 1 },
         rpc: numberRpc,
         fetchResearchObjects: async () => ({ data: research.rows }),
         researchObjectLimit: researchLimit,
@@ -1264,6 +1279,8 @@ export async function fetchEntityHubProjection({
     lenses: {
       declared: Array.isArray(definition?.tabs) ? definition.tabs : [],
       numberResearch,
+      // Present only while the lookup lens is deliberately not loaded yet (switch ON). Never a partial result.
+      ...(staged ? { numberLookupStage: { deferred: true, number: Number(node.label), lens: "number_lookup", limit: safeLimit(numberLookupLimit, 500, 500) } } : {}),
     },
     truthLifecycle: {
       automaticCanonicalPromotion: false,
@@ -1389,3 +1406,43 @@ export async function fetchEntityListByType(params = {}) {
 }
 
 export default fetchEntityHubProjection;
+
+// ── Staged number results (owner switch fx_staged_number_results) ──────────────────────────────────────────────
+// Loads exactly the lens the first projection left out, with the SAME window, transport, provenance and projection as the
+// one-shot path, so the merged result equals what the unstaged projection would have produced. Not a cache or a new reader.
+export async function fetchNumberLookupStage(number, { numberLookupLimit = 500, nodeId = null } = {}) {
+  const numberValue = Number(number);
+  if (!Number.isSafeInteger(numberValue)) throw new Error("number lookup stage needs a safe integer");
+  const rpc = createNumberLookupTransport((name, args) => supabase.rpc(name, args));
+  return researchNumber(numberValue, {
+    lenses: ["number_lookup"],
+    budget: { maxLenses: 1, depth: 1 },
+    rpc,
+    lookupWindow: numberLookupLimit === 500
+      ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
+      : { limit: safeLimit(numberLookupLimit, 500, 500) },
+    provenance: { requestSource: "entity-hub-projection-v2", inputRef: nodeId ? `node:${nodeId}` : null },
+  });
+}
+
+// Pure. Returns a new projection whose number research includes the lookup lens (rows, true total_count/bounds, findings).
+// Refuses a stage for a different number, so a late answer for a previous entity can never be attached to the current one.
+export function mergeNumberLookupStage(projection, stage) {
+  const marker = projection?.lenses?.numberLookupStage;
+  if (!marker?.deferred || !stage || Number(stage?.root?.value) !== Number(marker.number)) return projection;
+  const base = projection.lenses.numberResearch || {};
+  const { numberLookupStage: _drop, ...lenses } = projection.lenses;
+  return {
+    ...projection,
+    lenses: {
+      ...lenses,
+      numberResearch: {
+        ...base,
+        requested_lenses: [...new Set([...(stage.requested_lenses || []), ...(base.requested_lenses || [])])],
+        per_lens: { ...(base.per_lens || {}), number_lookup: stage.per_lens?.number_lookup },
+        bounds: { ...(base.bounds || {}), number_lookup: stage.bounds?.number_lookup ?? null },
+        universal_findings: [...(stage.universal_findings || []), ...(base.universal_findings || [])],
+      },
+    },
+  };
+}

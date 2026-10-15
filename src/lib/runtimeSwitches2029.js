@@ -24,6 +24,7 @@ export const RUNTIME_SWITCHES_2029 = Object.freeze([
   { key: "fx_world_discovery", group: "עולם", label: "זרם הגילוי בעולם", mode: "freeze", note: "פוסטים, ממצאי מחקר, הגעות קבוצה; מתרענן כל דקה. כבוי = מציג את האחרון שנשמר, בלי עדכון ובלי רענון" },
   { key: "fx_els_gallery", group: "צפנים", label: "גלריית הצפנים השמורים בכלי", note: "60 מטריצות מהענן בכל פתיחה" },
   { key: "fx_world_relation_identity", group: "האצות", label: "מעבר קל בין קשרים בעולם", mode: "optimization", defaultOn: false, note: "מזהה את יעד הקשר בלי להכין מראש את כל המחקר שלו. כיבוי מחזיר את דרך הטעינה הקיימת; התוכן נשמר" },
+  { key: "fx_staged_number_results", group: "האצות", label: "טעינה מדורגת של הגימטריות במספר בעולם", mode: "optimization", defaultOn: false, note: "רשימת הגימטריות המלאה של המספר נטענת כשפותחים או מתקרבים ללשונית ״גימטריה״ ולא עם פתיחת העולם. כיבוי מחזיר את הטעינה בבת אחת; הרשימה, הספירות והסדר זהים" },
   { key: "fx_number_lookup_page", group: "האצות", label: "האצת חיפוש המספרים", mode: "optimization", defaultOn: false, requiresRpc: "fn_number_lookup_2029_page", note: "מחשב את הפירוט היקר רק לעמוד התוצאות המוחזר. כיבוי משאיר את המימוש המאובטח הקיים; המספרים, הספירות וההרשאות נשמרים" },
 ]);
 export const RUNTIME_SWITCH_KEYS = new Set(RUNTIME_SWITCHES_2029.map((entry) => entry.key));

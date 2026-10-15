@@ -1,0 +1,9 @@
+rc=0 :: node --test test/staged-number-results-2029.test.mjs test/scroll-restore-2029.test.mjs test/runtime-switches-2029.test.mjs test/perf-two-switches-2029.test.mjs test/shell-surface-registry-2029.test.mjs test/perf-navigation-2029.test.mjs test/early-primary-read-2029.test.mjs
+rc=0 :: node scripts/test-route-legitimacy-2029.mjs
+rc=0 :: node scripts/test-2029-isolation.mjs
+rc=0 :: node scripts/test-2029-world-surface.mjs
+rc=0 :: node scripts/test-2029-control-plane.mjs
+rc=0 :: npm run test:legacy-research-containment
+rc=0 :: npm run build:2029
+rc=0 :: node --test scripts/test-2029-bundle-budget.mjs
+rc=0 :: node --test src/lib/research/entityHubProjection.progressive.test.js src/lib/research/researchSyncRuntime.test.js

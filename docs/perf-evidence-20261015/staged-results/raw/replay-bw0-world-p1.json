@@ -1,0 +1,2115 @@
+{
+ "mode": "replay",
+ "flag": "world",
+ "target": "number",
+ "runs": 4,
+ "median": {
+  "cpuMs": 2252,
+  "lookupReqs": 1,
+  "fast": 0,
+  "tCtx": 218.6000000005588,
+  "tContent": 2324.9000000003725,
+  "reqs": 55,
+  "longMs": 842,
+  "long": 4,
+  "cls": 0.05232700474889333
+ },
+ "range": {
+  "tCtx": [
+   192,
+   228
+  ],
+  "tContent": [
+   2256,
+   2625
+  ],
+  "reqs": [
+   55,
+   55
+  ],
+  "longMs": [
+   172,
+   1468
+  ],
+  "cls": [
+   0,
+   0
+  ]
+ },
+ "subjects": [
+  "{\"label\":\"776\",\"type\":\"number\",\"ret\":\"1820\",\"retHref\":\"/world\",\"sel\":\"9e59d335-0e40-4646-817f-f683d30d6619\",\"lens\":\"world\"}"
+ ],
+ "textLen": [
+  26848,
+  26848
+ ],
+ "reqLists": [
+  "[\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET number_anchors\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET research_objects\",\"POST rpc/fn_number_lookup {\\\"p_value\\\":776,\\\"p_limit\\\":500,\\\"p_after_bid_id\\\":null}\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET gematria_words\",\"GET nodes\",\"GET nodes\",\"GET gematria_methods\",\"POST rpc/posts_by_number_strict {\\\"num\\\":776,\\\"lim\\\":3}\",\"GET gematria_words\",\"GET insights\",\"GET nodes\",\"GET topic_cards_public\",\"GET gallery_images\",\"GET gallery_images\",\"GET nodes\",\"GET nodes\",\"POST rpc/fn_zero_scale {\\\"p_value\\\":776}\",\"POST rpc/fn_number_dossier {\\\"p_value\\\":776}\",\"POST rpc/fn_number_journey {\\\"p_value\\\":776}\",\"POST rpc/number_neighbors {\\\"p_value\\\":776,\\\"p_limit\\\":12}\",\"GET gallery_images\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET cross_method_strength\",\"GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg\"]",
+  "[\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET number_anchors\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET research_objects\",\"POST rpc/fn_number_lookup {\\\"p_value\\\":776,\\\"p_limit\\\":500,\\\"p_after_bid_id\\\":null}\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET gematria_words\",\"GET nodes\",\"GET nodes\",\"GET gematria_methods\",\"POST rpc/posts_by_number_strict {\\\"num\\\":776,\\\"lim\\\":3}\",\"GET gematria_words\",\"GET insights\",\"GET nodes\",\"GET topic_cards_public\",\"GET gallery_images\",\"GET gallery_images\",\"POST rpc/fn_zero_scale {\\\"p_value\\\":776}\",\"GET nodes\",\"GET nodes\",\"POST rpc/fn_number_dossier {\\\"p_value\\\":776}\",\"POST rpc/fn_number_journey {\\\"p_value\\\":776}\",\"POST rpc/number_neighbors {\\\"p_value\\\":776,\\\"p_limit\\\":12}\",\"GET gallery_images\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET cross_method_strength\",\"GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg\"]"
+ ],
+ "samples": [
+  {
+   "phaseA": {
+    "cpuMs": 836,
+    "longMs": 0,
+    "long": 0,
+    "cls": 0.0523,
+    "reqs": 55,
+    "bytes": 836576,
+    "gz": 142186,
+    "tContent": 2255.7000000001863,
+    "bytesToContent": 801457,
+    "gzToContent": 112621,
+    "reqsToContent": 54
+   },
+   "phaseB": {
+    "tLane": 1435,
+    "ok": true,
+    "reqs": 0,
+    "bytes": 0,
+    "gz": 0,
+    "cpuMs": 1716,
+    "longMs": 1296,
+    "cls": 0,
+    "lookupReqs": 0,
+    "badgeBefore": "גימטריה 379",
+    "geo": {
+     "before": {
+      "y": 737,
+      "top": 324,
+      "w": 116
+     },
+     "after": {
+      "y": 737,
+      "top": 323,
+      "w": 116
+     }
+    }
+   },
+   "parity": {
+    "sectionLen": 25819,
+    "sectionHash": 44617703,
+    "head": "גימטריות וביטויים | כל רשימת הגימטריות של 776 | 379 רשומות · מקור קנוני מלא לפי סדר fn_number_lookup. הסדר כאן אינו דירוג אמת. | 379 מוצגות | חיפוש | שיטת גימטריה",
+    "badge": "גימטריה 379",
+    "options": "כל השיטות · 379;אותיות אחרי · 12;אותיות לפני · 7;איק בכר · 10;אלבם · 5;אתבש · 12;גדול · 73;מילוי · 8;מסתתר · 24;מסתתר גדול · 16;משולש גדול · 6;משולש הפוך · 4;משולש מדרגות · 4;משולש מילה · 2;סידורי · 1;קדמי · 11;רגיל · 117;ריבוע · 13;ריבוע גדול · 6;מילוי בלבד · 24;משולש מילה+משולש הפוך · 3;רגיל+מילוי · 8;רגיל+מסתתר · 4;רגיל+משולש · 3;אטבח · 6;הכול;אטומי;מורכב"
+   },
+   "tCtx": 192.20000000018626,
+   "tContent": 2255.7000000001863,
+   "reqs": 55,
+   "lookupReqs": 1,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET number_anchors",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET research_objects",
+    "POST rpc/fn_number_lookup {\"p_value\":776,\"p_limit\":500,\"p_after_bid_id\":null}",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET nodes",
+    "GET nodes",
+    "GET gematria_methods",
+    "POST rpc/posts_by_number_strict {\"num\":776,\"lim\":3}",
+    "GET gematria_words",
+    "GET insights",
+    "GET nodes",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gallery_images",
+    "GET nodes",
+    "GET nodes",
+    "POST rpc/fn_zero_scale {\"p_value\":776}",
+    "POST rpc/fn_number_dossier {\"p_value\":776}",
+    "POST rpc/fn_number_journey {\"p_value\":776}",
+    "POST rpc/number_neighbors {\"p_value\":776,\"p_limit\":12}",
+    "GET gallery_images",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET cross_method_strength",
+    "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg"
+   ],
+   "cpuMs": 2767,
+   "scriptMs": 254,
+   "headsLen": 74,
+   "long": 6,
+   "longMs": 1468,
+   "cls": 0.05231831038374139,
+   "subject": {
+    "label": "776",
+    "type": "number",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "9e59d335-0e40-4646-817f-f683d30d6619",
+    "lens": "world"
+   },
+   "text": 26848,
+   "pickedLabel": "776"
+  },
+  {
+   "phaseA": {
+    "cpuMs": 879,
+    "longMs": 0,
+    "long": 0,
+    "cls": 0.0523,
+    "reqs": 55,
+    "bytes": 836576,
+    "gz": 142186,
+    "tContent": 2324.9000000003725,
+    "bytesToContent": 801457,
+    "gzToContent": 112621,
+    "reqsToContent": 54
+   },
+   "phaseB": {
+    "tLane": 467,
+    "ok": true,
+    "reqs": 0,
+    "bytes": 0,
+    "gz": 0,
+    "cpuMs": 462,
+    "longMs": 292,
+    "cls": 0,
+    "lookupReqs": 0,
+    "badgeBefore": "גימטריה 379",
+    "geo": {
+     "before": {
+      "y": 737,
+      "top": 324,
+      "w": 116
+     },
+     "after": {
+      "y": 737,
+      "top": 323,
+      "w": 116
+     }
+    }
+   },
+   "parity": {
+    "sectionLen": 25819,
+    "sectionHash": 44617703,
+    "head": "גימטריות וביטויים | כל רשימת הגימטריות של 776 | 379 רשומות · מקור קנוני מלא לפי סדר fn_number_lookup. הסדר כאן אינו דירוג אמת. | 379 מוצגות | חיפוש | שיטת גימטריה",
+    "badge": "גימטריה 379",
+    "options": "כל השיטות · 379;אותיות אחרי · 12;אותיות לפני · 7;איק בכר · 10;אלבם · 5;אתבש · 12;גדול · 73;מילוי · 8;מסתתר · 24;מסתתר גדול · 16;משולש גדול · 6;משולש הפוך · 4;משולש מדרגות · 4;משולש מילה · 2;סידורי · 1;קדמי · 11;רגיל · 117;ריבוע · 13;ריבוע גדול · 6;מילוי בלבד · 24;משולש מילה+משולש הפוך · 3;רגיל+מילוי · 8;רגיל+מסתתר · 4;רגיל+משולש · 3;אטבח · 6;הכול;אטומי;מורכב"
+   },
+   "tCtx": 218.6000000005588,
+   "tContent": 2324.9000000003725,
+   "reqs": 55,
+   "lookupReqs": 1,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET number_anchors",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET research_objects",
+    "POST rpc/fn_number_lookup {\"p_value\":776,\"p_limit\":500,\"p_after_bid_id\":null}",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET nodes",
+    "GET nodes",
+    "GET gematria_methods",
+    "POST rpc/posts_by_number_strict {\"num\":776,\"lim\":3}",
+    "GET gematria_words",
+    "GET insights",
+    "GET nodes",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gallery_images",
+    "GET nodes",
+    "GET nodes",
+    "POST rpc/fn_zero_scale {\"p_value\":776}",
+    "POST rpc/fn_number_dossier {\"p_value\":776}",
+    "POST rpc/fn_number_journey {\"p_value\":776}",
+    "POST rpc/number_neighbors {\"p_value\":776,\"p_limit\":12}",
+    "GET gallery_images",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET cross_method_strength",
+    "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg"
+   ],
+   "cpuMs": 1361,
+   "scriptMs": 100,
+   "headsLen": 74,
+   "long": 1,
+   "longMs": 292,
+   "cls": 0.05232700474889333,
+   "subject": {
+    "label": "776",
+    "type": "number",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "9e59d335-0e40-4646-817f-f683d30d6619",
+    "lens": "world"
+   },
+   "text": 26848,
+   "pickedLabel": "776"
+  },
+  {
+   "phaseA": {
+    "cpuMs": 786,
+    "longMs": 0,
+    "long": 0,
+    "cls": 0.0523,
+    "reqs": 55,
+    "bytes": 836576,
+    "gz": 142186,
+    "tContent": 2291.2000000001863,
+    "bytesToContent": 801457,
+    "gzToContent": 112621,
+    "reqsToContent": 54
+   },
+   "phaseB": {
+    "tLane": 309,
+    "ok": true,
+    "reqs": 0,
+    "bytes": 0,
+    "gz": 0,
+    "cpuMs": 309,
+    "longMs": 172,
+    "cls": 0,
+    "lookupReqs": 0,
+    "badgeBefore": "גימטריה 379",
+    "geo": {
+     "before": {
+      "y": 737,
+      "top": 324,
+      "w": 116
+     },
+     "after": {
+      "y": 737,
+      "top": 323,
+      "w": 116
+     }
+    }
+   },
+   "parity": {
+    "sectionLen": 25819,
+    "sectionHash": 44617703,
+    "head": "גימטריות וביטויים | כל רשימת הגימטריות של 776 | 379 רשומות · מקור קנוני מלא לפי סדר fn_number_lookup. הסדר כאן אינו דירוג אמת. | 379 מוצגות | חיפוש | שיטת גימטריה",
+    "badge": "גימטריה 379",
+    "options": "כל השיטות · 379;אותיות אחרי · 12;אותיות לפני · 7;איק בכר · 10;אלבם · 5;אתבש · 12;גדול · 73;מילוי · 8;מסתתר · 24;מסתתר גדול · 16;משולש גדול · 6;משולש הפוך · 4;משולש מדרגות · 4;משולש מילה · 2;סידורי · 1;קדמי · 11;רגיל · 117;ריבוע · 13;ריבוע גדול · 6;מילוי בלבד · 24;משולש מילה+משולש הפוך · 3;רגיל+מילוי · 8;רגיל+מסתתר · 4;רגיל+משולש · 3;אטבח · 6;הכול;אטומי;מורכב"
+   },
+   "tCtx": 197.70000000018626,
+   "tContent": 2291.2000000001863,
+   "reqs": 55,
+   "lookupReqs": 1,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET number_anchors",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET research_objects",
+    "POST rpc/fn_number_lookup {\"p_value\":776,\"p_limit\":500,\"p_after_bid_id\":null}",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET nodes",
+    "GET nodes",
+    "GET gematria_methods",
+    "POST rpc/posts_by_number_strict {\"num\":776,\"lim\":3}",
+    "GET gematria_words",
+    "GET insights",
+    "GET nodes",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gallery_images",
+    "POST rpc/fn_zero_scale {\"p_value\":776}",
+    "GET nodes",
+    "GET nodes",
+    "POST rpc/fn_number_dossier {\"p_value\":776}",
+    "POST rpc/fn_number_journey {\"p_value\":776}",
+    "POST rpc/number_neighbors {\"p_value\":776,\"p_limit\":12}",
+    "GET gallery_images",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET cross_method_strength",
+    "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg"
+   ],
+   "cpuMs": 1117,
+   "scriptMs": 100,
+   "headsLen": 74,
+   "long": 1,
+   "longMs": 172,
+   "cls": 0.052320356794945934,
+   "subject": {
+    "label": "776",
+    "type": "number",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "9e59d335-0e40-4646-817f-f683d30d6619",
+    "lens": "world"
+   },
+   "text": 26848,
+   "pickedLabel": "776"
+  },
+  {
+   "phaseA": {
+    "cpuMs": 1234,
+    "longMs": 170,
+    "long": 2,
+    "cls": 0.0523,
+    "reqs": 55,
+    "bytes": 836576,
+    "gz": 142186,
+    "tContent": 2625.2999999998137,
+    "bytesToContent": 801457,
+    "gzToContent": 112621,
+    "reqsToContent": 54
+   },
+   "phaseB": {
+    "tLane": 888,
+    "ok": true,
+    "reqs": 0,
+    "bytes": 0,
+    "gz": 0,
+    "cpuMs": 946,
+    "longMs": 607,
+    "cls": 0,
+    "lookupReqs": 0,
+    "badgeBefore": "גימטריה 379",
+    "geo": {
+     "before": {
+      "y": 737,
+      "top": 324,
+      "w": 116
+     },
+     "after": {
+      "y": 737,
+      "top": 323,
+      "w": 116
+     }
+    }
+   },
+   "parity": {
+    "sectionLen": 25819,
+    "sectionHash": 44617703,
+    "head": "גימטריות וביטויים | כל רשימת הגימטריות של 776 | 379 רשומות · מקור קנוני מלא לפי סדר fn_number_lookup. הסדר כאן אינו דירוג אמת. | 379 מוצגות | חיפוש | שיטת גימטריה",
+    "badge": "גימטריה 379",
+    "options": "כל השיטות · 379;אותיות אחרי · 12;אותיות לפני · 7;איק בכר · 10;אלבם · 5;אתבש · 12;גדול · 73;מילוי · 8;מסתתר · 24;מסתתר גדול · 16;משולש גדול · 6;משולש הפוך · 4;משולש מדרגות · 4;משולש מילה · 2;סידורי · 1;קדמי · 11;רגיל · 117;ריבוע · 13;ריבוע גדול · 6;מילוי בלבד · 24;משולש מילה+משולש הפוך · 3;רגיל+מילוי · 8;רגיל+מסתתר · 4;רגיל+משולש · 3;אטבח · 6;הכול;אטומי;מורכב"
+   },
+   "tCtx": 227.70000000018626,
+   "tContent": 2625.2999999998137,
+   "reqs": 55,
+   "lookupReqs": 1,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET number_anchors",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET research_objects",
+    "POST rpc/fn_number_lookup {\"p_value\":776,\"p_limit\":500,\"p_after_bid_id\":null}",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET gematria_words",
+    "GET nodes",
+    "GET nodes",
+    "GET gematria_methods",
+    "POST rpc/posts_by_number_strict {\"num\":776,\"lim\":3}",
+    "GET gematria_words",
+    "GET insights",
+    "GET nodes",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gallery_images",
+    "GET nodes",
+    "GET nodes",
+    "POST rpc/fn_zero_scale {\"p_value\":776}",
+    "POST rpc/fn_number_dossier {\"p_value\":776}",
+    "POST rpc/fn_number_journey {\"p_value\":776}",
+    "POST rpc/number_neighbors {\"p_value\":776,\"p_limit\":12}",
+    "GET gallery_images",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET cross_method_strength",
+    "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg"
+   ],
+   "cpuMs": 2252,
+   "scriptMs": 275,
+   "headsLen": 74,
+   "long": 4,
+   "longMs": 842,
+   "cls": 0.052348885347572933,
+   "subject": {
+    "label": "776",
+    "type": "number",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "9e59d335-0e40-4646-817f-f683d30d6619",
+    "lens": "world"
+   },
+   "text": 26848,
+   "pickedLabel": "776"
+  }
+ ],
+ "timelines": [
+  {
+   "tClick": 1792034248929,
+   "tContentAbs": 1792034251192,
+   "tl": [
+    [
+     1792034248931,
+     1792034249081,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034249103,
+     1792034249253,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     2,
+     22
+    ],
+    [
+     1792034249265,
+     1792034249415,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034249430,
+     1792034249580,
+     "GET number_anchors??select=value,category,fact,hint,created_at,updated_at&value=eq.776",
+     493,
+     329
+    ],
+    [
+     1792034249430,
+     1792034249580,
+     "GET entity_types??select=type,label,parent,icon,tabs,relations,stats,route_pattern&type",
+     321,
+     225
+    ],
+    [
+     1792034249430,
+     1792034249580,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034249431,
+     1792034249581,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034249432,
+     1792034249582,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034249433,
+     1792034249583,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034249433,
+     1792034249584,
+     "POST rpc/fn_number_lookup",
+     471465,
+     31615
+    ],
+    [
+     1792034249596,
+     1792034249746,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     19976,
+     4001
+    ],
+    [
+     1792034249597,
+     1792034249746,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     20958,
+     3713
+    ],
+    [
+     1792034249597,
+     1792034249747,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,dst:nod",
+     2,
+     22
+    ],
+    [
+     1792034249636,
+     1792034249787,
+     "GET nodes??select=label,metadata&type=eq.entity&label=in.(בגתן+ותרש,בשורת+הגאולה",
+     1806,
+     677
+    ],
+    [
+     1792034249637,
+     1792034249788,
+     "GET gematria_words??select=phrase,ragil,tags&phrase=in.(בגתן+ותרש,בשורת+הגאולה,גוג+בראק+ח",
+     12681,
+     2456
+    ],
+    [
+     1792034249766,
+     1792034249916,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     44844,
+     8586
+    ],
+    [
+     1792034249766,
+     1792034249916,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     10972,
+     3251
+    ],
+    [
+     1792034249802,
+     1792034249951,
+     "GET gematria_methods??select=method_key,db_column,display_label,sub,soul,required_entitleme",
+     9309,
+     1601
+    ],
+    [
+     1792034249951,
+     1792034250102,
+     "POST rpc/posts_by_number_strict",
+     948,
+     440
+    ],
+    [
+     1792034249951,
+     1792034250102,
+     "GET gematria_words??select=phrase,ragil,is_verified,visibility_tier,lead_rank,tags&ragil=",
+     17349,
+     1993
+    ],
+    [
+     1792034249956,
+     1792034250106,
+     "GET insights??select=id,title,body,source_ref,source_type,origin,related_numbers,re",
+     6033,
+     2134
+    ],
+    [
+     1792034249956,
+     1792034250106,
+     "GET nodes??select=id,type,label,metadata,created_at&id=in.(c08a14d0-6640-480b-b0",
+     15359,
+     3059
+    ],
+    [
+     1792034249956,
+     1792034250106,
+     "GET topic_cards_public??select=id,slug,title,subtitle,status,quality,meter_score,approved_at,",
+     2515,
+     1073
+    ],
+    [
+     1792034249956,
+     1792034250106,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     20351,
+     5327
+    ],
+    [
+     1792034249956,
+     1792034250107,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     47911,
+     13323
+    ],
+    [
+     1792034249956,
+     1792034250107,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&is_active=eq.t",
+     1245,
+     656
+    ],
+    [
+     1792034249957,
+     1792034250108,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&type=eq.entity",
+     2,
+     22
+    ],
+    [
+     1792034249958,
+     1792034250108,
+     "POST rpc/fn_zero_scale",
+     784,
+     399
+    ],
+    [
+     1792034249958,
+     1792034250108,
+     "POST rpc/fn_number_dossier",
+     3951,
+     1551
+    ],
+    [
+     1792034249958,
+     1792034250109,
+     "POST rpc/fn_number_journey",
+     1342,
+     586
+    ],
+    [
+     1792034249958,
+     1792034250109,
+     "POST rpc/number_neighbors",
+     737,
+     191
+    ],
+    [
+     1792034250154,
+     1792034250304,
+     "GET gallery_images??select=id,gallery_id,wp_gallery_id,ordering,name,description,image_ur",
+     48839,
+     9095
+    ],
+    [
+     1792034250161,
+     1792034250311,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     3060,
+     1265
+    ],
+    [
+     1792034250161,
+     1792034250311,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2320,
+     983
+    ],
+    [
+     1792034250162,
+     1792034250312,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2334,
+     1057
+    ],
+    [
+     1792034250163,
+     1792034250312,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2079,
+     884
+    ],
+    [
+     1792034250324,
+     1792034250474,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     606,
+     451
+    ],
+    [
+     1792034250329,
+     1792034250479,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     503,
+     394
+    ],
+    [
+     1792034250331,
+     1792034250481,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     546,
+     412
+    ],
+    [
+     1792034250333,
+     1792034250483,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     604,
+     447
+    ],
+    [
+     1792034250485,
+     1792034250634,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2491,
+     703
+    ],
+    [
+     1792034250486,
+     1792034250636,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2910,
+     786
+    ],
+    [
+     1792034250498,
+     1792034250648,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     3088,
+     769
+    ],
+    [
+     1792034250498,
+     1792034250649,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2371,
+     622
+    ],
+    [
+     1792034250657,
+     1792034250807,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     2723,
+     943
+    ],
+    [
+     1792034250659,
+     1792034250809,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(a0e5ad64-2901-49c0-a11",
+     3733,
+     1030
+    ],
+    [
+     1792034250667,
+     1792034250817,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(9e59d335-0e40-4646-817",
+     3051,
+     1045
+    ],
+    [
+     1792034250667,
+     1792034250817,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     3483,
+     1025
+    ],
+    [
+     1792034250833,
+     1792034250983,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     802,
+     422
+    ],
+    [
+     1792034250834,
+     1792034250984,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     928,
+     549
+    ],
+    [
+     1792034250835,
+     1792034250987,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     236,
+     211
+    ],
+    [
+     1792034250836,
+     1792034250987,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     2,
+     22
+    ],
+    [
+     1792034250836,
+     1792034250987,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     1047,
+     524
+    ],
+    [
+     1792034251006,
+     1792034251155,
+     "GET cross_method_strength??select=value,phrase_count,independent_phrase_count,dependent_expressi",
+     104,
+     110
+    ],
+    [
+     1792034251205,
+     1792034251355,
+     "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg",
+     35119,
+     29565
+    ]
+   ]
+  },
+  {
+   "tClick": 1792034262114,
+   "tContentAbs": 1792034264431,
+   "tl": [
+    [
+     1792034262117,
+     1792034262267,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034262298,
+     1792034262448,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     2,
+     22
+    ],
+    [
+     1792034262457,
+     1792034262607,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034262619,
+     1792034262769,
+     "GET number_anchors??select=value,category,fact,hint,created_at,updated_at&value=eq.776",
+     493,
+     329
+    ],
+    [
+     1792034262619,
+     1792034262769,
+     "GET entity_types??select=type,label,parent,icon,tabs,relations,stats,route_pattern&type",
+     321,
+     225
+    ],
+    [
+     1792034262620,
+     1792034262770,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034262620,
+     1792034262771,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034262620,
+     1792034262771,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034262620,
+     1792034262771,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034262624,
+     1792034262774,
+     "POST rpc/fn_number_lookup",
+     471465,
+     31615
+    ],
+    [
+     1792034262815,
+     1792034262966,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     19976,
+     4001
+    ],
+    [
+     1792034262816,
+     1792034262966,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     20958,
+     3713
+    ],
+    [
+     1792034262817,
+     1792034262970,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,dst:nod",
+     2,
+     22
+    ],
+    [
+     1792034262866,
+     1792034263015,
+     "GET nodes??select=label,metadata&type=eq.entity&label=in.(בגתן+ותרש,בשורת+הגאולה",
+     1806,
+     677
+    ],
+    [
+     1792034262867,
+     1792034263016,
+     "GET gematria_words??select=phrase,ragil,tags&phrase=in.(בגתן+ותרש,בשורת+הגאולה,גוג+בראק+ח",
+     12681,
+     2456
+    ],
+    [
+     1792034263005,
+     1792034263155,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     44844,
+     8586
+    ],
+    [
+     1792034263005,
+     1792034263155,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     10972,
+     3251
+    ],
+    [
+     1792034263035,
+     1792034263185,
+     "GET gematria_methods??select=method_key,db_column,display_label,sub,soul,required_entitleme",
+     9309,
+     1601
+    ],
+    [
+     1792034263189,
+     1792034263338,
+     "POST rpc/posts_by_number_strict",
+     948,
+     440
+    ],
+    [
+     1792034263189,
+     1792034263339,
+     "GET gematria_words??select=phrase,ragil,is_verified,visibility_tier,lead_rank,tags&ragil=",
+     17349,
+     1993
+    ],
+    [
+     1792034263189,
+     1792034263339,
+     "GET insights??select=id,title,body,source_ref,source_type,origin,related_numbers,re",
+     6033,
+     2134
+    ],
+    [
+     1792034263190,
+     1792034263340,
+     "GET nodes??select=id,type,label,metadata,created_at&id=in.(c08a14d0-6640-480b-b0",
+     15359,
+     3059
+    ],
+    [
+     1792034263190,
+     1792034263340,
+     "GET topic_cards_public??select=id,slug,title,subtitle,status,quality,meter_score,approved_at,",
+     2515,
+     1073
+    ],
+    [
+     1792034263190,
+     1792034263340,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     20351,
+     5327
+    ],
+    [
+     1792034263190,
+     1792034263341,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     47911,
+     13323
+    ],
+    [
+     1792034263190,
+     1792034263341,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&is_active=eq.t",
+     1245,
+     656
+    ],
+    [
+     1792034263191,
+     1792034263342,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&type=eq.entity",
+     2,
+     22
+    ],
+    [
+     1792034263192,
+     1792034263342,
+     "POST rpc/fn_zero_scale",
+     784,
+     399
+    ],
+    [
+     1792034263202,
+     1792034263352,
+     "POST rpc/fn_number_dossier",
+     3951,
+     1551
+    ],
+    [
+     1792034263202,
+     1792034263353,
+     "POST rpc/fn_number_journey",
+     1342,
+     586
+    ],
+    [
+     1792034263203,
+     1792034263353,
+     "POST rpc/number_neighbors",
+     737,
+     191
+    ],
+    [
+     1792034263371,
+     1792034263521,
+     "GET gallery_images??select=id,gallery_id,wp_gallery_id,ordering,name,description,image_ur",
+     48839,
+     9095
+    ],
+    [
+     1792034263373,
+     1792034263524,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     3060,
+     1265
+    ],
+    [
+     1792034263375,
+     1792034263525,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2320,
+     983
+    ],
+    [
+     1792034263375,
+     1792034263525,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2334,
+     1057
+    ],
+    [
+     1792034263375,
+     1792034263525,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2079,
+     884
+    ],
+    [
+     1792034263546,
+     1792034263696,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     606,
+     451
+    ],
+    [
+     1792034263547,
+     1792034263697,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     503,
+     394
+    ],
+    [
+     1792034263552,
+     1792034263702,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     546,
+     412
+    ],
+    [
+     1792034263552,
+     1792034263702,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     604,
+     447
+    ],
+    [
+     1792034263707,
+     1792034263857,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2491,
+     703
+    ],
+    [
+     1792034263708,
+     1792034263858,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2910,
+     786
+    ],
+    [
+     1792034263720,
+     1792034263869,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     3088,
+     769
+    ],
+    [
+     1792034263722,
+     1792034263872,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2371,
+     622
+    ],
+    [
+     1792034263868,
+     1792034264018,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     2723,
+     943
+    ],
+    [
+     1792034263874,
+     1792034264024,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(a0e5ad64-2901-49c0-a11",
+     3733,
+     1030
+    ],
+    [
+     1792034263882,
+     1792034264033,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(9e59d335-0e40-4646-817",
+     3051,
+     1045
+    ],
+    [
+     1792034263886,
+     1792034264036,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     3483,
+     1025
+    ],
+    [
+     1792034264048,
+     1792034264199,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     802,
+     422
+    ],
+    [
+     1792034264049,
+     1792034264200,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     928,
+     549
+    ],
+    [
+     1792034264052,
+     1792034264202,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     236,
+     211
+    ],
+    [
+     1792034264052,
+     1792034264202,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     2,
+     22
+    ],
+    [
+     1792034264055,
+     1792034264205,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     1047,
+     524
+    ],
+    [
+     1792034264221,
+     1792034264371,
+     "GET cross_method_strength??select=value,phrase_count,independent_phrase_count,dependent_expressi",
+     104,
+     110
+    ],
+    [
+     1792034264430,
+     1792034264584,
+     "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg",
+     35119,
+     29565
+    ]
+   ]
+  },
+  {
+   "tClick": 1792034273110,
+   "tContentAbs": 1792034275395,
+   "tl": [
+    [
+     1792034273111,
+     1792034273262,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034273282,
+     1792034273432,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     2,
+     22
+    ],
+    [
+     1792034273442,
+     1792034273592,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034273610,
+     1792034273760,
+     "GET number_anchors??select=value,category,fact,hint,created_at,updated_at&value=eq.776",
+     493,
+     329
+    ],
+    [
+     1792034273610,
+     1792034273761,
+     "GET entity_types??select=type,label,parent,icon,tabs,relations,stats,route_pattern&type",
+     321,
+     225
+    ],
+    [
+     1792034273611,
+     1792034273761,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034273611,
+     1792034273762,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034273615,
+     1792034273765,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034273615,
+     1792034273765,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034273615,
+     1792034273766,
+     "POST rpc/fn_number_lookup",
+     471465,
+     31615
+    ],
+    [
+     1792034273784,
+     1792034273933,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     19976,
+     4001
+    ],
+    [
+     1792034273784,
+     1792034273934,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     20958,
+     3713
+    ],
+    [
+     1792034273784,
+     1792034273934,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,dst:nod",
+     2,
+     22
+    ],
+    [
+     1792034273814,
+     1792034273964,
+     "GET nodes??select=label,metadata&type=eq.entity&label=in.(בגתן+ותרש,בשורת+הגאולה",
+     1806,
+     677
+    ],
+    [
+     1792034273814,
+     1792034273964,
+     "GET gematria_words??select=phrase,ragil,tags&phrase=in.(בגתן+ותרש,בשורת+הגאולה,גוג+בראק+ח",
+     12681,
+     2456
+    ],
+    [
+     1792034273951,
+     1792034274102,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     44844,
+     8586
+    ],
+    [
+     1792034273952,
+     1792034274103,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     10972,
+     3251
+    ],
+    [
+     1792034273978,
+     1792034274128,
+     "GET gematria_methods??select=method_key,db_column,display_label,sub,soul,required_entitleme",
+     9309,
+     1601
+    ],
+    [
+     1792034274133,
+     1792034274283,
+     "POST rpc/posts_by_number_strict",
+     948,
+     440
+    ],
+    [
+     1792034274134,
+     1792034274284,
+     "GET gematria_words??select=phrase,ragil,is_verified,visibility_tier,lead_rank,tags&ragil=",
+     17349,
+     1993
+    ],
+    [
+     1792034274134,
+     1792034274284,
+     "GET insights??select=id,title,body,source_ref,source_type,origin,related_numbers,re",
+     6033,
+     2134
+    ],
+    [
+     1792034274134,
+     1792034274285,
+     "GET nodes??select=id,type,label,metadata,created_at&id=in.(c08a14d0-6640-480b-b0",
+     15359,
+     3059
+    ],
+    [
+     1792034274136,
+     1792034274287,
+     "GET topic_cards_public??select=id,slug,title,subtitle,status,quality,meter_score,approved_at,",
+     2515,
+     1073
+    ],
+    [
+     1792034274137,
+     1792034274287,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     20351,
+     5327
+    ],
+    [
+     1792034274137,
+     1792034274287,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     47911,
+     13323
+    ],
+    [
+     1792034274137,
+     1792034274287,
+     "POST rpc/fn_zero_scale",
+     784,
+     399
+    ],
+    [
+     1792034274137,
+     1792034274287,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&is_active=eq.t",
+     1245,
+     656
+    ],
+    [
+     1792034274137,
+     1792034274288,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&type=eq.entity",
+     2,
+     22
+    ],
+    [
+     1792034274137,
+     1792034274288,
+     "POST rpc/fn_number_dossier",
+     3951,
+     1551
+    ],
+    [
+     1792034274138,
+     1792034274288,
+     "POST rpc/fn_number_journey",
+     1342,
+     586
+    ],
+    [
+     1792034274139,
+     1792034274289,
+     "POST rpc/number_neighbors",
+     737,
+     191
+    ],
+    [
+     1792034274317,
+     1792034274467,
+     "GET gallery_images??select=id,gallery_id,wp_gallery_id,ordering,name,description,image_ur",
+     48839,
+     9095
+    ],
+    [
+     1792034274323,
+     1792034274473,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     3060,
+     1265
+    ],
+    [
+     1792034274325,
+     1792034274475,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2320,
+     983
+    ],
+    [
+     1792034274326,
+     1792034274477,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2334,
+     1057
+    ],
+    [
+     1792034274327,
+     1792034274477,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2079,
+     884
+    ],
+    [
+     1792034274499,
+     1792034274650,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     606,
+     451
+    ],
+    [
+     1792034274501,
+     1792034274650,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     503,
+     394
+    ],
+    [
+     1792034274503,
+     1792034274652,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     546,
+     412
+    ],
+    [
+     1792034274503,
+     1792034274653,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     604,
+     447
+    ],
+    [
+     1792034274668,
+     1792034274819,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2491,
+     703
+    ],
+    [
+     1792034274671,
+     1792034274821,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2910,
+     786
+    ],
+    [
+     1792034274679,
+     1792034274829,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     3088,
+     769
+    ],
+    [
+     1792034274681,
+     1792034274832,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2371,
+     622
+    ],
+    [
+     1792034274834,
+     1792034274984,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     2723,
+     943
+    ],
+    [
+     1792034274843,
+     1792034274993,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(a0e5ad64-2901-49c0-a11",
+     3733,
+     1030
+    ],
+    [
+     1792034274850,
+     1792034275000,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(9e59d335-0e40-4646-817",
+     3051,
+     1045
+    ],
+    [
+     1792034274856,
+     1792034275006,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     3483,
+     1025
+    ],
+    [
+     1792034275017,
+     1792034275168,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     802,
+     422
+    ],
+    [
+     1792034275018,
+     1792034275169,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     928,
+     549
+    ],
+    [
+     1792034275018,
+     1792034275169,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     236,
+     211
+    ],
+    [
+     1792034275018,
+     1792034275169,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     2,
+     22
+    ],
+    [
+     1792034275019,
+     1792034275169,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     1047,
+     524
+    ],
+    [
+     1792034275191,
+     1792034275341,
+     "GET cross_method_strength??select=value,phrase_count,independent_phrase_count,dependent_expressi",
+     104,
+     110
+    ],
+    [
+     1792034275395,
+     1792034275545,
+     "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg",
+     35119,
+     29565
+    ]
+   ]
+  },
+  {
+   "tClick": 1792034283951,
+   "tContentAbs": 1792034286569,
+   "tl": [
+    [
+     1792034283957,
+     1792034284107,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034284139,
+     1792034284290,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     2,
+     22
+    ],
+    [
+     1792034284298,
+     1792034284448,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034284502,
+     1792034284652,
+     "GET number_anchors??select=value,category,fact,hint,created_at,updated_at&value=eq.776",
+     493,
+     329
+    ],
+    [
+     1792034284505,
+     1792034284655,
+     "GET entity_types??select=type,label,parent,icon,tabs,relations,stats,route_pattern&type",
+     321,
+     225
+    ],
+    [
+     1792034284506,
+     1792034284655,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     545,
+     364
+    ],
+    [
+     1792034284506,
+     1792034284656,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034284506,
+     1792034284656,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034284506,
+     1792034284656,
+     "GET research_objects??select=id,created_at,kind,statement,terms,value,relates,source,source",
+     202,
+     176
+    ],
+    [
+     1792034284513,
+     1792034284663,
+     "POST rpc/fn_number_lookup",
+     471465,
+     31615
+    ],
+    [
+     1792034284692,
+     1792034284842,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     19976,
+     4001
+    ],
+    [
+     1792034284692,
+     1792034284843,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,src:nod",
+     20958,
+     3713
+    ],
+    [
+     1792034284692,
+     1792034284843,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at,dst:nod",
+     2,
+     22
+    ],
+    [
+     1792034284724,
+     1792034284874,
+     "GET nodes??select=label,metadata&type=eq.entity&label=in.(בגתן+ותרש,בשורת+הגאולה",
+     1806,
+     677
+    ],
+    [
+     1792034284724,
+     1792034284875,
+     "GET gematria_words??select=phrase,ragil,tags&phrase=in.(בגתן+ותרש,בשורת+הגאולה,גוג+בראק+ח",
+     12681,
+     2456
+    ],
+    [
+     1792034284865,
+     1792034285016,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     44844,
+     8586
+    ],
+    [
+     1792034284865,
+     1792034285017,
+     "GET nodes??select=id,type,label,description,metadata,identity_key,is_active,crea",
+     10972,
+     3251
+    ],
+    [
+     1792034284890,
+     1792034285040,
+     "GET gematria_methods??select=method_key,db_column,display_label,sub,soul,required_entitleme",
+     9309,
+     1601
+    ],
+    [
+     1792034285054,
+     1792034285205,
+     "POST rpc/posts_by_number_strict",
+     948,
+     440
+    ],
+    [
+     1792034285055,
+     1792034285205,
+     "GET gematria_words??select=phrase,ragil,is_verified,visibility_tier,lead_rank,tags&ragil=",
+     17349,
+     1993
+    ],
+    [
+     1792034285056,
+     1792034285206,
+     "GET insights??select=id,title,body,source_ref,source_type,origin,related_numbers,re",
+     6033,
+     2134
+    ],
+    [
+     1792034285056,
+     1792034285206,
+     "GET nodes??select=id,type,label,metadata,created_at&id=in.(c08a14d0-6640-480b-b0",
+     15359,
+     3059
+    ],
+    [
+     1792034285056,
+     1792034285206,
+     "GET topic_cards_public??select=id,slug,title,subtitle,status,quality,meter_score,approved_at,",
+     2515,
+     1073
+    ],
+    [
+     1792034285057,
+     1792034285207,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     20351,
+     5327
+    ],
+    [
+     1792034285057,
+     1792034285207,
+     "GET gallery_images??select=id,name,description,image_url,thumb_url,primary_value,gallery_",
+     47911,
+     13323
+    ],
+    [
+     1792034285057,
+     1792034285207,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&is_active=eq.t",
+     1245,
+     656
+    ],
+    [
+     1792034285057,
+     1792034285207,
+     "GET nodes??select=id,type,label,description,metadata,identity_key&type=eq.entity",
+     2,
+     22
+    ],
+    [
+     1792034285058,
+     1792034285208,
+     "POST rpc/fn_zero_scale",
+     784,
+     399
+    ],
+    [
+     1792034285067,
+     1792034285217,
+     "POST rpc/fn_number_dossier",
+     3951,
+     1551
+    ],
+    [
+     1792034285067,
+     1792034285217,
+     "POST rpc/fn_number_journey",
+     1342,
+     586
+    ],
+    [
+     1792034285068,
+     1792034285218,
+     "POST rpc/number_neighbors",
+     737,
+     191
+    ],
+    [
+     1792034285222,
+     1792034285373,
+     "GET gallery_images??select=id,gallery_id,wp_gallery_id,ordering,name,description,image_ur",
+     48839,
+     9095
+    ],
+    [
+     1792034285235,
+     1792034285385,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     3060,
+     1265
+    ],
+    [
+     1792034285235,
+     1792034285386,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2320,
+     983
+    ],
+    [
+     1792034285235,
+     1792034285386,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2334,
+     1057
+    ],
+    [
+     1792034285235,
+     1792034285386,
+     "GET topic_cards_public??select=id,slug,title,subtitle,numbers,highlight_numbers,status,qualit",
+     2079,
+     884
+    ],
+    [
+     1792034285406,
+     1792034285564,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     606,
+     451
+    ],
+    [
+     1792034285408,
+     1792034285567,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     503,
+     394
+    ],
+    [
+     1792034285410,
+     1792034285568,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     546,
+     412
+    ],
+    [
+     1792034285410,
+     1792034285568,
+     "GET nodes??select=id,type,label,description,metadata,is_active,weight,created_at",
+     604,
+     447
+    ],
+    [
+     1792034285675,
+     1792034285824,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2491,
+     703
+    ],
+    [
+     1792034285678,
+     1792034285827,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2910,
+     786
+    ],
+    [
+     1792034285678,
+     1792034285828,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     3088,
+     769
+    ],
+    [
+     1792034285683,
+     1792034285833,
+     "GET edges??select=id,from_node,to_node,relation_type,metadata,created_at&from_no",
+     2371,
+     622
+    ],
+    [
+     1792034285841,
+     1792034285992,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     2723,
+     943
+    ],
+    [
+     1792034285851,
+     1792034286001,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(a0e5ad64-2901-49c0-a11",
+     3733,
+     1030
+    ],
+    [
+     1792034285852,
+     1792034286002,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(9e59d335-0e40-4646-817",
+     3051,
+     1045
+    ],
+    [
+     1792034285856,
+     1792034286006,
+     "GET nodes??select=id,type,label,metadata,is_active&id=in.(c6b8f925-fcd4-4247-ba1",
+     3483,
+     1025
+    ],
+    [
+     1792034286040,
+     1792034286191,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     802,
+     422
+    ],
+    [
+     1792034286042,
+     1792034286192,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     928,
+     549
+    ],
+    [
+     1792034286043,
+     1792034286193,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     236,
+     211
+    ],
+    [
+     1792034286043,
+     1792034286194,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     2,
+     22
+    ],
+    [
+     1792034286045,
+     1792034286194,
+     "GET nodes??select=id,type,label,identity_key,metadata&type=eq.entity&is_active=e",
+     1047,
+     524
+    ],
+    [
+     1792034286226,
+     1792034286377,
+     "GET cross_method_strength??select=value,phrase_count,independent_phrase_count,dependent_expressi",
+     104,
+     110
+    ],
+    [
+     1792034286570,
+     1792034286720,
+     "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg",
+     35119,
+     29565
+    ]
+   ]
+  }
+ ],
+ "stale": null
+}

@@ -1,0 +1,49 @@
+{
+ "famonly": {
+  "n": 12,
+  "tContent": "2379 [2351–2793]",
+  "reqsToContent": 46,
+  "wireToContentKB": 104,
+  "cpuA": 775,
+  "tLane": "380 [212–805]",
+  "totalReqs": 47
+ },
+ "staged": {
+  "n": 12,
+  "tContent": "2251 [2189–2601]",
+  "reqsToContent": 45,
+  "wireToContentKB": 73,
+  "cpuA": 665,
+  "tLane": "1139 [627–1666]",
+  "totalReqs": 47
+ },
+ "world": {
+  "n": 12,
+  "tContent": "2440 [2397–2831]",
+  "reqsToContent": 54,
+  "wireToContentKB": 110,
+  "cpuA": 808,
+  "tLane": "307 [212–704]",
+  "totalReqs": 55
+ },
+ "staged_minus_world_tContent_95CI_ms": [
+  -251,
+  106
+ ],
+ "staged_minus_world_tLane_95CI_ms": [
+  330,
+  1259
+ ],
+ "famonly_minus_world_tContent_95CI_ms": [
+  -120,
+  114
+ ],
+ "famonly_minus_world_tLane_95CI_ms": [
+  -147,
+  228
+ ],
+ "staged_minus_famonly_tContent_95CI_ms": [
+  -307,
+  167
+ ]
+}

@@ -1,0 +1,172 @@
+{
+ "mode": "live",
+ "flag": "worldstaged",
+ "target": "number",
+ "runs": 1,
+ "median": {
+  "cpuMs": 1635,
+  "lookupReqs": 1,
+  "fast": 0,
+  "tCtx": 311.69999999925494,
+  "tContent": 4828.299999999814,
+  "reqs": 47,
+  "longMs": 135,
+  "long": 1,
+  "cls": 0.0529711611150334
+ },
+ "range": {
+  "tCtx": [
+   312,
+   312
+  ],
+  "tContent": [
+   4828,
+   4828
+  ],
+  "reqs": [
+   47,
+   47
+  ],
+  "longMs": [
+   135,
+   135
+  ],
+  "cls": [
+   0,
+   0
+  ]
+ },
+ "subjects": [
+  "{\"label\":\"776\",\"type\":\"number\",\"ret\":\"1820\",\"retHref\":\"/world\",\"sel\":\"9e59d335-0e40-4646-817f-f683d30d6619\",\"lens\":\"world\"}"
+ ],
+ "textLen": [
+  26848,
+  26848
+ ],
+ "reqLists": [
+  "[\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET number_anchors\",\"GET entity_types\",\"GET nodes\",\"GET research_objects\",\"GET research_objects\",\"GET research_objects\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"POST rpc/posts_by_number_strict {\\\"num\\\":776,\\\"lim\\\":3}\",\"GET gematria_words\",\"GET insights\",\"GET nodes\",\"GET topic_cards_public\",\"GET gallery_images\",\"GET gallery_images\",\"GET nodes\",\"POST rpc/fn_zero_scale {\\\"p_value\\\":776}\",\"GET nodes\",\"POST rpc/fn_number_dossier {\\\"p_value\\\":776}\",\"POST rpc/fn_number_journey {\\\"p_value\\\":776}\",\"POST rpc/number_neighbors {\\\"p_value\\\":776,\\\"p_limit\\\":12}\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET topic_cards_public\",\"GET gallery_images\",\"GET nodes\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET edges\",\"GET edges\",\"GET edges\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET nodes\",\"GET cross_method_strength\",\"GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg\",\"POST rpc/fn_number_lookup {\\\"p_value\\\":776,\\\"p_limit\\\":500,\\\"p_after_bid_id\\\":null}\"]"
+ ],
+ "samples": [
+  {
+   "phaseA": {
+    "cpuMs": 1192,
+    "longMs": 0,
+    "long": 0,
+    "cls": 0.0529,
+    "reqs": 46,
+    "bytes": 0,
+    "tContent": 4828.299999999814,
+    "bytesToContent": 0,
+    "reqsToContent": 0
+   },
+   "phaseB": {
+    "tLane": 951,
+    "ok": true,
+    "reqs": 1,
+    "bytes": 0,
+    "cpuMs": 423,
+    "longMs": 135,
+    "cls": 0.0001,
+    "lookupReqs": 0,
+    "badgeBefore": "גימטריה …",
+    "geo": {
+     "before": {
+      "y": 737,
+      "top": 324,
+      "w": 108
+     },
+     "after": {
+      "y": 737,
+      "top": 323,
+      "w": 116
+     }
+    }
+   },
+   "parity": {
+    "sectionLen": 25819,
+    "sectionHash": 44617703,
+    "head": "גימטריות וביטויים | כל רשימת הגימטריות של 776 | 379 רשומות · מקור קנוני מלא לפי סדר fn_number_lookup. הסדר כאן אינו דירוג אמת. | 379 מוצגות | חיפוש | שיטת גימטריה",
+    "badge": "גימטריה 379",
+    "options": "כל השיטות · 379;אותיות אחרי · 12;אותיות לפני · 7;איק בכר · 10;אלבם · 5;אתבש · 12;גדול · 73;מילוי · 8;מסתתר · 24;מסתתר גדול · 16;משולש גדול · 6;משולש הפוך · 4;משולש מדרגות · 4;משולש מילה · 2;סידורי · 1;קדמי · 11;רגיל · 117;ריבוע · 13;ריבוע גדול · 6;מילוי בלבד · 24;משולש מילה+משולש הפוך · 3;רגיל+מילוי · 8;רגיל+מסתתר · 4;רגיל+משולש · 3;אטבח · 6;הכול;אטומי;מורכב"
+   },
+   "tCtx": 311.69999999925494,
+   "tContent": 4828.299999999814,
+   "reqs": 47,
+   "lookupReqs": 1,
+   "fast": 0,
+   "reqList": [
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET number_anchors",
+    "GET entity_types",
+    "GET nodes",
+    "GET research_objects",
+    "GET research_objects",
+    "GET research_objects",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "POST rpc/posts_by_number_strict {\"num\":776,\"lim\":3}",
+    "GET gematria_words",
+    "GET insights",
+    "GET nodes",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET gallery_images",
+    "GET nodes",
+    "POST rpc/fn_zero_scale {\"p_value\":776}",
+    "GET nodes",
+    "POST rpc/fn_number_dossier {\"p_value\":776}",
+    "POST rpc/fn_number_journey {\"p_value\":776}",
+    "POST rpc/number_neighbors {\"p_value\":776,\"p_limit\":12}",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET topic_cards_public",
+    "GET gallery_images",
+    "GET nodes",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET edges",
+    "GET edges",
+    "GET edges",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET nodes",
+    "GET cross_method_strength",
+    "GET /storage/v1/object/public/media/uploads/2015/12/shlmvt.jpg",
+    "POST rpc/fn_number_lookup {\"p_value\":776,\"p_limit\":500,\"p_after_bid_id\":null}"
+   ],
+   "cpuMs": 1635,
+   "scriptMs": 111,
+   "headsLen": 74,
+   "long": 1,
+   "longMs": 135,
+   "cls": 0.0529711611150334,
+   "subject": {
+    "label": "776",
+    "type": "number",
+    "ret": "1820",
+    "retHref": "/world",
+    "sel": "9e59d335-0e40-4646-817f-f683d30d6619",
+    "lens": "world"
+   },
+   "text": 26848,
+   "pickedLabel": "776"
+  }
+ ],
+ "timelines": [
+  {
+   "tClick": 1792034113783,
+   "tContentAbs": 1792034118617,
+   "tl": []
+  }
+ ],
+ "stale": null
+}
