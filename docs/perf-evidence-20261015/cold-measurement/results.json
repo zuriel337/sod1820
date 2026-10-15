@@ -209,11 +209,11 @@
           8040.5
         ],
         "layoutShiftSum": [
-          0.00007661682559483599,
+          7.661682559483599e-05,
           0.03716477658474263
         ],
         "cls": [
-          0.00007661682559483599,
+          7.661682559483599e-05,
           0.037088159759147796
         ],
         "firstPrimaryReq": [
@@ -272,8 +272,8 @@
         "shell": 3837.5,
         "ready": 4228.899999999907,
         "backgroundSettled": 4931.800000000279,
-        "layoutShiftSum": 0.00007661682559483599,
-        "cls": 0.00007661682559483599,
+        "layoutShiftSum": 7.661682559483599e-05,
+        "cls": 7.661682559483599e-05,
         "firstPrimaryReq": 281.946533203125,
         "lastRestEnd": 4334.899999999907,
         "restCount": 4,
@@ -303,12 +303,12 @@
           5328.5
         ],
         "layoutShiftSum": [
-          0.00007661682559483599,
-          0.00007661682559483599
+          7.661682559483599e-05,
+          7.661682559483599e-05
         ],
         "cls": [
-          0.00007661682559483599,
-          0.00007661682559483599
+          7.661682559483599e-05,
+          7.661682559483599e-05
         ],
         "firstPrimaryReq": [
           254.07373046875,
@@ -556,8 +556,8 @@
         "shell": 3840.399999999907,
         "ready": 4239.399999999907,
         "backgroundSettled": 5008.5,
-        "layoutShiftSum": 0.00007661682559483599,
-        "cls": 0.00007661682559483599,
+        "layoutShiftSum": 7.661682559483599e-05,
+        "cls": 7.661682559483599e-05,
         "firstPrimaryReq": 274.7451171875,
         "lastRestEnd": 4348.699999999721,
         "restCount": 4,
@@ -587,12 +587,12 @@
           5905.899999999907
         ],
         "layoutShiftSum": [
-          0.00007661682559483599,
-          0.00007661682559483599
+          7.661682559483599e-05,
+          7.661682559483599e-05
         ],
         "cls": [
-          0.00007661682559483599,
-          0.00007661682559483599
+          7.661682559483599e-05,
+          7.661682559483599e-05
         ],
         "firstPrimaryReq": [
           256.007568359375,
@@ -667,10 +667,37 @@
     "raw/pre-quiet-*",
     "raw/setup-build-failure.txt"
   ],
-  "releaseState": "BRANCH_ONLY; no merge, main push, deployment, permission/switch/product DB change or other-session activation",
+  "releaseState": "BRANCH_ONLY; local gates PASS; shared CI CANCELLED after an unapproved operational trace write. No merge/main push/deployment/permission/flag change or other-session activation.",
   "outstanding": [
+    "Shared CI no-write isolation must be repaired separately before rerunning; confirmed live trace root + five spans retained, other CI side effects not exhaustively audited",
     "Renew both sides of affected historical cold comparisons with the final profile and matched conditions",
     "HomeV2 runner and hosted helper require their own definition repairs; exact HomeV2 handoff retained",
     "Exact hosted candidate, real identities, broader 2029 journeys, physical phone and field/RUM acceptance remain separate"
-  ]
+  ],
+  "ciSafetyIncident": {
+    "project": "linswmnnkjxvweumprav",
+    "verification": "Bounded SELECTs in BEGIN READ ONLY transactions; no cleanup or product write performed for verification",
+    "ciRun": 38783045975,
+    "ciHead": "92570c7391ef1c7345ae2430d916a71f9e07d8fd",
+    "trace_id": "0488019d-0547-4ec1-8fb1-151d8b0be43b",
+    "interaction_id": "512d8784-6ddf-4367-b247-7be5fff363e4",
+    "root": {
+      "subject_ref": "number:878",
+      "surface": "heichal",
+      "capability": "research-w2:public-number",
+      "identity_class": "public_user",
+      "outcome": "success",
+      "created_at": "2026-10-15 18:08:14.824443+00"
+    },
+    "confirmedMinimumWrites": {
+      "op_trace_roots": 1,
+      "op_trace_spans": 5
+    },
+    "spanCreatedRange": [
+      "2026-10-15 18:08:14.824443+00",
+      "2026-10-15 18:08:19.364508+00"
+    ],
+    "otherSharedCiSideEffects": "Not exhaustively audited; do not infer there were no other live writes",
+    "containment": "All three CI jobs confirmed completed/cancelled. No rerun. Evidence-only final commit uses [skip ci]."
+  }
 }

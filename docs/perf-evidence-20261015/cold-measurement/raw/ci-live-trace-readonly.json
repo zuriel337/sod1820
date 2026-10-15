@@ -1,0 +1,26 @@
+{
+  "project": "linswmnnkjxvweumprav",
+  "verification": "Bounded SELECTs in BEGIN READ ONLY transactions; no cleanup or product write performed for verification",
+  "ciRun": 38783045975,
+  "ciHead": "92570c7391ef1c7345ae2430d916a71f9e07d8fd",
+  "trace_id": "0488019d-0547-4ec1-8fb1-151d8b0be43b",
+  "interaction_id": "512d8784-6ddf-4367-b247-7be5fff363e4",
+  "root": {
+    "subject_ref": "number:878",
+    "surface": "heichal",
+    "capability": "research-w2:public-number",
+    "identity_class": "public_user",
+    "outcome": "success",
+    "created_at": "2026-10-15 18:08:14.824443+00"
+  },
+  "confirmedMinimumWrites": {
+    "op_trace_roots": 1,
+    "op_trace_spans": 5
+  },
+  "spanCreatedRange": [
+    "2026-10-15 18:08:14.824443+00",
+    "2026-10-15 18:08:19.364508+00"
+  ],
+  "otherSharedCiSideEffects": "Not exhaustively audited; do not infer there were no other live writes",
+  "containment": "All three CI jobs confirmed completed/cancelled. No rerun. Evidence-only final commit uses [skip ci]."
+}

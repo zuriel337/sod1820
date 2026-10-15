@@ -1,6 +1,6 @@
 # Cold measurement instrument repair — 2026-10-15
 
-Status: IMPLEMENTED · TESTED · BRANCH_ONLY · PR_READY. Local instrument/replay gates PASS. This repairs measurement reliability. It makes **no claim that the site became faster**.
+Status: IMPLEMENTED · LOCALLY_TESTED · BRANCH_ONLY · DRAFT_PR_READY_WITH_CI_SAFETY_INCIDENT. Local instrument/replay gates PASS; shared CI CANCELLED after a confirmed live trace write. This repairs measurement reliability. It makes **no claim that the site became faster**.
 
 ## Scope and provenance
 
@@ -8,7 +8,7 @@ Status: IMPLEMENTED · TESTED · BRANCH_ONLY · PR_READY. Local instrument/repla
 - Current `origin/main` instructions and owner map read at `503b52ef169b6e51f967187491398d153090aa45`. Main, public production and the performance candidate are different versions. None was moved or deployed here.
 - Task key: `GPT_PERF_COLD_MEASUREMENT_20261015`. Canonical project `linswmnnkjxvweumprav`, bounded `public.work_log_current` read using the general Supabase connector; no dedicated read-only connector was available. Active coordination v17 / Traffic v11 / work-log authority v2 checked. Historical AFTERs `925f50a3-2a23-4bdc-b5c9-647a6254cc23` and `2b5160bc-9fea-41c1-8ac4-eba766691245` resolve old overlapping claims. No active cold-measurement writer found.
 - Passive BEFORE to ZURIEL: `e9fed95a-7c0b-4f4b-b993-92449dbc8342`; dispatch kind/state NULL. No session/agent activation or ACK wait.
-- Write scope: the cold tool and focused helpers/tests under `scripts/perf-execution-2029`, plus this new evidence directory. Product, RUM, HomeV2, navigation tool, thresholds, historical fixtures/baselines, workflows, permissions, switches and product DB are unchanged.
+- Write scope: the cold tool and focused helpers/tests under `scripts/perf-execution-2029`, plus this new evidence directory. Product code, RUM, HomeV2, navigation tool, thresholds, historical fixtures/baselines, workflows, permissions and switches are unchanged. The automatically triggered shared CI nevertheless wrote operational trace rows; see the incident below.
 
 ## Defect and proof
 
@@ -44,7 +44,7 @@ Mobile: Chromium 151.0.7922.173, Playwright 1.56.1, 390×844, DPR2, CPU×4, 150m
 
 A new bounded anonymous public-read snapshot was captured and completed with the unchanged native-image capture tool, then frozen before replay. SHA is in `build-receipt.json` and every replay report. The same snapshot and exact built artifact are used for both repetitions. No historical snapshot, response payload, baseline, numerical threshold or CI budget was changed. Raw upstream bodies remain under private local scratch storage and are not committed. Per-read statuses, hashes, counts, errors, misses and blocked paths are in the committed reports.
 
-Analytics/auth/table writes and non-allowlisted RPCs are intercepted **before the first navigation**. Replay cannot fall through to an upstream read or write. Six negative write cases test the actual installed guard. Fresh contexts and service-worker blocking prevent interception bypass. Journal BEFORE/AFTER are the only authorized live writes.
+Analytics/auth/table writes and non-allowlisted RPCs are intercepted **before the first navigation**. Replay cannot fall through to an upstream read or write. Six negative write cases test the actual installed guard. Fresh contexts and service-worker blocking prevent interception bypass. Journal BEFORE/AFTER were the only authorized live writes. The pre-existing automatic CI probe crossed that boundary; it was cancelled and is documented below.
 
 ## Additional race found during validation
 
@@ -75,6 +75,10 @@ Final source commit: `3896ceb6cbd708d3c7fa09e976b0a38a15372d83` on `gpt/perf-col
 The second run measures the same application; differences are repeat observations, not a product speed gain. Raw samples/ranges, gate outputs, source/build/fixture hashes and intermediate failures are retained.
 
 Final replay/gate summary is recorded in `results.json`; raw logs/reports are in `raw/`. The repeated seven-sample run tests instrument repeatability on identical product code; it is not a product A/B improvement experiment. Existing regression budgets remain 1.1 timing ratio +100ms, zero additional REST reads and CLS≤0.1. Any failure is retained rather than adjusted away.
+
+## CI safety incident
+
+Opening the draft PR automatically ran an existing unguarded live `research-run` probe. Canonical read-only verification confirmed **one operational trace root and five spans**. I cancelled all three CI jobs, verified cancellation, retained the exact trace/interaction IDs and did not perform cleanup writes. Remote CI is **not PASS**, and the database cannot be described as unchanged. The final evidence-only commit uses `[skip ci]` to avoid repeating the known side effect. Full source links, log correlation, query results, containment and out-of-scope follow-up are in [ci-safety-incident.md](ci-safety-incident.md). Local instrument validation remains distinct from this shared CI incident.
 
 ## What must be measured again
 
