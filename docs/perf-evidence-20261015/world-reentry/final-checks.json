@@ -1,0 +1,30 @@
+[
+  {
+    "check": "build",
+    "exit": 0
+  },
+  {
+    "check": "scroll",
+    "exit": 0
+  },
+  {
+    "check": "world-surface",
+    "exit": 0
+  },
+  {
+    "check": "bundle-budget",
+    "exit": 0
+  },
+  {
+    "check": "isolation",
+    "exit": 0
+  },
+  {
+    "check": "built-graph",
+    "exit": 0
+  },
+  {
+    "check": "routes",
+    "exit": 0
+  }
+]

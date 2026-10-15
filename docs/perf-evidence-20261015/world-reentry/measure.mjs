@@ -45,16 +45,17 @@ async function capture(req,key) {
 export async function sample(arm, pair, flow='navigation') {
   const base=`http://127.0.0.1:${servers[arm].port}`;
   const ctx=await browser.newContext({viewport:profile.viewport,deviceScaleFactor:2,isMobile:true,hasTouch:true,locale:'he-IL',timezoneId:'Asia/Jerusalem',reducedMotion:'reduce'});
-  await ctx.addInitScript(()=>{
+  await ctx.addInitScript(flow=>{
     localStorage.setItem('sod-theme','dark');
     localStorage.setItem('sod_vid','c6d2d1e1-7939-4264-af00-5c193cfaf503');
+    if(flow==='context')sessionStorage.setItem('sod_research_context_v2:guest',JSON.stringify({subject:{id:'1820',type:'number',label:'1820',href:'/number/1820'},selection:{entityId:'1820',entityType:'number'},lens:'world'}));
     window.__worldMeasure={cls:[],lcp:[],clicks:[],anchorJumps:[]};
     const scroll=Element.prototype.scrollIntoView;
     Element.prototype.scrollIntoView=function(...args){if(this.id==='world-sources')window.__worldMeasure.anchorJumps.push({at:performance.now(),y:scrollY});return scroll.apply(this,args);};
     new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)window.__worldMeasure.cls.push({at:e.startTime,value:e.value});}).observe({type:'layout-shift',buffered:true});
     new PerformanceObserver(l=>{for(const e of l.getEntries())window.__worldMeasure.lcp.push(e.startTime);}).observe({type:'largest-contentful-paint',buffered:true});
     document.addEventListener('click',e=>window.__worldMeasure.clicks.push({at:performance.now(),trusted:e.isTrusted}),true);
-  });
+  },flow);
   const page=await ctx.newPage(),cdp=await ctx.newCDPSession(page);
   const row={arm,pair,flow,reads:[],blocked:[],errors:[],misses:[],steps:[]};
   page.on('pageerror',e=>row.errors.push(e.message));
@@ -73,7 +74,7 @@ export async function sample(arm, pair, flow='navigation') {
       const f=record?await capture(req,key):fixtures[key];
       if(!f){row.misses.push(key);return route.abort();}
       const at=await page.evaluate(()=>performance.now());
-      if(!record)await new Promise(r=>setTimeout(r,(up?150:400)+(flow==='input'&&up?1500:0)));
+      if(!record)await new Promise(r=>setTimeout(r,(up?150:400)+(flow.startsWith('input')&&up?1500:0)));
       const data=Buffer.from(f.body,'base64');
       if(up)row.reads.push({at,key,status:f.status,explainedDenial:!!f.explainedDenial,bytes:data.length,hash:hash(data),explainedDenial:!!f.explainedDenial});
       await route.fulfill({status:f.status,body:req.method()==='HEAD'?'':data,headers:{'content-type':f.type||'application/json','access-control-allow-origin':'*','access-control-expose-headers':'content-range',...(f.range?{'content-range':f.range}:{})}});
@@ -98,8 +99,8 @@ export async function sample(arm, pair, flow='navigation') {
     await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
     await cdp.send('Network.emulateNetworkConditions',{offline:false,latency:150,downloadThroughput:profile.download,uploadThroughput:profile.upload});
     await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});
-    const route=flow==='navigation'?'/world':flow==='direct'?'/world#world-sources':'/';
-    await page.goto(base+route,{waitUntil:'load'});await ready(flow==='navigation'||flow==='direct'?'/world':'/');
+    const route=flow==='navigation'?'/world':(flow==='direct'||flow==='context')?'/world#world-sources':'/';
+    await page.goto(base+route,{waitUntil:'load'});await ready(flow==='navigation'||flow==='direct'||flow==='context'?'/world':'/');
     row.coldReady=await mark();await page.waitForTimeout(1600);
     row.cold=await page.evaluate(()=>({lcp:window.__worldMeasure.lcp.at(-1),cls:window.__worldMeasure.cls.reduce((s,e)=>s+e.value,0),scripts:performance.getEntriesByType('resource').filter(e=>/\.js(?:\?|$)/.test(e.name)).map(e=>({file:new URL(e.name).pathname,encoded:e.encodedBodySize,decoded:e.decodedBodySize}))}));
     await cdp.send('Network.setCacheDisabled',{cacheDisabled:false});
@@ -112,17 +113,26 @@ export async function sample(arm, pair, flow='navigation') {
       await measure('Forward→Topic',()=>page.goForward(),row.target);
     } else {
       const anchor=()=>page.evaluate(()=>({path:location.pathname,hash:location.hash,y:scrollY,top:document.getElementById('world-sources')?.getBoundingClientRect().top??null,items:[...document.querySelectorAll('#world-sources [data-source-arrival]')].map(e=>e.dataset.sourceArrival),jumps:window.__worldMeasure.anchorJumps}));
-      if(flow!=='direct'){
+      if(flow!=='direct'&&flow!=='context'){
         const link=page.locator('a[href="/world#world-sources"]').first();await link.scrollIntoViewIfNeeded();await link.click();
         await page.waitForFunction(()=>location.pathname==='/world'&&!!document.getElementById('world-sources'));
-        if(flow==='input'){
-          row.userInputAt=await mark();await page.mouse.wheel(0,360);await page.waitForTimeout(300);
+        if(flow.startsWith('input')){
+          row.userInputAt=await mark();
+          if(flow==='input-key')await page.keyboard.press('PageDown');
+          else if(flow==='input-touch'){
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:370,y:650}]});
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:370,y:350}]});
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+          } else await page.mouse.wheel(0,360);
+          await page.waitForTimeout(300);
           row.afterInput=await anchor();
         }
         await ready('/world');
       }
-      await page.waitForTimeout(flow==='input'?6500:3500);
+      await page.waitForTimeout(flow.startsWith('input')?6500:3500);
       row.anchor=await anchor();
+      if(flow==='context')row.retainedContext=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest'))?.subject);
+      if(args.screenshot)await page.screenshot({path:args.screenshot});
       if(flow==='cross'){
         await page.goBack();await ready('/');await page.waitForTimeout(1200);
         await page.goForward();await ready('/world');await page.waitForTimeout(3000);row.forwardAnchor=await anchor();

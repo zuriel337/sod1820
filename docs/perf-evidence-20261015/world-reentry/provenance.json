@@ -14,5 +14,17 @@
       "worldExtraChunks": 40,
       "worldExtraGzip9KiB": 284.6875
     }
+  },
+  "packageLockSha256": "b33e43bc391edaf257042fb088501c8a1cebd3e47b2e80ef3dd567edad202ff5",
+  "buildCommand": "SOD_BUILD_TARGET=2029 vite build --outDir <arm>",
+  "switches": {
+    "fx_world_relation_identity": "absent; default OFF",
+    "fx_number_lookup_page": false,
+    "override": "none; actual public site_flags response frozen identically"
+  },
+  "anchorBuild": {
+    "worldPageSha256": "e953cdf12de92f675213877c108dc182973a3c7af371f904cdad567f06ab8b35",
+    "manifestSha256": "3fbc3bacc56dd7d4758d7f25c04b450894e5094f39dee783d5a86e31633e66d3",
+    "sameManifestAsBrowserTestedBuildC": true
   }
 }

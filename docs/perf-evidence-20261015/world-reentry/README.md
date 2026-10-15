@@ -62,8 +62,15 @@ never sent. Explicit allowlist contains read RPCs only.
 One bounded live public capture covered these exact journeys and was frozen
 before measurements. Snapshot SHA256:
 `db00234ac96c9d9a4e82c03afb9b5197831dacb45e1c9738868c8af5f6d8871a`.
-Response bodies remain in the uncommitted local snapshot; the raw report includes
-their manifest/hashes. No private data or credentials are committed.
+Response bodies remain in the uncommitted local snapshot. Published samples
+replace DOM text, source IDs, dynamic topic paths and complete request signatures
+with SHA256 values; their manifest carries only hashes/status/count/size. Exact
+ordered-content and request equality still verifies on those hashes. No live
+content, API request URLs/bodies, private data or credentials are committed.
+An initial automatic approval rejection of unredacted measurement artifacts was
+resolved by this minimization; both unpublished commits were checked so those
+artifacts are absent from the branch history being pushed. The original captures
+remain local, and no approval rejection is bypassed through another transport.
 
 Live capture exposed `401 / 42501 permission denied for table research_objects`.
 Read-only canonical verification returned
@@ -97,10 +104,61 @@ node docs/perf-evidence-20261015/world-reentry/analyze.mjs \
 Browser and Node must share localhost access. Capturing again produces a new
 live-data snapshot and must not be described as this exact measurement.
 
+Before publishing capture output, run `redact.mjs` on its compressed report. The
+committed verifier accepts the minimized samples and never needs response bodies.
+
 ## Hash navigation
 
-Handled next in a separate commit, after the above evidence-only decision.
-Exact-base capture reproduced both direct `/world#world-sources` and the real
-Home link arriving at scrollY=0, with the target approximately 1207px below the
-viewport. The existing global restorer deliberately delegates hash handling to
-the page. It is outside this task and remains unchanged.
+Implemented and verified in a separate commit after the evidence-only decision
+`2e65ff66f2a7590ebf888235240ce6c052569be7`.
+
+`World2029Page` now owns the exact `#world-sources` arrival: it waits for the
+existing landing read, scrolls once per router entry, and removes its listeners
+on completion, cancellation or navigation. Pending wheel, touch/pointer and
+scroll-key input cancels the jump. The sources hash also selects the landing
+when an existing numeric research subject is retained; that subject is preserved.
+No polling, extra reader, focus mutation, styling, or global restorer was added.
+`WorldSourceConnections` is byte-identical to the original base.
+
+Seven further matched A/B pairs use A=exact base and B=only this page-owned hash
+fix; the import/mount experiment is not present in B. Same frozen snapshot,
+identity and profile. Actual Home link → sources, Back → Home, Forward → sources,
+then the real in-page anchor. Before: cross-page and Forward fail **7/7**, scrollY
+0 and target top 1207px. After: both pass **7/7**, scrollY 1087 and target top
+120px (the existing scroll margin). In-page navigation passes 7/7; all forty
+ordered source identities match before/after at every checkpoint. Exactly one
+page-owned jump per arrival; no repeated chasing of later updates.
+
+Additional replay checks pass for direct sources hash, a retained numeric
+research context, and genuine wheel / touch swipe / PageDown input with public
+responses delayed an additional 1500ms. Each user-input case has **zero** late
+source-anchor jumps. The numeric context is an explicitly seeded local UI test,
+not an authenticated identity or permission claim. A final direct-hash smoke
+also runs against the exact final full-build manifest; it matches the manifest
+used by the seven browser pairs (`provenance.json`).
+
+`anchor-summary.json`, `raw/anchor-cross-ab.json.gz` and
+`raw/anchor-functional.json.gz` preserve the results. Recheck with:
+
+```sh
+node docs/perf-evidence-20261015/world-reentry/verify-anchors.mjs \
+  docs/perf-evidence-20261015/world-reentry/raw/anchor-cross-ab.json.gz \
+  docs/perf-evidence-20261015/world-reentry/raw/anchor-functional.json.gz /scratch/anchor-summary.json
+```
+
+No page errors, fixture misses or unexplained read failures. Cross-page request
+counts range 204–206 because the visible WatchButtons share in-flight guest
+preference reads according to mount timing; no timing claim is made for this
+functional experiment. The known research_objects denial remains unchanged.
+
+Final checks PASS: full Legacy+2029 build; existing scroll-restorer tests; World
+surface; all five bundle checks; isolation; built graph; route legitimacy;
+dedicated request/content parity and anchor verifiers. Raw check output is in
+`final-gates.txt` and `final-checks.json`. The final bundle is within the existing
+budget; only the archived unsplit experiment intentionally fails it.
+
+State: implemented/tested on personal branch, not merged/deployed/live. Remaining
+central blockers: import-boundary/graph-budget decision, existing public reader
+denial, hosted acceptance and actual member/admin/physical phone acceptance.
+No whole-site scan, shared-branch integration, deployment, product DB, switch,
+reader, CSS or general scroll change was performed.
