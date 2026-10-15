@@ -1,0 +1,404 @@
+{
+ "label": "f2",
+ "runs": 7,
+ "mains": [
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2123,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 439,
+     "yBefore": 2123,
+     "yAfter": 2123,
+     "cls": 1.851
+    },
+    "newEntryWorld": {
+     "ms": 1799,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 290,
+     "yBefore": 2846,
+     "yAfter": 2846,
+     "cls": 0
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2070,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 404,
+     "yBefore": 2070,
+     "yAfter": 2070,
+     "cls": 1.8
+    },
+    "newEntryWorld": {
+     "ms": 1784,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 245,
+     "yBefore": 2687,
+     "yAfter": 2687,
+     "cls": 0
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2335,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 404,
+     "yBefore": 2335,
+     "yAfter": 2335,
+     "cls": 1.85
+    },
+    "newEntryWorld": {
+     "ms": 2259,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 216,
+     "yBefore": 2783,
+     "yAfter": 2783,
+     "cls": 0
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2090,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 432,
+     "yBefore": 2090,
+     "yAfter": 2090,
+     "cls": 1.899
+    },
+    "newEntryWorld": {
+     "ms": 1810,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 203,
+     "yBefore": 2662,
+     "yAfter": 2662,
+     "cls": 0
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2280,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 438,
+     "yBefore": 2280,
+     "yAfter": 2280,
+     "cls": 1.802
+    },
+    "newEntryWorld": {
+     "ms": 1766,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 202,
+     "yBefore": 2746,
+     "yAfter": 2746,
+     "cls": 0
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2304,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 906,
+     "yBefore": 2304,
+     "yAfter": 2304,
+     "cls": 2.348
+    },
+    "newEntryWorld": {
+     "ms": 1933,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 193,
+     "yBefore": 2763,
+     "yAfter": 2763,
+     "cls": 0
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2070,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 390,
+     "yBefore": 2070,
+     "yAfter": 2070,
+     "cls": 0.984
+    },
+    "newEntryWorld": {
+     "ms": 1744,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 514,
+     "yBefore": 2742,
+     "yAfter": 2742,
+     "cls": 1.785
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 1
+  }
+ ],
+ "anchors": [
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "invalid": "Home→World anchor link never in view"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  }
+ ],
+ "summary": {
+  "POSITION": {
+   "backHome_restored_within120px": "7/7",
+   "forwardWorld_restored_within120px": "7/7",
+   "newEntryPost_atTop": "7/7",
+   "newEntryWorld_atTop": "7/7",
+   "anchors": {
+    "direct_plane_india_in_view": "7/7",
+    "inPage": "7/7",
+    "crossPage_world_sources_landing": [
+     "0/1207",
+     "0/1207",
+     "0/1207",
+     "0/1207",
+     "undefined/undefined",
+     "0/1207",
+     "0/1207"
+    ]
+   }
+  },
+  "TIMING_ms": {
+   "backHome": "432 [390,906] n=7",
+   "newEntryWorld": "1799 [1744,2259] n=7",
+   "forwardWorld": "216 [193,514] n=7"
+  },
+  "LAYOUT_SHIFT_cls": {
+   "newEntryPost": "0.018 [0,0] n=7",
+   "backHome": "1.85 [1,2] n=7",
+   "newEntryWorld": "0 [0,0] n=7",
+   "forwardWorld": "0 [0,2] n=7",
+   "runs_over_0_1": {
+    "backHome": "7/7",
+    "forwardWorld": "1/7"
+   }
+  },
+  "VALIDITY": {
+   "invalidRuns": 0,
+   "errors": [],
+   "pageErrors": 0,
+   "fixtureMissesPerRun": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  }
+ }
+}
