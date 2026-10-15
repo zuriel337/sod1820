@@ -1,0 +1,13 @@
+{"runnerSha256":"09016aa1ed4dba7c1860662e1ab2247c2099c8816c7745334a8c34069439e9b0","renderer":"Debugger.paused until fixture dispatch","fixtureDelayMs":150,"dispatchMs":153.24659500000007,"clockUncertaintyMs":0.3379975000000286,"readStart":36.001708984375,"browserNow":192.80000000004657,"browser":"141.0.7390.37","errors":[],"misses":[]}
+✔ fixture response is dispatched while the real renderer is blocked (714.257435ms)
+✔ readiness separates shells, real source content and late background work (801.686068ms)
+✔ browser epoch calibration survives a new document and SPA navigation (541.019777ms)
+✔ late background requests cannot reuse a previously reached networkidle state (1623.927214ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3685.748238

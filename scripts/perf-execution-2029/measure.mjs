@@ -1,7 +1,6 @@
-// RPC-complete, anonymous public-read capture/replay. This is a controlled replay
+// Frozen RPC-complete anonymous fixture replay. This is a controlled replay
 // experiment, not a claim about hosted PostgREST/preflight or physical devices.
 import fs from 'node:fs';
-import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +8,9 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createRequire } from 'node:module';
 import { serve } from './serve.mjs';
+import isolation from '../ci-isolation/policy.cjs';
+const {requireIsolation,frozenSnapshot,requestPolicy,browserArgs,assertClean,installTransportBoundary}=isolation;
+requireIsolation();
 import { MEASUREMENT_PROFILE, calibrateRequestClock, documentTime, snapshotReads } from './measurement-profile.mjs';
 import { primaryContentState, sessionWindowCls, installBrowserMetrics } from './browser-metrics.mjs';
 import { observeNetworkQuiet } from './network-quiet.mjs';
@@ -16,15 +18,14 @@ const run = promisify(execFile);
 const require = createRequire(`${process.env.PLAYWRIGHT_DIR || '/workspace/perf-execution-scratch/tools'}/node_modules/`);
 const { chromium } = require('playwright');
 const args = Object.fromEntries(process.argv.slice(2).filter((_, i) => i % 2 === 0).map((key, i) => [key.slice(2), process.argv[3 + i * 2]]));
-if (args.mode && !['record', 'replay'].includes(args.mode)) throw new Error('Unknown mode');
+if (args.mode && args.mode !== 'replay') throw new Error('Live capture disabled: provide a complete frozen snapshot; no production fallback');
 const mode = args.mode || 'replay', runs = Number(args.runs || (mode === 'record' ? 1 : 7));
 const routes = (args.routes || '/,/world,/post/seventh-to-tenth-sefirot-2027').split(',');
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const fixturePath = args.fixtures;
 if (!args.dist || !args.out || !fixturePath) throw new Error('--dist, --out and --fixtures required');
-const fixtures = fs.existsSync(fixturePath) ? JSON.parse(zlib.gunzipSync(fs.readFileSync(fixturePath))) : {};
+const fixtures = frozenSnapshot(fixturePath);
 const ALLOW = new Set(['convergence_meter', 'fn_method_value', 'fn_zero_scale', 'gematria_api', 'gematria_method_trace', 'get_category_videos', 'number_neighbors', 'posts_by_number_strict', 'world_group_source_arrivals_v2']);
-const telemetry = /link_identity|track_visit|ingest_event|analytics|clarity\.ms|googletagmanager|facebook|doubleclick|openweb|spot\.im/;
 const normalize = u => decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(?:Z|\+00:00| ?00:00)?/g, 'TS');
 function keyOf(req) {
   let body = req.postData() || '';
@@ -37,37 +38,12 @@ function primary(pathname, req) {
   if (pathname.startsWith('/post/')) return u.pathname === '/rest/v1/posts' && (u.searchParams.get('slug') || '').includes(decodeURIComponent(pathname.slice(6)));
   return u.pathname === '/rest/v1/posts' && (pathname !== '/world' || (u.searchParams.get('slug') || '').includes('flydubai-fz1073-363-14000-remzei-geula'));
 }
-const inflight = new Map();
-let capturedRequests = 0;
-async function capture(req, key) {
-  if (fixtures[key]) return fixtures[key];
-  if (inflight.has(key)) return inflight.get(key);
-  const promise = (async () => {
-    if (++capturedRequests > 200) throw new Error('Capture budget exceeded: 200 upstream reads/assets');
-    const headers = req.headers();
-    if (headers.authorization && headers.apikey && headers.authorization !== `Bearer ${headers.apikey}`)
-      throw new Error('Authenticated capture forbidden');
-    const argv = ['--silent', '--show-error', '--compressed', '--max-time', '30', '--request', req.method(), req.url()];
-    for (const [name, value] of Object.entries(headers)) if (['apikey', 'authorization', 'accept-profile', 'prefer', 'range', 'accept', 'content-type', 'user-agent'].includes(name)) argv.push('-H', `${name}: ${value}`);
-    if (req.postData()) argv.push('--data-binary', req.postData());
-    argv.push('--write-out', '\n__PERF_META__%{http_code}|%{content_type}|%header{content-range}');
-    const { stdout } = await run('curl', argv, { encoding: 'buffer', maxBuffer: 16 * 1024 * 1024 });
-    const split = stdout.lastIndexOf(Buffer.from('\n__PERF_META__'));
-    const [status, type, range] = stdout.subarray(split + 14).toString().split('|');
-    if (!Number(status)) throw new Error('Missing upstream HTTP status');
-    const row = { status: Number(status), type, range, body: stdout.subarray(0, split).toString('base64') };
-    fixtures[key] = row;
-    return row;
-  })();
-  inflight.set(key, promise);
-  return promise;
-}
 const { srv, port } = await serve(args.dist);
 const origin = `http://127.0.0.1:${port}`;
-const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || '/home/agent/.cache/ms-playwright/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || '/home/agent/.cache/ms-playwright/chromium-1194/chrome-linux/chrome', args: browserArgs });
 const desktop = args.profile === 'desktop';
 const output = { measurementProfile: MEASUREMENT_PROFILE, label: args.label, mode, runs, browser: browser.version(), playwright: require('playwright/package.json').version,
-  dataMode: 'anonymous-rpc-complete-replay', profile: desktop ? 'desktop' : 'mobile',
+  networkIsolation: 'local-fixture-only-v1', dataMode: 'anonymous-rpc-complete-replay', profile: desktop ? 'desktop' : 'mobile',
   cpu: desktop ? 1 : 4, rtt: desktop ? 40 : 150, download: (desktop ? 10 : 1.6) * 1024 * 1024 / 8, upload: (desktop ? 5000 : 750) * 1024 / 8,
   viewport: desktop ? { width: 1366, height: 768 } : { width: 390, height: 844 }, dpr: desktop ? 1 : 2, routes: {} };
 if (args.theme && !['light', 'parchment', 'dark'].includes(args.theme)) throw new Error('Unknown theme');
@@ -81,6 +57,7 @@ try {
       const context = await browser.newContext({ viewport: output.viewport, deviceScaleFactor: output.dpr, isMobile: !desktop, serviceWorkers: 'block', locale: 'he-IL', timezoneId: 'Asia/Jerusalem',
         ...(!desktop ? { userAgent: 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141 Mobile Safari/537.36' } : {}) });
       await context.addInitScript(theme => localStorage.setItem('sod-theme', theme), output.theme);
+      await installTransportBoundary(context);
       const page = await context.newPage(), cdp = await context.newCDPSession(page);
       const network = observeNetworkQuiet(page);
       const errors = [], misses = [], reads = [], blocked = [], pendingResponses = new Set();
@@ -89,37 +66,24 @@ try {
       await page.addInitScript({ content: `window.__primaryContentState = ${primaryContentState};
         window.__sessionWindowCls = ${sessionWindowCls};
         (${installBrowserMetrics})(${JSON.stringify({ pathname })});` });
-      await page.route('**/*', async route => {
+      await context.route('**/*', async route => {
         const req = route.request(), url = req.url(), method = req.method();
-        if (new URL(url).origin === origin) return new URL(url).pathname.startsWith('/api/') ? route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }) : route.continue();
-        const u = new URL(url), rpc = u.pathname.match(/^\/rest\/v1\/rpc\/([^/]+)$/)?.[1];
-        const supabase = u.hostname === 'linswmnnkjxvweumprav.supabase.co';
-        if (telemetry.test(url) || (supabase && rpc && !ALLOW.has(rpc) && rpc !== 'world_group_source_arrivals_v3')
-          || (supabase && !['GET', 'HEAD'].includes(method) && !(method === 'POST' && (ALLOW.has(rpc) || rpc === 'world_group_source_arrivals_v3')))
-          || (supabase && u.pathname.startsWith('/auth/'))) {
-          blocked.push(`${method} ${u.pathname}`);
+        let kind;
+        try { kind = requestPolicy(req, origin, fixtures, keyOf(req)); }
+        catch (error) { errors.push(error.message); return route.abort('blockedbyclient'); }
+        if (kind === 'local') return route.continue();
+        if (kind === 'effect-fixture') {
+          blocked.push(`${method} ${new URL(url).pathname}:isolated-effect`);
           return route.fulfill({ status: 204, body: '', headers: { 'access-control-allow-origin': '*' } });
         }
-        if (!['GET', 'HEAD'].includes(method) && !supabase) return route.abort();
+        const u = new URL(url), rpc = u.pathname.match(/^\/rest\/v1\/rpc\/([^/]+)$/)?.[1];
+        const supabase = u.hostname === 'linswmnnkjxvweumprav.supabase.co';
         // No renderer/DevTools round trip is allowed on the fixture response path.
         const key = keyOf(req), started = requestClock.epochNow();
         pendingResponses.add(req);
         let row;
         try {
-          if (rpc === 'world_group_source_arrivals_v3') {
-            if (mode === 'record') {
-              // GET can only call read-compatible PostgREST functions. A changed
-              // live v3 requires explicit catalog/permission review, not a fake 404.
-              const probeUrl = new URL(url);
-              for (const [name, value] of Object.entries(JSON.parse(req.postData() || '{}'))) probeUrl.searchParams.set(name, String(value));
-              const probe = { method: () => 'GET', url: () => probeUrl.href, postData: () => null, headers: () => req.headers() };
-              row = await capture(probe, keyOf(probe));
-              if (row.status !== 404) throw new Error('Arrivals v3 availability changed; review live read contract before recording');
-              fixtures[key] = row;
-            } else row = fixtures[key] || { status: 404, type: 'application/json', body: Buffer.from(JSON.stringify({ code: 'PGRST202', message: 'world_group_source_arrivals_v3 not found' })).toString('base64') };
-          }
-          else if (mode === 'record') row = await capture(req, key);
-          else row = fixtures[key];
+          row = fixtures[key];
           if (!row) { misses.push(key); return route.abort(); }
           const delay = supabase ? 150 : 400;
           if (mode === 'replay') await new Promise(resolve => setTimeout(resolve, delay));
@@ -199,6 +163,7 @@ try {
         pendingFixtureResponses,
         errors: observedErrors, misses: observedMisses, blocked: [...new Set(blocked)], reads: sampleReads });
       await context.close();
+      assertClean();
     }
     const median = key => { const values = samples.map(s => s[key]).filter(Number.isFinite).sort((a, b) => a - b); return values.length ? values[Math.floor(values.length / 2)] : null; };
     const keys = ['fcp', 'lcp', 'shell', 'ready', 'backgroundSettled', 'layoutShiftSum', 'cls', 'firstPrimaryReq', 'lastRestEnd', 'restCount', 'reqs', 'script', 'task'];
@@ -207,10 +172,10 @@ try {
     console.error(pathname, JSON.stringify(output.routes[pathname].median));
   }
 } finally {
-  if (mode === 'record') fs.writeFileSync(fixturePath, zlib.gzipSync(JSON.stringify(fixtures)));
   output.fixturesSha256 = hash(fs.readFileSync(fixturePath));
   fs.writeFileSync(args.out, JSON.stringify(output, null, 2) + '\n');
   await browser.close(); srv.close();
+  assertClean();
 }
 
 // The existing CI workflow owns this entrypoint. Run source-fidelity guards only

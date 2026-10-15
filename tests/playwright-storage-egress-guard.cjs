@@ -1,19 +1,26 @@
+const isolation = require('../scripts/ci-isolation/policy.cjs');
+const installed = new WeakSet();
 const STORAGE_ORIGIN = 'https://linswmnnkjxvweumprav.supabase.co';
 const STORAGE_PUBLIC_RE = /\/storage\/v1\/(?:object\/public|render\/image\/public)\//i;
 const HEAVY_MEDIA_RE = /\.(?:mp4|webm|m4v|mov|mp3|m4a|aac|ogg|wav)(?:[?#]|$)/i;
 const PROTECTED_RESEARCH_RE = /^\/rest\/v1\/(research_objects|cross_method_strength)$/;
 
-// CI/browser acceptance must validate layout and behavior, not repeatedly download
-// production Storage binaries. Keep other API/data requests real, replace public
+// CI/browser acceptance replays the complete frozen snapshot with no live fallback.
+// Preserve the existing image-layout substitute for public
 // Storage images with a tiny deterministic same-ratio SVG, and short-circuit media.
 // This guard runs only inside Playwright tests; production traffic is untouched.
 const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900"><rect width="1600" height="900" fill="#111"/><rect x="20" y="20" width="1560" height="860" fill="none" stroke="#777" stroke-width="4"/></svg>`;
 
 async function installStorageEgressGuard(page) {
+  if(installed.has(page))return;
+  isolation.requireIsolation();
+  const fixtures=isolation.frozenSnapshot();
+  await isolation.installBrowserBoundary(page,{origin:'http://127.0.0.1:4173',fixtures});
+  installed.add(page);
   // These tables deliberately deny anonymous reads. Browser layout tests were
   // repeating that same expected 401 tens of thousands of times against the
   // live project. Mirror only anonymous GET denials locally; authenticated
-  // requests and all other API calls still reach their real destination.
+  // requests and all other API calls fall back only to the frozen snapshot boundary.
   await page.route(`${STORAGE_ORIGIN}/rest/v1/**`, async (route) => {
     const request = route.request();
     const url = new URL(request.url());

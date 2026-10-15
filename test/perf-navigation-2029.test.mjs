@@ -1,5 +1,7 @@
 // Synthetic guard inputs ONLY, never timing evidence or a live database substitute.
 import test from 'node:test';
+import isolation from '../scripts/ci-isolation/policy.cjs';
+const {requestPolicy}=isolation;
 import assert from 'node:assert/strict';
 import {mkdtempSync,writeFileSync,rmSync,readFileSync}from'node:fs';
 import{tmpdir}from'node:os';
@@ -27,7 +29,7 @@ test('a blocked renderer cannot postpone the fixed replay response',async()=>{
  // Execute the production route callback, without booting its CLI/browser. This
  // tests its actual async response path, not a copy of its implementation.
  const source=readFileSync(new URL('../scripts/perf-navigation-2029/run.mjs',import.meta.url),'utf8');
- const start=source.indexOf("  await page.route('**/*',async route=>{");
+ const start=source.indexOf("  await context.route('**/*',async route=>{");
  assert.ok(start>=0);const end=source.indexOf('\n  });',start);assert.ok(end>start);
  let handler,releaseRenderer,fulfillResponse,evaluations=0,fulfilledWhileBlocked=false,rendererBlocked=true;
  const renderer=new Promise(resolve=>{releaseRenderer=resolve;});
@@ -36,7 +38,7 @@ test('a blocked renderer cannot postpone the fixed replay response',async()=>{
  const reads=[],errors=[],misses=[],delays=[];
  const page={route:async(_pattern,callback)=>{handler=callback;},evaluate:()=>{evaluations++;return renderer;}};
  await runInNewContext(`(async()=>{${source.slice(start,end+'\n  });'.length)}})()`,{
-  page,URL,Buffer,performance,args:{},base:'http://127.0.0.1:1',hosted:false,mode:'replay',allowed:new Set(),blocked:[],allowCatalogRetry:true,
+  requestPolicy,isolation,page,context:page,URL,Buffer,performance,args:{},base:'http://127.0.0.1:1',hosted:false,mode:'replay',allowed:new Set(),blocked:[],allowCatalogRetry:true,
   reads,errors,misses,fixtures:{[key]:{status:200,type:'application/json',body:payload.toString('base64')}},
   norm:u=>decodeURIComponent(u),hash:data=>createHash('sha256').update(data).digest('hex'),
   setTimeout:(callback,ms)=>{delays.push(ms);return setTimeout(callback,ms);},capture:()=>assert.fail('Replay must not capture live data')

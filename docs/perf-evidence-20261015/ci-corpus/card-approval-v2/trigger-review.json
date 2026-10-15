@@ -1,0 +1,242 @@
+{
+  "baseRef": "gpt/perf-cold-measurement-20261015",
+  "baseSha": "8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19",
+  "headBeforeChanges": "8ce0ecc9bf1733b75ecf96ff749a7a15d05178e7",
+  "workflowDefinition": "PR synthetic merge with measurement target; updated2029 workflow from head",
+  "repositoryCode": "all3checkout exact github.event.pull_request.head.sha; base CI never executed; base archives only product/build/dependencies",
+  "networkBoundary": "install hooks disabled; actual repository execution offline network namespace; preflight file-only before any app connection",
+  "vercelGptDeploymentEnabled": false,
+  "pushWorkflows": [],
+  "workflows": [
+    {
+      "file": ".github/workflows/2029-isolation-gate.yml",
+      "sha256": "d73caefc240eb115ce83d35efc2a6866db8e708e2ce7191529d7f2f6fa93b87f",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": true,
+      "checkoutRefs": [
+        "${{ github.event.pull_request.head.sha || github.sha }}",
+        "${{ github.event.pull_request.head.sha || github.sha }}",
+        "${{ github.event.pull_request.head.sha || github.sha }}"
+      ]
+    },
+    {
+      "file": ".github/workflows/agent-dispatch-contract-gate.yml",
+      "sha256": "3575c8491087cf751cae96f5cd9a36898debaf442a2d235233d88fc842432e99",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/community-reaction-visibility-gate.yml",
+      "sha256": "86c5d4bc3d4b5faa1b7347546e1325e856f9bf4aeffd5ebf2d1357b9bb332844",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/daily-backup.yml",
+      "sha256": "40dbd64d8c3fd8ab24299fd13c5c0d7cbc937cdbc1e8a2aa16a0c8e1fb855f35",
+      "events": [
+        "workflow_dispatch",
+        "schedule"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/dependency-upgrade-radar-v2-contract-gate.yml",
+      "sha256": "09626ac3e5bcf7746124091a9c995399f6d6bca6e3ada9058246117e2f4cb1c2",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/els-core-compatibility-gate.yml",
+      "sha256": "c65aac3aa9471264de6a7f93a0a48a5c805bc68051130293491adc3be1b4ba7b",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/follow-identity-isolated-db-gate.yml",
+      "sha256": "08183ad4b6d2deaa312a147028c2d3bce70414760a2d4e3a5e1366568e26284c",
+      "events": [
+        "pull_request"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "${{ github.event.pull_request.head.sha }}"
+      ]
+    },
+    {
+      "file": ".github/workflows/g4-public-core-gate.yml",
+      "sha256": "0311b4a7e1936ef417c377bc069a781481d5d84796a0f1b16068510e98c19d53",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/media-release-batch-gate.yml",
+      "sha256": "380983f1e6c5477e2ee2dde4da1bc6250124fece0452b1493775a8e48d64cbfd",
+      "events": [
+        "pull_request"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/media-thumbs.yml",
+      "sha256": "24e878932b215043e6bd9f7a26907486de42efe24e3cca56ac755e913fe766f0",
+      "events": [
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/number-2029-owner-gate.yml",
+      "sha256": "c0dafceec111508710ea018af1ecdc3a7c2a7f33a0fa10ae77e96e0fbde9813e",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/observability-seo-gate.yml",
+      "sha256": "c785012b9a1276537ed5258a53a876aa54f3250298b59b1d5455f9c89cc6f7df",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/ocr-gallery.yml",
+      "sha256": "59aaa843651b77fc052dbe756f3c40ebe96aceb344b3ebc4b4b2fbb0160e4cb0",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/post-deploy-canary.yml",
+      "sha256": "7356ce1836a2fa27753a7564bb686585ac344a6d629b9ade0797b083713bb3f2",
+      "events": [
+        "deployment_status",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/release-visual-gate.yml",
+      "sha256": "5387611d2dbc9849d1ac6f5fd026046667c793aa1e570a86860ff9726a68a621",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default",
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/research-sync-gate.yml",
+      "sha256": "cfca70b25bb0e20e1e7e9d2f00b1c66fb3c75850663dce4ad61b94365d26af14",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/system-self-maintenance-contract-gate.yml",
+      "sha256": "47c1533291f34ee2e54f4a64aac752afc1108d82bc28f60a7b1e83e9f0720193",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/update-sitemap.yml",
+      "sha256": "1ee3e8c86c218ff76a945356ddf44501f58493e4c2665035796db7fd0ba029df",
+      "events": [
+        "workflow_dispatch",
+        "schedule"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    },
+    {
+      "file": ".github/workflows/video-ingest-gate.yml",
+      "sha256": "cab65b07b809500c2a30e365bce9f219087880b50d6764aa88af4ac547a8b502",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pullRequestMatches": false,
+      "checkoutRefs": [
+        "event default"
+      ]
+    }
+  ],
+  "decision": "SAFE_FOR_SAME_PR_SYNC_CI; expected real input preflight failures retained"
+}

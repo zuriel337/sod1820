@@ -1,0 +1,26 @@
+✔ preserve public source IDs and reviewed display attribution (1.838674ms)
+✔ reject excluded fields or unreviewed attribution: user_id (0.71285ms)
+✔ reject excluded fields or unreviewed attribution: nested (0.183913ms)
+✔ reject excluded fields or unreviewed attribution: authors (0.144545ms)
+✔ reject excluded fields or unreviewed attribution: created_by (0.167519ms)
+✔ reject excluded fields or unreviewed attribution: authors (0.127039ms)
+✔ reject excluded fields or unreviewed attribution: dossier_settings (0.214909ms)
+✔ reject excluded fields or unreviewed attribution: body (0.152717ms)
+✔ reject excluded fields or unreviewed attribution: token (0.178095ms)
+✔ reject excluded fields or unreviewed attribution: refresh_token (0.222932ms)
+✔ reject excluded fields or unreviewed attribution: api_key (0.141771ms)
+✔ review the actual retained corpus before publication (452.105155ms)
+✔ retain all seven approved source fields including real admission flags (0.347506ms)
+✔ reject contributor DTO: unapproved alias (0.938686ms)
+✔ reject contributor DTO: public dossier object (0.293056ms)
+✔ reject contributor DTO: changed trust flag (0.432894ms)
+✔ reject contributor DTO: unknown public-card identity (0.20833ms)
+✔ reproduce all six package files from the retained source index (1429.752387ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1903.703777

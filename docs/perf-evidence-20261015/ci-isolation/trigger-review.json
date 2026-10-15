@@ -1,0 +1,49 @@
+{
+  "base": "8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19",
+  "target": "gpt/perf-cold-measurement-20261015",
+  "pushWorkflows": [],
+  "pullRequestWorkflows": [
+    {
+      "workflow": ".github/workflows/2029-isolation-gate.yml",
+      "matchingChangedPaths": [
+        "scripts/ci-isolation/hard-browser.sh",
+        "scripts/ci-isolation/hard-source.sh",
+        "scripts/ci-isolation/navigation.sh",
+        "scripts/ci-isolation/network-guard.c",
+        "scripts/ci-isolation/node-preload.cjs",
+        "scripts/ci-isolation/offline.sh",
+        "scripts/ci-isolation/performance.sh",
+        "scripts/ci-isolation/playwright.config.cjs",
+        "scripts/ci-isolation/policy.cjs",
+        "scripts/ci-isolation/preview.mjs",
+        "scripts/ci-isolation/run.mjs",
+        "scripts/ci-isolation/snapshot-sha.mjs",
+        "test/ci-isolation/config.test.mjs",
+        "test/ci-isolation/egress.test.mjs",
+        "test/ci-isolation/probe.mjs",
+        "test/helpers/research-run-handler.mjs",
+        "tests/ci-isolated-test.cjs",
+        ".github/workflows/2029-isolation-gate.yml",
+        "scripts/package-research-run.mjs",
+        "scripts/perf-execution-2029/measure.mjs",
+        "scripts/perf-execution-2029/measurement.browser.test.mjs",
+        "scripts/perf-execution-2029/measurement.test.mjs",
+        "scripts/perf-execution-2029/mobile-image-gate.mjs",
+        "scripts/perf-execution-2029/replay-gate.mjs",
+        "scripts/perf-execution-2029/serve.mjs",
+        "scripts/perf-navigation-2029/run.mjs",
+        "scripts/test-2029-control-plane.mjs",
+        "scripts/test-a3-client-correlation-live.mjs",
+        "test/perf-navigation-2029.test.mjs",
+        "test/perf-replay-gate-2029.test.mjs",
+        "tests/entry-learn-2029.spec.cjs",
+        "tests/playwright-storage-egress-guard.cjs",
+        "tests/world2029-release.spec.cjs"
+      ],
+      "event": "pull_request",
+      "workflowSource": "PR merge ref containing reviewed workflow",
+      "checkedOutSource": "exact PR head SHA"
+    }
+  ],
+  "vercel": "gpt/* deployments disabled by unchanged vercel.json git.deploymentEnabled"
+}

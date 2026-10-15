@@ -1,0 +1,20 @@
+✔ preserve public source IDs and reviewed display attribution (2.083689ms)
+✔ reject excluded fields or unreviewed attribution: user_id (1.738415ms)
+✔ reject excluded fields or unreviewed attribution: nested (0.196752ms)
+✔ reject excluded fields or unreviewed attribution: authors (0.191114ms)
+✔ reject excluded fields or unreviewed attribution: created_by (0.812769ms)
+✔ reject excluded fields or unreviewed attribution: authors (0.156844ms)
+✔ reject excluded fields or unreviewed attribution: dossier_settings (0.16102ms)
+✔ reject excluded fields or unreviewed attribution: body (0.14087ms)
+✔ reject excluded fields or unreviewed attribution: token (0.469307ms)
+✔ reject excluded fields or unreviewed attribution: refresh_token (0.2686ms)
+✔ reject excluded fields or unreviewed attribution: api_key (0.307978ms)
+✔ review the actual retained corpus before publication (436.755272ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 452.293068

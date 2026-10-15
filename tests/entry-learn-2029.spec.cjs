@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./ci-isolated-test.cjs');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
 const BASE = 'http://127.0.0.1:4173';

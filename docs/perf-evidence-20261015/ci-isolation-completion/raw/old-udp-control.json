@@ -1,0 +1,39 @@
+{
+  "source": "da86e7e06771391e1b8003461e349fbc7204488f",
+  "guardSha256": "8c641c23a8c2fe4937d7fa6fc9784c80acd958038e887d116ff9a62a0a941af5",
+  "target": "local UDP loopback traps only",
+  "results": [
+    {
+      "host": "127.0.0.1",
+      "mode": "write",
+      "forbiddenLocalTrapHits": 1,
+      "outerExit": 0,
+      "auditBytes": 0,
+      "oldGuardRejectsForbiddenWrite": false
+    },
+    {
+      "host": "127.0.0.1",
+      "mode": "writev",
+      "forbiddenLocalTrapHits": 1,
+      "outerExit": 0,
+      "auditBytes": 0,
+      "oldGuardRejectsForbiddenWrite": false
+    },
+    {
+      "host": "::1",
+      "mode": "write",
+      "forbiddenLocalTrapHits": 1,
+      "outerExit": 0,
+      "auditBytes": 0,
+      "oldGuardRejectsForbiddenWrite": false
+    },
+    {
+      "host": "::1",
+      "mode": "writev",
+      "forbiddenLocalTrapHits": 1,
+      "outerExit": 0,
+      "auditBytes": 0,
+      "oldGuardRejectsForbiddenWrite": false
+    }
+  ]
+}

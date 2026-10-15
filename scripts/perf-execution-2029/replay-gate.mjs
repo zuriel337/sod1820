@@ -21,6 +21,10 @@ export function validateReplay(data, { functional = false } = {}) {
         if (!sample.primaryState?.primary) errors.push(`${route}: real primary content missing`);
         if (!Number.isFinite(sample.clockUncertaintyMs) || sample.clockUncertaintyMs < 0) errors.push(`${route}: clock calibration missing`);
         if (!Number.isFinite(sample.timeOrigin) || !Number.isFinite(sample.navStart)) errors.push(`${route}: document clock missing`);
+        if (!Number.isFinite(sample.observationEnd) || !Number.isFinite(sample.readsObservationEnd)
+          || sample.observationEnd < 0 || sample.readsObservationEnd < 0
+          || sample.readsObservationEnd > sample.observationEnd + sample.clockUncertaintyMs)
+          errors.push(`${route}: finite observation bounds required`);
         if (!Number.isFinite(sample.shell) || !Number.isFinite(sample.backgroundSettled)
           || sample.shell > sample.ready || sample.backgroundSettled < sample.ready) errors.push(`${route}: readiness phases invalid`);
         if (!Number.isFinite(sample.layoutShiftSum) || sample.layoutShiftSum < sample.cls) errors.push(`${route}: layout-shift diagnostics missing`);
@@ -44,7 +48,7 @@ export function compareReplay(before, after) {
   const errors = [...validateReplay(before).errors, ...validateReplay(after).errors];
   for (const data of [before, after]) if (data.measurementProfile) for (const [route, result] of Object.entries(data.routes || {}))
     if (result.samples?.some(sample => sample.pendingFixtureResponses > 0)) errors.push(`${route}: pending responses make complete read-count comparison unavailable`);
-  for (const key of ['measurementProfile', 'browser', 'playwright', 'cpu', 'rtt', 'download', 'upload', 'viewport', 'dpr', 'theme', 'navigation', 'fixturesSha256', 'extensionInjection']) {
+  for (const key of ['networkIsolation', 'measurementProfile', 'browser', 'playwright', 'cpu', 'rtt', 'download', 'upload', 'viewport', 'dpr', 'theme', 'navigation', 'fixturesSha256', 'extensionInjection']) {
     if (JSON.stringify(before[key] ?? null) !== JSON.stringify(after[key] ?? null)) errors.push(`Conditions differ: ${key}`);
   }
   const deltas = {};

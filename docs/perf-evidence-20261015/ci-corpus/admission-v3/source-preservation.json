@@ -1,0 +1,65 @@
+{
+  "previousRevision": "abafdb6c8cbd67e7adaedb3648f7c5d8ac191a30",
+  "previousContracts": 161,
+  "currentContracts": 172,
+  "previousResponseObjectsUnchanged": true,
+  "addedContracts": 11,
+  "added": [
+    {
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase,ragil,gadol,siduri,miluy,kadmi,atbash,albam,misratar,ribua,is_verified,source,tags&is_verified=eq.true&tags=cs.{אוצרות+הגילוי}&limit=40  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "bytes": 740,
+      "bodySha256": "ed0bfb5ca3c61e3e9790080b4c8b3330e868ba0edbdef80970bd6a3cc4056709"
+    },
+    {
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,categories,source,tags,home_hidden&slug=in.(sod-hachashmal-esev-sade-behema-sukkot,mah-kore-mokesh-har-naftali,flydubai-fz1073-363-14000-remzei-geula,sharshar-elections-redemption-hints-draft,lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema,seventh-to-tenth-sefirot-2027,קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב,levi-sudri-hazarat-hanevua-habchirot-six-seven,remzei-geula-ai-sod-hashir,yam-hamelach-tiferet-geula,mah-kore-nza-hasoara,tashpav-tashpaz-787-hidden-connection,sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111,torat-haremez-mafteach-lagan-1258,koach-hashtika-dim5,ma-becha-nishar-kshehakol-mishtane-dim5)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "bytes": 6675,
+      "bodySha256": "54e308e9d189400f8249eb013934c18a30f87308e39e76f31c3975fcc3684290"
+    },
+    {
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=32  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "bytes": 26186,
+      "bodySha256": "2dd5ba2d203d5993f6afeb6c74bc5c6aa3c061c9abbdcc8473f4146cb59dd997"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1156} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 3424,
+      "bodySha256": "53cff496aa1aa6d41c0485162710520c075e2a5241e01491b7db276312a2642c"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1359} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 2689,
+      "bodySha256": "1d009fad2fd9cc45672a8ce739fc1939c223f43470ecc5ac674721e18b9347a2"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":2212} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 2250,
+      "bodySha256": "8e5d4a73d97bfdd4928bab84542e59743a7081efede9b8882bba63fc4e387836"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":5844} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 1458,
+      "bodySha256": "7f226251e7ea8134a8ad02b6ff77e1831a0acb17536f903c9ba3f10da684cb8e"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":596} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 5618,
+      "bodySha256": "4744332ad36b00a411baec2a68a5ff2090391172cbc205cd54fe004df43fe62d"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":776} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 9180,
+      "bodySha256": "3c1604c66c6b98c73170ed5a14a05eb6a403893501e94175b0597c62e1586aae"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":888} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 4598,
+      "bodySha256": "0ce34d9568b20c06bed6c433b9919bbe3ae9280dffd9e2b5e57034c6d32ba92c"
+    },
+    {
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":974} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "bytes": 3296,
+      "bodySha256": "9214af96f124bf9717b85d3ba72475d115efd3933c308cb38d71f1e45811f4cb"
+    }
+  ],
+  "rowsTextLinksCountsImageBytesReduced": false
+}

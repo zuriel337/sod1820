@@ -1,0 +1,3 @@
+[
+  "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/world_group_source_arrivals_v2 {\"p_before\":null,\"p_limit\":24} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}"
+]

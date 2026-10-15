@@ -1,0 +1,794 @@
+{
+  "measurementProfile": {
+    "version": "cold-replay-v2",
+    "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+    "readiness": "rendered-primary-source-v2",
+    "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+    "observation": "primary-current-network-quiet-500ms-plus-1000ms-v2",
+    "collection": "immutable-read-snapshot-with-pending-response-count-v1"
+  },
+  "label": "isolated-post-after",
+  "mode": "replay",
+  "runs": 7,
+  "browser": "141.0.7390.37",
+  "playwright": "1.56.1",
+  "networkIsolation": "local-fixture-only-v1",
+  "dataMode": "anonymous-rpc-complete-replay",
+  "profile": "mobile",
+  "cpu": 4,
+  "rtt": 150,
+  "download": 209715.2,
+  "upload": 96000,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "dpr": 2,
+  "routes": {
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "median": {
+        "fcp": 1624,
+        "lcp": 3904,
+        "shell": 3487.39999999851,
+        "ready": 3693,
+        "backgroundSettled": 4374,
+        "layoutShiftSum": 0.00007661682559483599,
+        "cls": 0.00007661682559483599,
+        "firstPrimaryReq": 210.94580078125,
+        "lastRestEnd": 3794.60000000149,
+        "restCount": 4,
+        "reqs": 62,
+        "script": 606.827,
+        "task": 1224.251
+      },
+      "ranges": {
+        "fcp": [
+          1584,
+          1668
+        ],
+        "lcp": [
+          3752,
+          3976
+        ],
+        "shell": [
+          3420.60000000149,
+          3555.099999997765
+        ],
+        "ready": [
+          3545.300000000745,
+          3773.800000000745
+        ],
+        "backgroundSettled": [
+          4243.800000000745,
+          4462.199999999255
+        ],
+        "layoutShiftSum": [
+          0.00007661682559483599,
+          0.00007661682559483599
+        ],
+        "cls": [
+          0.00007661682559483599,
+          0.00007661682559483599
+        ],
+        "firstPrimaryReq": [
+          201.49267578125,
+          220.546630859375
+        ],
+        "lastRestEnd": [
+          3709.60000000149,
+          3886.89999999851
+        ],
+        "restCount": [
+          4,
+          4
+        ],
+        "reqs": [
+          62,
+          62
+        ],
+        "script": [
+          504.385,
+          627.072
+        ],
+        "task": [
+          1007.458,
+          1311.224
+        ]
+      },
+      "samples": [
+        {
+          "shell": 3555.099999997765,
+          "ready": 3773.800000000745,
+          "lcp": 3976,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106207995.6,
+          "observationEnd": 5476.39999999851,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2305.800000000745,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2573.300000000745,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1624,
+          "lastRestEnd": 3886.89999999851,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4462.199999999255,
+          "readsObservationEnd": 5465.49658203125,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.32066199999997025,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 627.072,
+          "task": 1311.224,
+          "firstPrimaryReq": 219.111083984375,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 219.111083984375,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1672.8525390625,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3594.621337890625,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3735.616943359375,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        },
+        {
+          "shell": 3525,
+          "ready": 3706.599999997765,
+          "lcp": 3928,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106213561.7,
+          "observationEnd": 5398.300000000745,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2328.39999999851,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2574.099999997765,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1640,
+          "lastRestEnd": 3812,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4392.599999997765,
+          "readsObservationEnd": 5394.467529296875,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.26210449999962293,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 611.487,
+          "task": 1253.704,
+          "firstPrimaryReq": 220.546630859375,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 220.546630859375,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1684.947509765625,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3452.23046875,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3661.331298828125,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        },
+        {
+          "shell": 3485.10000000149,
+          "ready": 3693,
+          "lcp": 3904,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106219052.2,
+          "observationEnd": 5380.300000000745,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2351.89999999851,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2601.699999999255,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1668,
+          "lastRestEnd": 3794.60000000149,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4374,
+          "readsObservationEnd": 5375.9716796875,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.21258100000068225,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 622.904,
+          "task": 1303.259,
+          "firstPrimaryReq": 214.990478515625,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 214.990478515625,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1717.548828125,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3511.913330078125,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3644.093017578125,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        },
+        {
+          "shell": 3487.39999999851,
+          "ready": 3616.5,
+          "lcp": 3824,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106224532.9,
+          "observationEnd": 5306,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2301.800000000745,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2551.5,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1620,
+          "lastRestEnd": 3739.60000000149,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4303.5,
+          "readsObservationEnd": 5304.734619140625,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.3002164999998058,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 554.668,
+          "task": 1091.888,
+          "firstPrimaryReq": 206.297119140625,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 206.297119140625,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1662.57763671875,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3436.120361328125,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3588.20654296875,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        },
+        {
+          "shell": 3420.60000000149,
+          "ready": 3545.300000000745,
+          "lcp": 3752,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106229917.8,
+          "observationEnd": 5249.800000000745,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2299.400000002235,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2551.2000000029802,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1624,
+          "lastRestEnd": 3709.60000000149,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4243.800000000745,
+          "readsObservationEnd": 5245.215576171875,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.23393299999952433,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 504.385,
+          "task": 1007.458,
+          "firstPrimaryReq": 209.345703125,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 209.345703125,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1653.385986328125,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3379.015625,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3558.607666015625,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        },
+        {
+          "shell": 3461.699999999255,
+          "ready": 3638.89999999851,
+          "lcp": 3864,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106235257.5,
+          "observationEnd": 5328.099999997765,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2277.099999997765,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2526.7999999970198,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1584,
+          "lastRestEnd": 3748.39999999851,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4323.5,
+          "readsObservationEnd": 5324.887939453125,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.2153005000000121,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 546.574,
+          "task": 1098.35,
+          "firstPrimaryReq": 210.94580078125,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 210.94580078125,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1617.956298828125,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3411.530029296875,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3598.451416015625,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        },
+        {
+          "shell": 3536,
+          "ready": 3733.800000000745,
+          "lcp": 3936,
+          "cls": 0.00007661682559483599,
+          "layoutShiftSum": 0.00007661682559483599,
+          "timeOrigin": 1792106240667.2,
+          "observationEnd": 5423,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 2317.300000000745,
+              "value": 0.000035446755463713755,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2566.699999999255,
+              "value": 0.000041170070131122224,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 1628,
+          "lastRestEnd": 3827.39999999851,
+          "reqs": 62,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4418.39999999851,
+          "readsObservationEnd": 5419.1953125,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.24954600000273786,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 606.827,
+          "task": 1224.251,
+          "firstPrimaryReq": 201.49267578125,
+          "restCount": 4,
+          "pendingFixtureResponses": 0,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/track_visit:isolated-effect",
+            "POST /rest/v1/rpc/ingest_event:isolated-effect"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 201.49267578125,
+              "primary": true,
+              "bytes": 3456,
+              "bodyHash": "0cf639cdca047e8ef61fa82bbc4b780aec307395d2216a6b6cd27fc37baae4c3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1672.548095703125,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 3473.91259765625,
+              "primary": false,
+              "bytes": 4127,
+              "bodyHash": "d25367bed02035361391d5f90b37819361b4c9be1cac145eb0c971e487c64d41"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 3677.18212890625,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "theme": "dark",
+  "extensionInjection": {
+    "delay": 0,
+    "failure": false
+  },
+  "fixturesSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9"
+}

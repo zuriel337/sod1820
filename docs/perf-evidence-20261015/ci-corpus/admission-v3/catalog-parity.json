@@ -1,0 +1,8 @@
+{
+  "mode": "captured-public-functional-parity",
+  "initialItems": 2,
+  "fullPageItems": 24,
+  "beforeSha256": "14f687daab2c86b01ba9011cb9e8c6cc1fd785b16764dda31d020c7103642888",
+  "afterSha256": "14f687daab2c86b01ba9011cb9e8c6cc1fd785b16764dda31d020c7103642888",
+  "equal": true
+}

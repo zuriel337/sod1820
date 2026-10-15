@@ -1,0 +1,11 @@
+✔ missing safety configuration stops before a connection (34.7912ms)
+✔ record and hosted paths refuse to connect, including child curl capture (0.446644ms)
+✔ frozen snapshot is hash-pinned, nonempty and structurally checked (613.765083ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 654.909596

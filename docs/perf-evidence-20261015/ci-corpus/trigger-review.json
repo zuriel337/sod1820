@@ -1,0 +1,284 @@
+{
+  "baseBranch": "gpt/perf-cold-measurement-20261015",
+  "baseSha": "8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19",
+  "headBeforeChanges": "5e83540b28ddce1489ff299d66cc9688df4368cf",
+  "changedPaths": [
+    ".github/workflows/2029-isolation-gate.yml",
+    "docs/perf-evidence-20261015/ci-corpus/README.md",
+    "docs/perf-evidence-20261015/ci-corpus/binary-assets.json",
+    "docs/perf-evidence-20261015/ci-corpus/browser-gate.txt",
+    "docs/perf-evidence-20261015/ci-corpus/catalog-parity.json",
+    "docs/perf-evidence-20261015/ci-corpus/focused-tests.txt",
+    "docs/perf-evidence-20261015/ci-corpus/local-gates.json",
+    "docs/perf-evidence-20261015/ci-corpus/local-results.json",
+    "docs/perf-evidence-20261015/ci-corpus/mobile-image-final.json",
+    "docs/perf-evidence-20261015/ci-corpus/mobile-image-final.txt",
+    "docs/perf-evidence-20261015/ci-corpus/navigation-gate.txt",
+    "docs/perf-evidence-20261015/ci-corpus/performance-gate.txt",
+    "docs/perf-evidence-20261015/ci-corpus/privacy-test.txt",
+    "docs/perf-evidence-20261015/ci-corpus/public-profile-read-proposal.md",
+    "docs/perf-evidence-20261015/ci-corpus/repack-proof.json",
+    "docs/perf-evidence-20261015/ci-corpus/sha256.json",
+    "docs/perf-evidence-20261015/ci-corpus/source-full.log.gz",
+    "docs/perf-evidence-20261015/ci-corpus/source-read-audit.json",
+    "docs/perf-evidence-20261015/ci-corpus/trigger-review.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/README.md",
+    "docs/perf-evidence-20261015/ci-isolation-completion/input-provenance.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/local-results.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/browser-preflight.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/final-focused.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/hard-source.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/input-inventory.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/local-gate-preflights.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/navigation-preflight.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/old-udp-control.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/performance-preflight.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/snapshot-contract.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/raw/udp-write.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation-completion/reproduce-old-udp.mjs",
+    "docs/perf-evidence-20261015/ci-isolation-completion/sha256.json",
+    "docs/perf-evidence-20261015/ci-isolation-completion/trigger-review.json",
+    "docs/perf-evidence-20261015/ci-isolation/README.md",
+    "docs/perf-evidence-20261015/ci-isolation/a3.txt",
+    "docs/perf-evidence-20261015/ci-isolation/base-build.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation/build-receipt.json",
+    "docs/perf-evidence-20261015/ci-isolation/egress.txt",
+    "docs/perf-evidence-20261015/ci-isolation/golden-tests.txt",
+    "docs/perf-evidence-20261015/ci-isolation/hard-source.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation/initial-source-failure.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation/measurement-browser.txt",
+    "docs/perf-evidence-20261015/ci-isolation/measurement-unit.txt",
+    "docs/perf-evidence-20261015/ci-isolation/missing-snapshot.txt",
+    "docs/perf-evidence-20261015/ci-isolation/navigation-unit.txt",
+    "docs/perf-evidence-20261015/ci-isolation/network-map.json",
+    "docs/perf-evidence-20261015/ci-isolation/offline-subset.txt.gz",
+    "docs/perf-evidence-20261015/ci-isolation/replay-validator.txt",
+    "docs/perf-evidence-20261015/ci-isolation/results.json",
+    "docs/perf-evidence-20261015/ci-isolation/sha256.json",
+    "docs/perf-evidence-20261015/ci-isolation/snapshot-config.txt",
+    "docs/perf-evidence-20261015/ci-isolation/trigger-review.json",
+    "scripts/ci-isolation/corpus-privacy.cjs",
+    "scripts/ci-isolation/hard-browser.sh",
+    "scripts/ci-isolation/hard-source.sh",
+    "scripts/ci-isolation/navigation.sh",
+    "scripts/ci-isolation/network-guard.c",
+    "scripts/ci-isolation/node-preload.cjs",
+    "scripts/ci-isolation/offline.sh",
+    "scripts/ci-isolation/package-corpus.mjs",
+    "scripts/ci-isolation/performance.sh",
+    "scripts/ci-isolation/playwright.config.cjs",
+    "scripts/ci-isolation/policy.cjs",
+    "scripts/ci-isolation/preview.mjs",
+    "scripts/ci-isolation/run.mjs",
+    "scripts/ci-isolation/snapshot-contract.cjs",
+    "scripts/ci-isolation/snapshot-inventory.mjs",
+    "scripts/ci-isolation/snapshot-sha.mjs",
+    "scripts/package-research-run.mjs",
+    "scripts/perf-execution-2029/measure.mjs",
+    "scripts/perf-execution-2029/measurement.browser.test.mjs",
+    "scripts/perf-execution-2029/measurement.test.mjs",
+    "scripts/perf-execution-2029/mobile-image-gate.mjs",
+    "scripts/perf-execution-2029/replay-gate.mjs",
+    "scripts/perf-execution-2029/serve.mjs",
+    "scripts/perf-navigation-2029/run.mjs",
+    "scripts/test-2029-control-plane.mjs",
+    "scripts/test-a3-client-correlation-live.mjs",
+    "test/ci-isolation/config.test.mjs",
+    "test/ci-isolation/corpus-privacy.test.mjs",
+    "test/ci-isolation/egress.test.mjs",
+    "test/ci-isolation/guest-reference.test.mjs",
+    "test/ci-isolation/probe.mjs",
+    "test/ci-isolation/snapshot-contract.test.mjs",
+    "test/ci-isolation/udp-write-probe.c",
+    "test/ci-isolation/udp-write.test.mjs",
+    "test/fixtures/ci-2029/README.md",
+    "test/fixtures/ci-2029/browser.json.gz",
+    "test/fixtures/ci-2029/coverage.json",
+    "test/fixtures/ci-2029/manifest.json",
+    "test/fixtures/ci-2029/navigation.json.gz",
+    "test/fixtures/ci-2029/performance.json.gz",
+    "test/fixtures/ci-2029/source-index.json",
+    "test/fixtures/ci-2029/source/notification-prefs-guest.sql",
+    "test/helpers/research-run-handler.mjs",
+    "test/perf-navigation-2029.test.mjs",
+    "test/perf-replay-gate-2029.test.mjs",
+    "tests/ci-isolated-test.cjs",
+    "tests/entry-learn-2029.spec.cjs",
+    "tests/playwright-storage-egress-guard.cjs",
+    "tests/world2029-release.spec.cjs"
+  ],
+  "workflows": [
+    {
+      "file": ".github/workflows/2029-isolation-gate.yml",
+      "sha256": "d73caefc240eb115ce83d35efc2a6866db8e708e2ce7191529d7f2f6fa93b87f",
+      "prMatch": true,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/agent-dispatch-contract-gate.yml",
+      "sha256": "3575c8491087cf751cae96f5cd9a36898debaf442a2d235233d88fc842432e99",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/community-reaction-visibility-gate.yml",
+      "sha256": "86c5d4bc3d4b5faa1b7347546e1325e856f9bf4aeffd5ebf2d1357b9bb332844",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/daily-backup.yml",
+      "sha256": "40dbd64d8c3fd8ab24299fd13c5c0d7cbc937cdbc1e8a2aa16a0c8e1fb855f35",
+      "prMatch": false,
+      "events": [
+        "workflow_dispatch",
+        "schedule"
+      ]
+    },
+    {
+      "file": ".github/workflows/dependency-upgrade-radar-v2-contract-gate.yml",
+      "sha256": "09626ac3e5bcf7746124091a9c995399f6d6bca6e3ada9058246117e2f4cb1c2",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/els-core-compatibility-gate.yml",
+      "sha256": "c65aac3aa9471264de6a7f93a0a48a5c805bc68051130293491adc3be1b4ba7b",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/follow-identity-isolated-db-gate.yml",
+      "sha256": "08183ad4b6d2deaa312a147028c2d3bce70414760a2d4e3a5e1366568e26284c",
+      "prMatch": false,
+      "events": [
+        "pull_request"
+      ]
+    },
+    {
+      "file": ".github/workflows/g4-public-core-gate.yml",
+      "sha256": "0311b4a7e1936ef417c377bc069a781481d5d84796a0f1b16068510e98c19d53",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/media-release-batch-gate.yml",
+      "sha256": "380983f1e6c5477e2ee2dde4da1bc6250124fece0452b1493775a8e48d64cbfd",
+      "prMatch": false,
+      "events": [
+        "pull_request"
+      ]
+    },
+    {
+      "file": ".github/workflows/media-thumbs.yml",
+      "sha256": "24e878932b215043e6bd9f7a26907486de42efe24e3cca56ac755e913fe766f0",
+      "prMatch": false,
+      "events": [
+        "schedule",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/number-2029-owner-gate.yml",
+      "sha256": "c0dafceec111508710ea018af1ecdc3a7c2a7f33a0fa10ae77e96e0fbde9813e",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/observability-seo-gate.yml",
+      "sha256": "c785012b9a1276537ed5258a53a876aa54f3250298b59b1d5455f9c89cc6f7df",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/ocr-gallery.yml",
+      "sha256": "59aaa843651b77fc052dbe756f3c40ebe96aceb344b3ebc4b4b2fbb0160e4cb0",
+      "prMatch": false,
+      "events": [
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/post-deploy-canary.yml",
+      "sha256": "7356ce1836a2fa27753a7564bb686585ac344a6d629b9ade0797b083713bb3f2",
+      "prMatch": false,
+      "events": [
+        "deployment_status",
+        "schedule",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/release-visual-gate.yml",
+      "sha256": "5387611d2dbc9849d1ac6f5fd026046667c793aa1e570a86860ff9726a68a621",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/research-sync-gate.yml",
+      "sha256": "cfca70b25bb0e20e1e7e9d2f00b1c66fb3c75850663dce4ad61b94365d26af14",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/system-self-maintenance-contract-gate.yml",
+      "sha256": "47c1533291f34ee2e54f4a64aac752afc1108d82bc28f60a7b1e83e9f0720193",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    },
+    {
+      "file": ".github/workflows/update-sitemap.yml",
+      "sha256": "1ee3e8c86c218ff76a945356ddf44501f58493e4c2665035796db7fd0ba029df",
+      "prMatch": false,
+      "events": [
+        "workflow_dispatch",
+        "schedule"
+      ]
+    },
+    {
+      "file": ".github/workflows/video-ingest-gate.yml",
+      "sha256": "cab65b07b809500c2a30e365bce9f219087880b50d6764aa88af4ac547a8b502",
+      "prMatch": false,
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ]
+    }
+  ],
+  "yamlSource": "pull_request synthetic merge tree; changed 2029 workflow supersedes target version; checkout pins github.event.pull_request.head.sha in all 3 jobs",
+  "deployments": "Vercel gpt/* false; unchanged",
+  "result": "SAFE_TO_PUSH: only updated 2029 gate matches; repository execution in loopback-only namespaces, no live capture/fallback; input failures remain failures"
+}

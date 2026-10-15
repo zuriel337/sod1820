@@ -1,0 +1,26 @@
+{
+  "performance.json.gz": {
+    "identical": true,
+    "sha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6"
+  },
+  "navigation.json.gz": {
+    "identical": true,
+    "sha256": "265bdbc1ae14a43f932e87427b2e5806d6ab2b9d5e224a7982b4de07c47bbd8f"
+  },
+  "browser.json.gz": {
+    "identical": true,
+    "sha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6"
+  },
+  "manifest.json": {
+    "identical": true,
+    "sha256": "6ff54ea5dca59669f4566105dd81d143acd59a3454b32736f1f603e67c7724f9"
+  },
+  "source-index.json": {
+    "identical": true,
+    "sha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2"
+  },
+  "coverage.json": {
+    "identical": true,
+    "sha256": "49ab62120a5aeaad34de7f055e23df2828844d94ff073a31e8a86e50874e3946"
+  }
+}

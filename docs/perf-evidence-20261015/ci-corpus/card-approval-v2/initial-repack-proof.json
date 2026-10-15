@@ -1,0 +1,12 @@
+{
+  "byteIdentical": {
+    "browser.json.gz": true,
+    "source-index.json": true,
+    "navigation.json.gz": true,
+    "performance.json.gz": true,
+    "manifest.json": false,
+    "coverage.json": true
+  },
+  "allPassed": false,
+  "requiresLiveSource": false
+}

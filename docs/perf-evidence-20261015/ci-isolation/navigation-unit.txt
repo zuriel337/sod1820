@@ -1,0 +1,16 @@
+✔ matched complete trusted-input replay accepted (79.795301ms)
+✔ runtime failure, fixture miss and failed primary cannot masquerade as fast content (115.53796ms)
+✔ synthetic click and fewer than seven samples are rejected (73.570369ms)
+✔ hosted/fixture, profile and snapshot mismatches are rejected (118.255352ms)
+✔ slower transitions and extra repeated reads fail regression gate (157.552196ms)
+✔ same query with changed response bytes fails parity (82.409223ms)
+✔ mixed legacy and controller-clock reports are rejected by the existing profile guard (142.143056ms)
+✔ a blocked renderer cannot postpone the fixed replay response (155.378008ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 929.552116

@@ -1,0 +1,16 @@
+{
+  "base": "8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19",
+  "productSourceDiff": [],
+  "buildCommand": "npm run build (both legacy and 2029), inside native no-egress boundary",
+  "node": "v24.19.0",
+  "baseDistFiles": 403,
+  "headDistFiles": 403,
+  "identicalBuilds": true,
+  "baseTreeSha256": "935d6e33c705d7a1450acd47b2ebe0c938efc6cda21b71cd5b53ce0b37f76f92",
+  "headTreeSha256": "935d6e33c705d7a1450acd47b2ebe0c938efc6cda21b71cd5b53ce0b37f76f92",
+  "sameDependencyLock": true,
+  "measurementInstrument": "Use this head scripts/perf-execution-2029/measure.mjs for BOTH dist trees; same cold-replay-v2 definition, timing/CLS budgets unchanged.",
+  "priorFrozenSnapshotSha256": "224ebd7b6232c72fb9003fb27f90938e2be36372752728ac7ef10cea001c6c9f",
+  "matchedReplayStatus": "BLOCKED_INPUT_MISSING: private prior snapshot path absent. No new full product timings collected, no synthetic content substituted.",
+  "browser": "Chromium141 / Playwright1.56.1 for focused regression controls"
+}

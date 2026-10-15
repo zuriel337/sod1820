@@ -1,0 +1,35 @@
+[
+  {
+    "gate": "performance",
+    "entrypoint": "scripts/ci-isolation/performance.sh",
+    "snapshotSha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
+    "exitCode": 1,
+    "result": "FAIL",
+    "stoppedAt": "unchanged semantic input preflight",
+    "auditBytes": 0,
+    "sevenSampleComparison": "NOT_RUN",
+    "fullBrowserAcceptance": "NOT_RUN"
+  },
+  {
+    "gate": "navigation",
+    "entrypoint": "scripts/ci-isolation/navigation.sh",
+    "snapshotSha256": "265bdbc1ae14a43f932e87427b2e5806d6ab2b9d5e224a7982b4de07c47bbd8f",
+    "exitCode": 1,
+    "result": "FAIL",
+    "stoppedAt": "unchanged semantic input preflight",
+    "auditBytes": 0,
+    "sevenSampleComparison": "NOT_RUN",
+    "fullBrowserAcceptance": "NOT_RUN"
+  },
+  {
+    "gate": "browser",
+    "entrypoint": "scripts/ci-isolation/hard-browser.sh",
+    "snapshotSha256": "b567f59df3349683c8e4a22cc425be8dfa2f592667bf9442ef6c1b55212870e6",
+    "exitCode": 1,
+    "result": "FAIL",
+    "stoppedAt": "unchanged semantic input preflight",
+    "auditBytes": 0,
+    "sevenSampleComparison": "NOT_RUN",
+    "fullBrowserAcceptance": "NOT_RUN"
+  }
+]
