@@ -1,0 +1,7909 @@
+{
+ "profile": {
+  "viewport": "390x844",
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6Mbps down / 750kbps up / 150ms RTT (CDP)",
+  "supabaseReplayDelayMs": 150,
+  "backPhaseDelayMs": null,
+  "horizonMs": 7000,
+  "theme": "dark",
+  "reducedMotion": false,
+  "state": "normal",
+  "interrupt": false,
+  "browser": "Chromium 141.0.7390.37",
+  "fixtureSha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+  "fixtureKeys": 106,
+  "node": "v22.22.0",
+  "cpus": 4,
+  "startedAt": "2026-10-15T14:13:09.514Z",
+  "finishedAt": "2026-10-15T14:14:34.913Z"
+ },
+ "arms": {
+  "B9": "/tmp/claude-0/work/dist-B9"
+ },
+ "runs": [
+  {
+   "arm": "B9",
+   "idx": 1,
+   "invalid": [],
+   "late": null,
+   "interrupt": null,
+   "state": "normal",
+   "homeReadyEpoch": {
+    "usable": 1792073593755,
+    "dgLoaded": 1792073594646.2,
+    "navStart": 1792073589698
+   },
+   "depart": {
+    "href": "/post/chibur-bein-hasafot-mafteach-lagan",
+    "anchorText": "מתוך הפוסט · מפתח לגן",
+    "anchorTopBefore": 276,
+    "linkTop": 264,
+    "scrollY": 2253,
+    "docH": 7344,
+    "blocksBefore": [
+     [
+      0,
+      "div.h29-hero-slot",
+      84,
+      458
+     ],
+     [
+      1,
+      "section.h29-quiet[מצב האתר]",
+      562,
+      83
+     ],
+     [
+      2,
+      "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+      665,
+      741
+     ],
+     [
+      3,
+      "section.h29-sec.k29-reveal[התכנסויות בולט]",
+      1426,
+      645
+     ],
+     [
+      4,
+      "div.k29-reveal.k29-rv-self",
+      2091,
+      305
+     ],
+     [
+      5,
+      "section.dg29[שערי הגילוי]",
+      2416,
+      1636
+     ],
+     [
+      6,
+      "div.k29-reveal.k29-rv-self",
+      4072,
+      312
+     ],
+     [
+      7,
+      "section.h29-sec.k29-reveal[כותבים וערוצים]",
+      4404,
+      180
+     ],
+     [
+      8,
+      "section.h29-sec.k29-reveal[כלים וכניסות]",
+      4604,
+      781
+     ],
+     [
+      9,
+      "section.hb29[האתר בבנייה וה]",
+      5404,
+      824
+     ],
+     [
+      10,
+      "section.sod29-home-review-entry[התחלה משלך]",
+      6269,
+      321
+     ],
+     [
+      11,
+      "section.sod29-home-continuity[רציפות אישית]",
+      6666,
+      489
+     ],
+     [
+      12,
+      "section.h29-quiet[דופק ומצב בניי]",
+      7175,
+      39
+     ]
+    ]
+   },
+   "postRoute": {
+    "path": "/post/chibur-bein-hasafot-mafteach-lagan",
+    "tapCmdMs": 56,
+    "tapToPostReadyMs": 1274,
+    "postTextLen": 4919,
+    "postDocH": 9058
+   },
+   "postY": 1563,
+   "back": {
+    "cmdWallStart": 1792073610696,
+    "cmdWallEnd": 1792073610713,
+    "cmdDurMs": 17
+   },
+   "cls": 0.0081,
+   "shifts": [
+    {
+     "t": 1792073611957.7,
+     "v": 0.008125708057714337,
+     "src": [
+      {
+       "n": "div.sod29-flight-copy",
+       "py": 0,
+       "cy": 0,
+       "ph": 156,
+       "ch": 187
+      }
+     ]
+    }
+   ],
+   "mut": [
+    {
+     "t": 1792073610990.8,
+     "k": "add",
+     "n": "div.sod29-root.closed-shell",
+     "p": "div"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "rm",
+     "n": "section.h29-hero.is-loading",
+     "p": "div.h29-hero-slot"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "add",
+     "n": "section.h29-hero.h29-hero2[העדכון האחרון]",
+     "p": "div.h29-hero-slot"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611588.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073611898.4,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-dimension-sources"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073612417.2,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    }
+   ],
+   "geo": [
+    {
+     "t": 1792073611077.4,
+     "y": 1563,
+     "dh": 7168,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4076,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4387,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4575,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6093,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6999,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073611309,
+     "y": 1565,
+     "dh": 7168,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4076,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4387,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4575,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6093,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6999,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073611454.7,
+     "y": 1595,
+     "dh": 7168,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4076,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4387,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4575,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6093,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6999,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073611524.6,
+     "y": 1902,
+     "dh": 7168,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4076,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4387,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4575,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6093,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6999,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073611639.9,
+     "y": 2253,
+     "dh": 7168,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4076,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4387,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4575,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6093,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6999,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073611852.1,
+     "y": 2253,
+     "dh": 7168,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4076,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4387,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4575,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6093,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6999,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073611950.7,
+     "y": 2253,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073612267.7,
+     "y": 2253,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073612462.2,
+     "y": 2253,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5376,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6491,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       141,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073612597.1,
+     "y": 2253,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073612778,
+     "y": 2253,
+     "dh": 7348,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       745
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1430,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2095,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2420,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4409,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4608,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5409,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6273,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6671,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7179,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    }
+   ],
+   "geoPre": [
+    {
+     "t": 1792073602004.2,
+     "y": 2253,
+     "dh": 7344,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       741
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1426,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2091,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2416,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4072,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4404,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4604,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5404,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6269,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6666,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7175,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    }
+   ],
+   "longTasks": [
+    {
+     "t": 1792073610700.3,
+     "d": 371
+    },
+    {
+     "t": 1792073611072,
+     "d": 66
+    },
+    {
+     "t": 1792073611550.2,
+     "d": 62
+    },
+    {
+     "t": 1792073611943,
+     "d": 68
+    },
+    {
+     "t": 1792073612112.3,
+     "d": 60
+    },
+    {
+     "t": 1792073612379,
+     "d": 68
+    },
+    {
+     "t": 1792073612686,
+     "d": 81
+    },
+    {
+     "t": 1792073612847,
+     "d": 63
+    }
+   ],
+   "events": [],
+   "readyAfterBack": {
+    "usable": 297,
+    "dgLoaded": 1218,
+    "hero": 297,
+    "usableFromCmdEnd": 280
+   },
+   "traj": [
+    [
+     462,
+     1563,
+     7168,
+     null
+    ],
+    [
+     1013,
+     2253,
+     7168,
+     null
+    ],
+    [
+     1559,
+     2253,
+     7169,
+     281
+    ],
+    [
+     2146,
+     2253,
+     7348,
+     281
+    ],
+    [
+     2579,
+     2253,
+     7348,
+     281
+    ],
+    [
+     3003,
+     2253,
+     7348,
+     281
+    ],
+    [
+     3404,
+     2253,
+     7348,
+     281
+    ],
+    [
+     3803,
+     2253,
+     7348,
+     281
+    ],
+    [
+     4200,
+     2253,
+     7348,
+     281
+    ],
+    [
+     4594,
+     2253,
+     7348,
+     281
+    ],
+    [
+     4985,
+     2253,
+     7348,
+     281
+    ],
+    [
+     5371,
+     2253,
+     7348,
+     281
+    ],
+    [
+     5777,
+     2253,
+     7348,
+     281
+    ],
+    [
+     6172,
+     2253,
+     7348,
+     281
+    ],
+    [
+     6571,
+     2253,
+     7348,
+     281
+    ],
+    [
+     6960,
+     2253,
+     7348,
+     281
+    ]
+   ],
+   "anchor": {
+    "text": "מתוך הפוסט · מפתח לגן",
+    "topBefore": 276,
+    "topFinal": 281,
+    "finalDisp": 5,
+    "yFinal": 2253,
+    "docHFinal": 7348,
+    "firstWithin120Ms": 1381,
+    "maxDispAfter": 5,
+    "within120Final": true,
+    "sampledFound": "41/46"
+   },
+   "reqLog": [
+    {
+     "k": "rpc/notification_prefs_guest_get_v1",
+     "tReq": 383,
+     "tFulfil": 537,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,image_url,thumb_url,date,modified,tags,",
+     "tReq": 383,
+     "tFulfil": 538,
+     "delay": 150
+    },
+    {
+     "k": "site_flags?select=key,enabled,message,mode",
+     "tReq": 383,
+     "tFulfil": 538,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,created_at,visibility_changed_at",
+     "tReq": 386,
+     "tFulfil": 538,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,created_at,visibility_changed_at",
+     "tReq": 390,
+     "tFulfil": 540,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_user_id,author_contributor_id,author_name,c",
+     "tReq": 390,
+     "tFulfil": 541,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 394,
+     "tFulfil": 544,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 394,
+     "tFulfil": 545,
+     "delay": 150
+    },
+    {
+     "k": "rpc/get_category_videos",
+     "tReq": 398,
+     "tFulfil": 547,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 401,
+     "tFulfil": 551,
+     "delay": 150
+    },
+    {
+     "k": "els_records?select=id,slug,title,search_term,scope,skip_distance,directi",
+     "tReq": 402,
+     "tFulfil": 552,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_method_value",
+     "tReq": 529,
+     "tFulfil": 683,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=*",
+     "tReq": 548,
+     "tFulfil": 699,
+     "delay": 150
+    },
+    {
+     "k": "contributors?select=id,slug,display_name,kind,role,wa_names,trusted,activ",
+     "tReq": 566,
+     "tFulfil": 716,
+     "delay": 150
+    },
+    {
+     "k": "contributors?select=id,slug,display_name,kind,role,wa_names,trusted,activ",
+     "tReq": 569,
+     "tFulfil": 721,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,date,modified,categories,source,tags,home_hid",
+     "tReq": 797,
+     "tFulfil": 947,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,content,excerpt",
+     "tReq": 814,
+     "tFulfil": 1005,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/v",
+     "tReq": 919,
+     "tFulfil": 1070,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 1016,
+     "tFulfil": 1194,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 1019,
+     "tFulfil": 1195,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_name,title,gematria_claim,created_at",
+     "tReq": 1026,
+     "tFulfil": 1195,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,title,slug,link,modified,date,author,ai_addition,s",
+     "tReq": 1026,
+     "tFulfil": 1195,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,gadol,siduri,miluy,kadmi,atbash,albam,mi",
+     "tReq": 1027,
+     "tFulfil": 1196,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,date,modified,tags,categories,source,home_hid",
+     "tReq": 1027,
+     "tFulfil": 1196,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 1027,
+     "tFulfil": 1196,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1028,
+     "tFulfil": 1197,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_contributor_id,title,target_type,target_id,",
+     "tReq": 1028,
+     "tFulfil": 1198,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5109.",
+     "tReq": 1317,
+     "tFulfil": 1467,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/card",
+     "tReq": 1318,
+     "tFulfil": 1468,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/card",
+     "tReq": 1320,
+     "tFulfil": 1471,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5100.",
+     "tReq": 1321,
+     "tFulfil": 1472,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qual",
+     "tReq": 1343,
+     "tFulfil": 1493,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1480,
+     "tFulfil": 1630,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1480,
+     "tFulfil": 1631,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1480,
+     "tFulfil": 1631,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1480,
+     "tFulfil": 1631,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1480,
+     "tFulfil": 1631,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1480,
+     "tFulfil": 1631,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1480,
+     "tFulfil": 1631,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1502,
+     "tFulfil": 1655,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1503,
+     "tFulfil": 1655,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1504,
+     "tFulfil": 1656,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1504,
+     "tFulfil": 1656,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1504,
+     "tFulfil": 1656,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1505,
+     "tFulfil": 1656,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1505,
+     "tFulfil": 1656,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qual",
+     "tReq": 1508,
+     "tFulfil": 1658,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,",
+     "tReq": 1648,
+     "tFulfil": 1798,
+     "delay": 150
+    },
+    {
+     "k": "rpc/world_group_source_arrivals_v2",
+     "tReq": 1668,
+     "tFulfil": 1818,
+     "delay": 150
+    },
+    {
+     "k": "nodes?select=rule_id,rule_version",
+     "tReq": 1909,
+     "tFulfil": 2060,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_zero_scale",
+     "tReq": 2227,
+     "tFulfil": 2377,
+     "delay": 150
+    },
+    {
+     "k": "nodes?select=rule_id,rule_version",
+     "tReq": 2476,
+     "tFulfil": 2626,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_zero_scale",
+     "tReq": 2664,
+     "tFulfil": 2814,
+     "delay": 150
+    }
+   ],
+   "reqCount": {
+    "depart": 72,
+    "back": 53
+   },
+   "finalDocH": 7348,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": 0,
+   "missKeys": [],
+   "blockedWrites": 15,
+   "blockedWriteKeys": [
+    "POST rpc/link_identity",
+    "POST rpc/track_visit",
+    "POST rpc/ingest_event",
+    "HEAD gematria_words?select=phrase"
+   ],
+   "valid": true
+  },
+  {
+   "arm": "B9",
+   "idx": 2,
+   "invalid": [],
+   "late": null,
+   "interrupt": null,
+   "state": "normal",
+   "homeReadyEpoch": {
+    "usable": 1792073622094.2,
+    "dgLoaded": 1792073622946.7,
+    "navStart": 1792073617974
+   },
+   "depart": {
+    "href": "/post/chibur-bein-hasafot-mafteach-lagan",
+    "anchorText": "מתוך הפוסט · מפתח לגן",
+    "anchorTopBefore": 233,
+    "linkTop": 221,
+    "scrollY": 2296,
+    "docH": 7344,
+    "blocksBefore": [
+     [
+      0,
+      "div.h29-hero-slot",
+      84,
+      458
+     ],
+     [
+      1,
+      "section.h29-quiet[מצב האתר]",
+      562,
+      83
+     ],
+     [
+      2,
+      "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+      665,
+      741
+     ],
+     [
+      3,
+      "section.h29-sec.k29-reveal[התכנסויות בולט]",
+      1426,
+      645
+     ],
+     [
+      4,
+      "div.k29-reveal.k29-rv-self",
+      2091,
+      305
+     ],
+     [
+      5,
+      "section.dg29[שערי הגילוי]",
+      2416,
+      1636
+     ],
+     [
+      6,
+      "div.k29-reveal.k29-rv-self",
+      4072,
+      312
+     ],
+     [
+      7,
+      "section.h29-sec.k29-reveal[כותבים וערוצים]",
+      4404,
+      180
+     ],
+     [
+      8,
+      "section.h29-sec.k29-reveal[כלים וכניסות]",
+      4604,
+      781
+     ],
+     [
+      9,
+      "section.hb29[האתר בבנייה וה]",
+      5404,
+      824
+     ],
+     [
+      10,
+      "section.sod29-home-review-entry[התחלה משלך]",
+      6269,
+      321
+     ],
+     [
+      11,
+      "section.sod29-home-continuity[רציפות אישית]",
+      6666,
+      489
+     ],
+     [
+      12,
+      "section.h29-quiet[דופק ומצב בניי]",
+      7175,
+      39
+     ]
+    ]
+   },
+   "postRoute": {
+    "path": "/post/chibur-bein-hasafot-mafteach-lagan",
+    "tapCmdMs": 56,
+    "tapToPostReadyMs": 1185,
+    "postTextLen": 4919,
+    "postDocH": 9058
+   },
+   "postY": 1479,
+   "back": {
+    "cmdWallStart": 1792073638933,
+    "cmdWallEnd": 1792073638945,
+    "cmdDurMs": 13
+   },
+   "cls": 0.0063,
+   "shifts": [
+    {
+     "t": 1792073640035,
+     "v": 0.006300682718548551,
+     "src": [
+      {
+       "n": "div.sod29-flight-copy",
+       "py": 0,
+       "cy": 0,
+       "ph": 114,
+       "ch": 145
+      }
+     ]
+    }
+   ],
+   "mut": [
+    {
+     "t": 1792073639258.9,
+     "k": "add",
+     "n": "div.sod29-root.closed-shell",
+     "p": "div"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "rm",
+     "n": "section.h29-hero.is-loading",
+     "p": "div.h29-hero-slot"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "add",
+     "n": "section.h29-hero.h29-hero2[העדכון האחרון]",
+     "p": "div.h29-hero-slot"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073639699.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073640214.3,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-dimension-sources"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073640685.6,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    }
+   ],
+   "geo": [
+    {
+     "t": 1792073639338.5,
+     "y": 1479,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639482.2,
+     "y": 1481,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639501.7,
+     "y": 1487,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639515.1,
+     "y": 1497,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639579.7,
+     "y": 1511,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639651.4,
+     "y": 1612,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639759.6,
+     "y": 1776,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639818.6,
+     "y": 2296,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       172,
+       172,
+       172,
+       172
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073639976.3,
+     "y": 2296,
+     "dh": 7169,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4388,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4576,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6094,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7000,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073640029.2,
+     "y": 2296,
+     "dh": 7170,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4077,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4389,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4577,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6095,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7001,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073640251.3,
+     "y": 2296,
+     "dh": 7170,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4078,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4389,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4577,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5377,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6095,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6492,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7001,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073640749.5,
+     "y": 2296,
+     "dh": 7349,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4078,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4410,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4609,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5410,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6274,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6672,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7180,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       141,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073640829.1,
+     "y": 2296,
+     "dh": 7349,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       746
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1431,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2096,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2421,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4078,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4410,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4609,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5410,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6274,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6672,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7180,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       187,
+       167,
+       167,
+       167
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    }
+   ],
+   "geoPre": [
+    {
+     "t": 1792073630385.6,
+     "y": 2296,
+     "dh": 7344,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       741
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1426,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2091,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2416,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4072,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4404,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4604,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5404,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6269,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6666,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7175,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    }
+   ],
+   "longTasks": [
+    {
+     "t": 1792073638937.5,
+     "d": 392
+    },
+    {
+     "t": 1792073639658.8,
+     "d": 60
+    },
+    {
+     "t": 1792073639900.8,
+     "d": 51
+    },
+    {
+     "t": 1792073640111.5,
+     "d": 65
+    },
+    {
+     "t": 1792073640183.8,
+     "d": 52
+    },
+    {
+     "t": 1792073640614.5,
+     "d": 130
+    },
+    {
+     "t": 1792073640823.3,
+     "d": 90
+    },
+    {
+     "t": 1792073640940.9,
+     "d": 50
+    }
+   ],
+   "events": [],
+   "readyAfterBack": {
+    "usable": 336,
+    "dgLoaded": 1302,
+    "hero": 335,
+    "usableFromCmdEnd": 324
+   },
+   "traj": [
+    [
+     446,
+     1479,
+     7169,
+     null
+    ],
+    [
+     1076,
+     2296,
+     7169,
+     null
+    ],
+    [
+     1631,
+     2296,
+     7170,
+     239
+    ],
+    [
+     2150,
+     2296,
+     7349,
+     239
+    ],
+    [
+     2574,
+     2296,
+     7349,
+     239
+    ],
+    [
+     3017,
+     2296,
+     7349,
+     239
+    ],
+    [
+     3422,
+     2296,
+     7349,
+     239
+    ],
+    [
+     3826,
+     2296,
+     7349,
+     239
+    ],
+    [
+     4226,
+     2296,
+     7349,
+     239
+    ],
+    [
+     4622,
+     2296,
+     7349,
+     239
+    ],
+    [
+     5026,
+     2296,
+     7349,
+     239
+    ],
+    [
+     5436,
+     2296,
+     7349,
+     239
+    ],
+    [
+     5854,
+     2296,
+     7349,
+     239
+    ],
+    [
+     6251,
+     2296,
+     7349,
+     239
+    ],
+    [
+     6650,
+     2296,
+     7349,
+     239
+    ]
+   ],
+   "anchor": {
+    "text": "מתוך הפוסט · מפתח לגן",
+    "topBefore": 233,
+    "topFinal": 239,
+    "finalDisp": 6,
+    "yFinal": 2296,
+    "docHFinal": 7349,
+    "firstWithin120Ms": 1316,
+    "maxDispAfter": 6,
+    "within120Final": true,
+    "sampledFound": "41/45"
+   },
+   "reqLog": [
+    {
+     "k": "rpc/notification_prefs_guest_get_v1",
+     "tReq": 403,
+     "tFulfil": 554,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,image_url,thumb_url,date,modified,tags,",
+     "tReq": 404,
+     "tFulfil": 555,
+     "delay": 150
+    },
+    {
+     "k": "site_flags?select=key,enabled,message,mode",
+     "tReq": 404,
+     "tFulfil": 561,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,created_at,visibility_changed_at",
+     "tReq": 411,
+     "tFulfil": 563,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,created_at,visibility_changed_at",
+     "tReq": 411,
+     "tFulfil": 566,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_user_id,author_contributor_id,author_name,c",
+     "tReq": 411,
+     "tFulfil": 566,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 411,
+     "tFulfil": 566,
+     "delay": 150
+    },
+    {
+     "k": "rpc/get_category_videos",
+     "tReq": 411,
+     "tFulfil": 566,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 417,
+     "tFulfil": 573,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 418,
+     "tFulfil": 573,
+     "delay": 150
+    },
+    {
+     "k": "els_records?select=id,slug,title,search_term,scope,skip_distance,directi",
+     "tReq": 418,
+     "tFulfil": 573,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_method_value",
+     "tReq": 469,
+     "tFulfil": 619,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=*",
+     "tReq": 481,
+     "tFulfil": 631,
+     "delay": 150
+    },
+    {
+     "k": "contributors?select=id,slug,display_name,kind,role,wa_names,trusted,activ",
+     "tReq": 484,
+     "tFulfil": 634,
+     "delay": 150
+    },
+    {
+     "k": "contributors?select=id,slug,display_name,kind,role,wa_names,trusted,activ",
+     "tReq": 485,
+     "tFulfil": 635,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,date,modified,categories,source,tags,home_hid",
+     "tReq": 673,
+     "tFulfil": 823,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/v",
+     "tReq": 788,
+     "tFulfil": 938,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,content,excerpt",
+     "tReq": 809,
+     "tFulfil": 959,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 854,
+     "tFulfil": 1004,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 854,
+     "tFulfil": 1005,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,date,modified,tags,categories,source,home_hid",
+     "tReq": 860,
+     "tFulfil": 1010,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_name,title,gematria_claim,created_at",
+     "tReq": 866,
+     "tFulfil": 1017,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,title,slug,link,modified,date,author,ai_addition,s",
+     "tReq": 867,
+     "tFulfil": 1018,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,gadol,siduri,miluy,kadmi,atbash,albam,mi",
+     "tReq": 867,
+     "tFulfil": 1018,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 877,
+     "tFulfil": 1027,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_contributor_id,title,target_type,target_id,",
+     "tReq": 881,
+     "tFulfil": 1032,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 921,
+     "tFulfil": 1071,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1247,
+     "tFulfil": 1398,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1248,
+     "tFulfil": 1399,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1248,
+     "tFulfil": 1399,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1248,
+     "tFulfil": 1400,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1248,
+     "tFulfil": 1400,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1248,
+     "tFulfil": 1400,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1248,
+     "tFulfil": 1401,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1253,
+     "tFulfil": 1402,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1253,
+     "tFulfil": 1403,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1253,
+     "tFulfil": 1404,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1255,
+     "tFulfil": 1405,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1255,
+     "tFulfil": 1406,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1255,
+     "tFulfil": 1406,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1255,
+     "tFulfil": 1406,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qual",
+     "tReq": 1257,
+     "tFulfil": 1407,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5109.",
+     "tReq": 1346,
+     "tFulfil": 1497,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/card",
+     "tReq": 1347,
+     "tFulfil": 1498,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/card",
+     "tReq": 1347,
+     "tFulfil": 1500,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5100.",
+     "tReq": 1347,
+     "tFulfil": 1501,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qual",
+     "tReq": 1356,
+     "tFulfil": 1510,
+     "delay": 150
+    },
+    {
+     "k": "rpc/world_group_source_arrivals_v2",
+     "tReq": 1394,
+     "tFulfil": 1544,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,",
+     "tReq": 1396,
+     "tFulfil": 1545,
+     "delay": 150
+    },
+    {
+     "k": "nodes?select=rule_id,rule_version",
+     "tReq": 1512,
+     "tFulfil": 1662,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_zero_scale",
+     "tReq": 1989,
+     "tFulfil": 2139,
+     "delay": 150
+    },
+    {
+     "k": "nodes?select=rule_id,rule_version",
+     "tReq": 2246,
+     "tFulfil": 2400,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_zero_scale",
+     "tReq": 2511,
+     "tFulfil": 2661,
+     "delay": 150
+    }
+   ],
+   "reqCount": {
+    "depart": 72,
+    "back": 53
+   },
+   "finalDocH": 7349,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": 0,
+   "missKeys": [],
+   "blockedWrites": 15,
+   "blockedWriteKeys": [
+    "POST rpc/link_identity",
+    "POST rpc/track_visit",
+    "POST rpc/ingest_event",
+    "HEAD gematria_words?select=phrase"
+   ],
+   "valid": true
+  },
+  {
+   "arm": "B9",
+   "idx": 3,
+   "invalid": [],
+   "late": null,
+   "interrupt": null,
+   "state": "normal",
+   "homeReadyEpoch": {
+    "usable": 1792073650534.9,
+    "dgLoaded": 1792073651543.4,
+    "navStart": 1792073646181
+   },
+   "depart": {
+    "href": "/post/chibur-bein-hasafot-mafteach-lagan",
+    "anchorText": "מתוך הפוסט · מפתח לגן",
+    "anchorTopBefore": 367,
+    "linkTop": 355,
+    "scrollY": 2162,
+    "docH": 7344,
+    "blocksBefore": [
+     [
+      0,
+      "div.h29-hero-slot",
+      84,
+      458
+     ],
+     [
+      1,
+      "section.h29-quiet[מצב האתר]",
+      562,
+      83
+     ],
+     [
+      2,
+      "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+      665,
+      741
+     ],
+     [
+      3,
+      "section.h29-sec.k29-reveal[התכנסויות בולט]",
+      1426,
+      645
+     ],
+     [
+      4,
+      "div.k29-reveal.k29-rv-self",
+      2091,
+      305
+     ],
+     [
+      5,
+      "section.dg29[שערי הגילוי]",
+      2416,
+      1636
+     ],
+     [
+      6,
+      "div.k29-reveal.k29-rv-self",
+      4072,
+      312
+     ],
+     [
+      7,
+      "section.h29-sec.k29-reveal[כותבים וערוצים]",
+      4404,
+      180
+     ],
+     [
+      8,
+      "section.h29-sec.k29-reveal[כלים וכניסות]",
+      4604,
+      781
+     ],
+     [
+      9,
+      "section.hb29[האתר בבנייה וה]",
+      5404,
+      824
+     ],
+     [
+      10,
+      "section.sod29-home-review-entry[התחלה משלך]",
+      6269,
+      321
+     ],
+     [
+      11,
+      "section.sod29-home-continuity[רציפות אישית]",
+      6666,
+      489
+     ],
+     [
+      12,
+      "section.h29-quiet[דופק ומצב בניי]",
+      7175,
+      39
+     ]
+    ]
+   },
+   "postRoute": {
+    "path": "/post/chibur-bein-hasafot-mafteach-lagan",
+    "tapCmdMs": 61,
+    "tapToPostReadyMs": 1386,
+    "postTextLen": 4919,
+    "postDocH": 8996
+   },
+   "postY": 1492,
+   "back": {
+    "cmdWallStart": 1792073667769,
+    "cmdWallEnd": 1792073667778,
+    "cmdDurMs": 9
+   },
+   "cls": 0.012,
+   "shifts": [
+    {
+     "t": 1792073668411.5,
+     "v": 0.000003165370965819069,
+     "src": [
+      {
+       "n": "null",
+       "py": 586,
+       "cy": 586,
+       "ph": 5,
+       "ch": 5
+      }
+     ]
+    },
+    {
+     "t": 1792073668674.2,
+     "v": 0.01194957067310932,
+     "src": [
+      {
+       "n": "div.sod29-flight-copy",
+       "py": 0,
+       "cy": 0,
+       "ph": 244,
+       "ch": 275
+      }
+     ]
+    }
+   ],
+   "mut": [
+    {
+     "t": 1792073667974.9,
+     "k": "add",
+     "n": "div.sod29-root.closed-shell",
+     "p": "div"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "rm",
+     "n": "section.h29-hero.is-loading",
+     "p": "div.h29-hero-slot"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "add",
+     "n": "section.h29-hero.h29-hero2[העדכון האחרון]",
+     "p": "div.h29-hero-slot"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "rm",
+     "n": "article.h29-card.is-loading",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668372.1,
+     "k": "add",
+     "n": "article.h29-card.k29-rv",
+     "p": "div.h29-updates"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "span.dg29-source.is-loading",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "add",
+     "n": "a.dg29-source",
+     "p": "div.dg29-sources"
+    },
+    {
+     "t": 1792073668869.5,
+     "k": "rm",
+     "n": "p.dg29-empty.dg29-sr",
+     "p": "div.dg29-dimension-sources"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "rm",
+     "n": "article.h29-notable-card.is-loading",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    },
+    {
+     "t": 1792073669368.1,
+     "k": "add",
+     "n": "article.h29-notable-card.k29-rv",
+     "p": "div.h29-notable"
+    }
+   ],
+   "geo": [
+    {
+     "t": 1792073668043.1,
+     "y": 1492,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668165.6,
+     "y": 1494,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668182.1,
+     "y": 1500,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668198.1,
+     "y": 1510,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668225,
+     "y": 1524,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668267.9,
+     "y": 1543,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "div.h29-hero-copy",
+        56
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668406.9,
+     "y": 1625,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668499.5,
+     "y": 1997,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668530.8,
+     "y": 2162,
+     "dh": 7165,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4384,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4572,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6090,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6996,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       171,
+       171,
+       171,
+       171
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668663.3,
+     "y": 2162,
+     "dh": 7166,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4073,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4385,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4573,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6091,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6997,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        0,
+        271,
+        true
+       ],
+       [
+        224,
+        0,
+        92,
+        true
+       ],
+       [
+        457,
+        0,
+        252,
+        true
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        true
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        202
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073668912.4,
+     "y": 2162,
+     "dh": 7166,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4074,
+       291
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4385,
+       168
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4573,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5373,
+       678
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6091,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6488,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       6997,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       124,
+       124,
+       124,
+       124
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073669420.1,
+     "y": 2162,
+     "dh": 7345,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       644
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4074,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4406,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4605,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5406,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6270,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6668,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7176,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       141,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    },
+    {
+     "t": 1792073669495.3,
+     "y": 2162,
+     "dh": 7345,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       742
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1427,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2092,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2417,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4074,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4406,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4605,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5406,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6270,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6668,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7176,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    }
+   ],
+   "geoPre": [
+    {
+     "t": 1792073659038,
+     "y": 2162,
+     "dh": 7344,
+     "k": [
+      [
+       0,
+       "div.h29-hero-slot",
+       84,
+       458
+      ],
+      [
+       1,
+       "section.h29-quiet[מצב האתר]",
+       562,
+       83
+      ],
+      [
+       2,
+       "section.h29-sec.k29-reveal[עדכונים אחרוני]",
+       665,
+       741
+      ],
+      [
+       3,
+       "section.h29-sec.k29-reveal[התכנסויות בולט]",
+       1426,
+       645
+      ],
+      [
+       4,
+       "div.k29-reveal.k29-rv-self",
+       2091,
+       305
+      ],
+      [
+       5,
+       "section.dg29[שערי הגילוי]",
+       2416,
+       1636
+      ],
+      [
+       6,
+       "div.k29-reveal.k29-rv-self",
+       4072,
+       312
+      ],
+      [
+       7,
+       "section.h29-sec.k29-reveal[כותבים וערוצים]",
+       4404,
+       180
+      ],
+      [
+       8,
+       "section.h29-sec.k29-reveal[כלים וכניסות]",
+       4604,
+       781
+      ],
+      [
+       9,
+       "section.hb29[האתר בבנייה וה]",
+       5404,
+       824
+      ],
+      [
+       10,
+       "section.sod29-home-review-entry[התחלה משלך]",
+       6269,
+       321
+      ],
+      [
+       11,
+       "section.sod29-home-continuity[רציפות אישית]",
+       6666,
+       489
+      ],
+      [
+       12,
+       "section.h29-quiet[דופק ומצב בניי]",
+       7175,
+       39
+      ]
+     ],
+     "det": {
+      "upd": [
+       186,
+       166,
+       166,
+       166
+      ],
+      "nota": [
+       162,
+       141,
+       118,
+       118
+      ],
+      "gw": [
+       [
+        403,
+        1,
+        271,
+        false
+       ],
+       [
+        224,
+        2,
+        92,
+        false
+       ],
+       [
+        458,
+        4,
+        252,
+        false
+       ]
+      ],
+      "dim": [
+       [
+        484,
+        4,
+        false
+       ]
+      ],
+      "heroKids": [
+       [
+        "img.h29-hero-img.k29-in",
+        180
+       ],
+       [
+        "div.h29-hero-copy",
+        242
+       ]
+      ]
+     }
+    }
+   ],
+   "longTasks": [
+    {
+     "t": 1792073667772,
+     "d": 265
+    },
+    {
+     "t": 1792073668332.5,
+     "d": 67
+    },
+    {
+     "t": 1792073669324.8,
+     "d": 90
+    },
+    {
+     "t": 1792073669494.2,
+     "d": 84
+    }
+   ],
+   "events": [],
+   "readyAfterBack": {
+    "usable": 210,
+    "dgLoaded": 1118,
+    "hero": 210,
+    "usableFromCmdEnd": 201
+   },
+   "traj": [
+    [
+     298,
+     1492,
+     7165,
+     null
+    ],
+    [
+     934,
+     2162,
+     7166,
+     null
+    ],
+    [
+     1518,
+     2162,
+     7166,
+     369
+    ],
+    [
+     1985,
+     2162,
+     7345,
+     369
+    ],
+    [
+     2402,
+     2162,
+     7345,
+     369
+    ],
+    [
+     2796,
+     2162,
+     7345,
+     369
+    ],
+    [
+     3199,
+     2162,
+     7345,
+     369
+    ],
+    [
+     3600,
+     2162,
+     7345,
+     369
+    ],
+    [
+     4015,
+     2162,
+     7345,
+     369
+    ],
+    [
+     4416,
+     2162,
+     7345,
+     369
+    ],
+    [
+     4824,
+     2162,
+     7345,
+     369
+    ],
+    [
+     5224,
+     2162,
+     7345,
+     369
+    ],
+    [
+     5626,
+     2162,
+     7345,
+     369
+    ],
+    [
+     6030,
+     2162,
+     7345,
+     369
+    ],
+    [
+     6421,
+     2162,
+     7345,
+     369
+    ],
+    [
+     6809,
+     2162,
+     7345,
+     369
+    ]
+   ],
+   "anchor": {
+    "text": "מתוך הפוסט · מפתח לגן",
+    "topBefore": 367,
+    "topFinal": 369,
+    "finalDisp": 2,
+    "yFinal": 2162,
+    "docHFinal": 7345,
+    "firstWithin120Ms": 1128,
+    "maxDispAfter": 2,
+    "within120Final": true,
+    "sampledFound": "43/47"
+   },
+   "reqLog": [
+    {
+     "k": "rpc/notification_prefs_guest_get_v1",
+     "tReq": 272,
+     "tFulfil": 422,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,image_url,thumb_url,date,modified,tags,",
+     "tReq": 272,
+     "tFulfil": 423,
+     "delay": 150
+    },
+    {
+     "k": "site_flags?select=key,enabled,message,mode",
+     "tReq": 274,
+     "tFulfil": 424,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,created_at,visibility_changed_at",
+     "tReq": 276,
+     "tFulfil": 425,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,created_at,visibility_changed_at",
+     "tReq": 280,
+     "tFulfil": 430,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_user_id,author_contributor_id,author_name,c",
+     "tReq": 280,
+     "tFulfil": 431,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 281,
+     "tFulfil": 431,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 281,
+     "tFulfil": 432,
+     "delay": 150
+    },
+    {
+     "k": "rpc/get_category_videos",
+     "tReq": 281,
+     "tFulfil": 432,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,image_url,thumb_url,categories,",
+     "tReq": 281,
+     "tFulfil": 432,
+     "delay": 150
+    },
+    {
+     "k": "els_records?select=id,slug,title,search_term,scope,skip_distance,directi",
+     "tReq": 288,
+     "tFulfil": 438,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_method_value",
+     "tReq": 315,
+     "tFulfil": 465,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=*",
+     "tReq": 320,
+     "tFulfil": 470,
+     "delay": 150
+    },
+    {
+     "k": "contributors?select=id,slug,display_name,kind,role,wa_names,trusted,activ",
+     "tReq": 337,
+     "tFulfil": 488,
+     "delay": 150
+    },
+    {
+     "k": "contributors?select=id,slug,display_name,kind,role,wa_names,trusted,activ",
+     "tReq": 342,
+     "tFulfil": 492,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,date,modified,categories,source,tags,home_hid",
+     "tReq": 517,
+     "tFulfil": 668,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/v",
+     "tReq": 635,
+     "tFulfil": 785,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 663,
+     "tFulfil": 813,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 663,
+     "tFulfil": 814,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 663,
+     "tFulfil": 815,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 663,
+     "tFulfil": 820,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,content,excerpt",
+     "tReq": 687,
+     "tFulfil": 837,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_name,title,gematria_claim,created_at",
+     "tReq": 701,
+     "tFulfil": 852,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,title,slug,link,modified,date,author,ai_addition,s",
+     "tReq": 701,
+     "tFulfil": 853,
+     "delay": 150
+    },
+    {
+     "k": "gematria_words?select=phrase,ragil,gadol,siduri,miluy,kadmi,atbash,albam,mi",
+     "tReq": 702,
+     "tFulfil": 853,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 704,
+     "tFulfil": 854,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/i",
+     "tReq": 725,
+     "tFulfil": 875,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,date,modified,tags,categories,source,home_hid",
+     "tReq": 726,
+     "tFulfil": 876,
+     "delay": 150
+    },
+    {
+     "k": "research_contributions?select=id,author_contributor_id,title,target_type,target_id,",
+     "tReq": 758,
+     "tFulfil": 908,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1059,
+     "tFulfil": 1210,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1060,
+     "tFulfil": 1211,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1060,
+     "tFulfil": 1212,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=slug,title",
+     "tReq": 1060,
+     "tFulfil": 1212,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1060,
+     "tFulfil": 1212,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1060,
+     "tFulfil": 1213,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1060,
+     "tFulfil": 1213,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug",
+     "tReq": 1061,
+     "tFulfil": 1213,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1061,
+     "tFulfil": 1213,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1061,
+     "tFulfil": 1213,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1062,
+     "tFulfil": 1214,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1062,
+     "tFulfil": 1214,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1068,
+     "tFulfil": 1218,
+     "delay": 150
+    },
+    {
+     "k": "rpc/gematria_method_trace",
+     "tReq": 1069,
+     "tFulfil": 1218,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qual",
+     "tReq": 1071,
+     "tFulfil": 1221,
+     "delay": 150
+    },
+    {
+     "k": "topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,qual",
+     "tReq": 1143,
+     "tFulfil": 1293,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5109.",
+     "tReq": 1173,
+     "tFulfil": 1323,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/card",
+     "tReq": 1173,
+     "tFulfil": 1324,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/card",
+     "tReq": 1173,
+     "tFulfil": 1325,
+     "delay": 150
+    },
+    {
+     "k": "GET https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/_thumb/p/5100.",
+     "tReq": 1173,
+     "tFulfil": 1333,
+     "delay": 150
+    },
+    {
+     "k": "posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,",
+     "tReq": 1234,
+     "tFulfil": 1385,
+     "delay": 150
+    },
+    {
+     "k": "rpc/world_group_source_arrivals_v2",
+     "tReq": 1236,
+     "tFulfil": 1387,
+     "delay": 150
+    },
+    {
+     "k": "nodes?select=rule_id,rule_version",
+     "tReq": 1487,
+     "tFulfil": 1637,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_zero_scale",
+     "tReq": 1738,
+     "tFulfil": 1889,
+     "delay": 150
+    },
+    {
+     "k": "nodes?select=rule_id,rule_version",
+     "tReq": 1978,
+     "tFulfil": 2128,
+     "delay": 150
+    },
+    {
+     "k": "rpc/fn_zero_scale",
+     "tReq": 2192,
+     "tFulfil": 2343,
+     "delay": 150
+    }
+   ],
+   "reqCount": {
+    "depart": 72,
+    "back": 55
+   },
+   "finalDocH": 7345,
+   "pageErrors": [],
+   "consoleErrors": 0,
+   "misses": 0,
+   "missKeys": [],
+   "blockedWrites": 15,
+   "blockedWriteKeys": [
+    "POST rpc/link_identity",
+    "POST rpc/track_visit",
+    "POST rpc/ingest_event",
+    "HEAD gematria_words?select=phrase"
+   ],
+   "valid": true
+  }
+ ]
+}
