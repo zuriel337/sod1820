@@ -53,6 +53,17 @@ World/Topic, readers, permissions, live flags, shared scroll restoration,
 main/shared/candidate branches and deployments are excluded. Completion and
 branch output must be verified separately; startup is not implementation proof.
 
+At 13:26:05 UTC, the coordinator applied one bounded lease-only/context update to
+this exact assignment, preserving its CLAIMED state, worker, session and attempt1.
+The previous expiry was 13:30:44.898873; the new expiry is 13:56:05.071641 UTC.
+Live recovery would otherwise re-fire an expired claim without checking whether
+the provider session had stopped. The exact compare-and-set required the original
+unexpired lease and absence of completion/supersession/AFTER. Live trigger review
+confirmed that changing only lease/context cannot dispatch a new session.
+This is explicitly a coordinator grace period, not a worker heartbeat or proof of
+coding progress. No global recovery setting/function/cron was changed. The original
+worker retains its canonical finish path; there was no second launch.
+
 ## Read-only preview correction
 
 The existing static preview worker incorrectly rejected the current guest
