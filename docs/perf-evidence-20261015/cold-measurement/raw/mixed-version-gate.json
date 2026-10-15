@@ -1,0 +1,11 @@
+{
+  "comparable": false,
+  "errors": [
+    "Conditions differ: measurementProfile",
+    "Conditions differ: browser",
+    "Conditions differ: theme",
+    "Conditions differ: fixturesSha256",
+    "Conditions differ: extensionInjection"
+  ],
+  "deltas": {}
+}

@@ -1,0 +1,1 @@
+hard-isolation	A3 live client-to-trace correlation acceptance	2026-10-15T18:08:19.7994617Z A3_CLIENT_CORRELATION_EVIDENCE interaction_id=512d8784-6ddf-4367-b247-7be5fff363e4 trace_id=0488019d-0547-4ec1-8fb1-151d8b0be43b status=ok error=

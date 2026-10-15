@@ -1,0 +1,17 @@
+TAP version 13
+# {"runnerSha256":"1e11e40db09b507e3e36a8ecedf62db82ec178ea7c0288db0fb729f11c265a8f","renderer":"Debugger.paused until fixture dispatch","fixtureDelayMs":150,"dispatchMs":159.619962,"clockUncertaintyMs":1.3880814999999984,"readStart":115.0478515625,"browserNow":288.1999999997206,"browser":"151.0.7922.173","errors":[],"misses":[]}
+# Subtest: fixture response is dispatched while the real renderer is blocked
+ok 1 - fixture response is dispatched while the real renderer is blocked
+  ---
+  duration_ms: 1477.694227
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2184.392302
