@@ -34,3 +34,19 @@ test('intentional extension failures are functional evidence only; primary still
   assert.ok(s.ready < s.lastRestEnd - 2000);
   assert.equal(s.reads.filter(r => r.intentionalFailure).length, 6);
 });
+
+// Valid saved PR1110 measurements remain unchanged. Malformed bounds must never
+// turn timestamp comparisons into comparisons with NaN.
+test('current replay rejects missing, nonnumeric and nonfinite observation bounds', () => {
+  const valid=()=>JSON.parse(readFileSync(new URL('../docs/perf-evidence-20261015/cold-measurement/raw/replay-mobile.json',import.meta.url)));
+  assert.equal(validateReplay(valid()).valid,true);
+  for(const field of ['observationEnd','readsObservationEnd'])for(const value of [undefined,null,'bad','123',NaN,Infinity,-1]){
+    const data=valid();data.routes['/'].samples[0][field]=value;
+    assert.equal(validateReplay(data).valid,false,`${field}=${value}`);
+  }
+});
+
+test('isolated and historical network conditions cannot silently compare',()=>{
+  const before=load(),after=load();after.networkIsolation='local-fixture-only-v1';
+  const out=compareReplay(before,after);assert.equal(out.comparable,false);assert.deepEqual(out.deltas,{});
+});

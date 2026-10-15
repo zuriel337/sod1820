@@ -98,7 +98,16 @@ on:
       - "tests/entry-learn-2029.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
+      - "scripts/ci-isolation/**"
+      - "test/ci-isolation/**"
+      - "test/helpers/research-run-handler.mjs"
+      - "tests/ci-isolated-test.cjs"
+      - "tests/playwright-storage-egress-guard.cjs"
+      - "test/fixtures/ci-2029/**"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   navigation-replay:
@@ -108,48 +117,45 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
+      # Dependency setup is the only networked phase. Lifecycle hooks are disabled.
       - run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Prepare accepted PR1100 navigation baseline and browser
+      - name: Install pinned test tools without package hooks
+        run: |
+          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2
+          node "$RUNNER_TEMP/ci-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/ci-tools" >> "$GITHUB_ENV"
+          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/ci-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+          echo "SOD_CI_ESBUILD=$RUNNER_TEMP/ci-tools/node_modules/.bin/esbuild" >> "$GITHUB_ENV"
+      - name: Prepare immutable comparison source (never execute base CI scripts)
         env:
-          # Reviewed checkpoint includes accepted image work. Update only with new measured evidence.
-          PERF_NAV_BASE_SHA: 0825b326ea0fd9faa57b41d0d48bdadada9f3c7f
+          BASE_SHA: 0825b326ea0fd9faa57b41d0d48bdadada9f3c7f
         run: |
-          set -e
-          mkdir -p "$RUNNER_TEMP/nav-base" "$RUNNER_TEMP/nav-tools" "$RUNNER_TEMP/nav-results"
-          git archive "$PERF_NAV_BASE_SHA" | tar -x -C "$RUNNER_TEMP/nav-base"
+          mkdir -p "$RUNNER_TEMP/nav-base" "$RUNNER_TEMP/nav-results"
+          git archive "$BASE_SHA" | tar -x -C "$RUNNER_TEMP/nav-base"
           npm ci --prefix "$RUNNER_TEMP/nav-base" --ignore-scripts --no-audit --no-fund
-          npm install --prefix "$RUNNER_TEMP/nav-tools" --ignore-scripts --no-audit --no-fund playwright@1.56.1
-          node "$RUNNER_TEMP/nav-tools/node_modules/playwright/cli.js" install --with-deps chromium
-          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/nav-tools" >> "$GITHUB_ENV"
-          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/nav-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
-      - name: Build both readonly Preview trees
+      - name: Frozen snapshot preflight and isolated navigation acceptance
+        env:
+          SOD_CI_SNAPSHOT: ${{ github.workspace }}/test/fixtures/ci-2029/navigation.json.gz
         run: |
-          set -e
-          (cd "$RUNNER_TEMP/nav-base" && VERCEL_GIT_COMMIT_SHA=0825b326ea0fd9faa57b41d0d48bdadada9f3c7f node scripts/build-integrated-preview.mjs)
-          node scripts/build-integrated-preview.mjs
-      - name: Actual clicks, Back, revisit and scrolling against one bounded public snapshot
-        run: |
-          set -e
-          node --test test/perf-navigation-2029.test.mjs
-          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$RUNNER_TEMP/nav-base/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha 0825b326 --out "$RUNNER_TEMP/nav-results/base-record.json"
-          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$GITHUB_WORKSPACE/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha "$(git rev-parse HEAD)" --out "$RUNNER_TEMP/nav-results/head-record.json"
-          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$RUNNER_TEMP/nav-base/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world --headers 1 --catalog 1 --catalogsize 8 --sha 0825b326 --out "$RUNNER_TEMP/nav-results/catalog-base.json"
-          node scripts/perf-navigation-2029/run.mjs --mode record --dist "$GITHUB_WORKSPACE/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 1 --paths /world --headers 1 --catalog 1 --catalogsize 2 --catalogfail 1 --catalogreturn 1 --sha "$(git rev-parse HEAD)" --out "$RUNNER_TEMP/nav-results/catalog-head.json"
-          node scripts/perf-navigation-2029/catalog-parity.mjs "$RUNNER_TEMP/nav-fixtures.gz" "$RUNNER_TEMP/nav-results/catalog-parity.json"
-          node scripts/perf-navigation-2029/run.mjs --mode replay --dist "$RUNNER_TEMP/nav-base/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 7 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha 0825b326 --out "$RUNNER_TEMP/nav-results/before.json"
-          node scripts/perf-navigation-2029/run.mjs --mode replay --dist "$GITHUB_WORKSPACE/preview-deploy/dist" --fixtures "$RUNNER_TEMP/nav-fixtures.gz" --runs 7 --paths /world,/post/seventh-to-tenth-sefirot-2027 --headers 1 --sha "$(git rev-parse HEAD)" --out "$RUNNER_TEMP/nav-results/after.json"
-          node scripts/perf-navigation-2029/compare.mjs "$RUNNER_TEMP/nav-results/before.json" "$RUNNER_TEMP/nav-results/after.json" "$RUNNER_TEMP/nav-results/comparison.json"
+          # The reviewed manifest and complete nonempty snapshots are required inputs.
+          # Missing inputs fail before any application connection; never capture live.
+          snapshot_sha="$(node scripts/ci-isolation/snapshot-sha.mjs navigation)"
+          export SOD_CI_SNAPSHOT_SHA256="$snapshot_sha"
+          bash scripts/ci-isolation/offline.sh bash scripts/ci-isolation/navigation.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: 2029-actual-navigation-evidence
-          path: ${{ runner.temp }}/nav-results
+          name: navigation-replay-isolated-evidence
+          path: |
+            ${{ runner.temp }}/nav-results
+            test-results/release-visual
+          if-no-files-found: warn
           retention-days: 14
   performance-replay:
     if: github.event_name == 'pull_request'
@@ -158,174 +164,84 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci --ignore-scripts
-      - name: Prepare immutable base and Chromium 1194
+      # Dependency setup is the only networked phase. Lifecycle hooks are disabled.
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install pinned test tools without package hooks
+        run: |
+          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2
+          node "$RUNNER_TEMP/ci-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/ci-tools" >> "$GITHUB_ENV"
+          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/ci-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+          echo "SOD_CI_ESBUILD=$RUNNER_TEMP/ci-tools/node_modules/.bin/esbuild" >> "$GITHUB_ENV"
+      - name: Prepare immutable comparison source (never execute base CI scripts)
         env:
-          PERF_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          set -e
-          mkdir -p "$RUNNER_TEMP/perf-base" "$RUNNER_TEMP/perf-tools"
-          git archive "$PERF_BASE_SHA" | tar -x -C "$RUNNER_TEMP/perf-base"
+          mkdir -p "$RUNNER_TEMP/perf-base" "$RUNNER_TEMP/nav-results"
+          git archive "$BASE_SHA" | tar -x -C "$RUNNER_TEMP/perf-base"
           npm ci --prefix "$RUNNER_TEMP/perf-base" --ignore-scripts --no-audit --no-fund
-          npm install --prefix "$RUNNER_TEMP/perf-tools" --ignore-scripts --no-audit --no-fund playwright@1.56.1
-          node "$RUNNER_TEMP/perf-tools/node_modules/playwright/cli.js" install --with-deps chromium
-          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/perf-tools" >> "$GITHUB_ENV"
-          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/perf-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
-      - name: Build both 2029 trees
+      - name: Frozen snapshot preflight and isolated performance acceptance
+        env:
+          SOD_CI_SNAPSHOT: ${{ github.workspace }}/test/fixtures/ci-2029/performance.json.gz
         run: |
-          set -e
-          (cd "$RUNNER_TEMP/perf-base" && npm run build:2029)
-          npm run build:2029
-      - name: Capture bounded anonymous reads and measure the same snapshot
-        run: |
-          set -e
-          mkdir -p "$RUNNER_TEMP/perf-results"
-          node scripts/perf-execution-2029/measure.mjs --mode record --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/base-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label base-record
-          node scripts/perf-execution-2029/measure.mjs --mode record --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/head-record.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label head-record
-          # Complete responsive/original/Lightbox dependencies before freezing the common snapshot.
-          node scripts/perf-execution-2029/mobile-image-gate.mjs "$GITHUB_WORKSPACE/dist" "$RUNNER_TEMP/perf-results/mobile-image-capture.json" "$RUNNER_TEMP/perf-fixtures.gz" record
-          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$RUNNER_TEMP/perf-base/dist" --out "$RUNNER_TEMP/perf-results/before.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label before
-          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/after.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --label after
-          node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json"
-          node scripts/perf-execution-2029/replay-gate.mjs "$RUNNER_TEMP/perf-results/before.json" "$RUNNER_TEMP/perf-results/after.json" scripts/perf-execution-2029/replay-budgets.json
-          node scripts/perf-execution-2029/measure.mjs --mode replay --dist "$GITHUB_WORKSPACE/dist" --out "$RUNNER_TEMP/perf-results/extension-failure.json" --fixtures "$RUNNER_TEMP/perf-fixtures.gz" --routes /world --runs 1 --extensiondelay 2000 --extensionfail 1 --label delayed-failed-extensions
-          node scripts/perf-execution-2029/extension-gate.mjs "$RUNNER_TEMP/perf-results/extension-failure.json"
+          # The reviewed manifest and complete nonempty snapshots are required inputs.
+          # Missing inputs fail before any application connection; never capture live.
+          snapshot_sha="$(node scripts/ci-isolation/snapshot-sha.mjs performance)"
+          export SOD_CI_SNAPSHOT_SHA256="$snapshot_sha"
+          bash scripts/ci-isolation/offline.sh bash scripts/ci-isolation/performance.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: performance-replay-evidence
-          path: ${{ runner.temp }}/perf-results/*.json
-          # Raw upstream bodies stay in the ephemeral runner; never upload fixtures.
+          name: performance-replay-isolated-evidence
+          path: |
+            ${{ runner.temp }}/perf-results
+            test-results/release-visual
+          if-no-files-found: warn
+          retention-days: 14
   hard-isolation:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
-      - name: Performance evidence, auth-safe early reads and bounded Home data
-        run: node --test test/perf-execution-2029.test.mjs test/perf-replay-gate-2029.test.mjs test/early-primary-read-2029.test.mjs test/home-post-cards-2029.test.mjs
-      - name: Experience Context 2029 acceptance
-        run: npm run test:experience-context
-      - name: Entry Orientation + Contextual Learn 2029 acceptance
-        run: npm run test:entry-learn-2029
-      - name: Contact Gateway canonical owner acceptance
-        run: npm run test:issue-report
-      - name: My Workspace 2029 native home acceptance
-        run: npm run test:my-workspace-2029
-      - name: No Black Box operational trace acceptance
-        run: npm run test:operational-trace
-      - name: Web Vitals metric core acceptance
-        run: node scripts/test-web-vitals-2029.mjs
-      - name: Operational Trace Runtime persistence acceptance
-        run: npm run test:operational-trace-runtime
-      - name: AI-Analyze early paid paths trace coverage acceptance
+      # Dependency setup is the only networked phase. Lifecycle hooks are disabled.
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install pinned test tools without package hooks
         run: |
-          node test/ai-analyze-early-trace-coverage.test.mjs
-          node scripts/test-ai-analyze-service-headers.mjs
-          node --test test/raziel-quota-trace.test.mjs
-      - name: Replayable Golden No-Black-Box acceptance
-        run: npm run test:replayable-golden
-      - name: Server capability execution gate acceptance
-        run: npm run test:server-capability-gate
-      - name: W2 public Number research runtime acceptance
-        run: npm run test:research-run
-      - name: Package W2 research-run Edge transport
-        run: npm run package:research-run
-      - name: 2029 server SEO / AI metadata parity
-        run: npm run test:2029-server-seo-ai
-      - name: Research Path resumability runtime acceptance
-        run: npm run test:research-path-resume
-      - name: Home 2029 System Pulse acceptance
-        run: npm run test:home-2029-pulse
-      - name: 2029 cheap route/test/least-privilege hardening
-        run: npm run test:2029-cheap-hardening
-      - name: Legacy Research containment + unopened Heichal entrypoint acceptance
-        run: npm run test:legacy-research-containment
-      - name: Source isolation regression
-        run: node scripts/test-2029-isolation.mjs
-      - name: G4 source-section update / World / Companion public-read acceptance
-        run: node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js
-      - name: Native System Frame acceptance
-        run: node scripts/test-2029-system-frame.mjs
-      - name: Raziel server-gated Result Bundle consumer acceptance
-        run: node --test src/lib/research/razielServerGatedConsumer.currentMain.test.js
-      - name: Canonical 2029 contract wiring acceptance
-        run: node scripts/test-2029-canonical-contract-wiring.mjs
-      - name: Person identity bridge foundation acceptance
-        run: node test/person-identity-bridge-foundation.test.mjs
-      - name: Account Person completeness foundation acceptance
-        run: node test/account-person-completeness-foundation.test.mjs
-      - name: Person public resolver foundation acceptance
-        run: node test/person-public-resolver-foundation.test.mjs
-      - name: People identity projection acceptance
-        run: node test/people-identity-review-2029-contract.test.mjs
-      - name: Person Profile 2029 projection acceptance
-        run: node test/person-profile-2029-projection.test.mjs
-      - name: People Directory 2029 projection acceptance
-        run: node test/people-directory-2029-projection.test.mjs
-      - name: Native World surface acceptance
-        run: node scripts/test-2029-world-surface.mjs
-      - name: World Convergence PR591 focused acceptance
-        run: npm run test:world-convergence-pr591
-      - name: Native Topic surface acceptance
-        run: node scripts/test-2029-topic-surface.mjs
-      - name: Native Researcher corpus acceptance
-        run: node scripts/test-2029-researcher-corpus.mjs
-      - name: Native Number preview acceptance
-        run: node scripts/test-2029-number-preview.mjs
-      - name: Native 2029 Control Plane trace drill-down acceptance
-        run: node scripts/test-2029-control-plane.mjs
-      - name: A3 live client-to-trace correlation acceptance
-        run: node scripts/test-a3-client-correlation-live.mjs
-      - name: Production build
-        run: npm run build
-      - name: Built dependency graph isolation
-        run: node scripts/test-2029-built-graph.mjs
-      - name: 2029 load-time budget (entry + primary route graphs, deferred code stays deferred)
-        run: npm run test:2029-bundle-budget
-      - name: Verify isolated HTML artifact
+          npm install --prefix "$RUNNER_TEMP/ci-tools" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1 esbuild@0.28.2
+          node "$RUNNER_TEMP/ci-tools/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_DIR=$RUNNER_TEMP/ci-tools" >> "$GITHUB_ENV"
+          echo "PERF_CHROME=$(node -e "console.log(require('$RUNNER_TEMP/ci-tools/node_modules/playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+          echo "SOD_CI_ESBUILD=$RUNNER_TEMP/ci-tools/node_modules/.bin/esbuild" >> "$GITHUB_ENV"
+      - name: Source, A3 isolated storage, negative egress and build acceptance without external network
+        run: bash scripts/ci-isolation/offline.sh bash scripts/ci-isolation/hard-source.sh
+      - name: Frozen snapshot preflight and isolated browser acceptance
+        env:
+          SOD_CI_SNAPSHOT: ${{ github.workspace }}/test/fixtures/ci-2029/browser.json.gz
         run: |
-          test -f dist/2029.html
-          ! grep -q "site.webmanifest" dist/2029.html
-          ! grep -q "/logo.png" dist/2029.html
-      - name: Install browser acceptance runner
-        run: |
-          npm install --no-save --no-package-lock @playwright/test@1.55.0
-          npx playwright install --with-deps chromium
-      - name: Start isolated 2029 preview
-        run: |
-          cp dist/2029.html dist/index.html
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-2029-preview.log 2>&1 &
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173/world >/dev/null; then exit 0; fi
-            sleep 1
-          done
-          cat /tmp/sod1820-2029-preview.log
-          exit 1
-      - name: Entry Orientation + Contextual Learn browser acceptance
-        run: |
-          mkdir -p test-results/release-visual
-          npx playwright test tests/entry-learn-2029.spec.cjs --reporter=line
-      - name: World browser acceptance on pre-cutover preview
-        run: SOD_WORLD_PRE_CUTOVER_FIXTURE=1 npx playwright test tests/world2029-release.spec.cjs --reporter=line
-      - name: Upload native World screenshots
+          # The reviewed manifest and complete nonempty snapshots are required inputs.
+          # Missing inputs fail before any application connection; never capture live.
+          snapshot_sha="$(node scripts/ci-isolation/snapshot-sha.mjs browser)"
+          export SOD_CI_SNAPSHOT_SHA256="$snapshot_sha"
+          bash scripts/ci-isolation/offline.sh bash scripts/ci-isolation/hard-browser.sh
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: world-2029-visual-evidence
-          path: test-results/release-visual
+          name: hard-isolation-isolated-evidence
+          path: |
+            ${{ runner.temp }}/sod-2029-preview.log
+            test-results/release-visual
           if-no-files-found: warn
           retention-days: 14
-      - name: Show isolated preview log on failure
-        if: failure()
-        run: cat /tmp/sod1820-2029-preview.log || true

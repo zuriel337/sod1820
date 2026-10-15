@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { MEASUREMENT_PROFILE, calibrateRequestClock, documentTime, snapshotReads } from './measurement-profile.mjs';
@@ -40,7 +41,7 @@ function current() {
   for (const result of Object.values(data.routes)) for (const sample of result.samples) Object.assign(sample, {
     primaryState: { primary: true }, clockUncertaintyMs: 1, timeOrigin: 100000, navStart: 0,
     shell: 10, backgroundSettled: sample.ready + 100, layoutShiftSum: sample.cls,
-    observationEnd: sample.lastRestEnd + 100, pendingFixtureResponses: 0,
+    observationEnd: sample.lastRestEnd + 100, readsObservationEnd: sample.lastRestEnd + 99, pendingFixtureResponses: 0,
   });
   return data;
 }
@@ -92,26 +93,14 @@ test('SPA paints cannot silently satisfy the cold-navigation timing budget', () 
   assert.ok(checked.errors.some(error => error.includes('SPA navigation')));
 });
 
-test('the installed response guard blocks analytics, table writes, auth and unreviewed RPCs before navigation', async () => {
-  const source = fs.readFileSync(new URL('./measure.mjs', import.meta.url), 'utf8');
-  assert.ok(source.indexOf("await page.route('**/*'") < source.indexOf('await page.goto('));
+test('the installed response guard fails forbidden attempts independently of application catches', () => {
+  const source=fs.readFileSync(new URL('./measure.mjs',import.meta.url),'utf8');
+  assert.ok(source.indexOf("await context.route('**/*'")<source.indexOf('await page.goto('));
   assert.ok(source.includes("serviceWorkers: 'block'"));
-  const start = source.indexOf("      await page.route('**/*', async route => {");
-  const end = source.indexOf('\n      });', start);
-  let handler;
-  const blocked = [], errors = [], misses = [];
-  await runInNewContext(`(async () => {${source.slice(start, end + '\n      });'.length)}})()`, {
-    page: { route: async (_, fn) => { handler = fn; }, evaluate: () => assert.fail('Renderer dependency') },
-    URL, origin: 'http://127.0.0.1:1', ALLOW: new Set(['gematria_method_trace']), telemetry: /analytics|ingest_event|track_visit|link_identity/,
-    blocked, errors, misses, args: {}, mode: 'replay',
-    capture: () => assert.fail('No upstream write'), keyOf: () => assert.fail('Blocked request reached fixtures'),
-  });
-  for (const [method, path] of [['POST', '/rest/v1/nodes'], ['PATCH', '/rest/v1/posts'], ['DELETE', '/rest/v1/events'],
-    ['POST', '/rest/v1/rpc/unreviewed'], ['POST', '/rest/v1/rpc/ingest_event'], ['POST', '/auth/v1/token']]) {
-    let status;
-    await handler({ request: () => ({ url: () => `https://linswmnnkjxvweumprav.supabase.co${path}`, method: () => method }),
-      fulfill: async response => { status = response.status; }, continue: () => assert.fail('Upstream access'), abort: () => assert.fail('Expected blocked response') });
-    assert.equal(status, 204);
+  assert.ok(source.includes('requestPolicy(req, origin, fixtures, keyOf(req))'));
+  for(const [method,path] of [['POST','/rest/v1/nodes'],['PATCH','/rest/v1/posts'],['DELETE','/rest/v1/events'],['POST','/rest/v1/rpc/unreviewed'],['POST','/auth/v1/token']]){
+    const code=`const p=require('./scripts/ci-isolation/policy.cjs');try{p.requestPolicy({url:()=> 'http://127.0.0.1:1${path}',method:()=> '${method}',postData:()=>null,headers:()=>({})},'http://127.0.0.1:2',{});}catch{}console.log('caught');`;
+    const out=spawnSync(process.execPath,['scripts/ci-isolation/run.mjs','--',process.execPath,'-e',code],{encoding:'utf8'});
+    assert.equal(out.status,1,out.stderr);assert.match(out.stdout,/caught/,out.stderr);assert.match(out.stderr,/CI_EGRESS_FAILURE/);
   }
-  assert.equal(blocked.length, 6); assert.deepEqual(errors, []); assert.deepEqual(misses, []);
 });

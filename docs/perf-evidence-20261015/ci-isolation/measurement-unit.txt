@@ -1,0 +1,17 @@
+✔ calibration selects tightest round trip and retains the same clock after hard and soft navigation (1.024895ms)
+✔ CLS uses maximum session window, excludes recent input and keeps separate clusters (0.25541ms)
+✔ CLS session span is strictly below 5 seconds, gap strictly below 1 second (0.233998ms)
+✔ historical artifacts are retained, mixed definitions never produce comparable deltas (8.919113ms)
+✔ late response completion cannot mutate finalized read counts or introduce epoch timestamps (2.120804ms)
+✔ current reports require primary content, calibrated time and separated readiness phases (3.125488ms)
+✔ a bounded primary sample with pending background responses cannot certify complete read-count regression (1.907076ms)
+✔ SPA paints cannot silently satisfy the cold-navigation timing budget (0.997012ms)
+✔ the installed response guard fails forbidden attempts independently of application catches (800.44399ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 826.555781

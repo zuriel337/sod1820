@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require('./ci-isolated-test.cjs');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
@@ -91,7 +91,7 @@ test.setTimeout(60_000);
 test.describe.configure({ mode: 'default' });
 test.beforeEach(async ({ context }) => {
   await installStorageEgressGuard(context);
-  // Preserve real read-only engine/data requests while keeping browser acceptance
+  // Preserve complete engine/data fixtures while keeping browser acceptance
   // visits, metrics and identity events out of the canonical product database.
   await context.route(/https:\/\/linswmnnkjxvweumprav\.supabase\.co\/rest\/v1\/(?:rpc\/(?:track_visit|ingest_event|link_identity)|visitor_events|page_views|user_activity)(?:\?.*)?$/, async (route) => {
     if (['GET', 'HEAD'].includes(route.request().method())) return route.fallback();
@@ -865,7 +865,7 @@ test('loading and error states are honest and native', async ({ page }) => {
       delayed = true;
       await new Promise((resolve) => setTimeout(resolve, 1200));
     }
-    await route.continue();
+    await route.fallback();
   });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('אוסף את מה שמתחבר לכאן')).toBeVisible({ timeout: 1000 });

@@ -1,6 +1,8 @@
 // Real Chromium, controlled local page and intercepted synthetic public response.
 // Set PERF_RUNNER_SOURCE to an unmodified historical measure.mjs for the negative control.
 import test from 'node:test';
+import isolation from '../ci-isolation/policy.cjs';
+const {permitLocalServer,requestPolicy,browserArgs}=isolation;
 import { calibrateRequestClock, documentTime } from './measurement-profile.mjs';
 import { primaryContentState, sessionWindowCls, installBrowserMetrics } from './browser-metrics.mjs';
 import { observeNetworkQuiet } from './network-quiet.mjs';
@@ -15,16 +17,17 @@ const { chromium } = require('playwright');
 
 test('fixture response is dispatched while the real renderer is blocked', async () => {
   const source = fs.readFileSync(process.env.PERF_RUNNER_SOURCE || new URL('./measure.mjs', import.meta.url), 'utf8');
-  const start = source.indexOf("      await page.route('**/*', async route => {");
+  const start = source.indexOf("      await context.route('**/*', async route => {");
   const end = source.indexOf('\n      });', start);
   assert.ok(start >= 0 && end > start, 'Execute the exact production route callback');
   const server = http.createServer((_, res) => res.end('<!doctype html><title>renderer regression</title>'));
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  permitLocalServer(server);
   const origin = `http://127.0.0.1:${server.address().port}`;
-  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: ['--no-sandbox'] });
+  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: browserArgs });
   let cdp, running, pausing, fetching;
   try {
-    const page = await browser.newPage();
+    const page = await browser.newPage({serviceWorkers:'block'});
     await page.goto(origin);
     const clock = await calibrateRequestClock(page);
     const timeOrigin = await page.evaluate(() => performance.timeOrigin);
@@ -32,8 +35,8 @@ test('fixture response is dispatched while the real renderer is blocked', async 
     const errors = [], misses = [], reads = [], url = 'https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?probe=cold-clock';
     const key = `GET ${url} `;
     await runInNewContext(`(async () => {${source.slice(start, end + '\n      });'.length)}})()`, {
-      page: { route: async (_, fn) => { handler = fn; }, evaluate: (...args) => page.evaluate(...args) },
-      origin, pathname: '/', args: {}, mode: 'replay', URL, Buffer, performance, setTimeout,
+      context: { route: async (_, fn) => { handler = fn; }, evaluate: (...args) => page.evaluate(...args) },
+      requestPolicy, origin, pathname: '/', args: {}, mode: 'replay', URL, Buffer, performance, setTimeout,
       telemetry: /analytics/, ALLOW: new Set(), blocked: [], errors, misses, reads,
       keyOf: () => key, requestClock: clock, primary: () => true, pendingResponses: new Set(),
       hash: body => crypto.createHash('sha256').update(body).digest('hex'),
@@ -91,9 +94,10 @@ test('fixture response is dispatched while the real renderer is blocked', async 
 test('readiness separates shells, real source content and late background work', async () => {
   const server = http.createServer((_, res) => res.end('<!doctype html><main></main>'));
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: ['--no-sandbox'] });
+  permitLocalServer(server);
+  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: browserArgs });
   try {
-    const page = await browser.newPage();
+    const page = await browser.newPage({serviceWorkers:'block'});
     await page.goto(`http://127.0.0.1:${server.address().port}`);
     const state = async (html, path) => {
       await page.locator('main').evaluate((el, html) => { el.innerHTML = html; }, html);
@@ -129,7 +133,8 @@ test('readiness separates shells, real source content and late background work',
 test('browser epoch calibration survives a new document and SPA navigation', async () => {
   const server = http.createServer((_, res) => res.end('<!doctype html><main>Clock probe</main>'));
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: ['--no-sandbox'] });
+  permitLocalServer(server);
+  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: browserArgs });
   try {
     const page = await browser.newPage(), origin = `http://127.0.0.1:${server.address().port}`;
     const clock = await calibrateRequestClock(page);
@@ -156,7 +161,8 @@ test('late background requests cannot reuse a previously reached networkidle sta
     else res.end('<!doctype html><main>Primary content is already real</main>');
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: ['--no-sandbox'] });
+  permitLocalServer(server);
+  const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || chromium.executablePath(), args: browserArgs });
   try {
     const page = await browser.newPage(), network = observeNetworkQuiet(page);
     await page.goto(`http://127.0.0.1:${server.address().port}`, { waitUntil: 'networkidle' });

@@ -1,0 +1,15 @@
+✔ recorded complete replay passes; missing responses and failed primary reads fail closed (4.280266ms)
+✔ fixtures/browser differences prevent comparison and isolated savings are not added (2.184378ms)
+✔ a replay budget rejects request or readiness regression (0.99516ms)
+✔ matched budgets reject slower timing and extra reads on the same runner (2.30694ms)
+✔ intentional extension failures are functional evidence only; primary still becomes ready first (0.361037ms)
+✔ current replay rejects missing, nonnumeric and nonfinite observation bounds (23.56579ms)
+✔ isolated and historical network conditions cannot silently compare (1.981336ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.824874

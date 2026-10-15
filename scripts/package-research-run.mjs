@@ -119,9 +119,14 @@ async function main() {
   // readable for review. Correctness never depends on this; it is a size/cleanliness improvement over
   // the raw bundle, not part of the provenance proof.
   execFileSync(
-    "npx",
+    process.env.SOD_CI_ISOLATION === "1" ? (() => {
+      if (!process.env.SOD_CI_ESBUILD) throw new Error("Isolated packaging requires a preinstalled pinned esbuild; no npx download");
+      const version = execFileSync(process.env.SOD_CI_ESBUILD, ["--version"], { encoding: "utf8" }).trim();
+      if (version !== ESBUILD_VERSION) throw new Error("Pinned isolated esbuild version mismatch");
+      return process.env.SOD_CI_ESBUILD;
+    })() : "npx",
     [
-      "--yes", `esbuild@${ESBUILD_VERSION}`,
+      ...(process.env.SOD_CI_ISOLATION === "1" ? [] : ["--yes", `esbuild@${ESBUILD_VERSION}`]),
       ENTRY,
       "--bundle",
       "--platform=neutral",

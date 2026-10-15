@@ -1,0 +1,22 @@
+{
+  "state": "IMPLEMENTED_LOCAL_TESTED_FULL_REPLAY_BLOCKED_INPUT",
+  "base": "8965f1b6c10f3c6acd39f8c3ab05e658b10d0b19",
+  "liveAcceptance": "NOT_RUN",
+  "oldWorkflowRun38783045975": "NOT_RERUN",
+  "productSourceChanges": 0,
+  "thresholdChanges": 0,
+  "snapshots": "MISSING; fail closed, no live capture",
+  "positiveNegativeTrapTests": 17,
+  "trapHits": 0,
+  "snapshotConfigTests": 3,
+  "navigationFocusedTests": 8,
+  "coldFocusedTests": 27,
+  "sourceFidelityTests": 36,
+  "A3PersistenceFailureCases": 9,
+  "A3SavedSpans": 5,
+  "hardSource": "PASS under native guard; see hard-source.txt.gz; 3 additional source-fidelity suites PASS in golden-tests.txt",
+  "offlineNamespaceSubset": "PASS: network=none, A3 + 4 Chromium controls + 7 replay tests + production build; precompiled exact guard, no in-image compiler",
+  "fullBrowserAcceptance": "BLOCKED_INPUT_MISSING",
+  "matchedSevenSampleReplay": "BLOCKED_INPUT_MISSING",
+  "knownProductLimitation": "research-run ignores trace-finish return value; isolated stored-witness check rejects this false success; no product fix in scope"
+}

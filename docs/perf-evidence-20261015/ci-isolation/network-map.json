@@ -1,0 +1,368 @@
+{
+  "scope": "Only the three 2029 Isolation Gate jobs and their transitive imports; static I/O sites may be mocks or source assertions. Runtime violations are checked independently.",
+  "roots": [
+    "scripts/build-integrated-preview.mjs",
+    "scripts/package-research-run.mjs",
+    "scripts/perf-execution-2029/measure.mjs",
+    "scripts/perf-execution-2029/mobile-image-gate.mjs",
+    "scripts/perf-navigation-2029/run.mjs",
+    "scripts/test-2029-built-graph.mjs",
+    "scripts/test-2029-bundle-budget.mjs",
+    "scripts/test-2029-canonical-contract-wiring.mjs",
+    "scripts/test-2029-cheap-hardening.mjs",
+    "scripts/test-2029-control-plane.mjs",
+    "scripts/test-2029-isolation.mjs",
+    "scripts/test-2029-number-preview.mjs",
+    "scripts/test-2029-researcher-corpus.mjs",
+    "scripts/test-2029-server-seo-ai-parity.mjs",
+    "scripts/test-2029-system-frame.mjs",
+    "scripts/test-2029-topic-surface.mjs",
+    "scripts/test-2029-world-surface.mjs",
+    "scripts/test-a3-client-correlation-live.mjs",
+    "scripts/test-ai-analyze-service-headers.mjs",
+    "scripts/test-entry-contextual-learn-2029.mjs",
+    "scripts/test-experience-context-2029.mjs",
+    "scripts/test-home-2029-system-pulse.mjs",
+    "scripts/test-issue-report-canonical-emitter.mjs",
+    "scripts/test-legacy-research-containment.mjs",
+    "scripts/test-my-workspace-2029.mjs",
+    "scripts/test-operational-trace-contract.mjs",
+    "scripts/test-operational-trace-runtime.mjs",
+    "scripts/test-replayable-golden-no-black-box.mjs",
+    "scripts/test-research-path-resumability-runtime.mjs",
+    "scripts/test-research-run-contract.mjs",
+    "scripts/test-server-capability-gate.mjs",
+    "scripts/test-web-vitals-2029.mjs",
+    "src/lib/heroUpdate2029.test.js",
+    "src/lib/research/postSourceUpdates2029.test.js",
+    "src/lib/research/razielServerGatedConsumer.currentMain.test.js",
+    "src/lib/research/worldConvergencePr591PhaseBSourceMemberInspector.test.js",
+    "src/lib/research/worldConvergencePr591SerialRepairA2.test.js",
+    "src/lib/research/worldConvergencePr591SerialRepairA3.test.js",
+    "src/lib/research/worldDiscoveryStream.test.js",
+    "src/lib/systemFeed2029.test.js",
+    "src/main2029.jsx",
+    "test/account-person-completeness-foundation.test.mjs",
+    "test/ai-analyze-early-trace-coverage.test.mjs",
+    "test/early-primary-read-2029.test.mjs",
+    "test/home-post-cards-2029.test.mjs",
+    "test/people-directory-2029-projection.test.mjs",
+    "test/people-identity-review-2029-contract.test.mjs",
+    "test/perf-execution-2029.test.mjs",
+    "test/perf-replay-gate-2029.test.mjs",
+    "test/person-identity-bridge-foundation.test.mjs",
+    "test/person-profile-2029-projection.test.mjs",
+    "test/person-public-resolver-foundation.test.mjs",
+    "test/raziel-quota-trace.test.mjs",
+    "tests/entry-learn-2029.spec.cjs",
+    "tests/world2029-release.spec.cjs",
+    "vite.config.js"
+  ],
+  "localImportFilesVisited": 449,
+  "networkSites": [
+    {
+      "path": "api/og.js",
+      "sites": {
+        "fetch": [
+          151,
+          377,
+          404,
+          450,
+          492,
+          512,
+          546,
+          573,
+          602
+        ]
+      }
+    },
+    {
+      "path": "api/sitemap.js",
+      "sites": {
+        "fetch": [
+          178,
+          226
+        ]
+      }
+    },
+    {
+      "path": "scripts/build-integrated-preview.mjs",
+      "sites": {
+        "fetch": [
+          29,
+          30,
+          31,
+          36,
+          37,
+          43
+        ],
+        "subprocess": [
+          6,
+          59
+        ],
+        "serviceWorker": [
+          51
+        ]
+      }
+    },
+    {
+      "path": "scripts/ci-isolation/policy.cjs",
+      "sites": {
+        "beacon": [
+          63,
+          69,
+          70
+        ],
+        "websocket": [
+          77
+        ]
+      }
+    },
+    {
+      "path": "scripts/package-research-run.mjs",
+      "sites": {
+        "subprocess": [
+          35,
+          70,
+          81,
+          88,
+          121,
+          124
+        ]
+      }
+    },
+    {
+      "path": "scripts/perf-execution-2029/measure.mjs",
+      "sites": {
+        "subprocess": [
+          7
+        ],
+        "serviceWorker": [
+          57
+        ]
+      }
+    },
+    {
+      "path": "scripts/perf-execution-2029/mobile-image-gate.mjs",
+      "sites": {
+        "serviceWorker": [
+          38
+        ]
+      }
+    },
+    {
+      "path": "scripts/perf-execution-2029/serve.mjs",
+      "sites": {
+        "serviceWorker": [
+          27
+        ],
+        "socket": [
+          3
+        ]
+      }
+    },
+    {
+      "path": "scripts/perf-navigation-2029/run.mjs",
+      "sites": {
+        "serviceWorker": [
+          35
+        ]
+      }
+    },
+    {
+      "path": "scripts/test-2029-control-plane.mjs",
+      "sites": {
+        "websocket": [
+          50
+        ]
+      }
+    },
+    {
+      "path": "scripts/test-issue-report-canonical-emitter.mjs",
+      "sites": {
+        "subprocess": [
+          4,
+          18,
+          20
+        ]
+      }
+    },
+    {
+      "path": "src/components/ShareActions.jsx",
+      "sites": {
+        "fetch": [
+          91
+        ]
+      }
+    },
+    {
+      "path": "src/components/TzofenEmbed.jsx",
+      "sites": {
+        "fetch": [
+          204
+        ]
+      }
+    },
+    {
+      "path": "src/components/experience2029/HomeBuildSignup2029.jsx",
+      "sites": {
+        "fetch": [
+          26
+        ]
+      }
+    },
+    {
+      "path": "src/lib/botVerdict.js",
+      "sites": {
+        "curl": [
+          18
+        ]
+      }
+    },
+    {
+      "path": "src/lib/earlyPrimaryRead2029.js",
+      "sites": {
+        "fetch": [
+          10,
+          17
+        ]
+      }
+    },
+    {
+      "path": "src/lib/elsMatrices.js",
+      "sites": {
+        "fetch": [
+          84
+        ]
+      }
+    },
+    {
+      "path": "src/lib/engagement.js",
+      "sites": {
+        "fetch": [
+          24,
+          188
+        ],
+        "curl": [
+          21
+        ],
+        "beacon": [
+          21,
+          23,
+          25,
+          182,
+          184
+        ]
+      }
+    },
+    {
+      "path": "src/lib/marketing.js",
+      "sites": {
+        "fetch": [
+          106
+        ]
+      }
+    },
+    {
+      "path": "src/lib/push.js",
+      "sites": {
+        "serviceWorker": [
+          13,
+          35,
+          49,
+          86
+        ]
+      }
+    },
+    {
+      "path": "src/lib/supabase.js",
+      "sites": {
+        "fetch": [
+          35
+        ]
+      }
+    },
+    {
+      "path": "src/lib/visits.js",
+      "sites": {
+        "fetch": [
+          386,
+          399,
+          411,
+          431
+        ]
+      }
+    },
+    {
+      "path": "src/lib/webVitals2029.js",
+      "sites": {
+        "fetch": [
+          65
+        ],
+        "beacon": [
+          58,
+          60
+        ]
+      }
+    },
+    {
+      "path": "src/pages/Campaign718Page2029.jsx",
+      "sites": {
+        "fetch": [
+          119
+        ]
+      }
+    },
+    {
+      "path": "src/pages/EarlyAccess2029Page.jsx",
+      "sites": {
+        "fetch": [
+          50
+        ]
+      }
+    },
+    {
+      "path": "test/early-primary-read-2029.test.mjs",
+      "sites": {
+        "fetch": [
+          69,
+          71,
+          75,
+          77,
+          82,
+          85,
+          90,
+          93,
+          95,
+          101,
+          102
+        ]
+      }
+    },
+    {
+      "path": "tests/ci-isolated-test.cjs",
+      "sites": {
+        "serviceWorker": [
+          6
+        ]
+      }
+    }
+  ],
+  "installHooks": [
+    {
+      "package": "node_modules/fsevents",
+      "version": "2.3.3",
+      "executed": false
+    },
+    {
+      "package": "node_modules/sharp",
+      "version": "0.34.5",
+      "executed": false
+    }
+  ],
+  "projectLifecycleHooks": {
+    "build": "SOD_BUILD_TARGET=legacy vite build && SOD_BUILD_TARGET=2029 vite build",
+    "build:2029": "SOD_BUILD_TARGET=2029 vite build"
+  },
+  "policy": "No public capture. GET/anon/RPC names are not a no-write attestation. Frozen fixtures only; unknown I/O fails."
+}

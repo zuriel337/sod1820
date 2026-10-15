@@ -6,7 +6,10 @@ const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const app = read("src/App2029.jsx");
 const page = read("src/pages/ControlPlane2029Page.jsx");
 const visits = read("src/lib/visits.js");
-const workflow = read(".github/workflows/2029-isolation-gate.yml");
+const workflowDefinition = read(".github/workflows/2029-isolation-gate.yml");
+assert.match(workflowDefinition, /offline\.sh bash scripts\/ci-isolation\/hard-source\.sh/,
+  "Control Plane acceptance must remain reachable inside the offline boundary");
+const workflow = workflowDefinition + read("scripts/ci-isolation/hard-source.sh");
 const vercel = JSON.parse(read("vercel.json"));
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const egressMigration = read("supabase/migrations/20260928113000_egress_hardening_monitoring_v1.sql");

@@ -1,0 +1,25 @@
+✔ isolated fetch with local forbidden target (270.391356ms)
+✔ isolated http with local forbidden target (226.43977ms)
+✔ isolated curl with local forbidden target (204.444665ms)
+✔ isolated child-node with local forbidden target (263.514434ms)
+✔ isolated udp with local forbidden target (226.917505ms)
+✔ isolated permitted with local forbidden target (240.997783ms)
+✔ browser write cannot reach a local forbidden target (1272.421621ms)
+✔ browser rpc cannot reach a local forbidden target (1115.536646ms)
+✔ browser research cannot reach a local forbidden target (1139.863343ms)
+✔ browser beacon cannot reach a local forbidden target (1225.967347ms)
+✔ browser early cannot reach a local forbidden target (1113.344436ms)
+✔ browser teardown cannot reach a local forbidden target (1121.296284ms)
+✔ browser close cannot reach a local forbidden target (1162.339211ms)
+✔ browser worker cannot reach a local forbidden target (1160.271162ms)
+✔ browser websocket cannot reach a local forbidden target (1109.603994ms)
+✔ browser sw cannot reach a local forbidden target (1137.274551ms)
+✔ browser replay cannot reach a local forbidden target (1184.515832ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14184.161773
