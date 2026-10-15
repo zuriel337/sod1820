@@ -9,6 +9,7 @@ import { hintNums } from "../lib/reality.js";
 import { timeAgoHe, stripHtml } from "../lib/format.js";
 import { thumb, galThumb } from "../lib/img.js";
 import ReporterLink, { ReporterAvatar } from "./ReporterLink.jsx";
+import { parseLegacyManualThread } from "../lib/legacyManualThreads.js";
 import { BRANDS } from "./BrandTicker.jsx";
 import { useSiteFlag } from "./MaintenanceLock.jsx";
 import { useSiteUpdates, openSiteUpdates, closeSiteUpdates, setSiteUpdatesUnseen } from "../lib/siteUpdates.js";
@@ -67,8 +68,10 @@ function hintToMsg(h) {
 // 🔗 הופך קישורים בטקסט ההודעה ללחיצים (כמו וואטסאפ אמיתי). מנקה HTML קודם,
 // מזהה http(s)://… ו-www.…, גוזר סימני-פיסוק נגררים, פותח בכרטיסייה חדשה.
 const URL_RE = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
-function linkify(text) {
-  const t = stripHtml(text || "");
+function linkify(text, preserveLines = false) {
+  const t = preserveLines
+    ? String(text || "").split(/\r?\n/).map(line => stripHtml(line)).join("\n")
+    : stripHtml(text || "");
   if (!t) return null;
   const out = []; let last = 0, m; const re = new RegExp(URL_RE);
   while ((m = re.exec(t))) {
@@ -250,6 +253,15 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
         .lcf-ai .rb2{width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#25d366,#009e78);display:grid;place-items:center;font-size:9px}
         .lcf-tx{font-family:${F.body};font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
         .lcf-tx.clamp{display:-webkit-box;-webkit-line-clamp:10;-webkit-box-orient:vertical;overflow:hidden}
+        .lcf-thread-b{max-width:100%;width:100%}
+        .lcf-thread-label{font-family:${F.heading};font-size:11px;font-weight:800;color:${P.accentText};margin:5px 0}
+        .lcf-thread-title{font-family:${F.heading};font-size:15px;line-height:1.4;margin:0 0 7px;color:inherit}
+        .lcf-thread-preview{font-size:12px;line-height:1.5;margin-bottom:5px}
+        .lcf-thread-messages{list-style:none;margin:10px 0 0;padding:0}
+        .lcf-thread-message{border-block-start:1px solid ${WA.edge};border-inline-start:2px solid ${P.accent};padding:10px 9px;margin:0 0 10px}
+        .lcf-thread-byline{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:700;margin-bottom:7px}
+        .lcf-thread-byline a{color:${P.accentText}}
+        .lcf-thread-byline span{font-size:10px;color:${WA.time};font-weight:400}
         .lcf-more{background:none;border:none;cursor:pointer;color:${dark ? "#53bdeb" : "#027eb5"};font-family:${F.heading};font-size:12px;font-weight:800;padding:2px 0 0;margin-top:1px}
         .lcf-tx a.lcf-link{color:${dark ? "#53bdeb" : "#027eb5"};text-decoration:underline;text-underline-offset:2px;word-break:break-all;font-weight:600}
         .lcf-md{margin-top:5px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.16);border-radius:6px;padding:3px 9px;font-size:11px;opacity:.9}
@@ -312,9 +324,10 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
               {items.length === 0 ? <div className="lcf-empty">העדכונים בדרך — הערוצים יתעוררו בקרוב…</div> :
                 items.map((u, i) => {
                   const c = CH[u.ch]; const ai = isAi(u);
+                  const thread = parseLegacyManualThread(u);
                   return (
                     <div key={(u.id || i) + "" + u.ch} className={"lcf-row " + (ai ? "sent" : "recv")}>
-                      <div className={"lcf-b " + (ai ? "sb" : "rb")}>
+                      <div className={"lcf-b " + (ai ? "sb" : "rb") + (thread ? " lcf-thread-b" : "")}>
                         {isAdmin && canHideItem(u) && (
                           <button type="button" className="lcf-hide" title="הסתר מהעדכונים ומהטיקר (אדמין)"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); hideItem(u); }}>🙈</button>
@@ -334,8 +347,32 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                           const isOpen = !!exp[rid];
                           return (
                             <>
-                              <div className={"lcf-tx" + (long && !isOpen ? " clamp" : "")}>{linkify(u.text)}</div>
-                              {long && <button className="lcf-more" onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>{isOpen ? "פחות ▴" : "קרא עוד ▾"}</button>}
+                              {thread ? (
+                                <section className="lcf-thread" aria-label={`שרשור: ${thread.title}`}>
+                                  <div className="lcf-thread-label">💬 {thread.count > 1 ? `שרשור · ${thread.count} הודעות` : "הודעה אחת"}</div>
+                                  <h3 className="lcf-thread-title">{thread.title}</h3>
+                                  {!isOpen && <div className="lcf-thread-preview">{thread.messages[0].author}: {snip(thread.messages[0].body)}…</div>}
+                                  <button type="button" className="lcf-more" aria-expanded={isOpen}
+                                    aria-controls={`thread-${u.id}`}
+                                    onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>
+                                    {isOpen ? "סגור שרשור ▴" : thread.count > 1 ? `פתח שרשור · ${thread.count} הודעות ▾` : "קרא הודעה ▾"}
+                                  </button>
+                                  {isOpen && <ol id={`thread-${u.id}`} className="lcf-thread-messages">
+                                    {thread.messages.map((message, index) => (
+                                      <li key={index} className="lcf-thread-message">
+                                        <div className="lcf-thread-byline">
+                                          <ReporterLink credit={message.author} canonical>{message.author}</ReporterLink>
+                                          <span>{index + 1}/{thread.count} · {message.date}{message.time ? ` · ${message.time}` : ""}</span>
+                                        </div>
+                                        <div className="lcf-tx">{linkify(message.body, true)}</div>
+                                      </li>
+                                    ))}
+                                  </ol>}
+                                </section>
+                              ) : <>
+                                <div className={"lcf-tx" + (long && !isOpen ? " clamp" : "")}>{linkify(u.text)}</div>
+                                {long && <button className="lcf-more" onClick={() => setExp(e => ({ ...e, [rid]: !e[rid] }))}>{isOpen ? "פחות ▴" : "קרא עוד ▾"}</button>}
+                              </>}
                             </>
                           );
                         })()}
