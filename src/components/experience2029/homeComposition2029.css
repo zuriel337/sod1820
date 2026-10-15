@@ -42,6 +42,17 @@
 .h29-card-t { font: 500 16px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .h29-meta { font: 400 14px var(--s29-font-ui); color: var(--s29-muted); }
 .h29-skel { min-height: 200px; border-radius: 14px; background: var(--s29-panel-soft); }
+/* Loading slots: the loaded card's own markup with non-breaking-space text, so every slot takes its loaded
+   geometry from the same rules above (no fixed heights). Only the line blocks are tinted; nothing is announced. */
+.h29-card.is-loading, .h29-notable-card.is-loading { pointer-events: none; }
+.h29-card.is-loading :is(.h29-card-t, .h29-meta, .k29-cat),
+.h29-notable-card.is-loading :is(.h29-card-t, .k29-num, .k29-rate-l) { background: var(--s29-panel-soft); color: transparent; border-color: transparent; border-radius: 6px; }
+.h29-card.is-loading .h29-card-t, .h29-notable-card.is-loading .h29-card-t { inline-size: 72%; }
+.h29-card.is-loading .h29-meta { inline-size: 38%; align-self: flex-start; }
+.h29-card.is-loading .h29-media > span { visibility: hidden; }
+.h29-card.is-loading .h29-card-cats .k29-cat { inline-size: 5.5em; }
+/* Pending enrichment of a loaded card (categories): the chip row keeps its place, nothing is drawn. */
+.h29-card-cats.is-slot .k29-cat { visibility: hidden; }
 
 .h29-strips { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .h29-strip { min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); }
@@ -144,6 +155,10 @@
   .h29-anchors { grid-template-columns: 1fr; }
   .h29-portions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* A strip that settled earlier in this session keeps its box while it loads again (--h29-settled-h is set by useSettledBox
+   in DiscoveryGateways2029.jsx, only at the same width). */
+.h29 [data-h29-hold], .h29 [data-h29-hold-block]:has(> .sod29-flight-story) { min-block-size: var(--h29-settled-h, 0px); }
 
 /* The plane story as one compact card on Home (the full story and its three directions live in World) */
 .h29 .sod29-flight-story { margin: 0; }

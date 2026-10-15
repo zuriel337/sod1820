@@ -1,6 +1,6 @@
 // Three discovery gateways plus a separate Dimension Five row over existing public readers.
 // Language research is an existing legacy deep-link until its 2029 projection is ready.
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategoryVideos } from "../../lib/supabase.js";
 import { runtimeOff } from "../../lib/runtimeSwitches2029.js";
@@ -13,6 +13,43 @@ import { stripHtml } from "../../lib/format.js";
 import "./discoveryGateways2029.css";
 
 const clean = value => stripHtml(String(value || "")).trim();
+const NBSP = "\u00a0";
+// Presentation memory only (never data): the rows each gateway showed the last time Home was on screen in this session,
+// so a return to Home reserves the same rows while its reads repeat. null = not seen yet: use the claim limits.
+const shownBefore = { slots: null };
+
+// Same idea for the box a list had: remembered by key and width once its content settled (natural extent of its children,
+// so a larger remembered box never feeds on itself). While the list is pending on a return to Home, or while it still shows
+// the same number of items as last time, it keeps that box (rule in homeComposition2029.css); a different width or a
+// different item count releases it. Presentation only: no read, query, request or cache is involved.
+const settledBox = {};
+export function useSettledBox(key, { pending = false, settled = false, count = 0 } = {}) {
+  const latest = useRef({ settled, count });
+  const live = useRef({ node: null, observer: null });
+  latest.current = { settled, count };
+  const measure = useCallback(() => {
+    const node = live.current.node, now = latest.current;
+    const first = node?.firstElementChild, last = node?.lastElementChild;
+    if (!node || !first || !last) return;
+    // Observe the outer children too: a held (min-size) box does not resize when its content does (observe() is idempotent).
+    live.current.observer?.observe(first); live.current.observer?.observe(last);
+    if (!(typeof now.settled === "function" ? now.settled(node) : now.settled)) return;
+    const width = node.getBoundingClientRect().width, top = first.getBoundingClientRect().top, bottom = last.getBoundingClientRect().bottom;
+    if (width > 0 && bottom - top > 0) settledBox[key] = { w: Math.round(width), h: Math.round(bottom - top), n: now.count };
+  }, [key]);
+  // Callback ref: runs at commit, before paint, so the remembered box is in place for the first frame of a return.
+  const ref = useCallback((node) => {
+    live.current.observer?.disconnect(); live.current.observer = null; live.current.node = node;
+    if (!node) return;
+    const before = settledBox[key];
+    if (before && before.w === Math.round(node.getBoundingClientRect().width)) node.style.setProperty("--h29-settled-h", `${before.h}px`);
+    if (typeof ResizeObserver !== "undefined") { live.current.observer = new ResizeObserver(measure); live.current.observer.observe(node); }
+  }, [key, measure]);
+  useEffect(() => { measure(); }, [measure, typeof settled === "function" ? 0 : settled, count]);
+  useEffect(() => () => { live.current.observer?.disconnect(); }, []);
+  const before = settledBox[key];
+  return { ref, hold: pending || (settled && Boolean(before) && before.n === count) ? "" : undefined };
+}
 
 const postHref = slug => {
   if (!slug) return "/posts";
@@ -50,7 +87,26 @@ function LanguagePostPreview({ post, highlights }) {
   </Link>;
 }
 
-function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [] }) {
+// Loading slots reuse the loaded rows' own markup/classes with non-breaking-space text, so their geometry follows the
+// same CSS. Counts mirror the claim limits below (language 2 incl. the feature, cinema 3, biblical 2 videos + 2 matrices).
+function LanguageFeatureSlot() {
+  return <span className="dg29-language-preview is-loading" aria-hidden="true">
+    <span className="dg29-language-kicker">{NBSP}</span>
+    <strong>{NBSP}</strong>
+    <span className="dg29-language-metrics">
+      {[0, 1, 2, 3].map(index => <span className="dg29-language-metric" key={index}><b>{NBSP}</b><span>{NBSP}</span></span>)}
+    </span>
+    <span className="dg29-language-evidence">{NBSP}</span>
+    <span className="dg29-language-open">{NBSP}</span>
+  </span>;
+}
+
+function SourceSlot({ detail = false }) {
+  return <span className="dg29-source is-loading" aria-hidden="true"><span>{NBSP}</span>{detail ? <small>{NBSP}</small> : null}</span>;
+}
+
+function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [], slots = null }) {
+  const box = useSettledBox(`gateway:${title}`, { pending: loading, settled: !loading, count: items.length + (feature ? 1 : 0) });
   const followControl = ({ category, topic, title: followTitle }) => <WatchButton
     key={topic || category} topic={topic || `cat:${category}`}
     source="home_2029_discovery" noPush variant="icon"
@@ -63,14 +119,18 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
         {followTopics.slice(0, 1).map(followControl)}
       </div> : null}
     </div>
-    <div className="dg29-sources">
+    <div className="dg29-sources" ref={box.ref} data-h29-hold={box.hold}>
       {feature}
       {items.map(item => <Link to={item.href} key={item.id} className="dg29-source">
         <span>{item.title}</span>
         {item.detail ? <small>{item.detail}</small> : null}
       </Link>)}
       {!loading && items.length === 0 && !feature ? <p className="dg29-empty">{empty}</p> : null}
-      {loading && items.length === 0 && !feature ? <p className="dg29-empty" role="status">טוען מקורות ציבוריים…</p> : null}
+      {loading && items.length === 0 && !feature ? <>
+        {slots?.feature ? <LanguageFeatureSlot /> : null}
+        {Array.from({ length: slots?.rows || 0 }, (_, index) => <SourceSlot key={index} detail={Boolean(slots?.detail)} />)}
+        <p className={slots ? "dg29-empty dg29-sr" : "dg29-empty"} role="status">טוען מקורות ציבוריים…</p>
+      </> : null}
     </div>
     <Link className="dg29-gateway-action" to={href}>{action} ←</Link>
     {secondaryHref ? <div className="dg29-secondary-row">
@@ -80,7 +140,10 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
   </article>;
 }
 
-function DimensionFiveFeature({ items, loading }) {
+const DIMENSION_SLOTS = 4;   // claimHomeItems(state.dimension, …, 4)
+
+function DimensionFiveFeature({ items, loading, dimensionSlots = DIMENSION_SLOTS }) {
+  const box = useSettledBox("dimension-five", { pending: loading, settled: !loading, count: items.length });
   return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">
     <div className="dg29-dimension-head">
       <span className="dg29-glyph" aria-hidden="true">🎥</span>
@@ -91,14 +154,19 @@ function DimensionFiveFeature({ items, loading }) {
       <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"
         noPush variant="icon" label="עקבו אחרי מימד חמש" explainer="" />
     </div>
-    <div className="dg29-dimension-sources">
+    <div className="dg29-dimension-sources" ref={box.ref} data-h29-hold={box.hold}>
       {items.map(item => <Link key={item.id} className="dg29-dimension-source" to={item.href}>
         <span className="dg29-dimension-poster" aria-hidden="true">
           {item.poster ? <img src={item.poster} alt="" loading="lazy" decoding="async" width="100" height="72" /> : "✦"}
         </span>
         <span>{item.title}</span>
       </Link>)}
-      {loading && !items.length ? <p role="status" className="dg29-empty">טוען את הסרטים והמסרים…</p> : null}
+      {loading && !items.length ? <>
+        {Array.from({ length: dimensionSlots }, (_, index) => <span className="dg29-dimension-source is-loading" key={index} aria-hidden="true">
+          <span className="dg29-dimension-poster" /><span>{NBSP}</span>
+        </span>)}
+        <p role="status" className="dg29-empty dg29-sr">טוען את הסרטים והמסרים…</p>
+      </> : null}
       {!loading && !items.length ? <p className="dg29-empty">כל התכנים זמינים בקטגוריה; אין פריט נוסף להצגה כאן ללא כפילות.</p> : null}
     </div>
     <div className="dg29-dimension-foot">
@@ -175,6 +243,13 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
     })),
   ];
 
+  useEffect(() => {
+    if (state.loading) return;
+    shownBefore.slots = { language: { feature: Boolean(languageFeature), rows: languageLinks.length }, cinema: cinema.items.length,
+      biblical: biblicalSources.length, dimension: dimension.items.length };
+  });
+  const slots = shownBefore.slots;
+
   return <section className="dg29" aria-label="שערי הגילוי">
     <div className="h29-sec-h">
       <h2>שערי הגילוי</h2>
@@ -184,17 +259,17 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
       <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"
         href="/languages" action="למחקר השפות"
         followTopics={[{ category: "שבילי שפה" }]}
-        feature={languageFeature} items={languageLinks} loading={state.loading} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
+        feature={languageFeature} items={languageLinks} loading={state.loading} slots={slots ? slots.language : { feature: true, rows: 1 }} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
       <Gateway title="הצופן בקולנוע" subtitle="מחקרים על סרטים, סדרות ומספרים" symbol="🎬"
         href="/category/הצופן בסרטים" action="לכל מחקרי הקולנוע"
         followTopics={[{ category: "הצופן בסרטים" }]}
-        items={cinema.items} loading={state.loading} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
+        items={cinema.items} loading={state.loading} slots={{ rows: slots ? slots.cinema : 3 }} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
       <Gateway title="הצופן התנ״כי" subtitle="סרטוני צפונות התורה, דילוגי אותיות ומטריצות ELS" symbol="✦"
         href="/category/צפונות בתורה" action="לכל מחקרי הצופן התנ״כי"
         secondaryHref="/els?library=public" secondaryAction="לספריית ELS ולמנוע הדילוגים"
         followTopics={[{ category: "צפונות בתורה" }, { topic: "codes:new", title: "עקבו אחרי צפני ELS חדשים" }]}
-        items={biblicalSources} loading={state.loading} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
+        items={biblicalSources} loading={state.loading} slots={{ rows: slots ? slots.biblical : 4, detail: true }} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
     </div>
-    <DimensionFiveFeature items={dimension.items} loading={state.loading} />
+    <DimensionFiveFeature items={dimension.items} loading={state.loading} dimensionSlots={slots ? slots.dimension : DIMENSION_SLOTS} />
   </section>;
 }
