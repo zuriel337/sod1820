@@ -1,0 +1,51 @@
+f2-rerun 1/5
+f2-rerun 2/5
+f2-rerun 3/5
+f2-rerun 4/5
+f2-rerun 5/5
+{
+ "POSITION": {
+  "backHome_restored_within120px": "5/5",
+  "forwardWorld_restored_within120px": "5/5",
+  "newEntryPost_atTop": "5/5",
+  "newEntryWorld_atTop": "5/5",
+  "anchors": {
+   "direct_plane_india_in_view": "4/5",
+   "inPage": "5/5",
+   "crossPage_world_sources_landing": [
+    "0/1207",
+    "0/1207",
+    "0/1207",
+    "0/1207",
+    "0/1207"
+   ]
+  }
+ },
+ "TIMING_ms": {
+  "backHome": "376 [357,556] n=5",
+  "newEntryWorld": "1812 [1735,2485] n=5",
+  "forwardWorld": "198 [195,208] n=5"
+ },
+ "LAYOUT_SHIFT_cls": {
+  "newEntryPost": "0.018 [0,0] n=5",
+  "backHome": "0.973 [1,2] n=5",
+  "newEntryWorld": "0 [0,0] n=5",
+  "forwardWorld": "0 [0,0] n=5",
+  "runs_over_0_1": {
+   "backHome": "5/5",
+   "forwardWorld": "0/5"
+  }
+ },
+ "VALIDITY": {
+  "invalidRuns": 0,
+  "errors": [],
+  "pageErrors": 0,
+  "fixtureMissesPerRun": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+}

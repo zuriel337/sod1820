@@ -1,45 +1,57 @@
-# F2 scroll/back-forward integrated on PR1100 head 01ac7706 — verification
+# F2 scroll/back-forward on PR1100 head 01ac7706 — verification (revision 2, corrected)
 
-Branch `claude/scroll-navigation-2029-fix-oz90c0` = PR1100 head `01ac7706` + F2 (patch from `8dce19b3`, applied with `git am`, commit `1701cf3a`).
-Pre-check: neither PR1100 head nor main (503b52ef) contains any scroll restoration (no `scrollRestore*`, no `ScrollRestoration`), so nothing duplicated.
-Touched: `src/lib/scrollRestore2029.js` (new), `src/App2029.jsx` (one layout-effect pair in `RouteEffects2029`), `test/scroll-restore-2029.test.mjs` (new), harness `scripts/perf/serve.mjs` + this folder. No readers, supabase.js, SystemFrame, CSS/design, switches, DB, flags.
+Branch `claude/scroll-navigation-2029-fix-oz90c0` = PR1100 `01ac7706` + F2 patch (`1701cf3a`). Neither PR1100 nor main (503b52ef) had any scroll restoration, so nothing duplicated.
+Touched by F2: `src/lib/scrollRestore2029.js` (new), `src/App2029.jsx` (one layout-effect pair in `RouteEffects2029`), `test/scroll-restore-2029.test.mjs` (new). Harness: `scripts/perf/serve.mjs`, this folder.
+Original raw files are kept unchanged (`raw/f2-integrated.json`, `raw/base-01ac7706.json`); corrections are in `pooled-summary.json` and below.
 
-## Gates run on this branch
-- scroll unit tests 13/13; early-primary-read 9 + home-preview-route 4 pass; `test-route-legitimacy-2029` PASS; `test-2029-isolation` (hard isolation) PASS; `test-2029-bundle-budget` 5/5; `npm run build:2029` OK.
-- Not run: GitHub CI workflows (isolated-postgres, els-core, public-core, number-2029), hosted preview.
+## Gates (this branch)
+scroll unit 13/13; early-primary-read + home-preview-route 13 pass; route-legitimacy PASS; hard isolation PASS; bundle budget 5/5; `build:2029` OK. GitHub CI not run on this branch.
 
-## Mobile replay (390x844 DPR2 touch, CPU x4, 1.6Mbps/150ms, cold context, fixtures re-recorded live, 7 samples/arm, 0 invalid, 0 page errors)
-Real touch swipes, taps on in-viewport controls, real drawer, browser back/forward. Raw: `raw/base-01ac7706.*`, `raw/f2-integrated.*`.
+## Measurement validity (correction of revision 1)
+A run is valid only with: no error, no invalid marker, 0 page errors, **0 fixture misses**.
+- `f2-integrated` run 7: `misses=1`, forwardWorld.cls=1.785 → **SUSPECT, excluded** from every comparison. Its missing key was not recorded in that file (recording added afterwards), and no layout-shift sources were captured in that run, so **its CLS cannot be attributed to any component and a fixture-miss cause cannot be ruled out**. Revision 1's statement that the World shift was "a consequence of showing the correct region" is **withdrawn** (unsupported).
+- `f2-integrated` cross-page anchor sample 5: `invalid` ("Home→World anchor link never in view") → counted separately (1 invalid sample), not as pass or fail.
+- Replacement: `raw/f2-rerun.json`, 5 more runs, same conditions/fixtures/build, all 5 valid (0 misses). Pool = 6 valid original + 5 rerun = **11 valid F2 runs**; baseline = 7 valid runs.
 
-| Position (separate) | 01ac7706 | + F2 |
+## Mobile replay (390x844 DPR2 touch, CPU x4, 1.6Mbps/150ms RTT, cold context, replayed live-recorded read-only fixtures; real touch swipes/taps/drawer/browser back-forward)
+| Position (separate) | 01ac7706 (n=7) | + F2 (valid n=11) |
 |---|---|---|
-| world→post→back→Home within 120px of departure | 0/7 | **7/7** |
-| Home→World→...→forward→World within 120px | 0/7 | **7/7** |
-| new entry (Post, World) at top | 7/7, 7/7 | 7/7, 7/7 |
-| direct `/world#world-plane-india` in view | 7/7 | 7/7 |
-| in-page anchor in view | 7/7 | 7/7 |
-| cross-page `/world#world-sources` | not honoured (0/7) | unchanged (not honoured; app-owned anchor, out of scope) |
+| back→Home within 120px of departure | 0/7 | **11/11** |
+| forward→World within 120px | 0/7 | **11/11** |
+| new entry Post / World at top | 7/7, 7/7 | (original 7/7, 7/7) |
+| direct hash + in-page anchor in view | 7/7, 7/7 | (original 7/7, 7/7) |
+| cross-page `/world#world-sources` honoured | 0/7 | 0/11 (+1 invalid sample, listed apart); anchor owned by the page, unchanged |
 
-| Time to usable content (action→READY marker, median [range] ms) — separate from position | 01ac7706 | + F2 |
+| Time to usable content, median [range] ms (separate; no speed claim) | 01ac7706 | + F2 |
 |---|---|---|
-| back→Home | 768 [307–1154] | 432 [390–906] |
-| forward→World | 202 [197–298] | 216 [193–514] |
-| new entry World | 1842 [1795–2020] | 1799 [1744–2259] |
-Ranges overlap in all three: **no speed claim**. The back→Home median difference is within run-to-run spread (baseline varied 307–1154); this is a position fix, not a speed improvement.
+| back→Home | 768 [307–1154] | 404 [357–906] |
+| forward→World | 202 [197–298] | 203 [193–290] |
+| new entry World | 1842 [1795–2020] | 1810 [1735–2485] |
+Back→Home baseline range spans the F2 range; this is a position fix, not a speed improvement.
 
-| CLS in action window (separate) | 01ac7706 | + F2 |
+| CLS in action window (separate) | 01ac7706 | + F2 (valid) |
 |---|---|---|
-| back→Home | 2.29 [1–3], 7/7 >0.1 | 1.85 [1–2], 7/7 >0.1 |
-| forward→World | 0 [0–0], 0/7 >0.1 | 0 [0–2], **1/7 >0.1** |
-| new entry Post / World | 0.018 / 0 | 0.018 / 0 |
+| back→Home | 2.29 [0.84–2.58], 7/7 >0.1 | 1.85 [0.83–2.35], 11/11 >0.1 |
+| forward→World | 0, 0/7 >0.1 | 0, **0/11 >0.1** |
 
-## Not caused by restore, documented
-- back→Home CLS ≈ 1.9–2.3 exists identically on the baseline: Home re-mounts in waves (Discovery/Home reveal height; scopes 75/839 + visual owner). Not fixed here; F2 does not worsen it.
-- forward→World CLS 1/7 >0.1 appears only because World is now shown at the restored offset, where the baseline (stuck at top) never meets late insertions (World reveal/late sections). Prior F2 run showed 3/7; component-level attribution not done.
-- One of seven patched runs had 1 fixture miss (lazy content in restored region); one cross-page anchor sample returned undefined. Neither counted as a result.
+## CLS attribution (layout-shift `sources`, rerun runs 1–5, `raw/f2-rerun.json` → `steps.backHome.shifts`)
+back→Home shifts are in `[data-experience-capability=home-composition]`: `section.dg29` (DiscoveryGateways height/appearance), `article.dg29-gateway`, `div.k29-reveal.k29-rv-self` and `section.h29-sec.k29-reveal` (Home reveal wrappers), `div.sod29-watch-icon-wrap`. Present on the baseline's scores too (0.84–2.58). Not caused by the restore mechanism; Discovery/Home reveal height reservation is the owner of the fix (scopes 75/839 + visual owner). Not changed here.
+forward→World: no shift >0.02 in any of the 11 valid F2 runs. The single >0.1 observation (excluded run 7) is unexplained.
+
+## Browser test: user input while restore is pending; late content (`scrolltest.mjs focus`, fixtures replayed with per-key delays 150/900/1800/3200 ms so content keeps arriving across and after the restore window; raw `raw/focus-*.json`)
+User input during a pending restore (real touch swipe 400px; F2 n=8: 4 immediately after back commit, 4 after 900ms):
+- Restore was pending at the moment of input in **8/8** (`overflow-anchor: none` set by F2), and **released after the swipe in 8/8** (final `overflow-anchor` empty).
+- **No pull-back to the remembered offset in 8/8** (final scrollY never returned to within 120px of the saved offset after the user had moved away). Cancel works.
+- Baseline (n=4, after 900ms) shows the same browser behaviour: no pull-back (no F2 there).
+- Caveat: scrollY after the swipe still rose by 1000–1750px in both arms while the document grew 5075→7417px. That is the browser's scroll anchoring compensating for content inserted above the viewport (identical in baseline), not F2; the y-metric cannot separate that from visual movement, and visible-content identity was not tracked.
+
+Late jump after restore (n=5 F2, n=4 baseline, content arriving until ~3.2s):
+- F2 restores to the saved offset at ~0.5–0.7s (baseline's early browser restore ~0.75–1.3s), but with content arriving **after the 1.5s anchor hold** both arms show **3 scroll jumps >120px after the hold** and final |scrollY − saved| of 1460–2090px (F2) vs 1460–2090px (baseline). Post-hold CLS ≈2.05 in both (F2 one run 2.49).
+- **Conclusion: F2 does not prevent late movement when content arrives later than ~2s after navigation (stress profile).** The hold covers content that arrives within 1.5s after the jump. This is a real limit of the current F2, not fixed here (extending/adapting the hold or anchoring on a content element would be a separate change in the single scroll owner).
+- The same stress profile is harsher than the 150ms-flat replay used for the position table; the position results above stay valid for that profile only.
 
 ## Limits
-Lab replay only, mobile only; no physical phone, desktop, signed-in, hosted preview. User-input cancellation and no-late-jump (anchoring paused 1.5s after jump, ends on touch/wheel/key/pointer) are covered by the unit tests, not by a separate browser interruption measurement.
+Lab replay, mobile only; no physical phone, desktop, signed-in, or hosted-preview measurement in this revision; fixtures replayed, not live. Visible-content identity not tracked (see caveat).
 
 ## Integration
-`git fetch origin claude/scroll-navigation-2029-fix-oz90c0` then into PR1100 branch (gpt/perf-execution-20261014 @01ac7706): `git merge --no-ff` (fast-forward possible while head is 01ac7706; commits: 1701cf3a, harness commit, evidence commit). Or `git am` the single patch 1701cf3a. If main's App2029.jsx (changed by PR1103/1104) is the target, re-apply the 17-line effect pair manually and rerun the scroll tests.
+Merge `claude/scroll-navigation-2029-fix-oz90c0` into the PR1100 branch (ff-able at 01ac7706) or `git am` the single patch `1701cf3a`. On main re-apply the effect pair manually (App2029.jsx differs after PR1103/PR1104).

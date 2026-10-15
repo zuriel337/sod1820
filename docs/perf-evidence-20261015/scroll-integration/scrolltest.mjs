@@ -27,7 +27,9 @@ const rng = a => { const s = a.filter(x => x != null).sort((x, y) => x - y); ret
 // ---- in-page instrumentation -------------------------------------------------------------------------------------------
 const INIT = `(()=>{const m=window.__r={lt:[],cls:[],ev:[],frames:[],t:{}};
 new PerformanceObserver(l=>{for(const e of l.getEntries())m.lt.push([e.startTime,e.duration])}).observe({type:'longtask',buffered:true});
-new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)m.cls.push([e.startTime,e.value])}).observe({type:'layout-shift',buffered:true});
+m.cs=[];const D=n=>{if(!n||!n.tagName)return String(n&&n.nodeName);let s=n.tagName.toLowerCase();if(n.id)s+='#'+n.id;if(typeof n.className==='string'&&n.className)s+='.'+n.className.trim().split(/\\s+/).slice(0,2).join('.');return s};
+const CAP=n=>{let a=n;while(a&&a.getAttribute&&!a.getAttribute('data-experience-capability'))a=a.parentElement;return a&&a.getAttribute?a.getAttribute('data-experience-capability'):null};
+new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput){m.cls.push([e.startTime,e.value]);m.cs.push([e.startTime,e.value,(e.sources||[]).slice(0,4).map(s=>[D(s.node),CAP(s.node),Math.round(s.previousRect.y),Math.round(s.currentRect.y),Math.round(s.currentRect.height)])])}}).observe({type:'layout-shift',buffered:true});
 try{new PerformanceObserver(l=>{for(const e of l.getEntries())m.ev.push([e.name,e.startTime,e.duration,e.processingStart-e.startTime,e.processingEnd-e.processingStart])}).observe({type:'event',buffered:true,durationThreshold:16})}catch(_){}
 const R={home:()=>document.querySelector("[data-experience-capability='home-composition'] a[href^='/post/']"),
  world:()=>document.querySelector('[data-world-topic],[data-world-discovery-door]'),
@@ -42,7 +44,7 @@ window.__win=(t0,t1)=>{const lt=m.lt.filter(x=>x[0]+x[1]>=t0&&x[0]<=t1);const re
  const kind=n=>/\\.js(\\?|$)/.test(n)?'js':/\\.css(\\?|$)/.test(n)?'css':/supabase\\.co\\/rest/.test(n)?'rest':/\\.(png|jpe?g|webp|avif|svg|gif)(\\?|$)/.test(n)||/storage\\/v1/.test(n)?'img':'other';
  const rc={};for(const r of res){const k=kind(r.name);rc[k]=(rc[k]||0)+1}
  const ev=m.ev.filter(x=>x[1]>=t0-50&&x[1]<=t1);
- return {block:lt.reduce((s,x)=>s+Math.max(0,Math.min(x[0]+x[1],t1)-Math.max(x[0],t0)-50),0),longTasks:lt.length,maxTask:lt.reduce((s,x)=>Math.max(s,x[1]),0),cls:m.cls.filter(x=>x[0]>=t0&&x[0]<=t1+300).reduce((s,x)=>s+x[1],0),
+ return {shifts:m.cs.filter(x=>x[0]>=t0&&x[0]<=t1+300&&x[1]>0.02),block:lt.reduce((s,x)=>s+Math.max(0,Math.min(x[0]+x[1],t1)-Math.max(x[0],t0)-50),0),longTasks:lt.length,maxTask:lt.reduce((s,x)=>Math.max(s,x[1]),0),cls:m.cls.filter(x=>x[0]>=t0&&x[0]<=t1+300).reduce((s,x)=>s+x[1],0),
   evMax:ev.reduce((s,x)=>Math.max(s,x[2]),0),evInputDelay:ev.reduce((s,x)=>Math.max(s,x[3]),0),req:rc}};
 })()`;
 
@@ -80,7 +82,7 @@ async function newSample(extra = {}) {
         } catch (e) { return route.abort(); }
       }
       const f = fixtures[k]; if (!f) { st.misses.add(k.slice(0, 140)); if (rpc) st.unmappedRpc.add(rpc); }
-      await new Promise(r => setTimeout(r, DELAY));
+      await new Promise(r => setTimeout(r, mode === 'focus' ? [150, 900, 1800, 3200][parseInt(crypto.createHash('md5').update(k).digest('hex').slice(0, 2), 16) % 4] : DELAY));   // focus: content arrives across the restore window (150/900/1800/3200ms by key)
       return route.fulfill({ status: f ? f.status : 200, body: f ? f.body : (req.method() === 'GET' ? '[]' : 'null'), headers: { ...hdr, 'content-type': f?.ct || 'application/json', ...(f?.cr ? { 'content-range': f.cr } : {}) } });
     }
     if (mode === 'run') await new Promise(r => setTimeout(r, 400));
@@ -154,7 +156,7 @@ async function mainFlow() {
       // 2. browser back to Home
       const b0 = await page.evaluate(() => window.__mark()); await page.goBack({ waitUntil: 'commit' }); const r = await page.evaluate(() => window.__wait('home')); await settleNav(page, 2500);
       const w2 = await page.evaluate(([a, b]) => window.__win(a, b), [b0, performance.now ? b0 + 4000 : b0]);
-      o.steps.backHome = { ms: r.ok ? Math.round(r.t1 - b0) : null, yBefore: homeY, yAfter: await y(page), cls: +w2.cls.toFixed(3) };
+      o.steps.backHome = { ms: r.ok ? Math.round(r.t1 - b0) : null, yBefore: homeY, yAfter: await y(page), cls: +w2.cls.toFixed(3), shifts: w2.shifts };
     }
     // 3. new entry to World via the real drawer (Home is scrolled)
     const d0 = await page.evaluate(() => window.__mark()); await page.locator(MENU).first().tap({ timeout: 8000 }); await page.waitForTimeout(500);
@@ -167,9 +169,9 @@ async function mainFlow() {
     const f0 = await page.evaluate(() => window.__mark()); await page.goForward({ waitUntil: 'commit' }); const rf = await page.evaluate(() => window.__wait('world')); await settleNav(page, 3000);
     const w4 = await page.evaluate(([a, b]) => window.__win(a, b), [f0, f0 + 4000]);
     if (A.debug) console.error('JL', JSON.stringify(await page.evaluate(() => ({ jl: window.__jl, store: window.__sr && window.__sr.store, h: document.documentElement.scrollHeight, y: Math.round(scrollY) }))));
-    o.steps.forwardWorld = { ms: rf.ok ? Math.round(rf.t1 - f0) : null, yBefore: worldY, yAfter: await y(page), cls: +w4.cls.toFixed(3) };
+    o.steps.forwardWorld = { ms: rf.ok ? Math.round(rf.t1 - f0) : null, yBefore: worldY, yAfter: await y(page), cls: +w4.cls.toFixed(3), shifts: w4.shifts };
   } catch (e) { o.error = String(e.message).replace(/\u001b\[[0-9;]*m/g, '').slice(0, 300); }
-  o.pageErrors = st.errors.length; o.misses = st.misses.size; await ctx.close(); return o;
+  o.pageErrors = st.errors.length; o.misses = st.misses.size; o.missKeys = [...st.misses]; await ctx.close(); return o;
 }
 async function anchorFlow() {
   const o = { direct: null, inPage: null, crossPage: null };
@@ -188,6 +190,45 @@ async function anchorFlow() {
     await c.ctx.close();
   } catch (e) { o.error = String(e.message).slice(0, 200); }
   return o;
+}
+// ---- focus mode: user input during a pending restore, and late jumps after it (real touch swipes, content arriving late) -----
+async function focusFlow(variant) {
+  const { ctx, page, cdp, st } = await newSample(); const o = { variant, invalid: [] };
+  const probe = () => page.evaluate(() => ({ y: Math.round(scrollY), h: document.documentElement.scrollHeight, oa: document.documentElement.style.overflowAnchor }));
+  try {
+    await page.goto(origin + '/', { waitUntil: 'load', timeout: 120000 }).catch(() => {}); await page.evaluate(() => window.__wait('home')); await settle(page);
+    await scrollBy(page, cdp, 1800, 3);
+    for (let i = 0; i < 8 && !(await inView(page, POST_LINK)); i++) { await swipe(cdp, 300); await page.waitForTimeout(350); }
+    await settle(page, 800); o.saved = await y(page);
+    if (!(await inView(page, POST_LINK))) { o.invalid.push('no post card in view on Home'); }
+    else {
+      await tap(page, POST_LINK); await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => {});
+      await settleNav(page, 3000); await scrollBy(page, cdp, 800, 2); await settle(page, 600);
+      const pn0 = await page.evaluate(() => window.__mark()); const s0 = Date.now();
+      await page.goBack({ waitUntil: 'commit' });
+      if (variant === 'interrupt1') await page.waitForTimeout(900);
+      if (variant !== 'late') { o.atInterrupt = await probe(); await swipe(cdp, 400); await page.waitForTimeout(600); o.ySwipe = (await probe()).y; }
+      const traj = []; const sw = Date.now();
+      while (Date.now() - sw < (variant === 'late' ? 7000 : 6000)) { const p = await probe(); traj.push([Date.now() - s0, p.y, p.h]); await page.waitForTimeout(100); }
+      const last = await probe(); o.final = { y: last.y, oa: last.oa, h: last.h };
+      const w = await page.evaluate(([a, b]) => window.__win(a, b), [pn0, pn0 + 9000]);
+      if (variant === 'late') {
+        const restoredAt = (traj.find((t) => Math.abs(t[1] - o.saved) <= 120) || [null])[0]; o.restoredAtMs = restoredAt;
+        const after = traj.filter((t) => restoredAt != null && t[0] >= restoredAt + 1700);   // after the 1.5s anchor hold
+        o.lateJumps120 = after.filter((t, i) => i > 0 && Math.abs(t[1] - after[i - 1][1]) > 120).length; o.maxDriftAfterHold = after.reduce((m, t) => Math.max(m, Math.abs(t[1] - o.saved)), 0);
+        o.finalErr = Math.abs(last.y - o.saved); o.clsAfterHold = +w.shifts.filter((s) => restoredAt != null && s[0] >= pn0 + restoredAt + 1700).reduce((a, s) => a + s[1], 0).toFixed(3);
+      } else {
+        o.maxDriftFromSwipe = traj.reduce((m, t) => Math.max(m, Math.abs(t[1] - o.ySwipe)), 0); o.pulledBackToSaved = Math.abs(last.y - o.saved) <= 120 && Math.abs(o.ySwipe - o.saved) > 200;
+        o.restorePendingAtInterrupt = o.atInterrupt.oa === 'none';
+      }
+      o.cls = +w.cls.toFixed(3); o.shifts = w.shifts; o.traj = traj.filter((_, i) => i % 5 === 0);
+    }
+  } catch (e) { o.error = String(e.message).replace(/\u001b\[[0-9;]*m/g, '').slice(0, 300); }
+  o.pageErrors = st.errors.length; o.misses = st.misses.size; o.missKeys = [...st.misses]; await ctx.close(); return o;
+}
+if (mode === 'focus') {
+  const runs = []; for (let i = 0; i < RUNS; i++) { runs.push(await focusFlow(A.variant)); process.stderr.write(`${A.label} ${A.variant} ${i + 1}/${RUNS}\n`); }
+  fs.writeFileSync(A.out, JSON.stringify({ label: A.label, variant: A.variant, runs }, null, 1)); await browser.close(); srv.close(); process.exit(0);
 }
 if (mode === 'record') { const m = await mainFlow(); const a = await anchorFlow(); console.log(JSON.stringify({ m, a }).slice(0, 1800)); fs.writeFileSync(FX, zlib.gzipSync(JSON.stringify(fixtures))); console.log('fixtures', Object.keys(fixtures).length); }
 else {
