@@ -64,6 +64,19 @@ This is explicitly a coordinator grace period, not a worker heartbeat or proof o
 coding progress. No global recovery setting/function/cron was changed. The original
 worker retains its canonical finish path; there was no second launch.
 
+The original task completed at 13:26:21 UTC on that same attempt/session; its
+lease and owner were released normally. Passive AFTER
+`3e8a80cb-c971-4fa1-b2f8-5516eab737b7` reports **FAIL / BLOCKER**, not accepted work.
+Diagnostic branch `claude/perf-home-stability-20261015`, head
+`6710eb362bd90de75917d2861df602e6d84159e8`, contains code
+`1f2b4cdb09f29a3ab4c6e52d8e73266f39937c59` and evidence. Its phone loading
+min-heights did not meet CLS<=0.1 in any retained sample. Sequential rather than
+interleaved arms and fixture misses also invalidate comparative acceptance;
+reported medians 2.34 and 1.37 are diagnostics, not a proven percentage gain.
+Required late-arrival, interaction, width and theme coverage was not completed.
+This patch is **NOT_ADOPTED** and is not an integration input. Dispatcher
+COMPLETED means the worker finished; it does not mean the product passed.
+
 ## Read-only preview correction
 
 The existing static preview worker incorrectly rejected the current guest
