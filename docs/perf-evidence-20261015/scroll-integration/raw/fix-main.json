@@ -1,0 +1,1347 @@
+{
+ "label": "combined2",
+ "runs": 7,
+ "mains": [
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2073,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 309,
+     "yBefore": 2073,
+     "yAfter": 2073,
+     "cls": 1.706,
+     "shifts": [
+      [
+       18717.30000000028,
+       0.045713950028767755,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         524
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         486,
+         526,
+         318
+        ],
+        [
+         "a.h29-anchor.k29-rv",
+         "home-composition",
+         815,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       18762.399999999907,
+       0.9012599931233835,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ],
+        [
+         "a.dg29-gateway-action",
+         "home-composition",
+         0,
+         60,
+         44
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         526,
+         0,
+         0
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         316,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       18824.80000000028,
+       0.7348012344109867,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         342
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         322,
+         522
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         371,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         374,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       18849.80000000028,
+       0.02388384835246288,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         18,
+         345
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         322,
+         343,
+         501
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1927,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 232,
+     "yBefore": 2712,
+     "yAfter": 2712,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2334,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 333,
+     "yBefore": 2334,
+     "yAfter": 2334,
+     "cls": 1.694,
+     "shifts": [
+      [
+       20179.799999999814,
+       0.8713882644836577,
+       [
+        [
+         "a.h29-anchor.k29-rv",
+         "home-composition",
+         678,
+         0,
+         0
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         62,
+         458
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         587,
+         0,
+         0
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         258,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       20231.299999999814,
+       0.07872055003645642,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ]
+       ]
+      ],
+      [
+       20275.19999999972,
+       0.7202865048127677,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         81
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         61,
+         783
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         110,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         522,
+         44
+        ]
+       ]
+      ],
+      [
+       20308.299999999814,
+       0.02341281280614334,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         102
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         61,
+         82,
+         762
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1945,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 199,
+     "yBefore": 2754,
+     "yAfter": 2754,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2079,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 336,
+     "yBefore": 2079,
+     "yAfter": 2079,
+     "cls": 1.704,
+     "shifts": [
+      [
+       18890.600000000093,
+       0.8668579909567309,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         480,
+         0,
+         0
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         50,
+         224
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         284,
+         458
+        ],
+        [
+         "section.dg29-dimension",
+         "home-composition",
+         247,
+         754,
+         90
+        ]
+       ]
+      ],
+      [
+       18952.600000000093,
+       0.034417437568355816,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ]
+       ]
+      ],
+      [
+       18976.200000000186,
+       0.04430311246810062,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         807,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       19044.30000000028,
+       0.7344675624662,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         336
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         316,
+         528
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         365,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         368,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       19072.30000000028,
+       0.023873019949099215,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         12,
+         345
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         316,
+         337,
+         507
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1548,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 213,
+     "yBefore": 2698,
+     "yAfter": 2698,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2051,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 343,
+     "yBefore": 2051,
+     "yAfter": 2051,
+     "cls": 1.704,
+     "shifts": [
+      [
+       19951.100000000093,
+       0.866146716127624,
+       [
+        [
+         "div.dg29-dimension-foot",
+         "home-composition",
+         442,
+         0,
+         0
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         78,
+         224
+        ],
+        [
+         "section.dg29-dimension",
+         "home-composition",
+         275,
+         782,
+         62
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         508,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       19983.399999999907,
+       0.07872055003645642,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         804,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       20066.100000000093,
+       0.73496807038338,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         19,
+         345
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         344,
+         500
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         393,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         396,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       20099.200000000186,
+       0.023889262554144714,
+       [
+        [
+         "article.h29-notable-card.k29-rv",
+         "home-composition",
+         0,
+         0,
+         20
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         19,
+         40,
+         345
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         344,
+         365,
+         479
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1648,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 228,
+     "yBefore": 2761,
+     "yAfter": 2761,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2289,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 319,
+     "yBefore": 2289,
+     "yAfter": 2289,
+     "cls": 1.695,
+     "shifts": [
+      [
+       21011.19999999972,
+       0.8700094855841581,
+       [
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         0,
+         73
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         83,
+         458
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         608,
+         0,
+         0
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         279,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       21050,
+       0.04430311246810062,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ]
+       ]
+      ],
+      [
+       21096.69999999972,
+       0.034417437568355816,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ]
+       ]
+      ],
+      [
+       21178.100000000093,
+       0.7227890443986675,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         126
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         106,
+         738
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         155,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         567,
+         44
+        ]
+       ]
+      ],
+      [
+       21216.69999999972,
+       0.023494025831370845,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         147
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         106,
+         127,
+         717
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1645,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 203,
+     "yBefore": 2750,
+     "yAfter": 2750,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2301,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 481,
+     "yBefore": 2301,
+     "yAfter": 2301,
+     "cls": 1.952,
+     "shifts": [
+      [
+       21088.399999999907,
+       0.10141279482629632,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         124
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         41,
+         127,
+         332
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         369,
+         455,
+         168
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         557,
+         643,
+         201
+        ]
+       ]
+      ],
+      [
+       21164.5,
+       0.15435688948862508,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         256
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         643,
+         775,
+         69
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         126,
+         258,
+         332
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         455,
+         587,
+         168
+        ]
+       ]
+      ],
+      [
+       21218.200000000186,
+       0.8713882644836577,
+       [
+        [
+         "a.h29-anchor.k29-rv",
+         "home-composition",
+         678,
+         0,
+         0
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         62,
+         458
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         587,
+         0,
+         0
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         258,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       21256.30000000028,
+       0.07872055003645642,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ]
+       ]
+      ],
+      [
+       21371.30000000028,
+       0.7221217005090942,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         114
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         94,
+         750
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         143,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         555,
+         44
+        ]
+       ]
+      ],
+      [
+       21415.100000000093,
+       0.023472369024643513,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         135
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         94,
+         115,
+         729
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1600,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 196,
+     "yBefore": 2733,
+     "yAfter": 2733,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  },
+  {
+   "steps": {
+    "newEntryPost": {
+     "entryY": 0,
+     "from": 2262,
+     "tapMode": "inview",
+     "cls": 0.018
+    },
+    "backHome": {
+     "ms": 468,
+     "yBefore": 2262,
+     "yAfter": 2262,
+     "cls": 1.95,
+     "shifts": [
+      [
+       20758.399999999907,
+       0.10047904413733882,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         249
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         41,
+         44
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         166,
+         252,
+         332
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         494,
+         580,
+         168
+        ]
+       ]
+      ],
+      [
+       20804.799999999814,
+       0.15363847311467535,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         319
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         706,
+         838,
+         6
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         190,
+         322,
+         332
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         518,
+         650,
+         168
+        ]
+       ]
+      ],
+      [
+       20886.899999999907,
+       0.8688276750988729,
+       [
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         0,
+         91
+        ],
+        [
+         "article.dg29-gateway",
+         "home-composition",
+         0,
+         101,
+         458
+        ],
+        [
+         "section.h29-sec.k29-reveal",
+         "home-composition",
+         626,
+         0,
+         0
+        ],
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         297,
+         0,
+         0
+        ]
+       ]
+      ],
+      [
+       20926.299999999814,
+       0.07872055003645642,
+       [
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         0,
+         844
+        ]
+       ]
+      ],
+      [
+       21025.600000000093,
+       0.7242905681502074,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         153
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         0,
+         133,
+         711
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         182,
+         44
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         0,
+         594,
+         44
+        ]
+       ]
+      ],
+      [
+       21052.19999999972,
+       0.02354275364650735,
+       [
+        [
+         "div.k29-reveal.k29-rv-self",
+         "home-composition",
+         0,
+         0,
+         174
+        ],
+        [
+         "section.dg29",
+         "home-composition",
+         133,
+         154,
+         690
+        ],
+        [
+         "div.sod29-watch-icon-wrap",
+         "home-composition",
+         828,
+         0,
+         0
+        ]
+       ]
+      ]
+     ]
+    },
+    "newEntryWorld": {
+     "ms": 1658,
+     "entryY": 0,
+     "from": 0,
+     "cls": 0
+    },
+    "forwardWorld": {
+     "ms": 195,
+     "yBefore": 2659,
+     "yAfter": 2659,
+     "cls": 0,
+     "shifts": []
+    }
+   },
+   "invalid": [],
+   "pageErrors": 0,
+   "misses": 0,
+   "missKeys": []
+  }
+ ],
+ "anchors": [
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  },
+  {
+   "direct": {
+    "ok": true,
+    "targetTop": 80,
+    "y": 1164
+   },
+   "inPage": {
+    "ok": true,
+    "targetTop": 120,
+    "y": 7942
+   },
+   "crossPage": {
+    "ok": false,
+    "parityOnly": true,
+    "targetTop": 1207,
+    "y": 0,
+    "hash": "#world-sources"
+   }
+  }
+ ],
+ "summary": {
+  "POSITION": {
+   "backHome_restored_within120px": "7/7",
+   "forwardWorld_restored_within120px": "7/7",
+   "newEntryPost_atTop": "7/7",
+   "newEntryWorld_atTop": "7/7",
+   "anchors": {
+    "direct_plane_india_in_view": "7/7",
+    "inPage": "7/7",
+    "crossPage_world_sources_landing": [
+     "0/1207",
+     "0/1207",
+     "0/1207",
+     "0/1207",
+     "0/1207",
+     "0/1207",
+     "0/1207"
+    ]
+   }
+  },
+  "TIMING_ms": {
+   "backHome": "336 [309,481] n=7",
+   "newEntryWorld": "1648 [1548,1945] n=7",
+   "forwardWorld": "203 [195,232] n=7"
+  },
+  "LAYOUT_SHIFT_cls": {
+   "newEntryPost": "0.018 [0,0] n=7",
+   "backHome": "1.704 [2,2] n=7",
+   "newEntryWorld": "0 [0,0] n=7",
+   "forwardWorld": "0 [0,0] n=7",
+   "runs_over_0_1": {
+    "backHome": "7/7",
+    "forwardWorld": "0/7"
+   }
+  },
+  "VALIDITY": {
+   "invalidRuns": 0,
+   "errors": [],
+   "pageErrors": 0,
+   "fixtureMissesPerRun": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ }
+}

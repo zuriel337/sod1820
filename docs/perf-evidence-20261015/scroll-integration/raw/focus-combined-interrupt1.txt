@@ -1,0 +1,4 @@
+combined interrupt1 1/4
+combined interrupt1 2/4
+combined interrupt1 3/4
+combined interrupt1 4/4

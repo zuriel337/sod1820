@@ -194,12 +194,18 @@ async function anchorFlow() {
 // ---- focus mode: user input during a pending restore, and late jumps after it (real touch swipes, content arriving late) -----
 async function focusFlow(variant) {
   const { ctx, page, cdp, st } = await newSample(); const o = { variant, invalid: [] };
-  const probe = () => page.evaluate(() => ({ y: Math.round(scrollY), h: document.documentElement.scrollHeight, oa: document.documentElement.style.overflowAnchor }));
+  let anchorKey = null, anchorTop = null;   // visible-content identity: a leaf element (by text) that was on screen where the user left
+  const probe = () => page.evaluate(([k, t0]) => {
+    let d = null; if (k) { const el = [...document.querySelectorAll('h1,h2,h3,h4,a,p,li,button,span,strong,b,small')].find((e) => e.children.length === 0 && (e.innerText || '').trim().slice(0, 80) === k); if (el) d = Math.round(el.getBoundingClientRect().top - t0); }
+    return { y: Math.round(scrollY), h: document.documentElement.scrollHeight, oa: document.documentElement.style.overflowAnchor, d };
+  }, [anchorKey, anchorTop]);
   try {
     await page.goto(origin + '/', { waitUntil: 'load', timeout: 120000 }).catch(() => {}); await page.evaluate(() => window.__wait('home')); await settle(page);
     await scrollBy(page, cdp, 1800, 3);
     for (let i = 0; i < 8 && !(await inView(page, POST_LINK)); i++) { await swipe(cdp, 300); await page.waitForTimeout(350); }
     await settle(page, 800); o.saved = await y(page);
+    const pickAnchor = await page.evaluate(() => { for (const py of [430, 360, 500, 300, 560, 240]) { const e = document.elementFromPoint(195, py); const t = e && e.children.length === 0 ? (e.innerText || '').trim().slice(0, 80) : ''; if (t.length >= 6) return [t, e.getBoundingClientRect().top]; } return null; });
+    if (pickAnchor) { anchorKey = pickAnchor[0]; anchorTop = pickAnchor[1]; o.anchorKey = anchorKey; } else o.invalid.push('no visible anchor element');
     if (!(await inView(page, POST_LINK))) { o.invalid.push('no post card in view on Home'); }
     else {
       await tap(page, POST_LINK); await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => {});
@@ -209,17 +215,21 @@ async function focusFlow(variant) {
       if (variant === 'interrupt1') await page.waitForTimeout(900);
       if (variant !== 'late') { o.atInterrupt = await probe(); await swipe(cdp, 400); await page.waitForTimeout(600); o.ySwipe = (await probe()).y; }
       const traj = []; const sw = Date.now();
-      while (Date.now() - sw < (variant === 'late' ? 7000 : 6000)) { const p = await probe(); traj.push([Date.now() - s0, p.y, p.h]); await page.waitForTimeout(100); }
+      while (Date.now() - sw < (variant === 'late' ? 7000 : 6000)) { const p = await probe(); traj.push([Date.now() - s0, p.y, p.h, p.d, p.oa]); await page.waitForTimeout(100); }
       const last = await probe(); o.final = { y: last.y, oa: last.oa, h: last.h };
       const w = await page.evaluate(([a, b]) => window.__win(a, b), [pn0, pn0 + 9000]);
       if (variant === 'late') {
         const restoredAt = (traj.find((t) => Math.abs(t[1] - o.saved) <= 120) || [null])[0]; o.restoredAtMs = restoredAt;
         const after = traj.filter((t) => restoredAt != null && t[0] >= restoredAt + 1700);   // after the 1.5s anchor hold
         o.lateJumps120 = after.filter((t, i) => i > 0 && Math.abs(t[1] - after[i - 1][1]) > 120).length; o.maxDriftAfterHold = after.reduce((m, t) => Math.max(m, Math.abs(t[1] - o.saved)), 0);
-        o.finalErr = Math.abs(last.y - o.saved); o.clsAfterHold = +w.shifts.filter((s) => restoredAt != null && s[0] >= pn0 + restoredAt + 1700).reduce((a, s) => a + s[1], 0).toFixed(3);
+        o.finalErr = Math.abs(last.y - o.saved);
+        const dAfter = after.map((t) => t[3]).filter((v) => v != null); o.anchorFoundAfter = dAfter.length;
+        o.visibleJumps120 = dAfter.filter((v, i) => i > 0 && Math.abs(v - dAfter[i - 1]) > 120).length; o.visibleMaxDisp = dAfter.reduce((m, v) => Math.max(m, Math.abs(v)), 0); o.visibleFinalDisp = dAfter.length ? dAfter[dAfter.length - 1] : null;
+        const dAll = traj.filter((t) => restoredAt != null && t[0] >= restoredAt).map((t) => t[3]).filter((v) => v != null); o.visibleMaxDispSinceRestore = dAll.reduce((m, v) => Math.max(m, Math.abs(v)), 0); o.clsAfterHold = +w.shifts.filter((s) => restoredAt != null && s[0] >= pn0 + restoredAt + 1700).reduce((a, s) => a + s[1], 0).toFixed(3);
       } else {
         o.maxDriftFromSwipe = traj.reduce((m, t) => Math.max(m, Math.abs(t[1] - o.ySwipe)), 0); o.pulledBackToSaved = Math.abs(last.y - o.saved) <= 120 && Math.abs(o.ySwipe - o.saved) > 200;
         o.restorePendingAtInterrupt = o.atInterrupt.oa === 'none';
+        const dSw = traj.filter((t) => t[0] > 0).map((t) => t[3]).filter((v) => v != null); const d0 = dSw.length ? dSw[0] : null; o.visibleDriftFromSwipe = d0 == null ? null : dSw.reduce((m, v) => Math.max(m, Math.abs(v - d0)), 0);
       }
       o.cls = +w.cls.toFixed(3); o.shifts = w.shifts; o.traj = traj.filter((_, i) => i % 5 === 0);
     }

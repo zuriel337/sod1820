@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planNavigation, trimStore, createScrollRestorer2029, SCROLL_STORE_KEY, RESTORE_MAX_WAIT_MS, RESTORE_STABLE_MS, RESTORE_HOLD_MS } from '../src/lib/scrollRestore2029.js';
+import { planNavigation, trimStore, createScrollRestorer2029, SCROLL_STORE_KEY, RESTORE_MAX_WAIT_MS, RESTORE_STABLE_MS, RESTORE_HOLD_MS, RESTORE_HOLD_MAX_MS } from '../src/lib/scrollRestore2029.js';
 
 const P = (o) => planNavigation({ hash: '', pathname: '/b', prevPathname: '/a', ...o });
 test('plan: restore on back/forward, top on a new pathname, anchors and everything else untouched', () => {
@@ -138,5 +138,28 @@ test('a document that never stops growing is restored after the force deadline',
     loc(r, { key: 'home', pathname: '/' });
     let h = 3000; for (let i = 0; i < 25; i++) { clock.advance(130); h += 200; f.win.document.documentElement.scrollHeight = h; f.flushRaf(); if (f.win.scrollY) break; }
     assert.equal(f.win.scrollY, 1500);
+  });
+});
+
+test('late content during the hold extends it (anchoring stays paused, position kept) until growth stops, bounded', () => {
+  withClock((clock) => {
+    const f = fakeWindow({ height: 7000 }); const r = createScrollRestorer2029(f.win); r.start();
+    leave(f, r, 2000); f.win.scrollY = 0;
+    loc(r, { key: 'home', pathname: '/' });
+    clock.advance(RESTORE_STABLE_MS + 10); f.flushRaf(); assert.equal(f.win.scrollY, 2000);
+    let h = 7000;
+    for (let i = 0; i < 3; i++) { clock.advance(RESTORE_HOLD_MS - 200); h += 800; f.win.document.documentElement.scrollHeight = h; f.flushRaf(); assert.equal(f.win.document.documentElement.style.overflowAnchor, 'none'); assert.equal(f.win.scrollY, 2000); }
+    clock.advance(RESTORE_HOLD_MS + 10); f.flushRaf(); assert.equal(f.win.document.documentElement.style.overflowAnchor, '');   // growth stopped
+  });
+});
+test('a document that keeps growing releases anchoring at the bounded maximum hold', () => {
+  withClock((clock) => {
+    const f = fakeWindow({ height: 7000 }); const r = createScrollRestorer2029(f.win); r.start();
+    leave(f, r, 2000); f.win.scrollY = 0;
+    loc(r, { key: 'home', pathname: '/' });
+    clock.advance(RESTORE_STABLE_MS + 10); f.flushRaf();
+    let h = 7000, elapsed = 0;
+    while (elapsed < RESTORE_HOLD_MAX_MS - 400) { clock.advance(300); elapsed += 300; h += 100; f.win.document.documentElement.scrollHeight = h; f.flushRaf(); assert.equal(f.win.document.documentElement.style.overflowAnchor, 'none'); }
+    clock.advance(600); h += 100; f.win.document.documentElement.scrollHeight = h; f.flushRaf(); assert.equal(f.win.document.documentElement.style.overflowAnchor, '');
   });
 });

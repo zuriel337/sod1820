@@ -5,7 +5,7 @@
 // charge of the first restore; this adds only:
 //   - back/forward (POP) with a remembered offset: pause scroll anchoring at once, wait until the document is
 //     tall enough AND has stopped growing, put the page at the remembered offset (instant), and keep anchoring
-//     paused for a short hold so late content cannot move it; any touch/wheel/key/pointer ends it;
+//     paused until the document has stopped growing for a short hold (bounded) so late content cannot move it; any touch/wheel/key/pointer ends it;
 //   - a new entry (PUSH to another pathname, no hash): start at the top (instant: html is scroll-behavior:smooth);
 //   - any location with a hash is left alone — the page that owns the anchor scrolls (direct load, in-page, cross-page).
 export const SCROLL_STORE_KEY = 'sod2029-scroll-v1';
@@ -14,7 +14,8 @@ export const RESTORE_MAX_WAIT_MS = 4000;
 export const RESTORE_TOLERANCE_PX = 40;
 export const RESTORE_STABLE_MS = 400; // the document must stop growing before we jump (content above the target keeps arriving)
 export const RESTORE_FORCE_AFTER_MS = 3000;
-export const RESTORE_HOLD_MS = 1500;
+export const RESTORE_HOLD_MS = 2500; // after the jump, anchoring stays paused until the document has not grown for this long...
+export const RESTORE_HOLD_MAX_MS = 8000; // ...but never longer than this after the jump (content that arrives later is left to the browser)
 
 export function planNavigation({ navType, pathname, prevPathname, hash, saved }) {
   if (hash) return { action: 'none' };
@@ -70,15 +71,20 @@ export function createScrollRestorer2029(win = window) {
     const handle = { cancel: finish };
     restoring = handle;
     inputs.forEach((e) => win.addEventListener(e, finish, { passive: true, once: true }));
-    let holdUntil = 0;
+    let holdUntil = 0, holdCap = 0;
     const tick = () => {
       if (done) return;
       const now = Date.now(), h = root.scrollHeight;
-      if (holdUntil) { if (now >= holdUntil) { finish(); return; } win.requestAnimationFrame(tick); return; }
+      if (holdUntil) {
+        // Content that keeps arriving after the jump (late sections) must not hand the page to scroll anchoring yet:
+        // the saved offset belongs to the final layout, and anchoring a still-partial layout locks onto the wrong content.
+        if (h !== lastH) { lastH = h; holdUntil = Math.min(now + RESTORE_HOLD_MS, holdCap); }
+        if (now >= holdUntil) { finish(); return; } win.requestAnimationFrame(tick); return;
+      }
       if (h !== lastH) { lastH = h; lastChange = now; }
       const reachable = h - win.innerHeight >= y - 1;
       const stable = now - lastChange >= RESTORE_STABLE_MS || now - started >= RESTORE_FORCE_AFTER_MS;
-      if (reachable && stable) { if (Math.abs((win.scrollY || 0) - y) > RESTORE_TOLERANCE_PX) jump(y); holdUntil = now + RESTORE_HOLD_MS; win.requestAnimationFrame(tick); return; }
+      if (reachable && stable) { if (Math.abs((win.scrollY || 0) - y) > RESTORE_TOLERANCE_PX) jump(y); holdCap = now + RESTORE_HOLD_MAX_MS; holdUntil = now + RESTORE_HOLD_MS; lastH = h; win.requestAnimationFrame(tick); return; }
       if (now - started > RESTORE_MAX_WAIT_MS) { finish(); return; }
       win.requestAnimationFrame(tick);
     };
