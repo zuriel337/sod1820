@@ -1,0 +1,38 @@
+{
+  "commit": "0578641f239a045105ee689a4008767aebb788d0",
+  "preview": "https://sod1820-ka67ofcpm-sod1820-s-projects.vercel.app",
+  "kind": "hosted-functional-anonymous",
+  "checks": {
+    "marker": {
+      "commit": "0578641f239a045105ee689a4008767aebb788d0",
+      "buildTarget": "2029",
+      "readOnly": true,
+      "manifestSha256": "784a280876ebbbb0dd4c0d43788c99658622e6a53fa557e339fece8ffcc896bb"
+    },
+    "workerSha256": "20313047cb255973ccc64511d25238b3defd51b38150ddcb3e31cff274cf8e11",
+    "writeGuard": "PASS",
+    "directSources": {
+      "top": 120.265625,
+      "scrollY": 1013,
+      "sources": 40
+    },
+    "crossPageSources": {
+      "top": 120.265625,
+      "scrollY": 1013,
+      "sources": 40
+    },
+    "forwardSources": {
+      "top": 120.265625,
+      "scrollY": 1013,
+      "sources": 40
+    },
+    "liveNumberGuestLock": "PASS: expected denial; no flag override"
+  },
+  "pageErrors": 0,
+  "limitations": [
+    "No real member/admin session",
+    "No performance measurement",
+    "No physical phone"
+  ],
+  "status": "PASS"
+}
