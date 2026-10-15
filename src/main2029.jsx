@@ -2,7 +2,6 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App2029 from "./App2029.jsx";
 import { initRuntimeErrorCapture } from "./lib/tracking.js";
-import { prepareEntryRouteCode2029 } from "./lib/criticalRouteCode2029.js";
 
 // Bounded visual review on the existing app; production and legacy stay outside it.
 if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
@@ -19,7 +18,3 @@ root.render(
     <App2029 />
   </StrictMode>,
 );
-
-// Prepare only this document's route code alongside the normal render/lock
-// check. Modulepreload does not evaluate modules or authorize their rendering.
-prepareEntryRouteCode2029();

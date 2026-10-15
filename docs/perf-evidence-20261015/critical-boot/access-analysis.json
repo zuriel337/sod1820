@@ -1,0 +1,66 @@
+{
+  "deny": [
+    {
+      "arm": "base",
+      "denied": true,
+      "ready": {},
+      "firstFlagsStart": 1851,
+      "firstFlagsReleased": 3851,
+      "readsBeforeFlagsExcludingFlags": [
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1 "
+      ],
+      "totalProductReads": 2,
+      "protectedWorldRenderedBeforeAccess": false,
+      "newPreDecisionReadsComparedWithBase": 0,
+      "jsWireBytes": 176504
+    },
+    {
+      "arm": "candidate",
+      "denied": true,
+      "ready": {},
+      "firstFlagsStart": 2240,
+      "firstFlagsReleased": 4241,
+      "readsBeforeFlagsExcludingFlags": [
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1 "
+      ],
+      "totalProductReads": 2,
+      "protectedWorldRenderedBeforeAccess": false,
+      "newPreDecisionReadsComparedWithBase": 0,
+      "jsWireBytes": 424903
+    }
+  ],
+  "allow": [
+    {
+      "arm": "base",
+      "denied": false,
+      "ready": {
+        "/world": 7237.399999999907
+      },
+      "firstFlagsStart": 1896.5,
+      "firstFlagsReleased": 3896.5,
+      "readsBeforeFlagsExcludingFlags": [
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1 "
+      ],
+      "totalProductReads": 45,
+      "protectedWorldRenderedBeforeAccess": false,
+      "newPreDecisionReadsComparedWithBase": 0,
+      "jsWireBytes": 453514
+    },
+    {
+      "arm": "candidate",
+      "denied": false,
+      "ready": {
+        "/world": 6823.700000000186
+      },
+      "firstFlagsStart": 1919.199951171875,
+      "firstFlagsReleased": 3918.199951171875,
+      "readsBeforeFlagsExcludingFlags": [
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=*&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1 "
+      ],
+      "totalProductReads": 45,
+      "protectedWorldRenderedBeforeAccess": false,
+      "newPreDecisionReadsComparedWithBase": 0,
+      "jsWireBytes": 453736
+    }
+  ]
+}

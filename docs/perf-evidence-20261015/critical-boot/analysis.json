@@ -1,0 +1,874 @@
+{
+  "base": "5c147e4a2db97ac035227f7c6d15787849f61f6e",
+  "candidate": "6d649f488c0feb1e968111edc79a44d568517d0e",
+  "fixtureSha256": "629683f568a861b1b44de3956b55642844d04b2c222c1587fb4a273587e9a68a",
+  "conditions": {
+    "viewport": "390x844",
+    "dpr": 2,
+    "cpu": 4,
+    "staticRtt": 150,
+    "staticDownload": 209715.2,
+    "apiDelay": 150,
+    "externalDelay": 400,
+    "note": "Brotli static HTTP; API/image bodies fulfilled with explicit delay, their bandwidth not modeled. Anonymous real public response fixture. No real member/admin sessions."
+  },
+  "inference": "Paired percentile bootstrap of difference of medians, 10000 resamples, seed18202029. Small n=7; controlled local replay, not hosted/field acceptance.",
+  "routes": {
+    "/": {
+      "metrics": {
+        "ready": {
+          "baseMedian": 4024.899999999907,
+          "candidateMedian": 3973.100000000093,
+          "delta": -51.799999999813735,
+          "ci95": [
+            -223.5,
+            233.3000000002794
+          ],
+          "baseRange": [
+            3952.8000000000466,
+            5515.200000000186
+          ],
+          "candidateRange": [
+            3853.100000000093,
+            4532
+          ]
+        },
+        "lcp": {
+          "baseMedian": 4140,
+          "candidateMedian": 4256,
+          "delta": 116,
+          "ci95": [
+            -276,
+            236
+          ],
+          "baseRange": [
+            3816,
+            4960
+          ],
+          "candidateRange": [
+            3852,
+            4608
+          ]
+        },
+        "cls": {
+          "baseMedian": 0.023760256139388845,
+          "candidateMedian": 0.020346206813811288,
+          "delta": -0.003414049325577557,
+          "ci95": [
+            -0.006148979334118617,
+            0
+          ],
+          "baseRange": [
+            0.01825101143838632,
+            0.024525200879345906
+          ],
+          "candidateRange": [
+            0.01825101143838632,
+            0.024525200879345906
+          ]
+        },
+        "root": {
+          "baseMedian": 1701.6000000000931,
+          "candidateMedian": 1756.6000000000931,
+          "delta": 55,
+          "ci95": [
+            -137.20000000018626,
+            84.99999999953434
+          ],
+          "baseRange": [
+            1678.1000000000931,
+            1874.9000000001397
+          ],
+          "candidateRange": [
+            1682.3000000000466,
+            1778.3999999999069
+          ]
+        },
+        "flagsStart": {
+          "baseMedian": 1811.699951171875,
+          "candidateMedian": 1829.60009765625,
+          "delta": 17.900146484375,
+          "ci95": [
+            -204.199951171875,
+            70.39990234375
+          ],
+          "baseRange": [
+            1754.10009765625,
+            2271.39990234375
+          ],
+          "candidateRange": [
+            1745.5,
+            1910.89990234375
+          ]
+        },
+        "flagsEnd": {
+          "baseMedian": 1962.699951171875,
+          "candidateMedian": 1978.60009765625,
+          "delta": 15.900146484375,
+          "ci95": [
+            -204.199951171875,
+            70.39990234375
+          ],
+          "baseRange": [
+            1905.10009765625,
+            2470.39990234375
+          ],
+          "candidateRange": [
+            1894.5,
+            2060.89990234375
+          ]
+        },
+        "jsBytes": {
+          "baseMedian": 460747,
+          "candidateMedian": 460994,
+          "delta": 247,
+          "ci95": [
+            247,
+            247
+          ],
+          "baseRange": [
+            460747,
+            460747
+          ],
+          "candidateRange": [
+            460994,
+            460994
+          ]
+        },
+        "jsBytesBeforeReady": {
+          "baseMedian": 323944,
+          "candidateMedian": 324192,
+          "delta": 248,
+          "ci95": [
+            248,
+            9070
+          ],
+          "baseRange": [
+            323944,
+            344523
+          ],
+          "candidateRange": [
+            324192,
+            344772
+          ]
+        },
+        "jsRequests": {
+          "baseMedian": 51,
+          "candidateMedian": 51,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            51,
+            51
+          ],
+          "candidateRange": [
+            51,
+            51
+          ]
+        },
+        "coldReads": {
+          "baseMedian": 57,
+          "candidateMedian": 57,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            57,
+            57
+          ],
+          "candidateRange": [
+            57,
+            57
+          ]
+        },
+        "next": {
+          "baseMedian": 1047,
+          "candidateMedian": 960.3999999999069,
+          "delta": -86.60000000009313,
+          "ci95": [
+            -173.3000000002794,
+            94.3999999994412
+          ],
+          "baseRange": [
+            932.2000000001863,
+            1602
+          ],
+          "candidateRange": [
+            870.6999999999534,
+            1208.1999999999534
+          ]
+        },
+        "back": {
+          "baseMedian": 514.1999999999534,
+          "candidateMedian": 506.3000000002794,
+          "delta": -7.899999999674037,
+          "ci95": [
+            -222.79999999981374,
+            190.60000000009313
+          ],
+          "baseRange": [
+            388.89999999990687,
+            980.1999999997206
+          ],
+          "candidateRange": [
+            392,
+            906.3000000000466
+          ]
+        },
+        "nextCls": {
+          "baseMedian": 0.1435746968852462,
+          "candidateMedian": 0.14357069517692678,
+          "delta": -0.0000040017083194343606,
+          "ci95": [
+            -0.000028323264709001483,
+            -0.0000039941154786338195
+          ],
+          "baseRange": [
+            0.14357069939517167,
+            0.1436075921649838
+          ],
+          "candidateRange": [
+            0.14356786473460525,
+            0.1435979666925764
+          ]
+        },
+        "backCls": {
+          "baseMedian": 0.029014872393120172,
+          "candidateMedian": 0.029014872393120172,
+          "delta": 0,
+          "ci95": [
+            -0.0012057385075481541,
+            0.006791347614371279
+          ],
+          "baseRange": [
+            0.0012057385075481541,
+            0.05100594274439202
+          ],
+          "candidateRange": [
+            0.029014872393120172,
+            0.030220610900668327
+          ]
+        }
+      },
+      "parity": {
+        "coldContentHashes": [
+          "c85ab80c31a2063c38805ceeb4cb342a4dc055cf4c223bade74d9c18b2250834"
+        ],
+        "nextTargets": [
+          "/post/mah-kore-mokesh-har-naftali"
+        ],
+        "nextContentHashes": [
+          "fa1605c4261363fb7842cfd2cf3fce24f48fb056b7a8ba2ce35a2441e9233c94"
+        ],
+        "coldLinks": {
+          "base": [
+            "[\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/post/mah-kore-mokesh-har-naftali\",\"/world\",\"/posts\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%91%D7%97%D7%99%D7%A8%D7%95%D7%AA\",\"/post/sharshar-elections-redemption-hints-draft#sharshar-shoes-66\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/category/%D7%A7%D7%95%D7%9C%D7%95%D7%AA%20%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA%20%D7%94%D7%A2%D7%95%D7%9C%D7%9D\",\"/post/קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב\",\"/category/%D7%A1%D7%95%D7%93%20%D7%94%D7%97%D7%A9%D7%9E%D7%9C\",\"/post/lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema\",\"/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/post/seventh-to-tenth-sefirot-2027\",\"/world#world-all-convergences\",\"/topic/ateret-tiferetchem-1820\",\"/topic/charvot-barzel-1202\",\"/topic/gapfill-644\",\"/topic/98-ikuv-geula\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/post/chibur-bein-hasafot-mafteach-lagan\",\"/languages\",\"/post/matrix-506\",\"/post/squid-game-456\",\"/category/הצופן בסרטים\",\"/post/%D7%A6%D7%95%D7%A4%D7%9F-%D7%9E%D7%93%D7%94%D7%99%D7%9D-%D7%91%D7%AA%D7%95%D7%A8%D7%94-%D7%94%D7%A7%D7%93%D7%95%D7%A9%D7%94\",\"/post/%D7%9E%D7%A9%D7%99%D7%97-%D7%98%D7%91%D7%AA-%D7%A2%D7%A9%D7%99%D7%A8%D7%99-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-1359\",\"/code?cipher=%D7%90%D7%A1%D7%95%D7%9F-%D7%A0%D7%A4%D7%90%D7%9C-25049\",\"/code?cipher=%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D-71\",\"/category/צפונות בתורה\",\"/els?library=public\",\"/post/yam-hamelach-tiferet-geula\",\"/post/koach-hashtika-dim5\",\"/post/ma-becha-nishar-kshehakol-mishtane-dim5\",\"/post/hamasa-mitoreret-5-achuz-dim5\",\"/category/מימד חמש\",\"/world#world-sources\",\"/world\",\"/or-geula\",\"/world\",\"/community/chat\",\"/map\"]"
+          ],
+          "candidate": [
+            "[\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/post/mah-kore-mokesh-har-naftali\",\"/world\",\"/posts\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%91%D7%97%D7%99%D7%A8%D7%95%D7%AA\",\"/post/sharshar-elections-redemption-hints-draft#sharshar-shoes-66\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/category/%D7%A7%D7%95%D7%9C%D7%95%D7%AA%20%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA%20%D7%94%D7%A2%D7%95%D7%9C%D7%9D\",\"/post/קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב\",\"/category/%D7%A1%D7%95%D7%93%20%D7%94%D7%97%D7%A9%D7%9E%D7%9C\",\"/post/lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema\",\"/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/post/seventh-to-tenth-sefirot-2027\",\"/world#world-all-convergences\",\"/topic/ateret-tiferetchem-1820\",\"/topic/charvot-barzel-1202\",\"/topic/gapfill-644\",\"/topic/98-ikuv-geula\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/post/chibur-bein-hasafot-mafteach-lagan\",\"/languages\",\"/post/matrix-506\",\"/post/squid-game-456\",\"/category/הצופן בסרטים\",\"/post/%D7%A6%D7%95%D7%A4%D7%9F-%D7%9E%D7%93%D7%94%D7%99%D7%9D-%D7%91%D7%AA%D7%95%D7%A8%D7%94-%D7%94%D7%A7%D7%93%D7%95%D7%A9%D7%94\",\"/post/%D7%9E%D7%A9%D7%99%D7%97-%D7%98%D7%91%D7%AA-%D7%A2%D7%A9%D7%99%D7%A8%D7%99-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-1359\",\"/code?cipher=%D7%90%D7%A1%D7%95%D7%9F-%D7%A0%D7%A4%D7%90%D7%9C-25049\",\"/code?cipher=%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D-71\",\"/category/צפונות בתורה\",\"/els?library=public\",\"/post/yam-hamelach-tiferet-geula\",\"/post/koach-hashtika-dim5\",\"/post/ma-becha-nishar-kshehakol-mishtane-dim5\",\"/post/hamasa-mitoreret-5-achuz-dim5\",\"/category/מימד חמש\",\"/world#world-sources\",\"/world\",\"/or-geula\",\"/world\",\"/community/chat\",\"/map\"]"
+          ]
+        },
+        "onlyBaseRequests": [],
+        "onlyCandidateRequests": [],
+        "allReadCounts": {
+          "base": [
+            101,
+            104,
+            104,
+            104,
+            104,
+            85,
+            105
+          ],
+          "candidate": [
+            104,
+            104,
+            105,
+            104,
+            104,
+            104,
+            104
+          ]
+        },
+        "noDuplicateCode": true
+      }
+    },
+    "/world": {
+      "metrics": {
+        "ready": {
+          "baseMedian": 5131.800000000047,
+          "candidateMedian": 4816.300000000047,
+          "delta": -315.5,
+          "ci95": [
+            -1311.4999999995343,
+            -53.89999999990687
+          ],
+          "baseRange": [
+            4883.0999999996275,
+            12861.100000000093
+          ],
+          "candidateRange": [
+            4613,
+            5721.100000000093
+          ]
+        },
+        "lcp": {
+          "baseMedian": 5220,
+          "candidateMedian": 4916,
+          "delta": -304,
+          "ci95": [
+            -1576,
+            -8
+          ],
+          "baseRange": [
+            5028,
+            10780
+          ],
+          "candidateRange": [
+            4716,
+            5992
+          ]
+        },
+        "cls": {
+          "baseMedian": 0.037082350392284615,
+          "candidateMedian": 0.03711439639871762,
+          "delta": 0.000032046006433007757,
+          "ci95": [
+            -0.00015911191605273017,
+            0.0000813775367782335
+          ],
+          "baseRange": [
+            0.00007661682559483599,
+            0.03747577287605273
+          ],
+          "candidateRange": [
+            0.00007661682559483599,
+            0.03728574909900988
+          ]
+        },
+        "root": {
+          "baseMedian": 1962.3999999999069,
+          "candidateMedian": 1998.9000000001397,
+          "delta": 36.50000000023283,
+          "ci95": [
+            -8.099999999627471,
+            100.1999999997206
+          ],
+          "baseRange": [
+            1905.8999999999069,
+            2070.600000000093
+          ],
+          "candidateRange": [
+            1924.7000000001863,
+            2084.600000000093
+          ]
+        },
+        "flagsStart": {
+          "baseMedian": 1716,
+          "candidateMedian": 1764.800048828125,
+          "delta": 48.800048828125,
+          "ci95": [
+            11.60009765625,
+            122.89990234375
+          ],
+          "baseRange": [
+            1681.300048828125,
+            1803.300048828125
+          ],
+          "candidateRange": [
+            1734,
+            1829.60009765625
+          ]
+        },
+        "flagsEnd": {
+          "baseMedian": 1866,
+          "candidateMedian": 1913.800048828125,
+          "delta": 47.800048828125,
+          "ci95": [
+            7.60009765625,
+            121.89990234375
+          ],
+          "baseRange": [
+            1832.300048828125,
+            1953.300048828125
+          ],
+          "candidateRange": [
+            1885,
+            1979.60009765625
+          ]
+        },
+        "jsBytes": {
+          "baseMedian": 453514,
+          "candidateMedian": 453736,
+          "delta": 222,
+          "ci95": [
+            222,
+            222
+          ],
+          "baseRange": [
+            445384,
+            453514
+          ],
+          "candidateRange": [
+            453736,
+            453736
+          ]
+        },
+        "jsBytesBeforeReady": {
+          "baseMedian": 445384,
+          "candidateMedian": 445607,
+          "delta": 223,
+          "ci95": [
+            223,
+            223
+          ],
+          "baseRange": [
+            445384,
+            445384
+          ],
+          "candidateRange": [
+            445607,
+            445607
+          ]
+        },
+        "jsRequests": {
+          "baseMedian": 48,
+          "candidateMedian": 48,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            47,
+            48
+          ],
+          "candidateRange": [
+            48,
+            48
+          ]
+        },
+        "coldReads": {
+          "baseMedian": 45,
+          "candidateMedian": 45,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            44,
+            45
+          ],
+          "candidateRange": [
+            45,
+            45
+          ]
+        },
+        "next": {
+          "baseMedian": 1171,
+          "candidateMedian": 1165.3999999999069,
+          "delta": -5.600000000093132,
+          "ci95": [
+            -71.60000000009313,
+            226
+          ],
+          "baseRange": [
+            1121.8000000002794,
+            1412.5999999998603
+          ],
+          "candidateRange": [
+            1064.6999999997206,
+            1664.8000000000466
+          ]
+        },
+        "back": {
+          "baseMedian": 848.2000000001863,
+          "candidateMedian": 783.3000000000466,
+          "delta": -64.9000000001397,
+          "ci95": [
+            -366.79999999981374,
+            100
+          ],
+          "baseRange": [
+            735.4000000001397,
+            1588.1999999999534
+          ],
+          "candidateRange": [
+            737.5,
+            858
+          ]
+        },
+        "nextCls": {
+          "baseMedian": 0.018174394612791488,
+          "candidateMedian": 0.018174394612791488,
+          "delta": 0,
+          "ci95": [
+            -3.469446951953614e-18,
+            0.005325108300231696
+          ],
+          "baseRange": [
+            0.0012057385075481541,
+            0.023370614046691593
+          ],
+          "candidateRange": [
+            0.01810811079988038,
+            0.023640554272969135
+          ]
+        },
+        "backCls": {
+          "baseMedian": 0.000030578057211114174,
+          "candidateMedian": 0.000017721690433895876,
+          "delta": -0.000012856366777218298,
+          "ci95": [
+            -0.00007337890081690265,
+            0.000009382782718059257
+          ],
+          "baseRange": [
+            0.000002663681040175614,
+            0.017286795291234648
+          ],
+          "candidateRange": [
+            0.000008289976075104288,
+            0.000035437756541273346
+          ]
+        }
+      },
+      "parity": {
+        "coldContentHashes": [
+          "8f741a7ee112a17728d3fd720f9f515c7e022fb1bc17b152b2aaa01c61ba67eb"
+        ],
+        "nextTargets": [
+          "/"
+        ],
+        "nextContentHashes": [
+          "cf23b5e37b3245fb0f3384ff7f25fa2079d1a3ecf427c6b3acbbde368c78dfdb",
+          "b861c58784a7d17e57fe992b60df9587b39f2c167dc0c59c05b919674f9175c2",
+          "d3204fa8a399218d845ff44f552e7101aaad97eb23f2af1d304b575cb5a9f58d"
+        ],
+        "coldLinks": {
+          "base": [
+            "[\"#world-sources\",\"#world-connections\",\"#world-all-convergences\",\"#world-journey-entry\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/world?source=tzvi-opoc#world-contributor-material\",\"/world?source=sod-hashmal#world-corpus-sod-hashmal\",\"/topic/ateret-tiferetchem-1820\",\"/topic/charvot-barzel-1202\",\"/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99\"]",
+            "[\"#world-sources\",\"#world-connections\",\"#world-all-convergences\",\"#world-journey-entry\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4\",\"/post/flydubai-fz1073-363-14000-remzei-geula\",\"/post/flydubai-fz1073-363-14000-remzei-geula\",\"/world#world-discovery-rails--india-health\",\"/world#world-discovery-wall--see-my-back\",\"/world#world-discovery-wall--wall-clock\",\"/world#world-discovery-wisdom-set--wisdom-methods\",\"/world?source=tzvi-opoc#world-contributor-material\",\"/world?source=sod-hashmal#world-corpus-sod-hashmal\",\"/topic/ateret-tiferetchem-1820\",\"/topic/charvot-barzel-1202\",\"/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99\"]",
+            "[\"#world-sources\",\"#world-connections\",\"#world-all-convergences\",\"#world-journey-entry\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"/world#world-discovery-rails--india-health\",\"/world#world-discovery-wall--see-my-back\",\"/world#world-discovery-wall--wall-clock\",\"/world#world-discovery-wisdom-set--wisdom-methods\",\"/world?source=tzvi-opoc#world-contributor-material\",\"/world?source=sod-hashmal#world-corpus-sod-hashmal\",\"/topic/ateret-tiferetchem-1820\",\"/topic/charvot-barzel-1202\",\"/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99\"]"
+          ],
+          "candidate": [
+            "[\"#world-sources\",\"#world-connections\",\"#world-all-convergences\",\"#world-journey-entry\",\"/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D\",\"/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D\",\"https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4\",\"/post/flydubai-fz1073-363-14000-remzei-geula\",\"/post/flydubai-fz1073-363-14000-remzei-geula\",\"/world#world-discovery-rails--india-health\",\"/world#world-discovery-wall--see-my-back\",\"/world#world-discovery-wall--wall-clock\",\"/world#world-discovery-wisdom-set--wisdom-methods\",\"/world?source=tzvi-opoc#world-contributor-material\",\"/world?source=sod-hashmal#world-corpus-sod-hashmal\",\"/topic/ateret-tiferetchem-1820\",\"/topic/charvot-barzel-1202\",\"/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99\"]"
+          ]
+        },
+        "onlyBaseRequests": [],
+        "onlyCandidateRequests": [],
+        "allReadCounts": {
+          "base": [
+            135,
+            139,
+            141,
+            141,
+            140,
+            140,
+            138
+          ],
+          "candidate": [
+            140,
+            138,
+            139,
+            140,
+            141,
+            140,
+            140
+          ]
+        },
+        "noDuplicateCode": true
+      }
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "metrics": {
+        "ready": {
+          "baseMedian": 3967.600000000093,
+          "candidateMedian": 3826.399999999907,
+          "delta": -141.20000000018626,
+          "ci95": [
+            -196.5999999998603,
+            -65.3000000002794
+          ],
+          "baseRange": [
+            3875.8000000002794,
+            4404.5
+          ],
+          "candidateRange": [
+            3757.2000000001863,
+            3936.1999999997206
+          ]
+        },
+        "lcp": {
+          "baseMedian": 4220,
+          "candidateMedian": 4060,
+          "delta": -160,
+          "ci95": [
+            -184,
+            -68
+          ],
+          "baseRange": [
+            4116,
+            4668
+          ],
+          "candidateRange": [
+            3976,
+            4180
+          ]
+        },
+        "cls": {
+          "baseMedian": 0.00007661682559483599,
+          "candidateMedian": 0.00007661682559483599,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            0.00007661682559483599,
+            0.00007661682559483599
+          ],
+          "candidateRange": [
+            0.00007661682559483599,
+            0.00007661682559483599
+          ]
+        },
+        "root": {
+          "baseMedian": 1744.2000000001863,
+          "candidateMedian": 1743.4000000003725,
+          "delta": -0.7999999998137355,
+          "ci95": [
+            -9.600000000093132,
+            12.899999999906868
+          ],
+          "baseRange": [
+            1710.4000000003725,
+            1802.1000000000931
+          ],
+          "candidateRange": [
+            1718.1999999999534,
+            1802.8999999999069
+          ]
+        },
+        "flagsStart": {
+          "baseMedian": 1839.89990234375,
+          "candidateMedian": 1840.199951171875,
+          "delta": 0.300048828125,
+          "ci95": [
+            -35.699951171875,
+            12
+          ],
+          "baseRange": [
+            1811,
+            2015.199951171875
+          ],
+          "candidateRange": [
+            1805.89990234375,
+            1878.699951171875
+          ]
+        },
+        "flagsEnd": {
+          "baseMedian": 1988.89990234375,
+          "candidateMedian": 1991.199951171875,
+          "delta": 2.300048828125,
+          "ci95": [
+            -34.699951171875,
+            11.199951171875
+          ],
+          "baseRange": [
+            1962,
+            2165.199951171875
+          ],
+          "candidateRange": [
+            1955.89990234375,
+            2029.699951171875
+          ]
+        },
+        "jsBytes": {
+          "baseMedian": 356192,
+          "candidateMedian": 356422,
+          "delta": 230,
+          "ci95": [
+            230,
+            230
+          ],
+          "baseRange": [
+            356192,
+            356192
+          ],
+          "candidateRange": [
+            356422,
+            356422
+          ]
+        },
+        "jsBytesBeforeReady": {
+          "baseMedian": 352030,
+          "candidateMedian": 352264,
+          "delta": 234,
+          "ci95": [
+            234,
+            234
+          ],
+          "baseRange": [
+            352030,
+            352030
+          ],
+          "candidateRange": [
+            352264,
+            352264
+          ]
+        },
+        "jsRequests": {
+          "baseMedian": 39,
+          "candidateMedian": 39,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            39,
+            39
+          ],
+          "candidateRange": [
+            39,
+            39
+          ]
+        },
+        "coldReads": {
+          "baseMedian": 4,
+          "candidateMedian": 4,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            4,
+            4
+          ],
+          "candidateRange": [
+            4,
+            4
+          ]
+        },
+        "next": {
+          "baseMedian": 1795.0999999996275,
+          "candidateMedian": 1852.1000000000931,
+          "delta": 57.00000000046566,
+          "ci95": [
+            -51.89999999990687,
+            197.5
+          ],
+          "baseRange": [
+            1747.5,
+            1958.8999999999069
+          ],
+          "candidateRange": [
+            1695.3999999999069,
+            3599.100000000093
+          ]
+        },
+        "back": {
+          "baseMedian": 384.10000000009313,
+          "candidateMedian": 368.80000000004657,
+          "delta": -15.300000000046566,
+          "ci95": [
+            -53.300000000046566,
+            53.89999999990687
+          ],
+          "baseRange": [
+            365.20000000018626,
+            415.80000000004657
+          ],
+          "candidateRange": [
+            335.6999999997206,
+            439.70000000018626
+          ]
+        },
+        "nextCls": {
+          "baseMedian": 0.00008097117918711943,
+          "candidateMedian": 0.00010565831680051305,
+          "delta": 0.000024687137613393624,
+          "ci95": [
+            -0.0000622674813427141,
+            0.00011543564602400249
+          ],
+          "baseRange": [
+            0.00004884221393793421,
+            0.0001597606821168806
+          ],
+          "candidateRange": [
+            0.00003628421768263782,
+            0.000423730010873578
+          ]
+        },
+        "backCls": {
+          "baseMedian": 0,
+          "candidateMedian": 0,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "baseRange": [
+            0,
+            0
+          ],
+          "candidateRange": [
+            0,
+            0
+          ]
+        }
+      },
+      "parity": {
+        "coldContentHashes": [
+          "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375"
+        ],
+        "nextTargets": [
+          "/world"
+        ],
+        "nextContentHashes": [
+          "8f741a7ee112a17728d3fd720f9f515c7e022fb1bc17b152b2aaa01c61ba67eb"
+        ],
+        "coldLinks": {
+          "base": [
+            "[\"/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98\",\"/yam-hamelach-tiferet-geula\",\"/posts\",\"/world\"]"
+          ],
+          "candidate": [
+            "[\"/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9\",\"/category/%D7%95%D7%99%D7%93%D7%90%D7%95\",\"/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98\",\"/yam-hamelach-tiferet-geula\",\"/posts\",\"/world\"]"
+          ]
+        },
+        "onlyBaseRequests": [],
+        "onlyCandidateRequests": [],
+        "allReadCounts": {
+          "base": [
+            52,
+            52,
+            52,
+            52,
+            52,
+            52,
+            52
+          ],
+          "candidate": [
+            52,
+            52,
+            52,
+            52,
+            52,
+            52,
+            52
+          ]
+        },
+        "noDuplicateCode": true
+      }
+    }
+  }
+}
