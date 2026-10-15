@@ -90,18 +90,18 @@
       "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
     "readiness": "INCOMPLETE_NOT_ACCEPTED",
-    "sha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "sha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
     "source": {
       "access": "public-reviewed",
       "date": "2026-10-15",
       "reference": "test/fixtures/ci-2029/source-index.json",
-      "sha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
+      "sha256": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981"
     },
     "version": 1
   },
   "navigation": {
     "coverage": {
-      "passed": false,
+      "passed": true,
       "reference": "test/fixtures/ci-2029/coverage.json"
     },
     "experiment": "new-offline-public-corpus-v1",
@@ -190,18 +190,18 @@
       "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
     "readiness": "INCOMPLETE_NOT_ACCEPTED",
-    "sha256": "9f8f9e4f06b751e917bc98ef994c69fecfcb018de980b01b84760a0af537a9a7",
+    "sha256": "b4fc08cd1046f97f52372c570df6d3ed43118a1151a19cb939ca68b22f02efc1",
     "source": {
       "access": "public-reviewed",
       "date": "2026-10-15",
       "reference": "test/fixtures/ci-2029/source-index.json",
-      "sha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
+      "sha256": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981"
     },
     "version": 1
   },
   "performance": {
     "coverage": {
-      "passed": false,
+      "passed": true,
       "reference": "test/fixtures/ci-2029/coverage.json"
     },
     "experiment": "new-offline-public-corpus-v1",
@@ -290,12 +290,12 @@
       "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
     "readiness": "INCOMPLETE_NOT_ACCEPTED",
-    "sha256": "bd79ce9742c4931965b59d866114f60a479a2c49b70f56a6456058b9020d544e",
+    "sha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
     "source": {
       "access": "public-reviewed",
       "date": "2026-10-15",
       "reference": "test/fixtures/ci-2029/source-index.json",
-      "sha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
+      "sha256": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981"
     },
     "version": 1
   }

@@ -1,0 +1,72 @@
+[
+  {
+    "label": "performance-full",
+    "command": "bash scripts/ci-isolation/performance.sh",
+    "exitCode": 1,
+    "elapsedSeconds": 29.8,
+    "snapshotSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "auditBytes": 779,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0,
+    "toolSource": "same current working tree tool for both builds; product headabafdb6c, perfbase8965f1b6, navbase0825b326"
+  },
+  {
+    "label": "navigation-full",
+    "command": "bash scripts/ci-isolation/navigation.sh",
+    "exitCode": 1,
+    "elapsedSeconds": 12.72,
+    "snapshotSha256": "b4fc08cd1046f97f52372c570df6d3ed43118a1151a19cb939ca68b22f02efc1",
+    "auditBytes": 226,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0,
+    "toolSource": "same current working tree tool for both builds; product headabafdb6c, perfbase8965f1b6, navbase0825b326"
+  },
+  {
+    "label": "browser-full",
+    "command": "bash scripts/ci-isolation/hard-browser.sh",
+    "exitCode": 1,
+    "elapsedSeconds": 0.37,
+    "snapshotSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0,
+    "toolSource": "same current working tree tool for both builds; product headabafdb6c, perfbase8965f1b6, navbase0825b326"
+  },
+  {
+    "label": "post-base-seven",
+    "command": "node scripts/perf-execution-2029/measure.mjs --mode replay --dist /corpus/perf-base/dist --out /corpus/diagnostics/post-base.json --fixtures /corpus/performance.json.gz --routes /post/seventh-to-tenth-sefirot-2027 --runs 7 --label isolated-post-before",
+    "exitCode": 0,
+    "elapsedSeconds": 38.4,
+    "snapshotSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0,
+    "toolSource": "same current working tree tool for both builds; product headabafdb6c, perfbase8965f1b6, navbase0825b326"
+  },
+  {
+    "label": "post-head-seven",
+    "command": "node scripts/perf-execution-2029/measure.mjs --mode replay --dist /corpus/current-git/dist --out /corpus/diagnostics/post-head.json --fixtures /corpus/performance.json.gz --routes /post/seventh-to-tenth-sefirot-2027 --runs 7 --label isolated-post-after",
+    "exitCode": 0,
+    "elapsedSeconds": 38.95,
+    "snapshotSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "auditBytes": 0,
+    "network": "none",
+    "interfaces": [
+      "lo"
+    ],
+    "defaultRoutes": 0,
+    "toolSource": "same current working tree tool for both builds; product headabafdb6c, perfbase8965f1b6, navbase0825b326"
+  }
+]

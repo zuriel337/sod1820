@@ -1,16 +1,22 @@
 # New public frozen inputs: incomplete acceptance
 
-The reviewed experiment now has package revision `public-card-approval-v2`,
-retained and reproducible from Git: 161 navigation contracts and 160
-performance/browser contracts. The approved four/three contributor sets contain
-only seven source fields; aliases and dossier objects are omitted explicitly.
-All 155 prior navigation responses remain unchanged. It is a new
-offline experiment, not recovery of the historical private snapshots or live
-parity. All full gates still fail the unchanged semantic preflight. See
-[`ci-corpus`](../../../docs/perf-evidence-20261015/ci-corpus/README.md),
-`manifest.json`, `source-index.json` and `coverage.json` for sources, signatures,
-16 passing image cases, catalog proof, and exact remaining source/access gaps.
-Do not pad text, weaken checks or add empty substitutes to make it pass.
+Revision `public-body-admission-v3` is retained and reproducible from Git:
+172 navigation contracts and 171 performance/browser contracts. All 161 prior
+navigation response objects are unchanged. Eleven actual reviewed contracts
+were added; no text, row count, relationship, image weight or speed/sample budget
+was reduced. The complete public5116 body is checked by source identity and
+SHA256, with truncation/change/padding/identity negatives, under explicit user
+approval. The seven-field approved public contributor DTO is unchanged.
+
+Performance/navigation minimum preflights pass, then full execution fails closed
+on absent source responses. Browser preflight still fails on the non-retainable
+Bennett Golden body. The independent Post-only comparison has seven samples on
+each side with one frozen input and tool; it is not full performance acceptance.
+This is a new offline experiment, not historical snapshot recovery or live parity.
+See [`current evidence`](../../../docs/perf-evidence-20261015/ci-corpus/admission-v3/README.md),
+`manifest.json`, `source-index.json` and `coverage.json` for sources, hashes and
+exact missing inputs. No local-only draft, unverified attribution or group message
+body is packaged; no empty substitute or live fallback is permitted.
 
 The workflow requires `manifest.json` and `browser.json.gz`,
 `navigation.json.gz`, `performance.json.gz`. Input staging must finish before

@@ -1,0 +1,12 @@
+{
+  "publicCorpusPrivacy": "PASS in35focused tests including18privacy/repack tests",
+  "allPrevious161ContractsUnchanged": true,
+  "localOnlyGoldenBodyAbsent": true,
+  "unverifiedHomeAttributionResponseAbsent": true,
+  "unapprovedGroupResponseAbsent": true,
+  "accountContactDraftDossierPayloadsExported": false,
+  "aiAdditionContentReturnedOrExported": false,
+  "rawLegacyPayloadsCopied": false,
+  "localOnlySourceFilesCopiedToContainerOrGit": false,
+  "note": "Locally reviewed attribution is not added. Generic display text already appearing in unchanged reviewed public canonical source fields does not admit that separate Home contributor identity."
+}

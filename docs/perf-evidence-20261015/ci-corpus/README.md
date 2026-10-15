@@ -1,4 +1,25 @@
-# PR1111: current public-card continuation (revision 2)
+# PR1111: current public-body admission (revision 3)
+
+Current revision `public-body-admission-v3` contains 172 navigation contracts
+and 171 performance/browser contracts. All previous 161 navigation response
+objects remain unchanged. The complete public Post5116 body is now checked by
+exact source identity and content SHA under explicit user approval, with
+negative truncation/change/padding/identity tests. Speed thresholds and seven
+samples are unchanged.
+
+Current evidence and exact remaining input requirements are in
+[`admission-v3/README.md`](admission-v3/README.md). Source-index SHA256:
+`a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981`.
+35 focused tests, source/A3/measurement suites, 16 image cases, catalog content
+parity, and the independent seven-plus-seven Post-only comparison pass.
+All three full entrypoints were invoked and remain FAIL on explicitly identified
+retainable source gaps. Full performance measurements have **not** completed.
+This is a new offline experiment with no historical/live parity claim.
+
+The receipts below are historical v2/v1 results and hashes, superseded by v3.
+Their old blocker descriptions do not assert the current source-review state.
+
+# Historical revision 2: public-card continuation
 
 The user approved the exact seven-field public-card proposal. The same branch
 continues from `8ce0ecc9bf1733b75ecf96ff749a7a15d05178e7`; PR1111 still targets

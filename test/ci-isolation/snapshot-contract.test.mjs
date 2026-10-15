@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
+import fs from 'node:fs';
 import contract from '../../scripts/ci-isolation/snapshot-contract.cjs';
 const {decodeSnapshot,parseKey,coverageReport,requireCoverage,verifyManifestEntry,imageWidth}=contract;
 // Deliberately small synthetic unit response; never a full gate input.
@@ -9,6 +10,30 @@ const row={status:200,type:'application/json',body:Buffer.from(JSON.stringify([{
 const small={'GET https://fixture.invalid/read ':row};
 const bytes=zlib.gzipSync(JSON.stringify(small));
 const digest=crypto.createHash('sha256').update(bytes).digest('hex');
+const publicInput=decodeSnapshot(fs.readFileSync(new URL('../fixtures/ci-2029/performance.json.gz',import.meta.url)));
+const primaryKey=Object.keys(publicInput).find(key=>key.includes('/posts?select=*&slug=in.(seventh-to-tenth-sefirot-2027)&limit=1'));
+const primarySource=JSON.parse(Buffer.from(publicInput[primaryKey].body,'base64'))[0];
+const primaryCheck=(source=primarySource)=>{
+ const input={...publicInput,[primaryKey]:{...publicInput[primaryKey],body:Buffer.from(JSON.stringify([source])).toString('base64')}};
+ return coverageReport(input,'performance').checks.find(c=>c.name==='complete seventh-to-tenth primary body');
+};
+test('the exact complete public5116 source passes without padded text',()=>{
+ assert.equal(primarySource.content.replace(/<[^>]*>/g,' ').length,760);
+ assert.equal(primaryCheck().passed,true);
+});
+for(const [label,change] of [
+ ['truncated body',source=>({...source,content:source.content.slice(0,-1)})],
+ ['same-length changed body',source=>({...source,content:'x'+source.content.slice(1)})],
+ ['padded body exceeding the previous length heuristic',source=>({...source,content:source.content+'x'.repeat(800)})],
+ ['wrong source identity',source=>({...source,id:5113})],
+])test('reviewed full source rejects '+label,()=>assert.equal(primaryCheck(change(primarySource)).passed,false));
+test('the approved5116 digest does not relax another authored Golden source',()=>{
+ const input={...publicInput};
+ const key=primaryKey.replace('seventh-to-tenth-sefirot-2027','bennett-melach-631-78');
+ input[key]={...publicInput[primaryKey],body:Buffer.from(JSON.stringify([{...primarySource,id:5113,slug:'bennett-melach-631-78'}])).toString('base64')};
+ const check=coverageReport(input,'browser').checks.find(c=>c.name==='complete authored Bennett body and verified focus');
+ assert.equal(check.passed,false);assert.match(check.reason,/Full authored primary post body required/);
+});
 test('structural decoding preserves a representative response byte for byte',()=>assert.deepEqual(decodeSnapshot(bytes),small));
 for(const kind of ['performance','navigation','browser'])test(`${kind}: structurally valid but semantically incomplete input fails closed`,()=>{
   const decoded=decodeSnapshot(bytes),report=coverageReport(decoded,kind);

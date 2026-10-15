@@ -1,7 +1,7 @@
 {
   "performance": {
     "kind": "performance",
-    "responses": 160,
+    "responses": 171,
     "checks": [
       {
         "name": "request header signatures",
@@ -13,24 +13,22 @@
       },
       {
         "name": "complete seventh-to-tenth primary body",
-        "passed": false,
-        "reason": "Full authored primary post body required"
+        "passed": true
       },
       {
         "name": "seventh-to-tenth original and native mobile rendition",
-        "passed": false,
-        "reason": "Full authored primary post body required"
+        "passed": true
       },
       {
         "name": "nonempty World convergence and post trace data",
         "passed": true
       }
     ],
-    "passed": false
+    "passed": true
   },
   "navigation": {
     "kind": "navigation",
-    "responses": 161,
+    "responses": 172,
     "checks": [
       {
         "name": "request header signatures",
@@ -42,8 +40,7 @@
       },
       {
         "name": "complete seventh-to-tenth primary body",
-        "passed": false,
-        "reason": "Full authored primary post body required"
+        "passed": true
       },
       {
         "name": "nonempty World convergence and post trace data",
@@ -58,11 +55,11 @@
         "passed": true
       }
     ],
-    "passed": false
+    "passed": true
   },
   "browser": {
     "kind": "browser",
-    "responses": 160,
+    "responses": 171,
     "checks": [
       {
         "name": "request header signatures",

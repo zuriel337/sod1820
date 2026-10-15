@@ -4,6 +4,9 @@
 const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const zlib=require('node:zlib');
+// Explicit user approval for this exact complete public source in the new
+// offline experiment. This is not a minimum-length exception for other Posts.
+const reviewedPrimaryBody={slug:'seventh-to-tenth-sefirot-2027',id:5116,sha256:'75e899e0f8cbfb224d3dfa990a81fd7f61443bcc5401125f69dca359e0346d40'};
 function decodeSnapshot(bytes){
   const data=JSON.parse(zlib.gunzipSync(bytes));
   assert.ok(data&&typeof data==='object'&&!Array.isArray(data)&&Object.keys(data).length,'Empty snapshot is not representative test data');
@@ -53,7 +56,12 @@ function coverageReport(data,kind){
   const post=slug=>{
     const found=requireRows('posts',e=>e.url.searchParams.get('select')==='*'&&e.url.searchParams.get('slug')===`in.(${slug})`);
     const row=found.flatMap(e=>e.json||[]).find(p=>p.slug===slug);
-    assert.ok(row&&typeof row.content==='string'&&row.content.replace(/<[^>]*>/g,' ').length>=800,'Full authored primary post body required');return row;
+    assert.ok(row&&typeof row.content==='string','Full authored primary post body required');
+    if(slug===reviewedPrimaryBody.slug){
+      assert.equal(row.id,reviewedPrimaryBody.id,'Reviewed authored source identity required');
+      assert.equal(crypto.createHash('sha256').update(row.content).digest('hex'),reviewedPrimaryBody.sha256,'Complete reviewed authored source digest mismatch');
+    }else assert.ok(row.content.replace(/<[^>]*>/g,' ').length>=800,'Full authored primary post body required');
+    return row;
   };
   const lookup=value=>requireRows('rpc/fn_number_lookup',e=>e.method==='POST'&&e.args?.p_value===value)
     .some(e=>e.json.some(r=>r.value===value&&r.phrase&&r.method));

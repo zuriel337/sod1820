@@ -1,0 +1,21 @@
+{
+  "byteIdentical": {
+    "performance.json.gz": true,
+    "navigation.json.gz": true,
+    "browser.json.gz": true,
+    "manifest.json": true,
+    "source-index.json": true,
+    "coverage.json": true
+  },
+  "allPassed": true,
+  "evidence": "final-input-tests.txt: reproduce all six package files from the retained source index",
+  "requiresLiveSource": false,
+  "files": {
+    "performance.json.gz": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "navigation.json.gz": "b4fc08cd1046f97f52372c570df6d3ed43118a1151a19cb939ca68b22f02efc1",
+    "browser.json.gz": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "manifest.json": "09ae2357dca5580dbad01476d256e466858d0ed8a1b41ce6040b2defcf7ec6b2",
+    "source-index.json": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981",
+    "coverage.json": "f82a00289f103b6d767eea2d43ca20a4a0611153b4ea79d247e6cbfd1da6f813"
+  }
+}

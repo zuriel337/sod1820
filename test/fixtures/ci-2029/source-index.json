@@ -30,13 +30,59 @@
   },
   "coverageLimits": [
     "Bennett 5113 is tagged draft; full required Golden body not read/exported.",
-    "Canonical 5116 content is full 1778 characters, 760 after HTML removal; unchanged preflight requires >=800.",
     "Runtime unknown-request auditing remains required; minimum semantic coverage is not full route parity.",
     "Home rolling-week contribution request has2 approved rows;0 match approved public profile IDs/names. No account IDs or unverified attribution read/exported; response remains absent.",
-    "World discovery reaches world_group_source_arrivals_v2({p_before:null,p_limit:24}); source definition includes private channel state. Automatic approval review rejected even private-source admission counts. No group payload/count acquired or empty substitute."
+    "Bennett body permission is local inspection only. No public retained authored input or complete browser acceptance is implied.",
+    "Group-source aggregate admission was reviewed locally under explicit count-only permission; results remain local, no message body read/export approved. RPC response remains absent and unknown attempts must fail."
   ],
   "date": "2026-10-15",
   "experiment": "new-offline-public-corpus-v1",
+  "extraBaselineCanonicalConvergence": {
+    "definitionMd5": "8bcd7efbb13fdfdc385b301103077a39",
+    "function": "public.convergence_meter(integer)",
+    "observedAt": "2026-10-15T22:56:54.299025+00:00",
+    "purpose": "same frozen union for both actual builds; actual complete canonical outputs, no invented score/count/rank",
+    "source": "anon READ ONLY; exact additional request arguments observed from immutable navigation baseline; no AI/writes; unchanged audited pure-read definition/dependencies",
+    "sourceOutputSha256": "a1a3aaf9a7ee17aa6537798ed487dea8277b2da3e46052e6ccd799b910fc90aa",
+    "values": [
+      1156,
+      1359,
+      2212,
+      5844,
+      596,
+      776,
+      888,
+      974
+    ]
+  },
+  "extraPublicHomeReads": {
+    "aiAdditionProjection": "AUTO_REVIEW_REJECTED; neither full content nor public-fragment attempt returned data; no workaround used",
+    "blockedDataExported": false,
+    "blockedReadKeys": [
+      "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_user_id,author_contributor_id,author_name,created_at&status=eq.approved&created_at=gte.TS&order=created_at.desc&limit=1000 ",
+      "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_name,title,gematria_claim,created_at&target_type=eq.number&target_id=eq.787&status=eq.approved&order=created_at.desc&limit=12 ",
+      "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,title,slug,link,modified,date,author,ai_addition,space,home_hidden&space=eq.core&home_hidden=eq.false&ai_addition=not.is.null&ai_addition=ilike.%787%&order=modified.desc.nullslast&limit=12 "
+    ],
+    "contracts": [
+      {
+        "bodySha256": "54e308e9d189400f8249eb013934c18a30f87308e39e76f31c3975fcc3684290",
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,categories,source,tags,home_hidden&slug=in.(sod-hachashmal-esev-sade-behema-sukkot,mah-kore-mokesh-har-naftali,flydubai-fz1073-363-14000-remzei-geula,sharshar-elections-redemption-hints-draft,lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema,seventh-to-tenth-sefirot-2027,קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב,levi-sudri-hazarat-hanevua-habchirot-six-seven,remzei-geula-ai-sod-hashir,yam-hamelach-tiferet-geula,mah-kore-nza-hasoara,tashpav-tashpaz-787-hidden-connection,sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111,torat-haremez-mafteach-lagan-1258,koach-hashtika-dim5,ma-becha-nishar-kshehakol-mishtane-dim5)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 16
+      },
+      {
+        "bodySha256": "ed0bfb5ca3c61e3e9790080b4c8b3330e868ba0edbdef80970bd6a3cc4056709",
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase,ragil,gadol,siduri,miluy,kadmi,atbash,albam,misratar,ribua,is_verified,source,tags&is_verified=eq.true&tags=cs.{אוצרות+הגילוי}&limit=40  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 3
+      },
+      {
+        "bodySha256": "2dd5ba2d203d5993f6afeb6c74bc5c6aa3c061c9abbdcc8473f4146cb59dd997",
+        "derivedFrom": "unchanged previously retained canonical48row public page; same filter/order, requested32row prefix; no row shortened",
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=32  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "rows": 32
+      }
+    ],
+    "source": "bounded anon READ ONLY public admission + previously reviewed canonical public page prefix"
+  },
   "headerResolution": [
     {
       "decision": "equal status/type/body; retain exact canonical count metadata; no payload collision accepted",
@@ -46,10 +92,10 @@
   "historicalComparison": false,
   "homeScenario": "21 genuinely public non-draft source cards with actual source ordering and full original fields; 21-card volume preserved, excluding unapproved draft 5113. Explicit new public-only scenario, not raw unfiltered live-list parity.",
   "liveParity": false,
-  "packageRevision": "public-card-approval-v2",
+  "packageRevision": "public-body-admission-v3",
   "previousRevision": {
-    "commit": "8ce0ecc9bf1733b75ecf96ff749a7a15d05178e7",
-    "sourceIndexSha256": "d90904c76d01c020d9202b7fe35b2e841205e9b0a67f70ad1d24df89856610f2"
+    "commit": "abafdb6c8cbd67e7adaedb3648f7c5d8ac191a30",
+    "sourceIndexSha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
   },
   "privacyProjection": {
     "authors": "Only NULL in retained full Posts; verified NULL on canonical 5112/5116. No whole authors objects exported.",
@@ -349,6 +395,14 @@
       "type": "application/json"
     },
     {
+      "bytes": 740,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=phrase,ragil,gadol,siduri,miluy,kadmi,atbash,albam,misratar,ribua,is_verified,source,tags&is_verified=eq.true&tags=cs.{אוצרות+הגילוי}&limit=40  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/*",
+      "sha256": "ed0bfb5ca3c61e3e9790080b4c8b3330e868ba0edbdef80970bd6a3cc4056709",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 8374,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,identity_key,metadata,is_active,created_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-5/*",
@@ -494,6 +548,14 @@
     },
     {
       "bytes": 6675,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,categories,source,tags,home_hidden&slug=in.(sod-hachashmal-esev-sade-behema-sukkot,mah-kore-mokesh-har-naftali,flydubai-fz1073-363-14000-remzei-geula,sharshar-elections-redemption-hints-draft,lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema,seventh-to-tenth-sefirot-2027,קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב,levi-sudri-hazarat-hanevua-habchirot-six-seven,remzei-geula-ai-sod-hashir,yam-hamelach-tiferet-geula,mah-kore-nza-hasoara,tashpav-tashpaz-787-hidden-connection,sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111,torat-haremez-mafteach-lagan-1258,koach-hashtika-dim5,ma-becha-nishar-kshehakol-mishtane-dim5)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-15/*",
+      "sha256": "54e308e9d189400f8249eb013934c18a30f87308e39e76f31c3975fcc3684290",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 6675,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,categories,source,tags,home_hidden&slug=in.(sod-hachashmal-esev-sade-behema-sukkot,mah-kore-mokesh-har-naftali,flydubai-fz1073-363-14000-remzei-geula,sharshar-elections-redemption-hints-draft,קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב,lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema,seventh-to-tenth-sefirot-2027,levi-sudri-hazarat-hanevua-habchirot-six-seven,remzei-geula-ai-sod-hashir,yam-hamelach-tiferet-geula,mah-kore-nza-hasoara,tashpav-tashpaz-787-hidden-connection,sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111,torat-haremez-mafteach-lagan-1258,koach-hashtika-dim5,ma-becha-nishar-kshehakol-mishtane-dim5)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-15/*",
       "sha256": "54e308e9d189400f8249eb013934c18a30f87308e39e76f31c3975fcc3684290",
@@ -513,6 +575,14 @@
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,date,modified,tags,categories,source,home_hidden&slug=eq.sod-hachashmal-esev-sade-behema-sukkot&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-0/*",
       "sha256": "0570e6ca42df5cfeda7f4b11d4dc0ae5a51d919f2f6d6b0360cc0b25d743b6ed",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 26186,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=32  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-31/*",
+      "sha256": "2dd5ba2d203d5993f6afeb6c74bc5c6aa3c061c9abbdcc8473f4146cb59dd997",
       "status": 200,
       "type": "application/json"
     },
@@ -1093,10 +1163,26 @@
       "type": "application/json"
     },
     {
+      "bytes": 3424,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1156} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "53cff496aa1aa6d41c0485162710520c075e2a5241e01491b7db276312a2642c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 7606,
       "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1202} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
       "range": null,
       "sha256": "dd52ee1866c4f07d8963d0bfe9d07e129b78f035b401e316864a10770d67acfb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2689,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":1359} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "1d009fad2fd9cc45672a8ce739fc1939c223f43470ecc5ac674721e18b9347a2",
       "status": 200,
       "type": "application/json"
     },
@@ -1109,6 +1195,30 @@
       "type": "application/json"
     },
     {
+      "bytes": 2250,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":2212} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "8e5d4a73d97bfdd4928bab84542e59743a7081efede9b8882bba63fc4e387836",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1458,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":5844} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "7f226251e7ea8134a8ad02b6ff77e1831a0acb17536f903c9ba3f10da684cb8e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 5618,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":596} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "4744332ad36b00a411baec2a68a5ff2090391172cbc205cd54fe004df43fe62d",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 3055,
       "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":644} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
       "range": null,
@@ -1117,10 +1227,34 @@
       "type": "application/json"
     },
     {
+      "bytes": 9180,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":776} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "3c1604c66c6b98c73170ed5a14a05eb6a403893501e94175b0597c62e1586aae",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 4628,
       "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":878} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
       "range": null,
       "sha256": "2a8371e21d6959d5dcbc5f9e22dee36a6f584030601d0caeba6d51db7eb19c28",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4598,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":888} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "0ce34d9568b20c06bed6c433b9919bbe3ae9280dffd9e2b5e57034c6d32ba92c",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3296,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":974} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": null,
+      "sha256": "9214af96f124bf9717b85d3ba72475d115efd3933c308cb38d71f1e45811f4cb",
       "status": 200,
       "type": "application/json"
     },
@@ -1469,6 +1603,13 @@
       "type": "application/json"
     }
   ],
+  "reviewedFullPublicBody": {
+    "approval": "Explicit user yes to replace this Post-only minimum800character preflight with exact complete public-body digest; unchanged performance thresholds and7samples; no content padding/splicing",
+    "contentSha256": "75e899e0f8cbfb224d3dfa990a81fd7f61443bcc5401125f69dca359e0346d40",
+    "scope": "Only this exact source/identity; all other authored-body assertions unchanged",
+    "slug": "seventh-to-tenth-sefirot-2027",
+    "sourceId": 5116
+  },
   "sourceFacts": {
     "binaryAssets": 40,
     "canonicalGoldenExpressions": 13,
@@ -1502,5 +1643,5 @@
     "worldRootNodes": 26
   },
   "sourceKind": "reviewed public SELECT projections + canonical SQL/math outputs + exact public object/font bytes + controlled fresh-guest storage scenario",
-  "version": 2
+  "version": 3
 }

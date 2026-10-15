@@ -1,0 +1,43 @@
+✔ preserve public source IDs and reviewed display attribution (3.162896ms)
+✔ reject excluded fields or unreviewed attribution: user_id (0.959768ms)
+✔ reject excluded fields or unreviewed attribution: nested (0.197504ms)
+✔ reject excluded fields or unreviewed attribution: authors (0.147609ms)
+✔ reject excluded fields or unreviewed attribution: created_by (0.185246ms)
+✔ reject excluded fields or unreviewed attribution: authors (0.147119ms)
+✔ reject excluded fields or unreviewed attribution: dossier_settings (0.161621ms)
+✔ reject excluded fields or unreviewed attribution: body (0.166728ms)
+✔ reject excluded fields or unreviewed attribution: token (0.186627ms)
+✔ reject excluded fields or unreviewed attribution: refresh_token (0.26248ms)
+✔ reject excluded fields or unreviewed attribution: api_key (0.153118ms)
+✔ review the actual retained corpus before publication (450.801737ms)
+✔ retain all seven approved source fields including real admission flags (0.387036ms)
+✔ reject contributor DTO: unapproved alias (0.997605ms)
+✔ reject contributor DTO: public dossier object (0.429659ms)
+✔ reject contributor DTO: changed trust flag (0.434166ms)
+✔ reject contributor DTO: unknown public-card identity (0.238935ms)
+✔ reproduce all six package files from the retained source index (1442.362111ms)
+✔ the exact complete public5116 source passes without padded text (95.036776ms)
+✔ reviewed full source rejects truncated body (84.274116ms)
+✔ reviewed full source rejects same-length changed body (81.486749ms)
+✔ reviewed full source rejects padded body exceeding the previous length heuristic (78.88746ms)
+✔ reviewed full source rejects wrong source identity (114.580224ms)
+✔ the approved5116 digest does not relax another authored Golden source (77.14719ms)
+✔ structural decoding preserves a representative response byte for byte (0.961872ms)
+✔ performance: structurally valid but semantically incomplete input fails closed (4.599785ms)
+✔ navigation: structurally valid but semantically incomplete input fails closed (1.237391ms)
+✔ browser: structurally valid but semantically incomplete input fails closed (0.876564ms)
+✔ empty and corrupted gzip/base64 input is rejected (1.410018ms)
+✔ hash mismatch is rejected before source metadata is trusted (0.352975ms)
+✔ matching hash alone cannot approve unreviewed or unprovenanced bodies (0.350952ms)
+✔ count/range/profile signatures remain distinct request identities (0.607124ms)
+✔ navigation cannot accept headerless input and browser cannot silently discard headers (1.414335ms)
+✔ UTF8-corrupted image text cannot certify native JPEG width (0.151165ms)
+✔ catalog preflight preserves 2/8/24 ordering, exact totals and full continuation rows (4.297645ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1989.513438
