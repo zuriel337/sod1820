@@ -77,6 +77,15 @@ Required late-arrival, interaction, width and theme coverage was not completed.
 This patch is **NOT_ADOPTED** and is not an integration input. Dispatcher
 COMPLETED means the worker finished; it does not mean the product passed.
 
+A bounded follow-up was then assigned through the same existing transport:
+`CLAUDE_PERF_HOME_STABILITY_V2_20261015`, assignment
+`e96a8635-42cd-44ef-8094-7c0846101905`, fresh branch
+`claude/perf-home-stability-v2-20261015` from exact A1. It must first repair fixture
+and observation validity, attribute an actual Back-time geometry event, then test
+one minimal in-scope Home fix. OldB is excluded. This assignment is distinct from
+a retry of the completed task; no overlapping Home writer remains. Its final
+result and lease state must be checked in the canonical ledger before integration.
+
 ## Read-only preview correction
 
 The existing static preview worker incorrectly rejected the current guest
@@ -109,6 +118,9 @@ World-to-Topic median changes were -28.3ms native (95% interval -225.3..+77.0) a
 -51.4ms integrated (-652.4..+135.4). Neither establishes an improvement. Story
 complete-ready changed 7000.6→7337.2ms (+4.8%, interval -151.7..+1526.8ms);
 Back/story non-regression remains uncertain. Smaller bytes are not time evidence.
+The final true-profile cold-World series also observed5675.3→6094.2ms (+7.4%,
+interval +135.5..+836.4); this is an observed lab regression, with cause unproven,
+and strengthens the decision to leave the experiment out.
 
 Decision: **NOT_ADOPTED**; retain the experiment and corrected evidence on its
 own branch, without more measurement rounds. No Topic product change is present
