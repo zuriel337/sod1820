@@ -1,0 +1,12 @@
+/post/seventh-to-tenth-sefirot-2027 {"frames":287,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":1633,"task":332,"script":49.9,"layout":0,"style":55.3}
+/post/chibur-bein-hasafot-mafteach-lagan {"frames":277,"p50":16.7,"p95":16.8,"max":83.4,"over50":4,"lt":0,"ltSum":0,"y":6000,"task":818.2,"script":60.8,"layout":7,"style":136.5}
+/post/flydubai-fz1073-363-14000-remzei-geula {"frames":287,"p50":16.7,"p95":16.7,"max":50,"over50":0,"lt":0,"ltSum":0,"y":6000,"task":510.9,"script":118.6,"layout":3.2,"style":50.5}
+/post/mah-kore-mokesh-har-naftali {"frames":289,"p50":16.7,"p95":16.8,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":5039,"task":375.3,"script":52,"layout":0,"style":55.3}
+/post/seventh-to-tenth-sefirot-2027 {"frames":287,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":1633,"task":339.2,"script":45.4,"layout":0,"style":54.8}
+/post/chibur-bein-hasafot-mafteach-lagan {"frames":279,"p50":16.7,"p95":16.8,"max":66.7,"over50":3,"lt":0,"ltSum":0,"y":6000,"task":781.9,"script":55.2,"layout":6.4,"style":132.2}
+/post/flydubai-fz1073-363-14000-remzei-geula {"frames":288,"p50":16.7,"p95":16.8,"max":50,"over50":0,"lt":0,"ltSum":0,"y":6000,"task":545.5,"script":114.8,"layout":3.4,"style":58.2}
+/post/mah-kore-mokesh-har-naftali {"frames":289,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":5039,"task":364,"script":47.4,"layout":0,"style":54.9}
+/post/seventh-to-tenth-sefirot-2027 {"frames":288,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":1633,"task":377.5,"script":56.8,"layout":0,"style":65.2}
+/post/chibur-bein-hasafot-mafteach-lagan {"frames":279,"p50":16.7,"p95":16.8,"max":83.4,"over50":4,"lt":0,"ltSum":0,"y":6000,"task":803.8,"script":65.2,"layout":6.9,"style":143.8}
+/post/flydubai-fz1073-363-14000-remzei-geula {"frames":286,"p50":16.7,"p95":16.8,"max":50,"over50":0,"lt":0,"ltSum":0,"y":6000,"task":524.6,"script":113.8,"layout":4.3,"style":57.1}
+/post/mah-kore-mokesh-har-naftali {"frames":290,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":5039,"task":401.8,"script":50.9,"layout":0,"style":62}

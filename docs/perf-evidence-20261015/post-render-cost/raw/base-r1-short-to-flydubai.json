@@ -1,0 +1,254 @@
+{
+ "label": "base-r1-short-to-flydubai",
+ "scen": "back",
+ "a": "/post/seventh-to-tenth-sefirot-2027",
+ "b": "/post/flydubai-fz1073-363-14000-remzei-geula",
+ "runs": 5,
+ "cpu": 4,
+ "med": {
+  "entryReady": 3705.399999999907,
+  "entryCls": 0.00007661682559483599,
+  "entryTbt": 260,
+  "entryTask": 1246.2230000000002,
+  "entryScript": 634.035,
+  "entryLayout": 83.053,
+  "entryReqs": 7,
+  "nav_ready": 1221.1000000000931,
+  "nav_tbt": 116,
+  "nav_ltn": 2,
+  "nav_cls": 0.11157148314057282,
+  "nav_task": 860.4669999999999,
+  "nav_script": 149.71500000000003,
+  "nav_layout": 138.16099999999997,
+  "nav_reqs": 21,
+  "back_ready": 261.39999999990687,
+  "back_tbt": 0,
+  "back_ltn": 0,
+  "back_cls": 0.11101619956994868,
+  "back_task": 267.91900000000004,
+  "back_script": 88.96400000000004,
+  "back_reqs": 5,
+  "misses": 0
+ },
+ "rng": {
+  "entryReady": [
+   3651.600000000093,
+   3709.4000000001397
+  ],
+  "entryCls": [
+   0.00007661682559483599,
+   0.00007661682559483599
+  ],
+  "entryTbt": [
+   235,
+   273
+  ],
+  "entryTask": [
+   1203.516,
+   1300.2160000000001
+  ],
+  "entryScript": [
+   608.194,
+   645.232
+  ],
+  "entryLayout": [
+   77.402,
+   84.577
+  ],
+  "entryReqs": [
+   7,
+   7
+  ],
+  "nav_ready": [
+   1195.2000000001863,
+   1247.1999999999534
+  ],
+  "nav_tbt": [
+   102,
+   145
+  ],
+  "nav_ltn": [
+   2,
+   3
+  ],
+  "nav_cls": [
+   0.1115471469609343,
+   0.11159466183381339
+  ],
+  "nav_task": [
+   809.477,
+   928.4639999999999
+  ],
+  "nav_script": [
+   134.00199999999995,
+   185.60599999999994
+  ],
+  "nav_layout": [
+   120.41300000000001,
+   150.28200000000004
+  ],
+  "nav_reqs": [
+   21,
+   21
+  ],
+  "back_ready": [
+   255.9000000001397,
+   303.60000000009313
+  ],
+  "back_tbt": [
+   0,
+   30
+  ],
+  "back_ltn": [
+   0,
+   1
+  ],
+  "back_cls": [
+   0.11101619141467525,
+   0.11101810959123512
+  ],
+  "back_task": [
+   242.38600000000022,
+   325.167
+  ],
+  "back_script": [
+   85.63200000000005,
+   125.02500000000005
+  ],
+  "back_reqs": [
+   5,
+   5
+  ],
+  "misses": [
+   0,
+   0
+  ]
+ },
+ "raw": [
+  {
+   "entryReady": 3699.8000000000466,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 273,
+   "entryTask": 1300.2160000000001,
+   "entryScript": 645.232,
+   "entryLayout": 84.11200000000001,
+   "entryReqs": 7,
+   "nav_ready": 1207.0999999998603,
+   "nav_tbt": 102,
+   "nav_ltn": 2,
+   "nav_cls": 0.11157148314057282,
+   "nav_task": 822.8540000000002,
+   "nav_script": 134.00199999999995,
+   "nav_layout": 138.16099999999997,
+   "nav_reqs": 21,
+   "back_ready": 255.9000000001397,
+   "back_tbt": 0,
+   "back_ltn": 0,
+   "back_cls": 0.11101810959123512,
+   "back_task": 242.38600000000022,
+   "back_script": 86.36600000000006,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3705.399999999907,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 260,
+   "entryTask": 1246.2230000000002,
+   "entryScript": 635.479,
+   "entryLayout": 77.402,
+   "entryReqs": 7,
+   "nav_ready": 1221.1000000000931,
+   "nav_tbt": 110,
+   "nav_ltn": 2,
+   "nav_cls": 0.11158327904058456,
+   "nav_task": 860.4669999999999,
+   "nav_script": 154.49199999999996,
+   "nav_layout": 130.402,
+   "nav_reqs": 21,
+   "back_ready": 303.60000000009313,
+   "back_tbt": 30,
+   "back_ltn": 1,
+   "back_cls": 0.11101620041359767,
+   "back_task": 325.167,
+   "back_script": 125.02500000000005,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3705.9000000001397,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 255,
+   "entryTask": 1242.23,
+   "entryScript": 634.035,
+   "entryLayout": 83.053,
+   "entryReqs": 7,
+   "nav_ready": 1247.1999999999534,
+   "nav_tbt": 145,
+   "nav_ltn": 2,
+   "nav_cls": 0.1115655112306732,
+   "nav_task": 928.4639999999999,
+   "nav_script": 185.60599999999994,
+   "nav_layout": 146.868,
+   "nav_reqs": 21,
+   "back_ready": 261.39999999990687,
+   "back_tbt": 0,
+   "back_ltn": 0,
+   "back_cls": 0.11101619141467525,
+   "back_task": 263.1429999999999,
+   "back_script": 88.96400000000004,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3651.600000000093,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 235,
+   "entryTask": 1203.516,
+   "entryScript": 608.194,
+   "entryLayout": 81.827,
+   "entryReqs": 7,
+   "nav_ready": 1236.5,
+   "nav_tbt": 132,
+   "nav_ltn": 3,
+   "nav_cls": 0.11159466183381339,
+   "nav_task": 914.6350000000001,
+   "nav_script": 140.447,
+   "nav_layout": 150.28200000000004,
+   "nav_reqs": 21,
+   "back_ready": 258.5,
+   "back_tbt": 0,
+   "back_ltn": 0,
+   "back_cls": 0.11101619422683849,
+   "back_task": 267.91900000000004,
+   "back_script": 85.63200000000005,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3709.4000000001397,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 268,
+   "entryTask": 1276.1370000000002,
+   "entryScript": 632.574,
+   "entryLayout": 84.577,
+   "entryReqs": 7,
+   "nav_ready": 1195.2000000001863,
+   "nav_tbt": 116,
+   "nav_ltn": 2,
+   "nav_cls": 0.1115471469609343,
+   "nav_task": 809.477,
+   "nav_script": 149.71500000000003,
+   "nav_layout": 120.41300000000001,
+   "nav_reqs": 21,
+   "back_ready": 278.39999999990687,
+   "back_tbt": 17,
+   "back_ltn": 1,
+   "back_cls": 0.11101619956994868,
+   "back_task": 280.354,
+   "back_script": 97.84599999999999,
+   "back_reqs": 5,
+   "misses": 0
+  }
+ ]
+}

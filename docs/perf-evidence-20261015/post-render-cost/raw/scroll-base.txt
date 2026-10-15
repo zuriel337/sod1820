@@ -1,0 +1,12 @@
+/post/seventh-to-tenth-sefirot-2027 {"frames":287,"p50":16.7,"p95":16.8,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":1633,"task":381.1,"script":51,"layout":0,"style":65.4}
+/post/chibur-bein-hasafot-mafteach-lagan {"frames":282,"p50":16.7,"p95":16.8,"max":83.4,"over50":4,"lt":0,"ltSum":0,"y":6000,"task":1135.3,"script":68.3,"layout":7.8,"style":406.2}
+/post/flydubai-fz1073-363-14000-remzei-geula {"frames":288,"p50":16.7,"p95":16.7,"max":50,"over50":0,"lt":0,"ltSum":0,"y":6000,"task":589.2,"script":122.6,"layout":4.7,"style":69.8}
+/post/mah-kore-mokesh-har-naftali {"frames":289,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":5039,"task":393.2,"script":54.4,"layout":0,"style":60.9}
+/post/seventh-to-tenth-sefirot-2027 {"frames":288,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":1633,"task":393.8,"script":54.5,"layout":0,"style":72.2}
+/post/chibur-bein-hasafot-mafteach-lagan {"frames":279,"p50":16.7,"p95":16.8,"max":83.4,"over50":3,"lt":0,"ltSum":0,"y":6000,"task":1172.2,"script":86.5,"layout":6.4,"style":411.5}
+/post/flydubai-fz1073-363-14000-remzei-geula {"frames":287,"p50":16.7,"p95":16.7,"max":50.1,"over50":1,"lt":0,"ltSum":0,"y":6000,"task":549.7,"script":121.7,"layout":3.9,"style":66}
+/post/mah-kore-mokesh-har-naftali {"frames":289,"p50":16.7,"p95":16.8,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":5039,"task":376.4,"script":53,"layout":0,"style":62.1}
+/post/seventh-to-tenth-sefirot-2027 {"frames":287,"p50":16.7,"p95":16.8,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":1633,"task":382.9,"script":50.7,"layout":0,"style":67.4}
+/post/chibur-bein-hasafot-mafteach-lagan {"frames":279,"p50":16.7,"p95":16.8,"max":83.3,"over50":4,"lt":0,"ltSum":0,"y":6000,"task":1262.5,"script":91.4,"layout":7.9,"style":430.4}
+/post/flydubai-fz1073-363-14000-remzei-geula {"frames":288,"p50":16.7,"p95":16.7,"max":33.3,"over50":0,"lt":0,"ltSum":0,"y":6000,"task":553.3,"script":134.9,"layout":4.1,"style":66.4}
+/post/mah-kore-mokesh-har-naftali {"frames":289,"p50":16.7,"p95":16.7,"max":16.8,"over50":0,"lt":0,"ltSum":0,"y":5039,"task":377.3,"script":47.7,"layout":0,"style":63.9}

@@ -1,0 +1,103 @@
+{
+ "label": "base-r3-entry-rich",
+ "scen": "entry",
+ "a": "/post/chibur-bein-hasafot-mafteach-lagan",
+ "runs": 5,
+ "cpu": 4,
+ "med": {
+  "entryReady": 3755.7999999998137,
+  "entryCls": 0.01775195381004297,
+  "entryTbt": 332,
+  "entryTask": 1475.247,
+  "entryScript": 633.2130000000001,
+  "entryLayout": 153.215,
+  "entryReqs": 7,
+  "misses": 0
+ },
+ "rng": {
+  "entryReady": [
+   3682.399999999907,
+   3997.2999999998137
+  ],
+  "entryCls": [
+   0.01775195381004297,
+   0.01775195381004297
+  ],
+  "entryTbt": [
+   309,
+   504
+  ],
+  "entryTask": [
+   1433.213,
+   1832.3370000000002
+  ],
+  "entryScript": [
+   558.552,
+   812.024
+  ],
+  "entryLayout": [
+   131.663,
+   204.505
+  ],
+  "entryReqs": [
+   7,
+   7
+  ],
+  "misses": [
+   0,
+   0
+  ]
+ },
+ "raw": [
+  {
+   "entryReady": 3755.7999999998137,
+   "entryCls": 0.01775195381004297,
+   "entryTbt": 327,
+   "entryTask": 1433.213,
+   "entryScript": 631.5690000000001,
+   "entryLayout": 131.663,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3844.399999999907,
+   "entryCls": 0.01775195381004297,
+   "entryTbt": 360,
+   "entryTask": 1475.247,
+   "entryScript": 644.4689999999999,
+   "entryLayout": 162.804,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3997.2999999998137,
+   "entryCls": 0.01775195381004297,
+   "entryTbt": 504,
+   "entryTask": 1832.3370000000002,
+   "entryScript": 812.024,
+   "entryLayout": 204.505,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3747.399999999907,
+   "entryCls": 0.01775195381004297,
+   "entryTbt": 332,
+   "entryTask": 1492.357,
+   "entryScript": 633.2130000000001,
+   "entryLayout": 153.215,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3682.399999999907,
+   "entryCls": 0.01775195381004297,
+   "entryTbt": 309,
+   "entryTask": 1463.793,
+   "entryScript": 558.552,
+   "entryLayout": 145.97199999999998,
+   "entryReqs": 7,
+   "misses": 0
+  }
+ ]
+}

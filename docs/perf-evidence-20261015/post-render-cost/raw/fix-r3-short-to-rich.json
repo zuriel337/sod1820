@@ -1,0 +1,254 @@
+{
+ "label": "fix-r3-short-to-rich",
+ "scen": "back",
+ "a": "/post/seventh-to-tenth-sefirot-2027",
+ "b": "/post/chibur-bein-hasafot-mafteach-lagan",
+ "runs": 5,
+ "cpu": 4,
+ "med": {
+  "entryReady": 3722.399999999907,
+  "entryCls": 0.00007661682559483599,
+  "entryTbt": 285,
+  "entryTask": 1281.647,
+  "entryScript": 634.9240000000001,
+  "entryLayout": 84.413,
+  "entryReqs": 7,
+  "nav_ready": 352.8000000002794,
+  "nav_tbt": 128,
+  "nav_ltn": 3,
+  "nav_cls": 0.44358857277369174,
+  "nav_task": 500.2059999999999,
+  "nav_script": 104.201,
+  "nav_layout": 104.35900000000001,
+  "nav_reqs": 5,
+  "back_ready": 267.6999999997206,
+  "back_tbt": 5,
+  "back_ltn": 1,
+  "back_cls": 0.11101620322576089,
+  "back_task": 465.9709999999999,
+  "back_script": 80.93700000000004,
+  "back_reqs": 5,
+  "misses": 0
+ },
+ "rng": {
+  "entryReady": [
+   3640.5,
+   3738.899999999907
+  ],
+  "entryCls": [
+   0.00007661682559483599,
+   0.00007661682559483599
+  ],
+  "entryTbt": [
+   241,
+   293
+  ],
+  "entryTask": [
+   1184.7,
+   1323.6399999999999
+  ],
+  "entryScript": [
+   589.951,
+   659.8629999999999
+  ],
+  "entryLayout": [
+   77.965,
+   90.16399999999999
+  ],
+  "entryReqs": [
+   7,
+   7
+  ],
+  "nav_ready": [
+   329.6999999997206,
+   475.39999999990687
+  ],
+  "nav_tbt": [
+   89,
+   218
+  ],
+  "nav_ltn": [
+   3,
+   3
+  ],
+  "nav_cls": [
+   0.44358734582686127,
+   0.4435885792416672
+  ],
+  "nav_task": [
+   456.987,
+   672.8999999999999
+  ],
+  "nav_script": [
+   98.76099999999998,
+   168.63799999999995
+  ],
+  "nav_layout": [
+   90.66700000000002,
+   140.882
+  ],
+  "nav_reqs": [
+   5,
+   5
+  ],
+  "back_ready": [
+   254.39999999990687,
+   298
+  ],
+  "back_tbt": [
+   0,
+   7
+  ],
+  "back_ltn": [
+   0,
+   2
+  ],
+  "back_cls": [
+   0.11101619028981002,
+   0.11101810565420656
+  ],
+  "back_task": [
+   423.35099999999983,
+   615.1649999999997
+  ],
+  "back_script": [
+   69.334,
+   99.76299999999993
+  ],
+  "back_reqs": [
+   5,
+   5
+  ],
+  "misses": [
+   0,
+   0
+  ]
+ },
+ "raw": [
+  {
+   "entryReady": 3727.2999999998137,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 265,
+   "entryTask": 1208.1109999999999,
+   "entryScript": 630.161,
+   "entryLayout": 89.725,
+   "entryReqs": 7,
+   "nav_ready": 381.1999999997206,
+   "nav_tbt": 128,
+   "nav_ltn": 3,
+   "nav_cls": 0.44358857277369174,
+   "nav_task": 514.7280000000001,
+   "nav_script": 121.50800000000007,
+   "nav_layout": 112.43,
+   "nav_reqs": 5,
+   "back_ready": 298,
+   "back_tbt": 6,
+   "back_ltn": 2,
+   "back_cls": 0.11101619028981002,
+   "back_task": 615.1649999999997,
+   "back_script": 99.76299999999993,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3640.5,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 241,
+   "entryTask": 1184.7,
+   "entryScript": 589.951,
+   "entryLayout": 77.965,
+   "entryReqs": 7,
+   "nav_ready": 352.8000000002794,
+   "nav_tbt": 133,
+   "nav_ltn": 3,
+   "nav_cls": 0.4435885792416672,
+   "nav_task": 500.2059999999999,
+   "nav_script": 104.201,
+   "nav_layout": 104.35900000000001,
+   "nav_reqs": 5,
+   "back_ready": 277.6999999997206,
+   "back_tbt": 7,
+   "back_ltn": 1,
+   "back_cls": 0.11101809890501468,
+   "back_task": 423.35099999999983,
+   "back_script": 77.88300000000004,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3722.399999999907,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 293,
+   "entryTask": 1304.4389999999999,
+   "entryScript": 659.8629999999999,
+   "entryLayout": 84.413,
+   "entryReqs": 7,
+   "nav_ready": 337.1999999997206,
+   "nav_tbt": 89,
+   "nav_ltn": 3,
+   "nav_cls": 0.44358734582686127,
+   "nav_task": 489.398,
+   "nav_script": 103.39900000000002,
+   "nav_layout": 90.66700000000002,
+   "nav_reqs": 5,
+   "back_ready": 254.39999999990687,
+   "back_tbt": 0,
+   "back_ltn": 0,
+   "back_cls": 0.11101810565420656,
+   "back_task": 445.8949999999999,
+   "back_script": 69.334,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3738.899999999907,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 292,
+   "entryTask": 1281.647,
+   "entryScript": 651.081,
+   "entryLayout": 83.18599999999999,
+   "entryReqs": 7,
+   "nav_ready": 475.39999999990687,
+   "nav_tbt": 218,
+   "nav_ltn": 3,
+   "nav_cls": 0.4435885781168019,
+   "nav_task": 672.8999999999999,
+   "nav_script": 168.63799999999995,
+   "nav_layout": 140.882,
+   "nav_reqs": 5,
+   "back_ready": 259.90000000037253,
+   "back_tbt": 0,
+   "back_ltn": 0,
+   "back_cls": 0.1110161981638671,
+   "back_task": 465.9709999999999,
+   "back_script": 80.93700000000004,
+   "back_reqs": 5,
+   "misses": 0
+  },
+  {
+   "entryReady": 3721.399999999907,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 285,
+   "entryTask": 1323.6399999999999,
+   "entryScript": 634.9240000000001,
+   "entryLayout": 90.16399999999999,
+   "entryReqs": 7,
+   "nav_ready": 329.6999999997206,
+   "nav_tbt": 92,
+   "nav_ltn": 3,
+   "nav_cls": 0.44358734582686127,
+   "nav_task": 456.987,
+   "nav_script": 98.76099999999998,
+   "nav_layout": 93.60799999999999,
+   "nav_reqs": 5,
+   "back_ready": 267.6999999997206,
+   "back_tbt": 5,
+   "back_ltn": 1,
+   "back_cls": 0.11101620322576089,
+   "back_task": 477.5180000000001,
+   "back_script": 83.87,
+   "back_reqs": 5,
+   "misses": 0
+  }
+ ]
+}

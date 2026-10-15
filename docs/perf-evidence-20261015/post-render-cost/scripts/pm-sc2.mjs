@@ -1,0 +1,12 @@
+import { createRequire } from 'node:module'; import fs from 'node:fs'; import zlib from 'node:zlib';
+import { serve } from '/tmp/claude-0/pr/scripts/perf/serve.mjs';
+const require = createRequire('/opt/node-tools/node_modules/'); const { chromium } = require('playwright');
+const [dist, fixf, a] = process.argv.slice(2);
+const norm = u => decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(Z|\+00:00| ?00:00)?/g, 'TS');
+const fixtures = JSON.parse(zlib.gunzipSync(fs.readFileSync(fixf))); const { srv, port } = await serve(dist); const origin = `http://127.0.0.1:${port}`;
+const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox'] });
+const pg = await (await br.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })).newPage();
+await pg.route('**/*', async r => { const q = r.request(), u = q.url(); if (u.startsWith(origin)) return r.continue(); if (u.includes('.supabase.co')) { if (q.method() !== 'GET') return r.fulfill({ status: 204, body: '' }); const f = fixtures[norm(u)]; return r.fulfill({ status: f ? f.status : 200, body: f ? f.body : '[]', headers: { 'content-type': f?.ct || 'application/json', 'access-control-allow-origin': '*', 'access-control-expose-headers': 'content-range', ...(f?.cr ? { 'content-range': f.cr } : {}) } }); } return r.fulfill({ status: 200, body: '' }); });
+await pg.goto(origin + a, { waitUntil: 'load' }); await pg.waitForTimeout(5000);
+console.log(JSON.stringify(await pg.evaluate(() => ({ docScroll: document.scrollingElement.scrollHeight, inner: innerHeight, bodyOverflow: getComputedStyle(document.body).overflowY, htmlOverflow: getComputedStyle(document.documentElement).overflowY, scrollers: [...document.querySelectorAll('*')].filter(e => e.scrollHeight > e.clientHeight + 50 && /auto|scroll/.test(getComputedStyle(e).overflowY)).map(e => e.tagName + '.' + String(e.className).slice(0, 40) + ' ' + e.scrollHeight + '/' + e.clientHeight).slice(0, 5) }))));
+await br.close(); srv.close();

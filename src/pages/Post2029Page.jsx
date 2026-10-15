@@ -11,6 +11,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { logView, logActivity } from "../lib/supabase.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
+import { pauseOffscreenAnimations } from "../lib/pauseOffscreenAnimations2029.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
@@ -279,6 +280,12 @@ function PostReadingBody() {
       for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) window.removeEventListener(event, resumeReading);
     };
   }, [state.projection, regions, location.hash]);
+
+  useEffect(() => {
+    // Authored infinite CSS animations (a few widgets in the post body) pause while off-screen and resume in view.
+    if (!state.projection) return undefined;
+    return pauseOffscreenAnimations(sourceRef.current);
+  }, [state.projection]);
 
   useEffect(() => {
     // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions

@@ -1,0 +1,103 @@
+{
+ "label": "fix-r3-entry-short",
+ "scen": "entry",
+ "a": "/post/seventh-to-tenth-sefirot-2027",
+ "runs": 5,
+ "cpu": 4,
+ "med": {
+  "entryReady": 3685.7999999998137,
+  "entryCls": 0.00007661682559483599,
+  "entryTbt": 241,
+  "entryTask": 1271.1650000000002,
+  "entryScript": 618.7810000000001,
+  "entryLayout": 85.43100000000001,
+  "entryReqs": 7,
+  "misses": 0
+ },
+ "rng": {
+  "entryReady": [
+   3657.8000000002794,
+   3723.5
+  ],
+  "entryCls": [
+   0.00007661682559483599,
+   0.00007661682559483599
+  ],
+  "entryTbt": [
+   224,
+   290
+  ],
+  "entryTask": [
+   1130.51,
+   1347.083
+  ],
+  "entryScript": [
+   585.404,
+   683.475
+  ],
+  "entryLayout": [
+   77.504,
+   90.578
+  ],
+  "entryReqs": [
+   7,
+   7
+  ],
+  "misses": [
+   0,
+   0
+  ]
+ },
+ "raw": [
+  {
+   "entryReady": 3673.1999999997206,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 224,
+   "entryTask": 1130.51,
+   "entryScript": 585.404,
+   "entryLayout": 77.504,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3722.3000000002794,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 290,
+   "entryTask": 1279.142,
+   "entryScript": 650.741,
+   "entryLayout": 87.32600000000001,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3657.8000000002794,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 239,
+   "entryTask": 1271.1650000000002,
+   "entryScript": 618.7810000000001,
+   "entryLayout": 90.578,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3685.7999999998137,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 241,
+   "entryTask": 1257.916,
+   "entryScript": 613.8900000000001,
+   "entryLayout": 85.43100000000001,
+   "entryReqs": 7,
+   "misses": 0
+  },
+  {
+   "entryReady": 3723.5,
+   "entryCls": 0.00007661682559483599,
+   "entryTbt": 280,
+   "entryTask": 1347.083,
+   "entryScript": 683.475,
+   "entryLayout": 80.29799999999999,
+   "entryReqs": 7,
+   "misses": 0
+  }
+ ]
+}
