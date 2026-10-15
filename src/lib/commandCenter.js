@@ -38,7 +38,10 @@ export async function myContributions(limit = 50) {
 // 🔔 מנוע-המשפך (subscription_funnel_law) — Follow/Unfollow אחיד עם source. append-only + no-dup בשרת.
 export async function watchToggle(topic, source, on, visitorId = null) {
   if (!supabase || !topic) return null;
-  try { const { data } = await supabase.rpc("watch_toggle", { p_topic: topic, p_source: source || null, p_on: !!on, p_visitor: visitorId }); return data || null; }
+  try {
+    const { data, error } = await supabase.rpc("watch_toggle", { p_topic: topic, p_source: source || null, p_on: !!on, p_visitor: visitorId });
+    return !error && data?.following === !!on ? data : null;
+  }
   catch { return null; }
 }
 

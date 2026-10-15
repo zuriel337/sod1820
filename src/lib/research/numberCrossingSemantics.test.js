@@ -66,6 +66,8 @@ test('drawer/page parity: hidden slot is fed only by hiddenCrossings, cross-meth
   assert.match(core, /const stageCrossings = Array\.isArray\(hiddenCrossings\)/);
   assert.match(core, /number-cross-method-intersection/);
   assert.match(core, /מפגש בין שיטות/);
-  assert.match(drawer, /hiddenCrossings=\{hiddenCrossState\.rows\}/);
+  assert.match(drawer, /hiddenCrossings=\{verifiedCrossings\}/);
+  assert.match(drawer, /hiddenCrossState\.expression === clean\(expression\)/);
+  assert.match(drawer, /onCrossingFocusChange=/);
   assert.match(page, /hiddenCrossings=\{hiddenCrossState\.rows\}/);
 });

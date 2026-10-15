@@ -16,13 +16,15 @@ import EmailVerify from "./EmailVerify.jsx";
 // (7) מצב gate לתחתית-תוכן. אין רכיב-מעקב אחר.
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
+//   ui2029: הצגה אופט-אין למשטחי 2029 — טקסט קריא 16px ויעדי-לחיצה 44px, ללא שינוי התנהגות (הפלטה באה מה-PaletteProvider של המשטח).
 //   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null }) {
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null, ui2029 = false }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [followError, setFollowError] = useState("");
   const [justFollowed, setJustFollowed] = useState(false);
   const [showReg, setShowReg] = useState(false);
   const [pushOn, setPushOn] = useState(false);
@@ -45,13 +47,15 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   async function toggle() {
     if (!topic || busy) return;
     setBusy(true);
+    setFollowError("");
     const next = !following;
     setFollowing(next);
     try {
-      await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
+      const result = await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
+      if (result?.following !== next) throw new Error("follow-not-saved");
       if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
       else setJustFollowed(false);
-    } catch { setFollowing(!next); }
+    } catch { setFollowing(!next); setFollowError("השינוי במעקב לא נשמר. אפשר לנסות שוב."); }
     finally { setBusy(false); }
   }
 
@@ -91,8 +95,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const outline = following || ghost;
   const btn = {
     cursor: busy ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-    minHeight: 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
-    fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap",
+    minHeight: ui2029 ? 44 : 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
+    fontFamily: F.heading, fontSize: ui2029 ? 16 : 13.5, fontWeight: 800, whiteSpace: "nowrap",
     border: `1px solid ${outline ? P.accent : "transparent"}`,
     background: following ? soft : (ghost ? "transparent" : P.accentBtn),
     color: outline ? gold : (P.onAccent || "#1a0e00"),
@@ -134,8 +138,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     <div style={{ marginTop: 11, background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 12, padding: "12px 14px", textAlign: gate ? "center" : "start" }}>
       {!showReg ? (
         <>
-          <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
+          <div style={{ color: gold, fontFamily: F.heading, fontSize: ui2029 ? 16 : 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
+          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: ui2029 ? 16 : 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
           <button onClick={() => setShowReg(true)} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
         </>
       ) : (
@@ -149,18 +153,19 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     return (
       <div style={{ marginTop: 30, paddingTop: 22, borderTop: `1px solid ${P.border}`, textAlign: "center", direction: "rtl" }}>
         <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "18px 18px", maxWidth: 460, margin: "0 auto" }}>
+          {followError && <div role="alert" style={{ color: P.ink, fontSize: ui2029 ? 16 : 13, marginBottom: 10 }}>{followError}</div>}
           {!following ? (
             <>
-              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
-              {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
+              <div style={{ color: gold, fontFamily: F.regal, fontSize: ui2029 ? 18 : 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
+              {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: ui2029 ? 16 : 13, marginBottom: 12 }}>{explainer}</div>}
               <button onClick={toggle} disabled={busy} style={btn}>{icon} {label}</button>
             </>
           ) : (
             <>
-              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
+              <div style={{ color: gold, fontFamily: F.regal, fontSize: ui2029 ? 18 : 16, fontWeight: 800 }}>✓ אתה במעקב</div>
+              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: ui2029 ? 16 : 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
               <div style={{ marginTop: 8 }}>
-                <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
+                <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: ui2029 ? 16 : 12 }}>ביטול מעקב</button>
               </div>
               {regCta}{pushOffer}{pushDone}
             </>
