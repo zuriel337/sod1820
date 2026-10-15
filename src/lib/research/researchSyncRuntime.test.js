@@ -238,3 +238,42 @@ test('an existing guest principal context key always wins over the legacy key',(
   assert.equal(session.getItem(LEGACY_CONTEXT_SESSION_KEY),JSON.stringify(legacy));
   f.runtime.stop();
 });
+
+const ctxOp=id=>op('context_set',{context:{subject:{id:'p',type:'post'},selection:{entityId:id}}});
+test('passive context updates coalesce into one unsent batch and keep the saved state intact',async()=>{
+  const f=await ready(setup());add(f.runtime,'kept');
+  for(let i=0;i<5;i++)assert.equal(f.runtime.commit([ctxOp(`r${i}`)]),true);
+  const pending=f.runtime.exportPending();
+  assert.equal(pending.queue.length,2);                         // item batch + ONE context batch
+  assert.equal(pending.queue[1].ops[0].context.selection.entityId,'r4');
+  assert.equal(f.runtime.getSnapshot().saved[0].id,'kept');
+  assert.equal(f.session.getItem(principalContextKey(f.runtime.principal)).includes('r4'),true);
+  // a crashed tab recovers the same saved items and the latest context from the journal
+  f.runtime.stop();
+  const again=setup({uid:'A',storage:f.storage,session:f.session,server:f.server});
+  assert.equal(again.runtime.exportPending().queue.length,2);again.runtime.stop();
+});
+test('a context batch already in flight is never rewritten; later context starts a new batch',async()=>{
+  const f=await ready(setup());f.server.gate=deferred();
+  f.runtime.commit([ctxOp('first')]);const sending=f.runtime.flush();await tick();
+  assert.equal(f.runtime.exportPending().inflight.ops[0].context.selection.entityId,'first');
+  f.runtime.commit([ctxOp('second')]);f.runtime.commit([ctxOp('third')]);
+  const p=f.runtime.exportPending();
+  assert.equal(p.queue.length,2);assert.equal(p.queue[0].ops[0].context.selection.entityId,'first');
+  assert.equal(p.queue[1].ops[0].context.selection.entityId,'third');
+  f.server.gate.resolve();await sending;f.runtime.stop();
+});
+test('a non-context operation after a context batch is never merged into it',async()=>{
+  const f=await ready(setup());
+  f.runtime.commit([ctxOp('a')]);add(f.runtime,'x');f.runtime.commit([ctxOp('b')]);
+  const q=f.runtime.exportPending().queue;
+  assert.deepEqual(q.map(b=>b.ops[0].kind),['context_set','item_upsert','context_set']);f.runtime.stop();
+});
+test('context-only commits do not rewrite the state blob; state commits still do',async()=>{
+  const f=await ready(setup());const key=principalStateKey(f.runtime.principal);add(f.runtime,'one');
+  const blob=f.storage.getItem(key);let writes=0;const set=f.storage.setItem.bind(f.storage);
+  f.storage.setItem=(k,v)=>{if(k===key)writes++;set(k,v);};
+  f.runtime.commit([ctxOp('r1')]);f.runtime.commit([ctxOp('r2')]);
+  assert.equal(writes,0);assert.equal(f.storage.getItem(key),blob);
+  add(f.runtime,'two');assert.equal(writes,1);assert.equal(JSON.parse(f.storage.getItem(key)).state.saved.length,2);f.runtime.stop();
+});

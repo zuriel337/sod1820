@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { RUNTIME_SWITCHES_2029, RUNTIME_SWITCH_COSTS_2029, readRuntimeSwitches, setRuntimeSwitch } from "../lib/runtimeSwitches2029.js";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
 
 const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -51,6 +52,83 @@ function SpanRow({ span }) {
       <span className="sod29-chip">{certainty(effectiveCertainty)}</span>
     </div>
   </div>;
+}
+
+
+const PAGE_LABEL = { home: "בית", world: "עולם", code: "צפנים", number: "מספר", all: "כל עמוד" };
+// "מה זה לוקח": per page load, measured by switching the function off and diffing the real requests (see the report).
+function costLine(cost) {
+  if (!cost) return "עלות: לא נמדדה (פונקציה שנפתחת לפי בקשה)";
+  const parts = Object.entries(cost).filter(([page]) => page !== "measuredAt" && page !== "note")
+    .map(([page, c]) => `${PAGE_LABEL[page] || page}: ${c.n} בקשות · ${c.kb}KB · ${c.ms}ms שרת`);
+  return parts.length ? `עלות בטעינה — ${parts.join(" | ")}` : "עלות: אפסית בעמודים שנמדדו";
+}
+
+// Which measurement tags THIS build was compiled with (build-time env; public identifiers). Read-only diagnostic.
+function MeasurementStatus() {
+  const env = import.meta.env;
+  const rows = [
+    ["Google Analytics 4", env.VITE_GA_ID || null, "VITE_GA_ID — נקבע בזמן הבנייה; בלי ערך התג לא נטען בכלל"],
+    ["Google Ads", env.VITE_GOOGLE_ADS_ID || null, "VITE_GOOGLE_ADS_ID"],
+    ["Meta Pixel", env.VITE_META_PIXEL_ID || null, "VITE_META_PIXEL_ID"],
+    ["Microsoft Clarity", "לא נטען ב־2029", "הקוד של 2029 אינו מפעיל Clarity (ב־Legacy הוא מופעל)"],
+  ];
+  return <section className="sod29-section" aria-label="מדידה בבנייה הזו">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">MEASUREMENT</div><h2>מזהי מדידה בבנייה הזו</h2>
+      <div className="sod29-muted">אם הערך ריק כאן, הפריסה הזו נבנתה בלי המשתנה (למשל פריסת Preview שקודמה לפרודקשן) ואין איסוף. כדי לאמת שני מזהים — הפעל ובדוק את הערך בכל פריסה.</div></div></div>
+    <div className="sod29-list">{rows.map(([label, value, note]) => <div className="sod29-row" key={label}>
+      <div><strong>{label}</strong><small>{note}</small></div>
+      <span className="sod29-chip">{value || "לא מוגדר"}</span>
+    </div>)}</div>
+  </section>;
+}
+
+// Existing site_flags controls: capability switches stop work; optimization switches choose an execution path.
+// Neither kind changes authorization or consent.
+function RuntimeSwitches() {
+  const [state, setState] = useState({ loading: true, map: {}, busy: null, error: null });
+  useEffect(() => {
+    let alive = true;
+    readRuntimeSwitches({ fresh: true }).then(map => alive && setState({ loading: false, map, busy: null, error: null }));
+    return () => { alive = false; };
+  }, []);
+  const toggle = async (key, on) => {
+    setState(current => ({ ...current, busy: key, error: null }));
+    try {
+      const map = await setRuntimeSwitch(key, on);
+      setState({ loading: false, map, busy: null, error: null });
+    } catch (error) {
+      setState(current => ({ ...current, busy: null, unverified: error?.code === "RUNTIME_SWITCH_STATE_UNVERIFIED" ? key : current.unverified, error: String(error?.message || error) }));
+    }
+  };
+  return <section className="sod29-section" aria-label="מתגי פונקציות">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">RUNTIME SWITCHES</div><h2>מתגי פונקציות</h2>
+      <div className="sod29-muted">מתגי פונקציות עוצרים את העבודה המתוארת לידם. מתגי האצה מחליפים את דרך הביצוע ושומרים את התוכן. אחרי שינוי רענן את המסך הנבדק; לשוניות אחרות מתעדכנות בקריאה חדשה של ההגדרות. שמירת משתמש, הרשאות והסכמה אינם משתנים.</div></div></div>
+    {state.error ? <FrameState kind="error" title="לא ניתן לשנות מתג">{state.error}</FrameState> : null}
+    {RUNTIME_SWITCHES_2029.reduce((groups, entry) => {
+      const last = groups[groups.length - 1];
+      if (last && last.group === entry.group) last.items.push(entry); else groups.push({ group: entry.group, items: [entry] });
+      return groups;
+    }, []).map(({ group, items }) => <div key={group}>
+      <div className="sod29-kicker">{group}</div>
+      <div className="sod29-list">
+        {items.map(entry => {
+          const on = state.map[entry.key] ?? entry.defaultOn ?? true;
+          const unverified = state.unverified === entry.key;
+          const cost = RUNTIME_SWITCH_COSTS_2029[entry.key];
+          return <div className="sod29-row" key={entry.key}>
+            <div><strong>{entry.label}</strong><small>{entry.note} · {entry.key}</small>
+              <small>{costLine(cost)}</small></div>
+            <div className="sod29-actions">
+              <span className="sod29-chip">{state.loading ? "טוען" : unverified ? "מצב לא מאומת" : entry.mode === "optimization" ? (on ? "האצה פעילה" : "מימוש קיים") : on ? "פעיל" : entry.mode === "freeze" ? "מוקפא" : "כבוי"}</span>
+              <button type="button" className="sod29-action" disabled={state.loading || state.busy !== null || (Boolean(state.unverified) && !unverified)}
+                aria-pressed={unverified ? "mixed" : on} onClick={() => toggle(entry.key, unverified ? false : !on)}>{unverified ? (entry.mode === "optimization" ? "חזור למימוש הקיים" : "כבה") : entry.mode === "optimization" ? (on ? "חזור למימוש הקיים" : "הפעל האצה") : on ? (entry.mode === "freeze" ? "הקפא" : "כבה") : "הדלק"}</button>
+            </div>
+          </div>;
+        })}
+      </div>
+    </div>)}
+  </section>;
 }
 
 export default function ControlPlane2029Page() {
@@ -115,7 +193,7 @@ export default function ControlPlane2029Page() {
     eyebrow="ניהול"
     description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
     status="ADMIN · READ ONLY"
-    surface="admin"
+    surface="world"
     symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
@@ -230,6 +308,10 @@ export default function ControlPlane2029Page() {
         <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
     </section>
+
+    <RuntimeSwitches />
+
+    <MeasurementStatus />
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>

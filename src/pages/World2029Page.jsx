@@ -1,11 +1,10 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
-import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
 import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -22,7 +21,8 @@ import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { fetchEntityHubProjection, resolveEntityHubNode, fetchGallerySourceContext, fetchResearchSourceOccurrences, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { resolveWorldRelationIdentity } from "../lib/research/worldRelationIdentity2029.js";
 import { REVIEWED_SOURCE_WITNESSES, discoveryHref, witnessSource } from "../lib/research/worldSourceConnections.js";
 import { INDIA_CAPTAIN_SOURCE } from "../lib/research/topicSourceContext.js";
 import {
@@ -64,6 +64,7 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
 import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
+import { runtimeOff, frozenOr, readRuntimeSwitches } from "../lib/runtimeSwitches2029.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
@@ -74,6 +75,33 @@ import "./worldComposition2029.css";
 import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
+
+// Connected discovery (#world-discovery-* deep links) is not part of the World opening: its component,
+// method Stage and topic styles load when that view is actually rendered. The opening flight story,
+// sources and connections never wait for it.
+const WorldConnectedDiscoveryView = lazy(() => import('../components/research/WorldSourceStory.jsx'));
+
+// A failed module cannot be re-imported in the same document, so recovery is an explicit,
+// user-initiated reload; the URL hash is kept and the same discovery reopens.
+class WorldDiscoveryLoadBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return <div role="status" data-deferred-state="failed">
+      <p>תצוגת החיבורים לא נטענה כעת. שאר העולם זמין.</p>
+      <button type="button" className="sod29-action" onClick={() => window.location.reload()}>טען מחדש וחזור לאותה תצוגה</button>
+    </div>;
+  }
+}
+
+function WorldConnectedDiscovery(props) {
+  return <WorldDiscoveryLoadBoundary>
+    <Suspense fallback={<p role="status">פותח את המקורות ובודק את החיבורים…</p>}>
+      <WorldConnectedDiscoveryView {...props} />
+    </Suspense>
+  </WorldDiscoveryLoadBoundary>;
+}
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -689,7 +717,7 @@ function LiveWorldLanding({ research, shell, context }) {
       ),
       Promise.allSettled([
         contributorPromise,
-        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
+        contributorPromise.then((projection) => frozenOr("fx_world_discovery", () => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true }))),
         fetchGoldenWorldJourney878(),
       ]),
     ]);
@@ -719,11 +747,17 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => {
     if (landing.loading) return;
-    return watchWorldDiscoveryStream({
-      limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
-      onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
-      onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
+    let live = true; let stop = null;
+    // Owner switch fx_world_discovery: when OFF the polling watcher is never started.
+    runtimeOff("fx_world_discovery").then((off) => {
+      if (off || !live) return;
+      stop = watchWorldDiscoveryStream({
+        limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
+        onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
+        onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
+      });
     });
+    return () => { live = false; stop?.(); };
   }, [landing.loading, landing.contributors]);
 
 
@@ -1881,16 +1915,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
     setDeepening({ id: finding?.id || targetNodeId, error: false });
     try {
-      const target = await fetchEntityHubProjection({ nodeId: targetNodeId, relationLimit: 1, researchLimit: 1, topicLimit: 1 });
-      if (!target?.identity) throw new Error("target unavailable");
+      const identity = await resolveWorldRelationIdentity(targetNodeId, {
+        readSwitches: readRuntimeSwitches, resolveNode: resolveEntityHubNode, project: fetchEntityHubProjection,
+      });
+      if (!identity) throw new Error("target unavailable");
       research.setResearchContext?.({
         subject: {
-          id: String(target.identity.label),
-          type: target.identity.type,
-          label: target.identity.label,
+          id: String(identity.label),
+          type: identity.type,
+          label: identity.label,
           href: "/world",
         },
-        selection: { entityId: String(target.identity.nodeId), entityType: target.identity.type },
+        selection: { entityId: String(identity.nodeId), entityType: identity.type },
         lens: "world",
         dimensions: context?.dimensions || {},
         journey: context?.journey || null,

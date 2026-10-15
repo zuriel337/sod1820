@@ -1,0 +1,59 @@
+diff --git a/src/components/experience2029/useSystemFeed2029.js b/src/components/experience2029/useSystemFeed2029.js
+index e499dee6..cab8b9f8 100644
+--- a/src/components/experience2029/useSystemFeed2029.js
++++ b/src/components/experience2029/useSystemFeed2029.js
+@@ -6,6 +6,34 @@ import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
+ import { tierLookupNumbers } from "../../lib/ratings2029.js";
+ import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
+ 
++// The feed is secondary to the page's own content. It starts once the primary content has had the network
++// to itself (load + a short quiet window), or immediately on the first real interaction, so the panel and
++// the "new" chip are never withheld from someone who reaches for them. Reads, freshness and polling are unchanged.
++const QUIET_MS = 1500;
++export function afterPrimaryContent(start, { quietMs = QUIET_MS, win = typeof window === "undefined" ? null : window } = {}) {
++  if (!win) { start(); return () => {}; }
++  let done = false; let timer = null; let idle = null;
++  const events = ["pointerdown", "keydown", "touchstart", "wheel", "focusin"];
++  const cleanup = () => {
++    win.removeEventListener("load", arm);
++    events.forEach((name) => win.removeEventListener(name, go));
++    if (timer != null) win.clearTimeout(timer);
++    if (idle != null) win.cancelIdleCallback?.(idle);
++  };
++  const go = () => { if (done) return; done = true; cleanup(); start(); };
++  function arm() {
++    if (done) return;
++    timer = win.setTimeout(() => {
++      timer = null;
++      if (typeof win.requestIdleCallback === "function") idle = win.requestIdleCallback(go, { timeout: 2500 });
++      else go();
++    }, quietMs);
++  }
++  events.forEach((name) => win.addEventListener(name, go, { passive: true, once: true }));
++  if (win.document?.readyState === "complete") arm(); else win.addEventListener("load", arm, { once: true });
++  return () => { done = true; cleanup(); };
++}
++
+ export function useSystemFeed2029({ enabled = true } = {}) {
+   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
+   const [seen, setSeen] = useState(readSeen);
+@@ -15,7 +43,7 @@ export function useSystemFeed2029({ enabled = true } = {}) {
+   useEffect(() => {
+     if (!enabled) return undefined;
+     let live = true; let stop;
+-    import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
++    const cancelWait = afterPrimaryContent(() => import("../../lib/research/worldDiscoveryStream.js").then(({ watchWorldDiscoveryStream }) => {
+       if (!live) return;
+       stop = watchWorldDiscoveryStream({
+         limit: 40, includeResearch: false,
+@@ -33,8 +61,8 @@ export function useSystemFeed2029({ enabled = true } = {}) {
+         },
+         onError: () => { if (live) setState((current) => ({ ...current, loading: false, error: current.items.length === 0 })); },
+       });
+-    }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); });
+-    return () => { live = false; stop?.(); };
++    }).catch(() => { if (live) setState({ loading: false, items: [], error: true }); }));
++    return () => { live = false; cancelWait(); stop?.(); };
+   }, [enabled]);
+ 
+   useEffect(() => {

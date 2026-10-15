@@ -650,7 +650,8 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
       <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
         {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
         {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
+        {feed?.off ? <FrameState kind="unavailable" title="העדכונים כבויים כרגע">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
+        {!feed?.off && !feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
         {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
         {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
         {rows.slice(0, 8).map((row) => {

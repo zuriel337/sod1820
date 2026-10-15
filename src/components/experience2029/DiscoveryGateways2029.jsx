@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategoryVideos } from "../../lib/supabase.js";
+import { runtimeOff } from "../../lib/runtimeSwitches2029.js";
 import { fetchHomePostCards2029 } from "../../lib/research/homePostCards2029.js";
 import { claimHomeItems } from "../../lib/research/homePlacement2029.js";
 import WatchButton from "../WatchButton.jsx";
@@ -112,13 +113,14 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
     let active = true;
     // Categories are the ONLY automatic admission rule. Do not derive a gateway
     // from tags, title keywords, a shared word or video metadata.
-    Promise.allSettled([
-      fetchHomePostCards2029({ category: "שבילי שפה", limit: 24 }),
-      fetchHomePostCards2029({ category: "הצופן בסרטים", limit: 30 }),
-      getCategoryVideos("צפונות בתורה", { limit: 80 }),
-      fetchHomePostCards2029({ category: "מימד חמש", limit: 60 }),
-      getMatrixLibraryPage({ view: "public", pageSize: 4 }),
-    ]).then(([language, cinema, videos, dimension, matrices]) => {
+    // Owner switches: fx_home_videos (the cipher-videos RPC) and fx_home_gateways (language / cinema / dimension / matrices).
+    Promise.all([runtimeOff("fx_home_videos"), runtimeOff("fx_home_gateways")]).then(([offVideos, offGateways]) => Promise.allSettled([
+      offGateways ? Promise.resolve({ posts: [] }) : fetchHomePostCards2029({ category: "שבילי שפה", limit: 24 }),
+      offGateways ? Promise.resolve({ posts: [] }) : fetchHomePostCards2029({ category: "הצופן בסרטים", limit: 30 }),
+      offVideos ? Promise.resolve([]) : getCategoryVideos("צפונות בתורה", { limit: 80 }),
+      offGateways ? Promise.resolve({ posts: [] }) : fetchHomePostCards2029({ category: "מימד חמש", limit: 60 }),
+      offGateways ? Promise.resolve({ rows: [] }) : getMatrixLibraryPage({ view: "public", pageSize: 4 }),
+    ])).then(([language, cinema, videos, dimension, matrices]) => {
       if (!active) return;
       const value = (result, fallback) => result.status === "fulfilled" ? result.value : fallback;
       const languagePosts = (value(language, { posts: [] }).posts || [])

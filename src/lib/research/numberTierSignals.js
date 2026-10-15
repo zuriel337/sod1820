@@ -3,6 +3,7 @@
 // a few concurrent calls. Missing/failed results are returned as null, never as zero.
 import { supabase } from "../supabase.js";
 import { tierCounts } from "../ratings2029.js";
+import { runtimeOff } from "../runtimeSwitches2029.js";
 
 const TTL = 300000;
 const cache = new Map(); // number -> { ts, promise }
@@ -21,6 +22,7 @@ function fetchOne(value) {
   if (hit && Date.now() - hit.ts < TTL) return hit.promise;
   const promise = (async () => {
     if (!supabase) return null;
+    if (await runtimeOff("fx_tier_signals")) { cache.delete(value); return null; }   // owner switch: no request
     const release = await slot();
     try {
       const { data, error } = await supabase.rpc("convergence_meter", { p_n: value });

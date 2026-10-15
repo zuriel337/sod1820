@@ -1,0 +1,229 @@
+{
+  "status": "PASS",
+  "testedAt": "2026-10-14T22:08:29.030Z",
+  "browser": "138.0.7204.0",
+  "cases": 8,
+  "scope": "actual ControlPlane2029Page + runtimeSwitches2029; fixture auth, shell, health and Supabase boundaries",
+  "limitations": [
+    "Not a live authentication/RLS test",
+    "Not hosted preview acceptance",
+    "No page/navigation/scroll timing measurement",
+    "Screenshot uses fixture CSS, not production frame styling"
+  ],
+  "externalRequestsBlocked": [],
+  "uncaughtBrowserErrors": [],
+  "outcomes": [
+    {
+      "name": "independent defaults, ON and OFF, original controls preserved",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_world_relation_identity",
+              "p_on": true
+            }
+          },
+          {
+            "name": "fn_number_lookup_2029_page",
+            "args": {
+              "p_value": null,
+              "p_limit": 1,
+              "p_after_bid_id": null
+            }
+          },
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_number_lookup_page",
+              "p_on": true
+            }
+          },
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_world_relation_identity",
+              "p_on": false
+            }
+          },
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_number_lookup_page",
+              "p_on": false
+            }
+          }
+        ],
+        "writes": [
+          {
+            "p_key": "fx_world_relation_identity",
+            "p_on": true
+          },
+          {
+            "p_key": "fx_number_lookup_page",
+            "p_on": true
+          },
+          {
+            "p_key": "fx_world_relation_identity",
+            "p_on": false
+          },
+          {
+            "p_key": "fx_number_lookup_page",
+            "p_on": false
+          }
+        ],
+        "flagReads": 1,
+        "healthCalls": [
+          "health",
+          "traces",
+          "video"
+        ]
+      }
+    },
+    {
+      "name": "missing RPC prevents enable and clearly explains why",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [
+          {
+            "name": "fn_number_lookup_2029_page",
+            "args": {
+              "p_value": null,
+              "p_limit": 1,
+              "p_after_bid_id": null
+            }
+          }
+        ],
+        "writes": [],
+        "flagReads": 1,
+        "healthCalls": [
+          "health",
+          "traces",
+          "video"
+        ]
+      }
+    },
+    {
+      "name": "server permission failure does not show a successful toggle",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_world_relation_identity",
+              "p_on": true
+            }
+          }
+        ],
+        "writes": [],
+        "flagReads": 1,
+        "healthCalls": [
+          "health",
+          "traces",
+          "video"
+        ]
+      }
+    },
+    {
+      "name": "successful write with failed readback is unknown, then explicitly restored",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_world_relation_identity",
+              "p_on": true
+            }
+          },
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_world_relation_identity",
+              "p_on": false
+            }
+          }
+        ],
+        "writes": [
+          {
+            "p_key": "fx_world_relation_identity",
+            "p_on": true
+          },
+          {
+            "p_key": "fx_world_relation_identity",
+            "p_on": false
+          }
+        ],
+        "flagReads": 1,
+        "healthCalls": [
+          "health",
+          "traces",
+          "video"
+        ]
+      }
+    },
+    {
+      "name": "one save pending disables all toggle buttons",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [
+          {
+            "name": "admin_set_runtime_switch",
+            "args": {
+              "p_key": "fx_world_relation_identity",
+              "p_on": true
+            }
+          }
+        ],
+        "writes": [
+          {
+            "p_key": "fx_world_relation_identity",
+            "p_on": true
+          }
+        ],
+        "flagReads": 1,
+        "healthCalls": [
+          "health",
+          "traces",
+          "video"
+        ]
+      }
+    },
+    {
+      "name": "unavailable settings retain both original execution paths",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [],
+        "writes": [],
+        "flagReads": 1,
+        "healthCalls": [
+          "health",
+          "traces",
+          "video"
+        ]
+      }
+    },
+    {
+      "name": "non-admin UI routes away before loading switches or operational data",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [],
+        "writes": [],
+        "flagReads": 0,
+        "healthCalls": []
+      }
+    },
+    {
+      "name": "auth still loading cannot render or read administrative controls",
+      "status": "PASS",
+      "fixture": {
+        "rpcCalls": [],
+        "writes": [],
+        "flagReads": 0,
+        "healthCalls": []
+      }
+    }
+  ]
+}

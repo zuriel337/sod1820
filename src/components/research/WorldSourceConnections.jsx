@@ -1,8 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import SpatialMethodStage2029 from '../gematria2029/SpatialMethodStage2029.jsx';
 import CanonicalMediaFigure2029 from '../experience2029/CanonicalMediaFigure2029.jsx';
 import { WORLD_SOURCE_DIRECTIONS, REVIEWED_SOURCE_WITNESSES, fetchWorldSourceConnections, worldWitnessContext } from '../../lib/research/worldSourceConnections.js';
+
+// The shared method Stage (letters, scene compiler, optional 3D) is opened from "כל השיטות ופירוט
+// החישוב". Its code loads when that panel is first opened, not with the World opening; the verified
+// result, the trace and the Heichal action above it never wait for it. Once opened it stays mounted
+// (closing the panel hides it as before), so reopening keeps the Stage state and does not reload it.
+const SpatialMethodStage2029 = lazy(() => import('../gematria2029/SpatialMethodStage2029.jsx'));
+
+// A failed Stage module cannot be re-imported in the same document (the browser keeps the failed
+// module record), so recovery is an explicit, user-initiated reload that returns to the same anchor.
+class StageLoadBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return <div role="status" data-deferred-state="failed">
+      <p>פירוט השיטה לא נטען כעת. התוצאה המאומתת והמעבר להיכל זמינים למעלה.</p>
+      <button type="button" className="sod29-action" onClick={() => window.location.reload()}>טען מחדש וחזור לאותו מקור</button>
+    </div>;
+  }
+}
 
 // Composite operands come from the canonical nested trace. Letter rendering stays with
 // the existing shared Stage; unsupported variants are never relabelled as ordinary Miluy.
@@ -18,6 +37,7 @@ function CompositeTrace({ trace }) {
 }
 function Witness({ witness, research, shell, select }) {
   const { source } = witness;
+  const [depthOpen, setDepthOpen] = useState(false);
   const remember = (calculation = null) => {
     select(witness);
     research.updateResearchContext?.(worldWitnessContext(witness, calculation));
@@ -58,16 +78,20 @@ function Witness({ witness, research, shell, select }) {
             {entry.expression} · {entry.method === 'קדמי' ? 'משולש (קדמי)' : entry.method} · {entry.verified.value}
           </button> : <p>{entry.expression} · {entry.method}: החישוב אינו זמין לאימות</p>}
         </div>)}
-        <details className="sod29-world-calculation-depth"><summary>כל השיטות ופירוט החישוב</summary>
+        <details className="sod29-world-calculation-depth" onToggle={(event) => { if (event.currentTarget.open) setDepthOpen(true); }}><summary>כל השיטות ופירוט החישוב</summary>
           {witness.calculations.map((entry, index) => <section key={index} data-calculation-detail={entry.method}>
             <h4>{entry.expression} · {entry.method === 'קדמי' ? 'משולש (קדמי)' : entry.method}</h4>
             {entry.verified ? <>
               <button className="sod29-action" onClick={() => calculate(entry.verified)}>לעיון בהיכל · {entry.verified.value}</button>
               <p>תוצאה {entry.verified.value} · גרסת שיטה {entry.verified.trace.method_version} · התאמה למנוע אומתה</p>
               <CompositeTrace trace={entry.verified.trace} />
-              <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
-                trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
-                onOpenHeichal={() => calculate(entry.verified)} />
+              {depthOpen ? <StageLoadBoundary>
+                <Suspense fallback={<p role="status">טוען את פירוט השיטה…</p>}>
+                  <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
+                    trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
+                    onOpenHeichal={() => calculate(entry.verified)} />
+                </Suspense>
+              </StageLoadBoundary> : null}
               <details><summary>פרטי המנוע והמקור</summary><code>{source.sourceRef}</code><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
             </> : <p>אין תוצאה מאומתת זמינה. הערך ההיסטורי המצוטט נשמר במקור.</p>}
           </section>)}

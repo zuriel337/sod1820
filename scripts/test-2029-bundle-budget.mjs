@@ -63,7 +63,10 @@ const ROUTE_GRAPHS = {
   // loads with its own includeWorld trigger, after the first cards.
   Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 160, maxExtraChunks: 27,
     deferred: ['explorerFacets', 'entityHubProjection', 'topicSourceContext', 'bookResearchProjection'] },
-  World: { src: 'src/pages/World2029Page.jsx', maxExtraGzKb: 290, maxExtraChunks: 40, deferred: [] },
+  // World: connected discovery (#world-discovery-* deep links) and the shared method Stage behind
+  // "כל השיטות ופירוט החישוב" load when that view/panel opens, not with the World opening.
+  World: { src: 'src/pages/World2029Page.jsx', maxExtraGzKb: 265, maxExtraChunks: 37,
+    deferred: ['WorldSourceStory', 'SpatialMethodStage2029', 'semanticSceneCompiler'] },
   Post: { src: 'src/pages/Post2029Page.jsx', maxExtraGzKb: 185, maxExtraChunks: 30, deferred: [] },
 };
 // Heavy scene/3D, calendar and tool code that no primary route needs before its first content.

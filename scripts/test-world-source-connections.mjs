@@ -109,6 +109,8 @@ try {
     await wisdom.getByText('כל השיטות ופירוט החישוב', { exact: true }).click();
     const composite = wisdom.locator('[data-composite-trace]');
     await composite.waitFor();
+    // The shared Stage loads when this panel opens (it is not part of the World opening).
+    await wisdom.locator('[data-spelling-source="ui_transitional_unverified"]').first().waitFor({ timeout: 60000 });
     assert.equal(await wisdom.locator('[data-spelling-source="ui_transitional_unverified"]').count(), 1, 'ordinary Miluy reuses shared Stage with honest spelling provenance');
     assert.equal(await wisdom.locator('[data-calculation-detail="מילוי בלבד גדול"] [data-method-key="מילוי"]').count(), 0, 'unsupported composite never falls back to ordinary Miluy');
     assert.match(await composite.innerText(), /1893/); assert.match(await composite.innerText(), /73/); assert.match(await composite.innerText(), /1820/);
@@ -132,7 +134,37 @@ try {
     assert.equal(await health.locator('[data-law="unavailable"]').count(), 2);
     assert.equal(await health.locator('[data-calculation="רגיל"]').count(), 2, 'source and calculation survive a law outage');
     await capture('law-unavailable');
-    receipt.cases.push({ width, theme, status: 'PASS', sourceOpened: true, originalLoaded: true, numberExactFocusAndReturn: true,
+    missingLaw = false;
+    let stageFailureRecovered = null;
+    if (width === 390 && theme === (process.env.TEST_THEMES || 'dark,light,parchment').split(',')[0]) {
+      // Deferred Stage module fails before it was ever fetched in this page: the witness, its verified
+      // result, engine trace and Heichal action stay usable; the Stage area shows a status with an
+      // explicit user-initiated reload; reloading without the fault restores the Stage at the same source.
+      const mainPage = page;
+      page = await context.newPage();
+      page.on('pageerror', (error) => receipt.errors.push(`stage-failure: ${error.message}`));
+      const stageModule = /SpatialMethodStage2029(-[\w-]+)?\.(js|jsx)(\?.*)?$/;
+      await page.route(stageModule, (route) => route.abort());
+      await page.goto(`${base}/world`, { waitUntil: 'domcontentloaded' });
+      await page.getByRole('navigation', { name: 'כיווני המשך' }).waitFor({ timeout: 60000 });
+      await selectDirection('מה נפתח בחכמה 73', 'wisdom-methods');
+      const failingWisdom = page.locator('[data-witness="wisdom-methods"]');
+      await failingWisdom.getByText('כל השיטות ופירוט החישוב', { exact: true }).click();
+      const failed = failingWisdom.locator('[data-deferred-state="failed"]').first();
+      await failed.waitFor({ timeout: 60000 });
+      assert.ok(await failingWisdom.locator('[data-calculation="מילוי בלבד גדול"]').count() >= 1, 'verified calculation and Heichal action survive a Stage load failure');
+      assert.ok(await failingWisdom.locator('[data-composite-trace]').count() >= 1, 'engine trace stays visible without the Stage');
+      await capture('stage-load-failure');
+      await page.unroute(stageModule);
+      await Promise.all([page.waitForEvent('load'), failed.getByRole('button', { name: 'טען מחדש וחזור לאותו מקור' }).click()]);
+      await failingWisdom.waitFor({ timeout: 60000 });
+      await failingWisdom.getByText('כל השיטות ופירוט החישוב', { exact: true }).click();
+      await failingWisdom.locator('[data-spelling-source="ui_transitional_unverified"]').first().waitFor({ timeout: 60000 });
+      stageFailureRecovered = true;
+      await page.close();
+      page = mainPage;
+    }
+    receipt.cases.push({ stageFailureRecovered, width, theme, status: 'PASS', sourceOpened: true, originalLoaded: true, numberExactFocusAndReturn: true,
       topicSameImageReturn: true, reloadExact: true, numberSelectionSourceRetained, compositeMethodPreserved: true, lawFailureClosed: true, noAutomaticPath: true });
     await fs.writeFile(`${out}/browser-receipt.json`, JSON.stringify(receipt, null, 2));
     console.log(`PASS World source laws ${theme} ${width}`);

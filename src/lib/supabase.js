@@ -16,9 +16,23 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
 // חוזרת בלי Cache-Control → הדפדפן חופשי להגיש JSON ישן). ראה getMatrixBySlug.
 export { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
 
+// 2029 build only: owner switch fx_analytics. When OFF the first-party telemetry RPCs are not sent at all
+// (callers get an empty success so nothing retries). Everything else passes through untouched.
+const TELEMETRY_RPC = /\/rest\/v1\/rpc\/(ingest_event|track_visit|link_identity)(\?|$)/;
+const gateTelemetry2029 = (base) => async (input, init) => {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url;
+  if (url && TELEMETRY_RPC.test(url)) {
+    try {
+      const { isRuntimeSwitchOn } = await import('./runtimeSwitches2029.js');
+      if (!(await isRuntimeSwitchOn('fx_analytics'))) return new Response('null', { status: 200, headers: { 'content-type': 'application/json' } });
+    } catch { /* switch unavailable: send as before */ }
+  }
+  return base(input, init);
+};
+const is2029Build = typeof __SOD_2029_BUILD__ !== 'undefined' && __SOD_2029_BUILD__;
 const earlyReadOptions = typeof window !== 'undefined' && window.__sodPrimaryReads2029
-  ? { global: { fetch: createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } }
-  : undefined;
+  ? { global: { fetch: is2029Build ? gateTelemetry2029(createEarlyReadFetch2029({ anonKey: SUPABASE_ANON })) : createEarlyReadFetch2029({ anonKey: SUPABASE_ANON }) } }
+  : is2029Build ? { global: { fetch: gateTelemetry2029((...args) => fetch(...args)) } } : undefined;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, earlyReadOptions);
 
 export default supabase;
@@ -2317,12 +2331,23 @@ export async function getNotificationPrefs({ userId = null, visitorId = null } =
     return data || null;
   }
   if (visitorId) {
-    const { data, error } = await supabase.rpc('notification_prefs_guest_get_v1', { p_visitor: visitorId });
-    if (error) throw error;
-    return data || null;
+    // Every WatchButton and the frame ask for the same guest row at mount. Concurrent asks share ONE
+    // request (not a cache: the entry ends when it settles, and a save clears it so a later ask is fresh).
+    // 2029 build only: the Legacy bundle keeps its exact behavior.
+    let pending = share2029 ? guestPrefsInflight.get(visitorId) : null;
+    if (!pending) {
+      pending = Promise.resolve(supabase.rpc('notification_prefs_guest_get_v1', { p_visitor: visitorId }))
+        .then(({ data, error }) => { if (error) throw error; return data || null; })
+        .finally(() => { if (guestPrefsInflight.get(visitorId) === pending) guestPrefsInflight.delete(visitorId); });
+      if (share2029) guestPrefsInflight.set(visitorId, pending);
+    }
+    const data = await pending;
+    return data == null ? null : structuredClone(data);
   }
   return null;
 }
+const guestPrefsInflight = new Map();
+const share2029 = typeof __SOD_2029_BUILD__ !== 'undefined' && __SOD_2029_BUILD__;
 
 export async function saveNotificationPrefs({ userId = null, visitorId = null, topics = [], channels = [], email = null, intensity = undefined, mutedUntil = undefined }) {
   if (!supabase) return { ok: false };
@@ -2333,6 +2358,7 @@ export async function saveNotificationPrefs({ userId = null, visitorId = null, t
     const { error } = await supabase.from('notification_prefs').upsert(row, { onConflict: 'user_id' });
     if (error) throw error;
   } else if (visitorId) {
+    guestPrefsInflight.delete(visitorId);
     const { error } = await supabase.rpc('notification_prefs_guest_save_v1', {
       p_visitor: visitorId,
       p_topics: topics,
@@ -2343,6 +2369,7 @@ export async function saveNotificationPrefs({ userId = null, visitorId = null, t
       p_muted_until: mutedUntil ?? null,
       p_set_muted_until: mutedUntil !== undefined,
     });
+    guestPrefsInflight.delete(visitorId);
     if (error) throw error;
   } else {
     return { ok: false };
