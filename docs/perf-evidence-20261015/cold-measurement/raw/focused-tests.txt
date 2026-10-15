@@ -1,0 +1,161 @@
+TAP version 13
+# {"runnerSha256":"1e11e40db09b507e3e36a8ecedf62db82ec178ea7c0288db0fb729f11c265a8f","renderer":"Debugger.paused until fixture dispatch","fixtureDelayMs":150,"dispatchMs":156.00944800000002,"clockUncertaintyMs":1.4396970000000238,"readStart":106.529541015625,"browserNow":270.39999999990687,"browser":"151.0.7922.173","errors":[],"misses":[]}
+# Subtest: fixture response is dispatched while the real renderer is blocked
+ok 1 - fixture response is dispatched while the real renderer is blocked
+  ---
+  duration_ms: 1382.674084
+  type: 'test'
+  ...
+# Subtest: readiness separates shells, real source content and late background work
+ok 2 - readiness separates shells, real source content and late background work
+  ---
+  duration_ms: 1677.821116
+  type: 'test'
+  ...
+# Subtest: browser epoch calibration survives a new document and SPA navigation
+ok 3 - browser epoch calibration survives a new document and SPA navigation
+  ---
+  duration_ms: 1225.676714
+  type: 'test'
+  ...
+# Subtest: late background requests cannot reuse a previously reached networkidle state
+ok 4 - late background requests cannot reuse a previously reached networkidle state
+  ---
+  duration_ms: 2577.159174
+  type: 'test'
+  ...
+# Subtest: calibration selects tightest round trip and retains the same clock after hard and soft navigation
+ok 5 - calibration selects tightest round trip and retains the same clock after hard and soft navigation
+  ---
+  duration_ms: 3.316094
+  type: 'test'
+  ...
+# Subtest: CLS uses maximum session window, excludes recent input and keeps separate clusters
+ok 6 - CLS uses maximum session window, excludes recent input and keeps separate clusters
+  ---
+  duration_ms: 0.381733
+  type: 'test'
+  ...
+# Subtest: CLS session span is strictly below 5 seconds, gap strictly below 1 second
+ok 7 - CLS session span is strictly below 5 seconds, gap strictly below 1 second
+  ---
+  duration_ms: 2.096943
+  type: 'test'
+  ...
+# Subtest: historical artifacts are retained, mixed definitions never produce comparable deltas
+ok 8 - historical artifacts are retained, mixed definitions never produce comparable deltas
+  ---
+  duration_ms: 28.567717
+  type: 'test'
+  ...
+# Subtest: late response completion cannot mutate finalized read counts or introduce epoch timestamps
+ok 9 - late response completion cannot mutate finalized read counts or introduce epoch timestamps
+  ---
+  duration_ms: 4.632486
+  type: 'test'
+  ...
+# Subtest: current reports require primary content, calibrated time and separated readiness phases
+ok 10 - current reports require primary content, calibrated time and separated readiness phases
+  ---
+  duration_ms: 4.385794
+  type: 'test'
+  ...
+# Subtest: a bounded primary sample with pending background responses cannot certify complete read-count regression
+ok 11 - a bounded primary sample with pending background responses cannot certify complete read-count regression
+  ---
+  duration_ms: 2.983523
+  type: 'test'
+  ...
+# Subtest: SPA paints cannot silently satisfy the cold-navigation timing budget
+ok 12 - SPA paints cannot silently satisfy the cold-navigation timing budget
+  ---
+  duration_ms: 2.699705
+  type: 'test'
+  ...
+# Subtest: the installed response guard blocks analytics, table writes, auth and unreviewed RPCs before navigation
+ok 13 - the installed response guard blocks analytics, table writes, auth and unreviewed RPCs before navigation
+  ---
+  duration_ms: 4.696563
+  type: 'test'
+  ...
+# Subtest: fixture evidence is accepted only for its declared lab purpose
+ok 14 - fixture evidence is accepted only for its declared lab purpose
+  ---
+  duration_ms: 3.991684
+  type: 'test'
+  ...
+# Subtest: a fixture miss must fail even when the page reports READY
+ok 15 - a fixture miss must fail even when the page reports READY
+  ---
+  duration_ms: 5.141829
+  type: 'test'
+  ...
+# Subtest: Home redirect and absent readiness cannot be used as a baseline
+ok 16 - Home redirect and absent readiness cannot be used as a baseline
+  ---
+  duration_ms: 0.454246
+  type: 'test'
+  ...
+# Subtest: real DB and fixtures, or different browsers, cannot be compared
+ok 17 - real DB and fixtures, or different browsers, cannot be compared
+  ---
+  duration_ms: 2.432107
+  type: 'test'
+  ...
+# Subtest: overlapping READY ranges do not prove improvement
+ok 18 - overlapping READY ranges do not prove improvement
+  ---
+  duration_ms: 0.985152
+  type: 'test'
+  ...
+# Subtest: output metadata and missing conditions fail closed
+ok 19 - output metadata and missing conditions fail closed
+  ---
+  duration_ms: 0.51932
+  type: 'test'
+  ...
+# Subtest: product gate requires extension isolation and exact hosted SHA
+ok 20 - product gate requires extension isolation and exact hosted SHA
+  ---
+  duration_ms: 0.560373
+  type: 'test'
+  ...
+# Subtest: recorded complete replay passes; missing responses and failed primary reads fail closed
+ok 21 - recorded complete replay passes; missing responses and failed primary reads fail closed
+  ---
+  duration_ms: 6.451091
+  type: 'test'
+  ...
+# Subtest: fixtures/browser differences prevent comparison and isolated savings are not added
+ok 22 - fixtures/browser differences prevent comparison and isolated savings are not added
+  ---
+  duration_ms: 4.68006
+  type: 'test'
+  ...
+# Subtest: a replay budget rejects request or readiness regression
+ok 23 - a replay budget rejects request or readiness regression
+  ---
+  duration_ms: 2.101306
+  type: 'test'
+  ...
+# Subtest: matched budgets reject slower timing and extra reads on the same runner
+ok 24 - matched budgets reject slower timing and extra reads on the same runner
+  ---
+  duration_ms: 3.06197
+  type: 'test'
+  ...
+# Subtest: intentional extension failures are functional evidence only; primary still becomes ready first
+ok 25 - intentional extension failures are functional evidence only; primary still becomes ready first
+  ---
+  duration_ms: 0.664709
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7297.855916

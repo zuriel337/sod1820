@@ -1,0 +1,676 @@
+{
+  "instrumentCommit": "3896ceb6cbd708d3c7fa09e976b0a38a15372d83",
+  "productBase": "14e239b47e5ec6b95eaad4e1b368520512642217",
+  "scope": "Measurement reliability, no product change or speed-improvement claim",
+  "measurementProfile": {
+    "version": "cold-replay-v2",
+    "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+    "readiness": "rendered-primary-source-v2",
+    "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+    "observation": "primary-current-network-quiet-500ms-plus-1000ms-v2",
+    "collection": "immutable-read-snapshot-with-pending-response-count-v1"
+  },
+  "fixtureSha256": "224ebd7b6232c72fb9003fb27f90938e2be36372752728ac7ef10cea001c6c9f",
+  "snapshotUnchanged": true,
+  "gates": {
+    "firstReplay": {
+      "valid": true,
+      "errors": [],
+      "measurementProfile": {
+        "version": "cold-replay-v2",
+        "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+        "readiness": "rendered-primary-source-v2",
+        "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+        "observation": "primary-current-network-quiet-500ms-plus-1000ms-v2",
+        "collection": "immutable-read-snapshot-with-pending-response-count-v1"
+      },
+      "method": "controlled anonymous public-content replay; not hosted/field proof"
+    },
+    "repeatReplay": {
+      "valid": true,
+      "errors": [],
+      "measurementProfile": {
+        "version": "cold-replay-v2",
+        "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+        "readiness": "rendered-primary-source-v2",
+        "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+        "observation": "primary-current-network-quiet-500ms-plus-1000ms-v2",
+        "collection": "immutable-read-snapshot-with-pending-response-count-v1"
+      },
+      "method": "controlled anonymous public-content replay; not hosted/field proof"
+    },
+    "matchedBudget": {
+      "valid": true,
+      "errors": [],
+      "scope": "matched replay regression; not production performance closure"
+    },
+    "extension": {
+      "valid": true,
+      "errors": [],
+      "measurementProfile": {
+        "version": "cold-replay-v2",
+        "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+        "readiness": "rendered-primary-source-v2",
+        "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+        "observation": "primary-current-network-quiet-500ms-plus-1000ms-v2",
+        "collection": "immutable-read-snapshot-with-pending-response-count-v1"
+      },
+      "method": "controlled anonymous public-content replay; not hosted/field proof"
+    },
+    "mixedVersionCorrectlyRejected": true
+  },
+  "focusedTests": {
+    "passed": 25,
+    "failed": 0
+  },
+  "imageSourceTests": {
+    "passed": 36,
+    "failed": 0
+  },
+  "nativeImageReplay": {
+    "passed": 16,
+    "failed": 0
+  },
+  "builtBundleBudget": {
+    "passed": 5,
+    "failed": 0
+  },
+  "build": "Legacy + 2029 production build PASS; source isolation and built graph PASS",
+  "first": {
+    "/": {
+      "median": {
+        "fcp": 1816,
+        "lcp": 4828,
+        "shell": 4316.100000000093,
+        "ready": 4585,
+        "backgroundSettled": 7995,
+        "layoutShiftSum": 0.0012823553331429885,
+        "cls": 0.0012057385075481524,
+        "firstPrimaryReq": 271.64892578125,
+        "lastRestEnd": 7450,
+        "restCount": 57,
+        "reqs": 131,
+        "script": 1184.907,
+        "task": 4658.6720000000005
+      },
+      "ranges": {
+        "fcp": [
+          1752,
+          4376
+        ],
+        "lcp": [
+          4260,
+          9792
+        ],
+        "shell": [
+          3862.9000000003725,
+          9329
+        ],
+        "ready": [
+          4125.700000000186,
+          11677.30000000028
+        ],
+        "backgroundSettled": [
+          7395.100000000093,
+          18024.399999999907
+        ],
+        "layoutShiftSum": [
+          0.0012823553331429885,
+          0.007940118105997516
+        ],
+        "cls": [
+          0.0012057385075481524,
+          0.006657762772854527
+        ],
+        "firstPrimaryReq": [
+          241.847900390625,
+          914.36279296875
+        ],
+        "lastRestEnd": [
+          6865.5,
+          18482.30000000028
+        ],
+        "restCount": [
+          49,
+          57
+        ],
+        "reqs": [
+          123,
+          131
+        ],
+        "script": [
+          1043.604,
+          5833.994
+        ],
+        "task": [
+          4041.786,
+          17708.504999999997
+        ]
+      },
+      "samples": 7,
+      "errors": [],
+      "misses": [],
+      "pendingFixtureResponses": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "readCounts": [
+        57,
+        57,
+        49,
+        57,
+        57,
+        57,
+        57
+      ],
+      "maxClockUncertaintyMs": 4.075906499998382,
+      "mutableCountOrClockViolations": 0
+    },
+    "/world": {
+      "median": {
+        "fcp": 2200,
+        "lcp": 5684,
+        "shell": 4874.600000000093,
+        "ready": 5551.4000000003725,
+        "backgroundSettled": 7491,
+        "layoutShiftSum": 0.037022776682128965,
+        "cls": 0.03694615985653413,
+        "firstPrimaryReq": 280.946533203125,
+        "lastRestEnd": 6959.300000000279,
+        "restCount": 45,
+        "reqs": 111,
+        "script": 1084.707,
+        "task": 3289.678
+      },
+      "ranges": {
+        "fcp": [
+          2068,
+          2976
+        ],
+        "lcp": [
+          5284,
+          6372
+        ],
+        "shell": [
+          4690,
+          5541.799999999814
+        ],
+        "ready": [
+          5218.200000000186,
+          6310.899999999907
+        ],
+        "backgroundSettled": [
+          6992.799999999814,
+          8040.5
+        ],
+        "layoutShiftSum": [
+          0.00007661682559483599,
+          0.03716477658474263
+        ],
+        "cls": [
+          0.00007661682559483599,
+          0.037088159759147796
+        ],
+        "firstPrimaryReq": [
+          256.180908203125,
+          427.84521484375
+        ],
+        "lastRestEnd": [
+          6471.799999999814,
+          7517.799999999814
+        ],
+        "restCount": [
+          45,
+          45
+        ],
+        "reqs": [
+          111,
+          111
+        ],
+        "script": [
+          933.999,
+          1626.349
+        ],
+        "task": [
+          2901.853,
+          4509.844
+        ]
+      },
+      "samples": 7,
+      "errors": [],
+      "misses": [],
+      "pendingFixtureResponses": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "readCounts": [
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45
+      ],
+      "maxClockUncertaintyMs": 0.8118985000037355,
+      "mutableCountOrClockViolations": 0
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "median": {
+        "fcp": 1848,
+        "lcp": 4468,
+        "shell": 3837.5,
+        "ready": 4228.899999999907,
+        "backgroundSettled": 4931.800000000279,
+        "layoutShiftSum": 0.00007661682559483599,
+        "cls": 0.00007661682559483599,
+        "firstPrimaryReq": 281.946533203125,
+        "lastRestEnd": 4334.899999999907,
+        "restCount": 4,
+        "reqs": 63,
+        "script": 966.462,
+        "task": 2004.6119999999999
+      },
+      "ranges": {
+        "fcp": [
+          1780,
+          1996
+        ],
+        "lcp": [
+          4232,
+          4804
+        ],
+        "shell": [
+          3728.2000000001863,
+          3994
+        ],
+        "ready": [
+          3984,
+          4490.100000000093
+        ],
+        "backgroundSettled": [
+          4691.4000000003725,
+          5328.5
+        ],
+        "layoutShiftSum": [
+          0.00007661682559483599,
+          0.00007661682559483599
+        ],
+        "cls": [
+          0.00007661682559483599,
+          0.00007661682559483599
+        ],
+        "firstPrimaryReq": [
+          254.07373046875,
+          306.238525390625
+        ],
+        "lastRestEnd": [
+          4066.100000000093,
+          4684.699999999721
+        ],
+        "restCount": [
+          4,
+          4
+        ],
+        "reqs": [
+          63,
+          63
+        ],
+        "script": [
+          795.397,
+          1233.7
+        ],
+        "task": [
+          1687.0629999999999,
+          2583.901
+        ]
+      },
+      "samples": 7,
+      "errors": [],
+      "misses": [],
+      "pendingFixtureResponses": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "readCounts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "maxClockUncertaintyMs": 0.7985489999991842,
+      "mutableCountOrClockViolations": 0
+    }
+  },
+  "repeat": {
+    "/": {
+      "median": {
+        "fcp": 1844,
+        "lcp": 4364,
+        "shell": 4006.7000000001863,
+        "ready": 4280.600000000093,
+        "backgroundSettled": 7254.5,
+        "layoutShiftSum": 0.0012823553331429885,
+        "cls": 0.0012057385075481524,
+        "firstPrimaryReq": 268.734375,
+        "lastRestEnd": 6727.800000000279,
+        "restCount": 57,
+        "reqs": 131,
+        "script": 1168.0539999999999,
+        "task": 3923.102
+      },
+      "ranges": {
+        "fcp": [
+          1760,
+          2040
+        ],
+        "lcp": [
+          4048,
+          5048
+        ],
+        "shell": [
+          3825.100000000093,
+          4837.5999999996275
+        ],
+        "ready": [
+          4110.700000000186,
+          5133.5999999996275
+        ],
+        "backgroundSettled": [
+          6970.899999999907,
+          8306.399999999907
+        ],
+        "layoutShiftSum": [
+          0.0012823553331429885,
+          0.0012823553331429885
+        ],
+        "cls": [
+          0.0012057385075481524,
+          0.0012057385075481524
+        ],
+        "firstPrimaryReq": [
+          260.42578125,
+          307.094482421875
+        ],
+        "lastRestEnd": [
+          6430.700000000186,
+          7788.199999999721
+        ],
+        "restCount": [
+          57,
+          57
+        ],
+        "reqs": [
+          131,
+          131
+        ],
+        "script": [
+          1126.232,
+          1859.218
+        ],
+        "task": [
+          3656.252,
+          5160.648
+        ]
+      },
+      "samples": 7,
+      "errors": [],
+      "misses": [],
+      "pendingFixtureResponses": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "readCounts": [
+        57,
+        57,
+        57,
+        57,
+        57,
+        57,
+        57
+      ],
+      "maxClockUncertaintyMs": 0.9947364999999309,
+      "mutableCountOrClockViolations": 0
+    },
+    "/world": {
+      "median": {
+        "fcp": 2260,
+        "lcp": 5952,
+        "shell": 4991.0999999996275,
+        "ready": 5875.200000000186,
+        "backgroundSettled": 7933.100000000093,
+        "layoutShiftSum": 0.03710816689466336,
+        "cls": 0.037031550069068525,
+        "firstPrimaryReq": 305.4609375,
+        "lastRestEnd": 7399.5,
+        "restCount": 45,
+        "reqs": 111,
+        "script": 1285.873,
+        "task": 3867.819
+      },
+      "ranges": {
+        "fcp": [
+          2084,
+          2412
+        ],
+        "lcp": [
+          5724,
+          6592
+        ],
+        "shell": [
+          4827.199999999721,
+          5617.100000000093
+        ],
+        "ready": [
+          5664,
+          6515.600000000093
+        ],
+        "backgroundSettled": [
+          7621.700000000186,
+          8697.600000000093
+        ],
+        "layoutShiftSum": [
+          0.03703910550810003,
+          0.03718838863234159
+        ],
+        "cls": [
+          0.03696248868250519,
+          0.037111771806746754
+        ],
+        "firstPrimaryReq": [
+          250.0224609375,
+          338.21142578125
+        ],
+        "lastRestEnd": [
+          7105,
+          8175.899999999907
+        ],
+        "restCount": [
+          45,
+          45
+        ],
+        "reqs": [
+          111,
+          111
+        ],
+        "script": [
+          1133.1789999999999,
+          1701.94
+        ],
+        "task": [
+          3489.852,
+          4505.759
+        ]
+      },
+      "samples": 7,
+      "errors": [],
+      "misses": [],
+      "pendingFixtureResponses": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "readCounts": [
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45
+      ],
+      "maxClockUncertaintyMs": 1.202572499998496,
+      "mutableCountOrClockViolations": 0
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "median": {
+        "fcp": 1864,
+        "lcp": 4528,
+        "shell": 3840.399999999907,
+        "ready": 4239.399999999907,
+        "backgroundSettled": 5008.5,
+        "layoutShiftSum": 0.00007661682559483599,
+        "cls": 0.00007661682559483599,
+        "firstPrimaryReq": 274.7451171875,
+        "lastRestEnd": 4348.699999999721,
+        "restCount": 4,
+        "reqs": 63,
+        "script": 1003.7339999999999,
+        "task": 2146.926
+      },
+      "ranges": {
+        "fcp": [
+          1736,
+          2144
+        ],
+        "lcp": [
+          4288,
+          5516
+        ],
+        "shell": [
+          3750.5,
+          4587.399999999907
+        ],
+        "ready": [
+          4031.5,
+          4976.5999999996275
+        ],
+        "backgroundSettled": [
+          4736.600000000093,
+          5905.899999999907
+        ],
+        "layoutShiftSum": [
+          0.00007661682559483599,
+          0.00007661682559483599
+        ],
+        "cls": [
+          0.00007661682559483599,
+          0.00007661682559483599
+        ],
+        "firstPrimaryReq": [
+          256.007568359375,
+          345.25537109375
+        ],
+        "lastRestEnd": [
+          4133.5,
+          5206
+        ],
+        "restCount": [
+          4,
+          4
+        ],
+        "reqs": [
+          63,
+          63
+        ],
+        "script": [
+          893.572,
+          1700.193
+        ],
+        "task": [
+          1921.3020000000001,
+          3607.3019999999997
+        ]
+      },
+      "samples": 7,
+      "errors": [],
+      "misses": [],
+      "pendingFixtureResponses": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "readCounts": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "maxClockUncertaintyMs": 1.480988499999512,
+      "mutableCountOrClockViolations": 0
+    }
+  },
+  "observedColdTargets": {
+    "/": {
+      "medianLcpAtMost2500ms": false,
+      "maxObservedSessionWindowClsAtMostPoint1": true,
+      "note": "Bounded lab observation, not field/lifetime CWV acceptance"
+    },
+    "/world": {
+      "medianLcpAtMost2500ms": false,
+      "maxObservedSessionWindowClsAtMostPoint1": true,
+      "note": "Bounded lab observation, not field/lifetime CWV acceptance"
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "medianLcpAtMost2500ms": false,
+      "maxObservedSessionWindowClsAtMostPoint1": true,
+      "note": "Bounded lab observation, not field/lifetime CWV acceptance"
+    }
+  },
+  "historicalFailuresPreserved": [
+    "raw/renderer-old.txt",
+    "raw/intermediate-*",
+    "raw/pre-quiet-*",
+    "raw/setup-build-failure.txt"
+  ],
+  "releaseState": "BRANCH_ONLY; no merge, main push, deployment, permission/switch/product DB change or other-session activation",
+  "outstanding": [
+    "Renew both sides of affected historical cold comparisons with the final profile and matched conditions",
+    "HomeV2 runner and hosted helper require their own definition repairs; exact HomeV2 handoff retained",
+    "Exact hosted candidate, real identities, broader 2029 journeys, physical phone and field/RUM acceptance remain separate"
+  ]
+}

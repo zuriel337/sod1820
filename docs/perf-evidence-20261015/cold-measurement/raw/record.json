@@ -1,0 +1,1519 @@
+{
+  "measurementProfile": {
+    "version": "cold-replay-v2",
+    "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+    "readiness": "rendered-primary-source-v2",
+    "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+    "observation": "load-primary-networkidle-plus-1000ms"
+  },
+  "label": "v2-fixed-snapshot",
+  "mode": "record",
+  "runs": 1,
+  "browser": "151.0.7922.173",
+  "playwright": "1.56.1",
+  "dataMode": "anonymous-rpc-complete-replay",
+  "profile": "mobile",
+  "cpu": 4,
+  "rtt": 150,
+  "download": 209715.2,
+  "upload": 96000,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "dpr": 2,
+  "routes": {
+    "/": {
+      "median": {
+        "fcp": 544,
+        "lcp": 2184,
+        "shell": 1048.0999999999767,
+        "ready": 1089,
+        "backgroundSettled": 4491,
+        "layoutShiftSum": 0.01222041956557954,
+        "cls": 0.01222041956557954,
+        "firstPrimaryReq": 226.21875,
+        "lastRestEnd": 3977.5,
+        "restCount": 56,
+        "reqs": 129,
+        "script": 395.092,
+        "task": 1917.1879999999999
+      },
+      "ranges": {
+        "fcp": [
+          544,
+          544
+        ],
+        "lcp": [
+          2184,
+          2184
+        ],
+        "shell": [
+          1048.0999999999767,
+          1048.0999999999767
+        ],
+        "ready": [
+          1089,
+          1089
+        ],
+        "backgroundSettled": [
+          4491,
+          4491
+        ],
+        "layoutShiftSum": [
+          0.01222041956557954,
+          0.01222041956557954
+        ],
+        "cls": [
+          0.01222041956557954,
+          0.01222041956557954
+        ],
+        "firstPrimaryReq": [
+          226.21875,
+          226.21875
+        ],
+        "lastRestEnd": [
+          3977.5,
+          3977.5
+        ],
+        "restCount": [
+          56,
+          56
+        ],
+        "reqs": [
+          129,
+          129
+        ],
+        "script": [
+          395.092,
+          395.092
+        ],
+        "task": [
+          1917.1879999999999,
+          1917.1879999999999
+        ]
+      },
+      "samples": [
+        {
+          "shell": 1048.0999999999767,
+          "ready": 1089,
+          "lcp": 2184,
+          "cls": 0.01222041956557954,
+          "layoutShiftSum": 0.01222041956557954,
+          "timeOrigin": 1792085620789.6,
+          "observationEnd": 5495.79999999993,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "home-post-title-and-destination"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 766.6999999999534,
+              "value": 0.00007931650232474563,
+              "hadRecentInput": true
+            },
+            {
+              "startTime": 1337.4000000000233,
+              "value": 0.0012057385075481524,
+              "hadRecentInput": false
+            },
+            {
+              "startTime": 2050.5,
+              "value": 0.011014681058031387,
+              "hadRecentInput": false
+            }
+          ],
+          "fcp": 544,
+          "lastRestEnd": 3977.5,
+          "reqs": 129,
+          "links": [
+            "/category/%D7%A1%D7%95%D7%93%20%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+            "/post/sod-hachashmal-esev-sade-behema-sukkot",
+            "/world",
+            "/posts",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/post/mah-kore-mokesh-har-naftali",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%91%D7%97%D7%99%D7%A8%D7%95%D7%AA",
+            "/post/sharshar-elections-redemption-hints-draft#sharshar-shoes-66",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/category/%D7%A7%D7%95%D7%9C%D7%95%D7%AA%20%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA%20%D7%94%D7%A2%D7%95%D7%9C%D7%9D",
+            "/post/קול-מאומות-העולם-אלוהי-אברהם-יצחק-ויעקב",
+            "/category/%D7%A1%D7%95%D7%93%20%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+            "/post/lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema",
+            "/world#world-all-convergences",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/topic/gapfill-644",
+            "/topic/98-ikuv-geula",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "/post/chibur-bein-hasafot-mafteach-lagan",
+            "/languages",
+            "/post/matrix-506",
+            "/post/squid-game-456",
+            "/category/הצופן בסרטים",
+            "/post/%D7%A6%D7%95%D7%A4%D7%9F-%D7%9E%D7%93%D7%94%D7%99%D7%9D-%D7%91%D7%AA%D7%95%D7%A8%D7%94-%D7%94%D7%A7%D7%93%D7%95%D7%A9%D7%94",
+            "/post/%D7%9E%D7%A9%D7%99%D7%97-%D7%98%D7%91%D7%AA-%D7%A2%D7%A9%D7%99%D7%A8%D7%99-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-1359",
+            "/code?cipher=%D7%90%D7%A1%D7%95%D7%9F-%D7%A0%D7%A4%D7%90%D7%9C-25049",
+            "/code?cipher=%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D-71",
+            "/category/צפונות בתורה",
+            "/els?library=public",
+            "/post/seventh-to-tenth-sefirot-2027",
+            "/post/yam-hamelach-tiferet-geula",
+            "/post/koach-hashtika-dim5",
+            "/post/ma-becha-nishar-kshehakol-mishtane-dim5",
+            "/category/מימד חמש",
+            "/world#world-sources",
+            "/world",
+            "/or-geula",
+            "/world",
+            "/community/chat",
+            "/map"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 4491,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.7086199999999963,
+          "textHash": "da59c1d4cea42054f5724fea72f7fbffaafd9ba7c5233089ad159a4305600b8a",
+          "textLength": 4482,
+          "script": 395.092,
+          "task": 1917.1879999999999,
+          "firstPrimaryReq": 226.21875,
+          "restCount": 56,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/notification_prefs_guest_get_v1",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+              "args": null,
+              "status": 200,
+              "start": 226.21875,
+              "primary": true,
+              "bytes": 13713,
+              "bodyHash": "9b8deda782b10dc39290bc59c5660b13218c1d2f2bca18c8f12c6e1e36a25735"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 705.218994140625,
+              "primary": false,
+              "bytes": 4205,
+              "bodyHash": "aa2e8e1547829d9c61a03d022bd3d836313eeff7939b14d7eb6c69c53613186c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Cdate%2Cmodified%2Ccategories%2Csource%2Ctags%2Chome_hidden&slug=in.%28sod-hachashmal-esev-sade-behema-sukkot%2Cmah-kore-mokesh-har-naftali%2Cflydubai-fz1073-363-14000-remzei-geula%2Csharshar-elections-redemption-hints-draft%2C%D7%A7%D7%95%D7%9C-%D7%9E%D7%90%D7%95%D7%9E%D7%95%D7%AA-%D7%94%D7%A2%D7%95%D7%9C%D7%9D-%D7%90%D7%9C%D7%95%D7%94%D7%99-%D7%90%D7%91%D7%A8%D7%94%D7%9D-%D7%99%D7%A6%D7%97%D7%A7-%D7%95%D7%99%D7%A2%D7%A7%D7%91%2Clehitaneg-al-hashem-birkat-hatorah-esev-sade-behema%2Cseventh-to-tenth-sefirot-2027%2Clevi-sudri-hazarat-hanevua-habchirot-six-seven%2Cremzei-geula-ai-sod-hashir%2Cyam-hamelach-tiferet-geula%2Cmah-kore-nza-hasoara%2Ctashpav-tashpaz-787-hidden-connection%2Csod-hashmal-rosh-hashana-5787-keren-shofar-brit-111%2Ctorat-haremez-mafteach-lagan-1258%2Ckoach-hashtika-dim5%2Cma-becha-nishar-kshehakol-mishtane-dim5%29",
+              "args": null,
+              "status": 200,
+              "start": 1067.23486328125,
+              "primary": true,
+              "bytes": 6720,
+              "bodyHash": "cbc29e719d00aec873655333439ecda118b915f5dedd19987a3fc64240e62705"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1186.92919921875,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.sod-hachashmal-esev-sade-behema-sukkot&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1140.494140625,
+              "primary": true,
+              "bytes": 370,
+              "bodyHash": "8be07dc488e7e688213ecbb3350035b1ba87b7985583cc40125a6a1522380613"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Cdate%2Cmodified%2Ctags%2Ccategories%2Csource%2Chome_hidden&slug=eq.sod-hachashmal-esev-sade-behema-sukkot&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1476.829833984375,
+              "primary": true,
+              "bytes": 370,
+              "bodyHash": "8be07dc488e7e688213ecbb3350035b1ba87b7985583cc40125a6a1522380613"
+            },
+            {
+              "method": "HEAD",
+              "path": "/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-08T17%3A33%3A42.072Z",
+              "args": null,
+              "status": 200,
+              "start": 1323.120361328125,
+              "primary": false,
+              "bytes": 0,
+              "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "method": "HEAD",
+              "path": "/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&visibility_changed_at=gte.2026-10-08T17%3A33%3A42.072Z",
+              "args": null,
+              "status": 200,
+              "start": 1329.962646484375,
+              "primary": false,
+              "bytes": 0,
+              "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "method": "HEAD",
+              "path": "/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&created_at=gte.2026-10-08T17%3A33%3A42.072Z&visibility_changed_at=gte.2026-10-08T17%3A33%3A42.072Z",
+              "args": null,
+              "status": 200,
+              "start": 1332.302734375,
+              "primary": false,
+              "bytes": 0,
+              "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gematria_words?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=created_at.desc.nullslast&limit=3",
+              "args": null,
+              "status": 200,
+              "start": 1353.220703125,
+              "primary": false,
+              "bytes": 419,
+              "bodyHash": "3297f009300fab105e117f59888d81ce229a17d4fec354e3c6c55f72070f694d"
+            },
+            {
+              "method": "HEAD",
+              "path": "/rest/v1/gematria_words?select=phrase&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29",
+              "args": null,
+              "status": 206,
+              "start": 1315.662109375,
+              "primary": false,
+              "bytes": 0,
+              "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cimage_url%2Cthumb_url%2Ccategories%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Cauthor%2Csource&order=modified.desc.nullslast&offset=0&limit=60&categories=ov.%7B%D7%9E%D7%99%D7%9E%D7%93+%D7%97%D7%9E%D7%A9%7D&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D",
+              "args": null,
+              "status": 200,
+              "start": 1465.592529296875,
+              "primary": true,
+              "bytes": 41190,
+              "bodyHash": "6afda1ba1b0d887758fc383c63001c627b55a220ee1251cfc4a2017e619b7a0c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_user_id%2Cauthor_contributor_id%2Cauthor_name%2Ccreated_at&status=eq.approved&created_at=gte.2026-10-08T17%3A33%3A42.072Z&order=created_at.desc&limit=1000",
+              "args": null,
+              "status": 200,
+              "start": 1398.497802734375,
+              "primary": false,
+              "bytes": 477,
+              "bodyHash": "3bd62de387b5ad2cd7ea7eda33b761d0f76cda884e7eaef3fb1074505c35e741"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/get_category_videos",
+              "args": "{\"p_category\":\"צפונות בתורה\",\"p_limit\":80}",
+              "status": 200,
+              "start": 1461.798095703125,
+              "primary": false,
+              "bytes": 41873,
+              "bodyHash": "6abc03777d444d2878eb8bdf5d82983c377baa73e6f9c7f7e6b2fc12dfd777d0"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 1480.30419921875,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gematria_words?select=phrase%2Cragil%2Ccreated_at%2Cvisibility_changed_at&is_verified=eq.true&is_published=eq.true&or=%28is_encrypted.is.null%2Cis_encrypted.eq.false%29&order=visibility_changed_at.desc.nullslast&limit=3",
+              "args": null,
+              "status": 200,
+              "start": 1394.2431640625,
+              "primary": false,
+              "bytes": 520,
+              "bodyHash": "01b47284d963dd44e2aeed56cbac3971299d478973a74798e1d4cd96fbef1754"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/els_records?select=id%2Cslug%2Ctitle%2Csearch_term%2Cscope%2Cskip_distance%2Cdirection%2Cstart_index%2Ccorpus_id%2Cimage_url%2Cdescription%2Cauthor_name%2Cprimary_number%2Canchor_numbers%2Csource%2Ccreated_at%2Cself_published%2Cstatus%2Cvisibility%2Cowner_user_id&status=eq.published&visibility=eq.public&or=%28source.is.null%2Csource.neq.research%29&order=created_at.desc%2Cid.desc&offset=0&limit=5",
+              "args": null,
+              "status": 200,
+              "start": 1469.1767578125,
+              "primary": false,
+              "bytes": 6697,
+              "bodyHash": "3e59cdcca9c1d98d5d069caabab7ae5d0920ab5897b8a1567fc717069b932153"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cimage_url%2Cthumb_url%2Ccategories%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Cauthor%2Csource&order=modified.desc.nullslast&offset=0&limit=24&categories=ov.%7B%D7%A9%D7%91%D7%99%D7%9C%D7%99+%D7%A9%D7%A4%D7%94%7D&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D",
+              "args": null,
+              "status": 200,
+              "start": 1413.59130859375,
+              "primary": true,
+              "bytes": 1222,
+              "bodyHash": "cf9a71345d1d60877ceca565c40e76d3b82cb503f6c1308be7f54b8b3c1f114e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cimage_url%2Cthumb_url%2Ccategories%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Cauthor%2Csource&order=modified.desc.nullslast&offset=0&limit=30&categories=ov.%7B%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%91%D7%A1%D7%A8%D7%98%D7%99%D7%9D%7D&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D",
+              "args": null,
+              "status": 200,
+              "start": 1422.720458984375,
+              "primary": true,
+              "bytes": 1879,
+              "bodyHash": "5b3b3af0d0b838ee789abed5eb0e025d807b658d4c9fae8ce92853fd0b81b460"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1562.966796875,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 1483.052978515625,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_method_value",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"תשפז\"}",
+              "status": 200,
+              "start": 1544.0859375,
+              "primary": false,
+              "bytes": 3,
+              "bodyHash": "fc091d39524c9d4b5b11f84f9132996a94ca01c9816d2db3b866bef1b0699d91"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=5",
+              "args": null,
+              "status": 200,
+              "start": 1612.2724609375,
+              "primary": false,
+              "bytes": 2466,
+              "bodyHash": "692e3c4cd76918403cd2b226ad1000c1f4aaf59cd55521db4a6dc84bd39ac17c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Ccontent%2Cexcerpt&id=eq.5018&categories=ov.%7B%D7%A9%D7%91%D7%99%D7%9C%D7%99+%D7%A9%D7%A4%D7%94%7D&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&home_hidden=eq.false&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 2289.294189453125,
+              "primary": true,
+              "bytes": 30426,
+              "bodyHash": "f3fcc92a3f6a07aa52dbe2c3cad73214cdb0678afc58f409368d54610248fad2"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 2474.39208984375,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 2500.224853515625,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 2508.66064453125,
+              "primary": true,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 2505.039306640625,
+              "primary": true,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 2513.28857421875,
+              "primary": true,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 2491.8984375,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 2494.721435546875,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 2525.76318359375,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 2531.997802734375,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 2559.943603515625,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 2520.251708984375,
+              "primary": true,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 2552.733154296875,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 2534.858642578125,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 2542.837646484375,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 2567.16943359375,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1820}",
+              "status": 200,
+              "start": 2696.1953125,
+              "primary": false,
+              "bytes": 8385,
+              "bodyHash": "c39c9c46433774ac6b4add62146c4a360e136072d6582287c9a9a2e74c9f4817"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1202}",
+              "status": 200,
+              "start": 2703.41552734375,
+              "primary": false,
+              "bytes": 8184,
+              "bodyHash": "df6d414d4a0d4f3ebdefc914a942cfe1940472f5bd381829bcddba8d6828e1cc"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":644}",
+              "status": 200,
+              "start": 2711.48388671875,
+              "primary": false,
+              "bytes": 3294,
+              "bodyHash": "05bac9efd294a604e8484baaf710dfcb27f2154d43e4ab34883915cbbb5b4af9"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 3232.201171875,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+              "args": null,
+              "status": 200,
+              "start": 2581.930908203125,
+              "primary": false,
+              "bytes": 15081,
+              "bodyHash": "40740ea044a519864b3a181f78e755c7e0bf90a40e66ddd5791ea6f6b3d8a387"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 3194.819580078125,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+              "args": null,
+              "status": 200,
+              "start": 2595.85693359375,
+              "primary": false,
+              "bytes": 357,
+              "bodyHash": "37b53134f4d307d9f4143404029bae31c033a2e4808b7a3c0e0d94f6cabef9ed"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+              "args": null,
+              "status": 200,
+              "start": 2578.18115234375,
+              "primary": false,
+              "bytes": 2029,
+              "bodyHash": "f22fca7c35d86af59429fe4ad6f61b45193339e5c87bac50c4f80e6a7d6027a5"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":8,\"p_before\":null}",
+              "status": 200,
+              "start": 3240.253173828125,
+              "primary": false,
+              "bytes": 7042,
+              "bodyHash": "0285231f46d2e0a4a3b1493e23e9fce62ee44c057a59cd05cd23f1b55d08c44e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=32",
+              "args": null,
+              "status": 200,
+              "start": 3250.9609375,
+              "primary": true,
+              "bytes": 26279,
+              "bodyHash": "88325c7fc71fd5bb7e7bdcd0669b2869e1cec70a3307808942230d96f397c6b3"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 3480.499755859375,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 3726.068603515625,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_name%2Ctitle%2Cgematria_claim%2Ccreated_at&target_type=eq.number&target_id=eq.787&status=eq.approved&order=created_at.desc&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 3509.75927734375,
+              "primary": false,
+              "bytes": 443,
+              "bodyHash": "49afbaf4c4220a11f0ae4affc74de158afd5bc96f5dd7937da458ce46ba1f81e"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Ctitle%2Cslug%2Clink%2Cmodified%2Cdate%2Cauthor%2Cai_addition%2Cspace%2Chome_hidden&space=eq.core&home_hidden=eq.false&ai_addition=not.is.null&ai_addition=ilike.%25787%25&order=modified.desc.nullslast&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 3516.78173828125,
+              "primary": true,
+              "bytes": 1635,
+              "bodyHash": "ae2d4dbada44ba17e5985ea5200b52f75bef42c7f70e178ac5ad4aabf5217d95"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gematria_words?select=phrase%2Cragil%2Cgadol%2Csiduri%2Cmiluy%2Ckadmi%2Catbash%2Calbam%2Cmisratar%2Cribua%2Cis_verified%2Csource%2Ctags&is_verified=eq.true&tags=cs.%7B%D7%90%D7%95%D7%A6%D7%A8%D7%95%D7%AA+%D7%94%D7%92%D7%99%D7%9C%D7%95%D7%99%7D&limit=40",
+              "args": null,
+              "status": 200,
+              "start": 3524.896728515625,
+              "primary": false,
+              "bytes": 746,
+              "bodyHash": "59469cef75cd545cb22b554ec964c29d8a014fca9d7f28f18197adaacac4dee5"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":98}",
+              "status": 200,
+              "start": 3399.247802734375,
+              "primary": false,
+              "bytes": 7260,
+              "bodyHash": "f7a48d707d57655ce05759d1372294f8eebc4376f4ec39280669b307bafab5b8"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 3736.142333984375,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            }
+          ]
+        }
+      ]
+    },
+    "/world": {
+      "median": {
+        "fcp": 332,
+        "lcp": 1112,
+        "shell": 793.4000000000233,
+        "ready": 957.9000000000233,
+        "backgroundSettled": 2541.4000000000233,
+        "layoutShiftSum": 0,
+        "cls": 0,
+        "firstPrimaryReq": 42.536865234375,
+        "lastRestEnd": 1982.3000000000466,
+        "restCount": 45,
+        "reqs": 111,
+        "script": 319.184,
+        "task": 1075.526
+      },
+      "ranges": {
+        "fcp": [
+          332,
+          332
+        ],
+        "lcp": [
+          1112,
+          1112
+        ],
+        "shell": [
+          793.4000000000233,
+          793.4000000000233
+        ],
+        "ready": [
+          957.9000000000233,
+          957.9000000000233
+        ],
+        "backgroundSettled": [
+          2541.4000000000233,
+          2541.4000000000233
+        ],
+        "layoutShiftSum": [
+          0,
+          0
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "firstPrimaryReq": [
+          42.536865234375,
+          42.536865234375
+        ],
+        "lastRestEnd": [
+          1982.3000000000466,
+          1982.3000000000466
+        ],
+        "restCount": [
+          45,
+          45
+        ],
+        "reqs": [
+          111,
+          111
+        ],
+        "script": [
+          319.184,
+          319.184
+        ],
+        "task": [
+          1075.526,
+          1075.526
+        ]
+      },
+      "samples": [
+        {
+          "shell": 793.4000000000233,
+          "ready": 957.9000000000233,
+          "lcp": 1112,
+          "cls": 0,
+          "layoutShiftSum": 0,
+          "timeOrigin": 1792085626526,
+          "observationEnd": 3552.5,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "world-admitted-story-and-action"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 459.70000000006985,
+              "value": 0.00007931650232474563,
+              "hadRecentInput": true
+            }
+          ],
+          "fcp": 332,
+          "lastRestEnd": 1982.3000000000466,
+          "reqs": 111,
+          "links": [
+            "#world-sources",
+            "#world-connections",
+            "#world-all-convergences",
+            "#world-journey-entry",
+            "/category/%D7%A8%D7%9E%D7%96%D7%99%D7%9D%20%D7%97%D7%96%D7%A7%D7%99%D7%9D",
+            "/category/%D7%AA%D7%99%D7%A2%D7%95%D7%93%20%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D",
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/post/flydubai-fz1073-363-14000-remzei-geula",
+            "/world#world-discovery-rails--india-health",
+            "/world#world-discovery-wall--see-my-back",
+            "/world#world-discovery-wall--wall-clock",
+            "/world#world-discovery-wisdom-set--wisdom-methods",
+            "/world?source=tzvi-opoc#world-contributor-material",
+            "/world?source=sod-hashmal#world-corpus-sod-hashmal",
+            "/topic/ateret-tiferetchem-1820",
+            "/topic/charvot-barzel-1202",
+            "/number/878?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%9E%D7%99%D7%9C%D7%95%D7%99"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 2541.4000000000233,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.6454359999997905,
+          "textHash": "8947d45ac6c5508e2da911642cccc4f9b1550754984f31a5777c057cdec9bce5",
+          "textLength": 9395,
+          "script": 319.184,
+          "task": 1075.526,
+          "firstPrimaryReq": 42.536865234375,
+          "restCount": 45,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 42.536865234375,
+              "primary": true,
+              "bytes": 35336,
+              "bodyHash": "333ebf459ea363553d8ef6fa106432e8917bf35323a8442e309ca3968cd4cda8"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 227.686767578125,
+              "primary": false,
+              "bytes": 4205,
+              "bodyHash": "aa2e8e1547829d9c61a03d022bd3d836313eeff7939b14d7eb6c69c53613186c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 767.6005859375,
+              "primary": false,
+              "bytes": 4205,
+              "bodyHash": "aa2e8e1547829d9c61a03d022bd3d836313eeff7939b14d7eb6c69c53613186c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+              "args": null,
+              "status": 200,
+              "start": 837.16796875,
+              "primary": false,
+              "bytes": 1547,
+              "bodyHash": "d52c73e80124c5549ef924278ed7394dc0cf9ba1239b06c08a5970a28d804672"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+              "args": null,
+              "status": 200,
+              "start": 840.53125,
+              "primary": false,
+              "bytes": 1219,
+              "bodyHash": "494478736582138d676b467303eb89b6071469bfc91fb5998e5446f340485a26"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 938.24658203125,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_contributions?select=id%2Cauthor_contributor_id%2Ctitle%2Ctarget_type%2Ctarget_id%2Cgematria_claim%2Cconvergence_slug%2Cstatus%2Ccreated_at&author_contributor_id=in.%28c66f0464-0928-490e-be9b-66d8a87e7fc8%2Cc0459430-6ba0-44a9-b1be-b5952344e74d%2Cd0fe09cd-ccc2-4f37-9c94-0de9e75e2b86%2Ce4fc2c19-9669-49e5-9564-d27cc3558f67%2C9594ec7d-159d-4148-ad6d-0371ffca8282%29&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100",
+              "args": null,
+              "status": 200,
+              "start": 947.9716796875,
+              "primary": false,
+              "bytes": 1010,
+              "bodyHash": "bb8e8b6bb957c0043d027c2e2d5a7fc6f8c0f5249cb6b7c93467a2e61a55674a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.india-axis",
+              "args": null,
+              "status": 200,
+              "start": 1001.0849609375,
+              "primary": false,
+              "bytes": 53,
+              "bodyHash": "fd98a58b48b9d6ee0df35397061a14adece9323eb3592f0cb89e945757843eef"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363",
+              "args": null,
+              "status": 200,
+              "start": 1001.49462890625,
+              "primary": false,
+              "bytes": 66,
+              "bodyHash": "3854e86a7382e56b5c7760f20803e7b6046a5773c31c82073508802219891236"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+              "args": null,
+              "status": 200,
+              "start": 1003.47705078125,
+              "primary": false,
+              "bytes": 100,
+              "bodyHash": "db485c6ebd74353a5545f8ce456a90ade17d5d3fa6717be37492025ed80228ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+              "args": null,
+              "status": 200,
+              "start": 1004.25439453125,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "34dd617f6ae3f2b919e30aa16651030399acbe19d31f771c9c262e806dcba10c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1006.823974609375,
+              "primary": false,
+              "bytes": 214,
+              "bodyHash": "313862dd40468190c0fb51413f5df66b15908caa834e14244684f0a826b4a459"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1008.625732421875,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "7064401ddd63289a890ab722ef18acc68ea28492738709bbbcd1a8bd3b815556"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1010.850830078125,
+              "primary": false,
+              "bytes": 220,
+              "bodyHash": "919e16b22020d38da9ba1cd47b69b96f5881308508f77254c22f81ee9bd8d169"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 1020.466064453125,
+              "primary": false,
+              "bytes": 93,
+              "bodyHash": "c05e7ab8f1a5006628424fa87ff11f6faff4dca3268053b65a31e7d8be62a111"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"אשר בשמים ממעל\"}",
+              "status": 200,
+              "start": 1022.8369140625,
+              "primary": false,
+              "bytes": 2689,
+              "bodyHash": "0dbae8b9615097798d8d5fa5551632fddacfe461872bb57a5359b7cb670d7949"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ולמות לא נתנני\"}",
+              "status": 200,
+              "start": 1025.292724609375,
+              "primary": false,
+              "bytes": 2683,
+              "bodyHash": "944353f1b0acd53f1b31a27bdfb30d95cf22eddfccffd2903d8500743966b21d"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"משיח בן דוד\"}",
+              "status": 200,
+              "start": 1028.430908203125,
+              "primary": false,
+              "bytes": 2210,
+              "bodyHash": "2baf4c91900db0d251520a29aa9bce9718104f6ac27a2d450358899c492df4cb"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"מסתתר\",\"p_phrase\":\"ולדימיר פוטין\"}",
+              "status": 200,
+              "start": 1028.781494140625,
+              "primary": false,
+              "bytes": 1344,
+              "bodyHash": "b6c0d306b3c94820cd9a4ef8198812137fd00c5631f2cee14f3f18918c81a9a6"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"שבעים וחמש\"}",
+              "status": 200,
+              "start": 1029.203857421875,
+              "primary": false,
+              "bytes": 2066,
+              "bodyHash": "f6650ab1dd02322d885cbc395012bc7003072b2f364de904c70b7eb9bafa0fc9"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/gematria_method_trace",
+              "args": "{\"p_method_key\":\"רגיל\",\"p_phrase\":\"ביאת המשיח\"}",
+              "status": 200,
+              "start": 1030.000244140625,
+              "primary": false,
+              "bytes": 2060,
+              "bodyHash": "6904316f58146ed36c13b69b58ae9740a45844a074e66c9e6d8b5aa7ed6bac0a"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=approved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=25",
+              "args": null,
+              "status": 200,
+              "start": 1035.21923828125,
+              "primary": false,
+              "bytes": 10226,
+              "bodyHash": "2ef8c62a215e3575167168215250536b74d5cb5528d2aa25d04a25ca750b6ac7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+              "args": null,
+              "status": 200,
+              "start": 735.131591796875,
+              "primary": false,
+              "bytes": 4845,
+              "bodyHash": "b2a382fb58e1675b900479fbbf9cc75e5555b29621773686d84aafff6239b5fd"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+              "args": null,
+              "status": 200,
+              "start": 730.540283203125,
+              "primary": false,
+              "bytes": 8437,
+              "bodyHash": "033e63ce2b652cbd8f339128222ef5d6ed49378ec75d7450d0bd2824fee00a48"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+              "args": null,
+              "status": 200,
+              "start": 759.455078125,
+              "primary": false,
+              "bytes": 771,
+              "bodyHash": "48565598954b91d2b8058cc1392393f2ebca785b4c48dd9f3f6e5766cd3fa7e3"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+              "args": null,
+              "status": 200,
+              "start": 742.57373046875,
+              "primary": false,
+              "bytes": 2572,
+              "bodyHash": "8e681d02c3859ffc8364029c94892c58d96fae36a89fc0917a14722aa922d501"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 1154.484130859375,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":1073}",
+              "status": 200,
+              "start": 1159.383056640625,
+              "primary": false,
+              "bytes": 511,
+              "bodyHash": "4c239c3c267faece25f98146af3a93f2afbbf98841aaa53c44bd5932426571f5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+              "args": null,
+              "status": 200,
+              "start": 1166.5361328125,
+              "primary": false,
+              "bytes": 206,
+              "bodyHash": "382d0a2c7a5ae83466a46c9b61111cbf7f27ca04cd9aea2542556dba71049fab"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/fn_zero_scale",
+              "args": "{\"p_value\":730}",
+              "status": 200,
+              "start": 1170.739013671875,
+              "primary": false,
+              "bytes": 631,
+              "bodyHash": "de65cb8f6cff9f0c03825e3d0e0f673daa88b9a7913b26da1ce9c0b5fc8c6fdc"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 755.559814453125,
+              "primary": false,
+              "bytes": 2036,
+              "bodyHash": "cbad65c154dc2d69e82a457fbad261a087f2ff8a1a5c2b4e851d70747ac07677"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+              "args": null,
+              "status": 200,
+              "start": 762.502197265625,
+              "primary": false,
+              "bytes": 7663,
+              "bodyHash": "0eb194ad0e486b27bd320478f9e70b0d77f6fefb25080f71a8e74a161e5479c4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+              "args": null,
+              "status": 200,
+              "start": 749.00732421875,
+              "primary": false,
+              "bytes": 3708,
+              "bodyHash": "585587da6e27e7ebec41dc34a4986f85ccf64e3e9ca01bc62a7d16e7ad1a131c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+              "args": null,
+              "status": 200,
+              "start": 814.751708984375,
+              "primary": false,
+              "bytes": 1406,
+              "bodyHash": "f463a8aef1d4a846c674637edbb29451baf28694d76491d26ef6cb55e4cc4da8"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1820}",
+              "status": 200,
+              "start": 1266.13623046875,
+              "primary": false,
+              "bytes": 8385,
+              "bodyHash": "c39c9c46433774ac6b4add62146c4a360e136072d6582287c9a9a2e74c9f4817"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "args": "{\"p_n\":1202}",
+              "status": 200,
+              "start": 1267.203857421875,
+              "primary": false,
+              "bytes": 8184,
+              "bodyHash": "df6d414d4a0d4f3ebdefc914a942cfe1940472f5bd381829bcddba8d6828e1cc"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+              "args": null,
+              "status": 200,
+              "start": 926.199951171875,
+              "primary": false,
+              "bytes": 1706,
+              "bodyHash": "a4ef945f7f93d5666e53d686865b66661ebe8588b1d81c84f79fb440daa149a5"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+              "args": null,
+              "status": 200,
+              "start": 745.263671875,
+              "primary": false,
+              "bytes": 17971,
+              "bodyHash": "acc1217856f76017e52cb16fbbd5a4ff49729160b14f92d9ae8efe5fd69c93f7"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cexcerpt%2Cauthor%2Csource%2Ctags%2Chome_hidden%2Cdate%2Cmodified%2Ccreated_at&home_hidden=eq.false&tags=not.cs.%7B%D7%98%D7%99%D7%95%D7%98%D7%94%7D&tags=not.cs.%7B%D7%A4%D7%95%D7%A8%D7%95%D7%9D%7D&source=in.%28wordpress%2CSOD1820%2Csod1820%2Csource_document%2Cai%2Cuploaded_file%29&order=modified.desc.nullslast&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 1118.131591796875,
+              "primary": false,
+              "bytes": 40510,
+              "bodyHash": "9e5d3a3d0fc8183282e8b404c584e32463183ac27bc11ce87279b1e8b542e005"
+            },
+            {
+              "method": "POST",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "args": "{\"p_limit\":24,\"p_before\":null}",
+              "status": 200,
+              "start": 1126.621337890625,
+              "primary": false,
+              "bytes": 20734,
+              "bodyHash": "2222481a0f81ad03813df880ea1ffd68b4c8a3789575d271d0550ab012268ee4"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&image_url=in.%28https%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2020%2F12%2Fhvdv-450.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2017%2F05%2Fhnshya-bkvtl-b-424.jpeg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2019%2F07%2Fchkmh.jpg%2Chttps%3A%2F%2Flinswmnnkjxvweumprav.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fmedia%2Fuploads%2F2018%2F10%2Fvrayt-at.png%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&order=gallery_id.asc%2Cordering.asc%2Cid.asc&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 1143.035400390625,
+              "primary": false,
+              "bytes": 12216,
+              "bodyHash": "4f34de29f993f4ed226a3b4e40bce2d94635826fb71404074d92f05a43058a77"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/research_objects?select=id%2Ccreated_at%2Ckind%2Cstatement%2Cevidence%2Cvalue%2Csource_ref%2Ccontributor%2Cstatus&status=in.%28approved%2Ccanonical%29&order=created_at.desc&limit=48",
+              "args": null,
+              "status": 200,
+              "start": 1114.146240234375,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/edges?select=id%2Cfrom_node%2Cto_node%2Crelation_type%2Cmetadata%2Ccreated_at&from_node=in.%289cd22c3e-be5c-4283-ba6d-f974530d4dbc%2C9e59d335-0e40-4646-817f-f683d30d6619%29&relation_type=eq.related&metadata-%3E%3Erelation_role=eq.research_anchor_branch&order=created_at.asc&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 1146.939697265625,
+              "primary": false,
+              "bytes": 6516,
+              "bodyHash": "ddee8214c5bc756c96a3e88b77b92ac7eccbc53dba588eda3e74d03b70b053bf"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/galleries?select=id%2Cwp_gallery_id%2Cname&id=in.%289450243f-7d9a-4570-9533-f46116ecbf49%2C57b1849f-0b08-4709-8544-3f404e7ceed9%2C56971760-384f-42b0-8032-f2a0eb72cb0d%2C32ea3aab-afb4-45c6-bb2b-0c8498aed173%2C897946f3-c551-42a1-b504-ea1f9bf45172%29&limit=256",
+              "args": null,
+              "status": 200,
+              "start": 1466.431396484375,
+              "primary": false,
+              "bytes": 501,
+              "bodyHash": "0c8969fedd901488f4634e120a7bf56fd5e9317081dfbb974744ffa50be0c124"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&id=in.%289e59d335-0e40-4646-817f-f683d30d6619%2C9d1f698b-3f01-47c8-b7ce-c6236e3cf013%2Cea54fec9-15bd-4f22-b06a-1f3387884244%2C153caf63-f3fd-4dc9-9cc8-fdb9fe0a521d%2Cc6b8f925-fcd4-4247-ba1a-c7b7d630b225%2C16519589-d5ef-4475-8641-db02546bcd10%2Cdf5f3644-4e3c-4736-b725-7b3f1e511a8c%2C476e609c-1407-4499-ac24-bd66f1eeb721%2Ca1000001-0000-0000-0000-000000000009%29&is_active=eq.true&limit=24",
+              "args": null,
+              "status": 200,
+              "start": 1683.20166015625,
+              "primary": false,
+              "bytes": 2500,
+              "bodyHash": "f612400589f726b5f71a233442af334bce7b33c1381258f620b1f78d1fa97263"
+            }
+          ]
+        }
+      ]
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "median": {
+        "fcp": 524,
+        "lcp": 2452,
+        "shell": 1021.2000000000698,
+        "ready": 1189.3000000000466,
+        "backgroundSettled": 2867.5,
+        "layoutShiftSum": 0,
+        "cls": 0,
+        "firstPrimaryReq": 128.273193359375,
+        "lastRestEnd": 1497.6000000000931,
+        "restCount": 4,
+        "reqs": 63,
+        "script": 484.67199999999997,
+        "task": 1370.77
+      },
+      "ranges": {
+        "fcp": [
+          524,
+          524
+        ],
+        "lcp": [
+          2452,
+          2452
+        ],
+        "shell": [
+          1021.2000000000698,
+          1021.2000000000698
+        ],
+        "ready": [
+          1189.3000000000466,
+          1189.3000000000466
+        ],
+        "backgroundSettled": [
+          2867.5,
+          2867.5
+        ],
+        "layoutShiftSum": [
+          0,
+          0
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "firstPrimaryReq": [
+          128.273193359375,
+          128.273193359375
+        ],
+        "lastRestEnd": [
+          1497.6000000000931,
+          1497.6000000000931
+        ],
+        "restCount": [
+          4,
+          4
+        ],
+        "reqs": [
+          63,
+          63
+        ],
+        "script": [
+          484.67199999999997,
+          484.67199999999997
+        ],
+        "task": [
+          1370.77,
+          1370.77
+        ]
+      },
+      "samples": [
+        {
+          "shell": 1021.2000000000698,
+          "ready": 1189.3000000000466,
+          "lcp": 2452,
+          "cls": 0,
+          "layoutShiftSum": 0,
+          "timeOrigin": 1792085630378,
+          "observationEnd": 3985.3000000000466,
+          "primaryState": {
+            "shell": true,
+            "primary": true,
+            "kind": "post-matching-slug-title-and-source"
+          },
+          "layoutShifts": [
+            {
+              "startTime": 778.7000000000698,
+              "value": 0.00007931650232474563,
+              "hadRecentInput": true
+            }
+          ],
+          "fcp": 524,
+          "lastRestEnd": 1497.6000000000931,
+          "reqs": 63,
+          "links": [
+            "/category/%D7%9E%D7%99%D7%9E%D7%93%20%D7%97%D7%9E%D7%A9",
+            "/category/%D7%95%D7%99%D7%93%D7%90%D7%95",
+            "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98",
+            "/yam-hamelach-tiferet-geula",
+            "/posts",
+            "/world"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390,
+          "backgroundSettled": 2867.5,
+          "navStart": 0,
+          "clockUncertaintyMs": 0.493637999999919,
+          "textHash": "385fd972ae24a35fe6db22bd6115e542284bf4df749dcd0f45707f2d4017e375",
+          "textLength": 1003,
+          "script": 484.67199999999997,
+          "task": 1370.77,
+          "firstPrimaryReq": 128.273193359375,
+          "restCount": 4,
+          "errors": [],
+          "misses": [],
+          "blocked": [
+            "POST /rest/v1/rpc/link_identity",
+            "POST /rest/v1/rpc/track_visit",
+            "POST /rest/v1/rpc/ingest_event"
+          ],
+          "reads": [
+            {
+              "method": "GET",
+              "path": "/rest/v1/posts?select=*&slug=in.%28seventh-to-tenth-sefirot-2027%29&limit=1",
+              "args": null,
+              "status": 200,
+              "start": 128.273193359375,
+              "primary": true,
+              "bytes": 3960,
+              "bodyHash": "a90f62edf5647cb5c54ad5edfcc5e072efeb3a6b2c0c6c1256f72825528418ac"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 646.92578125,
+              "primary": false,
+              "bytes": 4205,
+              "bodyHash": "aa2e8e1547829d9c61a03d022bd3d836313eeff7939b14d7eb6c69c53613186c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/site_flags?select=key%2Cenabled%2Cmessage%2Cmode",
+              "args": null,
+              "status": 200,
+              "start": 1052.624755859375,
+              "primary": false,
+              "bytes": 4205,
+              "bodyHash": "aa2e8e1547829d9c61a03d022bd3d836313eeff7939b14d7eb6c69c53613186c"
+            },
+            {
+              "method": "GET",
+              "path": "/rest/v1/comments?select=*&post_wp_id=eq.37047&order=date.asc",
+              "args": null,
+              "status": 200,
+              "start": 1167.43212890625,
+              "primary": false,
+              "bytes": 2,
+              "bodyHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "theme": "dark",
+  "extensionInjection": {
+    "delay": 0,
+    "failure": false
+  },
+  "fixturesSha256": "2047a1604c6f1c44a4a450896a04fae496865bd3895160d21a9378dcea1629c8"
+}

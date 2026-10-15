@@ -1,0 +1,155 @@
+TAP version 13
+# {"runnerSha256":"f169d211275f1e601f76b031216a75ce223934c36245f64ad365d1af25508d8c","renderer":"Debugger.paused until fixture dispatch","fixtureDelayMs":150,"dispatchMs":154.5166079999999,"clockUncertaintyMs":0.961371999999983,"readStart":110.285400390625,"browserNow":273.39999999990687,"browser":"151.0.7922.173","errors":[],"misses":[]}
+# Subtest: fixture response is dispatched while the real renderer is blocked
+ok 1 - fixture response is dispatched while the real renderer is blocked
+  ---
+  duration_ms: 1437.829273
+  type: 'test'
+  ...
+# Subtest: readiness separates shells, real source content and late background work
+ok 2 - readiness separates shells, real source content and late background work
+  ---
+  duration_ms: 1587.861355
+  type: 'test'
+  ...
+# Subtest: browser epoch calibration survives a new document and SPA navigation
+ok 3 - browser epoch calibration survives a new document and SPA navigation
+  ---
+  duration_ms: 1393.387854
+  type: 'test'
+  ...
+# Subtest: calibration selects tightest round trip and retains the same clock after hard and soft navigation
+ok 4 - calibration selects tightest round trip and retains the same clock after hard and soft navigation
+  ---
+  duration_ms: 3.978779
+  type: 'test'
+  ...
+# Subtest: CLS uses maximum session window, excludes recent input and keeps separate clusters
+ok 5 - CLS uses maximum session window, excludes recent input and keeps separate clusters
+  ---
+  duration_ms: 0.803063
+  type: 'test'
+  ...
+# Subtest: CLS session span is strictly below 5 seconds, gap strictly below 1 second
+ok 6 - CLS session span is strictly below 5 seconds, gap strictly below 1 second
+  ---
+  duration_ms: 0.538519
+  type: 'test'
+  ...
+# Subtest: historical artifacts are retained, mixed definitions never produce comparable deltas
+ok 7 - historical artifacts are retained, mixed definitions never produce comparable deltas
+  ---
+  duration_ms: 22.878271
+  type: 'test'
+  ...
+# Subtest: late response completion cannot mutate finalized read counts or introduce epoch timestamps
+ok 8 - late response completion cannot mutate finalized read counts or introduce epoch timestamps
+  ---
+  duration_ms: 6.09856
+  type: 'test'
+  ...
+# Subtest: current reports require primary content, calibrated time and separated readiness phases
+ok 9 - current reports require primary content, calibrated time and separated readiness phases
+  ---
+  duration_ms: 9.725887
+  type: 'test'
+  ...
+# Subtest: a bounded primary sample with pending background responses cannot certify complete read-count regression
+ok 10 - a bounded primary sample with pending background responses cannot certify complete read-count regression
+  ---
+  duration_ms: 3.134457
+  type: 'test'
+  ...
+# Subtest: SPA paints cannot silently satisfy the cold-navigation timing budget
+ok 11 - SPA paints cannot silently satisfy the cold-navigation timing budget
+  ---
+  duration_ms: 2.218312
+  type: 'test'
+  ...
+# Subtest: the installed response guard blocks analytics, table writes, auth and unreviewed RPCs before navigation
+ok 12 - the installed response guard blocks analytics, table writes, auth and unreviewed RPCs before navigation
+  ---
+  duration_ms: 4.910535
+  type: 'test'
+  ...
+# Subtest: fixture evidence is accepted only for its declared lab purpose
+ok 13 - fixture evidence is accepted only for its declared lab purpose
+  ---
+  duration_ms: 2.078878
+  type: 'test'
+  ...
+# Subtest: a fixture miss must fail even when the page reports READY
+ok 14 - a fixture miss must fail even when the page reports READY
+  ---
+  duration_ms: 4.046534
+  type: 'test'
+  ...
+# Subtest: Home redirect and absent readiness cannot be used as a baseline
+ok 15 - Home redirect and absent readiness cannot be used as a baseline
+  ---
+  duration_ms: 0.822494
+  type: 'test'
+  ...
+# Subtest: real DB and fixtures, or different browsers, cannot be compared
+ok 16 - real DB and fixtures, or different browsers, cannot be compared
+  ---
+  duration_ms: 1.809185
+  type: 'test'
+  ...
+# Subtest: overlapping READY ranges do not prove improvement
+ok 17 - overlapping READY ranges do not prove improvement
+  ---
+  duration_ms: 0.402449
+  type: 'test'
+  ...
+# Subtest: output metadata and missing conditions fail closed
+ok 18 - output metadata and missing conditions fail closed
+  ---
+  duration_ms: 0.35974
+  type: 'test'
+  ...
+# Subtest: product gate requires extension isolation and exact hosted SHA
+ok 19 - product gate requires extension isolation and exact hosted SHA
+  ---
+  duration_ms: 0.371155
+  type: 'test'
+  ...
+# Subtest: recorded complete replay passes; missing responses and failed primary reads fail closed
+ok 20 - recorded complete replay passes; missing responses and failed primary reads fail closed
+  ---
+  duration_ms: 6.710551
+  type: 'test'
+  ...
+# Subtest: fixtures/browser differences prevent comparison and isolated savings are not added
+ok 21 - fixtures/browser differences prevent comparison and isolated savings are not added
+  ---
+  duration_ms: 5.869782
+  type: 'test'
+  ...
+# Subtest: a replay budget rejects request or readiness regression
+ok 22 - a replay budget rejects request or readiness regression
+  ---
+  duration_ms: 1.887841
+  type: 'test'
+  ...
+# Subtest: matched budgets reject slower timing and extra reads on the same runner
+ok 23 - matched budgets reject slower timing and extra reads on the same runner
+  ---
+  duration_ms: 3.23517
+  type: 'test'
+  ...
+# Subtest: intentional extension failures are functional evidence only; primary still becomes ready first
+ok 24 - intentional extension failures are functional evidence only; primary still becomes ready first
+  ---
+  duration_ms: 0.623426
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4949.064675

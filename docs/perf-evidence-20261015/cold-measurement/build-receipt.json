@@ -1,0 +1,32 @@
+{
+  "productBase": "14e239b47e5ec6b95eaad4e1b368520512642217",
+  "productSourceDiff": [],
+  "command": "npm ci --ignore-scripts; npm run build",
+  "node": "24.19.0",
+  "distTreeSha256": "d855088ff6e7d20ec29fd92751036565b55b5da288fb6bee24797c1cb66ca64d",
+  "distFiles": 403,
+  "fixtureSha256": "224ebd7b6232c72fb9003fb27f90938e2be36372752728ac7ef10cea001c6c9f",
+  "fixturePolicy": "New bounded anonymous public-read snapshot captured and completed using unchanged mobile-image capture; frozen before replay; bodies remain private under work/. No historical fixture or baseline modified.",
+  "instrumentCommit": "3896ceb6cbd708d3c7fa09e976b0a38a15372d83",
+  "instrumentFilesSha256": {
+    "scripts/perf-execution-2029/browser-metrics.mjs": "a889b49f851c1338995a1384e810b720443701085739a7b7a17855c7ec0a461d",
+    "scripts/perf-execution-2029/evidence-gate.mjs": "f9fcb95a3373c6479a4d9f399c040951a625fe5ae6c1fd32479611f01f7bdc2c",
+    "scripts/perf-execution-2029/extension-gate.mjs": "bcded2514b3d77f5cde30aab6d01edd5a4c4419763adf4710000fa48c869e2b1",
+    "scripts/perf-execution-2029/hosted.mjs": "59eccad64633408c49be71ae49195916bbd8d429f9bae6042e006639870f88ca",
+    "scripts/perf-execution-2029/measure.mjs": "1e11e40db09b507e3e36a8ecedf62db82ec178ea7c0288db0fb729f11c265a8f",
+    "scripts/perf-execution-2029/measurement-profile.mjs": "378ad584ce2ec1dbe0b63006f5101b69cf605aafcead9024847e147bd2e43889",
+    "scripts/perf-execution-2029/measurement.browser.test.mjs": "af0c5ac4fc17db2f431af8f2ee291b40c2754e93818d5231d854bea17a5f7154",
+    "scripts/perf-execution-2029/measurement.test.mjs": "1f7f8d9b613985b460045fd6d164c41a0d26f6c1f2ad5eb728450d4430f5656d",
+    "scripts/perf-execution-2029/mobile-image-gate.mjs": "ab39b70b08921ccce029bd54f1c836d7425b535993937288c747e98ed0ba9018",
+    "scripts/perf-execution-2029/network-quiet.mjs": "e4778944e135af9bc188796a2ed67dbd1674a2174160a0f200ed108549fddf72",
+    "scripts/perf-execution-2029/replay-gate.mjs": "a126fdca527071248a130defbd438fbb7c080dcff53910e2647dda6c00792d98",
+    "scripts/perf-execution-2029/serve.mjs": "a73a0eda6d4910df6bd7c16117ff114d94a6746e4534725ff4083cfcf280db09"
+  },
+  "negativeControl": {
+    "base": "14e239b47e5ec6b95eaad4e1b368520512642217",
+    "path": "scripts/perf-execution-2029/measure.mjs",
+    "sha256": "09daa7431e8ec9939c465ca1c0129bfb745bba716ea7f10910d0ea11cb7fcc1f",
+    "expectedExit": 1,
+    "reason": "Fixture waited for the blocked renderer"
+  }
+}

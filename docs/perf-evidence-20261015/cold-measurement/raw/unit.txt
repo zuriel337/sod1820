@@ -1,0 +1,11 @@
+✔ scripts/perf-execution-2029/measurement.test.mjs (103.476147ms)
+✔ test/perf-execution-2029.test.mjs (89.607514ms)
+✔ test/perf-replay-gate-2029.test.mjs (97.695568ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 117.032597

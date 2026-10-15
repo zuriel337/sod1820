@@ -1,0 +1,12 @@
+{
+  "valid": true,
+  "errors": [],
+  "measurementProfile": {
+    "version": "cold-replay-v2",
+    "requestClock": "controller-monotonic-calibrated-browser-epoch-v1",
+    "readiness": "rendered-primary-source-v2",
+    "cls": "max-session-window-1s-gap-5s-span-observed-lab-window-v1",
+    "observation": "load-primary-networkidle-plus-1000ms"
+  },
+  "method": "controlled anonymous public-content replay; not hosted/field proof"
+}

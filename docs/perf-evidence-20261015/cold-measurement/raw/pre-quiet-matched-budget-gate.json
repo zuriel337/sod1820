@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "errors": [
+    "/: pending responses make complete read-count comparison unavailable",
+    "/world: pending responses make complete read-count comparison unavailable",
+    "/world: pending responses make complete read-count comparison unavailable"
+  ],
+  "scope": "matched replay regression; not production performance closure"
+}

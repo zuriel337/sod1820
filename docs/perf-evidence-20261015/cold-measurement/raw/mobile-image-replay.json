@@ -1,0 +1,334 @@
+{
+  "mode": "fixture-functional",
+  "results": [
+    {
+      "theme": "light",
+      "width": 320,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 284,
+          "height": 178
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 354,
+          "height": 221
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "dpr": 1,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 560,
+          "height": 350
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "dpr": 1,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 560,
+          "height": 350
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "parchment",
+      "width": 320,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 284,
+          "height": 178
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "parchment",
+      "width": 390,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 354,
+          "height": 221
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "parchment",
+      "width": 1440,
+      "dpr": 1,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 560,
+          "height": 350
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "parchment",
+      "width": 1920,
+      "dpr": 1,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 560,
+          "height": 350
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 284,
+          "height": 178
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 354,
+          "height": 221
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "dpr": 1,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 560,
+          "height": 350
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "dpr": 1,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 560,
+          "height": 350
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "dpr": 3,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 354,
+          "height": 221
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "width": 768,
+        "height": 480,
+        "fit": "contain",
+        "box": {
+          "width": 376,
+          "height": 235
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 421,
+      "dpr": 2,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 377,
+          "height": 236
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "dpr": 2,
+      "fail": true,
+      "initial": {
+        "src": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "currentSrc": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+        "width": 1586,
+        "height": 992,
+        "fit": "contain",
+        "box": {
+          "width": 354,
+          "height": 221
+        }
+      },
+      "requests": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg?width=768&resize=contain&quality=90&format=origin",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg"
+      ],
+      "passed": true
+    }
+  ]
+}
