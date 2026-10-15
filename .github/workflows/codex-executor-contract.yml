@@ -1,0 +1,51 @@
+name: Codex Executor Contract Safety
+on:
+  pull_request:
+    paths:
+      - "scripts/codex-*.mjs"
+      - "src/lib/implementationRealityProjection.js"
+      - "src/lib/visits.js"
+      - "src/pages/ControlPlane2029Page.jsx"
+      - "scripts/test-codex-*.mjs"
+      - "scripts/isolated-codex-executor-prototype.mjs"
+      - "scripts/test-isolated-codex-executor-prototype.mjs"
+      - "supabase/migrations/20261010172910_codex_work_log_one_shot_claim.sql"
+      - "tests/sql/codex-work-log-claim-baseline.sql"
+      - ".github/workflows/codex-executor-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Syntax
+        run: |
+          node --check scripts/codex-workflow-modes.mjs
+          node --check scripts/codex-auto-wake-contract.mjs
+          node --check scripts/codex-sandbox-credential-bridge.mjs
+          node --check scripts/isolated-codex-executor-prototype.mjs
+          node --check scripts/codex-implementation-recon-readonly.mjs
+      - name: Two-mode and auto-wake adversarial fixtures
+        run: node --test scripts/test-codex-workflow-modes.mjs scripts/test-codex-auto-wake-contract.mjs
+      - name: Repository implementation recon must be read-only
+        run: node --test scripts/test-codex-implementation-recon-readonly.mjs
+      - name: Existing admin Control Plane truthfulness projection
+        run: node --test scripts/test-codex-control-implementation-projection.mjs
+      - name: Existing unattended Golden signature and callback fixture
+        run: node scripts/test-codex-unattended-golden-contract.mjs
+      - name: Existing work_log first-claim and lease regression fixtures
+        run: node --test scripts/test-codex-canonical-claim.mjs
+      - name: Atomic work_log claim and requeue on disposable local PostgreSQL
+        run: node --test scripts/test-codex-work-log-claim.mjs
+      - name: Development-to-Sandbox credential presence stays isolated
+        run: node --test scripts/test-codex-sandbox-credential-bridge.mjs
+      - name: Paid CLI transport unconditionally blocked
+        run: node scripts/test-isolated-codex-executor-prototype.mjs
