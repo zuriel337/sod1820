@@ -1,0 +1,14 @@
+# built route graphs: entry 9 chunks 182.2 KB gz · Home +26 chunks +154.1 KB gz · World +37 chunks +259.8 KB gz · Post +29 chunks +182.1 KB gz
+✔ Hebrew-calendar libraries are not in the entry static closure (0.717622ms)
+✔ surface-specific code is behind lazy boundaries (0.141229ms)
+✔ static entry graph stays small (0.447983ms)
+✔ primary route graphs stay within budget and keep deferred code out (skipped without dist/) (42.421142ms)
+✔ built entry chunk is under budget (skipped without dist/) (27.988736ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 77.013691

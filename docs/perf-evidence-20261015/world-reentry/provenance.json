@@ -1,0 +1,18 @@
+{
+  "base": "5c147e4a2db97ac035227f7c6d15787849f61f6e",
+  "mainRead": "503b52ef169b6e51f967187491398d153090aa45",
+  "patchSha256": "12467c9ab5bd3b811e3b81891dc4882a4214d1a34289bdde2bdda87b5963201e",
+  "node": "v24.19.0",
+  "builds": {
+    "a": {
+      "manifestSha256": "906e53c82e3e5f70b06b734090361b94579d56c475452298687b22f12347ebfc",
+      "worldExtraChunks": 37,
+      "worldExtraGzip9KiB": 259.822265625
+    },
+    "b": {
+      "manifestSha256": "ea7964324cfea833336f2c6823e6ca61964211ab8105f8c576564d30fa21b252",
+      "worldExtraChunks": 40,
+      "worldExtraGzip9KiB": 284.6875
+    }
+  }
+}

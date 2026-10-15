@@ -1,0 +1,33 @@
+✔ Hebrew-calendar libraries are not in the entry static closure (0.786404ms)
+✔ surface-specific code is behind lazy boundaries (0.169561ms)
+✔ static entry graph stays small (0.460952ms)
+✖ primary route graphs stay within budget and keep deferred code out (skipped without dist/) (44.620065ms)
+✔ built entry chunk is under budget (skipped without dist/) (32.442084ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84.368913
+
+✖ failing tests:
+
+test at scripts/test-2029-bundle-budget.mjs:112:1
+✖ primary route graphs stay within budget and keep deferred code out (skipped without dist/) (44.620065ms)
+  AssertionError [ERR_ASSERTION]: World route graph 284.7 KB gzip > 265 KB budget
+      at TestContext.<anonymous> (file:///workspace/work/world-reentry/scripts/test-2029-bundle-budget.mjs:118:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
