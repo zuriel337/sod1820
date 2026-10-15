@@ -1,0 +1,16 @@
+PASS {"theme":"light","width":320,"dpr":2}
+PASS {"theme":"light","width":390,"dpr":2}
+PASS {"theme":"light","width":1440,"dpr":1}
+PASS {"theme":"light","width":1920,"dpr":1}
+PASS {"theme":"parchment","width":320,"dpr":2}
+PASS {"theme":"parchment","width":390,"dpr":2}
+PASS {"theme":"parchment","width":1440,"dpr":1}
+PASS {"theme":"parchment","width":1920,"dpr":1}
+PASS {"theme":"dark","width":320,"dpr":2}
+PASS {"theme":"dark","width":390,"dpr":2}
+PASS {"theme":"dark","width":1440,"dpr":1}
+PASS {"theme":"dark","width":1920,"dpr":1}
+PASS {"theme":"dark","width":390,"dpr":3}
+PASS {"theme":"dark","width":420,"dpr":2}
+PASS {"theme":"dark","width":421,"dpr":2}
+PASS {"theme":"dark","width":390,"dpr":2,"fail":true}
