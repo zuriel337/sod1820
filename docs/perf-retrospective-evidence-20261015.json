@@ -1,0 +1,370 @@
+{
+  "recorded_at_utc": "2026-10-15T15:12:42.273870+00:00",
+  "kind": "retrospective-read-only-evidence",
+  "integration_sha": "14e239b47e5ec6b95eaad4e1b368520512642217",
+  "journal_scope": {
+    "from_utc": "2026-10-12T21:00:00Z",
+    "through_date_israel": "2026-10-15",
+    "initial_index_rows": 144,
+    "initial_full_rows_after_noise_exclusion": 139,
+    "additional_body_matches_read": 44,
+    "full_rows_available_for_crosscheck": 183,
+    "note": "Canonical journals and reachable Git artifacts; not direct access to every private chat. Rows are not unique sessions."
+  },
+  "database": {
+    "writes": "No product data, DDL, flags, grants or migrations changed during this audit",
+    "stats_window": {
+      "dealloc": 214,
+      "stats_reset": "2026-08-04T09:03:11.460166+00:00"
+    },
+    "stats_warning": "Historical cumulative values since Aug4, with evictions; not Oct15 route latency or p95. Do not use old means as current bottleneck proof.",
+    "functions": [
+      {
+        "signature": "fn_number_dossier(integer)",
+        "definition_md5": "97ce52515bed1ba89a76492f020a939b",
+        "security_definer": true
+      },
+      {
+        "signature": "fn_number_journey(integer)",
+        "definition_md5": "a544735cec9aef29ff0bd45c80fd7184",
+        "security_definer": true
+      },
+      {
+        "signature": "fn_number_lookup(bigint,integer,text)",
+        "definition_md5": "2d03e165194e181f03b36f06746618ac",
+        "security_definer": false
+      },
+      {
+        "signature": "fn_number_lookup_2029_page(bigint,integer,text)",
+        "definition_md5": "da19bd966c1a26b545ee5f8f6f0807c0",
+        "security_definer": false
+      }
+    ],
+    "migrations": [
+      {
+        "name": "fn_number_lookup_verified_only",
+        "version": "20260829065319"
+      },
+      {
+        "name": "w2_2b_number_lookup_bidim_identity_provenance_v1",
+        "version": "20260911101714"
+      },
+      {
+        "name": "w2_2d_number_lookup_keyset_and_gematria_controls_v1",
+        "version": "20260911152415"
+      },
+      {
+        "name": "disable_gpt_agent_delivery_zuriel_v17",
+        "version": "20261014031828"
+      },
+      {
+        "name": "number_lookup_method_flags_20261014",
+        "version": "20261014161358"
+      },
+      {
+        "name": "number_core_exclude_encrypted_20261014",
+        "version": "20261014163411"
+      },
+      {
+        "name": "runtime_switches_fx_20261014",
+        "version": "20261014164651"
+      },
+      {
+        "name": "runtime_switch_fx_analytics_20261014",
+        "version": "20261014192723"
+      },
+      {
+        "name": "runtime_switch_any_fx_key_20261014",
+        "version": "20261014200635"
+      },
+      {
+        "name": "number_lookup_2029_page",
+        "version": "20261015001747"
+      }
+    ],
+    "optimization_flags": {
+      "fx_number_lookup_page": false,
+      "fx_world_relation_identity": "absent; default false in current code"
+    },
+    "core_verified": "dossier/journey currently reference fn_number_lookup_core; live core filters verified+published and is_encrypted IS NOT TRUE; previous encrypted exposure finding superseded by installed fix",
+    "advisors": [
+      {
+        "name": "unindexed_foreign_keys",
+        "count": 44,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      },
+      {
+        "name": "auth_rls_initplan",
+        "count": 64,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      },
+      {
+        "name": "no_primary_key",
+        "count": 32,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0004_no_primary_key",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      },
+      {
+        "name": "unused_index",
+        "count": 87,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      },
+      {
+        "name": "multiple_permissive_policies",
+        "count": 46,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      },
+      {
+        "name": "duplicate_index",
+        "count": 2,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0009_duplicate_index",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      },
+      {
+        "name": "auth_db_connections_absolute",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/deployment/going-into-prod",
+        "meaning": "Candidate for workload/plan verification, not instruction to apply all findings"
+      }
+    ],
+    "single_call_plans": {
+      "limitations": [
+        "One sequential warm-capable observation per variant/value; not randomized performance acceptance",
+        "Server-only anon role; not real authenticated HTTP; no returned row contents",
+        "READ ONLY transaction, 3s statement timeout, rollback"
+      ],
+      "observations": [
+        {
+          "label": "baseline1820",
+          "data": [
+            {
+              "QUERY PLAN": [
+                {
+                  "Plan": {
+                    "Node Type": "Function Scan",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Function Name": "fn_number_lookup",
+                    "Alias": "fn_number_lookup",
+                    "Startup Cost": 0.25,
+                    "Total Cost": 10.25,
+                    "Plan Rows": 1000,
+                    "Plan Width": 665,
+                    "Actual Startup Time": 73.546,
+                    "Actual Total Time": 73.553,
+                    "Actual Rows": 50,
+                    "Actual Loops": 1,
+                    "Shared Hit Blocks": 5018,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 1,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning": {
+                    "Shared Hit Blocks": 0,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning Time": 0.121,
+                  "Triggers": [],
+                  "Execution Time": 73.878
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "page1820",
+          "data": [
+            {
+              "QUERY PLAN": [
+                {
+                  "Plan": {
+                    "Node Type": "Function Scan",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Function Name": "fn_number_lookup_2029_page",
+                    "Alias": "fn_number_lookup_2029_page",
+                    "Startup Cost": 0.25,
+                    "Total Cost": 10.25,
+                    "Plan Rows": 1000,
+                    "Plan Width": 665,
+                    "Actual Startup Time": 30.548,
+                    "Actual Total Time": 30.553,
+                    "Actual Rows": 50,
+                    "Actual Loops": 1,
+                    "Shared Hit Blocks": 3974,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning": {
+                    "Shared Hit Blocks": 0,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning Time": 0.12,
+                  "Triggers": [],
+                  "Execution Time": 30.797
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "baseline100",
+          "data": [
+            {
+              "QUERY PLAN": [
+                {
+                  "Plan": {
+                    "Node Type": "Function Scan",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Function Name": "fn_number_lookup",
+                    "Alias": "fn_number_lookup",
+                    "Startup Cost": 0.25,
+                    "Total Cost": 10.25,
+                    "Plan Rows": 1000,
+                    "Plan Width": 665,
+                    "Actual Startup Time": 166.124,
+                    "Actual Total Time": 166.129,
+                    "Actual Rows": 50,
+                    "Actual Loops": 1,
+                    "Shared Hit Blocks": 7832,
+                    "Shared Read Blocks": 113,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning": {
+                    "Shared Hit Blocks": 0,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning Time": 0.156,
+                  "Triggers": [],
+                  "Execution Time": 166.396
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "page100",
+          "data": [
+            {
+              "QUERY PLAN": [
+                {
+                  "Plan": {
+                    "Node Type": "Function Scan",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Function Name": "fn_number_lookup_2029_page",
+                    "Alias": "fn_number_lookup_2029_page",
+                    "Startup Cost": 0.25,
+                    "Total Cost": 10.25,
+                    "Plan Rows": 1000,
+                    "Plan Width": 665,
+                    "Actual Startup Time": 40.148,
+                    "Actual Total Time": 40.152,
+                    "Actual Rows": 50,
+                    "Actual Loops": 1,
+                    "Shared Hit Blocks": 6739,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning": {
+                    "Shared Hit Blocks": 0,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  },
+                  "Planning Time": 0.14,
+                  "Triggers": [],
+                  "Execution Time": 40.389
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "new_measurement_gap": {
+    "file": "scripts/perf-execution-2029/measure.mjs",
+    "line": 109,
+    "issue": "Renderer page.evaluate is awaited inside route interception before fixture response; cold replay still couples emulated network to renderer work. firstPrimaryReq also subtracts browser navStart, so a naive Node-clock replacement would mix clocks.",
+    "required": "Nonblocking response timing; coherent clock for related metrics; version guard and blocked-renderer negative control; retain thresholds/baseline; rerun affected evidence. CI success remains a fact but is not independent speed acceptance."
+  },
+  "late_home_v2": {
+    "product_commit": "36c96bcf9e7238c360dc3fbf3c5df16611e9835c",
+    "evidence_commit": "1270d1faf0f323cb89687003fcf3fd80677e545c",
+    "adopted": false,
+    "evidence": "Seven interleaved valid mobile pairs; improved local CLS; no endpoint misses/errors. Late partial report arrived after dispatch cancellation.",
+    "gaps": [
+      "usable-content predicate accepts loading skeletons",
+      "320 and1440 acceptance incomplete",
+      "empty/error visual acceptance incomplete",
+      "early user cancellation and Forward not accepted",
+      "worldPending not passed by caller",
+      "mounted width changes do not clear retained CSS height",
+      "build provenance not embedded in compared manifests"
+    ],
+    "provider_stop": "Unknown; a pushed artifact is not proof of provider termination"
+  }
+}
