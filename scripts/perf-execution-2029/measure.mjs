@@ -9,10 +9,13 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createRequire } from 'node:module';
 import { serve } from './serve.mjs';
+import { MEASUREMENT_PROFILE, calibrateRequestClock, documentTime, snapshotReads } from './measurement-profile.mjs';
+import { primaryContentState, sessionWindowCls, installBrowserMetrics } from './browser-metrics.mjs';
 const run = promisify(execFile);
 const require = createRequire(`${process.env.PLAYWRIGHT_DIR || '/workspace/perf-execution-scratch/tools'}/node_modules/`);
 const { chromium } = require('playwright');
 const args = Object.fromEntries(process.argv.slice(2).filter((_, i) => i % 2 === 0).map((key, i) => [key.slice(2), process.argv[3 + i * 2]]));
+if (args.mode && !['record', 'replay'].includes(args.mode)) throw new Error('Unknown mode');
 const mode = args.mode || 'replay', runs = Number(args.runs || (mode === 'record' ? 1 : 7));
 const routes = (args.routes || '/,/world,/post/seventh-to-tenth-sefirot-2027').split(',');
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -62,7 +65,7 @@ const { srv, port } = await serve(args.dist);
 const origin = `http://127.0.0.1:${port}`;
 const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || '/home/agent/.cache/ms-playwright/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 const desktop = args.profile === 'desktop';
-const output = { label: args.label, mode, runs, browser: browser.version(), playwright: require('playwright/package.json').version,
+const output = { measurementProfile: MEASUREMENT_PROFILE, label: args.label, mode, runs, browser: browser.version(), playwright: require('playwright/package.json').version,
   dataMode: 'anonymous-rpc-complete-replay', profile: desktop ? 'desktop' : 'mobile',
   cpu: desktop ? 1 : 4, rtt: desktop ? 40 : 150, download: (desktop ? 10 : 1.6) * 1024 * 1024 / 8, upload: (desktop ? 5000 : 750) * 1024 / 8,
   viewport: desktop ? { width: 1366, height: 768 } : { width: 390, height: 844 }, dpr: desktop ? 1 : 2, routes: {} };
@@ -74,29 +77,19 @@ try {
   for (const pathname of routes) {
     const samples = [];
     for (let i = 0; i < runs; i++) {
-      const context = await browser.newContext({ viewport: output.viewport, deviceScaleFactor: output.dpr, isMobile: !desktop, locale: 'he-IL', timezoneId: 'Asia/Jerusalem',
+      const context = await browser.newContext({ viewport: output.viewport, deviceScaleFactor: output.dpr, isMobile: !desktop, serviceWorkers: 'block', locale: 'he-IL', timezoneId: 'Asia/Jerusalem',
         ...(!desktop ? { userAgent: 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141 Mobile Safari/537.36' } : {}) });
       await context.addInitScript(theme => localStorage.setItem('sod-theme', theme), output.theme);
       const page = await context.newPage(), cdp = await context.newCDPSession(page);
-      const errors = [], misses = [], reads = [], blocked = [];
+      const errors = [], misses = [], reads = [], blocked = [], pendingResponses = new Set();
+      const requestClock = await calibrateRequestClock(page);
       page.on('pageerror', e => errors.push(e.message));
-      await page.addInitScript(({ pathname }) => {
-        window.__perf = { ready: null, lcp: 0, cls: 0 };
-        new PerformanceObserver(list => { for (const e of list.getEntries()) window.__perf.lcp = e.startTime; }).observe({ type: 'largest-contentful-paint', buffered: true });
-        new PerformanceObserver(list => { for (const e of list.getEntries()) if (!e.hadRecentInput) window.__perf.cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
-        const check = () => {
-          const stage = document.querySelector('[data-experience-capability="post-master-reading-stage"]');
-          const ready = pathname === '/' ? document.querySelector('[data-experience-capability="home-composition"] a[href^="/post/"]')
-            : pathname === '/world' ? document.querySelector('[data-flight-story="world"] .sod29-flight-feature') : stage && stage.innerText.length > 800;
-          if (ready && window.__perf.ready == null) window.__perf.ready = performance.now();
-          if (window.__perf.ready == null) requestAnimationFrame(check);
-        };
-        requestAnimationFrame(check);
-        window.__checkPrimaryReady = check;
-      }, { pathname });
+      await page.addInitScript({ content: `window.__primaryContentState = ${primaryContentState};
+        window.__sessionWindowCls = ${sessionWindowCls};
+        (${installBrowserMetrics})(${JSON.stringify({ pathname })});` });
       await page.route('**/*', async route => {
         const req = route.request(), url = req.url(), method = req.method();
-        if (url.startsWith(origin)) return new URL(url).pathname.startsWith('/api/') ? route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }) : route.continue();
+        if (new URL(url).origin === origin) return new URL(url).pathname.startsWith('/api/') ? route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }) : route.continue();
         const u = new URL(url), rpc = u.pathname.match(/^\/rest\/v1\/rpc\/([^/]+)$/)?.[1];
         const supabase = u.hostname === 'linswmnnkjxvweumprav.supabase.co';
         if (telemetry.test(url) || (supabase && rpc && !ALLOW.has(rpc) && rpc !== 'world_group_source_arrivals_v3')
@@ -106,7 +99,9 @@ try {
           return route.fulfill({ status: 204, body: '', headers: { 'access-control-allow-origin': '*' } });
         }
         if (!['GET', 'HEAD'].includes(method) && !supabase) return route.abort();
-        const key = keyOf(req), started = await page.evaluate(() => performance.now());
+        // No renderer/DevTools round trip is allowed on the fixture response path.
+        const key = keyOf(req), started = requestClock.epochNow();
+        pendingResponses.add(req);
         let row;
         try {
           if (rpc === 'world_group_source_arrivals_v3') {
@@ -131,15 +126,17 @@ try {
           if (args.extensionfail === '1' && rpc === 'gematria_method_trace') {
             const failure = JSON.stringify({ code: 'PERF_EXTENSION_TEST', message: 'Intentional read-extension failure' });
             reads.push({ method, path: u.pathname + u.search, args: req.postData(), status: 400, start: started, primary: false, bytes: failure.length, bodyHash: hash(failure), intentionalFailure: true });
-            return route.fulfill({ status: 400, contentType: 'application/json', body: failure, headers: { 'access-control-allow-origin': '*' } });
+            return await route.fulfill({ status: 400, contentType: 'application/json', body: failure, headers: { 'access-control-allow-origin': '*' } });
           }
           if (supabase && u.pathname.startsWith('/rest/v1/')) reads.push({ method, path: u.pathname + u.search, args: req.postData(), status: row.status,
             start: started, primary: primary(pathname, req), bytes: body.length, bodyHash: hash(body) });
-          return route.fulfill({ status: row.status, body: method === 'HEAD' ? '' : body, headers: { 'content-type': row.type || 'application/json', 'access-control-allow-origin': '*', 'access-control-expose-headers': 'content-range', ...(row.range ? { 'content-range': row.range } : {}) } });
+          return await route.fulfill({ status: row.status, body: method === 'HEAD' ? '' : body, headers: { 'content-type': row.type || 'application/json', 'access-control-allow-origin': '*', 'access-control-expose-headers': 'content-range', ...(row.range ? { 'content-range': row.range } : {}) } });
         } catch (e) { errors.push(`Capture ${u.pathname}: ${e.message}`); return route.abort(); }
+        finally { pendingResponses.delete(req); }
       });
       if (mode === 'replay') {
         await cdp.send('Network.enable');
+        await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
         await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: output.rtt, downloadThroughput: output.download, uploadThroughput: output.upload });
         await cdp.send('Emulation.setCPUThrottlingRate', { rate: output.cpu });
       }
@@ -147,14 +144,13 @@ try {
       let navStart = 0, beforePerformance = null;
       await page.goto(origin + (args.navfrom || pathname), { waitUntil: 'load', timeout: 60000 });
       if (args.navfrom) {
-        await page.waitForFunction(from => from === '/' ? document.querySelector('[data-experience-capability="home-composition"] a[href^="/post/"]')
-          : document.querySelector('[data-flight-story="world"] .sod29-flight-feature'), args.navfrom, { timeout: 30000 });
+        await page.waitForFunction(from => window.__primaryContentState(from).primary, args.navfrom, { timeout: 30000 });
         await page.waitForLoadState('networkidle', { timeout: 30000 });
         beforePerformance = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(m => [m.name, m.value]));
         reads.length = 0;
         navStart = await page.evaluate(pathname => {
-          window.__perf = { ready: null, lcp: 0, cls: 0 };
           const start = performance.now();
+          window.__resetPerf(start);
           history.pushState({ ...history.state, idx: (history.state?.idx || 0) + 1, key: 'perf-navigation', usr: null }, '', pathname);
           dispatchEvent(new PopStateEvent('popstate', { state: history.state }));
           window.__checkPrimaryReady();
@@ -162,32 +158,50 @@ try {
         }, pathname);
       }
       await page.waitForFunction(() => window.__perf.ready != null, null, { timeout: 30000 }).catch(() => errors.push('Primary content did not become ready'));
-      await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => errors.push('Network did not settle'));
+      let backgroundSettled = null;
+      await page.waitForLoadState('networkidle', { timeout: 30000 })
+        .then(async () => { backgroundSettled = await page.evaluate(() => performance.now()); })
+        .catch(() => errors.push('Network did not settle'));
       await page.waitForTimeout(1000);
+      // Freeze controller observations before any final renderer/DevTools read
+      // can allow more asynchronous handlers to append to the live arrays.
+      const rawReadSnapshot = reads.map(read => ({ ...read }));
+      const observedErrors = [...errors], observedMisses = [...misses];
+      const pendingFixtureResponses = pendingResponses.size;
+      const readsObservationEndEpoch = requestClock.epochNow();
       const metrics = await page.evaluate(() => {
         const resources = performance.getEntriesByType('resource'), rest = resources.filter(r => r.name.includes('/rest/v1/'));
         const stage = document.querySelector('[data-experience-capability="post-master-reading-stage"]');
         const main = stage || document.querySelector('main') || document.body;
-        return { ...window.__perf, fcp: performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? null,
+        return { ...window.__perf, timeOrigin: performance.timeOrigin, observationEnd: performance.now(),
+          primaryState: window.__primaryContentState(location.pathname), layoutShifts: window.__shifts, fcp: performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? null,
           lastRestEnd: rest.length ? Math.max(...rest.map(r => r.responseEnd)) : null, reqs: resources.length,
           text: main.innerText.replace(/\s+/g, ' ').trim(), links: [...main.querySelectorAll('a[href]')].map(a => a.getAttribute('href')),
           scrollWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth };
       });
       const pm = Object.fromEntries((await cdp.send('Performance.getMetrics')).metrics.map(m => [m.name, m.value]));
-      const primaryReads = reads.filter(r => r.primary);
+      const sampleReads = snapshotReads(rawReadSnapshot, metrics.timeOrigin);
+      const primaryReads = sampleReads.filter(r => r.primary);
       const textHash = hash(metrics.text), textLength = metrics.text.length; delete metrics.text;
+      // Store read.start on the browser document clock, as before. Only the
+      // controller observation source changed; navStart is on this same axis.
+      metrics.backgroundSettled = backgroundSettled;
+      metrics.readsObservationEnd = documentTime(readsObservationEndEpoch, metrics.timeOrigin);
       if (args.navfrom) {
-        metrics.ready -= navStart;
-        metrics.lastRestEnd -= navStart;
+        for (const key of ['shell', 'ready', 'lastRestEnd', 'backgroundSettled', 'observationEnd', 'readsObservationEnd'])
+          if (metrics[key] != null) metrics[key] -= navStart;
+        metrics.fcp = null; metrics.lcp = null; // hard-navigation paints do not describe SPA navigation
       }
-      samples.push({ ...metrics, textHash, textLength, script: (pm.ScriptDuration - (beforePerformance?.ScriptDuration || 0)) * 1000, task: (pm.TaskDuration - (beforePerformance?.TaskDuration || 0)) * 1000,
-        firstPrimaryReq: primaryReads.length ? Math.min(...primaryReads.map(r => r.start)) - navStart : null, restCount: reads.length,
-        errors, misses, blocked: [...new Set(blocked)], reads });
+      samples.push({ ...metrics, navStart, clockUncertaintyMs: requestClock.uncertaintyMs, textHash, textLength, script: (pm.ScriptDuration - (beforePerformance?.ScriptDuration || 0)) * 1000, task: (pm.TaskDuration - (beforePerformance?.TaskDuration || 0)) * 1000,
+        firstPrimaryReq: primaryReads.length ? Math.min(...primaryReads.map(r => r.start)) - navStart : null, restCount: sampleReads.length,
+        pendingFixtureResponses,
+        errors: observedErrors, misses: observedMisses, blocked: [...new Set(blocked)], reads: sampleReads });
       await context.close();
     }
     const median = key => { const values = samples.map(s => s[key]).filter(Number.isFinite).sort((a, b) => a - b); return values.length ? values[Math.floor(values.length / 2)] : null; };
-    const keys = ['fcp', 'lcp', 'ready', 'cls', 'firstPrimaryReq', 'lastRestEnd', 'restCount', 'reqs', 'script', 'task'];
-    output.routes[pathname] = { median: Object.fromEntries(keys.map(k => [k, median(k)])), ranges: Object.fromEntries(keys.map(k => [k, [Math.min(...samples.map(s => s[k])), Math.max(...samples.map(s => s[k]))]])), samples };
+    const keys = ['fcp', 'lcp', 'shell', 'ready', 'backgroundSettled', 'layoutShiftSum', 'cls', 'firstPrimaryReq', 'lastRestEnd', 'restCount', 'reqs', 'script', 'task'];
+    output.routes[pathname] = { median: Object.fromEntries(keys.map(k => [k, median(k)])), ranges: Object.fromEntries(keys.map(k => [k, samples.some(s => Number.isFinite(s[k]))
+      ? [Math.min(...samples.map(s => s[k]).filter(Number.isFinite)), Math.max(...samples.map(s => s[k]).filter(Number.isFinite))] : [null, null]])), samples };
     console.error(pathname, JSON.stringify(output.routes[pathname].median));
   }
 } finally {
@@ -208,7 +222,8 @@ if (process.env.GITHUB_ACTIONS === 'true' && mode === 'replay' && runs === 7
     { cwd: workspaceRoot, maxBuffer: 1024 * 1024 });
   process.stdout.write(stdout);
   const tests = ['src/lib/research/goldenPostContextPacks.test.js', 'src/lib/research/nasrallahPost92Golden.test.js',
-    'src/components/experience2029/mobileReadingImage2029.test.js'];
+    'src/components/experience2029/mobileReadingImage2029.test.js',
+    'scripts/perf-execution-2029/measurement.test.mjs', 'scripts/perf-execution-2029/measurement.browser.test.mjs'];
   const checked = await run(process.execPath, ['--test', ...tests], { cwd: workspaceRoot, maxBuffer: 1024 * 1024 });
   process.stdout.write(checked.stdout);
 }
