@@ -127,6 +127,11 @@ async function main() {
       "--platform=neutral",
       "--format=esm",
       "--target=es2022",
+      // This entrypoint executes on Edge, where the browser window is absent. Resolve
+      // browser-only branches before dependency discovery; never externalize browser SDKs.
+      "--define:window=undefined",
+      "--define:__SOD_2029_BUILD__=false",
+      "--define:__SOD_RESEARCH_EDGE__=true",
       "--minify-syntax",
       `--outfile=${RAW_FILE}`,
       `--metafile=${META_FILE}`,
@@ -150,6 +155,12 @@ async function main() {
   }
 
   const bundledSources = discoverBundledLocalSources(metafile);
+  const browserSources = bundledSources.filter((p) =>
+    p === "src/lib/runtimeSwitches2029.js" || p === "src/lib/supabase.js"
+    || /^node_modules\/(?:react(?:-dom)?|@supabase)\//.test(p));
+  if (browserSources.length) {
+    throw new Error(`Edge packaging pulled browser dependencies: ${browserSources.join(", ")}`);
+  }
   if (!bundledSources.includes(ENTRY.split("\\").join("/"))) {
     console.error("PACKAGING FAILED: esbuild's own metafile does not list the entrypoint as bundled -- refusing to trust the dependency graph.");
     process.exit(1);

@@ -6,7 +6,11 @@ const wrapped = new WeakSet();
 // function therefore takes effect on the next page load. Only "function not found" is remembered, never any other error.
 let optimizedRpcMissing = false;
 export function resetNumberLookupTransportMemory() { optimizedRpcMissing = false; }
-const defaultReadSwitches = async () => (await import("../runtimeSwitches2029.js")).readRuntimeSwitches();
+// The default flag reader belongs to the browser. Edge callers keep their supplied RPC;
+// tests and other adapters may still explicitly inject readSwitches.
+const defaultReadSwitches = async () => typeof __SOD_RESEARCH_EDGE__ !== "undefined" && __SOD_RESEARCH_EDGE__
+  ? {}
+  : (await import("../runtimeSwitches2029.js")).readRuntimeSwitches();
 
 export function createNumberLookupTransport(rpc, {
   is2029 = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__,
