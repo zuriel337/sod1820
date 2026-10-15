@@ -1,0 +1,30 @@
+{
+  "base": "5c147e4a2db97ac035227f7c6d15787849f61f6e",
+  "mainRead": "503b52ef169b6e51f967187491398d153090aa45",
+  "patchSha256": "12467c9ab5bd3b811e3b81891dc4882a4214d1a34289bdde2bdda87b5963201e",
+  "node": "v24.19.0",
+  "builds": {
+    "a": {
+      "manifestSha256": "906e53c82e3e5f70b06b734090361b94579d56c475452298687b22f12347ebfc",
+      "worldExtraChunks": 37,
+      "worldExtraGzip9KiB": 259.822265625
+    },
+    "b": {
+      "manifestSha256": "ea7964324cfea833336f2c6823e6ca61964211ab8105f8c576564d30fa21b252",
+      "worldExtraChunks": 40,
+      "worldExtraGzip9KiB": 284.6875
+    }
+  },
+  "packageLockSha256": "b33e43bc391edaf257042fb088501c8a1cebd3e47b2e80ef3dd567edad202ff5",
+  "buildCommand": "SOD_BUILD_TARGET=2029 vite build --outDir <arm>",
+  "switches": {
+    "fx_world_relation_identity": "absent; default OFF",
+    "fx_number_lookup_page": false,
+    "override": "none; actual public site_flags response frozen identically"
+  },
+  "anchorBuild": {
+    "worldPageSha256": "e953cdf12de92f675213877c108dc182973a3c7af371f904cdad567f06ab8b35",
+    "manifestSha256": "3fbc3bacc56dd7d4758d7f25c04b450894e5094f39dee783d5a86e31633e66d3",
+    "sameManifestAsBrowserTestedBuildC": true
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "crossPage": "7/7 baseline FAIL → 7/7 fixed PASS",
+  "forward": "7/7 baseline FAIL → 7/7 fixed PASS",
+  "inPage": "7/7 PASS, ordered source IDs preserved",
+  "direct": "PASS",
+  "retainedNumberContext": "PASS; sources landing opens and subject 1820 is preserved",
+  "pendingUserInput": "wheel / touch swipe / PageDown PASS; no late anchor jump",
+  "errors": 0,
+  "fixtureMisses": 0,
+  "unexplainedReadFailures": 0,
+  "fixtureSha256": "db00234ac96c9d9a4e82c03afb9b5197831dacb45e1c9738868c8af5f6d8871a",
+  "knownDenial": "research_objects 401/42501 retained",
+  "baselinePositions": [
+    {
+      "y": 0,
+      "top": 1206.546875
+    },
+    {
+      "y": 0,
+      "top": 1206.546875
+    },
+    {
+      "y": 0,
+      "top": 1206.546875
+    },
+    {
+      "y": 0,
+      "top": 1206.546875
+    },
+    {
+      "y": 0,
+      "top": 1206.546875
+    },
+    {
+      "y": 0,
+      "top": 1206.546875
+    },
+    {
+      "y": 0,
+      "top": 1206.546875
+    }
+  ],
+  "fixedPositions": [
+    {
+      "y": 1087,
+      "top": 119.546875
+    },
+    {
+      "y": 1087,
+      "top": 119.546875
+    },
+    {
+      "y": 1087,
+      "top": 119.546875
+    },
+    {
+      "y": 1087,
+      "top": 119.546875
+    },
+    {
+      "y": 1087,
+      "top": 119.546875
+    },
+    {
+      "y": 1087,
+      "top": 119.546875
+    },
+    {
+      "y": 1087,
+      "top": 119.546875
+    }
+  ]
+}

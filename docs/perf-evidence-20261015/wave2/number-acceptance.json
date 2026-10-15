@@ -1,0 +1,71 @@
+{
+  "sourceCommit": "a1f7cd0b08674daf89c98a666fc9676efca80998",
+  "packageLockSha256": "b33e43bc391edaf257042fb088501c8a1cebd3e47b2e80ef3dd567edad202ff5",
+  "runtime": {
+    "node": "24.19.0",
+    "playwright": "1.55.0",
+    "chromium": "151.0.7922.173"
+  },
+  "build": {
+    "target": "2029",
+    "command": "npm run build:2029",
+    "status": "PASS",
+    "warning": "existing large-chunk warning"
+  },
+  "units": {
+    "passed": 55,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "durationMs": 77524.927,
+    "cases": [
+      {
+        "name": "full Number page opens from both menus without entering another drawer",
+        "status": "passed",
+        "durationMs": 13040
+      },
+      {
+        "name": "real zero stays zero, invalid number never falls through to zero",
+        "status": "passed",
+        "durationMs": 4979
+      },
+      {
+        "name": "Number expression and method deep link survives reload; fake crossing is not shown as evidence",
+        "status": "passed",
+        "durationMs": 4951
+      },
+      {
+        "name": "full Number crossing area and regular rail retain readable layout at all breakpoints",
+        "status": "passed",
+        "durationMs": 15353
+      },
+      {
+        "name": "same Number can be revisited after navigation/back without losing preview-only SEO",
+        "status": "passed",
+        "durationMs": 4951
+      },
+      {
+        "name": "Number and verified crossing are usable before stalled depth finishes",
+        "status": "passed",
+        "durationMs": 6831
+      },
+      {
+        "name": "a depth failure keeps the loaded Number and methods available without inventing zero coverage",
+        "status": "passed",
+        "durationMs": 10259
+      },
+      {
+        "name": "back and forward subscribe to an in-flight Number without waiting for its depth",
+        "status": "passed",
+        "durationMs": 15446
+      }
+    ]
+  },
+  "scope": "Local Number/World lock-open fixtures; real anonymous public reads; Storage placeholders; no live gate/auth/DB writes; no real member/admin acceptance; no performance acceptance",
+  "productTreeClean": true
+}

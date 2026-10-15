@@ -1,0 +1,49 @@
+BUILD (full Legacy + 2029):
+✓ built in 1.13s
+✓ built in 828ms
+
+CHECK scroll
+✔ test/scroll-restore-2029.test.mjs (74.296615ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 82.412126
+
+
+CHECK world-surface
+2029 native World surface acceptance: PASS
+
+
+CHECK bundle-budget
+# built route graphs: entry 9 chunks 182.2 KB gz · Home +26 chunks +154.1 KB gz · World +37 chunks +260.1 KB gz · Post +29 chunks +182.1 KB gz
+✔ Hebrew-calendar libraries are not in the entry static closure (0.732324ms)
+✔ surface-specific code is behind lazy boundaries (0.138926ms)
+✔ static entry graph stays small (0.59482ms)
+✔ primary route graphs stay within budget and keep deferred code out (skipped without dist/) (45.544078ms)
+✔ built entry chunk is under budget (skipped without dist/) (30.494965ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 82.866378
+
+
+CHECK isolation
+2029 hard-isolation source regression: PASS
+
+
+CHECK built-graph
+2029 built dependency graph: PASS
+reachable manifest records: 121
+
+
+CHECK routes
+route-legitimacy-2029: PASS
+

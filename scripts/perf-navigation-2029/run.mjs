@@ -19,6 +19,8 @@ const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
 const hosted=mode==='hosted', server=hosted?null:await serve(args.dist), base=hosted?process.env.SOD_PERF_PREVIEW_BASE:`http://127.0.0.1:${server.port}`;
 const browser=await chromium.launch({executablePath:process.env.PERF_CHROME||'/home/agent/.cache/ms-playwright/chromium-1194/chrome-linux/chrome',...(hosted?{proxy:{server:process.env.HTTPS_PROXY}}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
 const report={mode,runtime:args.sha||process.env.SOD_PERF_EXPECTED_SHA,runs,profile:{viewport:{width:390,height:844},dpr:2,cpu:4,rtt:150,download:209715.2,upload:96000,theme:args.theme||'dark'},fixtureSha256:fixture&&fs.existsSync(fixture)?hash(fs.readFileSync(fixture)):null,note:'Actual controls and browser history. Browser cache cold on entry; navigation and revisit warm in same document. Replay API150ms and externalasset400ms fixed; no SQL latency/bandwidth claim.',samples:[]};
+report.profile.navigationInstrumentation='controller-read-clock-v2';
+report.instrumentation={version:'navigation-v2-controller-read-clock',readAt:'controller monotonic milliseconds; process-local, not renderer time',readyMs:'unchanged: renderer before action invocation through content-ready and two animation frames; includes action queue',controllerActionToReadyMs:'controller action invocation through the same ready endpoint',observationWindow:'unchanged: renderer start through 800ms after ready'};
 if(args.width)report.profile.viewport.width=Number(args.width);
 if(!hosted&&fs.existsSync(`${args.dist}/preview-build.json`)){
  report.build=JSON.parse(fs.readFileSync(`${args.dist}/preview-build.json`));
@@ -62,7 +64,8 @@ try{
    if(hosted)return route.continue();
    let body=req.postData()||'';try{body=JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(body)).sort(([a],[b])=>a.localeCompare(b))));}catch{}
    const signature=args.headers==='1'?` ${JSON.stringify(Object.fromEntries(['prefer','range','accept-profile'].map(k=>[k,req.headers()[k]||''])))}`:'';
-   const key=`${req.method()} ${norm(req.url())} ${body}${signature}`,at=await page.evaluate(()=>performance.now());
+   // A busy renderer must not postpone the replay delay or response fulfillment.
+   const key=`${req.method()} ${norm(req.url())} ${body}${signature}`,at=performance.now();
    if(!allowCatalogRetry&&u.pathname==='/rest/v1/topic_cards_public'&&u.searchParams.get('offset')==='2'){
     reads.push({at,key,method:req.method(),status:503,intentionalFailure:true,hash:'functional-injection'});return route.fulfill({status:503,contentType:'application/json',body:'{"message":"functional-only catalog continuation failure"}'});
    }
@@ -88,12 +91,13 @@ try{
   const measures=[];
   let catalog=null;
   async function measure(name,action,target){
-   const before=await cdp.send('Performance.getMetrics'),start=await page.evaluate(()=>performance.now());await action();
+   const before=await cdp.send('Performance.getMetrics'),start=await page.evaluate(()=>performance.now()),controllerStart=performance.now();await action();
    if(target)await waitReady(page,target);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));const readyAt=await page.evaluate(()=>performance.now());
+   const controllerActionToReadyMs=performance.now()-controllerStart;
    await page.waitForTimeout(800);const end=await page.evaluate(()=>performance.now()),after=await cdp.send('Performance.getMetrics');
    const delta={};for(const k of ['TaskDuration','ScriptDuration','LayoutDuration'])delta[k]=(after.metrics.find(m=>m.name===k).value-before.metrics.find(m=>m.name===k).value)*1000;
    const observations=await page.evaluate(({start,end})=>{const p=window.__nav,f=a=>a.filter(e=>e.at>=start&&e.at<=end);return{storage:f(p.storage),frames:f(p.frames),longTasks:f(p.long),trustedClicks:f(p.clicks),scrollY,context:JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')||'null')};},{start,end});
-   measures.push({name,start,end,readyMs:readyAt-start,metrics:delta,...observations});
+   measures.push({name,start,end,readyMs:readyAt-start,controllerActionToReadyMs,metrics:delta,...observations});
   }
   if(args.catalog==='1'){
    const area=page.locator('#world-all-convergences');

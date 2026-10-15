@@ -1,0 +1,119 @@
+diff --git a/src/components/research/WorldSourceConnections.jsx b/src/components/research/WorldSourceConnections.jsx
+index e8af7fa9..266502f8 100644
+--- a/src/components/research/WorldSourceConnections.jsx
++++ b/src/components/research/WorldSourceConnections.jsx
+@@ -1,28 +1,9 @@
+-import React, { lazy, Suspense, useEffect, useState } from 'react';
++import React, { useEffect, useState } from 'react';
+ import { useLocation, useNavigate } from 'react-router-dom';
++import SpatialMethodStage2029 from '../gematria2029/SpatialMethodStage2029.jsx';
+ import CanonicalMediaFigure2029 from '../experience2029/CanonicalMediaFigure2029.jsx';
+ import { WORLD_SOURCE_DIRECTIONS, REVIEWED_SOURCE_WITNESSES, fetchWorldSourceConnections, worldWitnessContext } from '../../lib/research/worldSourceConnections.js';
+ 
+-// The shared method Stage (letters, scene compiler, optional 3D) is opened from "כל השיטות ופירוט
+-// החישוב". Its code loads when that panel is first opened, not with the World opening; the verified
+-// result, the trace and the Heichal action above it never wait for it. Once opened it stays mounted
+-// (closing the panel hides it as before), so reopening keeps the Stage state and does not reload it.
+-const SpatialMethodStage2029 = lazy(() => import('../gematria2029/SpatialMethodStage2029.jsx'));
+-
+-// A failed Stage module cannot be re-imported in the same document (the browser keeps the failed
+-// module record), so recovery is an explicit, user-initiated reload that returns to the same anchor.
+-class StageLoadBoundary extends React.Component {
+-  constructor(props) { super(props); this.state = { failed: false }; }
+-  static getDerivedStateFromError() { return { failed: true }; }
+-  render() {
+-    if (!this.state.failed) return this.props.children;
+-    return <div role="status" data-deferred-state="failed">
+-      <p>פירוט השיטה לא נטען כעת. התוצאה המאומתת והמעבר להיכל זמינים למעלה.</p>
+-      <button type="button" className="sod29-action" onClick={() => window.location.reload()}>טען מחדש וחזור לאותו מקור</button>
+-    </div>;
+-  }
+-}
+-
+ // Composite operands come from the canonical nested trace. Letter rendering stays with
+ // the existing shared Stage; unsupported variants are never relabelled as ordinary Miluy.
+ function CompositeTrace({ trace }) {
+@@ -37,7 +18,6 @@ function CompositeTrace({ trace }) {
+ }
+ function Witness({ witness, research, shell, select }) {
+   const { source } = witness;
+-  const [depthOpen, setDepthOpen] = useState(false);
+   const remember = (calculation = null) => {
+     select(witness);
+     research.updateResearchContext?.(worldWitnessContext(witness, calculation));
+@@ -78,20 +58,16 @@ function Witness({ witness, research, shell, select }) {
+             {entry.expression} · {entry.method === 'קדמי' ? 'משולש (קדמי)' : entry.method} · {entry.verified.value}
+           </button> : <p>{entry.expression} · {entry.method}: החישוב אינו זמין לאימות</p>}
+         </div>)}
+-        <details className="sod29-world-calculation-depth" onToggle={(event) => { if (event.currentTarget.open) setDepthOpen(true); }}><summary>כל השיטות ופירוט החישוב</summary>
++        <details className="sod29-world-calculation-depth"><summary>כל השיטות ופירוט החישוב</summary>
+           {witness.calculations.map((entry, index) => <section key={index} data-calculation-detail={entry.method}>
+             <h4>{entry.expression} · {entry.method === 'קדמי' ? 'משולש (קדמי)' : entry.method}</h4>
+             {entry.verified ? <>
+               <button className="sod29-action" onClick={() => calculate(entry.verified)}>לעיון בהיכל · {entry.verified.value}</button>
+               <p>תוצאה {entry.verified.value} · גרסת שיטה {entry.verified.trace.method_version} · התאמה למנוע אומתה</p>
+               <CompositeTrace trace={entry.verified.trace} />
+-              {depthOpen ? <StageLoadBoundary>
+-                <Suspense fallback={<p role="status">טוען את פירוט השיטה…</p>}>
+-                  <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
+-                    trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
+-                    onOpenHeichal={() => calculate(entry.verified)} />
+-                </Suspense>
+-              </StageLoadBoundary> : null}
++              <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
++                trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
++                onOpenHeichal={() => calculate(entry.verified)} />
+               <details><summary>פרטי המנוע והמקור</summary><code>{source.sourceRef}</code><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
+             </> : <p>אין תוצאה מאומתת זמינה. הערך ההיסטורי המצוטט נשמר במקור.</p>}
+           </section>)}
+diff --git a/src/pages/World2029Page.jsx b/src/pages/World2029Page.jsx
+index 18e076a1..7b842b85 100644
+--- a/src/pages/World2029Page.jsx
++++ b/src/pages/World2029Page.jsx
+@@ -1,10 +1,11 @@
++import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
+ import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
+ import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
+ import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
+ import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
+ import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
+ import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
+-import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
++import React, { useEffect, useMemo, useRef, useState } from "react";
+ import { Link } from "react-router-dom";
+ import { useLocation, useNavigate } from "react-router-dom";
+ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+@@ -76,33 +77,6 @@ import { levelNumbers } from "../lib/ratings2029.js";
+ import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
+ import { relativeTimeLabel } from "../lib/relativeTime2029.js";
+ 
+-// Connected discovery (#world-discovery-* deep links) is not part of the World opening: its component,
+-// method Stage and topic styles load when that view is actually rendered. The opening flight story,
+-// sources and connections never wait for it.
+-const WorldConnectedDiscoveryView = lazy(() => import('../components/research/WorldSourceStory.jsx'));
+-
+-// A failed module cannot be re-imported in the same document, so recovery is an explicit,
+-// user-initiated reload; the URL hash is kept and the same discovery reopens.
+-class WorldDiscoveryLoadBoundary extends React.Component {
+-  constructor(props) { super(props); this.state = { failed: false }; }
+-  static getDerivedStateFromError() { return { failed: true }; }
+-  render() {
+-    if (!this.state.failed) return this.props.children;
+-    return <div role="status" data-deferred-state="failed">
+-      <p>תצוגת החיבורים לא נטענה כעת. שאר העולם זמין.</p>
+-      <button type="button" className="sod29-action" onClick={() => window.location.reload()}>טען מחדש וחזור לאותה תצוגה</button>
+-    </div>;
+-  }
+-}
+-
+-function WorldConnectedDiscovery(props) {
+-  return <WorldDiscoveryLoadBoundary>
+-    <Suspense fallback={<p role="status">פותח את המקורות ובודק את החיבורים…</p>}>
+-      <WorldConnectedDiscoveryView {...props} />
+-    </Suspense>
+-  </WorldDiscoveryLoadBoundary>;
+-}
+-
+ const WORLD_EXPERIENCE = resolveExperienceContext({
+   surface: EXPERIENCE_SURFACE.WORLD,
+   locale: "he",

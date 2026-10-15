@@ -657,6 +657,40 @@ function LiveWorldLanding({ research, shell, context }) {
     discoveryError: null,
     journeyError: null,
   });
+  const sourceAnchorArrival = useRef(null);
+  useEffect(() => {
+    if (location.hash !== "#world-sources") {
+      sourceAnchorArrival.current = null;
+      return;
+    }
+    // Hash locations belong to the page. Wait for its sources instead of
+    // scrolling the loading skeleton, and honour input while that read is pending.
+    const arrival = sourceAnchorArrival.current?.key === location.key
+      ? sourceAnchorArrival.current
+      : (sourceAnchorArrival.current = { key: location.key, cancelled: false, done: false });
+    if (arrival.cancelled || arrival.done) return;
+    let frame = null;
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    const cleanup = () => {
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      events.forEach((event) => window.removeEventListener(event, cancel, true));
+    };
+    const cancel = (event) => {
+      if (event.type === "keydown" && !["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) return;
+      arrival.cancelled = true;
+      cleanup();
+    };
+    events.forEach((event) => window.addEventListener(event, cancel, { capture: true, passive: true }));
+    if (!landing.loading) frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById("world-sources");
+      if (!arrival.cancelled && target) {
+        target.scrollIntoView({ block: "start", behavior: "instant" });
+        arrival.done = true;
+      }
+      cleanup();
+    });
+    return cleanup;
+  }, [location.key, location.hash, landing.loading]);
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
@@ -2482,7 +2516,7 @@ function WorldBody() {
   // still be current when browser Back returns here; it is not a World node.
   const foreignSubject = subject?.href && !/^\/world(?:[/?#]|$)/.test(subject.href)
     && subject.type !== "number" && subject.type !== "phrase";
-  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type || foreignSubject) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story", "#world-sources"].includes(location.hash) || !subject?.id || !subject?.type || foreignSubject) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 

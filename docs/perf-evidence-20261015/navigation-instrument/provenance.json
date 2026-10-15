@@ -1,0 +1,35 @@
+{
+  "baseCommit": "0578641f239a045105ee689a4008767aebb788d0",
+  "task": "GPT_PERF_NAVIGATION_INSTRUMENT_20261015",
+  "coordinationBefore": "02b54549-7d36-4d55-bc76-43df7158f47d",
+  "coordinationRefreshedAt": "2026-10-15 13:56 UTC (central coordinator)",
+  "branch": "gpt/perf-navigation-instrument-20261015",
+  "runnerSha256": "09a7a3ad6845d3aea1379267c174a711bd44f3830362082785de46c4f151f003",
+  "regressionTestSha256": "533d138b8526b4ac44f566e4dedc27070799e91ba99589bb25aea7ca94734d6a",
+  "node": "v24.19.0",
+  "priorCi": {
+    "run": 38744231965,
+    "job": 116453533250,
+    "baseline": "0825b326ea0fd9faa57b41d0d48bdadada9f3c7f",
+    "head": "0578641f239a045105ee689a4008767aebb788d0",
+    "status": "FAILED; not dismissed",
+    "observedFailure": "/world/actual-click: latency exceeds matched10%+100ms regression allowance",
+    "sourceLogSha256": "11ed8027d90f03323515402588164603ae469bea8f4a9548c498905ab9d50f8a",
+    "allPrintedSamplesRuntimeErrors": 0,
+    "allPrintedSamplesFixtureMisses": 0,
+    "exactMediansAvailable": false,
+    "resultArtifactDownload": "403 reported by central coordinator; no retry here",
+    "frozenFixtureUploaded": false
+  },
+  "validation": {
+    "originalSixCompareTests": "PASS",
+    "mixedInstrumentationProfileTest": "PASS; both directions rejected, matched v2 accepted",
+    "blockedRendererResponseTest": "PASS on corrected runner",
+    "negativeControl": "original 057 runner: seven tests pass, only blocked-renderer response test fails as expected",
+    "syntax": "PASS",
+    "diffCheck": "PASS",
+    "independentReview": "No material issue found; mixed-version risk addressed by existing profile guard"
+  },
+  "localProductReplay": "NOT_RUN: CI bodies/builds unavailable; no new live capture and no full local benchmark authorized",
+  "next": "Rerun existing unchanged CI gate using corrected HEAD runner for both builds; real World regression remains possible."
+}
