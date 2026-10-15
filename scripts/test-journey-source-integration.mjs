@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { localRpc, sql, TEST_USER, OTHER_USER } from "./journey-source-test-db.mjs";
+import { GOLDEN_WORLD_JOURNEY_878 } from "../src/lib/research/worldJourneyProjection.js";
 const pw = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 const { chromium } = pw.default || pw;
 const base = "http://127.0.0.1:4174";
@@ -157,23 +158,30 @@ try {
         await page.goto(`${base}/2029/number/878`, { waitUntil: "domcontentloaded" });
         const preset = page.locator('[data-number-path-continuation]');
         await preset.getByRole('button', { name: 'התחל מסע מהבחירה', exact: true }).click({ timeout: 60000 });
-        await page.waitForURL(`${base}/world`);
-        await page.getByText('אתה בתוך מסע 878', { exact: true }).waitFor({ timeout: 60000 });
-        await page.waitForTimeout(700); // existing World/frame entrance must finish before opening its menu
         const guest = () => page.evaluate(() => JSON.parse(sessionStorage.getItem('sod_research_context_v2:guest')));
         assert.equal((await guest()).journey.root.id, '878');
-        if (width === 390) {
-          await page.getByRole('button', { name: 'פתח ניווט', exact: true }).click();
-          await page.locator('#sod29-mobile-navigation').getByRole('button', { name: 'חזרה מדויקת', exact: true }).click();
-        } else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click({ timeout: 45000 });
-        await page.waitForURL(`${base}/2029/number/878`);
+        if (GOLDEN_WORLD_JOURNEY_878.locked) {
+          // The generic Path stays available; the held Golden preset must not open World.
+          await preset.getByRole('button', { name: 'הוסף את הבחירה למסע', exact: true }).waitFor();
+          assert.equal(new URL(page.url()).pathname, '/2029/number/878');
+          assert.notEqual((await guest()).dimensions?.journeySemanticId, GOLDEN_WORLD_JOURNEY_878.id);
+        } else {
+          await page.waitForURL(`${base}/world`);
+          await page.getByText('אתה בתוך מסע 878', { exact: true }).waitFor({ timeout: 60000 });
+          await page.waitForTimeout(700); // existing World/frame entrance must finish before opening its menu
+          if (width === 390) {
+            await page.getByRole('button', { name: 'פתח ניווט', exact: true }).click();
+            await page.locator('#sod29-mobile-navigation').getByRole('button', { name: 'חזרה מדויקת', exact: true }).click();
+          } else await page.locator('button[aria-label="חזרה מדויקת"]:visible').first().click({ timeout: 45000 });
+          await page.waitForURL(`${base}/2029/number/878`);
+        }
         await preset.getByRole('button', { name: 'שמירה וחידוש', exact: true }).click();
         const beforeGuestSave = await sql('select count(*) from research_paths');
         await page.getByRole('button', { name: 'שמור מסלול', exact: true }).click();
         await page.getByText('המסלול לא עודכן', { exact: true }).waitFor();
         assert.equal(await sql('select count(*) from research_paths'), beforeGuestSave);
         await page.screenshot({ path: `${out}/878-guest-${width}.png` });
-        receipt.cases.push({ width, slug: '878', status: 'PASS', worldReturn: true, guestSaveDenied: true });
+        receipt.cases.push({ width, slug: '878', status: 'PASS', goldenPresetLocked: GOLDEN_WORLD_JOURNEY_878.locked, worldReturn: !GOLDEN_WORLD_JOURNEY_878.locked, guestSaveDenied: true });
       }
       await context.close();
     }
