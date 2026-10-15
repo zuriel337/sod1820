@@ -5,7 +5,8 @@ import { buildCalculator2029FastPreview } from "./calculator2029FastPreview.js";
 import { classifyCalculatorInput, filterProfileRowsForInput, isEnglishMethodKey } from "./calculator2029Input.js";
 import { buildEnglishLaneRows } from "./calculator2029English.js";
 import { ledgerFromFinding } from "./calculator2029Ledger.js";
-import { normalizeCalculatorMethods } from "./calculator2029Model.js";
+import { emit } from "../events.js";
+import { normalizeCalculatorMethods, buildCanonicalComputeTelemetry } from "./calculator2029Model.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const CALCULATOR_ROW_SETTLE_MS = 240;
@@ -19,7 +20,7 @@ function remember(cache, key, value) {
   cache.set(key, value);
 }
 
-export function useCalculatorRow(seed = "") {
+export function useCalculatorRow(seed = "", { telemetrySurface = "professional" } = {}) {
   const [draft, setDraft] = useState(seed);
   const [profile, setProfile] = useState({ loading: false, rows: [], error: null, expression: "" });
   const requestRef = useRef(0);
@@ -42,7 +43,11 @@ export function useCalculatorRow(seed = "") {
       try {
         const rows = await fetchNumberMethodProfile(phrase);
         if (rows.length) remember(profileCache, phrase, rows);
-        if (id === requestRef.current) setProfile({ loading: false, rows, error: null, expression: phrase });
+        if (id === requestRef.current) {
+          setProfile({ loading: false, rows, error: null, expression: phrase });
+          const telemetry = buildCanonicalComputeTelemetry(phrase, rows);
+          if (telemetry) emit("calculator_2029", "canonical_compute", { props: { ...telemetry, surface: telemetrySurface } });
+        }
       } catch (error) {
         if (id === requestRef.current) setProfile({ loading: false, rows: [], error, expression: phrase });
       }

@@ -3,6 +3,8 @@ import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
+import { fetchNumberRecordHistory2029 } from "./worldSourceDepth.js";
+import { project2029BuildStatus } from "./worldSourceDepthProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -54,6 +56,8 @@ async function fetchHomeSystemPulse2029() {
     latestCreatedResult,
     latestVisibilityResult,
     contributionsResult,
+    commentsResult,
+    channelUpdatesResult,
   ] = await Promise.all([
     publicWordQuery("phrase", { count: "exact", head: true }),
     publicWordQuery("phrase", { count: "exact", head: true }).gte("created_at", since),
@@ -72,6 +76,12 @@ async function fetchHomeSystemPulse2029() {
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1000),
+    // Public aggregates only; never raw chat_messages, DMs or personal inboxes.
+    supabase.from("comments").select("wp_id", { count: "exact", head: true })
+      .eq("status", "publish").gte("date", since),
+    supabase.from("channel_updates").select("id", { count: "exact", head: true })
+      .eq("status", "live").gte("created_at", since)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`),
   ]);
 
   const hasCorpusError = [totalResult, createdResult, visibilityResult, overlapResult]
@@ -105,12 +115,19 @@ async function fetchHomeSystemPulse2029() {
 
   return {
     windowDays: PULSE_WINDOW_DAYS,
+    buildStatus: project2029BuildStatus(),
     corpusTotal,
     corpusAdded7d,
     corpusLatestAt: latestWords[0]?.publicAt || null,
     latestWords,
     contributions7d: contributionsError ? null : Number(contributionsResult.count || 0),
     writers7d: contributionsError ? null : writers.size,
+    publicComments7d: commentsResult?.error ? null : commentsResult.count,
+    publicChannelUpdates7d: channelUpdatesResult?.error ? null : channelUpdatesResult.count,
+    metricSources: {
+      publicComments7d: "comments:status=publish",
+      publicChannelUpdates7d: "channel_updates:live_unexpired",
+    },
     // Journey/search/calculator counts intentionally stay out until their canonical public readers are live.
     journeysToday: null,
     searchesToday: null,
@@ -149,10 +166,12 @@ export function projectHomeWorldPreviewItem(item) {
 }
 
 async function fetchHomeWorldPreview2029() {
+  const numberHistoryPromise = fetchNumberRecordHistory2029().catch(() => ({ items: [], state: "unavailable", hasMore: false, nextBefore: null }));
   const contributors = await fetchWorldLandingContributorProjection().catch(() => null);
   const publicPeople = Array.isArray(contributors?.people) ? contributors.people : [];
   const discovery = await fetchWorldDiscoveryStream({ limit: 8, publicPeople });
   return {
+    numberHistory: await numberHistoryPromise,
     people: publicPeople.slice(0, 4).map((person) => ({
       id: person.id,
       slug: person.slug,

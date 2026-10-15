@@ -13,6 +13,28 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE = 1000;
 const MAX_PAGES = 12;
 
+// Owner-requested public construction status. Completion percentages require an
+// explicit, versioned milestone denominator and evidence; this is not a new tracker.
+export function project2029BuildStatus({ milestones = [], checklistRef = null } = {}) {
+  const byId = new Map();
+  for (const item of milestones) {
+    if (!clean(item?.id)) continue;
+    // Conflicting duplicate evidence cannot increase completion.
+    const existing = byId.get(item.id);
+    const verified = item.status === "closed" && item.verified === true && Boolean(clean(item.evidenceRef));
+    byId.set(item.id, { verified: existing ? existing.verified && verified : verified });
+  }
+  const total = byId.size;
+  const completed = [...byId.values()].filter(item => item.verified).length;
+  const measured = Boolean(clean(checklistRef)) && total > 0;
+  return { scope: "2029", state: "building", label: "מערכת 2029 בבנייה",
+    percent: measured ? Math.floor(100 * completed / total) : null,
+    completed: measured ? completed : null, total: measured ? total : null,
+    checklistRef: measured ? checklistRef : null,
+    basis: measured ? "verified_closed_milestones" : "approved_checklist_unavailable",
+    releaseAuthorized: false };
+}
+
 // posts: [{id, slug, categories}] -> [{category, count}] distinct by post id, de-duplicated within a post.
 export function buildCategoryCounts(posts = []) {
   const seenByCategory = new Map();
@@ -67,10 +89,58 @@ export function buildSourceDepth({ posts = [], topics = [], attestedLinks = [], 
 
   return Object.freeze({
     complete: Boolean(complete),
+    buildStatus: project2029BuildStatus(),
     postsRead: posts.length,
     categories: rows,
     topicsTotal: topicBySlug.size,
+    numberHighlights: buildPublicNumberHighlights([...topicBySlug.values()]),
     topicsLinked: linkedTopicSlugs.size,
     unlinkedTopics, // full directory, not a sampled head
   });
+}
+
+// A discovery signal over admitted PUBLIC topic identities, not search popularity,
+// research strength or curation. The same payload is usable on Home and World.
+export function buildPublicNumberHighlights(topics = [], { now = Date.now(), limit = 10 } = {}) {
+  const byNumber = new Map();
+  const seen = new Set();
+  const since = now - 7 * 86400000;
+  for (const topic of topics) {
+    const identity = clean(topic?.slug);
+    if (!identity || seen.has(identity)) continue;
+    seen.add(identity);
+    const approved = Date.parse(topic.approved_at || "");
+    const recent = Number.isFinite(approved) && approved >= since && approved <= now;
+    for (const value of new Set(Array.isArray(topic.numbers) ? topic.numbers : [])) {
+      if (!Number.isSafeInteger(value) || value <= 0) continue;
+      const row = byNumber.get(value) || { value, publicTopics: 0, approvedTopics7d: 0, topicRatings: [] };
+      row.publicTopics += 1;
+      // These ratings belong to the Topic, never silently transferred to the Number.
+      row.topicRatings.push({ slug: identity, title: clean(topic.title), quality: topic.quality ?? null, meterScore: topic.meter_score ?? null });
+      if (recent) row.approvedTopics7d += 1;
+      byNumber.set(value, row);
+    }
+  }
+  return [...byNumber.values()]
+    .sort((a, b) => b.approvedTopics7d - a.approvedTopics7d || b.publicTopics - a.publicTopics || a.value - b.value)
+    .slice(0, limit)
+    .map((row) => ({ ...row, href: `/2029/number/${row.value}`, basis: "public_topic_membership", windowDays: 7 }));
+}
+
+// Number registry history is separate from opening history and from public content
+// updates. created_at proves a record creation, not a first publication or discovery.
+export function projectNumberRecordHistory(rows = []) {
+  const seen = new Set();
+  return rows.flatMap(row => {
+    const label = clean(row?.label);
+    const value = /^\d+$/.test(label) ? Number(label) : NaN;
+    const time = Date.parse(row?.created_at || "");
+    if (!row?.id || row.is_active === false || !Number.isSafeInteger(value) || value < 0
+      || !Number.isFinite(time) || seen.has(String(row.id))) return [];
+    seen.add(String(row.id));
+    return [{ id: String(row.id), value, at: new Date(time).toISOString(),
+      href: `/2029/number/${value}`, sourceRef: `nodes:${row.id}`,
+      kind: "number_record_created", timestampBasis: "nodes.created_at",
+      firstPublicationVerified: false }];
+  }).sort((a, b) => Date.parse(b.at) - Date.parse(a.at) || a.id.localeCompare(b.id));
 }

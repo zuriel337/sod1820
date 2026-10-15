@@ -13,7 +13,7 @@ const fmt = (value) => Number(value).toLocaleString("en-US");
 // canonical engine. Equality, crossing and the derived sum are operations over two engine
 // results; nothing here is a new Gematria method or independent evidence.
 export default function CalculatorDuo2029({ expressionA = "", selectionA = null, ledgerA = null, compositeRows = [] }) {
-  const rowB = useCalculatorRow(expressionA);
+  const rowB = useCalculatorRow(expressionA, { telemetrySurface: "comparison" });
   const [touchedB, setTouchedB] = useState(false);
   const [methodBKey, setMethodBKey] = useState(null);
   const [relation, setRelation] = useState({ loading: false, data: null, error: null });
