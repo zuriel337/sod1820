@@ -1078,7 +1078,9 @@ assert.equal(world.includes('to="/books"'), false);
 assert.match(world, /import \{ Link \} from "react-router-dom"/, "canonical Topic identities should be crawlable real links");
 const shellBookTransitions = [...world.matchAll(/shell\.go\((?:`|")\/books/g)].length;
 assert.equal(shellBookTransitions, 3);
-assert.match(world, /fetchEntityHubProjection\(\{ nodeId: targetNodeId/);
+// Relation deepening resolves the target through the single identity helper; baseline (switch OFF) still uses the entity hub projection.
+assert.match(world, /resolveWorldRelationIdentity\(targetNodeId/);
+assert.match(world, /project: fetchEntityHubProjection/);
 assert.match(world, /shell\.openInspect\(/);
 assert.match(world, /returnTo:\s*\{[\s\S]*href: "\/world"/);
 

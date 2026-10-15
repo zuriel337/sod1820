@@ -1,0 +1,15 @@
+cat: /gates.txt: No such file or directory
+rc=0 :: node --test test/scroll-restore-2029.test.mjs
+rc=0 :: node --test test/runtime-switches-2029.test.mjs test/perf-two-switches-2029.test.mjs test/shell-surface-registry-2029.test.mjs test/number-lookup-transport-memory-2029.test.mjs test/number-lookup-acceptance-2029.test.mjs
+rc=0 :: node --test test/perf-navigation-2029.test.mjs
+rc=0 :: node --test src/lib/research/researchSyncRuntime.test.js
+rc=0 :: node scripts/test-route-legitimacy-2029.mjs
+rc=1 :: node --test scripts/test-2029-bundle-budget.mjs
+      # pass 4
+      # fail 1
+      # cancelled 0
+      # skipped 0
+      # todo 0
+      # duration_ms 411.949191
+rc=0 :: npm run build:2029
+ALLDONE
