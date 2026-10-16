@@ -6,6 +6,7 @@
 //  * the product's own markers (data-h29-primary, data-dg29-state) are recorded next to the structural predicate, never used instead of it.
 //  * cls = standard session-window maximum inside the observed window (gaps < 1000 ms, span < 5000 ms); v2's sum is kept as actionWindowShiftSum.
 //  * scenarios: --gateDelay MS (the lock_world flag read answers late in the Back phase), --gate closed (guest, world gate closed),
+//    --gate closed applies from the Back phase only (the world gate was open on the first visit and is closed on the return)
 //    --resize W (viewport width change 800 ms after Back while holds are applied), --mode load (cold Home load, normal|empty|error).
 // usage: node runner.mjs --arms A=DIST_A,B=DIST_B --pairs 7 --out out.json [--mode back|load] [--late 150|900|1800|3200] [--interrupt 1]
 //        [--width 390 --height 844 --theme dark|light|parchment --reduced 1 --fx fixtures.json.gz --post /post/slug --state normal|empty|error]
@@ -95,7 +96,7 @@ async function newSample(origin, ctl) {
       if (!isRead) { st.blockedWrites++; st.blockedWriteKeys.push(req.method() + ' ' + shortKey(norm(u))); return route.fulfill({ status: 204, body: '', headers: hdr }); }
       const k = keyOf(req); let f = fixtures[k];
       const isGate = /rest\/v1\/site_flags/.test(k);
-      if (isGate && GATE_CLOSED && f) { const rows = JSON.parse(f.body).filter(r => r.key !== 'lock_world'); rows.push({ key: 'lock_world', enabled: true, message: 'fixture: world gate closed', mode: 'all' }); f = { ...f, body: JSON.stringify(rows) }; }
+      if (isGate && GATE_CLOSED && ctl.phase === 'back' && f) { const rows = JSON.parse(f.body).filter(r => r.key !== 'lock_world'); rows.push({ key: 'lock_world', enabled: true, message: 'fixture: world gate closed', mode: 'all' }); f = { ...f, body: JSON.stringify(rows) }; }
       const sk = shortKey(k); const tReq = Date.now();
       if (STATE === 'empty' && /rest\/v1\/posts|get_category_videos|els_records/.test(k) && !/storage/.test(k)) f = { status: 200, body: '[]', ct: 'application/json', cr: null };
       if (STATE === 'error' && /rest\/v1\/posts|get_category_videos|els_records/.test(k) && !/storage/.test(k)) f = { status: 500, body: '{"message":"fixture injected failure"}', ct: 'application/json', cr: null };
