@@ -49,7 +49,7 @@ export function holdAttribute({ pending, settled, memory, count }) {
 
 export function useSettledBox(key, { pending = false, settled = false, count = 0 } = {}) {
   const latest = useRef({ settled, count });
-  const live = useRef({ node: null, observer: null, appliedWidth: null, appliedViewport: null, released: false, unsubscribe: null });
+  const live = useRef({ node: null, observer: null, appliedWidth: null, appliedViewport: null, appliedCount: null, released: false, unsubscribe: null });
   // released: this mount's hold was dropped because the width changed. The caller then renders its own loading slots at the new
   // width (held is false) instead of leaving an empty box, in the same frame (flushSync), so nothing collapses and re-grows.
   const [released, setReleased] = useState(false);
@@ -60,7 +60,7 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     state.released = true;
     if (synchronous) flushSync(() => setReleased(true)); else setReleased(true);   // from an effect, flushSync is not allowed: batch instead
     node.style.removeProperty(SETTLED_HEIGHT_VAR);
-    state.appliedWidth = null; state.appliedViewport = null;
+    state.appliedWidth = null; state.appliedViewport = null; state.appliedCount = null;
   }, []);
   const measure = useCallback((synchronous = true) => {
     const state = live.current, node = state.node, now = latest.current;
@@ -74,6 +74,11 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     // Observe the outer children too: a held (min-size) box does not resize when its content does (observe() is idempotent).
     state.observer?.observe(first); state.observer?.observe(last);
     if (!(typeof now.settled === "function" ? now.settled(node) : now.settled)) return;
+    // The list settled with another number of items than the box that was held: the held height is spent. Dropping the variable matters: once the new
+    // box is remembered the hold attribute comes back (same count again), and a variable left from the mount would re-expand the list to its old height.
+    if (state.appliedCount != null && state.appliedCount !== now.count) {
+      node.style.removeProperty(SETTLED_HEIGHT_VAR); state.appliedWidth = null; state.appliedViewport = null; state.appliedCount = null; state.unsubscribe?.(); state.unsubscribe = null;
+    }
     const next = nextMemory({ width, viewport: viewportWidth, top: first.getBoundingClientRect().top, bottom: last.getBoundingClientRect().bottom, count: now.count });
     if (next) rememberSettledBox(key, next);
   }, [key, release]);
@@ -85,12 +90,12 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
   const ref = useCallback((node) => {
     const state = live.current;
     state.observer?.disconnect(); state.observer = null; state.unsubscribe?.(); state.unsubscribe = null;
-    state.node = node; state.appliedWidth = null; state.appliedViewport = null;
+    state.node = node; state.appliedWidth = null; state.appliedViewport = null; state.appliedCount = null;
     if (!node) return;
     const memory = readSettledBox(key);
     const height = state.released ? null : rememberedHeight(memory, viewportWidth);
     if (height != null) {
-      node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`); state.appliedWidth = memory.w; state.appliedViewport = memory.vw;
+      node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`); state.appliedWidth = memory.w; state.appliedViewport = memory.vw; state.appliedCount = memory.n;
       const onViewport = () => { if (viewportChangedSinceHold(state.appliedViewport, viewportWidth)) release(true); };
       viewportListeners.add(onViewport); state.unsubscribe = () => viewportListeners.delete(onViewport);
     }

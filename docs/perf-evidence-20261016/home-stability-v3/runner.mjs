@@ -65,7 +65,8 @@ const med = a => { const s = a.filter(x => x != null && !Number.isNaN(x)).sort((
 const privateMisses = [];
 
 // ---- in-page instrumentation (installed before any navigation) -------------------------------------------------------
-const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],touch:[],jumps:[],sc:[],poll:true,t0:performance.timeOrigin};
+const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],touch:[],jumps:[],sc:[],paint:[],ord:[],poll:true,t0:performance.timeOrigin};
+const lg=(k)=>{if(m.ord.length<3000)m.ord.push([Math.round(performance.now()*10)/10+performance.timeOrigin,k,Math.round(scrollY),document.documentElement?document.documentElement.scrollHeight:0])};
 const D=n=>{if(!n||!n.tagName)return String(n&&n.nodeName);let s=n.tagName.toLowerCase();if(typeof n.className==='string'&&n.className)s+='.'+n.className.trim().split(/\\s+/).slice(0,2).join('.');const l=n.getAttribute&&n.getAttribute('aria-label');if(l)s+='['+l.slice(0,14)+']';return s};
 const ep=t=>Math.round((performance.timeOrigin+t)*10)/10;
 new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)m.cs.push({t:ep(e.startTime),v:e.value,src:(e.sources||[]).slice(0,5).map(s=>({n:D(s.node),py:Math.round(s.previousRect.y),cy:Math.round(s.currentRect.y),ph:Math.round(s.previousRect.height),ch:Math.round(s.currentRect.height)}))})}).observe({type:'layout-shift',buffered:true});
@@ -86,7 +87,10 @@ let last='';const loop=()=>{const root=document.querySelector("[data-experience-
    heroKids:[...document.querySelectorAll('.h29-hero > *')].map(e=>[D(e),rh(e)])};
   const key=JSON.stringify(kids)+JSON.stringify(det)+Math.round(scrollY)+document.documentElement.scrollHeight;
   if(key!==last){last=key;if(m.geo.length<4000)m.geo.push({t:ep(performance.now()),y:Math.round(scrollY),dh:document.documentElement.scrollHeight,k:kids,det})}}
- if(m.poll)rd();requestAnimationFrame(loop)};requestAnimationFrame(loop);
+ lg('raf');if(m.poll)rd();pch.port2.postMessage(0);requestAnimationFrame(loop)};
+// what was PAINTED: sampled from a message task posted by the frame's rAF callback, i.e. after layout, ResizeObserver callbacks and paint of that frame
+const pch=new MessageChannel();let lastPaint='';pch.port1.onmessage=()=>{const tops={};for(const b of document.querySelectorAll('[data-scroll-anchor]')){const r=b.getBoundingClientRect();if(r.height>0)tops[b.getAttribute('data-scroll-anchor')]=Math.round(r.top)}const k=JSON.stringify(tops)+Math.round(scrollY);if(k!==lastPaint&&m.paint.length<3000){lastPaint=k;m.paint.push({t:ep(performance.now()),y:Math.round(scrollY),tops})}};
+requestAnimationFrame(loop);
 ${READINESS_SRC}
 // paint / LCP
 new PerformanceObserver(l=>{for(const e of l.getEntries())m.lcp={t:ep(e.startTime),size:e.size,el:D(e.element),url:(e.url||'').slice(-60)}}).observe({type:'largest-contentful-paint',buffered:true});
@@ -99,10 +103,12 @@ window.__wait=(kind,ms=30000)=>new Promise(res=>{let done=false;const chk=()=>ki
 m.ready={};const rd=()=>{const r=window.__ready();if(r){for(const k of ['heroReal','composed','usable','both','dgReady','dgSettled'])if(r[k]&&m.ready[k]==null)m.ready[k]=ep(performance.now());if(r.prMarker==='ready'&&m.ready.markerPrimary==null)m.ready.markerPrimary=ep(performance.now());if(r.dgMarker==='ready'&&m.ready.markerDg==null)m.ready.markerDg=ep(performance.now());if(r.prMarker&&m.ready.markerSeen==null)m.ready.markerSeen=r.prMarker;if(m.ready.usable!=null&&m.ready.dgSettled!=null)m.poll=false}};
 const mo3=new MutationObserver(rd);const st3=()=>mo3.observe(document.documentElement,{childList:true,subtree:true,attributes:true});if(document.documentElement)st3();else document.addEventListener('DOMContentLoaded',st3);
 window.__resetReady=()=>{m.ready={};m.poll=true};
+// order of events around a layout change (diagnostic): DOM mutations, ResizeObserver delivery on the root, animation frames, programmatic scrolls
+const startOrd=()=>{new MutationObserver(()=>lg('mo')).observe(document.documentElement,{childList:true,subtree:true,attributes:true});new ResizeObserver(()=>lg('ro0')).observe(document.documentElement)};if(document.documentElement)startOrd();else document.addEventListener('DOMContentLoaded',startOrd);
 // user input and programmatic scroll jumps (the scroll restorer's scrollTo), for the early-input cancellation check
 window.addEventListener('touchstart',()=>m.touch.push(ep(performance.now())),{capture:true,passive:true});
 window.addEventListener('scroll',()=>{if(m.sc.length<6000)m.sc.push([ep(performance.now()),Math.round(scrollY)])},{passive:true});
-const nativeScrollTo=window.scrollTo.bind(window);window.scrollTo=function(...a){m.jumps.push({t:ep(performance.now()),to:a[0]&&typeof a[0]==='object'?a[0].top:a[1],from:Math.round(scrollY)});return nativeScrollTo(...a)};
+const nativeScrollTo=window.scrollTo.bind(window);window.scrollTo=function(...a){lg('scrollTo>'+(a[0]&&typeof a[0]==='object'?a[0].top:a[1]));m.jumps.push({t:ep(performance.now()),to:a[0]&&typeof a[0]==='object'?a[0].top:a[1],from:Math.round(scrollY)});return nativeScrollTo(...a)};
 try{window.__target=sessionStorage.getItem('__homeTarget')||null}catch(_){window.__target=null}
 window.__anchor=(key)=>{const out={};const els=[...document.querySelectorAll('h1,h2,h3,h4,a,p,li,button,span,strong,b,small')].filter(e=>e.children.length===0);
  if(key){const el=els.find(e=>(e.innerText||'').trim().slice(0,80)===key);out.found=!!el;out.top=el?Math.round(el.getBoundingClientRect().top):null;return out}
@@ -189,7 +195,8 @@ async function oneSample(arm, idx) {
     await sleep(800);
     link = await visibleLink(page, eligible);
     if (!link) { o.invalid.push('no really-visible Home post control for departure (with a complete body in the corpus)'); throw new Error('no visible control'); }
-    o.depart = { href: link.href, anchorText: link.anchorText, anchorTopBefore: link.anchorTop, linkTop: link.top, scrollY: await page.evaluate(() => Math.round(scrollY)), docH: await page.evaluate(() => document.documentElement.scrollHeight), blocksBefore: (await page.evaluate(() => { const g = window.__r.geo; return g.length ? g[g.length - 1].k : null; })) };
+    const readingBlock = await page.evaluate(() => { let best = null; for (const b of document.querySelectorAll('[data-scroll-anchor]')) { const r = b.getBoundingClientRect(); if (r.height > 0 && r.top <= 1) best = { id: b.getAttribute('data-scroll-anchor'), top: Math.round(r.top), h: Math.round(r.height) }; } return best; });
+    o.depart = { readingBlock, href: link.href, anchorText: link.anchorText, anchorTopBefore: link.anchorTop, linkTop: link.top, scrollY: await page.evaluate(() => Math.round(scrollY)), docH: await page.evaluate(() => document.documentElement.scrollHeight), blocksBefore: (await page.evaluate(() => { const g = window.__r.geo; return g.length ? g[g.length - 1].k : null; })) };
     // REAL tap (touch) at the control; controller timestamps immediately around the command
     const tapMono0 = performance.now(), tapWall0 = Date.now();
     await page.touchscreen.tap(link.x, link.y);
@@ -215,7 +222,7 @@ async function oneSample(arm, idx) {
     const traj = []; const deadline = bWall0 + HORIZON_MS;
     while (Date.now() < deadline) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), dh: document.documentElement.scrollHeight, a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj.push([Date.now() - bWall0, p.y, p.dh, p.a.found ? p.a.top : null]); await sleep(120); }
     if (TRACE_DIR) { const buf = await browser.stopTracing(); fs.mkdirSync(TRACE_DIR, { recursive: true }); fs.writeFileSync(path.join(TRACE_DIR, `${arm}-${idx}.trace.json.gz`), zlib.gzipSync(buf)); }
-    const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1),
+    const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1), paint: m.paint.filter(x => x.t >= w0 - 50 && x.t <= w1 + 300), ord: m.ord.filter(x => x[0] >= w0 && x[0] <= w1),
       touch: m.touch.filter(t => t >= w0), jumps: m.jumps.filter(j => j.t >= w0), sc: m.sc.filter(s => s[0] >= w0) }; }, [bWall0, bWall0 + HORIZON_MS]);
     const sum = rec.cs.reduce((s, x) => s + x.v, 0);
     o.actionWindowShiftSum = +sum.toFixed(4); o.cls = sessionWindowMax(rec.cs); o.shifts = rec.cs; o.mut = rec.mut; o.geo = rec.geo; o.geoPre = rec.geoPre; o.longTasks = rec.lt; o.events = rec.ev;
@@ -231,6 +238,16 @@ async function oneSample(arm, idx) {
     o.anchor.within120Final = o.anchor.finalDisp != null && o.anchor.finalDisp <= 120;
     o.anchor.sampledFound = found.length + '/' + traj.length;
     // restore jumps (the shared restorer's scrollTo) and the user's touch, in page time relative to the Back command
+    // the reading place: the block the person was reading in, and where it is at the end of the horizon (a steady state). The per-frame samples can include a
+    // layout that was corrected before it was painted (a message task may run between a DOM change and the next frame), so a "jump" between two samples is not
+    // evidence of what was painted; CLS (layout-shift entries) is. The series is kept for diagnosis only.
+    if (readingBlock) {
+      const series = rec.paint.map(p => ({ t: Math.round(p.t - bWall0), top: p.tops[readingBlock.id] ?? null })).filter(p => p.top != null);
+      const landed = series.findIndex(p => Math.abs(p.top - readingBlock.top) <= 120);
+      const finalTop = series.at(-1)?.top ?? null;
+      o.reading = { id: readingBlock.id, topBefore: readingBlock.top, blockH: readingBlock.h, landedAtMs: landed >= 0 ? series[landed].t : null, finalTop, displacement: finalTop == null ? null : Math.abs(finalTop - readingBlock.top),
+        series: rec.paint.map(p => [Math.round(p.t - bWall0), p.y, p.tops[readingBlock.id] ?? null]).slice(0, 400) };
+    }
     o.restore = { jumps: rec.jumps.map(j => ({ atMs: ms(j.t), to: j.to, from: j.from })), touchAtMs: rec.touch.length ? ms(rec.touch[0]) : null, departScrollY: o.depart.scrollY };
     if (INTERRUPT_AT != null) {
       const touchAt = o.restore.touchAtMs, jumpsAfter = o.restore.jumps.filter(j => touchAt != null && j.atMs > touchAt);

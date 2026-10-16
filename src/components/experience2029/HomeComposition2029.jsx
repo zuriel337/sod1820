@@ -23,6 +23,8 @@ import { primaryContentState } from "../../lib/homeReadiness2029.js";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
+// data-scroll-anchor marks the blocks the scroll restorer remembers the reading place in (src/lib/scrollRestore2029.js): on a return to Home the person is put back at the same
+// place in the same block, and kept there while the layout settles (late content, a held box collapsing because its read failed or came back empty). Attribute only, no visual effect.
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
 const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown
 // Presentation memory only (never data): how many cards the strips showed the last time Home was on screen in this
@@ -127,12 +129,12 @@ function Reveal({ id, children, remember = false }) {
     && [...node.querySelectorAll("img")].every((image) => image.complete) });
   const attach = box.ref;
   const setRef = useCallback((node) => { ref.current = node; attach(node); }, [ref, attach]);
-  return <div ref={setRef} data-reveal={reveal} data-h29-hold-block={remember ? "" : undefined} className="k29-reveal k29-rv-self">{children}</div>;
+  return <div ref={setRef} data-reveal={reveal} data-h29-hold-block={remember ? "" : undefined} data-scroll-anchor={`home:reveal:${id}`} className="k29-reveal k29-rv-self">{children}</div>;
 }
 
 function Section({ title, link, label, children, className = "" }) {
   const [ref, reveal] = useReveal(`home:${label || title}`);
-  return <section ref={ref} data-reveal={reveal} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>
+  return <section ref={ref} data-reveal={reveal} data-scroll-anchor={`home:${label || title}`} className={`h29-sec k29-reveal ${className}`} aria-label={label || title}>
     {title ? <div className="h29-sec-h"><h2>{title}</h2>{link}</div> : null}
     {children}
   </section>;
@@ -185,11 +187,11 @@ export default function HomeComposition2029({
   // without content is explicit (empty / error).
   const primary = primaryContentState({ loading: data.loading, failed: data.failed, hasHero: Boolean(nowHero) || Boolean(lead), postCount: visiblePosts.length });
   return <div className="h29" data-experience-capability="home-composition" data-h29-primary={primary}>
-    {nowHero || <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold}>
+    {nowHero || <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold} data-scroll-anchor="home:hero">
       {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>}
     </div>}
 
-    {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
+    {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening" data-scroll-anchor="home:launch-notice">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
       <span>כבר עכשיו אפשר לקרוא פוסטים{worldOpen ? ", לגלות את העולם" : ""}, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט.</span>
     </section> : null}
@@ -272,7 +274,7 @@ export default function HomeComposition2029({
     {entry}
     {continuity}
 
-    <section className="h29-quiet" aria-label="דופק ומצב בנייה">
+    <section className="h29-quiet" aria-label="דופק ומצב בנייה" data-scroll-anchor="home:pulse">
       <span>{pulse?.corpusTotal ? `${Number(pulse.corpusTotal).toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
       {!corePublic ? <a href="/map">מה כבר חי ומה בדרך ←</a> : null}
     </section>

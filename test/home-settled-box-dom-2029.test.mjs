@@ -29,10 +29,10 @@ async function bundle(hookPath) {
     build: { outDir, emptyOutDir: true, minify: false, lib: { entry: join(harness, "main.jsx"), formats: ["iife"], name: "SettledBoxHarness", fileName: () => "harness.js" } } });
   return join(outDir, readdirSync(outDir).find((name) => name.endsWith(".js")));
 }
-let current = null, previous = null, browser = null;
+let current = null, previous = null, atHead = null, browser = null;
 test.before(async () => {
   if (skip) return;
-  [current, previous] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js"))]);
+  [current, previous, atHead] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js"))]);
   browser = await chromium.launch({ executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
 });
 test.after(async () => { await browser?.close(); });
@@ -118,5 +118,36 @@ test("after a release the loaded list is natural size at the new width, and the 
     const memory = await page.evaluate(() => window.__api.memory());
     assert.equal(memory.vw, 320, "remembered for the viewport it was measured at");
     assert.equal(memory.w, 320);
+  } finally { await page.close(); }
+});
+
+// A list that settles with another number of items than the box that was held (4 -> 2) is natural size, and stays so through later renders. The previous hook
+// kept the held height in an inline variable: once the new, smaller box was remembered the hold attribute came back and re-expanded the list to the old height.
+async function shrinkThenRerender(page) {
+  await page.evaluate(() => window.__api.mount({ pending: false, items: 4, slots: 4 }));
+  await page.waitForFunction(() => window.__api.memory() !== null);
+  await page.evaluate(() => { window.__api.unmount(); window.__api.mount({ pending: true, items: 0, slots: 4 }); });
+  await sleep(100);
+  await page.evaluate(() => window.__api.render({ pending: false, items: 2, slots: 4 }));
+  await sleep(200);
+  const settled = await page.evaluate(() => window.__api.state());
+  for (let i = 0; i < 3; i++) { await page.evaluate(() => window.__api.render({ pending: false, items: 2, slots: 4 })); await sleep(100); }
+  return { settled, later: await page.evaluate(() => window.__api.state()) };
+}
+test("a list that settles with fewer items than the held box stays natural size through later renders", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    const { settled, later } = await shrinkThenRerender(page);
+    assert.equal(settled.h, 2 * 100 + 8, "natural size right after the read");
+    assert.equal(later.h, 2 * 100 + 8, "and after later renders");
+    assert.equal(later.hasVar, false, "the spent held height is dropped");
+  } finally { await page.close(); }
+});
+test("negative control: the hook of e3498434 (the head before this fix) re-expands that list to the old held height on a later render", { skip }, async () => {
+  const page = await openHarness(atHead);
+  try {
+    const { later } = await shrinkThenRerender(page);
+    assert.equal(later.h, 4 * 100 + 3 * 8, "back at the held height of the four items it had before");
+    assert.equal(later.hasVar, true);
   } finally { await page.close(); }
 });

@@ -45,7 +45,7 @@ export default function HomeBuildSignup2029({ pulsePanel }) {
     }
   };
 
-  return <section className="hb29" aria-label="האתר בבנייה והצטרפות לעדכונים" data-experience-capability="home-build-and-updates">
+  return <section className="hb29" aria-label="האתר בבנייה והצטרפות לעדכונים" data-experience-capability="home-build-and-updates" data-scroll-anchor="home:build-signup">
     <div className="hb29-progress">
       <div className="h29-kicker">העולם החדש נבנה</div>
       <h2>כבר אפשר לגלות. אנחנו ממשיכים לפתוח עוד.</h2>

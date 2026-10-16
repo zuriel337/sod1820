@@ -82,7 +82,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
     key={topic || category} topic={topic || `cat:${category}`}
     source="home_2029_discovery" noPush variant="icon"
     label={followTitle || `עקבו אחרי ${category}`} explainer="" />;
-  return <article className="dg29-gateway">
+  return <article className="dg29-gateway" data-scroll-anchor={`dg:${title}`}>
     <div className="dg29-gateway-head">
       <span className="dg29-glyph" aria-hidden="true">{symbol}</span>
       <div className="dg29-heading"><h3>{title}</h3><p>{subtitle}</p></div>
@@ -113,7 +113,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
 
 function DimensionFiveFeature({ items, loading, dimensionSlots = 0 }) {
   const box = useSettledBox("dimension-five", { pending: loading, settled: !loading, count: items.length });
-  return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">
+  return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים" data-scroll-anchor="dg:dimension-five">
     <div className="dg29-dimension-head">
       <span className="dg29-glyph" aria-hidden="true">🎥</span>
       <div>
