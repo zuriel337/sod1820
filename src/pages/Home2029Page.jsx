@@ -470,6 +470,7 @@ function HomeBody() {
     corePublic={CORE_PUBLIC_LAUNCH_2029}
     onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
+    worldPending={worldFeature.loading}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={(homeArrivals) => <div className="h29-stream">

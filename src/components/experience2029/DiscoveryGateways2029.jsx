@@ -1,6 +1,6 @@
 // Three discovery gateways plus a separate Dimension Five row over existing public readers.
 // Language research is an existing legacy deep-link until its 2029 projection is ready.
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategoryVideos } from "../../lib/supabase.js";
 import { runtimeOff } from "../../lib/runtimeSwitches2029.js";
@@ -10,6 +10,8 @@ import WatchButton from "../WatchButton.jsx";
 import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
 import { savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 import { stripHtml } from "../../lib/format.js";
+import { gatewayContentState } from "../../lib/homeReadiness2029.js";
+import { useSettledBox } from "./useSettledBox2029.js";
 import "./discoveryGateways2029.css";
 
 const clean = value => stripHtml(String(value || "")).trim();
@@ -17,39 +19,6 @@ const NBSP = "\u00a0";
 // Presentation memory only (never data): the rows each gateway showed the last time Home was on screen in this session,
 // so a return to Home reserves the same rows while its reads repeat. null = not seen yet: use the claim limits.
 const shownBefore = { slots: null };
-
-// Same idea for the box a list had: remembered by key and width once its content settled (natural extent of its children,
-// so a larger remembered box never feeds on itself). While the list is pending on a return to Home, or while it still shows
-// the same number of items as last time, it keeps that box (rule in homeComposition2029.css); a different width or a
-// different item count releases it. Presentation only: no read, query, request or cache is involved.
-const settledBox = {};
-export function useSettledBox(key, { pending = false, settled = false, count = 0 } = {}) {
-  const latest = useRef({ settled, count });
-  const live = useRef({ node: null, observer: null });
-  latest.current = { settled, count };
-  const measure = useCallback(() => {
-    const node = live.current.node, now = latest.current;
-    const first = node?.firstElementChild, last = node?.lastElementChild;
-    if (!node || !first || !last) return;
-    // Observe the outer children too: a held (min-size) box does not resize when its content does (observe() is idempotent).
-    live.current.observer?.observe(first); live.current.observer?.observe(last);
-    if (!(typeof now.settled === "function" ? now.settled(node) : now.settled)) return;
-    const width = node.getBoundingClientRect().width, top = first.getBoundingClientRect().top, bottom = last.getBoundingClientRect().bottom;
-    if (width > 0 && bottom - top > 0) settledBox[key] = { w: Math.round(width), h: Math.round(bottom - top), n: now.count };
-  }, [key]);
-  // Callback ref: runs at commit, before paint, so the remembered box is in place for the first frame of a return.
-  const ref = useCallback((node) => {
-    live.current.observer?.disconnect(); live.current.observer = null; live.current.node = node;
-    if (!node) return;
-    const before = settledBox[key];
-    if (before && before.w === Math.round(node.getBoundingClientRect().width)) node.style.setProperty("--h29-settled-h", `${before.h}px`);
-    if (typeof ResizeObserver !== "undefined") { live.current.observer = new ResizeObserver(measure); live.current.observer.observe(node); }
-  }, [key, measure]);
-  useEffect(() => { measure(); }, [measure, typeof settled === "function" ? 0 : settled, count]);
-  useEffect(() => () => { live.current.observer?.disconnect(); }, []);
-  const before = settledBox[key];
-  return { ref, hold: pending || (settled && Boolean(before) && before.n === count) ? "" : undefined };
-}
 
 const postHref = slug => {
   if (!slug) return "/posts";
@@ -176,7 +145,7 @@ function DimensionFiveFeature({ items, loading, dimensionSlots = DIMENSION_SLOTS
 }
 
 export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
-  const [state, setState] = useState({ loading: true, language: [], cinema: [], videos: [], dimension: [], matrices: [] });
+  const [state, setState] = useState({ loading: true, failed: false, language: [], cinema: [], videos: [], dimension: [], matrices: [] });
   useEffect(() => {
     let active = true;
     // Categories are the ONLY automatic admission rule. Do not derive a gateway
@@ -204,6 +173,8 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
         .filter(row => row?.slug || row?.id).slice(0, 3);
       setState({
         loading: false,
+        // every reader rejected: an explicit error outcome, never presented as populated content
+        failed: [language, cinema, videos, dimension, matrices].every(result => result.status === "rejected"),
         language: languagePosts.map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug,
           title: clean(post.title), href: postHref(post.slug),
           content: post.content || "", excerpt: post.excerpt || "" })),
@@ -220,7 +191,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
           href: savedMatrixWorkspaceHref(row),
         })),
       });
-    });
+    }).catch(() => { if (active) setState(current => ({ ...current, loading: false, failed: true })); });
     return () => { active = false; };
   }, []);
 
@@ -250,7 +221,9 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
   });
   const slots = shownBefore.slots;
 
-  return <section className="dg29" aria-label="שערי הגילוי">
+  // Non-visual: populated gateway rows (not loading slots) decide ready; a settled outcome without any is explicit.
+  const itemCount = (languageFeature ? 1 : 0) + languageLinks.length + cinema.items.length + biblicalSources.length + dimension.items.length;
+  return <section className="dg29" aria-label="שערי הגילוי" data-dg29-state={gatewayContentState({ loading: state.loading, failed: state.failed, itemCount })}>
     <div className="h29-sec-h">
       <h2>שערי הגילוי</h2>
       <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>

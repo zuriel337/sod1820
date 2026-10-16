@@ -15,9 +15,11 @@ import { useReveal } from "./useReveal2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
-import DiscoveryGateways2029, { useSettledBox } from "./DiscoveryGateways2029.jsx";
+import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
+import { useSettledBox } from "./useSettledBox2029.js";
 import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";
 import { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";
+import { primaryContentState } from "../../lib/homeReadiness2029.js";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
@@ -44,7 +46,7 @@ function titleNumber(title, tags) {
 
 function useHomeCompositionData({ includeWorld = true } = {}) {
   // enriched: the secondary Post-row read (categories / update mark) has settled; notableDone: the strip's reader has settled.
-  const [state, setState] = useState({ loading: true, enriched: false, notableDone: false, posts: [], notable: [] });
+  const [state, setState] = useState({ loading: true, failed: false, enriched: false, notableDone: false, posts: [], notable: [] });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -67,7 +69,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
         update: realUpdate(rowsBySlug[post.slug]),
         categories: rowsBySlug[post.slug]?.categories || post.categories || [],
       })) });
-    }).catch(() => update({ loading: false, enriched: true, posts: [] }));
+    }).catch(() => update({ loading: false, failed: true, enriched: true, posts: [] }));
     return () => { live = false; };
   }, []);
   useEffect(() => {
@@ -158,10 +160,11 @@ export default function HomeComposition2029({
   const sourcePlacement = claimHomeItems(sourceRows.filter(item => item.kind === "source"), latestPlacement.reserved, 4);
   const homeArrivals = sourcePlacement.items;
   const reservedPostKeys = [...sourcePlacement.reserved];
-  // The strip's loading slots appear as soon as the parent says the world gate is still being resolved (worldPending),
-  // or once it is open and the strip's reader is pending, so the strip does not appear above the reading position later.
+  // The strip's loading slots appear as soon as the parent says the world gate is still being resolved (worldPending, the gate's own
+  // loading state: never the projection's), or once it is open and the strip's reader is pending, so the strip does not appear
+  // above the reading position later. An unset worldPending means "not pending".
   const notableSlots = shownBefore.notable || 0;   // unknown or 0 = the strip was not on screen before: reserve nothing
-  const notableWaiting = notableSlots > 0 && !data.notable.length && (worldOpen ? !data.notableDone : (worldPending ?? loading) === true);
+  const notableWaiting = notableSlots > 0 && !data.notable.length && (worldOpen ? !data.notableDone : worldPending === true);
   const notableShown = (worldOpen && data.notable.length > 0) || notableWaiting;
   useEffect(() => {
     if (!data.loading) shownBefore.updates = visiblePosts.length;
@@ -177,7 +180,10 @@ export default function HomeComposition2029({
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
-  return <div className="h29" data-experience-capability="home-composition">
+  // Non-visual: real hero or real update cards decide ready; loading slots and the loading hero never do; a settled outcome
+  // without content is explicit (empty / error).
+  const primary = primaryContentState({ loading: data.loading, failed: data.failed, hasHero: Boolean(nowHero) || Boolean(lead), postCount: visiblePosts.length });
+  return <div className="h29" data-experience-capability="home-composition" data-h29-primary={primary}>
     {nowHero || <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold}>
       {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>}
     </div>}
