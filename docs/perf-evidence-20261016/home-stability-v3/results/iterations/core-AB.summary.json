@@ -1,0 +1,583 @@
+{
+ "profile": {
+  "viewport": "390x844",
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6Mbps down / 750kbps up / 150ms RTT (CDP)",
+  "supabaseReplayDelayMs": 150,
+  "backPhaseDelayMs": null,
+  "horizonMs": 7000,
+  "theme": "dark",
+  "reducedMotion": false,
+  "state": "normal",
+  "interrupt": false,
+  "mode": "back",
+  "gateDelayMs": 0,
+  "gateClosed": false,
+  "resizeTo": null,
+  "definitions": "v3: real hero/card (visible, not loading/busy/hidden, meaningful title, /post/ link); cls = session-window max",
+  "browser": "Chromium 141.0.7390.37",
+  "fixtureSha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+  "fixtureKeys": 106,
+  "node": "v22.22.0",
+  "cpus": 4,
+  "startedAt": "2026-10-16T04:57:52.446Z",
+  "finishedAt": "2026-10-16T05:07:29.798Z"
+ },
+ "mode": "back",
+ "base": "A",
+ "cand": "B",
+ "arms": {
+  "A": {
+   "attempts": 7,
+   "valid": 7,
+   "invalid": [],
+   "blockedWrites": [
+    15
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 7,
+     "median": 1.945,
+     "min": 0.78,
+     "max": 2.398,
+     "values": [
+      1.945,
+      2.385,
+      2.395,
+      0.838,
+      0.838,
+      2.398,
+      0.78
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 7,
+     "median": 1.945,
+     "min": 0.78,
+     "max": 2.398,
+     "values": [
+      1.945,
+      2.385,
+      2.395,
+      0.838,
+      0.838,
+      2.398,
+      0.78
+     ]
+    },
+    "usableMs": {
+     "n": 7,
+     "median": 457,
+     "min": 305,
+     "max": 800,
+     "values": [
+      457,
+      588,
+      800,
+      314,
+      327,
+      576,
+      305
+     ]
+    },
+    "heroMs": {
+     "n": 7,
+     "median": 457,
+     "min": 305,
+     "max": 800,
+     "values": [
+      457,
+      588,
+      800,
+      314,
+      327,
+      576,
+      305
+     ]
+    },
+    "dgSettledMs": {
+     "n": 7,
+     "median": 625,
+     "min": 502,
+     "max": 1035,
+     "values": [
+      625,
+      963,
+      1035,
+      502,
+      521,
+      754,
+      517
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 7,
+     "median": 0,
+     "min": 0,
+     "max": 0,
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 7,
+     "median": 0,
+     "min": 0,
+     "max": 20,
+     "values": [
+      20,
+      0,
+      20,
+      0,
+      20,
+      0,
+      0
+     ]
+    },
+    "readsBack": {
+     "n": 7,
+     "median": 55,
+     "min": 53,
+     "max": 55,
+     "values": [
+      55,
+      55,
+      53,
+      55,
+      55,
+      53,
+      55
+     ]
+    },
+    "finalDocH": {
+     "n": 7,
+     "median": 7344,
+     "min": 7344,
+     "max": 7344,
+     "values": [
+      7344,
+      7344,
+      7344,
+      7344,
+      7344,
+      7344,
+      7344
+     ]
+    }
+   }
+  },
+  "X": {
+   "attempts": 7,
+   "valid": 6,
+   "invalid": [
+    {
+     "idx": 6,
+     "why": "departure post /post/matrix-506 != required /post/chibur-bein-hasafot-mafteach-lagan;post never became readable"
+    }
+   ],
+   "blockedWrites": [
+    15
+   ],
+   "misses": 1,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 6,
+     "median": 0.014,
+     "min": 0.006,
+     "max": 0.014,
+     "values": [
+      0.014,
+      0.014,
+      0.006,
+      0.014,
+      0.014,
+      0.014
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 6,
+     "median": 0.014,
+     "min": 0.006,
+     "max": 0.014,
+     "values": [
+      0.014,
+      0.014,
+      0.006,
+      0.014,
+      0.014,
+      0.014
+     ]
+    },
+    "usableMs": {
+     "n": 6,
+     "median": 400,
+     "min": 316,
+     "max": 822,
+     "values": [
+      316,
+      822,
+      682,
+      442,
+      358,
+      333
+     ]
+    },
+    "heroMs": {
+     "n": 6,
+     "median": 399.5,
+     "min": 316,
+     "max": 822,
+     "values": [
+      316,
+      822,
+      682,
+      441,
+      358,
+      333
+     ]
+    },
+    "dgSettledMs": {
+     "n": 6,
+     "median": 708.5,
+     "min": 535,
+     "max": 1051,
+     "values": [
+      551,
+      1051,
+      953,
+      836,
+      581,
+      535
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 6,
+     "median": 8,
+     "min": 6,
+     "max": 8,
+     "values": [
+      8,
+      8,
+      6,
+      8,
+      6,
+      8
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 6,
+     "median": 8,
+     "min": 6,
+     "max": 10,
+     "values": [
+      8,
+      8,
+      6,
+      8,
+      7,
+      10
+     ]
+    },
+    "readsBack": {
+     "n": 6,
+     "median": 55,
+     "min": 55,
+     "max": 56,
+     "values": [
+      55,
+      55,
+      55,
+      55,
+      56,
+      55
+     ]
+    },
+    "finalDocH": {
+     "n": 6,
+     "median": 7351,
+     "min": 7349,
+     "max": 7351,
+     "values": [
+      7351,
+      7351,
+      7349,
+      7351,
+      7349,
+      7351
+     ]
+    }
+   }
+  },
+  "B": {
+   "attempts": 7,
+   "valid": 7,
+   "invalid": [],
+   "blockedWrites": [
+    15
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 7,
+     "median": 0.014,
+     "min": 0.005,
+     "max": 0.014,
+     "values": [
+      0.014,
+      0.006,
+      0.014,
+      0.014,
+      0.014,
+      0.005,
+      0.014
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 7,
+     "median": 0.014,
+     "min": 0.005,
+     "max": 0.014,
+     "values": [
+      0.014,
+      0.006,
+      0.014,
+      0.014,
+      0.014,
+      0.005,
+      0.014
+     ]
+    },
+    "usableMs": {
+     "n": 7,
+     "median": 426,
+     "min": 353,
+     "max": 763,
+     "values": [
+      763,
+      716,
+      398,
+      426,
+      429,
+      411,
+      353
+     ]
+    },
+    "heroMs": {
+     "n": 7,
+     "median": 426,
+     "min": 353,
+     "max": 763,
+     "values": [
+      763,
+      716,
+      398,
+      426,
+      429,
+      411,
+      353
+     ]
+    },
+    "dgSettledMs": {
+     "n": 7,
+     "median": 683,
+     "min": 530,
+     "max": 1000,
+     "values": [
+      1000,
+      920,
+      562,
+      683,
+      700,
+      644,
+      530
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 7,
+     "median": 8,
+     "min": 7,
+     "max": 8,
+     "values": [
+      8,
+      8,
+      8,
+      8,
+      8,
+      7,
+      7
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 7,
+     "median": 8,
+     "min": 7,
+     "max": 61,
+     "values": [
+      8,
+      8,
+      15,
+      8,
+      8,
+      7,
+      61
+     ]
+    },
+    "readsBack": {
+     "n": 7,
+     "median": 55,
+     "min": 55,
+     "max": 55,
+     "values": [
+      55,
+      55,
+      55,
+      55,
+      55,
+      55,
+      55
+     ]
+    },
+    "finalDocH": {
+     "n": 7,
+     "median": 7351,
+     "min": 7350,
+     "max": 7351,
+     "values": [
+      7351,
+      7351,
+      7351,
+      7351,
+      7351,
+      7350,
+      7350
+     ]
+    }
+   }
+  }
+ },
+ "pairs": {
+  "n": 7,
+  "idxs": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7"
+  ],
+  "metrics": {
+   "cls": {
+    "baseMedian": 1.945,
+    "candMedian": 0.014,
+    "diffMedian": -1.932,
+    "pct": -99.301,
+    "ci95": [
+     -2.382,
+     -0.824
+    ],
+    "n": 7
+   },
+   "actionWindowShiftSum": {
+    "baseMedian": 1.945,
+    "candMedian": 0.014,
+    "diffMedian": -1.932,
+    "pct": -99.301,
+    "ci95": [
+     -2.382,
+     -0.824
+    ],
+    "n": 7
+   },
+   "usableMs": {
+    "baseMedian": 457,
+    "candMedian": 426,
+    "diffMedian": 102,
+    "pct": -6.783,
+    "ci95": [
+     -165,
+     128
+    ],
+    "n": 7
+   },
+   "heroMs": {
+    "baseMedian": 457,
+    "candMedian": 426,
+    "diffMedian": 102,
+    "pct": -6.783,
+    "ci95": [
+     -165,
+     128
+    ],
+    "n": 7
+   },
+   "dgSettledMs": {
+    "baseMedian": 625,
+    "candMedian": 683,
+    "diffMedian": 13,
+    "pct": 9.28,
+    "ci95": [
+     -110,
+     181
+    ],
+    "n": 7
+   },
+   "anchorFinalDispPx": {
+    "baseMedian": 0,
+    "candMedian": 8,
+    "diffMedian": 8,
+    "pct": null,
+    "ci95": [
+     7,
+     8
+    ],
+    "n": 7
+   },
+   "anchorMaxDispAfterPx": {
+    "baseMedian": 0,
+    "candMedian": 8,
+    "diffMedian": 7,
+    "pct": null,
+    "ci95": [
+     -12,
+     8
+    ],
+    "n": 7
+   },
+   "readsBack": {
+    "baseMedian": 55,
+    "candMedian": 55,
+    "diffMedian": 0,
+    "pct": 0,
+    "ci95": [
+     0,
+     2
+    ],
+    "n": 7
+   },
+   "finalDocH": {
+    "baseMedian": 7344,
+    "candMedian": 7351,
+    "diffMedian": 7,
+    "pct": 0.095,
+    "ci95": [
+     6,
+     7
+    ],
+    "n": 7
+   }
+  }
+ }
+}

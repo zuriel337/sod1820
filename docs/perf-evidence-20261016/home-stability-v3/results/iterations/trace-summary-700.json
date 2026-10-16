@@ -1,0 +1,418 @@
+{
+ "windowMs": 700,
+ "arms": {
+  "A": {
+   "n": 4,
+   "median": {
+    "RunTask": 678,
+    "FunctionCall": 268.5,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 25,
+    "Layout": 82.5,
+    "PrePaint": 18,
+    "Paint": 54,
+    "Layerize": 17.5,
+    "Commit": 6.5,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 8.5,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0.5,
+    "FireAnimationFrame": 37,
+    "EventDispatch": 4.5
+   },
+   "layouts": 24.5,
+   "styleRecalcs": 27.5
+  },
+  "B2": {
+   "n": 4,
+   "median": {
+    "RunTask": 664.5,
+    "FunctionCall": 385.5,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 54,
+    "Layout": 111,
+    "PrePaint": 11,
+    "Paint": 46,
+    "Layerize": 16,
+    "Commit": 5.5,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 3.5,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 44.5,
+    "EventDispatch": 2.5
+   },
+   "layouts": 22,
+   "styleRecalcs": 25
+  },
+  "X": {
+   "n": 4,
+   "median": {
+    "RunTask": 672,
+    "FunctionCall": 276.5,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 30,
+    "Layout": 98,
+    "PrePaint": 12.5,
+    "Paint": 35,
+    "Layerize": 12,
+    "Commit": 5.5,
+    "HitTest": 0.5,
+    "ParseHTML": 0,
+    "MinorGC": 7,
+    "MajorGC": 19.5,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 38.5,
+    "EventDispatch": 3
+   },
+   "layouts": 27,
+   "styleRecalcs": 29
+  }
+ },
+ "rows": [
+  {
+   "file": "A-1.trace.json.gz",
+   "arm": "A",
+   "sums": {
+    "RunTask": 688,
+    "FunctionCall": 452,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 62,
+    "Layout": 98,
+    "PrePaint": 7,
+    "Paint": 55,
+    "Layerize": 5,
+    "Commit": 2,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 0,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 34,
+    "EventDispatch": 3
+   },
+   "counts": {
+    "layouts": 5,
+    "styleRecalcs": 10
+   }
+  },
+  {
+   "file": "A-2.trace.json.gz",
+   "arm": "A",
+   "sums": {
+    "RunTask": 689,
+    "FunctionCall": 292,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 27,
+    "Layout": 85,
+    "PrePaint": 15,
+    "Paint": 50,
+    "Layerize": 21,
+    "Commit": 6,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 9,
+    "MajorGC": 18,
+    "ResizeObserver": 0,
+    "TimerFire": 1,
+    "FireAnimationFrame": 36,
+    "EventDispatch": 4
+   },
+   "counts": {
+    "layouts": 23,
+    "styleRecalcs": 26
+   }
+  },
+  {
+   "file": "A-3.trace.json.gz",
+   "arm": "A",
+   "sums": {
+    "RunTask": 632,
+    "FunctionCall": 244,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 22,
+    "Layout": 80,
+    "PrePaint": 22,
+    "Paint": 53,
+    "Layerize": 15,
+    "Commit": 7,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 14,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 1,
+    "FireAnimationFrame": 38,
+    "EventDispatch": 9
+   },
+   "counts": {
+    "layouts": 27,
+    "styleRecalcs": 30
+   }
+  },
+  {
+   "file": "A-4.trace.json.gz",
+   "arm": "A",
+   "sums": {
+    "RunTask": 668,
+    "FunctionCall": 245,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 23,
+    "Layout": 71,
+    "PrePaint": 21,
+    "Paint": 56,
+    "Layerize": 20,
+    "Commit": 9,
+    "HitTest": 1,
+    "ParseHTML": 0,
+    "MinorGC": 8,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 56,
+    "EventDispatch": 5
+   },
+   "counts": {
+    "layouts": 26,
+    "styleRecalcs": 29
+   }
+  },
+  {
+   "file": "B2-1.trace.json.gz",
+   "arm": "B2",
+   "sums": {
+    "RunTask": 642,
+    "FunctionCall": 252,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 27,
+    "Layout": 71,
+    "PrePaint": 20,
+    "Paint": 66,
+    "Layerize": 19,
+    "Commit": 8,
+    "HitTest": 1,
+    "ParseHTML": 0,
+    "MinorGC": 7,
+    "MajorGC": 8,
+    "ResizeObserver": 0,
+    "TimerFire": 1,
+    "FireAnimationFrame": 52,
+    "EventDispatch": 4
+   },
+   "counts": {
+    "layouts": 45,
+    "styleRecalcs": 46
+   }
+  },
+  {
+   "file": "B2-2.trace.json.gz",
+   "arm": "B2",
+   "sums": {
+    "RunTask": 637,
+    "FunctionCall": 254,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 28,
+    "Layout": 74,
+    "PrePaint": 18,
+    "Paint": 53,
+    "Layerize": 17,
+    "Commit": 7,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 10,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 51,
+    "EventDispatch": 5
+   },
+   "counts": {
+    "layouts": 35,
+    "styleRecalcs": 37
+   }
+  },
+  {
+   "file": "B2-3.trace.json.gz",
+   "arm": "B2",
+   "sums": {
+    "RunTask": 687,
+    "FunctionCall": 517,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 80,
+    "Layout": 148,
+    "PrePaint": 4,
+    "Paint": 39,
+    "Layerize": 15,
+    "Commit": 1,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 0,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 9,
+    "EventDispatch": 1
+   },
+   "counts": {
+    "layouts": 9,
+    "styleRecalcs": 13
+   }
+  },
+  {
+   "file": "B2-4.trace.json.gz",
+   "arm": "B2",
+   "sums": {
+    "RunTask": 747,
+    "FunctionCall": 605,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 85,
+    "Layout": 272,
+    "PrePaint": 1,
+    "Paint": 0,
+    "Layerize": 0,
+    "Commit": 4,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 0,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 38,
+    "EventDispatch": 0
+   },
+   "counts": {
+    "layouts": 9,
+    "styleRecalcs": 13
+   }
+  },
+  {
+   "file": "X-1.trace.json.gz",
+   "arm": "X",
+   "sums": {
+    "RunTask": 677,
+    "FunctionCall": 406,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 46,
+    "Layout": 136,
+    "PrePaint": 11,
+    "Paint": 18,
+    "Layerize": 4,
+    "Commit": 2,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 0,
+    "MajorGC": 0,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 21,
+    "EventDispatch": 0
+   },
+   "counts": {
+    "layouts": 12,
+    "styleRecalcs": 15
+   }
+  },
+  {
+   "file": "X-2.trace.json.gz",
+   "arm": "X",
+   "sums": {
+    "RunTask": 696,
+    "FunctionCall": 291,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 30,
+    "Layout": 114,
+    "PrePaint": 11,
+    "Paint": 32,
+    "Layerize": 9,
+    "Commit": 6,
+    "HitTest": 1,
+    "ParseHTML": 0,
+    "MinorGC": 11,
+    "MajorGC": 24,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 35,
+    "EventDispatch": 4
+   },
+   "counts": {
+    "layouts": 26,
+    "styleRecalcs": 28
+   }
+  },
+  {
+   "file": "X-3.trace.json.gz",
+   "arm": "X",
+   "sums": {
+    "RunTask": 640,
+    "FunctionCall": 237,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 30,
+    "Layout": 62,
+    "PrePaint": 24,
+    "Paint": 60,
+    "Layerize": 15,
+    "Commit": 9,
+    "HitTest": 1,
+    "ParseHTML": 0,
+    "MinorGC": 9,
+    "MajorGC": 15,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 55,
+    "EventDispatch": 3
+   },
+   "counts": {
+    "layouts": 36,
+    "styleRecalcs": 38
+   }
+  },
+  {
+   "file": "X-4.trace.json.gz",
+   "arm": "X",
+   "sums": {
+    "RunTask": 667,
+    "FunctionCall": 262,
+    "EvaluateScript": 0,
+    "v8.run": 0,
+    "UpdateLayoutTree": 27,
+    "Layout": 82,
+    "PrePaint": 14,
+    "Paint": 38,
+    "Layerize": 20,
+    "Commit": 5,
+    "HitTest": 0,
+    "ParseHTML": 0,
+    "MinorGC": 5,
+    "MajorGC": 49,
+    "ResizeObserver": 0,
+    "TimerFire": 0,
+    "FireAnimationFrame": 42,
+    "EventDispatch": 3
+   },
+   "counts": {
+    "layouts": 28,
+    "styleRecalcs": 30
+   }
+  }
+ ]
+}

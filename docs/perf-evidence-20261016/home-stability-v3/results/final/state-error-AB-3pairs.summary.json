@@ -1,0 +1,302 @@
+{
+ "profile": {
+  "viewport": "390x844",
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6Mbps down / 750kbps up / 150ms RTT (CDP)",
+  "supabaseReplayDelayMs": 150,
+  "backPhaseDelayMs": null,
+  "horizonMs": 7000,
+  "theme": "dark",
+  "reducedMotion": false,
+  "state": "error",
+  "interrupt": false,
+  "mode": "load",
+  "gateDelayMs": 0,
+  "gateClosed": false,
+  "resizeTo": null,
+  "definitions": "v3: real hero/card (visible, not loading/busy/hidden, meaningful title, /post/ link); cls = session-window max",
+  "browser": "Chromium 141.0.7390.37",
+  "fixtureSha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+  "fixtureKeys": 106,
+  "node": "v22.22.0",
+  "cpus": 4,
+  "startedAt": "2026-10-16T06:07:18.343Z",
+  "finishedAt": "2026-10-16T06:07:58.204Z"
+ },
+ "mode": "load",
+ "base": "A",
+ "cand": "B",
+ "arms": {
+  "A": {
+   "attempts": 3,
+   "valid": 3,
+   "invalid": [],
+   "blockedWrites": [
+    7
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 3,
+     "median": 0.588,
+     "min": 0.588,
+     "max": 0.588,
+     "values": [
+      0.588,
+      0.588,
+      0.588
+     ]
+    },
+    "shiftSum": {
+     "n": 3,
+     "median": 0.588,
+     "min": 0.588,
+     "max": 0.588,
+     "values": [
+      0.588,
+      0.588,
+      0.588
+     ]
+    },
+    "usableMs": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "heroMs": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "dgSettledMs": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "fcpMs": {
+     "n": 3,
+     "median": 1572,
+     "min": 1572,
+     "max": 1628,
+     "values": [
+      1628,
+      1572,
+      1572
+     ]
+    },
+    "lcpMs": {
+     "n": 3,
+     "median": 3676,
+     "min": 3640,
+     "max": 3776,
+     "values": [
+      3776,
+      3640,
+      3676
+     ]
+    },
+    "requests": {
+     "n": 3,
+     "median": 32,
+     "min": 32,
+     "max": 32,
+     "values": [
+      32,
+      32,
+      32
+     ]
+    }
+   }
+  },
+  "B": {
+   "attempts": 3,
+   "valid": 3,
+   "invalid": [],
+   "blockedWrites": [
+    7
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 3,
+     "median": 0.844,
+     "min": 0.844,
+     "max": 0.844,
+     "values": [
+      0.844,
+      0.844,
+      0.844
+     ]
+    },
+    "shiftSum": {
+     "n": 3,
+     "median": 0.844,
+     "min": 0.844,
+     "max": 0.844,
+     "values": [
+      0.844,
+      0.844,
+      0.844
+     ]
+    },
+    "usableMs": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "heroMs": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "dgSettledMs": {
+     "n": 3,
+     "median": 3780,
+     "min": 3619,
+     "max": 4383,
+     "values": [
+      3780,
+      4383,
+      3619
+     ]
+    },
+    "fcpMs": {
+     "n": 3,
+     "median": 1564,
+     "min": 1548,
+     "max": 1804,
+     "values": [
+      1564,
+      1804,
+      1548
+     ]
+    },
+    "lcpMs": {
+     "n": 3,
+     "median": 3804,
+     "min": 3632,
+     "max": 4376,
+     "values": [
+      3804,
+      4376,
+      3632
+     ]
+    },
+    "requests": {
+     "n": 3,
+     "median": 32,
+     "min": 32,
+     "max": 32,
+     "values": [
+      32,
+      32,
+      32
+     ]
+    }
+   }
+  }
+ },
+ "pairs": {
+  "n": 3,
+  "idxs": [
+   "1",
+   "2",
+   "3"
+  ],
+  "metrics": {
+   "cls": {
+    "baseMedian": 0.588,
+    "candMedian": 0.844,
+    "diffMedian": 0.255,
+    "pct": 43.396,
+    "ci95": [
+     0.255,
+     0.256
+    ],
+    "n": 3
+   },
+   "shiftSum": {
+    "baseMedian": 0.588,
+    "candMedian": 0.844,
+    "diffMedian": 0.255,
+    "pct": 43.396,
+    "ci95": [
+     0.255,
+     0.256
+    ],
+    "n": 3
+   },
+   "usableMs": {
+    "baseMedian": null,
+    "candMedian": null,
+    "diffMedian": null,
+    "pct": null,
+    "ci95": null,
+    "n": 0
+   },
+   "heroMs": {
+    "baseMedian": null,
+    "candMedian": null,
+    "diffMedian": null,
+    "pct": null,
+    "ci95": null,
+    "n": 0
+   },
+   "dgSettledMs": {
+    "baseMedian": null,
+    "candMedian": 3780,
+    "diffMedian": null,
+    "pct": null,
+    "ci95": null,
+    "n": 0
+   },
+   "fcpMs": {
+    "baseMedian": 1572,
+    "candMedian": 1564,
+    "diffMedian": -24,
+    "pct": -0.509,
+    "ci95": [
+     -64,
+     232
+    ],
+    "n": 3
+   },
+   "lcpMs": {
+    "baseMedian": 3676,
+    "candMedian": 3804,
+    "diffMedian": 28,
+    "pct": 3.482,
+    "ci95": [
+     -44,
+     736
+    ],
+    "n": 3
+   },
+   "requests": {
+    "baseMedian": 32,
+    "candMedian": 32,
+    "diffMedian": 0,
+    "pct": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "n": 3
+   }
+  }
+ }
+}

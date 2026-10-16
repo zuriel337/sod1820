@@ -1,0 +1,312 @@
+{
+ "profile": {
+  "viewport": "390x844",
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6Mbps down / 750kbps up / 150ms RTT (CDP)",
+  "supabaseReplayDelayMs": 150,
+  "backPhaseDelayMs": null,
+  "horizonMs": 7000,
+  "theme": "dark",
+  "reducedMotion": false,
+  "state": "normal",
+  "interrupt": true,
+  "mode": "back",
+  "gateDelayMs": 0,
+  "gateClosed": false,
+  "resizeTo": null,
+  "definitions": "v3: real hero/card (visible, not loading/busy/hidden, meaningful title, /post/ link); cls = session-window max",
+  "browser": "Chromium 141.0.7390.37",
+  "fixtureSha256": "3eaf939f3b9632e5459b21024841e0a55b28e747a9d05d6dec0818f7ecba49cc",
+  "fixtureKeys": 106,
+  "node": "v22.22.0",
+  "cpus": 4,
+  "startedAt": "2026-10-16T06:15:01.124Z",
+  "finishedAt": "2026-10-16T06:16:45.694Z"
+ },
+ "mode": "back",
+ "base": "A",
+ "cand": "B",
+ "arms": {
+  "A": {
+   "attempts": 2,
+   "valid": 2,
+   "invalid": [],
+   "blockedWrites": [
+    15
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 2,
+     "median": 1.83,
+     "min": 1.704,
+     "max": 1.956,
+     "values": [
+      1.704,
+      1.956
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 2,
+     "median": 1.83,
+     "min": 1.704,
+     "max": 1.956,
+     "values": [
+      1.704,
+      1.956
+     ]
+    },
+    "usableMs": {
+     "n": 2,
+     "median": 425.5,
+     "min": 376,
+     "max": 475,
+     "values": [
+      376,
+      475
+     ]
+    },
+    "heroMs": {
+     "n": 2,
+     "median": 425.5,
+     "min": 376,
+     "max": 475,
+     "values": [
+      376,
+      475
+     ]
+    },
+    "dgSettledMs": {
+     "n": 2,
+     "median": 640,
+     "min": 549,
+     "max": 731,
+     "values": [
+      549,
+      731
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 2,
+     "median": 403.5,
+     "min": 385,
+     "max": 422,
+     "values": [
+      385,
+      422
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "readsBack": {
+     "n": 2,
+     "median": 55,
+     "min": 55,
+     "max": 55,
+     "values": [
+      55,
+      55
+     ]
+    },
+    "finalDocH": {
+     "n": 2,
+     "median": 7344,
+     "min": 7344,
+     "max": 7344,
+     "values": [
+      7344,
+      7344
+     ]
+    }
+   }
+  },
+  "B": {
+   "attempts": 2,
+   "valid": 2,
+   "invalid": [],
+   "blockedWrites": [
+    15
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 2,
+     "median": 0.009,
+     "min": 0.005,
+     "max": 0.014,
+     "values": [
+      0.005,
+      0.014
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 2,
+     "median": 0.009,
+     "min": 0.005,
+     "max": 0.014,
+     "values": [
+      0.005,
+      0.014
+     ]
+    },
+    "usableMs": {
+     "n": 2,
+     "median": 585.5,
+     "min": 390,
+     "max": 781,
+     "values": [
+      390,
+      781
+     ]
+    },
+    "heroMs": {
+     "n": 2,
+     "median": 585.5,
+     "min": 390,
+     "max": 781,
+     "values": [
+      390,
+      781
+     ]
+    },
+    "dgSettledMs": {
+     "n": 2,
+     "median": 922,
+     "min": 671,
+     "max": 1173,
+     "values": [
+      671,
+      1173
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 2,
+     "median": 404,
+     "min": 377,
+     "max": 431,
+     "values": [
+      431,
+      377
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 0,
+     "median": null,
+     "min": null,
+     "max": null,
+     "values": []
+    },
+    "readsBack": {
+     "n": 2,
+     "median": 55,
+     "min": 55,
+     "max": 55,
+     "values": [
+      55,
+      55
+     ]
+    },
+    "finalDocH": {
+     "n": 2,
+     "median": 7351,
+     "min": 7351,
+     "max": 7351,
+     "values": [
+      7351,
+      7351
+     ]
+    }
+   }
+  }
+ },
+ "pairs": {
+  "n": 2,
+  "idxs": [
+   "1",
+   "2"
+  ],
+  "metrics": {
+   "cls": {
+    "baseMedian": 1.83,
+    "candMedian": 0.009,
+    "diffMedian": -1.82,
+    "pct": -99.497,
+    "ci95": null,
+    "n": 2
+   },
+   "actionWindowShiftSum": {
+    "baseMedian": 1.83,
+    "candMedian": 0.009,
+    "diffMedian": -1.82,
+    "pct": -99.497,
+    "ci95": null,
+    "n": 2
+   },
+   "usableMs": {
+    "baseMedian": 425.5,
+    "candMedian": 585.5,
+    "diffMedian": 160,
+    "pct": 37.603,
+    "ci95": null,
+    "n": 2
+   },
+   "heroMs": {
+    "baseMedian": 425.5,
+    "candMedian": 585.5,
+    "diffMedian": 160,
+    "pct": 37.603,
+    "ci95": null,
+    "n": 2
+   },
+   "dgSettledMs": {
+    "baseMedian": 640,
+    "candMedian": 922,
+    "diffMedian": 282,
+    "pct": 44.063,
+    "ci95": null,
+    "n": 2
+   },
+   "anchorFinalDispPx": {
+    "baseMedian": 403.5,
+    "candMedian": 404,
+    "diffMedian": 0.5,
+    "pct": 0.124,
+    "ci95": null,
+    "n": 2
+   },
+   "anchorMaxDispAfterPx": {
+    "baseMedian": null,
+    "candMedian": null,
+    "diffMedian": null,
+    "pct": null,
+    "ci95": null,
+    "n": 0
+   },
+   "readsBack": {
+    "baseMedian": 55,
+    "candMedian": 55,
+    "diffMedian": 0,
+    "pct": 0,
+    "ci95": null,
+    "n": 2
+   },
+   "finalDocH": {
+    "baseMedian": 7344,
+    "candMedian": 7351,
+    "diffMedian": 7,
+    "pct": 0.095,
+    "ci95": null,
+    "n": 2
+   }
+  }
+ }
+}
