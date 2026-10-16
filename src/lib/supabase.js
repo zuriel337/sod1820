@@ -1976,7 +1976,8 @@ export async function getEntityBundle({ term, value, isNumber }) {
     isNumber ? (async () => {
       try {
         const cols = 'id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
-        const ord = q => q.not('curator_hidden', 'is', true).eq('min_tier', 0)
+        // Apply publication to both reads before their windows and exact count.
+        const ord = q => q.eq('published', 1).not('curator_hidden', 'is', true).eq('min_tier', 0)
           .order('importance', { ascending: false, nullsFirst: false })
           .order('occurred_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false });
