@@ -4,6 +4,8 @@ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
+import { getPostBySlug } from '../../lib/supabase.js';
+import { projectPost2029Experience } from '../../lib/research/post2029ExperienceProjection.js';
 import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
@@ -30,19 +32,30 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   useEffect(() => {
     let live = true;
     setState({ loading: true, projection: null });
+    // This consumer never adopts a private stage or preview snapshot as public material.
+    const admit = (projection) => projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
+      && postRowToWorldUpdate(projection.post);
     // Loaded on demand: the reading-projection builder is ~42KB br that must not gate the first paint of Home/World.
-    import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
-      onPrimary: (projection) => {
-        const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
-          && postRowToWorldUpdate(projection.post);
-        if (live && admitted) setState({ loading: false, projection, extensionsLoading: true });
-      },
+    const loadFull = () => import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
+      onPrimary: (projection) => { if (live && admit(projection)) setState({ loading: false, projection, extensionsLoading: true }); },
     })).then((projection) => {
-      // This consumer never adopts a private stage or preview snapshot as public material.
-      const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
-        && postRowToWorldUpdate(projection.post);
-      if (live) setState({ loading: false, projection: admitted ? projection : null, extensionsLoading: false });
-    }).catch(() => { if (live) setState((current) => current.projection
+      if (live) setState({ loading: false, projection: admit(projection) ? projection : null, extensionsLoading: false });
+    });
+    // Home draws the post's own row (image, categories, date) and nothing of the reading projection's extension phase (timeline, verifications, method traces: they live in a
+    // collapsed section that only the World surface has). So Home asks for that row, the first read the projection itself makes, and does not load the projection builder
+    // or run its extension reads on every entry. A row without an image still goes through the full reader, which may supply one from the post's experience media.
+    const task = !home ? loadFull() : getPostBySlug(slug).then((post) => {
+      if (!live) return null;
+      const draft = Array.isArray(post?.tags) && post.tags.includes('טיוטה');
+      if (!post || draft || !postRowToWorldUpdate(post)) { setState({ loading: false, projection: null }); return null; }   // not public Home material: the same outcome the full reader gives
+      if (!post.thumb_url && !post.image_url) return loadFull();
+      setState({ loading: false, extensionsLoading: false, projection: {
+        post, identity: { type: 'post', id: String(post.id), slug: post.slug, href: `/post/${post.slug}` },
+        experience: { media: projectPost2029Experience(post).media, timeline: [] }, draft: false, privateStage: false, previewSnapshot: false, extensionsPending: false,
+      } });
+      return null;
+    });
+    task.catch(() => { if (live) setState((current) => current.projection
       ? { ...current, loading: false, extensionsLoading: false, extensionsError: true }
       : { loading: false, projection: null }); });
     return () => { live = false; };
