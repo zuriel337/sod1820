@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { validateReplay, compareReplay, checkReplayBudget, checkMatchedRegressionBudget } from '../scripts/perf-execution-2029/replay-gate.mjs';
+import { MEASUREMENT_PROFILE } from '../scripts/perf-execution-2029/measurement-profile.mjs';
 const load = () => JSON.parse(readFileSync(new URL('../docs/perf-evidence-20261014/execution/world-primary-before-enrichment.json', import.meta.url)));
 test('recorded complete replay passes; missing responses and failed primary reads fail closed', () => {
   const data = load(); assert.equal(validateReplay(data).valid, true);
@@ -35,10 +36,13 @@ test('intentional extension failures are functional evidence only; primary still
   assert.equal(s.reads.filter(r => r.intentionalFailure).length, 6);
 });
 
-// Valid saved PR1110 measurements remain unchanged. Malformed bounds must never
-// turn timestamp comparisons into comparisons with NaN.
+// Saved PR1110 v2 evidence remains unchanged and cannot pass the current gate.
+// Adapt an in-memory copy for this validator unit test only, not new evidence.
+// Malformed bounds must never turn timestamp comparisons into comparisons with NaN.
 test('current replay rejects missing, nonnumeric and nonfinite observation bounds', () => {
-  const valid=()=>JSON.parse(readFileSync(new URL('../docs/perf-evidence-20261015/cold-measurement/raw/replay-mobile.json',import.meta.url)));
+  const historical=()=>JSON.parse(readFileSync(new URL('../docs/perf-evidence-20261015/cold-measurement/raw/replay-mobile.json',import.meta.url)));
+  assert.equal(validateReplay(historical()).valid,false);
+  const valid=()=>({...historical(),measurementProfile:MEASUREMENT_PROFILE});
   assert.equal(validateReplay(valid()).valid,true);
   for(const field of ['observationEnd','readsObservationEnd'])for(const value of [undefined,null,'bad','123',NaN,Infinity,-1]){
     const data=valid();data.routes['/'].samples[0][field]=value;

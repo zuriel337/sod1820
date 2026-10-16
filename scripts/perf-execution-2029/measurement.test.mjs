@@ -71,6 +71,17 @@ test('late response completion cannot mutate finalized read counts or introduce 
   const mutated = current(); mutated.routes['/world'].samples[0].reads.push({ start: 10, status: 200 });
   assert.equal(validateReplay(mutated).valid, false);
 });
+test('DOM-only v2 readiness cannot be compared with visible Home v3 readiness', () => {
+  const old = current();
+  old.measurementProfile = { ...MEASUREMENT_PROFILE, version: 'cold-replay-v2', readiness: 'rendered-primary-source-v2' };
+  assert.equal(validateReplay(old).valid, false);
+  for (const pair of [[old, current()], [current(), old]]) {
+    const result = compareReplay(...pair);
+    assert.equal(result.comparable, false);
+    assert.deepEqual(result.deltas, {});
+    assert.ok(result.errors.some(error => error.includes('measurementProfile')));
+  }
+});
 test('current reports require primary content, calibrated time and separated readiness phases', () => {
   for (const mutate of [s => s.primaryState.primary = false, s => s.clockUncertaintyMs = null,
     s => s.backgroundSettled = s.ready - 1, s => s.timeOrigin = null]) {
