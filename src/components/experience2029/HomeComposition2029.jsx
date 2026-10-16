@@ -194,7 +194,7 @@ export default function HomeComposition2029({
     </section> : null}
 
     <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>
-      <div className="h29-updates" ref={updatesBox.ref} data-h29-hold={updatesBox.hold}>
+      <div className="h29-updates" ref={updatesBox.ref} data-h29-hold={updatesBox.hold} data-h29-loading={data.loading && updatesBox.held ? "" : undefined}>
         {visiblePosts.map((post, index) => {
           const unseen = Boolean(post.update) && !seen[post.update.key];
           // One pulse at a time, only among visible updates (never the featured Hero).
@@ -211,15 +211,15 @@ export default function HomeComposition2029({
             <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
-        {data.loading ? Array.from({ length: shownBefore.updates ?? HOME_UPDATE_SLOTS }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
+        {data.loading && !updatesBox.held ? Array.from({ length: shownBefore.updates ?? HOME_UPDATE_SLOTS }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
         {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
       </div>
     </Section>
 
     {notableShown ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
-      <div className="h29-notable" ref={notableBox.ref} data-h29-hold={notableBox.hold} aria-busy={notableWaiting ? "true" : undefined}>
-        {notableWaiting ? Array.from({ length: notableSlots }, (_, index) => <NotableCardSlot key={`slot-${index}`} />) : null}
+      <div className="h29-notable" ref={notableBox.ref} data-h29-hold={notableBox.hold} data-h29-loading={notableWaiting && notableBox.held ? "" : undefined} aria-busy={notableWaiting ? "true" : undefined}>
+        {notableWaiting && !notableBox.held ? Array.from({ length: notableSlots }, (_, index) => <NotableCardSlot key={`slot-${index}`} />) : null}
         {data.notable.map((card, index) => {
           const fresh = recentConvergence(card.approvedAt);
           const freshKey = `topic:${card.id}:approved:${card.approvedAt}`;

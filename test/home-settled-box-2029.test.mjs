@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
-  SETTLED_HEIGHT_VAR, holdAttribute, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold,
+  SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold,
 } from "../src/components/experience2029/useSettledBox2029.js";
 import { gatewayContentState, primaryContentState } from "../src/lib/homeReadiness2029.js";
 
@@ -92,7 +92,9 @@ test("the settled-box hook lives in one module and releases on width change", ()
   // The mount-time ref callback must not read layout: a forced layout per instance at commit delayed the first read of Home.
   const refBody = hook.slice(hook.indexOf("const ref = useCallback((node) => {"), hook.indexOf("}, [key, measure]);"));
   assert.ok(refBody.length > 100, "ref callback found");
-  assert.doesNotMatch(refBody, /getBoundingClientRect|offsetWidth|offsetHeight|clientWidth|clientHeight|getComputedStyle/);
+  assert.doesNotMatch(refBody, /getBoundingClientRect|offsetWidth|offsetHeight|clientWidth|clientHeight|getComputedStyle|innerWidth/);
+  assert.match(hook, /window\.addEventListener\("resize"/, "the viewport width is cached and refreshed on resize");
+  assert.equal(typeof currentViewportWidth(), "number");
   const users = [];
   const walk = (dir) => { for (const name of readdirSync(dir)) { const path = join(dir, name); if (statSync(path).isDirectory()) walk(path); else if (/\.(jsx?|mjs)$/.test(name) && !/\.test\./.test(name)) { const text = readFileSync(path, "utf8"); if (/useSettledBox\b/.test(text) && !path.endsWith("useSettledBox2029.js")) users.push([path, text]); } } };
   walk(new URL("../src", import.meta.url).pathname);
@@ -110,4 +112,18 @@ test("loading slots stay presentational: hidden from assistive technology, never
   assert.match(gateways, /data-dg29-state=\{gatewayContentState\(/);
   assert.match(gateways, /failed: \[language, cinema, videos, dimension, matrices\]\.every\(result => result\.status === "rejected"\)/);
   assert.match(gateways, /\.catch\(\(\) => \{ if \(active\) setState\(current => \(\{ \.\.\.current, loading: false, failed: true \}\)\); \}\)/);
+});
+
+test("loading slots are rendered only when no remembered box already reserves the space; the held box itself is the placeholder", () => {
+  const home = read("src/components/experience2029/HomeComposition2029.jsx");
+  const gateways = read("src/components/experience2029/DiscoveryGateways2029.jsx");
+  const css = read("src/components/experience2029/homeComposition2029.css");
+  assert.match(home, /data\.loading && !updatesBox\.held \? Array\.from/);
+  assert.match(home, /notableWaiting && !notableBox\.held \? Array\.from/);
+  assert.match(home, /data-h29-loading=\{data\.loading && updatesBox\.held \? "" : undefined\}/);
+  assert.match(gateways, /slots\?\.feature && !box\.held \? <LanguageFeatureSlot \/>/);
+  assert.match(gateways, /length: box\.held \? 0 : \(slots\?\.rows \|\| 0\)/);
+  assert.match(gateways, /length: box\.held \? 0 : dimensionSlots/);
+  assert.match(css, /\.h29 \[data-h29-loading\] \{ background: var\(--s29-panel-soft\)/);
+  assert.match(read("src/components/experience2029/useSettledBox2029.js"), /held: rememberedHeight\(memory, viewportWidth\) != null/);
 });

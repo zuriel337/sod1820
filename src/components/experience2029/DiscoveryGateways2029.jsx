@@ -88,7 +88,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
         {followTopics.slice(0, 1).map(followControl)}
       </div> : null}
     </div>
-    <div className="dg29-sources" ref={box.ref} data-h29-hold={box.hold}>
+    <div className="dg29-sources" ref={box.ref} data-h29-hold={box.hold} data-h29-loading={loading && items.length === 0 && !feature && box.held ? "" : undefined}>
       {feature}
       {items.map(item => <Link to={item.href} key={item.id} className="dg29-source">
         <span>{item.title}</span>
@@ -96,8 +96,8 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
       </Link>)}
       {!loading && items.length === 0 && !feature ? <p className="dg29-empty">{empty}</p> : null}
       {loading && items.length === 0 && !feature ? <>
-        {slots?.feature ? <LanguageFeatureSlot /> : null}
-        {Array.from({ length: slots?.rows || 0 }, (_, index) => <SourceSlot key={index} detail={Boolean(slots?.detail)} />)}
+        {slots?.feature && !box.held ? <LanguageFeatureSlot /> : null}
+        {Array.from({ length: box.held ? 0 : (slots?.rows || 0) }, (_, index) => <SourceSlot key={index} detail={Boolean(slots?.detail)} />)}
         <p className={slots ? "dg29-empty dg29-sr" : "dg29-empty"} role="status">טוען מקורות ציבוריים…</p>
       </> : null}
     </div>
@@ -123,7 +123,7 @@ function DimensionFiveFeature({ items, loading, dimensionSlots = DIMENSION_SLOTS
       <WatchButton topic="cat:מימד חמש" source="home_2029_discovery"
         noPush variant="icon" label="עקבו אחרי מימד חמש" explainer="" />
     </div>
-    <div className="dg29-dimension-sources" ref={box.ref} data-h29-hold={box.hold}>
+    <div className="dg29-dimension-sources" ref={box.ref} data-h29-hold={box.hold} data-h29-loading={loading && !items.length && box.held ? "" : undefined}>
       {items.map(item => <Link key={item.id} className="dg29-dimension-source" to={item.href}>
         <span className="dg29-dimension-poster" aria-hidden="true">
           {item.poster ? <img src={item.poster} alt="" loading="lazy" decoding="async" width="100" height="72" /> : "✦"}
@@ -131,7 +131,7 @@ function DimensionFiveFeature({ items, loading, dimensionSlots = DIMENSION_SLOTS
         <span>{item.title}</span>
       </Link>)}
       {loading && !items.length ? <>
-        {Array.from({ length: dimensionSlots }, (_, index) => <span className="dg29-dimension-source is-loading" key={index} aria-hidden="true">
+        {Array.from({ length: box.held ? 0 : dimensionSlots }, (_, index) => <span className="dg29-dimension-source is-loading" key={index} aria-hidden="true">
           <span className="dg29-dimension-poster" /><span>{NBSP}</span>
         </span>)}
         <p role="status" className="dg29-empty dg29-sr">טוען את הסרטים והמסרים…</p>

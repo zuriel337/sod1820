@@ -7,6 +7,11 @@ import { useCallback, useEffect, useRef } from "react";
 
 export const SETTLED_HEIGHT_VAR = "--h29-settled-h";
 
+// The viewport width is cached and refreshed on resize: reading window.innerWidth per hook instance at commit time can force a layout.
+let viewportWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+if (typeof window !== "undefined") window.addEventListener("resize", () => { viewportWidth = window.innerWidth; }, { passive: true });
+export const currentViewportWidth = () => viewportWidth;
+
 const settledBox = {};
 export const readSettledBox = (key) => settledBox[key];
 export const rememberSettledBox = (key, box) => { settledBox[key] = box; };
@@ -50,7 +55,7 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     // Observe the outer children too: a held (min-size) box does not resize when its content does (observe() is idempotent).
     state.observer?.observe(first); state.observer?.observe(last);
     if (!(typeof now.settled === "function" ? now.settled(node) : now.settled)) return;
-    const next = nextMemory({ width, viewport: window.innerWidth, top: first.getBoundingClientRect().top, bottom: last.getBoundingClientRect().bottom, count: now.count });
+    const next = nextMemory({ width, viewport: viewportWidth, top: first.getBoundingClientRect().top, bottom: last.getBoundingClientRect().bottom, count: now.count });
     if (next) rememberSettledBox(key, next);
   }, [key]);
   // Callback ref: runs at commit, before paint, so the remembered box is in place for the first frame of a return. It reads no
@@ -62,11 +67,14 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     state.observer?.disconnect(); state.observer = null; state.node = node; state.appliedWidth = null;
     if (!node) return;
     const memory = readSettledBox(key);
-    const height = rememberedHeight(memory, window.innerWidth);
+    const height = rememberedHeight(memory, viewportWidth);
     if (height != null) { node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`); state.appliedWidth = memory.w; }
     if (typeof ResizeObserver !== "undefined") { state.observer = new ResizeObserver(measure); state.observer.observe(node); }
   }, [key, measure]);
   useEffect(() => { measure(); }, [measure, typeof settled === "function" ? 0 : settled, count]);
   useEffect(() => () => { live.current.observer?.disconnect(); }, []);
-  return { ref, hold: holdAttribute({ pending, settled, memory: readSettledBox(key), count }) };
+  // held: a remembered box exists for this viewport width, so the rule in homeComposition2029.css already reserves the space and the
+  // caller does not need to render loading slots (each slot is DOM that React has to create at the moment Home mounts).
+  const memory = readSettledBox(key);
+  return { ref, hold: holdAttribute({ pending, settled, memory, count }), held: rememberedHeight(memory, viewportWidth) != null };
 }

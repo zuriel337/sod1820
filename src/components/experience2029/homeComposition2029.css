@@ -159,6 +159,8 @@
 /* A strip that settled earlier in this session keeps its box while it loads again (--h29-settled-h is set by useSettledBox
    in DiscoveryGateways2029.jsx, only at the same width). */
 .h29 [data-h29-hold], .h29 [data-h29-hold-block]:has(> .sod29-flight-story) { min-block-size: var(--h29-settled-h, 0px); }
+/* A held box that is still waiting for content renders no loading slots (they are DOM created at mount); the box itself is the placeholder. */
+.h29 [data-h29-loading] { background: var(--s29-panel-soft); border-radius: 14px; }
 
 /* The plane story as one compact card on Home (the full story and its three directions live in World) */
 .h29 .sod29-flight-story { margin: 0; }
