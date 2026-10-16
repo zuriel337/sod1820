@@ -1,7 +1,7 @@
 // Approved Home composition (reference fa0e26f) inside the single System Frame.
 // Presentation over existing public readers: latest posts, cipher posts, home videos and the
 // Home projection. Existing capability components arrive as slots so none is duplicated here.
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
@@ -15,13 +15,18 @@ import { useReveal } from "./useReveal2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
-import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
+import DiscoveryGateways2029, { useSettledBox } from "./DiscoveryGateways2029.jsx";
 import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";
 import { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
+const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown (also the default number of loading slots)
+// Presentation memory only (never data): how many cards the strips showed the last time Home was on screen in this
+// session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load).
+const shownBefore = { updates: null, notable: null };
+const NBSP = "\u00a0";
 
 
 function postHref(slugOrPath) {
@@ -38,7 +43,8 @@ function titleNumber(title, tags) {
 }
 
 function useHomeCompositionData({ includeWorld = true } = {}) {
-  const [state, setState] = useState({ loading: true, posts: [], notable: [] });
+  // enriched: the secondary Post-row read (categories / update mark) has settled; notableDone: the strip's reader has settled.
+  const [state, setState] = useState({ loading: true, enriched: false, notableDone: false, posts: [], notable: [] });
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -55,13 +61,13 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
           rowsBySlug = Object.fromEntries((rows || []).map((row) => [row.slug, row]));
         }
       } catch (_) { /* the cards simply show no mark */ }
-      update({ posts: cards.map((post) => ({
+      update({ enriched: true, posts: cards.map((post) => ({
         ...post,
         number: titleNumber(post.title, rowsBySlug[post.slug]?.tags),
         update: realUpdate(rowsBySlug[post.slug]),
         categories: rowsBySlug[post.slug]?.categories || post.categories || [],
       })) });
-    }).catch(() => update({ loading: false, posts: [] }));
+    }).catch(() => update({ loading: false, enriched: true, posts: [] }));
     return () => { live = false; };
   }, []);
   useEffect(() => {
@@ -79,11 +85,30 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
         if (Array.isArray(fresh?.cards) && fresh.cards.length) switches.saveFrozenSnapshot("fx_home_convergences", fresh.cards);
         return fresh;
       })
-      .then((result) => { if (live && result) setState((current) => ({ ...current, notable: result?.cards || [] })); })
-      .catch(() => {});
+      .then((result) => { if (live) setState((current) => ({ ...current, notableDone: true, notable: result?.cards || [] })); })
+      .catch(() => { if (live) setState((current) => ({ ...current, notableDone: true })); });
     return () => { live = false; };
   }, [includeWorld]);
   return state;
+}
+
+// Loading slots reuse the loaded cards' own markup/classes, so their geometry follows the same CSS (no fixed heights).
+function UpdateCardSlot() {
+  return <article className="h29-card is-loading" aria-hidden="true">
+    <div className="h29-card-main">
+      <div className="h29-media is-empty"><span>{NBSP}</span></div>
+      <span className="h29-card-body"><span className="h29-card-t">{NBSP}<br />{NBSP}</span><span className="h29-meta">{NBSP}</span></span>
+    </div>
+    <span className="k29-cats h29-card-cats"><span className="k29-cat">{NBSP}</span></span>
+    <span className="h29-card-open">{NBSP}</span>
+  </article>;
+}
+
+function NotableCardSlot() {
+  return <article className="h29-notable-card is-loading" aria-hidden="true">
+    <span className="h29-notable-main"><span className="h29-card-t">{NBSP}<br />{NBSP}</span><span className="h29-notable-nums"><span className="k29-num">{NBSP}</span></span></span>
+    <div className="k29-rate"><ul className="k29-rate-row"><li><span className="k29-rate-l">{NBSP}</span></li></ul></div>
+  </article>;
 }
 
 function Media({ src, fallback, className = "" }) {
@@ -92,9 +117,14 @@ function Media({ src, fallback, className = "" }) {
     : <div className={`h29-media is-empty ${className}`}><span>{fallback}</span></div>;
 }
 
-function Reveal({ id, children }) {
+function Reveal({ id, children, remember = false }) {
   const [ref, reveal] = useReveal(`home:${id}`);
-  return <div ref={ref} data-reveal={reveal} className="k29-reveal k29-rv-self">{children}</div>;
+  // A slot that wraps a self-loading block keeps the box that block settled to (same width), so its own loading and image arrival do not move the page.
+  const box = useSettledBox(`reveal:${id}`, { settled: (node) => Boolean(node.firstElementChild?.matches(".sod29-flight-story:not(.is-loading)"))
+    && [...node.querySelectorAll("img")].every((image) => image.complete) });
+  const attach = box.ref;
+  const setRef = useCallback((node) => { ref.current = node; attach(node); }, [ref, attach]);
+  return <div ref={setRef} data-reveal={reveal} data-h29-hold-block={remember ? "" : undefined} className="k29-reveal k29-rv-self">{children}</div>;
 }
 
 function Section({ title, link, label, children, className = "" }) {
@@ -107,7 +137,7 @@ function Section({ title, link, label, children, className = "" }) {
 
 export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity, pulsePanel,
-  selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
+  selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false, worldPending,
 }) {
   const data = useHomeCompositionData({ includeWorld: worldOpen });
   const now = projection?.temporalNow || null;
@@ -122,17 +152,35 @@ export default function HomeComposition2029({
   let reserved = new Set();
   if (heroPostSlug) reserved = reserveHomePost(reserved, lead);
   if (showFixedStory) reserved = reserveHomePost(reserved, { slug: "flydubai-fz1073-363-14000-remzei-geula" });
-  const latestPlacement = claimHomeItems(data.posts, reserved, 4);
+  const latestPlacement = claimHomeItems(data.posts, reserved, HOME_UPDATE_SLOTS);
   const visiblePosts = latestPlacement.items;
   const sourceRows = projection?.worldPreview?.arrivals || projection?.worldPreview?.items || [];
   const sourcePlacement = claimHomeItems(sourceRows.filter(item => item.kind === "source"), latestPlacement.reserved, 4);
   const homeArrivals = sourcePlacement.items;
   const reservedPostKeys = [...sourcePlacement.reserved];
+  // The strip's loading slots appear as soon as the parent says the world gate is still being resolved (worldPending),
+  // or once it is open and the strip's reader is pending, so the strip does not appear above the reading position later.
+  const notableSlots = shownBefore.notable || 0;   // unknown or 0 = the strip was not on screen before: reserve nothing
+  const notableWaiting = notableSlots > 0 && !data.notable.length && (worldOpen ? !data.notableDone : (worldPending ?? loading) === true);
+  const notableShown = (worldOpen && data.notable.length > 0) || notableWaiting;
+  useEffect(() => {
+    if (!data.loading) shownBefore.updates = visiblePosts.length;
+    if (worldOpen && data.notableDone) shownBefore.notable = data.notable.length;
+    else if (!worldOpen && worldPending === false) shownBefore.notable = 0;   // the parent resolved the gate as closed
+  }, [data.loading, data.notableDone, data.notable.length, visiblePosts.length, worldOpen, worldPending]);
+  // Returning to Home: each strip keeps the box it settled to while it loads again (see useSettledBox).
+  // The hero keeps its settled box while it loads / enriches, for the same lead Post as last time (its own enrichment lives in HomeHeroMotion2029).
+  const heroBox = useSettledBox("home:hero", { pending: data.loading, settled: Boolean(lead), count: lead?.slug || "" });
+  const updatesPending = data.loading || !data.enriched;
+  const updatesBox = useSettledBox("home:updates", { pending: updatesPending, settled: !updatesPending, count: visiblePosts.length });
+  const notableBox = useSettledBox("home:notable", { pending: notableWaiting, settled: data.notableDone && data.notable.length > 0, count: data.notable.length });
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
   return <div className="h29" data-experience-capability="home-composition">
-    {nowHero || (lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>)}
+    {nowHero || <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold}>
+      {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>}
+    </div>}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
@@ -140,7 +188,7 @@ export default function HomeComposition2029({
     </section> : null}
 
     <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>
-      <div className="h29-updates">
+      <div className="h29-updates" ref={updatesBox.ref} data-h29-hold={updatesBox.hold}>
         {visiblePosts.map((post, index) => {
           const unseen = Boolean(post.update) && !seen[post.update.key];
           // One pulse at a time, only among visible updates (never the featured Hero).
@@ -149,20 +197,23 @@ export default function HomeComposition2029({
             <button type="button" className="h29-card-main" aria-pressed={selectedSlug === post.slug} onClick={() => { if (unseen) see(post.update.key); onSelectPost?.(post); }}>
               <Media src={post.poster} fallback={post.number || "✦"} />
               <span className="h29-card-body"><span className="h29-card-t">{clean(post.title)}</span><span className="h29-meta">{relativeTimeLabel(post.modified)}{post.number ? ` · ${post.number}` : ""}</span>
-                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)} · {post.update.label}</span> : null}</span>
+                {post.update ? <span className="h29-upd"><i className={`h29-dot${unseen ? " is-new" : ""}`} aria-hidden="true" />עודכן {relativeTimeLabel(post.update.at)} · {post.update.label}</span>
+                  : null}</span>
             </button>
-            <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />
+            {!data.enriched && !(post.categories || []).length ? <span className="k29-cats h29-card-cats is-slot" aria-hidden="true"><span className="k29-cat">{NBSP}</span></span>
+              : <PostCategories2029 categories={post.categories} max={3} className="h29-card-cats" />}
             <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
-        {data.loading ? <div className="h29-skel" aria-hidden="true" /> : null}
+        {data.loading ? Array.from({ length: shownBefore.updates ?? HOME_UPDATE_SLOTS }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
         {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
       </div>
     </Section>
 
-    {worldOpen && data.notable.length ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
+    {notableShown ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
-      <div className="h29-notable">
+      <div className="h29-notable" ref={notableBox.ref} data-h29-hold={notableBox.hold} aria-busy={notableWaiting ? "true" : undefined}>
+        {notableWaiting ? Array.from({ length: notableSlots }, (_, index) => <NotableCardSlot key={`slot-${index}`} />) : null}
         {data.notable.map((card, index) => {
           const fresh = recentConvergence(card.approvedAt);
           const freshKey = `topic:${card.id}:approved:${card.approvedAt}`;
@@ -179,7 +230,7 @@ export default function HomeComposition2029({
       </div>
     </Section> : null}
 
-    {story && showFixedStory ? <Reveal id="story">{story}</Reveal> : null}
+    {story && showFixedStory ? <Reveal id="story" remember>{story}</Reveal> : null}
 
     <DiscoveryGateways2029 excludedPostKeys={reservedPostKeys} />
 

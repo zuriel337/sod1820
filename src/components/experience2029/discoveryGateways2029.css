@@ -96,3 +96,14 @@
 .dg29-gateway-head .sod29-watch-icon,
 .dg29-dimension-head .sod29-watch-icon { flex-shrink:0; }
 .dg29-gateway .sod29-watch-icon-popover { min-width:min(280px,calc(100vw - 32px)); }
+
+/* Loading slots (see DiscoveryGateways2029.jsx): same classes as the loaded rows, text is non-breaking spaces, so the
+   row geometry is the loaded geometry. The status line stays for assistive technology only. */
+.dg29-source.is-loading, .dg29-dimension-source.is-loading, .dg29-language-preview.is-loading { pointer-events: none; }
+.dg29-source.is-loading > :is(span, small), .dg29-dimension-source.is-loading > span:last-child,
+.dg29-language-preview.is-loading :is(.dg29-language-kicker, strong, .dg29-language-evidence, .dg29-language-open) { background: var(--s29-panel-soft); color: transparent; border-radius: 6px; }
+.dg29-source.is-loading { background: transparent; border-color: var(--s29-line); }
+.dg29-source.is-loading > span { inline-size: 76%; }
+.dg29-source.is-loading > small { inline-size: 48%; }
+.dg29-language-preview.is-loading :is(.dg29-language-metric b, .dg29-language-metric span) { color: transparent; }
+.dg29-sr { position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
