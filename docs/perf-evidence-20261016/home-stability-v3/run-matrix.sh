@@ -6,7 +6,7 @@
 # an unmapped request invalidates the sample and fails the run, nothing is sent to a live service. mobile 390x844 DPR2 CPU x4, CDP 1.6 Mbps / 150 ms unless a scenario says otherwise.
 #   PROFILE=mobile|desktop (default mobile; desktop = mouse wheel / keyboard / mouse click, isMobile=false, hasTouch=false, DPR 1), SHA_A / SHA_B = the exact commits of dist-A / dist-B, CORPUS = synthetic|central
 #   (said by the caller, never guessed). Every result file carries its signatures (commits, dist-tree signature, input hash, tool hashes, environment); an unknown one stays null.
-# Groups: core load late gate resize states backfail interrupt widths themes nav desk failnav recover deskcore mob   (widths need fixtures for 320/1440/1920 in the corpus; without them those runs are BLOCKED, not PASS)
+# Groups: core load late gate resize states backfail interrupt widths themes nav desk failnav recover recover2 deskcore mob   (widths need fixtures for 320/1440/1920 in the corpus; without them those runs are BLOCKED, not PASS)
 #   nav = display and navigation acceptance: Back, Forward + Back again, a deliberate scroll, the identity of what Home shows, at four widths and three themes, early input, reduced motion, then the first entry at the same widths/themes
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; REPO="$(cd "$HERE/../../.." && pwd)"
@@ -58,12 +58,13 @@ for g in "${groups[@]}"; do case "$g" in
              BASE=A run mob-reduced-motion-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --reduced 1 --forward 1 --deliberate 1 $SH
              for T in 250 600; do BASE=A run mob-interrupt-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --interruptAt $T $SH; done
              for W in 320:640 390:844; do BASE=A run mob-load-width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode load --width ${W%%:*} --height ${W##*:} $SH; done ;;
-  recover)   # a failure on the return that is over by the next entry: the fresh entry (second return) loads fine. The price of starting a failed area at the bound is measured here.
+  recover)   # one failed return, then a fresh entry that loads fine (a blip): the entry must be the page again with nothing growing. recover2 = two failed returns, then a healthy one: the price of having started the areas at the bound.
              for W in ${WIDTHS:-320:640 390:844 1440:900 1920:1080}; do BASE=A run recover-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --state error --stateFrom back --forward 1 --recover 1 $SH; done ;;
+  recover2)  for W in ${WIDTHS:-320:640 390:844 1440:900 1920:1080}; do BASE=A run recover2-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --state error --stateFrom back --forward 1 --cycles 2 --recover 1 $SH; done ;;
   deskcore)  # the wide return at 1440 on a desktop profile, the case the central session reproduced: more pairs, because 2 are not an acceptance (CORE_PAIRS, default 10)
              BASE=A run desk-core-1440-AB --arms "$ARMS_AB" --pairs ${CORE_PAIRS:-10} --mode back --post "$POST" --width 1440 --height 900 ;;
-  failnav)   # failures on a return, then Forward + Back again (a fresh entry to Home): what the document ends with and what the reading place does. WIDTHS="320:640 390:844" PROFILE=mobile, or WIDTHS="1440:900 1920:1080" PROFILE=desktop
-             for W in ${WIDTHS:-320:640 390:844 1440:900 1920:1080}; do for ST in error outage; do BASE=A run failnav-$ST-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --state $ST --stateFrom back --forward 1 $SH; done; done ;;
+  failnav)   # failures on a return, then Forward + Back twice more (two fresh entries to Home; the area has now failed on two entries in a row, so the third return starts it at the bound): what the document ends with and what the reading place does. WIDTHS="320:640 390:844" PROFILE=mobile, or WIDTHS="1440:900 1920:1080" PROFILE=desktop
+             for W in ${WIDTHS:-320:640 390:844 1440:900 1920:1080}; do for ST in error outage; do BASE=A run failnav-$ST-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --state $ST --stateFrom back --forward 1 --cycles 2 $SH; done; done ;;
   *) echo "unknown group $g" >&2 ;;
 esac; done
 echo "matrix done" >&2

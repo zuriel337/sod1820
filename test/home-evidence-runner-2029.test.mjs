@@ -164,3 +164,24 @@ test("every result file carries its signatures; a value that is not known is nul
   assert.match(matrix, /--armShas \$SHAS/);
   assert.match(matrix, /--corpus \$CORPUS/);
 });
+
+test("cycles: every Back after the first return is a fresh entry reported on its own; the last one can be the healthy one", () => {
+  const source = readFileSync(runner, "utf8");
+  assert.match(source, /const CYCLES = Math\.max\(1, \+\(A\.cycles \|\| 1\)\)/);
+  assert.match(source, /const name = cycle === 1 \? 'backAgain' : cycle === 2 \? 'backThird' : `backAgain\$\{cycle\}`/);
+  assert.match(source, /if \(RECOVER && cycle === CYCLES\) ctl\.phase = 'back2'/);
+  for (const field of ["cls", "docH", "holdsAtEnd", "block", "shifts", "identity"]) assert.ok(new RegExp(`entry\\.${field}|${field}:`).test(source), field);
+});
+
+test("the committed form of a result has no content text and keeps everything else", () => {
+  const dir = mkdtempSync(join(tmpdir(), "scrub-test-")), out = join(dir, "out");
+  writeFileSync(join(dir, "x-AB.json"), JSON.stringify({ profile: { runner: 4 }, signatures: { input: { fixtureSha256: "abc" } }, runs: [{ arm: "A", cls: 0.02, anchor: { text: "private words", finalDisp: 3 }, depart: { anchorText: "more private words", docH: 100 }, heroText: "heading", emptyText: "none yet", cardsAtEnd: { box: 5, cards: [{ h: 9, metaText: "date text" }], probe: { html: "<p>private</p>" } } }] }));
+  writeFileSync(join(dir, "x-AB.summary.json"), "{}");
+  const result = spawnSync("node", [join(repo, "docs/perf-evidence-20261016/home-stability-v3/scrub-results.mjs"), dir, out], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  const data = JSON.parse(zlib.gunzipSync(readFileSync(join(out, "x-AB.json.gz"))));
+  const text = JSON.stringify(data);
+  for (const secret of ["private words", "more private", "heading", "none yet", "date text", "<p>private</p>"]) assert.ok(!text.includes(secret), secret);
+  assert.deepEqual([data.runs[0].cls, data.runs[0].anchor.finalDisp, data.runs[0].depart.docH, data.runs[0].cardsAtEnd.box, data.signatures.input.fixtureSha256], [0.02, 3, 100, 5, "abc"]);
+  assert.ok(existsSync(join(out, "x-AB.summary.json")));
+});

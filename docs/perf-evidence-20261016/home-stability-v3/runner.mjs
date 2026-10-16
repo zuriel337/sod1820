@@ -43,6 +43,7 @@ const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal'
 const STATE_FROM_BACK = A.stateFrom === 'back';
 const SHOTS = A.shots || null;   // --shots <dir>: a screenshot of the first viewport at the end of each sample (for looking at, not committed)
 const CAPSULE = A.capsule === '1';   // --capsule 1 (desktop profile): after the return has settled, open the companion capsule the way a person does (hover), read the rail and the content width, leave it
+const CYCLES = Math.max(1, +(A.cycles || 1));   // --cycles N (with --forward 1): N times Forward to the Post and Back again (default 1)
 const RECOVER = A.recover === '1';   // --recover 1 (with --stateFrom back and --forward 1): the reads of the SECOND return are healthy again (a failure that was over by the next entry)
 const FORWARD = A.forward === '1', DELIBERATE = A.deliberate === '1';   // --forward 1: Forward to the Post, then Back again; --deliberate 1: a deliberate scroll down and up once the return has settled
 const INTERRUPT_AT = A.interruptAt != null ? +A.interruptAt : (A.interrupt === '1' ? 900 : null);
@@ -351,26 +352,30 @@ async function oneSample(arm, idx) {
       o.deliberate = { y0, downBy: y1 - y0, upBy: y1 - y2, programmaticScrollsAfter: after, ok: y1 - y0 > 250 && y1 - y2 > 150 && after === 0 };
     }
     if (FORWARD) {
-      // Forward to the Post: the same Post at the scroll position it was left at; then Back once more: the same reading place and the same content
-      const leftAt = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText);   // where the person is when they leave for the Post (after any deliberate scroll)
+      // Forward to the Post: the same Post at the scroll position it was left at; then Back once more: the same reading place and the same content. --cycles N repeats that N times: every Back after
+      // the first return is a fresh entry to Home (a new mount), reported as backAgain (cycle 1), backThird (cycle 2), backAgain3 ... Everything a fresh entry shows is measured per entry:
+      // its own layout shifts, the document it ends with, and every remembered box at the end (the space an earlier failure left is given back at the entry that follows two failed ones).
       const blockTop = (id) => id ? page.evaluate((i) => { const b = document.querySelector(`[data-scroll-anchor="${i}"]`); return b ? Math.round(b.getBoundingClientRect().top) : null; }, id).catch(() => null) : Promise.resolve(null);
-      const blockWhenLeft = await blockTop(readingBlock?.id);
-      await page.goForward({ waitUntil: 'commit' });
-      await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => o.invalid.push('Forward did not reach the Post'));
-      await sleep(3000);
-      const f = await page.evaluate(() => ({ path: decodeURIComponent(location.pathname), y: Math.round(scrollY) }));
-      o.forward = { path: f.path, samePost: f.path === o.postRoute?.path, y: f.y, yWhenLeft: o.postY, yDiff: Math.abs(f.y - o.postY) };
-      const bAgain = Date.now();
-      if (RECOVER) ctl.phase = 'back2';   // stateRow serves the corpus rows as they are for any phase but 'back'
-      await page.goBack({ waitUntil: 'commit' });
-      const traj2 = []; while (Date.now() - bAgain < 4500) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
-      const last2 = traj2.filter((t) => t[2] != null).at(-1);
-      o.backAgain = { leftAtY: leftAt.y, anchorTopWhenLeft: leftAt.a?.found ? leftAt.a.top : null, anchorTopFinal: last2 ? last2[2] : null, anchorDisp: last2 && leftAt.a?.found ? Math.abs(last2[2] - leftAt.a.top) : null, yDisp: traj2.at(-1) ? Math.abs(traj2.at(-1)[1] - leftAt.y) : null, yFinal: traj2.at(-1)?.[1] ?? null, identity: diffIdentity(identityBefore, await page.evaluate(() => window.__identity())) };
-      // the second return is a fresh entry to Home (a new mount): its own layout shifts, the document it ends with, and every remembered box at the end (the space an earlier failure left is given back here)
-      const second = await page.evaluate((t) => ({ cs: window.__r.cs.filter((x) => x.t >= t), dh: document.documentElement.scrollHeight }), bAgain);
-      { const final = await blockTop(readingBlock?.id); o.backAgain.block = { id: readingBlock?.id ?? null, whenLeft: blockWhenLeft, final, displacement: blockWhenLeft != null && final != null ? Math.abs(final - blockWhenLeft) : null }; }
-      o.backAgain.shifts = second.cs.map((x) => ({ t: Math.round(x.t - bAgain), v: +x.v.toFixed(4), src: x.src }));   // what moved on the fresh entry (element, y and height before / after)
-      o.backAgain.cls = sessionWindowMax(second.cs); o.backAgain.docH = second.dh; o.backAgain.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null); o.backAgain.frame = await page.evaluate(() => window.__frame()).catch(() => null);
+      for (let cycle = 1; cycle <= CYCLES; cycle++) {
+        const name = cycle === 1 ? 'backAgain' : cycle === 2 ? 'backThird' : `backAgain${cycle}`;
+        const leftAt = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText);   // where the person is when they leave for the Post (after any deliberate scroll)
+        const blockWhenLeft = await blockTop(readingBlock?.id);
+        await page.goForward({ waitUntil: 'commit' });
+        await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => o.invalid.push(`Forward did not reach the Post (cycle ${cycle})`));
+        await sleep(3000);
+        const f = await page.evaluate(() => ({ path: decodeURIComponent(location.pathname), y: Math.round(scrollY) }));
+        if (cycle === 1) o.forward = { path: f.path, samePost: f.path === o.postRoute?.path, y: f.y, yWhenLeft: o.postY, yDiff: Math.abs(f.y - o.postY) };
+        const bAgain = Date.now();
+        if (RECOVER && cycle === CYCLES) ctl.phase = 'back2';   // stateRow serves the corpus rows as they are for any phase but 'back': the last return of the run is healthy again
+        await page.goBack({ waitUntil: 'commit' });
+        const traj2 = []; while (Date.now() - bAgain < 4500) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
+        const last2 = traj2.filter((t) => t[2] != null).at(-1);
+        const entry = o[name] = { leftAtY: leftAt.y, anchorTopWhenLeft: leftAt.a?.found ? leftAt.a.top : null, anchorTopFinal: last2 ? last2[2] : null, anchorDisp: last2 && leftAt.a?.found ? Math.abs(last2[2] - leftAt.a.top) : null, yDisp: traj2.at(-1) ? Math.abs(traj2.at(-1)[1] - leftAt.y) : null, yFinal: traj2.at(-1)?.[1] ?? null, identity: diffIdentity(identityBefore, await page.evaluate(() => window.__identity())) };
+        const second = await page.evaluate((t) => ({ cs: window.__r.cs.filter((x) => x.t >= t), dh: document.documentElement.scrollHeight }), bAgain);
+        { const final = await blockTop(readingBlock?.id); entry.block = { id: readingBlock?.id ?? null, whenLeft: blockWhenLeft, final, displacement: blockWhenLeft != null && final != null ? Math.abs(final - blockWhenLeft) : null }; }
+        entry.shifts = second.cs.map((x) => ({ t: Math.round(x.t - bAgain), v: +x.v.toFixed(4), src: x.src }));   // what moved on the fresh entry (element, y and height before / after)
+        entry.cls = sessionWindowMax(second.cs); entry.docH = second.dh; entry.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null); entry.frame = await page.evaluate(() => window.__frame()).catch(() => null);
+      }
     }
     if (INTERRUPT_AT != null) {
       const touchAt = o.restore.touchAtMs, jumpsAfter = o.restore.jumps.filter(j => touchAt != null && j.atMs > touchAt);
@@ -441,7 +446,7 @@ for (let i = 0; i < PAIRS; i++) {
   const order = i % 2 === 0 ? armNames : [...armNames].reverse();   // interleaved A/B, alternating who goes first
   for (const arm of order) { const r = MODE === 'load' ? await loadSample(arm, i + 1) : await oneSample(arm, i + 1); runs.push(r); process.stderr.write(`${arm}#${i + 1} valid=${r.valid} cls=${r.cls} miss=${r.misses} ${MODE === 'load' ? `usable=${r.readyMs?.usable} composed=${r.readyMs?.composed} lcp=${r.lcp?.t} residue=${JSON.stringify(r.skeletonResidue)}` : `anchor=${r.anchor?.finalDisp} usable=${r.readyAfterBack?.usable} composed=${r.readyAfterBack?.composed} dg=${r.readyAfterBack?.dgSettled}`} ${r.invalid.join(';')}${r.error ? ' ERR ' + r.error : ''}\n`); }
 }
-const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, recoverOnSecondReturn: RECOVER, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
+const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, recoverOnLastReturn: RECOVER, cycles: CYCLES, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
   definitions: 'v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max',
   isolation: 'scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)', requestPolicy: 'unmapped = violation, no fallback body',
   browser: 'Chromium ' + browser.version(), fixtureSha256: FX_SHA, fixtureKeys: Object.keys(fixtures).length, corpusImages: corpusImages.images, completePostBodies: COMPLETE_POSTS.size, node: process.version, cpus: os.cpus().length, startedAt: t0, finishedAt: new Date().toISOString() };

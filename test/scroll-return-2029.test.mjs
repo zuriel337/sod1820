@@ -150,36 +150,44 @@ test("an unmarked page behaves exactly as with the previous restorer, on every s
   }
 });
 
-// ---- the next fresh entry gives the reserved space back; the visit that failed is not moved ----
-// returns: 2 = the person opens the Post and comes back twice; the second return is a new mount of Home (the next visit of the config)
+// ---- a fresh entry gives the reserved space back after two failed entries in a row; the entry that fails is not moved ----
+// returns: N = the person opens the Post and comes back N times; every return after the first is a new mount of Home (the next visit of the config): result.again is the second return, result.third the third
 const entries = (...list) => ({ visits: [first, ...list] });
-const twice = (script, cfg) => returnScenario(browser, script, cfg, { returns: 2 });
+const comeBack = (script, cfg, returns) => returnScenario(browser, script, cfg, { returns });
 const above = (ms) => ({ updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: ok(ms, 3) });
+const healthy = (ms) => ({ updates: ok(ms, 4), notable: ok(ms, 4), hero: ok(ms), gateways: ok(ms, 3) });
 
-test("the areas above the reading place failed on the return and fail again on the next entry: the next entry starts them at the bound (a shorter page), the reading place is exactly where it was, and nothing moves while it settles", { skip }, async () => {
-  const r = await twice(current, entries(above(300), above(300)));
-  assert.ok(displaced(r) <= 12 && r.cls <= 0.01, `the return that failed is as it was: displaced ${displaced(r)}px, CLS ${r.cls}`);
-  assert.ok(r.again.docH < r.docH - 300, `the document gives back the blank that stood above the reading place (${r.docH}px -> ${r.again.docH}px)`);
-  assert.ok(displaced(r.again) <= 12, `the reading place on the new entry: displaced ${displaced(r.again)}px`);
-  assert.ok(r.again.cls <= 0.01, `nothing moved while the new entry settled: CLS ${r.again.cls}`);
+test("the areas above the reading place fail on three returns in a row: the third starts them at the bound (a shorter page), the reading place is exactly where it was, and nothing moves while it settles", { skip }, async () => {
+  const r = await comeBack(current, entries(above(300), above(300), above(300)), 3);
+  assert.ok(displaced(r) <= 12 && r.cls <= 0.01, `the first return that failed is as it was: displaced ${displaced(r)}px, CLS ${r.cls}`);
+  assert.ok(displaced(r.again) <= 12 && r.again.cls <= 0.01, `so is the second: displaced ${displaced(r.again)}px, CLS ${r.again.cls}`);
+  assert.ok(r.third.docH < r.again.docH - 300, `the third gives back the blank that stood above the reading place (${r.again.docH}px -> ${r.third.docH}px)`);
+  assert.ok(displaced(r.third) <= 12, `the reading place on the third: displaced ${displaced(r.third)}px`);
+  assert.ok(r.third.cls <= 0.01, `nothing moved while the third settled: CLS ${r.third.cls}`);
 });
-test("negative control: with the settled-box hook of f60d0788 the next entry keeps the blank above the reading place that the new one gives back", { skip }, async () => {
-  // the page around the hook (the harness keeps what the previous visit showed, like the product) shortens the next entry on its own; what separates the two hooks is the blank the boxes carried
-  const now = await twice(current, entries(above(300), above(300))), before = await twice(hookBefore, entries(above(300), above(300)));
-  assert.ok(before.again.docH - now.again.docH >= 300, `the old hook ends the next entry ${before.again.docH - now.again.docH}px taller (${before.again.docH}px against ${now.again.docH}px)`);
-  assert.ok(displaced(before.again) <= 12, "the old hook keeps the reading place too: what it fails to do is give the space back");
+test("negative control: with the settled-box hook of f60d0788 the third return carries the blank of the second", { skip }, async () => {
+  // the page around the hook (the harness keeps what the previous visit showed, like the product) changes the second return on its own; what separates the hooks is the third
+  const now = await comeBack(current, entries(above(300), above(300), above(300)), 3), before = await comeBack(hookBefore, entries(above(300), above(300), above(300)), 3);
+  assert.ok(Math.abs(before.third.docH - before.again.docH) <= 12, `the old hook ends the third where the second ended (${before.again.docH}px -> ${before.third.docH}px)`);
+  assert.ok(before.third.docH - now.third.docH >= 300, `the old hook ends the third ${before.third.docH - now.third.docH}px taller (${before.third.docH}px against ${now.third.docH}px)`);
+  assert.ok(displaced(before.third) <= 12, "the old hook keeps the reading place too: what it fails to do is give the space back");
 });
-test("the entry after a failed return that loads fine again grows back to its content, the reading place stays and the space comes back as content", { skip }, async () => {
-  const r = await twice(current, entries(above(300), { updates: ok(300, 4), notable: ok(300, 4), hero: ok(300), gateways: ok(300, 3) }));
+test("one failed return is not enough to change the next one: a return that then loads fine is the page again at once, the reading place stays", { skip }, async () => {
+  const r = await comeBack(current, entries(above(300), healthy(300)), 2);
   assert.ok(displaced(r.again) <= 12, `displaced ${displaced(r.again)}px`);
-  assert.ok(r.again.cls <= 0.1, `CLS ${r.again.cls}`);
+  assert.ok(r.again.cls <= 0.01, `nothing grows: CLS ${r.again.cls}`);
   assert.ok(Math.abs(r.again.docH - r.beforeDocH) <= 30, `the page is its content again (${r.beforeDocH}px at the first visit, ${r.again.docH}px now)`);
 });
-test("every read fails, the block being read among them: the next entry gives the space back and the person ends at the same block, within the blank that was given back inside it", { skip }, async () => {
+test("after two failed returns the third starts at the bound; if it loads fine it grows back to its content and the reading place stays (what that growth costs in layout shifts is measured on the real app: the `recover` group of the evidence tool)", { skip }, async () => {
+  const r = await comeBack(current, entries(above(300), above(300), healthy(300)), 3);
+  assert.ok(displaced(r.third) <= 12, `displaced ${displaced(r.third)}px`);
+  assert.ok(Math.abs(r.third.docH - r.beforeDocH) <= 30, `the page is its content again (${r.beforeDocH}px at the first visit, ${r.third.docH}px now)`);
+});
+test("every read fails on three returns, the block being read among them: the third gives the space back and the person ends at the same block, within the blank that was given back inside it", { skip }, async () => {
   const all = (ms) => ({ updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: bad(ms) });
-  const r = await twice(current, entries(all(300), all(300)));
-  assert.ok(displaced(r) <= 12 && r.cls <= 0.01, `the return that failed: displaced ${displaced(r)}px, CLS ${r.cls}`);
-  assert.ok(r.again.docH < r.docH, `the document is shorter (${r.docH}px -> ${r.again.docH}px)`);
-  assert.ok(Math.abs(r.again.finalTop - r.again.wantTop) <= 80, `the reading block's top is ${r.again.finalTop}px (it was ${r.again.wantTop}px): the blank inside the block was given back`);
-  assert.ok(r.again.cls <= 0.01, `CLS ${r.again.cls}`);
+  const r = await comeBack(current, entries(all(300), all(300), all(300)), 3);
+  assert.ok(displaced(r) <= 12 && r.cls <= 0.01, `the first return that failed: displaced ${displaced(r)}px, CLS ${r.cls}`);
+  assert.ok(r.third.docH < r.again.docH, `the document is shorter (${r.again.docH}px -> ${r.third.docH}px)`);
+  assert.ok(Math.abs(r.third.finalTop - r.third.wantTop) <= 80, `the reading block's top is ${r.third.finalTop}px (it was ${r.third.wantTop}px): the blank inside the block was given back`);
+  assert.ok(r.third.cls <= 0.01, `CLS ${r.third.cls}`);
 });

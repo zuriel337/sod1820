@@ -19,8 +19,9 @@ if (CLOSING) {
     sigs.push([name, data.profile?.profile ?? "mobile", data.profile?.viewport, ...["A", "B"].flatMap((arm) => { const a = data.signatures?.arms?.[arm]; return [a?.commit?.slice(0, 8) ?? "null", a?.buildArtifact?.signature?.slice(0, 12) ?? "null"]; }), data.signatures?.input?.fixtureSha256?.slice(0, 12) ?? "null", data.signatures?.input?.corpusClass ?? "null", data.signatures?.tool?.repoHead?.slice(0, 8) ?? "null", data.signatures?.environment?.browser ?? "null"]);
     for (const arm of ["A", "B"]) {
       const all = data.runs.filter((r) => r.arm === arm), ok = all.filter((r) => r.valid);
-      if (data.runs[0]?.mode === "load") { rowsC.push([name, arm, `${ok.length}/${all.length}`, `load: CLS max ${max(ok.map((r) => r.cls)) ?? "–"}`, ...Array(9).fill("–")]); continue; }
-      const again = ok.filter((r) => r.backAgain), caps = ok.filter((r) => r.capsule?.present);
+      if (data.runs[0]?.mode === "load") { rowsC.push([name, arm, `${ok.length}/${all.length}`, `load: CLS max ${max(ok.map((r) => r.cls)) ?? "–"}`, ...Array(11).fill("–")]); continue; }
+      const again = ok.filter((r) => r.backAgain), third = ok.filter((r) => r.backThird), caps = ok.filter((r) => r.capsule?.present);
+      const entryCell = (list, key) => list.length ? `CLS max ${round(max(list.map((r) => r[key].cls)))}, doc ${round(median(list.map((r) => r[key].docH)), 0)}, block ${max(list.map((r) => r[key].block?.displacement)) ?? "–"}px, same ${list.every((r) => r[key].identity?.same) ? "yes" : "NO"}` : "–";
       const capCell = caps.length ? caps.map((r) => `${mode(r.capsule.start.companionCls)}→hover ${mode(r.capsule.hover.companionCls)}${r.capsule.hover.railPresent ? "+rail" : "-NO RAIL"}, content ${uniq([r.capsule.start.contentW, r.capsule.hover.contentW, r.capsule.leave.contentW]).join("/")}→leave ${mode(r.capsule.leave.companionCls)}`).slice(0, 1).join("") : "–";
       rowsC.push([name, arm, `${ok.length}/${all.length}`, ok.length ? `${round(median(ok.map((r) => r.cls)))} (max ${round(max(ok.map((r) => r.cls)))})` : "–",
         ok.some((r) => r.frameFirstVisit?.h29) ? `${uniq(ok.map((r) => r.frameFirstVisit?.h29?.w)).join("/")} → ${uniq(ok.map((r) => r.frameAtEnd?.h29?.w)).join("/")}` : "–",
@@ -28,14 +29,14 @@ if (CLOSING) {
         ok.some((r) => r.holdsAtEnd) ? `${median(ok.map((r) => (r.holdsAtEnd || []).filter((h) => h.v !== "").length))}/${median(ok.map((r) => (r.holdsAtEnd || []).length))}` : "–",
         ok.some((r) => r.reading) ? `${max(ok.map((r) => r.reading?.displacement))}` : "–",
         ok.length ? `${round(median(ok.map((r) => r.depart?.docH)), 0)} → ${round(median(ok.map((r) => r.finalDocH)), 0)}` : "–",
-        again.length ? `CLS max ${round(max(again.map((r) => r.backAgain.cls)))}, doc ${round(median(again.map((r) => r.backAgain.docH)), 0)}, block ${max(again.map((r) => r.backAgain.block?.displacement)) ?? "–"}px, same ${again.every((r) => r.backAgain.identity?.same) ? "yes" : "NO"}` : "–",
+        entryCell(again, "backAgain"), entryCell(third, "backThird"),
         ok.some((r) => r.forward) ? `${ok.every((r) => r.forward?.samePost) ? "same Post" : "NO"}, ${max(ok.map((r) => r.forward?.yDiff))}px` : "–",
         ok.some((r) => r.deliberate) ? (ok.every((r) => r.deliberate?.ok) ? "yes" : "NO") : "–",
         ok.some((r) => r.interrupt) ? ok.map((r) => `${r.interrupt?.inputKind ?? "touch"}:${r.interrupt?.phase}:${r.interrupt?.restoreJumpsAfterInput}`).join(" ") : "–",
         capCell]);
     }
   }
-  const headC = ["configuration", "arm", "valid", "return CLS median (max)", "Home column px: first visit → end", "capsule at end", "boxes still held (median)", "block read: displacement px", "document px: before leaving → end", "fresh entry (second return)", "Forward", "deliberate scroll", "input cancels restore (kind:phase:jumps after)", "capsule probe (hover)"];
+  const headC = ["configuration", "arm", "valid", "return CLS median (max)", "Home column px: first visit → end", "capsule at end", "boxes still held (median)", "block read: displacement px", "document px: before leaving → end", "second return (fresh entry)", "third return (fresh entry)", "Forward", "deliberate scroll", "input cancels restore (kind:phase:jumps after)", "capsule probe (hover)"];
   console.log(`| ${headC.join(" | ")} |\n|${headC.map(() => "---").join("|")}|`);
   for (const r of rowsC) console.log(`| ${r.join(" | ")} |`);
   const headS = ["configuration", "profile", "viewport", "A commit", "A build signature", "B commit", "B build signature", "input sha256", "corpus", "tool repo HEAD", "browser"];

@@ -66,10 +66,11 @@ export async function returnScenario(browser, script, cfg, opts = {}) {
       return summarize({ frames, shifts, touches, jumps, held, end, before: beforeLeaving, started });
     };
     const result = await leaveAndComeBack(before, opts);
-    if ((opts.returns ?? 1) > 1) {
-      // the person is where the restorer put them; they open the Post again and come back again: a new entry to Home (a new mount, the next visit of cfg.visits)
+    // opts.returns: how many times the person comes back. Every return after the first starts where the restorer put them: they open the Post again and come back again, a new entry
+    // to Home (a new mount, the next visit of cfg.visits). The second return is result.again, the third result.third.
+    for (let k = 1; k < (opts.returns ?? 1); k++) {
       const standing = await page.evaluate(() => window.__api.state());
-      result.again = await leaveAndComeBack(standing);
+      result[k === 1 ? "again" : "third"] = await leaveAndComeBack(standing);
     }
     return result;
   } finally { await page.close(); }
