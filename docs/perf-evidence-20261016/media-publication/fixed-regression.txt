@@ -1,0 +1,21 @@
+✔ primary: only published=1, nonhidden, public-tier rows enter items/count (17.115662ms)
+✔ secondary: only published=1, nonhidden, public-tier rows enter items/count (4.636777ms)
+✔ publication precedes both windows and exact count; primary wins, duplicates collapse, order is stable (8.976261ms)
+✔ existing importance, occurrence and creation ordering survives the admission filter (18.503855ms)
+✔ empty source returns no media and zero count (2.099188ms)
+✔ no admitted media returns no media and zero count (2.073332ms)
+✔ missing exact count retains the deduplicated item-count fallback (2.392616ms)
+✔ HTTP failures remain bounded to their media reads: primary (2.105785ms)
+✔ HTTP failures remain bounded to their media reads: secondary (2.507547ms)
+✔ HTTP failures remain bounded to their media reads: primary+secondary (2.491923ms)
+✔ query-construction failure degrades only the media section (2.006619ms)
+✔ engine getBundle consumer receives the same public numeric media contract (1.650593ms)
+✔ text branch keeps its existing query shape and empty term performs no reads (2.215332ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 464.906438

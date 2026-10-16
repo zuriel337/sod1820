@@ -1,0 +1,159 @@
+{
+  "task": "GPT_NUMERIC_MEDIA_PUBLICATION_20261016",
+  "branch": "gpt/numeric-media-publication-20261016",
+  "baseSha": "129056338c8d5cd10d6a124953c51f62bd39084a",
+  "implementationAndTestedSha": "8e485a8ede585593b3ec7d5a708032263861152e",
+  "sourceBlobs": {
+    "before": "b8736130a25f519e35983092ff765c883d67b4f6",
+    "after": "8256786d6967b38a395b5ebd058834c1761eb3a4",
+    "test": "f18ce21a5263fd3109c95b27af9d9164451608e8"
+  },
+  "red": {
+    "tests": 13,
+    "pass": 8,
+    "fail": 5,
+    "skipped": 0,
+    "exit": 1,
+    "onlyExpectedPublicationFailures": true
+  },
+  "green": {
+    "media": {
+      "exit": 0,
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0
+    },
+    "number-owner": {
+      "exit": 0,
+      "tests": 43,
+      "pass": 43,
+      "fail": 0,
+      "skipped": 0
+    },
+    "public-source": {
+      "exit": 0,
+      "tests": 41,
+      "pass": 41,
+      "fail": 0,
+      "skipped": 0
+    },
+    "shared-access": {
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    "world-source": {
+      "exit": 0
+    },
+    "entry-source": {
+      "exit": 0
+    },
+    "number-source": {
+      "exit": 0
+    },
+    "isolation-source": {
+      "exit": 0
+    },
+    "legacy-containment": {
+      "exit": 0
+    },
+    "build": {
+      "exit": 0
+    },
+    "built-graph": {
+      "exit": 0
+    },
+    "bundle-budget": {
+      "exit": 0,
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "A3": {
+    "pass": true,
+    "savedSpans": 5,
+    "persistenceFailureCases": 11,
+    "liveAcceptance": "NOT_RUN"
+  },
+  "traceFinish": {
+    "tests": 22,
+    "pass": 22,
+    "fail": 0,
+    "skipped": 0
+  },
+  "isolation": {
+    "osNetwork": "Docker --network none",
+    "node": "24.22.0",
+    "imageId": "sha256:64d799c5ce6cb8755c089be1692ae790b0035877605677cd6f13e4f2cbd5c44e",
+    "guards": "existing native network-guard.c and node-preload.cjs",
+    "independentAudit": "strace -f -e trace=network",
+    "audits": {
+      "old-final": {
+        "syscallLogSha256": "67718e7fdce0ac48383ef14f3e7d50624e0caec9c46085fbf393b9e37e7590c6",
+        "ipConnectOrSendCalls": 0,
+        "unixCalls": 0,
+        "netlinkCalls": 0,
+        "nativeNodeAuditBytes": 0
+      },
+      "final-regressions": {
+        "syscallLogSha256": "4e30241876f7ed728c15d80de13e1ed71fd6c9e09dec3ff3304b7eccf7f5316c",
+        "ipConnectOrSendCalls": 0,
+        "unixCalls": 2,
+        "netlinkCalls": 2,
+        "nativeNodeAuditBytes": 0
+      },
+      "acceptance": {
+        "syscallLogSha256": "391abf5262d02f7ffb22ba9a396ee7936bb9c7b7313a4db5e641a7241b6d9f80",
+        "ipConnectOrSendCalls": 0,
+        "unixCalls": 8,
+        "netlinkCalls": 0,
+        "nativeNodeAuditBytes": 0
+      }
+    }
+  },
+  "WorldEntry": {
+    "listed": 48,
+    "entry": 2,
+    "world": 46,
+    "executed": 0,
+    "result": "BLOCKED_INPUT_MISSING",
+    "privateCorpusAvailable": false,
+    "privateManifestAndReceiptsAvailable": false,
+    "publicSnapshotSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "unchangedPreflightFailure": "complete authored Bennett body and verified focus"
+  },
+  "newPublicAcquisition": {
+    "genuineResponses": 2,
+    "codeSha": "8e485a8ede585593b3ec7d5a708032263861152e",
+    "primaryRows": 16,
+    "secondaryExactCount": 29,
+    "fullRequestKeysAndRawResponses": "LOCAL_ONLY work/public-media; every key includes published=eq.1",
+    "oldRequestKeysReused": false,
+    "privateCorpusRestored": false,
+    "fullReplayCoverage": false
+  },
+  "performanceNavigation": {
+    "newMeasurements": "NOT_RUN",
+    "entrypointAttempts": "Public coverage preflight completed; stopped at missing matched baseline directories, before browser/sample collection. Private comparison corpus absent. No comparison PASS claimed."
+  },
+  "workflowReview": {
+    "count": 19,
+    "target": "gpt/research-run-trace-finish-20261016",
+    "wouldTriggerPR": [
+      "2029-isolation-gate.yml",
+      "follow-identity-isolated-db-gate.yml",
+      "number-2029-owner-gate.yml"
+    ],
+    "pushTriggers": 0,
+    "decision": "LOCAL_ONLY_NO_PUSH_NO_PR",
+    "blocker": "Number owner gate continues live GETs and broad prefix-selected RPC calls without frozen-corpus/OS/native/Node/independent audit isolation. Approved bounded acquisition does not approve that workflow."
+  },
+  "remoteCI": "NOT_RUN",
+  "release": "NO_MERGE_NO_DEPLOY_NO_PRODUCT_DB_OR_FLAG_WRITES",
+  "beforeId": "13468bc7-8d39-4675-bcb4-c7c8ea35df6d"
+}

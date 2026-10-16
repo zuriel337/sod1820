@@ -1,0 +1,260 @@
+✖ primary: only published=1, nonhidden, public-tier rows enter items/count (15.185273ms)
+✖ secondary: only published=1, nonhidden, public-tier rows enter items/count (10.307355ms)
+✖ publication precedes both windows and exact count; primary wins, duplicates collapse, order is stable (6.283692ms)
+✔ existing importance, occurrence and creation ordering survives the admission filter (7.031082ms)
+✔ empty source returns no media and zero count (3.706379ms)
+✖ no admitted media returns no media and zero count (1.969119ms)
+✔ missing exact count retains the deduplicated item-count fallback (1.893579ms)
+✔ HTTP failures remain bounded to their media reads: primary (4.049033ms)
+✔ HTTP failures remain bounded to their media reads: secondary (2.529581ms)
+✔ HTTP failures remain bounded to their media reads: primary+secondary (5.468271ms)
+✔ query-construction failure degrades only the media section (3.300471ms)
+✖ engine getBundle consumer receives the same public numeric media contract (2.752414ms)
+✔ text branch keeps its existing query shape and empty term performs no reads (1.760888ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 8
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 840.102551
+
+✖ failing tests:
+
+test at test/entity-bundle-media-publication.test.mjs:79:3
+✖ primary: only published=1, nonhidden, public-tier rows enter items/count (15.185273ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'unpublished-0',
+  +   'unpublished-1',
+  +   'unpublished-2',
+      'public-false',
+      'public-null'
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/work/numeric-media-publication-old-20261016/test/entity-bundle-media-publication.test.mjs:92:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'unpublished-0', 'unpublished-1', 'unpublished-2', 'public-false', 'public-null' ],
+    expected: [ 'public-false', 'public-null' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/entity-bundle-media-publication.test.mjs:79:3
+✖ secondary: only published=1, nonhidden, public-tier rows enter items/count (10.307355ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'unpublished-0',
+  +   'unpublished-1',
+  +   'unpublished-2',
+      'public-false',
+      'public-null'
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/work/numeric-media-publication-old-20261016/test/entity-bundle-media-publication.test.mjs:92:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'unpublished-0', 'unpublished-1', 'unpublished-2', 'public-false', 'public-null' ],
+    expected: [ 'public-false', 'public-null' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/entity-bundle-media-publication.test.mjs:104:1
+✖ publication precedes both windows and exact count; primary wins, duplicates collapse, order is stable (6.283692ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'draft0',
+  +   'draft1',
+  +   'draft2',
+  +   'draft3',
+  +   'draft4',
+  +   'draft5',
+  +   'draft6',
+  +   'draft7',
+  +   'draft8',
+  +   'draft9',
+  +   'draft10',
+  +   'draft11',
+  +   'draft12',
+  +   'draft13',
+  +   'draft14',
+  +   'draft15',
+  +   'draft16',
+  +   'draft17',
+  +   'draft18',
+  +   'draft19',
+  +   'draft20',
+  +   'draft21',
+  +   'draft22',
+  +   'draft23',
+  +   'draft24',
+  +   'draft25',
+  +   'draft26',
+  +   'draft27',
+  +   'draft28',
+  +   'draft29',
+  +   'draft30',
+  +   'draft31',
+  +   'draft32',
+  +   'draft33',
+  +   'draft34',
+  +   'draft35',
+  +   'draft36',
+  +   'draft37',
+  +   'draft38',
+  +   'draft39'
+  -   'p0',
+  -   'p1',
+  -   'p2',
+  -   'p3',
+  -   'p4',
+  -   'p5',
+  -   'p6',
+  -   'p7',
+  -   'p8',
+  -   'p9',
+  -   'p10',
+  -   'p11',
+  -   'p12',
+  -   'p13',
+  -   'p14',
+  -   'p15',
+  -   'p16',
+  -   'p17',
+  -   'p18',
+  -   'p19',
+  -   'p20',
+  -   'p21',
+  -   'p22',
+  -   'p23',
+  -   's0',
+  -   's1',
+  -   's2',
+  -   's3',
+  -   's4',
+  -   's5',
+  -   's6',
+  -   's7',
+  -   's8',
+  -   's9',
+  -   's10',
+  -   's11',
+  -   's12',
+  -   's13',
+  -   's14',
+  -   's15',
+  -   's16',
+  -   's17',
+  -   's18',
+  -   's19',
+  -   's20',
+  -   's21',
+  -   's22',
+  -   's23',
+  -   's24',
+  -   's25',
+  -   's26',
+  -   's27',
+  -   's28',
+  -   's29',
+  -   's30',
+  -   's31',
+  -   's32',
+  -   's33',
+  -   's34',
+  -   's35',
+  -   's36',
+  -   's37',
+  -   's38',
+  -   's39'
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/work/numeric-media-publication-old-20261016/test/entity-bundle-media-publication.test.mjs:110:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [
+      'draft0',  'draft1',  'draft2',  'draft3',
+      'draft4',  'draft5',  'draft6',  'draft7',
+      'draft8',  'draft9',  'draft10', 'draft11',
+      'draft12', 'draft13', 'draft14', 'draft15',
+      'draft16', 'draft17', 'draft18', 'draft19',
+      'draft20', 'draft21', 'draft22', 'draft23',
+      'draft24', 'draft25', 'draft26', 'draft27',
+      'draft28', 'draft29', 'draft30', 'draft31',
+      'draft32', 'draft33', 'draft34', 'draft35',
+      'draft36', 'draft37', 'draft38', 'draft39'
+    ],
+    expected: [
+      'p0',  'p1',  'p2',  'p3',  'p4',  'p5',  'p6',
+      'p7',  'p8',  'p9',  'p10', 'p11', 'p12', 'p13',
+      'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p20',
+      'p21', 'p22', 'p23', 's0',  's1',  's2',  's3',
+      's4',  's5',  's6',  's7',  's8',  's9',  's10',
+      's11', 's12', 's13', 's14', 's15', 's16', 's17',
+      's18', 's19', 's20', 's21', 's22', 's23', 's24',
+      's25', 's26', 's27', 's28', 's29', 's30', 's31',
+      's32', 's33', 's34', 's35', 's36', 's37', 's38',
+      's39'
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/entity-bundle-media-publication.test.mjs:143:3
+✖ no admitted media returns no media and zero count (1.969119ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'draft',
+  +   'other-state',
+  +   'unknown'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///workspace/work/numeric-media-publication-old-20261016/test/entity-bundle-media-publication.test.mjs:146:12)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'draft', 'other-state', 'unknown' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/entity-bundle-media-publication.test.mjs:183:1
+✖ engine getBundle consumer receives the same public numeric media contract (2.752414ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'published',
+  +   'unpublished'
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/work/numeric-media-publication-old-20261016/test/entity-bundle-media-publication.test.mjs:186:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'published', 'unpublished' ],
+    expected: [ 'published' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
