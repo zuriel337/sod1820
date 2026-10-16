@@ -1,0 +1,216 @@
+{
+  "taskKey": "GPT_NUMBER_OWNER_CI_ISOLATION_20261016",
+  "baseSha": "7c3f43f39147c71508ed394363a2f98f140a5859",
+  "validationIdentity": "SHA256 of all executable changed files; final commit is rerun and recorded in passive AFTER",
+  "filesSha256": {
+    ".github/workflows/number-2029-owner-gate.yml": "66621668ec952e4ebd8cde63a15fa5a66c359796de0d4f497e865f79f60f3f32",
+    "tests/number-2029-owner.spec.cjs": "e7f63e929d7fa4ae14f7d40a683b4cdb8c80be0384b0d723d214aa85e360d2fe",
+    "tests/number-owner-scenario.cjs": "3b402d9d28f633c8718e2d4f4ab508b9b987d34be945cf8217014bfec437e948",
+    "scripts/ci-isolation/number-owner.sh": "03b123330968f7d780f0c581a4a82759bff0315f21d1ce359fad4b1c01b9c6d5",
+    "scripts/ci-isolation/number-owner-snapshot.cjs": "5b72c8471ec84c5fbe22dcf97510b1e15cdb1f5cb5e146970a006679c36d6561",
+    "test/ci-isolation/number-owner.test.mjs": "f3bd268ef938c77be75a906234774e2b3487b4785a2cad106a38a070d0588b17",
+    "test/ci-isolation/number-owner-probe.mjs": "9fa87652bf5ab7c666ec04acd8d7cc76ef8b16fcc2431bac2e35bc7da06253ba"
+  },
+  "environment": {
+    "node": "24.21.0",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37, build1194",
+    "osBoundary": "docker --network none; loopback only; no route",
+    "nativeGuard": "scripts/ci-isolation/network-guard.c, unchanged",
+    "nodeGuard": "scripts/ci-isolation/node-preload.cjs, unchanged"
+  },
+  "local": {
+    "originalNodeTests": {
+      "pass": 43,
+      "fail": 0,
+      "skip": 0
+    },
+    "isolationTests": {
+      "pass": 60,
+      "fail": 0,
+      "skip": 0,
+      "newNumberCases": 9
+    },
+    "builds": {
+      "legacy": "PASS",
+      "2029": "PASS"
+    },
+    "outerAuditBytes": 0,
+    "numberScenarioTraps": {
+      "unauthorizedGet": "BLOCKED, child0/parent1, targetHits0",
+      "unknownPrefixRpc": "BLOCKED, child0/parent1, targetHits0",
+      "write": "BLOCKED, child0/parent1, targetHits0",
+      "permittedLocalAndFrozenReplay": "PASS"
+    },
+    "independentStrace": {
+      "nonLoopbackStreamConnectCalls": 0,
+      "nonLoopbackPayloadTransmissionCalls": 0,
+      "packetlessNonLoopbackUdpRouteConnectProbes": 19,
+      "rawTracePublication": "LOCAL_ONLY"
+    },
+    "browserEntryPoint": {
+      "result": "BLOCKED_INPUT",
+      "previewStarted": false,
+      "auditBytes": 0
+    }
+  },
+  "productBrowser": {
+    "suite": "tests/number-2029-owner.spec.cjs",
+    "cases": 8,
+    "executed": 0,
+    "status": "BLOCKED_INPUT, not product failure or PASS",
+    "worldEntry37of48": "Separate suite; not inherited Number coverage"
+  },
+  "remoteCI": "NOT_RUN",
+  "release": "BRANCH_ONLY; NO_PR_NO_WORKFLOW_DISPATCH_NO_MERGE_NO_DEPLOY",
+  "triggerReview": {
+    "candidateWorkflowCount": 19,
+    "workflows": [
+      {
+        "workflow": "2029-isolation-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "agent-dispatch-contract-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "community-reaction-visibility-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "daily-backup.yml",
+        "events": [
+          "workflow_dispatch",
+          "schedule"
+        ]
+      },
+      {
+        "workflow": "dependency-upgrade-radar-v2-contract-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "els-core-compatibility-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "follow-identity-isolated-db-gate.yml",
+        "events": [
+          "pull_request"
+        ]
+      },
+      {
+        "workflow": "g4-public-core-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "media-release-batch-gate.yml",
+        "events": [
+          "pull_request"
+        ]
+      },
+      {
+        "workflow": "media-thumbs.yml",
+        "events": [
+          "schedule",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "number-2029-owner-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "observability-seo-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "ocr-gallery.yml",
+        "events": [
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "post-deploy-canary.yml",
+        "events": [
+          "deployment_status",
+          "schedule",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "release-visual-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "research-sync-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "system-self-maintenance-contract-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      },
+      {
+        "workflow": "update-sitemap.yml",
+        "events": [
+          "workflow_dispatch",
+          "schedule"
+        ]
+      },
+      {
+        "workflow": "video-ingest-gate.yml",
+        "events": [
+          "pull_request",
+          "workflow_dispatch"
+        ]
+      }
+    ],
+    "branchPushTriggers": 0,
+    "gptBranchVercelDeployment": false,
+    "newRefExpectedAbsent": true
+  },
+  "coordination": {
+    "before": "fd8bbeab-520d-4c95-993a-326238b95c79",
+    "recipient": "ZURIEL",
+    "dispatchKind": null,
+    "dispatchState": null
+  },
+  "privacy": {
+    "privateCorpusAvailable": false,
+    "privateReacquisition": false,
+    "rawArtifactsCommittedOrUploaded": false
+  }
+}
