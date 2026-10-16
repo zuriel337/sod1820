@@ -5,7 +5,9 @@
 // (layoutExtent): a card that is part-way through its entrance animation is painted offset from its layout box, and a box remembered from the painted
 // extent was 6-7 px too tall for a four-card strip, which then stretched the grid rows of every later return.
 // A message (empty / unavailable) keeps the box too (the `keep` option), so what stood there does not collapse into a one-line message under the person's eyes;
-// the reservation is bounded (KEEP_RESERVE_PX) and is let go only while the box is below the viewport, where nothing the person sees can move.
+// the reservation is bounded (KEEP_RESERVE_PX) and is let go only while the box is below the viewport, where nothing the person sees can move. What the person is looking at
+// is never moved to give the space back; the next fresh entry to the surface gives it back instead: an area that ended as a message leaves a record (`messageBox`), and the box
+// of the next mount starts at the bound (entryMemory) before its first paint, where there is no earlier frame to shift from. A list that loads clears the record.
 // No read, query, request or cache is involved. Users: Home composition strips + the discovery gateways.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -23,13 +25,27 @@ export const currentViewportWidth = () => viewportWidth;
 
 const settledBox = {};
 export const readSettledBox = (key) => settledBox[key];
-export const rememberSettledBox = (key, box) => { settledBox[key] = box; };
-export const resetSettledBoxes = () => { for (const key of Object.keys(settledBox)) delete settledBox[key]; };
+// A list that settled with content: its box is what the next entry holds, and an earlier message record for it is void (the area has content again).
+export const rememberSettledBox = (key, box) => { settledBox[key] = box; delete messageBox[key]; };
+export const resetSettledBoxes = () => { for (const key of Object.keys(settledBox)) delete settledBox[key]; for (const key of Object.keys(messageBox)) delete messageBox[key]; };
+// An area that ended as a message (empty / unavailable) with more reserved than the bound: { w, vw } of the box it kept. Never data, never a measurement of the message itself.
+const messageBox = {};
+export const readMessageBox = (key) => messageBox[key];
+const rememberMessageBox = (key, record) => { messageBox[key] = record; };
 
 // Mount-time check, with NO layout read: a remembered height is only a candidate while the viewport width is the one it was
 // remembered at. The node's own width is verified by the first ResizeObserver callback (after layout, before paint), see below.
 export function rememberedHeight(memory, viewportWidth) {
   return memory && memory.vw === viewportWidth ? memory.h : null;
+}
+
+// The memory a fresh entry starts from. An area that ended as a message at this viewport width starts at the bound instead of the whole box it used to hold: the page then does
+// not carry hundreds of empty pixels from one visit to the next, and it costs nothing to see (the box is set at mount, before the first paint). With no remembered box the bound is
+// still a box (the area is then held, not drawn as loading slots); a record for another viewport width does not apply.
+export function entryMemory(memory, message, viewport, bound = KEEP_RESERVE_PX) {
+  if (!message || message.vw !== viewport) return memory;
+  const same = Boolean(memory) && memory.vw === viewport;
+  return { w: message.w, vw: message.vw, h: same ? Math.min(memory.h, bound) : bound, n: same ? memory.n : 0 };
 }
 
 // The held height was applied at `appliedWidth`; once the box has a different (visible) width it no longer describes it.
@@ -70,7 +86,7 @@ export function holdAttribute({ pending, settled, memory, count }) {
 // person was looking at instead of collapsing the page under them; it is only the box this mount already held (no hold was applied = nothing to keep).
 export function useSettledBox(key, { pending = false, settled = false, count = 0, keep = false } = {}) {
   const latest = useRef({ settled, count });
-  const live = useRef({ node: null, observer: null, appliedWidth: null, appliedViewport: null, appliedCount: null, appliedHeight: null, lastHeight: 0, released: false, unsubscribe: null });
+  const live = useRef({ node: null, observer: null, appliedWidth: null, appliedViewport: null, appliedCount: null, appliedHeight: null, lastHeight: 0, lastWidth: 0, released: false, unsubscribe: null });
   // released: this mount's hold was dropped because the width changed. The caller then renders its own loading slots at the new
   // width (held is false) instead of leaving an empty box, in the same frame (flushSync), so nothing collapses and re-grows.
   const [released, setReleased] = useState(false);
@@ -94,6 +110,7 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     if (!node) return;
     const box = node.getBoundingClientRect(), width = Math.round(box.width);
     state.lastHeight = Math.round(box.height);   // what the area measured last: the reservation a message keeps when nothing was held at mount
+    state.lastWidth = width;
     // The width changed while mounted (rotation, resize, another breakpoint): a height remembered for the old width would
     // hold the wrong amount of space, so it is released before anything is measured again.
     if (shouldReleaseHold(state.appliedWidth, width)) release(synchronous);
@@ -119,7 +136,7 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     state.observer?.disconnect(); state.observer = null; state.unsubscribe?.(); state.unsubscribe = null;
     state.node = node; state.appliedWidth = null; state.appliedViewport = null; state.appliedCount = null; state.appliedHeight = null;
     if (!node) return;
-    const memory = readSettledBox(key);
+    const memory = entryMemory(readSettledBox(key), readMessageBox(key), viewportWidth);
     const height = state.released ? null : rememberedHeight(memory, viewportWidth);
     if (height != null) {
       node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`); state.appliedWidth = memory.w; state.appliedViewport = memory.vw; state.appliedCount = memory.n; state.appliedHeight = height;
@@ -137,6 +154,9 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     const full = state.appliedHeight ?? state.lastHeight;
     if (!(full > 0)) return undefined;
     node.style.setProperty(SETTLED_HEIGHT_VAR, `${full}px`);
+    // Nothing the person is looking at moves now; the next fresh entry to the surface starts this area at the bound (entryMemory), before its first paint.
+    const recordedWidth = state.lastWidth || state.appliedWidth;
+    if (full > KEEP_RESERVE_PX && recordedWidth > 0) rememberMessageBox(key, { w: recordedWidth, vw: viewportWidth });
     let observer = null;
     if (full > KEEP_RESERVE_PX && typeof IntersectionObserver !== "undefined") {
       // The reservation is let go only while the area is BELOW the viewport: then nothing the person sees can move. An area above the viewport keeps it: shrinking it moves
@@ -155,6 +175,6 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
   useEffect(() => () => { live.current.observer?.disconnect(); live.current.unsubscribe?.(); }, []);
   // held: a remembered box exists for this viewport width, so the rule in homeComposition2029.css already reserves the space and the
   // caller does not need to render loading slots (each slot is DOM that React has to create at the moment Home mounts).
-  const memory = readSettledBox(key);
+  const memory = entryMemory(readSettledBox(key), readMessageBox(key), viewportWidth);
   return { ref, hold: holdAttribute({ pending: pending || keep, settled, memory, count }), held: !released && rememberedHeight(memory, viewportWidth) != null };
 }

@@ -8,7 +8,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { bundle, returnScenario, CURRENT_RESTORER, PREVIOUS_RESTORER, READING } from "./fixtures/scroll-return-harness/driver.mjs";
+// the settled-box hook as it was before the next fresh entry gave the reserved space back (negative control for the fresh-entry tests)
+const HOOK_F60D0788 = fileURLToPath(new URL("./fixtures/settled-box-harness/useSettledBox.f60d0788.js", import.meta.url));
 
 let chromium = null;
 for (const base of [import.meta.url, `file://${process.env.PLAYWRIGHT_DIR || "/opt/node-tools"}/node_modules/`]) {
@@ -17,10 +20,10 @@ for (const base of [import.meta.url, `file://${process.env.PLAYWRIGHT_DIR || "/o
 const executablePath = process.env.PERF_CHROME || ["/opt/pw-browsers/chromium-1194/chrome-linux/chrome"].find(existsSync);
 const skip = !chromium || !executablePath;
 
-let browser = null, current = null, previous = null;
+let browser = null, current = null, previous = null, hookBefore = null;
 test.before(async () => {
   if (skip) return;
-  [current, previous] = await Promise.all([bundle({ restorer: CURRENT_RESTORER }), bundle({ restorer: PREVIOUS_RESTORER })]);
+  [current, previous, hookBefore] = await Promise.all([bundle({ restorer: CURRENT_RESTORER }), bundle({ restorer: PREVIOUS_RESTORER }), bundle({ restorer: CURRENT_RESTORER, hook: HOOK_F60D0788 })]);
   browser = await chromium.launch({ executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
 });
 test.after(async () => { await browser?.close(); });
@@ -143,4 +146,38 @@ test("an unmarked page behaves exactly as with the previous restorer, on every s
     assert.ok(Math.abs(now.cls - before.cls) <= 0.02, `${name}: CLS ${now.cls} vs ${before.cls}`);
     assert.deepEqual(now.programmaticJumps.map((j) => j.to), before.programmaticJumps.map((j) => j.to), `${name}: the same programmatic scrolls`);
   }
+});
+
+// ---- the next fresh entry gives the reserved space back; the visit that failed is not moved ----
+// returns: 2 = the person opens the Post and comes back twice; the second return is a new mount of Home (the next visit of the config)
+const entries = (...list) => ({ visits: [first, ...list] });
+const twice = (script, cfg) => returnScenario(browser, script, cfg, { returns: 2 });
+const above = (ms) => ({ updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: ok(ms, 3) });
+
+test("the areas above the reading place failed on the return and fail again on the next entry: the next entry starts them at the bound (a shorter page), the reading place is exactly where it was, and nothing moves while it settles", { skip }, async () => {
+  const r = await twice(current, entries(above(300), above(300)));
+  assert.ok(displaced(r) <= 12 && r.cls <= 0.01, `the return that failed is as it was: displaced ${displaced(r)}px, CLS ${r.cls}`);
+  assert.ok(r.again.docH < r.docH - 300, `the document gives back the blank that stood above the reading place (${r.docH}px -> ${r.again.docH}px)`);
+  assert.ok(displaced(r.again) <= 12, `the reading place on the new entry: displaced ${displaced(r.again)}px`);
+  assert.ok(r.again.cls <= 0.01, `nothing moved while the new entry settled: CLS ${r.again.cls}`);
+});
+test("negative control: with the settled-box hook of f60d0788 the next entry keeps the blank above the reading place that the new one gives back", { skip }, async () => {
+  // the page around the hook (the harness keeps what the previous visit showed, like the product) shortens the next entry on its own; what separates the two hooks is the blank the boxes carried
+  const now = await twice(current, entries(above(300), above(300))), before = await twice(hookBefore, entries(above(300), above(300)));
+  assert.ok(before.again.docH - now.again.docH >= 300, `the old hook ends the next entry ${before.again.docH - now.again.docH}px taller (${before.again.docH}px against ${now.again.docH}px)`);
+  assert.ok(displaced(before.again) <= 12, "the old hook keeps the reading place too: what it fails to do is give the space back");
+});
+test("the entry after a failed return that loads fine again grows back to its content, the reading place stays and the space comes back as content", { skip }, async () => {
+  const r = await twice(current, entries(above(300), { updates: ok(300, 4), notable: ok(300, 4), hero: ok(300), gateways: ok(300, 3) }));
+  assert.ok(displaced(r.again) <= 12, `displaced ${displaced(r.again)}px`);
+  assert.ok(r.again.cls <= 0.1, `CLS ${r.again.cls}`);
+  assert.ok(Math.abs(r.again.docH - r.beforeDocH) <= 30, `the page is its content again (${r.beforeDocH}px at the first visit, ${r.again.docH}px now)`);
+});
+test("every read fails, the block being read among them: the next entry gives the space back and the person ends at the same block, within the blank that was given back inside it", { skip }, async () => {
+  const all = (ms) => ({ updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: bad(ms) });
+  const r = await twice(current, entries(all(300), all(300)));
+  assert.ok(displaced(r) <= 12 && r.cls <= 0.01, `the return that failed: displaced ${displaced(r)}px, CLS ${r.cls}`);
+  assert.ok(r.again.docH < r.docH, `the document is shorter (${r.docH}px -> ${r.again.docH}px)`);
+  assert.ok(Math.abs(r.again.finalTop - r.again.wantTop) <= 80, `the reading block's top is ${r.again.finalTop}px (it was ${r.again.wantTop}px): the blank inside the block was given back`);
+  assert.ok(r.again.cls <= 0.01, `CLS ${r.again.cls}`);
 });

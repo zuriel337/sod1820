@@ -111,3 +111,56 @@ test("the runner has no mechanism of its own: shared policy only, no empty-body 
   assert.doesNotMatch(source, /o\.missKeys\s*=/);
   assert.match(source, /mode: 0o600/);
 });
+
+// ---- the desktop profile and the signatures (closing round) ----
+test("the profile is explicit: an unknown profile, an input the profile cannot make and a malformed arm commit are refused before anything starts", { skip }, () => {
+  const input = corpus({ [`GET ${SB}/rest/v1/site_flags?select=* `]: { status: 200, type: "application/json", body: json([]) } });
+  const unknown = run(input, ["--profile", "tablet"]);
+  assert.notEqual(unknown.status, 0);
+  assert.match(unknown.text, /--profile mobile\|desktop/);
+  const touchOnDesktop = run(input, ["--profile", "desktop", "--input", "touch"]);
+  assert.notEqual(touchOnDesktop.status, 0);
+  assert.match(touchOnDesktop.text, /--input wheel\|key for the desktop profile/);
+  const wheelOnMobile = run(input, ["--input", "wheel"]);
+  assert.notEqual(wheelOnMobile.status, 0);
+  assert.match(wheelOnMobile.text, /--input touch for the mobile profile/);
+  const shaless = run(input, ["--mode", "load", "--armShas", "A=not-a-commit"]);   // a cold load needs no departure post, so the corpus check passes and the commit check is the one that stops it
+  assert.notEqual(shaless.status, 0);
+  assert.match(shaless.text, /--armShas A=<40-hex commit>/);
+  assert.equal(unknown.wrote || touchOnDesktop.wrote || wheelOnMobile.wrote || shaless.wrote, false);
+});
+
+test("the desktop profile is a mouse and a keyboard, not a wide touch screen; the mobile profile is the one every earlier result was taken with", () => {
+  const source = readFileSync(runner, "utf8");
+  assert.match(source, /isMobile: !DESKTOP, hasTouch: !DESKTOP/);
+  assert.match(source, /deviceScaleFactor: DPR/);
+  assert.match(source, /const PROFILE = A\.profile \|\| 'mobile'/);
+  assert.match(source, /DPR = A\.dpr \? \+A\.dpr : \(DESKTOP \? 1 : 2\)/);
+  // every scroll the person makes goes through one helper: a touch swipe on mobile, wheel notches on desktop; nothing else calls the touch API for scrolling
+  assert.match(source, /async function scrollBy\(page, cdp, dist\) \{\n  if \(!DESKTOP\) return swipe\(cdp, dist\);\n  await page\.mouse\.move\(/);
+  assert.match(source, /await page\.mouse\.wheel\(0, dist \/ n\)/);
+  assert.equal((source.match(/swipe\(cdp,/g) || []).length, 2, "swipe is defined once and called only by scrollBy");
+  // opening the departure control: a tap on mobile, a mouse move and a click on desktop
+  assert.match(source, /async function openControl\(page, x, y\) \{\n  if \(!DESKTOP\) return page\.touchscreen\.tap\(x, y\);\n  await page\.mouse\.move\(x, y\); await sleep\(60\); return page\.mouse\.click\(x, y\);/);
+  assert.doesNotMatch(source, /await page\.touchscreen\.tap\(link\.x, link\.y\)/);
+  // the input that interrupts a restore: a key press or wheel notches on desktop; all four kinds of input are recorded by the page
+  assert.match(source, /if \(INPUT_KIND === 'key'\) \{ await page\.keyboard\.press\('PageDown'\); return; \}/);
+  for (const kind of ["touchstart", "wheel", "keydown", "pointerdown"]) assert.match(source, new RegExp(`addEventListener\\('${kind}'`));
+});
+
+test("every result file carries its signatures; a value that is not known is null, never filled in afterwards", () => {
+  const source = readFileSync(runner, "utf8");
+  assert.match(source, /fs\.writeFileSync\(A\.out, JSON\.stringify\(\{ profile, signatures, arms, runs \}, null, 1\)\);/);
+  assert.match(source, /commit: ARM_SHAS\[n\] \|\| null/, "an arm without a commit is recorded as null");
+  assert.match(source, /stableDuringRun: buildAtStart\[n\]\.signature === buildAtEnd\[n\]\.signature/);
+  assert.match(source, /corpusClass: CORPUS_CLASS/);
+  assert.match(source, /const CORPUS_CLASS = A\.corpus \|\| null;   \/\/ 'synthetic' \| 'central' \| \.\.\.: said by the caller, never guessed/);
+  for (const field of ["fixtureSha256", "fixtureFileSha256", "runnerSha256", "readinessSha256", "repoHead", "repoTrackedFilesDirty", "playwright", "cpuModel", "cpuThrottle", "network", "browser: 'Chromium '"]) assert.ok(source.includes(field), field);
+  // the build-artifact signature is taken from the dist trees themselves, not from a name or a path
+  assert.match(source, /treeSignature\(path\.resolve\(arms\[n\]\)\)/);
+  assert.match(source, /sha256File\(f\)/);
+  const matrix = readFileSync(join(repo, "docs/perf-evidence-20261016/home-stability-v3/run-matrix.sh"), "utf8");
+  assert.match(matrix, /SIG="--profile \$PROFILE"/);
+  assert.match(matrix, /--armShas \$SHAS/);
+  assert.match(matrix, /--corpus \$CORPUS/);
+});

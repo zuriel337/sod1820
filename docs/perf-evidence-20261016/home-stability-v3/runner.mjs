@@ -18,10 +18,15 @@
 //   * scenarios: --late MS (reads after Back answer late), --gateDelay MS, --gate closed (from the Back phase only), --resize W (viewport width change 800 ms after Back),
 //     --interruptAt MS (a swipe MS after Back; the sample proves early-input cancellation only if the touch reached the page before the restore jump), --mode load (cold load),
 //     --state normal|empty|error|outage (outage = every REST read except the flags fails; --stateFrom back: only the return's reads), --post auto|/post/slug (departure; auto = first visible Home post control whose complete body is in the corpus).
+//   * --profile mobile|desktop (default mobile, the profile every earlier result was taken with): mobile = touch (isMobile, hasTouch, CDP touch swipes, DPR 2); desktop = a person with a mouse and a keyboard
+//     (isMobile=false, hasTouch=false, DPR 1 unless --dpr, mouse wheel and a mouse click, no touch event at all). --input wheel|key (desktop only; default wheel) picks what interrupts the restore in --interruptAt.
+//   * SIGNATURES — every result file says what produced it: --armShas A=<commit>,B=<commit> (or SOD_ARM_SHAS; an arm without one is recorded as null, never guessed), the build-artifact signature of each dist
+//     (sha256 over the sorted "relative path, file sha256" lines), the input signature (fixture sha256 + the corpus the runner admitted), the runner / readiness file hashes, the repository HEAD and whether the tree was dirty, and the environment.
 // usage: see above; further: --width 390 --height 844 --theme dark|light|parchment --reduced 1 --horizon MS --headers 1 --traceDir DIR --private FILE
 // Method (kept from v2): route handlers never await the renderer; controller wall stamps around real commands; observers installed before any navigation;
 // no scrollIntoView; fixed wall horizon after Back.
 import { createRequire } from 'node:module'; import fs from 'node:fs'; import os from 'node:os'; import zlib from 'node:zlib'; import crypto from 'node:crypto'; import path from 'node:path';
+import { execFileSync } from 'node:child_process'; import { fileURLToPath } from 'node:url';
 import { serve } from '../../../scripts/perf-execution-2029/serve.mjs';
 import { READINESS_SRC, READINESS_VERSION } from './readiness.mjs';
 import { admitCorpus, missDigest, requestShape } from './fixtures.mjs';
@@ -37,8 +42,13 @@ const MODE = A.mode || 'back', GATE_DELAY = +(A.gateDelay || 0), GATE_CLOSED = A
 const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal', REDUCED = A.reduced === '1';
 const STATE_FROM_BACK = A.stateFrom === 'back';
 const SHOTS = A.shots || null;   // --shots <dir>: a screenshot of the first viewport at the end of each sample (for looking at, not committed)
+const CAPSULE = A.capsule === '1';   // --capsule 1 (desktop profile): after the return has settled, open the companion capsule the way a person does (hover), read the rail and the content width, leave it
 const FORWARD = A.forward === '1', DELIBERATE = A.deliberate === '1';   // --forward 1: Forward to the Post, then Back again; --deliberate 1: a deliberate scroll down and up once the return has settled
 const INTERRUPT_AT = A.interruptAt != null ? +A.interruptAt : (A.interrupt === '1' ? 900 : null);
+const PROFILE = A.profile || 'mobile', DESKTOP = PROFILE === 'desktop', DPR = A.dpr ? +A.dpr : (DESKTOP ? 1 : 2);
+const INPUT_KIND = A.input || (DESKTOP ? 'wheel' : 'touch');   // what the person does to interrupt a restore (--interruptAt)
+if (!['mobile', 'desktop'].includes(PROFILE)) { console.error('--profile mobile|desktop'); process.exit(2); }
+if (!(DESKTOP ? ['wheel', 'key'] : ['touch']).includes(INPUT_KIND)) { console.error(`--input ${DESKTOP ? 'wheel|key' : 'touch'} for the ${PROFILE} profile`); process.exit(2); }
 if (!['normal', 'empty', 'error', 'outage'].includes(STATE)) { console.error('--state normal|empty|error|outage'); process.exit(2); }
 if (!A.fx) { console.error('--fx <snapshot.json.gz> required (an exact, decodable corpus; there is no default)'); process.exit(2); }
 const FX = path.resolve(A.fx);
@@ -61,13 +71,26 @@ const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers
 const shortShape = (key) => requestShape(key).replace(/^(GET|HEAD|POST|OPTIONS) [^/]+\/(?:rest\/v1\/)?/, '$1 ').slice(0, 96);
 const arms = Object.fromEntries((A.arms || '').split(',').filter(Boolean).map(s => s.split('=')));
 const armNames = Object.keys(arms); if (!armNames.length) { console.error('--arms A=dist,B=dist required'); process.exit(2); }
+// ---- signatures: what produced this result. Nothing is filled in afterwards: a value that is not known stays null. ------------------------------------------
+const HERE_FILE = fileURLToPath(import.meta.url), HERE_DIR = path.dirname(HERE_FILE);
+const sha256File = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+function treeSignature(dir) {
+  const files = []; const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (e.isFile()) files.push(f); } }; walk(dir);
+  const lines = files.map((f) => `${path.relative(dir, f).split(path.sep).join('/')}\t${sha256File(f)}`).sort();
+  return { signature: crypto.createHash('sha256').update(lines.join('\n') + '\n').digest('hex'), files: lines.length, bytes: files.reduce((n, f) => n + fs.statSync(f).size, 0) };
+}
+const ARM_SHAS = Object.fromEntries(String(A.armShas || process.env.SOD_ARM_SHAS || '').split(',').filter(Boolean).map((x) => x.split('=')));
+if (Object.entries(ARM_SHAS).some(([k, v]) => !arms[k] || !/^[0-9a-f]{40}$/.test(v || ''))) { console.error('--armShas A=<40-hex commit>,B=<40-hex commit> (an arm of --arms; an unknown commit is simply left out)'); process.exit(2); }
+const CORPUS_CLASS = A.corpus || null;   // 'synthetic' | 'central' | ...: said by the caller, never guessed
+const buildAtStart = Object.fromEntries(armNames.map((n) => [n, treeSignature(path.resolve(arms[n]))]));
+const git = (args) => { try { return execFileSync('git', args, { cwd: HERE_DIR, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return null; } };
 const servers = {}; for (const n of armNames) { const s = await serve(path.resolve(arms[n])); servers[n] = { ...s, origin: `http://127.0.0.1:${s.port}` }; }
 const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: browserArgs });
 const med = a => { const s = a.filter(x => x != null && !Number.isNaN(x)).sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : null; };
 const privateMisses = [];
 
 // ---- in-page instrumentation (installed before any navigation) -------------------------------------------------------
-const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],touch:[],jumps:[],sc:[],paint:[],ord:[],poll:true,t0:performance.timeOrigin};
+const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],touch:[],kinds:[],jumps:[],sc:[],paint:[],ord:[],poll:true,t0:performance.timeOrigin};
 const lg=(k)=>{if(m.ord.length<3000)m.ord.push([Math.round(performance.now()*10)/10+performance.timeOrigin,k,Math.round(scrollY),document.documentElement?document.documentElement.scrollHeight:0])};
 const D=n=>{if(!n||!n.tagName)return String(n&&n.nodeName);let s=n.tagName.toLowerCase();if(typeof n.className==='string'&&n.className)s+='.'+n.className.trim().split(/\\s+/).slice(0,2).join('.');const l=n.getAttribute&&n.getAttribute('aria-label');if(l)s+='['+l.slice(0,14)+']';return s};
 const ep=t=>Math.round((performance.timeOrigin+t)*10)/10;
@@ -86,7 +109,8 @@ let last='';const loop=()=>{const root=document.querySelector("[data-experience-
    nota:[...document.querySelectorAll('.h29-notable > *')].map(e=>rh(e)),
    gw:[...document.querySelectorAll('.dg29-gateway')].map(e=>[rh(e),e.querySelectorAll('a.dg29-source,a.dg29-language-preview').length,rh(e.querySelector('.dg29-sources')||e),!!e.querySelector('[role=status]')]),
    dim:[...document.querySelectorAll('.dg29-dimension')].map(e=>[rh(e),e.querySelectorAll('.dg29-dimension-source').length,!!e.querySelector('[role=status]')]),
-   heroKids:[...document.querySelectorAll('.h29-hero > *')].map(e=>[D(e),rh(e)])};
+   heroKids:[...document.querySelectorAll('.h29-hero > *')].map(e=>[D(e),rh(e)]),
+   frame:window.__frame?window.__frame():null};
   const key=JSON.stringify(kids)+JSON.stringify(det)+Math.round(scrollY)+document.documentElement.scrollHeight;
   if(key!==last){last=key;if(m.geo.length<4000)m.geo.push({t:ep(performance.now()),y:Math.round(scrollY),dh:document.documentElement.scrollHeight,k:kids,det})}}
  lg('raf');if(m.poll)rd();pch.port2.postMessage(0);requestAnimationFrame(loop)};
@@ -96,6 +120,10 @@ requestAnimationFrame(loop);
 ${READINESS_SRC}
 // paint / LCP
 new PerformanceObserver(l=>{for(const e of l.getEntries())m.lcp={t:ep(e.startTime),size:e.size,el:D(e.element),url:(e.url||'').slice(-60)}}).observe({type:'largest-contentful-paint',buffered:true});
+// the System Frame around the surface: what it is (classes), where the content column and the companion / context rail are, and how wide (a column that changes width changes every box in it)
+window.__frame=()=>{const q=s=>document.querySelector(s),rr=e=>{if(!e)return null;const b=e.getBoundingClientRect();return {x:Math.round(b.left),w:Math.round(b.width),h:Math.round(b.height)}};
+ const root=q('.sod29-root'),comp=q('aside.sod29-companion');
+ return {root:root?[...root.classList].filter(c=>/^(has-companion|companion-|sidebar-collapsed|surface-|has-tool-dock)/.test(c)).join(' '):null,stage:rr(q('.sod29-main-stage')),stageCls:(q('.sod29-main-stage')||{}).className||null,main:rr(q('.sod29-main')),content:rr(q('.sod29-content')),h29:rr(q('.h29')),companion:rr(comp),companionCls:comp?comp.className:null,rail:rr(q('aside.sod29-surface-context-rail')),sidebar:rr(q('.sod29-sidebar')),vw:innerWidth}};
 window.__post=()=>{const e=document.querySelector("[data-experience-capability='post-master-reading-stage']");return !!(e&&e.innerText.length>800)};
 window.__wait=(kind,ms=30000)=>new Promise(res=>{let done=false;const chk=()=>kind==='post'?window.__post():(window.__ready()||{})[kind];
  const fin=v=>{if(done)return;done=true;mo2.disconnect();clearInterval(iv);res({ok:v,t:ep(performance.now())})};
@@ -108,7 +136,12 @@ window.__resetReady=()=>{m.ready={};m.poll=true};
 // order of events around a layout change (diagnostic): DOM mutations, ResizeObserver delivery on the root, animation frames, programmatic scrolls
 const startOrd=()=>{new MutationObserver(()=>lg('mo')).observe(document.documentElement,{childList:true,subtree:true,attributes:true});new ResizeObserver(()=>lg('ro0')).observe(document.documentElement)};if(document.documentElement)startOrd();else document.addEventListener('DOMContentLoaded',startOrd);
 // user input and programmatic scroll jumps (the scroll restorer's scrollTo), for the early-input cancellation check
-window.addEventListener('touchstart',()=>m.touch.push(ep(performance.now())),{capture:true,passive:true});
+// every kind of input the restorer cancels on: a touch, a wheel, a key, a mouse press (m.touch keeps the times, m.kinds the kind)
+{const inp=k=>{m.touch.push(ep(performance.now()));m.kinds.push(k)};
+window.addEventListener('touchstart',()=>inp('touch'),{capture:true,passive:true});
+window.addEventListener('wheel',()=>inp('wheel'),{capture:true,passive:true});
+window.addEventListener('keydown',()=>inp('key'),{capture:true,passive:true});
+window.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')inp('pointer')},{capture:true,passive:true});}
 window.addEventListener('scroll',()=>{if(m.sc.length<6000)m.sc.push([ep(performance.now()),Math.round(scrollY)])},{passive:true});
 const nativeScrollTo=window.scrollTo.bind(window);window.scrollTo=function(...a){lg('scrollTo>'+(a[0]&&typeof a[0]==='object'?a[0].top:a[1]));m.jumps.push({t:ep(performance.now()),to:a[0]&&typeof a[0]==='object'?a[0].top:a[1],from:Math.round(scrollY)});return nativeScrollTo(...a)};
 try{window.__target=sessionStorage.getItem('__homeTarget')||null}catch(_){window.__target=null}
@@ -132,7 +165,7 @@ const stateRow = (key, row, phase) => {
   return { status: 500, type: 'application/json', body: Buffer.from('{"message":"fixture injected failure"}').toString('base64') };
 };
 async function newSample(origin, ctl) {
-  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, serviceWorkers: 'block', locale: 'he-IL', timezoneId: 'Asia/Jerusalem', reducedMotion: REDUCED ? 'reduce' : 'no-preference' });
+  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: DPR, isMobile: !DESKTOP, hasTouch: !DESKTOP, serviceWorkers: 'block', locale: 'he-IL', timezoneId: 'Asia/Jerusalem', reducedMotion: REDUCED ? 'reduce' : 'no-preference' });
   await ctx.addInitScript(INIT); await ctx.addInitScript(`try{localStorage.setItem('sod-theme','${THEME}')}catch(_){}`);
   await installTransportBoundary(ctx);
   const page = await ctx.newPage(); const cdp = await ctx.newCDPSession(page);
@@ -185,6 +218,22 @@ async function swipe(cdp, dist) { const x = Math.round(W / 2); let y = dist < 0 
   for (let i = 0; i < n; i++) { y -= dist / n; await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] }); await new Promise(r => setTimeout(r, 16)); }
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// A scroll the person makes (dist > 0 = down): a touch swipe on the mobile profile, mouse wheel notches on the desktop profile (the same fixed script for every arm).
+async function scrollBy(page, cdp, dist) {
+  if (!DESKTOP) return swipe(cdp, dist);
+  await page.mouse.move(Math.round(W / 2), Math.round(H / 2)); const n = 24;
+  for (let i = 0; i < n; i++) { await page.mouse.wheel(0, dist / n); await sleep(16); }
+}
+// What the person does while a return is being placed: the profile's own input (touch swipe; wheel or keyboard on the desktop profile).
+async function userInput(page, cdp) {
+  if (INPUT_KIND === 'key') { await page.keyboard.press('PageDown'); return; }
+  return scrollBy(page, cdp, 400);
+}
+// Open the departure control the way the profile's person does: a tap, or a mouse move and a click.
+async function openControl(page, x, y) {
+  if (!DESKTOP) return page.touchscreen.tap(x, y);
+  await page.mouse.move(x, y); await sleep(60); return page.mouse.click(x, y);
+}
 function sessionWindowMax(entries) { let best = 0, cur = 0, start = null, last = null;
   for (const e of [...entries].sort((a, b) => a.t - b.t)) { if (start != null && (e.t - last >= 1000 || e.t - start >= 5000)) { cur = 0; start = null; } if (start == null) start = e.t; cur += e.v; last = e.t; best = Math.max(best, cur); }
   return +best.toFixed(4); }
@@ -215,13 +264,14 @@ async function oneSample(arm, idx) {
     o.homeReadyEpoch = { usable: await page.evaluate(() => window.__r.ready.usable), dgSettled: await page.evaluate(() => window.__r.ready.dgSettled), navStart: nav0 };
     await sleep(2200);   // explicit setup settle (not part of measured action)
     await page.evaluate(IDENTITY_SRC); const identityBefore = await page.evaluate(() => window.__identity());
+    o.frameFirstVisit = await page.evaluate(() => window.__frame()).catch(() => null);
     o.holdsBefore = await page.evaluate(() => window.__holds()).catch(() => null);   // every remembered box on the first visit, with the width it has: a return at another width releases the hold
     const eligible = POST_ARG && POST_ARG !== 'auto' ? [decodeURIComponent(POST_ARG.replace(/^\/post\//, ''))] : [...COMPLETE_POSTS];
     // reach the departure position by real touch swipes (same fixed script for every arm)
-    for (let i = 0; i < 3; i++) { await swipe(cdp, 600); await sleep(250); } await sleep(500);
-    let link = null; for (let i = 0; i < 10 && !link; i++) { link = await visibleLink(page, eligible); if (!link) { await swipe(cdp, 300); await sleep(350); } }
+    for (let i = 0; i < 3; i++) { await scrollBy(page, cdp, 600); await sleep(250); } await sleep(500);
+    let link = null; for (let i = 0; i < 10 && !link; i++) { link = await visibleLink(page, eligible); if (!link) { await scrollBy(page, cdp, 300); await sleep(350); } }
     // a wide page can be passed by the fixed downward script (the control is higher up than on a phone): look back up before giving up
-    for (let i = 0; i < 16 && !link; i++) { await swipe(cdp, -300); await sleep(350); link = await visibleLink(page, eligible); }
+    for (let i = 0; i < 16 && !link; i++) { await scrollBy(page, cdp, -300); await sleep(350); link = await visibleLink(page, eligible); }
     await sleep(800);
     link = await visibleLink(page, eligible);
     if (!link) { o.departDiag = await page.evaluate(([sel, vh]) => ({ vh, y: Math.round(scrollY), dh: document.documentElement.scrollHeight, links: [...document.querySelectorAll(sel)].map((e) => { const r = e.getBoundingClientRect(); return { slug: decodeURIComponent((e.getAttribute('href') || '').replace(/^\/post\//, '')).slice(0, 40), top: Math.round(r.top), bottom: Math.round(r.bottom), w: Math.round(r.width), h: Math.round(r.height) }; }) }), [HOME_POST, H]).catch(() => null); o.invalid.push('no really-visible Home post control for departure (with a complete body in the corpus)'); throw new Error('no visible control'); }
@@ -229,13 +279,13 @@ async function oneSample(arm, idx) {
     o.depart = { readingBlock, href: link.href, anchorText: link.anchorText, anchorTopBefore: link.anchorTop, linkTop: link.top, scrollY: await page.evaluate(() => Math.round(scrollY)), docH: await page.evaluate(() => document.documentElement.scrollHeight), blocksBefore: (await page.evaluate(() => { const g = window.__r.geo; return g.length ? g[g.length - 1].k : null; })) };
     // REAL tap (touch) at the control; controller timestamps immediately around the command
     const tapMono0 = performance.now(), tapWall0 = Date.now();
-    await page.touchscreen.tap(link.x, link.y);
+    await openControl(page, link.x, link.y);
     const tapMono1 = performance.now(), tapWall1 = Date.now();
     await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => o.invalid.push('no navigation to /post/ after tap'));
     const pr = await page.evaluate(() => window.__wait('post')); if (!pr.ok) o.invalid.push('post never became readable');
     o.postRoute = { path: decodeURIComponent(await page.evaluate(() => location.pathname)), tapCmdMs: Math.round(tapMono1 - tapMono0), tapToPostReadyMs: Math.round(pr.t - tapWall0), postTextLen: await page.evaluate(() => (document.querySelector("[data-experience-capability='post-master-reading-stage']") || { innerText: '' }).innerText.length), postDocH: await page.evaluate(() => document.documentElement.scrollHeight) };
     await sleep(3000);   // explicit settle on the Post
-    for (let i = 0; i < 2; i++) { await swipe(cdp, 700); await sleep(300); } await sleep(600);
+    for (let i = 0; i < 2; i++) { await scrollBy(page, cdp, 700); await sleep(300); } await sleep(600);
     o.postY = await page.evaluate(() => Math.round(scrollY));
     // ---- measured action: actual browser Back ----
     ctl.phase = 'back'; await page.evaluate((target) => { try { sessionStorage.setItem('__homeTarget', target); } catch (_) {} window.__target = target; window.__resetReady(); }, link.anchorText);
@@ -247,13 +297,13 @@ async function oneSample(arm, idx) {
     if (RESIZE_TO) { await sleep(800); const before = await page.evaluate(() => window.__holds()); await page.setViewportSize({ width: RESIZE_TO, height: H }); await sleep(600); const after = await page.evaluate(() => window.__holds());
       o.resize = { from: W, to: RESIZE_TO, before, after, staleVars: after.filter(h => h.v !== '').length, excess: after.map(h => h.nat == null ? null : h.h - h.nat) }; }
     let interruptSent = null;
-    if (INTERRUPT_AT != null) { const wait = INTERRUPT_AT - (Date.now() - bWall0); if (wait > 0) await sleep(wait); interruptSent = Date.now() - bWall0; await swipe(cdp, 400); await sleep(400); }
+    if (INTERRUPT_AT != null) { const wait = INTERRUPT_AT - (Date.now() - bWall0); if (wait > 0) await sleep(wait); interruptSent = Date.now() - bWall0; await userInput(page, cdp); await sleep(400); }
     // poll the visible content anchor through the whole horizon
     const traj = []; const deadline = bWall0 + HORIZON_MS;
     while (Date.now() < deadline) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), dh: document.documentElement.scrollHeight, a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj.push([Date.now() - bWall0, p.y, p.dh, p.a.found ? p.a.top : null]); await sleep(120); }
     if (TRACE_DIR) { const buf = await browser.stopTracing(); fs.mkdirSync(TRACE_DIR, { recursive: true }); fs.writeFileSync(path.join(TRACE_DIR, `${arm}-${idx}.trace.json.gz`), zlib.gzipSync(buf)); }
     const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1), paint: m.paint.filter(x => x.t >= w0 - 50 && x.t <= w1 + 300), ord: m.ord.filter(x => x[0] >= w0 && x[0] <= w1),
-      touch: m.touch.filter(t => t >= w0), jumps: m.jumps.filter(j => j.t >= w0), sc: m.sc.filter(s => s[0] >= w0) }; }, [bWall0, bWall0 + HORIZON_MS]);
+      touch: m.touch.filter(t => t >= w0), touchKinds: m.kinds.filter((_, i) => m.touch[i] >= w0), jumps: m.jumps.filter(j => j.t >= w0), sc: m.sc.filter(s => s[0] >= w0) }; }, [bWall0, bWall0 + HORIZON_MS]);
     const sum = rec.cs.reduce((s, x) => s + x.v, 0);
     o.actionWindowShiftSum = +sum.toFixed(4); o.cls = sessionWindowMax(rec.cs); o.shifts = rec.cs; o.mut = rec.mut; o.geo = rec.geo; o.geoPre = rec.geoPre; o.longTasks = rec.lt; o.events = rec.ev;
     const ms = (v) => v != null ? Math.round(v - bWall0) : null;
@@ -279,21 +329,31 @@ async function oneSample(arm, idx) {
         series: rec.paint.map(p => [Math.round(p.t - bWall0), p.y, p.tops[readingBlock.id] ?? null]).slice(0, 400) };
     }
     o.cardsAtEnd = await page.evaluate(() => { const r = (n) => n ? Math.round(n.getBoundingClientRect().height * 10) / 10 : null; const box = document.querySelector('.h29-updates'); const cs = box ? getComputedStyle(box) : null; return box ? { box: r(box), pad: cs.paddingBlockStart + '/' + cs.paddingBlockEnd, gap: cs.rowGap, head: r(box.closest('section')?.querySelector('.h29-sec-h')), section: r(box.closest('section')), cards: [...box.children].map((c) => ({ tag: c.tagName, cls: String(c.className).slice(0, 40), h: r(c), main: r(c.querySelector('.h29-card-main')), media: r(c.querySelector('.h29-media')), body: r(c.querySelector('.h29-card-body')), cats: r(c.querySelector('.h29-card-cats')), catsCls: c.querySelector('.h29-card-cats') ? String(c.querySelector('.h29-card-cats').className).slice(0, 30) : null, open: r(c.querySelector('.h29-card-open')), upd: r(c.querySelector('.h29-upd')), t: r(c.querySelector('.h29-card-t')), meta: r(c.querySelector('.h29-meta')), metaText: (c.querySelector('.h29-meta') || {}).textContent || null, metaFont: c.querySelector('.h29-meta') ? (({ fontFamily, lineHeight, fontSize }) => `${fontFamily}|${lineHeight}|${fontSize}`)(getComputedStyle(c.querySelector('.h29-meta'))) : null, tFont: c.querySelector('.h29-card-t') ? (({ fontFamily, lineHeight }) => `${fontFamily}|${lineHeight}`)(getComputedStyle(c.querySelector('.h29-card-t'))) : null })), fonts: [...document.fonts].map((f) => `${f.family}:${f.status}`), probe: (() => { const m = box.children[1]?.querySelector('.h29-card-main'); if (!m) return null; const parts = [m, m.querySelector('.h29-media'), m.querySelector('.h29-media > *'), m.querySelector('.h29-card-body')].filter(Boolean); return { html: m.outerHTML.slice(0, 700), parts: parts.map((n) => { const q = getComputedStyle(n), b = n.getBoundingClientRect(); return { tag: n.tagName, cls: String(n.className).slice(0, 30), h: Math.round(b.height * 100) / 100, minH: q.minBlockSize, height: q.height, disp: q.display, fs: q.fontSize, lh: q.lineHeight, ff: q.fontFamily.slice(0, 40), ar: q.aspectRatio, pad: q.padding }; }) }; })() } : null; }).catch(() => null);   // per-card geometry of the updates strip at the end of the horizon (base and candidate alike)
+    o.frameAtEnd = await page.evaluate(() => window.__frame()).catch(() => null);
     o.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null);   // every remembered box at the end of the horizon: its height against its natural extent (a hold that outlives its loading is blank space)
-    o.restore = { jumps: rec.jumps.map(j => ({ atMs: ms(j.t), to: j.to, from: j.from })), touchAtMs: rec.touch.length ? ms(rec.touch[0]) : null, departScrollY: o.depart.scrollY };
+    o.restore = { jumps: rec.jumps.map(j => ({ atMs: ms(j.t), to: j.to, from: j.from })), touchAtMs: rec.touch.length ? ms(rec.touch[0]) : null, inputKind: rec.touchKinds[0] ?? null, departScrollY: o.depart.scrollY };
     o.identity = diffIdentity(identityBefore, await page.evaluate(() => window.__identity()));
     o.display = await displayInfo(page); await takeShot(page, arm, idx, 'back');
+    if (CAPSULE && DESKTOP) {
+      // the rail keeps its ability on a wide screen: the capsule is there after the return, opens when the person opens it (hover) with the context of the subject in it, never moves the content column, and goes back when the person leaves it
+      const where = await page.evaluate(() => { const c = document.querySelector('aside.sod29-companion'); if (!c) return null; const b = c.getBoundingClientRect(); return { x: Math.round(b.left + b.width / 2), y: Math.round(b.top + 70) }; });
+      const read = () => page.evaluate(() => { const f = window.__frame(), rail = document.querySelector('aside.sod29-companion .sod29-surface-context-rail'); return { companionCls: f.companionCls, companionW: f.companion?.w ?? null, railPresent: !!rail, railTextLen: rail ? rail.textContent.trim().length : 0, contentW: f.content?.w ?? null, h29W: f.h29?.w ?? null, ctxIndicator: !!document.querySelector('aside.sod29-companion .sod29-companion-ctx') }; });
+      o.capsule = { present: !!where };
+      if (where) { o.capsule.start = await read(); await page.mouse.move(where.x, where.y); await sleep(1200); o.capsule.hover = await read(); await page.mouse.move(Math.round(W / 2), Math.round(H / 2)); await sleep(900); o.capsule.leave = await read(); }
+    }
     if (DELIBERATE) {
       // a deliberate scroll once the return has settled: it must move the page by about what was asked and nothing may pull it back
       const tMark = await page.evaluate(() => Date.now()), y0 = await page.evaluate(() => Math.round(scrollY));
-      await swipe(cdp, 500); await sleep(1000); const y1 = await page.evaluate(() => Math.round(scrollY));
-      await swipe(cdp, -300); await sleep(1000); const y2 = await page.evaluate(() => Math.round(scrollY));
+      await scrollBy(page, cdp, 500); await sleep(1000); const y1 = await page.evaluate(() => Math.round(scrollY));
+      await scrollBy(page, cdp, -300); await sleep(1000); const y2 = await page.evaluate(() => Math.round(scrollY));
       const after = await page.evaluate((t) => window.__r.jumps.filter(j => j.t >= t).length, tMark);
       o.deliberate = { y0, downBy: y1 - y0, upBy: y1 - y2, programmaticScrollsAfter: after, ok: y1 - y0 > 250 && y1 - y2 > 150 && after === 0 };
     }
     if (FORWARD) {
       // Forward to the Post: the same Post at the scroll position it was left at; then Back once more: the same reading place and the same content
       const leftAt = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText);   // where the person is when they leave for the Post (after any deliberate scroll)
+      const blockTop = (id) => id ? page.evaluate((i) => { const b = document.querySelector(`[data-scroll-anchor="${i}"]`); return b ? Math.round(b.getBoundingClientRect().top) : null; }, id).catch(() => null) : Promise.resolve(null);
+      const blockWhenLeft = await blockTop(readingBlock?.id);
       await page.goForward({ waitUntil: 'commit' });
       await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => o.invalid.push('Forward did not reach the Post'));
       await sleep(3000);
@@ -304,15 +364,19 @@ async function oneSample(arm, idx) {
       const traj2 = []; while (Date.now() - bAgain < 4500) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
       const last2 = traj2.filter((t) => t[2] != null).at(-1);
       o.backAgain = { leftAtY: leftAt.y, anchorTopWhenLeft: leftAt.a?.found ? leftAt.a.top : null, anchorTopFinal: last2 ? last2[2] : null, anchorDisp: last2 && leftAt.a?.found ? Math.abs(last2[2] - leftAt.a.top) : null, yDisp: traj2.at(-1) ? Math.abs(traj2.at(-1)[1] - leftAt.y) : null, yFinal: traj2.at(-1)?.[1] ?? null, identity: diffIdentity(identityBefore, await page.evaluate(() => window.__identity())) };
+      // the second return is a fresh entry to Home (a new mount): its own layout shifts, the document it ends with, and every remembered box at the end (the space an earlier failure left is given back here)
+      const second = await page.evaluate((t) => ({ cs: window.__r.cs.filter((x) => x.t >= t), dh: document.documentElement.scrollHeight }), bAgain);
+      { const final = await blockTop(readingBlock?.id); o.backAgain.block = { id: readingBlock?.id ?? null, whenLeft: blockWhenLeft, final, displacement: blockWhenLeft != null && final != null ? Math.abs(final - blockWhenLeft) : null }; }
+      o.backAgain.cls = sessionWindowMax(second.cs); o.backAgain.docH = second.dh; o.backAgain.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null); o.backAgain.frame = await page.evaluate(() => window.__frame()).catch(() => null);
     }
     if (INTERRUPT_AT != null) {
       const touchAt = o.restore.touchAtMs, jumpsAfter = o.restore.jumps.filter(j => touchAt != null && j.atMs > touchAt);
       const jumpsBefore = o.restore.jumps.filter(j => touchAt == null || j.atMs <= touchAt);
-      o.interrupt = { requestedAtMs: INTERRUPT_AT, sentAtMs: interruptSent, touchReachedPageAtMs: touchAt, restoreJumpsBeforeInput: jumpsBefore.length, restoreJumpsAfterInput: jumpsAfter.length, yFinal: lastT[1],
+      o.interrupt = { requestedAtMs: INTERRUPT_AT, sentAtMs: interruptSent, inputKind: o.restore.inputKind, profile: PROFILE, touchReachedPageAtMs: touchAt, restoreJumpsBeforeInput: jumpsBefore.length, restoreJumpsAfterInput: jumpsAfter.length, yFinal: lastT[1],
         earlyInput: touchAt != null && jumpsBefore.length === 0, pullback: jumpsAfter.length > 0 };
       // the touch reaches the page either before the restorer's first jump (it then must not jump at all) or during its hold window (it must stop and never pull back): both are reported, by phase
       o.interrupt.phase = touchAt == null ? 'never reached' : o.interrupt.earlyInput ? 'before-restore' : 'during-hold';
-      if (touchAt == null) o.invalid.push('the touch never reached the page');
+      if (touchAt == null) o.invalid.push(`the ${INPUT_KIND} input never reached the page`);
     }
     o.reqLog = st.reqLog.filter(r => r.phase === 'back').map(r => ({ k: r.k, tReq: r.tReq - bWall0, tFulfil: r.tFulfil - bWall0, delay: r.delay }));
     o.reqCount = { depart: st.reqLog.filter(r => r.phase === 'depart').length, back: st.reqLog.filter(r => r.phase === 'back').length };
@@ -374,11 +438,20 @@ for (let i = 0; i < PAIRS; i++) {
   const order = i % 2 === 0 ? armNames : [...armNames].reverse();   // interleaved A/B, alternating who goes first
   for (const arm of order) { const r = MODE === 'load' ? await loadSample(arm, i + 1) : await oneSample(arm, i + 1); runs.push(r); process.stderr.write(`${arm}#${i + 1} valid=${r.valid} cls=${r.cls} miss=${r.misses} ${MODE === 'load' ? `usable=${r.readyMs?.usable} composed=${r.readyMs?.composed} lcp=${r.lcp?.t} residue=${JSON.stringify(r.skeletonResidue)}` : `anchor=${r.anchor?.finalDisp} usable=${r.readyAfterBack?.usable} composed=${r.readyAfterBack?.composed} dg=${r.readyAfterBack?.dgSettled}`} ${r.invalid.join(';')}${r.error ? ' ERR ' + r.error : ''}\n`); }
 }
-const profile = { runner: 4, readiness: READINESS_VERSION, viewport: `${W}x${H}`, dpr: 2, touch: true, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
+const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
   definitions: 'v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max',
   isolation: 'scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)', requestPolicy: 'unmapped = violation, no fallback body',
   browser: 'Chromium ' + browser.version(), fixtureSha256: FX_SHA, fixtureKeys: Object.keys(fixtures).length, corpusImages: corpusImages.images, completePostBodies: COMPLETE_POSTS.size, node: process.version, cpus: os.cpus().length, startedAt: t0, finishedAt: new Date().toISOString() };
-fs.writeFileSync(A.out, JSON.stringify({ profile, arms, runs }, null, 1));
+let playwrightVersion = null; try { playwrightVersion = require('playwright/package.json').version; } catch { /* not resolvable: stays null */ }
+const buildAtEnd = Object.fromEntries(armNames.map((n) => [n, treeSignature(path.resolve(arms[n]))]));
+const dirty = git(['status', '--porcelain', '--untracked-files=no']);
+const signatures = {
+  arms: Object.fromEntries(armNames.map((n) => [n, { dist: path.basename(path.resolve(arms[n])), commit: ARM_SHAS[n] || null, buildArtifact: { ...buildAtStart[n], algorithm: 'sha256 of the sorted "relative path TAB file sha256" lines of the dist tree', stableDuringRun: buildAtStart[n].signature === buildAtEnd[n].signature } }])),
+  input: { fixtureSha256: FX_SHA || null, fixtureFileSha256: sha256File(FX), fixtureKeys: Object.keys(fixtures).length, corpusImages: corpusImages.images, completePostBodies: COMPLETE_POSTS.size, corpusClass: CORPUS_CLASS },
+  tool: { runnerSha256: sha256File(HERE_FILE), readinessSha256: sha256File(path.join(HERE_DIR, 'readiness.mjs')), repoHead: git(['rev-parse', 'HEAD']), repoTrackedFilesDirty: dirty == null ? null : dirty !== '' },
+  environment: { browser: 'Chromium ' + browser.version(), playwright: playwrightVersion, node: process.version, os: `${os.type()} ${os.release()} ${os.arch()}`, cpuModel: os.cpus()[0]?.model ?? null, cpus: os.cpus().length, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', locale: 'he-IL', timezone: 'Asia/Jerusalem', theme: THEME, reducedMotion: REDUCED },
+};
+fs.writeFileSync(A.out, JSON.stringify({ profile, signatures, arms, runs }, null, 1));
 if (privateMisses.length) {
   const privateFile = path.resolve(A.private || path.join(os.tmpdir(), `home-stability-private-${FX_SHA.slice(0, 8)}-${Date.now()}.json`));
   let earlier = []; try { earlier = JSON.parse(fs.readFileSync(privateFile, 'utf8')).entries || []; } catch { /* first writer */ }

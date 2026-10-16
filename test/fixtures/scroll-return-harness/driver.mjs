@@ -52,17 +52,26 @@ export async function returnScenario(browser, script, cfg, opts = {}) {
     await page.evaluate(([id, above]) => window.__api.scrollToBlock(id, -above), [READING.block, READING.above]);
     await sleep(300);
     const before = await page.evaluate(() => window.__api.state());
-    await page.evaluate(() => window.__navigate("/post/x"));
-    await sleep(500);
-    await page.evaluate(() => { window.scrollTo({ top: 300, behavior: "instant" }); });
-    await sleep(200);
-    const started = await page.evaluate(() => window.__api.start());
-    await page.goBack();
-    if (opts.userSwipeAt != null) { await sleep(opts.userSwipeAt); await swipe(page, cdp); }
-    if (opts.resizeTo) { await sleep(opts.resizeAt ?? 300); await page.setViewportSize({ width: opts.resizeTo, height: 844 }); }
-    await sleep(opts.horizon ?? 3500);
-    const [frames, shifts, touches, jumps, held, end] = await page.evaluate(() => [window.__api.frames(), window.__api.shifts(), window.__api.touches(), window.__api.jumps(), window.__api.held(), window.__api.state()]);
-    return summarize({ frames, shifts, touches, jumps, held, end, before, started });
+    const leaveAndComeBack = async (beforeLeaving, extra = {}) => {
+      await page.evaluate(() => window.__navigate("/post/x"));
+      await sleep(500);
+      await page.evaluate(() => { window.scrollTo({ top: 300, behavior: "instant" }); });
+      await sleep(200);
+      const started = await page.evaluate(() => window.__api.start());
+      await page.goBack();
+      if (extra.userSwipeAt != null) { await sleep(extra.userSwipeAt); await swipe(page, cdp); }
+      if (extra.resizeTo) { await sleep(extra.resizeAt ?? 300); await page.setViewportSize({ width: extra.resizeTo, height: 844 }); }
+      await sleep(opts.horizon ?? 3500);
+      const [frames, shifts, touches, jumps, held, end] = await page.evaluate(() => [window.__api.frames(), window.__api.shifts(), window.__api.touches(), window.__api.jumps(), window.__api.held(), window.__api.state()]);
+      return summarize({ frames, shifts, touches, jumps, held, end, before: beforeLeaving, started });
+    };
+    const result = await leaveAndComeBack(before, opts);
+    if ((opts.returns ?? 1) > 1) {
+      // the person is where the restorer put them; they open the Post again and come back again: a new entry to Home (a new mount, the next visit of cfg.visits)
+      const standing = await page.evaluate(() => window.__api.state());
+      result.again = await leaveAndComeBack(standing);
+    }
+    return result;
   } finally { await page.close(); }
 }
 
@@ -82,5 +91,5 @@ function summarize({ frames, shifts, touches, jumps, held, end, before, started 
   return { cls: sessionWindow(shifts.filter((s) => s.t >= started)), landedAtMs: landed >= 0 ? after[0].t : null, maxFrameJump, finalTop, wantTop: want, drift: finalTop == null ? null : Math.abs(finalTop - want),
     maxDriftAfterLanding: after.length ? Math.max(...after.map((f) => (f.top == null ? 0 : Math.abs(f.top - want)))) : null,
     frames: process.env.SCROLL_RETURN_FRAMES ? frames.map((f) => ({ t: f.t - started, y: f.y, dh: f.dh, top: f.tops[id], tops: f.tops })) : undefined,
-    shiftEntries: shifts.filter((s) => s.t >= started).map((s) => ({ t: s.t - started, v: +s.v.toFixed(4), ...(process.env.SCROLL_RETURN_FRAMES ? { src: s.src } : {}) })), touchAtMs: touchAt, jumpsAfterTouch: jumpsAfterTouch.length, programmaticJumps: jumps.map((j) => ({ at: j.t - started, to: j.to, from: j.from })), held, before: before.tops[id], finalY: end.y, overflowAnchor: end.overflowAnchor, tops };
+    shiftEntries: shifts.filter((s) => s.t >= started).map((s) => ({ t: s.t - started, v: +s.v.toFixed(4), ...(process.env.SCROLL_RETURN_FRAMES ? { src: s.src } : {}) })), touchAtMs: touchAt, jumpsAfterTouch: jumpsAfterTouch.length, programmaticJumps: jumps.map((j) => ({ at: j.t - started, to: j.to, from: j.from })), held, before: before.tops[id], docH: end.dh, beforeDocH: before.dh, finalY: end.y, overflowAnchor: end.overflowAnchor, tops };
 }

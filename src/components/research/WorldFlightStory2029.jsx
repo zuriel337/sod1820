@@ -50,7 +50,8 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       if (!post.thumb_url && !post.image_url) return loadFull();
       setState({ loading: false, extensionsLoading: false, projection: {
         post, identity: { type: 'post', id: String(post.id), slug: post.slug, href: `/post/${post.slug}` },
-        experience: { media: null, timeline: [] }, draft: false,   // the media only supplies an image when the row has none, and then the full reader is used privateStage: false, previewSnapshot: false, extensionsPending: false,
+        // the media only supplies an image when the row has none, and then the full reader is used
+        experience: { media: null, timeline: [] }, draft: false, privateStage: false, previewSnapshot: false, extensionsPending: false,
       } });
       return null;
     });

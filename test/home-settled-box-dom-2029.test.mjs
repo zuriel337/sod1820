@@ -33,10 +33,10 @@ async function bundle(hookPath) {
     build: { outDir, emptyOutDir: true, minify: false, lib: { entry: join(harness, "main.jsx"), formats: ["iife"], name: "SettledBoxHarness", fileName: () => "harness.js" } } });
   return join(outDir, readdirSync(outDir).find((name) => name.endsWith(".js")));
 }
-let current = null, previous = null, atHead = null, browser = null;
+let current = null, previous = null, atHead = null, atF60 = null, browser = null;
 test.before(async () => {
   if (skip) return;
-  [current, previous, atHead] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js"))]);
+  [current, previous, atHead, atF60] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js")), bundle(join(harness, "useSettledBox.f60d0788.js"))]);
   browser = await chromium.launch({ executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
 });
 test.after(async () => { await browser?.close(); });
@@ -324,5 +324,104 @@ test("a cold area (nothing remembered) keeps the box its loading state had, so a
     await sleep(300);
     const geometry = await page.evaluate(() => window.__api.geometry());
     assert.deepEqual([geometry.box, geometry.message], [loadingBox, "unavailable"]);
+  } finally { await page.close(); }
+});
+
+// ---- the next fresh entry gives the reserved space back; the visit that failed is not moved ----
+// visit 1: the box was remembered, the read fails while the area is in view, the whole box stays; then the person leaves (the surface unmounts)
+async function failedVisit(page, { remembered = { w: 390, vw: 390, h: NATURAL, n: 4 }, slots = 4 } = {}) {
+  await page.evaluate((box) => { if (box) window.__api.remember(box); window.__api.mount({ pending: true, items: 0, slots: box ? box.n : 3 }); }, remembered);
+  await sleep(100);
+  await page.evaluate((n) => window.__api.render({ pending: false, items: 0, slots: n, keep: true }), slots);
+  await sleep(300);
+  const during = await page.evaluate(() => window.__api.geometry());
+  await page.evaluate(() => window.__api.unmount());
+  return during;
+}
+const freshEntry = async (page, props = { pending: true, items: 0, slots: 4 }) => {
+  await page.evaluate((p) => { window.__api.mount(p); window.__api.startFrames(); }, props);
+  await sleep(200);
+};
+test("the visit that fails keeps its whole box (nothing moves), and the next fresh entry starts the area at the bound from its first frame, with no loading slots", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    const during = await failedVisit(page);
+    assert.deepEqual([during.box, during.message], [NATURAL, "unavailable"], "the failing visit is not changed: the area keeps the whole box it held");
+    await freshEntry(page);
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.length > 3 && frames.every((frame) => frame.h === 160 && frame.slots === 0 && frame.held === "1"), `every frame of the new entry holds the bound: ${JSON.stringify([...new Set(frames.map((f) => [f.h, f.slots, f.held].join("/")))])}`);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true }));
+    await sleep(300);
+    const after = await page.evaluate(() => window.__api.frames());
+    assert.ok(after.every((frame) => frame.h === 160), "the message that follows stays in the same box: nothing moves");
+    assert.equal((await page.evaluate(() => window.__api.geometry())).message, "unavailable");
+  } finally { await page.close(); }
+});
+test("negative control: the hook of f60d0788 starts the next entry at the whole box again (hundreds of empty pixels carried from visit to visit)", { skip }, async () => {
+  const page = await openHarness(atF60);
+  try {
+    await failedVisit(page);
+    await freshEntry(page);
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.length > 3 && frames.every((frame) => frame.h === NATURAL), `the old hook holds ${NATURAL}px: ${JSON.stringify([...new Set(frames.map((f) => f.h))])}`);
+  } finally { await page.close(); }
+});
+test("an entry after a failure that loads fine grows once to its natural box and remembers it: the entry after that holds the real box again", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await failedVisit(page);
+    await freshEntry(page);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
+    await sleep(300);
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.deepEqual([geometry.box, geometry.extent], [NATURAL, NATURAL], "the list that arrives is its natural size");
+    assert.equal((await page.evaluate(() => window.__api.memory())).h, NATURAL);
+    await page.evaluate(() => window.__api.unmount());
+    await freshEntry(page);
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.every((frame) => frame.h === NATURAL), "the record is void once the area has content: the next entry holds its real box");
+  } finally { await page.close(); }
+});
+test("an area that held no more than the bound leaves no record: the next entry holds what it held", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    const during = await failedVisit(page, { remembered: { w: 390, vw: 390, h: 120, n: 2 }, slots: 2 });
+    assert.equal(during.box, 120);
+    await freshEntry(page, { pending: true, items: 0, slots: 2 });
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.every((frame) => frame.h === 120), "nothing to give back");
+  } finally { await page.close(); }
+});
+test("a cold area that failed (nothing remembered) is held at the bound on the next entry instead of being drawn as loading slots again", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    const during = await failedVisit(page, { remembered: null, slots: 3 });
+    assert.equal(during.box, 3 * 100 + 2 * 8, "the failing cold visit keeps the box its loading state had");
+    await freshEntry(page, { pending: true, items: 0, slots: 3 });
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.every((frame) => frame.h === 160 && frame.slots === 0), JSON.stringify([...new Set(frames.map((f) => [f.h, f.slots].join("/")))]));
+  } finally { await page.close(); }
+});
+test("a record made at one viewport width does not apply at another", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await failedVisit(page);
+    await page.setViewportSize({ width: 500, height: 700 });
+    await sleep(100);
+    await freshEntry(page);
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.every((frame) => frame.held === "0" && frame.slots === 4), "nothing is held for a width nothing was remembered at: the loading slots are drawn");
+  } finally { await page.close(); }
+});
+test("a retry from the message of an entry that started at the bound loads in that box (the click is the person's own input)", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await failedVisit(page);
+    await freshEntry(page);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true }));
+    await sleep(200);
+    await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4 }));
+    await sleep(150);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160, "the retry loads in the box the entry had");
   } finally { await page.close(); }
 });

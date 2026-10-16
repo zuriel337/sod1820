@@ -4,19 +4,25 @@
 #   dist-A = the base build, dist-B = the build under test (both from exact commits; record the SHAs next to the results).
 # Every run goes through the shared isolation (scripts/ci-isolation/run.mjs): the corpus must be a decodable shared-format snapshot (runner.mjs refuses anything else),
 # an unmapped request invalidates the sample and fails the run, nothing is sent to a live service. mobile 390x844 DPR2 CPU x4, CDP 1.6 Mbps / 150 ms unless a scenario says otherwise.
-# Groups: core load late gate resize states backfail interrupt widths themes nav   (widths need fixtures for 320/1440/1920 in the corpus; without them those runs are BLOCKED, not PASS)
+#   PROFILE=mobile|desktop (default mobile; desktop = mouse wheel / keyboard / mouse click, isMobile=false, hasTouch=false, DPR 1), SHA_A / SHA_B = the exact commits of dist-A / dist-B, CORPUS = synthetic|central
+#   (said by the caller, never guessed). Every result file carries its signatures (commits, dist-tree signature, input hash, tool hashes, environment); an unknown one stays null.
+# Groups: core load late gate resize states backfail interrupt widths themes nav desk failnav   (widths need fixtures for 320/1440/1920 in the corpus; without them those runs are BLOCKED, not PASS)
 #   nav = display and navigation acceptance: Back, Forward + Back again, a deliberate scroll, the identity of what Home shows, at four widths and three themes, early input, reduced motion, then the first entry at the same widths/themes
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; REPO="$(cd "$HERE/../../.." && pwd)"
 S="${SCRATCH:?SCRATCH}"; O="${OUT:?OUT}"; FX="${FX:?FX}"; : "${SOD_CI_SNAPSHOT_SHA256:?SOD_CI_SNAPSHOT_SHA256}"; mkdir -p "$O"
 ARMS_AB="A=$S/dist-A,B=$S/dist-B"
+PROFILE="${PROFILE:-mobile}"; SIG="--profile $PROFILE"
+SHAS=""; [ -n "${SHA_A:-}" ] && SHAS="A=$SHA_A"; [ -n "${SHA_B:-}" ] && SHAS="${SHAS:+$SHAS,}B=$SHA_B"
+[ -n "$SHAS" ] && SIG="$SIG --armShas $SHAS"
+[ -n "${CORPUS:-}" ] && SIG="$SIG --corpus $CORPUS"
 PRIVATE="${PRIVATE:-$O/../private-misses-$(date +%s).json}"
 # POST: auto = the first visible Home post control whose complete body is in the corpus; set POST=/post/slug to pin it
 POST="${POST:-auto}"
 # QUICK=1 uses the smaller pair counts (diagnostics); the default counts are the acceptance counts.
 n() { if [ -n "${QUICK:-}" ]; then echo "$2"; else echo "$1"; fi; }
 run() { local name="$1"; shift; echo "== $name: $*" >&2
-  node "$REPO/scripts/ci-isolation/run.mjs" -- node "$HERE/runner.mjs" --fx "$FX" --private "$PRIVATE" "$@" --out "$O/$name.json" > "$O/$name.log" 2>&1; echo "exit $?" >> "$O/$name.log"
+  node "$REPO/scripts/ci-isolation/run.mjs" -- node "$HERE/runner.mjs" --fx "$FX" --private "$PRIVATE" $SIG "$@" --out "$O/$name.json" > "$O/$name.log" 2>&1; echo "exit $?" >> "$O/$name.log"
   node "$HERE/summarize.mjs" --in "$O/$name.json" --base "${BASE:-A}" --cand B --json "$O/$name.summary.json" --md "$O/$name.summary.md" 2>>"$O/$name.log" || true; }
 groups=("$@"); [ ${#groups[@]} -eq 0 ] && groups=(core load late gate resize states backfail interrupt widths themes)
 SHOTS="${SHOTS:-}"; SH=""; [ -n "$SHOTS" ] && SH="--shots $SHOTS"
@@ -39,6 +45,15 @@ for g in "${groups[@]}"; do case "$g" in
              for T in 250 600; do BASE=A run nav-interrupt-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --interruptAt $T $SH; done
              for W in 320:640 390:844 1440:900 1920:1080; do BASE=A run nav-load-width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode load --width ${W%%:*} --height ${W##*:} $SH; done
              for T in light parchment; do BASE=A run nav-load-theme-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode load --theme $T $SH; done ;;
+  desk)      # a person with a mouse and a keyboard (PROFILE=desktop): the wide layouts, Back / Forward + Back again, a deliberate scroll (wheel and keys), early input by wheel and by key, themes, then the first entry
+             for W in 1440:900 1920:1080; do BASE=A run desk-width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --forward 1 --deliberate 1 $SH; done
+             for T in light parchment; do BASE=A run desk-theme-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width 1440 --height 900 --theme $T --forward 1 --deliberate 1 $SH; done
+             for T in 250 600; do BASE=A run desk-interrupt-wheel-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width 1440 --height 900 --interruptAt $T --input wheel $SH; done
+             for T in 250 600; do BASE=A run desk-interrupt-key-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width 1440 --height 900 --interruptAt $T --input key $SH; done
+             for ST in error outage; do BASE=A run desk-state-$ST-back-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width 1440 --height 900 --state $ST --stateFrom back $SH; done
+             for W in 1440:900 1920:1080; do BASE=A run desk-load-width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode load --width ${W%%:*} --height ${W##*:} $SH; done ;;
+  failnav)   # failures on a return, then Forward + Back again (a fresh entry to Home): what the document ends with and what the reading place does. WIDTHS="320:640 390:844" PROFILE=mobile, or WIDTHS="1440:900 1920:1080" PROFILE=desktop
+             for W in ${WIDTHS:-320:640 390:844 1440:900 1920:1080}; do for ST in error outage; do BASE=A run failnav-$ST-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --state $ST --stateFrom back --forward 1 $SH; done; done ;;
   *) echo "unknown group $g" >&2 ;;
 esac; done
 echo "matrix done" >&2

@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
-  KEEP_RESERVE_PX, SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, keptHeight, layoutExtent, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
+  KEEP_RESERVE_PX, SETTLED_HEIGHT_VAR, currentViewportWidth, entryMemory, holdAttribute, keptHeight, layoutExtent, nextMemory, readMessageBox, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
 } from "../src/components/experience2029/useSettledBox2029.js";
 import { gatewayContentState, primaryContentState } from "../src/lib/homeReadiness2029.js";
 
@@ -228,4 +228,33 @@ test("the CSS: the message is the held box's own content and a held box does not
   assert.match(css, /\.h29-hero\.is-loading \{ min-height: 247px; \}/, "a loading hero is as tall as the loaded one on a wide page");
   assert.match(css, /\.h29-hero\.is-loading, \.h29-hero2 \{ min-height: 418px;/);
   assert.doesNotMatch(css, /is-unavailable \{ min-height/, "an unavailable hero never keeps a permanent 418 px: the bounded, out-of-view release lives in the hook");
+});
+
+// ---- the next fresh entry gives the reserved space back (the current reading is never moved to do it) ----
+test("entryMemory: an area that ended as a message starts at the bound on the next entry, at that viewport width only", () => {
+  const memory = { w: 1112, vw: 1440, h: 714, n: 4 }, message = { w: 1112, vw: 1440 };
+  assert.deepEqual(entryMemory(memory, message, 1440), { w: 1112, vw: 1440, h: KEEP_RESERVE_PX, n: 4 }, "the whole box it used to hold is not carried over");
+  assert.deepEqual(entryMemory({ ...memory, h: 120 }, message, 1440), { w: 1112, vw: 1440, h: 120, n: 4 }, "less than the bound: nothing to give back");
+  assert.deepEqual(entryMemory(undefined, message, 1440), { w: 1112, vw: 1440, h: KEEP_RESERVE_PX, n: 0 }, "nothing remembered: the area is still held at the bound, not drawn as loading slots");
+  assert.equal(entryMemory(memory, message, 390), memory, "another viewport width: the record does not apply");
+  assert.equal(entryMemory(memory, undefined, 1440), memory, "no record: the remembered box as it was");
+  assert.equal(entryMemory(undefined, undefined, 1440), undefined);
+  assert.equal(rememberedHeight(entryMemory(memory, message, 1440), 1440), KEEP_RESERVE_PX);
+});
+
+test("the memory of a settled list voids the message record of its area; the record itself never holds more than a mark of the width", () => {
+  resetSettledBoxes();
+  rememberSettledBox("strip", { w: 1112, vw: 1440, h: 714, n: 4 });
+  assert.equal(readMessageBox("strip"), undefined);
+  // a record is written by the hook when a message keeps more than the bound (exercised in a real browser: test/home-settled-box-dom-2029.test.mjs); a list that settles after it clears it
+  rememberSettledBox("strip", { w: 1112, vw: 1440, h: 700, n: 4 });
+  assert.equal(readMessageBox("strip"), undefined);
+  resetSettledBoxes();
+});
+
+test("the hook writes the record only where a message keeps more than the bound, in the keep effect", () => {
+  const hook = read("src/components/experience2029/useSettledBox2029.js");
+  assert.match(hook, /if \(full > KEEP_RESERVE_PX && recordedWidth > 0\) rememberMessageBox\(key, \{ w: recordedWidth, vw: viewportWidth \}\)/);
+  assert.match(hook, /const memory = entryMemory\(readSettledBox\(key\), readMessageBox\(key\), viewportWidth\);\n    const height = state\.released/, "the box a mount applies goes through entryMemory");
+  assert.match(hook, /const memory = entryMemory\(readSettledBox\(key\), readMessageBox\(key\), viewportWidth\);\n  return \{ ref, hold:/, "and so does what the caller sees as held");
 });
