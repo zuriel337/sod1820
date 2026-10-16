@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
-  SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
+  KEEP_RESERVE_PX, SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, keptHeight, layoutExtent, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
 } from "../src/components/experience2029/useSettledBox2029.js";
 import { gatewayContentState, primaryContentState } from "../src/lib/homeReadiness2029.js";
 
@@ -118,8 +118,8 @@ test("loading slots stay presentational: hidden from assistive technology, never
   assert.match(home, /data-h29-primary=\{primary\}/);
   assert.match(home, /hasHero: Boolean\(nowHero\) \|\| Boolean\(lead\), postCount: visiblePosts\.length/);
   assert.match(gateways, /data-dg29-state=\{gatewayContentState\(/);
-  assert.match(gateways, /failed: \[language, cinema, videos, dimension, matrices\]\.every\(result => result\.status === "rejected"\)/);
-  assert.match(gateways, /\.catch\(\(\) => \{ if \(active\) setState\(current => \(\{ \.\.\.current, loading: false, failed: true \}\)\); \}\)/);
+  assert.match(gateways, /failed: ALL_READS\.every\(\(name\) => reads\[name\]\.failed\)/);
+  assert.match(gateways, /failed: results\[index\]\.status === "rejected"/);
 });
 
 test("loading slots are rendered only when no remembered box already reserves the space; the held box itself is the placeholder", () => {
@@ -132,7 +132,7 @@ test("loading slots are rendered only when no remembered box already reserves th
   assert.match(gateways, /slots\?\.feature && !box\.held \? <LanguageFeatureSlot \/>/);
   assert.match(gateways, /length: box\.held \? 0 : \(slots\?\.rows \|\| 0\)/);
   assert.match(gateways, /length: box\.held \? 0 : dimensionSlots/);
-  assert.match(css, /\.h29 \[data-h29-loading\] \{ background: var\(--s29-panel-soft\)/);
+  assert.match(css, /\.h29 \[data-h29-loading\], \.h29 \[data-h29-notice\] \{ background: var\(--s29-panel-soft\)/);
   assert.match(read("src/components/experience2029/useSettledBox2029.js"), /held: !released && rememberedHeight\(memory, viewportWidth\) != null/);
 });
 
@@ -160,4 +160,71 @@ test("a cold load reserves nothing without evidence: loading slots only come fro
   // the status line is visible text (as before HomeV2) whenever nothing else already reserves the row
   assert.match(gateways, /className=\{reserving \|\| box\.held \? "dg29-empty dg29-sr" : "dg29-empty"\}/);
   assert.match(gateways, /className=\{box\.held \|\| dimensionSlots > 0 \? "dg29-empty dg29-sr" : "dg29-empty"\}/);
+});
+
+test("the extent is measured from layout offsets (transform-free); painted rectangles only when a node has no offset box", () => {
+  const parent = {};
+  const painted = (top, bottom) => ({ getBoundingClientRect: () => ({ top, bottom }) });
+  const first = { offsetTop: 10, offsetHeight: 100, offsetParent: parent, ...painted(18, 118) };       // painted 8 px lower than laid out
+  const last = { offsetTop: 330, offsetHeight: 104, offsetParent: parent, ...painted(341, 445) };      // painted 11 px lower
+  assert.deepEqual(layoutExtent(first, last), { top: 10, bottom: 434 }, "offsets, not the painted rectangles (which would give 323..445)");
+  const svg = { offsetTop: undefined, ...painted(20, 60) };
+  assert.deepEqual(layoutExtent(svg, { offsetTop: undefined, ...painted(70, 120) }), { top: 20, bottom: 120 }, "no offset box: the rectangles");
+  assert.deepEqual(layoutExtent({ ...first, offsetParent: null }, { ...last, offsetParent: null }), { top: 18, bottom: 445 }, "no offset parent (display: none, fixed): the rectangles");
+  assert.deepEqual(layoutExtent(first, { ...last, offsetParent: {} }), { top: 18, bottom: 445 }, "different offset parents cannot be subtracted: the rectangles");
+});
+
+test("a message keeps all of what was reserved while its area is in view, and the bound once it is out of view; a smaller reservation is kept as it is", () => {
+  assert.equal(KEEP_RESERVE_PX, 160);
+  assert.equal(keptHeight(714, true), 714, "in view: nothing under the person's eyes moves");
+  assert.equal(keptHeight(714, false), 160, "out of view: room for the message and its retry, not the whole strip");
+  assert.equal(keptHeight(120, false), 120, "less than the bound: nothing to give back");
+  assert.equal(keptHeight(0, true), 0, "nothing was reserved: nothing is kept");
+  assert.equal(keptHeight(-5, false), 0);
+});
+
+test("a message keeps the held box: the hook takes `keep`, and Home, the gateways and the hero use it for an empty or failed read", () => {
+  const hook = read("src/components/experience2029/useSettledBox2029.js");
+  assert.match(hook, /export function useSettledBox\(key, \{ pending = false, settled = false, count = 0, keep = false \} = \{\}\)/);
+  assert.match(hook, /hold: holdAttribute\(\{ pending: pending \|\| keep, settled, memory, count \}\)/);
+  const home = read("src/components/experience2029/HomeComposition2029.jsx");
+  assert.match(home, /const updatesEmpty = !data\.loading && !data\.posts\.length;/);
+  assert.match(home, /useSettledBox\("home:updates", \{ pending: updatesPending && !updatesEmpty, settled: !updatesPending && visiblePosts\.length > 0, count: visiblePosts\.length, keep: updatesEmpty \}\)/);
+  assert.match(home, /useSettledBox\("home:hero", \{ pending: data\.loading, settled: Boolean\(lead\), count: lead\?\.slug \|\| "", keep: !data\.loading && !lead \}\)/);
+  assert.match(home, /useSettledBox\("home:notable", \{[^}]*keep: notableUnavailable \}\)/);
+  assert.match(home, /const notableUnavailable = worldOpen && notableHeld && data\.notableDone && !data\.notable\.length;/);
+  const gateways = read("src/components/experience2029/DiscoveryGateways2029.jsx");
+  assert.match(gateways, /useSettledBox\(`gateway:\$\{title\}`, \{ pending: loading, settled: !loading && count > 0, count, keep: unavailable \}\)/);
+  assert.match(gateways, /useSettledBox\("dimension-five", \{ pending: loading, settled: !loading && items\.length > 0, count: items\.length, keep: unavailable \}\)/);
+});
+
+test("an empty or failed read has a message with a retry that repeats the same read; the retry is one control per block, not a banner", () => {
+  const home = read("src/components/experience2029/HomeComposition2029.jsx");
+  assert.match(home, /const retryPosts = useCallback\(\(\) => \{\s*setState\(\(current\) => \(\{ \.\.\.current, loading: true, failed: false, enriched: false \}\)\);/);
+  assert.match(home, /\}, \[attempt\.posts\]\);/, "the posts read runs again for a new attempt");
+  assert.match(home, /\}, \[includeWorld, attempt\.notable\]\);/, "and so does the strip's read");
+  assert.match(home, /<HomeReadNotice2029 onRetry=\{data\.retryPosts\}>/);
+  assert.match(home, /<HomeReadNotice2029 onRetry=\{data\.retryNotable\}>/);
+  assert.match(home, /<button type="button" className="h29-btn" onClick=\{data\.retryPosts\}>נסו שוב<\/button>/);
+  const gateways = read("src/components/experience2029/DiscoveryGateways2029.jsx");
+  // a retry repeats the reads of ONE area (a gateway, the dimension strip) and leaves every other area as it is
+  assert.match(gateways, /const AREA_READS = \{ language: \["language"\], cinema: \["cinema"\], biblical: \["videos", "matrices"\], dimension: \["dimension"\] \};/);
+  assert.match(gateways, /const retryArea = \(area\) => \(\) => load\(AREA_READS\[area\]\);/);
+  assert.match(gateways, /onRetry=\{retryFor\("language"\)\}/);
+  assert.match(gateways, /onRetry=\{retryFor\("cinema"\)\}/);
+  assert.match(gateways, /onRetry=\{retryFor\("biblical", true\)\}/, "the biblical gateway reads through a reader that swallows its errors: an empty result may be a failed one");
+  assert.match(gateways, /onRetry=\{retryFor\("dimension"\)\}/);
+  assert.match(gateways, /if \(state\.latest\[name\] !== token\) return;/, "a newer attempt for a reader is the one that counts");
+  const notice = read("src/components/experience2029/HomeReadNotice2029.jsx");
+  assert.match(notice, /aria-live="polite"/);
+  assert.doesNotMatch(notice, /role="status"/, "role=status marks 'still loading' for the evidence tooling: a message is never counted as a loading line");
+});
+
+test("the CSS: the message is the held box's own content and a held box does not stretch rows; the unavailable hero's footprint comes from the hook, not a permanent rule", () => {
+  const css = read("src/components/experience2029/homeComposition2029.css");
+  assert.match(css, /\.h29 \[data-h29-hold\] \{ align-content: start; \}/);
+  assert.match(css, /\.h29 \[data-h29-loading\], \.h29 \[data-h29-notice\] \{ background: var\(--s29-panel-soft\)/);
+  assert.match(css, /\.h29-notice \{ grid-column: 1 \/ -1;/);
+  assert.match(css, /\.h29-hero\.is-loading, \.h29-hero2 \{ min-height: 418px;/);
+  assert.doesNotMatch(css, /is-unavailable \{ min-height/, "an unavailable hero never keeps a permanent 418 px: the bounded, out-of-view release lives in the hook");
 });

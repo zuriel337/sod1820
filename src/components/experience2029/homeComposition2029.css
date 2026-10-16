@@ -158,9 +158,14 @@
 
 /* A strip that settled earlier in this session keeps its box while it loads again (--h29-settled-h is set by useSettledBox
    in DiscoveryGateways2029.jsx, only at the same width). */
-.h29 [data-h29-hold], .h29 [data-h29-hold-block]:has(> .sod29-flight-story) { min-block-size: var(--h29-settled-h, 0px); }
+.h29 [data-h29-hold], .h29 [data-h29-hold-block]:has(> .sod29-flight-story, > .sod29-frame-state) { min-block-size: var(--h29-settled-h, 0px); }
 /* A held box that is still waiting for content renders no loading slots (they are DOM created at mount); the box itself is the placeholder. */
-.h29 [data-h29-loading] { background: var(--s29-panel-soft); border-radius: 14px; }
+.h29 [data-h29-loading], .h29 [data-h29-notice] { background: var(--s29-panel-soft); border-radius: 14px; }
+/* A held box never stretches what is inside it: a grid would hand the extra height to its rows, so the cards (and the number remembered from them) would grow with the box. */
+.h29 [data-h29-hold] { align-content: start; }
+/* The message that stands where a block's content was (empty / unavailable), with the retry. It sits at the top of the box that was held, so nothing below it moves. */
+.h29-notice { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; min-width: 0; }
+.h29-notice p { margin: 0; color: var(--s29-muted); font: 400 14px/1.5 var(--s29-font-ui); }
 
 /* The plane story as one compact card on Home (the full story and its three directions live in World) */
 .h29 .sod29-flight-story { margin: 0; }

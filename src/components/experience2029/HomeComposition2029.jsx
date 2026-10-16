@@ -2,6 +2,7 @@
 // Presentation over existing public readers: latest posts, cipher posts, home videos and the
 // Home projection. Existing capability components arrive as slots so none is duplicated here.
 import React, { useCallback, useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getPostsFromSupabase, supabase } from "../../lib/supabase.js";
@@ -18,6 +19,7 @@ import PostCategories2029 from "./PostCategories2029.jsx";
 import DiscoveryGateways2029 from "./DiscoveryGateways2029.jsx";
 import { useSettledBox } from "./useSettledBox2029.js";
 import HomeBuildSignup2029 from "./HomeBuildSignup2029.jsx";
+import HomeReadNotice2029 from "./HomeReadNotice2029.jsx";
 import { claimHomeItems, reserveHomePost } from "../../lib/research/homePlacement2029.js";
 import { primaryContentState } from "../../lib/homeReadiness2029.js";
 import "./homeMotion2029.css";
@@ -50,6 +52,16 @@ function titleNumber(title, tags) {
 function useHomeCompositionData({ includeWorld = true } = {}) {
   // enriched: the secondary Post-row read (categories / update mark) has settled; notableDone: the strip's reader has settled.
   const [state, setState] = useState({ loading: true, failed: false, enriched: false, notableDone: false, posts: [], notable: [] });
+  // A retry repeats the same reads with the same arguments (nothing else changes): the block goes back to its loading state, which keeps the box it holds.
+  const [attempt, setAttempt] = useState({ posts: 0, notable: 0 });
+  const retryPosts = useCallback(() => {
+    setState((current) => ({ ...current, loading: true, failed: false, enriched: false }));
+    setAttempt((current) => ({ ...current, posts: current.posts + 1 }));
+  }, []);
+  const retryNotable = useCallback(() => {
+    setState((current) => ({ ...current, notableDone: false }));
+    setAttempt((current) => ({ ...current, notable: current.notable + 1 }));
+  }, []);
   useEffect(() => {
     let live = true;
     const update = (patch) => { if (live) setState((current) => ({ ...current, ...patch })); };
@@ -74,7 +86,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
       })) });
     }).catch(() => update({ loading: false, failed: true, enriched: true, posts: [] }));
     return () => { live = false; };
-  }, []);
+  }, [attempt.posts]);
   useEffect(() => {
     if (!includeWorld) return;
     let live = true;
@@ -93,8 +105,8 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
       .then((result) => { if (live) setState((current) => ({ ...current, notableDone: true, notable: result?.cards || [] })); })
       .catch(() => { if (live) setState((current) => ({ ...current, notableDone: true })); });
     return () => { live = false; };
-  }, [includeWorld]);
-  return state;
+  }, [includeWorld, attempt.notable]);
+  return { ...state, retryPosts, retryNotable };
 }
 
 // Loading slots reuse the loaded cards' own markup/classes, so their geometry follows the same CSS (no fixed heights).
@@ -124,11 +136,24 @@ function Media({ src, fallback, className = "" }) {
 
 function Reveal({ id, children, remember = false }) {
   const [ref, reveal] = useReveal(`home:${id}`);
+  // The block inside draws its own message when it cannot load (a frame state with its own retry): the slot keeps the box that block held, bounded like any other
+  // area's (the settled-box hook's `keep`), so the message appears in the place of the block instead of collapsing the page under the person.
+  const [unavailable, setUnavailable] = useState(false);
   // A slot that wraps a self-loading block keeps the box that block settled to (same width), so its own loading and image arrival do not move the page.
   const box = useSettledBox(`reveal:${id}`, { settled: (node) => Boolean(node.firstElementChild?.matches(".sod29-flight-story:not(.is-loading)"))
-    && [...node.querySelectorAll("img")].every((image) => image.complete) });
+    && [...node.querySelectorAll("img")].every((image) => image.complete), keep: remember && unavailable });
   const attach = box.ref;
   const setRef = useCallback((node) => { ref.current = node; attach(node); }, [ref, attach]);
+  useEffect(() => {
+    const node = ref.current;
+    if (!remember || !node || typeof MutationObserver === "undefined") return undefined;
+    const failed = () => Boolean(node.querySelector(":scope > .sod29-frame-state.state-unavailable"));
+    // synchronously: the message is drawn in the same frame the block swaps to its own message, so no frame shows the slot collapsed
+    const observer = new MutationObserver(() => flushSync(() => setUnavailable(failed())));
+    observer.observe(node, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });   // the block may swap its element or only its class
+    setUnavailable(failed());
+    return () => observer.disconnect();
+  }, [ref, remember]);
   return <div ref={setRef} data-reveal={reveal} data-h29-hold-block={remember ? "" : undefined} data-scroll-anchor={`home:reveal:${id}`} className="k29-reveal k29-rv-self">{children}</div>;
 }
 
@@ -167,8 +192,12 @@ export default function HomeComposition2029({
   // loading state: never the projection's), or once it is open and the strip's reader is pending, so the strip does not appear
   // above the reading position later. An unset worldPending means "not pending".
   const notableSlots = shownBefore.notable || 0;   // unknown or 0 = the strip was not on screen before: reserve nothing
-  const notableWaiting = notableSlots > 0 && !data.notable.length && (worldOpen ? !data.notableDone : worldPending === true);
-  const notableShown = (worldOpen && data.notable.length > 0) || notableWaiting;
+  // notableHeld: this visit started with evidence that the strip belongs here (it was on screen before). If its read then comes back empty or fails, a message
+  // stands in the strip's place (with a retry) instead of the whole section disappearing from under the person.
+  const [notableHeld] = useState(() => (shownBefore.notable || 0) > 0);
+  const notableWaiting = (notableSlots > 0 || notableHeld) && !data.notable.length && (worldOpen ? !data.notableDone : worldPending === true);
+  const notableUnavailable = worldOpen && notableHeld && data.notableDone && !data.notable.length;
+  const notableShown = (worldOpen && data.notable.length > 0) || notableWaiting || notableUnavailable;
   useEffect(() => {
     if (!data.loading) shownBefore.updates = visiblePosts.length;
     if (worldOpen && data.notableDone) shownBefore.notable = data.notable.length;
@@ -176,10 +205,12 @@ export default function HomeComposition2029({
   }, [data.loading, data.notableDone, data.notable.length, visiblePosts.length, worldOpen, worldPending]);
   // Returning to Home: each strip keeps the box it settled to while it loads again (see useSettledBox).
   // The hero keeps its settled box while it loads / enriches, for the same lead Post as last time (its own enrichment lives in HomeHeroMotion2029).
-  const heroBox = useSettledBox("home:hero", { pending: data.loading, settled: Boolean(lead), count: lead?.slug || "" });
+  const heroBox = useSettledBox("home:hero", { pending: data.loading, settled: Boolean(lead), count: lead?.slug || "", keep: !data.loading && !lead });
   const updatesPending = data.loading || !data.enriched;
-  const updatesBox = useSettledBox("home:updates", { pending: updatesPending, settled: !updatesPending, count: visiblePosts.length });
-  const notableBox = useSettledBox("home:notable", { pending: notableWaiting, settled: data.notableDone && data.notable.length > 0, count: data.notable.length });
+  // No posts after the read settled: a message stands in the strip's place and keeps the box the strip held (nothing below it moves); an empty strip is not remembered.
+  const updatesEmpty = !data.loading && !data.posts.length;
+  const updatesBox = useSettledBox("home:updates", { pending: updatesPending && !updatesEmpty, settled: !updatesPending && visiblePosts.length > 0, count: visiblePosts.length, keep: updatesEmpty });
+  const notableBox = useSettledBox("home:notable", { pending: notableWaiting, settled: data.notableDone && data.notable.length > 0, count: data.notable.length, keep: notableUnavailable });
   const [seen, setSeen] = useState(readSeen);
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
 
@@ -188,7 +219,7 @@ export default function HomeComposition2029({
   const primary = primaryContentState({ loading: data.loading, failed: data.failed, hasHero: Boolean(nowHero) || Boolean(lead), postCount: visiblePosts.length });
   return <div className="h29" data-experience-capability="home-composition" data-h29-primary={primary}>
     {nowHero || <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold} data-scroll-anchor="home:hero">
-      {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}</div></section>}
+      {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : " is-unavailable"}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}{!data.loading ? <div className="h29-actions"><button type="button" className="h29-btn" onClick={data.retryPosts}>נסו שוב</button></div> : null}</div></section>}
     </div>}
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening" data-scroll-anchor="home:launch-notice">
@@ -197,7 +228,7 @@ export default function HomeComposition2029({
     </section> : null}
 
     <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>
-      <div className="h29-updates" ref={updatesBox.ref} data-h29-hold={updatesBox.hold} data-h29-loading={data.loading && updatesBox.held ? "" : undefined}>
+      <div className="h29-updates" ref={updatesBox.ref} data-h29-hold={updatesBox.hold} data-h29-loading={data.loading && updatesBox.held ? "" : undefined} data-h29-notice={updatesEmpty ? "" : undefined}>
         {visiblePosts.map((post, index) => {
           const unseen = Boolean(post.update) && !seen[post.update.key];
           // One pulse at a time, only among visible updates (never the featured Hero).
@@ -215,13 +246,14 @@ export default function HomeComposition2029({
           </article>;
         })}
         {data.loading && !updatesBox.held ? Array.from({ length: shownBefore.updates ?? 0 }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
-        {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
+        {updatesEmpty ? <HomeReadNotice2029 onRetry={data.retryPosts}>{data.failed ? "העדכונים האחרונים אינם זמינים כרגע." : "אין כרגע פוסטים להצגה."}</HomeReadNotice2029> : null}
       </div>
     </Section>
 
     {notableShown ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
-      <div className="h29-notable" ref={notableBox.ref} data-h29-hold={notableBox.hold} data-h29-loading={notableWaiting && notableBox.held ? "" : undefined} aria-busy={notableWaiting ? "true" : undefined}>
+      <div className="h29-notable" ref={notableBox.ref} data-h29-hold={notableBox.hold} data-h29-loading={notableWaiting && notableBox.held ? "" : undefined} data-h29-notice={notableUnavailable ? "" : undefined} aria-busy={notableWaiting ? "true" : undefined}>
+        {notableUnavailable ? <HomeReadNotice2029 onRetry={data.retryNotable}>ההתכנסויות הבולטות אינן זמינות כרגע.</HomeReadNotice2029> : null}
         {notableWaiting && !notableBox.held ? Array.from({ length: notableSlots }, (_, index) => <NotableCardSlot key={`slot-${index}`} />) : null}
         {data.notable.map((card, index) => {
           const fresh = recentConvergence(card.approvedAt);

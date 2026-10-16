@@ -81,5 +81,6 @@ function summarize({ frames, shifts, touches, jumps, held, end, before, started 
   const jumpsAfterTouch = touchAt == null ? [] : jumps.filter((j) => j.t - started > touchAt);
   return { cls: sessionWindow(shifts.filter((s) => s.t >= started)), landedAtMs: landed >= 0 ? after[0].t : null, maxFrameJump, finalTop, wantTop: want, drift: finalTop == null ? null : Math.abs(finalTop - want),
     maxDriftAfterLanding: after.length ? Math.max(...after.map((f) => (f.top == null ? 0 : Math.abs(f.top - want)))) : null,
-    shiftEntries: shifts.filter((s) => s.t >= started).map((s) => ({ t: s.t - started, v: +s.v.toFixed(4) })), touchAtMs: touchAt, jumpsAfterTouch: jumpsAfterTouch.length, programmaticJumps: jumps.map((j) => ({ at: j.t - started, to: j.to, from: j.from })), held, before: before.tops[id], finalY: end.y, overflowAnchor: end.overflowAnchor, tops };
+    frames: process.env.SCROLL_RETURN_FRAMES ? frames.map((f) => ({ t: f.t - started, y: f.y, dh: f.dh, top: f.tops[id], tops: f.tops })) : undefined,
+    shiftEntries: shifts.filter((s) => s.t >= started).map((s) => ({ t: s.t - started, v: +s.v.toFixed(4), ...(process.env.SCROLL_RETURN_FRAMES ? { src: s.src } : {}) })), touchAtMs: touchAt, jumpsAfterTouch: jumpsAfterTouch.length, programmaticJumps: jumps.map((j) => ({ at: j.t - started, to: j.to, from: j.from })), held, before: before.tops[id], finalY: end.y, overflowAnchor: end.overflowAnchor, tops };
 }

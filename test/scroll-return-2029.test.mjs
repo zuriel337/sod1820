@@ -30,6 +30,9 @@ const ok = (ms, n) => ({ ms, outcome: "ok", n });
 const bad = (ms) => ({ ms, outcome: "fail" });
 const visits = (second) => ({ visits: [first, second] });
 const run = (script, second, opts) => returnScenario(browser, script, visits(second), opts);
+// keepOff: a list that comes back without rows collapses its held box (how every empty or failed read behaved before a message kept the box). A collapse is still
+// reachable through other changes (fewer rows than were held, a spent hold), so the restorer is exercised on it too.
+const runCollapsing = (script, second, opts) => returnScenario(browser, script, { ...visits(second), keepOff: true }, opts);
 // where the person ends up relative to the block they were reading in: 0 = the same place; the block's own top is READING.above above the viewport
 const displaced = (r) => Math.abs(r.finalTop - r.wantTop);
 
@@ -40,13 +43,13 @@ test("reads that come back late with the same content: the person stays where th
   assert.ok(now.cls <= 0.1, `CLS ${now.cls}`);
 });
 
-test("content above the reading place shrinks (fewer cards, a strip that disappears): the person is not thrown forward", { skip }, async () => {
+test("content above the reading place shrinks (fewer cards, a strip that comes back empty): the person is not thrown forward", { skip }, async () => {
   const shrink = { updates: ok(400, 2), notable: { ms: 400, outcome: "empty" }, gateways: ok(400, 3), hero: ok(400) };
   const now = await run(current, shrink);
   assert.ok(displaced(now) <= 12, `displaced ${displaced(now)}px`);
   assert.ok(now.cls <= 0.1, `CLS ${now.cls}`);
   const before = await run(previous, shrink);
-  assert.ok(displaced(before) > 500, `negative control: at e3498434 the person ended ${displaced(before)}px away from the place they were reading`);
+  assert.ok(displaced(before) > 300, `negative control: at e3498434 the person ended ${displaced(before)}px away from the place they were reading`);
 });
 
 test("content above the reading place grows beyond what was held: the person is not thrown back", { skip }, async () => {
@@ -59,30 +62,50 @@ test("content above the reading place grows beyond what was held: the person is 
 });
 
 for (const ms of [300, 1500]) {
-  test(`the reads above the reading place fail (${ms} ms): the held boxes collapse and the person stays at their place`, { skip }, async () => {
+  test(`the reads above the reading place fail (${ms} ms): a message stands in each held box, nothing moves and the person stays at their place`, { skip }, async () => {
     const above = { updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: ok(ms, 3) };
     const now = await run(current, above);
     assert.ok(displaced(now) <= 12, `displaced ${displaced(now)}px`);
+    assert.ok(now.cls <= 0.01, `CLS ${now.cls}`);
+    assert.equal(now.programmaticJumps.length, 2, `one placement, one follow: nothing above moved, so the restorer never had to correct (${JSON.stringify(now.programmaticJumps)})`);
+  });
+  test(`the reads above the reading place fail (${ms} ms) and the held boxes collapse anyway: the person stays at their place`, { skip }, async () => {
+    const above = { updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: ok(ms, 3) };
+    const now = await runCollapsing(current, above);
+    assert.ok(displaced(now) <= 12, `displaced ${displaced(now)}px`);
     assert.ok(now.cls <= 0.1, `CLS ${now.cls}`);
-    const before = await run(previous, above);
+    const before = await runCollapsing(previous, above);
     assert.ok(displaced(before) > 500, `negative control: displaced ${displaced(before)}px at e3498434`);
   });
 }
 
 for (const ms of [300, 1500]) {
-  test(`every read fails (${ms} ms), the block being read collapses too: the person ends at that block, not 1300 px away`, { skip }, async () => {
+  test(`every read fails (${ms} ms), the block being read gets its message in the box it held: the person stays exactly where they were and nothing moves`, { skip }, async () => {
     const all = { updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: bad(ms) };
     const now = await run(current, all);
+    assert.ok(displaced(now) <= 12, `displaced ${displaced(now)}px`);
+    assert.ok(now.cls <= 0.01, `CLS ${now.cls}`);
+  });
+  test(`every read fails (${ms} ms) and the block being read collapses too: the person ends at that block, not 1300 px away`, { skip }, async () => {
+    const all = { updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: bad(ms) };
+    const now = await runCollapsing(current, all);
     // the block shrank to its message: the same place is its end, within one block height of the viewport top
     assert.ok(now.finalTop <= 0 && now.finalTop >= -200, `the reading block's top is ${now.finalTop}px from the viewport top`);
-    const before = await run(previous, all);
+    const before = await runCollapsing(previous, all);
     assert.ok(before.finalTop < -1000, `negative control: at e3498434 the reading block ended ${before.finalTop}px above the viewport`);
   });
 }
 
-test("only the block being read fails: its own collapse is a real change of what is in view, and the person stays at it", { skip }, async () => {
+test("only the block being read fails: its message takes the place of its rows, so nothing in view moves", { skip }, async () => {
   const own = { updates: ok(500, 4), notable: ok(500, 4), hero: ok(500), gateways: bad(500) };
   const now = await run(current, own);
+  assert.ok(displaced(now) <= 12, `displaced ${displaced(now)}px`);
+  assert.ok(now.cls <= 0.01, `CLS ${now.cls}`);
+  assert.equal(now.programmaticJumps.length, 2, "one placement, one follow");
+});
+test("only the block being read fails and its box collapses anyway: that is a real change of what is in view, and the person stays at it", { skip }, async () => {
+  const own = { updates: ok(500, 4), notable: ok(500, 4), hero: ok(500), gateways: bad(500) };
+  const now = await runCollapsing(current, own);
   assert.ok(now.finalTop <= 0 && now.finalTop >= -200, `the reading block's top is ${now.finalTop}px from the viewport top`);
   assert.equal(now.programmaticJumps.length, 2, "one placement, one follow");
 });

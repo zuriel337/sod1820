@@ -8,7 +8,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
-import { READINESS_SRC } from "../docs/perf-evidence-20261016/home-stability-v3/readiness.mjs";
+import { READINESS_SRC, READINESS_VERSION } from "../docs/perf-evidence-20261016/home-stability-v3/readiness.mjs";
 import { READINESS_SRC as READINESS_V3_SRC } from "../docs/perf-evidence-20261016/home-stability-v3/readiness.v3-e23dee27.mjs";
 
 let chromium = null;
@@ -161,5 +161,62 @@ test("negative control: the v2 runner predicate calls the same skeleton-only Hom
     await page.evaluate(READINESS_SRC); await page.evaluate(V2);
     assert.equal((await page.evaluate(() => window.__v2())).usable, true, "the old predicate accepts skeletons (the documented defect)");
     assert.equal((await page.evaluate(() => window.__ready())).usable, false, "the current predicate rejects them");
+  } finally { await page.close(); }
+});
+
+// ---- a failure message is not content either (the area's read failed or came back empty: a message with a retry stands in its place) ----
+const noticeText = "העדכונים האחרונים אינם זמינים כרגע.";
+const notice = (text = noticeText, extra = "") => `<div class="h29-notice" aria-live="polite"><p>${text}</p>${extra}<button type="button" class="h29-btn">נסו שוב</button></div>`;
+const unavailableHero = `<section class="h29-hero is-unavailable" aria-busy="false"><div class="h29-hero-copy"><div class="h29-kicker">עכשיו</div><h1>SOD1820</h1><p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p><div class="h29-actions"><button type="button" class="h29-btn">נסו שוב</button></div></div></section>`;
+
+test("a failure message with its retry never makes Home composed or usable: unavailable hero, updates message, gateway message", { skip }, async () => {
+  const everything = await ready(home({ primary: "empty", hero: unavailableHero, updates: notice(), gatewayState: "empty",
+    gateways: notice("הטעינה נכשלה. אפשר לנסות שוב.") + '<p class="dg29-empty">אין כרגע מחקרי קולנוע ציבוריים להצגה</p>' }));
+  assert.deepEqual([everything.heroReal, everything.cardReal, everything.composed, everything.usable, everything.dgItems, everything.dgReady], [false, 0, false, false, 0, false]);
+  assert.deepEqual([everything.prMarker, everything.dgMarker, everything.dgSettled], ["empty", "empty", true], "settled, explicitly without content");
+  for (const part of [{ hero: unavailableHero }, { updates: notice() }, { gateways: notice(), gatewayState: "empty" }]) {
+    const r = await ready(home(part));
+    assert.deepEqual([r.composed, r.usable, r.dgReady], [false, false, false], JSON.stringify(Object.keys(part)));
+  }
+});
+
+test("even a message that carries a link to a post is not content: neither the card predicate nor the hero predicate accepts it", { skip }, async () => {
+  const link = '<a href="/post/something-else" style="display:block;height:40px">פוסט שאפשר לקרוא בינתיים ←</a>';
+  const inCard = await ready(home({ updates: `<article class="h29-card"><div class="h29-card-main"><span class="h29-card-t" style="display:block;height:60px">כותרת של כרטיס עם הודעה</span></div>${notice(noticeText, link)}</article>` }));
+  assert.deepEqual([inCard.cardReal, inCard.usable], [0, false], "a card whose only link sits inside a message does not count");
+  const inHero = await ready(home({ hero: unavailableHero.replace("</h1>", `</h1>${link}`) }));
+  assert.deepEqual([inHero.heroReal, inHero.composed, inHero.usable], [false, false, false]);
+  const asTarget = await ready(home({ hero: unavailableHero, updates: notice() }), { target: "נסו שוב" });
+  assert.deepEqual([asTarget.anchorUsable, asTarget.usable], [false, false], "the retry button is never the control a return lands on");
+});
+
+test("a message next to real content leaves the real content counted, and the tooling reports the message separately", { skip }, async () => {
+  const mixed = await ready(home({ hero: realHero(), updates: card("פוסט אמיתי אחד") + notice("עוד עדכונים אינם זמינים כרגע.") }));
+  assert.deepEqual([mixed.heroReal, mixed.cardReal, mixed.usable], [true, 1, true]);
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await page.setContent(home({ hero: unavailableHero, updates: notice(), gateways: notice() }));
+    await page.evaluate(READINESS_SRC);
+    const counts = await page.evaluate(() => window.__skeletons());
+    assert.equal(counts.notices, 2, "the notices are counted on their own (the hero's own retry is part of the hero)");
+    assert.equal(counts.status, 0, "a message never carries the status role that marks a loading line");
+  } finally { await page.close(); }
+});
+
+test("the evidence tool's predicate version records that messages are not content", () => {
+  assert.ok(READINESS_VERSION >= 5 && READINESS_SRC.includes("h29-notice") && READINESS_SRC.includes("is-unavailable"));
+});
+
+test("the shared perf-execution metric (not modified here) does not take a message or an unavailable hero for primary content either", { skip }, async () => {
+  const { primaryContentState } = await import("../scripts/perf-execution-2029/browser-metrics.mjs");
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    const wrap = (inner) => `<main><div data-experience-capability="home-composition" class="h29">${inner}</div></main>`;
+    for (const inner of [unavailableHero + `<div class="h29-updates">${notice()}</div>`, loadingHero + `<div class="h29-updates">${slot.repeat(4)}</div>`]) {
+      await page.setContent(wrap(inner));
+      assert.equal(await page.evaluate(`(${primaryContentState.toString()})("/").primary`), false);
+    }
+    await page.setContent(wrap(realHero() + `<div class="h29-updates">${notice()}</div>`));
+    assert.equal(await page.evaluate(`(${primaryContentState.toString()})("/").primary`), true, "a real hero still is");
   } finally { await page.close(); }
 });

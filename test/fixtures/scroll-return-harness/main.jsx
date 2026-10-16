@@ -25,8 +25,11 @@ function useRead(name, itemsWhenOk) {
   return state;
 }
 
+// A list that came back without rows keeps the box it held, with a message in it (the product's `keep`); cfg.keepOff turns that off, which is how a held box collapsed
+// before: a collapse is still reachable through other changes (fewer rows than were held, a spent hold), so the restorer is exercised on it either way.
 function List({ id, className, pending, items, slots, slotClass, itemClass, empty }) {
-  const box = useSettledBox(id, { pending, settled: !pending, count: items });
+  const unavailable = !pending && items === 0, keep = unavailable && !window.__cfg?.keepOff;
+  const box = useSettledBox(id, { pending, settled: !pending && (items > 0 || Boolean(window.__cfg?.keepOff)), count: items, keep });
   return <div className={className} ref={box.ref} data-h29-hold={box.hold} data-held={box.held ? "1" : "0"}>
     {Array.from({ length: items }, (_, i) => <a key={i} className={itemClass} href="/post/x" data-item={`${id}:${i}`}>{`${id} ${i}`}</a>)}
     {pending && !box.held ? Array.from({ length: slots }, (_, i) => <span key={`s${i}`} className={`${itemClass} is-loading`} aria-hidden="true">{NBSP}</span>) : null}
@@ -38,12 +41,13 @@ function Home() {
   const [first] = useState(() => (visit = visit + 1));   // index of this Home visit, assigned at mount
   const updates = useRead("updates", 4), notable = useRead("notable", 4), gateways = useRead("gateways", 3);
   const hero = useRead("hero", 1);
-  const heroBox = useSettledBox("hero", { pending: !hero.done, settled: hero.outcome === "ok", count: "lead" });
+  const heroBox = useSettledBox("hero", { pending: !hero.done, settled: hero.outcome === "ok", count: "lead", keep: hero.done && hero.outcome !== "ok" && !window.__cfg?.keepOff });
   useEffect(() => { if (updates.done) memory.updates = updates.n; }, [updates.done, updates.n]);
   useEffect(() => { if (notable.done) memory.notable = notable.n; }, [notable.done, notable.n]);
   useEffect(() => { if (gateways.done) memory.gateways = gateways.n; }, [gateways.done, gateways.n]);
+  const [notableHeld] = useState(() => (memory.notable || 0) > 0 && !window.__cfg?.keepOff);   // this visit started with evidence that the strip belongs here
   const notableWaiting = (memory.notable || 0) > 0 && !notable.done;
-  const notableShown = notableWaiting || (notable.done && notable.n > 0);
+  const notableShown = notableWaiting || (notable.done && notable.n > 0) || (notableHeld && notable.done);
   return <div className="home" data-visit={first}>
     <div className="hero-slot" {...mark("home:hero")} ref={heroBox.ref} data-h29-hold={heroBox.hold}>
       <section className={!hero.done ? "hero is-loading" : hero.outcome === "ok" ? "hero" : "hero is-unavailable"}>{hero.done ? (hero.outcome === "ok" ? "hero" : "unavailable") : "loading"}</section>
@@ -94,7 +98,7 @@ const blockTops = () => Object.fromEntries(IDS.map((id) => { const el = document
 const channel = new MessageChannel();
 channel.port1.onmessage = () => { if (recording) frames.push({ t: Math.round(performance.now()), y: Math.round(scrollY), dh: document.documentElement.scrollHeight, tops: blockTops() }); };
 const frame = () => { if (recording) channel.port2.postMessage(0); requestAnimationFrame(frame); };
-try { new PerformanceObserver((list) => { for (const e of list.getEntries()) if (!e.hadRecentInput) shifts.push({ t: Math.round(e.startTime), v: e.value }); }).observe({ type: "layout-shift", buffered: true }); } catch { /* no layout-shift API */ }
+try { new PerformanceObserver((list) => { for (const e of list.getEntries()) if (!e.hadRecentInput) shifts.push({ t: Math.round(e.startTime), v: e.value, src: (e.sources || []).slice(0, 6).map((x) => ({ n: x.node?.getAttribute?.("data-block") || x.node?.className || x.node?.nodeName || null, py: Math.round(x.previousRect.y), cy: Math.round(x.currentRect.y), ph: Math.round(x.previousRect.height), ch: Math.round(x.currentRect.height) })) }); }).observe({ type: "layout-shift", buffered: true }); } catch { /* no layout-shift API */ }
 window.addEventListener("touchstart", () => touches.push(Math.round(performance.now())), { capture: true, passive: true });
 const nativeScrollTo = window.scrollTo.bind(window);
 window.scrollTo = function (...args) { jumps.push({ t: Math.round(performance.now()), to: args[0] && typeof args[0] === "object" ? args[0].top : args[1], from: Math.round(scrollY) }); return nativeScrollTo(...args); };

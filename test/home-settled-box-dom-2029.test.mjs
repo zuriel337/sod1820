@@ -20,7 +20,11 @@ const executablePath = process.env.PERF_CHROME || ["/opt/pw-browsers/chromium-11
 const skip = !chromium || !executablePath;
 const here = fileURLToPath(new URL(".", import.meta.url));
 const harness = join(here, "fixtures/settled-box-harness");
-const CSS = ".h29 [data-h29-hold] { min-block-size: var(--h29-settled-h, 0px); } body { margin: 0; }";
+// The hold rules of the product's own stylesheet (not a copy): min-block-size from the remembered box, and align-content: start so a held box never stretches its rows.
+const homeCss = readFileSync(join(here, "../src/components/experience2029/homeComposition2029.css"), "utf8");
+const holdRules = homeCss.split("\n").filter((line) => /^\.h29 \[data-h29-hold\]/.test(line)).join("\n");
+const CSS = `${holdRules}\nbody { margin: 0; }`;
+const CSS_WITHOUT_ALIGN = CSS.replace(/\.h29 \[data-h29-hold\] \{ align-content: start; \}/, "");
 
 async function bundle(hookPath) {
   const outDir = mkdtempSync(join(tmpdir(), "settled-box-harness-"));
@@ -38,11 +42,25 @@ test.before(async () => {
 test.after(async () => { await browser?.close(); });
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function openHarness(script, width = 390) {
+async function openHarness(script, width = 390, css = CSS) {
   const page = await browser.newPage({ viewport: { width, height: 700 } });
-  await page.setContent(`<!doctype html><style>${CSS}</style><body></body>`);
+  await page.setContent(`<!doctype html><style>${css}</style><body></body>`);
   await page.addScriptTag({ content: readFileSync(script, "utf8") });
   return page;
+}
+// A page with a real origin, so images can be held back and let through later (the cards carry images that arrive after the content settled).
+const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64");
+async function openHarnessWithSlowImages(script, css = CSS) {
+  const page = await browser.newPage({ viewport: { width: 390, height: 700 } });
+  const held = [];
+  await page.route("http://harness.test/**", (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.startsWith("/slow-")) held.push(route);
+    else route.fulfill({ contentType: "text/html", body: `<!doctype html><style>${css}</style><body></body>` });
+  });
+  await page.goto("http://harness.test/");
+  await page.addScriptTag({ content: readFileSync(script, "utf8") });
+  return { page, held, release: async () => { for (const route of held.splice(0)) await route.fulfill({ contentType: "image/png", body: PNG }); } };
 }
 // remembered at the current width, then "return to Home while the list is loading again"
 async function returnWhileLoading(page) {
@@ -149,5 +167,162 @@ test("negative control: the hook of e3498434 (the head before this fix) re-expan
     const { later } = await shrinkThenRerender(page);
     assert.equal(later.h, 4 * 100 + 3 * 8, "back at the held height of the four items it had before");
     assert.equal(later.hasVar, true);
+  } finally { await page.close(); }
+});
+
+// ---- the box that is remembered and held: what it is measured from, what it does to the rows, and the message that keeps it ----
+const NATURAL = 4 * 100 + 3 * 8;   // four 100 px cards and their gaps
+
+test("the remembered box is the layout extent of the list: cards painted offset by an entrance animation do not inflate it", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await page.evaluate(() => window.__api.mount({ pending: false, items: 4, slots: 4, shift: 6 }));
+    await page.waitForFunction(() => window.__api.memory() !== null);
+    assert.equal((await page.evaluate(() => window.__api.memory())).h, NATURAL, "the layout extent, whatever the paint does");
+  } finally { await page.close(); }
+});
+test("negative control: the hook of e3498434 measured the painted rectangles and remembered a box 18 px taller than the list", { skip }, async () => {
+  const page = await openHarness(atHead);
+  try {
+    await page.evaluate(() => window.__api.mount({ pending: false, items: 4, slots: 4, shift: 6 }));
+    await page.waitForFunction(() => window.__api.memory() !== null);
+    assert.equal((await page.evaluate(() => window.__api.memory())).h, NATURAL + 3 * 6);
+  } finally { await page.close(); }
+});
+
+// a box held at 8 px more than the list is (what the old measurement left behind); the images have not arrived, so the content is not final yet
+async function returnOverHeld(script, css) {
+  const harness = await openHarnessWithSlowImages(script, css);
+  await harness.page.evaluate((h) => { window.__api.remember({ w: 390, vw: 390, h, n: 4 }); window.__api.mount({ pending: false, items: 4, slots: 4, images: true }); }, NATURAL + 8);
+  await sleep(250);
+  return harness;
+}
+test("a held box never stretches its rows: the extra height stays blank at the end, the cards keep their own height", { skip }, async () => {
+  const { page } = await returnOverHeld(current);
+  try {
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.deepEqual([geometry.box, geometry.extent, geometry.firstRow, geometry.hasVar], [NATURAL + 8, NATURAL, "100px", true]);
+  } finally { await page.close(); }
+});
+test("negative control: without align-content: start the same held box hands its extra height to the grid rows", { skip }, async () => {
+  const { page } = await returnOverHeld(current, CSS_WITHOUT_ALIGN);
+  try {
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.equal(geometry.firstRow, "102px");
+    assert.ok(geometry.extent > NATURAL, "and the list measured from itself is taller than it is");
+  } finally { await page.close(); }
+});
+
+// the list came back empty, or its read failed: a message stands where the cards were, in the box that was held
+async function returnEmpty(script) {
+  const page = await openHarness(script);
+  await page.evaluate((h) => { window.__api.remember({ w: 390, vw: 390, h, n: 4 }); window.__api.mount({ pending: true, items: 0, slots: 4 }); }, NATURAL);
+  await sleep(100);
+  await page.evaluate(() => window.__api.startFrames());
+  await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true }));
+  await sleep(300);
+  return page;
+}
+test("an empty return keeps the box that was held: the message is in the place of the cards and no frame collapses", { skip }, async () => {
+  const page = await returnEmpty(current);
+  try {
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.deepEqual([geometry.box, geometry.message, geometry.hasVar], [NATURAL, "unavailable", true]);
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.length > 3 && frames.every((frame) => frame.h === NATURAL), `every frame keeps ${NATURAL}px: ${JSON.stringify([...new Set(frames.map((frame) => frame.h))])}`);
+  } finally { await page.close(); }
+});
+test("negative control: the hook of e3498434 collapses the box into the message", { skip }, async () => {
+  const page = await returnEmpty(atHead);
+  try {
+    assert.ok((await page.evaluate(() => window.__api.geometry())).box < NATURAL / 4);
+  } finally { await page.close(); }
+});
+test("a retry from the message loads again in the same box and the list that arrives fits it, with nothing remembered about the empty state", { skip }, async () => {
+  const page = await returnEmpty(current);
+  try {
+    assert.equal((await page.evaluate(() => window.__api.memory())).h, NATURAL, "an empty list is not remembered");
+    await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4 }));
+    await sleep(100);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "retrying keeps the box");
+    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
+    await sleep(300);
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.deepEqual([geometry.box, geometry.extent, geometry.hasVar], [NATURAL, NATURAL, true]);
+  } finally { await page.close(); }
+});
+
+// ---- the reservation a message keeps is bounded, and let go only where the person cannot see it ----
+async function failedWhileHeld(page, { before = 0 } = {}) {
+  await page.evaluate(({ h, before }) => { window.__api.remember({ w: 390, vw: 390, h, n: 4 }); window.__api.mount({ pending: true, items: 0, slots: 4, before }); }, { h: NATURAL, before });
+  await sleep(100);
+  await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true, before: window.__api.before }));
+}
+test("a message keeps the whole reservation while its area is in view or above the viewport (shrinking it there moves what the person reads), and what follows it does not move", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await page.evaluate(() => { window.__api.before = 0; });
+    await failedWhileHeld(page);
+    await sleep(300);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "in view: nothing moves");
+    // scroll until the area is entirely above the viewport and what follows it is in view
+    const tailDocTop = await page.evaluate(() => window.__api.tailDocTop());
+    await page.evaluate((top) => window.scrollTo(0, top + 20), tailDocTop);
+    await sleep(500);
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.equal(geometry.box, NATURAL, "above the viewport: the reservation stays (letting it go would move the reading place)");
+    const tailTop = await page.evaluate(() => window.__api.tailTop());
+    assert.ok(Math.abs(tailTop - -20) <= 1, `what follows the area did not move (${tailTop}px instead of -20px)`);
+  } finally { await page.close(); }
+});
+test("a message's reservation is let go when the person scrolls past the area upwards (the area is then below the viewport)", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await page.evaluate(() => { window.__api.before = 1500; });
+    await page.evaluate(({ h }) => { window.__api.remember({ w: 390, vw: 390, h, n: 4 }); window.__api.mount({ pending: true, items: 0, slots: 4, before: 1500 }); }, { h: NATURAL });
+    await sleep(100);
+    await page.evaluate(() => window.scrollTo(0, 1500));   // the area is in view when its read fails
+    await sleep(200);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true, before: 1500 }));
+    await sleep(400);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "in view: kept whole");
+    await page.evaluate(() => window.scrollTo(0, 0));       // up and past it: the area is now below the viewport
+    await sleep(500);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160, "below the viewport: bounded");
+  } finally { await page.close(); }
+});
+test("an area below the first screen shrinks to the bound at once (nothing in view is under it), and a retry gives the whole reservation back", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await page.evaluate(() => { window.__api.before = 2000; });
+    await failedWhileHeld(page, { before: 2000 });
+    await sleep(400);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160);
+    await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4, before: 2000 }));
+    await sleep(200);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "retrying loads in the whole box that was held, so the list that arrives fits it");
+  } finally { await page.close(); }
+});
+test("an area that held less than the bound keeps what it held (nothing to give back)", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await page.evaluate(() => { window.__api.remember({ w: 390, vw: 390, h: 120, n: 2 }); window.__api.mount({ pending: true, items: 0, slots: 2, before: 2000 }); });
+    await sleep(100);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 2, keep: true, before: 2000 }));
+    await sleep(400);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 120);
+  } finally { await page.close(); }
+});
+test("a cold area (nothing remembered) keeps the box its loading state had, so a failure does not collapse it either", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await page.evaluate(() => window.__api.mount({ pending: true, items: 0, slots: 3 }));
+    await sleep(200);
+    const loadingBox = (await page.evaluate(() => window.__api.geometry())).box;
+    assert.equal(loadingBox, 3 * 100 + 2 * 8);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 3, keep: true }));
+    await sleep(300);
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.deepEqual([geometry.box, geometry.message], [loadingBox, "unavailable"]);
   } finally { await page.close(); }
 });

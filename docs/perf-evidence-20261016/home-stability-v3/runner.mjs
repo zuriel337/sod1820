@@ -134,14 +134,15 @@ async function newSample(origin, ctl) {
   await ctx.addInitScript(INIT); await ctx.addInitScript(`try{localStorage.setItem('sod-theme','${THEME}')}catch(_){}`);
   await installTransportBoundary(ctx);
   const page = await ctx.newPage(); const cdp = await ctx.newCDPSession(page);
-  const st = { misses: new Set(), violations: [], errors: [], effects: 0, reqLog: [], consoleErrors: 0 };
+  const st = { misses: new Set(), violations: [], errors: [], effects: 0, reqLog: [], assets: [], consoleErrors: 0 };
+  page.on('requestfinished', (r) => { try { const pathname = new URL(r.url()).pathname, a = st.assets.find((x) => x.u === pathname && x.end == null); if (a) a.end = Date.now(); } catch { /* not a local asset */ } });
   page.on('pageerror', e => st.errors.push(String(e.message).slice(0, 160)));
   page.on('console', m => { if (m.type() === 'error') st.consoleErrors++; });
   await page.route('**/*', async route => {
     const req = route.request(), key = fixtureKey(req, A.headers === '1'); let kind;
     try { kind = requestPolicy(req, origin, fixtures, key); }
     catch (error) { st.misses.add(key); st.violations.push(String(error.message).split('\n')[0].slice(0, 120)); return route.abort('blockedbyclient'); }
-    if (kind === 'local') return route.continue();
+    if (kind === 'local') { try { st.assets.push({ u: new URL(req.url()).pathname, type: req.resourceType(), t: Date.now(), end: null }); } catch { /* ignore */ } return route.continue(); }
     if (kind === 'effect-fixture') { st.effects++; return route.fulfill({ status: 204, body: '', headers: CORS }); }
     const u = new URL(req.url()), supabase = u.hostname === SBHOST, isGate = /\/rest\/v1\/site_flags/.test(key);
     const row = stateRow(key, fixtures[key], ctl.phase), tReq = Date.now();
@@ -248,6 +249,8 @@ async function oneSample(arm, idx) {
       o.reading = { id: readingBlock.id, topBefore: readingBlock.top, blockH: readingBlock.h, landedAtMs: landed >= 0 ? series[landed].t : null, finalTop, displacement: finalTop == null ? null : Math.abs(finalTop - readingBlock.top),
         series: rec.paint.map(p => [Math.round(p.t - bWall0), p.y, p.tops[readingBlock.id] ?? null]).slice(0, 400) };
     }
+    o.cardsAtEnd = await page.evaluate(() => { const r = (n) => n ? Math.round(n.getBoundingClientRect().height * 10) / 10 : null; const box = document.querySelector('.h29-updates'); const cs = box ? getComputedStyle(box) : null; return box ? { box: r(box), pad: cs.paddingBlockStart + '/' + cs.paddingBlockEnd, gap: cs.rowGap, head: r(box.closest('section')?.querySelector('.h29-sec-h')), section: r(box.closest('section')), cards: [...box.children].map((c) => ({ tag: c.tagName, cls: String(c.className).slice(0, 40), h: r(c), main: r(c.querySelector('.h29-card-main')), media: r(c.querySelector('.h29-media')), body: r(c.querySelector('.h29-card-body')), cats: r(c.querySelector('.h29-card-cats')), catsCls: c.querySelector('.h29-card-cats') ? String(c.querySelector('.h29-card-cats').className).slice(0, 30) : null, open: r(c.querySelector('.h29-card-open')), upd: r(c.querySelector('.h29-upd')), t: r(c.querySelector('.h29-card-t')), meta: r(c.querySelector('.h29-meta')), metaText: (c.querySelector('.h29-meta') || {}).textContent || null, metaFont: c.querySelector('.h29-meta') ? (({ fontFamily, lineHeight, fontSize }) => `${fontFamily}|${lineHeight}|${fontSize}`)(getComputedStyle(c.querySelector('.h29-meta'))) : null, tFont: c.querySelector('.h29-card-t') ? (({ fontFamily, lineHeight }) => `${fontFamily}|${lineHeight}`)(getComputedStyle(c.querySelector('.h29-card-t'))) : null })), fonts: [...document.fonts].map((f) => `${f.family}:${f.status}`), probe: (() => { const m = box.children[1]?.querySelector('.h29-card-main'); if (!m) return null; const parts = [m, m.querySelector('.h29-media'), m.querySelector('.h29-media > *'), m.querySelector('.h29-card-body')].filter(Boolean); return { html: m.outerHTML.slice(0, 700), parts: parts.map((n) => { const q = getComputedStyle(n), b = n.getBoundingClientRect(); return { tag: n.tagName, cls: String(n.className).slice(0, 30), h: Math.round(b.height * 100) / 100, minH: q.minBlockSize, height: q.height, disp: q.display, fs: q.fontSize, lh: q.lineHeight, ff: q.fontFamily.slice(0, 40), ar: q.aspectRatio, pad: q.padding }; }) }; })() } : null; }).catch(() => null);   // per-card geometry of the updates strip at the end of the horizon (base and candidate alike)
+    o.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null);   // every remembered box at the end of the horizon: its height against its natural extent (a hold that outlives its loading is blank space)
     o.restore = { jumps: rec.jumps.map(j => ({ atMs: ms(j.t), to: j.to, from: j.from })), touchAtMs: rec.touch.length ? ms(rec.touch[0]) : null, departScrollY: o.depart.scrollY };
     if (INTERRUPT_AT != null) {
       const touchAt = o.restore.touchAtMs, jumpsAfter = o.restore.jumps.filter(j => touchAt != null && j.atMs > touchAt);
@@ -265,11 +268,31 @@ async function oneSample(arm, idx) {
 }
 
 // Cold Home load (no navigation away): composition/usability, CLS (session-window max over the whole load), LCP, skeleton residue, markers.
+// Per script: the time it took to compile and to evaluate its top level, and the time spent in functions it defines (top-level calls only, so nested calls are not counted twice),
+// from a Chromium trace taken under the same CPU throttling as the page. Long tasks: any task over 50 ms, with its start from the first trace event.
+function summarizeTrace(buf) {
+  const events = (JSON.parse(buf.toString()).traceEvents || []).filter((e) => e.ph === 'X' && e.dur);
+  const base = Math.min(...events.map((e) => e.ts)), ms = (us) => +(us / 1000).toFixed(1), file = (u) => String(u || '').replace(/^.*\//, '').replace(/\?.*$/, '') || '(inline)';
+  const add = (map, key, dur) => { map[key] = +((map[key] || 0) + dur / 1000).toFixed(1); };
+  const evaluate = {}, compile = {}, calls = {}, tasks = [];
+  const open = {};   // per thread: end of the last top-level FunctionCall
+  for (const e of events.sort((a, b) => a.ts - b.ts)) {
+    const url = e.args?.data?.url || e.args?.data?.fileName || e.args?.fileName || e.args?.url;
+    if (e.name === 'EvaluateScript' || e.name === 'v8.evaluateModule') add(evaluate, file(url), e.dur);
+    else if (e.name === 'v8.compile' || e.name === 'v8.compileModule' || e.name === 'v8.parseOnBackground') add(compile, file(url), e.dur);
+    else if (e.name === 'FunctionCall') { const key = `${e.pid}:${e.tid}`; if (!(open[key] > e.ts)) { open[key] = e.ts + e.dur; add(calls, file(url), e.dur); } }
+    else if (e.name === 'RunTask' && e.dur > 50000) tasks.push({ t: ms(e.ts - base), dur: ms(e.dur) });
+  }
+  const sum = (m) => +Object.values(m).reduce((a, b) => a + b, 0).toFixed(1), top = (m) => Object.fromEntries(Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 12));
+  return { evaluate: top(evaluate), compile: top(compile), calls: top(calls), totals: { evaluate: sum(evaluate), compile: sum(compile), calls: sum(calls) }, longTasks: tasks.slice(0, 40), longTaskMs: +tasks.reduce((a, t) => a + t.dur, 0).toFixed(1) };
+}
 async function loadSample(arm, idx) {
   const { origin } = servers[arm]; const ctl = { phase: 'depart' };
   const { ctx, page, st } = await newSample(origin, ctl);
   const o = { arm, idx, invalid: [], mode: 'load', state: STATE, width: W };
   try {
+    if (TRACE_DIR) await browser.startTracing(page, { categories: ['-*', 'devtools.timeline', 'disabled-by-default-devtools.timeline', 'v8', 'v8.execute'] });
+    const navWall0 = Date.now();
     await page.goto(origin + '/', { waitUntil: 'load', timeout: 120000 }).catch(() => {});
     const settled = await page.waitForFunction(() => { const r = window.__ready(); if (!r) return false; const sk = window.__skeletons(); return sk.loading + sk.busy + sk.status === 0; }, null, { timeout: 40000 }).then(() => true).catch(() => false);
     if (!settled) o.invalid.push('Home never left its loading state');
@@ -281,6 +304,11 @@ async function loadSample(arm, idx) {
     o.readyMs = { usable: rel(rec.ready.usable), composed: rel(rec.ready.composed), hero: rel(rec.ready.heroReal), dgSettled: rel(rec.ready.dgSettled), markerPrimary: rel(rec.ready.markerPrimary), markerDg: rel(rec.ready.markerDg), markerSeen: rec.ready.markerSeen ?? null };
     o.final = rec.ready0; o.skeletonResidue = rec.sk; o.holds = rec.holds; o.emptyText = rec.emptyText; o.heroText = rec.heroText;
     o.reqCount = st.reqLog.length;
+    // what the first entry asks for, in order: the app's own files (name, kind, start/end from the navigation) and the reads (shape, count, first/last) with repeated shapes called out
+    o.assets = st.assets.map((a) => ({ f: a.u.replace(/^.*\//, '') || '/', type: a.type, start: a.t - navWall0, end: a.end == null ? null : a.end - navWall0 }));
+    const shapes = {}; for (const r of st.reqLog) { const e = (shapes[r.k] = shapes[r.k] || { n: 0, first: null, last: null }); e.n++; e.first = e.first ?? r.tReq - navWall0; e.last = r.tReq - navWall0; }
+    o.reads = { total: st.reqLog.length, distinct: Object.keys(shapes).length, repeated: Object.entries(shapes).filter(([, v]) => v.n > 1).map(([k, v]) => ({ k, n: v.n, first: v.first, last: v.last })), shapes };
+    if (TRACE_DIR) { const buf = await browser.stopTracing(); o.scripts = summarizeTrace(buf); fs.mkdirSync(TRACE_DIR, { recursive: true }); fs.writeFileSync(path.join(TRACE_DIR, `${arm}-load-${idx}.trace.json.gz`), zlib.gzipSync(buf)); }
   } catch (e) { o.error = String(e.message).replace(/\u001b\[[0-9;]*m/g, '').slice(0, 300); }
   await finishSample(o, st, page, 'load');
   await ctx.close(); return o;
