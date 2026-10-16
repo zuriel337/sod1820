@@ -19,6 +19,7 @@ const require = createRequire((process.env.PLAYWRIGHT_DIR || '/opt/node-tools') 
 const argv = process.argv.slice(2);
 const A = Object.fromEntries(argv.reduce((a, v, i, arr) => v.startsWith('--') ? [...a, [v.slice(2), arr[i + 1]]] : a, []));
 const PAIRS = +(A.pairs || 1), THEME = A.theme || 'dark', DELAY = 150, LATE = A.late ? +A.late : null, HORIZON_MS = A.horizon ? +A.horizon : (LATE && LATE >= 3200 ? 9000 : 7000);
+const TRACE_DIR = A.traceDir || null;
 const MODE = A.mode || 'back', GATE_DELAY = +(A.gateDelay || 0), GATE_CLOSED = A.gate === 'closed', RESIZE_TO = A.resize ? +A.resize : null;
 const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal', INTERRUPT = A.interrupt === '1', REDUCED = A.reduced === '1';
 const FX = path.resolve(A.fx || new URL('../../perf-evidence-20261015/scroll-integration/fixtures-combined.json.gz', import.meta.url).pathname);
@@ -157,6 +158,7 @@ async function oneSample(arm, idx) {
     o.postY = await page.evaluate(() => Math.round(scrollY));
     // ---- measured action: actual browser Back ----
     ctl.phase = 'back'; await page.evaluate(() => window.__resetReady());
+    if (TRACE_DIR) await browser.startTracing(page, { categories: ['-*', 'devtools.timeline', 'disabled-by-default-devtools.timeline', 'v8.execute'] });
     const bMono0 = performance.now(), bWall0 = Date.now();
     await page.goBack({ waitUntil: 'commit' });
     const bMono1 = performance.now(), bWall1 = Date.now();
@@ -169,6 +171,7 @@ async function oneSample(arm, idx) {
     // poll the visible content anchor through the whole horizon
     const traj = []; const deadline = bWall0 + HORIZON_MS;
     while (Date.now() < deadline) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), dh: document.documentElement.scrollHeight, a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj.push([Date.now() - bWall0, p.y, p.dh, p.a.found ? p.a.top : null]); await sleep(120); }
+    if (TRACE_DIR) { const buf = await browser.stopTracing(); fs.mkdirSync(TRACE_DIR, { recursive: true }); fs.writeFileSync(path.join(TRACE_DIR, `${arm}-${idx}.trace.json.gz`), zlib.gzipSync(buf)); }
     const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1) }; }, [bWall0, bWall0 + HORIZON_MS]);
     const sum = rec.cs.reduce((s, x) => s + x.v, 0);
     o.actionWindowShiftSum = +sum.toFixed(4); o.cls = sessionWindowMax(rec.cs); o.shifts = rec.cs; o.mut = rec.mut; o.geo = rec.geo; o.geoPre = rec.geoPre; o.longTasks = rec.lt; o.events = rec.ev;
