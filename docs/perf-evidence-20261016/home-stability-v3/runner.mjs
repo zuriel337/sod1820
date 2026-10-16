@@ -1,44 +1,71 @@
-// CLAUDE_PERF_HOME_STABILITY_V3_20261016 — Home readiness + return-stability runner (evidence tool; READ_ONLY on product code).
-// Derived from docs/perf-evidence-20261015/home-stability-v2/runner.mjs @ 1270d1fa (never part of the base). Changes vs v2:
-//  * usable content = a REAL hero and/or REAL update card: visible, not .is-loading, not aria-hidden, not aria-busy, not hidden,
-//    non-zero box, meaningful title (>= 4 chars after removing whitespace/NBSP) and an actual /post/ destination. Loading slots,
-//    the loading hero and NBSP text never count. Discovery readiness is separate (populated a.dg29-* links, or an explicit empty/error marker).
-//  * the product's own markers (data-h29-primary, data-dg29-state) are recorded next to the structural predicate, never used instead of it.
-//  * cls = standard session-window maximum inside the observed window (gaps < 1000 ms, span < 5000 ms); v2's sum is kept as actionWindowShiftSum.
-//  * scenarios: --gateDelay MS (the lock_world flag read answers late in the Back phase), --gate closed (guest, world gate closed),
-//    --gate closed applies from the Back phase only (the world gate was open on the first visit and is closed on the return)
-//    --resize W (viewport width change 800 ms after Back while holds are applied), --mode load (cold Home load, normal|empty|error).
-// usage: node runner.mjs --arms A=DIST_A,B=DIST_B --pairs 7 --out out.json [--mode back|load] [--late 150|900|1800|3200] [--interrupt 1]
-//        [--width 390 --height 844 --theme dark|light|parchment --reduced 1 --fx fixtures.json.gz --post /post/slug --state normal|empty|error]
-//        [--gateDelay 2500] [--gate closed] [--resize 320]
-// Method (kept from v2): route handlers never await the renderer; controller wall stamps around real commands; observers installed before
-// any navigation; no scrollIntoView; fixed wall horizon after Back; strict fixture-miss gate (a miss is answered 404 and invalidates the sample).
-import { createRequire } from 'node:module'; import fs from 'node:fs'; import zlib from 'node:zlib'; import crypto from 'node:crypto'; import path from 'node:path';
-import { serve } from '../../../scripts/perf/serve.mjs';
-import { READINESS_SRC } from './readiness.mjs';
+// CLAUDE_PERF_HOME_STABILITY_V3_20261016 — Home readiness + return-stability runner v4 (evidence tool; READ_ONLY on product code).
+// Derived from runner v3 (e23dee27) and docs/perf-evidence-20261015/home-stability-v2/runner.mjs @ 1270d1fa (never part of the base).
+//
+// INPUT AND ISOLATION — the shared mechanism only (no replay or isolation mechanism of its own):
+//   * must run under scripts/ci-isolation/run.mjs (native connect guard + audit), e.g.
+//       SOD_CI_SNAPSHOT_SHA256=<sha256 of the snapshot> node scripts/ci-isolation/run.mjs -- node runner.mjs --fx <snapshot.json.gz> --arms A=distA,B=distB --pairs 7 --out out.json
+//   * the corpus is read with policy.cjs frozenSnapshot (exact SHA256, canonical Base64 bodies via snapshot-contract decodeSnapshot) — never the old UTF-8-string
+//     corpus — and admitted only if every image response decodes (fixtures.mjs). There is no default corpus. A decoded body is sent byte for byte.
+//   * every request goes through policy.cjs requestPolicy: local origin = served from dist; known telemetry effects = 204; a mapped read = its frozen row (after a Node-timer
+//     delay, never waiting on the renderer); anything else (unmapped read, write, external host) is a violation: the request is aborted, the sample is invalid, and the
+//     shared audit fails the run. There is no empty-body or synthesized fallback. Serving, browser flags, the guest identity and the beacon/WebSocket boundary are the shared ones.
+//   * unmapped identifiers go to a PRIVATE file (--private, default in the OS temp dir, mode 0600); the evidence carries only a count, a digest and request shapes.
+//
+// MEASUREMENT
+//   * "composed" = the DOM holds real content; "usable" = a person can see and use it now (opacity, viewport, hit-test; on a return: the departure control itself). See readiness.mjs.
+//   * cls = standard session-window maximum inside the observed window (gaps < 1000 ms, span < 5000 ms); v2's sum is kept as actionWindowShiftSum.
+//   * a response the page cannot decode as an image (naturalWidth 0) invalidates the sample.
+//   * scenarios: --late MS (reads after Back answer late), --gateDelay MS, --gate closed (from the Back phase only), --resize W (viewport width change 800 ms after Back),
+//     --interruptAt MS (a swipe MS after Back; the sample proves early-input cancellation only if the touch reached the page before the restore jump), --mode load (cold load),
+//     --state normal|empty|error|outage (outage = every REST read except the flags fails; --stateFrom back: only the return's reads), --post auto|/post/slug (departure; auto = first visible Home post control whose complete body is in the corpus).
+// usage: see above; further: --width 390 --height 844 --theme dark|light|parchment --reduced 1 --horizon MS --headers 1 --traceDir DIR --private FILE
+// Method (kept from v2): route handlers never await the renderer; controller wall stamps around real commands; observers installed before any navigation;
+// no scrollIntoView; fixed wall horizon after Back.
+import { createRequire } from 'node:module'; import fs from 'node:fs'; import os from 'node:os'; import zlib from 'node:zlib'; import crypto from 'node:crypto'; import path from 'node:path';
+import { serve } from '../../../scripts/perf-execution-2029/serve.mjs';
+import { READINESS_SRC, READINESS_VERSION } from './readiness.mjs';
+import { admitCorpus, missDigest, requestShape } from './fixtures.mjs';
+const sharedRequire = createRequire(import.meta.url);
+const { requireIsolation, frozenSnapshot, requestPolicy, fixtureKey, browserArgs, installTransportBoundary } = sharedRequire('../../../scripts/ci-isolation/policy.cjs');
+requireIsolation();
 const require = createRequire((process.env.PLAYWRIGHT_DIR || '/opt/node-tools') + '/node_modules/'); const { chromium } = require('playwright');
 const argv = process.argv.slice(2);
 const A = Object.fromEntries(argv.reduce((a, v, i, arr) => v.startsWith('--') ? [...a, [v.slice(2), arr[i + 1]]] : a, []));
 const PAIRS = +(A.pairs || 1), THEME = A.theme || 'dark', DELAY = 150, LATE = A.late ? +A.late : null, HORIZON_MS = A.horizon ? +A.horizon : (LATE && LATE >= 3200 ? 9000 : 7000);
 const TRACE_DIR = A.traceDir || null;
 const MODE = A.mode || 'back', GATE_DELAY = +(A.gateDelay || 0), GATE_CLOSED = A.gate === 'closed', RESIZE_TO = A.resize ? +A.resize : null;
-const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal', INTERRUPT = A.interrupt === '1', REDUCED = A.reduced === '1';
-const FX = path.resolve(A.fx || new URL('../../perf-evidence-20261015/scroll-integration/fixtures-combined.json.gz', import.meta.url).pathname);
-const fxBuf = fs.readFileSync(FX); const FX_SHA = crypto.createHash('sha256').update(fxBuf).digest('hex');
-const fixtures = JSON.parse(zlib.gunzipSync(fxBuf));
-const SBHOST = '.supabase.co';
-const READ_RPC = new Set(['convergence_meter', 'fn_method_value', 'fn_number_dossier', 'fn_number_journey', 'fn_number_lookup', 'fn_zero_scale', 'gematria_api', 'gematria_method_trace', 'get_category_videos', 'number_neighbors', 'posts_by_number_strict', 'world_group_source_arrivals_v3', 'world_group_source_arrivals_v2', 'notification_prefs_guest_get_v1', 'public_enrichment_batch']);
-const norm = u => decodeURIComponent(u).replace(/\d{4}-\d\d-\d\dT[\d:.]+(Z|\+00:00| ?00:00)?/g, 'TS');
-const keyOf = (req) => { const u = norm(req.url()); if (req.method() === 'GET') return 'GET ' + u; const b = /notification_prefs_guest_get_v1/.test(u) ? '' : (req.postData() || '').replace(/\d{4}-\d\d-\d\dT[\d:.]+(Z|\+00:00| ?00:00)?/g, 'TS'); return 'POST ' + u + ' ' + crypto.createHash('md5').update(b).digest('hex'); };
-const shortKey = (k) => { const m = /rest\/v1\/(rpc\/[a-z_0-9]+|[a-z_0-9]+)\?([^&]{0,60})/.exec(k) || /rest\/v1\/(rpc\/[a-z_0-9]+)/.exec(k); return m ? (m[1] + (m[2] ? '?' + m[2] : '')) : k.slice(0, 90); };
+const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal', REDUCED = A.reduced === '1';
+const STATE_FROM_BACK = A.stateFrom === 'back';
+const INTERRUPT_AT = A.interruptAt != null ? +A.interruptAt : (A.interrupt === '1' ? 900 : null);
+if (!['normal', 'empty', 'error', 'outage'].includes(STATE)) { console.error('--state normal|empty|error|outage'); process.exit(2); }
+if (!A.fx) { console.error('--fx <snapshot.json.gz> required (an exact, decodable corpus; there is no default)'); process.exit(2); }
+const FX = path.resolve(A.fx);
+const FX_SHA = process.env.SOD_CI_SNAPSHOT_SHA256 || A.fxSha256 || '';
+let fixtures, corpusImages;
+try { fixtures = frozenSnapshot(FX, FX_SHA); corpusImages = admitCorpus(fixtures); }
+catch (error) { console.error(`BLOCKED: ${String(error.message).split('\n')[0]}`); process.exit(3); }
+// complete post bodies in the corpus: the only posts a departure may use
+const COMPLETE_POSTS = new Set(Object.entries(fixtures).flatMap(([key, row]) => {
+  const slug = /\/rest\/v1\/posts\?select=\*&slug=in\.\(([^)&]+)\)/.exec(key)?.[1]; if (!slug || ![200, 206].includes(row.status)) return [];
+  try { const post = JSON.parse(Buffer.from(row.body, 'base64'))?.[0]; return post && String(post.content || '').replace(/<[^>]*>/g, ' ').length >= 800 ? [decodeURIComponent(slug)] : []; } catch { return []; }
+}));
+const POST_ARG = A.post || null;   // 'auto' (default for a return) or an exact /post/slug
+if (MODE === 'back') {
+  const need = POST_ARG && POST_ARG !== 'auto' ? [decodeURIComponent(POST_ARG.replace(/^\/post\//, ''))] : [];
+  if (!COMPLETE_POSTS.size || need.some(slug => !COMPLETE_POSTS.has(slug))) { console.error(`BLOCKED: the corpus has no complete body for the departure post (${COMPLETE_POSTS.size} complete post bodies present${need.length ? `; required: ${need.length}, missing: ${need.filter(s => !COMPLETE_POSTS.has(s)).length}` : ''})`); process.exit(3); }
+}
+const SBHOST = 'linswmnnkjxvweumprav.supabase.co';
+const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*', 'access-control-expose-headers': 'content-range' };
+const shortShape = (key) => requestShape(key).replace(/^(GET|HEAD|POST|OPTIONS) [^/]+\/(?:rest\/v1\/)?/, '$1 ').slice(0, 96);
 const arms = Object.fromEntries((A.arms || '').split(',').filter(Boolean).map(s => s.split('=')));
 const armNames = Object.keys(arms); if (!armNames.length) { console.error('--arms A=dist,B=dist required'); process.exit(2); }
 const servers = {}; for (const n of armNames) { const s = await serve(path.resolve(arms[n])); servers[n] = { ...s, origin: `http://127.0.0.1:${s.port}` }; }
-const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: browserArgs });
 const med = a => { const s = a.filter(x => x != null && !Number.isNaN(x)).sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : null; };
+const privateMisses = [];
 
 // ---- in-page instrumentation (installed before any navigation) -------------------------------------------------------
-const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],t0:performance.timeOrigin};
+const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],touch:[],jumps:[],sc:[],poll:true,t0:performance.timeOrigin};
 const D=n=>{if(!n||!n.tagName)return String(n&&n.nodeName);let s=n.tagName.toLowerCase();if(typeof n.className==='string'&&n.className)s+='.'+n.className.trim().split(/\\s+/).slice(0,2).join('.');const l=n.getAttribute&&n.getAttribute('aria-label');if(l)s+='['+l.slice(0,14)+']';return s};
 const ep=t=>Math.round((performance.timeOrigin+t)*10)/10;
 new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)m.cs.push({t:ep(e.startTime),v:e.value,src:(e.sources||[]).slice(0,5).map(s=>({n:D(s.node),py:Math.round(s.previousRect.y),cy:Math.round(s.currentRect.y),ph:Math.round(s.previousRect.height),ch:Math.round(s.currentRect.height)}))})}).observe({type:'layout-shift',buffered:true});
@@ -59,7 +86,7 @@ let last='';const loop=()=>{const root=document.querySelector("[data-experience-
    heroKids:[...document.querySelectorAll('.h29-hero > *')].map(e=>[D(e),rh(e)])};
   const key=JSON.stringify(kids)+JSON.stringify(det)+Math.round(scrollY)+document.documentElement.scrollHeight;
   if(key!==last){last=key;if(m.geo.length<4000)m.geo.push({t:ep(performance.now()),y:Math.round(scrollY),dh:document.documentElement.scrollHeight,k:kids,det})}}
- requestAnimationFrame(loop)};requestAnimationFrame(loop);
+ if(m.poll)rd();requestAnimationFrame(loop)};requestAnimationFrame(loop);
 ${READINESS_SRC}
 // paint / LCP
 new PerformanceObserver(l=>{for(const e of l.getEntries())m.lcp={t:ep(e.startTime),size:e.size,el:D(e.element),url:(e.url||'').slice(-60)}}).observe({type:'largest-contentful-paint',buffered:true});
@@ -69,47 +96,54 @@ window.__wait=(kind,ms=30000)=>new Promise(res=>{let done=false;const chk=()=>ki
  const mo2=new MutationObserver(()=>{if(chk())fin(true)});mo2.observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true});
  const iv=setInterval(()=>{if(chk())fin(true)},50);if(chk())fin(true);setTimeout(()=>fin(false),ms)});
 // ready observer: records the first epoch time each predicate becomes true (installed pre-navigation, always running)
-m.ready={};const rd=()=>{const r=window.__ready();if(r){for(const k of ['heroReal','usable','both','dgReady','dgSettled'])if(r[k]&&m.ready[k]==null)m.ready[k]=ep(performance.now());if(r.prMarker==='ready'&&m.ready.markerPrimary==null)m.ready.markerPrimary=ep(performance.now());if(r.dgMarker==='ready'&&m.ready.markerDg==null)m.ready.markerDg=ep(performance.now());if(r.prMarker&&m.ready.markerSeen==null)m.ready.markerSeen=r.prMarker}};
+m.ready={};const rd=()=>{const r=window.__ready();if(r){for(const k of ['heroReal','composed','usable','both','dgReady','dgSettled'])if(r[k]&&m.ready[k]==null)m.ready[k]=ep(performance.now());if(r.prMarker==='ready'&&m.ready.markerPrimary==null)m.ready.markerPrimary=ep(performance.now());if(r.dgMarker==='ready'&&m.ready.markerDg==null)m.ready.markerDg=ep(performance.now());if(r.prMarker&&m.ready.markerSeen==null)m.ready.markerSeen=r.prMarker;if(m.ready.usable!=null&&m.ready.dgSettled!=null)m.poll=false}};
 const mo3=new MutationObserver(rd);const st3=()=>mo3.observe(document.documentElement,{childList:true,subtree:true,attributes:true});if(document.documentElement)st3();else document.addEventListener('DOMContentLoaded',st3);
-window.__resetReady=()=>{m.ready={}};
+window.__resetReady=()=>{m.ready={};m.poll=true};
+// user input and programmatic scroll jumps (the scroll restorer's scrollTo), for the early-input cancellation check
+window.addEventListener('touchstart',()=>m.touch.push(ep(performance.now())),{capture:true,passive:true});
+window.addEventListener('scroll',()=>{if(m.sc.length<6000)m.sc.push([ep(performance.now()),Math.round(scrollY)])},{passive:true});
+const nativeScrollTo=window.scrollTo.bind(window);window.scrollTo=function(...a){m.jumps.push({t:ep(performance.now()),to:a[0]&&typeof a[0]==='object'?a[0].top:a[1],from:Math.round(scrollY)});return nativeScrollTo(...a)};
+try{window.__target=sessionStorage.getItem('__homeTarget')||null}catch(_){window.__target=null}
 window.__anchor=(key)=>{const out={};const els=[...document.querySelectorAll('h1,h2,h3,h4,a,p,li,button,span,strong,b,small')].filter(e=>e.children.length===0);
  if(key){const el=els.find(e=>(e.innerText||'').trim().slice(0,80)===key);out.found=!!el;out.top=el?Math.round(el.getBoundingClientRect().top):null;return out}
  return out};
 })()`;
 
 // ---- sample ----------------------------------------------------------------------------------------------------------
+const stateRow = (key, row, phase) => {
+  // Explicit scenario injection (named by --state / --gate), applied to a row that IS in the corpus; never a stand-in for a missing one.
+  if (GATE_CLOSED && phase === 'back' && /\/rest\/v1\/site_flags/.test(key)) {
+    const rows = JSON.parse(Buffer.from(row.body, 'base64')).filter(r => r.key !== 'lock_world'); rows.push({ key: 'lock_world', enabled: true, message: 'fixture: world gate closed', mode: 'all' });
+    return { ...row, body: Buffer.from(JSON.stringify(rows)).toString('base64') };
+  }
+  if (STATE === 'normal' || (STATE_FROM_BACK && phase !== 'back')) return row;
+  const rest = /\/rest\/v1\//.test(key);
+  const target = STATE === 'outage' ? rest && !/\/rest\/v1\/site_flags/.test(key) : (/\/rest\/v1\/posts|get_category_videos|els_records/.test(key) && !/storage/.test(key));
+  if (!target) return row;
+  if (STATE === 'empty') return { status: 200, type: 'application/json', body: Buffer.from('[]').toString('base64') };
+  return { status: 500, type: 'application/json', body: Buffer.from('{"message":"fixture injected failure"}').toString('base64') };
+};
 async function newSample(origin, ctl) {
-  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'he-IL', timezoneId: 'Asia/Jerusalem', reducedMotion: REDUCED ? 'reduce' : 'no-preference' });
+  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, serviceWorkers: 'block', locale: 'he-IL', timezoneId: 'Asia/Jerusalem', reducedMotion: REDUCED ? 'reduce' : 'no-preference' });
   await ctx.addInitScript(INIT); await ctx.addInitScript(`try{localStorage.setItem('sod-theme','${THEME}')}catch(_){}`);
+  await installTransportBoundary(ctx);
   const page = await ctx.newPage(); const cdp = await ctx.newCDPSession(page);
-  const st = { misses: new Set(), errors: [], blockedWrites: 0, blockedWriteKeys: [], reqLog: [], consoleErrors: 0 };
+  const st = { misses: new Set(), violations: [], errors: [], effects: 0, reqLog: [], consoleErrors: 0 };
   page.on('pageerror', e => st.errors.push(String(e.message).slice(0, 160)));
   page.on('console', m => { if (m.type() === 'error') st.consoleErrors++; });
   await page.route('**/*', async route => {
-    const req = route.request(), u = req.url();
-    if (u.startsWith(origin)) { const p = new URL(u).pathname; if (p.startsWith('/api/')) return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }); return route.continue(); }
-    if (u.includes(SBHOST)) {
-      const rpc = (/\/rest\/v1\/rpc\/([^?]+)/.exec(u) || [])[1];
-      const hdr = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*', 'access-control-expose-headers': 'content-range' };
-      if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: hdr, body: '' });
-      const isRead = req.method() === 'GET' || (req.method() === 'POST' && rpc && READ_RPC.has(rpc));
-      if (!isRead) { st.blockedWrites++; st.blockedWriteKeys.push(req.method() + ' ' + shortKey(norm(u))); return route.fulfill({ status: 204, body: '', headers: hdr }); }
-      const k = keyOf(req); let f = fixtures[k];
-      const isGate = /rest\/v1\/site_flags/.test(k);
-      if (isGate && GATE_CLOSED && ctl.phase === 'back' && f) { const rows = JSON.parse(f.body).filter(r => r.key !== 'lock_world'); rows.push({ key: 'lock_world', enabled: true, message: 'fixture: world gate closed', mode: 'all' }); f = { ...f, body: JSON.stringify(rows) }; }
-      const sk = shortKey(k); const tReq = Date.now();
-      if (STATE === 'empty' && /rest\/v1\/posts|get_category_videos|els_records/.test(k) && !/storage/.test(k)) f = { status: 200, body: '[]', ct: 'application/json', cr: null };
-      if (STATE === 'error' && /rest\/v1\/posts|get_category_videos|els_records/.test(k) && !/storage/.test(k)) f = { status: 500, body: '{"message":"fixture injected failure"}', ct: 'application/json', cr: null };
-      const missing = !f; if (missing) st.misses.add(k.slice(0, 160));
-      // delay uses Node timers only; never waits on the renderer
-      const d = ((ctl.phase === 'back' && LATE != null) ? LATE : DELAY) + ((isGate && ctl.phase === 'back') ? GATE_DELAY : 0);
-      await new Promise(r => setTimeout(r, d));
-      st.reqLog.push({ k: sk, phase: ctl.phase, tReq, tFulfil: Date.now(), delay: d, miss: missing });
-      if (missing) return route.fulfill({ status: 404, body: '', headers: hdr });   // flagged miss: sample will be invalid; NOT silently synthesised
-      return route.fulfill({ status: f.status, body: f.body, headers: { ...hdr, 'content-type': f.ct || 'application/json', ...(f.cr ? { 'content-range': f.cr } : {}) } });
-    }
-    await new Promise(r => setTimeout(r, 400));
-    return route.fulfill({ status: 200, body: '', contentType: u.includes('css') ? 'text/css' : 'text/javascript' });
+    const req = route.request(), key = fixtureKey(req, A.headers === '1'); let kind;
+    try { kind = requestPolicy(req, origin, fixtures, key); }
+    catch (error) { st.misses.add(key); st.violations.push(String(error.message).split('\n')[0].slice(0, 120)); return route.abort('blockedbyclient'); }
+    if (kind === 'local') return route.continue();
+    if (kind === 'effect-fixture') { st.effects++; return route.fulfill({ status: 204, body: '', headers: CORS }); }
+    const u = new URL(req.url()), supabase = u.hostname === SBHOST, isGate = /\/rest\/v1\/site_flags/.test(key);
+    const row = stateRow(key, fixtures[key], ctl.phase), tReq = Date.now();
+    // delay uses Node timers only; never waits on the renderer
+    const d = supabase ? ((ctl.phase === 'back' && LATE != null) ? LATE : DELAY) + ((isGate && ctl.phase === 'back') ? GATE_DELAY : 0) : 400;
+    await new Promise(r => setTimeout(r, d));
+    st.reqLog.push({ k: shortShape(key), phase: ctl.phase, tReq, tFulfil: Date.now(), delay: d });
+    return route.fulfill({ status: row.status, body: req.method() === 'HEAD' ? '' : Buffer.from(row.body, 'base64'), headers: { ...CORS, 'content-type': row.type || 'application/json', ...(row.range ? { 'content-range': row.range } : {}) } });
   });
   await cdp.send('Network.enable'); await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 150, downloadThroughput: 1.6 * 1024 * 1024 / 8, uploadThroughput: 750 * 1024 / 8 });
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
@@ -123,29 +157,38 @@ function sessionWindowMax(entries) { let best = 0, cur = 0, start = null, last =
   for (const e of [...entries].sort((a, b) => a.t - b.t)) { if (start != null && (e.t - last >= 1000 || e.t - start >= 5000)) { cur = 0; start = null; } if (start == null) start = e.t; cur += e.v; last = e.t; best = Math.max(best, cur); }
   return +best.toFixed(4); }
 const HOME_POST = "[data-experience-capability='home-composition'] a[href^='/post/']";
-// find the first Home post link that is fully inside the viewport (no programmatic scroll)
-async function visibleLink(page) {
-  return page.evaluate(([sel, vh]) => { const els = [...document.querySelectorAll(sel)]; for (const e of els) { const r = e.getBoundingClientRect(); if (r.top >= 90 && r.bottom <= vh - 90 && r.width > 20 && r.height > 12 && getComputedStyle(e).visibility !== 'hidden') {
+// find the first Home post control that is fully inside the viewport (no programmatic scroll); with eligible slugs, only a post whose complete body the corpus holds
+async function visibleLink(page, eligible) {
+  return page.evaluate(([sel, vh, slugs]) => { const els = [...document.querySelectorAll(sel)]; for (const e of els) { const r = e.getBoundingClientRect(); if (r.top >= 90 && r.bottom <= vh - 90 && r.width > 20 && r.height > 12 && getComputedStyle(e).visibility !== 'hidden') {
+    const slug = decodeURIComponent((e.getAttribute('href') || '').replace(/^\/post\//, '')); if (slugs && !slugs.includes(slug)) continue;
     const leafs = [...e.querySelectorAll('*')].filter(c => c.children.length === 0 && (c.innerText || '').trim().length >= 6); const lf = leafs[0] || e;
-    return { href: e.getAttribute('href'), x: r.left + r.width / 2, y: r.top + r.height / 2, top: Math.round(r.top), anchorText: ((lf.innerText || e.innerText || '').trim().slice(0, 80)), anchorTop: Math.round(lf.getBoundingClientRect().top) }; } } return null; }, [HOME_POST, H]);
+    return { href: e.getAttribute('href'), x: r.left + r.width / 2, y: r.top + r.height / 2, top: Math.round(r.top), anchorText: ((lf.innerText || e.innerText || '').trim().slice(0, 80)), anchorTop: Math.round(lf.getBoundingClientRect().top) }; } } return null; }, [HOME_POST, H, eligible]);
+}
+async function finishSample(o, st, page, label) {
+  o.pageErrors = st.errors; o.consoleErrors = st.consoleErrors; o.misses = st.misses.size; o.missDigest = missDigest([...st.misses]); o.policyViolations = [...new Set(st.violations)].slice(0, 6); o.effects = st.effects;
+  let broken = []; try { broken = await page.evaluate(() => window.__brokenImages()); } catch { /* page gone */ }
+  o.brokenImages = missDigest(broken); if (broken.length) o.invalid.push(`${broken.length} image(s) the page could not decode`);
+  if (st.misses.size || broken.length) privateMisses.push({ arm: o.arm, idx: o.idx, label, unmapped: [...st.misses], undecodableImages: broken });
+  if (A.shot) { try { await page.screenshot({ path: `${A.shot}-${o.arm}-${o.idx}.png` }); } catch (_) {} }
+  o.valid = !o.error && !o.invalid.length && o.misses === 0 && o.pageErrors.length === 0;
 }
 async function oneSample(arm, idx) {
   const { origin } = servers[arm]; const ctl = { phase: 'depart' };
   const { ctx, page, cdp, st } = await newSample(origin, ctl);
-  const o = { arm, idx, invalid: [], late: LATE, interrupt: INTERRUPT, state: STATE };
+  const o = { arm, idx, invalid: [], late: LATE, interruptAt: INTERRUPT_AT, state: STATE };
   try {
     const nav0 = Date.now();
     await page.goto(origin + '/', { waitUntil: 'load', timeout: 120000 }).catch(() => {});
     const rdy = await page.evaluate(() => window.__wait('dgSettled')); if (!rdy.ok) o.invalid.push('Home discovery never settled');
     o.homeReadyEpoch = { usable: await page.evaluate(() => window.__r.ready.usable), dgSettled: await page.evaluate(() => window.__r.ready.dgSettled), navStart: nav0 };
     await sleep(2200);   // explicit setup settle (not part of measured action)
+    const eligible = POST_ARG && POST_ARG !== 'auto' ? [decodeURIComponent(POST_ARG.replace(/^\/post\//, ''))] : [...COMPLETE_POSTS];
     // reach the departure position by real touch swipes (same fixed script for every arm)
     for (let i = 0; i < 3; i++) { await swipe(cdp, 600); await sleep(250); } await sleep(500);
-    let link = null; for (let i = 0; i < 10 && !link; i++) { link = await visibleLink(page); if (!link) { await swipe(cdp, 300); await sleep(350); } }
+    let link = null; for (let i = 0; i < 10 && !link; i++) { link = await visibleLink(page, eligible); if (!link) { await swipe(cdp, 300); await sleep(350); } }
     await sleep(800);
-    link = await visibleLink(page);
-    if (!link) { o.invalid.push('no really-visible Home post control for departure'); throw new Error('no visible control'); }
-    if (A.post && link.href !== A.post) o.invalid.push(`departure post ${link.href} != required ${A.post}`);
+    link = await visibleLink(page, eligible);
+    if (!link) { o.invalid.push('no really-visible Home post control for departure (with a complete body in the corpus)'); throw new Error('no visible control'); }
     o.depart = { href: link.href, anchorText: link.anchorText, anchorTopBefore: link.anchorTop, linkTop: link.top, scrollY: await page.evaluate(() => Math.round(scrollY)), docH: await page.evaluate(() => document.documentElement.scrollHeight), blocksBefore: (await page.evaluate(() => { const g = window.__r.geo; return g.length ? g[g.length - 1].k : null; })) };
     // REAL tap (touch) at the control; controller timestamps immediately around the command
     const tapMono0 = performance.now(), tapWall0 = Date.now();
@@ -158,28 +201,28 @@ async function oneSample(arm, idx) {
     for (let i = 0; i < 2; i++) { await swipe(cdp, 700); await sleep(300); } await sleep(600);
     o.postY = await page.evaluate(() => Math.round(scrollY));
     // ---- measured action: actual browser Back ----
-    ctl.phase = 'back'; await page.evaluate(() => window.__resetReady());
+    ctl.phase = 'back'; await page.evaluate((target) => { try { sessionStorage.setItem('__homeTarget', target); } catch (_) {} window.__target = target; window.__resetReady(); }, link.anchorText);
     if (TRACE_DIR) await browser.startTracing(page, { categories: ['-*', 'devtools.timeline', 'disabled-by-default-devtools.timeline', 'v8.execute'] });
     const bMono0 = performance.now(), bWall0 = Date.now();
     await page.goBack({ waitUntil: 'commit' });
     const bMono1 = performance.now(), bWall1 = Date.now();
     o.back = { cmdWallStart: bWall0, cmdWallEnd: bWall1, cmdDurMs: Math.round(bMono1 - bMono0) };
-    let resize = null;
-    if (RESIZE_TO) { await sleep(800); const before = await page.evaluate(() => window.__holds()); await page.setViewportSize({ width: RESIZE_TO, height: H }); await sleep(600); const after = await page.evaluate(() => window.__holds()); resize = { from: W, to: RESIZE_TO, before, after, staleVars: after.filter(h => h.v !== '').length, excess: after.map(h => h.h - h.nat) }; }
-    o.resize = resize;
-    let interrupt = null;
-    if (INTERRUPT) { await sleep(900); const yb = await page.evaluate(() => Math.round(scrollY)); await swipe(cdp, 400); await sleep(400); interrupt = { atMsAfterBack: Date.now() - bWall0, yBefore: yb, yAfterSwipe: await page.evaluate(() => Math.round(scrollY)) }; }
+    if (RESIZE_TO) { await sleep(800); const before = await page.evaluate(() => window.__holds()); await page.setViewportSize({ width: RESIZE_TO, height: H }); await sleep(600); const after = await page.evaluate(() => window.__holds());
+      o.resize = { from: W, to: RESIZE_TO, before, after, staleVars: after.filter(h => h.v !== '').length, excess: after.map(h => h.nat == null ? null : h.h - h.nat) }; }
+    let interruptSent = null;
+    if (INTERRUPT_AT != null) { const wait = INTERRUPT_AT - (Date.now() - bWall0); if (wait > 0) await sleep(wait); interruptSent = Date.now() - bWall0; await swipe(cdp, 400); await sleep(400); }
     // poll the visible content anchor through the whole horizon
     const traj = []; const deadline = bWall0 + HORIZON_MS;
     while (Date.now() < deadline) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), dh: document.documentElement.scrollHeight, a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj.push([Date.now() - bWall0, p.y, p.dh, p.a.found ? p.a.top : null]); await sleep(120); }
     if (TRACE_DIR) { const buf = await browser.stopTracing(); fs.mkdirSync(TRACE_DIR, { recursive: true }); fs.writeFileSync(path.join(TRACE_DIR, `${arm}-${idx}.trace.json.gz`), zlib.gzipSync(buf)); }
-    const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1) }; }, [bWall0, bWall0 + HORIZON_MS]);
+    const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1),
+      touch: m.touch.filter(t => t >= w0), jumps: m.jumps.filter(j => j.t >= w0), sc: m.sc.filter(s => s[0] >= w0) }; }, [bWall0, bWall0 + HORIZON_MS]);
     const sum = rec.cs.reduce((s, x) => s + x.v, 0);
     o.actionWindowShiftSum = +sum.toFixed(4); o.cls = sessionWindowMax(rec.cs); o.shifts = rec.cs; o.mut = rec.mut; o.geo = rec.geo; o.geoPre = rec.geoPre; o.longTasks = rec.lt; o.events = rec.ev;
     const ms = (v) => v != null ? Math.round(v - bWall0) : null;
-    o.readyAfterBack = { usable: ms(rec.ready.usable), hero: ms(rec.ready.heroReal), both: ms(rec.ready.both), dgReady: ms(rec.ready.dgReady), dgSettled: ms(rec.ready.dgSettled), markerPrimary: ms(rec.ready.markerPrimary), markerDg: ms(rec.ready.markerDg), markerSeen: rec.ready.markerSeen ?? null,
+    o.readyAfterBack = { usable: ms(rec.ready.usable), composed: ms(rec.ready.composed), hero: ms(rec.ready.heroReal), both: ms(rec.ready.both), dgReady: ms(rec.ready.dgReady), dgSettled: ms(rec.ready.dgSettled), markerPrimary: ms(rec.ready.markerPrimary), markerDg: ms(rec.ready.markerDg), markerSeen: rec.ready.markerSeen ?? null,
       usableFromCmdEnd: rec.ready.usable != null ? Math.round(rec.ready.usable - bWall1) : null };
-    o.interrupt = interrupt; o.traj = traj.filter((_, i) => i % 3 === 0);
+    o.traj = traj.filter((_, i) => i % 3 === 0);
     const lastT = traj[traj.length - 1] || []; const found = traj.filter(t => t[3] != null);
     const afterAnchor = found.length ? found[found.length - 1][3] : null; o.anchor = { text: link.anchorText, topBefore: link.anchorTop, topFinal: afterAnchor, finalDisp: afterAnchor == null ? null : Math.abs(afterAnchor - link.anchorTop), yFinal: lastT[1], docHFinal: lastT[2] };
     // stability: after the anchor first lands within 120px, max displacement thereafter
@@ -187,21 +230,27 @@ async function oneSample(arm, idx) {
     o.anchor.firstWithin120Ms = first >= 0 ? found[first][0] : null; o.anchor.maxDispAfter = first >= 0 ? found.slice(first).reduce((m, t) => Math.max(m, Math.abs(t[3] - link.anchorTop)), 0) : null;
     o.anchor.within120Final = o.anchor.finalDisp != null && o.anchor.finalDisp <= 120;
     o.anchor.sampledFound = found.length + '/' + traj.length;
-    if (interrupt) { const afterSw = traj.filter(t => t[0] > interrupt.atMsAfterBack + 450); const ys = afterSw.map(t => t[1]); o.pullbackAfterInput = ys.length ? (Math.abs(ys[ys.length - 1] - o.depart.scrollY) <= 120 && Math.abs(interrupt.yAfterSwipe - o.depart.scrollY) > 200) : null; o.postInputYRange = ys.length ? [Math.min(...ys), Math.max(...ys)] : null; }
+    // restore jumps (the shared restorer's scrollTo) and the user's touch, in page time relative to the Back command
+    o.restore = { jumps: rec.jumps.map(j => ({ atMs: ms(j.t), to: j.to, from: j.from })), touchAtMs: rec.touch.length ? ms(rec.touch[0]) : null, departScrollY: o.depart.scrollY };
+    if (INTERRUPT_AT != null) {
+      const touchAt = o.restore.touchAtMs, jumpsAfter = o.restore.jumps.filter(j => touchAt != null && j.atMs > touchAt);
+      const jumpsBefore = o.restore.jumps.filter(j => touchAt == null || j.atMs <= touchAt);
+      o.interrupt = { requestedAtMs: INTERRUPT_AT, sentAtMs: interruptSent, touchReachedPageAtMs: touchAt, restoreJumpsBeforeInput: jumpsBefore.length, restoreJumpsAfterInput: jumpsAfter.length, yFinal: lastT[1],
+        earlyInput: touchAt != null && jumpsBefore.length === 0, pullback: jumpsAfter.length > 0 };
+      if (!o.interrupt.earlyInput) o.invalid.push(`the touch reached the page at ${touchAt}ms, after ${jumpsBefore.length} restore jump(s): not an early-input sample`);
+    }
     o.reqLog = st.reqLog.filter(r => r.phase === 'back').map(r => ({ k: r.k, tReq: r.tReq - bWall0, tFulfil: r.tFulfil - bWall0, delay: r.delay }));
     o.reqCount = { depart: st.reqLog.filter(r => r.phase === 'depart').length, back: st.reqLog.filter(r => r.phase === 'back').length };
     o.finalDocH = lastT[2];
   } catch (e) { o.error = String(e.message).replace(/\u001b\[[0-9;]*m/g, '').slice(0, 300); }
-  o.pageErrors = st.errors; o.consoleErrors = st.consoleErrors; o.misses = st.misses.size; o.missKeys = [...st.misses]; o.blockedWrites = st.blockedWrites; o.blockedWriteKeys = [...new Set(st.blockedWriteKeys)].slice(0, 8);
-  if (A.shot) { try { await page.screenshot({ path: `${A.shot}-${arm}-${idx}.png` }); } catch (_) {} }
-  o.valid = !o.error && !o.invalid.length && o.misses === 0 && o.pageErrors.length === 0;
+  await finishSample(o, st, page, 'back');
   await ctx.close(); return o;
 }
 
-// Cold Home load (no navigation away): readiness, CLS (session-window max over the whole load), LCP, skeleton residue, markers.
+// Cold Home load (no navigation away): composition/usability, CLS (session-window max over the whole load), LCP, skeleton residue, markers.
 async function loadSample(arm, idx) {
   const { origin } = servers[arm]; const ctl = { phase: 'depart' };
-  const { ctx, page, cdp, st } = await newSample(origin, ctl);
+  const { ctx, page, st } = await newSample(origin, ctl);
   const o = { arm, idx, invalid: [], mode: 'load', state: STATE, width: W };
   try {
     await page.goto(origin + '/', { waitUntil: 'load', timeout: 120000 }).catch(() => {});
@@ -212,22 +261,30 @@ async function loadSample(arm, idx) {
     const rel = (v) => v != null ? Math.round(v - rec.t0) : null;
     o.cls = sessionWindowMax(rec.cs); o.shiftSum = +rec.cs.reduce((s, x) => s + x.v, 0).toFixed(4); o.shifts = rec.cs.map(x => ({ t: rel(x.t), v: +x.v.toFixed(4), src: x.src && x.src.slice(0, 2) }));
     o.fcp = rec.fcp != null ? Math.round(rec.fcp) : null; o.lcp = rec.lcp ? { t: rel(rec.lcp.t), el: rec.lcp.el, size: rec.lcp.size } : null;
-    o.readyMs = { usable: rel(rec.ready.usable), hero: rel(rec.ready.heroReal), dgSettled: rel(rec.ready.dgSettled), markerPrimary: rel(rec.ready.markerPrimary), markerDg: rel(rec.ready.markerDg), markerSeen: rec.ready.markerSeen ?? null };
+    o.readyMs = { usable: rel(rec.ready.usable), composed: rel(rec.ready.composed), hero: rel(rec.ready.heroReal), dgSettled: rel(rec.ready.dgSettled), markerPrimary: rel(rec.ready.markerPrimary), markerDg: rel(rec.ready.markerDg), markerSeen: rec.ready.markerSeen ?? null };
     o.final = rec.ready0; o.skeletonResidue = rec.sk; o.holds = rec.holds; o.emptyText = rec.emptyText; o.heroText = rec.heroText;
     o.reqCount = st.reqLog.length;
   } catch (e) { o.error = String(e.message).replace(/\u001b\[[0-9;]*m/g, '').slice(0, 300); }
-  o.pageErrors = st.errors; o.consoleErrors = st.consoleErrors; o.misses = st.misses.size; o.missKeys = [...st.misses].slice(0, 12); o.blockedWrites = st.blockedWrites;
-  if (A.shot) { try { await page.screenshot({ path: `${A.shot}-${arm}-${idx}.png` }); } catch (_) {} }
-  o.valid = !o.error && !o.invalid.length && o.misses === 0 && o.pageErrors.length === 0;
+  await finishSample(o, st, page, 'load');
   await ctx.close(); return o;
 }
 const runs = []; const t0 = new Date().toISOString();
 for (let i = 0; i < PAIRS; i++) {
   const order = i % 2 === 0 ? armNames : [...armNames].reverse();   // interleaved A/B, alternating who goes first
-  for (const arm of order) { const r = MODE === 'load' ? await loadSample(arm, i + 1) : await oneSample(arm, i + 1); runs.push(r); process.stderr.write(`${arm}#${i + 1} valid=${r.valid} cls=${r.cls} miss=${r.misses} ${MODE === 'load' ? `usable=${r.readyMs?.usable} lcp=${r.lcp?.t} residue=${JSON.stringify(r.skeletonResidue)}` : `anchor=${r.anchor?.finalDisp} usable=${r.readyAfterBack?.usable} dg=${r.readyAfterBack?.dgSettled}`} ${r.error || r.invalid.join(';')}\n`); }
+  for (const arm of order) { const r = MODE === 'load' ? await loadSample(arm, i + 1) : await oneSample(arm, i + 1); runs.push(r); process.stderr.write(`${arm}#${i + 1} valid=${r.valid} cls=${r.cls} miss=${r.misses} ${MODE === 'load' ? `usable=${r.readyMs?.usable} composed=${r.readyMs?.composed} lcp=${r.lcp?.t} residue=${JSON.stringify(r.skeletonResidue)}` : `anchor=${r.anchor?.finalDisp} usable=${r.readyAfterBack?.usable} composed=${r.readyAfterBack?.composed} dg=${r.readyAfterBack?.dgSettled}`} ${r.invalid.join(';')}${r.error ? ' ERR ' + r.error : ''}\n`); }
 }
-const profile = { viewport: `${W}x${H}`, dpr: 2, touch: true, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, interrupt: INTERRUPT, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO, definitions: 'v3: real hero/card (visible, not loading/busy/hidden, meaningful title, /post/ link); cls = session-window max',
-  browser: 'Chromium ' + browser.version(), fixtureSha256: FX_SHA, fixtureKeys: Object.keys(fixtures).length, node: process.version, cpus: (await import('node:os')).cpus().length, startedAt: t0, finishedAt: new Date().toISOString() };
+const profile = { runner: 4, readiness: READINESS_VERSION, viewport: `${W}x${H}`, dpr: 2, touch: true, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
+  definitions: 'v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max',
+  isolation: 'scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)', requestPolicy: 'unmapped = violation, no fallback body',
+  browser: 'Chromium ' + browser.version(), fixtureSha256: FX_SHA, fixtureKeys: Object.keys(fixtures).length, corpusImages: corpusImages.images, completePostBodies: COMPLETE_POSTS.size, node: process.version, cpus: os.cpus().length, startedAt: t0, finishedAt: new Date().toISOString() };
 fs.writeFileSync(A.out, JSON.stringify({ profile, arms, runs }, null, 1));
+if (privateMisses.length) {
+  const privateFile = path.resolve(A.private || path.join(os.tmpdir(), `home-stability-private-${FX_SHA.slice(0, 8)}-${Date.now()}.json`));
+  let earlier = []; try { earlier = JSON.parse(fs.readFileSync(privateFile, 'utf8')).entries || []; } catch { /* first writer */ }
+  fs.writeFileSync(privateFile, JSON.stringify({ note: 'PRIVATE: full unmapped request identifiers and undecodable image URLs. Do not commit or publish.', fixtureSha256: FX_SHA, entries: [...earlier, ...privateMisses.map(entry => ({ run: path.basename(A.out), ...entry }))] }, null, 1), { mode: 0o600 });
+  process.stderr.write(`full unmapped identifiers written to the private file ${privateFile} (not part of the evidence)\n`);
+}
 for (const n of armNames) { const r = runs.filter(x => x.arm === n); const v = r.filter(x => x.valid); console.log(n, 'attempts', r.length, 'valid', v.length, 'CLS valid:', v.map(x => x.cls).join(' '), 'median', med(v.map(x => x.cls))); }
-await browser.close(); for (const n of armNames) servers[n].srv.close();
+await browser.close();
+for (const n of armNames) servers[n].srv.close();
+process.exit(0);

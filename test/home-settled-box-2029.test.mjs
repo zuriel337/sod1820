@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
-  SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold,
+  SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
 } from "../src/components/experience2029/useSettledBox2029.js";
 import { gatewayContentState, primaryContentState } from "../src/lib/homeReadiness2029.js";
 
@@ -24,6 +24,14 @@ test("a held height is released when the visible width changes, never for a hidd
   assert.equal(shouldReleaseHold(390, 320), true);         // rotation / resize / another breakpoint
   assert.equal(shouldReleaseHold(390, 1440), true);
   assert.equal(shouldReleaseHold(390, 0), false);          // display:none or detached is not a width change
+});
+
+test("a hold applied for one viewport width is stale as soon as the viewport has another one", () => {
+  assert.equal(viewportChangedSinceHold(null, 320), false);     // nothing was applied
+  assert.equal(viewportChangedSinceHold(390, 390), false);
+  assert.equal(viewportChangedSinceHold(390, 320), true);
+  assert.equal(viewportChangedSinceHold(390, 1920), true);
+  assert.equal(viewportChangedSinceHold(390, 0), false);        // an unmeasured viewport is not a change
 });
 
 test("the settled box is the natural extent of the children at the current width", () => {
@@ -90,7 +98,7 @@ test("the settled-box hook lives in one module and releases on width change", ()
   assert.match(hook, /shouldReleaseHold\(state\.appliedWidth, width\)/);
   assert.match(hook, /node\.style\.removeProperty\(SETTLED_HEIGHT_VAR\)/);
   // The mount-time ref callback must not read layout: a forced layout per instance at commit delayed the first read of Home.
-  const refBody = hook.slice(hook.indexOf("const ref = useCallback((node) => {"), hook.indexOf("}, [key, measure]);"));
+  const refBody = hook.slice(hook.indexOf("const ref = useCallback((node) => {"), hook.indexOf("}, [key, observe, release]);"));
   assert.ok(refBody.length > 100, "ref callback found");
   assert.doesNotMatch(refBody, /getBoundingClientRect|offsetWidth|offsetHeight|clientWidth|clientHeight|getComputedStyle|innerWidth/);
   assert.match(hook, /window\.addEventListener\("resize"/, "the viewport width is cached and refreshed on resize");
@@ -125,5 +133,31 @@ test("loading slots are rendered only when no remembered box already reserves th
   assert.match(gateways, /length: box\.held \? 0 : \(slots\?\.rows \|\| 0\)/);
   assert.match(gateways, /length: box\.held \? 0 : dimensionSlots/);
   assert.match(css, /\.h29 \[data-h29-loading\] \{ background: var\(--s29-panel-soft\)/);
-  assert.match(read("src/components/experience2029/useSettledBox2029.js"), /held: rememberedHeight\(memory, viewportWidth\) != null/);
+  assert.match(read("src/components/experience2029/useSettledBox2029.js"), /held: !released && rememberedHeight\(memory, viewportWidth\) != null/);
+});
+
+test("a release draws the loading slots at the new width in the same frame; the hold is released by the viewport resize itself, not only by a later observation", () => {
+  const hook = read("src/components/experience2029/useSettledBox2029.js");
+  assert.match(hook, /if \(synchronous\) flushSync\(\(\) => setReleased\(true\)\); else setReleased\(true\);/, "from an effect flushSync is not allowed: batched");
+  assert.match(hook, /viewportListeners\.add\(onViewport\)/);
+  assert.match(hook, /for \(const notify of \[\.\.\.viewportListeners\]\) notify\(\)/);
+  assert.match(hook, /unsubscribe/, "a listener never outlives its node");
+  // the page's loading slots follow `held`, so a released box shows them
+  assert.match(read("src/components/experience2029/HomeComposition2029.jsx"), /data\.loading && !updatesBox\.held \? Array\.from/);
+});
+
+test("a cold load reserves nothing without evidence: loading slots only come from what this session showed before", () => {
+  const home = read("src/components/experience2029/HomeComposition2029.jsx");
+  const gateways = read("src/components/experience2029/DiscoveryGateways2029.jsx");
+  assert.match(home, /length: shownBefore\.updates \?\? 0/);
+  assert.doesNotMatch(home, /shownBefore\.updates \?\? HOME_UPDATE_SLOTS/);
+  assert.match(home, /const notableSlots = shownBefore\.notable \|\| 0;/);
+  assert.match(gateways, /slots=\{slots \? slots\.language : null\}/);
+  assert.match(gateways, /slots=\{slots \? \{ rows: slots\.cinema \} : null\}/);
+  assert.match(gateways, /slots=\{slots \? \{ rows: slots\.biblical, detail: true \} : null\}/);
+  assert.match(gateways, /dimensionSlots=\{slots \? slots\.dimension : 0\}/);
+  assert.doesNotMatch(gateways, /DIMENSION_SLOTS/);
+  // the status line is visible text (as before HomeV2) whenever nothing else already reserves the row
+  assert.match(gateways, /className=\{reserving \|\| box\.held \? "dg29-empty dg29-sr" : "dg29-empty"\}/);
+  assert.match(gateways, /className=\{box\.held \|\| dimensionSlots > 0 \? "dg29-empty dg29-sr" : "dg29-empty"\}/);
 });

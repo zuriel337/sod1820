@@ -1,3 +1,4 @@
+// (runner v4: usableMs = visible and usable, on a return the departure control itself; composedMs = real content in the DOM)
 // Summarizes one runner output: per arm medians/ranges and, for a base/candidate pair, paired differences with a bootstrap 95% CI
 // of the median difference (seeded, deterministic). Only samples that are valid in BOTH arms of a pair are compared.
 // usage: node summarize.mjs --in out.json --base A --cand B [--md out.md] [--json out.json]
@@ -11,8 +12,8 @@ const boot = (d) => { if (d.length < 3) return null; const r = rng(12345), ms = 
 const r3 = (x) => x == null ? null : Math.round(x * 1000) / 1000;
 const mode = runs[0]?.mode || 'back';
 const metrics = mode === 'load'
-  ? { cls: r => r.cls, shiftSum: r => r.shiftSum, usableMs: r => r.readyMs?.usable, heroMs: r => r.readyMs?.hero, dgSettledMs: r => r.readyMs?.dgSettled, fcpMs: r => r.fcp, lcpMs: r => r.lcp?.t, requests: r => r.reqCount }
-  : { cls: r => r.cls, actionWindowShiftSum: r => r.actionWindowShiftSum, usableMs: r => r.readyAfterBack?.usable, heroMs: r => r.readyAfterBack?.hero, dgSettledMs: r => r.readyAfterBack?.dgSettled, anchorFinalDispPx: r => r.anchor?.finalDisp, anchorMaxDispAfterPx: r => r.anchor?.maxDispAfter, readsBack: r => r.reqCount?.back, finalDocH: r => r.finalDocH };
+  ? { cls: r => r.cls, shiftSum: r => r.shiftSum, usableMs: r => r.readyMs?.usable, composedMs: r => r.readyMs?.composed, heroMs: r => r.readyMs?.hero, dgSettledMs: r => r.readyMs?.dgSettled, fcpMs: r => r.fcp, lcpMs: r => r.lcp?.t, requests: r => r.reqCount }
+  : { cls: r => r.cls, actionWindowShiftSum: r => r.actionWindowShiftSum, usableMs: r => r.readyAfterBack?.usable, composedMs: r => r.readyAfterBack?.composed, heroMs: r => r.readyAfterBack?.hero, dgSettledMs: r => r.readyAfterBack?.dgSettled, anchorFinalDispPx: r => r.anchor?.finalDisp, anchorMaxDispAfterPx: r => r.anchor?.maxDispAfter, readsBack: r => r.reqCount?.back, finalDocH: r => r.finalDocH };
 const out = { profile: data.profile, mode, base: BASE, cand: CAND, arms: {}, pairs: {} };
 for (const arm of arms) { const rs = runs.filter(r => r.arm === arm), v = rs.filter(r => r.valid);
   out.arms[arm] = { attempts: rs.length, valid: v.length, invalid: rs.filter(r => !r.valid).map(r => ({ idx: r.idx, why: r.error || r.invalid.join(';') || `misses=${r.misses} errors=${r.pageErrors?.length}` })),

@@ -57,7 +57,7 @@ function LanguagePostPreview({ post, highlights }) {
 }
 
 // Loading slots reuse the loaded rows' own markup/classes with non-breaking-space text, so their geometry follows the
-// same CSS. Counts mirror the claim limits below (language 2 incl. the feature, cinema 3, biblical 2 videos + 2 matrices).
+// same CSS. Their counts are what each gateway showed the last time (shownBefore); a cold load has no such evidence and renders none.
 function LanguageFeatureSlot() {
   return <span className="dg29-language-preview is-loading" aria-hidden="true">
     <span className="dg29-language-kicker">{NBSP}</span>
@@ -76,6 +76,8 @@ function SourceSlot({ detail = false }) {
 
 function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [], slots = null }) {
   const box = useSettledBox(`gateway:${title}`, { pending: loading, settled: !loading, count: items.length + (feature ? 1 : 0) });
+  // The status line is visible text unless something else (loading slots or a held box) already reserves this row's place.
+  const reserving = Boolean(slots && (slots.feature || slots.rows > 0));
   const followControl = ({ category, topic, title: followTitle }) => <WatchButton
     key={topic || category} topic={topic || `cat:${category}`}
     source="home_2029_discovery" noPush variant="icon"
@@ -98,7 +100,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
       {loading && items.length === 0 && !feature ? <>
         {slots?.feature && !box.held ? <LanguageFeatureSlot /> : null}
         {Array.from({ length: box.held ? 0 : (slots?.rows || 0) }, (_, index) => <SourceSlot key={index} detail={Boolean(slots?.detail)} />)}
-        <p className={slots ? "dg29-empty dg29-sr" : "dg29-empty"} role="status">טוען מקורות ציבוריים…</p>
+        <p className={reserving || box.held ? "dg29-empty dg29-sr" : "dg29-empty"} role="status">טוען מקורות ציבוריים…</p>
       </> : null}
     </div>
     <Link className="dg29-gateway-action" to={href}>{action} ←</Link>
@@ -109,9 +111,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
   </article>;
 }
 
-const DIMENSION_SLOTS = 4;   // claimHomeItems(state.dimension, …, 4)
-
-function DimensionFiveFeature({ items, loading, dimensionSlots = DIMENSION_SLOTS }) {
+function DimensionFiveFeature({ items, loading, dimensionSlots = 0 }) {
   const box = useSettledBox("dimension-five", { pending: loading, settled: !loading, count: items.length });
   return <section className="dg29-dimension" aria-label="מימד חמש — סרטים ומסרים">
     <div className="dg29-dimension-head">
@@ -134,7 +134,7 @@ function DimensionFiveFeature({ items, loading, dimensionSlots = DIMENSION_SLOTS
         {Array.from({ length: box.held ? 0 : dimensionSlots }, (_, index) => <span className="dg29-dimension-source is-loading" key={index} aria-hidden="true">
           <span className="dg29-dimension-poster" /><span>{NBSP}</span>
         </span>)}
-        <p role="status" className="dg29-empty dg29-sr">טוען את הסרטים והמסרים…</p>
+        <p role="status" className={box.held || dimensionSlots > 0 ? "dg29-empty dg29-sr" : "dg29-empty"}>טוען את הסרטים והמסרים…</p>
       </> : null}
       {!loading && !items.length ? <p className="dg29-empty">כל התכנים זמינים בקטגוריה; אין פריט נוסף להצגה כאן ללא כפילות.</p> : null}
     </div>
@@ -232,17 +232,17 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
       <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"
         href="/languages" action="למחקר השפות"
         followTopics={[{ category: "שבילי שפה" }]}
-        feature={languageFeature} items={languageLinks} loading={state.loading} slots={slots ? slots.language : { feature: true, rows: 1 }} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
+        feature={languageFeature} items={languageLinks} loading={state.loading} slots={slots ? slots.language : null} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
       <Gateway title="הצופן בקולנוע" subtitle="מחקרים על סרטים, סדרות ומספרים" symbol="🎬"
         href="/category/הצופן בסרטים" action="לכל מחקרי הקולנוע"
         followTopics={[{ category: "הצופן בסרטים" }]}
-        items={cinema.items} loading={state.loading} slots={{ rows: slots ? slots.cinema : 3 }} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
+        items={cinema.items} loading={state.loading} slots={slots ? { rows: slots.cinema } : null} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
       <Gateway title="הצופן התנ״כי" subtitle="סרטוני צפונות התורה, דילוגי אותיות ומטריצות ELS" symbol="✦"
         href="/category/צפונות בתורה" action="לכל מחקרי הצופן התנ״כי"
         secondaryHref="/els?library=public" secondaryAction="לספריית ELS ולמנוע הדילוגים"
         followTopics={[{ category: "צפונות בתורה" }, { topic: "codes:new", title: "עקבו אחרי צפני ELS חדשים" }]}
-        items={biblicalSources} loading={state.loading} slots={{ rows: slots ? slots.biblical : 4, detail: true }} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
+        items={biblicalSources} loading={state.loading} slots={slots ? { rows: slots.biblical, detail: true } : null} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
     </div>
-    <DimensionFiveFeature items={dimension.items} loading={state.loading} dimensionSlots={slots ? slots.dimension : DIMENSION_SLOTS} />
+    <DimensionFiveFeature items={dimension.items} loading={state.loading} dimensionSlots={slots ? slots.dimension : 0} />
   </section>;
 }

@@ -24,9 +24,10 @@ import "./homeMotion2029.css";
 import "./homeComposition2029.css";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
-const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown (also the default number of loading slots)
+const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown
 // Presentation memory only (never data): how many cards the strips showed the last time Home was on screen in this
-// session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load).
+// session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load): nothing is
+// reserved, because without evidence a reservation can be wrong (an empty or failed read would collapse it).
 const shownBefore = { updates: null, notable: null };
 const NBSP = "\u00a0";
 
@@ -211,7 +212,7 @@ export default function HomeComposition2029({
             <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
-        {data.loading && !updatesBox.held ? Array.from({ length: shownBefore.updates ?? HOME_UPDATE_SLOTS }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
+        {data.loading && !updatesBox.held ? Array.from({ length: shownBefore.updates ?? 0 }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
         {!data.loading && !data.posts.length ? <p className="h29-empty">אין כרגע פוסטים להצגה.</p> : null}
       </div>
     </Section>
