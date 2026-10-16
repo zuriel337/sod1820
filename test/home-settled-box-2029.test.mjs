@@ -12,9 +12,9 @@ import { gatewayContentState, primaryContentState } from "../src/lib/homeReadine
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("a remembered height is valid only for the width it was measured at", () => {
-  assert.equal(rememberedHeight({ w: 390, h: 812, n: 4 }, 390), 812);
-  assert.equal(rememberedHeight({ w: 390, h: 812, n: 4 }, 320), null);
+test("a remembered height is a candidate only at the viewport width it was remembered at (no layout read needed)", () => {
+  assert.equal(rememberedHeight({ w: 390, vw: 390, h: 812, n: 4 }, 390), 812);
+  assert.equal(rememberedHeight({ w: 390, vw: 390, h: 812, n: 4 }, 320), null);
   assert.equal(rememberedHeight(undefined, 390), null);
 });
 
@@ -27,29 +27,29 @@ test("a held height is released when the visible width changes, never for a hidd
 });
 
 test("the settled box is the natural extent of the children at the current width", () => {
-  assert.deepEqual(nextMemory({ width: 389.6, top: 100, bottom: 912.4, count: 4 }), { w: 390, h: 812, n: 4 });
-  assert.equal(nextMemory({ width: 0, top: 0, bottom: 500, count: 1 }), null);
-  assert.equal(nextMemory({ width: 390, top: 500, bottom: 500, count: 1 }), null);
-  assert.equal(nextMemory({ width: 390, top: 500, bottom: 120, count: 1 }), null);
+  assert.deepEqual(nextMemory({ width: 389.6, viewport: 390, top: 100, bottom: 912.4, count: 4 }), { w: 390, vw: 390, h: 812, n: 4 });
+  assert.equal(nextMemory({ width: 0, viewport: 390, top: 0, bottom: 500, count: 1 }), null);
+  assert.equal(nextMemory({ width: 390, viewport: 390, top: 500, bottom: 500, count: 1 }), null);
+  assert.equal(nextMemory({ width: 390, viewport: 390, top: 500, bottom: 120, count: 1 }), null);
 });
 
 test("hold: while pending, or settled again with the same item count; a different count releases it", () => {
-  const memory = { w: 390, h: 800, n: 4 };
+  const memory = { w: 390, vw: 390, h: 800, n: 4 };
   assert.equal(holdAttribute({ pending: true, settled: false, memory: undefined, count: 0 }), "");
   assert.equal(holdAttribute({ pending: false, settled: true, memory, count: 4 }), "");
   assert.equal(holdAttribute({ pending: false, settled: true, memory, count: 3 }), undefined);
   assert.equal(holdAttribute({ pending: false, settled: true, memory: undefined, count: 4 }), undefined);
   assert.equal(holdAttribute({ pending: false, settled: false, memory, count: 4 }), undefined);
-  assert.equal(holdAttribute({ pending: false, settled: () => true, memory: { w: 390, h: 188, n: 0 }, count: 0 }), "");   // predicate form (story slot)
+  assert.equal(holdAttribute({ pending: false, settled: () => true, memory: { w: 390, vw: 390, h: 188, n: 0 }, count: 0 }), "");   // predicate form (story slot)
 });
 
 test("the store keeps one box per key and can be reset", () => {
   resetSettledBoxes();
   assert.equal(readSettledBox("home:updates"), undefined);
-  rememberSettledBox("home:updates", { w: 390, h: 800, n: 4 });
-  assert.deepEqual(readSettledBox("home:updates"), { w: 390, h: 800, n: 4 });
-  rememberSettledBox("home:updates", { w: 320, h: 900, n: 4 });
-  assert.deepEqual(readSettledBox("home:updates"), { w: 320, h: 900, n: 4 });
+  rememberSettledBox("home:updates", { w: 390, vw: 390, h: 800, n: 4 });
+  assert.deepEqual(readSettledBox("home:updates"), { w: 390, vw: 390, h: 800, n: 4 });
+  rememberSettledBox("home:updates", { w: 320, vw: 320, h: 900, n: 4 });
+  assert.deepEqual(readSettledBox("home:updates"), { w: 320, vw: 320, h: 900, n: 4 });
   resetSettledBoxes();
   assert.equal(readSettledBox("home:updates"), undefined);
   assert.equal(SETTLED_HEIGHT_VAR, "--h29-settled-h");
@@ -89,6 +89,10 @@ test("the settled-box hook lives in one module and releases on width change", ()
   const hook = read("src/components/experience2029/useSettledBox2029.js");
   assert.match(hook, /shouldReleaseHold\(state\.appliedWidth, width\)/);
   assert.match(hook, /node\.style\.removeProperty\(SETTLED_HEIGHT_VAR\)/);
+  // The mount-time ref callback must not read layout: a forced layout per instance at commit delayed the first read of Home.
+  const refBody = hook.slice(hook.indexOf("const ref = useCallback((node) => {"), hook.indexOf("}, [key, measure]);"));
+  assert.ok(refBody.length > 100, "ref callback found");
+  assert.doesNotMatch(refBody, /getBoundingClientRect|offsetWidth|offsetHeight|clientWidth|clientHeight|getComputedStyle/);
   const users = [];
   const walk = (dir) => { for (const name of readdirSync(dir)) { const path = join(dir, name); if (statSync(path).isDirectory()) walk(path); else if (/\.(jsx?|mjs)$/.test(name) && !/\.test\./.test(name)) { const text = readFileSync(path, "utf8"); if (/useSettledBox\b/.test(text) && !path.endsWith("useSettledBox2029.js")) users.push([path, text]); } } };
   walk(new URL("../src", import.meta.url).pathname);

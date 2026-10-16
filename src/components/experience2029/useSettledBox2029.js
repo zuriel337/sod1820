@@ -12,9 +12,10 @@ export const readSettledBox = (key) => settledBox[key];
 export const rememberSettledBox = (key, box) => { settledBox[key] = box; };
 export const resetSettledBoxes = () => { for (const key of Object.keys(settledBox)) delete settledBox[key]; };
 
-// A remembered height is only valid for the width it was measured at.
-export function rememberedHeight(memory, width) {
-  return memory && memory.w === width ? memory.h : null;
+// Mount-time check, with NO layout read: a remembered height is only a candidate while the viewport width is the one it was
+// remembered at. The node's own width is verified by the first ResizeObserver callback (after layout, before paint), see below.
+export function rememberedHeight(memory, viewportWidth) {
+  return memory && memory.vw === viewportWidth ? memory.h : null;
 }
 
 // The held height was applied at `appliedWidth`; once the box has a different (visible) width it no longer describes it.
@@ -23,9 +24,9 @@ export function shouldReleaseHold(appliedWidth, width) {
 }
 
 // Natural extent (first child's top to last child's bottom) at the current width; null when there is nothing to remember.
-export function nextMemory({ width, top, bottom, count }) {
+export function nextMemory({ width, viewport, top, bottom, count }) {
   const height = bottom - top;
-  return width > 0 && height > 0 ? { w: Math.round(width), h: Math.round(height), n: count } : null;
+  return width > 0 && height > 0 ? { w: Math.round(width), vw: viewport, h: Math.round(height), n: count } : null;
 }
 
 // `settled` may be a predicate over the node (truthy = a rule that waits for the content itself).
@@ -49,17 +50,20 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     // Observe the outer children too: a held (min-size) box does not resize when its content does (observe() is idempotent).
     state.observer?.observe(first); state.observer?.observe(last);
     if (!(typeof now.settled === "function" ? now.settled(node) : now.settled)) return;
-    const next = nextMemory({ width, top: first.getBoundingClientRect().top, bottom: last.getBoundingClientRect().bottom, count: now.count });
+    const next = nextMemory({ width, viewport: window.innerWidth, top: first.getBoundingClientRect().top, bottom: last.getBoundingClientRect().bottom, count: now.count });
     if (next) rememberSettledBox(key, next);
   }, [key]);
-  // Callback ref: runs at commit, before paint, so the remembered box is in place for the first frame of a return.
+  // Callback ref: runs at commit, before paint, so the remembered box is in place for the first frame of a return. It reads no
+  // layout (a forced layout per instance at commit time delayed the first read of Home by ~70 ms at CPU x4): the remembered
+  // node width becomes `appliedWidth`, and the first ResizeObserver callback, which runs after layout and before paint,
+  // releases the hold if the node's real width differs.
   const ref = useCallback((node) => {
     const state = live.current;
     state.observer?.disconnect(); state.observer = null; state.node = node; state.appliedWidth = null;
     if (!node) return;
-    const width = Math.round(node.getBoundingClientRect().width);
-    const height = rememberedHeight(readSettledBox(key), width);
-    if (height != null) { node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`); state.appliedWidth = width; }
+    const memory = readSettledBox(key);
+    const height = rememberedHeight(memory, window.innerWidth);
+    if (height != null) { node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`); state.appliedWidth = memory.w; }
     if (typeof ResizeObserver !== "undefined") { state.observer = new ResizeObserver(measure); state.observer.observe(node); }
   }, [key, measure]);
   useEffect(() => { measure(); }, [measure, typeof settled === "function" ? 0 : settled, count]);
