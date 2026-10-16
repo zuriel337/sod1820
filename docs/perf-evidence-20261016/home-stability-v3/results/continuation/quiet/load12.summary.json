@@ -1,0 +1,542 @@
+{
+ "profile": {
+  "runner": 4,
+  "readiness": 4,
+  "viewport": "390x844",
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6Mbps down / 750kbps up / 150ms RTT (CDP)",
+  "supabaseReplayDelayMs": 150,
+  "backPhaseDelayMs": null,
+  "horizonMs": 7000,
+  "theme": "dark",
+  "reducedMotion": false,
+  "state": "normal",
+  "stateFromBack": false,
+  "interruptAt": null,
+  "mode": "load",
+  "gateDelayMs": 0,
+  "gateClosed": false,
+  "resizeTo": null,
+  "definitions": "v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max",
+  "isolation": "scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)",
+  "requestPolicy": "unmapped = violation, no fallback body",
+  "browser": "Chromium 141.0.7390.37",
+  "fixtureSha256": "78b1f82e8e7bb3b9df04228e51edb322d7b37cebe426d9d0f02697962aa38d8d",
+  "fixtureKeys": 79,
+  "corpusImages": 12,
+  "completePostBodies": 2,
+  "node": "v22.22.0",
+  "cpus": 4,
+  "startedAt": "2026-10-16T08:56:24.562Z",
+  "finishedAt": "2026-10-16T08:59:03.377Z"
+ },
+ "mode": "load",
+ "base": "A",
+ "cand": "B",
+ "arms": {
+  "A": {
+   "attempts": 12,
+   "valid": 12,
+   "invalid": [],
+   "blockedWrites": [
+    null
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 12,
+     "median": 0.019,
+     "min": 0.018,
+     "max": 0.021,
+     "values": [
+      0.02,
+      0.021,
+      0.021,
+      0.018,
+      0.02,
+      0.018,
+      0.018,
+      0.02,
+      0.018,
+      0.018,
+      0.018,
+      0.02
+     ]
+    },
+    "shiftSum": {
+     "n": 12,
+     "median": 0.019,
+     "min": 0.018,
+     "max": 0.021,
+     "values": [
+      0.02,
+      0.021,
+      0.021,
+      0.018,
+      0.02,
+      0.018,
+      0.018,
+      0.02,
+      0.018,
+      0.018,
+      0.018,
+      0.02
+     ]
+    },
+    "usableMs": {
+     "n": 12,
+     "median": 3571.5,
+     "min": 3400,
+     "max": 3814,
+     "values": [
+      3587,
+      3400,
+      3419,
+      3639,
+      3616,
+      3814,
+      3571,
+      3513,
+      3459,
+      3572,
+      3710,
+      3477
+     ]
+    },
+    "composedMs": {
+     "n": 12,
+     "median": 3571.5,
+     "min": 3400,
+     "max": 3814,
+     "values": [
+      3587,
+      3400,
+      3419,
+      3639,
+      3616,
+      3814,
+      3571,
+      3513,
+      3459,
+      3572,
+      3710,
+      3477
+     ]
+    },
+    "heroMs": {
+     "n": 12,
+     "median": 3571.5,
+     "min": 3400,
+     "max": 3814,
+     "values": [
+      3587,
+      3400,
+      3419,
+      3639,
+      3616,
+      3814,
+      3571,
+      3513,
+      3459,
+      3572,
+      3710,
+      3477
+     ]
+    },
+    "dgSettledMs": {
+     "n": 12,
+     "median": 3988.5,
+     "min": 3756,
+     "max": 4229,
+     "values": [
+      4011,
+      3756,
+      3851,
+      4093,
+      4020,
+      4229,
+      3999,
+      3855,
+      3846,
+      3978,
+      4070,
+      3835
+     ]
+    },
+    "fcpMs": {
+     "n": 12,
+     "median": 1602,
+     "min": 1540,
+     "max": 1676,
+     "values": [
+      1608,
+      1540,
+      1556,
+      1644,
+      1584,
+      1676,
+      1616,
+      1596,
+      1544,
+      1624,
+      1668,
+      1560
+     ]
+    },
+    "lcpMs": {
+     "n": 12,
+     "median": 3804,
+     "min": 3588,
+     "max": 4008,
+     "values": [
+      3860,
+      3588,
+      3608,
+      3876,
+      3836,
+      4008,
+      3784,
+      3692,
+      3676,
+      3824,
+      3900,
+      3672
+     ]
+    },
+    "requests": {
+     "n": 12,
+     "median": 65,
+     "min": 65,
+     "max": 65,
+     "values": [
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65
+     ]
+    }
+   }
+  },
+  "B": {
+   "attempts": 12,
+   "valid": 12,
+   "invalid": [],
+   "blockedWrites": [
+    null
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 12,
+     "median": 0.018,
+     "min": 0.018,
+     "max": 0.019,
+     "values": [
+      0.018,
+      0.018,
+      0.019,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.019
+     ]
+    },
+    "shiftSum": {
+     "n": 12,
+     "median": 0.018,
+     "min": 0.018,
+     "max": 0.019,
+     "values": [
+      0.018,
+      0.018,
+      0.019,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.018,
+      0.019
+     ]
+    },
+    "usableMs": {
+     "n": 12,
+     "median": 3479,
+     "min": 3420,
+     "max": 3748,
+     "values": [
+      3458,
+      3458,
+      3484,
+      3748,
+      3474,
+      3432,
+      3562,
+      3576,
+      3420,
+      3664,
+      3422,
+      3526
+     ]
+    },
+    "composedMs": {
+     "n": 12,
+     "median": 3479,
+     "min": 3420,
+     "max": 3748,
+     "values": [
+      3458,
+      3458,
+      3484,
+      3748,
+      3474,
+      3432,
+      3562,
+      3576,
+      3420,
+      3664,
+      3422,
+      3526
+     ]
+    },
+    "heroMs": {
+     "n": 12,
+     "median": 3479,
+     "min": 3420,
+     "max": 3748,
+     "values": [
+      3458,
+      3458,
+      3484,
+      3748,
+      3474,
+      3432,
+      3562,
+      3576,
+      3420,
+      3664,
+      3422,
+      3526
+     ]
+    },
+    "dgSettledMs": {
+     "n": 12,
+     "median": 3883,
+     "min": 3798,
+     "max": 4159,
+     "values": [
+      3871,
+      3816,
+      3919,
+      4159,
+      3798,
+      3851,
+      3950,
+      3920,
+      3815,
+      4101,
+      3822,
+      3895
+     ]
+    },
+    "fcpMs": {
+     "n": 12,
+     "median": 1568,
+     "min": 1532,
+     "max": 1696,
+     "values": [
+      1544,
+      1580,
+      1564,
+      1640,
+      1536,
+      1572,
+      1616,
+      1548,
+      1532,
+      1696,
+      1556,
+      1588
+     ]
+    },
+    "lcpMs": {
+     "n": 12,
+     "median": 3686,
+     "min": 3632,
+     "max": 3912,
+     "values": [
+      3644,
+      3704,
+      3696,
+      3636,
+      3676,
+      3656,
+      3740,
+      3784,
+      3632,
+      3912,
+      3640,
+      3704
+     ]
+    },
+    "requests": {
+     "n": 12,
+     "median": 65,
+     "min": 65,
+     "max": 65,
+     "values": [
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65,
+      65
+     ]
+    }
+   }
+  }
+ },
+ "pairs": {
+  "n": 12,
+  "idxs": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "metrics": {
+   "cls": {
+    "baseMedian": 0.019,
+    "candMedian": 0.018,
+    "diffMedian": -0.001,
+    "pct": -4.416,
+    "ci95": [
+     -0.002,
+     0
+    ],
+    "n": 12
+   },
+   "shiftSum": {
+    "baseMedian": 0.019,
+    "candMedian": 0.018,
+    "diffMedian": -0.001,
+    "pct": -4.663,
+    "ci95": [
+     -0.002,
+     0
+    ],
+    "n": 12
+   },
+   "usableMs": {
+    "baseMedian": 3571.5,
+    "candMedian": 3479,
+    "diffMedian": 20,
+    "pct": -2.59,
+    "ci95": [
+     -135.5,
+     64
+    ],
+    "n": 12
+   },
+   "composedMs": {
+    "baseMedian": 3571.5,
+    "candMedian": 3479,
+    "diffMedian": 20,
+    "pct": -2.59,
+    "ci95": [
+     -135.5,
+     64
+    ],
+    "n": 12
+   },
+   "heroMs": {
+    "baseMedian": 3571.5,
+    "candMedian": 3479,
+    "diffMedian": 20,
+    "pct": -2.59,
+    "ci95": [
+     -135.5,
+     64
+    ],
+    "n": 12
+   },
+   "dgSettledMs": {
+    "baseMedian": 3988.5,
+    "candMedian": 3883,
+    "diffMedian": 14.5,
+    "pct": -2.645,
+    "ci95": [
+     -181,
+     65.5
+    ],
+    "n": 12
+   },
+   "fcpMs": {
+    "baseMedian": 1602,
+    "candMedian": 1568,
+    "diffMedian": -8,
+    "pct": -2.122,
+    "ci95": [
+     -56,
+     18
+    ],
+    "n": 12
+   },
+   "lcpMs": {
+    "baseMedian": 3804,
+    "candMedian": 3686,
+    "diffMedian": -44,
+    "pct": -3.102,
+    "ci95": [
+     -228,
+     88
+    ],
+    "n": 12
+   },
+   "requests": {
+    "baseMedian": 65,
+    "candMedian": 65,
+    "diffMedian": 0,
+    "pct": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "n": 12
+   }
+  }
+ }
+}

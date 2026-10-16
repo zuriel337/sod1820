@@ -1,0 +1,656 @@
+{
+ "profile": {
+  "runner": 4,
+  "readiness": 4,
+  "viewport": "390x844",
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6Mbps down / 750kbps up / 150ms RTT (CDP)",
+  "supabaseReplayDelayMs": 150,
+  "backPhaseDelayMs": null,
+  "horizonMs": 7000,
+  "theme": "dark",
+  "reducedMotion": false,
+  "state": "normal",
+  "stateFromBack": false,
+  "interruptAt": null,
+  "mode": "back",
+  "gateDelayMs": 0,
+  "gateClosed": false,
+  "resizeTo": null,
+  "definitions": "v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max",
+  "isolation": "scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)",
+  "requestPolicy": "unmapped = violation, no fallback body",
+  "browser": "Chromium 141.0.7390.37",
+  "fixtureSha256": "78b1f82e8e7bb3b9df04228e51edb322d7b37cebe426d9d0f02697962aa38d8d",
+  "fixtureKeys": 79,
+  "corpusImages": 12,
+  "completePostBodies": 2,
+  "node": "v22.22.0",
+  "cpus": 4,
+  "startedAt": "2026-10-16T08:42:59.478Z",
+  "finishedAt": "2026-10-16T08:56:06.764Z"
+ },
+ "mode": "back",
+ "base": "A",
+ "cand": "B",
+ "arms": {
+  "A": {
+   "attempts": 15,
+   "valid": 15,
+   "invalid": [],
+   "blockedWrites": [
+    null
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 15,
+     "median": 1.788,
+     "min": 0.913,
+     "max": 2.493,
+     "values": [
+      2.493,
+      1.788,
+      1.712,
+      2.044,
+      1.787,
+      1.788,
+      2.49,
+      0.913,
+      1.786,
+      1.784,
+      1.788,
+      1.917,
+      1.943,
+      0.925,
+      1.788
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 15,
+     "median": 1.788,
+     "min": 0.913,
+     "max": 2.493,
+     "values": [
+      2.493,
+      1.788,
+      1.712,
+      2.044,
+      1.787,
+      1.788,
+      2.49,
+      0.913,
+      1.786,
+      1.784,
+      1.788,
+      1.917,
+      1.943,
+      0.925,
+      1.788
+     ]
+    },
+    "usableMs": {
+     "n": 15,
+     "median": 728,
+     "min": 642,
+     "max": 1390,
+     "values": [
+      1390,
+      719,
+      710,
+      903,
+      705,
+      730,
+      1173,
+      669,
+      695,
+      724,
+      758,
+      854,
+      738,
+      642,
+      728
+     ]
+    },
+    "composedMs": {
+     "n": 15,
+     "median": 364,
+     "min": 306,
+     "max": 725,
+     "values": [
+      725,
+      327,
+      364,
+      446,
+      362,
+      331,
+      716,
+      323,
+      377,
+      366,
+      306,
+      427,
+      428,
+      321,
+      344
+     ]
+    },
+    "heroMs": {
+     "n": 15,
+     "median": 364,
+     "min": 306,
+     "max": 725,
+     "values": [
+      725,
+      327,
+      364,
+      446,
+      362,
+      331,
+      716,
+      323,
+      377,
+      366,
+      306,
+      427,
+      428,
+      321,
+      344
+     ]
+    },
+    "dgSettledMs": {
+     "n": 15,
+     "median": 581,
+     "min": 496,
+     "max": 1105,
+     "values": [
+      1105,
+      574,
+      584,
+      741,
+      530,
+      564,
+      921,
+      496,
+      537,
+      546,
+      607,
+      685,
+      585,
+      503,
+      581
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 15,
+     "median": 0,
+     "min": 0,
+     "max": 0,
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 15,
+     "median": 0,
+     "min": 0,
+     "max": 21,
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      21,
+      0,
+      0,
+      21,
+      21,
+      21,
+      0,
+      21,
+      21,
+      0,
+      0
+     ]
+    },
+    "readsBack": {
+     "n": 15,
+     "median": 59,
+     "min": 57,
+     "max": 60,
+     "values": [
+      58,
+      60,
+      59,
+      60,
+      59,
+      60,
+      57,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59
+     ]
+    },
+    "finalDocH": {
+     "n": 15,
+     "median": 7423,
+     "min": 7423,
+     "max": 7423,
+     "values": [
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423,
+      7423
+     ]
+    }
+   }
+  },
+  "B": {
+   "attempts": 15,
+   "valid": 15,
+   "invalid": [],
+   "blockedWrites": [
+    null
+   ],
+   "misses": 0,
+   "pageErrors": 0,
+   "metrics": {
+    "cls": {
+     "n": 15,
+     "median": 0.027,
+     "min": 0.022,
+     "max": 0.061,
+     "values": [
+      0.027,
+      0.061,
+      0.022,
+      0.038,
+      0.024,
+      0.027,
+      0.024,
+      0.024,
+      0.038,
+      0.027,
+      0.03,
+      0.023,
+      0.027,
+      0.027,
+      0.027
+     ]
+    },
+    "actionWindowShiftSum": {
+     "n": 15,
+     "median": 0.027,
+     "min": 0.022,
+     "max": 0.061,
+     "values": [
+      0.027,
+      0.061,
+      0.022,
+      0.038,
+      0.024,
+      0.027,
+      0.024,
+      0.024,
+      0.038,
+      0.027,
+      0.03,
+      0.023,
+      0.027,
+      0.027,
+      0.027
+     ]
+    },
+    "usableMs": {
+     "n": 15,
+     "median": 616,
+     "min": 537,
+     "max": 853,
+     "values": [
+      604,
+      566,
+      555,
+      537,
+      629,
+      853,
+      555,
+      644,
+      616,
+      539,
+      692,
+      566,
+      709,
+      617,
+      652
+     ]
+    },
+    "composedMs": {
+     "n": 15,
+     "median": 363,
+     "min": 299,
+     "max": 604,
+     "values": [
+      374,
+      299,
+      363,
+      354,
+      320,
+      604,
+      309,
+      480,
+      338,
+      371,
+      411,
+      376,
+      413,
+      350,
+      358
+     ]
+    },
+    "heroMs": {
+     "n": 15,
+     "median": 363,
+     "min": 299,
+     "max": 604,
+     "values": [
+      374,
+      299,
+      363,
+      354,
+      320,
+      604,
+      309,
+      480,
+      338,
+      371,
+      411,
+      376,
+      413,
+      350,
+      358
+     ]
+    },
+    "dgSettledMs": {
+     "n": 15,
+     "median": 616,
+     "min": 537,
+     "max": 853,
+     "values": [
+      604,
+      566,
+      555,
+      537,
+      629,
+      853,
+      555,
+      644,
+      616,
+      539,
+      692,
+      566,
+      709,
+      617,
+      652
+     ]
+    },
+    "anchorFinalDispPx": {
+     "n": 15,
+     "median": 7,
+     "min": 4,
+     "max": 7,
+     "values": [
+      7,
+      4,
+      6,
+      7,
+      5,
+      7,
+      6,
+      7,
+      7,
+      7,
+      7,
+      7,
+      6,
+      5,
+      7
+     ]
+    },
+    "anchorMaxDispAfterPx": {
+     "n": 15,
+     "median": 7,
+     "min": 4,
+     "max": 59,
+     "values": [
+      7,
+      4,
+      6,
+      38,
+      5,
+      7,
+      6,
+      7,
+      7,
+      59,
+      7,
+      7,
+      6,
+      5,
+      7
+     ]
+    },
+    "readsBack": {
+     "n": 15,
+     "median": 59,
+     "min": 57,
+     "max": 60,
+     "values": [
+      59,
+      60,
+      59,
+      59,
+      59,
+      57,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      60,
+      59,
+      59
+     ]
+    },
+    "finalDocH": {
+     "n": 15,
+     "median": 7431,
+     "min": 7428,
+     "max": 7431,
+     "values": [
+      7431,
+      7428,
+      7430,
+      7431,
+      7429,
+      7431,
+      7430,
+      7431,
+      7431,
+      7431,
+      7431,
+      7431,
+      7430,
+      7429,
+      7431
+     ]
+    }
+   }
+  }
+ },
+ "pairs": {
+  "n": 15,
+  "idxs": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12",
+   "13",
+   "14",
+   "15"
+  ],
+  "metrics": {
+   "cls": {
+    "baseMedian": 1.788,
+    "candMedian": 0.027,
+    "diffMedian": -1.761,
+    "pct": -98.512,
+    "ci95": [
+     -1.916,
+     -1.748
+    ],
+    "n": 15
+   },
+   "actionWindowShiftSum": {
+    "baseMedian": 1.788,
+    "candMedian": 0.027,
+    "diffMedian": -1.761,
+    "pct": -98.512,
+    "ci95": [
+     -1.916,
+     -1.748
+    ],
+    "n": 15
+   },
+   "usableMs": {
+    "baseMedian": 728,
+    "candMedian": 616,
+    "diffMedian": -79,
+    "pct": -15.385,
+    "ci95": [
+     -185,
+     -29
+    ],
+    "n": 15
+   },
+   "composedMs": {
+    "baseMedian": 364,
+    "candMedian": 363,
+    "diffMedian": -15,
+    "pct": -0.275,
+    "ci95": [
+     -42,
+     29
+    ],
+    "n": 15
+   },
+   "heroMs": {
+    "baseMedian": 364,
+    "candMedian": 363,
+    "diffMedian": -15,
+    "pct": -0.275,
+    "ci95": [
+     -42,
+     29
+    ],
+    "n": 15
+   },
+   "dgSettledMs": {
+    "baseMedian": 581,
+    "candMedian": 616,
+    "diffMedian": 71,
+    "pct": 6.024,
+    "ci95": [
+     -29,
+     114
+    ],
+    "n": 15
+   },
+   "anchorFinalDispPx": {
+    "baseMedian": 0,
+    "candMedian": 7,
+    "diffMedian": 7,
+    "pct": null,
+    "ci95": [
+     6,
+     7
+    ],
+    "n": 15
+   },
+   "anchorMaxDispAfterPx": {
+    "baseMedian": 0,
+    "candMedian": 7,
+    "diffMedian": 6,
+    "pct": null,
+    "ci95": [
+     -14,
+     7
+    ],
+    "n": 15
+   },
+   "readsBack": {
+    "baseMedian": 59,
+    "candMedian": 59,
+    "diffMedian": 0,
+    "pct": 0,
+    "ci95": [
+     0,
+     0
+    ],
+    "n": 15
+   },
+   "finalDocH": {
+    "baseMedian": 7423,
+    "candMedian": 7431,
+    "diffMedian": 8,
+    "pct": 0.108,
+    "ci95": [
+     7,
+     8
+    ],
+    "n": 15
+   }
+  }
+ }
+}

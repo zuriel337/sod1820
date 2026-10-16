@@ -1,6 +1,130 @@
 # HomeV2 speed and stability — focused fix, evidence (2026-10-16)
 
 Task key `CLAUDE_PERF_HOME_STABILITY_V3_20261016` · branch `ccr-cb3840b9-7iz2j1` · reports to ZURIEL only (passive record, no dispatch/ACK).
+Scope: Home + direct dependencies. Not touched: number engines, media reader, shared readers, shared CI, database, Legacy, live flags, `supabase.js`, the calculator drawer, `scrollRestore2029.js`.
+State: **BRANCH-ONLY**. No PR, no CI run, no merge, no deploy. Release stays with ZURIEL (`תעלה`).
+
+This file has two parts. **Part 1** is the continuation after the central review of `e23dee27` (the section "קבלת מסירת Claude Home" of the central handoff, commit `35fd78b0`). **Part 2** is the first delivery, kept as history: its measurements used the old corpus (18 undecodable images) and a predicate that counted invisible content, so they are not acceptance evidence.
+
+# Part 1 — continuation (head: see the task AFTER record; product commit below)
+
+## Status against the three items of the continuation instruction
+
+| item | status |
+| --- | --- |
+| 1a. CLS regression in the empty/failed Home | **fixed against the earlier candidate; not ≤ 0.1.** Cold empty 0.845 → 0.485, error 0.844 → 0.529 (base 0.59 / 0.588); outage base 0.273 → 0.214. The remaining shifts are the base's own (loading hero 418 px → unavailable hero 172 px, 0.14; the notable strip arriving above the fold, 0.31). Not changed: that is a design/content decision, see "Open decisions". |
+| 1b. Releasing the held height on a width change while loading | **fixed.** The resize itself releases the hold and the loading slots are drawn at the new width in the same frame (no collapse and re-grow). Browser test with a negative control on the previous hook. Resize-while-loading CLS: 320 base 2.679 → 0.324 (was 1.155), 1440 base 0.443 → 0.128 (was 0.668). |
+| 2. Visibility predicate | **done.** `composed` (DOM) and `usable` (visible, opaque, in the viewport, hit-testable; on a return the departure control) are separate. 10 negative controls first show that the previous predicate (v3) accepted each case, then that the current one does not; a further control does the same for the v2 predicate. Cold and Back. |
+| 3. Evidence tool on the existing corpus format and isolation | **done.** `runner.mjs` v4 runs only under `scripts/ci-isolation/run.mjs` with `frozenSnapshot`, `requestPolicy`, `browserArgs`, `installTransportBoundary`, and the isolation-aware static server. It refuses the legacy corpus and any corpus with an undecodable image; an unmapped request or an undecodable image invalidates the sample; there is no empty-body fallback; full identifiers go to a private file, the evidence carries a count, a digest and shapes. No second replay/isolation mechanism, shared mechanism untouched. |
+| Early input cancels the restore | **verified in the tool** (touch and `scrollTo` timestamps, samples where the touch arrives after a jump are invalid): in every valid sample the touch reached the page before any restore jump and **no jump followed it**, base and candidate (250 ms / 600 ms after Back). |
+| 320 / 390 / 1440 / 1920 and three themes | 390 dark/light/parchment and reduced motion: measured. 320: measured (2 pairs, base 1 valid). **1440 and 1920: NOT_RUN/BLOCKED** (missing inputs below). |
+| Stale classification expectations | **closed** in `test/home-build-and-classification-2029.test.mjs` (4/4); dedupe and category assertions kept, the limit/constant and the bounded card reader are asserted by their current names. |
+| Acceptance (≥15 pairs on the central corpus, two fixed SHAs) | **NOT_RUN** — the central corpus is not reachable from this environment. A faster site is **not** claimed. |
+
+## Commits (base unchanged: `7c3f43f39147c71508ed394363a2f98f140a5859`)
+
+| what | SHA |
+| --- | --- |
+| first delivery (product + first evidence) | `e23dee274e28d184efcca8e598e9270efb4ae787` |
+| continuation: product, tests, tool | `39d9804db9befaabb2522bda5db17d0514a9e819` |
+| runner CLI tests, QUICK matrix mode | `82d3229205561ee565dcf053c2b06fcd94c960da` |
+
+All measurements below used a build of `39d9804d` for the candidate (`git diff 39d9804d <head> -- src` is empty; a fresh `SOD_BUILD_TARGET=2029 vite build` was byte-identical to the measured build) and a build of the base `7c3f43f3`.
+
+## What changed in the product (this round: 3 files, +54/−28 — `git diff e23dee27 39d9804d -- src`; the whole HomeV2 fix against the base is 7 source files, +289/−32)
+
+- **Evidence-based reservation.** Loading slots (updates, the three gateways, the dimension strip) are drawn only from what this session already showed (`shownBefore`). A cold load reserves nothing, like before HomeV2, so an empty or failed read no longer collapses a speculative ~715 px reservation. The status line stays visible text when nothing else reserves the row.
+- **Width release redraws the slots in the same frame.** `useSettledBox`: a viewport resize releases a hold taken for another width (`viewportChangedSinceHold`, one `resize` listener), and the mount-time/observer path releases it when the box's own width differs; both go through `release`, which re-renders the caller with `held=false` under `flushSync` (batched when called from an effect) so the caller's loading slots appear at the new width before paint.
+- The first delivery's wiring is unchanged: `worldPending`, honest readiness markers, a held box is its own placeholder.
+
+## Tests (all isolated, no network, no writes)
+
+| test | result |
+| --- | --- |
+| `test/home-settled-box-2029.test.mjs` (pure rules, wiring and cold-load contracts) | 14/14 |
+| `test/home-settled-box-dom-2029.test.mjs` (real Chromium; the hook of `e23dee27` as negative control: it leaves a collapsed box on the same width change) | 5/5 |
+| `test/home-readiness-predicate-2029.test.mjs` (real Chromium; opacity 0 / 0.5, off-screen, 20% visible, covered, inert, content-visibility, departure control cases; v3 and v2 predicates as negative controls) | 19/19 |
+| `test/home-evidence-corpus-2029.test.mjs` (admission over the shared decoder; the legacy corpus is refused and its 18 images are exactly the undecodable ones; safe miss digest) | 6/6 |
+| `test/home-evidence-runner-2029.test.mjs` (the real command line under `run.mjs`: legacy corpus, a broken image, no complete departure post, missing/wrong SHA256, outside the isolation; source contract: no fallback body) | 6/6 |
+| `test/home-build-and-classification-2029.test.mjs` | 4/4 (was 2/4 on the base and on the first delivery) |
+| first isolation-gate line (`perf-execution`, `perf-replay-gate`, `early-primary-read`, `home-post-cards`) | 26/26 |
+| the other 19 isolation-gate source commands (listed in `results/gates/isolation-gate-local-summary.txt`) | 19/19 exit 0 |
+| `npm run build` (Legacy + 2029) and `npm run test:2029-bundle-budget` | build ok; budget 5/5, none skipped |
+
+Not run (live or outside Home): `test-a3-client-correlation-live.mjs`, `package:research-run`, the person/people foundation tests.
+
+## Measurements — structure diagnostics, NOT acceptance
+
+Input: **`smoke-snapshot-2.json.gz`, SHA256 `78b1f82e8e7bb3b9df04228e51edb322d7b37cebe426d9d0f02697962aa38d8d`** — a local, shared-format snapshot derived from the legacy corpus (73 of its 106 keys that the flows request, bodies re-expressed as Base64, 12 images replaced by synthetic decodable images, 3 requests that the legacy runner answered with an empty body added as empty/`null`/empty-CSS rows). It exists to exercise the tool end to end under the shared isolation and to compare layout behavior of the two builds. It is **not** a performance corpus: no image, LCP or "the site is faster" conclusion follows from it, and it is not committed. Profile: Chromium 141, 390×844 DPR 2 touch, CPU ×4, 1.6 Mbps / 150 ms, fixtures with a 150 ms Node-timer delay, serviceWorkers blocked, guest identity, every request through `requestPolicy` (zero unmapped requests in every valid sample).
+
+Quiet-machine runs (`results/continuation/quiet/`, interleaved pairs, paired median difference with a seeded bootstrap 95% CI):
+
+| scenario | CLS base → candidate | usable (visible) | composed (DOM) |
+| --- | --- | --- | --- |
+| Back to Home, 15 pairs | 1.788 [0.91–2.49] → **0.027** [0.02–0.06]; CI [−1.92, −1.75] | 728 → 616 ms, −79 ms (−15%), CI [−185, −29] | 364 → 363 ms (−0.3%), CI [−42, +29] |
+| Cold load, 12 pairs | 0.019 → 0.018 | 3571 → 3479 ms (−2.6%), CI [−136, +64] | same as usable |
+
+Other readings of the quiet runs: Back `dgSettledMs` 581 → 616 ms (+6%, CI [−29, +114]: **not proven below +10%**); reads back 59 = 59; requests cold 65 = 65; the candidate's final Home is 7–8 px taller than the base's (7431 vs 7423) and the anchor ends 7 px from the departure position (base 0).
+
+Diagnostic matrix, `QUICK=1` counts (`results/continuation/matrix/`, 1–5 pairs each; read as direction, not as statistics):
+
+| scenario | CLS base → candidate |
+| --- | --- |
+| late data 150 / 900 / 1800 / 3200 ms | 1.967 / 2.490 / 2.516 / 1.984 → 0.029 / 0.030 / 0.015 / 0.024 |
+| world gate answered late (2500 ms) | 1.256 → 0.033 |
+| world gate closed on the return after it was open | 1.125 → 0 |
+| light / parchment / reduced motion | 1.788 / 2.462 / 2.035 → 0.022 / 0.025 / 0.026 |
+| width 320 / 390 | 2.111 / 1.773 → 0.035 / 0.031 |
+| early touch 250 ms / 600 ms after Back | 2.552 / 0.913 → 0.020 / 0.029; no restore jump after the touch in any valid sample |
+| viewport resized while the lists are held and loading, to 320 / 1440 | 2.679 / 0.443 → 0.324 / 0.128 (first delivery: 1.155 / 0.668) |
+| cold empty / error / outage (all REST reads except the flags fail) | 0.590 / 0.588 / 0.273 → 0.485 / 0.529 / 0.214 (first delivery: 0.845 / 0.844 / —) |
+| return with the return's reads failing: error / outage | 0.838 / 0.504 → **0.987 / 1.726** (see limitation 2) |
+| width 1440 / 1920 | **0 valid samples, both arms** (missing inputs) |
+
+## Limitations and dependencies (not solved, not hidden)
+
+1. **Empty / failed cold Home is still above 0.1** (0.485 / 0.529 / 0.214). It is below the base now, but not within the threshold. The two big contributors are the base's own design: the loading hero reserves 418 px on phones and becomes a 172 px "unavailable" hero (0.14), and the notable strip arrives above the fold once the updates list is empty (0.31). Keeping the hero's footprint or reserving the strip would be design changes with blank space; left for ZURIEL.
+2. **A return whose reads fail is worse than the base** (error 0.838 → 0.987; outage 0.504 → 1.726; 2 pairs). Held boxes make the document tall and stable early, so the shared restorer jumps to the saved offset, and when the reads then settle empty the boxes (and the notable section) collapse above the reading position. The restorer keeps native scroll anchoring off for 2.5–8 s after its jump (`scrollRestore2029.js`, shared; not changed here), so nothing compensates. A fix needs a decision outside this scope: e.g. the restorer re-enabling anchoring when the document shrinks, or compensating `scrollY` for a collapsing box that is entirely above the viewport. Handed to the central session as a dependency.
+3. **Resize while loading** stays above 0.1 (0.324 / 0.128). It is below the base (2.679 / 0.443) and far below the first delivery, but the reflow of the whole page at the new width is counted too; this is an artificial scenario.
+4. **Time is not proven for every metric.** Back usable (−15%, CI excludes zero), Back composed (±8%) and cold load (upper bound +1.8%) support "no worsening above 10%"; Back `dgSettledMs` does not (+6%, upper CI +20%). The earlier first-delivery history (slot versions +7–22% slower) and one 4-pair cold-load run at +11% (a transient, not reproduced in 12 quiet pairs) show how much lab noise there is. Acceptance needs ≥15 pairs on the central corpus with two fixed SHAs.
+5. The markers read `empty` for a failed read because the shared readers swallow errors; `error` is only set on a rejection. Unchanged, and not fixable in Home alone.
+6. One departure route, mobile core, lab replay, derived structural input. Images, LCP and hosted behavior are not covered.
+
+## Open decisions for ZURIEL / the central session
+
+- Empty/failed Home: accept the base's collapse (now smaller), or choose a footprint for the unavailable hero / a reservation for the notable strip.
+- Failed return: a restorer-level or box-level scroll compensation (limitation 2).
+- Run the acceptance (`run-matrix.sh` without `QUICK`, ≥15 pairs for the core and the cold load) on the central corpus, then widths 1440/1920.
+
+## Missing inputs (exact)
+
+- **Central corpus** (`/workspace/private-perf-20261016`, SHA256 `b01158bf7a650c8c6b1862fe5bc2f3a3e7fcaf8a82addeff393999a4535cafae` as named in the handoff): not reachable from this environment; nothing was exported, copied or re-collected. Also named by the handoff as missing even there: the `matrix-506` post result and the language-paths icon rendition.
+- **Widths 1440 and 1920** (and 320 with `--post auto`): the smoke input lacks the requests the page makes at those widths — digest `e9cf22a8be75a470c50b8794d564c94717328aa52e2b3a07d7ec80a7ea1a61e5`, shapes: `GET …/rest/v1/channel_updates?channel&image_url&limit&or&order&select` and `GET …/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png` (the handoff says both exist in the central corpus); and the departure post that those widths show has to have a complete body in the corpus (`--post auto` takes the first visible Home control whose body is complete, or `--post /post/<slug>`). Full identifiers: `/tmp` private file of the run, never committed.
+- A corpus whose images all decode (the tool refuses anything else) and exact SHA256 (`SOD_CI_SNAPSHOT_SHA256`).
+
+## How to run
+
+```
+SOD_CI_SNAPSHOT_SHA256=<sha256> node scripts/ci-isolation/run.mjs -- node docs/perf-evidence-20261016/home-stability-v3/runner.mjs --fx <snapshot.json.gz> --arms A=<dist-base>,B=<dist-candidate> --pairs 15 --mode back --post auto --out out.json
+FX=<snapshot> SOD_CI_SNAPSHOT_SHA256=<sha256> SCRATCH=<dir with dist-A,dist-B> OUT=<dir> ./run-matrix.sh [group …]     # QUICK=1 for the diagnostic counts
+node summarize.mjs --in out.json --base A --cand B --md out.md
+```
+Builds: `SOD_BUILD_TARGET=2029 npx vite build --outDir <dir> --emptyOutDir` from the exact commits.
+
+SHA256 (first 8): `runner.mjs 6bbe386a`, `readiness.mjs c823e728`, `fixtures.mjs 1fdb92cb`, `summarize.mjs 90cb3400`, `run-matrix.sh f96d4442`. Historical copies kept as negative controls: `readiness.v3-e23dee27.mjs`, `test/fixtures/settled-box-harness/useSettledBox.e23dee27.js`.
+
+## Automatic triggers (checked before push)
+
+No workflow under `.github/workflows` has a `push:` trigger (PR-path based, scheduled or manual; `post-deploy-canary` only on a successful Production deployment). Pushing the branch without a PR starts no CI run. No live service was called; every request in the measurements went through the shared policy, and the tests send nothing.
+
+---
+
+# Part 2 — first delivery (`e23dee27`), kept as history
+
+> Its numbers come from the legacy corpus (`fixtures-combined.json.gz`: UTF-8 string bodies, 18 undecodable images) and from the v3 runner, whose predicate counted a transparent or off-screen card as usable and which answered requests the corpus could not (empty script/CSS for other hosts, `{}` for `/api`, 204 for any non-GET). They stay as a record of what was seen then; do not use them as acceptance.
+
+
+Task key `CLAUDE_PERF_HOME_STABILITY_V3_20261016` · branch `ccr-cb3840b9-7iz2j1` · reports to ZURIEL only (passive record, no dispatch/ACK).
 Scope: Home + direct dependencies. Not touched: number engines, media reader, CI, live flags, `supabase.js`, the calculator drawer.
 State: **BRANCH-ONLY**. No PR, no CI run, no merge, no deploy. Release stays with ZURIEL (`תעלה`).
 
