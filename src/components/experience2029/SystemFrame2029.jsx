@@ -2043,7 +2043,7 @@ export default function SystemFrame2029({
   const companionPinned = companionPref === "pinned" || (companionPref === null && companionXWide && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
-  // the subject that was already in the Research Context when this frame mounted (a return to the surface carries the one the person left with)
+  // the subject that was already in the shared context when this frame mounted (a return to the surface carries the one the person left with)
   const inheritedSubjectKey = useRef(contextSubjectKey);
   useEffect(() => {
     if (!companionHasContext) { setCompanionTab("feed"); return; }

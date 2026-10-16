@@ -18,7 +18,7 @@ export function stageReservesRail({ surface, showContextRail, companionActive, c
 
 /**
  * Should the companion capsule open by itself ("peek") for the current context subject? It does when a subject appears. On a width-stable surface a subject that was already in the
- * Research Context when the frame mounted is not new there (the person left the surface with it: a return restores the surface as it was left), so the capsule stays as it was
+ * shared context when the frame mounted is not new there (the person left the surface with it: a return restores the surface as it was left), so the capsule stays as it was
  * (slim, with its context indicator) and opens when the person opens it.
  */
 export function autoPeekForSubject({ surface, companionHasContext, contextSubjectKey, inheritedSubjectKey }) {
