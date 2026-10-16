@@ -1,0 +1,145 @@
+{
+  "v": 1,
+  "implementationSha": "8e485a8ede585593b3ec7d5a708032263861152e",
+  "centralCorpusAvailability": "Confirmed by user in central environment at /workspace/private-perf-20261016; not independently accessed by this worker",
+  "changedParameter": {
+    "name": "published",
+    "old": "absent",
+    "new": "eq.1"
+  },
+  "families": [
+    {
+      "family": "primary",
+      "method": "GET",
+      "path": "/rest/v1/gallery_images",
+      "queryOrdered": [
+        [
+          "select",
+          "id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance"
+        ],
+        [
+          "primary_value",
+          "eq.<N>"
+        ],
+        [
+          "published",
+          "eq.1"
+        ],
+        [
+          "curator_hidden",
+          "not.is.true"
+        ],
+        [
+          "min_tier",
+          "eq.0"
+        ],
+        [
+          "order",
+          "importance.desc.nullslast,occurred_at.desc.nullslast,created_at.desc"
+        ],
+        [
+          "limit",
+          "24"
+        ]
+      ],
+      "requestHeaders": {
+        "prefer": "",
+        "range": "",
+        "accept-profile": "public"
+      },
+      "newRequiredInput": "Genuine anonymous public HTTP response for the actual corrected signature: status, content type, original bytes and Content-Range. Never copy/filter an old response into the old request key."
+    },
+    {
+      "family": "secondary",
+      "method": "GET",
+      "path": "/rest/v1/gallery_images",
+      "queryOrdered": [
+        [
+          "select",
+          "id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance"
+        ],
+        [
+          "all_values",
+          "cs.{<N>}"
+        ],
+        [
+          "published",
+          "eq.1"
+        ],
+        [
+          "curator_hidden",
+          "not.is.true"
+        ],
+        [
+          "min_tier",
+          "eq.0"
+        ],
+        [
+          "order",
+          "importance.desc.nullslast,occurred_at.desc.nullslast,created_at.desc"
+        ],
+        [
+          "limit",
+          "40"
+        ]
+      ],
+      "requestHeaders": {
+        "prefer": "count=exact",
+        "range": "",
+        "accept-profile": "public"
+      },
+      "newRequiredInput": "Genuine anonymous public HTTP response for the actual corrected signature: status, content type, original bytes and Content-Range. Never copy/filter an old response into the old request key."
+    }
+  ],
+  "observedNew878Requests": [
+    {
+      "family": "primary",
+      "number": 878,
+      "method": "GET",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cprimary_value%2Cgallery_id%2Call_values%2Coccurred_at%2Ccreated_at%2Cimportance&primary_value=eq.878&published=eq.1&curator_hidden=not.is.true&min_tier=eq.0&order=importance.desc.nullslast%2Coccurred_at.desc.nullslast%2Ccreated_at.desc&limit=24",
+      "requestHeaders": {
+        "prefer": "",
+        "range": "",
+        "accept-profile": "public"
+      },
+      "fixtureKeyWithoutHeaderSuffix": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance&primary_value=eq.878&published=eq.1&curator_hidden=not.is.true&min_tier=eq.0&order=importance.desc.nullslast,occurred_at.desc.nullslast,created_at.desc&limit=24 ",
+      "fixtureKeyWithHeaderSuffix": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance&primary_value=eq.878&published=eq.1&curator_hidden=not.is.true&min_tier=eq.0&order=importance.desc.nullslast,occurred_at.desc.nullslast,created_at.desc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "acquiredAt": "2026-10-16T03:36:18.985Z",
+      "response": {
+        "status": 200,
+        "contentType": "application/json; charset=utf-8",
+        "contentRange": "0-15/*",
+        "sha256": "b4f126ba2df8e42d6a9795a07bda86add3579855350e9b200a844425a0b37744",
+        "bytes": 14195,
+        "rowsObserved": 16
+      },
+      "rawResponseLocation": "WORKER_LOCAL_ONLY; not included in Git"
+    },
+    {
+      "family": "secondary",
+      "number": 878,
+      "method": "GET",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cprimary_value%2Cgallery_id%2Call_values%2Coccurred_at%2Ccreated_at%2Cimportance&all_values=cs.%7B878%7D&published=eq.1&curator_hidden=not.is.true&min_tier=eq.0&order=importance.desc.nullslast%2Coccurred_at.desc.nullslast%2Ccreated_at.desc&limit=40",
+      "requestHeaders": {
+        "prefer": "count=exact",
+        "range": "",
+        "accept-profile": "public"
+      },
+      "fixtureKeyWithoutHeaderSuffix": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance&all_values=cs.{878}&published=eq.1&curator_hidden=not.is.true&min_tier=eq.0&order=importance.desc.nullslast,occurred_at.desc.nullslast,created_at.desc&limit=40 ",
+      "fixtureKeyWithHeaderSuffix": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance&all_values=cs.{878}&published=eq.1&curator_hidden=not.is.true&min_tier=eq.0&order=importance.desc.nullslast,occurred_at.desc.nullslast,created_at.desc&limit=40  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "acquiredAt": "2026-10-16T03:36:19.046Z",
+      "response": {
+        "status": 200,
+        "contentType": "application/json; charset=utf-8",
+        "contentRange": "0-28/29",
+        "sha256": "8b4eaa7292873dd2de238ad5e3214478c010bf5af300ce7b1440ce6accbed139",
+        "bytes": 26590,
+        "rowsObserved": 29
+      },
+      "rawResponseLocation": "WORKER_LOCAL_ONLY; not included in Git"
+    }
+  ],
+  "centralRemainingInput": "Enumerate distinct affected signatures from central snapshots and source/publication-blocked-keys.json, including previously unmapped eight signatures; capture genuine new public responses for exact N and observed header variants. No private reacquisition.",
+  "oldBlockedSignatureValuesAvailableHere": false,
+  "rawResponseBodiesIncluded": false
+}

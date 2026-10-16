@@ -1,5 +1,12 @@
 # Numeric media publication repair — 16.10.2026
 
+**Central-session update:** the user confirms that the original private corpus
+exists in the central environment. No private reacquisition is needed. The
+central session owns full acceptance. See [the current handoff](central-handoff.md)
+and [changed request contracts](changed-requests.json). The initial no-push
+decision below is historical: renewed trigger review permits publishing only
+this new branch; opening a PR remains blocked by the live Number gate.
+
 The focused repair is implemented and locally verified. **Full World/Entry
 acceptance remains blocked. No remote PASS, push, PR, merge or deployment.**
 
