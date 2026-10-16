@@ -1,0 +1,15 @@
+# scroll-return tests on the restorer of this head (src/lib/scrollRestore2029.js)
+ok 1 - reads that come back late with the same content: the person stays where they were
+ok 2 - content above the reading place shrinks (fewer cards, a strip that disappears): the person is not thrown forward
+ok 3 - content above the reading place grows beyond what was held: the person is not thrown back
+ok 4 - the reads above the reading place fail (300 ms): the held boxes collapse and the person stays at their place
+ok 5 - the reads above the reading place fail (1500 ms): the held boxes collapse and the person stays at their place
+ok 6 - every read fails (300 ms), the block being read collapses too: the person ends at that block, not 1300 px away
+ok 7 - every read fails (1500 ms), the block being read collapses too: the person ends at that block, not 1300 px away
+ok 8 - only the block being read fails: its own collapse is a real change of what is in view, and the person stays at it
+ok 9 - a deliberate scroll right after Back is never pulled back: the restorer stops at the first touch
+ok 10 - a width change while the return is still settling does not lose the reading place
+ok 11 - an unmarked page behaves exactly as with the previous restorer, on every scenario (no regression for the other 2029 routes)
+# tests 11
+# pass 11
+# fail 0

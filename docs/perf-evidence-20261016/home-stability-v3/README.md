@@ -1,10 +1,55 @@
 # HomeV2 speed and stability — focused fix, evidence (2026-10-16)
 
 Task key `CLAUDE_PERF_HOME_STABILITY_V3_20261016` · branch `ccr-cb3840b9-7iz2j1` · reports to ZURIEL only (passive record, no dispatch/ACK).
-Scope: Home + direct dependencies. Not touched: number engines, media reader, shared readers, shared CI, database, Legacy, live flags, `supabase.js`, the calculator drawer, `scrollRestore2029.js`.
+Scope: Home + direct dependencies. Not touched: number engines, media reader, shared readers, shared CI, database, Legacy, live flags, `supabase.js`, the calculator drawer. `src/lib/scrollRestore2029.js` was in scope only from Part 0 (explicit extension).
 State: **BRANCH-ONLY**. No PR, no CI run, no merge, no deploy. Release stays with ZURIEL (`תעלה`).
 
-This file has two parts. **Part 1** is the continuation after the central review of `e23dee27` (the section "קבלת מסירת Claude Home" of the central handoff, commit `35fd78b0`). **Part 2** is the first delivery, kept as history: its measurements used the old corpus (18 undecodable images) and a predicate that counted invisible content, so they are not acceptance evidence.
+This file has three parts. **Part 0** closes the scroll-restoration dependency reported after Part 1 (the return to Home when content is late, fails or vanishes). **Part 1** is the continuation after the central review of `e23dee27` (the section "קבלת מסירת Claude Home" of the central handoff, commit `35fd78b0`). **Part 2** is the first delivery, kept as history: its measurements used the old corpus (18 undecodable images) and a predicate that counted invisible content, so they are not acceptance evidence.
+
+# Part 0 — the return to Home when content is late, fails or vanishes (head after `e3498434`)
+
+Base `7c3f43f39147c71508ed394363a2f98f140a5859` (unchanged), previous head `e3498434ed5edd4dd5dfd6efaf61436fecfd48f8`, code commit of this round `6cfb44a53d724fbf3728fa323deafbba0542bece`. BRANCH-ONLY; failure injection and synthetic content prove behavior only — nothing here says the site is faster or that images are accepted; acceptance on the real corpus stays with the central session.
+
+## What was wrong (reproduced in a real browser)
+
+Held boxes make the document tall and stable at once, so the browser's own restore (and the F2 restorer) put the person at a **number** early. When the page's reads then came back late, failed, came back with fewer items or with more, the held boxes above the reading place collapsed or grew, nothing compensated (the restorer keeps native scroll anchoring off for its hold), and the person was thrown away from the place they were reading: **1282 px** (every read fails), **1044 px** (fewer cards, a strip that disappears), **504 px** with CLS 0.50 (more cards than held). A second defect surfaced in the real app: the hook left the held-height variable on the node, so a list that settled with fewer items than the held box had the hold attribute come back with the old variable and **re-expanded to its old height** (the flapping that made failed returns worse than the base).
+
+## What was changed
+
+- **`src/lib/scrollRestore2029.js` (the reading place).** Blocks marked `data-scroll-anchor` remember the block under the viewport top, the distance below its top and its height (plus the block before it as the fallback), next to the unchanged number (`sod2029-scroll-anchor-v1`). On a return that place is restored in the same block: placed as soon as the block is in the page (a content-relative place needs no stability wait) and followed through the hold — every frame and from a `ResizeObserver` (after layout, before paint) — while content above shrinks, grows or vanishes. A block that is gone falls back to the block before it, then to the number; a page that got shorter clamps to its end; a block that shrank puts the person at its end, never past it.
+- **Preserved (F2 and the tuned waits):** number restore for every unmarked page, forward/back, hash/anchor locations untouched, new entries start at the top, a clamp from a swapped page is not recorded, bounded waits (3 s force, 4 s give-up), hold 2.5 s quiet / 8 s cap with anchoring paused during it and restored after, immediate cancel on touch / wheel / key / pointer (following stops with the restore). The 15 existing restorer tests pass unchanged.
+- **`useSettledBox2029.js`:** the held-height variable is dropped once a list settles with another item count.
+- **Home / gateways / signup:** attribute-only `data-scroll-anchor` on the hero slot, the notices, every Section and Reveal, each gateway, the dimension strip and the signup block (unique ids, tested). No other file marks anything, so every other 2029 route is untouched by the new path.
+
+## Tests (isolated; no network, no writes)
+
+| test | result |
+| --- | --- |
+| `test/scroll-return-2029.test.mjs` — browser harness with the real hook and the real restorer driven like `RouteEffects2029`, history through `pushState`: late same-size reads, shrinking, growing, reads above fail (300 / 1500 ms), every read fails (300 / 1500 ms), only the block being read fails, a deliberate swipe 150 ms after Back (no programmatic scroll after the touch, anchoring back on), a width change while settling, and an unmarked page identical to the previous restorer on four scenarios | **11/11**; the same file with the restorer of `e3498434` (`SCROLL_RETURN_RESTORER`): **7 of 11 fail** (`results/scroll-return/scroll-return-tests-at-e3498434.txt`); the other four are guards that must keep passing |
+| `test/scroll-restore-2029.test.mjs` — 15 existing + 12 new (target rule, recording/persistence, plan, placing at once, following a collapse and growth, ResizeObserver delivery and disconnect, input stops following, missing block → previous block → number after the bounded wait, hold as before) | 27/27 |
+| `test/home-settled-box-dom-2029.test.mjs` — + a list that settles with fewer items stays natural through later renders; the hook of `e3498434` re-expands it (negative control) | 7/7 |
+| `test/home-scroll-anchors-2029.test.mjs` — who marks anchors, unique ids | 4/4 |
+| Home + scroll + first gate line, together (13 files) | 124/124 |
+| the other 19 isolation-gate source commands | 19/19 exit 0 |
+| `npm run build` (Legacy + 2029); `npm run test:2029-bundle-budget` | build ok; 5/5, none skipped |
+
+## What a person sees — real app, diagnostic input (`results/scroll-return/real-app-diagnostic/`)
+
+Same tool and isolation as Part 1 (derived snapshot with synthetic images, not a performance corpus), 3 interleaved pairs, return whose reads fail from the Back phase on; B = the build of `e3498434`, N = this head. The reading block is the one under the viewport top at departure (here the story block); `final` is where its top ends relative to the viewport.
+
+| return | CLS B → N | reading block |
+| --- | --- | --- |
+| normal | 0.024–0.042 → 0.024 / 0.026 (one N sample invalid: no visible departure control) | final position = departure position; anchor displacement 0 px (B: 5–7 px) |
+| posts fail (`error`) | 2.914 / 0.984 / 0.987 → **0 / 0 / 0** | stays at its place; where the story shrank 384 → 110 px it ends at its end (−110) |
+| posts empty (`empty`) | 0.987 / 0.844 / 0.987 → **0 / 0 / 0** | same |
+| every REST read but the flags fails (`outage`) | 3.643 / 2.957 / 2.818 → **0.721 / 0.721 / 0.721** | stays at its place; see limitation 1 |
+
+## Limitations and what is still open (not hidden)
+
+1. **Content that disappears inside the viewport is a real change of what is in view, and counts.** The outage return (0.721) and the harness case where the block being read fails itself (CLS 0.598) are that: the reading place is kept, but the block's rows are replaced by a message and the blocks below move up in view. Collapses *above* the reading place no longer move anything (harness 0.038 residue, real app 0). CLS ≤ 0.1 is **not met** for a return whose own in-view content fails; that stays open (it would take reserved blank space, which is what was ruled out).
+2. **The empty/unavailable cold Home** (Part 1 limitation 1) is unchanged on purpose: its two big contributors are the base's own design — the loading hero reserves 418 px on phones and becomes a natural 172 px unavailable hero (the base CSS says "No oversized blank hero reserve: its height follows actual source content"), and the notable strip arrives above the fold once the updates list is empty (reserving it without evidence would collapse on every failed read). This round removed the third contributor on returns (the re-expansion) and the collapse jump above the reading place. Cold empty/error stays 0.485 / 0.529 (base 0.59 / 0.588): below the base, above 0.1, open.
+3. The restorer's new path exists only where blocks are marked (Home). Other routes are byte-for-byte on the old path (tested), so they neither gain nor lose.
+4. The measurements are diagnostics on a derived structural input; the harness uses synthetic content. Acceptance (≥15 pairs, two fixed SHAs, the central corpus) and widths 1440/1920 remain NOT_RUN/BLOCKED as in Part 1. Per-frame samples in the runner can show a layout that was corrected before paint, so the runner reports the steady-state displacement and CLS, not frame jumps.
 
 # Part 1 — continuation (head: see the task AFTER record; product commit below)
 
@@ -84,7 +129,7 @@ Diagnostic matrix, `QUICK=1` counts (`results/continuation/matrix/`, 1–5 pairs
 ## Limitations and dependencies (not solved, not hidden)
 
 1. **Empty / failed cold Home is still above 0.1** (0.485 / 0.529 / 0.214). It is below the base now, but not within the threshold. The two big contributors are the base's own design: the loading hero reserves 418 px on phones and becomes a 172 px "unavailable" hero (0.14), and the notable strip arrives above the fold once the updates list is empty (0.31). Keeping the hero's footprint or reserving the strip would be design changes with blank space; left for ZURIEL.
-2. **A return whose reads fail is worse than the base** (error 0.838 → 0.987; outage 0.504 → 1.726; 2 pairs). Held boxes make the document tall and stable early, so the shared restorer jumps to the saved offset, and when the reads then settle empty the boxes (and the notable section) collapse above the reading position. The restorer keeps native scroll anchoring off for 2.5–8 s after its jump (`scrollRestore2029.js`, shared; not changed here), so nothing compensates. A fix needs a decision outside this scope: e.g. the restorer re-enabling anchoring when the document shrinks, or compensating `scrollY` for a collapsing box that is entirely above the viewport. Handed to the central session as a dependency.
+2. **A return whose reads fail is worse than the base** (error 0.838 → 0.987; outage 0.504 → 1.726; 2 pairs). **Addressed in Part 0**: collapses above the reading place no longer move the person (error/empty returns 0, outage 0.721; what remains is content disappearing inside the viewport). Held boxes make the document tall and stable early, so the shared restorer jumps to the saved offset, and when the reads then settle empty the boxes (and the notable section) collapse above the reading position. The restorer keeps native scroll anchoring off for 2.5–8 s after its jump (`scrollRestore2029.js`, shared; not changed here), so nothing compensates. A fix needs a decision outside this scope: e.g. the restorer re-enabling anchoring when the document shrinks, or compensating `scrollY` for a collapsing box that is entirely above the viewport. Handed to the central session as a dependency.
 3. **Resize while loading** stays above 0.1 (0.324 / 0.128). It is below the base (2.679 / 0.443) and far below the first delivery, but the reflow of the whole page at the new width is counted too; this is an artificial scenario.
 4. **Time is not proven for every metric.** Back usable (−15%, CI excludes zero), Back composed (±8%) and cold load (upper bound +1.8%) support "no worsening above 10%"; Back `dgSettledMs` does not (+6%, upper CI +20%). The earlier first-delivery history (slot versions +7–22% slower) and one 4-pair cold-load run at +11% (a transient, not reproduced in 12 quiet pairs) show how much lab noise there is. Acceptance needs ≥15 pairs on the central corpus with two fixed SHAs.
 5. The markers read `empty` for a failed read because the shared readers swallow errors; `error` is only set on a rejection. Unchanged, and not fixable in Home alone.
@@ -93,7 +138,7 @@ Diagnostic matrix, `QUICK=1` counts (`results/continuation/matrix/`, 1–5 pairs
 ## Open decisions for ZURIEL / the central session
 
 - Empty/failed Home: accept the base's collapse (now smaller), or choose a footprint for the unavailable hero / a reservation for the notable strip.
-- Failed return: a restorer-level or box-level scroll compensation (limitation 2).
+- Failed return: done in Part 0 (reading-place restore, extended scope); the rest is limitation 1 of Part 0.
 - Run the acceptance (`run-matrix.sh` without `QUICK`, ≥15 pairs for the core and the cold load) on the central corpus, then widths 1440/1920.
 
 ## Missing inputs (exact)
