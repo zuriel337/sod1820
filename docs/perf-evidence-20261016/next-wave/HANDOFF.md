@@ -1,5 +1,7 @@
 # Next performance wave — closing document
 
+> **Follow-up:** the two open items below (wide returns, space above the reading place after a failure) were closed in a focused round: `../closing-round/README.md`. This document is kept as it was delivered at `f60d0788`.
+
 task_key `CLAUDE_PERF_2029_NEXT_WAVE_20261016` · actor CLAUDE (leading the wave while the GPT center was unavailable) · to ZURIEL, passive (no dispatch, no ACK wait)
 Branch `claude/perf-next-wave-20261016` from `ae6d6263a1780cb82986c231d6bb26e96c93ea99` (the checked starting point; `ccr-cb3840b9-7iz2j1` was not pushed to again and still stands at `ae6d6263`).
 State: **BRANCH-ONLY**. Not merged, not deployed, no pull request, no Production, no Legacy / database / RLS / live switch / shared CI / deployment setting touched. `vercel.json` blocks previews for `claude/*` (checked against the configuration; the hosted result is not observable from here);

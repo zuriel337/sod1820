@@ -1,0 +1,27 @@
+# The 19 isolation-gate commands + the bundle budget, on the final product commit
+commit        eed39c9a9a2263454130f4eb27c9d42278429543 (clean tree at the time of the build)
+build         npm run build -> dist tree signature 0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2 (403 files)
+bundle budget npm run test:2029-bundle-budget on that fresh build: 5/5 pass
+run           2026-10-16 (UTC, ~21:20-21:28), node v22.22.0, Chromium 141.0.7390.37 where a browser is used, scratchpad copy of the gate script, each command with a 240 s timeout
+(an earlier run of the same list, on a704ba9e, had gate 04 exit 1: the comment in SystemFrame2029.jsx contained "Research Context", which the public-copy assertion of the System Frame scans for; fixed in 085e623c, the dist tree did not change)
+
+01 | exit 0 | npm run test:home-2029-pulse
+02 | exit 0 | npm run test:2029-cheap-hardening
+03 | exit 0 | node scripts/test-2029-isolation.mjs
+04 | exit 0 | node scripts/test-2029-system-frame.mjs
+05 | exit 0 | npm run test:2029-server-seo-ai
+06 | exit 0 | node scripts/test-2029-canonical-contract-wiring.mjs
+07 | exit 0 | node scripts/test-2029-world-surface.mjs
+08 | exit 0 | node scripts/test-2029-topic-surface.mjs
+09 | exit 0 | node scripts/test-2029-researcher-corpus.mjs
+10 | exit 0 | node scripts/test-2029-number-preview.mjs
+11 | exit 0 | node scripts/test-2029-control-plane.mjs
+12 | exit 0 | npm run test:experience-context
+13 | exit 0 | npm run test:entry-learn-2029
+14 | exit 0 | npm run test:my-workspace-2029
+15 | exit 0 | npm run test:legacy-research-containment
+16 | exit 0 | npm run test:world-convergence-pr591
+17 | exit 0 | node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js
+18 | exit 0 | npm run test:replayable-golden
+19 | exit 0 | npm run test:server-capability-gate
+done
