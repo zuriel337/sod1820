@@ -151,7 +151,8 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
   useLayoutEffect(() => {
     const state = live.current, node = state.node;
     if (!keep || !node) return undefined;
-    const full = state.appliedHeight ?? state.lastHeight;
+    // what the box was held at, or what the area measured while it was loading when that was more (the hero's loading state is taller than the bound an entry starts from): a message never shrinks it
+    const full = Math.max(state.appliedHeight ?? 0, state.lastHeight);
     if (!(full > 0)) return undefined;
     node.style.setProperty(SETTLED_HEIGHT_VAR, `${full}px`);
     // Nothing the person is looking at moves now; the next fresh entry to the surface starts this area at the bound (entryMemory), before its first paint.

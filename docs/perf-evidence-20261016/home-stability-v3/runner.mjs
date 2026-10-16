@@ -43,6 +43,7 @@ const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal'
 const STATE_FROM_BACK = A.stateFrom === 'back';
 const SHOTS = A.shots || null;   // --shots <dir>: a screenshot of the first viewport at the end of each sample (for looking at, not committed)
 const CAPSULE = A.capsule === '1';   // --capsule 1 (desktop profile): after the return has settled, open the companion capsule the way a person does (hover), read the rail and the content width, leave it
+const RECOVER = A.recover === '1';   // --recover 1 (with --stateFrom back and --forward 1): the reads of the SECOND return are healthy again (a failure that was over by the next entry)
 const FORWARD = A.forward === '1', DELIBERATE = A.deliberate === '1';   // --forward 1: Forward to the Post, then Back again; --deliberate 1: a deliberate scroll down and up once the return has settled
 const INTERRUPT_AT = A.interruptAt != null ? +A.interruptAt : (A.interrupt === '1' ? 900 : null);
 const PROFILE = A.profile || 'mobile', DESKTOP = PROFILE === 'desktop', DPR = A.dpr ? +A.dpr : (DESKTOP ? 1 : 2);
@@ -360,6 +361,7 @@ async function oneSample(arm, idx) {
       const f = await page.evaluate(() => ({ path: decodeURIComponent(location.pathname), y: Math.round(scrollY) }));
       o.forward = { path: f.path, samePost: f.path === o.postRoute?.path, y: f.y, yWhenLeft: o.postY, yDiff: Math.abs(f.y - o.postY) };
       const bAgain = Date.now();
+      if (RECOVER) ctl.phase = 'back2';   // stateRow serves the corpus rows as they are for any phase but 'back'
       await page.goBack({ waitUntil: 'commit' });
       const traj2 = []; while (Date.now() - bAgain < 4500) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
       const last2 = traj2.filter((t) => t[2] != null).at(-1);
@@ -367,6 +369,7 @@ async function oneSample(arm, idx) {
       // the second return is a fresh entry to Home (a new mount): its own layout shifts, the document it ends with, and every remembered box at the end (the space an earlier failure left is given back here)
       const second = await page.evaluate((t) => ({ cs: window.__r.cs.filter((x) => x.t >= t), dh: document.documentElement.scrollHeight }), bAgain);
       { const final = await blockTop(readingBlock?.id); o.backAgain.block = { id: readingBlock?.id ?? null, whenLeft: blockWhenLeft, final, displacement: blockWhenLeft != null && final != null ? Math.abs(final - blockWhenLeft) : null }; }
+      o.backAgain.shifts = second.cs.map((x) => ({ t: Math.round(x.t - bAgain), v: +x.v.toFixed(4), src: x.src }));   // what moved on the fresh entry (element, y and height before / after)
       o.backAgain.cls = sessionWindowMax(second.cs); o.backAgain.docH = second.dh; o.backAgain.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null); o.backAgain.frame = await page.evaluate(() => window.__frame()).catch(() => null);
     }
     if (INTERRUPT_AT != null) {
@@ -438,7 +441,7 @@ for (let i = 0; i < PAIRS; i++) {
   const order = i % 2 === 0 ? armNames : [...armNames].reverse();   // interleaved A/B, alternating who goes first
   for (const arm of order) { const r = MODE === 'load' ? await loadSample(arm, i + 1) : await oneSample(arm, i + 1); runs.push(r); process.stderr.write(`${arm}#${i + 1} valid=${r.valid} cls=${r.cls} miss=${r.misses} ${MODE === 'load' ? `usable=${r.readyMs?.usable} composed=${r.readyMs?.composed} lcp=${r.lcp?.t} residue=${JSON.stringify(r.skeletonResidue)}` : `anchor=${r.anchor?.finalDisp} usable=${r.readyAfterBack?.usable} composed=${r.readyAfterBack?.composed} dg=${r.readyAfterBack?.dgSettled}`} ${r.invalid.join(';')}${r.error ? ' ERR ' + r.error : ''}\n`); }
 }
-const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
+const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, recoverOnSecondReturn: RECOVER, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
   definitions: 'v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max',
   isolation: 'scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)', requestPolicy: 'unmapped = violation, no fallback body',
   browser: 'Chromium ' + browser.version(), fixtureSha256: FX_SHA, fixtureKeys: Object.keys(fixtures).length, corpusImages: corpusImages.images, completePostBodies: COMPLETE_POSTS.size, node: process.version, cpus: os.cpus().length, startedAt: t0, finishedAt: new Date().toISOString() };

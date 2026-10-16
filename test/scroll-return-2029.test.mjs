@@ -70,7 +70,9 @@ for (const ms of [300, 1500]) {
     const now = await run(current, above);
     assert.ok(displaced(now) <= 12, `displaced ${displaced(now)}px`);
     assert.ok(now.cls <= 0.01, `CLS ${now.cls}`);
-    assert.equal(now.programmaticJumps.length, 2, `one placement, one follow: nothing above moved, so the restorer never had to correct (${JSON.stringify(now.programmaticJumps)})`);
+    // one placement and nothing else: no box above the reading place changed size, so the restorer never had to correct. (At f60d0788 there was a second jump here: the hero's loading state is
+    // taller than the box it remembered, and its message shrank the box by that much above the reading place, which the restorer then put back. A message now keeps the larger box.)
+    assert.equal(now.programmaticJumps.length, 1, `one placement: nothing above moved, so the restorer never had to correct (${JSON.stringify(now.programmaticJumps)})`);
   });
   test(`the reads above the reading place fail (${ms} ms) and the held boxes collapse anyway: the person stays at their place`, { skip }, async () => {
     const above = { updates: bad(ms), notable: bad(ms), hero: bad(ms), gateways: ok(ms, 3) };

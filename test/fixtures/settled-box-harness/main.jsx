@@ -9,12 +9,13 @@ import { useSettledBox, readSettledBox, rememberSettledBox, resetSettledBoxes } 
 //   shift   px per card index: card i is PAINTED i*shift px lower than its layout box (an entrance animation mid-way: a transform moves the paint, not the layout)
 //   images  every card carries an <img> that is slow to arrive (its natural height is that of the card)
 //   before  px of content above the list (the list starts below the first screen)
+//   floor   px: the loading state is at least this tall by its own rule (the hero's loading min-height), whatever the held box is
 //   keep    the list came back empty: a message stands where the cards were and the held box is kept (the product's `keep` option; older hooks ignore it)
-function List({ id, pending, items, slots, shift = 0, images = false, keep = false, before = 0 }) {
+function List({ id, pending, items, slots, shift = 0, images = false, keep = false, before = 0, floor = 0 }) {
   const box = useSettledBox(id, { pending, settled: !pending && items > 0, count: items, keep });
   return <div className="h29">
     {before ? <div id="before" style={{ height: before }} /> : null}
-    <div id="box" ref={box.ref} data-h29-hold={box.hold} data-held={box.held ? "1" : "0"} style={{ display: "grid", gap: 8 }}>
+    <div id="box" ref={box.ref} data-h29-hold={box.hold} data-held={box.held ? "1" : "0"} style={{ display: "grid", gap: 8, minHeight: pending && floor ? floor : undefined }}>
       {Array.from({ length: items }, (_, i) => <article className="card" key={i} style={{ height: 100, transform: shift ? `translateY(${i * shift}px)` : undefined }}>{`item ${i}`}{images ? <img alt="" src={`/slow-${i}.png`} width="10" height="10" /> : null}</article>)}
       {keep && !pending && items === 0 ? <p className="message">unavailable</p> : null}
       {pending && !box.held ? Array.from({ length: slots }, (_, i) => <article className="slot" key={`s${i}`} style={{ height: 100 }}>{" "}</article>) : null}

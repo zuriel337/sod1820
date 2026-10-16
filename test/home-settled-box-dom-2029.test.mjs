@@ -33,10 +33,10 @@ async function bundle(hookPath) {
     build: { outDir, emptyOutDir: true, minify: false, lib: { entry: join(harness, "main.jsx"), formats: ["iife"], name: "SettledBoxHarness", fileName: () => "harness.js" } } });
   return join(outDir, readdirSync(outDir).find((name) => name.endsWith(".js")));
 }
-let current = null, previous = null, atHead = null, atF60 = null, browser = null;
+let current = null, previous = null, atHead = null, atF60 = null, atA704 = null, browser = null;
 test.before(async () => {
   if (skip) return;
-  [current, previous, atHead, atF60] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js")), bundle(join(harness, "useSettledBox.f60d0788.js"))]);
+  [current, previous, atHead, atF60, atA704] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js")), bundle(join(harness, "useSettledBox.f60d0788.js")), bundle(join(harness, "useSettledBox.a704ba9e.js"))]);
   browser = await chromium.launch({ executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
 });
 test.after(async () => { await browser?.close(); });
@@ -423,5 +423,29 @@ test("a retry from the message of an entry that started at the bound loads in th
     await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4 }));
     await sleep(150);
     assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160, "the retry loads in the box the entry had");
+  } finally { await page.close(); }
+});
+
+// an area whose loading state is taller than the box it starts from (the hero: its loading min-height) keeps what it measured while loading when its message arrives
+async function entryWithLoadingFloor(page) {
+  await failedVisit(page);                                  // leaves the record: the next entry starts at the bound (160)
+  await page.evaluate(() => { window.__api.mount({ pending: true, items: 0, slots: 4, floor: 247 }); window.__api.startFrames(); });
+  await sleep(200);
+  await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true, floor: 247 }));
+  await sleep(300);
+  return page.evaluate(() => window.__api.frames());
+}
+test("a message keeps the box its loading state had when that is taller than the box the entry started from, so nothing shrinks when it arrives", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    const frames = await entryWithLoadingFloor(page);
+    assert.ok(frames.length > 5 && frames.every((frame) => frame.h === 247), `every frame keeps the loading box: ${JSON.stringify([...new Set(frames.map((f) => f.h))])}`);
+  } finally { await page.close(); }
+});
+test("negative control: the hook of a704ba9e shrank that box to the bound when the message arrived", { skip }, async () => {
+  const page = await openHarness(atA704);
+  try {
+    const frames = await entryWithLoadingFloor(page);
+    assert.deepEqual([...new Set(frames.map((f) => f.h))].sort((a, b) => b - a), [247, 160], "247px while loading, then 160px: a shift at the top of the page");
   } finally { await page.close(); }
 });
