@@ -146,11 +146,11 @@ test("a release draws the loading slots at the new width in the same frame; the 
   assert.match(read("src/components/experience2029/HomeComposition2029.jsx"), /data\.loading && !updatesBox\.held \? Array\.from/);
 });
 
-test("a cold load reserves nothing without evidence: loading slots only come from what this session showed before", () => {
+test("a cold load reserves only what is in the first screen: the four update cards; the strips below it reserve nothing without evidence", () => {
   const home = read("src/components/experience2029/HomeComposition2029.jsx");
   const gateways = read("src/components/experience2029/DiscoveryGateways2029.jsx");
-  assert.match(home, /length: shownBefore\.updates \?\? 0/);
-  assert.doesNotMatch(home, /shownBefore\.updates \?\? HOME_UPDATE_SLOTS/);
+  // the updates strip is in the first screen on a wide page: it reserves the standard four cards on a cold load (a failure keeps that box); the strips below the first screen reserve nothing without evidence
+  assert.match(home, /length: shownBefore\.updates \?\? HOME_UPDATE_SLOTS/);
   assert.match(home, /const notableSlots = shownBefore\.notable \|\| 0;/);
   assert.match(gateways, /slots=\{slots \? slots\.language : null\}/);
   assert.match(gateways, /slots=\{slots \? \{ rows: slots\.cinema \} : null\}/);
@@ -225,6 +225,7 @@ test("the CSS: the message is the held box's own content and a held box does not
   assert.match(css, /\.h29 \[data-h29-hold\] \{ align-content: start; \}/);
   assert.match(css, /\.h29 \[data-h29-loading\], \.h29 \[data-h29-notice\] \{ background: var\(--s29-panel-soft\)/);
   assert.match(css, /\.h29-notice \{ grid-column: 1 \/ -1;/);
+  assert.match(css, /\.h29-hero\.is-loading \{ min-height: 247px; \}/, "a loading hero is as tall as the loaded one on a wide page");
   assert.match(css, /\.h29-hero\.is-loading, \.h29-hero2 \{ min-height: 418px;/);
   assert.doesNotMatch(css, /is-unavailable \{ min-height/, "an unavailable hero never keeps a permanent 418 px: the bounded, out-of-view release lives in the hook");
 });

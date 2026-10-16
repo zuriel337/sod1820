@@ -5,7 +5,6 @@ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import { getPostBySlug } from '../../lib/supabase.js';
-import { projectPost2029Experience } from '../../lib/research/post2029ExperienceProjection.js';
 import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
@@ -51,7 +50,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       if (!post.thumb_url && !post.image_url) return loadFull();
       setState({ loading: false, extensionsLoading: false, projection: {
         post, identity: { type: 'post', id: String(post.id), slug: post.slug, href: `/post/${post.slug}` },
-        experience: { media: projectPost2029Experience(post).media, timeline: [] }, draft: false, privateStage: false, previewSnapshot: false, extensionsPending: false,
+        experience: { media: null, timeline: [] }, draft: false,   // the media only supplies an image when the row has none, and then the full reader is used privateStage: false, previewSnapshot: false, extensionsPending: false,
       } });
       return null;
     });

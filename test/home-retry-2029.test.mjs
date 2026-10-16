@@ -214,3 +214,17 @@ test("Home: the story slot keeps the box the story held when the story swaps to 
     assert.equal(await page.locator("[data-scroll-anchor='home:reveal:story'] .state-unavailable").count(), 0);
   } finally { await page.close(); }
 });
+
+test("Home, cold load: the updates strip stands four loading cards in the first screen until its read settles; the notable strip and the gateways stand none without evidence", { skip }, async () => {
+  const page = await open({});
+  try {
+    await page.evaluate(() => window.__api.mount("home"));
+    await sleep(8);
+    assert.equal(await page.locator(".h29-updates article.h29-card.is-loading[aria-hidden='true']").count(), 4);
+    assert.equal(await page.locator(".h29-notable .is-loading").count(), 0);
+    assert.equal(await page.locator(".dg29-source.is-loading, .dg29-dimension-source.is-loading").count(), 0);
+    await sleep(500);
+    assert.equal(await page.locator(".h29-updates article.is-loading").count(), 0, "the real cards took their places");
+    assert.equal(await page.locator(".h29-updates article.h29-card").count(), 3);
+  } finally { await page.close(); }
+});

@@ -36,6 +36,8 @@ const TRACE_DIR = A.traceDir || null;
 const MODE = A.mode || 'back', GATE_DELAY = +(A.gateDelay || 0), GATE_CLOSED = A.gate === 'closed', RESIZE_TO = A.resize ? +A.resize : null;
 const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal', REDUCED = A.reduced === '1';
 const STATE_FROM_BACK = A.stateFrom === 'back';
+const SHOTS = A.shots || null;   // --shots <dir>: a screenshot of the first viewport at the end of each sample (for looking at, not committed)
+const FORWARD = A.forward === '1', DELIBERATE = A.deliberate === '1';   // --forward 1: Forward to the Post, then Back again; --deliberate 1: a deliberate scroll down and up once the return has settled
 const INTERRUPT_AT = A.interruptAt != null ? +A.interruptAt : (A.interrupt === '1' ? 900 : null);
 if (!['normal', 'empty', 'error', 'outage'].includes(STATE)) { console.error('--state normal|empty|error|outage'); process.exit(2); }
 if (!A.fx) { console.error('--fx <snapshot.json.gz> required (an exact, decodable corpus; there is no default)'); process.exit(2); }
@@ -156,7 +158,30 @@ async function newSample(origin, ctl) {
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   return { ctx, page, cdp, st };
 }
-async function swipe(cdp, dist) { const x = Math.round(W / 2); let y = H - 90; await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] }); const n = 24;
+// The identity of what Home shows, as hashes only: titles, headings, link destinations, image sources (without query), gateway rows. Taken after the first visit has settled and
+// again after each return; the difference (missing / added, by kind) says whether a return brought back the same titles, images, identities and links.
+// What the page looks like at the end of a sample, as numbers: width of the document against the viewport (horizontal overflow), the theme actually applied, the
+// headings and images on Home and how many images did not decode. Looking at the pictures (--shots) stays the way to judge the design.
+const displayInfo = (page) => page.evaluate(() => { const root = document.querySelector('.h29') || document.body; const imgs = [...document.images].filter((i) => i.closest('.h29'));
+  return { vw: innerWidth, vh: innerHeight, overflowX: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth), preset: document.documentElement.getAttribute('data-theme-preset'), theme: document.documentElement.getAttribute('data-theme'),
+    bodyBg: getComputedStyle(document.body).backgroundColor, ink: getComputedStyle(root).color, headings: root.querySelectorAll('h1, h2').length, images: imgs.length, imagesBroken: imgs.filter((i) => i.complete && i.naturalWidth === 0).length,
+    cards: document.querySelectorAll('.h29-updates .h29-card').length }; }).catch(() => null);
+const takeShot = async (page, arm, idx, label) => { if (!SHOTS) return; fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: path.join(SHOTS, `${arm}-${label}-${W}x${H}-${THEME}-${idx}.png`) }).catch(() => {}); };
+const IDENTITY_SRC = `window.__identity=()=>{const h=s=>{let x=5381;for(const c of String(s)){x=((x<<5)+x+c.charCodeAt(0))|0}return (x>>>0).toString(36)};const norm=t=>(t||'').replace(/[\\s\\u00a0]+/g,' ').trim();const out=[];const add=(kind,v)=>{if(v)out.push(kind+':'+h(v))};
+ document.querySelectorAll('.h29 .h29-card-t').forEach(n=>add('title',norm(n.textContent)));
+ document.querySelectorAll('.h29 h1, .h29 h2').forEach(n=>add('head',norm(n.textContent)));
+ document.querySelectorAll('.h29 a[href], .dg29 a[href]').forEach(a=>add('link',a.getAttribute('href')));
+ document.querySelectorAll('.h29 img[src], .dg29 img[src]').forEach(i=>add('img',(i.getAttribute('src')||'').split('?')[0]));
+ document.querySelectorAll('.dg29-source > span:first-child, .dg29-dimension-source > span:last-child').forEach(n=>add('source',norm(n.textContent)));
+ return out.sort();};`;
+const diffIdentity = (before, after) => {
+  const count = (list) => list.reduce((m, k) => (m[k] = (m[k] || 0) + 1, m), {}), a = count(before || []), b = count(after || []), kind = (k) => k.split(':')[0];
+  const by = { missing: {}, added: {} };
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) { const d = (b[k] || 0) - (a[k] || 0); if (d < 0) by.missing[kind(k)] = (by.missing[kind(k)] || 0) - d; if (d > 0) by.added[kind(k)] = (by.added[kind(k)] || 0) + d; }
+  const kinds = {}; for (const k of before || []) kinds[kind(k)] = (kinds[kind(k)] || 0) + 1;
+  return { before: kinds, after: (() => { const o = {}; for (const k of after || []) o[kind(k)] = (o[kind(k)] || 0) + 1; return o; })(), missing: by.missing, added: by.added, same: !Object.keys(by.missing).length && !Object.keys(by.added).length };
+};
+async function swipe(cdp, dist) { const x = Math.round(W / 2); let y = dist < 0 ? 120 : H - 90; await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] }); const n = 24;
   for (let i = 0; i < n; i++) { y -= dist / n; await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] }); await new Promise(r => setTimeout(r, 16)); }
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -189,13 +214,17 @@ async function oneSample(arm, idx) {
     const rdy = await page.evaluate(() => window.__wait('dgSettled')); if (!rdy.ok) o.invalid.push('Home discovery never settled');
     o.homeReadyEpoch = { usable: await page.evaluate(() => window.__r.ready.usable), dgSettled: await page.evaluate(() => window.__r.ready.dgSettled), navStart: nav0 };
     await sleep(2200);   // explicit setup settle (not part of measured action)
+    await page.evaluate(IDENTITY_SRC); const identityBefore = await page.evaluate(() => window.__identity());
+    o.holdsBefore = await page.evaluate(() => window.__holds()).catch(() => null);   // every remembered box on the first visit, with the width it has: a return at another width releases the hold
     const eligible = POST_ARG && POST_ARG !== 'auto' ? [decodeURIComponent(POST_ARG.replace(/^\/post\//, ''))] : [...COMPLETE_POSTS];
     // reach the departure position by real touch swipes (same fixed script for every arm)
     for (let i = 0; i < 3; i++) { await swipe(cdp, 600); await sleep(250); } await sleep(500);
     let link = null; for (let i = 0; i < 10 && !link; i++) { link = await visibleLink(page, eligible); if (!link) { await swipe(cdp, 300); await sleep(350); } }
+    // a wide page can be passed by the fixed downward script (the control is higher up than on a phone): look back up before giving up
+    for (let i = 0; i < 16 && !link; i++) { await swipe(cdp, -300); await sleep(350); link = await visibleLink(page, eligible); }
     await sleep(800);
     link = await visibleLink(page, eligible);
-    if (!link) { o.invalid.push('no really-visible Home post control for departure (with a complete body in the corpus)'); throw new Error('no visible control'); }
+    if (!link) { o.departDiag = await page.evaluate(([sel, vh]) => ({ vh, y: Math.round(scrollY), dh: document.documentElement.scrollHeight, links: [...document.querySelectorAll(sel)].map((e) => { const r = e.getBoundingClientRect(); return { slug: decodeURIComponent((e.getAttribute('href') || '').replace(/^\/post\//, '')).slice(0, 40), top: Math.round(r.top), bottom: Math.round(r.bottom), w: Math.round(r.width), h: Math.round(r.height) }; }) }), [HOME_POST, H]).catch(() => null); o.invalid.push('no really-visible Home post control for departure (with a complete body in the corpus)'); throw new Error('no visible control'); }
     const readingBlock = await page.evaluate(() => { let best = null; for (const b of document.querySelectorAll('[data-scroll-anchor]')) { const r = b.getBoundingClientRect(); if (r.height > 0 && r.top <= 1) best = { id: b.getAttribute('data-scroll-anchor'), top: Math.round(r.top), h: Math.round(r.height) }; } return best; });
     o.depart = { readingBlock, href: link.href, anchorText: link.anchorText, anchorTopBefore: link.anchorTop, linkTop: link.top, scrollY: await page.evaluate(() => Math.round(scrollY)), docH: await page.evaluate(() => document.documentElement.scrollHeight), blocksBefore: (await page.evaluate(() => { const g = window.__r.geo; return g.length ? g[g.length - 1].k : null; })) };
     // REAL tap (touch) at the control; controller timestamps immediately around the command
@@ -252,12 +281,38 @@ async function oneSample(arm, idx) {
     o.cardsAtEnd = await page.evaluate(() => { const r = (n) => n ? Math.round(n.getBoundingClientRect().height * 10) / 10 : null; const box = document.querySelector('.h29-updates'); const cs = box ? getComputedStyle(box) : null; return box ? { box: r(box), pad: cs.paddingBlockStart + '/' + cs.paddingBlockEnd, gap: cs.rowGap, head: r(box.closest('section')?.querySelector('.h29-sec-h')), section: r(box.closest('section')), cards: [...box.children].map((c) => ({ tag: c.tagName, cls: String(c.className).slice(0, 40), h: r(c), main: r(c.querySelector('.h29-card-main')), media: r(c.querySelector('.h29-media')), body: r(c.querySelector('.h29-card-body')), cats: r(c.querySelector('.h29-card-cats')), catsCls: c.querySelector('.h29-card-cats') ? String(c.querySelector('.h29-card-cats').className).slice(0, 30) : null, open: r(c.querySelector('.h29-card-open')), upd: r(c.querySelector('.h29-upd')), t: r(c.querySelector('.h29-card-t')), meta: r(c.querySelector('.h29-meta')), metaText: (c.querySelector('.h29-meta') || {}).textContent || null, metaFont: c.querySelector('.h29-meta') ? (({ fontFamily, lineHeight, fontSize }) => `${fontFamily}|${lineHeight}|${fontSize}`)(getComputedStyle(c.querySelector('.h29-meta'))) : null, tFont: c.querySelector('.h29-card-t') ? (({ fontFamily, lineHeight }) => `${fontFamily}|${lineHeight}`)(getComputedStyle(c.querySelector('.h29-card-t'))) : null })), fonts: [...document.fonts].map((f) => `${f.family}:${f.status}`), probe: (() => { const m = box.children[1]?.querySelector('.h29-card-main'); if (!m) return null; const parts = [m, m.querySelector('.h29-media'), m.querySelector('.h29-media > *'), m.querySelector('.h29-card-body')].filter(Boolean); return { html: m.outerHTML.slice(0, 700), parts: parts.map((n) => { const q = getComputedStyle(n), b = n.getBoundingClientRect(); return { tag: n.tagName, cls: String(n.className).slice(0, 30), h: Math.round(b.height * 100) / 100, minH: q.minBlockSize, height: q.height, disp: q.display, fs: q.fontSize, lh: q.lineHeight, ff: q.fontFamily.slice(0, 40), ar: q.aspectRatio, pad: q.padding }; }) }; })() } : null; }).catch(() => null);   // per-card geometry of the updates strip at the end of the horizon (base and candidate alike)
     o.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null);   // every remembered box at the end of the horizon: its height against its natural extent (a hold that outlives its loading is blank space)
     o.restore = { jumps: rec.jumps.map(j => ({ atMs: ms(j.t), to: j.to, from: j.from })), touchAtMs: rec.touch.length ? ms(rec.touch[0]) : null, departScrollY: o.depart.scrollY };
+    o.identity = diffIdentity(identityBefore, await page.evaluate(() => window.__identity()));
+    o.display = await displayInfo(page); await takeShot(page, arm, idx, 'back');
+    if (DELIBERATE) {
+      // a deliberate scroll once the return has settled: it must move the page by about what was asked and nothing may pull it back
+      const tMark = await page.evaluate(() => Date.now()), y0 = await page.evaluate(() => Math.round(scrollY));
+      await swipe(cdp, 500); await sleep(1000); const y1 = await page.evaluate(() => Math.round(scrollY));
+      await swipe(cdp, -300); await sleep(1000); const y2 = await page.evaluate(() => Math.round(scrollY));
+      const after = await page.evaluate((t) => window.__r.jumps.filter(j => j.t >= t).length, tMark);
+      o.deliberate = { y0, downBy: y1 - y0, upBy: y1 - y2, programmaticScrollsAfter: after, ok: y1 - y0 > 250 && y1 - y2 > 150 && after === 0 };
+    }
+    if (FORWARD) {
+      // Forward to the Post: the same Post at the scroll position it was left at; then Back once more: the same reading place and the same content
+      const leftAt = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText);   // where the person is when they leave for the Post (after any deliberate scroll)
+      await page.goForward({ waitUntil: 'commit' });
+      await page.waitForFunction(() => location.pathname.startsWith('/post/'), null, { timeout: 15000 }).catch(() => o.invalid.push('Forward did not reach the Post'));
+      await sleep(3000);
+      const f = await page.evaluate(() => ({ path: decodeURIComponent(location.pathname), y: Math.round(scrollY) }));
+      o.forward = { path: f.path, samePost: f.path === o.postRoute?.path, y: f.y, yWhenLeft: o.postY, yDiff: Math.abs(f.y - o.postY) };
+      const bAgain = Date.now();
+      await page.goBack({ waitUntil: 'commit' });
+      const traj2 = []; while (Date.now() - bAgain < 4500) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
+      const last2 = traj2.filter((t) => t[2] != null).at(-1);
+      o.backAgain = { leftAtY: leftAt.y, anchorTopWhenLeft: leftAt.a?.found ? leftAt.a.top : null, anchorTopFinal: last2 ? last2[2] : null, anchorDisp: last2 && leftAt.a?.found ? Math.abs(last2[2] - leftAt.a.top) : null, yDisp: traj2.at(-1) ? Math.abs(traj2.at(-1)[1] - leftAt.y) : null, yFinal: traj2.at(-1)?.[1] ?? null, identity: diffIdentity(identityBefore, await page.evaluate(() => window.__identity())) };
+    }
     if (INTERRUPT_AT != null) {
       const touchAt = o.restore.touchAtMs, jumpsAfter = o.restore.jumps.filter(j => touchAt != null && j.atMs > touchAt);
       const jumpsBefore = o.restore.jumps.filter(j => touchAt == null || j.atMs <= touchAt);
       o.interrupt = { requestedAtMs: INTERRUPT_AT, sentAtMs: interruptSent, touchReachedPageAtMs: touchAt, restoreJumpsBeforeInput: jumpsBefore.length, restoreJumpsAfterInput: jumpsAfter.length, yFinal: lastT[1],
         earlyInput: touchAt != null && jumpsBefore.length === 0, pullback: jumpsAfter.length > 0 };
-      if (!o.interrupt.earlyInput) o.invalid.push(`the touch reached the page at ${touchAt}ms, after ${jumpsBefore.length} restore jump(s): not an early-input sample`);
+      // the touch reaches the page either before the restorer's first jump (it then must not jump at all) or during its hold window (it must stop and never pull back): both are reported, by phase
+      o.interrupt.phase = touchAt == null ? 'never reached' : o.interrupt.earlyInput ? 'before-restore' : 'during-hold';
+      if (touchAt == null) o.invalid.push('the touch never reached the page');
     }
     o.reqLog = st.reqLog.filter(r => r.phase === 'back').map(r => ({ k: r.k, tReq: r.tReq - bWall0, tFulfil: r.tFulfil - bWall0, delay: r.delay }));
     o.reqCount = { depart: st.reqLog.filter(r => r.phase === 'depart').length, back: st.reqLog.filter(r => r.phase === 'back').length };
@@ -302,6 +357,7 @@ async function loadSample(arm, idx) {
     o.cls = sessionWindowMax(rec.cs); o.shiftSum = +rec.cs.reduce((s, x) => s + x.v, 0).toFixed(4); o.shifts = rec.cs.map(x => ({ t: rel(x.t), v: +x.v.toFixed(4), src: x.src && x.src.slice(0, 2) }));
     o.fcp = rec.fcp != null ? Math.round(rec.fcp) : null; o.lcp = rec.lcp ? { t: rel(rec.lcp.t), el: rec.lcp.el, size: rec.lcp.size } : null;
     o.readyMs = { usable: rel(rec.ready.usable), composed: rel(rec.ready.composed), hero: rel(rec.ready.heroReal), dgSettled: rel(rec.ready.dgSettled), markerPrimary: rel(rec.ready.markerPrimary), markerDg: rel(rec.ready.markerDg), markerSeen: rec.ready.markerSeen ?? null };
+    o.display = await displayInfo(page); await takeShot(page, arm, idx, 'load');
     o.final = rec.ready0; o.skeletonResidue = rec.sk; o.holds = rec.holds; o.emptyText = rec.emptyText; o.heroText = rec.heroText;
     o.reqCount = st.reqLog.length;
     // what the first entry asks for, in order: the app's own files (name, kind, start/end from the navigation) and the reads (shape, count, first/last) with repeated shapes called out

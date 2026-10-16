@@ -30,8 +30,11 @@ import "./homeComposition2029.css";
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
 const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown
 // Presentation memory only (never data): how many cards the strips showed the last time Home was on screen in this
-// session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load): nothing is
-// reserved, because without evidence a reservation can be wrong (an empty or failed read would collapse it).
+// session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load): the updates strip reserves
+// the standard four cards (the strip is in the first screen on a wide page: without them everything below it jumps when the cards arrive),
+// which is safe because an empty or failed read keeps that box with its message instead of collapsing it. The notable strip and the
+// gateways reserve nothing without evidence: they are below the first screen, and a strip that may not exist at all must not leave a gap.
+// After a read that came back empty or failed the memory is 0: a retry does not reserve cards that were not there.
 const shownBefore = { updates: null, notable: null };
 const NBSP = "\u00a0";
 
@@ -245,7 +248,7 @@ export default function HomeComposition2029({
             <Link className="h29-card-open" to={post.update?.targetHref || postHref(post.slug)}>{post.update?.targetHref ? "לקטע שעודכן ←" : "לקריאה ←"}</Link>
           </article>;
         })}
-        {data.loading && !updatesBox.held ? Array.from({ length: shownBefore.updates ?? 0 }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
+        {data.loading && !updatesBox.held ? Array.from({ length: shownBefore.updates ?? HOME_UPDATE_SLOTS }, (_, index) => <UpdateCardSlot key={`slot-${index}`} />) : null}
         {updatesEmpty ? <HomeReadNotice2029 onRetry={data.retryPosts}>{data.failed ? "העדכונים האחרונים אינם זמינים כרגע." : "אין כרגע פוסטים להצגה."}</HomeReadNotice2029> : null}
       </div>
     </Section>

@@ -4,7 +4,8 @@
 #   dist-A = the base build, dist-B = the build under test (both from exact commits; record the SHAs next to the results).
 # Every run goes through the shared isolation (scripts/ci-isolation/run.mjs): the corpus must be a decodable shared-format snapshot (runner.mjs refuses anything else),
 # an unmapped request invalidates the sample and fails the run, nothing is sent to a live service. mobile 390x844 DPR2 CPU x4, CDP 1.6 Mbps / 150 ms unless a scenario says otherwise.
-# Groups: core load late gate resize states backfail interrupt widths themes   (widths need fixtures for 320/1440/1920 in the corpus; without them those runs are BLOCKED, not PASS)
+# Groups: core load late gate resize states backfail interrupt widths themes nav   (widths need fixtures for 320/1440/1920 in the corpus; without them those runs are BLOCKED, not PASS)
+#   nav = display and navigation acceptance: Back, Forward + Back again, a deliberate scroll, the identity of what Home shows, at four widths and three themes, early input, reduced motion, then the first entry at the same widths/themes
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; REPO="$(cd "$HERE/../../.." && pwd)"
 S="${SCRATCH:?SCRATCH}"; O="${OUT:?OUT}"; FX="${FX:?FX}"; : "${SOD_CI_SNAPSHOT_SHA256:?SOD_CI_SNAPSHOT_SHA256}"; mkdir -p "$O"
@@ -18,6 +19,7 @@ run() { local name="$1"; shift; echo "== $name: $*" >&2
   node "$REPO/scripts/ci-isolation/run.mjs" -- node "$HERE/runner.mjs" --fx "$FX" --private "$PRIVATE" "$@" --out "$O/$name.json" > "$O/$name.log" 2>&1; echo "exit $?" >> "$O/$name.log"
   node "$HERE/summarize.mjs" --in "$O/$name.json" --base "${BASE:-A}" --cand B --json "$O/$name.summary.json" --md "$O/$name.summary.md" 2>>"$O/$name.log" || true; }
 groups=("$@"); [ ${#groups[@]} -eq 0 ] && groups=(core load late gate resize states backfail interrupt widths themes)
+SHOTS="${SHOTS:-}"; SH=""; [ -n "$SHOTS" ] && SH="--shots $SHOTS"
 for g in "${groups[@]}"; do case "$g" in
   core)      BASE=A run core-back-AB --arms "$ARMS_AB" --pairs $(n 10 5) --mode back --post "$POST" ;;
   load)      BASE=A run cold-load-AB --arms "$ARMS_AB" --pairs $(n 7 4) --mode load ;;
@@ -31,6 +33,12 @@ for g in "${groups[@]}"; do case "$g" in
   widths)    for W in 320:640 390:844 1440:900 1920:1080; do BASE=A run width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:}; done ;;
   themes)    for T in light parchment; do BASE=A run theme-$T-AB --arms "$ARMS_AB" --pairs $(n 3 1) --mode back --post "$POST" --theme $T; done
              BASE=A run reduced-motion-AB --arms "$ARMS_AB" --pairs $(n 3 1) --mode back --post "$POST" --reduced 1 ;;
+  nav)       for W in 320:640 390:844 1440:900 1920:1080; do BASE=A run nav-width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --width ${W%%:*} --height ${W##*:} --forward 1 --deliberate 1 $SH; done
+             for T in light parchment; do BASE=A run nav-theme-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --theme $T --forward 1 --deliberate 1 $SH; done
+             BASE=A run nav-reduced-motion-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --reduced 1 --forward 1 --deliberate 1 $SH
+             for T in 250 600; do BASE=A run nav-interrupt-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode back --post "$POST" --interruptAt $T $SH; done
+             for W in 320:640 390:844 1440:900 1920:1080; do BASE=A run nav-load-width-${W%%:*}-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode load --width ${W%%:*} --height ${W##*:} $SH; done
+             for T in light parchment; do BASE=A run nav-load-theme-$T-AB --arms "$ARMS_AB" --pairs $(n 3 2) --mode load --theme $T $SH; done ;;
   *) echo "unknown group $g" >&2 ;;
 esac; done
 echo "matrix done" >&2
