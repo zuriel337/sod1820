@@ -8,7 +8,7 @@
 // Three layers, each with a control that shows the old behavior failing:
 //   1. the two decisions (frameLayout2029.js) against a verbatim copy of the old rules, over every combination of the inputs;
 //   2. the frame's real stylesheets in Chromium: whether the reservation changes the width the content column gets (relative: the wrappers here are a replica of the frame's, so the absolute
-//      widths of the real app, 1180 -> 1046 at 1440, are the evidence runner's, recorded in docs/perf-evidence-20261016/closing-round/);
+//      widths of the real app, 1180 -> 1046 at 1440, are the evidence runner's, recorded in docs/perf-evidence-20261016/rail-fix/);
 //   3. the frame source: it uses the decisions (a reverted inline rule fails here).
 import test from "node:test";
 import assert from "node:assert/strict";
