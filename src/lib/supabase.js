@@ -1,6 +1,6 @@
 import { SUPABASE_URL, SUPABASE_ANON } from './supabasePublicConfig.js';
 import { createEarlyReadFetch2029 } from './earlyPrimaryRead2029.js';
-import { postBySlugRead, latestPostCardsRead, applyPostRead } from './postReadQueries2029.js';
+import { postBySlugRead, postCardBySlugRead, latestPostCardsRead, applyPostRead } from './postReadQueries2029.js';
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
@@ -538,6 +538,14 @@ export async function getGalleryNumberTags() {
 export async function getPostBySlug(slug) {
   if (!supabase) return null;
   const { data, error } = await applyPostRead(supabase, postBySlugRead(slug));
+  if (error || !data?.length) return null;
+  return data[0];
+}
+
+// Same lookup as getPostBySlug with only the columns the Home story card uses (no body); see postCardBySlugRead.
+export async function getPostCardBySlug(slug) {
+  if (!supabase) return null;
+  const { data, error } = await applyPostRead(supabase, postCardBySlugRead(slug));
   if (error || !data?.length) return null;
   return data[0];
 }

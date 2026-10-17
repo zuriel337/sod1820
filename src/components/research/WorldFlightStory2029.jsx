@@ -4,7 +4,7 @@ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
-import { getPostBySlug } from '../../lib/supabase.js';
+import { getPostCardBySlug } from '../../lib/supabase.js';
 import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
@@ -41,9 +41,9 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       if (live) setState({ loading: false, projection: admit(projection) ? projection : null, extensionsLoading: false });
     });
     // Home draws the post's own row (image, categories, date) and nothing of the reading projection's extension phase (timeline, verifications, method traces: they live in a
-    // collapsed section that only the World surface has). So Home asks for that row, the first read the projection itself makes, and does not load the projection builder
-    // or run its extension reads on every entry. A row without an image still goes through the full reader, which may supply one from the post's experience media.
-    const task = !home ? loadFull() : getPostBySlug(slug).then((post) => {
+    // collapsed section that only the World surface has). So Home asks for that row's card columns (not the body: the same lookup as the projection's first read, narrower),
+    // and does not load the projection builder or run its extension reads on every entry. A row without an image still goes through the full reader, which may supply one from the post's experience media.
+    const task = !home ? loadFull() : getPostCardBySlug(slug).then((post) => {
       if (!live) return null;
       const draft = Array.isArray(post?.tags) && post.tags.includes('טיוטה');
       if (!post || draft || !postRowToWorldUpdate(post)) { setState({ loading: false, projection: null }); return null; }   // not public Home material: the same outcome the full reader gives
