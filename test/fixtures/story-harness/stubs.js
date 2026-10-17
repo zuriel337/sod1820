@@ -3,6 +3,15 @@
 const calls = (window.__calls = window.__calls || []);
 const later = (ms = 25) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function getPostBySlug(slug) { calls.push('getPostBySlug'); await later(); return window.__post === undefined ? null : window.__post; }
+// the Home card's narrower lookup: the same row, cut to the columns the test passes in (window.__columns = the real HOME_STORY_POST_COLUMNS_2029)
+export async function getPostCardBySlug(slug) {
+  calls.push('getPostCardBySlug'); await later();
+  const row = window.__post === undefined ? null : window.__post;
+  if (!row) return row;
+  const picked = {};
+  for (const column of window.__columns) if (column in row) picked[column] = row[column];
+  return picked;
+}
 export const supabase = null;
 // the projection builder: logs, hands the row out early (onPrimary) like the real one, then resolves the full projection after its extension reads
 export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {

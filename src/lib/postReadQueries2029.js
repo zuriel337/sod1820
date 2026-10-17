@@ -8,6 +8,12 @@ export function postBySlugRead(slug) {
   const values = slugs.map(s => /[,()]/.test(s) ? `"${s}"` : s).join(',');
   return { table: 'posts', columns: '*', filters: [['slug', 'in', `(${values})`]], limit: 1 };
 }
+// Home story card: the columns it draws or admits on (id/slug identity, tags/home_hidden/source/title admission, categories, date, images).
+// Same slug variants, filters and limit as postBySlugRead; only the columns differ. No body, excerpt or author.
+export const HOME_STORY_POST_COLUMNS_2029 = 'id,slug,title,tags,home_hidden,source,categories,date,thumb_url,image_url';
+export function postCardBySlugRead(slug) {
+  return { ...postBySlugRead(slug), columns: HOME_STORY_POST_COLUMNS_2029 };
+}
 export function latestPostCardsRead({ limit = 2 } = {}) {
   return { table: 'posts', columns: 'id,slug,title,image_url,thumb_url,date,modified,tags,home_hidden',
     filters: [['home_hidden', 'eq', false], ['slug', 'not.is', 'null']],

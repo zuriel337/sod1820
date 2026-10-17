@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
 import { matchRoutes } from 'react-router-dom';
-import { entryPrimaryReads2029, postBySlugRead, latestPostCardsRead, applyPostRead, postReadUrl } from '../src/lib/postReadQueries2029.js';
+import { entryPrimaryReads2029, postBySlugRead, postCardBySlugRead, HOME_STORY_POST_COLUMNS_2029, WORLD_FLIGHT_POST_SLUG, latestPostCardsRead, applyPostRead, postReadUrl } from '../src/lib/postReadQueries2029.js';
+import { postRowToWorldUpdate } from '../src/lib/research/worldDiscoveryStream.js';
 import { startPrimaryReads2029, createEarlyReadFetch2029 } from '../src/lib/earlyPrimaryRead2029.js';
 
 test('head URL and client URL are identical for original slug variants and latest-card reads', async () => {
@@ -105,4 +106,38 @@ test('an aborted consumer stops immediately without aborting another initial con
   complete(new Response('[{"id":3}]'));
   assert.deepEqual(await (await other).json(), [{ id: 3 }]);
   assert.equal(s.counts().normalCalls, 0);
+});
+
+test('Home story card read: the post lookup with only the card columns, nothing else changed', async () => {
+  for (const slug of ['hello', '%D7%A9%D7%9C%D7%95%D7%9D', 'a,b', 'a(b)', 'a"b', WORLD_FLIGHT_POST_SLUG]) {
+    const full = postBySlugRead(slug), card = postCardBySlugRead(slug);
+    assert.deepEqual({ ...card, columns: null }, { ...full, columns: null }, 'same table, filters and limit');
+    assert.equal(full.columns, '*');
+    assert.equal(card.columns, HOME_STORY_POST_COLUMNS_2029);
+    let seen;
+    const client = createClient('https://example.supabase.co', 'anon', { auth: { persistSession: false }, global: { fetch: async url => { seen = String(url); return new Response('[]', { headers: { 'Content-Type': 'application/json' } }); } } });
+    await applyPostRead(client, card);
+    assert.equal(seen, postReadUrl('https://example.supabase.co', card));
+    const asked = new URL(seen).searchParams, fullUrl = new URL(postReadUrl('https://example.supabase.co', full)).searchParams;
+    assert.equal(asked.get('slug'), fullUrl.get('slug'));
+    assert.equal(asked.get('limit'), '1');
+    assert.equal(asked.get('select'), HOME_STORY_POST_COLUMNS_2029);
+  }
+  const columns = HOME_STORY_POST_COLUMNS_2029.split(',');
+  for (const needed of ['id', 'slug', 'title', 'tags', 'home_hidden', 'source', 'categories', 'date', 'thumb_url', 'image_url']) assert.ok(columns.includes(needed), needed);
+  for (const unwanted of ['content', 'excerpt', 'author', '*']) assert.ok(!columns.includes(unwanted), unwanted);
+  // the head preload for the post and World routes keeps reading the whole row
+  assert.equal(entryPrimaryReads2029('/world')[0].columns, '*');
+  assert.equal(entryPrimaryReads2029('/post/hello')[0].columns, '*');
+});
+test('Home story card admission is the same on the card columns as on the whole row', () => {
+  const whole = { id: 5107, slug: 'flydubai-fz1073-363-14000-remzei-geula', title: 'טיסה', tags: ['חדשות'], home_hidden: false, source: 'ai', categories: ['רמזי גאולה'],
+    date: '2026-10-01T10:00:00Z', modified: '2026-10-02T10:00:00Z', created_at: '2026-10-01T09:00:00Z', thumb_url: 't', image_url: 'i', content: '<p>x</p>', excerpt: 'e', author: 'a' };
+  const variants = [{}, { tags: ['טיוטה'] }, { tags: ['פורום'] }, { home_hidden: true }, { source: 'gpt-draft' }, { source: 'web' }, { source: 'uploaded_file' },
+    { title: '' }, { title: '<b> </b>' }, { slug: '' }, { id: null }, { thumb_url: null, image_url: null }, { tags: null }];
+  const narrow = row => Object.fromEntries(HOME_STORY_POST_COLUMNS_2029.split(',').filter(c => c in row).map(c => [c, row[c]]));
+  for (const change of variants) {
+    const row = { ...whole, ...change };
+    assert.equal(Boolean(postRowToWorldUpdate(narrow(row))), Boolean(postRowToWorldUpdate(row)), JSON.stringify(change));
+  }
 });

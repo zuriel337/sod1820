@@ -10,6 +10,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "vite";
 import react from "@vitejs/plugin-react";
+import { HOME_STORY_POST_COLUMNS_2029 } from "../src/lib/postReadQueries2029.js";
 
 let chromium = null;
 for (const base of [import.meta.url, `file://${process.env.PLAYWRIGHT_DIR || "/opt/node-tools"}/node_modules/`]) {
@@ -50,17 +51,17 @@ const ROW = { id: 5107, slug: "flydubai-fz1073-363-14000-remzei-geula", title: "
 async function run(script, surface, { post = ROW, media = null, hash = "" } = {}) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.setContent("<!doctype html><body><div id='root'></div></body>");
-  await page.evaluate(([row, mediaValue]) => { window.__post = row; window.__media = mediaValue; window.__calls = []; }, [post, media]);
+  await page.evaluate(([row, mediaValue, columns]) => { window.__post = row; window.__media = mediaValue; window.__calls = []; window.__columns = columns.split(","); }, [post, media, HOME_STORY_POST_COLUMNS_2029]);
   await page.addScriptTag({ content: script });
   await page.evaluate(([s, h]) => window.__api.mount(s, "/" + h), [surface, hash]);
   await sleep(400);
   return { page, calls: await page.evaluate(() => window.__calls.slice()), html: await page.evaluate(() => document.getElementById("root").innerHTML) };
 }
 
-test("Home: the story reads the post's row once and does not load the reading projection or run its extension reads", { skip }, async () => {
+test("Home: the story reads the post's card columns once and does not load the reading projection or run its extension reads", { skip }, async () => {
   const now = await run(current, "home");
   try {
-    assert.deepEqual(now.calls, ["getPostBySlug"]);
+    assert.deepEqual(now.calls, ["getPostCardBySlug"]);
     assert.match(now.html, /sod29-flight-story is-home/);
     assert.equal(await now.page.locator("img").getAttribute("src"), ROW.thumb_url);
   } finally { await now.page.close(); }
@@ -75,7 +76,18 @@ test("Home: the card is the same markup as before, for the same row", { skip }, 
   // an image only in the full-size field, no categories, no date: the same again
   const sparse = { ...ROW, thumb_url: null, categories: [], date: null, modified: null };
   const a = await run(current, "home", { post: sparse }), b = await run(before, "home", { post: sparse });
-  try { assert.equal(a.html, b.html); assert.deepEqual(a.calls, ["getPostBySlug"]); } finally { await a.page.close(); await b.page.close(); }
+  try { assert.equal(a.html, b.html); assert.deepEqual(a.calls, ["getPostCardBySlug"]); } finally { await a.page.close(); await b.page.close(); }
+});
+
+test("Home: a row with a body, excerpt and author draws the same card as the narrow row the card now receives", { skip }, async () => {
+  const fat = { ...ROW, content: "<p>" + "גוף הפוסט ".repeat(500) + "</p>", excerpt: "תקציר", author: "מחבר", created_at: "2026-09-30T08:55:00Z", wp_id: 9 };
+  const now = await run(current, "home", { post: fat }), was = await run(before, "home", { post: fat });
+  try {
+    assert.deepEqual(now.calls, ["getPostCardBySlug"]);
+    assert.deepEqual(was.calls, ["fetchPost2029ReadingProjection", "getPostBySlug", "extension reads"]);
+    assert.equal(now.html, was.html, "the card is what it was when it received the whole row");
+    assert.ok(!now.html.includes("גוף הפוסט"));
+  } finally { await now.page.close(); await was.page.close(); }
 });
 
 test("Home: a row without any image still goes through the full reader, which may supply the image from the post's experience media", { skip }, async () => {
@@ -83,7 +95,7 @@ test("Home: a row without any image still goes through the full reader, which ma
   const now = await run(current, "home", { post: noImage, media: { highlight: { poster: "https://img.test/poster.webp" } } });
   const was = await run(before, "home", { post: noImage, media: { highlight: { poster: "https://img.test/poster.webp" } } });
   try {
-    assert.ok(now.calls.includes("fetchPost2029ReadingProjection"), "the full reader decides");
+    assert.deepEqual(now.calls, ["getPostCardBySlug", "fetchPost2029ReadingProjection", "getPostBySlug", "extension reads"], "the card columns first, then the full reader as before");
     assert.equal(await now.page.locator("img").getAttribute("src"), "https://img.test/poster.webp");
     assert.equal(now.html, was.html, "and the card is what it was");
   } finally { await now.page.close(); await was.page.close(); }
@@ -107,7 +119,7 @@ test("Home: the retry in the story's own message reads the row again, and only t
     await now.page.evaluate((row) => { window.__post = row; window.__calls.length = 0; }, ROW);
     await now.page.getByText("נסה שוב את המקור").click();
     await sleep(300);
-    assert.deepEqual(await now.page.evaluate(() => window.__calls.slice()), ["getPostBySlug"]);
+    assert.deepEqual(await now.page.evaluate(() => window.__calls.slice()), ["getPostCardBySlug"]);
     assert.match(await now.page.evaluate(() => document.getElementById("root").innerHTML), /sod29-flight-story is-home/);
   } finally { await now.page.close(); }
 });
