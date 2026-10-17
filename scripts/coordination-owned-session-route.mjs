@@ -93,6 +93,47 @@ export function planOwnedSessionRoute({
     taskKey,testId,message,mustNotSpawn:true,autoRetry:false});
 }
 
+/**
+ * Read-only v17 claim adapter, not a credential verifier. `providerEvidence`
+ * and `gitEvidence` MUST be fetched directly by an authorized trusted adapter;
+ * values copied from work_log/chat/email are not evidence of either claim.
+ * No new table or secondary owner registry: metadata belongs to work_log.
+ */
+export function normalizeTrustedOwnerClaim(row,{providerEvidence,gitEvidence,now=new Date()}={}) {
+  const fail=reason=>Object.freeze({ok:false,reason});
+  const clock=new Date(now).getTime();
+  if(!Number.isFinite(clock)||!row||row.assignment_mode!=='WRITE'||row.archived===true||row.superseded_by_id!=null)
+    return fail('LIVE_WRITE_CLAIM_REQUIRED');
+  if(row.dispatch_state==='COMPLETED'||row.dispatch_state==='FAILED'||row.dispatch_state==='CANCELLED'
+    ||/^(?:AFTER|RELEASED)/.test(String(row.status||'')) || /RELEASED/.test(String(row.status||'')))
+    return fail('CLAIM_ALREADY_RELEASED');
+  if(row.from_actor!=='CLAUDE' && row.to_actor!=='CLAUDE') return fail('CLAUDE_OWNER_REQUIRED');
+  const c=row.dispatch_context||{};
+  if(c.owner_protocol_version!==1||c.owner_state!=='CLAIMED'
+     ||!comparableSessionId(c.owner_session_id)||!c.owner_account_id
+     ||!Array.isArray(c.github_paths)||!c.github_paths.length
+     ||c.github_paths.some(path=>!safePath(path,{directoryAllowed:true}))
+     ||!c.branch||!SHA_RE.test(c.expected_head_sha||''))
+    return fail('STRUCTURED_OWNER_REGISTRATION_REQUIRED');
+  if(!providerEvidence || providerEvidence.verified_source!=='CLAUDE_SESSION_PROVIDER'
+    ||providerEvidence.owner_claim_id!==row.id
+    ||providerEvidence.session_id!==c.owner_session_id
+    ||providerEvidence.account_id!==c.owner_account_id
+    ||providerEvidence.is_active!==true
+    ||!isFresh(providerEvidence.checked_at,MAX_SNAPSHOT_AGE_MS,clock))
+    return fail('FRESH_AUTHENTICATED_PROVIDER_EVIDENCE_REQUIRED');
+  if(!gitEvidence || gitEvidence.verified_source!=='GITHUB_REMOTE'
+    ||gitEvidence.branch!==c.branch
+    ||gitEvidence.head_sha!==c.expected_head_sha
+    ||!isFresh(gitEvidence.checked_at,MAX_SNAPSHOT_AGE_MS,clock))
+    return fail('FRESH_EXACT_GIT_EVIDENCE_REQUIRED');
+  return Object.freeze({ok:true,claim:{...row,
+    github_paths:[...c.github_paths],session_id:c.owner_session_id,account_id:c.owner_account_id,
+    expected_head_sha:c.expected_head_sha,current_head_sha:gitEvidence.head_sha,
+    session_live_attested:true,last_heartbeat_at:providerEvidence.checked_at,
+    released:false},verified_at:providerEvidence.checked_at});
+}
+
 // Uses only a caller-provided sanctioned, authenticated Claude CLI executor.
 // The caller must NOT try an alternate path after denial/unknown result.
 export async function sendToExistingOwner(plan,execCli){
