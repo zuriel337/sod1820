@@ -149,17 +149,21 @@ git rev-list --left-right --count HEAD...origin/main
 
 ## 10. Work log / coordination
 
-At session start and before becoming idle after meaningful work, scan recent **current** `work_log` for assignments addressed to CLAUDE and relevant active scopes.
+**ZURIEL operating decision · 18.10.2026 (Asia/Jerusalem):** one designated central Work session coordinates development, integration, release readiness and publishing across **all SOD1820, including Legacy and 2029**. Claude Code, Codex and other Work sessions are scoped builders/specialists. This is an operational responsibility split under the existing live owners, not a new owner, actor, law, registry or communication system. The designation follows ZURIEL's explicit instruction and the current passive handoff; a new chat does not silently appoint itself central. Decision provenance: `work_log` task `SOD1820_CENTRAL_WORK_INSTRUCTIONS_20261018`, BEFORE `52b932ac-b493-43f5-b46a-5e8286243b20`.
 
-Before WRITE, rescan for overlapping active writers.
+The operating route is **ZURIEL direction/approval → central Work coordination → scoped executor → shared evidence → central readiness review → ZURIEL release approval**. This describes responsibilities, not automatic message transport. Existing semantic owners and Claude visual / GPT capability-data specialty lanes remain unchanged. The central role does not make Reality Stream the whole product or turn DRAFT product plans into contracts.
+
+At task start and before becoming idle after material work, read bounded **current** `work_log_current` context for the task, relevant passive results, active scopes and user holds. Read linked GitHub Issues/PRs directly; do not require ZURIEL to copy long reports between sessions. New activation requires explicit user instruction and verified runtime capability; passive records do not wake a session or require GPT ACK.
+
+Before WRITE, verify a bounded task with `task_key`, canonical owner, exact base/head, owned paths and semantic scope, permitted actions, acceptance criteria and evidence destination. Rescan overlapping writers; a separate branch is not ownership transfer. If coordination cannot be verified, remain read-only on the affected scope and report the limitation. Continue independent authorized work.
 
 **ONE SCOPE — ONE ACTIVE WRITER.** READ_ONLY challenge/cross-verification may run in parallel.
 
-Use one task key across ownership claim and passive AFTER to ZURIEL; no GPT ACK. Handoff should preserve:
+Use one task key and one bounded BEFORE/AFTER batch per material scope. Report passively to ZURIEL with `dispatch_kind` and `dispatch_state` NULL; no GPT wake, ACK wait or delivery retry. Handoff should preserve:
 
-`actor · from/to · task_key · owner · scope · status · facts_changed · decisions · branch/PR/commit · blockers · open_threads · handoff_to`
+`actor · task_key · owner · scope/paths · exact base/head · outcome · tests/evidence · Issue/PR/Preview · blockers · release status · handoff_to=ZURIEL`
 
-Do not require ZURIEL to relay messages between GPT and CLAUDE.
+The central session discovers results by reading that shared evidence when active; no continuous background supervision is implied. Resolve terminal/archived/superseded records and live ownership rather than searching status text alone. Administrative closure does not prove code acceptance or stop an external session. Do not revive archived tasks automatically. End by releasing only your own scope and preserving unresolved work with exact pointers. A central-session handoff must name the current candidates, holds and next task before another session takes the role.
 
 `AGENT_HANDOFF.md` is read when reconciling an actual handoff/provenance issue or when another active pointer specifically routes there. It is **not** a mandatory startup read for every task.
 
@@ -177,7 +181,11 @@ Keep states distinct:
 
 `DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`
 
-Do not merge/deploy/push `main` merely because work is implemented. Release only after explicit ZURIEL authorization such as `תעלה`, and re-run release gates immediately before the action.
+**Current explicit-release restriction:** under ZURIEL's 18.10.2026 decision, executors may build, test and prepare PRs within their assigned scope; integration is coordinated only through the designated central Work. **No session, including the central one, may merge, publish, push main or change Production without explicit ZURIEL approval for the action.** This user hold takes precedence over historical standing auto-release wording under the existing owners' user-hold clauses; the live law bodies are not changed by this document. Green checks, a PR, a coordination role or a general request to continue are not release approval.
+
+Before an approved release, the central session reconciles live main, source branches/PRs and ancestry, exact candidate SHA, overlapping writers, test evidence and unresolved gates, the tested Preview's deployment/SHA/environment, the intended public deployment/aliases and the recovery path. The review package binds approval to the specific action and version; material changes require renewed review. A Preview approval never implies Production approval. Re-run applicable release gates immediately before the action, then verify and record the exact merged/deployed/live state. Keep DB/RLS/flags, routing and product publication within their separately authorized scope.
+
+Before pushing a branch or opening/updating a PR, inspect its actual GitHub workflow and Vercel triggers: draft/docs-only is not proof of isolation. Do not run known live-writing CI or infer a PASS from skipped/unrun checks. This documentation is a routing safeguard, not a technically enforced file lock or deployment permission boundary.
 
 ## 13. Specialist escalation
 

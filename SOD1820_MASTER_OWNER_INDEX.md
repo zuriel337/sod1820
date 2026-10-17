@@ -1,13 +1,8 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
-## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+## Shared operating route
 
-**אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
-All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
-**ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
-Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
-
+Resolve the current live coordination/release owners below and read [CLAUDE.md](CLAUDE.md) §§10–12 for ZURIEL's central Work / executor decision and explicit-release restriction. This index routes to the existing owners; it does not copy their laws or create a central semantic super-owner.
 
 **Date:** 2026-10-01  
 **Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 CLOSED · G3→G4 TRANSITION**
@@ -64,9 +59,9 @@ Owner families below are routing categories only — never umbrella super-laws.
 |---|---|
 | task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v17 ACTIVE** |
 
-**Current reporting policy:** inter_agent_coordination_law v17: passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
+**Current operating pointers:** resolve the active `inter_agent_coordination_law` live (v17 verified at this update). Passive reporting and ownership follow that owner; the designated central Work coordinates whole-site integration/release under ZURIEL's current instruction, as recorded in [CLAUDE.md](CLAUDE.md) §§10–12. Being a GPT/Codex/Work session does not independently confer release authority.
 
-**Writer lanes (v16 §§89–96):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
+**Writer lanes (v16 §§89–96, retained under current coordination):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; assigned GPT/Codex executors write capabilities, readers, truth/access and migrations within authorized scope. The designated central Work coordinates integration and release under §A owners and ZURIEL's current release restriction. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
 
 ### C. RESEARCH OS / CONTEXT / JOURNEY
 
