@@ -1,31 +1,10 @@
-const { test, expect } = require('@playwright/test');
-const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
+const { test, expect } = require('./ci-isolated-test.cjs');
+const { installNumberOwnerScenario } = require('./number-owner-scenario.cjs');
 
 const BASE = process.env.G4_PREVIEW_BASE_URL || 'http://127.0.0.1:4173';
-const CLOSED_FLAGS = [
-  'lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books', 'lock_number',
-].map((key) => ({ key, enabled: true, mode: 'all', message: `${key} בבנייה` }));
-// Positive Number scenarios use an explicit open fixture; production remains
-// gated, including the fail-closed behavior asserted by the public-core suite.
-const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => ['lock_world', 'lock_number'].includes(flag.key) ? { ...flag, enabled: false, message: '' } : flag);
-
 test.setTimeout(90_000);
 test.beforeEach(async ({ context }) => {
-  // Test environment: real public reads only; no analytics/product writes.
-  await context.route('https://linswmnnkjxvweumprav.supabase.co/**', async (route) => {
-    const request = route.request();
-    const url = new URL(request.url());
-    const readRpc = url.pathname.startsWith('/rest/v1/rpc/')
-      && /^(fn_|gematria_|posts_by_number_strict|number_neighbors|lang_links_list)/.test(url.pathname.split('/').pop());
-    if (request.method() === 'GET' || (request.method() === 'POST' && readRpc)) return route.continue();
-    return route.abort();
-  });
-  await installStorageEgressGuard(context);
-  await context.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify([...OPEN_FLAGS, { key: 'lock_els', enabled: false, mode: 'all', message: '' }]),
-  }));
+  await installNumberOwnerScenario(context);
 });
 
 test('full Number page opens from both menus without entering another drawer', async ({ page }) => {

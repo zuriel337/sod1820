@@ -1,0 +1,27 @@
+{
+  "privateDirectories": {
+    "/workspace/private-perf-20261016": "ABSENT",
+    "/workspace/private-perf-20261016/media-acceptance": "ABSENT"
+  },
+  "privateManifestValidation": "NOT_POSSIBLE_ABSENT",
+  "centralSnapshotExpectedSha256": "b01158bf7a650c8c6b1862fe5bc2f3a3e7fcaf8a82addeff393999a4535cafae",
+  "centralSourceIndexExpectedSha256": "e11fc4af2ca7621060388f8bddaf261d18d0e888b436b37153735fa6e511742c",
+  "availablePublicSnapshotSha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+  "publicManifestAndSourceIndex": "HASHES_VERIFIED",
+  "availablePublicCorpusNumberMinimum": {
+    "responses": 171,
+    "missing": [
+      "POST /rest/v1/rpc/fn_number_lookup p_value=376: nonempty canonical phrase/method/value rows",
+      "GET /rest/v1/nodes Number identity 0",
+      "GET /rest/v1/nodes Number identity 376",
+      "GET /rest/v1/nodes Number identity 1237",
+      "GET /rest/v1/nodes Number identity 1820",
+      "GET /rest/v1/gematria_methods: nonempty method registry",
+      "POST /rest/v1/rpc/fn_method_profile {\"p_depth\":\"value\",\"p_phrase\":\"שלום\"}: canonical regular result 376"
+    ],
+    "passed": false
+  },
+  "scope": "Minimum Number-owner gaps in available public input; not an exhaustive request list for the absent private corpus. Further unmapped signatures fail the shared runtime audit.",
+  "reacquisition": "NONE",
+  "privateExport": "NONE"
+}
