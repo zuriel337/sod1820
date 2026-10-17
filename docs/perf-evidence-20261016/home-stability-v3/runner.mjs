@@ -43,6 +43,8 @@ const W = +(A.width || 390), H = +(A.height || 844), STATE = A.state || 'normal'
 const STATE_FROM_BACK = A.stateFrom === 'back';
 const SHOTS = A.shots || null;   // --shots <dir>: a screenshot of the first viewport at the end of each sample (for looking at, not committed)
 const CAPSULE = A.capsule === '1';   // --capsule 1 (desktop profile): after the return has settled, open the companion capsule the way a person does (hover), read the rail and the content width, leave it
+const CYCLE_HORIZON_MS = +(A.cycleHorizon || 4500);   // how long every Back after the first return is watched (the first one: --horizon)
+const RETRY = A.retry === '1';   // --retry 1: in the failing first return, once settled, the reads turn healthy and the person presses the retry control(s) that are in view
 const CYCLES = Math.max(1, +(A.cycles || 1));   // --cycles N (with --forward 1): N times Forward to the Post and Back again (default 1)
 const RECOVER = A.recover === '1';   // --recover 1 (with --stateFrom back and --forward 1): the reads of the SECOND return are healthy again (a failure that was over by the next entry)
 const FORWARD = A.forward === '1', DELIBERATE = A.deliberate === '1';   // --forward 1: Forward to the Post, then Back again; --deliberate 1: a deliberate scroll down and up once the return has settled
@@ -92,11 +94,11 @@ const med = a => { const s = a.filter(x => x != null && !Number.isNaN(x)).sort((
 const privateMisses = [];
 
 // ---- in-page instrumentation (installed before any navigation) -------------------------------------------------------
-const INIT = `(()=>{const m=window.__r={cs:[],mut:[],geo:[],lt:[],ev:[],touch:[],kinds:[],jumps:[],sc:[],paint:[],ord:[],poll:true,t0:performance.timeOrigin};
+const INIT = `(()=>{const m=window.__r={cs:[],csAll:[],mut:[],geo:[],lt:[],ev:[],touch:[],kinds:[],comp:[],jumps:[],sc:[],paint:[],ord:[],poll:true,t0:performance.timeOrigin};
 const lg=(k)=>{if(m.ord.length<3000)m.ord.push([Math.round(performance.now()*10)/10+performance.timeOrigin,k,Math.round(scrollY),document.documentElement?document.documentElement.scrollHeight:0])};
 const D=n=>{if(!n||!n.tagName)return String(n&&n.nodeName);let s=n.tagName.toLowerCase();if(typeof n.className==='string'&&n.className)s+='.'+n.className.trim().split(/\\s+/).slice(0,2).join('.');const l=n.getAttribute&&n.getAttribute('aria-label');if(l)s+='['+l.slice(0,14)+']';return s};
 const ep=t=>Math.round((performance.timeOrigin+t)*10)/10;
-new PerformanceObserver(l=>{for(const e of l.getEntries())if(!e.hadRecentInput)m.cs.push({t:ep(e.startTime),v:e.value,src:(e.sources||[]).slice(0,5).map(s=>({n:D(s.node),py:Math.round(s.previousRect.y),cy:Math.round(s.currentRect.y),ph:Math.round(s.previousRect.height),ch:Math.round(s.currentRect.height)}))})}).observe({type:'layout-shift',buffered:true});
+new PerformanceObserver(l=>{for(const e of l.getEntries()){m.csAll.push({t:ep(e.startTime),v:e.value,input:!!e.hadRecentInput});}for(const e of l.getEntries())if(!e.hadRecentInput)m.cs.push({t:ep(e.startTime),v:e.value,src:(e.sources||[]).slice(0,5).map(s=>({n:D(s.node),py:Math.round(s.previousRect.y),cy:Math.round(s.currentRect.y),ph:Math.round(s.previousRect.height),ch:Math.round(s.currentRect.height)}))})}).observe({type:'layout-shift',buffered:true});
 try{new PerformanceObserver(l=>{for(const e of l.getEntries())m.lt.push({t:ep(e.startTime),d:Math.round(e.duration)})}).observe({type:'longtask',buffered:true})}catch(_){}
 try{new PerformanceObserver(l=>{for(const e of l.getEntries())m.ev.push({n:e.name,t:ep(e.startTime),dur:Math.round(e.duration),inDelay:Math.round(e.processingStart-e.startTime)})}).observe({type:'event',buffered:true,durationThreshold:16})}catch(_){}
 const SEL='.h29-sec,.dg29,.h29-notable,.h29-updates > *,.dg29-source,.dg29-empty,.dg29-gateway,.dg29-dimension,.h29-skel,.h29-hero,.h29-card,.sod29-watch-icon-wrap,.h29-notable-card';
@@ -146,6 +148,10 @@ window.addEventListener('keydown',()=>inp('key'),{capture:true,passive:true});
 window.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')inp('pointer')},{capture:true,passive:true});}
 window.addEventListener('scroll',()=>{if(m.sc.length<6000)m.sc.push([ep(performance.now()),Math.round(scrollY)])},{passive:true});
 const nativeScrollTo=window.scrollTo.bind(window);window.scrollTo=function(...a){lg('scrollTo>'+(a[0]&&typeof a[0]==='object'?a[0].top:a[1]));m.jumps.push({t:ep(performance.now()),to:a[0]&&typeof a[0]==='object'?a[0].top:a[1],from:Math.round(scrollY)});return nativeScrollTo(...a)};
+// a scrollBy is the settled box giving back the space of a failed area above the person (it measures the displacement and puts the page back in the same task): recorded apart from the restorer's scrollTo
+const nativeScrollBy=window.scrollBy.bind(window);window.scrollBy=function(...a){const y0=scrollY;const r=nativeScrollBy(...a);m.comp.push({t:ep(performance.now()),dy:Math.round(scrollY-y0)});return r};
+// every held box with where it is now (viewport coordinates), its height, the natural extent of its content and whether it carries a failure message
+window.__holdGeo=()=>[...document.querySelectorAll('[data-h29-hold],[data-h29-hold-block]')].map(n=>{const r=n.getBoundingClientRect(),f=n.firstElementChild,l=n.lastElementChild;return {cls:String(n.className||'').split(/\s+/).slice(0,2).join('.'),top:Math.round(r.top),bottom:Math.round(r.bottom),h:Math.round(r.height),nat:f&&l?Math.round(l.getBoundingClientRect().bottom-f.getBoundingClientRect().top):null,msg:!!n.querySelector('.h29-notice,.is-unavailable,.sod29-frame-state.state-unavailable')}});
 try{window.__target=sessionStorage.getItem('__homeTarget')||null}catch(_){window.__target=null}
 window.__anchor=(key)=>{const out={};const els=[...document.querySelectorAll('h1,h2,h3,h4,a,p,li,button,span,strong,b,small')].filter(e=>e.children.length===0);
  if(key){const el=els.find(e=>(e.innerText||'').trim().slice(0,80)===key);out.found=!!el;out.top=el?Math.round(el.getBoundingClientRect().top):null;return out}
@@ -305,7 +311,7 @@ async function oneSample(arm, idx) {
     while (Date.now() < deadline) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), dh: document.documentElement.scrollHeight, a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj.push([Date.now() - bWall0, p.y, p.dh, p.a.found ? p.a.top : null]); await sleep(120); }
     if (TRACE_DIR) { const buf = await browser.stopTracing(); fs.mkdirSync(TRACE_DIR, { recursive: true }); fs.writeFileSync(path.join(TRACE_DIR, `${arm}-${idx}.trace.json.gz`), zlib.gzipSync(buf)); }
     const rec = await page.evaluate(([w0, w1]) => { const m = window.__r; const inW = x => x.t >= w0 && x.t <= w1 + 300; return { cs: m.cs.filter(inW), mut: m.mut.filter(inW), geo: m.geo.filter(inW), lt: m.lt.filter(inW), ev: m.ev.filter(x => x.t >= w0 - 100 && x.t <= w1), ready: m.ready, geoPre: m.geo.filter(x => x.t < w0).slice(-1), paint: m.paint.filter(x => x.t >= w0 - 50 && x.t <= w1 + 300), ord: m.ord.filter(x => x[0] >= w0 && x[0] <= w1),
-      touch: m.touch.filter(t => t >= w0), touchKinds: m.kinds.filter((_, i) => m.touch[i] >= w0), jumps: m.jumps.filter(j => j.t >= w0), sc: m.sc.filter(s => s[0] >= w0) }; }, [bWall0, bWall0 + HORIZON_MS]);
+      comp: m.comp.filter(c => c.t >= w0), touch: m.touch.filter(t => t >= w0), touchKinds: m.kinds.filter((_, i) => m.touch[i] >= w0), jumps: m.jumps.filter(j => j.t >= w0), sc: m.sc.filter(s => s[0] >= w0) }; }, [bWall0, bWall0 + HORIZON_MS]);
     const sum = rec.cs.reduce((s, x) => s + x.v, 0);
     o.actionWindowShiftSum = +sum.toFixed(4); o.cls = sessionWindowMax(rec.cs); o.shifts = rec.cs; o.mut = rec.mut; o.geo = rec.geo; o.geoPre = rec.geoPre; o.longTasks = rec.lt; o.events = rec.ev;
     const ms = (v) => v != null ? Math.round(v - bWall0) : null;
@@ -330,6 +336,8 @@ async function oneSample(arm, idx) {
       o.reading = { id: readingBlock.id, topBefore: readingBlock.top, blockH: readingBlock.h, landedAtMs: landed >= 0 ? series[landed].t : null, finalTop, displacement: finalTop == null ? null : Math.abs(finalTop - readingBlock.top),
         series: rec.paint.map(p => [Math.round(p.t - bWall0), p.y, p.tops[readingBlock.id] ?? null]).slice(0, 400) };
     }
+    o.compensations = rec.comp.map(c => ({ atMs: ms(c.t), dy: c.dy }));   // the settled box putting the page back after it gave space back above the person
+    o.holdGeoAtEnd = await page.evaluate(() => window.__holdGeo()).catch(() => null);
     o.cardsAtEnd = await page.evaluate(() => { const r = (n) => n ? Math.round(n.getBoundingClientRect().height * 10) / 10 : null; const box = document.querySelector('.h29-updates'); const cs = box ? getComputedStyle(box) : null; return box ? { box: r(box), pad: cs.paddingBlockStart + '/' + cs.paddingBlockEnd, gap: cs.rowGap, head: r(box.closest('section')?.querySelector('.h29-sec-h')), section: r(box.closest('section')), cards: [...box.children].map((c) => ({ tag: c.tagName, cls: String(c.className).slice(0, 40), h: r(c), main: r(c.querySelector('.h29-card-main')), media: r(c.querySelector('.h29-media')), body: r(c.querySelector('.h29-card-body')), cats: r(c.querySelector('.h29-card-cats')), catsCls: c.querySelector('.h29-card-cats') ? String(c.querySelector('.h29-card-cats').className).slice(0, 30) : null, open: r(c.querySelector('.h29-card-open')), upd: r(c.querySelector('.h29-upd')), t: r(c.querySelector('.h29-card-t')), meta: r(c.querySelector('.h29-meta')), metaText: (c.querySelector('.h29-meta') || {}).textContent || null, metaFont: c.querySelector('.h29-meta') ? (({ fontFamily, lineHeight, fontSize }) => `${fontFamily}|${lineHeight}|${fontSize}`)(getComputedStyle(c.querySelector('.h29-meta'))) : null, tFont: c.querySelector('.h29-card-t') ? (({ fontFamily, lineHeight }) => `${fontFamily}|${lineHeight}`)(getComputedStyle(c.querySelector('.h29-card-t'))) : null })), fonts: [...document.fonts].map((f) => `${f.family}:${f.status}`), probe: (() => { const m = box.children[1]?.querySelector('.h29-card-main'); if (!m) return null; const parts = [m, m.querySelector('.h29-media'), m.querySelector('.h29-media > *'), m.querySelector('.h29-card-body')].filter(Boolean); return { html: m.outerHTML.slice(0, 700), parts: parts.map((n) => { const q = getComputedStyle(n), b = n.getBoundingClientRect(); return { tag: n.tagName, cls: String(n.className).slice(0, 30), h: Math.round(b.height * 100) / 100, minH: q.minBlockSize, height: q.height, disp: q.display, fs: q.fontSize, lh: q.lineHeight, ff: q.fontFamily.slice(0, 40), ar: q.aspectRatio, pad: q.padding }; }) }; })() } : null; }).catch(() => null);   // per-card geometry of the updates strip at the end of the horizon (base and candidate alike)
     o.frameAtEnd = await page.evaluate(() => window.__frame()).catch(() => null);
     o.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null);   // every remembered box at the end of the horizon: its height against its natural extent (a hold that outlives its loading is blank space)
@@ -344,12 +352,29 @@ async function oneSample(arm, idx) {
       if (where) { o.capsule.start = await read(); await page.mouse.move(where.x, where.y); await sleep(1200); o.capsule.hover = await read(); await page.mouse.move(Math.round(W / 2), Math.round(H / 2)); await sleep(900); o.capsule.leave = await read(); }
     }
     if (DELIBERATE) {
-      // a deliberate scroll once the return has settled: it must move the page by about what was asked and nothing may pull it back
+      // a deliberate scroll once the return has settled: it must move the page by about what was asked and nothing may pull it back. What the settled box put back after giving space back above the person
+      // (a scrollBy that keeps the content where it is) is not the person's scroll and is not a pull back: it is subtracted from the distance and counted apart; the restorer's scrollTo must not run at all.
       const tMark = await page.evaluate(() => Date.now()), y0 = await page.evaluate(() => Math.round(scrollY));
-      await scrollBy(page, cdp, 500); await sleep(1000); const y1 = await page.evaluate(() => Math.round(scrollY));
-      await scrollBy(page, cdp, -300); await sleep(1000); const y2 = await page.evaluate(() => Math.round(scrollY));
-      const after = await page.evaluate((t) => window.__r.jumps.filter(j => j.t >= t).length, tMark);
-      o.deliberate = { y0, downBy: y1 - y0, upBy: y1 - y2, programmaticScrollsAfter: after, ok: y1 - y0 > 250 && y1 - y2 > 150 && after === 0 };
+      const compSince = (t) => page.evaluate((t0) => window.__r.comp.filter(c => c.t >= t0).reduce((n, c) => n + c.dy, 0), t);
+      await scrollBy(page, cdp, 500); await sleep(1000); const y1 = await page.evaluate(() => Math.round(scrollY)), tMid = await page.evaluate(() => Date.now()), compDown = await compSince(tMark);
+      await scrollBy(page, cdp, -300); await sleep(1000); const y2 = await page.evaluate(() => Math.round(scrollY)), compUp = await compSince(tMid);
+      const after = await page.evaluate((t) => window.__r.jumps.filter(j => j.t >= t).length, tMark), compensations = await page.evaluate((t) => window.__r.comp.filter(c => c.t >= t).length, tMark);
+      const downBy = y1 - y0 - compDown, upBy = y1 - y2 + compUp;
+      o.deliberate = { y0, downBy, upBy, rawDownBy: y1 - y0, rawUpBy: y1 - y2, compensations, programmaticScrollsAfter: after, ok: downBy > 250 && upBy > 150 && after === 0 };
+    }
+    if (RETRY) {
+      // the failure is over and the person presses the retry control(s) that are in view (a real input: a click or a tap): the areas load again, the reading place stays, and what the browser counts is reported with and without the input exemption
+      ctl.phase = 'retry';
+      const noticeCount = () => page.evaluate(() => document.querySelectorAll('.h29 .h29-notice, .h29 .sod29-frame-state.state-unavailable').length);
+      const blockTopNow = (id) => id ? page.evaluate((i) => { const b = document.querySelector(`[data-scroll-anchor="${i}"]`); return b ? Math.round(b.getBoundingClientRect().top) : null; }, id).catch(() => null) : Promise.resolve(null);
+      const controls = await page.evaluate(() => [...document.querySelectorAll('.h29 .h29-notice button, .h29 .sod29-frame-state.state-unavailable button')].map((b) => { const r = b.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), visible: r.width > 0 && r.top >= 0 && r.bottom <= innerHeight }; }).filter((c) => c.visible));
+      const noticesBefore = await noticeCount(), blockBefore = await blockTopNow(readingBlock?.id), tRetry = await page.evaluate(() => Date.now());
+      for (const control of controls) { await openControl(page, control.x, control.y); await sleep(2500); }
+      await sleep(1500);
+      const shifts = await page.evaluate((t) => ({ counted: window.__r.cs.filter(x => x.t >= t), all: window.__r.csAll.filter(x => x.t >= t) }), tRetry);
+      const blockAfter = await blockTopNow(readingBlock?.id);
+      o.retry = { controlsInView: controls.length, noticesBefore, noticesAfter: await noticeCount(), blockBefore, blockAfter, blockDisplacement: blockBefore != null && blockAfter != null ? Math.abs(blockAfter - blockBefore) : null,
+        cls: sessionWindowMax(shifts.counted), clsWithInput: sessionWindowMax(shifts.all), identity: diffIdentity(identityBefore, await page.evaluate(() => window.__identity())) };
     }
     if (FORWARD) {
       // Forward to the Post: the same Post at the scroll position it was left at; then Back once more: the same reading place and the same content. --cycles N repeats that N times: every Back after
@@ -368,12 +393,13 @@ async function oneSample(arm, idx) {
         const bAgain = Date.now();
         if (RECOVER && cycle === CYCLES) ctl.phase = 'back2';   // stateRow serves the corpus rows as they are for any phase but 'back': the last return of the run is healthy again
         await page.goBack({ waitUntil: 'commit' });
-        const traj2 = []; while (Date.now() - bAgain < 4500) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
+        const traj2 = []; while (Date.now() - bAgain < CYCLE_HORIZON_MS) { const p = await page.evaluate((k) => ({ y: Math.round(scrollY), a: window.__anchor(k) }), link.anchorText).catch(() => null); if (p) traj2.push([Date.now() - bAgain, p.y, p.a.found ? p.a.top : null]); await sleep(120); }
         const last2 = traj2.filter((t) => t[2] != null).at(-1);
         const entry = o[name] = { leftAtY: leftAt.y, anchorTopWhenLeft: leftAt.a?.found ? leftAt.a.top : null, anchorTopFinal: last2 ? last2[2] : null, anchorDisp: last2 && leftAt.a?.found ? Math.abs(last2[2] - leftAt.a.top) : null, yDisp: traj2.at(-1) ? Math.abs(traj2.at(-1)[1] - leftAt.y) : null, yFinal: traj2.at(-1)?.[1] ?? null, identity: diffIdentity(identityBefore, await page.evaluate(() => window.__identity())) };
         const second = await page.evaluate((t) => ({ cs: window.__r.cs.filter((x) => x.t >= t), dh: document.documentElement.scrollHeight }), bAgain);
         { const final = await blockTop(readingBlock?.id); entry.block = { id: readingBlock?.id ?? null, whenLeft: blockWhenLeft, final, displacement: blockWhenLeft != null && final != null ? Math.abs(final - blockWhenLeft) : null }; }
         entry.shifts = second.cs.map((x) => ({ t: Math.round(x.t - bAgain), v: +x.v.toFixed(4), src: x.src }));   // what moved on the fresh entry (element, y and height before / after)
+        entry.compensations = await page.evaluate((t) => window.__r.comp.filter(c => c.t >= t).map(c => ({ atMs: Math.round(c.t - t), dy: c.dy })), bAgain); entry.holdGeoAtEnd = await page.evaluate(() => window.__holdGeo()).catch(() => null);
         entry.cls = sessionWindowMax(second.cs); entry.docH = second.dh; entry.holdsAtEnd = await page.evaluate(() => window.__holds()).catch(() => null); entry.frame = await page.evaluate(() => window.__frame()).catch(() => null);
       }
     }
@@ -446,7 +472,7 @@ for (let i = 0; i < PAIRS; i++) {
   const order = i % 2 === 0 ? armNames : [...armNames].reverse();   // interleaved A/B, alternating who goes first
   for (const arm of order) { const r = MODE === 'load' ? await loadSample(arm, i + 1) : await oneSample(arm, i + 1); runs.push(r); process.stderr.write(`${arm}#${i + 1} valid=${r.valid} cls=${r.cls} miss=${r.misses} ${MODE === 'load' ? `usable=${r.readyMs?.usable} composed=${r.readyMs?.composed} lcp=${r.lcp?.t} residue=${JSON.stringify(r.skeletonResidue)}` : `anchor=${r.anchor?.finalDisp} usable=${r.readyAfterBack?.usable} composed=${r.readyAfterBack?.composed} dg=${r.readyAfterBack?.dgSettled}`} ${r.invalid.join(';')}${r.error ? ' ERR ' + r.error : ''}\n`); }
 }
-const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, recoverOnLastReturn: RECOVER, cycles: CYCLES, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
+const profile = { runner: 4, readiness: READINESS_VERSION, profile: PROFILE, input: INPUT_KIND, viewport: `${W}x${H}`, dpr: DPR, touch: !DESKTOP, cpuThrottle: 4, network: '1.6Mbps down / 750kbps up / 150ms RTT (CDP)', supabaseReplayDelayMs: DELAY, backPhaseDelayMs: LATE, horizonMs: HORIZON_MS, theme: THEME, reducedMotion: REDUCED, state: STATE, stateFromBack: STATE_FROM_BACK, interruptAt: INTERRUPT_AT, recoverOnLastReturn: RECOVER, cycles: CYCLES, cycleHorizonMs: CYCLE_HORIZON_MS, retry: RETRY, mode: MODE, gateDelayMs: GATE_DELAY, gateClosed: GATE_CLOSED, resizeTo: RESIZE_TO,
   definitions: 'v4: composed = real hero/card in the DOM; usable = visible (opacity>=0.9, >=40% in viewport, hit-testable, no hidden/inert/loading ancestor), on a return the departure control itself; cls = session-window max',
   isolation: 'scripts/ci-isolation (run.mjs, policy.cjs requestPolicy/frozenSnapshot/browserArgs/installTransportBoundary, perf-execution-2029/serve.mjs)', requestPolicy: 'unmapped = violation, no fallback body',
   browser: 'Chromium ' + browser.version(), fixtureSha256: FX_SHA, fixtureKeys: Object.keys(fixtures).length, corpusImages: corpusImages.images, completePostBodies: COMPLETE_POSTS.size, node: process.version, cpus: os.cpus().length, startedAt: t0, finishedAt: new Date().toISOString() };
