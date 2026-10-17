@@ -54,6 +54,64 @@ A claimable handoff should identify:
 
 Before `CLAIMED_WRITE`, reverify current main/DB/owner and scan for overlapping active writers.
 
+### Structured dispatch and receiver receipts
+
+The branch proposal `agent_dispatch_preflight_ack_v16` extends existing `work_log` functions;
+its availability must be checked live before use. Until an authorized migration rollout,
+the legacy sender remains live; do not claim new enforcement is deployed.
+
+Use the existing `work_log_assign_agent` structured overload with `p_governance`:
+`base_sha` and `expected_head_sha` are full 40-character Git SHAs; `branch` is an isolated
+authorized branch; `authorization_ref` points to the actual user/owner decision;
+`dependency_ids` contains prerequisite assignment UUIDs (use an explicit empty array when none).
+Supply `p_github_paths` as exact repo-relative files or directory `/**` scopes,
+plus objective, verification, stop condition, expected output and
+`BRANCH_ONLY_NO_MERGE_NO_DEPLOY`. An authorization reference is provenance, not a grant.
+The receiver must resolve the referenced decision, current owner, file reservations,
+remote branch head and allowed write scope before acknowledging or writing.
+
+`ASSIGNED` means persisted, not sent. `FIRE_REQUESTED` means a transport request only.
+`SESSION_STARTED` proves a session was created (delivery), not that the task was read.
+Only receiver-originated `agent_dispatch_ack` with a real session ID proves ACK;
+WRITE ACK must include the independently observed base/head. Never manufacture another
+session's ACK. `agent_dispatch_claim` then acquires the lease. Record `WORKING` and
+`TESTED` with `agent_dispatch_progress`; TESTED requires test evidence. The transport
+state stays CLAIMED while these lifecycle receipts are in `dispatch_context`.
+Progress is the bounded heartbeat and renews a valid lease for 15 minutes; it cannot
+revive an expired lease. Dependencies require an accepted PASS/AFTER_TESTED result,
+not merely a transport outcome COMPLETED. BLOCKER results never satisfy dependencies.
+`agent_dispatch_finish` records a parent-linked AFTER; completed WRITE requires TESTED.
+Claude results remain passive TO=GPT, with no RESULT_WAKE.
+
+At start and before idle, bounded-read `work_log_current` for this actor's pending tasks
+and passive AFTERs for its active task keys; resolve original assignments by ID when
+supersession removes them from the current view. Correlate parent ID plus task key,
+not free-text similarity. Independently verify result evidence before adopting it.
+There is no proven tool here to address arbitrary already-open external chat sessions;
+Routine delivery starts its supported receiver. Never promise all chats are notified.
+
+Invalid envelopes persist as DEFERRED/BLOCKED with a specific reason before transport.
+BLOCKED requires owner/dependency repair; DEFERRED is not a retry authorization.
+An unknown delivery/ACK timeout must not fire a second session automatically.
+Expired WRITE leases retain their file reservation until the owner reconciles and
+cancels/transfers explicitly; agents must stop writes when their lease expires.
+READ_ONLY retries reuse the same assignment ID and bounded attempt budget.
+FAILED is terminal with retained evidence; an explicit authorized retry revalidates
+the envelope, ownership and current head. Do not unstick blocked tasks by status alone.
+
+Before applying the proposed migration, reconcile legacy CLAIMED_WRITE rows without
+file paths through their real owners; never bulk-archive or infer abandonment by age.
+Also update and verify the actual Routine prompt to ACK-before-claim before rollout.
+Record that verification under existing task `SESSION_COORDINATION_ACK_PROTOCOL_ROLLOUT_V16`
+with `ACK_PROTOCOL_ROLLOUT_VERIFIED` and the receiver protocol/test evidence. The migration
+refuses application while either prerequisite is missing. This record is not release authority.
+
+For a user decision affecting several known owners, make bounded READ_ONLY notification
+assignments per existing owner with a stable key containing the decision reference and
+recipient scope. Use the existing ledger/Routine path, verify persisted IDs, and collect
+receiver ACKs. Notifications do not grant WRITE. A repeated key/payload reuses its ID;
+a changed payload is a conflict requiring a versioned decision, not silent overwrite.
+
 **ONE TASK KEY / ONE SCOPE — ONE PRIMARY WRITER.** A second agent may challenge READ_ONLY unless ownership is explicitly transferred in `work_log`.
 
 ## Provenance before recovery
