@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { entryPrimaryReads2029, postReadUrl, postBySlugRead, latestPostCardsRead, HOME_LATEST_POST_LIMIT_2029, WORLD_FLIGHT_POST_SLUG } from './src/lib/postReadQueries2029.js'
 import { startPrimaryReads2029 } from './src/lib/earlyPrimaryRead2029.js'
+import { homeRoutePreloadPlan2029, homeRoutePreloadScript2029 } from './src/lib/homeRoutePreload2029.js'
 import { SUPABASE_URL, SUPABASE_ANON } from './src/lib/supabasePublicConfig.js'
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
@@ -23,6 +24,17 @@ export default defineConfig({
         // Slug routes use the same pure query definition, serialized here without loading React or supabase-js.
         const code = `(()=>{try{const route=location.pathname;const HOME_LATEST_POST_LIMIT_2029=${HOME_LATEST_POST_LIMIT_2029};const WORLD_FLIGHT_POST_SLUG=${JSON.stringify(WORLD_FLIGHT_POST_SLUG)};const postBySlugRead=${postBySlugRead.toString()};const postReadUrl=${postReadUrl.toString()};const entryPrimaryReads2029=${entryPrimaryReads2029.toString()};const latestPostCardsRead=${latestPostCardsRead.toString()};const urls=entryPrimaryReads2029(route).map(d=>postReadUrl(${JSON.stringify(SUPABASE_URL)},d));(${startPrimaryReads2029.toString()})({route,urls,anonKey:${JSON.stringify(SUPABASE_ANON)}})}catch{}})();`;
         return html.replace('    <link rel="preload"', `    <script id="sod2029-primary-reads">${code}</script>\n    <link rel="preload"`);
+      },
+    },
+  }, {
+    name: '2029-home-route-preload',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        // Build output only: the dev server has no bundle and hashed names exist only here.
+        if (!is2029 || !ctx.bundle || !ctx.chunk) return html;
+        const plan = homeRoutePreloadPlan2029(ctx.bundle, ctx.chunk.fileName, '/');
+        return plan ? html.replace('</head>', `    ${homeRoutePreloadScript2029(plan)}\n  </head>`) : html;
       },
     },
   }],
