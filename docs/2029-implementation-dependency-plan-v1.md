@@ -1188,3 +1188,19 @@ The 2029 foundation is “ready for open-ended growth” when all are true:
 12. release/rollback/recovery are verified rather than inferred.
 
 Literal “100% future-proof” cannot be guaranteed because unknown future capabilities will exist. The architectural target is instead: **unknown future capability can attach without redesigning the tree.**
+
+# SEO recovery — ordered implementation, 2026-10-14
+
+Navigation/status only. Acceptance body: `2029-search-indexing-closure-map-v1.md` §Recovery acceptance; existing route/publishing owners + `system_suggestions_law` + `deploy_on_request` retain authority. User authorized preparation and ordered fixes; branch-only work does not lift production/cutover gates.
+
+| Order | Scope | Entry / exit evidence | State |
+|---|---|---|---|
+| 1 | Public post crawler text/source links; Number/Phrase canonical admission; negative publication/lock/error fixtures | Existing anonymous readers and indexability RPCs → behavior tests, exact-head CI/preview, separate live acceptance | IMPLEMENTED IN CANDIDATE; not merged/live |
+| 2 | Root/post canonical pairs, sitemap and robots | Per-identity preferred-route evidence + POST-A preservation → single canonical across reader/server/sitemap, inbound compatibility tests | OPEN; no bulk URL migration |
+| 3 | Response-blocking dependency budgets | Security failure-policy review → bounded timeout tests and live error-window evidence | OPEN; phase 1 only bounds its touched post/admission/anchor calls |
+| 4 | Domain-resolved deployment evidence and content-aware canary | Exact candidate plus approved rollout/rollback target → actual alias/SHA/content/negative-route proof; GSC separately | OPEN; existing canary is not sufficient closure |
+
+Phase 1 is deliberately not a full renderer: rich media/transcripts and non-Post public surface content still need anonymous-reader parity proof. Current live findings are evidence of remaining gaps, not evidence they were introduced on 13 October. Existing PR1091 flag-request coalescing and PR1092/1093 frame/performance work remain separate; do not duplicate those changes.
+
+Task provenance: `SEO_RECOVERY_ORDERED_20261014` in the existing work log. Release advice: HOLD_FOR_EXACT_HEAD_VALIDATION; main/production/database law versions unchanged by this candidate. After each step, update this row from actual evidence rather than marking later work complete.
+
