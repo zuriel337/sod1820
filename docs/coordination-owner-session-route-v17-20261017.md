@@ -87,3 +87,32 @@ EXECUTE is revoked from PUBLIC/anon/authenticated and granted only to the pre-ex
 1. This change adds only the 3 files above; no JS adapter, workflow, manifest or migration is changed.
 2. Later: implement the real `idempotency.take` → `owner_route_take`, send-outcome → `owner_route_record_send`, and `ack.consume` → `owner_ack_consume` adapters behind `wireTrustedAdapters()`, fed by provider-verified session state, scoped ZURIEL approval and remote Git head reads. Until those exist the guard stays HOLD / `NOT_WIRED`.
 3. Production migration: convert the draft into a reviewed migration (replace the scratch-only guard), re-verify live triggers/grants/RLS, then apply only after explicit ZURIEL authorization.
+
+
+## 17 Oct 2026 — clean slate and routing decision (ZURIEL, verified live)
+
+**The active coordination queue is now clear.** This section is an operational handoff, NOT a product completion statement and NOT permission to deploy. The work_log cleanup was explicitly authorized by ZURIEL after deciding to stop historical task accumulation. The audit retained original records; it did not delete Git refs or product data.
+
+| Closure batch | Type | Count | Audit snapshot row |
+|---|---|---:|---|
+| First | historical dispatched ASSIGNMENT rows, including DEFERRED; administratively CANCELLED + archived | 38 | `fdc2e847-990c-4e78-a0d8-260028911ce0` |
+| First | legacy passive BEFORE_CLAIMED_WRITE owner reservations; administratively CLOSED + archived | 66 | same snapshot |
+| Second | legacy manual CLAIMED / BEFORE_CLAIMED records with task key; administratively CLOSED + archived | 401 | `0adaa157-ce06-4fe6-9dae-2f536eae8aee` |
+| Second | old manually WAITING / IN_PROGRESS work records with task key; administratively CLOSED + archived | 12 | same snapshot |
+| **TOTAL** | **closed historical records, evidence preserved** | **517** | **104 + 413 original-state snapshots** |
+
+**Verified after both batches:** actionable ASSIGNMENT dispatch = 0; actionable RESULT_WAKE = 0; active session leases = 0; unclosed manual CLAIMED or BEFORE_CLAIMED records with task key = 0; unclosed manual WAITING / IN_PROGRESS records with task key = 0. The current security/quality hold log still includes **21 non-executable BLOCKED result/decision records**, including provider denial for an existing Claude session. They are blockers/evidence, not permission to restart tasks. Do not treat admin closure as proof that corresponding code was integrated or that a production release gate passed.
+
+**Refs preserved at cleanup checkpoint:** main `6ef3ec2d6c139cd06af628b20ac2d5c3fb776a70`; unified preview candidate `8c8e9df9b2b012b70479e398e75f16e7008b8619`; Claude perf followup `e189df34abb4e5dc72e02141709e0e54d229248e`; PR #1098 draft `e07667027d96f68e01e2af88836bbfa674f56fec`; isolated atomic-ledger candidate `0945e5f11f8405e4539607131acf2edf86bd0e2b`. These are SHA pins, not an exhaustive offline Git backup; never delete branches solely because the task ledger was closed.
+
+### Default command chain until existing-session delivery is supported
+
+1. This conversation (ZURIEL Human Gate) issues ONE uniquely identified and explicitly approved, bounded task with path/branch ownership. Reconfirm the canonical main and owner ledger before writing.
+2. Existing `work_log` / `agent_dispatch_emit` may launch **one new Claude Code Routine session** (this route was tested repeatedly). That does **NOT** deliver into an already-running/earlier Claude owner conversation.
+3. The receiver performs its assigned branch-only action, reports one passive AFTER to ZURIEL, and releases its lease. GPT/Work may read the passive AFTER independently when asked; **v17 prohibits automatic GPT-directed messages, GPT ACK requirements and GPT wake**.
+4. Never requeue/unarchive old records to "continue." Any necessary work must be a NEW user-authorized envelope after checking preserved branch SHA, changed paths, and unresolved security holds. Exactly one writer per file; no silent owner handoff.
+5. If provider-sanctioned existing-session delivery later becomes available, require exact provider account/session verification, live owner evidence, durable atomic one-time send reservation and authenticated non-replayable ACK before substituting it for the normal route. A previous live send was denied `Interfere With Workloads`; this cannot be bypassed. The reference JS remains `NOT_WIRED`, and the atomic SQL remains under `docs/coordination-drafts/` (draft only, not applied).
+
+**Rollback of cleanup:** original status, dispatch-state, lease fields and IDs are in the two audit rows' `dispatch_context.original_states`. Restoration requires explicit user review because reactivating old dispatch or owner claims could spawn conflicting writers. Prefer creating a fresh scoped task rather than reviving an old task.
+
+**Product hierarchy unchanged:** Master Roadmap + Master Owner Index + full Product Map govern the project; Reality Stream V3 is subordinate. No changes to Legacy, 2029 unified preview, aliases, production database schema, CI workflows, RLS or site flags were made by the cleanup.
