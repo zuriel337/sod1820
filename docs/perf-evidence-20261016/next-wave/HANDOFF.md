@@ -1,5 +1,7 @@
 # Next performance wave — closing document
 
+> **Follow-up (later):** the history-based bound after failed entries was removed and the cause of the space limit above the reading place is measured: `../recovery-fix/README.md`.
+>
 > **Follow-up:** the two open items below (wide returns, space above the reading place after a failure) were closed in a focused round: `../closing-round/README.md`. This document is kept as it was delivered at `f60d0788`.
 
 task_key `CLAUDE_PERF_2029_NEXT_WAVE_20261016` · actor CLAUDE (leading the wave while the GPT center was unavailable) · to ZURIEL, passive (no dispatch, no ACK wait)

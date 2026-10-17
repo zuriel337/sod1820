@@ -7,6 +7,8 @@ Read first, as instructed: the top of the central handoff `7f7855a2` and the ind
 
 Input of every measurement here is the **synthetic** `smoke-snapshot-3.json.gz` (sha256 `d3f8f58e…a686`, not committed); the private central corpus is not reachable from this environment, was not collected again, the damaged image corpus was not used. **Real-corpus acceptance is `BLOCKED_INPUT`.** The runs prove layout and behavior; they say nothing about speed, images or the real content, and no timing is claimed.
 
+> **Superseded in part by [`../recovery-fix/README.md`](../recovery-fix/README.md).** Two things in §2 below no longer hold: the start-at-the-bound after two failed entries (`STRIKES_TO_BOUND`, `messageBox`, `entryMemory`) and its price (`recover2` 0.13–0.9, open decision 2) were **removed** — a failure is not proof that the next read fails, so every entry starts from the whole remembered box; the gate that shows it (A = this round's head fails `recover2` at 320 / 390 / 1440 / 1920, B passes at 390 / 1440 / 1920) is in the later document. The statement that giving the space back above the viewport "is counted by the browser … even when the scroll is compensated" stands for this shell, and its cause is now measured (every ancestor of Home's content that clips overflow); the space limit above the reading place is a defined open task of the shell. §1 (the rail fix, now also its own branch `claude/perf-rail-fix-20261016`), the message never shrinking the box its loading state had, and the signed evidence of this round stay as they are.
+
 ## What this round closes
 
 ### 1. The return to Home on a wide screen

@@ -1,0 +1,629 @@
+{
+ "arm": "A",
+ "limits": {
+  "cls": 0.1,
+  "readingPx": 12,
+  "boundPx": 160,
+  "messageSlackPx": 24
+ },
+ "rows": [
+  {
+   "case": "blip",
+   "width": 1440,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "return 1 (failing): layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1 (failing): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2 (healthy): layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2 (healthy): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2 (healthy): the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "blip",
+   "width": 1920,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "return 1 (failing): layout shifts",
+     "status": "PASS",
+     "value": 0.016,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1 (failing): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2 (healthy): layout shifts",
+     "status": "PASS",
+     "value": 0.014,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2 (healthy): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2 (healthy): the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "empty",
+   "width": 1440,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "OPEN (over the limit)",
+   "checks": [
+    {
+     "name": "return 1: layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 1: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "2 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "return 2: layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "3 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "deliberate scroll",
+     "status": "PASS",
+     "value": "down 500px, up 300px, restorer scrolls after: 0"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "empty",
+   "width": 1920,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "OPEN (over the limit)",
+   "checks": [
+    {
+     "name": "return 1: layout shifts",
+     "status": "PASS",
+     "value": 0.014,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 1: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "2 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "return 2: layout shifts",
+     "status": "PASS",
+     "value": 0.015,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "3 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "deliberate scroll",
+     "status": "PASS",
+     "value": "down 500px, up 300px, restorer scrolls after: 0"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "healthy",
+   "width": 1440,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "return 1: layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 1: the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    },
+    {
+     "name": "return 2: layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2: the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    },
+    {
+     "name": "deliberate scroll",
+     "status": "PASS",
+     "value": "down 500px, up 300px, restorer scrolls after: 0"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "healthy",
+   "width": 1920,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "return 1: layout shifts",
+     "status": "PASS",
+     "value": 0.028,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 1: the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    },
+    {
+     "name": "return 2: layout shifts",
+     "status": "PASS",
+     "value": 0.014,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2: the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    },
+    {
+     "name": "deliberate scroll",
+     "status": "PASS",
+     "value": "down 500px, up 300px, restorer scrolls after: 0"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "persist",
+   "width": 1440,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "OPEN (over the limit)",
+   "checks": [
+    {
+     "name": "return 1: layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 1: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "2 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "return 2: layout shifts",
+     "status": "PASS",
+     "value": 0.027,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "3 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "return 3: layout shifts",
+     "status": "PASS",
+     "value": 0.029,
+     "limit": 0.1
+    },
+    {
+     "name": "return 3: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 3: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "3 failure box(es) above the viewport, 1 over the bound: h29-hero-.lot 247px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "deliberate scroll",
+     "status": "PASS",
+     "value": "down 500px, up 300px, restorer scrolls after: 0, compensations: 0"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "persist",
+   "width": 1920,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "OPEN (over the limit)",
+   "checks": [
+    {
+     "name": "return 1: layout shifts",
+     "status": "PASS",
+     "value": 0.016,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 1: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "2 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "return 2: layout shifts",
+     "status": "PASS",
+     "value": 0.018,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "3 failure box(es) above the viewport, 2 over the bound: h29-hero-.lot 247px, h29-update. 385px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "return 3: layout shifts",
+     "status": "PASS",
+     "value": 0.014,
+     "limit": 0.1
+    },
+    {
+     "name": "return 3: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 3: space of failure messages above the person",
+     "open": true,
+     "status": "FAIL",
+     "value": "3 failure box(es) above the viewport, 1 over the bound: h29-hero-.lot 247px",
+     "limit": "160px + the message"
+    },
+    {
+     "name": "deliberate scroll",
+     "status": "PASS",
+     "value": "down 500px, up 300px, restorer scrolls after: 0, compensations: 0"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "recover2",
+   "width": 1440,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "FAIL",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "return 1 (failing): layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1 (failing): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2 (failing): layout shifts",
+     "status": "PASS",
+     "value": 0.024,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2 (failing): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 3 (healthy): layout shifts",
+     "status": "FAIL",
+     "value": 0.192,
+     "limit": 0.1
+    },
+    {
+     "name": "return 3 (healthy): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 3 (healthy): the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "recover2",
+   "width": 1920,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "FAIL",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "return 1 (failing): layout shifts",
+     "status": "PASS",
+     "value": 0.016,
+     "limit": 0.1
+    },
+    {
+     "name": "return 1 (failing): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 2 (failing): layout shifts",
+     "status": "PASS",
+     "value": 0.014,
+     "limit": 0.1
+    },
+    {
+     "name": "return 2 (failing): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 3 (healthy): layout shifts",
+     "status": "FAIL",
+     "value": 0.129,
+     "limit": 0.1
+    },
+    {
+     "name": "return 3 (healthy): reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "return 3 (healthy): the content that came back",
+     "status": "PASS",
+     "value": "same titles, headings, links, images, rows"
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "retry",
+   "width": 1440,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "retry: the area loads again",
+     "status": "PASS",
+     "value": "6 → 5 messages"
+    },
+    {
+     "name": "retry: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "retry: layout shifts the browser counts",
+     "status": "PASS",
+     "value": "0 (with the exempt input window: 0.02)",
+     "limit": 0.1
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  },
+  {
+   "case": "retry",
+   "width": 1920,
+   "arm": "A",
+   "samples": "3/3",
+   "status": "PASS",
+   "spaceOpen": "–",
+   "checks": [
+    {
+     "name": "retry: the area loads again",
+     "status": "PASS",
+     "value": "6 → 2 messages"
+    },
+    {
+     "name": "retry: reading place",
+     "status": "PASS",
+     "value": "0px",
+     "limit": "12px"
+    },
+    {
+     "name": "retry: layout shifts the browser counts",
+     "status": "PASS",
+     "value": "0 (with the exempt input window: 0.002)",
+     "limit": 0.1
+    }
+   ],
+   "commit": "973634715723b6c3b21a29df4444123f2e72df87",
+   "build": "0019d89f2e412edfc5052dd453501c4f073d3cf805c2985678d8cd63850b4dd2",
+   "input": "d3f8f58e34ba053c57d82af4580c7116150d16e7c25d8c7a919044a07ce4a686"
+  }
+ ]
+}

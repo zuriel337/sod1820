@@ -1,5 +1,7 @@
 # Package 1 — Home completion: failure and empty states, in-view jumps, the final-height difference
 
+> **Follow-up (later):** why the space of a failed area cannot be given back above the viewport without a counted shift in this shell is measured in `../../recovery-fix/README.md` (ancestors that clip overflow); it is a defined open task of the shell.
+
 task_key `CLAUDE_PERF_2029_NEXT_WAVE_20261016` · branch `claude/perf-next-wave-20261016` · start `ae6d6263a1780cb82986c231d6bb26e96c93ea99`
 
 All numbers below come from a **synthetic input** (`smoke-snapshot-2.json.gz`, derived from the legacy corpus with synthetic images; not committed). They prove **behavior and layout structure**
