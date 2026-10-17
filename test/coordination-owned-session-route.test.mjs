@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {planOwnedSessionRoute,sendToExistingOwner,verifyOwnerSessionAck,comparableSessionId} from '../scripts/coordination-owned-session-route.mjs';
+import {planOwnedSessionRoute,sendToExistingOwner,verifyOwnerSessionAck,comparableSessionId,normalizeTrustedOwnerClaim} from '../scripts/coordination-owned-session-route.mjs';
 const now='2026-10-17T17:00:00Z', session='session_01TestOwnerABC12', sha='a'.repeat(40);
 const owner={id:'claim-1',assignment_mode:'WRITE',from_actor:'CLAUDE',to_actor:'ZURIEL',archived:false,
   superseded_by_id:null,released:false,github_paths:['src/components/experience2029/**'],session_id:session,
@@ -46,3 +46,22 @@ test('dot-prefixed GitHub folder is allowed as an exact path',()=>{const c={...o
 
 test('hosted runtime permission denial gives stable non-secret reason',async()=>{const r=await sendToExistingOwner(plan(),async()=>{throw Error('Interfere With Workloads SENSITIVE_MARKER_ABC');});assert.equal(r.state,'BLOCKED');assert.equal(r.reason,'PROVIDER_PERMISSION_DENIED');assert.equal(JSON.stringify(r).includes('SENSITIVE_MARKER_ABC'),false);});
 test('other provider exceptions do not leak sensitive error details',async()=>{const r=await sendToExistingOwner(plan(),async()=>{throw Error('credential rejected for DEBUG_PAYLOAD_123');});assert.equal(r.reason,'PROVIDER_AUTH_OR_PERMISSION_FAILURE');assert.equal(JSON.stringify(r).includes('DEBUG_PAYLOAD_123'),false);});
+
+
+ // New work_log records can register machine-checkable ownership; old passive
+// claims without paths/session/account MUST NOT be inferred as active owners.
+const registeredRow={...owner,status:'BEFORE_CLAIMED_WRITE_BRANCH_ONLY_PASSIVE',dispatch_kind:null,dispatch_context:{owner_protocol_version:1,owner_state:'CLAIMED',owner_session_id:session,owner_account_id:'verified-account-1',github_paths:['src/components/experience2029/**'],branch:'claude/assigned-task',expected_head_sha:sha}};
+const providerEvidence={verified_source:'CLAUDE_SESSION_PROVIDER',owner_claim_id:owner.id,session_id:session,account_id:'verified-account-1',is_active:true,checked_at:'2026-10-17T16:59:50Z'};
+const gitEvidence={verified_source:'GITHUB_REMOTE',branch:'claude/assigned-task',head_sha:sha,checked_at:'2026-10-17T16:59:51Z'};
+const normalized=(row=registeredRow,provider=providerEvidence,git=gitEvidence)=>normalizeTrustedOwnerClaim(row,{providerEvidence:provider,gitEvidence:git,now});
+test('trusted provider and git can normalize one new structured claim',()=>{let r=normalized();assert.equal(r.ok,true);assert.equal(r.claim.session_id,session);assert.equal(r.claim.last_heartbeat_at,providerEvidence.checked_at);});
+test('normalized claim routes through existing guard without a second registry',()=>{const r=normalized();const p=plan({candidateClaims:[r.claim]});assert.equal(p.action,'SEND_TO_EXISTING_CLAUDE_SESSION');});
+test('legacy work_log claim with empty dispatch_context fails closed',()=>assert.equal(normalized({...registeredRow,dispatch_context:{}}).reason,'STRUCTURED_OWNER_REGISTRATION_REQUIRED'));
+test('provider session cannot be an unverified cse alias',()=>assert.equal(normalized(registeredRow,{...providerEvidence,session_id:'cse_01TestOwnerABC12'}).reason,'FRESH_AUTHENTICATED_PROVIDER_EVIDENCE_REQUIRED'));
+test('provider account must exactly match',()=>assert.equal(normalized(registeredRow,{...providerEvidence,account_id:'different-user'}).reason,'FRESH_AUTHENTICATED_PROVIDER_EVIDENCE_REQUIRED'));
+test('provider claim ID must match work_log',()=>assert.equal(normalized(registeredRow,{...providerEvidence,owner_claim_id:'wrong'}).reason,'FRESH_AUTHENTICATED_PROVIDER_EVIDENCE_REQUIRED'));
+test('provider state must still show active',()=>assert.equal(normalized(registeredRow,{...providerEvidence,is_active:false}).reason,'FRESH_AUTHENTICATED_PROVIDER_EVIDENCE_REQUIRED'));
+test('provider proof must be fresh',()=>assert.equal(normalized(registeredRow,{...providerEvidence,checked_at:'2026-10-17T16:45:00Z'}).reason,'FRESH_AUTHENTICATED_PROVIDER_EVIDENCE_REQUIRED'));
+test('Git branch and SHA must match exact expected values',()=>assert.equal(normalized(registeredRow,providerEvidence,{...gitEvidence,head_sha:'b'.repeat(40)}).reason,'FRESH_EXACT_GIT_EVIDENCE_REQUIRED'));
+test('released BEFORE/AFTER pair cannot become current owner by old metadata',()=>assert.equal(normalized({...registeredRow,status:'AFTER_OWN_SCOPE_RELEASED'}).reason,'CLAIM_ALREADY_RELEASED'));
+test('archived/obsolete owner registration blocks',()=>assert.equal(normalized({...registeredRow,archived:true}).reason,'LIVE_WRITE_CLAIM_REQUIRED'));
