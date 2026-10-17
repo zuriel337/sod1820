@@ -26,7 +26,7 @@ New or changed (each for both the viewer and the form unless noted), Chromium 14
 * **a failed dependency file** (form only): the form chunk arrives, its dependency `interactionCorrelation-….js` is refused → error, one retry may be offered (it was: the message names the chunk), after it only the refresh; frame intact, no loop, close works, refresh restores the surface once the dependency is reachable. The viewer has no dependency that loads only with it in this build (asserted from the built chunk and the files the page had loaded before acting), so a dependency failure cannot occur for it; the test fails if that changes;
 * kept from before: first open, slow load (status, closing, no late reopening), contract/loader/real-build tests, the Legacy build and Legacy rail cases.
 
-Old-failing / new-passing: a failed retry used to show the retry button again (no refresh existed): the new tests for it fail on `25d93889` (`getByRole('button', { name: 'רענון הדף' })` is not there).
+Old-failing / new-passing (run): the five new recovery tests (failed retry ×2, no-URL ×2, failed dependency) **all fail on `25d93889`** (0 pass / 5 fail — there is no refresh button there) and pass at `6d52e5d7`.
 
 ## Full isolation
 The test servers were not registered with the existing policy, so the center's isolated run denied the browser's connections to them. Now `serve()` calls `permitLocalServer(server)` (the existing function, no change to the policy) when `SOD_CI_ISOLATION=1`, the browser takes `browserArgs` of `scripts/ci-isolation/policy.cjs`, and the file asserts the audit is clean at the end (`auditCheckpoint` / `assertClean`). Without the isolation environment the file runs as before.
