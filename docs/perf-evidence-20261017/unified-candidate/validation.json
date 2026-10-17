@@ -1,0 +1,232 @@
+{
+  "candidate": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+  "branch": "gpt/perf-unified-candidate-20261017",
+  "runtime": {
+    "node": "v24.19.0",
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37 / build1194"
+  },
+  "packageLockSha256": "b33e43bc391edaf257042fb088501c8a1cebd3e47b2e80ef3dd567edad202ff5",
+  "provenance": {
+    "candidate": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+    "source_ancestry": {
+      "home_recovery": true,
+      "home_card_reader": true,
+      "shared_measurement": true,
+      "number_ci": true
+    },
+    "exact_preservation": {
+      "home_recovery": true,
+      "card": true,
+      "measurement": true,
+      "number_ci": true,
+      "edge_and_database": true,
+      "legacy": true,
+      "deployment_settings": true
+    },
+    "workflow_events": {
+      "els-core-compatibility-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "g4-public-core-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "system-self-maintenance-contract-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "research-sync-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "observability-seo-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "follow-identity-isolated-db-gate.yml": [
+        "pull_request"
+      ],
+      "2029-isolation-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "community-reaction-visibility-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "number-2029-owner-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "dependency-upgrade-radar-v2-contract-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "post-deploy-canary.yml": [
+        "deployment_status",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "release-visual-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "media-release-batch-gate.yml": [
+        "pull_request"
+      ],
+      "ocr-gallery.yml": [
+        "workflow_dispatch"
+      ],
+      "media-thumbs.yml": [
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "agent-dispatch-contract-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "video-ingest-gate.yml": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "update-sitemap.yml": [
+        "workflow_dispatch",
+        "schedule"
+      ],
+      "daily-backup.yml": [
+        "workflow_dispatch",
+        "schedule"
+      ]
+    }
+  },
+  "checks": {
+    "hard-source": {
+      "tests": 256,
+      "failed": 0,
+      "skipped": 0,
+      "auditBytes": 0,
+      "logSha256": "b5d19d58ea967e1e358dca87079050ae587a487fb62c1becd2ab26e879f201cb"
+    },
+    "preview-fixed": {
+      "tests": 8,
+      "failed": 0,
+      "skipped": 0,
+      "auditBytes": 0,
+      "logSha256": "42f729f6329654eefe57cb27ecaa80cbbdd8f93fe0637248ecf6e6d6e98120b9"
+    },
+    "preview-build": {
+      "passed": true,
+      "auditBytes": 0,
+      "logSha256": "75133c33db1a184ef3f464eb16b6bf1b8336c9699a2041422036409696f6fdd4"
+    },
+    "number-input": {
+      "status": "BLOCKED_INPUT",
+      "browserCasesRun": 0,
+      "missing": "BLOCKED Number owner input: POST /rest/v1/rpc/fn_number_lookup p_value=376: nonempty canonical phrase/method/value rows; GET /rest/v1/nodes Number identity 0; GET /rest/v1/nodes Number identity 376; GET /rest/v1/nodes Number identity 1237; GET /rest/v1/nodes Number identity 1820; GET /rest/v1/gematria_methods: nonempty method registry; POST /rest/v1/rpc/fn_method_profile {\"p_depth\":\"value\",\"p_phrase\":\"שלום\"}: canonical regular result 376",
+      "auditBytes": 0,
+      "logSha256": "38f087e59faffd566dc6ea7fc4af80ffa9924620f8ce73f73186d0a2a50c31a4"
+    },
+    "focused": {
+      "tests": 205,
+      "passed": 205,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "auditBytes": 0,
+      "logSha256": "2db946cc8df19da11c7f0ead28166ddf74fe8bde2e0b3c0a998eab37605b279b",
+      "files": [
+        "test/number-2029-owned-opening-contract.test.mjs",
+        "src/lib/research/entityHubProjection.progressive.test.js",
+        "src/lib/research/entityHubProjection.test.js",
+        "src/lib/research/numericResearch.test.js",
+        "test/ci-isolation/number-owner.test.mjs",
+        "test/entity-bundle-media-publication.test.mjs",
+        "test/home-story-2029.test.mjs",
+        "test/home-settled-box-2029.test.mjs",
+        "test/home-settled-box-dom-2029.test.mjs",
+        "test/scroll-return-2029.test.mjs",
+        "test/frame-rail-width-2029.test.mjs",
+        "scripts/perf-execution-2029/primary-readiness.browser.test.mjs",
+        "test/home-readiness-predicate-2029.test.mjs",
+        "scripts/test-integrated-preview-auth-guard.mjs"
+      ]
+    },
+    "preview-old-negative-control": {
+      "tests": 8,
+      "passed": 6,
+      "failed": 2,
+      "auditBytes": 0,
+      "logSha256": "ba0602b10692989271b829cdaa145d28e05248fd707f241c6b0a77a6d302334a",
+      "expectedFailure": true
+    },
+    "normal-builds": {
+      "legacy": "PASS",
+      "2029": "PASS",
+      "includedIn": "hard-source"
+    }
+  },
+  "previewBuild": {
+    "commit": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+    "buildTarget": "2029",
+    "readOnly": true,
+    "previewOverrides": [
+      "lock_number"
+    ],
+    "manifestSha256": "7fcbf7be4101dea881ff08095bc58712607712537d54f5fe98996ad81b5a48c3",
+    "workerSha256": "ac98f447ee2361d8d0761790307308be67adb8dc102e7773b010241c0fb8dc1c"
+  },
+  "remoteCI": "NOT_RUN",
+  "hostedPreview": "NOT_DEPLOYED",
+  "releaseAcceptance": "OPEN",
+  "liveProductDatabaseChanged": false,
+  "deletedBranches": [],
+  "checkedAtUTC": "2026-10-17T07:59:44.843911+00:00",
+  "priorAttempts": [
+    {
+      "log": "hard-source-incomplete-deps.log",
+      "status": "FAIL",
+      "reason": "Incomplete preinstalled dependency tree; npm ci from unchanged package-lock fixed environment.",
+      "auditBytes": 0,
+      "logSha256": "155ea68e3737c0b60edbe5cdeb842104bbaea0419d21fb1ffd7b8ebc52d6eea7"
+    },
+    {
+      "log": "hard-source-chromium151.log",
+      "status": "FAIL",
+      "reason": "Global Chromium151 did not issue expected browser teardown attempt in egress negative control (16/17). Full rerun using project-pinned Playwright1.56.1 and Chromium141 passed17/17. No gate/source changes.",
+      "auditBytes": 0,
+      "logSha256": "da287ce21ad53c95e5cce9a7b943aff6a6c94e3dfbb49c9df567b1fea2bc51f3"
+    }
+  ],
+  "remoteVerification": {
+    "method": "git ls-remote after new-branch push",
+    "candidate": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+    "main": "503b52ef169b6e51f967187491398d153090aa45",
+    "sourceRefsUnchanged": true,
+    "sourceHeads": {
+      "claude/perf-next-wave-20261016": "d325780c080715ddd827e808c100310c491ec58b",
+      "ccr-b23ccdb0-nkh1o1": "bf2329ded3f40607132c4bd4d3d3e494e555ab41",
+      "gpt/perf-shared-readiness-20261016": "759c22392fbc4254660bc71e0ebc6e2e0e03545e",
+      "gpt/number-owner-ci-isolation-20261016": "3c3ea58a845b32408d36e4b16a925f30cd528cff"
+    }
+  },
+  "deploymentVerification": {
+    "method": "Vercel list_deployments filtered by project and exact candidate SHA",
+    "deploymentsFound": 0,
+    "newHostedURL": null
+  },
+  "coordination": {
+    "taskKey": "GPT_2029_UNIFIED_CANDIDATE_20261017",
+    "before": "da1b05c5-0c11-45be-84a3-e0cd611196f4",
+    "recipient": "ZURIEL",
+    "passive": true
+  },
+  "notes": [
+    "Source and focused suites overlap; their counts are not a count of distinct tests.",
+    "No new speed measurement or full release acceptance is claimed.",
+    "Production/Legacy UI lock state was not tested; a site_flags row is not proof of Legacy UI behavior.",
+    "Private corpus from earlier environment is absent. Number browser acceptance remains 0/8, blocked by 7 required input signatures.",
+    "Raw logs remain local/private; this public receipt contains no payloads, account data or credentials."
+  ]
+}
