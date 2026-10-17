@@ -1,0 +1,23 @@
+command: the test file of 25d93889 (servers not registered) under scripts/ci-isolation/run.mjs
+run.mjs exit: 1
+audit file bytes: 564
+      2 native:connect-denied 127.0.0.1:34305 
+      2 native:connect-denied 127.0.0.1:38617 
+      2 native:connect-denied 127.0.0.1:39361 
+      2 native:connect-denied 127.0.0.1:41453 
+      2 native:connect-denied 127.0.0.1:41517 
+      2 native:connect-denied 127.0.0.1:43735 
+ok 1 - contract: the shared implementation never imports the viewer; Legacy binds it statically, 2029 on demand
+ok 2 - loader: one request shared by every caller, a failure is forgotten, the retry URL comes only from a same-origin script
+ok 3 - 2029 build: the viewer and the report form are chunks of their own, outside the shell and outside the startup graph
+ok 4 - Legacy build: the viewer is still part of the Legacy startup graph (static), not a chunk fetched on first open
+not ok 5 - browser · story viewer: first open requests the chunk only on click and shows the story
+not ok 6 - browser · story viewer: a slow load shows a status that can be closed, and the viewer does not appear after close
+not ok 7 - browser · story viewer: a failed load keeps the app, offers retry and close, and retry opens the story
+not ok 8 - browser · report form: first open, slow load and failed load (retry and close) keep the frame
+not ok 9 - browser · Legacy build with the 2029 shell: the story opens from the registered static viewer, with no viewer request
+not ok 10 - browser · Legacy-facing rail: the viewer opens at once from the static import, with no request
+# tests 10
+# pass 4
+# fail 6
+# skipped 0

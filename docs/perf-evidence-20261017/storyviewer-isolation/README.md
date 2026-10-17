@@ -2,6 +2,8 @@
 
 task_key `CLAUDE_PERF_2029_STORYVIEWER_LEGACY_ISOLATION_20261017` · branch `claude/perf-entry-cost-20261017`, continued from `320cbfc469976f59a1294e9a93a9edb3063917fa` (verified: local = remote, tree clean). Product commit **`5f52ab00`**. State **BRANCH-ONLY**: no merge, no deployment, no PR, no CI, no Production/Legacy-behaviour/DB/RLS/switch change. D2/D5 not touched.
 
+> **Recovery path completed in [`../recovery-path/README.md`](../recovery-path/README.md) (commit `6d52e5d7`)**: an explicit, click-only "רענון הדף" when no reliable retry URL exists or the retry failed, tests for a failed dependency file and a URL-less error, and the test servers under `permitLocalServer`. The limits below about Safari / dependency failures are updated there.
+
 ## What the central review found, confirmed
 `src/components/OrGeulaStoryColumn.jsx` is shared: `src/legacy/legacy.jsx` imports `MergedStoriesRail` and `LandingDiscoveryStories` from it (lines 4471, 5018, 5158, 5343). My D3 commit `d9b45ebc` had made `StoryViewer` lazy **inside that shared file**, so Legacy consumers got a lazy viewer with an empty `Suspense` fallback and no failure handling, and the Legacy chunk graph changed (a 61st start-up file).
 
