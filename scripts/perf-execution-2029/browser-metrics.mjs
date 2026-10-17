@@ -9,10 +9,38 @@ export function primaryContentState(pathname) {
   const post = document.querySelector('[data-experience-capability="post-master-reading-stage"]');
   const shell = rendered(document.querySelector('main'));
   if (pathname === '/') {
-    const hero = home?.querySelector('.h29-hero');
+    // Home must be usable, not merely present in the DOM. Use the same
+    // visibility limits as the accepted Home v5 evidence tool; additionally
+    // check the title and destination themselves (their reveals can differ).
+    // Keep this inside the serialized function; no browser-side imports.
+    const visible = el => {
+      if (!rendered(el) || el.closest('.is-unavailable, .h29-notice')) return false;
+      let opacity = 1;
+      for (let node = el; node; node = node.parentElement) {
+        const style = getComputedStyle(node);
+        if (node.hidden || node.inert || style.display === 'none'
+          || style.visibility !== 'visible' || style.contentVisibility === 'hidden') return false;
+        opacity *= Number(style.opacity);
+      }
+      if (opacity < 0.9) return false;
+      // Inline links can wrap: a real visible line is sufficient.
+      return [...el.getClientRects()].some(rect => {
+        if (rect.width <= 0 || rect.height <= 0) return false;
+        const left = Math.max(rect.left, 0), right = Math.min(rect.right, document.documentElement.clientWidth);
+        const top = Math.max(rect.top, 0), bottom = Math.min(rect.bottom, window.innerHeight);
+        if (right <= left || bottom <= top
+          || (right - left) * (bottom - top) < 0.4 * rect.width * rect.height) return false;
+        const hit = document.elementFromPoint((left + right) / 2, (top + bottom) / 2);
+        return !!hit && el.contains(hit);
+      });
+    };
+    const readable = (container, titleSelector) => visible(container)
+      && text(container.querySelector(titleSelector)) && visible(container.querySelector(titleSelector))
+      && [...container.querySelectorAll('a[href^="/post/"]')].some(visible);
+    const heroes = [...(home?.querySelectorAll('.h29-hero') || [])];
     const cards = [...(home?.querySelectorAll('.h29-card') || [])];
-    const ready = (rendered(hero) && text(hero.querySelector('h1')) && rendered(hero.querySelector('a[href^="/post/"]')))
-      || cards.some(card => text(card.querySelector('.h29-card-t')) && rendered(card.querySelector('a[href^="/post/"]')));
+    const ready = heroes.some(hero => readable(hero, 'h1'))
+      || cards.some(card => readable(card, '.h29-card-t'));
     return { shell, primary: !!ready, kind: 'home-post-title-and-destination' };
   }
   if (pathname === '/world') return { shell,

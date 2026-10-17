@@ -1,8 +1,8 @@
 // Version every change to timing, readiness or layout-shift semantics.
 export const MEASUREMENT_PROFILE = Object.freeze({
-  version: 'cold-replay-v2',
+  version: 'cold-replay-v3',
   requestClock: 'controller-monotonic-calibrated-browser-epoch-v1',
-  readiness: 'rendered-primary-source-v2',
+  readiness: 'home-visible-primary-v3-world-post-rendered-v2',
   cls: 'max-session-window-1s-gap-5s-span-observed-lab-window-v1',
   observation: 'primary-current-network-quiet-500ms-plus-1000ms-v2',
   collection: 'immutable-read-snapshot-with-pending-response-count-v1',
