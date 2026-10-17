@@ -17,10 +17,30 @@ await build({ root, define: {
 const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v3", "world_group_source_arrivals_v2", "convergence_meter", "get_category_videos", "notification_prefs_guest_get_v1"];
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
+// A Preview-only projection of the existing launch gate. Never mutate live
+// flags, grant identity/roles, or enable the separate Number optimization.
+const host=self.location?.hostname||'';
+const numberPreviewHost=['localhost','127.0.0.1','[::1]'].includes(host)||
+ (host.startsWith('sod1820-')&&host.endsWith('-sod1820-s-projects.vercel.app')&&host!=='sod1820-sod1820-s-projects.vercel.app');
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
+ if(numberPreviewHost&&req.method==='GET'&&u.origin===authOrigin&&u.pathname==='/rest/v1/site_flags'){
+  event.respondWith((async()=>{
+   const response=await fetch(req,{cache:'no-store'});
+   if(!response.ok)return response;
+   let rows;try{rows=await response.clone().json();}catch{return response;}
+   // Missing gates and malformed reads keep their original fail-closed meaning.
+   if(!Array.isArray(rows)||!rows.some(row=>row?.key==='lock_number'))return response;
+   const headers=new Headers(response.headers);
+   for(const name of ['Content-Length','Content-Encoding','ETag','Last-Modified','Content-MD5','Digest'])headers.delete(name);
+   headers.set('Cache-Control','no-store');
+   headers.set('X-SOD-Preview-Overrides','lock_number');
+   return new Response(JSON.stringify(rows.map(row=>row?.key==='lock_number'?{...row,enabled:false}:row)),{status:response.status,headers});
+  })());
+  return;
+ }
  const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))||(u.hostname==='linswmnnkjxvweumprav.supabase.co'&&reads.has(rpc));
  if(safe)return;
  event.respondWith((async()=>{
@@ -60,7 +80,8 @@ if (!commit) commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, en
 if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Exact preview source commit required');
 const manifestBytes = await readFile(resolve(output, '.vite/manifest.json'));
 await writeFile(resolve(output, 'preview-build.json'), JSON.stringify({ commit, buildTarget: '2029',
-  readOnly: true, manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') }, null, 2));
+  readOnly: true, previewOverrides: ['lock_number'],
+  manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') }, null, 2));
 await mkdir(resolve(output, "preview-evidence"), { recursive: true });
 for (const name of ["corrected-answer.png", "fresh-session-next-question.png", "failed-save-reopens-question.png", "fresh-session-completes-pending-save.png"]) {
   await copyFile(resolve(root, "preview-deploy/evidence", name), resolve(output, "preview-evidence", name));

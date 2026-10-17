@@ -69,3 +69,67 @@ test('guest preference reads pass through while preference writes and foreign RP
     ['/rest/v1/rpc/public_enrichment_batch', { body: {} }],
   ]) assert.deepEqual(await request(path, options), { status: 403, forwarded: 0, blocked: 'true' }, path);
 });
+
+// Exercise the generated worker itself. These are synthetic flags, not a live
+// site_flags update or a replacement for Number content/performance acceptance.
+const previewFlags = [
+  { key: 'lock_number', enabled: true, mode: 'all', message: 'closed' },
+  { key: 'lock_world', enabled: true, mode: 'all' },
+  { key: 'fx_number_lookup_page', enabled: false, mode: 'all' },
+];
+async function flagsRequest({ hostname = 'sod1820-review123-sod1820-s-projects.vercel.app',
+  origin = 'https://linswmnnkjxvweumprav.supabase.co', method = 'GET',
+  rows = previewFlags, status = 200, raw } = {}) {
+  let handler, pending, forwarded = 0;
+  const original = raw ?? JSON.stringify(rows);
+  vm.runInNewContext(worker, {
+    self: { location: { hostname }, addEventListener: (name, fn) => { if (name === 'fetch') handler = fn; } },
+    URL, Response, Headers,
+    fetch: async req => {
+      assert.equal(req.url, origin + '/rest/v1/site_flags?select=*');
+      assert.equal(req.method, 'GET');
+      forwarded++;
+      return new Response(original, { status, headers: { 'Content-Type': 'application/json', ETag: 'original' } });
+    },
+  });
+  handler({ request: new Request(origin + '/rest/v1/site_flags?select=*', { method }),
+    respondWith: value => { pending = value; } });
+  return { response: pending ? await pending : null, forwarded, original };
+}
+test('Number opens only in the integrated Preview response; other flags and upstream rows stay unchanged', async () => {
+  const before = JSON.stringify(previewFlags);
+  for (const hostname of ['localhost', '127.0.0.1', '[::1]', 'sod1820-review123-sod1820-s-projects.vercel.app', 'sod1820-git-review-sod1820-s-projects.vercel.app']) {
+    const { response, forwarded } = await flagsRequest({ hostname });
+    assert.equal(forwarded, 1);
+    assert.ok(response, hostname);
+    assert.deepEqual(await response.json(), previewFlags.map(row => row.key === 'lock_number' ? { ...row, enabled: false } : row));
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+    assert.equal(response.headers.get('ETag'), null);
+    assert.equal(response.headers.get('X-SOD-Preview-Overrides'), 'lock_number');
+  }
+  assert.equal(JSON.stringify(previewFlags), before);
+});
+test('public domains, production alias, unknown hosts and foreign API origins receive no Number override', async () => {
+  for (const hostname of ['sod1820.co.il', 'www.sod1820.co.il', 'sod1820-sod1820-s-projects.vercel.app', 'other.vercel.app', 'localhost.example.invalid', undefined]) {
+    const { response, forwarded } = await flagsRequest({ hostname: hostname ?? '' });
+    assert.equal(response, null, String(hostname));
+    assert.equal(forwarded, 0);
+  }
+  assert.equal((await flagsRequest({ origin: 'https://other.supabase.co' })).response, null);
+});
+test('Preview cannot invent a missing Number launch gate or turn a failed flags read into success', async () => {
+  for (const options of [{ rows: [] }, { rows: previewFlags.slice(1) }, { raw: 'invalid json' }, { rows: { error: 'denied' }, status: 403 }]) {
+    const { response, original } = await flagsRequest(options);
+    assert.ok(response);
+    assert.equal(await response.text(), original);
+    assert.equal(response.status, options.status ?? 200);
+    assert.equal(response.headers.get('X-SOD-Preview-Overrides'), null);
+  }
+});
+test('opening Number in Preview does not permit a site_flags write', async () => {
+  for (const method of ['POST', 'PATCH', 'DELETE']) {
+    const { response, forwarded } = await flagsRequest({ method });
+    assert.equal(response.status, 403);
+    assert.equal(forwarded, 0);
+  }
+});
