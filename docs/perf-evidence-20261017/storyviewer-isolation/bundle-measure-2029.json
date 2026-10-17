@@ -1,0 +1,38 @@
+{
+ "base": {
+  "shell": {
+   "raw": 235306,
+   "gzip": 70416
+  },
+  "storyViewerChunk": null,
+  "contactGatewayChunk": null
+ },
+ "d3": {
+  "shell": {
+   "raw": 207439,
+   "gzip": 62112
+  },
+  "storyViewerChunk": {
+   "raw": 7605,
+   "gzip": 3024
+  },
+  "contactGatewayChunk": {
+   "raw": 21320,
+   "gzip": 7062
+  }
+ },
+ "now": {
+  "shell": {
+   "raw": 210509,
+   "gzip": 63190
+  },
+  "storyViewerChunk": {
+   "raw": 7605,
+   "gzip": 3027
+  },
+  "contactGatewayChunk": {
+   "raw": 21320,
+   "gzip": 7065
+  }
+ }
+}

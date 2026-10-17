@@ -2,6 +2,8 @@
 
 Branch `claude/perf-entry-cost-20261017`, from the unified candidate `8c8e9df9b2b012b70479e398e75f16e7008b8619` (verified: remote head equal, tree clean, no existing follow-up branch contains it). State: **BRANCH-ONLY**. No PR, no merge, no deployment, no Production/Legacy/DB/RLS/switch change. Workflows have only `pull_request`/`workflow_dispatch`/`schedule` triggers (no `push`/`create`) and `vercel.json` disables `claude/*` deployments, so pushing the branch starts nothing.
 
+> **Superseded in part by [`../storyviewer-isolation/README.md`](../storyviewer-isolation/README.md) (commit `5f52ab00`).** The D3 change below made `StoryViewer` lazy inside the file that Legacy also uses and left the report form's failed load without a boundary. Both are fixed there: Legacy consumers keep the static viewer (Legacy start-up graph 60 files / 687,978 B gzip, base 60 / 687,984), a failed or slow load of the viewer or the form shows a status/retry/close instead of unmounting the frame. The shell figures in this file (70,072 → 61,783 B gzip, measured with `gzip -c`) are replaced by the same-method figures there: **70,416 → 63,190 B gzip (−10.3 %)** with the load-state UI included.
+
 ## 1. Entry cost
 
 ### Ranking from existing evidence (`../../perf-evidence-20261016/next-wave/dependency-handoff-20261016.md`, synthetic input; no new timing)
