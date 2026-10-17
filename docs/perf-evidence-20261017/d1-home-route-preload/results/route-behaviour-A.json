@@ -1,0 +1,44 @@
+[
+ {
+  "route": "/",
+  "homeGraphFilesRequested": 34,
+  "hintLinksInHead": 34,
+  "preloadWarnings": []
+ },
+ {
+  "route": "/?preview=community",
+  "homeGraphFilesRequested": 6,
+  "hintLinksInHead": 15,
+  "preloadWarnings": []
+ },
+ {
+  "route": "/world",
+  "homeGraphFilesRequested": 0,
+  "hintLinksInHead": 8,
+  "preloadWarnings": []
+ },
+ {
+  "route": "/posts",
+  "homeGraphFilesRequested": 8,
+  "hintLinksInHead": 15,
+  "preloadWarnings": []
+ },
+ {
+  "route": "/post/x",
+  "homeGraphFilesRequested": 20,
+  "hintLinksInHead": 38,
+  "preloadWarnings": []
+ },
+ {
+  "route": "/number/1820",
+  "homeGraphFilesRequested": 0,
+  "hintLinksInHead": 8,
+  "preloadWarnings": []
+ },
+ {
+  "route": "/gematria",
+  "homeGraphFilesRequested": 9,
+  "hintLinksInHead": 24,
+  "preloadWarnings": []
+ }
+]

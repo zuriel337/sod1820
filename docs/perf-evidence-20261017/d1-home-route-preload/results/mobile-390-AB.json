@@ -1,0 +1,338 @@
+{
+ "tool": "measure-route-graph.mjs v1",
+ "profile": {
+  "width": 390,
+  "height": 844,
+  "dpr": 2,
+  "touch": true,
+  "cpuThrottle": 4,
+  "network": "1.6 Mbps down / 750 kbps up / 150 ms RTT (CDP)"
+ },
+ "input": "NONE — no data served; every non-loopback host aborted; route-code timeline only",
+ "cacheState": "cold (fresh context per run)",
+ "browser": "Chromium 141 (playwright-core 1.56.1)",
+ "arms": {
+  "A": {
+   "dist": "dist-A",
+   "indexHtmlSha256": "bcae5599c5b8de3bfaa27b1efbc55f6339645cf09fcb48f399ab4d954f1685ab",
+   "hasHint": false
+  },
+  "B": {
+   "dist": "dist-B3",
+   "indexHtmlSha256": "fb82186b2a48bf8a74a295f638a71ad78b7d84cdef16b658440a72deaef986bb",
+   "hasHint": true
+  }
+ },
+ "routeFileCount": 34,
+ "pairs": 10,
+ "validPairs": 10,
+ "summaryMedianMs": {
+  "A": {
+   "entryDone": 1376.1509999999646,
+   "routeFirstRequest": 1526.2124999999855,
+   "routeAllDone": 3117.9420000000277,
+   "homeRendered": 3275.9000000000233,
+   "routeFiles": 34,
+   "routeBytes": 189813,
+   "jsCssRequests": 43,
+   "totalBytes": 460074,
+   "duplicatedAssetUrls": 0
+  },
+  "B": {
+   "entryDone": 1375.647000000015,
+   "routeFirstRequest": 1390.2420000000006,
+   "routeAllDone": 2970.9699999999657,
+   "homeRendered": 3124.500000000029,
+   "routeFiles": 34,
+   "routeBytes": 189813,
+   "jsCssRequests": 43,
+   "totalBytes": 461077,
+   "duplicatedAssetUrls": 0
+  }
+ },
+ "pairedDeltaB_minus_A_ms": {
+  "median": {
+   "routeAllDone": -151.04450000006864,
+   "homeRendered": -158.79999999998836,
+   "entryDone": 1.5010000000756918
+  },
+  "perPair": [
+   {
+    "routeAllDone": -101.70599999997876,
+    "homeRendered": -28.899999999965075,
+    "entryDone": -17.232999999976073
+   },
+   {
+    "routeAllDone": -30.24500000003627,
+    "homeRendered": 62.5,
+    "entryDone": 134.61200000000417
+   },
+   {
+    "routeAllDone": -105.8940000000348,
+    "homeRendered": -95.79999999998836,
+    "entryDone": 23.458000000005086
+   },
+   {
+    "routeAllDone": -176.35299999994913,
+    "homeRendered": -287.9999999999418,
+    "entryDone": 9.732000000042262
+   },
+   {
+    "routeAllDone": -283.53100000003906,
+    "homeRendered": -350.4999999999418,
+    "entryDone": -19.03600000014194
+   },
+   {
+    "routeAllDone": -147.89200000006986,
+    "homeRendered": -171.70000000006985,
+    "entryDone": 2.125000000091859
+   },
+   {
+    "routeAllDone": -228.91299999992043,
+    "homeRendered": -1021.4000000000233,
+    "entryDone": 7.70100000011098
+   },
+   {
+    "routeAllDone": -135.2759999999762,
+    "homeRendered": -133.70000000006985,
+    "entryDone": 0.8770000000595246
+   },
+   {
+    "routeAllDone": -154.19700000006742,
+    "homeRendered": -145.89999999990687,
+    "entryDone": -17.423000000121647
+   },
+   {
+    "routeAllDone": -172.32699999999568,
+    "homeRendered": -196.69999999983702,
+    "entryDone": -1.502000000073167
+   }
+  ]
+ },
+ "raw": {
+  "A": [
+   {
+    "entryDone": 1383.1909999999539,
+    "routeFirstRequest": 1509.683999999993,
+    "routeAllDone": 3078.7409999999795,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3213
+   },
+   {
+    "entryDone": 1364.910000000009,
+    "routeFirstRequest": 1550.3079999999727,
+    "routeAllDone": 3131.729000000007,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3276.4000000000233
+   },
+   {
+    "entryDone": 1377.5459999999953,
+    "routeFirstRequest": 1504.191999999989,
+    "routeAllDone": 3094.6759999999927,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3233.5
+   },
+   {
+    "entryDone": 1365.82999999996,
+    "routeFirstRequest": 1546.4289999999892,
+    "routeAllDone": 3140.293999999926,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3409.399999999965
+   },
+   {
+    "entryDone": 1394.9580000000878,
+    "routeFirstRequest": 1654.8530000000028,
+    "routeAllDone": 3255.040000000008,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3478.0999999999767
+   },
+   {
+    "entryDone": 1373.5359999999446,
+    "routeFirstRequest": 1519.988000000012,
+    "routeAllDone": 3111.6180000000213,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3275.4000000000233
+   },
+   {
+    "entryDone": 1385.093999999981,
+    "routeFirstRequest": 1605.7189999999082,
+    "routeAllDone": 3209.4339999999875,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 476411,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 4207.5
+   },
+   {
+    "entryDone": 1374.755999999934,
+    "routeFirstRequest": 1517.7309999999125,
+    "routeAllDone": 3105.7069999999385,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3245.3000000000466
+   },
+   {
+    "entryDone": 1382.9950000000508,
+    "routeFirstRequest": 1516.4419999999836,
+    "routeAllDone": 3107.609000000025,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3243.0999999999767
+   },
+   {
+    "entryDone": 1372.0180000000255,
+    "routeFirstRequest": 1532.436999999959,
+    "routeAllDone": 3124.266000000034,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 460074,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3293.29999999993
+   }
+  ],
+  "B": [
+   {
+    "entryDone": 1365.9579999999778,
+    "routeFirstRequest": 1378.354999999999,
+    "routeAllDone": 2977.0350000000008,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3184.100000000035
+   },
+   {
+    "entryDone": 1499.5220000000131,
+    "routeFirstRequest": 1515.882999999974,
+    "routeAllDone": 3101.483999999971,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3338.9000000000233
+   },
+   {
+    "entryDone": 1401.0040000000004,
+    "routeFirstRequest": 1422.80999999997,
+    "routeAllDone": 2988.781999999958,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3137.7000000000116
+   },
+   {
+    "entryDone": 1375.5620000000022,
+    "routeFirstRequest": 1387.4190000000226,
+    "routeAllDone": 2963.940999999977,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3121.4000000000233
+   },
+   {
+    "entryDone": 1375.921999999946,
+    "routeFirstRequest": 1390.43700000002,
+    "routeAllDone": 2971.508999999969,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3127.600000000035
+   },
+   {
+    "entryDone": 1375.6610000000364,
+    "routeFirstRequest": 1390.0469999999814,
+    "routeAllDone": 2963.7259999999515,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3103.6999999999534
+   },
+   {
+    "entryDone": 1392.795000000092,
+    "routeFirstRequest": 1405.2020000000311,
+    "routeAllDone": 2980.521000000067,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3186.0999999999767
+   },
+   {
+    "entryDone": 1375.6329999999934,
+    "routeFirstRequest": 1396.4859999999817,
+    "routeAllDone": 2970.4309999999623,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3111.5999999999767
+   },
+   {
+    "entryDone": 1365.5719999999292,
+    "routeFirstRequest": 1374.5409999999083,
+    "routeAllDone": 2953.4119999999575,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3097.20000000007
+   },
+   {
+    "entryDone": 1370.5159999999523,
+    "routeFirstRequest": 1377.283000000034,
+    "routeAllDone": 2951.9390000000385,
+    "routeFiles": 34,
+    "routeBytes": 189813,
+    "jsCssRequests": 43,
+    "totalBytes": 461077,
+    "duplicatedAssetUrls": 0,
+    "homeRendered": 3096.600000000093
+   }
+  ]
+ }
+}
