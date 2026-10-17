@@ -1302,3 +1302,5 @@
   .sod29-root.surface-post:has(.sod29-glass-locator) .sod29-feed-chip{bottom:calc(var(--s29-island-clearance,104px) + 62px + env(safe-area-inset-bottom,0px))}
 }
 @media(max-width:980px){.sod29-glass-locator-step span{display:inline-block;transform:rotate(90deg)}}
+
+.sod29-frame-state-retry{border:1px solid var(--s29-line-strong);background:transparent;color:var(--s29-ink);border-radius:999px;padding:8px 16px;min-block-size:44px;font:inherit;font-weight:800;cursor:pointer}
