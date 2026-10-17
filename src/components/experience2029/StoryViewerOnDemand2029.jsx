@@ -20,7 +20,7 @@ export const loadStoryViewer = createOnDemandLoader(() => {
 
 const buttonStyle = { background: "rgba(255,255,255,.14)", color: "#fff", border: "1px solid rgba(255,255,255,.4)", borderRadius: 999, padding: "10px 22px", fontFamily: F.heading, fontSize: 14, fontWeight: 800, cursor: "pointer", minBlockSize: 44 };
 
-function StatusOverlay({ kind, onClose, onRetry }) {
+function StatusOverlay({ kind, onClose, onRetry, onReload }) {
   const primary = useRef(null);
   useEffect(() => { primary.current?.focus(); }, [kind]);
   useEffect(() => {
@@ -29,14 +29,18 @@ function StatusOverlay({ kind, onClose, onRetry }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   const failed = kind === "error";
+  const text = !failed ? "פותח את הסטורי…"
+    : onRetry ? "לא הצלחנו לפתוח את הסטורי. אפשר לנסות שוב."
+      : "לא הצלחנו לפתוח את הסטורי. אפשר לרענן את הדף או לסגור.";
   const ui = (
     <div role="dialog" aria-modal="true" aria-label="סטוריז" data-story-viewer-status={kind} onClick={() => onClose?.()}
       style={{ position: "fixed", inset: 0, zIndex: 2147483000, background: "rgba(0,0,0,.86)", display: "grid", placeItems: "center", direction: "rtl" }}>
       <div onClick={(event) => event.stopPropagation()} role={failed ? "alert" : "status"}
         style={{ display: "grid", gap: 14, justifyItems: "center", padding: 24, maxWidth: 360, textAlign: "center", color: "#fff", fontFamily: F.body, fontSize: 15, lineHeight: 1.55 }}>
-        <span>{failed ? "לא הצלחנו לפתוח את הסטורי. אפשר לנסות שוב." : "פותח את הסטורי…"}</span>
+        <span>{text}</span>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-          {failed ? <button type="button" ref={primary} onClick={onRetry} style={buttonStyle}>נסו שוב</button> : null}
+          {failed && onRetry ? <button type="button" ref={primary} onClick={onRetry} style={buttonStyle}>נסו שוב</button> : null}
+          {failed && !onRetry ? <button type="button" ref={primary} onClick={onReload} style={buttonStyle}>רענון הדף</button> : null}
           <button type="button" ref={failed ? undefined : primary} onClick={() => onClose?.()} aria-label="סגירה" style={buttonStyle}>{failed ? "סגירה" : "✕ סגירה"}</button>
         </div>
       </div>
@@ -58,5 +62,5 @@ function SlowLoadStatus({ onClose }) {
 export default function StoryViewerOnDemand2029({ load = loadStoryViewer, onClose, ...viewerProps }) {
   return <OnDemandComponent2029 load={load} onClose={onClose} {...viewerProps}
     fallback={<SlowLoadStatus onClose={onClose} />}
-    renderError={({ retry }) => <StatusOverlay kind="error" onClose={onClose} onRetry={retry} />} />;
+    renderError={({ retry, reload }) => <StatusOverlay kind="error" onClose={onClose} onRetry={retry} onReload={reload} />} />;
 }

@@ -2094,7 +2094,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><OnDemandComponent2029 load={loadContactGateway}
       fallback={<FrameState kind="loading" title="פותח את הדיווח…" />}
-      renderError={({ retry }) => <FrameState kind="error" title="הדיווח לא נפתח" action={<button type="button" className="sod29-frame-state-retry" onClick={retry}>נסו שוב</button>}>לא הצלחנו לטעון את טופס הדיווח. אפשר לנסות שוב או לסגור ולחזור אליו.</FrameState>}
+      renderError={({ retry, reload }) => <FrameState kind="error" title="הדיווח לא נפתח" action={<button type="button" className="sod29-frame-state-retry" onClick={retry || reload}>{retry ? "נסו שוב" : "רענון הדף"}</button>}>{retry ? "לא הצלחנו לטעון את טופס הדיווח. אפשר לנסות שוב או לסגור ולחזור אליו." : "לא הצלחנו לטעון את טופס הדיווח. אפשר לרענן את הדף או לסגור."}</FrameState>}
       pathname={location.pathname}
       surface={surface}
       capability={transient?.payload?.capability || null}
