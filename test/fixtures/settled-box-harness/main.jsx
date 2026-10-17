@@ -25,6 +25,9 @@ function List({ id, pending, items, slots, shift = 0, images = false, keep = fal
   </div>;
 }
 
+// every layout shift the browser reports (the real counter: shifts within 500 ms of an input are not reported, and nothing here is an input)
+const shiftLog = [];
+try { new PerformanceObserver((list) => { for (const e of list.getEntries()) shiftLog.push({ t: Math.round(performance.now()), v: e.value }); }).observe({ type: "layout-shift", buffered: false }); } catch { /* not supported: shifts() stays empty */ }
 let root = null, container = null;
 const frames = [];
 const sample = () => {
@@ -41,6 +44,8 @@ window.__api = {
   remember: (box) => rememberSettledBox("harness", box),
   reset: () => resetSettledBoxes(),
   startFrames: () => { frames.length = 0; requestAnimationFrame(sample); },
+  shifts: () => shiftLog.slice(),
+  resetShifts: () => { shiftLog.length = 0; },
   frames: () => frames.slice(),
   // layout extent of the cards (offsets ignore transforms) and the first row's track height, to tell a stretched grid from a natural one
   geometry: () => { const box = document.getElementById("box"), cards = [...box.querySelectorAll(".card")]; return { box: Math.round(box.getBoundingClientRect().height * 10) / 10, extent: cards.length ? cards.at(-1).offsetTop + cards.at(-1).offsetHeight - cards[0].offsetTop : 0, firstRow: getComputedStyle(box).gridTemplateRows.split(" ")[0] || null, message: box.querySelector(".message")?.textContent || null, hasVar: box.style.getPropertyValue("--h29-settled-h") !== "" }; },

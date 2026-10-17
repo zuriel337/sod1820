@@ -33,10 +33,10 @@ async function bundle(hookPath) {
     build: { outDir, emptyOutDir: true, minify: false, lib: { entry: join(harness, "main.jsx"), formats: ["iife"], name: "SettledBoxHarness", fileName: () => "harness.js" } } });
   return join(outDir, readdirSync(outDir).find((name) => name.endsWith(".js")));
 }
-let current = null, previous = null, atHead = null, atF60 = null, atA704 = null, browser = null;
+let current = null, previous = null, atHead = null, atF60 = null, atA704 = null, atEED = null, browser = null;
 test.before(async () => {
   if (skip) return;
-  [current, previous, atHead, atF60, atA704] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js")), bundle(join(harness, "useSettledBox.f60d0788.js")), bundle(join(harness, "useSettledBox.a704ba9e.js"))]);
+  [current, previous, atHead, atF60, atA704, atEED] = await Promise.all([bundle(join(here, "../src/components/experience2029/useSettledBox2029.js")), bundle(join(harness, "useSettledBox.e23dee27.js")), bundle(join(harness, "useSettledBox.e3498434.js")), bundle(join(harness, "useSettledBox.f60d0788.js")), bundle(join(harness, "useSettledBox.a704ba9e.js")), bundle(join(harness, "useSettledBox.97363471.js"))]);
   browser = await chromium.launch({ executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
 });
 test.after(async () => { await browser?.close(); });
@@ -258,21 +258,78 @@ async function failedWhileHeld(page, { before = 0 } = {}) {
   await sleep(100);
   await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true, before: window.__api.before }));
 }
-test("a message keeps the whole reservation while its area is in view or above the viewport (shrinking it there moves what the person reads), and what follows it does not move", { skip }, async () => {
+test("a message keeps the whole reservation while its area is in view", { skip }, async () => {
   const page = await openHarness(current);
   try {
     await page.evaluate(() => { window.__api.before = 0; });
     await failedWhileHeld(page);
-    await sleep(300);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "in view: nothing moves");
-    // scroll until the area is entirely above the viewport and what follows it is in view
-    const tailDocTop = await page.evaluate(() => window.__api.tailDocTop());
-    await page.evaluate((top) => window.scrollTo(0, top + 20), tailDocTop);
-    await sleep(500);
+    await sleep(1200);   // longer than the idle time: an area in view is never given back
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "in view: nothing moves, however long");
+  } finally { await page.close(); }
+});
+// the person has scrolled until the area is entirely above the viewport and what follows it is in view
+async function failedAndScrolledPast(page, { keepScrolling = 0, anchor = "auto" } = {}) {
+  await page.evaluate((a) => { document.documentElement.style.overflowAnchor = a === "none" ? "none" : ""; window.__api.before = 0; }, anchor);
+  await failedWhileHeld(page);
+  await sleep(150);
+  const tailDocTop = await page.evaluate(() => window.__api.tailDocTop());
+  await page.evaluate((top) => { window.__api.resetShifts(); window.scrollTo(0, top + 20); }, tailDocTop);
+  // the person keeps scrolling (small steps) for `keepScrolling` ms, then stops
+  for (let waited = 0; waited < keepScrolling; waited += 100) { await sleep(100); await page.evaluate((top) => window.scrollTo(0, top + 20 + (Math.round(performance.now() / 100) % 2)), tailDocTop); }
+  return tailDocTop;
+}
+test("above the viewport the reservation stays while the person is scrolling, and is given back once they are idle: the page is put back by the measured drift, what follows the area does not move and the browser counts nothing", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await failedAndScrolledPast(page, { keepScrolling: 900 });
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "still scrolling: the reservation stays");
+    const tailBefore = await page.evaluate(() => window.__api.tailTop());
+    await sleep(1100);                                                    // idle: the area is given back
     const geometry = await page.evaluate(() => window.__api.geometry());
-    assert.equal(geometry.box, NATURAL, "above the viewport: the reservation stays (letting it go would move the reading place)");
-    const tailTop = await page.evaluate(() => window.__api.tailTop());
-    assert.ok(Math.abs(tailTop - -20) <= 1, `what follows the area did not move (${tailTop}px instead of -20px)`);
+    assert.equal(geometry.box, 160, "idle and entirely above the viewport: given back to the bound");
+    const tailAfter = await page.evaluate(() => window.__api.tailTop());
+    assert.ok(Math.abs(tailAfter - tailBefore) <= 1, `what follows the area did not move (${tailBefore}px -> ${tailAfter}px)`);
+    assert.equal((await page.evaluate(() => window.__api.shifts())).reduce((sum, e) => sum + e.v, 0), 0, "the browser reports no layout shift");
+  } finally { await page.close(); }
+});
+test("the same with scroll anchoring paused (the restorer's hold sets overflow-anchor: none): nothing is given back while it holds, then exactly, with the page put back by the box itself", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await failedAndScrolledPast(page, { anchor: "none" });
+    await sleep(1300);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "the restorer is holding the page: the reservation stays");
+    const tailBefore = await page.evaluate(() => window.__api.tailTop());
+    await page.evaluate(() => { document.documentElement.style.overflowAnchor = ""; });   // the hold is over
+    await sleep(1100);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160);
+    const tailAfter = await page.evaluate(() => window.__api.tailTop());
+    assert.ok(Math.abs(tailAfter - tailBefore) <= 1, `what follows the area did not move (${tailBefore}px -> ${tailAfter}px)`);
+    assert.equal((await page.evaluate(() => window.__api.shifts())).reduce((sum, e) => sum + e.v, 0), 0, "the browser reports no layout shift");
+  } finally { await page.close(); }
+});
+test("negative control: the hook of 97363471 never gives the space back above the viewport", { skip }, async () => {
+  const page = await openHarness(atEED);
+  try {
+    await failedAndScrolledPast(page);
+    await sleep(2000);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "it keeps the whole reservation for the rest of the entry");
+  } finally { await page.close(); }
+});
+test("a box that gives its space back above the person is the one a retry fills: scrolling back to it and pressing retry loads in the whole box, and the list fits", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await failedAndScrolledPast(page);
+    await sleep(1500);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160);
+    await page.evaluate(() => window.scrollTo(0, 0));                     // back to the area
+    await sleep(300);
+    await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4 }));   // the retry
+    await sleep(150);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "a retry gives the whole reservation back for its own loading");
+    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
+    await sleep(300);
+    const geometry = await page.evaluate(() => window.__api.geometry());
+    assert.deepEqual([geometry.box, geometry.extent], [NATURAL, NATURAL], "the list that arrives fits the box");
   } finally { await page.close(); }
 });
 test("a message's reservation is let go when the person scrolls past the area upwards (the area is then below the viewport)", { skip }, async () => {
@@ -327,150 +384,104 @@ test("a cold area (nothing remembered) keeps the box its loading state had, so a
   } finally { await page.close(); }
 });
 
-// ---- a fresh entry gives the reserved space back after two failed entries in a row; the entry that fails is not moved ----
+// ---- every entry starts from the whole remembered box: a failure on earlier entries is not proof that this one fails (the recovery gate) ----
 // one entry: the read fails while the area is in view and the whole box stays; then the person leaves (the surface unmounts). The first entry primes the remembered box.
-async function failedEntry(page, { remembered, slots = 4, retryFailsToo = false } = {}) {
+async function failedEntry(page, { remembered, slots = 4 } = {}) {
   await page.evaluate(({ box, n }) => { if (box) window.__api.remember(box); window.__api.mount({ pending: true, items: 0, slots: n }); }, { box: remembered ?? null, n: slots });
   await sleep(100);
   await page.evaluate((n) => window.__api.render({ pending: false, items: 0, slots: n, keep: true }), slots);
   await sleep(250);
-  if (retryFailsToo) {   // a retry that fails again is still the same entry
-    await page.evaluate((n) => window.__api.render({ pending: true, items: 0, slots: n }), slots); await sleep(100);
-    await page.evaluate((n) => window.__api.render({ pending: false, items: 0, slots: n, keep: true }), slots); await sleep(250);
-  }
   const during = await page.evaluate(() => window.__api.geometry());
   await page.evaluate(() => window.__api.unmount());
   return during;
 }
 const REMEMBERED = { w: 390, vw: 390, h: NATURAL, n: 4 };
-const twoFailedEntries = async (page, options = { remembered: REMEMBERED }) => { const first = await failedEntry(page, options); await failedEntry(page, { ...options, remembered: null }); return first; };
+const twoFailedEntries = async (page) => { await failedEntry(page, { remembered: REMEMBERED }); await failedEntry(page); };
 const newEntry = async (page, props = { pending: true, items: 0, slots: 4 }) => {
-  await page.evaluate((p) => { window.__api.mount(p); window.__api.startFrames(); }, props);
+  await page.evaluate((p) => { window.__api.resetShifts(); window.__api.mount(p); window.__api.startFrames(); }, props);
   await sleep(200);
 };
 const heights = (frames) => JSON.stringify([...new Set(frames.map((f) => `${f.h}/${f.slots}/${f.held}`))]);
 
-test("the entry that fails keeps its whole box (nothing moves); one failed entry is not enough to change the next one, so an entry that then loads fine does not grow", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    const during = await failedEntry(page, { remembered: REMEMBERED });
-    assert.deepEqual([during.box, during.message], [NATURAL, "unavailable"]);
-    await newEntry(page);
-    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
-    await sleep(300);
-    const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.length > 5 && frames.every((frame) => frame.h === NATURAL), `every frame of the recovering entry is the real box: ${heights(frames)}`);
-  } finally { await page.close(); }
-});
-test("a message that comes back twice inside one entry (the retry fails too) is one strike", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    await failedEntry(page, { remembered: REMEMBERED, retryFailsToo: true });
-    await newEntry(page);
-    const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.every((frame) => frame.h === NATURAL), `still the whole box: ${heights(frames)}`);
-  } finally { await page.close(); }
-});
-test("after two failed entries in a row the next entry starts the area at the bound from its first frame, with no loading slots, and its message stays in that box", { skip }, async () => {
+test("recovery gate: after two failed entries the next entry starts from the whole remembered box, and the list that then loads fits it: no frame changes height", { skip }, async () => {
   const page = await openHarness(current);
   try {
     await twoFailedEntries(page);
     await newEntry(page);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
+    await sleep(300);
     const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.length > 3 && frames.every((frame) => frame.h === 160 && frame.slots === 0 && frame.held === "1"), `every frame of the new entry holds the bound: ${heights(frames)}`);
+    assert.ok(frames.length > 5 && frames.every((frame) => frame.h === NATURAL && frame.slots === 0 && frame.held === "1"), `every frame is the real box: ${heights(frames)}`);
+    assert.equal((await page.evaluate(() => window.__api.shifts())).reduce((sum, e) => sum + e.v, 0), 0);
+  } finally { await page.close(); }
+});
+test("negative control, the recovery gate on the code of 97363471: after two failed entries the next entry starts at the bound and grows when its list loads", { skip }, async () => {
+  const page = await openHarness(atEED);
+  try {
+    await twoFailedEntries(page);
+    await newEntry(page);
+    const started = await page.evaluate(() => window.__api.frames());
+    assert.ok(started.length > 3 && started.every((frame) => frame.h === 160), `it started at the bound: ${heights(started)}`);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
+    await sleep(300);
+    const all = await page.evaluate(() => window.__api.frames());
+    assert.deepEqual([...new Set(all.map((f) => f.h))].sort((a, b) => a - b), [160, NATURAL], "160px, then the natural box: a growth the person sees");
+  } finally { await page.close(); }
+});
+test("a failed entry does not change the next one in any way, however many failed: the whole box, no loading slots, the message stays in it", { skip }, async () => {
+  const page = await openHarness(current);
+  try {
+    await twoFailedEntries(page);
+    await failedEntry(page);
+    await newEntry(page);
     await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true }));
     await sleep(300);
-    const after = await page.evaluate(() => window.__api.frames());
-    assert.ok(after.every((frame) => frame.h === 160), "the message that follows stays in the same box: nothing moves");
+    const frames = await page.evaluate(() => window.__api.frames());
+    assert.ok(frames.every((frame) => frame.h === NATURAL && frame.slots === 0), heights(frames));
     assert.equal((await page.evaluate(() => window.__api.geometry())).message, "unavailable");
   } finally { await page.close(); }
 });
-test("negative control: the hook of f60d0788 starts that entry at the whole box again (hundreds of empty pixels carried from entry to entry)", { skip }, async () => {
-  const page = await openHarness(atF60);
-  try {
-    await twoFailedEntries(page);
-    await newEntry(page);
-    const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.length > 3 && frames.every((frame) => frame.h === NATURAL), `the old hook holds ${NATURAL}px: ${heights(frames)}`);
-  } finally { await page.close(); }
-});
-test("an entry that starts at the bound and then loads fine grows once to its natural box and remembers it: the entry after that holds the real box again", { skip }, async () => {
+test("an empty list (a message, not a failure) is the same: the whole box on the next entry, the page not moved", { skip }, async () => {
   const page = await openHarness(current);
   try {
-    await twoFailedEntries(page);
-    await newEntry(page);
-    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
+    await page.evaluate(({ box }) => { window.__api.remember(box); window.__api.mount({ pending: true, items: 0, slots: 4 }); }, { box: REMEMBERED });
+    await sleep(100);
+    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true }));
     await sleep(300);
-    const geometry = await page.evaluate(() => window.__api.geometry());
-    assert.deepEqual([geometry.box, geometry.extent], [NATURAL, NATURAL], "the list that arrives is its natural size");
-    assert.equal((await page.evaluate(() => window.__api.memory())).h, NATURAL);
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL);
     await page.evaluate(() => window.__api.unmount());
     await newEntry(page);
     const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.every((frame) => frame.h === NATURAL), "the record is void once the area has content: the next entry holds its real box");
+    assert.ok(frames.every((frame) => frame.h === NATURAL), heights(frames));
   } finally { await page.close(); }
 });
-test("an area that held no more than the bound leaves nothing to give back: the next entry holds what it held", { skip }, async () => {
+test("a cold area that failed (nothing remembered) keeps the box its loading state had, and the next entry draws its loading state again", { skip }, async () => {
   const page = await openHarness(current);
   try {
-    const during = await twoFailedEntries(page, { remembered: { w: 390, vw: 390, h: 120, n: 2 }, slots: 2 });
-    assert.equal(during.box, 120);
-    await newEntry(page, { pending: true, items: 0, slots: 2 });
-    const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.every((frame) => frame.h === 120), "nothing to give back");
-  } finally { await page.close(); }
-});
-test("a cold area that failed on two entries (nothing remembered) is held at the bound on the next one instead of being drawn as loading slots again", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    const during = await twoFailedEntries(page, { remembered: null, slots: 3 });
+    const during = await failedEntry(page, { remembered: null, slots: 3 });
     assert.equal(during.box, 3 * 100 + 2 * 8, "the failing cold entry keeps the box its loading state had");
     await newEntry(page, { pending: true, items: 0, slots: 3 });
     const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.every((frame) => frame.h === 160 && frame.slots === 0), heights(frames));
-  } finally { await page.close(); }
-});
-test("a record made at one viewport width does not apply at another", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    await twoFailedEntries(page);
-    await page.setViewportSize({ width: 500, height: 700 });
-    await sleep(100);
-    await newEntry(page);
-    const frames = await page.evaluate(() => window.__api.frames());
-    assert.ok(frames.every((frame) => frame.held === "0" && frame.slots === 4), "nothing is held for a width nothing was remembered at: the loading slots are drawn");
-  } finally { await page.close(); }
-});
-test("a retry from the message of an entry that started at the bound loads in that box (the click is the person's own input)", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    await twoFailedEntries(page);
-    await newEntry(page);
-    await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true }));
-    await sleep(200);
-    await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4 }));
-    await sleep(150);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160, "the retry loads in the box the entry had");
+    assert.ok(frames.every((frame) => frame.slots === 3 && frame.held === "0"), heights(frames));
   } finally { await page.close(); }
 });
 
-// an area whose loading state is taller than the box it starts from (the hero: its loading min-height) keeps what it measured while loading when its message arrives
+// an area whose loading state is taller than the box it was remembered at (the hero: its loading min-height) keeps what it measured while loading when its message arrives
 async function entryWithLoadingFloor(page) {
-  await twoFailedEntries(page);                                // leaves the record: the next entry starts at the bound (160)
-  await page.evaluate(() => { window.__api.mount({ pending: true, items: 0, slots: 4, floor: 247 }); window.__api.startFrames(); });
+  await page.evaluate(({ box }) => { window.__api.remember(box); window.__api.mount({ pending: true, items: 0, slots: 4, floor: 247 }); window.__api.startFrames(); }, { box: { w: 390, vw: 390, h: 160, n: 4 } });
   await sleep(200);
   await page.evaluate(() => window.__api.render({ pending: false, items: 0, slots: 4, keep: true, floor: 247 }));
   await sleep(300);
   return page.evaluate(() => window.__api.frames());
 }
-test("a message keeps the box its loading state had when that is taller than the box the entry started from, so nothing shrinks when it arrives", { skip }, async () => {
+test("a message keeps the box its loading state had when that is taller than the box that was remembered, so nothing shrinks when it arrives", { skip }, async () => {
   const page = await openHarness(current);
   try {
     const frames = await entryWithLoadingFloor(page);
     assert.ok(frames.length > 5 && frames.every((frame) => frame.h === 247), `every frame keeps the loading box: ${JSON.stringify([...new Set(frames.map((f) => f.h))])}`);
   } finally { await page.close(); }
 });
-test("negative control: the hook of a704ba9e shrank that box to the bound when the message arrived (it also started at the bound after one failed entry)", { skip }, async () => {
+test("negative control: the hook of a704ba9e shrank that box to the remembered one when the message arrived", { skip }, async () => {
   const page = await openHarness(atA704);
   try {
     const frames = await entryWithLoadingFloor(page);
