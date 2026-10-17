@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { Suspense, lazy, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
@@ -13,7 +13,8 @@ import { withinFresh } from "../lib/crossesNew.js";
 const isNewFresh = (r, seen) => !!(r && !seen.has(r.id) && withinFresh(r.created_at, 24));
 import { track } from "../lib/tracking.js";
 import { shareVideoToStory } from "../lib/share.js";
-import StoryViewer from "./StoryViewer.jsx";
+// Mounted only after a story is opened: the full-screen viewer stays out of the first load.
+const StoryViewer = lazy(() => import("./StoryViewer.jsx"));
 import { OR_GEULA_LOGO } from "./BrandTicker.jsx";
 import { storyOpen, storyImpression, useQualifiedImpression } from "../lib/storyTrack.js";
 import { useHiddenWidget } from "../lib/hiddenWidgets.js";
@@ -237,9 +238,9 @@ export function MergedStoriesRail({ limit = 20, layout = "rail", surface = "CHAT
       <span style={{ color: P.accentText, fontFamily: F.body, fontSize: 9.5, lineHeight: 1.2, maxWidth: 72, textAlign: "center", fontWeight: 700 }}>כל אור הגאולה</span>
     </a>
   ) : null;
-  const viewerEl = viewer && <StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand}
+  const viewerEl = viewer && <Suspense fallback={null}><StoryViewer items={viewer.items} startIndex={viewer.index} brand={viewer.brand}
     surface={surface} entry={entry}
-    onSeen={(it) => markSeen(viewer.seenKey, it.id)} onClose={() => setViewer(null)} />;
+    onSeen={(it) => markSeen(viewer.seenKey, it.id)} onClose={() => setViewer(null)} /></Suspense>;
 
   // דסקטופ — «אותו דבר, בצד שמאל»: עמודה אנכית (כרטיסים), הצופן הראשון מודגש (🦅)
   if (layout === "column") {
@@ -371,7 +372,7 @@ export default function OrGeulaStoryColumn({ limit = 30, variant = "column", bra
   const dark = P.mode !== "light";
 
   const viewer = (story >= 0 && rows && rows[story])
-    ? <StoryViewer items={rows} startIndex={story} onClose={() => setStory(-1)} brand={brand} />
+    ? <Suspense fallback={null}><StoryViewer items={rows} startIndex={story} onClose={() => setStory(-1)} brand={brand} /></Suspense>
     : null;
 
   // Compact source entry for the EXISTING 2029 Companion. Uses the same public
