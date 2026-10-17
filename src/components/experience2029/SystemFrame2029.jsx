@@ -45,6 +45,7 @@ import ContactGateway from "../ContactGateway.jsx";
 const NumberDrawer2029 = lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import { autoPeekForSubject, stageReservesRail } from "./frameLayout2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
@@ -2042,10 +2043,12 @@ export default function SystemFrame2029({
   const companionPinned = companionPref === "pinned" || (companionPref === null && companionXWide && feed.rows.length > 0);
   const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
+  // the subject that was already in the shared context when this frame mounted (a return to the surface carries the one the person left with)
+  const inheritedSubjectKey = useRef(contextSubjectKey);
   useEffect(() => {
     if (!companionHasContext) { setCompanionTab("feed"); return; }
     setCompanionTab("ctx");
-    if (contextSubjectKey) setCompanionPeek(true);
+    if (autoPeekForSubject({ surface, companionHasContext, contextSubjectKey, inheritedSubjectKey: inheritedSubjectKey.current })) setCompanionPeek(true);
   }, [contextSubjectKey, companionHasContext]);
   const focusCompanionRaziel = () => {
     if (razielLocked) return;
@@ -2199,7 +2202,7 @@ export default function SystemFrame2029({
               : <div className="sod29-entry-orientation-slot">{mark}</div>;
           })() : null}
 
-          <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
+          <div className={`sod29-main-stage${stageReservesRail({ surface, showContextRail, companionActive, companionHasContext }) ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
                 <section className={`sod29-page-intro${resolvedIntroVariant === "compact" ? " is-compact" : ""}`} data-intro-variant={resolvedIntroVariant}>
