@@ -58,3 +58,32 @@ Three fail-open gaps were closed in the reference guard:
 
 ### Required DB rollout (HOLD — NOT applied, live DB untouched)
 Needs a reviewed migration (separate Human-Gate step): a persisted table or work_log-backed record with `UNIQUE(route_idempotency_key)` and `UNIQUE(ack_nonce)`, columns `status (TAKEN|SENT|CONSUMED)`, `expires_at`, `receipt_id`; SECURITY DEFINER functions `owner_route_take(key)` (INSERT ... ON CONFLICT DO NOTHING, returns whether inserted) and `owner_ack_consume(nonce, receipt_id)` (single `UPDATE ... WHERE status<>'CONSUMED' AND now()<expires_at RETURNING`), EXECUTE granted only to the coordination service role, and RLS denying direct writes by anon/authenticated. Until then the interface must fail closed.
+
+## v3 — atomic owner-route ledger DESIGN DRAFT (assignment 799794f9, BRANCH-ONLY, NOT applied)
+
+Replaces the "Required DB rollout" sketch above with a tested draft that uses the **existing `public.work_log`**; no new table, dispatcher or queue.
+
+- Draft SQL: `docs/coordination-drafts/owner-route-atomic-ledger-v17.sql` (deliberately outside `supabase/migrations`; refuses to run unless `owner_route.draft_apply_ack = 'SCRATCH_ONLY_NOT_PRODUCTION'`).
+- Tests: `node scripts/test-agent-owner-route-atomic-ledger-v17.mjs` — real SQL on a throwaway local PostgreSQL 16 (initdb in a temp dir, unix socket, no network, no Supabase). PGlite is not installed in this repo, and package manifests are untouched, so the system `postgres`/`psql` binaries are used; without them the suite exits 2 `BLOCKED` and claims nothing. Result on this branch: **24 passed / 0 failed / 0 skipped** (two consecutive runs); baseline `node --test test/coordination-owned-session-route.test.mjs`: **46/46 pass, unchanged**.
+
+### Model
+Route record = one `work_log` row, `task_key = 'OWNER_ROUTE:' || <64-hex route idempotency key>`, `to_actor='ZURIEL'`, `dispatch_kind/state=NULL`, `status ∈ OWNER_ROUTE_{RESERVED,SENT,CONSUMED,DENIED,SEND_UNKNOWN}` (RESERVED = TAKEN; none matches the `trg_work_log_dispatch_prepare` claimable/mode regexes). Partial unique indexes (route rows only): route key, `sha256(ack_nonce)`, external `receipt_id`. The plaintext nonce (two `gen_random_uuid()` = 64 hex) is returned once by `owner_route_take` and never stored.
+
+| Function (SECURITY DEFINER, `search_path = pg_catalog, pg_temp`) | Effect |
+|---|---|
+| `owner_route_take(key, claim, session, task, approval, head, ttl 30..3600)` | `INSERT … ON CONFLICT DO NOTHING`; loser gets `ROUTE_ALREADY_TAKEN` (blocks on the unique index until the winner commits); nonce-hash clash → `ACK_NONCE_COLLISION` |
+| `owner_route_record_send(key, ACCEPTED\|DENIED\|UNKNOWN, provider_ref)` | `RESERVED→SENT` only after provider accepted (ref required, not expired); DENIED/UNKNOWN terminal, never retried |
+| `owner_ack_consume(key, nonce, claim, session, receipt_id, receipt_at)` | one conditional `UPDATE … WHERE status='SENT' AND nonce/claim/session match AND not expired AND receipt_at in [reserved, expires]`; replay / second consumer → `ACK_REPLAY_REJECTED`; reused receipt id → `RECEIPT_REPLAY` |
+
+EXECUTE is revoked from PUBLIC/anon/authenticated and granted only to the pre-existing `service_role` (the same role the v16 transport functions use). A BEFORE trigger `trg_work_log_zy_owner_route_guard` (sorts after `…dispatch_prepare`, before `…zz_gpt_delivery_stop_v17`) rejects any INSERT/UPDATE of route rows unless `current_user` is the owner of `owner_route_take` (i.e. inside these functions), rejects all route-row DELETEs, and enforces the passive invariants for everyone. So `dispatch_context` JSON cannot be forged by `service_role` or an admin-policy writer (both tested). Ordinary rows, including the legacy passive WRITE claims, are untouched.
+
+### Exact limits (not claimed)
+- The DB does **not** verify that a caller is the Claude owner session or that a receipt is provider-signed; `owner_ack_consume` trusts the already-authenticated adapter inputs and gives atomicity, uniqueness, expiry and replay rejection only. `service_role` = backend key, not an authenticated session.
+- The role that owns the functions (Supabase `postgres`) can still write route rows directly. `TRUNCATE work_log` is not intercepted.
+- v17 unchanged: route rows never queue a dispatch; GPT-directed rows are still rerouted to ZURIEL (verified, `emit_probe` stays empty; a CLAUDE control row proves the probe fires).
+- Scratch fixture replicates the live `work_log` columns, the 4 triggers' function bodies and grants as read on 2026-10-17; re-diff against live before any migration.
+
+### Code diff / wiring plan (later, separate assignments, Human Gate)
+1. This change adds only the 3 files above; no JS adapter, workflow, manifest or migration is changed.
+2. Later: implement the real `idempotency.take` → `owner_route_take`, send-outcome → `owner_route_record_send`, and `ack.consume` → `owner_ack_consume` adapters behind `wireTrustedAdapters()`, fed by provider-verified session state, scoped ZURIEL approval and remote Git head reads. Until those exist the guard stays HOLD / `NOT_WIRED`.
+3. Production migration: convert the draft into a reviewed migration (replace the scratch-only guard), re-verify live triggers/grants/RLS, then apply only after explicit ZURIEL authorization.
