@@ -116,3 +116,23 @@ EXECUTE is revoked from PUBLIC/anon/authenticated and granted only to the pre-ex
 **Rollback of cleanup:** original status, dispatch-state, lease fields and IDs are in the two audit rows' `dispatch_context.original_states`. Restoration requires explicit user review because reactivating old dispatch or owner claims could spawn conflicting writers. Prefer creating a fresh scoped task rather than reviving an old task.
 
 **Product hierarchy unchanged:** Master Roadmap + Master Owner Index + full Product Map govern the project; Reality Stream V3 is subordinate. No changes to Legacy, 2029 unified preview, aliases, production database schema, CI workflows, RLS or site flags were made by the cleanup.
+
+
+## Final cleanup reconciliation — 17 Oct 2026
+
+The initial administrative clean-slate closed 517 records in two audit snapshots. A subsequent independent normal GPT→Claude Routine **really started, claimed, finished and returned one passive AFTER**, but the automated review gave a cautious BLOCKED verdict because it also counted historical status *labels* as live tasks. It did **not** claim the provider's direct existing-session messaging is fixed. The actual canonical queue was verified separately with narrower live SQL predicates.
+
+A third cleanup snapshot `0c6febc9-40bf-4481-ab11-aaf02faf1982` preserves and archives **11 more stale, non-runnable dispatch-state anomalies** (old RESULT_WAKE DEFERRED/FAILED rows and NULL-kind CLAIMED/DEFERRED rows without leases or scheduled attempts). No launch was retried. Final administrative closure total: **528** (104 + 413 + 11). The actual work_log audit records preserve each original ID/status/state, and the original text remains in the archived source rows.
+
+**Exact read-only postcondition (verified on canonical Supabase after third batch):**
+- 0 unarchived/unsuperseded actionable ASSIGNMENT rows in QUEUED / RETRY_WAIT / FIRE_REQUESTED / SESSION_STARTED / CLAIMED / DEFERRED.
+- 0 corresponding RESULT_WAKE rows; 0 NULL-kind rows in an actionable dispatch state.
+- 0 unexpired CLAIMED dispatch leases.
+- 0 unarchived, unsuperseded task-keyed manual statuses that START with CLAIMED, BEFORE_CLAIMED, WAITING, AWAITING, PENDING, ASSIGNED, IN_PROGRESS, WORKING or CONSUMER_REQUEST_AWAITING.
+- **22 BLOCKED task-keyed result/hold rows retained as non-executable evidence.** Some concern real unresolved security/release issues; one records the provider-denied owner-session send and another records the conservative smoke-test review. Do not call these PASS or suppress their release constraints.
+
+For future acceptance checks, **never count a task as executable merely because the status TEXT contains** `CLAIMED`, `WAITING`, `ACK`, `IN_PROGRESS`, or `FAILED` anywhere. Examples are passive `ACK_CLAIMED_...` history, `AFTER_...AWAITING_ACK` reports and terminal `FAILED` results. Check `archived`, `superseded_by_id`, `dispatch_kind`, `dispatch_state`, `dispatch_next_attempt_at`, the lease, and the authoritative active ownership records together. Do not mistake administrative closure for successful feature delivery.
+
+Normal-path verification: task `86bf9b05-fef0-4310-aaf1-a88982fcd051`, Claude session `cse_01M7TTCHPnRCpMfxHGKa6EsZ`, transport accepted and real CLAIM / COMPLETED recorded; result `c8c54650-738f-4942-ab42-303ca7bfaa61` was passive TO=ZURIEL under v17. Its broader readiness judgement was BLOCKED, and has not been rewritten as PASS.
+
+Until the provider-sanctioned existing-owner-session route is proven end-to-end, the **default is the regular user-authorized single-assignment Routine**. No autonomous retry of old work and no GPT-directed wake. The new atomic-ledger SQL draft (24 isolated SQL tests passed) has not been applied, authenticated provider adapters remain NOT_WIRED, PR #1098 remains a DRAFT. A provider runtime refusal (`Interfere With Workloads`) must not be bypassed.
