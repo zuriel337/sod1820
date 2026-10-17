@@ -55,7 +55,8 @@
     "test:public-2029-language": "node --test scripts/test-public-2029-language.mjs",
     "test:tiktok-718-landing": "node scripts/test-tiktok-718-landing.mjs",
     "test:whatsapp-kod-hametsiut-join": "node scripts/test-whatsapp-kod-hametsiut-join.mjs",
-    "test:video-semantic-tree": "node --test scripts/test-video-semantic-tree-projector-v1.mjs"
+    "test:video-semantic-tree": "node --test scripts/test-video-semantic-tree-projector-v1.mjs",
+    "test:2029-bundle-budget": "node --test scripts/test-2029-bundle-budget.mjs"
   },
   "engines": {
     "node": ">=24.9.0 <25"

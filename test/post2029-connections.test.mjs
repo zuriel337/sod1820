@@ -43,3 +43,13 @@ test('exact source locators survive only an admitted public Topic destination', 
   const malformed=await resolvePostExperienceConnections({connections:[{href:'/topic/india-axis',sourceLocator:'#else?redirect=private'}]},{readTopic:async()=>({slug:'india-axis'})});
   assert.equal(malformed.connections[0].href,'/topic/india-axis');
 });
+
+// Load budget: the default connection reader must not download whole Post rows (content, tags...).
+import { readFileSync } from "node:fs";
+{
+  const src = readFileSync(new URL("../src/lib/research/post2029ReadingProjection.js", import.meta.url), "utf8");
+  const reader = src.slice(src.indexOf("export async function readPostIdentityBySlug"), src.indexOf("export async function resolvePostExperienceConnections"));
+  assert.match(reader, /\.select\("id,slug"\)/, "connection existence check selects only id and slug");
+  assert.doesNotMatch(reader, /select\(["']\*["']\)/);
+  assert.match(src, /resolvePostExperienceConnections\(experience, \{ readPost = readPostIdentityBySlug/);
+}

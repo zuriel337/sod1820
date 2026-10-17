@@ -8,13 +8,13 @@ import { trackVisit } from "./lib/visits.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
-import Calculator2029Page from "./pages/Calculator2029Page.jsx";
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
-import CalculatorPro2029Page from "./pages/CalculatorPro2029Page.jsx";
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 
+const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
+const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
