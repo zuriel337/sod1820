@@ -106,7 +106,16 @@ export async function sendToExistingOwner(plan,execCli){
     if(result?.ok!==true || !comparableSessionId(result?.session_id)) return {state:'UNKNOWN_DELIVERY',reason:'UNRECOGNIZED_PROVIDER_RECEIPT',autoRetry:false};
     if(result.session_id!==plan.targetSessionId) return {state:'UNKNOWN_DELIVERY',reason:'PROVIDER_SESSION_ID_UNVERIFIED',autoRetry:false};
     return {state:'SENT_AWAITING_OWNER_ACK',sessionId:plan.targetSessionId,taskKey:plan.taskKey,testId:plan.testId,autoRetry:false};
-  }catch(e){return {state:'BLOCKED',reason:String(e?.message||e).slice(0,240),autoRetry:false};}
+  }catch(e){
+    // Never echo provider exceptions: they can contain credentials or request metadata.
+    const errorText=String(e?.message||e).toLowerCase();
+    const reason=errorText.includes('interfere with workloads')
+      ? 'PROVIDER_PERMISSION_DENIED'
+      : /auth|login|credential|token|permission|forbidden|access.denied/.test(errorText)
+        ? 'PROVIDER_AUTH_OR_PERMISSION_FAILURE'
+        : 'PROVIDER_SEND_EXCEPTION';
+    return {state:'BLOCKED',reason,autoRetry:false};
+  }
 }
 
 /** Correlation of a passive work_log record; NOT cryptographic proof of actor. */
