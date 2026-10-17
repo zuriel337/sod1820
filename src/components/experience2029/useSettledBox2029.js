@@ -4,11 +4,12 @@
 // The box is the natural extent of the list's own children, so a larger remembered box never feeds on itself. The extent is the LAYOUT extent
 // (layoutExtent): a card that is part-way through its entrance animation is painted offset from its layout box, and a box remembered from the painted
 // extent was 6-7 px too tall for a four-card strip, which then stretched the grid rows of every later return.
-// A message (empty / unavailable) keeps the box too (the `keep` option), so what stood there does not collapse into a one-line message under the person's eyes. Every entry starts
-// from the whole box that was remembered, whatever happened on an earlier entry: a failure is not proof that the next read fails, and an area that starts small and then loads grows
-// into the page. The reservation of a message is bounded (KEEP_RESERVE_PX) and is given back inside the entry, only where nothing the person sees can move: while the area is below
-// the viewport, or entirely above it once the person is idle and the scroll restorer is not holding the page: the displacement is measured after the box shrank and the page is
-// put back by exactly that, in the same task, so the reading place does not move and the browser has nothing to count (giveBackAbove).
+// A message (empty / unavailable) keeps the box too (the `keep` option), so what stood there does not collapse into a one-line message under the person's eyes.
+// Every entry starts from the whole box that was remembered, whatever happened on an earlier entry: a failure is not proof that the next read fails, and an area that starts small and
+// then loads grows into the page (above the reading place that growth is counted: 0.3-0.9 on a phone). The reservation of a message is bounded (KEEP_RESERVE_PX) and is let go only
+// while the box is below the viewport, where nothing the person sees can move. The hook never scrolls the page: giving the space back above the person needs a scroll
+// compensation, and in the current shell the browser counts that as a layout shift however exact the compensation is (every ancestor of Home's content that clips overflow:
+// html / body / #root in index.html, .sod29-root; docs/perf-evidence-20261016/recovery-fix/README.md), so that part is a defined open task of the shell, not of this hook.
 // No read, query, request or cache is involved. Users: Home composition strips + the discovery gateways.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -58,35 +59,6 @@ export function layoutExtent(first, last) {
 export function keptHeight(full, inView, bound = KEEP_RESERVE_PX) {
   return full > 0 ? (inView ? full : Math.min(full, bound)) : 0;
 }
-// The person is idle when nothing has scrolled or been pressed for QUIET_MS (any scroll counts, the restorer's own too) and the scroll restorer is not holding the page (it pauses scroll
-// anchoring with overflow-anchor: none while a return settles). Only then is space given back above the viewport.
-export const QUIET_MS = 400;
-// A box has to be entirely above the viewport by this much to be given back there (sub-pixel layout and rounding must not decide).
-export const ABOVE_MARGIN_PX = 8;
-let lastActivity = 0;
-const noteActivity = () => { lastActivity = typeof performance !== "undefined" ? performance.now() : 0; };
-if (typeof window !== "undefined") for (const type of ["scroll", "wheel", "touchstart", "touchmove", "keydown", "pointerdown"]) window.addEventListener(type, noteActivity, { passive: true, capture: true });
-export function personIsIdle(now = typeof performance !== "undefined" ? performance.now() : 0, doc = typeof document !== "undefined" ? document : null) {
-  if (!doc) return false;
-  return now - lastActivity >= QUIET_MS && doc.documentElement.style.overflowAnchor !== "none" && doc.visibilityState !== "hidden";
-}
-// One box per rendering frame. When several boxes above the person are given back in the same frame, the elements between them have moved relative to the page that was put back, their
-// old rectangles (seen from the new scroll position) land inside the viewport, and the browser counts them (0.9 in a page of three boxes); one box per frame is counted as nothing.
-// Timers that come due together would do it, so a box waits at least GIVE_BACK_GAP_MS after the last one.
-export const GIVE_BACK_GAP_MS = 150;
-let lastGiveBack = -Infinity;
-export const mayGiveBack = (now = typeof performance !== "undefined" ? performance.now() : 0) => now - lastGiveBack >= GIVE_BACK_GAP_MS;
-// Give the space of a box that is entirely above the viewport back, without moving what the person reads: the box shrinks, the layout is flushed by measuring where its bottom edge is now
-// (a browser that does scroll anchoring has already put the page back by then: the drift is then 0 and nothing is added), and the page is put back by exactly the drift, in the same task,
-// before the next frame. The box itself stays above the viewport; nothing else is visible that moved. Returns the drift that was corrected.
-export function giveBackAbove(node, height, win = typeof window !== "undefined" ? window : null) {
-  const before = node.getBoundingClientRect().bottom;
-  node.style.setProperty(SETTLED_HEIGHT_VAR, `${height}px`);
-  const drift = node.getBoundingClientRect().bottom - before;
-  if (win && Math.abs(drift) >= 0.5) win.scrollBy({ top: drift, left: 0, behavior: "instant" });
-  lastGiveBack = typeof performance !== "undefined" ? performance.now() : 0;
-  return drift;
-}
 // Natural extent (first child's top to last child's bottom) at the current width; null when there is nothing to remember.
 export function nextMemory({ width, viewport, top, bottom, count }) {
   const height = bottom - top;
@@ -102,7 +74,7 @@ export function holdAttribute({ pending, settled, memory, count }) {
 // person was looking at instead of collapsing the page under them; it is only the box this mount already held (no hold was applied = nothing to keep).
 export function useSettledBox(key, { pending = false, settled = false, count = 0, keep = false } = {}) {
   const latest = useRef({ settled, count });
-  const live = useRef({ node: null, observer: null, appliedWidth: null, appliedViewport: null, appliedCount: null, appliedHeight: null, lastHeight: 0, lastWidth: 0, released: false, unsubscribe: null });
+  const live = useRef({ node: null, observer: null, appliedWidth: null, appliedViewport: null, appliedCount: null, appliedHeight: null, lastHeight: 0, released: false, unsubscribe: null });
   // released: this mount's hold was dropped because the width changed. The caller then renders its own loading slots at the new
   // width (held is false) instead of leaving an empty box, in the same frame (flushSync), so nothing collapses and re-grows.
   const [released, setReleased] = useState(false);
@@ -126,7 +98,6 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     if (!node) return;
     const box = node.getBoundingClientRect(), width = Math.round(box.width);
     state.lastHeight = Math.round(box.height);   // what the area measured last: the reservation a message keeps when nothing was held at mount
-    state.lastWidth = width;
     // The width changed while mounted (rotation, resize, another breakpoint): a height remembered for the old width would
     // hold the wrong amount of space, so it is released before anything is measured again.
     if (shouldReleaseHold(state.appliedWidth, width)) release(synchronous);
@@ -163,9 +134,8 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
   }, [key, observe, release]);
   useEffect(() => { measure(false); }, [measure, typeof settled === "function" ? 0 : settled, count]);
   // A message stands where content was: keep the box, before the first frame of the message (a layout effect only writes a style, it reads no layout). While the area is in view
-  // the whole reservation stays. It is given back (bounded to KEEP_RESERVE_PX) where nothing the person sees can move: at once while the area is below the viewport; while it is
-  // entirely above the viewport, as soon as the person is idle and the restorer is not holding the page, with the page put back by the measured drift (giveBackAbove). A retry gives
-  // the whole reservation back for its own loading (the person is looking at the message when they press it).
+  // or above the viewport the whole reservation stays; it is bounded (KEEP_RESERVE_PX) at once while the area is below the viewport. A retry gives the whole reservation back
+  // for its own loading (the person is looking at the message when they press it).
   useLayoutEffect(() => {
     const state = live.current, node = state.node;
     if (!keep || !node) return undefined;
@@ -173,26 +143,13 @@ export function useSettledBox(key, { pending = false, settled = false, count = 0
     const full = Math.max(state.appliedHeight ?? 0, state.lastHeight);
     if (!(full > 0)) return undefined;
     node.style.setProperty(SETTLED_HEIGHT_VAR, `${full}px`);
-    const bound = keptHeight(full, false);
-    let observer = null, timer = null, above = false;
-    const stop = () => { observer?.disconnect(); observer = null; clearTimeout(timer); timer = null; above = false; };
-    // entirely above the viewport and the person idle: give the space back; otherwise look again shortly (the area may come into view, or the person may still be scrolling)
-    const tryAbove = () => {
-      timer = null;
-      if (!above || !node.isConnected) return;
-      if (personIsIdle() && mayGiveBack()) {
-        const box = node.getBoundingClientRect();
-        if (box.bottom < -ABOVE_MARGIN_PX) { giveBackAbove(node, bound); stop(); return; }
-      }
-      timer = setTimeout(tryAbove, QUIET_MS);
-    };
+    let observer = null;
+    const stop = () => { observer?.disconnect(); observer = null; };
     if (full > KEEP_RESERVE_PX && typeof IntersectionObserver !== "undefined") {
       observer = new IntersectionObserver((entries) => {
         const entry = entries[entries.length - 1];
-        if (!entry) return;
-        if (entry.isIntersecting) { above = false; clearTimeout(timer); timer = null; return; }   // (partly) in view: the whole reservation stays
-        if (entry.boundingClientRect.top >= 0) { node.style.setProperty(SETTLED_HEIGHT_VAR, `${bound}px`); stop(); return; }   // below the viewport: nothing in view can move
-        above = true; clearTimeout(timer); timer = setTimeout(tryAbove, QUIET_MS);
+        if (!entry || entry.isIntersecting || entry.boundingClientRect.top < 0) return;   // in view or above the viewport: the whole reservation stays
+        node.style.setProperty(SETTLED_HEIGHT_VAR, `${keptHeight(full, false)}px`); stop();   // below the viewport: nothing in view can move
       });
       observer.observe(node);
     }

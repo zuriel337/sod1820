@@ -252,7 +252,7 @@ test("a retry from the message loads again in the same box and the list that arr
   } finally { await page.close(); }
 });
 
-// ---- the reservation a message keeps is bounded, and let go only where the person cannot see it ----
+// ---- the reservation a message keeps is bounded, and let go only where the person cannot see it (below the viewport) ----
 async function failedWhileHeld(page, { before = 0 } = {}) {
   await page.evaluate(({ h, before }) => { window.__api.remember({ w: 390, vw: 390, h, n: 4 }); window.__api.mount({ pending: true, items: 0, slots: 4, before }); }, { h: NATURAL, before });
   await sleep(100);
@@ -268,68 +268,27 @@ test("a message keeps the whole reservation while its area is in view", { skip }
   } finally { await page.close(); }
 });
 // the person has scrolled until the area is entirely above the viewport and what follows it is in view
-async function failedAndScrolledPast(page, { keepScrolling = 0, anchor = "auto" } = {}) {
-  await page.evaluate((a) => { document.documentElement.style.overflowAnchor = a === "none" ? "none" : ""; window.__api.before = 0; }, anchor);
+async function failedAndScrolledPast(page) {
+  await page.evaluate(() => { window.__api.before = 0; });
   await failedWhileHeld(page);
   await sleep(150);
   const tailDocTop = await page.evaluate(() => window.__api.tailDocTop());
   await page.evaluate((top) => { window.__api.resetShifts(); window.scrollTo(0, top + 20); }, tailDocTop);
-  // the person keeps scrolling (small steps) for `keepScrolling` ms, then stops
-  for (let waited = 0; waited < keepScrolling; waited += 100) { await sleep(100); await page.evaluate((top) => window.scrollTo(0, top + 20 + (Math.round(performance.now() / 100) % 2)), tailDocTop); }
-  return tailDocTop;
 }
-test("above the viewport the reservation stays while the person is scrolling, and is given back once they are idle: the page is put back by the measured drift, what follows the area does not move and the browser counts nothing", { skip }, async () => {
+test("above the viewport the whole reservation stays for the rest of the entry however idle the person is, and the hook never scrolls the page", { skip }, async () => {
+  // Giving the space back there needs a scroll compensation, and in the shell (every ancestor of Home's content that clips overflow) the browser counts it as a layout shift
+  // however exact it is: an open task of the shell (docs/perf-evidence-20261016/recovery-fix/README.md), not something this hook may do.
   const page = await openHarness(current);
   try {
-    await failedAndScrolledPast(page, { keepScrolling: 900 });
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "still scrolling: the reservation stays");
-    const tailBefore = await page.evaluate(() => window.__api.tailTop());
-    await sleep(1100);                                                    // idle: the area is given back
-    const geometry = await page.evaluate(() => window.__api.geometry());
-    assert.equal(geometry.box, 160, "idle and entirely above the viewport: given back to the bound");
-    const tailAfter = await page.evaluate(() => window.__api.tailTop());
-    assert.ok(Math.abs(tailAfter - tailBefore) <= 1, `what follows the area did not move (${tailBefore}px -> ${tailAfter}px)`);
-    assert.equal((await page.evaluate(() => window.__api.shifts())).reduce((sum, e) => sum + e.v, 0), 0, "the browser reports no layout shift");
-  } finally { await page.close(); }
-});
-test("the same with scroll anchoring paused (the restorer's hold sets overflow-anchor: none): nothing is given back while it holds, then exactly, with the page put back by the box itself", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    await failedAndScrolledPast(page, { anchor: "none" });
-    await sleep(1300);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "the restorer is holding the page: the reservation stays");
-    const tailBefore = await page.evaluate(() => window.__api.tailTop());
-    await page.evaluate(() => { document.documentElement.style.overflowAnchor = ""; });   // the hold is over
-    await sleep(1100);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160);
-    const tailAfter = await page.evaluate(() => window.__api.tailTop());
-    assert.ok(Math.abs(tailAfter - tailBefore) <= 1, `what follows the area did not move (${tailBefore}px -> ${tailAfter}px)`);
-    assert.equal((await page.evaluate(() => window.__api.shifts())).reduce((sum, e) => sum + e.v, 0), 0, "the browser reports no layout shift");
-  } finally { await page.close(); }
-});
-test("negative control: the hook of 97363471 never gives the space back above the viewport", { skip }, async () => {
-  const page = await openHarness(atEED);
-  try {
+    await page.evaluate(() => { window.__scrolled = 0; for (const name of ["scrollBy", "scrollTo", "scroll"]) { const native = window[name].bind(window); window[name] = (...args) => { window.__scrolled += 1; return native(...args); }; } });
     await failedAndScrolledPast(page);
-    await sleep(2000);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "it keeps the whole reservation for the rest of the entry");
-  } finally { await page.close(); }
-});
-test("a box that gives its space back above the person is the one a retry fills: scrolling back to it and pressing retry loads in the whole box, and the list fits", { skip }, async () => {
-  const page = await openHarness(current);
-  try {
-    await failedAndScrolledPast(page);
-    await sleep(1500);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, 160);
-    await page.evaluate(() => window.scrollTo(0, 0));                     // back to the area
-    await sleep(300);
-    await page.evaluate(() => window.__api.render({ pending: true, items: 0, slots: 4 }));   // the retry
-    await sleep(150);
-    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "a retry gives the whole reservation back for its own loading");
-    await page.evaluate(() => window.__api.render({ pending: false, items: 4, slots: 4 }));
-    await sleep(300);
-    const geometry = await page.evaluate(() => window.__api.geometry());
-    assert.deepEqual([geometry.box, geometry.extent], [NATURAL, NATURAL], "the list that arrives fits the box");
+    const calls = await page.evaluate(() => window.__scrolled);   // the test's own scrollTo above is one call
+    await sleep(2500);                                             // far longer than any idle time
+    assert.equal((await page.evaluate(() => window.__api.geometry())).box, NATURAL, "the reservation stays");
+    const tailTop = await page.evaluate(() => window.__api.tailTop());
+    assert.ok(Math.abs(tailTop - -20) <= 1, `what follows the area did not move (${tailTop}px instead of -20px)`);
+    assert.equal(await page.evaluate(() => window.__scrolled), calls, "the hook never scrolls the page");
+    assert.equal((await page.evaluate(() => window.__api.shifts())).reduce((sum, e) => sum + e.v, 0), 0);
   } finally { await page.close(); }
 });
 test("a message's reservation is let go when the person scrolls past the area upwards (the area is then below the viewport)", { skip }, async () => {

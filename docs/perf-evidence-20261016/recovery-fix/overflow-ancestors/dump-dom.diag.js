@@ -1,0 +1,1 @@
+window.__diag=null;(()=>{const tick=()=>{if(!window.__diag&&document.querySelector(".dg29")&&document.querySelectorAll("[data-h29-hold]").length>=6&&scrollY>1000&&document.querySelector(".h29-notice")){window.__diag={html:document.documentElement.outerHTML,y:scrollY,vw:innerWidth,vh:innerHeight};return}requestAnimationFrame(tick)};requestAnimationFrame(tick)})();
