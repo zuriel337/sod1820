@@ -1,0 +1,34 @@
+{
+  "deployment": "dpl_Bm4yP58jwuJPNHc8h7MXiWVJG9pi",
+  "url": "https://sod1820-o0ktfy50s-sod1820-s-projects.vercel.app",
+  "target": "staging",
+  "state": "READY",
+  "commit": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+  "marker": {
+    "commit": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+    "buildTarget": "2029",
+    "readOnly": true,
+    "previewOverrides": [
+      "lock_number"
+    ],
+    "manifestSha256": "e814c415802fdf85cbb9633ff1a2e2ea7edd5fc9df623bcc0b1b710b2941df79"
+  },
+  "status": {
+    "marker": 200,
+    "manifest": 200,
+    "worker": 200,
+    "numberRoute": 200
+  },
+  "noindex": "noindex, nofollow, noarchive",
+  "cacheControl": "no-store",
+  "guardBootstrap": true,
+  "workersMatch": true,
+  "projectSettingsUpdatedAtUnchanged": true,
+  "publicDomainsDeployment": "dpl_7588veyVwj7PvWAKGSSBaREM774x",
+  "defaultVercelAlias": "automatically reassigned to preview; restoration blocked by automatic approval review, explicit user approval requested",
+  "shareLink": "automatic approval rejected share-link creation; regular Vercel login remains available",
+  "fullBrowserAcceptance": "NOT_RUN",
+  "before": "7d3971ee-1ab2-4e93-9a59-bf239ba34d8a",
+  "manifestHashVerified": "e814c415802fdf85cbb9633ff1a2e2ea7edd5fc9df623bcc0b1b710b2941df79",
+  "workerMatchesTestedLocalBuild": true
+}
