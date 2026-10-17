@@ -1,0 +1,43 @@
+{
+  "S1": "2026-10-17T23:08:54Z",
+  "S2": "2026-10-17T23:23:52Z",
+  "window_minutes": 14.97,
+  "window_note": "02:08-02:23 Israel time, Saturday night -> Sunday. Very low traffic; this only proves which statements are idle at night, not a rate for working hours.",
+  "stats_reset_at": "2026-08-04T09:03:11Z",
+  "delta_calls": {
+    "service_role|wa_admin": 0,
+    "anon|fn_number_journey": 0,
+    "anon|fn_number_lookup(p_value)": 0,
+    "anon|fn_number_lookup(paged)": 0,
+    "anon|fn_number_lookup(3rd)": 0,
+    "anon|fn_number_dossier": 0,
+    "anon|fn_relation_candidate": 0,
+    "anon|top_collective": 0,
+    "authenticated|top_collective": 0,
+    "anon|entity_collective_count": 0,
+    "anon|convergence_meter": 0,
+    "anon|number_neighbors": 0,
+    "anon|posts_by_number_strict": 0,
+    "anon|fn_method_profile": 0,
+    "anon|site_pulse_today": 5,
+    "anon|get_reality_videos": 4,
+    "anon|one_tree_stats": 4,
+    "anon|topic_cards_public": 4,
+    "authenticated|topic_cards_public": 2,
+    "anon|ingest_event": 28,
+    "authenticated|ingest_event": 35,
+    "anon|channel_updates": 76,
+    "authenticated|recent_number_opens": 3
+  },
+  "cumulative_since_reset_at_S2": {
+    "wa_admin": {"calls": 164798, "total_ms": 238360162},
+    "fn_number_journey": {"calls": 48810, "total_ms": 50769384},
+    "fn_number_lookup_p_value": {"calls": 69737, "total_ms": 38036144},
+    "fn_relation_candidate": {"calls": 62751, "total_ms": 37751072},
+    "fn_number_lookup_paged": {"calls": 52264, "total_ms": 34536319},
+    "fn_number_dossier": {"calls": 48946, "total_ms": 32843737},
+    "top_collective_authenticated": {"calls": 5239, "total_ms": 12117010},
+    "top_collective_anon": {"calls": 1216, "total_ms": 1951315}
+  },
+  "total_db_hours_since_reset_at_first_read": 182.2
+}

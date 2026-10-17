@@ -1,0 +1,27 @@
+{
+  "snap_ts": "2026-10-17T23:08:54Z",
+  "stats_reset": "2026-08-04T09:03:11Z",
+  "note": "pg_stat_statements key PostgREST statements; key = role|queryid. Taken Sat night Israel (~02:08 Sun) - low traffic.",
+  "rows": {
+    "service_role|-31124332212370269|wa_admin":            {"calls":164798,"total_ms":238360162},
+    "anon|7623884736001149722|fn_number_journey":          {"calls":48810,"total_ms":50769384},
+    "anon|-2545250769889646187|fn_number_lookup(p_value)": {"calls":69737,"total_ms":38036144},
+    "anon|-7825625462233038225|fn_relation_candidate":     {"calls":62751,"total_ms":37751072},
+    "anon|2226706683425733234|fn_number_lookup(paged)":    {"calls":52264,"total_ms":34536319},
+    "anon|5729832202466717993|fn_number_dossier":          {"calls":48946,"total_ms":32843737},
+    "authenticated|2675402236731216953|top_collective":    {"calls":5239,"total_ms":12117010},
+    "anon|2675402236731216953|top_collective":             {"calls":1216,"total_ms":1951315},
+    "anon|5858564130656955620|entity_collective_count":    {"calls":53112,"total_ms":8281578},
+    "anon|238821908514745662|site_pulse_today":            {"calls":11795,"total_ms":7494964},
+    "anon|-8057437434644876541|get_reality_videos":        {"calls":9647,"total_ms":7149974},
+    "anon|-7717181289727948292|convergence_meter":         {"calls":181237,"total_ms":6851991},
+    "anon|-1955292501630282246|number_neighbors":          {"calls":102173,"total_ms":5084568},
+    "anon|7373580578998080217|fn_number_lookup(3rd)":      {"calls":18888,"total_ms":4322005},
+    "anon|2423117854233224284|posts_by_number_strict":     {"calls":74715,"total_ms":3746633},
+    "anon|-5946209108447973063|one_tree_stats":            {"calls":9725,"total_ms":3319057},
+    "anon|8678674693980160078|topic_cards_public":         {"calls":29088,"total_ms":3201572},
+    "anon|7117538968546328185|fn_method_profile":          {"calls":51174,"total_ms":2991417},
+    "anon|2618158968494245586|ingest_event":               {"calls":661708,"total_ms":2570101},
+    "anon|-6547268640538379571|channel_updates":           {"calls":301068,"total_ms":1920250}
+  }
+}
