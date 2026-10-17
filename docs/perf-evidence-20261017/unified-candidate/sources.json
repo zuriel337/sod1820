@@ -1,0 +1,41 @@
+{
+  "branch": "gpt/perf-unified-candidate-20261017",
+  "status": "ASSEMBLED_NOT_RELEASE_ACCEPTED",
+  "base": "d325780c080715ddd827e808c100310c491ec58b",
+  "sources": [
+    {
+      "part": "home_recovery",
+      "branch": "claude/perf-next-wave-20261016",
+      "sha": "d325780c080715ddd827e808c100310c491ec58b"
+    },
+    {
+      "part": "home_card_reader",
+      "branch": "ccr-b23ccdb0-nkh1o1",
+      "sha": "bf2329ded3f40607132c4bd4d3d3e494e555ab41"
+    },
+    {
+      "part": "shared_measurement",
+      "branch": "gpt/perf-shared-readiness-20261016",
+      "sha": "759c22392fbc4254660bc71e0ebc6e2e0e03545e"
+    },
+    {
+      "part": "number_ci",
+      "branch": "gpt/number-owner-ci-isolation-20261016",
+      "sha": "3c3ea58a845b32408d36e4b16a925f30cd528cff"
+    }
+  ],
+  "assembly_commit": "74e836887c097a18f48e3f65894fbb33abda8efd",
+  "preview_number_commit": "d7f7f7c00ae9b0bc366ed47c4e77a89177863021",
+  "main_observed": "503b52ef169b6e51f967187491398d153090aa45",
+  "live_flags_changed": false,
+  "fx_number_lookup_page": "OFF; unchanged",
+  "known_blockers": [
+    "Home recover2 CLS at width320",
+    "reserved failure space above reading place",
+    "real private corpus absent in this environment",
+    "full World/Entry/Number browser acceptance",
+    "physical phone and authenticated acceptance",
+    "cold-load LCP target not achieved"
+  ],
+  "source_refs_modified": false
+}
