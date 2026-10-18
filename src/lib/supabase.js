@@ -10,6 +10,7 @@ import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
 import { METHOD_DB_COLS } from './gematria.js';
 import { postCategoryFilterNames } from './postCategoryIdentity.js';
+import { createSiteFlagsReader2029 } from './siteFlagsReadScope2029.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -1770,27 +1771,36 @@ export async function getRealityHints(limit = 1000) {
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
 // All useFeatureState hooks in the mounted frame request the same public flags.
-// Coalesce only simultaneous requests; deliberately do NOT cache resolved values:
-// route changes and lock changes must still receive a fresh authorization view.
+// Legacy keeps simultaneous-only coalescing. The 2029 build also shares one
+// successful snapshot across shell + lazy-route consumers in the same navigation.
+// Navigation identity and auth invalidation always start a fresh read; failures
+// are never retained, so an immediate retry reaches the canonical table again.
 // UI checks are not a substitute for server-side access enforcement.
-let siteFlagsInflight = null;
-export async function getSiteFlags() {
+const siteFlagsReader2029 = is2029Build
+  ? createSiteFlagsReader2029({ client: supabase, reuseResolved: true })
+  : null;
+let legacySiteFlagsInflight = null;
+export async function getSiteFlags(options) {
+  if (siteFlagsReader2029) return siteFlagsReader2029.read(options);
   if (!supabase) return {};
-  if (siteFlagsInflight) return siteFlagsInflight;
-  siteFlagsInflight = (async () => {
+  if (legacySiteFlagsInflight) return legacySiteFlagsInflight;
+  legacySiteFlagsInflight = (async () => {
     try {
       const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-      const m = {};
-      for (const r of (data || [])) m[r.key] = r;
-      return m;
+      const map = {};
+      for (const row of (data || [])) map[row.key] = row;
+      return map;
     } catch { return {}; }
   })();
   try {
-    return await siteFlagsInflight;
+    return await legacySiteFlagsInflight;
   } finally {
-    siteFlagsInflight = null;
+    legacySiteFlagsInflight = null;
   }
 }
+export const invalidateSiteFlagsReadScope2029 = () => siteFlagsReader2029?.invalidate();
+export const getSiteFlagsReadScope2029 = () => siteFlagsReader2029?.currentScope() || "legacy";
+export const subscribeSiteFlagsReadInvalidation2029 = (listener) => siteFlagsReader2029?.subscribeInvalidation(listener) || (() => {});
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
 // ספירה בצד-לקוח על values בלבד (בלי מונחים — פרטיות). [{n, count}] ממוין חם→קר.
