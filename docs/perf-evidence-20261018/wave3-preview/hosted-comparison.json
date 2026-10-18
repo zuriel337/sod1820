@@ -373,12 +373,21 @@
     "mobile Post LCP 5856ms",
     "desktop Number CLS 0.1062",
     "desktop Post CLS 0.2082",
-    "mobile Home transfer bytes +34.5% requires explanation"
+    "mobile Home transfer acceptance gap: comparison runner omitted late request URLs; controlled diagnostic required"
   ],
   "temporary_access": {
     "created_for_approved_hosted_acceptance": true,
     "secret_stored_in_receipts": false,
     "revoked_after_measurement": true,
     "revocation_protection_bypass_empty": true
+  },
+  "causal_interpretation": {
+    "site_flags": "PROVEN: four to two network events, two to one logical read per navigation",
+    "number_static_graph": "PROVEN: 55 to 47 files and 480780 to 451700 gzip bytes",
+    "number_hosted_transfer": "PROVEN_DIRECTION: -15497 mobile and -15303 desktop bytes",
+    "home_mobile_transfer": "INCONCLUSIVE_WINDOW_ARTIFACT: candidate sample split of 295817 bytes is explained by two late completed requests whose URLs were not retained",
+    "home_static_graph": "same 43 files; +4161 gzip bytes, which rules out a 295817-byte bundle regression",
+    "timing": "DIRECTIONAL: hosted windows had uncontrolled CDN and Postgres cache state",
+    "next_diagnostic": "alternate at least seven A/B samples and retain URL/type/start/end/bytes plus started/completed/pending for every request"
   }
 }

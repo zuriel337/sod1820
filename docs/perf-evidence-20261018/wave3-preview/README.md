@@ -143,10 +143,29 @@ were captured in different hosted time windows with uncontrolled CDN and
 Postgres cache state. Request and byte deltas are therefore the stronger causal
 evidence.
 
+The apparent 34.5% Mobile Home transfer increase is not evidence of a bundle
+regression. Wave 3 Home samples themselves split between 825,277 B and roughly
+1,121,000 B; two extra requests that completed inside the fixed post-usable
+window account for 295,817 B of that difference. This runner counts all
+completed bytes but preserves URLs only for the pre-usable critical set, so the
+two late URLs cannot be recovered honestly from these receipts. The static Home
+graph kept the same 43 files and grew by only 4,161 B gzip, while Desktop Home
+transfer moved by 0.23%. A later diagnostic must retain start/completion state
+and URLs for every request and alternate at least seven samples per side.
+
+The higher completed-request count on Number has the same window effect. Its
+static opening graph actually fell by eight files and 29,080 B gzip, and hosted
+transfer fell by about 15.4 kB on both profiles. More existing fanout completed
+inside the observation window because the usable marker arrived earlier. This
+does not erase that fanout; it means the count increase is not evidence that the
+Number lazy-loading change added requests.
+
 This remains **NOT RELEASE-ACCEPTED**. Mobile Number and World remain above the
 2.5 s laboratory LCP target, Post remains far above it, desktop Number CLS is
 `0.1062`, and desktop Post CLS remains `0.2082`. Mobile Home transfer bytes also
-varied upward by 34.5% and require a controlled explanation before acceptance.
+varied upward by 34.5%; the comparison runner cannot identify the late pair, so
+the release evidence requires the controlled diagnostic described above even
+though the bundle graph rules out a regression of that size.
 The next heavy fixes remain responsive Post media, deferred World story depth,
 and a compact Number opening projection; this receipt does not claim those are
 already integrated.
