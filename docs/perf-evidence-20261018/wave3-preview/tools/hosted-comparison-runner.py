@@ -145,9 +145,9 @@ SAFE_QUERY_KEYS = {
     "width",
 }
 SAFE_PATH_SEGMENTS = {
-    "2029.html", "app.js", "assets", "auth", "functions", "manifest.json", "number", "object",
-    "post", "preview-build.json", "public", "rest", "rpc", "site_flags", "storage",
-    "topic", "v1", "world",
+    ".vite", "2029.html", "app.js", "assets", "auth", "functions", "manifest.json",
+    "number", "object", "post", "preview-build.json", "preview-readonly-sw.js", "public",
+    "rest", "rpc", "site_flags", "storage", "sw.js", "topic", "v1", "world",
 }
 SENSITIVE_NAME_RE = re.compile(
     r"(?i)(?:^|[-_.])(access|api|auth|bearer|cookie|credential|key|password|refresh|secret|"
@@ -162,8 +162,21 @@ INVALID_PERCENT_RE = re.compile(r"%(?![0-9A-Fa-f]{2})")
 FORBIDDEN_PERCENT_RE = re.compile(r"%(?:0[0-9A-Fa-f]|1[0-9A-Fa-f]|20|2[fF]|5[cC]|7[fF])")
 ABSOLUTE_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
 SAFE_REDIRECT_AUTHORITY_RE = re.compile(r"^[A-Za-z0-9.-]+(?::[0-9]{1,5})?$")
+LEGACY_NUMERIC_HOST_RE = re.compile(
+    r"(?i)^(?:0x[0-9a-f]+|0[0-7]+|[0-9]+)(?:\.(?:0x[0-9a-f]+|0[0-7]+|[0-9]+)){0,3}$"
+)
+IMMUTABLE_WAVE3_HOST_RE = re.compile(
+    r"^sod1820-[a-z0-9]{8,32}-sod1820-s-projects\.vercel\.app$"
+)
 SAFE_ERROR_KINDS = {"console", "pageerror", "network", "runner", "auth"}
 PRODUCTION_DB_ORIGINS = {"https://linswmnnkjxvweumprav.supabase.co"}
+WAVE3_PREVIEW_OVERRIDES = ["lock_number"]
+WAVE3_RECEIPT_FIELDS = {
+    "commit", "buildTarget", "readOnly", "previewOverrides", "manifestSha256",
+}
+HOSTED_BOUNDARY_BLOCKER = (
+    "BLOCKED_INPUT: hosted-service-worker-egress-boundary-contract-missing"
+)
 
 
 class TargetValidationError(ValueError):
@@ -333,7 +346,8 @@ def boundary_policy_receipt(db_origins, production_db_acknowledged):
             hashlib.sha256(host_value.encode("utf-8")).hexdigest()
             for host_value in ANALYTICS_HOST_FRAGMENTS
         ),
-        "service_workers": "blocked",
+        "service_workers": "allowed-for-canonical-wave3-artifact",
+        "service_worker_external_egress_boundary": "missing-hosted-execution-blocked",
         "websockets": "blocked",
     }
 
@@ -346,7 +360,9 @@ def _host_with_port(parsed, scheme):
         port = parsed.port
     except ValueError as exc:
         raise TargetValidationError("target-port-invalid") from exc
-    if port and not ((scheme == "https" and port == 443) or (scheme == "http" and port == 80)):
+    if port is not None and not 1 <= port <= 65535:
+        raise TargetValidationError("target-port-out-of-range")
+    if port is not None and not ((scheme == "https" and port == 443) or (scheme == "http" and port == 80)):
         host = f"{host}:{port}"
     return host
 
@@ -381,7 +397,20 @@ def normalize_origin(value, *, allow_loopback_http=False, label="origin"):
         raise TargetValidationError(f"{label}-must-not-contain-path-query-or-fragment")
     if host.endswith("."):
         raise TargetValidationError(f"{label}-trailing-dot-forbidden")
-    if not is_loopback_host(host):
+    if "%" in host:
+        raise TargetValidationError(f"{label}-scoped-ip-forbidden")
+    try:
+        parsed_ip = ipaddress.ip_address(host)
+    except ValueError:
+        parsed_ip = None
+    if parsed_ip is not None:
+        if isinstance(parsed_ip, ipaddress.IPv6Address) and parsed_ip.ipv4_mapped is not None:
+            raise TargetValidationError(f"{label}-mapped-ipv6-forbidden")
+        if host != parsed_ip.compressed.lower():
+            raise TargetValidationError(f"{label}-noncanonical-ip-literal")
+    else:
+        if LEGACY_NUMERIC_HOST_RE.fullmatch(host):
+            raise TargetValidationError(f"{label}-legacy-numeric-host-forbidden")
         labels = host.split(".")
         if any(
             not label_part
@@ -390,6 +419,8 @@ def normalize_origin(value, *, allow_loopback_http=False, label="origin"):
             for label_part in labels
         ):
             raise TargetValidationError(f"{label}-ascii-host-invalid")
+        if host != "localhost" and (len(labels) < 2 or labels[-1].isdigit()):
+            raise TargetValidationError(f"{label}-dns-name-not-canonical")
     if scheme != "https" and not (allow_loopback_http and is_loopback_host(host)):
         raise TargetValidationError(f"{label}-https-required")
     return f"{scheme}://{_host_with_port(parsed, scheme)}"
@@ -442,8 +473,17 @@ def _validate_sha(value, label):
     return value.lower()
 
 
-def validate_targets(args):
-    """Validate every network target before stdin tokens, servers or browsers exist."""
+def validate_immutable_wave3_origin(origin, label="origin"):
+    parsed = urlparse(origin)
+    if parsed.port is not None and parsed.port != 443:
+        raise TargetValidationError(f"{label}-immutable-deployment-port-forbidden")
+    if not IMMUTABLE_WAVE3_HOST_RE.fullmatch(parsed.hostname or ""):
+        raise TargetValidationError(f"{label}-immutable-wave3-deployment-host-required")
+    return origin
+
+
+def validate_target_shape(args):
+    """Validate all target structure without declaring hosted egress safe."""
     if bool(args.dist) == bool(args.origin):
         raise TargetValidationError("provide-exactly-one-dist-or-origin")
     ab_mode = bool(args.origin_b)
@@ -479,6 +519,8 @@ def validate_targets(args):
         raise TargetValidationError("production-db-acknowledgement-without-exact-origin")
     if exact_preview_origins & PRODUCTION_DB_ORIGINS:
         raise TargetValidationError("production-db-cannot-be-preview-origin")
+    for preview_origin in exact_preview_origins:
+        validate_immutable_wave3_origin(preview_origin, "allow-preview-origin")
 
     arms = {}
     if args.dist:
@@ -489,6 +531,7 @@ def validate_targets(args):
         }
     else:
         origin_a = normalize_origin(args.origin, label="origin")
+        validate_immutable_wave3_origin(origin_a, "origin")
         if origin_a not in exact_preview_origins:
             raise TargetValidationError("origin-not-in-exact-preview-allowlist")
         auth_a = normalize_origin(args.auth_origin, label="auth-origin") if args.auth_origin else None
@@ -501,6 +544,7 @@ def validate_targets(args):
         }
         if ab_mode:
             origin_b = normalize_origin(args.origin_b, label="origin-b")
+            validate_immutable_wave3_origin(origin_b, "origin-b")
             if origin_b not in exact_preview_origins:
                 raise TargetValidationError("origin-b-not-in-exact-preview-allowlist")
             auth_b = normalize_origin(args.auth_origin_b, label="auth-origin-b") if args.auth_origin_b else None
@@ -508,6 +552,8 @@ def validate_targets(args):
                 raise TargetValidationError("auth-origin-b-must-equal-arm-origin")
             if origin_b == origin_a:
                 raise TargetValidationError("ab-arm-origins-must-be-distinct")
+            if _validate_sha(args.sha_b, "sha-b") == arms["a"]["sha"]:
+                raise TargetValidationError("ab-arm-shas-must-be-distinct")
             arms["b"] = {
                 "origin": origin_b,
                 "auth_origin": auth_b,
@@ -515,6 +561,8 @@ def validate_targets(args):
             }
 
     arm_origins = {config["origin"] for config in arms.values() if config.get("origin")}
+    if exact_preview_origins != arm_origins:
+        raise TargetValidationError("preview-allowlist-must-match-arms-exactly")
     if arm_origins & PRODUCTION_DB_ORIGINS:
         raise TargetValidationError("production-db-cannot-be-arm-or-auth-origin")
     if arm_origins & db_origins:
@@ -527,6 +575,14 @@ def validate_targets(args):
         "db_origins": db_origins,
         "exact_preview_origins": exact_preview_origins,
     }
+
+
+def validate_targets(args):
+    """Validate before secrets/launch and fail hosted execution closed."""
+    config = validate_target_shape(args)
+    if not args.dist:
+        raise TargetValidationError(HOSTED_BOUNDARY_BLOCKER)
+    return config
 
 
 def prepare_execution(args, token_reader=None):
@@ -896,47 +952,51 @@ async def authenticate_preview(context, arm_origin, share_token, max_hops=5):
     raise RuntimeError("protected-preview-auth-redirect-limit")
 
 
-async def get_same_origin_without_automatic_redirects(context, arm_origin, start_url, max_hops=5):
-    current_url = start_url
-    for _ in range(max_hops + 1):
-        if request_origin(current_url) != arm_origin:
-            raise TargetValidationError("same-origin-get-target-rejected")
-        response = await context.request.get(current_url, max_redirects=0, timeout=30000)
-        if 300 <= response.status < 400:
-            current_url = validate_same_origin_redirect(
-                arm_origin, current_url, response.headers.get("location")
-            )
-            continue
-        return response
-    raise RuntimeError("same-origin-get-redirect-limit")
-
-
-async def verify_build_identity(context, arm_origin, expected_sha):
-    """Verify the existing same-origin integrated Preview build receipt."""
-    response = await get_same_origin_without_automatic_redirects(
-        context, arm_origin, arm_origin + "/preview-build.json"
-    )
+async def fetch_direct_artifact(
+    context, arm_origin, path, expected_content_types, maximum_bytes, label,
+):
+    """Fetch one canonical artifact directly; redirects and SPA fallbacks are invalid."""
+    target = arm_origin + path
+    response = await context.request.get(target, max_redirects=0, timeout=30000)
+    if 300 <= response.status < 400:
+        raise RuntimeError(f"{label}-redirect-forbidden")
     if response.status != 200:
-        raise RuntimeError(f"preview-build-receipt-http-{int(response.status)}")
+        raise RuntimeError(f"{label}-http-{int(response.status)}")
+    response_url = getattr(response, "url", target)
+    if response_url != target:
+        raise RuntimeError(f"{label}-response-url-mismatch")
     content_type = str(response.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
-    if content_type != "application/json":
-        raise RuntimeError("preview-build-receipt-content-type-invalid")
+    if content_type not in expected_content_types:
+        raise RuntimeError(f"{label}-content-type-invalid")
     content_length = response.headers.get("content-length")
     if content_length:
         try:
-            if int(content_length) > 16384:
-                raise RuntimeError("preview-build-receipt-too-large")
+            parsed_length = int(content_length)
         except ValueError as exc:
-            raise RuntimeError("preview-build-receipt-content-length-invalid") from exc
+            raise RuntimeError(f"{label}-content-length-invalid") from exc
+        if parsed_length < 0 or parsed_length > maximum_bytes:
+            raise RuntimeError(f"{label}-too-large")
     payload = await response.body()
-    if len(payload) > 16384:
-        raise RuntimeError("preview-build-receipt-too-large")
+    if len(payload) > maximum_bytes:
+        raise RuntimeError(f"{label}-too-large")
+    return payload
+
+
+async def verify_build_identity(context, arm_origin, expected_sha):
+    """Verify the complete same-origin Wave3 artifact identity."""
+    validate_immutable_wave3_origin(arm_origin, "artifact-origin")
+    payload = await fetch_direct_artifact(
+        context, arm_origin, "/preview-build.json", {"application/json"}, 16384,
+        "preview-build-receipt",
+    )
     try:
         receipt = json.loads(payload.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise RuntimeError("preview-build-receipt-json-invalid") from exc
     if not isinstance(receipt, dict):
         raise RuntimeError("preview-build-receipt-shape-invalid")
+    if set(receipt) != WAVE3_RECEIPT_FIELDS:
+        raise RuntimeError("preview-build-receipt-fields-invalid")
     commit = receipt.get("commit")
     manifest_sha256 = receipt.get("manifestSha256")
     if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
@@ -945,15 +1005,70 @@ async def verify_build_identity(context, arm_origin, expected_sha):
         raise RuntimeError("preview-build-receipt-commit-mismatch")
     if receipt.get("buildTarget") != "2029" or receipt.get("readOnly") is not True:
         raise RuntimeError("preview-build-receipt-contract-invalid")
+    if receipt.get("previewOverrides") != WAVE3_PREVIEW_OVERRIDES:
+        raise RuntimeError("preview-build-receipt-preview-overrides-invalid")
     if not isinstance(manifest_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", manifest_sha256):
         raise RuntimeError("preview-build-receipt-manifest-invalid")
+
+    manifest_payload = await fetch_direct_artifact(
+        context, arm_origin, "/.vite/manifest.json", {"application/json"}, 2 * 1024 * 1024,
+        "preview-manifest",
+    )
+    observed_manifest_sha256 = hashlib.sha256(manifest_payload).hexdigest()
+    if observed_manifest_sha256 != manifest_sha256:
+        raise RuntimeError("preview-manifest-digest-mismatch")
+    try:
+        manifest = json.loads(manifest_payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("preview-manifest-json-invalid") from exc
+    if not isinstance(manifest, dict) or not manifest:
+        raise RuntimeError("preview-manifest-shape-invalid")
+
+    html_payload = await fetch_direct_artifact(
+        context, arm_origin, "/2029.html", {"text/html"}, 2 * 1024 * 1024,
+        "preview-html",
+    )
+    worker_payload = await fetch_direct_artifact(
+        context, arm_origin, "/preview-readonly-sw.js",
+        {"application/javascript", "text/javascript", "application/x-javascript"},
+        512 * 1024, "preview-worker",
+    )
+    sw_alias_payload = await fetch_direct_artifact(
+        context, arm_origin, "/sw.js",
+        {"application/javascript", "text/javascript", "application/x-javascript"},
+        512 * 1024, "preview-worker-alias",
+    )
+    if worker_payload != sw_alias_payload:
+        raise RuntimeError("preview-worker-alias-digest-mismatch")
+    required_worker_markers = (
+        b"self.addEventListener('fetch'", b"X-Preview-Write-Blocked",
+        b"preview_read_only", b"notification_prefs_guest_get_v1",
+    )
+    if any(marker not in worker_payload for marker in required_worker_markers):
+        raise RuntimeError("preview-worker-contract-invalid")
+
+    html_sha256 = hashlib.sha256(html_payload).hexdigest()
+    worker_sha256 = hashlib.sha256(worker_payload).hexdigest()
+    artifact_digest_sha256 = hashlib.sha256(json.dumps({
+        "commit": commit,
+        "manifest_sha256": manifest_sha256,
+        "html_sha256": html_sha256,
+        "worker_sha256": worker_sha256,
+        "preview_overrides": WAVE3_PREVIEW_OVERRIDES,
+    }, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
     return {
         "verified": True,
-        "source": "same-origin-preview-build-v1",
+        "source": "same-origin-wave3-artifact-v2",
         "commit": commit,
         "build_target": "2029",
         "read_only": True,
+        "preview_overrides": list(WAVE3_PREVIEW_OVERRIDES),
         "manifest_sha256": manifest_sha256,
+        "html_sha256": html_sha256,
+        "worker_sha256": worker_sha256,
+        "artifact_digest_sha256": artifact_digest_sha256,
+        "immutable_deployment_host_verified": True,
+        "deployment_host_fingerprint": _fingerprint(urlparse(arm_origin).hostname, 16),
     }
 
 
@@ -970,6 +1085,64 @@ async def preflight_build_identity(browser, arm_origin, expected_sha, auth_origi
         return await verify_build_identity(context, arm_origin, expected_sha)
     finally:
         await context.close()
+
+
+def validate_main_document_response(response, expected_url, page_url):
+    """Require one direct canonical 200 HTML document without a redirect chain."""
+    if response is None:
+        raise RuntimeError("main-document-response-missing")
+    if response.status != 200:
+        raise RuntimeError(f"main-document-http-{int(response.status)}")
+    if getattr(response, "url", None) != expected_url or page_url != expected_url:
+        raise RuntimeError("main-document-canonical-url-mismatch")
+    request = getattr(response, "request", None)
+    redirected_from = getattr(request, "redirected_from", None) if request is not None else None
+    if callable(redirected_from):
+        redirected_from = redirected_from()
+    if redirected_from is not None:
+        raise RuntimeError("main-document-redirect-forbidden")
+    content_type = str(response.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+    if content_type != "text/html":
+        raise RuntimeError("main-document-content-type-invalid")
+    return {
+        "verified": True,
+        "status": 200,
+        "content_type": "text/html",
+        "path": sanitize_url(expected_url, path_only=True),
+        "redirected": False,
+    }
+
+
+def validate_internal_navigation_documents(responses, expected_url, page_url):
+    """Record SPA navigation or validate the one main-frame document it caused."""
+    if page_url != expected_url:
+        raise RuntimeError("internal-navigation-canonical-url-mismatch")
+    if not responses:
+        return {
+            "mode": "spa-no-document-navigation",
+            "document_navigation_count": 0,
+            "canonical_url_verified": True,
+        }
+    if len(responses) != 1:
+        raise RuntimeError("internal-navigation-document-count-invalid")
+    return {
+        "mode": "main-document-navigation",
+        "document_navigation_count": 1,
+        "document": validate_main_document_response(
+            responses[0], expected_url, page_url
+        ),
+    }
+
+
+async def verify_post_journey_identity(
+    context, arm_origin, expected_sha, required, identity_before,
+):
+    if not required:
+        return None
+    identity_after = await verify_build_identity(context, arm_origin, expected_sha)
+    if identity_before != identity_after:
+        raise RuntimeError("wave3-artifact-identity-changed-during-journey")
+    return identity_after
 
 
 def initiator_summary(initiator):
@@ -1169,7 +1342,7 @@ async def create_context(
         user_agent=profile["user_agent"],
         locale="he-IL",
         timezone_id="Asia/Jerusalem",
-        service_workers="block",
+        service_workers="allow",
     )
 
     async def boundary(route, request):
@@ -1387,12 +1560,25 @@ async def direct_sample(
             expected_sha, require_build_identity,
         )
         attach_network_capture(cdp, action_clock, requests)
-        await page.goto(origin + path, wait_until="domcontentloaded", timeout=45000)
+        target_url = origin + path
+        document_response = await page.goto(
+            target_url, wait_until="domcontentloaded", timeout=45000
+        )
+        document_receipt = validate_main_document_response(
+            document_response, target_url, page.url
+        )
         slug = path.split("/post/", 1)[1] if kind == "post" else None
-        return await collect_result(
+        result = await collect_result(
             page, kind, slug, action_clock, requests, blocked, errors, sample, profile,
             "cold-direct", True, build_identity,
         )
+        identity_after = await verify_post_journey_identity(
+            context, origin, expected_sha, require_build_identity, build_identity,
+        )
+        result["main_document"] = document_receipt
+        result["build_identity_before"] = build_identity
+        result["build_identity_after"] = identity_after
+        return result
     except Exception as exc:
         cutoff_ms = (time.perf_counter() - action_clock["start"]) * 1000
         return {
@@ -1421,15 +1607,28 @@ async def internal_sample(
             expected_sha, require_build_identity,
         )
         attach_network_capture(cdp, warm_clock, warm_requests)
-        await page.goto(origin + "/", wait_until="domcontentloaded", timeout=45000)
+        home_url = origin + "/"
+        document_response = await page.goto(
+            home_url, wait_until="domcontentloaded", timeout=45000
+        )
+        document_receipt = validate_main_document_response(
+            document_response, home_url, page.url
+        )
         await page.wait_for_function(READY_FUNCTION, arg={"kind": "home", "slug": None}, timeout=45000)
         await page.wait_for_timeout(500)
         world_links = page.locator('a[href="/world"]:visible')
         if await world_links.count() == 0:
             cutoff_ms = (time.perf_counter() - warm_clock["start"]) * 1000
+            identity_after = await verify_post_journey_identity(
+                context, origin, expected_sha, require_build_identity, build_identity,
+            )
             return {
                 "profile": profile, "mode": "internal-home-to-world", "route": "world", "sample": sample,
                 "failure": "no-visible-world-link", "capture_scope": "home-setup-failure",
+                "main_document": document_receipt,
+                "build_identity": build_identity,
+                "build_identity_before": build_identity,
+                "build_identity_after": identity_after,
                 **summarize_requests(warm_requests, cutoff_ms, cutoff_ms, blocked),
             }
         blocked.clear()
@@ -1441,12 +1640,35 @@ async def internal_sample(
         await internal_cdp.send("Network.setCacheDisabled", {"cacheDisabled": True})
         attach_network_capture(internal_cdp, action_clock, requests)
         await page.evaluate("window.__sodPerfReset(performance.now())")
+        internal_document_responses = []
+
+        def capture_internal_document(response):
+            request = response.request
+            if (
+                request.resource_type == "document"
+                and request.is_navigation_request()
+                and request.frame == page.main_frame
+            ):
+                internal_document_responses.append(response)
+
+        page.on("response", capture_internal_document)
         await world_links.first.click()
         await page.wait_for_url("**/world", timeout=15000)
-        return await collect_result(
+        internal_navigation_receipt = validate_internal_navigation_documents(
+            internal_document_responses, origin + "/world", page.url
+        )
+        result = await collect_result(
             page, "world", None, action_clock, requests, blocked, errors, sample, profile,
             "internal-home-to-world", False, build_identity,
         )
+        identity_after = await verify_post_journey_identity(
+            context, origin, expected_sha, require_build_identity, build_identity,
+        )
+        result["main_document"] = document_receipt
+        result["internal_navigation"] = internal_navigation_receipt
+        result["build_identity_before"] = build_identity
+        result["build_identity_after"] = identity_after
+        return result
     except Exception as exc:
         measured_clock = locals().get("action_clock", warm_clock)
         measured_requests = requests if "action_clock" in locals() else warm_requests
@@ -1520,25 +1742,45 @@ def annotate_ab_run(run, plan_item):
 
 def verified_build_tuple(run):
     identity = run.get("build_identity")
+    identity_before = run.get("build_identity_before")
+    identity_after = run.get("build_identity_after")
     if not isinstance(identity, dict) or identity.get("verified") is not True:
+        return None
+    if identity_before != identity or identity_after != identity:
         return None
     commit = identity.get("commit")
     manifest = identity.get("manifest_sha256")
+    html = identity.get("html_sha256")
+    worker = identity.get("worker_sha256")
+    artifact = identity.get("artifact_digest_sha256")
+    host_fingerprint = identity.get("deployment_host_fingerprint")
     if (
-        identity.get("source") != "same-origin-preview-build-v1"
+        identity.get("source") != "same-origin-wave3-artifact-v2"
         or identity.get("build_target") != "2029"
         or identity.get("read_only") is not True
+        or identity.get("preview_overrides") != WAVE3_PREVIEW_OVERRIDES
+        or identity.get("immutable_deployment_host_verified") is not True
         or not isinstance(commit, str)
         or not re.fullmatch(r"[0-9a-f]{40}", commit)
         or not isinstance(manifest, str)
         or not re.fullmatch(r"[0-9a-f]{64}", manifest)
+        or not isinstance(html, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", html)
+        or not isinstance(worker, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", worker)
+        or not isinstance(artifact, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", artifact)
+        or not isinstance(host_fingerprint, str)
+        or not re.fullmatch(r"[0-9a-f]{16}", host_fingerprint)
     ):
         return None
-    return commit, manifest
+    return commit, manifest, html, worker, artifact, host_fingerprint
 
 
-def assess_ab_acceptance(runs, minimum_successful_pairs=7):
+def assess_ab_acceptance(runs, minimum_successful_pairs=7, first_arm="a"):
     """Require complete successful A/B pairs for every route/profile journey."""
+    if first_arm not in {"a", "b"}:
+        raise ValueError("first_arm must be 'a' or 'b'")
     grouped = {}
     for run in runs:
         journey = (run.get("profile"), run.get("mode"), run.get("route"))
@@ -1553,8 +1795,14 @@ def assess_ab_acceptance(runs, minimum_successful_pairs=7):
         failed_pairs = 0
         partial_pairs = 0
         duplicate_pairs = 0
+        order_violations = 0
         arm_success = {"a": 0, "b": 0}
-        for pair_runs in pairs.values():
+        pair_numbers = set(pairs)
+        valid_pair_numbers = all(isinstance(pair, int) and pair >= 1 for pair in pair_numbers)
+        pair_sequence_valid = bool(pair_numbers) and valid_pair_numbers and pair_numbers == set(
+            range(1, max(pair_numbers) + 1)
+        )
+        for pair, pair_runs in pairs.items():
             exact_pair = set(pair_runs) == {"a", "b"} and all(
                 len(pair_runs[arm]) == 1 for arm in ("a", "b")
             )
@@ -1562,6 +1810,18 @@ def assess_ab_acceptance(runs, minimum_successful_pairs=7):
                 partial_pairs += 1
                 if any(len(values) > 1 for values in pair_runs.values()):
                     duplicate_pairs += 1
+                continue
+            expected_first = first_arm if pair % 2 else ("b" if first_arm == "a" else "a")
+            expected_second = "b" if expected_first == "a" else "a"
+            expected_positions = {expected_first: 1, expected_second: 2}
+            pair_order_valid = all(
+                pair_runs[arm][0].get("ab_pair_position") == expected_positions[arm]
+                and pair_runs[arm][0].get("sample") == pair
+                for arm in ("a", "b")
+            )
+            if not pair_order_valid:
+                order_violations += 1
+                failed_pairs += 1
                 continue
             if all(
                 not pair_runs[arm][0].get("failure")
@@ -1578,6 +1838,8 @@ def assess_ab_acceptance(runs, minimum_successful_pairs=7):
             and arm_success["a"] >= minimum_successful_pairs
             and arm_success["b"] >= minimum_successful_pairs
             and partial_pairs == 0
+            and order_violations == 0
+            and pair_sequence_valid
         )
         valid = valid and row_valid
         rows.append({
@@ -1590,6 +1852,8 @@ def assess_ab_acceptance(runs, minimum_successful_pairs=7):
             "failed_pairs": failed_pairs,
             "partial_pairs": partial_pairs,
             "duplicate_pairs": duplicate_pairs,
+            "order_violations": order_violations,
+            "pair_sequence_valid": pair_sequence_valid,
             "valid": row_valid,
         })
 
@@ -1612,6 +1876,8 @@ def assess_ab_acceptance(runs, minimum_successful_pairs=7):
             "failed_pairs": 0,
             "partial_pairs": 0,
             "duplicate_pairs": 0,
+            "order_violations": 0,
+            "pair_sequence_valid": False,
             "valid": False,
         } for journey in missing)
     if not rows:
@@ -1632,15 +1898,40 @@ def assess_ab_acceptance(runs, minimum_successful_pairs=7):
             "missing_or_invalid": missing_or_invalid,
             "distinct_verified_identities": len(identities),
             "identity": (
-                {"commit": next(iter(identities))[0], "manifest_sha256": next(iter(identities))[1]}
+                {
+                    "commit": next(iter(identities))[0],
+                    "manifest_sha256": next(iter(identities))[1],
+                    "html_sha256": next(iter(identities))[2],
+                    "worker_sha256": next(iter(identities))[3],
+                    "artifact_digest_sha256": next(iter(identities))[4],
+                    "deployment_host_fingerprint": next(iter(identities))[5],
+                }
                 if len(identities) == 1 else None
             ),
         }
+    arm_a_identity = next(iter({
+        identity for identity in (verified_build_tuple(run) for run in runs if run.get("arm") == "a")
+        if identity is not None
+    }), None)
+    arm_b_identity = next(iter({
+        identity for identity in (verified_build_tuple(run) for run in runs if run.get("arm") == "b")
+        if identity is not None
+    }), None)
+    distinct_artifacts = (
+        arm_a_identity is not None
+        and arm_b_identity is not None
+        and arm_a_identity != arm_b_identity
+        and arm_a_identity[0] != arm_b_identity[0]
+        and arm_a_identity[4] != arm_b_identity[4]
+    )
+    valid = valid and distinct_artifacts
     return {
         "mode": "counterbalanced-paired-ab",
         "minimum_successful_pairs_per_route_profile": minimum_successful_pairs,
         "partial_pairs_accepted": False,
         "valid": valid,
+        "pair_order_pattern": "AB,BA,AB..." if first_arm == "a" else "BA,AB,BA...",
+        "distinct_artifacts_between_arms": distinct_artifacts,
         "verified_build_identity_by_arm": build_rows,
         "journeys": sorted(rows, key=lambda row: (row["profile"], row["mode"], row["route"])),
     }
@@ -1763,7 +2054,9 @@ async def main():
             server.server_close()
     receipt["summary"] = aggregate(receipt["runs"])
     receipt["acceptance"] = (
-        assess_ab_acceptance(receipt["runs"], minimum_successful_pairs=7)
+        assess_ab_acceptance(
+            receipt["runs"], minimum_successful_pairs=7, first_arm=args.ab_first
+        )
         if ab_mode else {
             "mode": "single-arm-compatibility",
             "valid": None,

@@ -16,6 +16,9 @@ SPEC = importlib.util.spec_from_file_location("hosted_comparison_runner", RUNNER
 RUNNER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)
 
+ARM_A = "https://sod1820-aaaaaaaa-sod1820-s-projects.vercel.app"
+ARM_B = "https://sod1820-bbbbbbbb-sod1820-s-projects.vercel.app"
+
 
 class FakeCdp:
     def __init__(self):
@@ -96,30 +99,62 @@ class HostedComparisonRunnerTests(unittest.TestCase):
         self.assertEqual(reads, [])
 
         args = parser.parse_args([
-            "--origin", "https://preview.example.test",
-            "--allow-preview-origin", "https://other.example.test",
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_B,
             "--sha", "a" * 40,
             "--output", "/tmp/out.json",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "exact-preview-allowlist"):
-            RUNNER.validate_targets(args)
+            RUNNER.validate_target_shape(args)
 
         args = parser.parse_args([
-            "--origin", "https://preview.example.test",
-            "--allow-preview-origin", "https://preview.example.test",
-            "--auth-origin", "https://auth.example.test",
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
+            "--auth-origin", ARM_B,
             "--share-token-stdin",
             "--sha", "a" * 40,
             "--output", "/tmp/out.json",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "must-equal-arm-origin"):
-            RUNNER.validate_targets(args)
+            RUNNER.validate_target_shape(args)
+
+        extra_allowlist = parser.parse_args([
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
+            "--allow-preview-origin", ARM_B,
+            "--sha", "a" * 40,
+            "--output", "/tmp/out.json",
+        ])
+        with self.assertRaisesRegex(RUNNER.TargetValidationError, "must-match-arms-exactly"):
+            RUNNER.validate_target_shape(extra_allowlist)
+
+        local_with_hosted_allowlist = parser.parse_args([
+            "--dist", "/tmp/fixture",
+            "--allow-preview-origin", ARM_A,
+            "--sha", "a" * 40,
+            "--output", "/tmp/out.json",
+        ])
+        with self.assertRaisesRegex(RUNNER.TargetValidationError, "must-match-arms-exactly"):
+            RUNNER.validate_target_shape(local_with_hosted_allowlist)
+
+        valid_hosted = parser.parse_args([
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
+            "--auth-origin", ARM_A,
+            "--share-token-stdin",
+            "--sha", "a" * 40,
+            "--output", "/tmp/out.json",
+        ])
+        reads.clear()
+        with self.assertRaisesRegex(RUNNER.TargetValidationError, "BLOCKED_INPUT"):
+            RUNNER.prepare_execution(valid_hosted, forbidden_reader)
+        self.assertEqual(reads, [])
 
     def test_production_db_is_not_an_implicit_or_default_target(self):
         parser = RUNNER.build_parser()
         common = [
-            "--origin", "https://preview.example.test",
-            "--allow-preview-origin", "https://preview.example.test",
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
             "--sha", "a" * 40,
             "--output", "/tmp/out.json",
         ]
@@ -127,11 +162,11 @@ class HostedComparisonRunnerTests(unittest.TestCase):
             "--allow-db-origin", "https://linswmnnkjxvweumprav.supabase.co",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "explicit-acknowledgement"):
-            RUNNER.validate_targets(args)
+            RUNNER.validate_target_shape(args)
         args = parser.parse_args(common + [
             "--allow-db-origin", "https://nonproduction.supabase.co",
         ])
-        validated = RUNNER.validate_targets(args)
+        validated = RUNNER.validate_target_shape(args)
         self.assertEqual(validated["db_origins"], {"https://nonproduction.supabase.co"})
 
     def test_arm_origins_cannot_bypass_db_separation_or_alias_each_other(self):
@@ -143,33 +178,64 @@ class HostedComparisonRunnerTests(unittest.TestCase):
             "--output", "/tmp/out.json",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "production-db-cannot-be-preview-origin"):
-            RUNNER.validate_targets(production_as_arm)
+            RUNNER.validate_target_shape(production_as_arm)
 
         shared_arm_db = parser.parse_args([
-            "--origin", "https://preview.example.test",
-            "--allow-preview-origin", "https://preview.example.test",
-            "--allow-db-origin", "https://preview.example.test",
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
+            "--allow-db-origin", ARM_A,
             "--sha", "a" * 40,
             "--output", "/tmp/out.json",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "sets-must-be-disjoint"):
-            RUNNER.validate_targets(shared_arm_db)
+            RUNNER.validate_target_shape(shared_arm_db)
 
         same_ab_origin = parser.parse_args([
-            "--origin", "https://preview.example.test",
-            "--allow-preview-origin", "https://preview.example.test",
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
             "--sha", "a" * 40,
-            "--origin-b", "https://preview.example.test",
+            "--origin-b", ARM_A,
             "--sha-b", "b" * 40,
             "--output", "/tmp/out.json",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "origins-must-be-distinct"):
-            RUNNER.validate_targets(same_ab_origin)
+            RUNNER.validate_target_shape(same_ab_origin)
+
+        same_ab_sha = parser.parse_args([
+            "--origin", ARM_A,
+            "--allow-preview-origin", ARM_A,
+            "--sha", "a" * 40,
+            "--origin-b", ARM_B,
+            "--allow-preview-origin", ARM_B,
+            "--sha-b", "a" * 40,
+            "--output", "/tmp/out.json",
+        ])
+        with self.assertRaisesRegex(RUNNER.TargetValidationError, "shas-must-be-distinct"):
+            RUNNER.validate_target_shape(same_ab_sha)
+
+    def test_origin_parser_rejects_port_zero_and_noncanonical_ip_forms(self):
+        rejected = [
+            "https://example.test:0",
+            "https://2130706433",
+            "https://0177.0.0.1",
+            "https://0x7f000001",
+            "https://127.1",
+            "https://[0:0:0:0:0:0:0:1]",
+            "https://[::ffff:127.0.0.1]",
+        ]
+        for origin in rejected:
+            with self.subTest(origin=origin):
+                with self.assertRaises(RUNNER.TargetValidationError):
+                    RUNNER.normalize_origin(origin)
+        self.assertEqual(RUNNER.normalize_origin("https://127.0.0.1"), "https://127.0.0.1")
+        self.assertEqual(RUNNER.normalize_origin("https://[::1]"), "https://[::1]")
 
     def test_every_browser_context_keeps_tls_verification_enabled(self):
         source = RUNNER_PATH.read_text(encoding="utf-8")
         self.assertNotIn("ignore_https_errors=True", source)
         self.assertEqual(source.count("ignore_https_errors=False"), 2)
+        self.assertEqual(source.count('service_workers="allow"'), 1)
+        self.assertEqual(source.count('service_workers="block"'), 1)
 
     def test_local_spa_resolution_uses_path_boundary_and_dist_receipt_is_hashed(self):
         with tempfile.TemporaryDirectory(prefix="runner-token-v3AbC9xY7pQ2LmN8-") as parent:
@@ -227,6 +293,11 @@ class HostedComparisonRunnerTests(unittest.TestCase):
         self.assertNotIn("nonproduction.supabase.co", serialized_boundary)
         self.assertNotIn("google-analytics.com", serialized_boundary)
         self.assertRegex(boundary["db_origin_fingerprints"][0], r"^[0-9a-f]{64}$")
+        self.assertEqual(boundary["service_workers"], "allowed-for-canonical-wave3-artifact")
+        self.assertEqual(
+            boundary["service_worker_external_egress_boundary"],
+            "missing-hosted-execution-blocked",
+        )
 
     def test_alternating_plan_is_counterbalanced_and_balanced_at_seven(self):
         plan = RUNNER.build_ab_order(7, "a")
@@ -297,6 +368,24 @@ class HostedComparisonRunnerTests(unittest.TestCase):
         self.assertTrue(all(item["scheme"] in {"https", None} for item in summary["network_requests"]))
 
     def test_ab_acceptance_requires_seven_complete_successful_pairs_per_journey(self):
+        def identity(arm):
+            value = "a" if arm == "a" else "b"
+            identity_value = {
+                "verified": True,
+                "source": "same-origin-wave3-artifact-v2",
+                "commit": value * 40,
+                "build_target": "2029",
+                "read_only": True,
+                "preview_overrides": ["lock_number"],
+                "manifest_sha256": ("c" if arm == "a" else "d") * 64,
+                "html_sha256": ("e" if arm == "a" else "f") * 64,
+                "worker_sha256": ("1" if arm == "a" else "2") * 64,
+                "artifact_digest_sha256": ("3" if arm == "a" else "4") * 64,
+                "immutable_deployment_host_verified": True,
+                "deployment_host_fingerprint": ("5" if arm == "a" else "6") * 16,
+            }
+            return identity_value
+
         runs = []
         journeys = [
             (profile, "cold-direct", kind)
@@ -305,25 +394,22 @@ class HostedComparisonRunnerTests(unittest.TestCase):
             (profile, "internal-home-to-world", "world") for profile in RUNNER.PROFILES
         ]
         for profile, mode, route in journeys:
-            for pair in range(1, 8):
-                for position, arm in enumerate(("a", "b"), start=1):
-                    commit = ("a" if arm == "a" else "b") * 40
-                    manifest = ("c" if arm == "a" else "d") * 64
-                    runs.append({
-                        "profile": profile, "mode": mode, "route": route,
-                        "arm": arm, "ab_pair": pair, "ab_pair_position": position,
-                        "failure": None,
-                        "build_identity": {
-                            "verified": True,
-                            "source": "same-origin-preview-build-v1",
-                            "commit": commit,
-                            "build_target": "2029",
-                            "read_only": True,
-                            "manifest_sha256": manifest,
-                        },
-                    })
+            for plan_item in RUNNER.build_ab_order(7, "a"):
+                arm = plan_item["arm"]
+                identity_value = identity(arm)
+                runs.append({
+                    "profile": profile, "mode": mode, "route": route,
+                    "arm": arm, "ab_pair": plan_item["pair"],
+                    "ab_pair_position": plan_item["pair_position"],
+                    "sample": plan_item["sample"],
+                    "failure": None,
+                    "build_identity": identity_value,
+                    "build_identity_before": identity_value,
+                    "build_identity_after": identity_value,
+                })
         accepted = RUNNER.assess_ab_acceptance(runs)
         self.assertTrue(accepted["valid"])
+        self.assertTrue(accepted["distinct_artifacts_between_arms"])
         self.assertTrue(all(row["successful_pairs"] == 7 for row in accepted["journeys"]))
 
         failed = [dict(run) for run in runs]
@@ -349,16 +435,42 @@ class HostedComparisonRunnerTests(unittest.TestCase):
         )
 
         mutable_alias = [dict(run) for run in runs]
-        mutable_alias[0]["build_identity"] = {
+        changed_identity = {
             **mutable_alias[0]["build_identity"],
             "manifest_sha256": "e" * 64,
         }
+        mutable_alias[0]["build_identity"] = changed_identity
+        mutable_alias[0]["build_identity_before"] = changed_identity
+        mutable_alias[0]["build_identity_after"] = changed_identity
         mutable_alias_receipt = RUNNER.assess_ab_acceptance(mutable_alias)
         self.assertFalse(mutable_alias_receipt["valid"])
         self.assertEqual(
             mutable_alias_receipt["verified_build_identity_by_arm"]["a"]["distinct_verified_identities"],
             2,
         )
+
+        wrong_order = [dict(run) for run in runs]
+        first_pair = [run for run in wrong_order if run["profile"] == "mobile"
+                      and run["mode"] == "cold-direct" and run["route"] == "home"
+                      and run["ab_pair"] == 1]
+        for run in first_pair:
+            run["ab_pair_position"] = 2 if run["ab_pair_position"] == 1 else 1
+        wrong_order_receipt = RUNNER.assess_ab_acceptance(wrong_order)
+        self.assertFalse(wrong_order_receipt["valid"])
+        self.assertEqual(sum(row["order_violations"] for row in wrong_order_receipt["journeys"]), 1)
+
+        same_artifact = [dict(run) for run in runs]
+        arm_a_identity = identity("a")
+        for run in same_artifact:
+            if run["arm"] == "b":
+                copied = dict(arm_a_identity)
+                copied["deployment_host_fingerprint"] = "6" * 16
+                run["build_identity"] = copied
+                run["build_identity_before"] = copied
+                run["build_identity_after"] = copied
+        same_artifact_receipt = RUNNER.assess_ab_acceptance(same_artifact)
+        self.assertFalse(same_artifact_receipt["valid"])
+        self.assertFalse(same_artifact_receipt["distinct_artifacts_between_arms"])
 
     def test_ab_aggregate_keeps_arms_separate(self):
         runs = [
@@ -407,13 +519,20 @@ class HostedComparisonRunnerTests(unittest.TestCase):
 
 class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
     class Response:
-        def __init__(self, status, location=None, payload=b"", content_type="application/json"):
+        def __init__(
+            self, status, location=None, payload=b"", content_type="application/json",
+            url=None, redirected_from=None,
+        ):
             self.status = status
             self.headers = {"content-type": content_type}
             if location is not None:
                 self.headers["location"] = location
             self.ok = 200 <= status < 300
             self.payload = payload
+            self.url = url
+            self.request = type("NavigationRequest", (), {
+                "redirected_from": redirected_from,
+            })()
 
         async def body(self):
             return self.payload
@@ -425,7 +544,10 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
 
         async def get(self, url, **kwargs):
             self.calls.append((url, kwargs))
-            return self.responses.pop(0)
+            response = self.responses.pop(0)
+            if response.url is None:
+                response.url = url
+            return response
 
     class Context:
         def __init__(self, responses):
@@ -445,6 +567,30 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
             self.kwargs = kwargs
             self.context = HostedComparisonAuthRedirectTests.Context(self.responses)
             return self.context
+
+    @classmethod
+    def artifact_responses(cls, commit="a" * 40, **receipt_overrides):
+        manifest = b'{"src/main.jsx":{"file":"assets/app.js","isEntry":true}}'
+        worker = (
+            b"self.addEventListener('fetch',event=>{});"
+            b"const marker='X-Preview-Write-Blocked preview_read_only "
+            b"notification_prefs_guest_get_v1';"
+        )
+        receipt = {
+            "commit": commit,
+            "buildTarget": "2029",
+            "readOnly": True,
+            "previewOverrides": ["lock_number"],
+            "manifestSha256": hashlib.sha256(manifest).hexdigest(),
+            **receipt_overrides,
+        }
+        return [
+            cls.Response(200, payload=json.dumps(receipt).encode("utf-8")),
+            cls.Response(200, payload=manifest),
+            cls.Response(200, payload=b"<!doctype html><html><body>2029</body></html>", content_type="text/html"),
+            cls.Response(200, payload=worker, content_type="application/javascript"),
+            cls.Response(200, payload=worker, content_type="application/javascript"),
+        ]
 
     async def test_share_token_redirect_never_crosses_arm_origin(self):
         context = self.Context([
@@ -520,7 +666,7 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
             "--output", "/tmp/out.json",
         ])
         with self.assertRaisesRegex(RUNNER.TargetValidationError, "ascii-origin-required"):
-            RUNNER.validate_targets(unicode_args)
+            RUNNER.validate_target_shape(unicode_args)
 
         idna_args = parser.parse_args([
             "--origin", "https://xn--prevew-0za.example.test",
@@ -528,11 +674,8 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
             "--sha", "a" * 40,
             "--output", "/tmp/out.json",
         ])
-        validated = RUNNER.validate_targets(idna_args)
-        self.assertEqual(
-            validated["arms"]["a"]["origin"],
-            "https://xn--prevew-0za.example.test",
-        )
+        with self.assertRaisesRegex(RUNNER.TargetValidationError, "immutable-wave3"):
+            RUNNER.validate_target_shape(idna_args)
 
     async def test_same_origin_redirect_is_manually_followed_without_auto_redirects(self):
         context = self.Context([
@@ -548,44 +691,38 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_build_identity_uses_canonical_same_origin_receipt_and_checks_expected_commit(self):
         expected_commit = "a" * 40
-        payload = json.dumps({
-            "commit": expected_commit,
-            "buildTarget": "2029",
-            "readOnly": True,
-            "previewOverrides": [],
-            "manifestSha256": "b" * 64,
-        }).encode("utf-8")
-        context = self.Context([self.Response(200, payload=payload)])
+        responses = self.artifact_responses(expected_commit)
+        context = self.Context(responses)
         identity = await RUNNER.verify_build_identity(
-            context, "https://preview.example.test", expected_commit
+            context, ARM_A, expected_commit
         )
         self.assertEqual(identity["commit"], expected_commit)
-        self.assertEqual(identity["manifest_sha256"], "b" * 64)
-        self.assertEqual(
-            context.request.calls,
-            [("https://preview.example.test/preview-build.json", {
-                "max_redirects": 0,
-                "timeout": 30000,
-            })],
-        )
+        self.assertEqual(identity["preview_overrides"], ["lock_number"])
+        self.assertTrue(identity["immutable_deployment_host_verified"])
+        self.assertRegex(identity["artifact_digest_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual([call[0] for call in context.request.calls], [
+            ARM_A + "/preview-build.json",
+            ARM_A + "/.vite/manifest.json",
+            ARM_A + "/2029.html",
+            ARM_A + "/preview-readonly-sw.js",
+            ARM_A + "/sw.js",
+        ])
+        self.assertTrue(all(call[1]["max_redirects"] == 0 for call in context.request.calls))
 
-        mismatch = self.Context([self.Response(200, payload=payload)])
+        mismatch = self.Context(self.artifact_responses(expected_commit))
         with self.assertRaisesRegex(RuntimeError, "commit-mismatch"):
             await RUNNER.verify_build_identity(
-                mismatch, "https://preview.example.test", "c" * 40
+                mismatch, ARM_A, "c" * 40
             )
 
     async def test_build_identity_rejects_bad_contract_size_type_and_redirect(self):
         expected_commit = "a" * 40
-        valid = {
-            "commit": expected_commit,
-            "buildTarget": "2029",
-            "readOnly": True,
-            "manifestSha256": "b" * 64,
-        }
+        valid = json.loads(self.artifact_responses(expected_commit)[0].payload)
         cases = [
             (self.Response(200, payload=json.dumps({**valid, "readOnly": False}).encode()), "contract-invalid"),
             (self.Response(200, payload=json.dumps({**valid, "manifestSha256": "short"}).encode()), "manifest-invalid"),
+            (self.Response(200, payload=json.dumps({**valid, "previewOverrides": []}).encode()), "preview-overrides-invalid"),
+            (self.Response(200, payload=json.dumps({**valid, "extra": True}).encode()), "fields-invalid"),
             (self.Response(200, payload=b"{}", content_type="text/html"), "content-type-invalid"),
             (self.Response(200, payload=b"x" * 16385), "too-large"),
         ]
@@ -594,18 +731,33 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
                 context = self.Context([response])
                 with self.assertRaisesRegex(RuntimeError, error):
                     await RUNNER.verify_build_identity(
-                        context, "https://preview.example.test", expected_commit
+                        context, ARM_A, expected_commit
                     )
 
         redirected = self.Context([
-            self.Response(302, "https://evil.example.test/preview-build.json"),
+            self.Response(302, ARM_B + "/preview-build.json"),
             self.Response(200, payload=json.dumps(valid).encode()),
         ])
-        with self.assertRaisesRegex(RUNNER.TargetValidationError, "cross-origin"):
+        with self.assertRaisesRegex(RuntimeError, "redirect-forbidden"):
             await RUNNER.verify_build_identity(
-                redirected, "https://preview.example.test", expected_commit
+                redirected, ARM_A, expected_commit
             )
         self.assertEqual(len(redirected.request.calls), 1)
+
+        digest_mismatch = self.Context(self.artifact_responses(
+            expected_commit, manifestSha256="b" * 64
+        ))
+        with self.assertRaisesRegex(RuntimeError, "manifest-digest-mismatch"):
+            await RUNNER.verify_build_identity(digest_mismatch, ARM_A, expected_commit)
+
+        worker_mismatch = self.artifact_responses(expected_commit)
+        worker_mismatch[-1] = self.Response(
+            200, payload=b"different worker", content_type="application/javascript"
+        )
+        with self.assertRaisesRegex(RuntimeError, "worker-alias-digest-mismatch"):
+            await RUNNER.verify_build_identity(
+                self.Context(worker_mismatch), ARM_A, expected_commit
+            )
 
     async def test_build_identity_rejects_200_spa_fallback_html(self):
         spa_fallback = b"<!doctype html><html><body><div id='root'></div></body></html>"
@@ -614,26 +766,76 @@ class HostedComparisonAuthRedirectTests(unittest.IsolatedAsyncioTestCase):
         ])
         with self.assertRaisesRegex(RuntimeError, "content-type-invalid"):
             await RUNNER.verify_build_identity(
-                context, "https://preview.example.test", "a" * 40
+                context, ARM_A, "a" * 40
             )
         self.assertEqual(len(context.request.calls), 1)
 
     async def test_hosted_identity_preflight_keeps_tls_verification_enabled(self):
         expected_commit = "a" * 40
-        payload = json.dumps({
-            "commit": expected_commit,
-            "buildTarget": "2029",
-            "readOnly": True,
-            "manifestSha256": "b" * 64,
-        }).encode("utf-8")
-        browser = self.Browser([self.Response(200, payload=payload)])
+        browser = self.Browser(self.artifact_responses(expected_commit))
         identity = await RUNNER.preflight_build_identity(
-            browser, "https://preview.example.test", expected_commit
+            browser, ARM_A, expected_commit
         )
         self.assertTrue(identity["verified"])
         self.assertIs(browser.kwargs["ignore_https_errors"], False)
         self.assertEqual(browser.kwargs["service_workers"], "block")
         self.assertTrue(browser.context.closed)
+
+    def test_main_document_requires_exact_direct_200_html(self):
+        target = ARM_A + "/world"
+        response = self.Response(200, content_type="text/html; charset=utf-8", url=target)
+        receipt = RUNNER.validate_main_document_response(response, target, target)
+        self.assertTrue(receipt["verified"])
+        cases = [
+            (self.Response(302, location="/world", content_type="text/html", url=target), target, "http-302"),
+            (self.Response(200, content_type="application/json", url=target), target, "content-type-invalid"),
+            (self.Response(200, content_type="text/html", url=ARM_A + "/"), target, "canonical-url-mismatch"),
+            (self.Response(200, content_type="text/html", url=target, redirected_from=object()), target, "redirect-forbidden"),
+        ]
+        for bad_response, page_url, error in cases:
+            with self.subTest(error=error):
+                with self.assertRaisesRegex(RuntimeError, error):
+                    RUNNER.validate_main_document_response(bad_response, target, page_url)
+
+    def test_internal_navigation_distinguishes_spa_and_validates_documents(self):
+        target = ARM_A + "/world"
+        spa_receipt = RUNNER.validate_internal_navigation_documents([], target, target)
+        self.assertEqual(spa_receipt["mode"], "spa-no-document-navigation")
+        self.assertEqual(spa_receipt["document_navigation_count"], 0)
+
+        response = self.Response(200, content_type="text/html", url=target)
+        document_receipt = RUNNER.validate_internal_navigation_documents(
+            [response], target, target
+        )
+        self.assertEqual(document_receipt["mode"], "main-document-navigation")
+        self.assertTrue(document_receipt["document"]["verified"])
+
+        with self.assertRaisesRegex(RuntimeError, "canonical-url-mismatch"):
+            RUNNER.validate_internal_navigation_documents([], target, ARM_A + "/")
+        with self.assertRaisesRegex(RuntimeError, "document-count-invalid"):
+            RUNNER.validate_internal_navigation_documents(
+                [response, response], target, target
+            )
+        redirected = self.Response(
+            200, content_type="text/html", url=target, redirected_from=object()
+        )
+        with self.assertRaisesRegex(RuntimeError, "redirect-forbidden"):
+            RUNNER.validate_internal_navigation_documents([redirected], target, target)
+
+    async def test_post_journey_identity_must_match_before_and_after(self):
+        expected_commit = "a" * 40
+        before = await RUNNER.verify_build_identity(
+            self.Context(self.artifact_responses(expected_commit)), ARM_A, expected_commit
+        )
+        after_responses = self.artifact_responses(expected_commit)
+        after_responses[2] = self.Response(
+            200, payload=b"<!doctype html><html><body>changed</body></html>",
+            content_type="text/html",
+        )
+        with self.assertRaisesRegex(RuntimeError, "identity-changed"):
+            await RUNNER.verify_post_journey_identity(
+                self.Context(after_responses), ARM_A, expected_commit, True, before
+            )
 
 
 if __name__ == "__main__":
