@@ -75,7 +75,7 @@ function SourceSlot({ detail = false }) {
   return <span className="dg29-source is-loading" aria-hidden="true"><span>{NBSP}</span>{detail ? <small>{NBSP}</small> : null}</span>;
 }
 
-function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [], slots = null, failed = false, onRetry = null }) {
+function Gateway({ title, subtitle, symbol, href, action, secondaryHref, secondaryAction, items, feature = null, empty, loading, followTopics = [], slots = null, failed = false, onRetry = null, observeRef = null }) {
   // No rows after the read settled: the message stands in the place of the rows and keeps the box they held (nothing below it moves); an empty gateway is not remembered.
   const count = items.length + (feature ? 1 : 0), unavailable = !loading && count === 0;
   const box = useSettledBox(`gateway:${title}`, { pending: loading, settled: !loading && count > 0, count, keep: unavailable });
@@ -85,7 +85,7 @@ function Gateway({ title, subtitle, symbol, href, action, secondaryHref, seconda
     key={topic || category} topic={topic || `cat:${category}`}
     source="home_2029_discovery" noPush variant="icon"
     label={followTitle || `עקבו אחרי ${category}`} explainer="" />;
-  return <article className="dg29-gateway" data-scroll-anchor={`dg:${title}`}>
+  return <article ref={observeRef} className="dg29-gateway" data-scroll-anchor={`dg:${title}`}>
     <div className="dg29-gateway-head">
       <span className="dg29-glyph" aria-hidden="true">{symbol}</span>
       <div className="dg29-heading"><h3>{title}</h3><p>{subtitle}</p></div>
@@ -159,16 +159,22 @@ const READERS = {
   matrices: (off) => off.gateways ? Promise.resolve({ rows: [] }) : getMatrixLibraryPage({ view: "public", pageSize: 4 }),
 };
 const ALL_READS = Object.keys(READERS);
+const INITIAL_READS = ALL_READS.filter((name) => name !== "videos");
 // The reads each area (a gateway, the dimension strip) is built from: a retry repeats the reads of the area that failed and nothing else.
 const AREA_READS = { language: ["language"], cinema: ["cinema"], biblical: ["videos", "matrices"], dimension: ["dimension"] };
 const SETTLING = { loading: true, failed: false, value: null };
+const DEFERRED = { loading: false, failed: false, value: null, deferred: true };
 const FAILED_TEXT = "הטעינה נכשלה. אפשר לנסות שוב.";
+// The slow video read starts before its gateway is visible. The lead is bounded to 600px (not the whole
+// page) and gives the observed ~580ms cold read roughly one second at a moderate 600px/s scroll.
+export const BIBLICAL_VIDEO_ROOT_MARGIN = "600px 0px";
 
 export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
-  // One entry per reader: loading, failed (the reader rejected) and the value it returned. The first load runs every reader and lands in one render; a retry runs
-  // only the readers of one area, with the same arguments, and leaves every other area as it is (the area goes back to its loading state, which keeps its box).
-  const [reads, setReads] = useState(() => Object.fromEntries(ALL_READS.map((name) => [name, SETTLING])));
-  const live = useRef({ active: true, token: 0, latest: {}, off: null });
+  // One entry per reader: deferred/loading, failed (the reader rejected) and the value it returned. The first load runs every primary reader; videos start near
+  // their gateway. A retry runs only the readers of one area, with the same arguments, and leaves every other area as it is.
+  const [reads, setReads] = useState(() => Object.fromEntries(ALL_READS.map((name) => [name, name === "videos" ? DEFERRED : SETTLING])));
+  const live = useRef({ active: true, token: 0, latest: {}, off: null, videosRequested: false });
+  const biblicalRef = useRef(null);
   const load = useCallback((names) => {
     const state = live.current, token = ++state.token;
     for (const name of names) state.latest[name] = token;
@@ -188,16 +194,38 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
         });
       });
   }, []);
-  useEffect(() => { live.current.active = true; load(ALL_READS); return () => { live.current.active = false; }; }, [load]);
+  useEffect(() => { live.current.active = true; load(INITIAL_READS); return () => { live.current.active = false; }; }, [load]);
+  const loadVideos = useCallback(() => {
+    if (live.current.videosRequested) return;
+    live.current.videosRequested = true;
+    load(["videos"]);
+  }, [load]);
+  useEffect(() => {
+    const node = biblicalRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      // Compatibility and accessibility fallback: content never stays hidden in browsers without IO.
+      loadVideos();
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      loadVideos();
+    }, { rootMargin: BIBLICAL_VIDEO_ROOT_MARGIN });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loadVideos]);
   const areaLoading = (area) => AREA_READS[area].some((name) => reads[name].loading);
   const areaFailed = (area) => AREA_READS[area].some((name) => reads[name].failed);
+  const areaDeferred = (area) => AREA_READS[area].some((name) => reads[name].deferred);
   const retryArea = (area) => () => load(AREA_READS[area]);
-  const loading = ALL_READS.some((name) => reads[name].loading);
+  // Deferred secondary work cannot hold Home's usable-content marker open. Its own state remains explicit below.
+  const loading = INITIAL_READS.some((name) => reads[name].loading);
   const value = (name, fallback) => reads[name].value ?? fallback;
   const state = {
     loading,
-    // every reader rejected: an explicit error outcome, never presented as populated content
-    failed: ALL_READS.every((name) => reads[name].failed),
+    // every initial reader rejected: an explicit error outcome; deferred video depth is reported separately
+    failed: INITIAL_READS.every((name) => reads[name].failed),
     language: (value("language", { posts: [] }).posts || []).filter(post => post?.slug && post.home_hidden !== true)
       .map(post => ({ id: `post:${post.id || post.slug}`, slug: post.slug, title: clean(post.title), href: postHref(post.slug), content: post.content || "", excerpt: post.excerpt || "" })),
     cinema: (value("cinema", { posts: [] }).posts || []).filter(post => post?.slug && post.home_hidden !== true)
@@ -239,10 +267,11 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
   // Each area that ended without rows says so in its own box, and offers its own retry when that can help: its reader rejected, or (the biblical gateway) one of its
   // readers swallows its errors, so an empty result may be a failed one. An area whose readers can fail loudly and returned nothing is simply empty: no retry.
   const rowCounts = { language: (languageFeature ? 1 : 0) + languageLinks.length, cinema: cinema.items.length, biblical: biblicalSources.length, dimension: dimension.items.length };
-  const retryFor = (area, swallows = false) => !areaLoading(area) && rowCounts[area] === 0 && (areaFailed(area) || swallows) ? retryArea(area) : null;
+  const retryFor = (area, swallows = false) => !areaDeferred(area) && !areaLoading(area) && rowCounts[area] === 0 && (areaFailed(area) || swallows) ? retryArea(area) : null;
   // Non-visual: populated gateway rows (not loading slots) decide ready; a settled outcome without any is explicit.
   const itemCount = (languageFeature ? 1 : 0) + languageLinks.length + cinema.items.length + biblicalSources.length + dimension.items.length;
-  return <section className="dg29" aria-label="שערי הגילוי" data-dg29-state={gatewayContentState({ loading: state.loading, failed: state.failed, itemCount })}>
+  const videoState = reads.videos.deferred ? "deferred" : reads.videos.loading ? "loading" : reads.videos.failed ? "error" : state.videos.length ? "ready" : "empty";
+  return <section className="dg29" aria-label="שערי הגילוי" data-dg29-state={gatewayContentState({ loading: state.loading, failed: state.failed, itemCount })} data-dg29-videos-state={videoState}>
     <div className="h29-sec-h">
       <h2>שערי הגילוי</h2>
       <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>
@@ -257,6 +286,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
         followTopics={[{ category: "הצופן בסרטים" }]}
         items={cinema.items} loading={areaLoading("cinema")} failed={areaFailed("cinema")} slots={slots ? { rows: slots.cinema } : null} onRetry={retryFor("cinema")} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
       <Gateway title="הצופן התנ״כי" subtitle="סרטוני צפונות התורה, דילוגי אותיות ומטריצות ELS" symbol="✦"
+        observeRef={biblicalRef}
         href="/category/צפונות בתורה" action="לכל מחקרי הצופן התנ״כי"
         secondaryHref="/els?library=public" secondaryAction="לספריית ELS ולמנוע הדילוגים"
         followTopics={[{ category: "צפונות בתורה" }, { topic: "codes:new", title: "עקבו אחרי צפני ELS חדשים" }]}
