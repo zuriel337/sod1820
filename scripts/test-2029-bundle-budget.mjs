@@ -68,6 +68,11 @@ const ROUTE_GRAPHS = {
   World: { src: 'src/pages/World2029Page.jsx', maxExtraGzKb: 265, maxExtraChunks: 37,
     deferred: ['WorldSourceStory', 'SpatialMethodStage2029', 'semanticSceneCompiler'] },
   Post: { src: 'src/pages/Post2029Page.jsx', maxExtraGzKb: 185, maxExtraChunks: 30, deferred: [] },
+  // Number opens with the result and research context. The closed-by-default method inspector,
+  // its spatial compiler and its evidence lens join the graph only after "איך חישבנו?" opens.
+  Number: { src: 'src/pages/Number2029Page.jsx', maxExtraGzKb: 205, maxExtraChunks: 31,
+    deferred: ['NumberMethodInspector2029', 'SpatialMethodStage2029', 'semanticSceneCompiler', 'MethodLens2029', 'hebrewLetterAnatomy'],
+    onDemand: { entry: 'NumberMethodInspector2029', includes: ['SpatialMethodStage2029', 'semanticSceneCompiler', 'MethodLens2029', 'hebrewLetterAnatomy'] } },
 };
 // Heavy scene/3D, calendar and tool code that no primary route needs before its first content.
 const NEVER_IN_PRIMARY_ROUTE_GRAPH = ['MistaterScene3D2029', 'SpatialGlyphScene2029', 'SVGLoader', 'timeFlow', 'dayContext',
@@ -101,8 +106,11 @@ function builtRouteGraphs() {
   for (const [name, spec] of Object.entries(ROUTE_GRAPHS)) {
     const routeKey = Object.keys(manifest).find((key) => key === spec.src || manifest[key].src === spec.src);
     assert.ok(routeKey, `${spec.src} missing from Vite manifest`);
-    const extra = [...closure(routeKey)].filter((key) => !entry.has(key));
-    routes[name] = { extra, extraGzKb: extra.reduce((n, key) => n + gzKb(key), 0), all: [...entry, ...extra].map(identity) };
+    const routeClosure = closure(routeKey);
+    const extra = [...routeClosure].filter((key) => !entry.has(key));
+    const dynamic = [...new Set([...routeClosure].flatMap((key) => manifest[key].dynamicImports || []))]
+      .map((key) => ({ identity: identity(key), all: [...closure(key)].map(identity) }));
+    routes[name] = { extra, extraGzKb: extra.reduce((n, key) => n + gzKb(key), 0), all: [...entry, ...extra].map(identity), dynamic };
   }
   return { entryChunks: entry.size, entryGzKb: [...entry].reduce((n, key) => n + gzKb(key), 0), routes };
 }
@@ -120,6 +128,13 @@ test('primary route graphs stay within budget and keep deferred code out (skippe
     for (const name2 of [...NEVER_IN_PRIMARY_ROUTE_GRAPH, ...spec.deferred]) {
       const hit = route.all.find((id) => id.includes(name2));
       assert.equal(hit, undefined, `${name2} must load on demand, not in the ${name} route graph (${hit})`);
+    }
+    if (spec.onDemand) {
+      const boundary = route.dynamic.find((item) => item.identity.includes(spec.onDemand.entry));
+      assert.ok(boundary, `${spec.onDemand.entry} must remain reachable from the ${name} route as an on-demand boundary`);
+      for (const dependency of spec.onDemand.includes) {
+        assert.ok(boundary.all.some((id) => id.includes(dependency)), `${dependency} must remain inside the ${spec.onDemand.entry} on-demand closure`);
+      }
     }
   }
   console.log(`# built route graphs: ${report.join(' · ')}`);
