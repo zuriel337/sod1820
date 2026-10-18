@@ -21,8 +21,8 @@ const rivals = execSync("git ls-files src | grep -i -E 'bug.?report|support.?(fo
 assert.equal(rivals, "", "no second bug/support component");
 
 // SystemFrame reachability: the visible ! entry opens one gateway, which delegates to the canonical owners.
-assert.match(frame, /const ContactGateway = lazy\(\(\) => import\("\.\.\/ContactGateway\.jsx"\)\)/);
-assert.match(frame, /TRANSIENT\.ISSUE\)[\s\S]{0,900}<ContactGateway/);
+assert.match(frame, /const loadContactGateway = createOnDemandLoader\(\(\) => import\("\.\.\/ContactGateway\.jsx"\)\)/);
+assert.match(frame, /TRANSIENT\.ISSUE\)[\s\S]{0,900}<OnDemandComponent2029 load=\{loadContactGateway\}/);
 assert.match(gateway, /import IssueReport from "\.\/IssueReport\.jsx"/);
 assert.match(gateway, /import ReportHint from "\.\/ReportHint\.jsx"/);
 assert.match(gateway, /sendContactMessage/);
