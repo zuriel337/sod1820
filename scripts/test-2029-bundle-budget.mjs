@@ -60,9 +60,13 @@ test('static entry graph stays small', () => {
 //    `deferred` = code that only an action, scroll or deep link needs; it must stay out of the route graph.
 const ROUTE_GRAPHS = {
   // Home: the notable-convergence strip reader (explorerFacets -> entity hub / topic / book projections)
-  // loads with its own includeWorld trigger, after the first cards.
-  Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 160, maxExtraChunks: 27,
-    deferred: ['explorerFacets', 'entityHubProjection', 'topicSourceContext', 'bookResearchProjection'] },
+  // loads with its own includeWorld trigger, after the first cards. The World preview projection
+  // (home2029Projection -> curation catalog / contributor lens) loads when its area is approached
+  // (onWorldPreviewApproach), not with Home's code: the route graph went from +26 chunks / 149.1 KB gz to +22 / 137.1.
+  Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 140, maxExtraChunks: 23,
+    deferred: ['explorerFacets', 'entityHubProjection', 'topicSourceContext', 'bookResearchProjection',
+      'home2029Projection', 'curationProjection2029', 'worldContributorLens'],
+    onDemand: { entry: 'home2029Projection', includes: ['curationProjection2029', 'worldContributorLens'] } },
   // World: connected discovery (#world-discovery-* deep links) and the shared method Stage behind
   // "כל השיטות ופירוט החישוב" load when that view/panel opens, not with the World opening.
   World: { src: 'src/pages/World2029Page.jsx', maxExtraGzKb: 265, maxExtraChunks: 37,

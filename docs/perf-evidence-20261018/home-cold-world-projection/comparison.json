@@ -1,0 +1,1103 @@
+{
+ "schema": "sod1820.home_cold_world_projection.comparison.v1",
+ "task_key": "PERF_2029_HOME_COLD_GRAPH_AFTER_TEMPORAL_REMOVAL_20261018",
+ "measured_at_utc": "2026-10-18T12:49:15Z",
+ "base": {
+  "branch": "gpt/perf-unified-wave4-preview-20261018",
+  "sha": "1085305ddd5639fd16f7bed19458acfda7f17791",
+  "pr": "https://github.com/zuriel337/sod1820/pull/1121"
+ },
+ "preview": {
+  "url": "https://sod1820-pb7imoyxr-sod1820-s-projects.vercel.app",
+  "deployment": "dpl_HLRHotgutmuGcDLBnU72bZJxmUAV",
+  "measured": false,
+  "reason": "NOT_MEASURED: the Preview is protected (the repository's hosted runner needs SOD_PERF_PREVIEW_BASE and a temporary _vercel_share link; none was provided). An unauthenticated curl probe got 403 'Access denied' from the site's own edge bot rule (middleware-core.js:374). No protection or bot rule was bypassed. Measured a local build of the same SHA instead.",
+  "probes": "4 unauthenticated curl requests (3 to the Preview host: GET, HEAD, GET; 1 GET / to the production homepage), all answered 403; the edge writes its own crawl log row for such requests"
+ },
+ "environment": {
+  "node": "v22.22.0 (package.json engines require >=24.9.0 <25: EBADENGINE warning on npm ci; build and tests ran on 22)",
+  "chromium": "141.0.7390.37",
+  "playwright": "1.56.1",
+  "build": "Preview-equivalent Vite build: SOD_BUILD_TARGET=2029 with VITE_INTEGRATED_PREVIEW/VITE_KINGDOM_PREVIEW/__SOD_NUMBER_REVIEW_PREVIEW_HOST__ defines; without the Preview read-only service-worker guard and bootstrap",
+  "serving": "local static server, brotli, immutable /assets, SPA fallback",
+  "data": "real anonymous Supabase GET reads (public data) passed through; every POST/PATCH/PUT/DELETE, beacon and analytics-looking request aborted before leaving the browser (RPC POSTs such as notification_prefs_guest_get_v1 / convergence_meter / get_category_videos are blocked, so their results are absent)",
+  "throttle": {
+   "mobile": {
+    "viewport": "390x844",
+    "dpr": 2,
+    "cpu": "4x",
+    "rtt_ms": 150,
+    "down": "1.6 Mbps",
+    "up": "750 Kbps"
+   },
+   "desktop": {
+    "viewport": "1366x768",
+    "dpr": 1,
+    "cpu": "1x",
+    "rtt_ms": 40,
+    "down": "10 Mbps",
+    "up": "5 Mbps"
+   }
+  },
+  "window": "9 s from navigation commit, no scroll, no click; fresh browser context per run (guest, empty storage, service workers blocked)",
+  "machine": "4-core shared cloud sandbox: timing noise is large (mobile READY IQR about 900 ms)"
+ },
+ "design": {
+  "balanced": "order-alternating A/B, odd rounds before->after, even rounds after->before, 12 pairs per profile, statistics: median, IQR, Mann-Whitney U (two-sided, normal approximation)",
+  "order_effect": "an earlier fixed-order run (before always first, 15 pairs) showed desktop READY -354 ms / LCP -832 ms; the alternating run shows the second run of a pair is faster whichever variant it is, and no difference between variants. The fixed-order timing is retained below only as the warning, never as a result."
+ },
+ "route_graph": {
+  "default_build_budget_test": {
+   "entry": {
+    "chunks": 9,
+    "gzip_kb": 173.9
+   },
+   "home_extra_before": {
+    "chunks": 26,
+    "gzip_kb": 149.1
+   },
+   "home_extra_after": {
+    "chunks": 22,
+    "gzip_kb": 137.1
+   },
+   "budget_before": {
+    "gzip_kb": 160,
+    "chunks": 27
+   },
+   "budget_after": {
+    "gzip_kb": 140,
+    "chunks": 23
+   }
+  },
+  "preview_equivalent_build": {
+   "entry": {
+    "chunks": 6,
+    "gzip_kb": 171
+   },
+   "home_extra_before": {
+    "chunks": 26,
+    "gzip_kb": 148.9,
+    "raw_kb": 448.2
+   },
+   "home_extra_after": {
+    "chunks": 22,
+    "gzip_kb": 136.9,
+    "raw_kb": 416.6
+   }
+  },
+  "removed_from_home_route": [
+   {
+    "chunk": "home2029Projection",
+    "gzip_kb": 3
+   },
+   {
+    "chunk": "curationProjection2029",
+    "gzip_kb": 1.8
+   },
+   {
+    "chunk": "worldContributorLens",
+    "gzip_kb": 2.3
+   },
+   {
+    "chunk": "worldContextualProminence",
+    "gzip_kb": 5
+   }
+  ],
+  "still_in_home_route_via_WorldFlightStory2029_postRowToWorldUpdate": [
+   {
+    "chunk": "worldDiscoveryStream",
+    "gzip_kb": 4.1
+   },
+   {
+    "chunk": "topicConvergence",
+    "gzip_kb": 6
+   },
+   {
+    "chunk": "sourceBundleProjection",
+    "gzip_kb": 2.8
+   },
+   {
+    "chunk": "researchObjectPresentation",
+    "gzip_kb": 3.4
+   },
+   {
+    "chunk": "universalFinding",
+    "gzip_kb": 1.8
+   },
+   {
+    "chunk": "Timeline2029",
+    "gzip_kb": 0.8
+   },
+   {
+    "chunk": "PostTimeline2029",
+    "gzip_kb": 0.3
+   }
+  ]
+ },
+ "balanced_ab": {
+  "mobile": {
+   "n": {
+    "before": 12,
+    "after": 12
+   },
+   "dropped": {
+    "before": 0,
+    "after": 0
+   },
+   "metrics": {
+    "requests": {
+     "before": {
+      "median": 65,
+      "p25": 65,
+      "p75": 65,
+      "min": 65,
+      "max": 66
+     },
+     "after": {
+      "median": 61,
+      "p25": 61,
+      "p75": 61,
+      "min": 61,
+      "max": 78
+     },
+     "deltaMedian": -4,
+     "mannWhitneyP": 0.0001
+    },
+    "transferKB": {
+     "before": {
+      "median": 599.9,
+      "p25": 599.9,
+      "p75": 599.9,
+      "min": 599.9,
+      "max": 615.8
+     },
+     "after": {
+      "median": 587.5,
+      "p25": 587.5,
+      "p75": 587.5,
+      "min": 587.5,
+      "max": 635.1
+     },
+     "deltaMedian": -12.3,
+     "mannWhitneyP": 0.0045
+    },
+    "jsRequests": {
+     "before": {
+      "median": 33,
+      "p25": 33,
+      "p75": 33,
+      "min": 33,
+      "max": 33
+     },
+     "after": {
+      "median": 29,
+      "p25": 29,
+      "p75": 29,
+      "min": 29,
+      "max": 33
+     },
+     "deltaMedian": -4,
+     "mannWhitneyP": 0
+    },
+    "jsWireKB": {
+     "before": {
+      "median": 310.6,
+      "p25": 310.6,
+      "p75": 310.6,
+      "min": 310.6,
+      "max": 310.6
+     },
+     "after": {
+      "median": 298.2,
+      "p25": 298.2,
+      "p75": 298.2,
+      "min": 298.2,
+      "max": 310.7
+     },
+     "deltaMedian": -12.3,
+     "mannWhitneyP": 0.0001
+    },
+    "fcpMs": {
+     "before": {
+      "median": 3920,
+      "p25": 3469,
+      "p75": 4369,
+      "min": 3452,
+      "max": 4920
+     },
+     "after": {
+      "median": 3496,
+      "p25": 3409,
+      "p75": 3908,
+      "min": 3292,
+      "max": 4668
+     },
+     "deltaMedian": -424,
+     "mannWhitneyP": 0.0567
+    },
+    "lcpMs": {
+     "before": {
+      "median": 4144,
+      "p25": 3952,
+      "p75": 4696,
+      "min": 3848,
+      "max": 5316
+     },
+     "after": {
+      "median": 3896,
+      "p25": 3720,
+      "p75": 4259,
+      "min": 3572,
+      "max": 4668
+     },
+     "deltaMedian": -248,
+     "mannWhitneyP": 0.0282
+    },
+    "readyMs": {
+     "before": {
+      "median": 3964.9,
+      "p25": 3482.5,
+      "p75": 4319.5,
+      "min": 3434.2,
+      "max": 4886.5
+     },
+     "after": {
+      "median": 3478.4,
+      "p25": 3376,
+      "p75": 3852,
+      "min": 3285.6,
+      "max": 4617.4
+     },
+     "deltaMedian": -486.5,
+     "mannWhitneyP": 0.0567
+    },
+    "readyHeroMs": {
+     "before": {
+      "median": 3987.5,
+      "p25": 3494,
+      "p75": 4392.1,
+      "min": 3452.8,
+      "max": 4936.7
+     },
+     "after": {
+      "median": 3494.3,
+      "p25": 3393.9,
+      "p75": 3910.9,
+      "min": 3296.6,
+      "max": 4700.6
+     },
+     "deltaMedian": -493.2,
+     "mannWhitneyP": 0.0567
+    },
+    "tbtMs": {
+     "before": {
+      "median": 648,
+      "p25": 262.3,
+      "p75": 931,
+      "min": 161,
+      "max": 1444
+     },
+     "after": {
+      "median": 325.5,
+      "p25": 214.8,
+      "p75": 725.5,
+      "min": 166,
+      "max": 1248
+     },
+     "deltaMedian": -322.5,
+     "mannWhitneyP": 0.2727
+    },
+    "longTasks": {
+     "before": {
+      "median": 6.5,
+      "p25": 5,
+      "p75": 10,
+      "min": 3,
+      "max": 12
+     },
+     "after": {
+      "median": 6.5,
+      "p25": 4.8,
+      "p75": 8,
+      "min": 3,
+      "max": 13
+     },
+     "deltaMedian": 0,
+     "mannWhitneyP": 0.6007
+    },
+    "longTaskTotalMs": {
+     "before": {
+      "median": 1098,
+      "p25": 480.3,
+      "p75": 1368,
+      "min": 368,
+      "max": 1894
+     },
+     "after": {
+      "median": 675.5,
+      "p25": 442.5,
+      "p75": 1138,
+      "min": 366,
+      "max": 1648
+     },
+     "deltaMedian": -422.5,
+     "mannWhitneyP": 0.2727
+    },
+    "cls": {
+     "before": {
+      "median": 0.004,
+      "p25": 0,
+      "p75": 0,
+      "min": 0,
+      "max": 0
+     },
+     "after": {
+      "median": 0.004,
+      "p25": 0,
+      "p75": 0,
+      "min": 0,
+      "max": 0
+     },
+     "deltaMedian": 0,
+     "mannWhitneyP": 0.4678
+    },
+    "routeWaveMs": {
+     "before": {
+      "median": 1445.5,
+      "p25": 1432.3,
+      "p75": 1464,
+      "min": 1423,
+      "max": 1489
+     },
+     "after": {
+      "median": 1324,
+      "p25": 1314.5,
+      "p75": 1337.3,
+      "min": 1300,
+      "max": 1386
+     },
+     "deltaMedian": -121.5,
+     "mannWhitneyP": 0
+    }
+   },
+   "beforeChecks": {
+    "worldModuleFetchesPerRun": [
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5,
+     5
+    ],
+    "temporalSignatureRequests": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "nowTextShown": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "scrollY": [
+     0
+    ],
+    "beacons": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "blockedWrites": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "hero": [
+     "מה קורה הבורא — גוליית, נחלת בנימין וקריית גת: מתודעת שאול לתודעת דוד | אלון לוי"
+    ]
+   },
+   "afterChecks": {
+    "worldModuleFetchesPerRun": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     5,
+     1,
+     1,
+     1,
+     1
+    ],
+    "temporalSignatureRequests": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "nowTextShown": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "scrollY": [
+     0
+    ],
+    "beacons": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "blockedWrites": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     1,
+     1,
+     1,
+     1
+    ],
+    "hero": [
+     "מה קורה הבורא — גוליית, נחלת בנימין וקריית גת: מתודעת שאול לתודעת דוד | אלון לוי"
+    ]
+   }
+  },
+  "desktop": {
+   "n": {
+    "before": 11,
+    "after": 12
+   },
+   "dropped": {
+    "before": 1,
+    "after": 0
+   },
+   "metrics": {
+    "requests": {
+     "before": {
+      "median": 120,
+      "p25": 120,
+      "p75": 122,
+      "min": 120,
+      "max": 122
+     },
+     "after": {
+      "median": 122,
+      "p25": 120,
+      "p75": 122,
+      "min": 120,
+      "max": 122
+     },
+     "deltaMedian": 2,
+     "mannWhitneyP": 0.3028
+    },
+    "transferKB": {
+     "before": {
+      "median": 1475.7,
+      "p25": 1475.7,
+      "p75": 1476.6,
+      "min": 1449.7,
+      "max": 1477.4
+     },
+     "after": {
+      "median": 1477.6,
+      "p25": 1475.9,
+      "p75": 1477.6,
+      "min": 1475.9,
+      "max": 1477.6
+     },
+     "deltaMedian": 1.8,
+     "mannWhitneyP": 0.0017
+    },
+    "jsRequests": {
+     "before": {
+      "median": 43,
+      "p25": 43,
+      "p75": 43,
+      "min": 43,
+      "max": 43
+     },
+     "after": {
+      "median": 43,
+      "p25": 43,
+      "p75": 43,
+      "min": 43,
+      "max": 43
+     },
+     "deltaMedian": 0,
+     "mannWhitneyP": 1
+    },
+    "jsWireKB": {
+     "before": {
+      "median": 357.7,
+      "p25": 357.7,
+      "p75": 357.7,
+      "min": 357.7,
+      "max": 357.7
+     },
+     "after": {
+      "median": 357.8,
+      "p25": 357.8,
+      "p75": 357.8,
+      "min": 357.8,
+      "max": 357.8
+     },
+     "deltaMedian": 0.2,
+     "mannWhitneyP": 0
+    },
+    "fcpMs": {
+     "before": {
+      "median": 1028,
+      "p25": 992,
+      "p75": 1312,
+      "min": 876,
+      "max": 1448
+     },
+     "after": {
+      "median": 1062,
+      "p25": 913,
+      "p75": 1359,
+      "min": 884,
+      "max": 1556
+     },
+     "deltaMedian": 34,
+     "mannWhitneyP": 0.689
+    },
+    "lcpMs": {
+     "before": {
+      "median": 1584,
+      "p25": 1218,
+      "p75": 1808,
+      "min": 1112,
+      "max": 2064
+     },
+     "after": {
+      "median": 1516,
+      "p25": 1199,
+      "p75": 1743,
+      "min": 1076,
+      "max": 2584
+     },
+     "deltaMedian": -68,
+     "mannWhitneyP": 0.9264
+    },
+    "readyMs": {
+     "before": {
+      "median": 935.2,
+      "p25": 826.6,
+      "p75": 1042.4,
+      "min": 771.6,
+      "max": 1196.4
+     },
+     "after": {
+      "median": 925.8,
+      "p25": 779.5,
+      "p75": 1092.5,
+      "min": 742.3,
+      "max": 1191.1
+     },
+     "deltaMedian": -9.4,
+     "mannWhitneyP": 0.8535
+    },
+    "readyHeroMs": {
+     "before": {
+      "median": 952.5,
+      "p25": 843.9,
+      "p75": 1055.2,
+      "min": 782.5,
+      "max": 1211
+     },
+     "after": {
+      "median": 930.8,
+      "p25": 792.4,
+      "p75": 1100.8,
+      "min": 746.1,
+      "max": 1224.4
+     },
+     "deltaMedian": -21.7,
+     "mannWhitneyP": 0.8535
+    },
+    "tbtMs": {
+     "before": {
+      "median": 96,
+      "p25": 65,
+      "p75": 322.5,
+      "min": 35,
+      "max": 531
+     },
+     "after": {
+      "median": 190,
+      "p25": 60.5,
+      "p75": 333.3,
+      "min": 49,
+      "max": 537
+     },
+     "deltaMedian": 94,
+     "mannWhitneyP": 1
+    },
+    "longTasks": {
+     "before": {
+      "median": 4,
+      "p25": 2,
+      "p75": 5.5,
+      "min": 2,
+      "max": 7
+     },
+     "after": {
+      "median": 3.5,
+      "p25": 2,
+      "p75": 4.3,
+      "min": 2,
+      "max": 9
+     },
+     "deltaMedian": -0.5,
+     "mannWhitneyP": 0.7046
+    },
+    "longTaskTotalMs": {
+     "before": {
+      "median": 293,
+      "p25": 179.5,
+      "p75": 628.5,
+      "min": 135,
+      "max": 881
+     },
+     "after": {
+      "median": 359.5,
+      "p25": 188,
+      "p75": 556.3,
+      "min": 149,
+      "max": 987
+     },
+     "deltaMedian": 66.5,
+     "mannWhitneyP": 1
+    },
+    "cls": {
+     "before": {
+      "median": 0.029,
+      "p25": 0,
+      "p75": 0,
+      "min": 0,
+      "max": 0
+     },
+     "after": {
+      "median": 0.027,
+      "p25": 0,
+      "p75": 0,
+      "min": 0,
+      "max": 0
+     },
+     "deltaMedian": -0.002,
+     "mannWhitneyP": 0.5976
+    },
+    "routeWaveMs": {
+     "before": {
+      "median": 361,
+      "p25": 333,
+      "p75": 374,
+      "min": 331,
+      "max": 431
+     },
+     "after": {
+      "median": 311.5,
+      "p25": 305.8,
+      "p75": 335.3,
+      "min": 300,
+      "max": 377
+     },
+     "deltaMedian": -49.5,
+     "mannWhitneyP": 0.0073
+    }
+   },
+   "beforeChecks": {
+    "worldModuleFetchesPerRun": [
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7
+    ],
+    "temporalSignatureRequests": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "nowTextShown": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "scrollY": [
+     0
+    ],
+    "beacons": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "blockedWrites": [
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7
+    ],
+    "hero": [
+     "מה קורה הבורא — גוליית, נחלת בנימין וקריית גת: מתודעת שאול לתודעת דוד | אלון לוי"
+    ]
+   },
+   "afterChecks": {
+    "worldModuleFetchesPerRun": [
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7
+    ],
+    "temporalSignatureRequests": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "nowTextShown": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "scrollY": [
+     0
+    ],
+    "beacons": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "blockedWrites": [
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7,
+     7
+    ],
+    "hero": [
+     "מה קורה הבורא — גוליית, נחלת בנימין וקריית גת: מתודעת שאול לתודעת דוד | אלון לוי"
+    ]
+   }
+  }
+ },
+ "fixed_order_ab_warning": {
+  "mobile": {
+   "n": {
+    "before": 15,
+    "after": 15
+   },
+   "metrics": {
+    "readyMs": {
+     "beforeMedian": 3607.6,
+     "afterMedian": 3684.3,
+     "deltaMedian": 76.7,
+     "mannWhitneyP": 0.4679
+    },
+    "lcpMs": {
+     "beforeMedian": 4096,
+     "afterMedian": 4164,
+     "deltaMedian": 68,
+     "mannWhitneyP": 0.6482
+    },
+    "fcpMs": {
+     "beforeMedian": 3568,
+     "afterMedian": 3652,
+     "deltaMedian": 84,
+     "mannWhitneyP": 0.6041
+    },
+    "tbtMs": {
+     "beforeMedian": 283,
+     "afterMedian": 654,
+     "deltaMedian": 371,
+     "mannWhitneyP": 0.3952
+    }
+   }
+  },
+  "desktop": {
+   "n": {
+    "before": 15,
+    "after": 15
+   },
+   "metrics": {
+    "readyMs": {
+     "beforeMedian": 1196.3,
+     "afterMedian": 841.8,
+     "deltaMedian": -354.5,
+     "mannWhitneyP": 0
+    },
+    "lcpMs": {
+     "beforeMedian": 2160,
+     "afterMedian": 1328,
+     "deltaMedian": -832,
+     "mannWhitneyP": 0.0002
+    },
+    "fcpMs": {
+     "beforeMedian": 1608,
+     "afterMedian": 984,
+     "deltaMedian": -624,
+     "mannWhitneyP": 0
+    },
+    "tbtMs": {
+     "beforeMedian": 438,
+     "afterMedian": 105,
+     "deltaMedian": -333,
+     "mannWhitneyP": 0.0001
+    }
+   }
+  }
+ },
+ "order_split_medians_ms": {
+  "desktop": {
+   "before_first": {
+    "ready": 1043,
+    "lcp": 1948
+   },
+   "before_second": {
+    "ready": 865,
+    "lcp": 1402
+   },
+   "after_first": {
+    "ready": 926,
+    "lcp": 1522
+   },
+   "after_second": {
+    "ready": 919,
+    "lcp": 1486
+   }
+  }
+ },
+ "cpu_profile_before_mobile_4x": {
+  "runs": 3,
+  "sampled_ms_per_run": 8242,
+  "idle": 5531,
+  "program_native": 1802,
+  "self_ms_by_script": {
+   "2029 entry": 421,
+   "Sod2029Shell": 143,
+   "Home2029Page": 111,
+   "supabase": 76,
+   "react": 16,
+   "postSourceUpdates2029": 11
+  },
+  "world_projection_modules_self_ms": "below the top-18 cut (each under 4 ms)"
+ },
+ "larger_factors": {
+  "entry_chunk_raw_kb": {
+   "total": 340.9,
+   "react_dom": 202.3,
+   "first_party": 97.1,
+   "react_router": 38.1,
+   "scheduler": 3.4
+  },
+  "sod2029shell_raw_kb": {
+   "total": 190.4,
+   "SystemFrame2029": 83.7,
+   "OrGeulaStoryColumnCore": 9.7,
+   "experienceContext": 9.5,
+   "SurfaceContextRail2029": 9.2,
+   "entryLearn2029": 8.7
+  },
+  "single_run_mobile_timeline_ms": {
+   "note": "one representative base run (not a median): entry file 300-1575, Home route first request 1883, last route chunk 3420, READY 4547 (same run: 65 requests, 600 KB)",
+   "entry_download_end": 1575,
+   "home_route_first_request": 1883,
+   "last_route_chunk_end": 3420,
+   "ready": 4547
+  },
+  "route_wave_ms_median_mobile": {
+   "before": 1446,
+   "after": 1324,
+   "note": "first Home route request to last route chunk finished; network-bound, so far less CPU-noisy than READY"
+  },
+  "ready_ms_median_mobile": {
+   "before": 3965,
+   "after": 3478,
+   "mannWhitneyP": 0.057,
+   "verdict": "not proven (inside the noise)"
+  },
+  "wire_kb_mobile_cold_window_single_run": {
+   "js": 310.6,
+   "css": 41.3,
+   "local_fonts_and_lockup": 113.2,
+   "external_font_files_and_css": 17.4,
+   "supabase_storage_images": 99.1,
+   "note": "images arrive after READY"
+  }
+ },
+ "behavior_checks_built_app": {
+  "cold_no_scroll_mobile": "0 requests for home2029Projection, curationProjection2029, worldContributorLens or worldContextualProminence in 11 of 12 balanced runs (in 1 of 12 the existing approach observer fired inside the cold window without scrolling; the same happens on the base: 78 requests once)",
+  "approach_scroll_mobile": "one request for home2029Projection and curationProjection2029 at the first scroll step that enters the 800px lead; returning to the area, scrolling back to top and again to the zone added 0 requests",
+  "no_intersection_observer": "primary ready, Hero = latest Post, projection requested exactly once after the cards enriched",
+  "projection_module_fails": "Home keeps Hero, updates, gateways, entry and continuity; one attempt, no retry loop; no page error. On the base the same failure removes the whole Home chunk (test fails there).",
+  "hero": "identical across all 60+ runs and equal to the live latest Post by modified (posts.id 5119, slug mah-kore-goliath-benjamin-gath-david)",
+  "temporal": "0 requests matching fn_method_value, gematria_words, /nodes, research_contributions with target_type=eq.number, timeFlow, dayContext or hebcal in every run, both builds",
+  "now_text": "neither העת עכשיו nor מספר העת in any run",
+  "desktop_note": "at 1366x768 the World preview area is inside its 800px lead from the first screen, so the same modules load right after the cards enrich (after READY) in both builds; research_contributions reads there carry author_contributor_id (World contributor lens), not the Temporal target_type=eq.number signature"
+ },
+ "tests": {
+  "focused_home": "194 tests, 0 fail, 0 skipped (test/home-*.test.mjs, story-viewer-isolation, home2029Projection unit, bundle budget) with Chromium available",
+  "new_browser_test": "test/home-world-module-deferral-2029.test.mjs: 4 pass on the change; tests 1 and 4 fail on the base build (negative control)",
+  "new_static_contract": "test/home-build-and-classification-2029.test.mjs: fails on the base page, passes on the change",
+  "bundle_budget": "scripts/test-2029-bundle-budget.mjs: Home budget tightened 160 KB/27 chunks -> 140 KB/23 chunks and the three modules listed as deferred; the tightened budget fails on the base build (149.1 KB > 140 KB), passes on the change",
+  "build": "npm run build: exit 0 (legacy and 2029)",
+  "other": [
+   "scripts/test_canonical_presentation.mjs: 94 passed",
+   "npm run test:2029-cheap-hardening: PASS"
+  ]
+ }
+}

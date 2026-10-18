@@ -63,3 +63,18 @@ test("Home removes the temporal opening read and keeps the lower world preview o
   assert.match(home, /data-h29-world-preview-load-state=/);
   assert.match(home, /worldPreviewRequested \|\| data\.loading \|\| !data\.enriched/);
 });
+
+test("Home loads the World preview projection module only once its area is approached", () => {
+  // No static edge from the page to the projection (and through it to the World readers); the one dynamic edge sits in the approach-gated effect.
+  assert.doesNotMatch(page, /^(?:import|export)\s[^;]*\bfrom\s+["'][^"']*home2029Projection/m);
+  assert.equal(page.match(/import\("\.\.\/lib\/research\/home2029Projection\.js"\)/g)?.length, 1);
+  const effect = page.slice(page.indexOf("useEffect(() => {\n    if (!worldPreviewRequested)"), page.indexOf("const requestWorldPreview"));
+  assert.match(effect, /if \(!worldPreviewRequested\) return undefined;/);
+  assert.match(effect, /import\("\.\.\/lib\/research\/home2029Projection\.js"\)/);
+  assert.match(effect, /\}, \[worldPreviewRequested\]\);/);
+  // A failed module load settles like a failed read: the area stops waiting and Home is unaffected.
+  assert.match(effect, /\.catch\(\(\) => \{ if \(live\) setHomeState\(\(current\) => \(\{ \.\.\.current, worldLoading: false \}\)\); \}\);/);
+  assert.match(effect, /return \(\) => \{ live = false; \};/);
+  // The Home opening still makes no Temporal request through the projection.
+  assert.doesNotMatch(page, /includeTemporal: true/);
+});

@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo } from "../lib/seo.js";
@@ -181,7 +180,10 @@ function HomeBody() {
   useEffect(() => {
     if (!worldPreviewRequested) return undefined;
     let live = true;
-    fetchHome2029Projection({ includeWorld: true, includeTemporal: false })
+    // The projection and the World readers it pulls in load only when the preview area is approached, not with Home's code.
+    // Same read and arguments; a failed module load settles like a failed read (the area stays empty, Home is unaffected).
+    import("../lib/research/home2029Projection.js")
+      .then(({ fetchHome2029Projection }) => fetchHome2029Projection({ includeWorld: true, includeTemporal: false }))
       .then((projection) => { if (live) setHomeState((current) => ({ ...current, worldLoading: false, projection: { ...current.projection, worldPreview: projection?.worldPreview || null } })); })
       .catch(() => { if (live) setHomeState((current) => ({ ...current, worldLoading: false })); });
     return () => { live = false; };
