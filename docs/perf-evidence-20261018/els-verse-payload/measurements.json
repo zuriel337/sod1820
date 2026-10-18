@@ -1,7 +1,9 @@
 {
-  "measurement": "deterministic local bytes; gzip level 9; no network timing claim",
+  "measurement": "deterministic local bytes; comparison gzip level 9; no network timing claim",
   "base": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
-  "implementation_commit": "df10b4aa",
+  "reviewed_split_commit": "4e8dcebbc496a2f1da208f4312c2d085b3ab8a55",
+  "implementation_commit": "693892c18c4ebb1e90eff700420122e2d02ff654",
+  "branch": "gpt/perf-els-verse-payload-hardening-20261018",
   "app_source_changed": false,
   "app_static_els_route": {
     "files": 23,
@@ -19,25 +21,35 @@
     "gzip_bytes": 1625009,
     "sha256": "a2e1afb7d2a4d68bc0ec71e5b72eb65de3326ac4d338244f9e743bf3d84cdb44"
   },
-  "engine_after": {
-    "path": "public/tzofen.html",
+  "reviewed_split": {
+    "commit": "4e8dcebbc496a2f1da208f4312c2d085b3ab8a55",
     "raw_bytes": 1587081,
     "gzip_bytes": 944183,
     "sha256": "7f2f89657f0f4cea5cdde11a349dcf359532576b9084db101acc72407317bd36"
   },
+  "engine_after": {
+    "path": "public/tzofen.html",
+    "raw_bytes": 1587178,
+    "gzip_bytes": 944225,
+    "sha256": "16b44c5b40939fbb5e4b028f2878086d22010c2b4ee75ca9386d15736677aa9a"
+  },
+  "hardening_cost_against_reviewed_split": {
+    "raw_bytes": 97,
+    "gzip_bytes": 42
+  },
   "initial_transfer_savings": {
-    "raw_bytes": 902274,
-    "gzip_bytes": 680826,
-    "engine_gzip_percent": 41.9,
-    "fresh_els_route_gzip_percent": 34.25
+    "raw_bytes": 902177,
+    "gzip_bytes": 680784,
+    "engine_gzip_percent": 41.89,
+    "fresh_els_route_gzip_percent": 34.24
   },
   "fresh_static_route_plus_engine_before": {
     "raw_bytes": 3802542,
     "gzip_bytes": 1988096
   },
   "fresh_static_route_plus_engine_after": {
-    "raw_bytes": 2900268,
-    "gzip_bytes": 1307270
+    "raw_bytes": 2900365,
+    "gzip_bytes": 1307312
   },
   "deferred_asset": {
     "path": "public/els-data/tk-vtext.134189ee3c5f9cb8.gzdata",
@@ -46,5 +58,24 @@
     "decompressed_bytes": 2722983,
     "decompressed_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
     "source": "tools/els/data/tk-vtext.txt"
+  },
+  "owned_asset_cleanup": {
+    "basename_pattern": "^tk-vtext\\.[0-9a-f]{16}\\.gzdata$",
+    "runs_only_after_successful_hosted_write_and_verification": true,
+    "remaining_owned_assets": [
+      "tk-vtext.134189ee3c5f9cb8.gzdata"
+    ],
+    "foreign_and_near_pattern_files_preserved_by_test": true
+  },
+  "standalone_artifact": {
+    "command": "cd tools/els && python3 build.py --standalone-out /tmp/tzofen-offline.html",
+    "committed_public_artifact": false,
+    "raw_bytes": 2492175,
+    "gzip_bytes": 1626805,
+    "sha256": "66570187aaf1083fd2dc6b2b4247e9b48b74a22be8e164c3a9c729c555abfde8",
+    "embedded_gzip_sha256": "13d1719130ec3dac9c46bd2740b8fd4d1dcbdcc54f7f6af9f699775e8bd1165e",
+    "embedded_source_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
+    "strict_offline_browser_requests_beyond_in_process_document": 0,
+    "direct_file_url_test": "blocked by managed Chromium policy: ERR_BLOCKED_BY_ADMINISTRATOR"
   }
 }
