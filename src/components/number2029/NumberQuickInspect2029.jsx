@@ -95,15 +95,15 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
   }, [preview, verified, canonical.rows]);
 
   const selectedKey = seedMethod && rows.some((r) => r.key === seedMethod) ? seedMethod : (rows.find((r) => r.key === "רגיל")?.key || rows[0]?.key || null);
-  const [pickedKey, setPickedKey] = useState(null);
-  const activeKey = pickedKey && rows.some((r) => r.key === pickedKey) ? pickedKey : selectedKey;
-  const active = rows.find((r) => r.key === activeKey) || null;
+  const active = rows.find((r) => r.key === selectedKey) || null;
   const root = numeric ? safeInt(committed) : (active?.value ?? null);
   const expression = numeric ? null : committed || null;
 
-  const openFull = useCallback((hash = "") => {
-    if (root == null) return;
-    const focus = { root, expression, method: expression ? active?.key || seedMethod || null : null, resultValue: expression ? root : null, sourceReturn, lens: "number" };
+  // A method row opens the full page on that method's value (as in the Legacy drawer), keeping expression + method.
+  const openFull = useCallback((hash = "", row = null) => {
+    const target = row ? row.value : root;
+    if (target == null) return;
+    const focus = { root: target, expression, method: expression ? (row?.key || active?.key || seedMethod || null) : null, resultValue: expression ? target : null, sourceReturn, lens: "number" };
     const handoff = buildNumberExpressionHandoff({ ...focus, context });
     if (!handoff) return;
     research?.updateResearchContext?.((current) => buildNumberExpressionHandoff({ ...focus, context: current }).context);
@@ -135,8 +135,7 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
     event.preventDefault();
     const raw = clean(input).replace(/\s+/g, " ");
     if (!raw || raw.length > 120) return;
-    setPickedKey(null);
-    setCommitted(raw);
+        setCommitted(raw);
   };
 
   const methodTitle = active ? canonicalMethodPublicLabel({ method_key: active.key }) || active.label : null;
@@ -153,7 +152,7 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
           <section className="sod29-quick-inspect-teasers" aria-label="מספרי מפתח">
             <small>מספרי מפתח</small>
             <ul>{KEY_NUMBERS.map((n) => (
-              <li key={n}><button type="button" onClick={() => { setInput(String(n)); setPickedKey(null); setCommitted(String(n)); }}>{n}</button></li>
+              <li key={n}><button type="button" onClick={() => { setInput(String(n)); setCommitted(String(n)); }}>{n}</button></li>
             ))}</ul>
           </section>
         </>
@@ -191,7 +190,7 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
           <ul className="sod29-quick-inspect-methods" aria-label="שיטות">
             {rows.map((row) => (
               <li key={row.key}>
-                <button type="button" aria-pressed={row.key === activeKey} onClick={() => setPickedKey(row.key)}>
+                <button type="button" title={`פתח את דף המספר ${row.value} (${row.label})`} onMouseEnter={prefetchFull} onFocus={prefetchFull} onClick={() => openFull("", row)}>
                   <span>{row.label}</span><b>{row.value}</b>
                 </button>
               </li>
