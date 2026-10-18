@@ -4,8 +4,8 @@
 
 - Original Wave 3 base: `gpt/perf-unified-wave3-20261018@6124db8d7ddac82654a09c49abf8ed60fe999d47`.
 - Exact hardening base: `gpt/perf-els-verse-payload-defer-20261018@4e8dcebbc496a2f1da208f4312c2d085b3ab8a55`.
-- Reviewed predecessor: `7c512b1101a65334bd2986fd1c7c251f35ff1d21`; repair implementation:
-  `2119ad495cc28a2693e33aa9d084b1ccd4d2b4ee` on
+- Prior hardening evidence: `ba3bb64e0b440dc5682a3fb42f1ef4ce707fd9f1`; TOCTOU repair implementation:
+  `a3b09f01b237534bb621b57230e411278999107f` on
   `gpt/perf-els-verse-payload-hardening-20261018`.
 - Scope: the `tools/els` generator and documentation, the deferred-payload acceptance test, and
   this evidence. Search letters, verse boundaries, results, geometry, canonical verification,
@@ -17,34 +17,33 @@
 
 `tk-vtext.txt` remains absent from the initial `public/tzofen.html` transfer. The deterministic
 generator validates all source inputs, writes the current content-addressed gzip binary, verifies
-its round trip and on-disk bytes, writes and verifies the hosted HTML, and only then prunes stale
-generator-owned payloads.
+its round trip and on-disk bytes, then writes and verifies the hosted HTML. The generator does not
+scan or delete pre-existing asset-directory entries. Rebuilding the same source reuses the same
+content-addressed name and adds nothing. Publishing a different valid source can leave both old
+and current assets; the HTML points to the exact current asset written in its transaction. Old
+regular assets, invalid matching regular files, near matches, unrelated files, directories,
+internal and external symlinks, FIFO and Unix-socket entries are all preserved.
 
-Ownership is deliberately narrow. An entry is eligible only when `lstat` and
-`is_file(follow_symlinks=False)` show a regular file, its complete basename matches
-`^tk-vtext\.[0-9a-f]{16}\.gzdata$`, and its bounded gzip content has the generator header,
-strict UTF-8, final LF, 23,204 rows and a SHA-256 prefix matching the basename. The current regular
-file is retained. Exact-name directories, internal and external symlinks, FIFO and Unix-socket
-entries, invalid matching regular files, near matches and unrelated entries are preserved; links
-are never traversed.
-
-The complete hosted transaction (`asset → HTML → cleanup`) is protected by a cross-process
+The complete hosted transaction (`asset → HTML`) is protected by a cross-process
 exclusive kernel lock. Its deterministic scope is the canonical hosted output directory and its
 artifact is under the per-user system temp lock directory, outside the deployed `public/` tree.
 Exceptions release the lock in `finally`; abrupt process exit releases it in the kernel. Failure
-injection before asset replacement, between asset and HTML, after HTML before cleanup, and inside
-cleanup leaves a usable old or new pair, and a subsequent build completes. A separate SIGKILL test
-while holding the lock proves that the next build is not blocked. This is process-failure safety;
-file and directory `fsync` are absent, so power-loss durability is not claimed.
+injection before asset replacement, between asset and HTML, and after HTML publication leaves a
+usable old or new pair, and a subsequent build completes. A race at the former cleanup boundary
+plants a symlink after HTML publication and proves that it and its target remain untouched. A
+separate SIGKILL test while holding the lock proves that the next build is not blocked. This is
+process-failure safety; hosted file and directory `fsync` are absent, so power-loss durability is
+not claimed.
 
 All mutation, failure and concurrent-publisher fixtures execute in a copied temporary repository
 with their own `public/`, inputs and lock scope. The different-input fixture uses a real historical
 source normalized with a final LF (`8efa6670cdf792b8…`) and the canonical source
 (`134189ee3c5f9cb8…`). Two different-input processes and four same-input processes complete as
-serialized transactions; the final HTML references an existing asset, exactly one regular owned
-current asset remains, and no atomic-write temp file remains. The real worktree's hosted snapshot
-is asserted unchanged after each fixture group. Its final asset directory contains only
-`tk-vtext.134189ee3c5f9cb8.gzdata`.
+serialized transactions. The final HTML references an extant exact asset, both different-source
+content-addressed assets remain, a same-source rebuild adds no asset, and no atomic-write temp file
+remains. The real worktree's hosted snapshot is asserted unchanged after each fixture group. Its
+final asset directory still contains only the canonical
+`tk-vtext.134189ee3c5f9cb8.gzdata`; the historical asset exists only in the copied fixture.
 
 Before render or mutation, the build validates the 1,204,583-letter stream, strict positive VLENS
 count and sum, chapter/book alignment, strict UTF-8 verse text, final LF, exact 23,204-row count,
@@ -73,15 +72,24 @@ browser-discovered candidates byte for byte against the same canonical corpus; i
 second discovery implementation. Standalone mode does not rewrite or prune the hosted HTML or its
 assets.
 
-Before loading inputs or rendering, the output is canonicalized and must identify a new or
-existing regular-file destination outside the entire repository, under an existing real parent,
-with no symlink component. Absolute, relative and `..` spellings that resolve inside the repository,
-exact hosted HTML/assets, new paths under `public/`, `dist/` or `inputs/`, symlink parents, output
-symlinks, directories, FIFO entries and missing parents are rejected without mutation. A normal
-external path remains deterministic. No second multi-megabyte public route artifact is committed.
+Before loading inputs or rendering, the generator opens the output parent component by component
+with `O_DIRECTORY|O_NOFOLLOW`, checks repository ancestry by bound directory descriptors and inode
+identities, and holds that parent descriptor through render, write and verification. It never
+returns to the parent pathname. Publication is create-new only: it writes and `fsync`s a complete
+temporary regular file, then uses a dirfd-relative hard link as an atomic no-clobber publish. Any
+existing or raced basename—regular file, symlink, directory, FIFO or another special entry—wins and
+remains unchanged while the build fails explicitly and removes only its own temporary entry.
 
-Two consecutive standalone generations were byte-identical. The measured file is 2,492,175 raw
-bytes (1,626,805 bytes with comparison gzip) with SHA-256
+Absolute, relative and `..` spellings that bind inside the repository, exact hosted HTML/assets,
+new paths under `public/`, `dist/` or `inputs/`, symlink parents, existing outputs and missing
+parents are rejected without hosted mutation. An orchestrated swap replaces the validated parent
+pathname with a symlink to fixture `public/`; the held descriptor keeps publication in the original
+external directory and nothing appears in `public/`. A second race plants a final-output symlink
+immediately before publish; no-clobber publication fails, preserves the symlink and target, and
+leaves no temp file. No second multi-megabyte public route artifact is committed.
+
+Two distinct create-new standalone destinations were byte-identical. The measured file is
+2,492,175 raw bytes (1,626,805 bytes with comparison gzip) with SHA-256
 `66570187aaf1083fd2dc6b2b4247e9b48b74a22be8e164c3a9c729c555abfde8`. Its embedded gzip bytes are
 byte-identical to the hosted payload and expand to the exact canonical source bytes and SHA.
 
@@ -119,9 +127,10 @@ application source graph did not change.
 
 - `test/els-verse-payload-defer.test.mjs`: 4/4 PASS with executable Chromium. Covers deterministic
   hosted and standalone generation, isolated path-rejection and source-validation matrices,
-  regular-only cleanup with link/FIFO/socket preservation, four failure cut points, SIGKILL lock
-  release, 2-way different-input and 4-way same-input publication, exact canonical bytes, strict
-  offline ordinary search and clicked-letter source display, hosted zero requests on
+  no-cleanup preservation for regular/link/directory/FIFO/socket entries, bound-parent and
+  final-basename races, three hosted failure cut points, SIGKILL lock release, 2-way
+  different-input and 4-way same-input publication, exact canonical bytes, strict offline ordinary
+  search and clicked-letter source display, hosted zero requests on
   mount/idle/search, one shared request for verse + letter lenses, reuse, fail-closed corruption
   handling and retry.
 - `test/els-browser-cutover.test.mjs`: 26/26 PASS with executable Chromium.
@@ -136,8 +145,8 @@ application source graph did not change.
 - Fresh `dist/els-data/tk-vtext.134189ee3c5f9cb8.gzdata` and `dist/tzofen.html` are byte-identical
   to the public asset and HTML. Hosted HTML SHA-256 is `16b44c5b…`; payload SHA-256 is
   `13d17191…`; decompressed source SHA-256 is `134189ee…`.
-- A fresh canonical generator run left the tracked hosted outputs unchanged, the asset directory
-  held only the canonical regular asset, and `git diff --check` passed.
+- A fresh canonical generator run left the tracked hosted outputs unchanged and the real asset
+  directory held only the canonical regular asset. `git diff --check` passed.
 
 ## Remaining limits
 
@@ -148,7 +157,8 @@ application source graph did not change.
   does not establish behavior under every browser's file-origin policy.
 - The custom `.gzdata` extension and explicit browser decompression avoid relying on
   `Content-Encoding`; hosted response headers still need verification in an eventual Preview.
-- Process-failure recovery is tested. Power-loss durability is not claimed because generated files
-  and containing directories are not `fsync`ed.
+- Process-failure recovery is tested. The standalone temporary file is `fsync`ed before its
+  no-clobber link, but containing directories and hosted artifacts are not; power-loss durability
+  is not claimed.
 - Hosted `connect-src 'self'` compatibility and standalone `connect-src data:` requirements were
   reviewed statically; no deployed CSP/header combination was exercised.
