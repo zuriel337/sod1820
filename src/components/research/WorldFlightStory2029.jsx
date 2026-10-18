@@ -4,9 +4,8 @@ import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
 import { createOnDemandLoader } from '../experience2029/onDemandLoader2029.js';
-import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import { getPostCardBySlug } from '../../lib/supabase.js';
-import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
+import { isPublicWorldPostRow, WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
 import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
@@ -19,7 +18,7 @@ const loadPostReadingProjection = createOnDemandLoader(() => import('../../lib/r
 // loop; a document reload creates a fresh module instance.
 let projectionModuleNeedsReload = false;
 const admitProjection = (projection) => projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
-  && postRowToWorldUpdate(projection.post);
+  && isPublicWorldPostRow(projection.post);
 const compactProjection = (post, extensionsPending = false) => ({
   post,
   identity: { type: 'post', id: String(post.id), slug: post.slug, href: `/post/${post.slug}` },
@@ -154,7 +153,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     const task = getPostCardBySlug(slug).then((post) => {
       if (!live) return null;
       const draft = Array.isArray(post?.tags) && post.tags.includes('טיוטה');
-      if (!post || draft || !postRowToWorldUpdate(post)) { setState({ loading: false, projection: null }); return null; }   // not public Home material: the same outcome the full reader gives
+      if (!post || draft || !isPublicWorldPostRow(post)) { setState({ loading: false, projection: null }); return null; }   // not public Home material: the same outcome the full reader gives
       if (home && !post.thumb_url && !post.image_url) return loadFullForHome();
       setState({ loading: false, projection: compactProjection(post, !home), extensionsStatus: 'idle', extensionsRecovery: 'none' });
       // World displays image_url, not the card thumbnail. If that field is

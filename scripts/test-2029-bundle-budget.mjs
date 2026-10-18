@@ -62,10 +62,13 @@ const ROUTE_GRAPHS = {
   // Home: the notable-convergence strip reader (explorerFacets -> entity hub / topic / book projections)
   // loads with its own includeWorld trigger, after the first cards. The World preview projection
   // (home2029Projection -> curation catalog / contributor lens) loads when its area is approached
-  // (onWorldPreviewApproach), not with Home's code: the route graph went from +26 chunks / 149.1 KB gz to +22 / 137.1.
-  Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 140, maxExtraChunks: 23,
+  // (onWorldPreviewApproach), not with Home's code. The two proven seams reduced the route graph
+  // from +26 chunks / 149.1 KB gz to +17 / 118.9; keep a small build-variance margin only.
+  Home: { src: 'src/pages/Home2029Page.jsx', maxExtraGzKb: 122, maxExtraChunks: 18,
+    // WorldFlightStory uses only the compact public-Post admission seam. The
+    // full discovery stream belongs to the approached World preview below it.
     deferred: ['explorerFacets', 'entityHubProjection', 'topicSourceContext', 'bookResearchProjection',
-      'home2029Projection', 'curationProjection2029', 'worldContributorLens'],
+      'home2029Projection', 'curationProjection2029', 'worldContributorLens', 'worldDiscoveryStream'],
     onDemand: { entry: 'home2029Projection', includes: ['curationProjection2029', 'worldContributorLens'] } },
   // World: connected discovery (#world-discovery-* deep links) and the shared method Stage behind
   // "כל השיטות ופירוט החישוב" load when that view/panel opens, not with the World opening.

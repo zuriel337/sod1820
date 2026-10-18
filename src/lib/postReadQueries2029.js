@@ -1,7 +1,20 @@
 // Query definitions used by the existing client readers AND the 2029 head.
 // No independent boot query list; the same filters/order/limit define both URLs.
+import { stripHtml } from './format.js';
+
 export const HOME_LATEST_POST_LIMIT_2029 = 16;
 export const WORLD_FLIGHT_POST_SLUG = 'flydubai-fz1073-363-14000-remzei-geula';
+const cleanPostField = (value) => value == null ? '' : String(value).trim();
+
+// Public Post admission shared by the compact Home/World story reader and the
+// full World stream. Keeping it beside the read contract avoids importing the
+// entire discovery stream just to admit one already-read card row.
+export function isPublicWorldPostRow(row) {
+  if (row?.id == null || !cleanPostField(row.slug) || row.home_hidden === true) return false;
+  if ((Array.isArray(row.tags) ? row.tags : []).some((tag) => ['טיוטה', 'פורום'].includes(cleanPostField(tag)))) return false;
+  if (['gpt-draft', 'web'].includes(cleanPostField(row.source).toLowerCase())) return false;
+  return Boolean(stripHtml(cleanPostField(row.title)));
+}
 export function postBySlugRead(slug) {
   const decoded = decodeURIComponent(slug);
   const slugs = [...new Set([slug, decoded, encodeURIComponent(decoded).toLowerCase()])];

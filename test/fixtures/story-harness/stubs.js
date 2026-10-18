@@ -98,6 +98,7 @@ export function postRowToWorldUpdate(row) {
   if (!String(row.title || '').replace(/<[^>]*>/g, '').trim()) return null;
   return { id: row.slug };
 }
+export function isPublicWorldPostRow(row) { return Boolean(postRowToWorldUpdate(row)); }
 export const WORLD_FLIGHT_POST_SLUG = 'flydubai-fz1073-363-14000-remzei-geula';
 export function FrameState({ kind, title, children }) { return React.createElement('section', { className: `sod29-frame-state state-${kind}`, role: 'status' }, React.createElement('strong', null, title), children); }
 export function PostCategories({ categories = [] }) { return React.createElement('span', { className: 'cats' }, (categories || []).join('|')); }

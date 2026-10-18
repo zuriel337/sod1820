@@ -4,6 +4,7 @@ import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroupSource.js";
 import { publicProvenPostSourceUpdate } from "./postSourceUpdates2029.js";
+import { isPublicWorldPostRow } from "../postReadQueries2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
@@ -52,14 +53,10 @@ function finite(value) {
 // A public post is a source occurrence, even when no research Finding exists yet.
 // Source authorship is display provenance; it never creates a Contributor identity.
 export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
-  if (row?.id == null || !clean(row.slug) || row.home_hidden === true) return null;
-  if ((Array.isArray(row.tags) ? row.tags : []).some((tag) => ["טיוטה", "פורום"].includes(clean(tag)))) return null;
   // Ingestion origin is NOT publication authority: published posts may have "ai"
   // or "uploaded_file" origin (including the public Golden airplane post).
-  // Only explicit internal draft/import origins remain excluded in this bounded reader.
-  if (["gpt-draft", "web"].includes(clean(row.source).toLowerCase())) return null;
+  if (!isPublicWorldPostRow(row)) return null;
   const label = stripHtml(clean(row.title));
-  if (!label) return null;
   const author = clean(row.author);
   const person = publicPersonForName(author, publicPeople);
   const summary = stripHtml(clean(row.excerpt));

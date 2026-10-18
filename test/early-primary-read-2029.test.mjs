@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
 import { matchRoutes } from 'react-router-dom';
-import { entryPrimaryReads2029, postBySlugRead, postCardBySlugRead, HOME_STORY_POST_COLUMNS_2029, WORLD_FLIGHT_POST_SLUG, latestPostCardsRead, applyPostRead, postReadUrl } from '../src/lib/postReadQueries2029.js';
+import { entryPrimaryReads2029, isPublicWorldPostRow, postBySlugRead, postCardBySlugRead, HOME_STORY_POST_COLUMNS_2029, WORLD_FLIGHT_POST_SLUG, latestPostCardsRead, applyPostRead, postReadUrl } from '../src/lib/postReadQueries2029.js';
 import { postRowToWorldUpdate } from '../src/lib/research/worldDiscoveryStream.js';
 import { startPrimaryReads2029, createEarlyReadFetch2029 } from '../src/lib/earlyPrimaryRead2029.js';
 
@@ -135,10 +135,11 @@ test('Home story card admission is the same on the card columns as on the whole 
   const whole = { id: 5107, slug: 'flydubai-fz1073-363-14000-remzei-geula', title: 'טיסה', tags: ['חדשות'], home_hidden: false, source: 'ai', categories: ['רמזי גאולה'],
     date: '2026-10-01T10:00:00Z', modified: '2026-10-02T10:00:00Z', created_at: '2026-10-01T09:00:00Z', thumb_url: 't', image_url: 'i', content: '<p>x</p>', excerpt: 'e', author: 'a' };
   const variants = [{}, { tags: ['טיוטה'] }, { tags: ['פורום'] }, { home_hidden: true }, { source: 'gpt-draft' }, { source: 'web' }, { source: 'uploaded_file' },
-    { title: '' }, { title: '<b> </b>' }, { slug: '' }, { id: null }, { thumb_url: null, image_url: null }, { tags: null }];
+    { title: '' }, { title: '<b> </b>' }, { title: '&#160;' }, { slug: '' }, { id: null }, { thumb_url: null, image_url: null }, { tags: null }];
   const narrow = row => Object.fromEntries(HOME_STORY_POST_COLUMNS_2029.split(',').filter(c => c in row).map(c => [c, row[c]]));
   for (const change of variants) {
     const row = { ...whole, ...change };
     assert.equal(Boolean(postRowToWorldUpdate(narrow(row))), Boolean(postRowToWorldUpdate(row)), JSON.stringify(change));
+    assert.equal(isPublicWorldPostRow(narrow(row)), Boolean(postRowToWorldUpdate(row)), `shared admission: ${JSON.stringify(change)}`);
   }
 });
