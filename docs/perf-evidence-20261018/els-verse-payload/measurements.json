@@ -2,7 +2,11 @@
   "measurement": "deterministic local bytes; comparison gzip level 9; no network timing claim",
   "base": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
   "reviewed_split_commit": "4e8dcebbc496a2f1da208f4312c2d085b3ab8a55",
-  "implementation_commit": "2119ad495cc28a2693e33aa9d084b1ccd4d2b4ee",
+  "implementation_commit": "a3b09f01b237534bb621b57230e411278999107f",
+  "predecessor_evidence_commit": "ba3bb64e0b440dc5682a3fb42f1ef4ce707fd9f1",
+  "previous_hardening_implementation_commit": "2119ad495cc28a2693e33aa9d084b1ccd4d2b4ee",
+  "previous_evidence_commit": "7c512b1101a65334bd2986fd1c7c251f35ff1d21",
+  "initial_hardening_implementation_commit": "693892c18c4ebb1e90eff700420122e2d02ff654",
   "branch": "gpt/perf-els-verse-payload-hardening-20261018",
   "app_source_changed": false,
   "app_static_els_route": {
@@ -59,13 +63,15 @@
     "decompressed_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
     "source": "tools/els/data/tk-vtext.txt"
   },
-  "owned_asset_cleanup": {
-    "basename_pattern": "^tk-vtext\\.[0-9a-f]{16}\\.gzdata$",
-    "eligible_type": "regular file only, checked with lstat and follow_symlinks=False",
-    "content_proof": "bounded deterministic gzip header; strict UTF-8; final LF; 23,204 rows; basename SHA-256 prefix",
-    "runs_only_after_successful_hosted_write_and_verification": true,
+  "hosted_asset_retention": {
+    "automatic_stale_cleanup": false,
+    "stale_asset_directory_scan": false,
+    "stale_entry_deletion": false,
+    "same_source_rebuild_adds_asset": false,
+    "different_source_old_asset_retained": true,
     "preserved_fixture_types": [
       "current regular asset",
+      "old content-addressed regular asset",
       "invalid matching regular file",
       "near-pattern file",
       "unrelated file",
@@ -75,14 +81,14 @@
       "FIFO",
       "Unix socket"
     ],
-    "links_traversed": false,
-    "remaining_owned_assets": [
+    "former_cleanup_boundary_race": "stale regular replaced by symlink after HTML publication; symlink and target preserved",
+    "canonical_worktree_assets": [
       "tk-vtext.134189ee3c5f9cb8.gzdata"
     ],
     "mutation_fixtures_isolated_from_worktree_public": true
   },
   "standalone_artifact": {
-    "command": "cd tools/els && python3 build.py --standalone-out /tmp/tzofen-offline.html",
+    "command": "cd tools/els && python3 build.py --standalone-out /tmp/tzofen-offline.html # destination must not exist",
     "committed_public_artifact": false,
     "raw_bytes": 2492175,
     "gzip_bytes": 1626805,
@@ -91,52 +97,60 @@
     "embedded_source_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
     "strict_offline_browser_requests_beyond_in_process_document": 0,
     "direct_file_url_test": "blocked by managed Chromium policy: ERR_BLOCKED_BY_ADMINISTRATOR",
-    "output_contract": "canonical regular-file path outside the entire repository under an existing real parent with no symlink component",
+    "output_contract": "create-new basename outside the entire repository under one bound existing parent directory opened without following symlinks",
     "rejected_path_classes": [
       "absolute repository path",
       "relative repository path",
-      "dot-dot spelling resolving inside repository",
+      "dot-dot spelling binding inside repository",
       "exact hosted HTML",
       "exact hosted asset",
       "new path under public",
       "new path under dist",
       "new path under inputs",
       "symlink parent",
+      "existing regular output",
       "output symlink",
       "directory",
       "FIFO",
       "missing parent"
     ],
     "path_rejection_before_input_load_or_render": true,
-    "normal_external_path_deterministic": true,
+    "normal_external_path_deterministic": "two distinct create-new paths produce identical bytes",
     "hosted_snapshot_unchanged_by_rejections_and_success": true,
-    "csp_condition": "embedded data URL requires data: in an externally imposed connect-src policy"
+    "csp_condition": "embedded data URL requires data: in an externally imposed connect-src policy",
+    "create_new_only": true,
+    "overwrite_supported": false,
+    "bound_parent_dirfd_held_through_verify": true,
+    "repository_ancestry_check": "bound directory descriptors and device/inode identities",
+    "parent_path_reused_after_binding": false,
+    "temporary_file_fsync_before_publish": true,
+    "publication": "dirfd-relative hard link; atomic no-clobber",
+    "parent_path_swap_test": "replacement symlink to fixture public cannot redirect publication",
+    "final_basename_symlink_race_test": "fails explicitly; raced symlink and target preserved; own temp removed"
   },
-  "predecessor_evidence_commit": "7c512b1101a65334bd2986fd1c7c251f35ff1d21",
-  "prior_hardening_implementation": "693892c18c4ebb1e90eff700420122e2d02ff654",
   "hosted_publication": {
     "lock": "cross-process exclusive flock",
     "lock_scope": "SHA-256 of canonical hosted output directory",
     "lock_artifact": "per-user system temp directory outside deployed public tree",
     "transaction": [
       "asset replace",
-      "HTML replace",
-      "stale owned regular cleanup"
+      "HTML replace"
     ],
     "exception_release": true,
     "abrupt_process_exit_release_tested_with_sigkill": true,
     "failure_injection_phases": [
       "before_asset_replace",
       "between_asset_and_html",
-      "after_html_before_cleanup",
-      "inside_cleanup"
+      "after_html_publish"
     ],
-    "different_input_concurrency": "2 processes passed in isolated copied repository",
-    "same_input_concurrency": "4 processes passed in isolated copied repository",
+    "different_input_concurrency": "2 processes passed; both valid content-addressed assets retained in isolated copied repository",
+    "same_input_concurrency": "4 processes passed; asset set unchanged in isolated copied repository",
     "historical_fixture_source_sha256": "8efa6670cdf792b8df390dc5f16a64bd504b4ec962de31b6434f9773b0ce17a8",
     "process_failure_safety": true,
     "power_loss_durability_claimed": false,
-    "fsync_added": false
+    "former_cleanup_boundary_race_tested": true,
+    "automatic_stale_cleanup": false,
+    "hosted_fsync_added": false
   },
   "source_validation": {
     "before_render_or_write": true,
