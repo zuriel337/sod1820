@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { entryPrimaryReads2029, postReadUrl, postBySlugRead, latestPostCardsRead, HOME_LATEST_POST_LIMIT_2029, WORLD_FLIGHT_POST_SLUG } from './src/lib/postReadQueries2029.js'
+import { entryPrimaryReads2029, postReadUrl, postBySlugRead, latestPostCardsRead, HOME_LATEST_POST_LIMIT_2029 } from './src/lib/postReadQueries2029.js'
 import { startPrimaryReads2029 } from './src/lib/earlyPrimaryRead2029.js'
 import { SUPABASE_URL, SUPABASE_ANON } from './src/lib/supabasePublicConfig.js'
 
@@ -21,7 +21,7 @@ export default defineConfig({
       handler(html) {
         if (!is2029) return html;
         // Slug routes use the same pure query definition, serialized here without loading React or supabase-js.
-        const code = `(()=>{try{const route=location.pathname;const HOME_LATEST_POST_LIMIT_2029=${HOME_LATEST_POST_LIMIT_2029};const WORLD_FLIGHT_POST_SLUG=${JSON.stringify(WORLD_FLIGHT_POST_SLUG)};const postBySlugRead=${postBySlugRead.toString()};const postReadUrl=${postReadUrl.toString()};const entryPrimaryReads2029=${entryPrimaryReads2029.toString()};const latestPostCardsRead=${latestPostCardsRead.toString()};const urls=entryPrimaryReads2029(route).map(d=>postReadUrl(${JSON.stringify(SUPABASE_URL)},d));(${startPrimaryReads2029.toString()})({route,urls,anonKey:${JSON.stringify(SUPABASE_ANON)}})}catch{}})();`;
+        const code = `(()=>{try{const route=location.pathname;const HOME_LATEST_POST_LIMIT_2029=${HOME_LATEST_POST_LIMIT_2029};const postBySlugRead=${postBySlugRead.toString()};const postReadUrl=${postReadUrl.toString()};const entryPrimaryReads2029=${entryPrimaryReads2029.toString()};const latestPostCardsRead=${latestPostCardsRead.toString()};const urls=entryPrimaryReads2029(route).map(d=>postReadUrl(${JSON.stringify(SUPABASE_URL)},d));(${startPrimaryReads2029.toString()})({route,urls,anonKey:${JSON.stringify(SUPABASE_ANON)}})}catch{}})();`;
         return html.replace('    <link rel="preload"', `    <script id="sod2029-primary-reads">${code}</script>\n    <link rel="preload"`);
       },
     },

@@ -1,0 +1,3481 @@
+{
+  "schema": "locked-route-parallel-start-2029.v2",
+  "expected": "after",
+  "synthetic": true,
+  "loopbackOnly": true,
+  "reps": 3,
+  "browser": "151.0.7922.173",
+  "dist": "/workspace/sod1820-perf-locked-route-start-20261018/dist",
+  "assets": {
+    "world": "/assets/World2029Page-BUTYgtqF.js",
+    "number": "/assets/Number2029Page-MnwOdR05.js",
+    "post": "/assets/Post2029Page-C9A5L2Ml.js"
+  },
+  "worldPostFixture": [
+    {
+      "id": 5112,
+      "slug": "flydubai-fz1073-363-14000-remzei-geula",
+      "title": "Synthetic FZ1073",
+      "content": "<p>Synthetic public post</p>",
+      "excerpt": "Synthetic public post",
+      "author": "Synthetic",
+      "tags": [],
+      "categories": [
+        "Synthetic"
+      ],
+      "home_hidden": false,
+      "source": "synthetic",
+      "date": "2026-09-30T20:15:36.000Z",
+      "modified": "2026-09-30T20:15:36.000Z",
+      "image_url": null,
+      "thumb_url": null
+    }
+  ],
+  "summary": {
+    "world_0ms": {
+      "routeStart": {
+        "samplesMs": [
+          183.6,
+          183.5,
+          155.5
+        ],
+        "medianMs": 183.5
+      },
+      "usableContent": {
+        "samplesMs": [
+          805.2,
+          769.1,
+          774.3
+        ],
+        "medianMs": 774.3
+      }
+    },
+    "number_0ms": {
+      "routeStart": {
+        "samplesMs": [
+          163.1,
+          146.5,
+          134.7
+        ],
+        "medianMs": 146.5
+      },
+      "usableContent": {
+        "samplesMs": [
+          651.8,
+          640.8,
+          610.1
+        ],
+        "medianMs": 640.8
+      }
+    },
+    "world_1500ms": {
+      "routeStart": {
+        "samplesMs": [
+          156.9,
+          166.4,
+          161
+        ],
+        "medianMs": 161
+      },
+      "usableContent": {
+        "samplesMs": [
+          2255.4,
+          2370.9,
+          2250
+        ],
+        "medianMs": 2255.4
+      }
+    },
+    "number_1500ms": {
+      "routeStart": {
+        "samplesMs": [
+          198.3,
+          178.7,
+          171.7
+        ],
+        "medianMs": 178.7
+      },
+      "usableContent": {
+        "samplesMs": [
+          2223.4,
+          2218,
+          2195.7
+        ],
+        "medianMs": 2218
+      }
+    },
+    "post_1500ms": {
+      "routeStart": {
+        "samplesMs": [
+          145.6,
+          141.9,
+          157.3
+        ],
+        "medianMs": 145.6
+      },
+      "usableContent": {
+        "samplesMs": [
+          580.7,
+          545.2,
+          590.2
+        ],
+        "medianMs": 580.7
+      }
+    }
+  },
+  "comparison": {
+    "world0msUsableBeforeMs": 799.4,
+    "world0msUsableAfterMs": 774.3,
+    "ratio": 0.9686,
+    "regressionPercent": -3.1,
+    "thresholdPercent": 10
+  },
+  "scenarios": [
+    {
+      "sample": 1,
+      "name": "world-direct-flags-0",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        905.096172,
+        1339.338736
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 623.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A00.039Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 650.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 654.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 656.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 660.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 661.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 661.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 663.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 664.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 665
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 668.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 792.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 794
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 800.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 812.6
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 183.6,
+      "usableContentMs": 805.2,
+      "gateReadyMs": 235.1,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 812.6
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 623.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A00.039Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 650.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 654.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 656.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 660.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 661.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 661.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 663.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 664.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 665
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 668.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 792.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 794
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 800.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 812.6
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 2,
+      "name": "world-direct-flags-0",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        1942.799552,
+        2345.627024
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 581.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A01.043Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 613.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 616.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 617.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 618.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 619.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 619.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 620.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 622.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 626.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 631.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 736.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 739.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 755.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 766.4
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 183.5,
+      "usableContentMs": 769.1,
+      "gateReadyMs": 225.7,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 766.4
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 581.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A01.043Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 613.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 616.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 617.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 618.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 619.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 619.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 620.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 622.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 626.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 631.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 736.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 739.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 755.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 766.4
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 3,
+      "name": "world-direct-flags-0",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        2930.680497,
+        3342.126943
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 568.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A02.033Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 607.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 608.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 609
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 613.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 614.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 615.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 620.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 621
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 621.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 629.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 751
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 755.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 768.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 781.8
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 155.5,
+      "usableContentMs": 774.3,
+      "gateReadyMs": 210.6,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 781.8
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 568.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A02.033Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 607.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 608.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 609
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 613.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 614.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 615.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 620.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 621
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 621.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 629.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 751
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 755.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 768.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 781.8
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "world-direct-flags-1500",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        3823.425934,
+        5723.115787
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2053.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A04.425Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2085
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 2085.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 2089.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 2090.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 2092.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2093.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2093.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 2094
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 2094.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 2099.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2225.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2229.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2234.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2253.5
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 156.9,
+      "usableContentMs": 2255.4,
+      "gateReadyMs": 1694.8,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2253.5
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2053.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A04.425Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2085
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 2085.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 2089.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 2090.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 2092.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2093.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2093.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 2094
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 2094.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 2099.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2225.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2229.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2234.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2253.5
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 2,
+      "name": "world-direct-flags-1500",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        6290.195115,
+        8199.371784
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2062.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A06.895Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2099.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 2102.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 2103
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 2103.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 2107.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2108.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2108.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 2109.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 2111.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 2121.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2244.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2249.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2253.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2253.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+          "startMs": 2269.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+          "startMs": 2394.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+          "startMs": 2395.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+          "startMs": 2395.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+          "startMs": 2398.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+          "startMs": 2398.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+          "startMs": 2398.9
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2401.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2405.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2406.8
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2407.2
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2407.7
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 166.4,
+      "usableContentMs": 2370.9,
+      "gateReadyMs": 1703.6,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2253.8
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2062.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A06.895Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2099.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 2102.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 2103
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 2103.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 2107.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2108.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2108.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 2109.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 2111.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 2121.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2244.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2249.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2253.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2253.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+          "startMs": 2269.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+          "startMs": 2394.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+          "startMs": 2395.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+          "startMs": 2395.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+          "startMs": 2398.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+          "startMs": 2398.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+          "startMs": 2398.9
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2401.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2405.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2406.8
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2407.2
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2407.7
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 3,
+      "name": "world-direct-flags-1500",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        8804.394551,
+        10695.658738
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2053
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A09.401Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2080.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 2084
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 2084.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 2084.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 2085.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2086.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2088
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 2088.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 2088.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 2097
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2214.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2215
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2227.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2234.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+          "startMs": 2247.6
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 161,
+      "usableContentMs": 2250,
+      "gateReadyMs": 1698.8,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2234.6
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2053
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A09.401Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2080.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 2084
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 2084.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 2084.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 2085.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2086.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 2088
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 2088.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 2088.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 2097
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2214.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2215
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2227.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2234.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+          "startMs": 2247.6
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "number-direct-flags-0",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        11348.65241,
+        11726.328915
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 572.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A10.431Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 600.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 601.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 602
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 635.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 641.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 641.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 645.2
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 163.1,
+      "usableContentMs": 651.8,
+      "gateReadyMs": 227.7,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 572.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A10.431Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 600.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 601.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 602
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 635.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 641.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 641.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 645.2
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 2,
+      "name": "number-direct-flags-0",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        12101.839419,
+        12496.08545
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 554.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A11.200Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 590.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 590.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 591.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 634.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 635.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 636.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 636.9
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 146.5,
+      "usableContentMs": 640.8,
+      "gateReadyMs": 199.6,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 554.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A11.200Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 590.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 590.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 591.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 634.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 635.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 636.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 636.9
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 3,
+      "name": "number-direct-flags-0",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        12876.13379,
+        13259.008587
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 538.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A11.968Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 564.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 564.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 567.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 600.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 602.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 602.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 604.3
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 134.7,
+      "usableContentMs": 610.1,
+      "gateReadyMs": 186,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 538.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A11.968Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 564.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 564.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 567.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 600.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 602.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 602.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 604.3
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "number-direct-flags-1500",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        13676.909773,
+        15550.884484
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2079.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A14.257Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2104.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 2105
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 2105.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 2141.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 2142.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 2143.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 2144.6
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 198.3,
+      "usableContentMs": 2223.4,
+      "gateReadyMs": 1732.3,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2079.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A14.257Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2104.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 2105
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 2105.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 2141.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 2142.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 2143.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 2144.6
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 2,
+      "name": "number-direct-flags-1500",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        16040.946243,
+        17913.759095
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2065.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A16.619Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2093.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 2096.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 2097
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 2138.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 2139
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 2140.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 2141.5
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 178.7,
+      "usableContentMs": 2218,
+      "gateReadyMs": 1725.2,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2065.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A16.619Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2093.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 2096.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 2097
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 2138.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 2139
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 2140.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 2141.5
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 3,
+      "name": "number-direct-flags-1500",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        18368.794118,
+        20235.712602
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2056.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A18.950Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2076.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 2077.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 2078.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 2117
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 2118.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 2118.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 2119.9
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 171.7,
+      "usableContentMs": 2195.7,
+      "gateReadyMs": 1712.3,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 2056.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A18.950Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 2076.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 2077.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 2078.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 2117
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 2118.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 2118.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 2119.9
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "post-control-flags-1500",
+      "kind": "post",
+      "path": "/post/synthetic-control",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        20668.784449
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 35.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A19.685Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 486.5
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 516.1
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 1,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 145.6,
+      "usableContentMs": 580.7,
+      "gateReadyMs": 1696.1,
+      "routeBeforeGate": true,
+      "earlyDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 35.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A19.685Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 486.5
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 516.1
+        }
+      ],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 35.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A19.685Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 486.5
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 516.1
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 35.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A19.685Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 486.5
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 516.1
+        }
+      ],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 2,
+      "name": "post-control-flags-1500",
+      "kind": "post",
+      "path": "/post/synthetic-control",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        22493.994466
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A21.513Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 473.3
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 509.3
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 1,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 141.9,
+      "usableContentMs": 545.2,
+      "gateReadyMs": 1680.3,
+      "routeBeforeGate": true,
+      "earlyDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A21.513Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 473.3
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 509.3
+        }
+      ],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A21.513Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 473.3
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 509.3
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A21.513Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 473.3
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 509.3
+        }
+      ],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 3,
+      "name": "post-control-flags-1500",
+      "kind": "post",
+      "path": "/post/synthetic-control",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        24318.662715
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A23.340Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 490
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 523.8
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 1,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 157.3,
+      "usableContentMs": 590.2,
+      "gateReadyMs": 1696.3,
+      "routeBeforeGate": true,
+      "earlyDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A23.340Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 490
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 523.8
+        }
+      ],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A23.340Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 490
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 523.8
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28synthetic-control%29&limit=1",
+          "startMs": 34.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A23.340Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 490
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 523.8
+        }
+      ],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "world-blocked",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 1500,
+      "locked": true,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        26140.448394
+      ],
+      "authProfileRequests": [],
+      "dataReads": [],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 0,
+        "locked": 1,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 156,
+      "usableContentMs": null,
+      "gateReadyMs": 1704.6,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "number-blocked",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 1500,
+      "locked": true,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        28430.521727
+      ],
+      "authProfileRequests": [],
+      "dataReads": [],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 0,
+        "locked": 1,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 151.9,
+      "usableContentMs": null,
+      "gateReadyMs": 1697.9,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "world-auth-loading-unauthorized",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 0,
+      "locked": true,
+      "internal": false,
+      "authProfileDelay": 1500,
+      "failChunk": false,
+      "flagRequests": [
+        30776.345134,
+        32285.221587
+      ],
+      "authProfileRequests": [
+        30776.755678
+      ],
+      "dataReads": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/claim_research_lead",
+          "startMs": 200.7
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/user_activity",
+          "startMs": 201.1
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/research_state_snapshot_v1",
+          "startMs": 1707.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+          "startMs": 1710.4
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 0,
+        "locked": 1,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 154.6,
+      "usableContentMs": null,
+      "gateReadyMs": 1700,
+      "routeBeforeGate": true,
+      "earlyDataReads": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/claim_research_lead",
+          "startMs": 200.7
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/user_activity",
+          "startMs": 201.1
+        }
+      ],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/claim_research_lead",
+          "startMs": 200.7
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/user_activity",
+          "startMs": 201.1
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/research_state_snapshot_v1",
+          "startMs": 1707.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+          "startMs": 1710.4
+        }
+      ],
+      "routeDataReads": [],
+      "earlyShellOwnedReads": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/claim_research_lead",
+          "startMs": 200.7
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/user_activity",
+          "startMs": 201.1
+        }
+      ],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "world-internal-flags-1500",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": true,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        33516.902569,
+        35398.005394
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 1875.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A34.096Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 1906.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 1908.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 1909.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 1909.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 1910
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 1910.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 1910.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 1911
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 1916.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 1923.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2025.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2031.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2032.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2040.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+          "startMs": 2056.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+          "startMs": 2172.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+          "startMs": 2172.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+          "startMs": 2172.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+          "startMs": 2173.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+          "startMs": 2177.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+          "startMs": 2178.4
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2180.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2181.1
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2181.4
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2181.8
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2182.1
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2182.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+          "startMs": 2196.9
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 1,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": 21.1,
+      "usableContentMs": 2195.3,
+      "gateReadyMs": 1537.8,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2025.3
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 1875.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A34.096Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 1906.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gallery_images?select=id%2Cgallery_id%2Cwp_gallery_id%2Cordering%2Cname%2Cdescription%2Cimage_url%2Cthumb_url%2Cpublished%2Ccurator_hidden%2Coccurred_at%2Ccreated_at%2Cimage_type%2Cspace%2Ctags%2Csource%2Cocr_text%2Cocr_status%2Cocr_numbers%2Cocr_meta%2Cprimary_value%2Call_values%2Crelated_values%2Cmin_tier%2Cwp_image_id&id=in.%286232be42-82a3-41ac-b4d3-004a21e48c7f%2Cd9842a5a-5313-4d32-8e58-5f07fa29b887%2C62ffc447-fd91-4027-9fe9-4a19d09679fd%2Cc502fa89-96f1-495b-aeb7-b16deaaa96b3%29&published=eq.1&min_tier=eq.0&or=%28curator_hidden.is.null%2Ccurator_hidden.eq.false%29&limit=12",
+          "startMs": 1908.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=9",
+          "startMs": 1909.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=11",
+          "startMs": 1909.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cidentity_key%2Cmetadata%2Cis_active%2Ccreated_at&type=eq.book&is_active=eq.true&order=label.asc&offset=0&limit=6",
+          "startMs": 1910
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.event&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 1910.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.phrase&is_active=eq.true&order=created_at.desc%2Cid.asc&offset=0&limit=7",
+          "startMs": 1910.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cmetadata%2Cis_active&type=eq.number&is_active=eq.true&label=in.%281820%2C776%29",
+          "startMs": 1911
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=created_by&created_by=not.is.null&offset=0&limit=500",
+          "startMs": 1916.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=3",
+          "startMs": 1923.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=*&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 2025.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&slug=in.%28tzvi-opoc%2Cshimon-haimov%2Cyaniv-levi%2Cshachar-kandro%29",
+          "startMs": 2031.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/contributors?select=id%2Cslug%2Cdisplay_name%2Ckind%2Crole%2Cwa_names%2Ctrusted%2Cactive%2Cdossier_settings&active=eq.true&trusted=eq.true&kind=neq.external",
+          "startMs": 2032.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=id%2Cslug%2Ctitle%2Csubtitle%2Cnumbers%2Chighlight_numbers%2Cquality%2Cmeter_score%2Ccreated_by%2Ccreated_at%2Capproved_at%2Coccurred_at&numbers=cs.%7B878%7D&order=meter_score.desc.nullslast%2Capproved_at.desc.nullslast%2Cid.asc.nullslast&offset=0&limit=13",
+          "startMs": 2040.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-363&limit=1",
+          "startMs": 2056.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.gapfill-718",
+          "startMs": 2172.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/topic_cards_public?select=slug%2Ctitle&slug=eq.386-david-ben-yishai-tzipor",
+          "startMs": 2172.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28710-%25d7%2592%25d7%2599%25d7%259e%25d7%2598%25d7%25a8%25d7%2599%25d7%2594-%25d7%2593%25d7%2599%25d7%25a0%25d7%2599%25d7%259d-%25d7%259e%25d7%25aa%25d7%2595%25d7%25a7%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a8%25d7%259e%25d7%2596-%25d7%25a2%25d7%259c-7-10-%25d7%25a9%25d7%2591%25d7%25a9%25d7%2595%25d7%25a8%2C710-%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%93%D7%99%D7%A0%D7%99%D7%9D-%D7%9E%D7%AA%D7%95%D7%A7%D7%99%D7%9D-%D7%94%D7%9E%D7%A8%D7%9E%D7%96-%D7%A2%D7%9C-7-10-%D7%A9%D7%91%D7%A9%D7%95%D7%A8%29&limit=1",
+          "startMs": 2172.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%2594%25d7%259e%25d7%259c%25d7%2597%25d7%259e%25d7%2594-%25d7%25a9%25d7%2594%25d7%2597%25d7%259c%25d7%2594-%25d7%2591%25d7%2590%25d7%2596%25d7%2595%25d7%25a8-%25d7%25a2%25d7%2596%25d7%2594-%25d7%2591%25d7%2599%25d7%2595%25d7%259d-%25d7%25a9%25d7%259e%25d7%2597%25d7%25aa-%25d7%25aa%25d7%2595%25d7%25a8%25d7%2594-%25d7%25aa%2C%D7%94%D7%9E%D7%9C%D7%97%D7%9E%D7%94-%D7%A9%D7%94%D7%97%D7%9C%D7%94-%D7%91%D7%90%D7%96%D7%95%D7%A8-%D7%A2%D7%96%D7%94-%D7%91%D7%99%D7%95%D7%9D-%D7%A9%D7%9E%D7%97%D7%AA-%D7%AA%D7%95%D7%A8%D7%94-%D7%AA%29&limit=1",
+          "startMs": 2173.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%25d7%25a8%25d7%259e%25d7%2596%25d7%2599%25d7%259d-%25d7%259e%25d7%2594%25d7%25a2%25d7%2591%25d7%25a8%25d7%25aa-%25d7%2594%25d7%2590%25d7%2599%25d7%2599%25d7%259d-%25d7%2594%25d7%259e%25d7%25a6%25d7%25a8%25d7%2599%25d7%259d-%25d7%2598%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%2595%25d7%25a1%25d7%25a0%25d7%25a4%25d7%2599%2C%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9E%D7%94%D7%A2%D7%91%D7%A8%D7%AA-%D7%94%D7%90%D7%99%D7%99%D7%9D-%D7%94%D7%9E%D7%A6%D7%A8%D7%99%D7%9D-%D7%98%D7%99%D7%A8%D7%90%D7%9F-%D7%95%D7%A1%D7%A0%D7%A4%D7%99%29&limit=1",
+          "startMs": 2177.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug&slug=in.%28%D7%A1%D7%9B%D7%A1%D7%95%D7%9A-%D7%91%D7%99%D7%9F-%D7%90%D7%99%D7%A8%D7%90%D7%9F-%D7%9C%D7%A2%D7%A8%D7%91-%D7%94%D7%A1%D7%A2%D7%95%D7%93%D7%99%D7%AA-%D7%9C%D7%A4%D7%A0%D7%99-%D7%94%D7%92%D7%90%D7%95%2C%25d7%25a1%25d7%259b%25d7%25a1%25d7%2595%25d7%259a-%25d7%2591%25d7%2599%25d7%259f-%25d7%2590%25d7%2599%25d7%25a8%25d7%2590%25d7%259f-%25d7%259c%25d7%25a2%25d7%25a8%25d7%2591-%25d7%2594%25d7%25a1%25d7%25a2%25d7%2595%25d7%2593%25d7%2599%25d7%25aa-%25d7%259c%25d7%25a4%25d7%25a0%25d7%2599-%25d7%2594%25d7%2592%25d7%2590%25d7%2595%29&limit=1",
+          "startMs": 2178.4
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2180.6
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2181.1
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2181.4
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2181.8
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2182.1
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/gematria_method_trace",
+          "startMs": 2182.4
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=rule_id%2Crule_version&type=eq.rule&is_active=eq.true&rule_id=in.%28zero_scale_law%2Cshitat_haechad_alef_law%2Czero_navigation%2Cmoment_clock_law%29",
+          "startMs": 2196.9
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "number-internal-flags-1500",
+      "kind": "number",
+      "path": "/number/718",
+      "flagsDelay": 1500,
+      "locked": false,
+      "internal": true,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        36431.127196,
+        38273.700401
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 1860.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A36.989Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 1873.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 1873.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 1874.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 1912.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 1913.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 1915.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 1916.8
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": {
+        "world": 0,
+        "number": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "protectedText": false
+      },
+      "finalDom": {
+        "world": 0,
+        "number": 1,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 23.3,
+      "usableContentMs": 2066.2,
+      "gateReadyMs": 1538.4,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 1860.8
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A36.989Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 1873.2
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&identity_key=eq.718&limit=1",
+          "startMs": 1873.9
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/gematria_words?select=phrase%2Cis_verified%2Cvisibility_tier%2Clead_rank%2Ctags&ragil=eq.718&is_verified=eq.true&is_published=eq.true&order=lead_rank.asc.nullslast%2Cvisibility_tier.asc.nullslast%2Ccreated_at.desc.nullslast&offset=0&limit=30",
+          "startMs": 1874.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.diamond&limit=40",
+          "startMs": 1912.3
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Etier=eq.gold&limit=120",
+          "startMs": 1913.7
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Caxis_theme%2Cis_active&is_active=eq.true&metadata-%3E%3Erole=eq.crown_anchor&limit=20",
+          "startMs": 1915.5
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/nodes?select=id%2Ctype%2Clabel%2Cdescription%2Cmetadata%2Cidentity_key%2Cis_active%2Ccreated_at&type=eq.number&label=eq.718&limit=1",
+          "startMs": 1916.8
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    },
+    {
+      "sample": 1,
+      "name": "home-does-not-preload-world",
+      "kind": "world",
+      "path": "/",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        38793.643016,
+        39149.755208
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 34.6
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 534.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A37.867Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 547.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ctags%2Chome_hidden%2Csource%2Ccategories%2Cdate%2Cthumb_url%2Cimage_url&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 548.2
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+          "startMs": 549.2
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": null,
+      "usableContentMs": null,
+      "gateReadyMs": 194.9,
+      "routeBeforeGate": false,
+      "earlyDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 34.6
+        }
+      ],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ctags%2Chome_hidden%2Csource%2Ccategories%2Cdate%2Cthumb_url%2Cimage_url&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 548.2
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 34.6
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 534.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A37.867Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 547.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ctags%2Chome_hidden%2Csource%2Ccategories%2Cdate%2Cthumb_url%2Cimage_url&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 548.2
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+          "startMs": 549.2
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 34.6
+        }
+      ],
+      "routeRequestCount": 0
+    },
+    {
+      "sample": 1,
+      "name": "home-does-not-preload-number",
+      "kind": "number",
+      "path": "/",
+      "flagsDelay": 0,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": false,
+      "flagRequests": [
+        39713.147979,
+        40065.997393
+      ],
+      "authProfileRequests": [],
+      "dataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 41.8
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 528.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A38.787Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 536.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ctags%2Chome_hidden%2Csource%2Ccategories%2Cdate%2Cthumb_url%2Cimage_url&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 539.9
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+          "startMs": 540.3
+        }
+      ],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 0,
+        "reloadLink": false
+      },
+      "worldPostResponses": 1,
+      "routeRequestStartMs": null,
+      "usableContentMs": null,
+      "gateReadyMs": 188.5,
+      "routeBeforeGate": false,
+      "earlyDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 41.8
+        }
+      ],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ctags%2Chome_hidden%2Csource%2Ccategories%2Cdate%2Cthumb_url%2Cimage_url&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 539.9
+        }
+      ],
+      "shellOwnedReads": [],
+      "routeDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 41.8
+        },
+        {
+          "method": "GET",
+          "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+          "startMs": 528.1
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/channel_updates?select=id%2Ctext%2Cimage_url%2Cthumb_url%2Ccreated_at%2Cpriority%2Ccredit%2Cexpires_at%2Clink_url&channel=eq.or-geula&image_url=not.is.null&or=%28expires_at.is.null%2Cexpires_at.gt.2026-10-18T00%3A29%3A38.787Z%29&order=priority.desc%2Ccreated_at.desc&limit=12",
+          "startMs": 536.6
+        },
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Ctags%2Chome_hidden%2Csource%2Ccategories%2Cdate%2Cthumb_url%2Cimage_url&slug=in.%28flydubai-fz1073-363-14000-remzei-geula%29&limit=1",
+          "startMs": 539.9
+        },
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+          "startMs": 540.3
+        }
+      ],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [
+        {
+          "method": "GET",
+          "path": "/rest/v1/posts?select=id%2Cslug%2Ctitle%2Cimage_url%2Cthumb_url%2Cdate%2Cmodified%2Ctags%2Chome_hidden&home_hidden=eq.false&slug=not.is.null&order=modified.desc.nullslast&limit=21",
+          "startMs": 41.8
+        }
+      ],
+      "routeRequestCount": 0
+    },
+    {
+      "sample": 1,
+      "name": "world-chunk-failure",
+      "kind": "world",
+      "path": "/world",
+      "flagsDelay": 150,
+      "locked": false,
+      "internal": false,
+      "authProfileDelay": 0,
+      "failChunk": true,
+      "flagRequests": [
+        40674.745509
+      ],
+      "authProfileRequests": [],
+      "dataReads": [],
+      "externalSideEffects": [],
+      "earlyDom": null,
+      "finalDom": {
+        "world": 0,
+        "number": 0,
+        "post": 0,
+        "locked": 0,
+        "routeFailure": 1,
+        "reloadLink": true
+      },
+      "worldPostResponses": 0,
+      "routeRequestStartMs": 144.3,
+      "usableContentMs": null,
+      "gateReadyMs": 344.5,
+      "routeBeforeGate": true,
+      "earlyDataReads": [],
+      "earlyExternalSideEffects": [],
+      "worldPostReads": [],
+      "shellOwnedReads": [],
+      "routeDataReads": [],
+      "earlyShellOwnedReads": [],
+      "earlyRouteDataReads": [],
+      "routeRequestCount": 1
+    }
+  ]
+}

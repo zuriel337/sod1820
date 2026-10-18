@@ -14,16 +14,21 @@ import { TYPEFACE } from "./lib/designTokens.js";
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import { useRuntimeSwitch } from "./lib/runtimeSwitches2029.js";
+import {
+  loadNumber2029RouteCode,
+  loadWorld2029RouteCode,
+  lockedRouteCodeLoaderForPath2029,
+} from "./lib/lockedRouteCode2029.js";
 
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
-const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
+const LazyWorld2029Page = lazy(loadWorld2029RouteCode);
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
 const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
-const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
+const LazyNumber2029Page = lazy(loadNumber2029RouteCode);
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
 const Posts2029Page = lazy(() => import("./pages/Posts2029Page.jsx"));
 const LifeJourney2029Page = lazy(() => import("./pages/LifeJourney2029Page.jsx"));
@@ -65,6 +70,51 @@ function Loading2029() {
   return <div role="status" dir="rtl" style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui, fontSize: 18 }}>
     <span>טוען את התוכן…</span>
   </div>;
+}
+
+function RouteCodeLoadFailure2029() {
+  const palette = use2029Palette();
+  const location = useLocation();
+  const href = `${location.pathname}${location.search || ""}${location.hash || ""}`;
+  return <div data-route-load-failure role="alert" dir="rtl" style={{ minHeight: "72vh", display: "grid", placeItems: "center", padding: 24, textAlign: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui }}>
+    <div>
+      <h1 style={{ fontSize: 24, margin: "0 0 12px" }}>לא הצלחנו לטעון את העמוד</h1>
+      <p style={{ margin: "0 0 20px", lineHeight: 1.7 }}>החיבור נקטע בזמן טעינת קוד העמוד. אפשר לנסות שוב ברענון מפורש.</p>
+      <a href={href} style={{ color: palette.accent || "#b58a16", fontWeight: 800 }}>טען מחדש את העמוד</a>
+    </div>
+  </div>;
+}
+
+class RouteCodeErrorBoundary2029 extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { failed: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed ? <RouteCodeLoadFailure2029 /> : this.props.children;
+  }
+}
+
+function World2029Page() {
+  return <RouteCodeErrorBoundary2029><LazyWorld2029Page /></RouteCodeErrorBoundary2029>;
+}
+
+function Number2029Page() {
+  return <RouteCodeErrorBoundary2029><LazyNumber2029Page /></RouteCodeErrorBoundary2029>;
+}
+
+function LockedRouteCodePreparation2029() {
+  const { pathname } = useLocation();
+  useLayoutEffect(() => {
+    const loader = lockedRouteCodeLoaderForPath2029(pathname);
+    if (loader) void loader().catch(() => {});
+  }, [pathname]);
+  return null;
 }
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
@@ -155,6 +205,7 @@ export default function App2029() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <LockedRouteCodePreparation2029 />
         <ResearchProvider>
           <RouteEffects2029 />
           <Suspense fallback={<Loading2029 />}>

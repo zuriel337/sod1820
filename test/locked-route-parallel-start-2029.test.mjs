@@ -11,6 +11,7 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const dist = resolve(process.env.LOCKED_ROUTE_DIST || resolve(root, "dist"));
 const expected = process.env.LOCKED_ROUTE_EXPECT || "before";
 const output = process.env.LOCKED_ROUTE_OUTPUT || "";
+const baselineOutput = process.env.LOCKED_ROUTE_BASELINE || "";
 const reps = Math.max(1, Number(process.env.LOCKED_ROUTE_REPS || 1));
 const chromiumPath = process.env.CHROMIUM_PATH || "/usr/bin/chromium";
 const require = createRequire(import.meta.url);
@@ -34,6 +35,53 @@ const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
   "content-range": "0-0/0",
 };
+const worldPostSlug = "flydubai-fz1073-363-14000-remzei-geula";
+const worldPostFixture = [{
+  id: 5112,
+  slug: worldPostSlug,
+  title: "Synthetic FZ1073",
+  content: "<p>Synthetic public post</p>",
+  excerpt: "Synthetic public post",
+  author: "Synthetic",
+  tags: [],
+  categories: ["Synthetic"],
+  home_hidden: false,
+  source: "synthetic",
+  date: "2026-09-30T20:15:36.000Z",
+  modified: "2026-09-30T20:15:36.000Z",
+  image_url: null,
+  thumb_url: null,
+}];
+
+function isWorldPostRead(path) {
+  const url = new URL(path, "https://example.invalid");
+  return url.pathname === "/rest/v1/posts" && (url.searchParams.get("slug") || "").includes(worldPostSlug);
+}
+
+function isPostSlugRead(path, slug) {
+  const url = new URL(path, "https://example.invalid");
+  return url.pathname === "/rest/v1/posts"
+    && url.searchParams.get("select") === "*"
+    && url.searchParams.get("slug") === `in.(${slug})`
+    && url.searchParams.get("limit") === "1";
+}
+
+function isHomeLatestRead(path) {
+  const url = new URL(path, "https://example.invalid");
+  return url.pathname === "/rest/v1/posts"
+    && url.searchParams.get("select") === "id,slug,title,image_url,thumb_url,date,modified,tags,home_hidden"
+    && url.searchParams.get("home_hidden") === "eq.false"
+    && url.searchParams.get("slug") === "not.is.null"
+    && url.searchParams.get("order") === "modified.desc.nullslast"
+    && url.searchParams.get("limit") === "21";
+}
+
+function isShellOwnedRead(path) {
+  const url = new URL(path, "https://example.invalid");
+  return url.pathname === "/rest/v1/user_activity"
+    || url.pathname === "/rest/v1/research_leads"
+    || /^\/rest\/v1\/rpc\/(?:link_visitor_identity|claim_research_lead|claim_my_founding_grants|claim_daily_credit|claim_wa_activity_credits|record_referral|stitch_login|stitch_identity|research_state_snapshot_v1|fn_research_path_resume_v1)/.test(url.pathname);
+}
 
 function median(values) {
   const ordered = [...values].sort((a, b) => a - b);
@@ -133,7 +181,8 @@ async function runScenario(browser, origin, assets, options) {
     name, kind, path, flagsDelay, locked, internal, authProfileDelay, failChunk,
     navStart: null, routeRequests: [], flagRequests: [], flagResponseAt: null,
     authProfileRequests: [], authProfileResponseAt: null, dataReads: [],
-    externalSideEffects: [], earlyDom: null, finalDom: null,
+    externalSideEffects: [], earlyDom: null, finalDom: null, usableContentAt: null,
+    worldPostResponses: 0,
   };
   let phase = internal ? "setup" : "target";
 
@@ -171,7 +220,7 @@ async function runScenario(browser, origin, assets, options) {
           { key: "lock_number", enabled: kind === "number" ? locked : false, message: "synthetic lock", mode: "all" },
           ...switchRows,
         ];
-        if (phase === "target") state.flagResponseAt = performance.now();
+        if (phase === "target" && state.flagResponseAt == null) state.flagResponseAt = performance.now();
         await route.fulfill({ status: 200, headers: jsonHeaders, body: JSON.stringify(rows) });
         return;
       }
@@ -194,6 +243,9 @@ async function runScenario(browser, origin, assets, options) {
       }
       if (url.pathname.startsWith("/auth/v1/")) {
         await route.fulfill({ status: 200, headers: jsonHeaders, body: JSON.stringify({ user: null }) });
+      } else if (url.pathname === "/rest/v1/posts" && (url.searchParams.get("slug") || "").includes(worldPostSlug)) {
+        if (phase === "target") state.worldPostResponses += 1;
+        await route.fulfill({ status: 200, headers: jsonHeaders, body: JSON.stringify(worldPostFixture) });
       } else {
         await route.fulfill({ status: 200, headers: jsonHeaders, body: url.pathname.includes("/rpc/") ? "null" : "[]" });
       }
@@ -242,6 +294,7 @@ async function runScenario(browser, origin, assets, options) {
   const gateTimeout = Math.max(flagsDelay, authProfileDelay) + 6500;
   if (kind === "post") {
     await page.waitForSelector(".surface-post", { timeout: gateTimeout });
+    state.usableContentAt = performance.now();
     const flagDeadline = performance.now() + gateTimeout;
     while (!state.flagResponseAt && performance.now() < flagDeadline) await sleep(20);
   } else if (failChunk) {
@@ -251,6 +304,7 @@ async function runScenario(browser, origin, assets, options) {
     await page.waitForSelector(".mlock", { timeout: gateTimeout });
   } else if (expectSurface) {
     await page.waitForSelector(`.surface-${kind}`, { timeout: gateTimeout });
+    state.usableContentAt = performance.now();
   } else {
     await sleep(Math.max(600, flagsDelay + 200));
   }
@@ -267,14 +321,33 @@ async function runScenario(browser, origin, assets, options) {
   const gateReadyAt = Math.max(state.flagResponseAt || 0, state.authProfileResponseAt || 0);
   state.routeRequestStartMs = state.routeRequests.length
     ? Number((state.routeRequests[0] - state.navStart).toFixed(1)) : null;
+  state.usableContentMs = state.usableContentAt == null
+    ? null : Number((state.usableContentAt - state.navStart).toFixed(1));
+  state.gateReadyMs = gateReadyAt > 0 ? Number((gateReadyAt - state.navStart).toFixed(1)) : null;
   state.routeBeforeGate = state.routeRequests.length > 0 && gateReadyAt > 0 && state.routeRequests[0] < gateReadyAt;
-  state.earlyDataReads = state.dataReads.filter((entry) => gateReadyAt > 0 && entry.at < gateReadyAt);
-  state.earlyExternalSideEffects = state.externalSideEffects.filter((entry) => gateReadyAt > 0 && entry.at < gateReadyAt);
+  state.dataReads = state.dataReads.map((entry) => ({
+    method: entry.method,
+    path: entry.path,
+    startMs: Number((entry.at - state.navStart).toFixed(1)),
+  }));
+  state.externalSideEffects = state.externalSideEffects.map((entry) => ({
+    method: entry.method,
+    url: entry.url,
+    startMs: Number((entry.at - state.navStart).toFixed(1)),
+  }));
+  state.earlyDataReads = state.dataReads.filter((entry) => state.gateReadyMs != null && entry.startMs < state.gateReadyMs);
+  state.earlyExternalSideEffects = state.externalSideEffects.filter((entry) => state.gateReadyMs != null && entry.startMs < state.gateReadyMs);
+  state.worldPostReads = state.dataReads.filter((entry) => isWorldPostRead(entry.path));
+  state.shellOwnedReads = state.dataReads.filter((entry) => isShellOwnedRead(entry.path));
+  state.routeDataReads = state.dataReads.filter((entry) => !isShellOwnedRead(entry.path));
+  state.earlyShellOwnedReads = state.shellOwnedReads.filter((entry) => state.gateReadyMs != null && entry.startMs < state.gateReadyMs);
+  state.earlyRouteDataReads = state.routeDataReads.filter((entry) => state.gateReadyMs != null && entry.startMs < state.gateReadyMs);
   state.routeRequestCount = state.routeRequests.length;
   delete state.navStart;
   delete state.routeRequests;
   delete state.flagResponseAt;
   delete state.authProfileResponseAt;
+  delete state.usableContentAt;
   await context.close();
   return state;
 }
@@ -309,25 +382,38 @@ test("Locked starts only current World/Number route code in parallel and keeps a
     if (expected === "before") {
       for (const row of delayedRoutes) {
         assert.equal(row.routeBeforeGate, false, `${row.name}: baseline route code should still wait for Locked`);
+        assert.equal(row.routeRequestCount, 1, `${row.name}: the requested route chunk should be fetched once`);
         assert.equal(row.earlyDom?.world + row.earlyDom?.number, 0);
         if (row.kind === "world") {
-          assert.equal(row.earlyDataReads.length, 1, "baseline World head reader is the documented early-data blocker");
-          assert.match(row.earlyDataReads[0].path, /^\/rest\/v1\/posts\?.*flydubai-fz1073-363-14000-remzei-geula/);
+          assert.equal(row.earlyRouteDataReads.length, 1, "baseline World head reader is the documented early-data blocker");
+          assert.match(row.earlyRouteDataReads[0].path, /^\/rest\/v1\/posts\?.*flydubai-fz1073-363-14000-remzei-geula/);
         } else {
-          assert.deepEqual(row.earlyDataReads, [], "baseline Number performs no route data read before Locked");
+          assert.deepEqual(row.earlyRouteDataReads, [], "baseline Number performs no route data read before Locked");
         }
       }
     } else {
       for (const row of delayedRoutes) {
         assert.equal(row.routeBeforeGate, true, `${row.name}: route code must start before the delayed gate finishes`);
+        assert.equal(row.routeRequestCount, 1, `${row.name}: preload and React.lazy must share one request`);
         assert.equal(row.earlyDom?.world + row.earlyDom?.number, 0, `${row.name}: route must not mount while the gate loads`);
         assert.equal(row.earlyDom?.protectedText, false, `${row.name}: protected route content must not enter the DOM`);
-        assert.deepEqual(row.earlyDataReads, [], `${row.name}: route data must not start before access`);
+        assert.deepEqual(row.earlyRouteDataReads, [], `${row.name}: route data must not start before access`);
         assert.deepEqual(row.earlyExternalSideEffects, [], `${row.name}: route analytics/side effects must not start before access`);
       }
     }
     for (const row of delayedPost) {
       assert.equal(row.routeBeforeGate, true, "Post is the non-Locked control and must not wait for site_flags");
+      assert.equal(row.dataReads.filter((entry) => isPostSlugRead(entry.path, "synthetic-control")).length, 1,
+        "Post must retain its one exact head/reader handoff query");
+    }
+
+    if (expected === "after") {
+      for (const row of rows.filter((item) => item.kind === "world" && item.name.startsWith("world-direct"))) {
+        assert.equal(row.worldPostReads.length, 1, `${row.name}: open World must read the existing public post exactly once`);
+        assert.equal(row.worldPostResponses, 1, `${row.name}: the normal reader must receive the unchanged synthetic result`);
+        assert.ok(row.worldPostReads[0].startMs >= row.gateReadyMs,
+          `${row.name}: the World post read must start only after Locked opens`);
+      }
     }
 
     if (expected === "after") {
@@ -349,18 +435,22 @@ test("Locked starts only current World/Number route code in parallel and keeps a
         assert.equal(row.earlyDom?.world + row.earlyDom?.number, 0, `${name}: no protected mount while loading`);
         assert.equal(row.finalDom.locked, 1, `${name}: the canonical lock decision must still render`);
         assert.equal(row.finalDom.world + row.finalDom.number, 0, `${name}: blocked route must never mount`);
-        assert.deepEqual(row.dataReads, [], `${name}: blocked route must issue zero data reads`);
+        assert.deepEqual(row.routeDataReads, [], `${name}: blocked route must issue zero route data reads`);
+        assert.deepEqual(row.earlyRouteDataReads, [], `${name}: no route data read may start while the gate is unresolved`);
+        assert.equal(row.worldPostResponses, 0, `${name}: blocked World must not receive the public post`);
         assert.deepEqual(row.earlyExternalSideEffects, [], `${name}: no early route side effects`);
       }
       for (const name of ["world-internal-flags-1500", "number-internal-flags-1500"]) {
         const row = rows.find((item) => item.name === name);
         assert.equal(row.routeBeforeGate, true, `${name}: internal navigation must prepare current route code in parallel`);
         assert.equal(row.earlyDom?.world + row.earlyDom?.number, 0, `${name}: internal navigation must remain unmounted while gated`);
-        assert.deepEqual(row.earlyDataReads, [], `${name}: internal navigation must not read route data early`);
+        assert.deepEqual(row.earlyRouteDataReads, [], `${name}: internal navigation must not read route data early`);
       }
       for (const name of ["home-does-not-preload-world", "home-does-not-preload-number"]) {
         const row = rows.find((item) => item.name === name);
         assert.equal(row.routeRequestCount, 0, `${name}: Home must not request an unrelated route module`);
+        assert.equal(row.dataReads.filter((entry) => isHomeLatestRead(entry.path)).length, 1,
+          `${name}: Home must retain its exact latest-posts head read`);
       }
       const failure = rows.find((item) => item.name === "world-chunk-failure");
       assert.equal(failure.routeRequestCount, 1, "a failed route chunk must not enter an automatic retry loop");
@@ -371,19 +461,39 @@ test("Locked starts only current World/Number route code in parallel and keeps a
     const summary = {};
     for (const delay of [0, 1500]) {
       for (const kind of ["world", "number", "post"]) {
-        const values = rows
+        const measuredRows = rows
           .filter((row) => row.kind === kind && row.flagsDelay === delay && row.routeRequestStartMs != null
-            && (row.name.includes("direct") || row.name === `post-control-flags-${delay}`))
-          .map((row) => row.routeRequestStartMs);
-        if (values.length) summary[`${kind}_${delay}ms`] = {
-          samplesMs: values, medianMs: Number(median(values).toFixed(1)),
+            && (row.name.includes("direct") || row.name === `post-control-flags-${delay}`));
+        const routeStarts = measuredRows.map((row) => row.routeRequestStartMs);
+        const usable = measuredRows.map((row) => row.usableContentMs).filter((value) => value != null);
+        if (routeStarts.length) summary[`${kind}_${delay}ms`] = {
+          routeStart: { samplesMs: routeStarts, medianMs: Number(median(routeStarts).toFixed(1)) },
+          usableContent: usable.length
+            ? { samplesMs: usable, medianMs: Number(median(usable).toFixed(1)) }
+            : null,
         };
       }
     }
+    let comparison = null;
+    if (expected === "after" && baselineOutput) {
+      const baseline = JSON.parse(await readFile(resolve(baselineOutput), "utf8"));
+      const beforeUsable = baseline.summary?.world_0ms?.usableContent?.medianMs;
+      const afterUsable = summary.world_0ms?.usableContent?.medianMs;
+      assert.ok(Number.isFinite(beforeUsable) && Number.isFinite(afterUsable), "World 0ms usable-content medians are required");
+      const ratio = Number((afterUsable / beforeUsable).toFixed(4));
+      comparison = {
+        world0msUsableBeforeMs: beforeUsable,
+        world0msUsableAfterMs: afterUsable,
+        ratio,
+        regressionPercent: Number(((ratio - 1) * 100).toFixed(1)),
+        thresholdPercent: 10,
+      };
+      assert.ok(ratio <= 1.1, `World 0ms usable content regressed ${comparison.regressionPercent}% (>10%)`);
+    }
     const report = {
-      schema: "locked-route-parallel-start-2029.v1",
+      schema: "locked-route-parallel-start-2029.v2",
       expected, synthetic: true, loopbackOnly: true, reps,
-      browser: browser.version(), dist, assets, summary, scenarios: rows,
+      browser: browser.version(), dist, assets, worldPostFixture, summary, comparison, scenarios: rows,
     };
     if (output) {
       await mkdir(resolve(output, ".."), { recursive: true });
