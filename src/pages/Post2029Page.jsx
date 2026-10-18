@@ -10,7 +10,8 @@ import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorMode
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { logView, logActivity } from "../lib/supabase.js";
-import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
+import { preparePostRawMediaHtml2029 } from "../lib/postRawMediaRendition2029.js";
+import { SUPABASE_URL } from "../lib/supabasePublicConfig.js";
 import { pauseOffscreenAnimations } from "../lib/pauseOffscreenAnimations2029.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -835,7 +836,7 @@ function PostReadingBody() {
             handleSourceContextualFocus(event);
           }
         }}
-        dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
+        dangerouslySetInnerHTML={{ __html: preparePostRawMediaHtml2029(post.content || "", { supabaseUrl: SUPABASE_URL, hasCanonicalCover: Boolean(coverItem) }) }}
       />
 
 

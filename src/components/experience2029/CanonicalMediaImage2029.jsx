@@ -6,6 +6,8 @@ import { MOBILE_READING_MEDIA, mobileReadingRenditionUrl } from "./mobileReading
 /**
  * Canonical 2029 content-media image.
  * Default policy is preserve-the-whole-image. Cropping must be an explicit future opt-in.
+ * Delivery: a primary image is eager + fetchPriority high by default (it is the LCP candidate);
+ * non-primary stays lazy. Explicit `loading` / `fetchPriority` props always win.
  */
 export default function CanonicalMediaImage2029({
   item = null,
@@ -13,7 +15,8 @@ export default function CanonicalMediaImage2029({
   alt = "",
   primary = false,
   thumbnail = false,
-  loading = "lazy",
+  loading = null,
+  fetchPriority = null,
   className = "",
 }) {
   const resolvedSrc = src || (
@@ -33,7 +36,8 @@ export default function CanonicalMediaImage2029({
   const img = <img
     src={resolvedSrc}
     alt={resolvedAlt}
-    loading={loading}
+    loading={loading || (primary ? "eager" : "lazy")}
+    fetchPriority={fetchPriority || (primary ? "high" : undefined)}
     className={[
       "sod29-canonical-media-image",
       primary ? "is-primary" : "",
