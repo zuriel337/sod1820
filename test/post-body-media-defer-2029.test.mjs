@@ -32,6 +32,11 @@ test("contract: only the 2029 Post body gets the inert-media boundary", () => {
   assert.match(helperSource, /observePending\("0px"\)/);
   assert.match(helperSource, /APPROACH_INTENT_DISTANCE_PX = 24/);
   assert.match(helperSource, /intentDistance >= APPROACH_INTENT_DISTANCE_PX && scrollDistance\(\) >= APPROACH_INTENT_DISTANCE_PX/);
+  assert.match(helperSource, /\["wheel", onWheel/);
+  assert.match(helperSource, /\["touchstart", onTouchStart/);
+  assert.doesNotMatch(helperSource, /\["pointer(?:down|move|up|cancel)"/);
+  assert.doesNotMatch(helperSource, /\["keydown"/);
+  assert.doesNotMatch(helperSource, /beginIntent\("(?:pointer|keyboard)"\)/);
   assert.match(cssSource, /data-sod-post-media-state="pending"/);
   assert.doesNotMatch(cssSource, /data-sod-post-media-state="loaded"/);
   assert.doesNotMatch(cssSource, /data-sod-post-media-intrinsic="941x1672"/);
@@ -403,7 +408,37 @@ test("browser: click, programmatic scroll, hash navigation and history restorati
   }
 });
 
-test("browser: a trusted scroll key requires real movement and enables approach", { skip, timeout: 30000 }, async () => {
+test("browser: a pointer drag cannot leave stale intent for programmatic scroll", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage({ width: 1440, height: 1200 });
+  const mediaUrl = `${origin}/pointer-intent.svg`;
+  let requests = 0;
+  await context.route(mediaUrl, async (route) => {
+    requests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: UNKNOWN_SVG });
+  });
+  try {
+    await mount(page, `<div style="height:1650px"></div><img class="pointer-intent" src="${mediaUrl}" width="400" height="800" alt="pointer intent">`);
+    await page.mouse.move(300, 500);
+    await page.mouse.down();
+    await page.mouse.move(300, 580, { steps: 4 });
+    await page.mouse.up();
+    await page.waitForTimeout(50);
+    assert.equal(await page.locator("img.pointer-intent").getAttribute("data-sod-post-media-state"), "pending", "an 80px pointer drag is not approach authorization");
+
+    await page.evaluate(() => scrollBy(0, 80));
+    await page.waitForTimeout(100);
+    assert.equal(await page.locator("img.pointer-intent").getAttribute("data-sod-post-media-state"), "pending", "programmatic movement cannot complete rejected pointer input");
+    assert.equal(requests, 0);
+
+    await page.mouse.wheel(0, 80);
+    await page.waitForFunction(() => document.querySelector("img.pointer-intent")?.dataset.sodPostMediaState === "loaded");
+    assert.equal(requests, 1, "a later trusted wheel with real movement can authorize approach");
+  } finally {
+    await context.close();
+  }
+});
+
+test("browser: a prevented scroll key cannot leave stale intent; keyboard loads only at the 0px viewport", { skip, timeout: 30000 }, async () => {
   const { context, page } = await harnessPage({ width: 1440, height: 1200 });
   const mediaUrl = `${origin}/keyboard-intent.svg`;
   let requests = 0;
@@ -413,13 +448,27 @@ test("browser: a trusted scroll key requires real movement and enables approach"
   });
   try {
     await mount(page, `<div style="height:1650px"></div><img class="keyboard-intent" src="${mediaUrl}" width="400" height="800" alt="keyboard intent">`);
-    await page.keyboard.press("a");
-    await page.waitForTimeout(100);
-    assert.equal(await page.locator("img.keyboard-intent").getAttribute("data-sod-post-media-state"), "pending");
+    await page.evaluate(() => {
+      window.__preventArrowDown = (event) => {
+        if (event.key === "ArrowDown") event.preventDefault();
+      };
+      addEventListener("keydown", window.__preventArrowDown, true);
+    });
     await page.keyboard.press("ArrowDown");
+    assert.equal(await page.evaluate(() => scrollY), 0, "the key was prevented and produced no movement");
+    await page.evaluate(() => scrollBy(0, 80));
+    await page.waitForTimeout(100);
+    assert.equal(await page.locator("img.keyboard-intent").getAttribute("data-sod-post-media-state"), "pending", "programmatic movement cannot complete rejected keyboard input");
+    assert.equal(requests, 0);
+
+    await page.evaluate(() => removeEventListener("keydown", window.__preventArrowDown, true));
+    await page.keyboard.press("End");
     await page.waitForFunction(() => document.querySelector("img.keyboard-intent")?.dataset.sodPostMediaState === "loaded");
-    assert.ok(await page.evaluate(() => scrollY) >= 24, "the key produced real scroll displacement");
-    assert.equal(requests, 1);
+    assert.ok(await page.locator("img.keyboard-intent").evaluate((image) => {
+      const rect = image.getBoundingClientRect();
+      return rect.bottom > 0 && rect.top < innerHeight;
+    }), "keyboard navigation still loads media once the 0px observer sees it in the viewport");
+    assert.equal(requests, 1, "viewport entry makes one request without enabling the 600px approach gate");
   } finally {
     await context.close();
   }
