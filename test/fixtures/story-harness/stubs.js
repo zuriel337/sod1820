@@ -31,14 +31,16 @@ export function createOnDemandLoader(importer) {
     const retrying = Boolean(failedUrl);
     if (window.__trackModuleRequests) calls.push('projection module request');
     retryNumber += retrying ? 1 : 0;
-    const failure = Array.isArray(window.__moduleFailurePlan) ? window.__moduleFailurePlan.shift() : null;
+    const plannedFailure = Array.isArray(window.__moduleFailurePlan) ? window.__moduleFailurePlan.shift() : null;
+    const failure = typeof plannedFailure === 'string' ? plannedFailure : plannedFailure?.kind || null;
+    const failureDelay = typeof plannedFailure === 'object' ? Number(plannedFailure?.delay || 0) : 0;
     window.__moduleRequestDetails.push({
       retrying,
       retryNumber,
       outcome: failure || 'success',
       url: retrying ? `https://fixture.test/projection.js?retry=${retryNumber}` : 'importer',
     });
-    pending = Promise.resolve().then(() => {
+    pending = Promise.resolve().then(() => failureDelay > 0 ? later(failureDelay) : undefined).then(() => {
       if (failure === 'url') throw new Error('Failed to fetch dynamically imported module: https://fixture.test/projection.js');
       if (failure === 'no-url') throw new Error('Importing a module script failed.');
       return importer();

@@ -280,6 +280,31 @@ test("World recovery: a module failure without a URL offers reload and never ask
   } finally { await now.page.close(); }
 });
 
+test("World recovery: a delayed no-URL failure after unmount stays terminal across remount", { skip }, async () => {
+  const now = await run(current, "world", {
+    moduleFailurePlan: [{ kind: "no-url", delay: 250 }],
+    trackModuleRequests: true,
+  });
+  try {
+    await now.page.locator(".sod29-flight-time summary").click();
+    await now.page.waitForFunction(() => window.__moduleRequestDetails.length === 1);
+    await now.page.evaluate(() => window.__api.unmount());
+    await sleep(330);
+
+    await now.page.evaluate(() => window.__api.mount("world", "/world"));
+    const summary = now.page.locator(".sod29-flight-time summary");
+    await summary.waitFor();
+    await summary.click();
+    await now.page.getByText("רענן את הדף", { exact: true }).waitFor();
+    await sleep(80);
+
+    assert.deepEqual(await now.page.evaluate(() => window.__moduleRequestDetails.slice()), [
+      { retrying: false, retryNumber: 0, outcome: "no-url", url: "importer" },
+    ]);
+    assert.equal((await now.page.evaluate(() => window.__calls.slice())).filter((call) => call === "projection module request").length, 1);
+  } finally { await now.page.close(); }
+});
+
 test("World recovery: a failed recovery URL becomes terminal after the second request", { skip }, async () => {
   const now = await run(current, "world", { moduleFailurePlan: ["url", "url"], trackModuleRequests: true });
   try {
@@ -296,6 +321,33 @@ test("World recovery: a failed recovery URL becomes terminal after the second re
     await summary.click();
     await sleep(80);
     assert.equal((await now.page.evaluate(() => window.__moduleRequestDetails.length)), 2, "there is no third module request");
+  } finally { await now.page.close(); }
+});
+
+test("World recovery: a delayed failed retry after unmount cannot become a third request on remount", { skip }, async () => {
+  const now = await run(current, "world", {
+    moduleFailurePlan: ["url", { kind: "url", delay: 250 }],
+    trackModuleRequests: true,
+  });
+  try {
+    await now.page.locator(".sod29-flight-time summary").click();
+    await now.page.getByText("נסה שוב", { exact: true }).click();
+    await now.page.waitForFunction(() => window.__moduleRequestDetails.length === 2);
+    await now.page.evaluate(() => window.__api.unmount());
+    await sleep(330);
+
+    await now.page.evaluate(() => window.__api.mount("world", "/world"));
+    const summary = now.page.locator(".sod29-flight-time summary");
+    await summary.waitFor();
+    await summary.click();
+    await now.page.getByText("רענן את הדף", { exact: true }).waitFor();
+    await sleep(80);
+
+    assert.deepEqual(await now.page.evaluate(() => window.__moduleRequestDetails.slice()), [
+      { retrying: false, retryNumber: 0, outcome: "url", url: "importer" },
+      { retrying: true, retryNumber: 1, outcome: "url", url: "https://fixture.test/projection.js?retry=1" },
+    ]);
+    assert.equal((await now.page.evaluate(() => window.__calls.slice())).filter((call) => call === "projection module request").length, 2);
   } finally { await now.page.close(); }
 });
 
