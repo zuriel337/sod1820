@@ -3,6 +3,13 @@ import { supabase } from "../supabase.js";
 export const NUMBER_OPENING_PROJECTION_RPC = "fn_number_opening_projection_2029";
 export const NUMBER_OPENING_PER_METHOD_DEFAULT = 12;
 export const NUMBER_OPENING_PER_METHOD_MAX = 20;
+export const NUMBER_OPENING_FAMILY_ORDER = "registry_sort_order__then_count_desc__then_regular_governed_priority_method";
+export const NUMBER_OPENING_SOURCE_ORDER = "governed_first__then_atomic_before_composite__then_method__phrase__bid_id";
+export const NUMBER_OPENING_DEPTH_RPC = "fn_number_lookup";
+export const NUMBER_OPENING_DEPTH_FIELD_COUNT = 37;
+export const NUMBER_OPENING_DEPTH_CURSOR_FIELD = "bid_id";
+
+const normalizedOpenings = new WeakSet();
 
 const integer = (value, fallback = null) => {
   if (value == null || value === "") return fallback;
@@ -17,12 +24,55 @@ const boundedPerMethod = (value) => Math.max(1, Math.min(
 
 const array = (value) => Array.isArray(value) ? value : [];
 const object = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
+const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 
 function openingError(code, detail = null) {
   const error = new Error(code);
   error.code = code;
   if (detail != null) error.detail = detail;
   return error;
+}
+
+function exactInteger(value, code, { min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER } = {}) {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < min || value > max) {
+    throw openingError(code, value);
+  }
+  return value;
+}
+
+function exactNullableBoolean(value, code) {
+  if (value == null || typeof value === "boolean") return value ?? null;
+  throw openingError(code, value);
+}
+
+function sameCheckpointValue(left, right) {
+  if (left == null || right == null) return left == null && right == null;
+  return String(left) === String(right);
+}
+
+function familyPriority(method) {
+  if (method === "רגיל" || method === "מסתתר" || method === "קדמי") return 1;
+  if (method === "מילוי") return 2;
+  if (method === "אתבש") return 3;
+  return 4;
+}
+
+function compareText(left, right) {
+  const a = String(left);
+  const b = String(right);
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+}
+
+function compareFamilyOrder(left, right) {
+  const leftOrder = left.registry?.sort_order ?? Number.POSITIVE_INFINITY;
+  const rightOrder = right.registry?.sort_order ?? Number.POSITIVE_INFINITY;
+  if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+  if (left.count !== right.count) return right.count - left.count;
+  if ((left.method === "רגיל") !== (right.method === "רגיל")) return left.method === "רגיל" ? -1 : 1;
+  if (left.governed !== right.governed) return left.governed ? -1 : 1;
+  if (left.priority !== right.priority) return left.priority - right.priority;
+  return compareText(left.method, right.method);
 }
 
 function normalizePhrase(row) {
@@ -40,44 +90,99 @@ function normalizePhrase(row) {
 
 function normalizeFamily(row, perMethod) {
   const source = object(row);
-  const registry = object(source.registry);
+  const method = typeof source.method === "string" && source.method.trim() ? source.method : null;
+  if (!method) throw openingError("NUMBER_OPENING_FAMILY_METHOD_INVALID", source.method ?? null);
+
+  const rawRegistry = source.registry == null ? null : object(source.registry);
+  if (source.registry != null && !Object.keys(rawRegistry).length) {
+    throw openingError("NUMBER_OPENING_REGISTRY_INVALID", { method });
+  }
+  const registryMethod = rawRegistry?.method_key ?? null;
+  if (registryMethod != null && registryMethod !== method) {
+    throw openingError("NUMBER_OPENING_REGISTRY_METHOD_MISMATCH", { method, registryMethod });
+  }
+  // The SQL envelope emits an all-null Registry object for an unregistered method. Preserve the
+  // existing Number family shape: an unregistered family has registry=null, never a truthy shell.
+  const registry = registryMethod == null ? null : rawRegistry;
+  if (registry) {
+    exactInteger(registry.sort_order, "NUMBER_OPENING_REGISTRY_ORDER_INVALID");
+  }
+
   const phrases = array(source.phrases).map(normalizePhrase);
-  const count = Math.max(0, integer(source.count, 0));
+  if (!Array.isArray(source.phrases)) {
+    throw openingError("NUMBER_OPENING_PHRASES_INVALID", { method });
+  }
+  const phraseKeys = phrases.map((phrase) => JSON.stringify(phrase.phrase));
+  if (new Set(phraseKeys).size !== phraseKeys.length) {
+    throw openingError("NUMBER_OPENING_SAMPLE_DUPLICATE_PHRASE", { method });
+  }
+
+  const count = exactInteger(source.count, "NUMBER_OPENING_FAMILY_COUNT_INVALID", { min: 1 });
   const sampleSource = object(source.sample);
-  const returnedCount = Math.max(0, integer(sampleSource.returned_count, phrases.length));
-  const totalCount = Math.max(0, integer(sampleSource.total_count, count));
-  const sampleLimit = Math.max(1, integer(sampleSource.limit, perMethod));
+  if (!Object.keys(sampleSource).length) {
+    throw openingError("NUMBER_OPENING_SAMPLE_INVALID", { method });
+  }
+  const returnedCount = exactInteger(sampleSource.returned_count, "NUMBER_OPENING_SAMPLE_RETURNED_INVALID", { min: 0 });
+  const totalCount = exactInteger(sampleSource.total_count, "NUMBER_OPENING_SAMPLE_TOTAL_INVALID", { min: 1 });
+  const sampleLimit = exactInteger(sampleSource.limit, "NUMBER_OPENING_SAMPLE_LIMIT_INVALID", {
+    min: 1,
+    max: NUMBER_OPENING_PER_METHOD_MAX,
+  });
   const cursor = sampleSource.cursor ?? null;
-  const complete = sampleSource.complete === true;
-  const hasMore = sampleSource.has_more === true;
+  if (typeof sampleSource.complete !== "boolean" || typeof sampleSource.has_more !== "boolean") {
+    throw openingError("NUMBER_OPENING_SAMPLE_COMPLETENESS_INVALID", { method });
+  }
+  const complete = sampleSource.complete;
+  const hasMore = sampleSource.has_more;
 
   if (returnedCount !== phrases.length || totalCount !== count) {
-    throw openingError("NUMBER_OPENING_SAMPLE_COUNT_MISMATCH", { method: source.method ?? null });
+    throw openingError("NUMBER_OPENING_SAMPLE_COUNT_MISMATCH", { method });
   }
   if (
-    phrases.length > perMethod
+    returnedCount < 1
+    || returnedCount > totalCount
+    || phrases.length > perMethod
     || sampleLimit !== perMethod
-    || complete === hasMore
+    || hasMore !== (returnedCount < totalCount)
     || complete !== (returnedCount === totalCount)
-    || (returnedCount === 0) !== (cursor == null)
+    || sampleSource.cursor_scope !== "opening_sample_checkpoint"
   ) {
-    throw openingError("NUMBER_OPENING_SAMPLE_COMPLETENESS_MISMATCH", { method: source.method ?? null });
+    throw openingError("NUMBER_OPENING_SAMPLE_COMPLETENESS_MISMATCH", { method });
+  }
+
+  const checkpoint = object(cursor);
+  const last = phrases[phrases.length - 1];
+  if (
+    !Object.keys(checkpoint).length
+    || checkpoint.method !== method
+    || !sameCheckpointValue(checkpoint.phrase, last.phrase)
+    || !sameCheckpointValue(checkpoint.bid_id, last.bidId)
+  ) {
+    throw openingError("NUMBER_OPENING_SAMPLE_CURSOR_MISMATCH", { method });
+  }
+
+  const priority = exactInteger(source.priority, "NUMBER_OPENING_FAMILY_PRIORITY_INVALID", { min: 1, max: 4 });
+  if (priority !== familyPriority(method)) {
+    throw openingError("NUMBER_OPENING_FAMILY_PRIORITY_MISMATCH", { method, priority });
+  }
+  if (typeof source.governed !== "boolean" || typeof source.composite !== "boolean") {
+    throw openingError("NUMBER_OPENING_FAMILY_STATE_INVALID", { method });
   }
 
   return {
     // This is intentionally the same family shape consumed by the current Number core.
-    method: source.method ?? null,
-    priority: integer(source.priority, 4),
+    method,
+    priority,
     count,
-    composite: source.composite === true,
+    composite: source.composite,
     componentMethods: Array.isArray(source.component_methods) ? source.component_methods : null,
     operator: source.operator ?? null,
-    governed: source.governed === true,
+    governed: source.governed,
     evidenceClass: source.evidence_class ?? null,
-    methodActive: source.method_active ?? null,
-    methodScannable: source.method_scannable ?? null,
-    methodExecutable: source.method_executable ?? null,
-    methodEngineVerified: source.method_engine_verified ?? null,
+    methodActive: exactNullableBoolean(source.method_active, "NUMBER_OPENING_METHOD_STATE_INVALID"),
+    methodScannable: exactNullableBoolean(source.method_scannable, "NUMBER_OPENING_METHOD_STATE_INVALID"),
+    methodExecutable: exactNullableBoolean(source.method_executable, "NUMBER_OPENING_METHOD_STATE_INVALID"),
+    methodEngineVerified: exactNullableBoolean(source.method_engine_verified, "NUMBER_OPENING_METHOD_STATE_INVALID"),
     phrases,
     registry,
     openingSample: {
@@ -97,29 +202,69 @@ function normalizeFamily(row, perMethod) {
  * Pure and strict: completeness contradictions fail closed instead of silently becoming a full
  * Number result. No Universal Finding is constructed from compact rows.
  */
-export function normalizeNumberOpeningProjection(payload, { expectedValue = null } = {}) {
+export function normalizeNumberOpeningProjection(payload, {
+  expectedValue = null,
+  expectedPerMethod = null,
+} = {}) {
   const source = object(payload);
   if (source.v !== 1) throw openingError("NUMBER_OPENING_VERSION_UNSUPPORTED", source.v ?? null);
 
-  const value = integer(source.value);
-  if (source.value != null && value == null) throw openingError("NUMBER_OPENING_VALUE_UNSAFE", source.value);
-  if (expectedValue != null && value !== integer(expectedValue)) {
+  const value = exactInteger(source.value, "NUMBER_OPENING_VALUE_UNSAFE");
+  if (expectedValue != null && value !== exactInteger(expectedValue, "NUMBER_OPENING_EXPECTED_VALUE_UNSAFE")) {
     throw openingError("NUMBER_OPENING_VALUE_MISMATCH", { expected: expectedValue, received: source.value });
   }
 
-  const perMethod = boundedPerMethod(source.per_method_limit);
+  const perMethod = exactInteger(source.per_method_limit, "NUMBER_OPENING_PER_METHOD_INVALID", {
+    min: 1,
+    max: NUMBER_OPENING_PER_METHOD_MAX,
+  });
+  if (expectedPerMethod != null && perMethod !== exactInteger(
+    expectedPerMethod,
+    "NUMBER_OPENING_EXPECTED_PER_METHOD_INVALID",
+    { min: 1, max: NUMBER_OPENING_PER_METHOD_MAX },
+  )) {
+    throw openingError("NUMBER_OPENING_PER_METHOD_MISMATCH", {
+      expected: expectedPerMethod,
+      received: source.per_method_limit,
+    });
+  }
+  if (source.ordering !== NUMBER_OPENING_FAMILY_ORDER || source.source_ordering !== NUMBER_OPENING_SOURCE_ORDER) {
+    throw openingError("NUMBER_OPENING_ORDER_CONTRACT_MISMATCH");
+  }
+  if (!Array.isArray(source.families)) throw openingError("NUMBER_OPENING_FAMILIES_INVALID");
   const families = array(source.families).map((family) => normalizeFamily(family, perMethod));
-  const familyCount = Math.max(0, integer(source.family_count, 0));
-  const sourceRowCount = Math.max(0, integer(source.source_row_count, 0));
-  const distinctMethodPhraseCount = Math.max(0, integer(source.distinct_method_phrase_count, 0));
-  const openingPhraseCount = Math.max(0, integer(source.opening_phrase_count, 0));
+  const methodKeys = families.map((family) => family.method);
+  if (new Set(methodKeys).size !== methodKeys.length) {
+    throw openingError("NUMBER_OPENING_DUPLICATE_FAMILY_METHOD");
+  }
+  for (let index = 1; index < families.length; index += 1) {
+    const previous = families[index - 1];
+    const current = families[index];
+    if (compareFamilyOrder(previous, current) > 0) {
+      throw openingError("NUMBER_OPENING_FAMILY_ORDER_MISMATCH", {
+        previous: previous.method,
+        current: current.method,
+      });
+    }
+  }
+
+  const familyCount = exactInteger(source.family_count, "NUMBER_OPENING_FAMILY_TOTAL_INVALID", { min: 0 });
+  const sourceRowCount = exactInteger(source.source_row_count, "NUMBER_OPENING_SOURCE_TOTAL_INVALID", { min: 0 });
+  const distinctMethodPhraseCount = exactInteger(
+    source.distinct_method_phrase_count,
+    "NUMBER_OPENING_DISTINCT_TOTAL_INVALID",
+    { min: 0 },
+  );
+  const openingPhraseCount = exactInteger(source.opening_phrase_count, "NUMBER_OPENING_SAMPLE_TOTAL_INVALID", { min: 0 });
   const familyPhraseTotal = families.reduce((sum, family) => sum + family.count, 0);
   const openingPhraseTotal = families.reduce((sum, family) => sum + family.phrases.length, 0);
   if (
     familyCount !== families.length
     || familyPhraseTotal !== distinctMethodPhraseCount
     || openingPhraseTotal !== openingPhraseCount
+    || openingPhraseCount > distinctMethodPhraseCount
     || distinctMethodPhraseCount > sourceRowCount
+    || (sourceRowCount === 0) !== (familyCount === 0)
   ) {
     throw openingError("NUMBER_OPENING_TOTALS_MISMATCH");
   }
@@ -133,7 +278,14 @@ export function normalizeNumberOpeningProjection(payload, { expectedValue = null
   const depthHasMore = rawDepth.has_more === true;
   const allSamplesComplete = families.every((family) => family.openingSample.complete);
   if (
-    rawCompleteness.samples !== allSamplesComplete
+    rawDepth.rpc !== NUMBER_OPENING_DEPTH_RPC
+    || rawDepth.field_count !== NUMBER_OPENING_DEPTH_FIELD_COUNT
+    || rawDepth.cursor !== null
+    || rawDepth.cursor_field !== NUMBER_OPENING_DEPTH_CURSOR_FIELD
+    || typeof rawDepth.complete !== "boolean"
+    || typeof rawDepth.has_more !== "boolean"
+    || typeof rawDepth.deferred !== "boolean"
+    || rawCompleteness.samples !== allSamplesComplete
     || rawCompleteness.full_row_population !== (sourceRowCount === 0)
     || rawCompleteness.universal_findings !== (sourceRowCount === 0)
     || depthComplete === depthHasMore
@@ -153,12 +305,12 @@ export function normalizeNumberOpeningProjection(payload, { expectedValue = null
     }
   }
 
-  return {
+  const normalized = {
     v: 1,
     value,
     perMethodLimit: perMethod,
-    ordering: source.ordering ?? null,
-    sourceOrdering: source.source_ordering ?? null,
+    ordering: source.ordering,
+    sourceOrdering: source.source_ordering,
     familyCount,
     sourceRowCount,
     distinctMethodPhraseCount,
@@ -174,15 +326,17 @@ export function normalizeNumberOpeningProjection(payload, { expectedValue = null
       universalFindings: rawCompleteness.universal_findings === true,
     },
     depth: {
-      rpc: rawDepth.rpc ?? "fn_number_lookup",
-      fieldCount: integer(rawDepth.field_count, 37),
-      cursor: rawDepth.cursor ?? null,
-      cursorField: rawDepth.cursor_field ?? "bid_id",
+      rpc: rawDepth.rpc,
+      fieldCount: rawDepth.field_count,
+      cursor: rawDepth.cursor,
+      cursorField: rawDepth.cursor_field,
       hasMore: depthHasMore,
       complete: depthComplete,
       deferred: rawDepth.deferred === true,
     },
   };
+  normalizedOpenings.add(normalized);
+  return normalized;
 }
 
 /**
@@ -206,7 +360,10 @@ export async function fetchNumberOpeningProjection(value, {
     error.cause = result.error;
     throw error;
   }
-  return normalizeNumberOpeningProjection(result?.data ?? result, { expectedValue: number });
+  return normalizeNumberOpeningProjection(result?.data ?? result, {
+    expectedValue: number,
+    expectedPerMethod: limit,
+  });
 }
 
 /**
@@ -214,9 +371,28 @@ export async function fetchNumberOpeningProjection(value, {
  * the current getValueFamilies + fetchMethodRegistry opening pair without claiming depth is done.
  */
 export function projectNumberOpeningCore(opening, { identity = null, anchorProfile = null } = {}) {
-  const source = opening?.perMethodLimit != null && Array.isArray(opening?.families)
+  const source = normalizedOpenings.has(opening)
     ? opening
     : normalizeNumberOpeningProjection(opening);
+  if (identity != null) {
+    const identityValue = Number(identity?.label);
+    if (!Number.isSafeInteger(identityValue) || identityValue !== source.value) {
+      throw openingError("NUMBER_OPENING_IDENTITY_VALUE_MISMATCH", {
+        opening: source.value,
+        identity: identity?.label ?? null,
+      });
+    }
+  }
+  const anchorRow = anchorProfile?.row;
+  if (anchorRow && own(anchorRow, "value")) {
+    const anchorValue = Number(anchorRow.value);
+    if (!Number.isSafeInteger(anchorValue) || anchorValue !== source.value) {
+      throw openingError("NUMBER_OPENING_ANCHOR_VALUE_MISMATCH", {
+        opening: source.value,
+        anchor: anchorRow.value,
+      });
+    }
+  }
   return {
     identity,
     gematria: {

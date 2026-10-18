@@ -638,11 +638,12 @@ export async function fetchNumberAnchorProfile(number) {
   };
 }
 
-// Bounded seam for the compact Number opening. Resolve the existing Number identity first so a
-// missing node (including value 0) stays null exactly as it does in fetchEntityHubProjection.
-// Callers may start this promise beside the compact opening RPC; this path does not read families,
-// graph depth or full Number rows, and it never invents a partial identity.
-export async function fetchNumberOpeningContext(number) {
+// Identity-only gate for the compact Number opening. It deliberately performs no anchor, family,
+// graph or full-row read. A future surface must await this gate first; once it succeeds, it can
+// start fetchNumberOpeningProjection(identity.value) and fetchNumberAnchorProfile(identity.value)
+// together with Promise.all. That preserves the existing node-first truth boundary without making
+// the curated anchor delay the compact RPC.
+export async function fetchNumberOpeningIdentity(number) {
   if (number == null || (typeof number === "string" && !number.trim())) return null;
   const value = Number(number);
   if (!Number.isSafeInteger(value)) return null;
@@ -651,11 +652,23 @@ export async function fetchNumberOpeningContext(number) {
   if (!node) return null;
 
   const resolvedValue = Number(node.label);
-  if (!Number.isSafeInteger(resolvedValue)) return null;
+  if (!Number.isSafeInteger(resolvedValue) || resolvedValue !== value) return null;
 
   return {
+    value: resolvedValue,
     identity: projectNumberNodeIdentity(node),
-    anchorProfile: await fetchNumberAnchorProfile(resolvedValue),
+  };
+}
+
+// Backward-compatible combined seam for non-critical callers. The performance-sensitive 2029
+// opening should use fetchNumberOpeningIdentity first and then start compact + anchor in parallel.
+export async function fetchNumberOpeningContext(number) {
+  const openingIdentity = await fetchNumberOpeningIdentity(number);
+  if (!openingIdentity) return null;
+
+  return {
+    identity: openingIdentity.identity,
+    anchorProfile: await fetchNumberAnchorProfile(openingIdentity.value),
   };
 }
 

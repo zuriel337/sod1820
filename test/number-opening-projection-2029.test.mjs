@@ -2,7 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
+  NUMBER_OPENING_DEPTH_CURSOR_FIELD,
+  NUMBER_OPENING_DEPTH_FIELD_COUNT,
+  NUMBER_OPENING_DEPTH_RPC,
+  NUMBER_OPENING_FAMILY_ORDER,
   NUMBER_OPENING_PROJECTION_RPC,
+  NUMBER_OPENING_SOURCE_ORDER,
   fetchNumberOpeningProjection,
   normalizeNumberOpeningProjection,
   projectNumberOpeningCore,
@@ -151,7 +156,7 @@ async function makeDb() {
       ($1,'zero',null,0,array['zero'],true,true,false),
       ($2,'alpha',$14,1,array['a'],true,true,false),
       ($3,'beta',null,null,null,true,true,false),
-      ($4,'alpha',$14,1,array['duplicate'],true,true,false),
+      ($4,'alpha',$15,99,array['duplicate'],true,true,false),
       ($5,'delta',$15,4,array['d'],true,true,false),
       ($6,'epsilon',null,5,null,true,true,false),
       ($7,'zeta',null,7,null,true,true,false),
@@ -218,7 +223,7 @@ function referenceFamilies(rows) {
   return grouped;
 }
 
-test("migration smoke: exact compact parity for 0/376/718/1820 and empty negative/large inputs", async () => {
+test("migration smoke: compact counts and samples match bounded references for 0/376/718/1820", async () => {
   const db = await makeDb();
   try {
     for (const value of [0, 376, 718, 1820]) {
@@ -288,8 +293,10 @@ test("opening order, duplicate/null handling, cursors and explicit depth complet
     assert.deepEqual(one.families.map((family) => family.sample.has_more), [true, true, false]);
     assert.deepEqual(one.families.map((family) => family.sample.complete), [false, false, true]);
     assert.equal(one.families[0].sample.cursor.bid_id, "a-1", "duplicate phrase keeps first stable bid_id");
+    assert.equal(one.families[0].phrases[0].ragil, 1, "duplicate phrase metadata follows the stable source row");
+    assert.deepEqual(one.families[0].phrases[0].tags, ["a"]);
     assert.deepEqual(one.families[1].phrases[0].component_values, [5, 20]);
-    assert.equal(one.families[0].phrases[0].world, "אמת");
+    assert.equal(one.families[0].phrases[0].world, "אמת", "World follows the selected row's bound node_id");
     assert.equal(one.families[2].registry.mathematical_family, null, "unknown metadata stays null");
     assert.equal(one.completeness.opening, true);
     assert.equal(one.completeness.counts, true);
@@ -320,7 +327,7 @@ test("opening order, duplicate/null handling, cursors and explicit depth complet
 test("reader performs one bounded RPC, preserves family shape and refuses a full-read fallback", async () => {
   const db = await makeDb();
   try {
-    const payload = await asRole(db, "anon", { perMethod: 12 });
+    const payload = await asRole(db, "anon", { perMethod: 20 });
     const calls = [];
     const projection = await fetchNumberOpeningProjection(718, {
       perMethod: 99,
@@ -362,17 +369,200 @@ test("normalizer fails closed on inconsistent counts, completeness, unsafe value
     v: 1,
     value: 0,
     per_method_limit: 12,
+    ordering: NUMBER_OPENING_FAMILY_ORDER,
+    source_ordering: NUMBER_OPENING_SOURCE_ORDER,
     family_count: 0,
     source_row_count: 0,
     distinct_method_phrase_count: 0,
     opening_phrase_count: 0,
     families: [],
     completeness: { opening: true, families: true, counts: true, samples: true, full_row_population: true, universal_findings: true },
-    depth: { rpc: "fn_number_lookup", field_count: 37, cursor: null, cursor_field: "bid_id", has_more: false, complete: true, deferred: false },
+    depth: {
+      rpc: NUMBER_OPENING_DEPTH_RPC,
+      field_count: NUMBER_OPENING_DEPTH_FIELD_COUNT,
+      cursor: null,
+      cursor_field: NUMBER_OPENING_DEPTH_CURSOR_FIELD,
+      has_more: false,
+      complete: true,
+      deferred: false,
+    },
   };
   assert.equal(normalizeNumberOpeningProjection(empty).value, 0);
   assert.throws(() => normalizeNumberOpeningProjection({ ...empty, value: 9007199254740992 }), /NUMBER_OPENING_VALUE_UNSAFE/);
   assert.throws(() => normalizeNumberOpeningProjection({ ...empty, family_count: 1 }), /NUMBER_OPENING_TOTALS_MISMATCH/);
   assert.throws(() => normalizeNumberOpeningProjection({ ...empty, depth: { ...empty.depth, has_more: true } }), /NUMBER_OPENING_DEPTH_COMPLETENESS_MISMATCH/);
   assert.throws(() => normalizeNumberOpeningProjection({ ...empty, completeness: { ...empty.completeness, samples: false } }), /NUMBER_OPENING_DEPTH_COMPLETENESS_MISMATCH/);
+});
+
+test("normalizer rejects hostile count, cursor, Registry, order and depth envelopes", async () => {
+  const db = await makeDb();
+  try {
+    const payload = await asRole(db, "anon", { value: 718, perMethod: 12 });
+
+    const overReturned = structuredClone(payload);
+    const overFamily = overReturned.families[0];
+    overFamily.count = overFamily.phrases.length - 1;
+    overFamily.sample.total_count = overFamily.count;
+    overFamily.sample.has_more = true;
+    overFamily.sample.complete = false;
+    assert.throws(
+      () => normalizeNumberOpeningProjection(overReturned),
+      (error) => error.code === "NUMBER_OPENING_SAMPLE_COMPLETENESS_MISMATCH",
+    );
+
+    const badCursor = structuredClone(payload);
+    badCursor.families[0].sample.cursor.bid_id = "not-the-last-returned-row";
+    assert.throws(
+      () => normalizeNumberOpeningProjection(badCursor),
+      (error) => error.code === "NUMBER_OPENING_SAMPLE_CURSOR_MISMATCH",
+    );
+
+    const badRegistry = structuredClone(payload);
+    badRegistry.families[0].registry.method_key = "מילוי";
+    assert.throws(
+      () => normalizeNumberOpeningProjection(badRegistry),
+      (error) => error.code === "NUMBER_OPENING_REGISTRY_METHOD_MISMATCH",
+    );
+
+    const duplicateFamily = structuredClone(payload);
+    duplicateFamily.families.push(structuredClone(duplicateFamily.families[0]));
+    assert.throws(
+      () => normalizeNumberOpeningProjection(duplicateFamily),
+      (error) => error.code === "NUMBER_OPENING_DUPLICATE_FAMILY_METHOD",
+    );
+
+    const wrongOrder = structuredClone(payload);
+    [wrongOrder.families[0], wrongOrder.families[1]] = [wrongOrder.families[1], wrongOrder.families[0]];
+    assert.throws(
+      () => normalizeNumberOpeningProjection(wrongOrder),
+      (error) => error.code === "NUMBER_OPENING_FAMILY_ORDER_MISMATCH",
+    );
+
+    const wrongTieOrder = structuredClone(payload);
+    wrongTieOrder.families[0].registry.sort_order = 50;
+    wrongTieOrder.families[1].registry.sort_order = 50;
+    wrongTieOrder.families[0].count = 2;
+    wrongTieOrder.families[0].sample.total_count = 2;
+    wrongTieOrder.families[1].count = 2;
+    wrongTieOrder.families[1].sample.total_count = 2;
+    wrongTieOrder.families[0].method = "alpha-tie";
+    wrongTieOrder.families[0].registry.method_key = "alpha-tie";
+    wrongTieOrder.families[0].sample.cursor.method = "alpha-tie";
+    wrongTieOrder.families[0].priority = 4;
+    wrongTieOrder.families[1].method = "beta-tie";
+    wrongTieOrder.families[1].registry.method_key = "beta-tie";
+    wrongTieOrder.families[1].sample.cursor.method = "beta-tie";
+    wrongTieOrder.families[1].priority = 4;
+    wrongTieOrder.families[0].governed = false;
+    wrongTieOrder.families[1].governed = true;
+    assert.throws(
+      () => normalizeNumberOpeningProjection(wrongTieOrder),
+      (error) => error.code === "NUMBER_OPENING_FAMILY_ORDER_MISMATCH",
+    );
+
+    const badTotals = structuredClone(payload);
+    badTotals.opening_phrase_count = badTotals.distinct_method_phrase_count + 1;
+    assert.throws(
+      () => normalizeNumberOpeningProjection(badTotals),
+      (error) => error.code === "NUMBER_OPENING_TOTALS_MISMATCH",
+    );
+
+    for (const depthPatch of [
+      { rpc: "fn_number_lookup_shadow" },
+      { field_count: 36 },
+      { cursor: { bid_id: "must-stay-null" } },
+      { cursor_field: "phrase" },
+    ]) {
+      const badDepth = structuredClone(payload);
+      Object.assign(badDepth.depth, depthPatch);
+      assert.throws(
+        () => normalizeNumberOpeningProjection(badDepth),
+        (error) => error.code === "NUMBER_OPENING_DEPTH_COMPLETENESS_MISMATCH",
+      );
+    }
+
+    assert.throws(
+      () => normalizeNumberOpeningProjection(payload, { expectedValue: 718, expectedPerMethod: 20 }),
+      (error) => error.code === "NUMBER_OPENING_PER_METHOD_MISMATCH",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test("projected core rejects a 718/719 root mix and does not invent absent anchor fields", async () => {
+  const db = await makeDb();
+  try {
+    const payload = await asRole(db, "anon", { value: 718, perMethod: 12 });
+    const opening = normalizeNumberOpeningProjection(payload, { expectedValue: 718, expectedPerMethod: 12 });
+
+    assert.throws(
+      () => projectNumberOpeningCore(opening, {
+        identity: { nodeId: "n-719", type: "number", label: "719" },
+        anchorProfile: { row: { value: 719 } },
+      }),
+      (error) => error.code === "NUMBER_OPENING_IDENTITY_VALUE_MISMATCH",
+    );
+    assert.throws(
+      () => projectNumberOpeningCore(opening, {
+        identity: { nodeId: "n-718", type: "number", label: "718" },
+        anchorProfile: { row: { value: 719 } },
+      }),
+      (error) => error.code === "NUMBER_OPENING_ANCHOR_VALUE_MISMATCH",
+    );
+
+    const withoutAnchorValue = projectNumberOpeningCore(opening, {
+      identity: { nodeId: "n-718", type: "number", label: "718" },
+      anchorProfile: { row: { fact: "curated context without a value field" } },
+    });
+    assert.equal(withoutAnchorValue.numberOpening.value, 718);
+    assert.equal("value" in withoutAnchorValue.anchorProfile.row, false);
+  } finally {
+    await db.close();
+  }
+});
+
+test("canonical Registry order is stable, including a deterministic equal-sort-order tie", async () => {
+  const db = await makeDb();
+  try {
+    await db.query(`
+      insert into public.gematria_methods
+        (method_key,db_column,display_label,category,sort_order,active,in_engine,scannable)
+      values
+        ('alpha-tie','alpha_tie','Alpha tie','atomic',50,true,true,true),
+        ('zeta-tie','zeta_tie','Zeta tie','atomic',50,true,true,true)
+    `);
+    await db.query(`
+      insert into public.gematria_words(id,phrase,node_id,ragil,tags,is_verified,is_published,is_encrypted)
+      values
+        ('50000000-0000-4000-8000-000000000001','alpha tie phrase',null,990,null,true,true,false),
+        ('50000000-0000-4000-8000-000000000002','zeta tie phrase',null,990,null,true,true,false)
+    `);
+    await db.query(`
+      insert into public.bidim(method,phrase,value,bid_id,word_id)
+      values
+        ('zeta-tie','zeta tie phrase',990,'zeta-tie-1','50000000-0000-4000-8000-000000000002'),
+        ('alpha-tie','alpha tie phrase',990,'alpha-tie-1','50000000-0000-4000-8000-000000000001')
+    `);
+
+    const first = await asRole(db, "anon", { value: 990, perMethod: 12 });
+    const second = await asRole(db, "anon", { value: 990, perMethod: 12 });
+    assert.deepEqual(first, second);
+    assert.deepEqual(first.families.map((family) => family.method), ["alpha-tie", "zeta-tie"]);
+    assert.equal(first.ordering, NUMBER_OPENING_FAMILY_ORDER);
+    assert.equal(first.source_ordering, NUMBER_OPENING_SOURCE_ORDER);
+    assert.doesNotThrow(() => normalizeNumberOpeningProjection(first, {
+      expectedValue: 990,
+      expectedPerMethod: 12,
+    }));
+
+    const reversed = structuredClone(first);
+    reversed.families.reverse();
+    assert.throws(
+      () => normalizeNumberOpeningProjection(reversed),
+      (error) => error.code === "NUMBER_OPENING_FAMILY_ORDER_MISMATCH",
+    );
+  } finally {
+    await db.close();
+  }
 });

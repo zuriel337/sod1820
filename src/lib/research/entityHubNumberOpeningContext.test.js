@@ -5,6 +5,7 @@ import { supabase } from "../supabase.js";
 import {
   fetchNumberAnchorProfile,
   fetchNumberOpeningContext,
+  fetchNumberOpeningIdentity,
 } from "./entityHubProjection.js";
 
 const ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
@@ -114,14 +115,60 @@ test("bounded opening context resolves the existing Number node and reads its an
   assert.deepEqual(anchorCalls[0].filters, [["value", 718]], "anchor selection follows the resolved Number label");
 });
 
+test("identity-only gate resolves the exact root without reading its anchor", async (t) => {
+  const node = {
+    id: "33333333-3333-4333-8333-333333333333",
+    type: "number",
+    label: "718",
+    identity_key: "718",
+    is_active: true,
+  };
+  const calls = installReadTransport(t, {
+    nodes: [node],
+    anchors: [{ value: 718, category: "must remain unread", fact: "must remain unread" }],
+  });
+
+  const result = await fetchNumberOpeningIdentity(718);
+
+  assert.deepEqual(result, {
+    value: 718,
+    identity: {
+      nodeId: node.id,
+      type: "number",
+      key: "718",
+      label: "718",
+      hubHref: "/entity-hub-preview/number/718",
+    },
+  });
+  assert.equal(calls.filter((call) => call.table === "nodes").length, 1);
+  assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
+});
+
+test("identity-key hit with a different Number label fails closed before anchor read", async (t) => {
+  const calls = installReadTransport(t, {
+    nodes: [{
+      id: "44444444-4444-4444-8444-444444444444",
+      type: "number",
+      label: "719",
+      identity_key: "718",
+    }],
+    anchors: [{ value: 719, category: "wrong root", fact: "wrong root" }],
+  });
+
+  assert.equal(await fetchNumberOpeningIdentity(718), null);
+  assert.equal(await fetchNumberOpeningContext(718), null);
+  assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
+});
+
 test("missing Number node, including zero, returns null without reading or inventing an anchor", async (t) => {
   const calls = installReadTransport(t, {
     nodes: [],
     anchors: [{ value: 0, category: "must not be read", fact: "must not be read" }],
   });
 
+  assert.equal(await fetchNumberOpeningIdentity(0), null);
   assert.equal(await fetchNumberOpeningContext(0), null);
-  assert.equal(calls.filter((call) => call.table === "nodes").length, 2, "existing resolver checks identity key then label");
+  assert.equal(calls.filter((call) => call.table === "nodes").length, 4, "each identity gate checks identity key then label");
   assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0, "an orphan anchor cannot create a partial Number identity");
 });
 
@@ -147,6 +194,8 @@ test("a valid Number identity survives an absent anchor as the existing empty pr
 test("unsafe values fail closed before any database read", async (t) => {
   const calls = installReadTransport(t);
 
+  assert.equal(await fetchNumberOpeningIdentity(Number.MAX_SAFE_INTEGER + 1), null);
+  assert.equal(await fetchNumberOpeningIdentity("not-a-number"), null);
   assert.equal(await fetchNumberOpeningContext(Number.MAX_SAFE_INTEGER + 1), null);
   assert.equal(await fetchNumberOpeningContext("not-a-number"), null);
   assert.equal(await fetchNumberOpeningContext(null), null);
