@@ -48,9 +48,9 @@ test.before(async () => {
 test.after(async () => { await browser?.close(); });
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function open(plan = {}, { farBiblical = false, disableIO = false } = {}) {
+async function open(plan = {}, { farBiblical = false, farGateways = false, disableIO = false } = {}) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  const geometry = farBiblical ? ".dg29-grid{display:block}.dg29-gateway{display:block;min-height:900px}" : "";
+  const geometry = `${farGateways ? "#root{padding-top:2000px}" : ""}${farBiblical ? ".dg29-grid{display:block}.dg29-gateway{display:block;min-height:900px}" : ""}`;
   await page.setContent(`<!doctype html><style>${holdRules}\nbody{margin:0}${geometry}</style><body><div id='root'></div></body>`);
   await page.evaluate(({ p, noIO }) => {
     window.__plan = p;
@@ -66,6 +66,24 @@ const videoPayloadBytes = (page) => page.evaluate(() => window.__videoPayloadByt
 const settle = async (page, ms = 400) => { await sleep(ms); };
 const gateway = (page, title) => page.locator(`article.dg29-gateway:has(h3:text-is("${title}"))`);
 const texts = (locator) => locator.evaluate((node) => node.innerText);
+
+test("gateways: a cold Home entry makes no discovery read until the secondary area approaches the viewport", { skip }, async (t) => {
+  const page = await open({}, { farGateways: true, farBiblical: true });
+  try {
+    await page.evaluate(() => window.__api.mount("gateways"));
+    await settle(page);
+    assert.deepEqual(await calls(page), [], "offscreen secondary gateways make no initial request");
+    assert.equal(await page.locator(".dg29").getAttribute("data-dg29-load-state"), "deferred");
+    const box = await page.locator(".dg29").boundingBox(), viewport = page.viewportSize();
+    assert.ok(box.y > viewport.height + 400, `fixture starts beyond the bounded lead: ${box.y}`);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 350), { y: box.y, h: viewport.height });
+    await page.waitForFunction(() => window.__calls.filter((name) => name !== "videos").length === 4);
+    await settle(page, 80);
+    assert.deepEqual((await calls(page)).filter((name) => name !== "videos").sort(), ["matrices", "posts:מימד חמש", "posts:שבילי שפה", "posts:הצופן בסרטים"].sort());
+    assert.equal(await page.locator(".dg29").getAttribute("data-dg29-load-state"), "armed");
+    t.diagnostic("fixture initial delta while offscreen: -4 requests; video remains governed by its own 600px boundary");
+  } finally { await page.close(); }
+});
 
 test("gateways: the video RPC is absent above fold, starts once 600px before the biblical gateway, preserves its items, and never repeats on re-entry", { skip }, async (t) => {
   const page = await open({}, { farBiblical: true });
