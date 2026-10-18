@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
@@ -16,77 +15,8 @@ import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
 
 
-function TemporalTreasures({ item }) {
-  const treasures = item?.treasures || [];
-  if (!treasures.length) return null;
-
-  return <section className="sod29-home-now-treasures" aria-label="אוצרות שמאירים את העת">
-    <div className="sod29-home-now-treasures-head">
-      <div>
-        <small>✦ אוצרות שמאירים את העת</small>
-        <strong>שורשים שנשמרו לאורך הדרך</strong>
-      </div>
-      <span>{treasures.length}</span>
-    </div>
-
-    <div className="sod29-home-now-treasure-list">
-      {treasures.map((treasure) => <div className="sod29-home-now-treasure" key={treasure.id}>
-        <div>
-          <strong>{treasure.expression}{treasure.methodLabel ? " = " + treasure.value : ""}</strong>
-          <small>
-            {treasure.methodLabel
-              ? treasure.methodLabel + " · " + (treasure.curation?.label || treasure.value)
-              : "מחובר לעוגן " + (treasure.curation?.label || treasure.value)}
-          </small>
-        </div>
-        {treasure.curation ? <CurationMark2029
-          item={treasure.curation}
-          related={[]}
-          witnessCount={0}
-          catalog={item.treasureCatalog}
-          compact
-        /> : null}
-      </div>)}
-    </div>
-
-    <p>האוצרות נבחרים מתוך שכבת ה־Curation הקיימת לפי ההקשר — לא מתוך גלריה קבועה.</p>
-  </section>;
-}
-
-function TemporalNowCard({ item, onOpen }) {
-  if (!item) return null;
-  return <article className="sod29-home-now-card">
-    <div className="sod29-home-now-head">
-      <div>
-        <div className="sod29-kicker">{item.publicLabel}</div>
-        <h3>{item.yearLabel} · {item.value}</h3>
-      </div>
-      <span className="sod29-home-now-live">חי עכשיו</span>
-    </div>
-
-    <p className="sod29-home-now-lead">אותו מספר חוזר השנה בכמה מקומות שונים — והחיבורים מתחילים להצטבר לתמונה אחת.</p>
-
-    <div className="sod29-home-now-findings">
-      {item.findings.slice(0, 3).map((finding) => <div className="sod29-home-now-finding" key={finding.id}>
-        <strong>{finding.expression} = {finding.value}</strong>
-        <small>{finding.attribution}{finding.sourceType === "post_update" ? " · מתוך פוסט חי" : " · תרומה"}</small>
-      </div>)}
-    </div>
-
-    <TemporalTreasures item={item} />
-
-    <div className="sod29-home-now-foot">
-      <div>
-        <strong>{item.sourceCount} מקורות · אותו מספר · אותה עת</strong>
-        <small>{item.whyNow}</small>
-      </div>
-      <button className="sod29-action primary" type="button" onClick={onOpen}>פתח את החיבור בעולם ←</button>
-    </div>
-  </article>;
-}
-
 function ConnectedGoldenStory({ onOpenPost, razielLocked }) {
-  return <article className="sod29-connected-golden-story" aria-label="המשך מהעת אל המקור">
+  return <article className="sod29-connected-golden-story" aria-label="מקור חי">
     <div>
       <div className="sod29-kicker">מקור חי</div>
       <h3>רמזי הגאולה, הבינה המלאכותית וסוד השיר — תשפ״ז</h3>
@@ -244,17 +174,10 @@ function HomeBody() {
   const razielLocked = razielFeature.loading || razielFeature.blocked;
   const worldOpen = !worldFeature.loading && worldFeature.allowed;
   const [query, setQuery] = useState("");
-  const [homeState, setHomeState] = useState({ temporalLoading: true, worldLoading: true, projection: null });
+  const [homeState, setHomeState] = useState({ worldLoading: true, projection: null });
   const [worldPreviewRequested, setWorldPreviewRequested] = useState(false);
   const context = research.context || null;
 
-  useEffect(() => {
-    let live = true;
-    fetchHome2029Projection({ includeWorld: false, includeTemporal: true })
-      .then((projection) => { if (live) setHomeState((current) => ({ ...current, temporalLoading: false, projection: { ...current.projection, ...projection } })); })
-      .catch(() => { if (live) setHomeState((current) => ({ ...current, temporalLoading: false })); });
-    return () => { live = false; };
-  }, []);
   useEffect(() => {
     if (!worldPreviewRequested) return undefined;
     let live = true;
@@ -291,34 +214,6 @@ function HomeBody() {
     navigate("/world");
   };
 
-  const openTemporalNow = () => {
-    const item = homeState.projection?.temporalNow;
-    if (!item) return;
-    const id = String(item.value);
-    research.setResearchContext?.({
-      subject: { id, type: "number", label: id, href: `/number/${id}` },
-      selection: { entityId: id, entityType: "number" },
-      lens: item.worldLens || "time",
-      locale: "he",
-      dimensions: {
-        temporal: item.worldDimension || "now",
-        hebrewYear: item.yearLabel,
-        currentYearValue: item.value,
-      },
-      returnTo: {
-        href: "/",
-        label: "דף הבית",
-        subject: null,
-        selection: null,
-        lens: "home",
-        dimensions: {},
-        journey: null,
-      },
-    });
-    navigate("/world");
-  };
-
-  const temporalNow = homeState.projection?.temporalNow || null;
   const worldPreview = homeState.projection?.worldPreview || null;
 
   const openCalculator = (expression) => {
@@ -401,13 +296,11 @@ function HomeBody() {
   // Include/Publish is unchanged; production keeps its current body until release.
   if (HOME_COMPOSED) return <HomeComposition2029
     projection={homeState.projection}
-    loading={homeState.temporalLoading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
     onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
     worldPending={worldFeature.loading}
     onWorldPreviewApproach={requestWorldPreview}
-    nowHero={!homeState.temporalLoading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={(homeArrivals) => <div className="h29-stream">
       <SourceArrivalList2029 surface="home" loading={homeState.worldLoading} limit={4} showNew
@@ -433,23 +326,11 @@ function HomeBody() {
   />;
 
   return <>
-    <section className="sod29-global-now-stage sod29-home-now-first" id="global-now">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">עכשיו ב־SOD1820</div>
-          <h2>מה מתגלה עכשיו</h2>
-          <div className="sod29-muted">לא כל דבר חדש הופך לפוסט. כאן עולים רק חיבורים שהפכו משמעותיים עכשיו.</div>
-        </div>
-        <span className="sod29-chip">{homeState.temporalLoading ? "בודק…" : temporalNow ? "חיבור חי" : "שקט עכשיו"}</span>
-      </div>
-
-      {homeState.temporalLoading ? <div className="sod29-home-now-empty">בודק מה באמת התחבר לעת הזאת…</div> : null}
-      {!homeState.temporalLoading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
+    <section className="sod29-global-now-stage sod29-home-now-first" aria-label="מקור חי">
       <ConnectedGoldenStory
         razielLocked={razielLocked}
         onOpenPost={() => shell.go("/post/remzei-geula-ai-sod-hashir")}
       />
-      {!homeState.temporalLoading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
 
     <section className="sod29-focus-stage" id="universal-entry">
@@ -481,7 +362,7 @@ function HomeBody() {
 
     <HomeWorldPreview
       preview={worldPreview}
-      loading={homeState.temporalLoading}
+      loading={homeState.worldLoading}
       onOpenItem={openWorldItem}
       onOpenResearcher={openResearcher}
       onOpenWorld={() => navigate("/world")}

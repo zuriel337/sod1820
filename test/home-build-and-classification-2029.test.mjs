@@ -52,11 +52,13 @@ test("newsletter signup uses canonical opt-in endpoint with attribution", () => 
   assert.doesNotMatch(signup, /\.from\(['"]subscribers['"]\)|\.insert\(/);
 });
 
-test("Home splits temporal opening work from the lower world preview", () => {
-  assert.match(page, /fetchHome2029Projection\(\{ includeWorld: false, includeTemporal: true \}\)/);
+test("Home removes the temporal opening read and keeps the lower world preview on approach", () => {
+  assert.doesNotMatch(page, /includeWorld: false, includeTemporal: true/);
   assert.match(page, /fetchHome2029Projection\(\{ includeWorld: true, includeTemporal: false \}\)/);
   assert.match(page, /onWorldPreviewApproach=\{requestWorldPreview\}/);
   assert.match(page, /loading=\{homeState\.worldLoading\}/);
+  assert.doesNotMatch(page, /TemporalNowCard|temporalNow|temporalLoading|openTemporalNow/);
+  assert.doesNotMatch(home, /nowHero|temporalNow|מספר העת/);
   assert.match(home, /HOME_WORLD_PREVIEW_ROOT_MARGIN = "800px 0px"/);
   assert.match(home, /data-h29-world-preview-load-state=/);
   assert.match(home, /worldPreviewRequested \|\| data\.loading \|\| !data\.enriched/);
