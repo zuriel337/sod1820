@@ -713,6 +713,8 @@ Historical PR #381 is a spatial mockup/reference, not canonical 2029 runtime aut
 
 ## PHASE 10 — Raziel text + tools
 
+**Deferred real-user WhatsApp text-hint intake / source-verification / continuity acceptance (case 201, 17–18 Oct 2026):** implement only under the existing Raziel Companion v3 + Routing v2 + Response + Research Intake/Workspace/Truth/Person owners, after Phase 5–8 dependencies and current Preview/performance gates; see [Raziel WA text-hint 201 — Phase 10 implementation and Phase 11 Golden acceptance](./raziel-2029-phase10-wa-text-research-intake-acceptance-20261018.md). Scope: verified full expressions, authoritative Tanakh source, clear private-save versus submit-for-review flow with a truthful receipt, shared cross-channel memory and no private-leak/no duplicate writer. Documentation/backlog only: NOT implemented or live-authorized by this pointer.
+
 Before live voice:
 
 - one Raziel identity/personality;
@@ -732,6 +734,8 @@ Before live voice:
 ---
 
 ## PHASE 11 — G4 Golden Experiences
+
+**Raziel required replay after Phase 10:** include the real-user deidentified WhatsApp `מנקאי = 201 ↔ פה אל פה = 201` journey (facts/source/intent/consented save-or-submit/receipt/cross-channel continuity/privacy/fallback), as defined by [RAZIEL_2029_WA_TEXT_HINT_201_G4_P10_P11](./raziel-2029-phase10-wa-text-research-intake-acceptance-20261018.md). Explicitly mark BLOCKED/UNAVAILABLE until it passes; do not infer PASS from chat replies or existing media intake. This is a Golden test case under current owners, not a new capability owner or parallel truth store.
 
 **Entry semantics:** G4 begins only after the mandatory G3 implementation/compaction gate says the foundation is sufficiently closed. Changing G3→G4 does not itself switch on deferred capabilities.
 
