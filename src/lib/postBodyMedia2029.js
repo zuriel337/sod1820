@@ -24,6 +24,13 @@ function meaningful(value) {
   return typeof value === "string" && value.trim() !== "";
 }
 
+function positiveAuthoredDimension(value) {
+  const normalized = typeof value === "string" ? value.trim() : "";
+  if (!/^[1-9]\d*$/.test(normalized)) return null;
+  const numeric = Number(normalized);
+  return Number.isSafeInteger(numeric) ? numeric : null;
+}
+
 function moveToDeferredAttribute(element, sourceName, deferredName) {
   const value = element.getAttribute(sourceName);
   if (!meaningful(value)) {
@@ -37,18 +44,26 @@ function moveToDeferredAttribute(element, sourceName, deferredName) {
   return value;
 }
 
-function applyKnownDimensions(image, source) {
+function reserveImageSpace(image, source) {
+  const authoredWidth = positiveAuthoredDimension(image.getAttribute("width"));
+  const authoredHeight = positiveAuthoredDimension(image.getAttribute("height"));
+  if (authoredWidth && authoredHeight) return true;
+
   const intrinsic = KNOWN_POST_BODY_MEDIA_DIMENSIONS_2029[source];
-  if (!intrinsic) return;
-  if (!image.hasAttribute("width")) image.setAttribute("width", String(intrinsic.width));
-  if (!image.hasAttribute("height")) image.setAttribute("height", String(intrinsic.height));
+  if (!intrinsic) return false;
+  // A partial or invalid authored pair cannot reserve a stable box. Replace
+  // both values together only when exact object dimensions were verified.
+  image.setAttribute("width", String(intrinsic.width));
+  image.setAttribute("height", String(intrinsic.height));
   image.setAttribute("data-sod-post-media-intrinsic", `${intrinsic.width}x${intrinsic.height}`);
+  return true;
 }
 
 /**
- * Turns authored Post images into inert markup before that markup enters the
- * live document. Text, links, captions, alt text, classes and source values are
- * retained. Only network-bearing image attributes move to private data attrs.
+ * Turns eligible Post images with a provable reserved box into inert markup
+ * before that markup enters the live document. Text, links, captions, alt
+ * text, classes and source values are retained. Only network-bearing image
+ * attributes move to private data attrs.
  *
  * A template is intentionally used: its subtree is inert, so moving src/srcset
  * happens before the browser can schedule an image request.
@@ -60,28 +75,38 @@ export function preparePostBodyMedia2029(html, documentRef = globalThis.document
   const template = documentRef.createElement("template");
   template.innerHTML = sourceHtml;
 
-  for (const picture of template.content.querySelectorAll("picture")) {
-    for (const source of picture.querySelectorAll("source")) {
-      moveToDeferredAttribute(source, "srcset", POST_BODY_MEDIA_SRCSET);
-    }
-  }
-
+  let managedCount = 0;
   for (const image of template.content.querySelectorAll("img")) {
-    // Remove only our own stale controls if authored content was round-tripped.
+    const authoredSource = image.getAttribute("src");
+    const authoredSourceSet = image.getAttribute("srcset");
+    if (!meaningful(authoredSource) && !meaningful(authoredSourceSet)) continue;
+    if (!reserveImageSpace(image, authoredSource)) continue;
+
+    // A picture's candidates are deferred only with its managed fallback img.
+    // This preserves source-only pictures and malformed-but-renderable markup.
+    const picture = image.closest("picture");
+    if (picture) {
+      for (const source of picture.querySelectorAll("source")) {
+        moveToDeferredAttribute(source, "srcset", POST_BODY_MEDIA_SRCSET);
+      }
+    }
+
+    // Remove only our own stale state if managed content was round-tripped.
     image.removeAttribute(POST_BODY_MEDIA_STATE);
-    image.removeAttribute("data-sod-post-media-intrinsic");
     const source = moveToDeferredAttribute(image, "src", POST_BODY_MEDIA_SRC);
     const sourceSet = moveToDeferredAttribute(image, "srcset", POST_BODY_MEDIA_SRCSET);
     if (!source && !sourceSet) continue;
 
+    managedCount += 1;
     image.setAttribute(POST_BODY_MEDIA_STATE, "pending");
     // Native lazy loading is a conservative fallback after activation and in a
     // browser that has no IntersectionObserver.
     image.setAttribute("loading", "lazy");
-    if (source) applyKnownDimensions(image, source);
   }
 
-  return template.innerHTML;
+  // Keep wholly ineligible authored HTML byte-for-byte equivalent to the
+  // input, including unknown images for which no stable box can be proven.
+  return managedCount ? template.innerHTML : sourceHtml;
 }
 
 function deferredPictureSources(image) {
@@ -175,7 +200,8 @@ function activateImage(image) {
 }
 
 /**
- * Activates prepared Post-body images once they enter the 600px approach zone.
+ * Activates visible prepared images immediately. The 600px approach zone is
+ * enabled only after real pointer, touch, wheel or keyboard scroll intent.
  * The returned cleanup is safe under React StrictMode: it removes observers and
  * listeners but never rewinds a request that already started.
  */
@@ -190,6 +216,8 @@ export function observePostBodyMedia2029(root, {
   let disposed = false;
   const listenerCleanup = [];
   let observer = null;
+  let approachEnabled = false;
+  let removeIntentListeners = () => {};
 
   for (const image of images) {
     let clearFailureListener = null;
@@ -228,27 +256,64 @@ export function observePostBodyMedia2029(root, {
     }
   }
 
-  const pending = images.filter((image) => image.getAttribute(POST_BODY_MEDIA_STATE) === "pending");
   if (typeof IntersectionObserverRef === "function") {
-    observer = new IntersectionObserverRef((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        observer?.unobserve(entry.target);
-        activateImage(entry.target);
+    const observePending = (margin) => {
+      observer?.disconnect();
+      const nextObserver = new IntersectionObserverRef((entries) => {
+        if (disposed) return;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          nextObserver.unobserve(entry.target);
+          activateImage(entry.target);
+        }
+      }, { root: null, rootMargin: margin, threshold: 0 });
+      observer = nextObserver;
+      for (const image of images) {
+        if (image.getAttribute(POST_BODY_MEDIA_STATE) === "pending") nextObserver.observe(image);
       }
-    }, { root: null, rootMargin, threshold: 0 });
-    for (const image of pending) observer.observe(image);
+    };
+
+    // First-frame work is limited to media that is actually in the viewport.
+    observePending("0px");
+
+    const view = root.ownerDocument?.defaultView;
+    const scrollKeys = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "]);
+    const enableApproach = (event) => {
+      if (disposed || approachEnabled || event?.isTrusted === false) return;
+      if (event?.type === "keydown" && !scrollKeys.has(event.key)) return;
+      approachEnabled = true;
+      removeIntentListeners();
+      observePending(rootMargin);
+    };
+    if (view?.addEventListener) {
+      const intentListeners = [
+        ["wheel", enableApproach, { passive: true }],
+        ["touchstart", enableApproach, { passive: true }],
+        ["pointerdown", enableApproach, { passive: true }],
+        ["keydown", enableApproach, false],
+      ];
+      for (const [type, listener, options] of intentListeners) view.addEventListener(type, listener, options);
+      removeIntentListeners = () => {
+        for (const [type, listener, options] of intentListeners) view.removeEventListener(type, listener, options);
+        removeIntentListeners = () => {};
+      };
+    }
   } else {
     // Capability wins in older browsers. Native loading=lazy still provides a
     // hint, while restoring immediately avoids a permanently blank article.
     queueMicrotask(() => {
-      if (!disposed) for (const image of pending) activateImage(image);
+      if (!disposed) {
+        for (const image of images) {
+          if (image.getAttribute(POST_BODY_MEDIA_STATE) === "pending") activateImage(image);
+        }
+      }
     });
   }
 
   return () => {
     disposed = true;
     observer?.disconnect();
+    removeIntentListeners();
     for (const cleanup of listenerCleanup) cleanup();
   };
 }

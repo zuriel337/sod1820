@@ -17,6 +17,7 @@ const KNOWN = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public
 const ASSAF = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg";
 const SMIT = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg";
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="941" height="1672" viewBox="0 0 941 1672"><rect width="941" height="1672" fill="#8a6a22"/></svg>';
+const UNKNOWN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="800" viewBox="0 0 400 800"><rect width="400" height="800" fill="#446"/></svg>';
 
 test("contract: only the 2029 Post body gets the inert-media boundary", () => {
   assert.match(pageSource, /postReadingBodyHtml2029\(state\.projection\?\.post\)/);
@@ -24,8 +25,10 @@ test("contract: only the 2029 Post body gets the inert-media boundary", () => {
   assert.match(pageSource, /return observePostBodyMedia2029\(sourceRef\.current\)/);
   assert.match(pageSource, /dangerouslySetInnerHTML=\{\{ __html: preparedPostBody \}\}/);
   assert.doesNotMatch(legacySource, /postBodyMedia2029|preparePostBodyMedia2029|observePostBodyMedia2029/);
-  assert.match(helperSource, /querySelectorAll\("picture"\)/);
+  assert.match(helperSource, /reserveImageSpace\(image, authoredSource\)/);
   assert.match(helperSource, /rootMargin = "600px 0px"/);
+  assert.match(helperSource, /observePending\("0px"\)/);
+  assert.match(helperSource, /\["wheel", enableApproach/);
   assert.match(cssSource, /data-sod-post-media-intrinsic="941x1672"/);
 });
 
@@ -101,7 +104,7 @@ async function harnessPage({ width = 390, height = 844, theme = "dark" } = {}) {
   return { context, page };
 }
 
-const authoredHtml = (src = KNOWN) => `<article><p data-copy="true">גוף המקור נשמר</p><div class="spacer"></div><figure data-figure="true"><a href="/original" data-original-link="true"><picture><source media="(min-width: 1px)" type="image/png" srcset="${src}"><img class="authored" src="${src}" srcset="${src} 1x" alt="עדות מן המקור"></picture></a><figcaption>כיתוב מקורי</figcaption></figure></article>`;
+const authoredHtml = (src = KNOWN, dimensions = src === KNOWN ? "" : ' width="941" height="1672"') => `<article><p data-copy="true">גוף המקור נשמר</p><div class="spacer"></div><figure data-figure="true"><a href="/original" data-original-link="true"><picture><source media="(min-width: 1px)" type="image/png" srcset="${src}"><img class="authored" src="${src}" srcset="${src} 1x"${dimensions} alt="עדות מן המקור"></picture></a><figcaption>כיתוב מקורי</figcaption></figure></article>`;
 
 async function mount(page, html, observerOptions = null) {
   await page.evaluate(({ source, options }) => {
@@ -116,7 +119,7 @@ async function mount(page, html, observerOptions = null) {
 
 for (const width of [320, 390, 1440]) {
   for (const theme of ["light", "parchment", "dark"]) {
-    test(`browser ${width}px ${theme}: inert until approach, one chosen request, stable known ratio`, { skip, timeout: 30000 }, async () => {
+    test(`browser ${width}px ${theme}: inert until viewport, one chosen request, stable known ratio`, { skip, timeout: 30000 }, async () => {
       const { context, page } = await harnessPage({ width, height: width === 1440 ? 900 : 844, theme });
       let requests = 0;
       await context.route(KNOWN, async (route) => {
@@ -178,9 +181,163 @@ test("browser: a failed body image is bounded and retries the exact source", { s
     assert.equal(await page.locator('[data-sod-post-media-retry="true"]').textContent(), "נסו שוב");
     await page.locator('[data-sod-post-media-retry="true"]').click();
     await page.waitForFunction(() => document.querySelector("img.authored")?.dataset.sodPostMediaState === "loaded");
+    await page.waitForTimeout(150);
     assert.equal(attempts, 2);
     assert.equal(await page.locator('[data-sod-post-media-failure="true"]').count(), 0);
     assert.equal(await page.locator("figcaption").textContent(), "כיתוב מקורי");
+  } finally {
+    await context.close();
+  }
+});
+
+for (const height of [1080, 1200]) {
+  for (const theme of ["light", "parchment", "dark"]) {
+    test(`browser 1440x${height} ${theme}: no first-frame approach activation; trusted tiny scroll enables it`, { skip, timeout: 30000 }, async () => {
+      const { context, page } = await harnessPage({ width: 1440, height, theme });
+      let requests = 0;
+      await context.route(KNOWN, async (route) => {
+        requests += 1;
+        await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+      });
+      try {
+        const body = `<article><div style="height:1650px"></div><img class="near" src="${KNOWN}" alt="near"></article>`;
+        await mount(page, body);
+        await page.waitForTimeout(200);
+        assert.equal(requests, 0, "an off-viewport image inside the 600px zone stays inert on the first frame");
+        assert.equal(await page.locator("img.near").getAttribute("data-sod-post-media-state"), "pending");
+        assert.equal(await page.locator("img.near").getAttribute("src"), null);
+
+        await page.evaluate(() => dispatchEvent(new WheelEvent("wheel", { deltaY: 1 })));
+        await page.waitForTimeout(50);
+        assert.equal(await page.locator("img.near").getAttribute("data-sod-post-media-state"), "pending", "synthetic input is not scroll intent");
+
+        await page.mouse.wheel(0, 1);
+        await page.waitForFunction(() => document.querySelector("img.near")?.dataset.sodPostMediaState !== "pending");
+        assert.equal(await page.locator("img.near").getAttribute("src"), KNOWN, "trusted tiny scroll enables the approach observer");
+        await page.locator("img.near").scrollIntoViewIfNeeded();
+        await page.waitForFunction(() => document.querySelector("img.near")?.dataset.sodPostMediaState === "loaded");
+        assert.equal(requests, 1);
+      } finally {
+        await context.close();
+      }
+    });
+  }
+}
+
+test("browser: a truly in-viewport verified image activates without interaction", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage({ width: 1440, height: 1200 });
+  let requests = 0;
+  await context.route(KNOWN, async (route) => {
+    requests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+  });
+  try {
+    await mount(page, `<img class="visible" src="${KNOWN}" alt="visible">`);
+    await page.waitForFunction(() => document.querySelector("img.visible")?.dataset.sodPostMediaState === "loaded");
+    assert.equal(requests, 1);
+  } finally {
+    await context.close();
+  }
+});
+
+test("browser negative: unknown 400x800 no-dimension image is byte- and behavior-equivalent", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage({ width: 400, height: 800 });
+  const unknownUrl = `${origin}/unknown.svg`;
+  const body = `<figure><img class="unknown" src="${unknownUrl}" alt="unknown"><figcaption>unknown caption</figcaption></figure>`;
+  let requests = 0;
+  await context.route(unknownUrl, async (route) => {
+    requests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: UNKNOWN_SVG });
+  });
+  try {
+    assert.equal(await page.evaluate((html) => window.__prepare(html), body), body, "ineligible markup is returned byte-for-byte");
+    await mount(page, body);
+    await page.waitForFunction(() => document.querySelector("img.unknown")?.complete);
+    assert.equal(requests, 1, "the unchanged eager request still starts exactly once");
+    assert.deepEqual(await page.locator("img.unknown").evaluate((image) => ({
+      src: image.getAttribute("src"), width: image.getAttribute("width"), height: image.getAttribute("height"),
+      state: image.getAttribute("data-sod-post-media-state"), deferred: image.getAttribute("data-sod-post-media-src"),
+      loading: image.getAttribute("loading"), alt: image.alt,
+    })), { src: unknownUrl, width: null, height: null, state: null, deferred: null, loading: null, alt: "unknown" });
+  } finally {
+    await context.close();
+  }
+});
+
+test("browser negative: an unknown no-dimension image stays eager beside a managed image", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage({ width: 400, height: 800 });
+  const unknownUrl = `${origin}/unknown-mixed.svg`;
+  let unknownRequests = 0;
+  let knownRequests = 0;
+  await context.route(unknownUrl, async (route) => {
+    unknownRequests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: UNKNOWN_SVG });
+  });
+  await context.route(KNOWN, async (route) => {
+    knownRequests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+  });
+  try {
+    const body = `<div class="spacer"></div><img class="known-mixed" src="${KNOWN}" alt="known"><img class="unknown-mixed" src="${unknownUrl}" alt="unknown">`;
+    await mount(page, body);
+    await page.waitForFunction(() => document.querySelector("img.unknown-mixed")?.complete);
+    assert.deepEqual({ unknownRequests, knownRequests }, { unknownRequests: 1, knownRequests: 0 });
+    assert.deepEqual(await page.locator("img.unknown-mixed").evaluate((image) => ({
+      src: image.getAttribute("src"), width: image.getAttribute("width"), height: image.getAttribute("height"),
+      state: image.getAttribute("data-sod-post-media-state"), deferred: image.getAttribute("data-sod-post-media-src"),
+    })), { src: unknownUrl, width: null, height: null, state: null, deferred: null });
+    assert.equal(await page.locator("img.known-mixed").getAttribute("src"), null);
+    assert.equal(await page.locator("img.known-mixed").getAttribute("data-sod-post-media-state"), "pending");
+  } finally {
+    await context.close();
+  }
+});
+
+test("browser negative: source-only picture is preserved and loads normally", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage();
+  const sourceUrl = `${origin}/source-only.svg`;
+  const body = `<picture><source type="image/svg+xml" srcset="${sourceUrl}"><img class="source-only" alt="source only"></picture>`;
+  let requests = 0;
+  await context.route(sourceUrl, async (route) => {
+    requests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+  });
+  try {
+    assert.equal(await page.evaluate((html) => window.__prepare(html), body), body);
+    await mount(page, body);
+    await page.waitForFunction(() => document.querySelector("img.source-only")?.complete);
+    assert.equal(requests, 1);
+    assert.equal(await page.locator("picture source").getAttribute("srcset"), sourceUrl);
+    assert.equal(await page.locator("picture source").getAttribute("data-sod-post-media-srcset"), null);
+    assert.equal(await page.locator("img.source-only").getAttribute("data-sod-post-media-state"), null);
+  } finally {
+    await context.close();
+  }
+});
+
+test("browser: a managed picture selects one candidate request", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage();
+  const selectedUrl = `${origin}/selected.svg`;
+  const fallbackUrl = `${origin}/fallback.svg`;
+  let selectedRequests = 0;
+  let fallbackRequests = 0;
+  await context.route(selectedUrl, async (route) => {
+    selectedRequests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+  });
+  await context.route(fallbackUrl, async (route) => {
+    fallbackRequests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+  });
+  try {
+    const body = `<div class="spacer"></div><picture><source media="(min-width:1px)" type="image/svg+xml" srcset="${selectedUrl}"><img class="selected" src="${fallbackUrl}" width="941" height="1672" alt="selected"></picture>`;
+    await mount(page, body);
+    await page.waitForTimeout(100);
+    assert.equal(selectedRequests + fallbackRequests, 0);
+    await page.locator("img.selected").scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector("img.selected")?.dataset.sodPostMediaState === "loaded");
+    assert.deepEqual({ selectedRequests, fallbackRequests }, { selectedRequests: 1, fallbackRequests: 0 });
+    assert.equal(await page.locator("img.selected").evaluate((image) => image.currentSrc), selectedUrl);
   } finally {
     await context.close();
   }
@@ -249,15 +406,63 @@ test("browser: same-document back/remount is served from the immutable browser c
   }
 });
 
-test("browser: source tags outside picture remain untouched", { skip, timeout: 30000 }, async () => {
-  const { context, page } = await harnessPage();
+test("browser: pending cleanup and StrictMode replay leave one live observer and one request", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage({ width: 1440, height: 1200 });
+  const mediaUrl = `${origin}/strict-replay.svg`;
+  let requests = 0;
+  await context.route(mediaUrl, async (route) => {
+    requests += 1;
+    await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+  });
   try {
+    const body = `<div style="height:1650px"></div><img class="strict" src="${mediaUrl}" width="941" height="1672" alt="strict">`;
+    await mount(page, body);
+    await page.evaluate(() => window.__cleanup());
+    await page.mouse.wheel(0, 1);
+    await page.waitForTimeout(100);
+    assert.equal(requests, 0);
+    assert.equal(await page.locator("img.strict").getAttribute("data-sod-post-media-state"), "pending");
+
     await page.evaluate(() => {
-      const html = '<video controls><source src="/movie.mp4" type="video/mp4"></video>';
-      document.getElementById("root").innerHTML = window.__prepare(html);
+      const root = document.getElementById("root");
+      window.__cleanup = window.__observe(root);
+      window.__cleanup();
+      window.__cleanup = window.__observe(root);
     });
-    assert.equal(await page.locator("video source").getAttribute("src"), "/movie.mp4");
-    assert.equal(await page.locator("video source").getAttribute("data-sod-post-media-srcset"), null);
+    await page.mouse.wheel(0, 1);
+    await page.waitForFunction(() => document.querySelector("img.strict")?.dataset.sodPostMediaState !== "pending");
+    await page.locator("img.strict").scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector("img.strict")?.dataset.sodPostMediaState === "loaded");
+    assert.equal(requests, 1);
+  } finally {
+    await context.close();
+  }
+});
+
+test("browser negative: both video posters and video sources remain untouched", { skip, timeout: 30000 }, async () => {
+  const { context, page } = await harnessPage();
+  const posterOne = `${origin}/poster-one.svg`;
+  const posterTwo = `${origin}/poster-two.svg`;
+  let posterRequests = 0;
+  for (const poster of [posterOne, posterTwo]) {
+    await context.route(poster, async (route) => {
+      posterRequests += 1;
+      await route.fulfill({ status: 200, headers: { "content-type": "image/svg+xml" }, body: SVG });
+    });
+  }
+  try {
+    const body = `<video controls preload="none" poster="${posterOne}"><source src="/movie-one.mp4" type="video/mp4"></video><video controls preload="none" poster="${posterTwo}"><source src="/movie-two.mp4" type="video/mp4"></video>`;
+    assert.equal(await page.evaluate((html) => window.__prepare(html), body), body);
+    await mount(page, body);
+    for (let attempt = 0; attempt < 40 && posterRequests < 2; attempt += 1) await page.waitForTimeout(25);
+    assert.equal(posterRequests, 2, "the image-only scope intentionally leaves both poster requests eager");
+    assert.deepEqual(await page.locator("video").evaluateAll((videos) => videos.map((video) => ({
+      poster: video.getAttribute("poster"), source: video.querySelector("source")?.getAttribute("src"),
+      deferred: video.querySelector("source")?.getAttribute("data-sod-post-media-srcset"),
+    }))), [
+      { poster: posterOne, source: "/movie-one.mp4", deferred: null },
+      { poster: posterTwo, source: "/movie-two.mp4", deferred: null },
+    ]);
   } finally {
     await context.close();
   }
