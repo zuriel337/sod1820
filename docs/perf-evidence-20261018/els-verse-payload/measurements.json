@@ -2,7 +2,7 @@
   "measurement": "deterministic local bytes; comparison gzip level 9; no network timing claim",
   "base": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
   "reviewed_split_commit": "4e8dcebbc496a2f1da208f4312c2d085b3ab8a55",
-  "implementation_commit": "693892c18c4ebb1e90eff700420122e2d02ff654",
+  "implementation_commit": "2119ad495cc28a2693e33aa9d084b1ccd4d2b4ee",
   "branch": "gpt/perf-els-verse-payload-hardening-20261018",
   "app_source_changed": false,
   "app_static_els_route": {
@@ -61,11 +61,25 @@
   },
   "owned_asset_cleanup": {
     "basename_pattern": "^tk-vtext\\.[0-9a-f]{16}\\.gzdata$",
+    "eligible_type": "regular file only, checked with lstat and follow_symlinks=False",
+    "content_proof": "bounded deterministic gzip header; strict UTF-8; final LF; 23,204 rows; basename SHA-256 prefix",
     "runs_only_after_successful_hosted_write_and_verification": true,
+    "preserved_fixture_types": [
+      "current regular asset",
+      "invalid matching regular file",
+      "near-pattern file",
+      "unrelated file",
+      "directory",
+      "internal symlink",
+      "external symlink",
+      "FIFO",
+      "Unix socket"
+    ],
+    "links_traversed": false,
     "remaining_owned_assets": [
       "tk-vtext.134189ee3c5f9cb8.gzdata"
     ],
-    "foreign_and_near_pattern_files_preserved_by_test": true
+    "mutation_fixtures_isolated_from_worktree_public": true
   },
   "standalone_artifact": {
     "command": "cd tools/els && python3 build.py --standalone-out /tmp/tzofen-offline.html",
@@ -76,6 +90,103 @@
     "embedded_gzip_sha256": "13d1719130ec3dac9c46bd2740b8fd4d1dcbdcc54f7f6af9f699775e8bd1165e",
     "embedded_source_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
     "strict_offline_browser_requests_beyond_in_process_document": 0,
-    "direct_file_url_test": "blocked by managed Chromium policy: ERR_BLOCKED_BY_ADMINISTRATOR"
+    "direct_file_url_test": "blocked by managed Chromium policy: ERR_BLOCKED_BY_ADMINISTRATOR",
+    "output_contract": "canonical regular-file path outside the entire repository under an existing real parent with no symlink component",
+    "rejected_path_classes": [
+      "absolute repository path",
+      "relative repository path",
+      "dot-dot spelling resolving inside repository",
+      "exact hosted HTML",
+      "exact hosted asset",
+      "new path under public",
+      "new path under dist",
+      "new path under inputs",
+      "symlink parent",
+      "output symlink",
+      "directory",
+      "FIFO",
+      "missing parent"
+    ],
+    "path_rejection_before_input_load_or_render": true,
+    "normal_external_path_deterministic": true,
+    "hosted_snapshot_unchanged_by_rejections_and_success": true,
+    "csp_condition": "embedded data URL requires data: in an externally imposed connect-src policy"
+  },
+  "predecessor_evidence_commit": "7c512b1101a65334bd2986fd1c7c251f35ff1d21",
+  "prior_hardening_implementation": "693892c18c4ebb1e90eff700420122e2d02ff654",
+  "hosted_publication": {
+    "lock": "cross-process exclusive flock",
+    "lock_scope": "SHA-256 of canonical hosted output directory",
+    "lock_artifact": "per-user system temp directory outside deployed public tree",
+    "transaction": [
+      "asset replace",
+      "HTML replace",
+      "stale owned regular cleanup"
+    ],
+    "exception_release": true,
+    "abrupt_process_exit_release_tested_with_sigkill": true,
+    "failure_injection_phases": [
+      "before_asset_replace",
+      "between_asset_and_html",
+      "after_html_before_cleanup",
+      "inside_cleanup"
+    ],
+    "different_input_concurrency": "2 processes passed in isolated copied repository",
+    "same_input_concurrency": "4 processes passed in isolated copied repository",
+    "historical_fixture_source_sha256": "8efa6670cdf792b8df390dc5f16a64bd504b4ec962de31b6434f9773b0ce17a8",
+    "process_failure_safety": true,
+    "power_loss_durability_claimed": false,
+    "fsync_added": false
+  },
+  "source_validation": {
+    "before_render_or_write": true,
+    "letters": 1204583,
+    "verses": 23204,
+    "strict_utf8": true,
+    "trailing_lf": true,
+    "vlens_positive_and_sum_aligned": true,
+    "vchap_books_and_verse_count_aligned": true,
+    "verse_rows_not_shorter_than_letter_alignment": true
+  },
+  "acceptance": {
+    "payload_defer": {
+      "pass": 4,
+      "fail": 0
+    },
+    "browser_cutover": {
+      "pass": 26,
+      "fail": 0
+    },
+    "native_ui_browser": {
+      "pass": 34,
+      "fail": 0
+    },
+    "broad_static": {
+      "pass": 172,
+      "skip": 3,
+      "fail": 0,
+      "skip_reason": "local PostgreSQL unavailable"
+    },
+    "legacy_advanced_forms_browser": {
+      "pass": 5,
+      "fail": 0
+    },
+    "full_build": "Legacy and 2029 PASS",
+    "bundle_budget": {
+      "pass": 5,
+      "fail": 0,
+      "entry": "9 chunks / 187.2 KiB gzip"
+    },
+    "public_dist_html_byte_identical": true,
+    "public_dist_asset_byte_identical": true
+  },
+  "remaining_limits": {
+    "direct_file_url": "managed Chromium blocked navigation with ERR_BLOCKED_BY_ADMINISTRATOR",
+    "hosted_response_headers_measured": false,
+    "hosted_content_encoding_header_verified": false,
+    "firefox_run": false,
+    "safari_run": false,
+    "deployed_csp_run": false,
+    "power_loss_durability": false
   }
 }
