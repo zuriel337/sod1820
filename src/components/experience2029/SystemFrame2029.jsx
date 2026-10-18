@@ -46,7 +46,7 @@ import OnDemandComponent2029 from "./OnDemandComponent2029.jsx";
 import { createOnDemandLoader } from "./onDemandLoader2029.js";
 const loadContactGateway = createOnDemandLoader(() => import("../ContactGateway.jsx"));
 // Opened on demand from the capability panel: its research/spatial dependencies stay out of every page's first load.
-const NumberDrawer2029 = lazy(() => import("../number2029/NumberDrawer2029.jsx"));
+const NumberQuickInspect2029 = lazy(() => import("../number2029/NumberQuickInspect2029.jsx"));
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import { autoPeekForSubject, stageReservesRail } from "./frameLayout2029.js";
@@ -2071,7 +2071,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
-      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><Suspense fallback={<FrameState kind="loading" title="פותח את המספר…" />}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} sourceReturn={transient?.payload?.sourceReturn} /></Suspense></PanelShell>;
+      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><Suspense fallback={<FrameState kind="loading" title="פותח את המספר…" />}><NumberQuickInspect2029 target={inspectTarget} context={context} research={research} go={go} sourceReturn={transient?.payload?.sourceReturn} /></Suspense></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
