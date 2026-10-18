@@ -1,0 +1,11 @@
+{
+  "base_sha": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
+  "baseline_file_count": 293,
+  "candidate_file_count": 293,
+  "baseline_tree_sha256": "b953da73f80deeca3aa72db0ae45ca22dfac3bc57bc47eaf1817896fa991f81b",
+  "candidate_tree_sha256": "b953da73f80deeca3aa72db0ae45ca22dfac3bc57bc47eaf1817896fa991f81b",
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "bit_identical": true
+}

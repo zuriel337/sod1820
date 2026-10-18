@@ -17,6 +17,15 @@ const deployEnv = process.env.VERCEL_ENV || process.env.SOD_DEPLOY_ENV || 'unkno
 // This prevents Rollup from re-sharing a common chunk that carries legacy-only presentation
 // into the 2029 document merely because both runtimes consume Foundation modules.
 export default defineConfig({
+  resolve: is2029 ? {
+    // Keep Supabase's single Auth/PostgREST client, but defer its Realtime/Phoenix
+    // transport until a channel action. The exact-match alias leaves the real
+    // module subpath available to the adapter's dynamic import.
+    alias: [{
+      find: /^@supabase\/realtime-js$/,
+      replacement: resolve(rootDir, 'src/lib/realtimeLazy2029.js'),
+    }],
+  } : undefined,
   define: {
     __SOD_2029_BUILD__: JSON.stringify(is2029),
     __SOD_NUMBER_REVIEW_PREVIEW_OPEN__: JSON.stringify(numberReviewPreviewOpen),
