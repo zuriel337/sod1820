@@ -13,6 +13,11 @@ import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
 const slug = WORLD_FLIGHT_POST_SLUG;
 const loadPostReadingProjection = createOnDemandLoader(() => import('../../lib/research/post2029ReadingProjection.js'));
+// A loader failure without a same-origin module URL, or a failed recovery URL,
+// cannot be repaired inside the current document. Remember that terminal state
+// across World remounts so navigation never turns it into an implicit request
+// loop; a document reload creates a fresh module instance.
+let projectionModuleNeedsReload = false;
 const admitProjection = (projection) => projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
   && postRowToWorldUpdate(projection.post);
 const compactProjection = (post, extensionsPending = false) => ({
@@ -37,7 +42,7 @@ const directions = [
  * new source identity, publication decision or automatic Research Path start. */
 export default function WorldFlightStory2029({ surface = 'world', research, shell }) {
   const location = useLocation(), navigate = useNavigate();
-  const [state, setState] = useState({ loading: true, projection: null, extensionsStatus: 'idle' });
+  const [state, setState] = useState({ loading: true, projection: null, extensionsStatus: 'idle', extensionsRecovery: 'none' });
   const [attempt, setAttempt] = useState(0);
   const lifecycleRef = useRef({ active: false, generation: 0 });
   const fullLoadRef = useRef(null);
@@ -45,27 +50,46 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const home = surface === 'home';
   const anchor = home ? 'home-plane' : 'world-plane-story';
 
-  const requestFullProjection = useCallback(() => {
+  const requestFullProjection = useCallback(({ allowRecovery = false } = {}) => {
     const generation = lifecycleRef.current.generation;
     const current = () => lifecycleRef.current.active && lifecycleRef.current.generation === generation;
     if (!current() || fullStatusRef.current === 'ready') return fullLoadRef.current || Promise.resolve(null);
     if (fullLoadRef.current) return fullLoadRef.current;
+    if (projectionModuleNeedsReload) {
+      fullStatusRef.current = 'terminal-error';
+      setState((value) => value.projection
+        ? { ...value, loading: false, extensionsStatus: 'error', extensionsRecovery: 'reload' }
+        : { loading: false, projection: null, extensionsStatus: 'error', extensionsRecovery: 'reload' });
+      return Promise.resolve(null);
+    }
+    if (loadPostReadingProjection.recovery?.().canRetry && !allowRecovery) {
+      fullStatusRef.current = 'retryable-error';
+      setState((value) => value.projection
+        ? { ...value, loading: false, extensionsStatus: 'error', extensionsRecovery: 'retry' }
+        : { loading: false, projection: null, extensionsStatus: 'error', extensionsRecovery: 'retry' });
+      return Promise.resolve(null);
+    }
 
     fullStatusRef.current = 'loading';
-    setState((value) => value.projection ? { ...value, extensionsStatus: 'loading' } : value);
+    setState((value) => value.projection
+      ? { ...value, extensionsStatus: 'loading', extensionsRecovery: 'none' }
+      : value);
+    let moduleReady = false;
     let request;
     request = loadPostReadingProjection()
       .then((module) => {
         if (!current()) return null;
+        moduleReady = true;
+        projectionModuleNeedsReload = false;
         return module.fetchPost2029ReadingProjection(slug, {
           onPrimary: (projection) => {
             if (!current()) return;
             if (!admitProjection(projection)) {
               fullStatusRef.current = 'rejected';
-              setState({ loading: false, projection: null, extensionsStatus: 'idle' });
+              setState({ loading: false, projection: null, extensionsStatus: 'idle', extensionsRecovery: 'none' });
               return;
             }
-            setState({ loading: false, projection, extensionsStatus: 'loading' });
+            setState({ loading: false, projection, extensionsStatus: 'loading', extensionsRecovery: 'none' });
           },
         });
       })
@@ -73,19 +97,22 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         if (!current()) return null;
         if (!admitProjection(projection)) {
           fullStatusRef.current = 'rejected';
-          setState({ loading: false, projection: null, extensionsStatus: 'idle' });
+          setState({ loading: false, projection: null, extensionsStatus: 'idle', extensionsRecovery: 'none' });
           return null;
         }
         fullStatusRef.current = 'ready';
-        setState({ loading: false, projection, extensionsStatus: 'ready' });
+        setState({ loading: false, projection, extensionsStatus: 'ready', extensionsRecovery: 'none' });
         return projection;
       })
       .catch(() => {
         if (!current()) return null;
-        fullStatusRef.current = 'error';
+        const canRetry = Boolean(loadPostReadingProjection.recovery?.().canRetry);
+        const recovery = canRetry ? 'retry' : 'reload';
+        if (!moduleReady && !canRetry) projectionModuleNeedsReload = true;
+        fullStatusRef.current = canRetry ? 'retryable-error' : 'terminal-error';
         setState((value) => value.projection
-          ? { ...value, loading: false, extensionsStatus: 'error' }
-          : { loading: false, projection: null, extensionsStatus: 'error' });
+          ? { ...value, loading: false, extensionsStatus: 'error', extensionsRecovery: recovery }
+          : { loading: false, projection: null, extensionsStatus: 'error', extensionsRecovery: recovery });
         return null;
       })
       .finally(() => { if (fullLoadRef.current === request) fullLoadRef.current = null; });
@@ -93,18 +120,28 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
     return request;
   }, []);
 
+  const retryFullProjection = useCallback(() => {
+    if (!loadPostReadingProjection.recovery?.().canRetry) {
+      projectionModuleNeedsReload = true;
+      fullStatusRef.current = 'terminal-error';
+      setState((value) => ({ ...value, extensionsStatus: 'error', extensionsRecovery: 'reload' }));
+      return;
+    }
+    requestFullProjection({ allowRecovery: true });
+  }, [requestFullProjection]);
+
   useEffect(() => {
     let live = true;
     const generation = lifecycleRef.current.generation + 1;
     lifecycleRef.current = { active: true, generation };
     fullLoadRef.current = null;
     fullStatusRef.current = 'idle';
-    setState({ loading: true, projection: null, extensionsStatus: 'idle' });
+    setState({ loading: true, projection: null, extensionsStatus: 'idle', extensionsRecovery: 'none' });
     // Home's established missing-image fallback stays intact, including its existing direct module request.
     const loadFullForHome = () => import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
-      onPrimary: (projection) => { if (live && admitProjection(projection)) setState({ loading: false, projection, extensionsStatus: 'loading' }); },
+      onPrimary: (projection) => { if (live && admitProjection(projection)) setState({ loading: false, projection, extensionsStatus: 'loading', extensionsRecovery: 'none' }); },
     })).then((projection) => {
-      if (live) setState({ loading: false, projection: admitProjection(projection) ? projection : null, extensionsStatus: 'ready' });
+      if (live) setState({ loading: false, projection: admitProjection(projection) ? projection : null, extensionsStatus: 'ready', extensionsRecovery: 'none' });
     });
     // Home draws the post's own row (image, categories, date) and nothing of the reading projection's extension phase (timeline, verifications, method traces: they live in a
     // collapsed section that only the World surface has). So Home asks for that row's card columns (not the body: the same lookup as the projection's first read, narrower),
@@ -114,14 +151,17 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       const draft = Array.isArray(post?.tags) && post.tags.includes('טיוטה');
       if (!post || draft || !postRowToWorldUpdate(post)) { setState({ loading: false, projection: null }); return null; }   // not public Home material: the same outcome the full reader gives
       if (home && !post.thumb_url && !post.image_url) return loadFullForHome();
-      setState({ loading: false, projection: compactProjection(post, !home), extensionsStatus: 'idle' });
-      // Keep the established media fallback: a row with neither image field asks the full reader for experience media.
-      if (!home && !post.thumb_url && !post.image_url) return requestFullProjection();
+      setState({ loading: false, projection: compactProjection(post, !home), extensionsStatus: 'idle', extensionsRecovery: 'none' });
+      // World displays image_url, not the card thumbnail. If that field is
+      // absent, including a thumb-only row, retain the full-reader media
+      // fallback. Home can render either field and falls back only when both
+      // are absent.
+      if (!home && !post.image_url) return requestFullProjection();
       return null;
     });
     task.catch(() => { if (live) setState((current) => current.projection
-      ? { ...current, loading: false, extensionsStatus: 'error' }
-      : { loading: false, projection: null }); });
+      ? { ...current, loading: false, extensionsStatus: 'error', extensionsRecovery: 'reload' }
+      : { loading: false, projection: null, extensionsStatus: 'error', extensionsRecovery: 'reload' }); });
     return () => {
       live = false;
       if (lifecycleRef.current.generation === generation) lifecycleRef.current = { active: false, generation };
@@ -192,7 +232,9 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       <details className="sod29-flight-time" onToggle={openTimeline}><summary>הסיפור לאורך הזמן</summary>
         {state.extensionsStatus === 'loading' ? <FrameState kind="loading" title="המקור והחיבורים נטענים" />
           : state.extensionsStatus === 'error' ? <FrameState kind="unavailable" title="החיבורים אינם זמינים כרגע">
-            <button className="sod29-action" onClick={requestFullProjection}>נסה שוב</button>
+            {state.extensionsRecovery === 'retry'
+              ? <button className="sod29-action" onClick={retryFullProjection}>נסה שוב</button>
+              : <button className="sod29-action" onClick={() => window.location.reload()}>רענן את הדף</button>}
           </FrameState> : state.extensionsStatus === 'ready'
             ? <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} /> : null}
         {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
