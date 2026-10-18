@@ -1,7 +1,9 @@
 # F5 — חסימת ה-RPC במסלול הפוסט: ביקורת והוכחה
 
 בסיס: `gpt/perf-unified-candidate-20261017` @ `8c8e9df9b2b012b70479e398e75f16e7008b8619` (ענף העבודה ששויך לסשן: `claude/perf-post-middleware-f5-vmwq1d`; השם המבוקש `…-20261018` לא נדחף).
-אין DB חי לצורך המדידה, אין CI/PR/merge/preview/deploy. **קוד מוצר לא שונה.**
+אין DB חי לצורך המדידה, אין CI/PR/merge/preview/deploy.
+
+> **עדכון 18.10.2026:** החלטת המרכז אישרה את Candidate A בענף בלבד, והוא הוחל ב-`middleware-core.js` (+ תנאי `request.method === 'GET'`). המסמך שלהלן הוא ביקורת ה-BEFORE המקורית (קוד מוצר לא שונה בה); התוצאה המיושמת ב-`APPLIED.md`.
 
 ## תוצאה במשפט
 

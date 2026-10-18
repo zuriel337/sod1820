@@ -1,7 +1,6 @@
-// F5 contract pins for the /post/:slug and legacy /:slug existence check in middleware-core.js.
-// Zero network: global fetch is mocked. Every assertion here must hold for the current middleware AND for any
-// candidate that removes the lookup wait from ordinary visitors; the one deliberate decision point is the
-// "human document navigation to a missing slug" case, switched by F5_CANDIDATE=A (default = current behaviour).
+// F5 Candidate A contract pins for the /post/:slug and legacy /:slug existence check in middleware-core.js.
+// Zero network: global fetch is mocked. The only request that skips public_post_slug_exists is a human GET document
+// navigation (kind=browser + Sec-Fetch-Mode: navigate + Sec-Fetch-Dest: document) to /post/:slug.
 // Run: node --test test/post-middleware-f5-contract.test.mjs   (MW_DIR=<dir> tests another copy of middleware-core.js)
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -9,9 +8,9 @@ import path from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 
 const MW_DIR = process.env.MW_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const CANDIDATE_A = process.env.F5_CANDIDATE === "A";
 const CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const GOOGLEBOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+const BINGBOT = "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)";
 const SLURP = "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)";
 const NAV = { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", "accept-language": "he-IL", accept: "text/html" };
 
@@ -76,14 +75,15 @@ test("fail-open: Supabase 500 / network error never turns into a 404", async () 
   }
 });
 
-test("HANG: a Supabase that never answers (current: holds the document with no bound; candidate A: fail-open after the timeout)", () => run({ failure: "slow" }, async (s) => {
-  const deadline = new Promise((r) => setTimeout(() => r("STILL_WAITING"), 3000));
-  for (const p of ["/post/missing-a", "/missing-a"]) {
-    const r = await Promise.race([s.call(p, { ua: GOOGLEBOT }), deadline]);
-    if (CANDIDATE_A) assert.equal(r.next, true, `${p} must fail open once the lookup budget is spent`);
-    else assert.equal(r, "STILL_WAITING", "current code has no lookup timeout (documented gap)");
-    if (!CANDIDATE_A) break; // the deadline is already spent
-  }
+test("HANG: a Supabase that never answers is cut at 800ms and fails open (crawler and legacy paths)", () => run({ failure: "slow" }, async (s) => {
+  const keepAlive = setInterval(() => {}, 50); // AbortSignal.timeout timers are unref'd in Node; keep the test loop alive
+  try { for (const p of ["/post/missing-a", "/missing-a"]) {
+    const t0 = performance.now();
+    const r = await s.call(p, { ua: GOOGLEBOT });
+    const ms = performance.now() - t0;
+    assert.equal(r.next, true, `${p} must fail open once the lookup budget is spent`);
+    assert.ok(ms >= 700 && ms < 1100, `${p} released after ${ms.toFixed(0)}ms, expected ~800ms`);
+  } } finally { clearInterval(keepAlive); }
 }), { timeout: 15000 });
 
 test("failure is not cached as an answer: the next request asks again", () => run({ failure: "500" }, async (s) => {
@@ -112,19 +112,60 @@ test("security/country gates run before any existence lookup (no RPC for gated r
   await run({ countries: [{ code: "CN", mode: "blocked", strict_level: 1 }] }, async (s) => { const r = await s.call("/post/missing-a", { ua: GOOGLEBOT, country: "CN" }); assert.equal(r.res.status, 404, "goodbot passes a country block, then gets the real 404"); });
 });
 
-test("DECISION POINT: human document navigation to a missing /post/:slug", () => run({}, async (s) => {
+test("human GET document navigation: existing post, cold cache, does not call the existence RPC", () => run({}, async (s) => {
+  const r = await s.call("/post/exists-a", { ua: CHROME, nav: true });
+  assert.equal(r.next, true);
+  assert.equal(s.slugCalls(), 0);
+}));
+
+test("human GET document navigation: missing post is not looked up and reaches the SPA (200 + client noindex Not Found)", () => run({}, async (s) => {
   const r = await s.call("/post/missing-a", { ua: CHROME, nav: true });
-  if (CANDIDATE_A) {
-    assert.equal(r.next, true, "candidate A: no wait, SPA renders the noindex Not Found page (HTTP 200)");
-    assert.equal(s.slugCalls(), 0);
-  } else {
-    assert.equal(r.res.status, 404, "current: real 404 for browsers too");
-    assert.equal(s.slugCalls(), 1);
+  assert.equal(r.next, true);
+  assert.equal(s.slugCalls(), 0);
+}));
+
+test("human GET navigation with a slow/failing Supabase is not held at all", () => run({ failure: "slow" }, async (s) => {
+  const t0 = performance.now();
+  const r = await s.call("/post/missing-a", { ua: CHROME, nav: true });
+  assert.equal(r.next, true);
+  assert.ok(performance.now() - t0 < 100);
+}));
+
+test("only the exact pair navigate+document skips the lookup", () => run({}, async (s) => {
+  for (const h of [{ "sec-fetch-mode": "navigate" }, { "sec-fetch-dest": "document" }, { "sec-fetch-mode": "cors", "sec-fetch-dest": "empty" }, { "sec-fetch-mode": "navigate", "sec-fetch-dest": "iframe" }]) {
+    const r = await s.call("/post/missing-a", { ua: CHROME, headers: h });
+    assert.equal(r.res.status, 404, JSON.stringify(h));
   }
 }));
 
-test("existing post for a human navigation passes either way (current: after one lookup; candidate A: with none)", () => run({}, async (s) => {
-  const r = await s.call("/post/exists-a", { ua: CHROME, nav: true });
-  assert.equal(r.next, true);
-  assert.equal(s.slugCalls(), CANDIDATE_A ? 0 : 1);
+test("real 404 for Googlebot, Bingbot, Slurp and HEAD (even HEAD with Sec-Fetch navigation headers) on a missing post", () => run({}, async (s) => {
+  let n = 0;
+  for (const [ua, extra] of [[GOOGLEBOT, {}], [BINGBOT, {}], [SLURP, {}], [GOOGLEBOT, { nav: true }], [CHROME, { nav: true, method: "HEAD" }], [CHROME, { method: "HEAD" }]]) {
+    s.calls.length = 0;
+    const r = await s.call("/post/missing-b" + n++, { ua, ...extra }); // unique slug: a cache hit would hide the lookup
+    assert.equal(r.res.status, 404, `${ua.slice(0, 30)} ${JSON.stringify(extra)}`);
+    assert.equal(s.slugCalls(), 1);
+    assert.match(r.res.headers.get("x-robots-tag"), /noindex/);
+  }
 }));
+
+test("HEAD navigation to an existing post still performs the lookup and passes", () => run({}, async (s) => {
+  const r = await s.call("/post/exists-a", { ua: CHROME, nav: true, method: "HEAD" });
+  assert.equal(r.next, true);
+  assert.equal(s.slugCalls(), 1);
+}));
+
+test("legacy /:slug is unchanged for human GET navigation: 308 or 404 after a lookup", () => run({}, async (s) => {
+  const ok = await s.call("/exists-a", { ua: CHROME, nav: true });
+  assert.equal(ok.res.status, 308);
+  assert.equal(s.slugCalls(), 1);
+  const gone = await s.call("/missing-a", { ua: CHROME, nav: true });
+  assert.equal(gone.res.status, 404);
+  assert.equal(s.slugCalls(), 2);
+}));
+
+test("the SPA owns the human 'not found' answer: noindex + not-found copy for a missing post", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(path.join(MW_DIR, "src/pages/Post2029Page.jsx"), "utf8");
+  assert.match(src, /title: "הפוסט לא נמצא"[\s\S]{0,160}noindex: true/);
+});

@@ -28,7 +28,7 @@ A URL is not "healthy" merely because Google discovered it, and an excluded URL 
 | Video `uploadDate` invalid / missing timezone | all VideoObject paths pass through ISO-8601 timezone normalization; unified video sitemap emits ISO timestamps | IMPLEMENTED · GSC RECrawl PENDING |
 | Blocked by `robots.txt` | allowed only for intentionally private/expensive routes; public/index-worthy paths must not be disallowed | CONTRACT ACTIVE |
 | 403 | acceptable only for private/expensive/bad-bot paths; public goodbot/search crawler must reach public content | CONTRACT ACTIVE · monitor |
-| 404 | unknown legacy single-segment `/:slug` is validated at Edge and returns true HTTP 404; valid posts/routes keep 200/redirect behavior | IMPLEMENTED · LIVE VERIFY REQUIRED |
+| 404 | unknown legacy single-segment `/:slug` is validated at Edge and returns true HTTP 404; `/post/:slug` returns true HTTP 404 to known crawlers and to every client except a human GET document navigation (that human receives the SPA, HTTP 200 + `noindex` + not-found message, see F5 below); valid posts/routes keep 200/redirect behavior | IMPLEMENTED · LIVE VERIFY REQUIRED |
 | Soft 404 | unmatched SPA wildcard renders a dedicated `noindex` Not Found page instead of redirecting home; nested dynamic-entity HTTP status remains owner-specific | MAJOR SOURCE CLOSED · residual monitor |
 | Server error 5xx | public index-worthy surfaces must be 5xx-free across release verification | RELEASE GATE |
 | Redirect | valid legacy redirect is not an error; sitemap/internal links must point directly to the final canonical 200 URL | CONTRACT ACTIVE |
@@ -90,10 +90,18 @@ Released base:
 - false -> true Edge HTTP 404; Supabase uncertainty -> fail-open.
 
 G3 2029 extension:
-- `/post/:slug` reuses the **same indexed slug existence check** before the 2029 SPA document is committed;
+- `/post/:slug` reuses the **same indexed slug existence check** before the 2029 SPA document is committed, with one F5 exception (below);
 - malformed `/video/:assetId` (not a 32-char hex public asset id) returns Edge HTTP 404 without DB work;
 - a well-formed but nonexistent video id remains fail-closed/noindex until a bounded existence lookup can be proven without recomputing the heavy media Projection on every request;
 - Topic/Book/Number false-IDs remain owner-specific residuals until their canonical route owners expose equally cheap legitimacy checks.
+
+F5 exception · 2026-10-18 (Human Gate decision recorded by the center; branch-only until released):
+- A request skips `public_post_slug_exists` **only** when it is a `GET` classified `browser` that carries `Sec-Fetch-Mode: navigate` and `Sec-Fetch-Dest: document` for `/post/:slug`. The ordinary visitor no longer waits a Supabase round trip before the document.
+- For a **missing or deleted** slug that human receives the 2029 SPA with **HTTP 200**, `noindex` (client-side `applySeo`) and the "post not found" message — a deliberate, documented soft-404 for human navigation only. It is not a search-visible result: crawlers never take this path.
+- Known crawlers (`goodbot`/`ai`), unlisted engines classified `browser` without navigation metadata (Slurp, Yeti, Qwantify), `HEAD` even with Sec-Fetch headers, old browsers and any other client keep the lookup and the **real HTTP 404** (`noindex, follow`).
+- Legacy single-segment `/:slug` is unchanged: lookup, then 308 to `/post/:slug` or HTTP 404.
+- The lookup is bounded by an 800ms timeout; timeout or any Supabase failure is fail-open. Cache TTL (10 minutes, in-isolate) is unchanged, so a just-published post and a just-deleted post are each wrong for at most one TTL on the crawler path.
+- Security/country/quarantine decisions still run before any of this. `Sec-Fetch-*` is spoofable; spoofing yields only the SPA answer, never a gate bypass.
 
 Closure rule:
 - current 2029 route -> 200;

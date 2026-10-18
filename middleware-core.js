@@ -255,10 +255,14 @@ async function bigContentSet() {
 
 // ── Route Legitimacy 2029 ────────────────────────────────────────────────────
 // סוגר את ה-soft-404 של /:slug לפני שה-SPA מחזיר index.html ב-200.
-// זה אינו bot/country policy: אותה תשובת 404 ניתנת לדפדפן ול-goodbot.
+// זה אינו bot/country policy. חריג יחיד (F5): ניווט-מסמך אנושי ב-GET אל /post/:slug אינו ממתין ל-lookup —
+// פוסט חסר מקבל אצלו SPA ב-HTTP 200 עם noindex והודעת "לא נמצא". זחלן מוכר (goodbot/ai), HEAD וכל לקוח
+// בלי Sec-Fetch של ניווט-מסמך מקבלים את ה-lookup וה-404 האמיתי. ‏/:slug ישן נשאר ללא שינוי (308/404).
 // lookup רק ל-single-segment שאינו route/redirect ידוע; exact+indexed; cache קצר; כשל DB = fail-open.
 const POST_ROUTE_CACHE_MS = 10 * 60 * 1000;
 const POST_ROUTE_CACHE_MAX = 512;
+// A hung Supabase must not hold the document: past this budget the lookup is uncertain -> fail-open.
+const POST_ROUTE_LOOKUP_TIMEOUT_MS = 800;
 const POST_ROUTE_CACHE = new Map();
 
 async function publicPostSlugExists(path) {
@@ -272,6 +276,7 @@ async function publicPostSlugExists(path) {
       method: 'POST',
       headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_slug: decoded, p_encoded_slug: encodedLower }),
+      signal: AbortSignal.timeout(POST_ROUTE_LOOKUP_TIMEOUT_MS),
     });
     if (!r.ok) return null;
     const data = await r.json();
@@ -282,6 +287,17 @@ async function publicPostSlugExists(path) {
   } catch {
     return null;
   }
+}
+
+// A browser-class GET that labels itself a top-level document navigation does not wait for the existence lookup on
+// /post/:slug. For a missing slug that human gets the 2029 SPA (HTTP 200) which renders the noindex Not Found page.
+// Everything else keeps the exact lookup and the real HTTP 404: goodbot/ai, unlisted crawlers that classify as
+// 'browser' but send no navigation metadata (Slurp/Yeti/Qwantify), HEAD even with Sec-Fetch headers, old browsers.
+function isHumanDocumentNavigation(request, kind) {
+  return kind === 'browser'
+    && request.method === 'GET'
+    && request.headers.get('sec-fetch-mode') === 'navigate'
+    && request.headers.get('sec-fetch-dest') === 'document';
 }
 
 function routeNotFoundResponse() {
@@ -390,7 +406,7 @@ export default async function middleware(request, context) {
 
     // 2029 Post uses the same exact indexed slug owner — no second route-validity system.
     const post2029 = path.match(/^\/post\/([^/]+)\/?$/);
-    if (post2029) {
+    if (post2029 && !isHumanDocumentNavigation(request, kind)) {
       const exists = await publicPostSlugExists('/' + post2029[1]);
       if (exists === false) return routeNotFoundResponse();
     }
