@@ -1,5 +1,5 @@
 *{box-sizing:border-box}
-.sod29-root{min-height:100vh;color:var(--s29-ink);background:var(--s29-page);display:grid;grid-template-columns:264px minmax(0,1fr);position:relative;z-index:1;isolation:isolate;overflow-x:hidden}
+.sod29-root{min-height:100vh;color:var(--s29-ink);background:var(--s29-page);display:grid;grid-template-columns:264px minmax(0,1fr);position:relative;z-index:1;isolation:isolate}
 .sod29-root a{color:inherit;text-decoration:none}
 .sod29-root button,.sod29-root input{font:inherit}
 .sod29-ambient-field{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}

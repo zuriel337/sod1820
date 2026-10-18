@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
-  KEEP_RESERVE_PX, SETTLED_HEIGHT_VAR, currentViewportWidth, holdAttribute, keptHeight, layoutExtent, nextMemory, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
+  ABOVE_MARGIN_PX, KEEP_RESERVE_PX, QUIET_MS, SETTLED_HEIGHT_VAR, GIVE_BACK_GAP_MS, currentViewportWidth, giveBackAbove, holdAttribute, keptHeight, layoutExtent, mayGiveBack, nextMemory, personIsIdle, readSettledBox, rememberSettledBox, rememberedHeight, resetSettledBoxes, shouldReleaseHold, viewportChangedSinceHold,
 } from "../src/components/experience2029/useSettledBox2029.js";
 import { gatewayContentState, primaryContentState } from "../src/lib/homeReadiness2029.js";
 
@@ -230,13 +230,50 @@ test("the CSS: the message is the held box's own content and a held box does not
   assert.doesNotMatch(css, /is-unavailable \{ min-height/, "an unavailable hero never keeps a permanent 418 px: the bounded, out-of-view release lives in the hook");
 });
 
-// ---- every entry starts from the whole remembered box; the hook gives no space back above the person and never scrolls ----
-test("the hook starts every entry from the remembered whole box, bounds a message only below the viewport, keeps no history of failures and never scrolls the page", () => {
+// ---- the space of a failed area is given back inside the entry, only where nothing the person sees can move ----
+test("the person is idle when nothing scrolled or was pressed for QUIET_MS, the restorer is not holding the page and the tab is visible", () => {
+  const doc = (overflowAnchor = "", visibilityState = "visible") => ({ documentElement: { style: { overflowAnchor } }, visibilityState });
+  assert.equal(QUIET_MS, 400);
+  assert.equal(personIsIdle(QUIET_MS + 1, doc()), true);
+  assert.equal(personIsIdle(QUIET_MS - 1, doc()), false, "something moved or was pressed a moment ago");
+  assert.equal(personIsIdle(10_000, doc("none")), false, "the restorer is holding the page (scroll anchoring paused)");
+  assert.equal(personIsIdle(10_000, doc("", "hidden")), false);
+  assert.equal(personIsIdle(10_000, null), false);
+});
+
+test("boxes are given back one at a time: a second give-back waits GIVE_BACK_GAP_MS (several in one frame would be counted as layout shifts)", () => {
+  assert.equal(GIVE_BACK_GAP_MS, 150);
+  const win = { scrollBy() {} };
+  const node = { style: { setProperty() {} }, getBoundingClientRect: () => ({ bottom: -200 }) };
+  const t0 = performance.now();
+  giveBackAbove(node, 160, win);
+  assert.equal(mayGiveBack(t0 + 10), false, "a box that comes due together with the one just given back waits");
+  assert.equal(mayGiveBack(performance.now() + GIVE_BACK_GAP_MS + 1), true);
+});
+
+test("giveBackAbove: the page is put back by exactly the measured drift, or not at all when the browser already did", () => {
+  const make = (shrinkBy, anchored) => {
+    const state = { bottom: -200, scrolled: [] };
+    const node = { style: { setProperty(name, value) { state.height = value; state.bottom -= anchored ? 0 : shrinkBy; } }, getBoundingClientRect: () => ({ bottom: state.bottom }) };
+    return { node, state, win: { scrollBy: (options) => state.scrolled.push(options) } };
+  };
+  const plain = make(540, false);
+  assert.equal(giveBackAbove(plain.node, 160, plain.win), -540);
+  assert.deepEqual(plain.state.scrolled, [{ top: -540, left: 0, behavior: "instant" }]);
+  assert.equal(plain.state.height, "160px");
+  const anchored = make(540, true);   // scroll anchoring has already put the page back: the box's bottom edge did not move
+  assert.equal(giveBackAbove(anchored.node, 160, anchored.win), 0);
+  assert.deepEqual(anchored.state.scrolled, [], "nothing is added on top of the browser's own correction");
+  const tiny = make(0.3, false);
+  giveBackAbove(tiny.node, 160, tiny.win);
+  assert.deepEqual(tiny.state.scrolled, [], "sub-pixel drift is not corrected");
+});
+
+test("the hook gives space back inside the entry, starts every entry from the remembered whole box, and keeps no history of failures", () => {
   const hook = read("src/components/experience2029/useSettledBox2029.js");
   assert.match(hook, /const full = Math\.max\(state\.appliedHeight \?\? 0, state\.lastHeight\);/);
-  assert.match(hook, /if \(!entry \|\| entry\.isIntersecting \|\| entry\.boundingClientRect\.top < 0\) return;   \/\/ in view or above the viewport: the whole reservation stays/, "in view or above the viewport: the whole reservation stays");
-  assert.match(hook, /node\.style\.setProperty\(SETTLED_HEIGHT_VAR, `\$\{keptHeight\(full, false\)\}px`\); stop\(\);/, "below the viewport: bounded at once");
+  assert.match(hook, /if \(entry\.boundingClientRect\.top >= 0\) \{ node\.style\.setProperty\(SETTLED_HEIGHT_VAR, `\$\{bound\}px`\); stop\(\); return; \}/, "below the viewport: at once");
+  assert.match(hook, /if \(personIsIdle\(\) && mayGiveBack\(\)\) \{\n        const box = node\.getBoundingClientRect\(\);\n        if \(box\.bottom < -ABOVE_MARGIN_PX\) \{ giveBackAbove\(node, bound\); stop\(\); return; \}/, "entirely above the viewport and idle: measured, put back");
   assert.match(hook, /const memory = readSettledBox\(key\);\n    const height = state\.released/, "the box a mount applies is the remembered one, untouched by earlier failures");
-  for (const gone of ["entryMemory", "messageBox", "STRIKES_TO_BOUND", "readMessageBox", "strikes", "lastWidth"]) assert.ok(!hook.includes(gone), `${gone} must not exist: a failure is not proof that the next read fails`);
-  for (const scrolling of ["scrollBy", "scrollTo", "scrollIntoView", "overflowAnchor", "overflow-anchor"]) assert.ok(!hook.replace(/\/\/.*$/gm, "").includes(scrolling), `${scrolling}: the hook never moves the page (a compensation above the reading place is counted by the browser in this shell)`);
+  for (const gone of ["entryMemory", "messageBox", "STRIKES_TO_BOUND", "readMessageBox", "strikes"]) assert.ok(!hook.includes(gone), `${gone} must not exist: a failure is not proof that the next read fails`);
 });
