@@ -3,9 +3,14 @@
 מקור-האמת של הכלי **«הצופן התנכי»** שרץ ב-`sod1820.co.il/code` וגם בהיכל (`/research?tool=els`).
 
 ## מה זה
-כלי **עצמאי (vanilla-JS, קובץ יחיד)** לחיפוש דילוגי-אותיות בכל התנ״ך. הפלט הבנוי הוא
-`public/tzofen.html` (~2.2MB) — קובץ מלא ללא תלות-רשת. כל התנ״ך (1,204,583 אותיות, 24 ספרים)
-דחוס gzip+base64 ומפוענח בדפדפן ע״י `DecompressionStream` (בלי ספרייה, תואם-CSP).
+כלי **עצמאי (vanilla-JS)** לחיפוש דילוגי-אותיות בכל התנ״ך. אותיות הקורפוס הקנוניות
+(1,204,583 אותיות, 24 ספרים), גבולות הפסוקים ומנוע החיפוש מוטמעים ב־`public/tzofen.html`
+כ־gzip+base64 ומפוענחים בדפדפן ע״י `DecompressionStream` (בלי ספרייה, תואם-CSP).
+
+טקסט-הפסוקים המלא, שמשמש לתצוגת מקור בלבד, נבנה כנכס gzip בינארי ותוכן-ממוען תחת
+`public/els-data/`. הוא אינו נטען בפתיחה, בזמן idle או בחיפוש רגיל; הפעולה הראשונה שמציגה
+מקור/פסוק/אות מושכת אותו מאותו origin, מפענחת אותו במפורש ומאמתת SHA-256 של המקור.
+הסימון `.gzdata` מכוון: הדפדפן אינו מסתמך על כותרת `Content-Encoding` של השרת.
 
 ## איך זה מוטמע באתר
 `public/tzofen.html` מוצג כ-**iframe** דרך הרכיב `src/components/TzofenEmbed.jsx`
@@ -28,21 +33,24 @@
 היקף ספר-בודד · תבניות-דילוג (חזקות-2/פיבונאצ׳י/ראשוניים) · Web Worker. פרטים ב-`work_log`.
 
 ### מקור-הקורפוס — יחיד
-`tools/els/data/tk-letters.txt` הוא **הקורפוס הגולמי היחיד** והקלט של `build.py`.
+`tools/els/data/tk-letters.txt` הוא **קורפוס החיפוש הגולמי היחיד** והקלט של `build.py`.
 העותק הכפול `public/tanakh-letters.txt` (בייט-בבייט זהה) **הוסר** כדי שלא ייראה כמקור-אמת שני.
-**הכלי הבנוי מוטמע-עצמאית ואינו מושך שום קובץ מ-`public/` בזמן-ריצה** (כל התנ״ך דחוס בתוכו).
+מנוע החיפוש נשאר מוטמע ועצמאי. רק `tk-vtext.txt`, שאינו משתתף בחיפוש או בחישוב תוצאה,
+נמשך כנכס תצוגה לפי דרישה. כשל רשת, פענוח או hash נכשל-סגור בהצגת הטקסט בלבד; הוא אינו
+מחליף טקסט, אינו משנה תוצאה ואינו משבית את החיפוש. ניסיון פעולה מאוחר יכול לטעון מחדש.
 `public/torah-verses.json` ו-`public/tanakh-verses.json` נשארו — הם משרתים כלים חיים שאינם ELS
 (VerseSearch · NotarikonTool · NameStory · VerseGematriaPage).
 
 ## בנייה / עריכה
 ```bash
 cd tools/els
-python3 build.py            # → כותב ../../public/tzofen.html (דטרמיניסטי)
+python3 build.py            # → כותב tzofen.html + public/els-data/tk-vtext.<sha16>.gzdata
 ```
 - **לערוך את הכלי:** משנים את `els-code.template.html` (זה המקור — ~190KB, כל ה-HTML/CSS/JS),
-  ואז `python3 build.py`. **לא לערוך את `public/tzofen.html` ישירות** (בנוי + דחוס).
-- `data/` = נתונים מוטמעים: `tk-letters.txt` (אותיות התנ״ך המנורמלות), `tk-vtext.txt`
-  (טקסט-פסוקים), `tk-vlens.txt`/`tk-vchap.txt`/`tk-meta.json` (אינדקס-פסוקים מיושר),
+  ואז `python3 build.py`. **לא לערוך את `public/tzofen.html` או את הנכס תחת `public/els-data/`
+  ישירות** — שניהם פלטים דטרמיניסטיים.
+- `data/` = מקורות הבנייה: `tk-letters.txt` (אותיות התנ״ך המנורמלות), `tk-vtext.txt`
+  (טקסט-פסוקים שנארז בנפרד), `tk-vlens.txt`/`tk-vchap.txt`/`tk-meta.json` (אינדקס-פסוקים מיושר),
   `niqqud-compact.txt` (ניקוד-תורה), `els-logo-b64.txt` (לוגו ELS של האתר).
 - מקורות-הנתונים המקוריים: `public/tanakh-letters.txt` + `public/tanakh-verses.json`
   (התורה יושרה למהדורת-304,805; הנ״ך 1:1). ראה `work_log` לפרטי-היישור.

@@ -1059,7 +1059,6 @@
 <script id="niqqud-data" type="text/plain">__NIQQUD_DATA__</script>
 <script id="verse-lens" type="text/plain">__VERSE_LENS__</script>
 <script id="verse-chap" type="text/plain">__VERSE_CHAP__</script>
-<script id="verse-text" type="text/plain">__VERSE_TEXT__</script>
 <script id="book-names" type="text/plain">__BOOK_NAMES__</script>
 <script>
 (async function(){
@@ -1077,8 +1076,7 @@
   let EXPR2029=false;try{EXPR2029=new URLSearchParams(location.search).get("experience")==="2029";}catch(e){}
   const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};
   const norm=s=>{let o="";for(const c of s||"")if(c>="א"&&c<="ת")o+=(FIN[c]||c);return o;};
-  // 🗜️ פענוח הנתונים הדחוסים (gzip→base64) בעזרת DecompressionStream המובנה — בלי רשת, תואם-CSP.
-  //    מקטין את הקובץ מ-~6MB ל-~2MB ⇒ טעינה מהירה כאילו אין תנ״ך; הפענוח קורה פעם אחת (~0.1ש׳).
+  // 🗜️ פענוח נתוני-המנוע המוטמעים (gzip→base64) בעזרת DecompressionStream המובנה, תואם-CSP.
   async function inflate(b64){
     try{const bin=atob((b64||"").trim());const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
       const ds=new DecompressionStream("gzip");const buf=await new Response(new Blob([u8]).stream().pipeThrough(ds)).arrayBuffer();
@@ -1108,8 +1106,31 @@
     if(x===15)m+="טו";else if(x===16)m+="טז";else{m+=TN[Math.floor(x/10)]+U[x%10];}
     s=m; if(s.length>1)s=s.slice(0,-1)+'״'+s.slice(-1); else if(s.length===1)s=s+"׳"; return s;};
   __TANAKH_REFERENCE_FORMATTER__
-  let VTEXT=null;   // טקסט מלא לכל פסוק — מפוענח בעצלתיים (נדרש רק בהקשה על אות); נטען-מראש ברקע אחרי הרינדור
-  async function ensureVerseText(){if(!VTEXT)VTEXT=(await inflate(document.getElementById("verse-text").textContent)).split("\n");return VTEXT;}
+  // טקסט-הפסוקים הוא נתון-תצוגה בלבד. אותיות הקורפוס, גבולות הפסוקים והחיפוש נשארים מוטמעים
+  // במנוע; הנכס הזה נטען מאותו origin רק כשפעולת מקור/פסוק/אות זקוקה לטקסט המלא.
+  const VERSE_TEXT_ASSET="__VERSE_TEXT_ASSET__",VERSE_TEXT_SHA256="__VERSE_TEXT_SHA256__",VERSE_TEXT_BYTES=__VERSE_TEXT_BYTES__;
+  let VTEXT=null;
+  let _vtextPending=null,_vtextAttempt=0;
+  async function loadVerseText(){
+    const attempt=_vtextAttempt++,url=VERSE_TEXT_ASSET+(attempt?"?retry="+attempt:"");
+    const response=await fetch(url,{credentials:"same-origin",cache:attempt?"reload":"default"});
+    if(!response.ok)throw new Error("verse_text_http_"+response.status);
+    const compressed=await response.arrayBuffer(),ds=new DecompressionStream("gzip");
+    const raw=await new Response(new Blob([compressed]).stream().pipeThrough(ds)).arrayBuffer();
+    if(raw.byteLength!==VERSE_TEXT_BYTES)throw new Error("verse_text_size_mismatch");
+    if(!globalThis.crypto?.subtle)throw new Error("verse_text_digest_unavailable");
+    const digest=Array.from(new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256",raw)),b=>b.toString(16).padStart(2,"0")).join("");
+    if(digest!==VERSE_TEXT_SHA256)throw new Error("verse_text_digest_mismatch");
+    const rows=new TextDecoder("utf-8",{fatal:true}).decode(raw).split("\n");
+    if(rows.length!==VLENS.length+1||rows[rows.length-1]!=="")throw new Error("verse_text_alignment_mismatch");
+    return rows;
+  }
+  async function ensureVerseText(){
+    if(VTEXT)return VTEXT;if(_vtextPending)return _vtextPending;
+    _vtextPending=loadVerseText().then(rows=>(VTEXT=rows)).catch(e=>{console.error("verse text unavailable",e);throw e;})
+      .finally(()=>{if(!VTEXT)_vtextPending=null;});
+    return _vtextPending;
+  }
   const refStr=vi=>{const r=VREF[vi]||[0,0,0];return formatTanakhReferenceParts(BOOKNM[r[0]],HEBNUM(r[1]),HEBNUM(r[2]));};
   function verseAt(pos){   // אינדקס-הפסוק המכיל את המיקום
     if(pos<0||pos>=N)return -1;let lo=0,hi=VLENS.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(VCUM[m]<=pos)lo=m;else hi=m-1;}return lo;}
@@ -4449,7 +4470,7 @@
     // 📖 קריאת-פסוק: הפעלה/כיבוי. דלוק → לחיצה על אות מדליקה את כל הפסוק מילה-מילה בגוונים; כבוי → מנקה וחוזר להקשה=מיקום.
     const vrAct=acts.querySelector(".vread-act");
     if(vrAct)vrAct.onclick=()=>{st.verseRead=!st.verseRead;vrAct.classList.toggle("on",st.verseRead);
-      if(st.verseRead){ensureVerseText();toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק, מילה-מילה בכחול/כתום. הקש על פסוק אחר למעבר.");}
+      if(st.verseRead){ensureVerseText().catch(()=>{});toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק, מילה-מילה בכחול/כתום. הקש על פסוק אחר למעבר.");}
       else{st.verseHL=-1;clearVerseWords();toast("קריאת-פסוק כבויה");}};
     filmbar.querySelector(".fb-play").onclick=()=>playReveal();
     filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.onclick=()=>{st.filmSpeed=+bt.dataset.s;syncSpeed();playReveal();});
@@ -4622,7 +4643,7 @@
       const tx=(VTEXT&&VTEXT[vi])||"";
       toast(n?("📖 "+refStr(vi)+" · «"+tx.slice(0,44)+(tx.length>44?"…":"")+"»"):("📖 "+refStr(vi)+" — אין מאותיות הפסוק בחלון הנראה"));
     };
-    if(VTEXT)apply();else ensureVerseText().then(apply);
+    if(VTEXT)apply();else ensureVerseText().then(apply).catch(()=>{});
   }
   function reapplyVerseWords(){if(st.verseRead&&st.verseHL>=0)highlightVerseWords(st.verseHL);}
   // 🎯 לאיזה ממצא שייכת האות שנגעו בה (הציר הראשי או אחת המילים הצבועות)
@@ -4642,7 +4663,7 @@
       '<div class="lp-actions"><span class="lp-off">אות '+heb(loc.offset+1)+' בפסוק</span><button class="lp-hl">✨ הדגש פסוק</button></div></div>';
     document.body.appendChild(pop);
     // הפסוק המלא מפוענח בעצלתיים בהקשה הראשונה — משלימים אותו לתוך החלונית כשמוכן
-    if(!loc.text)ensureVerseText().then(()=>{const cur=document.getElementById("locpop");if(cur&&cur===pop){const w=cur.querySelector(".lp-vwait");const tx=(VTEXT&&VTEXT[loc.verseIndex])||"";if(w){if(tx){w.textContent="«"+tx+"»";w.classList.remove("lp-vwait");}else w.remove();}}});
+    if(!loc.text)ensureVerseText().then(()=>{const cur=document.getElementById("locpop");if(cur&&cur===pop){const w=cur.querySelector(".lp-vwait");const tx=(VTEXT&&VTEXT[loc.verseIndex])||"";if(w){if(tx){w.textContent="«"+tx+"»";w.classList.remove("lp-vwait");}else w.remove();}}}).catch(()=>{const cur=document.getElementById("locpop");if(cur&&cur===pop)cur.querySelector(".lp-vwait")?.remove();});
     const r=cell.getBoundingClientRect();
     let top=window.scrollY+r.top-pop.offsetHeight-8;
     if(top<window.scrollY+4)top=window.scrollY+r.bottom+8;
@@ -5314,10 +5335,6 @@
   if(_shared){loadMatrix(_shared);toast("🔗 נטען צופן משותף: «"+_shared.name+"»");}
   else if(_seed.length>=2){q.value=_seed;run();}   // הגיע מונח מהאתר — מחפש אותו מיד
   else render();   // פתיחה נקייה: בראשית ללא ציר או ממצא; דוגמה תיטען רק מבחירה מפורשת
-  // 🔮 טעינה-מראש שקטה ברקע: אחרי שהמסך מוכן, מפענחים את טקסט-הפסוקים כדי שההקשה תהיה מיידית
-  const _idle=window.requestIdleCallback||(fn=>setTimeout(fn,800));
-  _idle(()=>{ensureVerseText();});
-
   // ── 🎓 הדרכה — חלון-פתיחה נעים, צעד-אחר-צעד (מוצג פעם ראשונה · נפתח שוב ב-«❓ הדרכה») ──
   // 📚 מדריך מקיף — כל יכולות הכלי, מדור-אחר-מדור, נגלל עם ניווט. t=כותרת · e=אימוג׳י · h=תוכן-HTML.
   const GUIDE=[
