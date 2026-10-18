@@ -1,0 +1,384 @@
+{
+  "status": "HOSTED_MEASURED_NOT_RELEASE_ACCEPTED",
+  "baseline": {
+    "sha": "8f78c0c7ced835849a816a815abf05a7247ceead",
+    "receipt_sha256": "1c5ffda3dd62ead185166f1d3eeacb5c8598fde90d27202beae32d801088c93c"
+  },
+  "candidate": {
+    "sha": "9dbdc89af81f960ce3baeae6a9e37e34535bf595",
+    "deployment": "dpl_HdaTc9JvqtJDdTeYNj713R3Sx3pq",
+    "receipt_sha256": "f51d950ae32289aa2e4a30f92eb5aec2eb918b4a5c7b44f686642bd7ad58fd1b"
+  },
+  "runner_sha256": "cfaad96d63f5c382c3c98aa96e2a4e72d761cfe615fce0a574658154afcbdc2f",
+  "same_browser": true,
+  "same_profiles": true,
+  "same_boundary": true,
+  "sample_count": 30,
+  "successful_samples": 30,
+  "rows": [
+    {
+      "profile": "desktop",
+      "mode": "cold-direct",
+      "route": "home",
+      "baseline": {
+        "median_lcp_ms": 3868,
+        "median_cls": 0.0355,
+        "median_usable_ms": 1949.8,
+        "median_requests": 158,
+        "median_transfer_bytes": 1558171,
+        "median_long_task_total_ms": 1106,
+        "median_long_task_count": 10,
+        "median_flag_wait_ms": 641.4
+      },
+      "candidate": {
+        "median_lcp_ms": 2416,
+        "median_cls": 0.0429,
+        "median_usable_ms": 1566.2,
+        "median_requests": 158,
+        "median_transfer_bytes": 1561684,
+        "median_long_task_total_ms": 417,
+        "median_long_task_count": 4,
+        "median_flag_wait_ms": 541.9
+      },
+      "delta_percent": {
+        "median_lcp_ms": -37.5,
+        "median_cls": 20.8,
+        "median_usable_ms": -19.7,
+        "median_requests": 0.0,
+        "median_transfer_bytes": 0.2,
+        "median_long_task_total_ms": -62.3,
+        "median_long_task_count": -60.0,
+        "median_flag_wait_ms": -15.5
+      }
+    },
+    {
+      "profile": "desktop",
+      "mode": "cold-direct",
+      "route": "number718",
+      "baseline": {
+        "median_lcp_ms": 3340,
+        "median_cls": 0.104,
+        "median_usable_ms": 3025.7,
+        "median_requests": 164,
+        "median_transfer_bytes": 1154885,
+        "median_long_task_total_ms": 941,
+        "median_long_task_count": 7,
+        "median_flag_wait_ms": 932.1
+      },
+      "candidate": {
+        "median_lcp_ms": 2968,
+        "median_cls": 0.1062,
+        "median_usable_ms": 2663.2,
+        "median_requests": 170,
+        "median_transfer_bytes": 1139582,
+        "median_long_task_total_ms": 540,
+        "median_long_task_count": 5,
+        "median_flag_wait_ms": 776.9
+      },
+      "delta_percent": {
+        "median_lcp_ms": -11.1,
+        "median_cls": 2.1,
+        "median_usable_ms": -12.0,
+        "median_requests": 3.7,
+        "median_transfer_bytes": -1.3,
+        "median_long_task_total_ms": -42.6,
+        "median_long_task_count": -28.6,
+        "median_flag_wait_ms": -16.7
+      }
+    },
+    {
+      "profile": "desktop",
+      "mode": "cold-direct",
+      "route": "post",
+      "baseline": {
+        "median_lcp_ms": 5952,
+        "median_cls": 0.208,
+        "median_usable_ms": 4454.0,
+        "median_requests": 139,
+        "median_transfer_bytes": 3835649,
+        "median_long_task_total_ms": 1248,
+        "median_long_task_count": 9,
+        "median_flag_wait_ms": 825.7
+      },
+      "candidate": {
+        "median_lcp_ms": 4440,
+        "median_cls": 0.2082,
+        "median_usable_ms": 3611.1,
+        "median_requests": 137,
+        "median_transfer_bytes": 3838218,
+        "median_long_task_total_ms": 421,
+        "median_long_task_count": 3,
+        "median_flag_wait_ms": 711.5
+      },
+      "delta_percent": {
+        "median_lcp_ms": -25.4,
+        "median_cls": 0.1,
+        "median_usable_ms": -18.9,
+        "median_requests": -1.4,
+        "median_transfer_bytes": 0.1,
+        "median_long_task_total_ms": -66.3,
+        "median_long_task_count": -66.7,
+        "median_flag_wait_ms": -13.8
+      }
+    },
+    {
+      "profile": "desktop",
+      "mode": "cold-direct",
+      "route": "world",
+      "baseline": {
+        "median_lcp_ms": 4288,
+        "median_cls": 0.0222,
+        "median_usable_ms": 3538.8,
+        "median_requests": 174,
+        "median_transfer_bytes": 1586986,
+        "median_long_task_total_ms": 866,
+        "median_long_task_count": 9,
+        "median_flag_wait_ms": 740.6
+      },
+      "candidate": {
+        "median_lcp_ms": 2992,
+        "median_cls": 0.0221,
+        "median_usable_ms": 2732.3,
+        "median_requests": 172,
+        "median_transfer_bytes": 1589195,
+        "median_long_task_total_ms": 411,
+        "median_long_task_count": 4,
+        "median_flag_wait_ms": 788.0
+      },
+      "delta_percent": {
+        "median_lcp_ms": -30.2,
+        "median_cls": -0.5,
+        "median_usable_ms": -22.8,
+        "median_requests": -1.1,
+        "median_transfer_bytes": 0.1,
+        "median_long_task_total_ms": -52.5,
+        "median_long_task_count": -55.6,
+        "median_flag_wait_ms": 6.4
+      }
+    },
+    {
+      "profile": "desktop",
+      "mode": "internal-home-to-world",
+      "route": "world",
+      "baseline": {
+        "median_lcp_ms": null,
+        "median_cls": 0.0221,
+        "median_usable_ms": 2406.8,
+        "median_requests": 151,
+        "median_transfer_bytes": 1429071,
+        "median_long_task_total_ms": 622,
+        "median_long_task_count": 4,
+        "median_flag_wait_ms": 520.2
+      },
+      "candidate": {
+        "median_lcp_ms": null,
+        "median_cls": 0.0221,
+        "median_usable_ms": 1678.6,
+        "median_requests": 143,
+        "median_transfer_bytes": 1111180,
+        "median_long_task_total_ms": 368,
+        "median_long_task_count": 2,
+        "median_flag_wait_ms": 284.1
+      },
+      "delta_percent": {
+        "median_lcp_ms": null,
+        "median_cls": 0.0,
+        "median_usable_ms": -30.3,
+        "median_requests": -5.3,
+        "median_transfer_bytes": -22.2,
+        "median_long_task_total_ms": -40.8,
+        "median_long_task_count": -50.0,
+        "median_flag_wait_ms": -45.4
+      }
+    },
+    {
+      "profile": "mobile",
+      "mode": "cold-direct",
+      "route": "home",
+      "baseline": {
+        "median_lcp_ms": 3560,
+        "median_cls": 0.0079,
+        "median_usable_ms": 3493.3,
+        "median_requests": 155,
+        "median_transfer_bytes": 833439,
+        "median_long_task_total_ms": 2390,
+        "median_long_task_count": 16,
+        "median_flag_wait_ms": 499.4
+      },
+      "candidate": {
+        "median_lcp_ms": 2500,
+        "median_cls": 0.0046,
+        "median_usable_ms": 2871.7,
+        "median_requests": 151,
+        "median_transfer_bytes": 1121094,
+        "median_long_task_total_ms": 1417,
+        "median_long_task_count": 12,
+        "median_flag_wait_ms": 560.1
+      },
+      "delta_percent": {
+        "median_lcp_ms": -29.8,
+        "median_cls": -41.8,
+        "median_usable_ms": -17.8,
+        "median_requests": -2.6,
+        "median_transfer_bytes": 34.5,
+        "median_long_task_total_ms": -40.7,
+        "median_long_task_count": -25.0,
+        "median_flag_wait_ms": 12.2
+      }
+    },
+    {
+      "profile": "mobile",
+      "mode": "cold-direct",
+      "route": "number718",
+      "baseline": {
+        "median_lcp_ms": 5936,
+        "median_cls": 0.074,
+        "median_usable_ms": 5699.4,
+        "median_requests": 161,
+        "median_transfer_bytes": 713979,
+        "median_long_task_total_ms": 3475,
+        "median_long_task_count": 17,
+        "median_flag_wait_ms": 639.1
+      },
+      "candidate": {
+        "median_lcp_ms": 3136,
+        "median_cls": 0.074,
+        "median_usable_ms": 2981.5,
+        "median_requests": 164,
+        "median_transfer_bytes": 698482,
+        "median_long_task_total_ms": 925,
+        "median_long_task_count": 8,
+        "median_flag_wait_ms": 629.8
+      },
+      "delta_percent": {
+        "median_lcp_ms": -47.2,
+        "median_cls": 0.0,
+        "median_usable_ms": -47.7,
+        "median_requests": 1.9,
+        "median_transfer_bytes": -2.2,
+        "median_long_task_total_ms": -73.4,
+        "median_long_task_count": -52.9,
+        "median_flag_wait_ms": -1.5
+      }
+    },
+    {
+      "profile": "mobile",
+      "mode": "cold-direct",
+      "route": "post",
+      "baseline": {
+        "median_lcp_ms": 6480,
+        "median_cls": 0.0037,
+        "median_usable_ms": 5360.3,
+        "median_requests": 135,
+        "median_transfer_bytes": 3194492,
+        "median_long_task_total_ms": 1447,
+        "median_long_task_count": 7,
+        "median_flag_wait_ms": 503.8
+      },
+      "candidate": {
+        "median_lcp_ms": 5856,
+        "median_cls": 0.0037,
+        "median_usable_ms": 5081.3,
+        "median_requests": 133,
+        "median_transfer_bytes": 3197068,
+        "median_long_task_total_ms": 1136,
+        "median_long_task_count": 7,
+        "median_flag_wait_ms": 511.1
+      },
+      "delta_percent": {
+        "median_lcp_ms": -9.6,
+        "median_cls": 0.0,
+        "median_usable_ms": -5.2,
+        "median_requests": -1.5,
+        "median_transfer_bytes": 0.1,
+        "median_long_task_total_ms": -21.5,
+        "median_long_task_count": 0.0,
+        "median_flag_wait_ms": 1.4
+      }
+    },
+    {
+      "profile": "mobile",
+      "mode": "cold-direct",
+      "route": "world",
+      "baseline": {
+        "median_lcp_ms": 5396,
+        "median_cls": 0.0371,
+        "median_usable_ms": 5318.0,
+        "median_requests": 170,
+        "median_transfer_bytes": 1146216,
+        "median_long_task_total_ms": 2533,
+        "median_long_task_count": 18,
+        "median_flag_wait_ms": 764.3
+      },
+      "candidate": {
+        "median_lcp_ms": 3032,
+        "median_cls": 0.0002,
+        "median_usable_ms": 2995.9,
+        "median_requests": 168,
+        "median_transfer_bytes": 1148600,
+        "median_long_task_total_ms": 809,
+        "median_long_task_count": 7,
+        "median_flag_wait_ms": 709.2
+      },
+      "delta_percent": {
+        "median_lcp_ms": -43.8,
+        "median_cls": -99.5,
+        "median_usable_ms": -43.7,
+        "median_requests": -1.2,
+        "median_transfer_bytes": 0.2,
+        "median_long_task_total_ms": -68.1,
+        "median_long_task_count": -61.1,
+        "median_flag_wait_ms": -7.2
+      }
+    },
+    {
+      "profile": "mobile",
+      "mode": "internal-home-to-world",
+      "route": "world",
+      "baseline": {
+        "median_lcp_ms": null,
+        "median_cls": 0.0067,
+        "median_usable_ms": 2555.2,
+        "median_requests": 136,
+        "median_transfer_bytes": 593595,
+        "median_long_task_total_ms": 846,
+        "median_long_task_count": 9,
+        "median_flag_wait_ms": 370.2
+      },
+      "candidate": {
+        "median_lcp_ms": null,
+        "median_cls": 0.0002,
+        "median_usable_ms": 2261.9,
+        "median_requests": 132,
+        "median_transfer_bytes": 608860,
+        "median_long_task_total_ms": 549,
+        "median_long_task_count": 7,
+        "median_flag_wait_ms": 379.9
+      },
+      "delta_percent": {
+        "median_lcp_ms": null,
+        "median_cls": -97.0,
+        "median_usable_ms": -11.5,
+        "median_requests": -2.9,
+        "median_transfer_bytes": 2.6,
+        "median_long_task_total_ms": -35.1,
+        "median_long_task_count": -22.2,
+        "median_flag_wait_ms": 2.6
+      }
+    }
+  ],
+  "release_blockers": [
+    "mobile Number LCP 3136ms",
+    "mobile World LCP 3032ms",
+    "mobile Post LCP 5856ms",
+    "desktop Number CLS 0.1062",
+    "desktop Post CLS 0.2082",
+    "mobile Home transfer bytes +34.5% requires explanation"
+  ],
+  "temporary_access": {
+    "created_for_approved_hosted_acceptance": true,
+    "secret_stored_in_receipts": false,
+    "revoked_after_measurement": true,
+    "revocation_protection_bypass_empty": true
+  }
+}

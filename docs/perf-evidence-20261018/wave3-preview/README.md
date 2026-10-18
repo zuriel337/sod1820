@@ -95,7 +95,7 @@ SHA. No target mismatch was accepted.
   `9dbdc89af81f960ce3baeae6a9e37e34535bf595`.
 - Alias error: none.
 
-## Protection and hosted-smoke boundary
+## Protection and hosted acceptance boundary
 
 Project protection remains enabled through Vercel SSO for Preview deployments;
 password protection and trusted-IP changes were not introduced. Anonymous
@@ -106,13 +106,59 @@ requests to all four requested hosted routes returned `302` to Vercel SSO:
 - `/world`
 - `/post/flydubai-fz1073-363-14000-remzei-geula`
 
-This confirms that protection remains in force. It does not count as hosted app
-content acceptance. This executor had neither an authenticated Vercel CLI
-session nor a same-project development OIDC token. A temporary share/bypass
-secret was deliberately not created, revealed, or installed. Consequently the
-hosted content behind SSO was not opened in this pass; the exact-build local
-four-route smoke above is the available content check.
+This confirmed that protection remained in force at initial deployment. In a
+separate, explicitly approved follow-up acceptance pass, the central session
+created one expiring deployment-scoped share link, supplied its secret to the
+measurement process through standard input only, and revoked it immediately
+after the matrix completed. The revocation response returned an empty
+`protectionBypass` object. The secret is absent from the repository and the
+measurement receipts.
 
-No hosted speed claim is made. The deployment remains an isolated review
-candidate, and this receipt commit is documentation only; it must not trigger an
-automatic redeployment.
+The hosted pass used the same unmodified comparison runner, Chromium build,
+profiles, route order, three-sample count and read-only network boundary as the
+`8f78c0c7` baseline. All **30/30** samples completed without a usable-content
+failure. `GET`, `HEAD` and `OPTIONS` were permitted; `POST` was limited to the
+same 54 pre-approved read RPCs. Analytics, product writes, service workers and
+websockets remained blocked before application navigation.
+
+### Hosted median comparison
+
+| Profile / journey | Usable baseline → Wave 3 | LCP baseline → Wave 3 | Requests | Transfer (kB) |
+|---|---:|---:|---:|---:|
+| Mobile Home | 3493 → 2872 ms (**−17.8%**) | 3560 → 2500 ms (**−29.8%**) | 155 → 151 | 833 → 1121 |
+| Mobile Number 718 | 5699 → 2982 ms (**−47.7%**) | 5936 → 3136 ms (**−47.2%**) | 161 → 164 | 714 → 698 |
+| Mobile World | 5318 → 2996 ms (**−43.7%**) | 5396 → 3032 ms (**−43.8%**) | 170 → 168 | 1146 → 1149 |
+| Mobile Post | 5360 → 5081 ms (**−5.2%**) | 6480 → 5856 ms (**−9.6%**) | 135 → 133 | 3194 → 3197 |
+| Mobile Home→World | 2555 → 2262 ms (**−11.5%**) | n/a | 136 → 132 | 594 → 609 |
+| Desktop Home | 1950 → 1566 ms (**−19.7%**) | 3868 → 2416 ms (**−37.5%**) | 158 → 158 | 1558 → 1562 |
+| Desktop Number 718 | 3026 → 2663 ms (**−12.0%**) | 3340 → 2968 ms (**−11.1%**) | 164 → 170 | 1155 → 1140 |
+| Desktop World | 3539 → 2732 ms (**−22.8%**) | 4288 → 2992 ms (**−30.2%**) | 174 → 172 | 1587 → 1589 |
+| Desktop Post | 4454 → 3611 ms (**−18.9%**) | 5952 → 4440 ms (**−25.4%**) | 139 → 137 | 3836 → 3838 |
+| Desktop Home→World | 2407 → 1679 ms (**−30.3%**) | n/a | 151 → 143 | 1429 → 1111 |
+
+The `site_flags` change is directly visible: all Wave 3 samples made two
+network events for the single logical read, while the baseline normally made
+four events for two logical reads. Timing changes are directionally strong but
+were captured in different hosted time windows with uncontrolled CDN and
+Postgres cache state. Request and byte deltas are therefore the stronger causal
+evidence.
+
+This remains **NOT RELEASE-ACCEPTED**. Mobile Number and World remain above the
+2.5 s laboratory LCP target, Post remains far above it, desktop Number CLS is
+`0.1062`, and desktop Post CLS remains `0.2082`. Mobile Home transfer bytes also
+varied upward by 34.5% and require a controlled explanation before acceptance.
+The next heavy fixes remain responsive Post media, deferred World story depth,
+and a compact Number opening projection; this receipt does not claim those are
+already integrated.
+
+Reproducibility artifacts:
+
+- `baseline-8f78c0c7.json.gz` — prior hosted receipt.
+- `wave3-9dbdc89a.json.gz` — this hosted receipt.
+- `hosted-comparison.json` — exact medians and deltas.
+- `tools/hosted-comparison-runner.py` — byte-identical runner used for both
+  receipts; SHA-256
+  `cfaad96d63f5c382c3c98aa96e2a4e72d761cfe615fce0a574658154afcbdc2f`.
+
+The deployment remains an isolated review candidate, and this receipt commit is
+documentation only; it must not trigger an automatic redeployment.
