@@ -1,5 +1,6 @@
 {
-  "buildCommand": "npm run build && node scripts/prepare-public-entry.mjs",
+  "buildCommand": "SOD_BUILD_TARGET=2029 node scripts/build-integrated-preview.mjs",
+  "outputDirectory": "preview-deploy/dist",
   "redirects": [
     {
       "source": "/index.html",
