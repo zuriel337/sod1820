@@ -102,7 +102,7 @@ const gateway = fs.readFileSync("src/components/ContactGateway.jsx", "utf8");
 assert.match(systemFrame, /resolveEntryOrientation/);
 assert.match(systemFrame, /sodEntryArrival: "exact_return"/);
 assert.match(systemFrame, /<LearnMark2029/);
-assert.match(systemFrame, /import ContactGateway from "\.\.\/ContactGateway\.jsx"/);
+assert.match(systemFrame, /const ContactGateway = lazy\(\(\) => import\("\.\.\/ContactGateway\.jsx"\)\)/);
 assert.match(systemFrame, /onNeedHelp=\{openIssueReport\}/);
 assert.match(learnMark, /עדיין לא ברור\?/);
 assert.match(gateway, /buildContactGatewayContext/);
