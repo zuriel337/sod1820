@@ -44,6 +44,21 @@ export function isValidNumberReviewFlag2029(flag, lock) {
     && (lock.mode === "all" || lock.mode === "anon");
 }
 
+// Preview-only recovery reads exactly one canonical row and deliberately bypasses
+// the shared navigation snapshot. It neither invalidates that snapshot nor emits
+// its invalidation callbacks, so runtime switches cannot restart while Number is
+// retrying its own required gate.
+export async function readNumberReviewFlagUncached2029(client) {
+  if (!client?.from) return null;
+  const { data, error } = await client
+    .from("site_flags")
+    .select("key,enabled,message,mode")
+    .eq("key", "lock_number")
+    .limit(1);
+  if (error) throw error;
+  return Array.isArray(data) ? data[0] || null : null;
+}
+
 export function projectNumberReviewFlag2029(
   flag,
   lock,
