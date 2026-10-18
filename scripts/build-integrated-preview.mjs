@@ -10,6 +10,18 @@ const output = resolve(root, "preview-deploy/dist");
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const REQUIRED_BRANCH = "gpt/perf-unified-wave4-preview-20261018";
 const GUARD_DEADLINE_MS = 8_000;
+const GIT_BOUND_VITE_INPUTS = Object.freeze([
+  "public",
+  "src",
+  "2029.html",
+  "index.html",
+  "vite.config.js",
+  "package.json",
+  "package-lock.json",
+  "preview-deploy/evidence",
+  ":(top,glob).env*",
+  ":(top,glob)*.config.*",
+]);
 
 function approvedPreviewHost(raw) {
   if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";
@@ -23,7 +35,7 @@ function approvedPreviewHost(raw) {
   }
 }
 
-function assertCleanTrackedSource() {
+function assertCleanBuildSource() {
   const raw = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all"], {
     cwd: root,
     encoding: "utf8",
@@ -36,6 +48,14 @@ function assertCleanTrackedSource() {
     // contents but Git reports a node_modules symlink as a nonignored entry.
     return path !== "node_modules" && !path.startsWith("node_modules/");
   });
+  // `git status` intentionally omits ignored files, but Vite still consumes
+  // ignored public assets and mode-specific .env files. Ask Git only about the
+  // bounded input roots; this does not traverse node_modules or generated output.
+  const ignoredInputs = execFileSync("git", [
+    "ls-files", "--others", "--ignored", "--exclude-standard", "-z", "--",
+    ...GIT_BOUND_VITE_INPUTS,
+  ], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
+  rejected.push(...ignoredInputs.map((path) => `!! ${path}`));
   if (rejected.length) throw new Error(`Preview source checkout must be clean: ${rejected.join(", ")}`);
 }
 
@@ -51,7 +71,7 @@ const previewHost = approvedPreviewHost(process.env.VERCEL_URL || "");
 if (!previewHost) throw new Error("Approved exact VERCEL_URL Preview host required");
 const checkoutCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 if (checkoutCommit !== commit) throw new Error("VERCEL_GIT_COMMIT_SHA must match the checked-out source commit");
-assertCleanTrackedSource();
+assertCleanBuildSource();
 
 const [
   { build },

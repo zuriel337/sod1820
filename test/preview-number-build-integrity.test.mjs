@@ -29,6 +29,7 @@ async function miniRepository() {
   }
   await mkdir(resolve(directory, "public"), { recursive: true });
   await writeFile(resolve(directory, "public/baseline.txt"), "tracked\n");
+  await writeFile(resolve(directory, ".gitignore"), "*.log\n.env\n.env.local\n.env.*.local\npreview-deploy/dist/\n");
   execFileSync("git", ["init", "-q"], { cwd: directory });
   execFileSync("git", ["add", "."], { cwd: directory });
   execFileSync("git", ["-c", "user.name=Preview Gate", "-c", "user.email=preview@example.invalid", "commit", "-qm", "fixture"], { cwd: directory });
@@ -94,6 +95,37 @@ test("a staged build input rejects before Vite and leaves no output", async () =
   assert.match(result.stderr, /source checkout must be clean/);
   assert.doesNotMatch(result.stderr, /vite|ERR_MODULE_NOT_FOUND/i);
   assert.equal(existsSync(resolve(directory, "preview-deploy/dist")), false);
+});
+
+async function assertIgnoredInputPreservesOutput(inputPath, expectedPathPattern) {
+  const { directory, commit } = await miniRepository();
+  const output = resolve(directory, "preview-deploy/dist");
+  const sentinel = resolve(output, "sentinel.txt");
+  await mkdir(dirname(resolve(directory, inputPath)), { recursive: true });
+  await mkdir(output, { recursive: true });
+  await writeFile(sentinel, "existing sealed output\n");
+  await writeFile(resolve(directory, inputPath), "ignored build input\n");
+  assert.match(execFileSync("git", ["check-ignore", "-v", inputPath], {
+    cwd: directory,
+    encoding: "utf8",
+  }), expectedPathPattern);
+
+  const result = runBuilder(directory, buildEnv(commit));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /source checkout must be clean/);
+  assert.match(result.stderr, expectedPathPattern);
+  assert.doesNotMatch(result.stderr, /vite|ERR_MODULE_NOT_FOUND/i,
+    "ignored build inputs must reject before Vite module resolution");
+  assert.equal(await readFile(sentinel, "utf8"), "existing sealed output\n");
+  assert.deepEqual(await readdir(output), ["sentinel.txt"], "pre-existing output must remain untouched");
+}
+
+test("an ignored public input rejects before Vite and preserves existing output", async () => {
+  await assertIgnoredInputPreservesOutput("public/preview-audit-ignored.log", /public\/preview-audit-ignored\.log/);
+});
+
+test("an ignored Vite production env rejects before Vite and preserves existing output", async () => {
+  await assertIgnoredInputPreservesOutput(".env.production.local", /\.env\.production\.local/);
 });
 
 async function walk(directory, base = directory) {
