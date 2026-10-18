@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { supabase, logActivity } from './supabase.js';
+import { supabase, logActivity, invalidateSiteFlagsReadScope2029 } from './supabase.js';
 import { fetchProfile, signOut as doSignOut, claimResearchLead } from './auth.js';
 import { getVisitorId } from './tracking.js';
 import { stitchLogin } from './identity.js';
@@ -19,6 +19,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const profileRequest = useRef(0);
   const currentUser = useRef(null);
+  const authIdentityKnown = useRef(false);
 
   const loadProfile = useCallback(async (u) => {
     const request = ++profileRequest.current;
@@ -46,6 +47,15 @@ export function AuthProvider({ children }) {
     const applySession = (session) => {
       if (!alive) return;
       const u = session?.user ?? null;
+      const previousUserId = currentUser.current?.id ?? null;
+      const nextUserId = u?.id ?? null;
+      // A real viewer transition starts a new capability-state scope even when
+      // the URL is unchanged. Initial session discovery and token refresh for
+      // the same viewer do not create an avoidable second startup request.
+      if (authIdentityKnown.current && previousUserId !== nextUserId) {
+        invalidateSiteFlagsReadScope2029();
+      }
+      authIdentityKnown.current = true;
       currentUser.current = u;
       setUser(u);
       loadProfile(u).finally(() => { if (alive) setLoading(false); });

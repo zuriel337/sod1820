@@ -1,0 +1,203 @@
+{
+  "schema": "site-flags-navigation-scope-2029.v1",
+  "synthetic": true,
+  "loopbackOnly": true,
+  "direct": [
+    {
+      "build": "before",
+      "route": "/",
+      "sample": 1,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/",
+      "sample": 2,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/",
+      "sample": 3,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/world",
+      "sample": 1,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/world",
+      "sample": 2,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/world",
+      "sample": 3,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/number/718",
+      "sample": 1,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/number/718",
+      "sample": 2,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/number/718",
+      "sample": 3,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "sample": 1,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "sample": 2,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "before",
+      "route": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "sample": 3,
+      "site_flags_gets": 2
+    },
+    {
+      "build": "after",
+      "route": "/",
+      "sample": 1,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/",
+      "sample": 2,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/",
+      "sample": 3,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/world",
+      "sample": 1,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/world",
+      "sample": 2,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/world",
+      "sample": 3,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/number/718",
+      "sample": 1,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/number/718",
+      "sample": 2,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/number/718",
+      "sample": 3,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "sample": 1,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "sample": 2,
+      "site_flags_gets": 1
+    },
+    {
+      "build": "after",
+      "route": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "sample": 3,
+      "site_flags_gets": 1
+    }
+  ],
+  "navigation": [
+    {
+      "build": "before",
+      "home_site_flags_gets": 2,
+      "world_navigation_site_flags_gets": 2,
+      "total": 4
+    },
+    {
+      "build": "after",
+      "home_site_flags_gets": 1,
+      "world_navigation_site_flags_gets": 1,
+      "total": 2
+    }
+  ],
+  "baseline": {
+    "branch": "gpt/perf-unified-candidate-20261018",
+    "sha": "8f78c0c7ced835849a816a815abf05a7247ceead",
+    "dist": "/tmp/siteflags-before"
+  },
+  "candidate": {
+    "branch": "gpt/perf-site-flags-fanout-20261018",
+    "dist": "/tmp/siteflags-after"
+  },
+  "boundary": {
+    "browser": "/usr/bin/chromium",
+    "server": "127.0.0.1 only",
+    "externalReads": "synthetic fixtures",
+    "externalWrites": 0,
+    "liveFallback": false
+  },
+  "bundle": {
+    "entry2029": {
+      "chunksBefore": 9,
+      "chunksAfter": 9,
+      "rawBefore": 620007,
+      "rawAfter": 622108,
+      "gzipBefore": 187586,
+      "gzipAfter": 188333
+    },
+    "supabaseShared": {
+      "rawBefore": 238804,
+      "rawAfter": 240478,
+      "gzipBefore": 62899,
+      "gzipAfter": 63462
+    },
+    "legacySupabase": {
+      "rawBefore": 331767,
+      "rawAfter": 331957,
+      "gzipBefore": 87169,
+      "gzipAfter": 87251
+    }
+  }
+}

@@ -5,7 +5,13 @@
 // Switches never gate user saves, authorization or consent.
 // Writing goes through the admin-only RPC `admin_set_runtime_switch`; reading is the same public site_flags read.
 import { useEffect, useState } from "react";
-import { getSiteFlags, supabase } from "./supabase.js";
+import {
+  getSiteFlags,
+  getSiteFlagsReadScope2029,
+  invalidateSiteFlagsReadScope2029,
+  subscribeSiteFlagsReadInvalidation2029,
+  supabase,
+} from "./supabase.js";
 
 // `group` is only for display. Costs (requests / KB / server ms per page load) live in runtimeSwitchCosts2029.js,
 // measured by switching each function off and diffing the real requests; see docs/perf-evidence-20261014/claude-continuation.
@@ -43,10 +49,14 @@ export function switchesFromFlags(flags = {}) {
   return map;
 }
 export async function readRuntimeSwitches({ fresh = false } = {}) {
-  if (!fresh && cache && Date.now() - cache.at < TTL_MS) return cache.map;
+  if (fresh) invalidateSiteFlagsReadScope2029();
+  const scope = getSiteFlagsReadScope2029();
+  if (!fresh && cache && cache.scope === scope && Date.now() - cache.at < TTL_MS) return cache.map;
   let map;
   try { map = switchesFromFlags(await getSiteFlags()); } catch { map = switchesFromFlags({}); }
-  cache = { at: Date.now(), map };
+  // A navigation/auth transition while the request was in flight must not let
+  // the old snapshot become the new scope's runtime-switch cache.
+  if (scope === getSiteFlagsReadScope2029()) cache = { at: Date.now(), scope, map };
   return map;
 }
 // "Freeze" switches (entry.mode === "freeze"): ON = fetch and refresh the saved copy; OFF = show the last saved copy
@@ -71,7 +81,9 @@ export async function frozenOr(key, fetcher) {
 }
 
 // Test hook: seed the in-memory window with an exact switch map.
-export function primeRuntimeSwitches(map) { cache = { at: Date.now(), map: { ...switchesFromFlags({}), ...map } }; }
+export function primeRuntimeSwitches(map) {
+  cache = { at: Date.now(), scope: getSiteFlagsReadScope2029(), map: { ...switchesFromFlags({}), ...map } };
+}
 export async function isRuntimeSwitchOn(key) {
   return (await readRuntimeSwitches())[key] !== false;
 }
@@ -92,6 +104,7 @@ export async function setRuntimeSwitch(key, on) {
   }
   const { error } = await supabase.rpc("admin_set_runtime_switch", { p_key: key, p_on: !!on });
   if (error) throw error;
+  invalidateSiteFlagsReadScope2029();
   cache = null;
   // Verify the write with a new read, not the permissive startup reader or a pre-write in-flight request.
   let rows;
@@ -106,7 +119,7 @@ export async function setRuntimeSwitch(key, on) {
     throw failure;
   }
   const map = switchesFromFlags(Object.fromEntries(rows.map((row) => [row.key, row])));
-  cache = { at: Date.now(), map };
+  cache = { at: Date.now(), scope: getSiteFlagsReadScope2029(), map };
   listeners.forEach((fn) => fn(map));
   return map;
 }
@@ -114,13 +127,26 @@ export async function setRuntimeSwitch(key, on) {
 // React: {loading, on}. While loading nothing secondary should start (callers wait), so a switched-off
 // function never fires its first request.
 export function useRuntimeSwitch(key) {
-  const [state, setState] = useState(() => cache && Date.now() - cache.at < TTL_MS ? { loading: false, on: cache.map[key] !== false } : { loading: true, on: true });
+  const scope = getSiteFlagsReadScope2029();
+  const [state, setState] = useState(() => cache && cache.scope === scope && Date.now() - cache.at < TTL_MS
+    ? { scope, loading: false, on: cache.map[key] !== false }
+    : { scope, loading: true, on: true });
   useEffect(() => {
     let live = true;
-    const apply = (map) => { if (live) setState({ loading: false, on: map[key] !== false }); };
+    const apply = (map) => { if (live) setState({ scope: getSiteFlagsReadScope2029(), loading: false, on: map[key] !== false }); };
+    if (!cache || cache.scope !== scope || Date.now() - cache.at >= TTL_MS) {
+      setState({ scope, loading: true, on: true });
+    }
     readRuntimeSwitches().then(apply);
     listeners.add(apply);
-    return () => { live = false; listeners.delete(apply); };
-  }, [key]);
-  return state;
+    const unsubscribeInvalidation = subscribeSiteFlagsReadInvalidation2029(() => {
+      cache = null;
+      if (!live) return;
+      const nextScope = getSiteFlagsReadScope2029();
+      setState({ scope: nextScope, loading: true, on: true });
+      readRuntimeSwitches().then(apply);
+    });
+    return () => { live = false; listeners.delete(apply); unsubscribeInvalidation(); };
+  }, [key, scope]);
+  return state.scope === scope ? state : { loading: true, on: true };
 }
