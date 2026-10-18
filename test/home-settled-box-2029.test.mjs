@@ -118,7 +118,8 @@ test("loading slots stay presentational: hidden from assistive technology, never
   assert.match(home, /data-h29-primary=\{primary\}/);
   assert.match(home, /hasHero: Boolean\(nowHero\) \|\| Boolean\(lead\), postCount: visiblePosts\.length/);
   assert.match(gateways, /data-dg29-state=\{gatewayContentState\(/);
-  assert.match(gateways, /failed: ALL_READS\.every\(\(name\) => reads\[name\]\.failed\)/);
+  assert.match(gateways, /failed: INITIAL_READS\.every\(\(name\) => reads\[name\]\.failed\)/);
+  assert.match(gateways, /data-dg29-videos-state=\{videoState\}/);
   assert.match(gateways, /failed: results\[index\]\.status === "rejected"/);
 });
 

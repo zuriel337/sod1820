@@ -1,6 +1,6 @@
 // The retry in the message of a failed Home area, with the real DiscoveryGateways2029 and HomeComposition2029 over stand-in readers (test/fixtures/retry-harness):
 // what each area shows when its read fails or comes back empty, and above all that a retry repeats the reads of THAT area only. Behavior only: nothing here is a
-// measurement of speed, and no real read, database or network is involved.
+// measurement of speed, and no real read, database or network is involved. The video-defer checks count the fixture response bytes only.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
@@ -48,17 +48,88 @@ test.before(async () => {
 test.after(async () => { await browser?.close(); });
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function open(plan = {}) {
+async function open(plan = {}, { farBiblical = false, disableIO = false } = {}) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  await page.setContent(`<!doctype html><style>${holdRules}\nbody{margin:0}</style><body><div id='root'></div></body>`);
-  await page.evaluate((p) => { window.__plan = p; window.__calls = []; }, plan);
+  const geometry = farBiblical ? ".dg29-grid{display:block}.dg29-gateway{display:block;min-height:900px}" : "";
+  await page.setContent(`<!doctype html><style>${holdRules}\nbody{margin:0}${geometry}</style><body><div id='root'></div></body>`);
+  await page.evaluate(({ p, noIO }) => {
+    window.__plan = p;
+    window.__calls = [];
+    window.__videoPayloadBytes = 0;
+    if (noIO) Object.defineProperty(window, "IntersectionObserver", { value: undefined, configurable: true });
+  }, { p: plan, noIO: disableIO });
   await page.addScriptTag({ content: readFileSync(script, "utf8") });
   return page;
 }
 const calls = (page) => page.evaluate(() => window.__calls.slice());
+const videoPayloadBytes = (page) => page.evaluate(() => window.__videoPayloadBytes || 0);
 const settle = async (page, ms = 400) => { await sleep(ms); };
 const gateway = (page, title) => page.locator(`article.dg29-gateway:has(h3:text-is("${title}"))`);
 const texts = (locator) => locator.evaluate((node) => node.innerText);
+
+test("gateways: the video RPC is absent above fold, starts once 600px before the biblical gateway, preserves its items, and never repeats on re-entry", { skip }, async (t) => {
+  const page = await open({}, { farBiblical: true });
+  try {
+    await page.evaluate(() => window.__api.mount("gateways"));
+    await settle(page);
+    const biblical = gateway(page, "הצופן התנ״כי");
+    assert.equal((await calls(page)).filter((name) => name === "videos").length, 0, "initial above-fold entry has no video read");
+    assert.equal(await videoPayloadBytes(page), 0, "initial fixture transfer excludes the video payload");
+    assert.equal(await page.locator(".dg29").getAttribute("data-dg29-state"), "ready", "real primary rows make the gateways ready without waiting for deferred depth");
+    assert.equal(await page.locator(".dg29").getAttribute("data-dg29-videos-state"), "deferred");
+
+    const before = await biblical.boundingBox();
+    const viewport = page.viewportSize();
+    assert.ok(before.y > viewport.height + 600, `fixture starts outside the bounded margin: ${before.y}`);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 550), { y: before.y, h: viewport.height });
+    await page.waitForFunction(() => window.__calls.filter((name) => name === "videos").length === 1);
+    await settle(page, 80);
+    const approached = await biblical.boundingBox();
+    assert.ok(approached.y >= viewport.height, `read began before the gateway became visible: ${approached.y}`);
+    assert.equal(await page.locator(".dg29").getAttribute("data-dg29-videos-state"), "ready");
+    assert.deepEqual(await biblical.locator("a.dg29-source span:first-child").allTextContents(), ["סרטון אחד", "סרטון שני", "מטריצה אחת", "מטריצה שתיים"]);
+    const bytes = await videoPayloadBytes(page);
+    assert.ok(bytes > 0, "fixture records the deferred response bytes");
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settle(page, 80);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 550), { y: before.y, h: viewport.height });
+    await settle(page, 120);
+    assert.equal((await calls(page)).filter((name) => name === "videos").length, 1, "observer disconnects after the first approach");
+    assert.equal(await videoPayloadBytes(page), bytes, "re-entry transfers no duplicate payload");
+    t.diagnostic(`fixture initial delta: -1 request / -${bytes} bytes; rootMargin lead: 600px`);
+  } finally { await page.close(); }
+});
+
+test("gateways: a deferred video failure keeps the existing biblical retry and a later attempt restores the same items", { skip }, async () => {
+  const page = await open({ videos: ["fail", "ok"], matrices: ["empty", "empty"] }, { farBiblical: true });
+  try {
+    await page.evaluate(() => window.__api.mount("gateways"));
+    await settle(page);
+    const biblical = gateway(page, "הצופן התנ״כי");
+    const before = await biblical.boundingBox(), viewport = page.viewportSize();
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 550), { y: before.y, h: viewport.height });
+    await page.waitForFunction(() => window.__calls.filter((name) => name === "videos").length === 1);
+    await settle(page, 80);
+    assert.equal(await biblical.locator("button.h29-btn").count(), 1, "the empty/failed area remains retryable");
+    await page.evaluate(() => { window.__calls.length = 0; });
+    await biblical.locator("button.h29-btn").click();
+    await settle(page);
+    assert.deepEqual((await calls(page)).sort(), ["matrices", "videos"]);
+    assert.deepEqual(await biblical.locator("a.dg29-source span:first-child").allTextContents(), ["סרטון אחד", "סרטון שני"]);
+  } finally { await page.close(); }
+});
+
+test("gateways: browsers without IntersectionObserver load the biblical videos once instead of hiding them", { skip }, async () => {
+  const page = await open({}, { farBiblical: true, disableIO: true });
+  try {
+    await page.evaluate(() => window.__api.mount("gateways"));
+    await settle(page);
+    assert.equal((await calls(page)).filter((name) => name === "videos").length, 1);
+    assert.equal(await page.locator(".dg29").getAttribute("data-dg29-videos-state"), "ready");
+    assert.equal(await gateway(page, "הצופן התנ״כי").locator("a.dg29-source").count(), 4);
+  } finally { await page.close(); }
+});
 
 test("gateways: each area that failed says so in its own box with its own retry; areas that loaded and areas that are simply empty carry none", { skip }, async () => {
   const page = await open({ "posts:שבילי שפה": ["fail"], "posts:הצופן בסרטים": ["ok"], videos: ["empty"], matrices: ["fail"], "posts:מימד חמש": ["empty"] });

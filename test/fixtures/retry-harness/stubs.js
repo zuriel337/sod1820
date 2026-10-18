@@ -14,8 +14,10 @@ export async function getLatestPostCards({ limit = 2 } = {}) {
 }
 export async function getCategoryVideos(category) {
   calls.push("videos"); const o = outcome("videos"); await later();
-  if (o === "empty" || o === "fail") return [];                       // swallows its errors too
-  return [{ slug: "video-1", title: "סרטון אחד", video_url: "x.mp4" }, { slug: "video-2", title: "סרטון שני", video_url: "y.mp4" }];
+  const rows = o === "empty" || o === "fail" ? []                     // swallows its errors too
+    : [{ slug: "video-1", title: "סרטון אחד", video_url: "x.mp4" }, { slug: "video-2", title: "סרטון שני", video_url: "y.mp4" }];
+  window.__videoPayloadBytes = (window.__videoPayloadBytes || 0) + new TextEncoder().encode(JSON.stringify(rows)).byteLength;
+  return rows;
 }
 export async function fetchHomePostCards2029({ category }) {
   calls.push(`posts:${category}`); const o = outcome(`posts:${category}`); await later();
