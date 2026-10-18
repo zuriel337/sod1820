@@ -1,0 +1,37 @@
+{
+  "date_utc": "2026-10-18",
+  "base": {
+    "branch": "gpt/perf-unified-wave3-20261018",
+    "sha": "6124db8d7ddac82654a09c49abf8ed60fe999d47"
+  },
+  "live_project": "linswmnnkjxvweumprav",
+  "live_write_performed": false,
+  "migration_installed_live": false,
+  "measurement_scope": "database JSON text and warm EXPLAIN ANALYZE; no hosted browser or LCP claim",
+  "projection": {
+    "per_method_limit": 12,
+    "request_count_when_adopted": 1,
+    "payloads": [
+      { "value": 0, "source_rows": 18, "families": 2, "opening_phrases": 18, "full_json_bytes": 23003, "projected_json_bytes": 5259, "reduction_percent": 77.1 },
+      { "value": 376, "source_rows": 165, "families": 23, "opening_phrases": 146, "full_json_bytes": 216538, "projected_json_bytes": 48831, "reduction_percent": 77.4 },
+      { "value": 718, "source_rows": 173, "families": 23, "opening_phrases": 159, "full_json_bytes": 228852, "projected_json_bytes": 52882, "reduction_percent": 76.9 },
+      { "value": 1820, "source_rows": 185, "families": 24, "opening_phrases": 145, "full_json_bytes": 249438, "projected_json_bytes": 55632, "reduction_percent": 77.7 }
+    ]
+  },
+  "warm_explain_718": {
+    "projected_execution_ms": [55.038, 55.102, 57.15],
+    "projected_planning_ms": [7.363, 7.299, 7.537],
+    "projected_shared_hit_blocks": 2550,
+    "full_execution_ms": [65.955, 62.21, 64.426],
+    "full_planning_ms": [0.138, 0.137, 0.15],
+    "full_shared_hit_blocks": 3463,
+    "temp_read_blocks": 0,
+    "temp_written_blocks": 0
+  },
+  "live_parity": [
+    { "value": 0, "source_rows_equal": true, "family_count_equal": true, "family_order_equal": true, "counts_and_samples_equal": true },
+    { "value": 376, "source_rows_equal": true, "family_count_equal": true, "family_order_equal": true, "counts_and_samples_equal": true },
+    { "value": 718, "source_rows_equal": true, "family_count_equal": true, "family_order_equal": true, "counts_and_samples_equal": true },
+    { "value": 1820, "source_rows_equal": true, "family_count_equal": true, "family_order_equal": true, "counts_and_samples_equal": true }
+  ]
+}
