@@ -12,6 +12,7 @@ import {
   readFileSync,
   readdirSync,
   readlinkSync,
+  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -79,7 +80,7 @@ const assertHostedPairUsable = (allowedSources, repositoryRoot = root) => {
   return { metadata, source };
 };
 
-test('generator hardens cleanup, standalone paths, source validation, publication failures and concurrency',
+test('generator hardens asset preservation, standalone paths, source validation, publication failures and concurrency',
   { timeout: 300000 }, async () => {
   const source = readFileSync(sourcePath);
   const historicalSourceRaw = execFileSync(
@@ -131,6 +132,7 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
   mkdirSync(standaloneDir);
   mkdirSync(pathGuardDir);
   const standalonePath = join(standaloneDir, 'tzofen-offline.html');
+  const standaloneSecondPath = join(standaloneDir, 'tzofen-offline-second.html');
   const createdAssetFixtures = [];
   const activeChildren = new Set();
   const forbiddenRelativePath = join(sandboxRoot, 'public', `forbidden-relative-${process.pid}.html`);
@@ -164,8 +166,8 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
     ...readdirSync(assetDir).filter(name => /^\.tk-vtext\..+\.tmp$/.test(name)),
   ];
 
-  const startPausedBuild = (phase = 'inputs_validated') => {
-    const child = spawn('python3', ['tools/els/build.py'], {
+  const startPausedBuild = (phase = 'inputs_validated', args = []) => {
+    const child = spawn('python3', ['tools/els/build.py', ...args], {
       cwd: sandboxRoot,
       env: { ...process.env, SOD1820_ELS_TEST_PAUSE_PHASE: phase },
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -246,6 +248,7 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
       sandboxGeneratedPath,
       beforeMeta.path,
       join(symlinkParent, 'blocked.html'),
+      externalTarget,
       outputSymlink,
       outputDirectory,
       outputFifo,
@@ -259,18 +262,72 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
     for (const forbiddenPath of forbiddenNewPaths) {
       assert.equal(lstatOrNull(forbiddenPath), null, `rejected standalone destination is never created: ${forbiddenPath}`);
     }
-    assert.equal(readFileSync(externalTarget, 'utf8'), 'external-target', 'rejected output symlink never mutates its target');
+    assert.equal(readFileSync(externalTarget, 'utf8'), 'external-target', 'create-new mode preserves an existing regular file and symlink target');
     assert.equal(readlinkSync(outputSymlink), externalTarget, 'existing output symlink is preserved');
+    assert.ok(lstatSync(outputDirectory).isDirectory(), 'existing output directory is preserved');
     assert.ok(lstatSync(outputFifo).isFIFO(), 'ambiguous FIFO destination is preserved');
 
     const firstStandalone = sandboxBuild(['--standalone-out', standalonePath]);
     assert.equal(firstStandalone.status, 0, firstStandalone.stderr || firstStandalone.stdout);
     const standaloneOne = readFileSync(standalonePath);
-    const secondStandalone = sandboxBuild(['--standalone-out', standalonePath]);
+    const refusedOverwrite = sandboxBuild(['--standalone-out', standalonePath]);
+    assert.notEqual(refusedOverwrite.status, 0, 'standalone publication refuses to overwrite its own existing regular output');
+    assert.ok(readFileSync(standalonePath).equals(standaloneOne), 'refused overwrite preserves the existing standalone bytes');
+    const secondStandalone = sandboxBuild(['--standalone-out', standaloneSecondPath]);
     assert.equal(secondStandalone.status, 0, secondStandalone.stderr || secondStandalone.stdout);
-    const standaloneTwo = readFileSync(standalonePath);
-    assert.ok(standaloneTwo.equals(standaloneOne), 'normal external standalone path is byte-deterministic');
+    const standaloneTwo = readFileSync(standaloneSecondPath);
+    assert.ok(standaloneTwo.equals(standaloneOne), 'two create-new external destinations are byte-deterministic');
     assert.deepEqual(hostedSnapshot(sandboxRoot), hostedBeforePathMatrix, 'successful standalone generation does not mutate hosted output');
+
+    // Swapping the requested parent pathname after validation cannot redirect a bound-dirfd write.
+    const parentRacePath = join(pathGuardDir, 'parent-race');
+    const boundParentPath = join(pathGuardDir, 'parent-race-bound');
+    const parentRaceBasename = 'parent-race-offline.html';
+    const parentRaceOutput = join(parentRacePath, parentRaceBasename);
+    mkdirSync(parentRacePath);
+    const parentRaceWorker = startPausedBuild(
+      'standalone_parent_bound',
+      ['--standalone-out', parentRaceOutput],
+    );
+    await parentRaceWorker.ready;
+    renameSync(parentRacePath, boundParentPath);
+    symlinkSync(join(sandboxRoot, 'public'), parentRacePath, 'dir');
+    parentRaceWorker.release();
+    const parentRaceResult = await parentRaceWorker.closed;
+    assert.equal(parentRaceResult.status, 0, parentRaceResult.stderr || parentRaceResult.stdout);
+    assert.ok(
+      readFileSync(join(boundParentPath, parentRaceBasename)).equals(standaloneOne),
+      'standalone publication stays in the originally bound external directory',
+    );
+    assert.equal(
+      lstatOrNull(join(sandboxRoot, 'public', parentRaceBasename)),
+      null,
+      'replacement parent symlink cannot redirect standalone bytes into fixture public',
+    );
+    assert.ok(lstatSync(parentRacePath).isSymbolicLink(), 'replacement parent symlink remains untouched');
+    assert.deepEqual(hostedSnapshot(sandboxRoot), hostedBeforePathMatrix, 'parent swap leaves hosted output unchanged');
+
+    // A final basename planted after validation wins; no-clobber publication fails without replacing it.
+    const basenameRaceParent = join(pathGuardDir, 'basename-race');
+    const basenameRaceOutput = join(basenameRaceParent, 'basename-race-offline.html');
+    mkdirSync(basenameRaceParent);
+    const basenameRaceWorker = startPausedBuild(
+      'before_standalone_publish',
+      ['--standalone-out', basenameRaceOutput],
+    );
+    await basenameRaceWorker.ready;
+    symlinkSync(sandboxGeneratedPath, basenameRaceOutput, 'file');
+    basenameRaceWorker.release();
+    const basenameRaceResult = await basenameRaceWorker.closed;
+    assert.notEqual(basenameRaceResult.status, 0, 'raced standalone basename fails explicitly');
+    assert.ok(lstatSync(basenameRaceOutput).isSymbolicLink(), 'raced output symlink is preserved');
+    assert.equal(readlinkSync(basenameRaceOutput), sandboxGeneratedPath, 'raced output symlink target is unchanged');
+    assert.deepEqual(
+      readdirSync(basenameRaceParent).filter(name => name.startsWith('.basename-race-offline.html.') && name.endsWith('.tmp')),
+      [],
+      'raced standalone publication removes its dirfd-scoped temporary file',
+    );
+    assert.deepEqual(hostedSnapshot(sandboxRoot), hostedBeforePathMatrix, 'basename race leaves hosted output unchanged');
     assertCanonicalHostedUntouched();
 
     // Malformed source snapshots fail before any hosted write.
@@ -291,7 +348,7 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
     }
     assertCanonicalHostedUntouched();
 
-    // Cleanup removes one stale regular artifact proven by its gzip content and hash.
+    // Hosted publication never scans or deletes any pre-existing asset entry.
     const fixtureToken = sha256(Buffer.from(`${process.pid}-${Date.now()}-${sandboxRoot}`));
     const namedFixture = offset => join(assetDir, `tk-vtext.${fixtureToken.slice(offset, offset + 16)}.gzdata`);
     const staleOwnedPath = historicalAssetPath;
@@ -321,7 +378,8 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
     createdAssetFixtures.push(staleOwnedPath);
 
     writeFileSync(beforeMeta.path, beforeAsset); // Plant the current regular payload explicitly.
-    writeFileSync(staleOwnedPath, gzipSync(historicalSource, { level: 9, mtime: 0 }));
+    const historicalAssetBytes = gzipSync(historicalSource, { level: 9, mtime: 0 });
+    writeFileSync(staleOwnedPath, historicalAssetBytes);
     writeFileSync(invalidMatchingRegularPath, Buffer.from('not-a-generator-owned-gzip'));
     mkdirSync(matchingDirectoryPath);
     writeFileSync(nearPatternForeignPath, Buffer.from('foreign-near-pattern'));
@@ -355,17 +413,35 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
     assert.equal(afterAsset.readUInt32LE(4), 0, 'gzip mtime is zero');
     assert.ok(!afterMeta.url.startsWith('http'), 'asset stays on the current origin');
     assert.match(afterMeta.url, /\.gzdata$/, 'custom binary suffix does not ask the server to apply Content-Encoding');
-    assert.equal(lstatOrNull(staleOwnedPath), null, 'stale regular content-addressed payload is removed');
+    assert.ok(readFileSync(staleOwnedPath).equals(historicalAssetBytes), 'stale regular content-addressed payload is preserved byte-identically');
     assert.equal(readFileSync(invalidMatchingRegularPath, 'utf8'), 'not-a-generator-owned-gzip', 'matching foreign regular file is preserved');
     assert.equal(readFileSync(nearPatternForeignPath, 'utf8'), 'foreign-near-pattern', 'near-pattern foreign file is untouched');
     assert.equal(readFileSync(foreignPath, 'utf8'), 'foreign-payload', 'unrelated foreign file is untouched');
     assert.ok(lstatSync(matchingDirectoryPath).isDirectory(), 'matching directory is preserved');
     assert.ok(lstatSync(internalSymlinkPath).isSymbolicLink(), 'matching internal symlink is preserved');
     assert.ok(lstatSync(externalSymlinkPath).isSymbolicLink(), 'matching external symlink is preserved');
-    assert.equal(readFileSync(externalAssetTarget, 'utf8'), 'external-link-target', 'cleanup never traverses the external symlink');
+    assert.equal(readFileSync(externalAssetTarget, 'utf8'), 'external-link-target', 'hosted publication never traverses the external symlink');
     assert.ok(lstatSync(fifoAssetPath).isFIFO(), 'matching FIFO is preserved');
     assert.ok(lstatSync(socketAssetPath).isSocket(), 'matching socket entry is preserved');
-    assert.deepEqual(ownedRegularNames(), [basename(afterMeta.path)], 'exactly one genuine regular owned asset remains');
+    assert.deepEqual(
+      ownedRegularNames(),
+      [basename(afterMeta.path), basename(staleOwnedPath)].sort(),
+      'same-source rebuild adds no asset and preserves the prior content-addressed regular file',
+    );
+
+    // Reproduce the former cleanup TOCTOU: replace the stale regular entry after HTML publication.
+    // With automatic cleanup removed, the generator never stats or unlinks the raced entry.
+    const retiredCleanupRace = startPausedBuild('after_html_publish');
+    await retiredCleanupRace.ready;
+    rmSync(staleOwnedPath);
+    symlinkSync(externalAssetTarget, staleOwnedPath, 'file');
+    retiredCleanupRace.release();
+    const retiredCleanupResult = await retiredCleanupRace.closed;
+    assert.equal(retiredCleanupResult.status, 0, retiredCleanupResult.stderr || retiredCleanupResult.stdout);
+    assert.ok(lstatSync(staleOwnedPath).isSymbolicLink(), 'raced stale symlink is preserved');
+    assert.equal(readlinkSync(staleOwnedPath), externalAssetTarget, 'raced stale symlink target is unchanged');
+    assert.equal(readFileSync(externalAssetTarget, 'utf8'), 'external-link-target', 'raced stale symlink is never traversed');
+    assert.deepEqual(temporaryPublishFiles(), [], 'retired cleanup boundary leaves no atomic-write temporary file');
 
     const standaloneHtml = standaloneTwo.toString('utf8');
     const standaloneUrl = standaloneHtml.match(/const VERSE_TEXT_ASSET="([^"]+)"/i)?.[1];
@@ -386,12 +462,11 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
 
     removeAssetFixtures();
 
-    // Each injected process failure leaves a complete old/new pair and releases the lock.
+    // Each hosted transaction failure leaves a complete old/new pair and releases the lock.
     for (const phase of [
       'before_asset_replace',
       'between_asset_and_html',
-      'after_html_before_cleanup',
-      'inside_cleanup',
+      'after_html_publish',
     ]) {
       writeFileSync(sandboxSourcePath, historicalSource);
       const failed = sandboxBuild([], { SOD1820_ELS_TEST_FAIL_PHASE: phase });
@@ -404,7 +479,11 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
       const recovered = sandboxBuild();
       assert.equal(recovered.status, 0, `${phase} must not leave the cross-process lock held: ${recovered.stderr}`);
       const recoveredPair = assertHostedPairUsable([source], sandboxRoot);
-      assert.deepEqual(ownedRegularNames(), [basename(recoveredPair.metadata.path)], `${phase} recovery prunes only the stale owned regular asset`);
+      assert.ok(ownedRegularNames().includes(basename(recoveredPair.metadata.path)), `${phase} recovery keeps its referenced current asset`);
+      assert.ok(
+        ownedRegularNames().every(name => [basename(beforeMeta.path), basename(historicalAssetPath)].includes(name)),
+        `${phase} recovery leaves only the real source snapshots published by this isolated test`,
+      );
     }
     assertCanonicalHostedUntouched();
 
@@ -431,11 +510,18 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
       assert.equal(result.status, 0, `different-input concurrent build failed: ${result.stderr || result.stdout}`);
     }
     const concurrentPair = assertHostedPairUsable([source, historicalSource], sandboxRoot);
-    assert.deepEqual(ownedRegularNames(), [basename(concurrentPair.metadata.path)], 'different-input concurrency leaves one referenced regular owned asset');
+    assert.ok(ownedRegularNames().includes(basename(concurrentPair.metadata.path)), 'different-input concurrency leaves its referenced asset extant');
+    assert.deepEqual(
+      ownedRegularNames(),
+      [basename(beforeMeta.path), basename(historicalAssetPath)].sort(),
+      'different-input concurrency preserves both content-addressed source snapshots',
+    );
     assert.deepEqual(temporaryPublishFiles(), [], 'different-input concurrency leaves no temporary orphan');
 
     const canonicalAfterDifferent = sandboxBuild();
     assert.equal(canonicalAfterDifferent.status, 0, canonicalAfterDifferent.stderr || canonicalAfterDifferent.stdout);
+    assertHostedPairUsable([source], sandboxRoot);
+    const assetsBeforeSameInput = ownedRegularNames();
 
     // Four same-input publishers all complete and converge on the deterministic pair.
     const sameInputWorkers = Array.from({ length: 4 }, () => startPausedBuild());
@@ -446,7 +532,8 @@ test('generator hardens cleanup, standalone paths, source validation, publicatio
       assert.equal(result.status, 0, `same-input concurrent build failed: ${result.stderr || result.stdout}`);
     }
     const finalPair = assertHostedPairUsable([source], sandboxRoot);
-    assert.deepEqual(ownedRegularNames(), [basename(finalPair.metadata.path)], 'four-way build leaves exactly the deterministic current owned asset');
+    assert.ok(ownedRegularNames().includes(basename(finalPair.metadata.path)), 'four-way build leaves the deterministic current asset extant');
+    assert.deepEqual(ownedRegularNames(), assetsBeforeSameInput, 'four same-source publishers add no content-addressed asset');
     assert.deepEqual(temporaryPublishFiles(), [], 'four-way build leaves no temporary orphan');
     assertCanonicalHostedUntouched();
   } finally {
