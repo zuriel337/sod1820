@@ -39,6 +39,7 @@ import {
   numberProjectionAccessContext,
   summarizeNumberOpening,
 } from "../lib/research/numberOpeningOrchestration2029.js";
+import { createNumberDepthIntentState } from "../lib/research/numberDepthIntent2029.js";
 import { PaletteProvider, useNumber2029Scope } from "../lib/palette.js";
 import "./number2029.css";
 import "./number2029-wide.css";
@@ -51,7 +52,16 @@ const NUMBER_HIDDEN_CROSS_CACHE = new Map();
 const NUMBER_SYSTEM_METHODS_CACHE = new Map();
 const NUMBER_METHOD_PROFILE_CACHE = new Map();
 const NUMBER_METHOD_PROFILE_INFLIGHT = new Map();
+const NUMBER_DEPTH_MODULE_RETRY_PREFIX = "sod:number-depth-module-retry:";
+const EMPTY_NUMBER_ROWS = Object.freeze([]);
 const clean = (value) => value == null ? "" : String(value).trim();
+
+const depthModuleRetryStorageKey = (root) => `${NUMBER_DEPTH_MODULE_RETRY_PREFIX}${root}`;
+
+function isEditableDepthKeyTarget(target) {
+  const tag = clean(target?.tagName).toUpperCase();
+  return Boolean(target?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A"].includes(tag));
+}
 
 function rememberBounded(cache, key, value, max = 36) {
   cache.delete(key);
@@ -357,6 +367,7 @@ function NumberPageBody() {
   const deepSentinelRef = useRef(null);
   const openingRequestGate = useRef(createLatestNumberRequestGate());
   const depthRequestGate = useRef(createLatestNumberRequestGate());
+  const depthModuleReloadRetry = useRef({ root: null, pending: false });
 
   useEffect(() => {
     if (!Number.isSafeInteger(root) || root < 0) {
@@ -442,34 +453,108 @@ function NumberPageBody() {
   }, [deepRequested]);
 
   useEffect(() => {
+    if (openingStatus !== "ready" || !Number.isSafeInteger(root) || typeof window === "undefined") return;
+    if (depthModuleReloadRetry.current.root !== root) {
+      const key = depthModuleRetryStorageKey(root);
+      let pending = false;
+      try {
+        const requestedAt = Number(window.sessionStorage.getItem(key));
+        window.sessionStorage.removeItem(key);
+        pending = Number.isFinite(requestedAt) && Date.now() - requestedAt <= 60_000;
+      } catch {
+        // Session storage can be unavailable. The bounded manual depth action remains usable.
+      }
+      depthModuleReloadRetry.current = { root, pending };
+    }
+    if (depthModuleReloadRetry.current.pending) setDeepRequested(true);
+  }, [openingStatus, root]);
+
+  useEffect(() => {
     const node = deepSentinelRef.current;
     if (!node || deepRequested || openingStatus !== "ready") return undefined;
-    if (typeof IntersectionObserver === "undefined") {
-      // Without proximity observation, keep the bounded explicit depth action available.
-      return undefined;
-    }
-    let scrollIntent = window.scrollY > 0;
-    const requestWhenNear = () => {
-      if (!scrollIntent) return;
+    const intent = createNumberDepthIntentState();
+    let observer = null;
+    const isNear = () => {
       const bounds = node.getBoundingClientRect();
-      if (bounds.top <= window.innerHeight + 900 && bounds.bottom >= -900) {
+      return bounds.top <= window.innerHeight + 900 && bounds.bottom >= -900;
+    };
+    const requestWhenNear = () => {
+      if (intent.consumeIfNear(isNear())) {
         setDeepRequested(true);
-        observer.disconnect();
+        observer?.disconnect();
       }
     };
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) requestWhenNear();
-    }, { rootMargin: "900px 0px", threshold: 0 });
-    const onScroll = () => {
-      if (window.scrollY <= 0) return;
-      scrollIntent = true;
+    const onWheel = (event) => {
+      if (event.isTrusted !== true) return;
+      intent.wheel(event.deltaY);
       requestWhenNear();
     };
-    observer.observe(node);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const onKeyDown = (event) => {
+      if (event.isTrusted !== true || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || isEditableDepthKeyTarget(event.target)) return;
+      intent.key(event.key, { viewportHeight: window.innerHeight });
+      requestWhenNear();
+    };
+    const onTouchStart = (event) => {
+      if (event.isTrusted !== true) return;
+      const touch = event.touches?.[0] || event.changedTouches?.[0] || null;
+      if (touch) intent.touchStart(touch.clientY);
+    };
+    const onTouchMove = (event) => {
+      if (event.isTrusted !== true) return;
+      const touch = event.touches?.[0] || event.changedTouches?.[0] || null;
+      if (!touch) return;
+      intent.touchMove(touch.clientY);
+      requestWhenNear();
+    };
+    const onTouchEnd = () => intent.touchEnd();
+    const onPointerDown = (event) => {
+      if (event.isTrusted !== true) return;
+      intent.pointerStart(event);
+    };
+    const onPointerMove = (event) => {
+      if (event.isTrusted !== true) return;
+      intent.pointerMove(event);
+      requestWhenNear();
+    };
+    const onPointerEnd = (event) => intent.pointerEnd(event.pointerId);
+    const onNavigation = () => intent.clearPending();
+
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) requestWhenNear();
+      }, { rootMargin: "900px 0px", threshold: 0 });
+      observer.observe(node);
+    }
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerup", onPointerEnd, { passive: true });
+    window.addEventListener("pointercancel", onPointerEnd, { passive: true });
+    window.addEventListener("scroll", requestWhenNear, { passive: true });
+    window.addEventListener("hashchange", onNavigation);
+    window.addEventListener("popstate", onNavigation);
+    window.addEventListener("pageshow", onNavigation);
     return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", onScroll);
+      observer?.disconnect();
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerEnd);
+      window.removeEventListener("pointercancel", onPointerEnd);
+      window.removeEventListener("scroll", requestWhenNear);
+      window.removeEventListener("hashchange", onNavigation);
+      window.removeEventListener("popstate", onNavigation);
+      window.removeEventListener("pageshow", onNavigation);
     };
   }, [data, root, deepRequested, openingStatus]);
 
@@ -517,21 +602,21 @@ function NumberPageBody() {
     return () => { alive = false; };
   }, [deepRequested, depthStatus, data, root]);
 
-  const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
-  const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
-  const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : [];
+  const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : EMPTY_NUMBER_ROWS;
+  const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : EMPTY_NUMBER_ROWS;
+  const relations = Array.isArray(data?.graph?.relations) ? data.graph.relations : EMPTY_NUMBER_ROWS;
   const numberCuration = useMemo(() => buildNumberCuration2029({
     root,
     relations,
     catalog: curationState.catalog,
   }), [root, relations, curationState.catalog]);
-  const sources = Array.isArray(data?.sources) ? data.sources : [];
-  const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : [];
-  const researchFindings = Array.isArray(data?.research?.findings) ? data.research.findings : [];
-  const timeline = Array.isArray(data?.timeline) ? data.timeline : [];
+  const sources = Array.isArray(data?.sources) ? data.sources : EMPTY_NUMBER_ROWS;
+  const worlds = Array.isArray(data?.numberWorlds) ? data.numberWorlds : EMPTY_NUMBER_ROWS;
+  const researchFindings = Array.isArray(data?.research?.findings) ? data.research.findings : EMPTY_NUMBER_ROWS;
+  const timeline = Array.isArray(data?.timeline) ? data.timeline : EMPTY_NUMBER_ROWS;
   const zeroScaleData = data?.zeroScale || null;
-  const zeroScale = Array.isArray(zeroScaleData?.scale_chain) ? zeroScaleData.scale_chain : [];
-  const mediaItems = Array.isArray(data?.media?.items) ? data.media.items : [];
+  const zeroScale = Array.isArray(zeroScaleData?.scale_chain) ? zeroScaleData.scale_chain : EMPTY_NUMBER_ROWS;
+  const mediaItems = Array.isArray(data?.media?.items) ? data.media.items : EMPTY_NUMBER_ROWS;
   const surface = data?.surface || {};
   const anchorRow = data?.anchorProfile?.row || null;
   const anchorPhrase = anchorExpression(anchorRow?.fact, root, families);
@@ -1415,6 +1500,18 @@ function NumberPageBody() {
     setOpeningRetry((value) => value + 1);
   };
 
+  const retryDepth = () => {
+    if (depthState.error?.code === "NUMBER_DEPTH_MODULE_UNAVAILABLE" && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem(depthModuleRetryStorageKey(root), String(Date.now()));
+      } catch { /* reload still gives the browser module map a clean retry boundary */ }
+      window.location.reload();
+      return;
+    }
+    setDeepRequested(true);
+    setDepthRetry((value) => value + 1);
+  };
+
   // Loading / unavailable states live inside the same Number colour scope as the ready page.
   const inNumberScope = (node) => <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-wide-layout={wideLayout} data-number-root={root}>{node}</div></PaletteProvider>;
 
@@ -1583,7 +1680,7 @@ function NumberPageBody() {
       error={pathError}
     />
 
-    <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
+    <div ref={deepSentinelRef} id="number-depth-sentinel" data-number-depth-sentinel="true" aria-hidden="true" style={{ height: 1 }} />
     {depthStatus === "idle" ? <section className="sod29-section sod29-number-depth-boundary" data-number-depth-boundary="deferred">
       <div className="sod29-number-core2029-note">הקשרים, המקורות ושכבות המחקר המלאות עדיין לא נטענו.</div>
       <div className="sod29-number-depth-nav"><button type="button" data-number-depth-action="load" onClick={() => setDeepRequested(true)}>טען קשרים ומקורות</button></div>
@@ -1592,8 +1689,10 @@ function NumberPageBody() {
     {depthStatus === "error" ? <section className="sod29-section sod29-number-depth-boundary" data-number-depth-boundary="error"><FrameState
       kind="unavailable"
       title="הקשרים והמקורות לא זמינים כרגע"
-      action={<button type="button" className="sod29-frame-state-retry" data-number-depth-action="retry" onClick={() => { setDeepRequested(true); setDepthRetry((value) => value + 1); }}>נסה שוב</button>}
-    >הפתיחה נשארת זמינה. אפשר לנסות שוב כאן בלי לטעון מחדש את הדף.</FrameState></section> : null}
+      action={<button type="button" className="sod29-frame-state-retry" data-number-depth-action="retry" onClick={retryDepth}>נסה שוב</button>}
+    >{depthState.error?.code === "NUMBER_DEPTH_MODULE_UNAVAILABLE"
+      ? "הפתיחה נשארת זמינה. ניסיון נוסף ירענן את הדף ויחזיר אותך לכאן."
+      : "הפתיחה נשארת זמינה. אפשר לנסות שוב כאן בלי לטעון מחדש את הדף."}</FrameState></section> : null}
     {depthStatus === "ready" ? <NumberLivingWorld2029
       root={root}
       data={data}

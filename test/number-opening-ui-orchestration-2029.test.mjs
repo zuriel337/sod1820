@@ -8,6 +8,7 @@ import {
   numberProjectionAccessContext,
   summarizeNumberOpening,
 } from "../src/lib/research/numberOpeningOrchestration2029.js";
+import { createNumberDepthIntentState } from "../src/lib/research/numberDepthIntent2029.js";
 
 const ACCESS_A = "viewer:a";
 const identity = (value) => ({
@@ -242,6 +243,34 @@ test("dynamic opening module failure is classified, evicted, and retryable witho
   assert.deepEqual([moduleAttempts, fullLoads], [2, 0]);
 });
 
+test("depth module failure is bounded, preserves opening, and retries through a fresh loader", async () => {
+  let depthModuleAttempts = 0;
+  const opening = projected(718, [family("רגיל", ["פתיחה"], { total: 2 })]);
+  const full = { identity: identity(718).identity, full: true };
+  const orchestrator = createNumberOpeningOrchestrator({
+    fetchIdentity: async (root) => identity(root),
+    fetchAnchor: async () => ({ row: null }),
+    loadOpeningModule: async () => ({
+      fetchNumberOpeningProjection: async (root) => ({ value: root }),
+      projectNumberOpeningCore: () => opening,
+    }),
+    loadDepthModule: async () => {
+      depthModuleAttempts += 1;
+      if (depthModuleAttempts === 1) throw new Error("synthetic depth chunk failure");
+      return { fetchEntityHubProjection: async () => full };
+    },
+  });
+
+  const opened = await orchestrator.loadOpening(718, { accessContext: ACCESS_A });
+  await assert.rejects(
+    orchestrator.loadDepth(718, { accessContext: ACCESS_A }),
+    (error) => error?.code === "NUMBER_DEPTH_MODULE_UNAVAILABLE" && /synthetic depth chunk failure/.test(error.cause?.message || ""),
+  );
+  assert.strictEqual((await orchestrator.loadOpening(718, { accessContext: ACCESS_A })).data, opened.data);
+  assert.strictEqual(await orchestrator.loadDepth(718, { accessContext: ACCESS_A }), full);
+  assert.equal(depthModuleAttempts, 2, "a failed depth-module entry is evicted for a reload/fresh-loader retry");
+});
+
 test("full depth stays idle until requested, shares one request, and retries without losing opening", async () => {
   const fullGate = deferred();
   let fullLoads = 0;
@@ -344,6 +373,48 @@ test("latest-request gate rejects late root completion and completion after unmo
   assert.deepEqual(committed, ["current-root"], "completion after unmount cannot commit");
 });
 
+test("depth intent ignores position/restoration and requires fresh accumulated explicit input", () => {
+  const intent = createNumberDepthIntentState({ minDelta: 32, maxAgeMs: 100 });
+  assert.equal(intent.consumeIfNear(true, 0), false, "proximity or a programmatic scroll alone cannot arm depth");
+  assert.equal(intent.wheel(10, 1), false);
+  assert.equal(intent.consumeIfNear(true, 2), false, "sub-threshold wheel noise stays idle");
+  assert.equal(intent.wheel(22, 3), true, "explicit deltas accumulate to the threshold");
+  assert.equal(intent.consumeIfNear(false, 4), false, "intent still requires sentinel proximity");
+  assert.equal(intent.consumeIfNear(true, 4), true);
+  assert.equal(intent.consumeIfNear(true, 5), false, "a consumed intent starts depth at most once");
+
+  const expired = createNumberDepthIntentState({ minDelta: 32, maxAgeMs: 100 });
+  expired.wheel(40, 0);
+  assert.equal(expired.consumeIfNear(true, 101), false, "stale intent cannot arm a later restoration scroll");
+  expired.wheel(40, 102);
+  expired.clearPending();
+  assert.equal(expired.consumeIfNear(true, 103), false, "hash/pop/pageshow reset pending intent");
+});
+
+test("depth intent admits scrolling keys, touch movement and primary pointer drag", () => {
+  const keyboard = createNumberDepthIntentState();
+  assert.equal(keyboard.key("Enter", { now: 1 }), false);
+  assert.equal(keyboard.key("ArrowDown", { viewportHeight: 700, now: 2 }), true);
+  assert.equal(keyboard.consumeIfNear(true, 3), true);
+
+  const touch = createNumberDepthIntentState();
+  touch.touchStart(400);
+  assert.equal(touch.touchMove(390, 1), false);
+  assert.equal(touch.touchMove(350, 2), true);
+  assert.equal(touch.consumeIfNear(true, 3), true);
+
+  const pointer = createNumberDepthIntentState();
+  pointer.pointerStart({ pointerId: 7, clientY: 500, pointerType: "mouse", button: 0, isPrimary: true });
+  assert.equal(pointer.pointerMove({ pointerId: 7, clientY: 490, buttons: 1 }, 1), false);
+  assert.equal(pointer.pointerMove({ pointerId: 7, clientY: 450, buttons: 1 }, 2), true);
+  assert.equal(pointer.consumeIfNear(true, 3), true);
+
+  const rejectedPointer = createNumberDepthIntentState();
+  rejectedPointer.pointerStart({ pointerId: 8, clientY: 500, pointerType: "touch", button: 0, isPrimary: true });
+  assert.equal(rejectedPointer.pointerMove({ pointerId: 8, clientY: 400, buttons: 1 }, 1), false);
+  assert.equal(rejectedPointer.consumeIfNear(true, 2), false);
+});
+
 test("access cache key is stable within one context and changes across principals or roles", () => {
   const a = numberProjectionAccessContext({
     user: { id: "a", last_sign_in_at: "2026-10-18T10:00:00Z", app_metadata: { tier: "public" } },
@@ -435,4 +506,7 @@ test("compact summaries and page markers cannot claim a complete full projection
   assert.match(page, /const data = depthData \|\| openingData/);
   assert.match(page, /data-number-depth-action="load"/);
   assert.match(page, /data-number-depth-action="retry"/);
+  assert.match(page, /NUMBER_DEPTH_MODULE_UNAVAILABLE/);
+  assert.match(page, /sessionStorage\.setItem\(depthModuleRetryStorageKey\(root\)/);
+  assert.match(page, /window\.location\.reload\(\)/);
 });

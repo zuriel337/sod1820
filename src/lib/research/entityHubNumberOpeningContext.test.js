@@ -144,6 +144,31 @@ test("identity-only gate resolves the exact root without reading its anchor", as
   assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
 });
 
+test("identity-only gate accepts canonical numeric inputs and leading-zero route strings", async (t) => {
+  const zero = {
+    id: "00000000-0000-4000-8000-000000000000",
+    type: "number",
+    label: "0",
+    identity_key: "0",
+    is_active: true,
+  };
+  const eighteenTwenty = {
+    id: "18200000-0000-4000-8000-000000000001",
+    type: "number",
+    label: "1820",
+    identity_key: "1820",
+    is_active: true,
+  };
+  const calls = installReadTransport(t, { nodes: [zero, eighteenTwenty] });
+
+  for (const input of [0, "0", "000", 1820, "1820", "001820"]) {
+    const result = await fetchNumberOpeningIdentity(input);
+    assert.equal(result?.value, Number(input), `admitted ${JSON.stringify(input)} resolves canonically`);
+    assert.equal(result?.identity.label, String(Number(input)));
+  }
+  assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
+});
+
 test("identity-key hit with a different Number label fails closed before anchor read", async (t) => {
   const calls = installReadTransport(t, {
     nodes: [{
@@ -191,14 +216,32 @@ test("a valid Number identity survives an absent anchor as the existing empty pr
   });
 });
 
-test("unsafe values fail closed before any database read", async (t) => {
+test("coercible, malformed, negative and unsafe identity values fail before any database read", async (t) => {
   const calls = installReadTransport(t);
 
-  assert.equal(await fetchNumberOpeningIdentity(Number.MAX_SAFE_INTEGER + 1), null);
-  assert.equal(await fetchNumberOpeningIdentity("not-a-number"), null);
-  assert.equal(await fetchNumberOpeningContext(Number.MAX_SAFE_INTEGER + 1), null);
-  assert.equal(await fetchNumberOpeningContext("not-a-number"), null);
-  assert.equal(await fetchNumberOpeningContext(null), null);
-  assert.equal(await fetchNumberOpeningContext("  "), null);
+  const invalid = [
+    null,
+    undefined,
+    "",
+    " ",
+    "\t",
+    false,
+    true,
+    [],
+    {},
+    "1e3",
+    -1,
+    "-1",
+    1.5,
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.MAX_SAFE_INTEGER + 1,
+    String(Number.MAX_SAFE_INTEGER + 1),
+    "not-a-number",
+  ];
+  for (const value of invalid) {
+    assert.equal(await fetchNumberOpeningIdentity(value), null, `identity rejects ${JSON.stringify(value)}`);
+    assert.equal(await fetchNumberOpeningContext(value), null, `combined seam rejects ${JSON.stringify(value)}`);
+  }
   assert.deepEqual(calls, []);
 });

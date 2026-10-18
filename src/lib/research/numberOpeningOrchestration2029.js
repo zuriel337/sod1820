@@ -174,7 +174,15 @@ export function createNumberOpeningOrchestrator({
     const root = rootValue(rootInput);
     const key = projectionKey("depth", root, accessContext);
     return request(depthRequests, key, async () => {
-      const depthModule = await loadDepthModule();
+      let depthModule;
+      try {
+        depthModule = await loadDepthModule();
+      } catch (cause) {
+        const error = new Error("NUMBER_DEPTH_MODULE_UNAVAILABLE");
+        error.code = "NUMBER_DEPTH_MODULE_UNAVAILABLE";
+        error.cause = cause;
+        throw error;
+      }
       if (typeof depthModule?.fetchEntityHubProjection !== "function") {
         const error = new Error("NUMBER_DEPTH_MODULE_UNAVAILABLE");
         error.code = "NUMBER_DEPTH_MODULE_UNAVAILABLE";
