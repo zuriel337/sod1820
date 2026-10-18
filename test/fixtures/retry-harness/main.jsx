@@ -25,6 +25,6 @@ function StubStory() {
 
 let root = null;
 window.__api = {
-  mount(which, props = {}) { root = createRoot(document.getElementById("root")); root.render(<MemoryRouter>{which === "gateways" ? <DiscoveryGateways2029 {...props} /> : <HomeComposition2029 worldOpen worldPending={false} onOpenWorkspace={() => {}} story={props.withStory ? <StubStory /> : undefined} {...props} />}</MemoryRouter>); },
+  mount(which, props = {}) { root = createRoot(document.getElementById("root")); root.render(<MemoryRouter>{which === "gateways" ? <DiscoveryGateways2029 {...props} /> : <HomeComposition2029 worldOpen worldPending={false} onOpenWorkspace={() => {}} onWorldPreviewApproach={props.watchWorldPreview ? () => window.__calls.push("world-preview") : undefined} story={props.withStory ? <StubStory /> : undefined} {...props} />}</MemoryRouter>); },
   unmount() { root?.unmount(); root = null; },
 };

@@ -32,6 +32,9 @@ const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown
 // The convergence strip is secondary to the Hero and latest updates. Begin its reader shortly
 // before the strip's position reaches the viewport instead of competing with the opening path.
 export const HOME_NOTABLE_ROOT_MARGIN = "500px 0px";
+// World arrivals and people are farther down the page and fan out to several public readers.
+// Give that projection a longer lead, while keeping it out of the cold opening path.
+export const HOME_WORLD_PREVIEW_ROOT_MARGIN = "800px 0px";
 // Presentation memory only (never data): how many cards the strips showed the last time Home was on screen in this
 // session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load): the updates strip reserves
 // the standard four cards (the strip is in the first screen on a wide page: without them everything below it jumps when the cards arrive),
@@ -173,7 +176,7 @@ function Section({ title, link, label, children, className = "" }) {
 
 export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
-  selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false, worldPending,
+  selectedSlug, onSelectPost, onOpenWorkspace, onWorldPreviewApproach, journeyLocked = false, corePublic = false, worldOpen = false, worldPending,
 }) {
   const [notableRequested, setNotableRequested] = useState(false);
   const notableTriggerRef = useRef(null);
@@ -193,6 +196,25 @@ export default function HomeComposition2029({
     observer.observe(node);
     return () => observer.disconnect();
   }, [worldOpen, notableRequested]);
+  const [worldPreviewRequested, setWorldPreviewRequested] = useState(false);
+  const worldPreviewTriggerRef = useRef(null);
+  useEffect(() => {
+    if (worldPreviewRequested) return undefined;
+    const node = worldPreviewTriggerRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setWorldPreviewRequested(true);
+      onWorldPreviewApproach?.();
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      setWorldPreviewRequested(true);
+      onWorldPreviewApproach?.();
+    }, { rootMargin: HOME_WORLD_PREVIEW_ROOT_MARGIN });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [onWorldPreviewApproach, worldPreviewRequested]);
   const data = useHomeCompositionData({ includeWorld: worldOpen, loadNotable: notableRequested });
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
@@ -298,6 +320,7 @@ export default function HomeComposition2029({
 
     {story && showFixedStory ? <Reveal id="story" remember>{story}</Reveal> : null}
 
+    <div ref={worldPreviewTriggerRef} className="h29-world-preview-trigger" data-h29-world-preview-load-state={worldPreviewRequested ? "armed" : "deferred"} />
     <DiscoveryGateways2029 excludedPostKeys={reservedPostKeys} />
 
     {arrivals ? <Reveal id="arrivals">{typeof arrivals === "function" ? arrivals(homeArrivals) : arrivals}</Reveal> : null}
