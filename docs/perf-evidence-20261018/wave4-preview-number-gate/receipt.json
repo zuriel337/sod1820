@@ -1,0 +1,49 @@
+{
+  "base": {
+    "branch": "gpt/perf-unified-wave4-20261018",
+    "commit": "5a26aee5493dda6504815332d0f7ee0ae23f4d14"
+  },
+  "implementation": {
+    "branch": "gpt/perf-wave4-preview-number-gate-20261018",
+    "codeCommit": "6e280324f0d0e1648642df0d65718970b7469cec"
+  },
+  "localPreviewBuild": {
+    "commit": "6e280324f0d0e1648642df0d65718970b7469cec",
+    "branch": "gpt/perf-unified-wave4-preview-20261018",
+    "host": "sod1820-wave4-number-test-sod1820-s-projects.vercel.app",
+    "buildTarget": "2029",
+    "vercelEnv": "preview",
+    "workerScript": "/preview-readonly-sw.js?build=6e280324f0d0e1648642df0d65718970b7469cec",
+    "manifestSha256": "b62b146e9602b0b764ac3dd0149de6ba841a225a810c2e4727ad574cbe41c0b2",
+    "htmlSha256": "0ec6d404be89434338c47d1064719a83e962de90f6e7cb1aad39aaba03ca90fc",
+    "workerSha256": "b6f5da08be19b1b1ccd54d4852833772b692f179fd6c5683560cefad3954cc28",
+    "identitySha256": "b5c259f2160078a1fe2ef3406bffe719b114602ebd33cf6f2895f376c6022ffd",
+    "readOnly": true,
+    "numberReviewPreviewOpen": true,
+    "previewOverrides": [
+      "lock_number"
+    ]
+  },
+  "verification": {
+    "browserAndContractTests": {
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    "bundleBudgetTests": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0
+    },
+    "legacyAnd2029Build": "passed",
+    "failClosedBuilderCases": {
+      "productionEnvironment": "rejected",
+      "differentBranch": "rejected",
+      "invalidCommit": "rejected",
+      "invalidHost": "rejected"
+    }
+  },
+  "decision": "GO_FOR_WAVE4_PREVIEW_INTEGRATION_AND_HOSTED_ACCEPTANCE",
+  "deployed": false,
+  "databaseOrLiveFlagWrites": false
+}
