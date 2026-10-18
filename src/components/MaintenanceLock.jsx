@@ -1,8 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
-import { projectNumberReviewFlag2029 } from "../lib/numberReviewPreview2029.js";
+import {
+  isNumberReviewPreviewRuntime2029,
+  isValidNumberReviewFlag2029,
+  projectNumberReviewFlag2029,
+} from "../lib/numberReviewPreview2029.js";
 import { LOGO_URL } from "../theme.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
@@ -11,8 +15,34 @@ import { LOGO_URL } from "../theme.js";
 // mode ב-DB: 'all' = כולם חסומים (חוץ מאדמין) · 'anon' = משתמשים רשומים עוברים.
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
+let numberPreviewAutomaticRetry = null;
 
-export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
+function numberPreviewNavigationIdentity() {
+  if (typeof window === "undefined") return "server";
+  return JSON.stringify([
+    typeof window.history?.state?.key === "string" ? window.history.state.key : "",
+    window.location?.pathname || "",
+    window.location?.search || "",
+    window.location?.hash || "",
+  ]);
+}
+
+function readNumberPreviewFlagFreshOnce() {
+  const identity = numberPreviewNavigationIdentity();
+  if (numberPreviewAutomaticRetry?.identity === identity) return numberPreviewAutomaticRetry.promise;
+  const promise = getSiteFlags({ fresh: true }).catch(() => ({}));
+  numberPreviewAutomaticRetry = { identity, promise };
+  return promise;
+}
+
+export function MaintenanceLock({
+  message,
+  showLogin = false,
+  alternatives = false,
+  homeHref = "/",
+  onRetry = null,
+  retrying = false,
+}) {
   return (
     <div className="mlock" role="status" aria-live="polite">
       <style>{`
@@ -29,6 +59,9 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
         .mlock a.mlock-cta{display:inline-block;margin-top:20px;background:#e8c84a;color:#1a0e00;
           font-weight:800;font-size:15px;padding:11px 30px;border-radius:999px;}
         .mlock a.mlock-cta:hover{text-decoration:none;filter:brightness(1.06);}
+        .mlock button.mlock-retry{margin-top:20px;background:transparent;color:#e8c84a;border:1px solid currentColor;
+          font:800 15px 'Heebo','Assistant',system-ui,sans-serif;padding:10px 26px;border-radius:999px;cursor:pointer;}
+        .mlock button.mlock-retry:disabled{cursor:wait;opacity:.6;}
         @media (prefers-color-scheme:light){
           .mlock h1{color:#6d4e0b;} .mlock p{color:#33260a;} .mlock a{color:#8a5a0a;}
           .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
@@ -57,6 +90,11 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
           <Link className="mlock-cta" to="/gematria">🧮 למחשבון הגימטריה</Link>
           <Link className="mlock-cta" to="/code">🔠 לדילוגי אותיות</Link>
         </div>
+      )}
+      {onRetry && (
+        <button className="mlock-retry" type="button" onClick={onRetry} disabled={retrying}>
+          {retrying ? "בודקים שוב…" : "בדיקה חוזרת"}
+        </button>
       )}
       <div className="sub"><Link to={homeHref}>← לעמוד הבית</Link></div>
     </div>
@@ -90,15 +128,41 @@ export function LockTeaser({ message, showLogin = false }) {
 
 // hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
 export function useSiteFlag(flag) {
-  const [st, setSt] = useState({ loading: true, lock: null });
+  const [attempt, setAttempt] = useState(0);
+  const [st, setSt] = useState({ loading: true, lock: null, canRetry: false, retrying: false });
+  const retry = useCallback(() => setAttempt(value => value + 1), []);
   useEffect(() => {
     let alive = true;
-    getSiteFlags()
-      .then(f => { if (alive) setSt({ loading: false, lock: projectNumberReviewFlag2029(flag, f[flag] || null) }); })
-      .catch(() => { if (alive) setSt({ loading: false, lock: null }); });
+    const numberPreview = flag === "lock_number" && isNumberReviewPreviewRuntime2029();
+    if (attempt > 0) setSt(previous => ({ ...previous, canRetry: false, retrying: true }));
+    (async () => {
+      let flags = await getSiteFlags(attempt > 0 ? { fresh: true } : undefined);
+      let lock = flags?.[flag] || null;
+      let validNumberGate = flag !== "lock_number" || isValidNumberReviewFlag2029(flag, lock);
+
+      // The exact Number review Preview gets one automatic fresh read when its
+      // required canonical row was absent or malformed. A manual retry starts a
+      // new fresh attempt, but never loops in the background.
+      if (numberPreview && attempt === 0 && !validNumberGate) {
+        flags = await readNumberPreviewFlagFreshOnce();
+        lock = flags?.[flag] || null;
+        validNumberGate = isValidNumberReviewFlag2029(flag, lock);
+      }
+
+      if (!alive) return;
+      const safeLock = flag === "lock_number" && !validNumberGate ? null : lock;
+      setSt({
+        loading: false,
+        lock: projectNumberReviewFlag2029(flag, safeLock),
+        canRetry: numberPreview && !validNumberGate,
+        retrying: false,
+      });
+    })().catch(() => {
+      if (alive) setSt({ loading: false, lock: null, canRetry: numberPreview, retrying: false });
+    });
     return () => { alive = false; };
-  }, [flag]);
-  return st;
+  }, [flag, attempt]);
+  return { ...st, retry };
 }
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
@@ -141,19 +205,28 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false, requir
 // canonical hook for every feature-controlled surface.
 export function useFeatureState(flag, { requireFlag = false } = {}) {
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const { loading, lock } = useSiteFlag(flag);
+  const { loading, lock, canRetry, retrying, retry } = useSiteFlag(flag);
   return useMemo(() => ({
     flag,
     loading: loading || authLoading,
     lock,
+    canRetry,
+    retrying,
+    retry,
     ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
-  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
+  }), [flag, loading, authLoading, lock, canRetry, retrying, retry, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
 export default function Locked({ flag, children, requireFlag = false, homeHref = "/" }) {
   const state = useFeatureState(flag, { requireFlag });
   if (state.loading) return null;
-  if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
+  if (state.blocked) return <MaintenanceLock
+    message={state.message}
+    showLogin={state.showLogin}
+    homeHref={homeHref}
+    onRetry={state.canRetry ? state.retry : null}
+    retrying={state.retrying}
+  />;
   return children;
 }
