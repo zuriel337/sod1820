@@ -1,0 +1,39 @@
+[
+  {
+    "event": "Network.requestWillBeSent",
+    "payload": {
+      "requestId": "token-path",
+      "timestamp": 200.0,
+      "type": "Fetch",
+      "request": {
+        "url": "https://token-fixture.example.test/private/sessionid/fixtureNakedSecret?token=x-fixture-token&select=id",
+        "method": "GET"
+      },
+      "initiator": {
+        "type": "script",
+        "url": "https://preview.example.test/secret-path/redirect-secret"
+      }
+    }
+  },
+  {
+    "event": "Network.loadingFailed",
+    "payload": {
+      "requestId": "token-path",
+      "timestamp": 200.1,
+      "errorText": "net::ERR_FAILED naked=fixtureNakedSecret"
+    }
+  },
+  {
+    "event": "Network.requestWillBeSent",
+    "payload": {
+      "requestId": "ftp",
+      "timestamp": 200.2,
+      "type": "Other",
+      "request": {
+        "url": "ftp://ftp.example.test/token-path/fixtureNakedSecret?sessionid=x-fixture-token",
+        "method": "GET"
+      },
+      "initiator": {"type": "other"}
+    }
+  }
+]

@@ -1,0 +1,80 @@
+{
+  "cli_defaults": {
+    "ab_first": "a",
+    "ab_mode": false,
+    "samples_per_arm": 3,
+    "tokens": {
+      "a": null,
+      "b": null
+    }
+  },
+  "legacy_aggregate": [
+    {
+      "blocked_by_category": {},
+      "lcp_range_ms": [100, 100],
+      "median_cls": 0,
+      "median_flag_wait_ms": 100,
+      "median_lcp_ms": 100,
+      "median_long_task_count": 0,
+      "median_long_task_total_ms": 0,
+      "median_requests": 2,
+      "median_transfer_bytes": 900,
+      "median_usable_ms": 120,
+      "mode": "cold-direct",
+      "profile": "mobile",
+      "route": "home",
+      "samples": 1,
+      "successful_samples": 1,
+      "usable_range_ms": [120, 120]
+    }
+  ],
+  "legacy_network_summary": {
+    "critical_tail": [
+      {
+        "decoded_body_bytes": 1000,
+        "duration_ms": 500.0,
+        "encoded_bytes": 900,
+        "end_ms": 500.0,
+        "method": "GET",
+        "start_ms": 0.0,
+        "state": "completed",
+        "status": 200,
+        "type": "Script",
+        "url": "/assets/app.js?[redacted-key-ba79139a322e]&v"
+      }
+    ],
+    "failed_allowed_requests": [
+      {
+        "decoded_body_bytes": 0,
+        "duration_ms": 100.0,
+        "encoded_bytes": 0,
+        "end_ms": 700.0,
+        "method": "GET",
+        "start_ms": 600.0,
+        "state": "failed",
+        "status": null,
+        "type": "Fetch",
+        "url": "/rest/v1/site_flags?select"
+      }
+    ],
+    "flag_request_count": 1,
+    "flag_response_end_ms": 700.0,
+    "flag_wait_ms": 100.0,
+    "request_count": 2,
+    "top_critical_durations": [
+      {
+        "decoded_body_bytes": 1000,
+        "duration_ms": 500.0,
+        "encoded_bytes": 900,
+        "end_ms": 500.0,
+        "method": "GET",
+        "start_ms": 0.0,
+        "state": "completed",
+        "status": 200,
+        "type": "Script",
+        "url": "/assets/app.js?[redacted-key-ba79139a322e]&v"
+      }
+    ],
+    "transfer_bytes": 900
+  }
+}

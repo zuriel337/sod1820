@@ -3,6 +3,7 @@ import asyncio
 import gzip
 import hashlib
 import http.server
+import ipaddress
 import json
 import mimetypes
 import os
@@ -12,7 +13,7 @@ import statistics
 import sys
 import threading
 import time
-from urllib.parse import parse_qsl, unquote, urlparse, urlunparse
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urljoin, urlparse, urlunparse
 
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
@@ -138,50 +139,165 @@ CAPTURED_RESOURCE_TYPES = {
     "Document", "Script", "Stylesheet", "Fetch", "XHR", "Image", "Font"
 }
 
-SENSITIVE_ASSIGNMENT_RE = re.compile(
-    r"(?i)[\"']?\b(_vercel_share|access[_-]?token|refresh[_-]?token|api[_-]?key|apikey|"
-    r"x-amz-signature|x-goog-signature|token|secret|signature|sig|key|auth|authorization|"
-    r"cookie|password)\b[\"']?\s*[:=]\s*[\"']?([^\s&,;}\"']+)"
+SAFE_QUERY_KEYS = {
+    "alt", "apikey", "columns", "count", "download", "format", "head", "height",
+    "limit", "offset", "on_conflict", "order", "or", "select", "slug", "tags", "v",
+    "width",
+}
+SENSITIVE_NAME_RE = re.compile(
+    r"(?i)(?:^|[-_.])(access|api|auth|bearer|cookie|credential|key|password|refresh|secret|"
+    r"session|sessionid|sig|signature|token|vercel_share)(?:$|[-_.])"
 )
-BEARER_RE = re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]+")
-HTTP_URL_RE = re.compile(r"https?://[^\s\"'<>]+")
+SECRET_PREFIX_RE = re.compile(
+    r"(?i)^(?:sk|pk|rk|ghp|github_pat|xox[aboprs]|sb_publishable|sb_secret|eyj)[-_\.][A-Za-z0-9._~-]+$"
+)
+HOST_SENSITIVE_RE = re.compile(
+    r"(?i)(?:^|[-_])(bearer|cookie|credential|password|secret|session|sessionid|sig|signature|token)(?:$|[-_])"
+)
+HEX_OR_UUID_RE = re.compile(r"(?i)^(?:[0-9a-f]{20,}|[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})$")
+NET_ERROR_RE = re.compile(r"net::(ERR_[A-Z0-9_]+)")
+SAFE_ERROR_KINDS = {"console", "pageerror", "network", "runner", "auth"}
+PRODUCTION_DB_ORIGINS = {"https://linswmnnkjxvweumprav.supabase.co"}
+
+
+class TargetValidationError(ValueError):
+    """Raised before credentials are read or a browser/server is launched."""
+
+
+def _fingerprint(value, length=12):
+    return hashlib.sha256(str(value).encode("utf-8", "replace")).hexdigest()[:length]
+
+
+def _safe_scheme(value):
+    scheme = (value or "").lower()
+    return scheme if scheme in {"http", "https"} else None
+
+
+def _looks_sensitive(value):
+    decoded = unquote(str(value or ""))
+    if not decoded:
+        return False
+    lowered = decoded.lower()
+    if any(marker in lowered for marker in ("secret", "sessionid", "signature", "token")):
+        return True
+    if SENSITIVE_NAME_RE.search(decoded) or SECRET_PREFIX_RE.match(decoded) or HEX_OR_UUID_RE.match(decoded):
+        return True
+    if len(decoded) >= 32 and re.fullmatch(r"[A-Za-z0-9_~+/=-]+", decoded):
+        return True
+    return False
+
+
+def _redacted_segment(segment):
+    decoded = unquote(segment)
+    suffix = pathlib.PurePosixPath(decoded).suffix
+    safe_suffix = suffix.lower() if re.fullmatch(r"\.[a-z0-9]{1,8}", suffix.lower()) else ""
+    return f"[segment-{_fingerprint(decoded)}]{safe_suffix}"
+
+
+def sanitize_path(path):
+    """Preserve ordinary route identity but fingerprint secret-like path segments."""
+    raw = path or "/"
+    leading = raw.startswith("/")
+    trailing = raw.endswith("/") and raw != "/"
+    output = []
+    for segment in raw.split("/"):
+        if not segment:
+            continue
+        decoded = unquote(segment)
+        if re.fullmatch(r"\[segment-[0-9a-f]{12}\](?:\.[a-z0-9]{1,8})?", decoded):
+            output.append(decoded)
+        elif _looks_sensitive(decoded) or len(decoded) > 96 or not re.fullmatch(r"[\w.()~@+-]+", decoded, re.UNICODE):
+            output.append(_redacted_segment(segment))
+        else:
+            output.append(quote(decoded, safe="-._~()@+"))
+    sanitized = ("/" if leading else "") + "/".join(output)
+    if trailing and sanitized:
+        sanitized += "/"
+    return sanitized or "/"
+
+
+def sanitize_query_key(key):
+    decoded = unquote(str(key or ""))
+    if re.fullmatch(r"\[(?:redacted-key|key)-[0-9a-f]{12}\]", decoded):
+        return decoded
+    lowered = decoded.lower()
+    if lowered in SAFE_QUERY_KEYS and not SENSITIVE_NAME_RE.search(decoded):
+        return decoded
+    if _looks_sensitive(decoded):
+        return f"[redacted-key-{_fingerprint(decoded)}]"
+    return f"[key-{_fingerprint(decoded)}]"
+
+
+def sanitize_query_keys(query_or_pairs):
+    if isinstance(query_or_pairs, str):
+        pairs = parse_qsl(query_or_pairs, keep_blank_values=True)
+    else:
+        pairs = list(query_or_pairs or [])
+    return sorted({sanitize_query_key(key) for key, _ in pairs})
+
+
+def sanitize_host(host):
+    value = (host or "").lower().rstrip(".")
+    if not value:
+        return ""
+    labels = []
+    for label in value.split("."):
+        sensitive = HOST_SENSITIVE_RE.search(label) or SECRET_PREFIX_RE.match(label) or len(label) > 63
+        labels.append(f"redacted-{_fingerprint(label)}" if sensitive else label)
+    return ".".join(labels)
 
 
 def sanitize_url(url, path_only=False):
-    """Keep route identity while discarding credentials, fragments and query values."""
+    """Return only HTTP(S) route identity; discard values, credentials and fragments."""
     if not url:
         return ""
-    parsed = urlparse(url)
-    query_keys = sorted({key for key, _ in parse_qsl(parsed.query, keep_blank_values=True)})
-    safe_query = "&".join(query_keys)
-    path = parsed.path or "/"
-    if path_only or not parsed.scheme or not parsed.netloc:
+    try:
+        parsed = urlparse(str(url))
+    except ValueError:
+        return "[invalid-url]"
+    safe_query = "&".join(sanitize_query_keys(parsed.query))
+    path = sanitize_path(parsed.path or "/")
+    if path_only or (not parsed.scheme and not parsed.netloc):
         return urlunparse(("", "", path, "", safe_query, ""))
-    host = parsed.hostname or ""
+    scheme = _safe_scheme(parsed.scheme)
+    if not scheme:
+        return "[unsupported-url]"
+    host = sanitize_host(parsed.hostname)
     try:
         port = parsed.port
     except ValueError:
         port = None
-    if port:
+    if port and not ((scheme == "https" and port == 443) or (scheme == "http" and port == 80)):
         host = f"{host}:{port}"
-    return urlunparse((parsed.scheme, host, path, "", safe_query, ""))
+    return urlunparse((scheme, host, path, "", safe_query, ""))
+
+
+def diagnostic_code(value):
+    text = str(value or "")
+    net_error = NET_ERROR_RE.search(text)
+    if net_error:
+        return net_error.group(1).lower().replace("_", "-")
+    lowered = text.lower()
+    if "timeout" in lowered:
+        return "timeout"
+    if "closed" in lowered or "destroyed" in lowered:
+        return "target-closed"
+    if "navigation" in lowered:
+        return "navigation-failed"
+    return "runtime-error"
 
 
 def sanitize_diagnostic_text(value):
-    """Bound diagnostics without retaining URL values, tokens or console payloads."""
-    text = str(value or "")[:2000]
-    text = HTTP_URL_RE.sub(lambda match: sanitize_url(match.group(0)), text)
-    text = SENSITIVE_ASSIGNMENT_RE.sub(lambda match: f"{match.group(1)}=[REDACTED]", text)
-    text = BEARER_RE.sub("Bearer [REDACTED]", text)
-    return text[:500]
+    """Compatibility helper: emit a category/fingerprint, never free error text."""
+    return f"{diagnostic_code(value)}:{_fingerprint(value)}"
 
 
 def safe_error(kind, value):
-    message = sanitize_diagnostic_text(value)
+    safe_kind = kind if kind in SAFE_ERROR_KINDS else "runner"
     return {
-        "kind": kind,
-        "message": message,
-        "message_sha256": hashlib.sha256(message.encode("utf-8", "replace")).hexdigest(),
+        "kind": safe_kind,
+        "code": diagnostic_code(value),
+        "fingerprint_sha256": hashlib.sha256(str(value or "").encode("utf-8", "replace")).hexdigest(),
     }
 
 
@@ -189,8 +305,192 @@ def runner_sha256():
     return hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
 
 
+def _host_with_port(parsed, scheme):
+    host = (parsed.hostname or "").lower()
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise TargetValidationError("target-port-invalid") from exc
+    if port and not ((scheme == "https" and port == 443) or (scheme == "http" and port == 80)):
+        host = f"{host}:{port}"
+    return host
+
+
+def is_loopback_host(host):
+    value = (host or "").lower().rstrip(".")
+    if value == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(value).is_loopback
+    except ValueError:
+        return False
+
+
+def normalize_origin(value, *, allow_loopback_http=False, label="origin"):
+    """Normalize an origin and reject paths, credentials, query values and unsafe schemes."""
+    if not value or not isinstance(value, str):
+        raise TargetValidationError(f"{label}-missing")
+    try:
+        parsed = urlparse(value)
+        scheme = _safe_scheme(parsed.scheme)
+        host = (parsed.hostname or "").lower()
+    except ValueError as exc:
+        raise TargetValidationError(f"{label}-invalid") from exc
+    if not scheme or not host:
+        raise TargetValidationError(f"{label}-must-be-http-origin")
+    if parsed.username is not None or parsed.password is not None:
+        raise TargetValidationError(f"{label}-credentials-forbidden")
+    if parsed.query or parsed.fragment or parsed.params or parsed.path not in {"", "/"}:
+        raise TargetValidationError(f"{label}-must-not-contain-path-query-or-fragment")
+    if host.endswith("."):
+        raise TargetValidationError(f"{label}-trailing-dot-forbidden")
+    if scheme != "https" and not (allow_loopback_http and is_loopback_host(host)):
+        raise TargetValidationError(f"{label}-https-required")
+    return f"{scheme}://{_host_with_port(parsed, scheme)}"
+
+
+def request_origin(url):
+    try:
+        parsed = urlparse(str(url or ""))
+        scheme = _safe_scheme(parsed.scheme)
+        hostname = parsed.hostname
+    except ValueError:
+        return None
+    if not scheme or not hostname or parsed.username is not None or parsed.password is not None:
+        return None
+    try:
+        return f"{scheme}://{_host_with_port(parsed, scheme)}"
+    except TargetValidationError:
+        return None
+
+
+def build_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dist")
+    parser.add_argument("--origin")
+    parser.add_argument("--auth-origin")
+    parser.add_argument("--share-token-stdin", action="store_true")
+    parser.add_argument("--origin-b")
+    parser.add_argument("--auth-origin-b")
+    parser.add_argument("--share-token-b-stdin", action="store_true")
+    parser.add_argument("--sha-b")
+    parser.add_argument("--samples-per-arm", type=int)
+    parser.add_argument("--ab-first", choices=("a", "b"), default="a")
+    parser.add_argument(
+        "--allow-preview-origin", action="append", default=[], metavar="HTTPS_ORIGIN",
+        help="exact hosted Preview origin; repeat for each A/B arm",
+    )
+    parser.add_argument(
+        "--allow-db-origin", action="append", default=[], metavar="HTTPS_ORIGIN",
+        help="exact read-only database origin; Production is rejected unless separately acknowledged",
+    )
+    parser.add_argument("--allow-production-db", action="store_true")
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--sha", required=True)
+    return parser
+
+
+def _validate_sha(value, label):
+    if not re.fullmatch(r"[0-9a-fA-F]{7,64}", value or ""):
+        raise TargetValidationError(f"{label}-must-be-hex-commit")
+    return value.lower()
+
+
+def validate_targets(args):
+    """Validate every network target before stdin tokens, servers or browsers exist."""
+    if bool(args.dist) == bool(args.origin):
+        raise TargetValidationError("provide-exactly-one-dist-or-origin")
+    ab_mode = bool(args.origin_b)
+    if ab_mode and (args.dist or not args.sha_b):
+        raise TargetValidationError("ab-requires-origin-origin-b-sha-b")
+    if args.sha_b and not ab_mode:
+        raise TargetValidationError("sha-b-requires-origin-b")
+    if args.dist and any((args.auth_origin, args.auth_origin_b, args.share_token_stdin, args.share_token_b_stdin)):
+        raise TargetValidationError("local-dist-does-not-accept-preview-auth")
+    if args.origin_b is None and any((args.auth_origin_b, args.share_token_b_stdin)):
+        raise TargetValidationError("arm-b-auth-requires-origin-b")
+    if bool(args.auth_origin) != bool(args.share_token_stdin):
+        raise TargetValidationError("arm-a-auth-and-token-stdin-must-be-paired")
+    if bool(args.auth_origin_b) != bool(args.share_token_b_stdin):
+        raise TargetValidationError("arm-b-auth-and-token-stdin-must-be-paired")
+
+    samples_per_arm = args.samples_per_arm if args.samples_per_arm is not None else (7 if ab_mode else 3)
+    if samples_per_arm < 1:
+        raise TargetValidationError("samples-per-arm-must-be-positive")
+    if ab_mode and samples_per_arm < 7:
+        raise TargetValidationError("ab-requires-at-least-seven-samples-per-arm")
+
+    exact_preview_origins = {
+        normalize_origin(value, label="allow-preview-origin") for value in args.allow_preview_origin
+    }
+    db_origins = {
+        normalize_origin(value, label="allow-db-origin") for value in args.allow_db_origin
+    }
+    production_db_requested = bool(db_origins & PRODUCTION_DB_ORIGINS)
+    if production_db_requested and not args.allow_production_db:
+        raise TargetValidationError("production-db-origin-requires-explicit-acknowledgement")
+    if args.allow_production_db and not production_db_requested:
+        raise TargetValidationError("production-db-acknowledgement-without-exact-origin")
+
+    arms = {}
+    if args.dist:
+        arms["a"] = {
+            "origin": None,
+            "auth_origin": None,
+            "sha": _validate_sha(args.sha, "sha"),
+        }
+    else:
+        origin_a = normalize_origin(args.origin, label="origin")
+        if origin_a not in exact_preview_origins:
+            raise TargetValidationError("origin-not-in-exact-preview-allowlist")
+        auth_a = normalize_origin(args.auth_origin, label="auth-origin") if args.auth_origin else None
+        if auth_a and auth_a != origin_a:
+            raise TargetValidationError("auth-origin-a-must-equal-arm-origin")
+        arms["a"] = {
+            "origin": origin_a,
+            "auth_origin": auth_a,
+            "sha": _validate_sha(args.sha, "sha"),
+        }
+        if ab_mode:
+            origin_b = normalize_origin(args.origin_b, label="origin-b")
+            if origin_b not in exact_preview_origins:
+                raise TargetValidationError("origin-b-not-in-exact-preview-allowlist")
+            auth_b = normalize_origin(args.auth_origin_b, label="auth-origin-b") if args.auth_origin_b else None
+            if auth_b and auth_b != origin_b:
+                raise TargetValidationError("auth-origin-b-must-equal-arm-origin")
+            arms["b"] = {
+                "origin": origin_b,
+                "auth_origin": auth_b,
+                "sha": _validate_sha(args.sha_b, "sha-b"),
+            }
+
+    return {
+        "ab_mode": ab_mode,
+        "samples_per_arm": samples_per_arm,
+        "arms": arms,
+        "db_origins": db_origins,
+        "exact_preview_origins": exact_preview_origins,
+    }
+
+
+def prepare_execution(args, token_reader=None):
+    """Security ordering: target validation completes before the first token read."""
+    config = validate_targets(args)
+    reader = token_reader or sys.stdin.readline
+    tokens = {
+        "a": reader().strip() if args.share_token_stdin else None,
+        "b": reader().strip() if args.share_token_b_stdin else None,
+    }
+    for arm, token in tokens.items():
+        if ((arm == "a" and args.share_token_stdin) or (arm == "b" and args.share_token_b_stdin)) and not token:
+            raise TargetValidationError(f"arm-{arm}-share-token-empty")
+    return config, tokens
+
+
 def build_ab_order(samples_per_arm, first_arm="a"):
-    """Alternate pair order deterministically: AB, BA, AB ... (or the inverse)."""
+    """Counterbalance each complete pair deterministically: AB, BA, AB ... ."""
     if samples_per_arm < 1:
         raise ValueError("samples_per_arm must be positive")
     if first_arm not in {"a", "b"}:
@@ -397,6 +697,101 @@ def rpc_name_from_url(url):
     return path.rsplit("/", 1)[-1]
 
 
+def network_decision(url, method, arm_origin, db_origins):
+    """Default-deny decision for page traffic; returns no raw URL material."""
+    try:
+        parsed = urlparse(str(url or ""))
+    except ValueError:
+        return False, "unsupported-scheme-or-origin", "invalid", None
+    scheme = _safe_scheme(parsed.scheme)
+    normalized_request_origin = request_origin(url)
+    normalized_method = str(method or "").upper()
+    if not scheme or not normalized_request_origin:
+        return False, "unsupported-scheme-or-origin", "invalid", None
+
+    if normalized_request_origin == arm_origin:
+        if normalized_method in {"GET", "HEAD", "OPTIONS"}:
+            return True, "arm-read", "arm", None
+        return False, classify_blocked(url, normalized_method), "arm", None
+
+    if normalized_request_origin in db_origins:
+        path = parsed.path or "/"
+        rpc_name = rpc_name_from_url(url)
+        if "/auth/v1/" in path:
+            return False, "identity", "db", None
+        if normalized_method in {"GET", "HEAD", "OPTIONS"} and (
+            path.startswith("/rest/v1/") or path.startswith("/storage/v1/object/public/")
+        ):
+            return True, "db-read", "db", None
+        if normalized_method == "POST" and rpc_name in READ_ONLY_RPCS:
+            return True, "approved-read-only-rpc", "db", rpc_name
+        return False, classify_blocked(url, normalized_method), "db", (
+            rpc_name if rpc_name in READ_ONLY_RPCS | ANALYTICS_WRITE_RPCS else None
+        )
+
+    host = parsed.hostname or ""
+    if any(fragment in host for fragment in ANALYTICS_HOST_FRAGMENTS):
+        return False, "analytics", "external", None
+    return False, "origin-not-allowlisted", "external", None
+
+
+def blocked_receipt(url, method, category, destination, rpc_name=None):
+    try:
+        parsed = urlparse(str(url or ""))
+    except ValueError:
+        parsed = urlparse("")
+    scheme = _safe_scheme(parsed.scheme)
+    safe_method = str(method or "").upper()
+    if safe_method not in {"GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"}:
+        safe_method = "OTHER"
+    output = {
+        "scheme": scheme,
+        "method": safe_method,
+        "category": category,
+        "destination": destination,
+        "path_sha256": hashlib.sha256((parsed.path or "/").encode("utf-8", "replace")).hexdigest(),
+        "request_sha256": hashlib.sha256(
+            f"{request_origin(url) or 'invalid-origin'}\n{parsed.path or '/'}".encode("utf-8", "replace")
+        ).hexdigest(),
+        "query_keys": sanitize_query_keys(parsed.query),
+    }
+    if destination == "external":
+        output["origin_sha256"] = hashlib.sha256(
+            (request_origin(url) or "invalid-origin").encode("utf-8", "replace")
+        ).hexdigest()
+    if rpc_name in READ_ONLY_RPCS | ANALYTICS_WRITE_RPCS:
+        output["rpc"] = rpc_name
+    return output
+
+
+def validate_same_origin_redirect(arm_origin, current_url, location):
+    """Resolve one auth redirect without ever returning an unapproved target."""
+    if not location:
+        raise TargetValidationError("preview-auth-redirect-location-missing")
+    target = urljoin(current_url, location)
+    if request_origin(target) != arm_origin:
+        raise TargetValidationError("preview-auth-cross-origin-redirect-blocked")
+    if _safe_scheme(urlparse(target).scheme) != "https":
+        raise TargetValidationError("preview-auth-redirect-https-required")
+    return target
+
+
+async def authenticate_preview(context, arm_origin, share_token, max_hops=5):
+    """Prime a Preview cookie while refusing every cross-origin redirect."""
+    current_url = arm_origin.rstrip("/") + "/?" + urlencode({"_vercel_share": share_token})
+    for _ in range(max_hops + 1):
+        response = await context.request.get(current_url, max_redirects=0, timeout=30000)
+        if 300 <= response.status < 400:
+            current_url = validate_same_origin_redirect(
+                arm_origin, current_url, response.headers.get("location")
+            )
+            continue
+        if not response.ok:
+            raise RuntimeError(f"protected-preview-auth-http-{int(response.status)}")
+        return
+    raise RuntimeError("protected-preview-auth-redirect-limit")
+
+
 def initiator_summary(initiator):
     initiator = initiator or {}
     frame = None
@@ -405,7 +800,8 @@ def initiator_summary(initiator):
     if call_frames:
         frame = call_frames[0]
     source_url = initiator.get("url") or (frame or {}).get("url")
-    output = {"type": initiator.get("type", "other")}
+    raw_type = initiator.get("type", "other")
+    output = {"type": raw_type if raw_type in {"parser", "script", "preload", "preflight", "other"} else "other"}
     if source_url:
         output["url"] = sanitize_url(source_url)
         output["path"] = sanitize_url(source_url, path_only=True)
@@ -430,8 +826,11 @@ def _request_records(requests):
     return list(requests)
 
 
-def summarize_requests(requests, usable_ms, cutoff_ms=None):
+def summarize_requests(requests, usable_ms, cutoff_ms=None, blocked=None):
     cutoff_ms = usable_ms if cutoff_ms is None else cutoff_ms
+    blocked_request_hashes = {
+        item.get("request_sha256") for item in (blocked or []) if item.get("request_sha256")
+    }
     ledger = []
     for raw in _request_records(requests):
         item = dict(raw)
@@ -465,8 +864,11 @@ def summarize_requests(requests, usable_ms, cutoff_ms=None):
     flags = [item for item in settled if "/rest/v1/site_flags" in item.get("path", item.get("url", ""))]
 
     def compact(item):
+        is_blocked = item.get("request_sha256") in blocked_request_hashes
         return {
-            "url": sanitize_url(item.get("path") or item.get("url", ""), path_only=True),
+            "url": "[blocked-path]" if is_blocked else sanitize_url(
+                item.get("path") or item.get("url", ""), path_only=True
+            ),
             "type": item.get("resource_type", item.get("type", "Other")),
             "method": item["method"],
             "status": item.get("status"),
@@ -479,28 +881,38 @@ def summarize_requests(requests, usable_ms, cutoff_ms=None):
         }
 
     def receipt_item(item):
+        is_blocked = item.get("request_sha256") in blocked_request_hashes
         safe_full_url = sanitize_url(item.get("url", ""))
         safe_path = sanitize_url(item.get("path") or item.get("url", ""), path_only=True)
         parsed = urlparse(safe_full_url)
         query_keys = item.get("query_keys")
         if query_keys is None:
-            query_keys = sorted({key for key, _ in parse_qsl(urlparse(item.get("url", "")).query, keep_blank_values=True)})
+            query_keys = sanitize_query_keys(urlparse(item.get("url", "")).query)
+        else:
+            query_keys = sorted({
+                key if str(key).startswith(("[redacted-key-", "[key-")) else sanitize_query_key(key)
+                for key in query_keys
+            })
         initiator = dict(item.get("initiator") or {"type": "other"})
         if initiator.get("url"):
             initiator["url"] = sanitize_url(initiator["url"])
             initiator["path"] = sanitize_url(initiator["url"], path_only=True)
         return {
             "request_index": item.get("request_index"),
-            "url": safe_full_url,
-            "path": safe_path,
-            "host": item.get("host") or parsed.hostname or "",
+            "url": "[blocked-url]" if is_blocked else safe_full_url,
+            "path": "[blocked-path]" if is_blocked else safe_path,
+            "scheme": _safe_scheme(item.get("scheme") or parsed.scheme),
+            "host": "[blocked-host]" if is_blocked else sanitize_host(
+                item.get("host") or parsed.hostname or ""
+            ),
             "query_keys": query_keys,
             "method": item.get("method"),
             "resource_type": item.get("resource_type", item.get("type", "Other")),
             "initiator": initiator,
             "status": item.get("status"),
             "state": item["state"],
-            "failure_reason": sanitize_diagnostic_text(item.get("failure_reason") or item.get("failed")) or None,
+            "failure_code": item.get("failure_code") if item["state"] == "failed" else None,
+            "failure_fingerprint_sha256": item.get("failure_fingerprint_sha256") if item["state"] == "failed" else None,
             "start_ms": round(item.get("start_ms", 0), 1),
             "observed_start_ms": round(item.get("observed_start_ms", 0), 1),
             "end_ms": round(item["end_ms"], 1) if item.get("end_ms") is not None else None,
@@ -537,7 +949,10 @@ def summarize_requests(requests, usable_ms, cutoff_ms=None):
     }
 
 
-async def create_context(browser, profile_name, blocked, errors, auth_origin=None, share_token=None):
+async def create_context(
+    browser, profile_name, blocked, errors, arm_origin, db_origins,
+    auth_origin=None, share_token=None,
+):
     profile = PROFILES[profile_name]
     context = await browser.new_context(
         ignore_https_errors=True,
@@ -554,53 +969,43 @@ async def create_context(browser, profile_name, blocked, errors, auth_origin=Non
     async def boundary(route, request):
         url = request.url
         method = request.method.upper()
-        parsed = urlparse(url)
-        host = parsed.hostname or ""
-        rpc_name = rpc_name_from_url(url)
-        if any(fragment in host for fragment in ANALYTICS_HOST_FRAGMENTS):
-            blocked.append({"url": parsed.path or url, "host": host, "method": method, "category": "analytics"})
-            await route.abort("blockedbyclient")
-            return
-        if method in {"GET", "HEAD", "OPTIONS"}:
+        allowed, category, destination, rpc_name = network_decision(
+            url, method, arm_origin, db_origins
+        )
+        if allowed:
             await route.continue_()
             return
-        if method == "POST" and rpc_name in READ_ONLY_RPCS:
-            await route.continue_()
-            return
-        blocked.append({
-            "url": parsed.path,
-            "host": host,
-            "method": method,
-            "rpc": rpc_name,
-            "category": classify_blocked(url, method),
-        })
+        blocked.append(blocked_receipt(url, method, category, destination, rpc_name))
         await route.abort("blockedbyclient")
 
-    await context.route("**/*", boundary)
-    if hasattr(context, "route_web_socket"):
-        async def block_web_socket(ws):
-            await ws.close()
-        await context.route_web_socket("**/*", block_web_socket)
-    await context.add_init_script(INIT_SCRIPT)
-    if auth_origin and share_token:
-        auth_url = auth_origin.rstrip("/") + "/?_vercel_share=" + share_token
-        auth_response = await context.request.get(auth_url, max_redirects=5, timeout=30000)
-        if not auth_response.ok:
-            raise RuntimeError(f"protected-preview-auth-failed:{auth_response.status}")
-    page = await context.new_page()
-    page.on("pageerror", lambda exc: errors.append(safe_error("pageerror", exc)))
-    page.on("console", lambda msg: errors.append(safe_error("console", msg.text)) if msg.type == "error" else None)
-    cdp = await context.new_cdp_session(page)
-    await cdp.send("Network.enable")
-    await cdp.send("Network.setCacheDisabled", {"cacheDisabled": True})
-    await cdp.send("Emulation.setCPUThrottlingRate", {"rate": profile["cpu_rate"]})
-    await cdp.send("Network.emulateNetworkConditions", {
-        "offline": False,
-        "latency": profile["latency_ms"],
-        "downloadThroughput": profile["download_bps"],
-        "uploadThroughput": profile["upload_bps"],
-    })
-    return context, page, cdp
+    try:
+        await context.route("**/*", boundary)
+        if hasattr(context, "route_web_socket"):
+            async def block_web_socket(ws):
+                await ws.close()
+            await context.route_web_socket("**/*", block_web_socket)
+        await context.add_init_script(INIT_SCRIPT)
+        if auth_origin and share_token:
+            if auth_origin != arm_origin:
+                raise TargetValidationError("auth-origin-must-equal-arm-origin")
+            await authenticate_preview(context, arm_origin, share_token)
+        page = await context.new_page()
+        page.on("pageerror", lambda exc: errors.append(safe_error("pageerror", exc)))
+        page.on("console", lambda msg: errors.append(safe_error("console", msg.text)) if msg.type == "error" else None)
+        cdp = await context.new_cdp_session(page)
+        await cdp.send("Network.enable")
+        await cdp.send("Network.setCacheDisabled", {"cacheDisabled": True})
+        await cdp.send("Emulation.setCPUThrottlingRate", {"rate": profile["cpu_rate"]})
+        await cdp.send("Network.emulateNetworkConditions", {
+            "offline": False,
+            "latency": profile["latency_ms"],
+            "downloadThroughput": profile["download_bps"],
+            "uploadThroughput": profile["upload_bps"],
+        })
+        return context, page, cdp
+    except Exception:
+        await context.close()
+        raise
 
 
 def attach_network_capture(cdp, action_clock, requests):
@@ -642,8 +1047,12 @@ def attach_network_capture(cdp, action_clock, requests):
             "request_index": requests["sequence"],
             "url": sanitize_url(url),
             "path": sanitize_url(url, path_only=True),
-            "host": parsed.hostname or "",
-            "query_keys": sorted({key for key, _ in parse_qsl(parsed.query, keep_blank_values=True)}),
+            "scheme": _safe_scheme(parsed.scheme),
+            "host": sanitize_host(parsed.hostname or ""),
+            "query_keys": sanitize_query_keys(parsed.query),
+            "request_sha256": hashlib.sha256(
+                f"{request_origin(url) or 'invalid-origin'}\n{parsed.path or '/'}".encode("utf-8", "replace")
+            ).hexdigest(),
             "method": request.get("method"),
             "type": event.get("type", "Other"),
             "resource_type": event.get("type", "Other"),
@@ -690,8 +1099,12 @@ def attach_network_capture(cdp, action_clock, requests):
         if record is not None:
             record["end_ms"] = rel(event["timestamp"])
             record["state"] = "failed"
-            record["failure_reason"] = sanitize_diagnostic_text(event.get("errorText", "failed"))
-            record["failed"] = record["failure_reason"]
+            raw_error = event.get("errorText", "failed")
+            record["failure_code"] = diagnostic_code(raw_error)
+            record["failure_fingerprint_sha256"] = hashlib.sha256(
+                str(raw_error).encode("utf-8", "replace")
+            ).hexdigest()
+            record["failed"] = True
             requests["active"].pop(rid, None)
 
     cdp.on("Network.requestWillBeSent", will_send)
@@ -715,7 +1128,7 @@ async def collect_result(page, kind, slug, action_clock, requests, blocked, erro
     metrics = await page.evaluate(METRICS_FUNCTION)
     if metrics.get("lcp_element") and metrics["lcp_element"].get("url"):
         metrics["lcp_element"]["url"] = sanitize_url(metrics["lcp_element"]["url"])
-    req = summarize_requests(requests, usable_ms, cutoff_ms)
+    req = summarize_requests(requests, usable_ms, cutoff_ms, blocked)
     blocked_counts = {}
     blocked_rpcs = []
     for item in blocked:
@@ -744,12 +1157,18 @@ async def collect_result(page, kind, slug, action_clock, requests, blocked, erro
     return result
 
 
-async def direct_sample(browser, origin, profile, kind, path, sample, auth_origin=None, share_token=None):
+async def direct_sample(
+    browser, origin, profile, kind, path, sample, db_origins,
+    auth_origin=None, share_token=None,
+):
     blocked, errors, requests = [], [], new_network_capture()
-    context, page, cdp = await create_context(browser, profile, blocked, errors, auth_origin, share_token)
     action_clock = {"start": time.perf_counter()}
-    attach_network_capture(cdp, action_clock, requests)
+    context = None
     try:
+        context, page, cdp = await create_context(
+            browser, profile, blocked, errors, origin, db_origins, auth_origin, share_token
+        )
+        attach_network_capture(cdp, action_clock, requests)
         await page.goto(origin + path, wait_until="domcontentloaded", timeout=45000)
         slug = path.split("/post/", 1)[1] if kind == "post" else None
         return await collect_result(page, kind, slug, action_clock, requests, blocked, errors, sample, profile, "cold-direct", True)
@@ -757,21 +1176,28 @@ async def direct_sample(browser, origin, profile, kind, path, sample, auth_origi
         cutoff_ms = (time.perf_counter() - action_clock["start"]) * 1000
         return {
             "profile": profile, "mode": "cold-direct", "route": kind, "path": path, "sample": sample,
-            "failure": sanitize_diagnostic_text(exc),
-            **summarize_requests(requests, cutoff_ms, cutoff_ms),
+            "failure": "navigation-or-collection-failed",
+            "failure_detail": safe_error("runner", exc),
+            **summarize_requests(requests, cutoff_ms, cutoff_ms, blocked),
             "blocked_count": len(blocked), "blocked": blocked[:20], "errors": errors[:20],
         }
     finally:
-        await context.close()
+        if context:
+            await context.close()
 
 
-async def internal_sample(browser, origin, profile, sample, auth_origin=None, share_token=None):
+async def internal_sample(
+    browser, origin, profile, sample, db_origins, auth_origin=None, share_token=None,
+):
     blocked, errors, requests = [], [], new_network_capture()
-    context, page, cdp = await create_context(browser, profile, blocked, errors, auth_origin, share_token)
     warm_clock = {"start": time.perf_counter()}
     warm_requests = new_network_capture()
-    attach_network_capture(cdp, warm_clock, warm_requests)
+    context = None
     try:
+        context, page, cdp = await create_context(
+            browser, profile, blocked, errors, origin, db_origins, auth_origin, share_token
+        )
+        attach_network_capture(cdp, warm_clock, warm_requests)
         await page.goto(origin + "/", wait_until="domcontentloaded", timeout=45000)
         await page.wait_for_function(READY_FUNCTION, arg={"kind": "home", "slug": None}, timeout=45000)
         await page.wait_for_timeout(500)
@@ -781,7 +1207,7 @@ async def internal_sample(browser, origin, profile, sample, auth_origin=None, sh
             return {
                 "profile": profile, "mode": "internal-home-to-world", "route": "world", "sample": sample,
                 "failure": "no-visible-world-link", "capture_scope": "home-setup-failure",
-                **summarize_requests(warm_requests, cutoff_ms, cutoff_ms),
+                **summarize_requests(warm_requests, cutoff_ms, cutoff_ms, blocked),
             }
         blocked.clear()
         errors.clear()
@@ -801,12 +1227,14 @@ async def internal_sample(browser, origin, profile, sample, auth_origin=None, sh
         cutoff_ms = (time.perf_counter() - measured_clock["start"]) * 1000
         return {
             "profile": profile, "mode": "internal-home-to-world", "route": "world", "sample": sample,
-            "failure": sanitize_diagnostic_text(exc),
-            **summarize_requests(measured_requests, cutoff_ms, cutoff_ms),
+            "failure": "navigation-or-collection-failed",
+            "failure_detail": safe_error("runner", exc),
+            **summarize_requests(measured_requests, cutoff_ms, cutoff_ms, blocked),
             "blocked_count": len(blocked), "blocked": blocked[:20], "errors": errors[:20],
         }
     finally:
-        await context.close()
+        if context:
+            await context.close()
 
 
 def med(values, digits=1):
@@ -864,35 +1292,102 @@ def annotate_ab_run(run, plan_item):
     return run
 
 
+def assess_ab_acceptance(runs, minimum_successful_pairs=7):
+    """Require complete successful A/B pairs for every route/profile journey."""
+    grouped = {}
+    for run in runs:
+        journey = (run.get("profile"), run.get("mode"), run.get("route"))
+        pair = run.get("ab_pair")
+        arm = run.get("arm")
+        grouped.setdefault(journey, {}).setdefault(pair, {}).setdefault(arm, []).append(run)
+
+    rows = []
+    valid = True
+    for journey, pairs in sorted(grouped.items()):
+        successful_pairs = 0
+        failed_pairs = 0
+        partial_pairs = 0
+        duplicate_pairs = 0
+        arm_success = {"a": 0, "b": 0}
+        for pair_runs in pairs.values():
+            exact_pair = set(pair_runs) == {"a", "b"} and all(
+                len(pair_runs[arm]) == 1 for arm in ("a", "b")
+            )
+            if not exact_pair:
+                partial_pairs += 1
+                if any(len(values) > 1 for values in pair_runs.values()):
+                    duplicate_pairs += 1
+                continue
+            if all(not pair_runs[arm][0].get("failure") for arm in ("a", "b")):
+                successful_pairs += 1
+                arm_success["a"] += 1
+                arm_success["b"] += 1
+            else:
+                failed_pairs += 1
+        row_valid = (
+            successful_pairs >= minimum_successful_pairs
+            and arm_success["a"] >= minimum_successful_pairs
+            and arm_success["b"] >= minimum_successful_pairs
+            and partial_pairs == 0
+        )
+        valid = valid and row_valid
+        rows.append({
+            "profile": journey[0],
+            "mode": journey[1],
+            "route": journey[2],
+            "planned_pairs_seen": len(pairs),
+            "successful_pairs": successful_pairs,
+            "successful_samples_by_arm": arm_success,
+            "failed_pairs": failed_pairs,
+            "partial_pairs": partial_pairs,
+            "duplicate_pairs": duplicate_pairs,
+            "valid": row_valid,
+        })
+
+    expected_journeys = {
+        (profile, "cold-direct", kind) for profile in PROFILES for kind, _ in ROUTES
+    } | {
+        (profile, "internal-home-to-world", "world") for profile in PROFILES
+    }
+    observed_journeys = set(grouped)
+    missing = sorted(expected_journeys - observed_journeys)
+    if missing:
+        valid = False
+        rows.extend({
+            "profile": journey[0],
+            "mode": journey[1],
+            "route": journey[2],
+            "planned_pairs_seen": 0,
+            "successful_pairs": 0,
+            "successful_samples_by_arm": {"a": 0, "b": 0},
+            "failed_pairs": 0,
+            "partial_pairs": 0,
+            "duplicate_pairs": 0,
+            "valid": False,
+        } for journey in missing)
+    if not rows:
+        valid = False
+    return {
+        "mode": "counterbalanced-paired-ab",
+        "minimum_successful_pairs_per_route_profile": minimum_successful_pairs,
+        "partial_pairs_accepted": False,
+        "valid": valid,
+        "journeys": sorted(rows, key=lambda row: (row["profile"], row["mode"], row["route"])),
+    }
+
+
+def result_exit_code(execution_failed, ab_mode, acceptance):
+    return 2 if execution_failed or (ab_mode and not acceptance.get("valid", False)) else 0
+
+
 async def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dist")
-    parser.add_argument("--origin")
-    parser.add_argument("--auth-origin")
-    parser.add_argument("--share-token-stdin", action="store_true")
-    parser.add_argument("--origin-b")
-    parser.add_argument("--auth-origin-b")
-    parser.add_argument("--share-token-b-stdin", action="store_true")
-    parser.add_argument("--sha-b")
-    parser.add_argument("--samples-per-arm", type=int)
-    parser.add_argument("--ab-first", choices=("a", "b"), default="a")
-    parser.add_argument("--output", required=True)
-    parser.add_argument("--sha", required=True)
-    args = parser.parse_args()
-    if bool(args.dist) == bool(args.origin):
-        raise SystemExit("Provide exactly one of --dist or --origin")
-    ab_mode = bool(args.origin_b)
-    if ab_mode and (args.dist or not args.sha_b):
-        raise SystemExit("Alternating A/B mode requires --origin, --origin-b and --sha-b; --dist is single-arm only")
-    if args.sha_b and not ab_mode:
-        raise SystemExit("--sha-b requires --origin-b")
-    samples_per_arm = args.samples_per_arm if args.samples_per_arm is not None else (7 if ab_mode else 3)
-    if samples_per_arm < 1:
-        raise SystemExit("--samples-per-arm must be positive")
-    if ab_mode and samples_per_arm < 7:
-        raise SystemExit("Alternating A/B mode requires at least 7 samples per arm")
-    share_token = sys.stdin.readline().strip() if args.share_token_stdin else None
-    share_token_b = sys.stdin.readline().strip() if args.share_token_b_stdin else None
+    args = build_parser().parse_args()
+    try:
+        validated, tokens = prepare_execution(args)
+    except TargetValidationError as exc:
+        raise SystemExit(str(exc)) from exc
+    ab_mode = validated["ab_mode"]
+    samples_per_arm = validated["samples_per_arm"]
     server = None
     if args.dist:
         GzipSpaHandler.root = pathlib.Path(args.dist).resolve()
@@ -901,13 +1396,14 @@ async def main():
         thread.start()
         origin = f"http://127.0.0.1:{server.server_address[1]}"
         origin_kind = "local-gzip-exact-source-build-not-hosted"
+        validated["arms"]["a"]["origin"] = origin
     else:
-        origin = args.origin.rstrip("/")
+        origin = validated["arms"]["a"]["origin"]
         origin_kind = "hosted-preview-protected-share"
     current_runner_sha256 = runner_sha256()
     receipt = {
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "sha": args.sha,
+        "sha": validated["arms"]["a"]["sha"],
         "origin_kind": origin_kind,
         "origin": sanitize_url(origin),
         "dist": args.dist,
@@ -918,29 +1414,21 @@ async def main():
             "installed_before_navigation": True,
             "allowed_methods": ["GET", "HEAD", "OPTIONS"],
             "allowed_post_rpcs": sorted(READ_ONLY_RPCS),
+            "policy": "default-deny-exact-arm-origin",
+            "exact_db_origins": sorted(validated["db_origins"]),
+            "production_db_explicitly_acknowledged": bool(args.allow_production_db),
             "analytics_hosts_blocked": list(ANALYTICS_HOST_FRAGMENTS),
             "service_workers": "blocked",
             "websockets": "blocked",
         },
         "runs": [],
     }
-    arms = {
-        "a": {
-            "origin": origin,
-            "auth_origin": args.auth_origin,
-            "share_token": share_token,
-            "sha": args.sha,
-        }
-    }
+    arms = validated["arms"]
+    arms["a"]["share_token"] = tokens["a"]
     if ab_mode:
-        arms["b"] = {
-            "origin": args.origin_b.rstrip("/"),
-            "auth_origin": args.auth_origin_b,
-            "share_token": share_token_b,
-            "sha": args.sha_b,
-        }
+        arms["b"]["share_token"] = tokens["b"]
         receipt["comparison"] = {
-            "mode": "deterministic-alternating-ab",
+            "mode": "counterbalanced-paired-ab",
             "samples_per_arm": samples_per_arm,
             "first_pair_order": [args.ab_first, "b" if args.ab_first == "a" else "a"],
             "pair_order_pattern": "AB,BA,AB..." if args.ab_first == "a" else "BA,AB,BA...",
@@ -956,6 +1444,7 @@ async def main():
     ]}
     if proxy:
         launch["proxy"] = {"server": proxy, "bypass": "127.0.0.1,localhost"}
+    execution_failed = False
     try:
         async with async_playwright() as p:
             browser = await p.chromium.launch(**launch)
@@ -970,7 +1459,7 @@ async def main():
                         config = arms[plan_item["arm"]]
                         run = await direct_sample(
                             browser, config["origin"], profile, kind, path, plan_item["sample"],
-                            config["auth_origin"], config["share_token"],
+                            validated["db_origins"], config["auth_origin"], config["share_token"],
                         )
                         if ab_mode:
                             annotate_ab_run(run, plan_item)
@@ -984,20 +1473,39 @@ async def main():
                     config = arms[plan_item["arm"]]
                     run = await internal_sample(
                         browser, config["origin"], profile, plan_item["sample"],
-                        config["auth_origin"], config["share_token"],
+                        validated["db_origins"], config["auth_origin"], config["share_token"],
                     )
                     if ab_mode:
                         annotate_ab_run(run, plan_item)
                     receipt["runs"].append(run)
                     print_run(run)
             await browser.close()
+    except Exception as exc:
+        execution_failed = True
+        receipt["execution_error"] = safe_error("runner", exc)
     finally:
         if server:
             server.shutdown()
             server.server_close()
     receipt["summary"] = aggregate(receipt["runs"])
+    receipt["acceptance"] = (
+        assess_ab_acceptance(receipt["runs"], minimum_successful_pairs=7)
+        if ab_mode else {
+            "mode": "single-arm-compatibility",
+            "valid": None,
+            "reason": "single-arm-mode-is-not-causal-ab-acceptance",
+        }
+    )
     pathlib.Path(args.output).write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"output": args.output, "runner_sha256": current_runner_sha256, "summary": receipt["summary"]}, ensure_ascii=False), flush=True)
+    print(json.dumps({
+        "output": args.output,
+        "runner_sha256": current_runner_sha256,
+        "summary": receipt["summary"],
+        "acceptance": receipt["acceptance"],
+    }, ensure_ascii=False), flush=True)
+    exit_code = result_exit_code(execution_failed, ab_mode, receipt["acceptance"])
+    if exit_code:
+        raise SystemExit(exit_code)
 
 
 if __name__ == "__main__":

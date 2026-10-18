@@ -1,131 +1,170 @@
 # Hosted comparison runner diagnostics
 
-Status: **IMPLEMENTED AND SYNTHETICALLY TESTED · TOOLING ONLY · NOT RUN ON A
-HOSTED PREVIEW · NOT RELEASE EVIDENCE**.
+Status: **NO_GO REMEDIATION IMPLEMENTED · SYNTHETIC/LOOPBACK GO · INDEPENDENT
+RE-REVIEW REQUIRED · NOT HOSTED RELEASE EVIDENCE**.
 
-This change closes the evidence gap recorded by the Wave 3 receipt: the runner
-now retains a sanitized ledger for every network request seen before the
-measurement cutoff, including requests that are still pending. It also adds a
-deterministic alternating hosted A/B mode. No product source, database, flag,
-deployment, Preview protection, CI workflow or release state was changed.
+This evidence-only branch hardens the runner after the independent review of
+`3ba284381c3ff98f71fe60b4cf441c30c652c651`. It does not change product code,
+the database, a flag, a deployment, Preview protection, CI or release state.
+No protected Preview or database was accessed while producing this evidence.
 
-## Exact baseline and files
+## Exact scope
 
-- Base: `origin/gpt/perf-unified-wave3-preview-20261018` at
+- Original base: `origin/gpt/perf-unified-wave3-preview-20261018` at
   `37a718f626b45112678ae2be0b963b9ddb4d5873`.
-- Work branch: `gpt/perf-hosted-runner-diagnostics-20261018`.
-- Updated runner:
-  `../wave3-preview/tools/hosted-comparison-runner.py`.
-- Focused test:
-  `../wave3-preview/tools/test_hosted_comparison_runner.py`.
-- Synthetic CDP event fixture:
-  `../wave3-preview/tools/fixtures/network-events.json`.
-- Runner SHA-256:
-  `972cc39ac40f4c7bee04640d600d647727fa95fc96549203a80f33044440116f`.
+- Remediation base: `gpt/perf-hosted-runner-diagnostics-20261018` at
+  `3ba284381c3ff98f71fe60b4cf441c30c652c651`.
+- Runner: `../wave3-preview/tools/hosted-comparison-runner.py`.
+- Tests: `../wave3-preview/tools/test_hosted_comparison_runner.py`.
+- Synthetic fixtures: `../wave3-preview/tools/fixtures/`.
+- Hardened runner SHA-256:
+  `dbc48e87dc19b4626a810c812df67123306669883c21c7414b603ffa69689c60`.
 
-The runner also writes its own SHA-256 into every new receipt and prints it in
-the final console record. This makes a receipt self-identifying without relying
-on a manually copied hash.
+Every receipt retains this exact runner hash.
 
-## Request ledger
+## Target and credential gate
 
-Each successful sample keeps the existing aggregate fields and adds:
+`validate_targets` completes before a token is read, a local server starts or
+Chromium launches. Hosted targets must satisfy all of these conditions:
 
-- `measurement_window.start_ms`, `usable_ms`, `cutoff_ms`, and the actual
-  post-usable observation duration;
-- started, completed, failed and pending request counts;
-- `network_requests`, ordered by start time, with sanitized URL and path,
-  query-key names only, method, resource type, sanitized initiator, HTTP status,
-  state, start/end/duration and completion phase;
-- transfer bytes from CDP `loadingFinished.encodedDataLength`, encoded body
-  bytes from `dataReceived.encodedDataLength`, and decoded body bytes from
-  `dataReceived.dataLength`.
+- the arm target is an HTTPS origin with no credentials, path, query or
+  fragment;
+- each arm target appears exactly in a repeated `--allow-preview-origin`
+  argument;
+- an `--auth-origin` is accepted only with its matching stdin token flag and
+  must equal that arm's normalized origin;
+- Preview auth follows redirects manually with `max_redirects=0`; each hop must
+  remain on that exact HTTPS arm origin. A cross-origin redirect is rejected
+  before it is requested, and neither the token nor redirect URL enters the
+  receipt;
+- SHA arguments are hexadecimal commit identifiers, so a free-form value cannot
+  be copied into a receipt as a build identity.
 
-`request_count` and `transfer_bytes` retain their prior settled-request meaning
-for compatibility. The new `request_started_count`, `request_completed_count`,
-`request_failed_count` and `request_pending_count` expose the measurement-window
-effect directly.
+Local `--dist` compatibility remains available. It creates its own exact
+`127.0.0.1` origin and cannot accept Preview authentication arguments.
 
-The capture covers HTTP/network requests; `data:` and `blob:` resources are not
-network transfers and remain excluded. It never records request or response bodies, request headers, auth
-headers or cookies. URL credentials and fragments are removed. Query parameter
-values are discarded before a request enters the receipt; only sorted parameter
-names remain. LCP URLs, page paths, network-failure text and console/page error
-URLs pass through the same sanitizer. Share tokens remain stdin-only and are not
-written to the receipt.
+## Default-deny network boundary
 
-## CLI compatibility and alternating A/B mode
+Page traffic is denied unless it is one of the following:
 
-Existing invocations remain valid. Single-arm mode still defaults to three
-samples per route/profile and preserves the existing top-level receipt and
-summary fields. `--samples-per-arm` can override that count.
+1. `GET`, `HEAD` or `OPTIONS` to the exact normalized arm origin;
+2. a public REST/Storage read to a database origin named explicitly with
+   `--allow-db-origin`; or
+3. `POST` to an existing named read-only RPC on that same explicit database
+   origin.
 
-Hosted A/B mode uses the existing `--origin` and `--sha` as arm A and adds
-`--origin-b` plus `--sha-b` for arm B. It requires at least seven samples per
-arm. Pair order alternates deterministically as `AB, BA, AB, BA...`; `--ab-first
-b` reverses the pattern. Each run records its arm, per-arm sample number, pair
-number and position, and aggregation remains separated by arm.
+No database origin is allowed by default. The known Production Supabase origin
+is rejected even when listed unless the caller also supplies
+`--allow-production-db`. This makes Production an explicit two-part decision;
+the flag was not used in this task. Auth endpoints, unknown RPCs, writes,
+analytics origins, other origins, non-HTTP(S) URLs, service workers and web
+sockets remain blocked.
 
-Example with public loopback-style origins:
+Blocked-request records contain a category, destination class, method, safe
+scheme, query-key classifications and hashes. They do not retain the blocked
+host, URL or path.
+
+## Receipt privacy and diagnostic value
+
+The request ledger continues to record start/completion/failure/pending state,
+resource and initiator type, start/end time, measurement cutoff, transfer bytes,
+encoded body bytes and decoded body bytes. It never records request/response
+bodies, headers, cookies or query values.
+
+Additional hardening now applies before serialization:
+
+- only HTTP(S) schemes survive; unsupported schemes are represented without
+  their URL;
+- secret-like, high-entropy, UUID and long path segments are replaced by a
+  deterministic fingerprint;
+- only a small safe set of query-key names remains readable; suspicious and
+  unknown names are fingerprinted, and all values are discarded;
+- blocked requests use `[blocked-url]`, `[blocked-path]` and `[blocked-host]` in
+  the network ledger;
+- console, page, navigation and network failures retain a bounded category and
+  fingerprint only. Free error text is never written.
+
+Adversarial tests cover tokens in paths and query-key names, naked secrets,
+`sessionid`, FTP, cross-origin redirects and error strings.
+
+## Counterbalanced A/B acceptance
+
+Hosted comparison mode is explicitly **counterbalanced paired A/B**. Pair order
+is deterministic: `AB, BA, AB, BA...` (or its inverse with `--ab-first b`). A
+pair is useful only when both arms complete the same route/profile journey.
+
+The receipt contains `acceptance.valid`. It can be `true` only when every direct
+route and Home-to-World journey, on both mobile and desktop profiles, has at
+least seven complete successful pairs. A missing arm, duplicate arm or partial
+pair invalidates that journey. An invalid A/B receipt is still written and the
+runner exits with code 2.
+
+Single-arm mode preserves its three-sample default and prior summary fields for
+replay compatibility. Its acceptance value is `null` because it cannot support
+a causal A/B release claim. A committed golden fixture protects the old CLI
+defaults and legacy network/aggregate output fields.
+
+Example hosted invocation (illustrative origins only):
 
 ```bash
 python docs/perf-evidence-20261018/wave3-preview/tools/hosted-comparison-runner.py \
-  --origin https://a.example.test \
+  --origin https://arm-a.example.test \
+  --allow-preview-origin https://arm-a.example.test \
   --sha aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
-  --origin-b https://b.example.test \
+  --origin-b https://arm-b.example.test \
+  --allow-preview-origin https://arm-b.example.test \
   --sha-b bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
   --samples-per-arm 7 \
   --output /tmp/hosted-ab.json
 ```
 
-For protected deployments, pass the matching `--auth-origin` and
-`--auth-origin-b`. Arm A can read one token line with `--share-token-stdin`;
-arm B can read a second line with `--share-token-b-stdin`. Tokens must be piped
-through stdin and must never be placed in command arguments or receipts.
+Protected deployments add the matching `--auth-origin` and stdin-token flag for
+each arm. Tokens must be piped via stdin and must never appear in arguments.
 
 ## Verification
 
-The focused synthetic suite passes **5/5** and proves:
+Focused tests pass **13/13**. They cover target ordering and exact allowlists,
+auth redirect containment, Production DB denial by default, default-deny
+network decisions, sanitized blocked records, the full request ledger,
+adversarial secrets, deterministic counterbalancing, seven-pair acceptance,
+nonzero invalid-result status, arm-separated aggregation, runner hashing and
+golden single-arm compatibility.
 
-1. URL credentials, fragments and query values do not survive sanitization.
-2. Seven-sample A/B scheduling is balanced and exactly reproducible.
-3. Completed, failed and pending requests survive the cutoff with resource and
-   initiator type, byte counters and completion phase.
-4. A/B summaries do not combine the two arms.
-5. The reported runner hash equals the exact file bytes.
-
-A disposable loopback build then exercised the unchanged single-arm CLI with
-one sample across both profiles, all four direct routes and Home→World:
-**10/10 samples succeeded**. The generated receipt contained a ledger and
-measurement cutoff for every sample, reported the exact runner hash above, and
-contained none of the synthetic query values. The temporary build and receipt
-remain under `/tmp` and are not evidence about product speed.
+A disposable local build was then served only on loopback through the unchanged
+single-arm CLI. All **10/10** samples succeeded: both profiles, all four direct
+routes and Home-to-World. Every sample retained a request ledger and cutoff;
+there were zero blocked requests and zero sample failures. These numbers prove
+runner operation only and are not product-speed evidence.
 
 Commands run:
 
 ```bash
-python -m py_compile docs/perf-evidence-20261018/wave3-preview/tools/hosted-comparison-runner.py
-python -m unittest docs/perf-evidence-20261018/wave3-preview/tools/test_hosted_comparison_runner.py -v
+python -m py_compile \
+  docs/perf-evidence-20261018/wave3-preview/tools/hosted-comparison-runner.py \
+  docs/perf-evidence-20261018/wave3-preview/tools/test_hosted_comparison_runner.py
+python -m unittest \
+  docs/perf-evidence-20261018/wave3-preview/tools/test_hosted_comparison_runner.py -v
 python docs/perf-evidence-20261018/wave3-preview/tools/hosted-comparison-runner.py --help
+python docs/perf-evidence-20261018/wave3-preview/tools/hosted-comparison-runner.py \
+  --dist /tmp/sod1820-hosted-runner-loopback \
+  --sha 37a718f626b45112678ae2be0b963b9ddb4d5873 \
+  --samples-per-arm 1 \
+  --output /tmp/hosted-runner-hardening-loopback.json
 git diff --check
 ```
 
-No protected Preview was accessed, no bypass was created, no CI was run, and no
-external network measurement was performed in this task.
-
 ## Limits
 
-- This does not reconstruct the two unidentified late Mobile Home requests in
-  the old Wave 3 receipts. It makes future runs diagnosable.
-- CDP transfer bytes include protocol overhead according to Chromium's
-  `encodedDataLength`; encoded/decoded body counters come from data events and
-  may differ from transfer bytes. All three are retained deliberately.
-- Query values are intentionally unavailable, so value-specific cache-key
-  diagnosis requires a separate private investigation that must not enter a
-  receipt.
-- Alternation reduces time-order bias but does not control CDN, database or
-  regional cache state. A hosted result still needs identical browser/network
-  settings, both arms in the same run, at least seven successful samples per
-  arm, and honest failure reporting.
-- Default single-arm mode remains a compatibility/replay mode. Its three-sample
-  default is not sufficient for a new causal A/B release claim.
+- The hardened hosted/auth path has deterministic synthetic coverage but was not
+  exercised against a protected Preview in this task.
+- No external database path was exercised. A future authorized run must list
+  the exact database origin and should prefer a non-Production source.
+- Default denial can expose previously implicit third-party dependencies as
+  blocked requests. Such a sample must be reviewed; the allowlist should not be
+  widened without a concrete read-only dependency and evidence.
+- Alternation reduces time-order bias but cannot equalize CDN, regional or
+  database cache state. Hosted evidence still needs identical settings, exact
+  arm SHAs, seven complete successful pairs per journey and independent review.
+- The coordination ledger was read before the change and showed the prior scope
+  released. This worker did not have an approved work-log writer, so no new
+  `work_log` record was created; the central session owns that handoff.
