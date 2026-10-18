@@ -1,0 +1,67 @@
+{
+  "base_sha": "12e85699440108da55d5da80573306d4ed8f1843",
+  "implementation_sha": "834508f2c1a9bf1f242f5fd9d8afb983c3c72510",
+  "branch": "gpt/perf-realtime-entry-split-hardening-20261018",
+  "decision": "GO",
+  "sdk": {
+    "supabase_js": "2.116.0",
+    "realtime_js": "2.116.0"
+  },
+  "contract": {
+    "runtime": "browser-vite-only",
+    "full_sdk_facade": false,
+    "client_methods": [
+      "channel",
+      "getChannels",
+      "removeChannel",
+      "removeAllChannels",
+      "setAuth",
+      "connect",
+      "disconnect"
+    ],
+    "channel_methods": [
+      "on",
+      "subscribe",
+      "send",
+      "track",
+      "untrack",
+      "presenceState",
+      "unsubscribe"
+    ]
+  },
+  "verification": {
+    "full_build": "PASS",
+    "focused_adapter_tests": "14/14 PASS",
+    "installed_sdk_and_browser_loopback": "2/2 PASS",
+    "existing_early_read_and_switch_tests": "25/25 PASS",
+    "integrated_preview_auth_guard": "8/8 PASS",
+    "system_frame": "PASS",
+    "bundle_budget": "5/5 PASS",
+    "external_network_requests": 0,
+    "database_writes": 0
+  },
+  "entry_gzip_bytes": {
+    "pre_split_base": 191697,
+    "input_split": 176345,
+    "hardened": 177373,
+    "hardening_delta": 1028,
+    "net_delta_vs_pre_split": -14324,
+    "static_chunk_count": 9,
+    "realtime_transport_in_static_closure": false
+  },
+  "deferred_realtime": {
+    "file": "assets/module-Dut4nRCB.js",
+    "raw_bytes": 56737,
+    "gzip_bytes": 16355
+  },
+  "legacy": {
+    "base_file_count": 293,
+    "candidate_file_count": 293,
+    "base_tree_sha256": "b953da73f80deeca3aa72db0ae45ca22dfac3bc57bc47eaf1817896fa991f81b",
+    "candidate_tree_sha256": "b953da73f80deeca3aa72db0ae45ca22dfac3bc57bc47eaf1817896fa991f81b",
+    "added": [],
+    "removed": [],
+    "changed": [],
+    "bit_identical": true
+  }
+}
