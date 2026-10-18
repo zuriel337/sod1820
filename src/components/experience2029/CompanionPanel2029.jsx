@@ -5,7 +5,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
-import OrGeulaStoryColumn from "../OrGeulaStoryColumn.jsx";
+import OrGeulaStoryColumn from "./OrGeulaSourceShortcut2029.jsx";
 import "./companionPanel2029.css";
 
 export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, hoverProps }) {

@@ -14,9 +14,9 @@ test("2029 Companion exposes the three EXISTING public source destinations", () 
 });
 
 test("Or Geula shortcut reuses the canonical source reader and viewer", () => {
-  const stories = read("src/components/OrGeulaStoryColumn.jsx");
+  const stories = read("src/components/OrGeulaStoryColumnCore.jsx");
   assert.match(stories, /if \(variant === "shortcut"\)/);
-  assert.match(stories, /<StoryViewer items=\{rows\}/);
+  assert.match(stories, /<Viewer items=\{rows\}/);
   assert.match(stories, /supabase\.from\("channel_updates"\)/);
   assert.match(stories, /hasNew = shown\.some\(\(row\) => isNewFresh\(row, seen\)\)/);
 });
