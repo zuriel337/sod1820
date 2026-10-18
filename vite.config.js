@@ -5,15 +5,20 @@ import react from '@vitejs/plugin-react'
 import { entryPrimaryReads2029, postReadUrl, postBySlugRead, latestPostCardsRead, HOME_LATEST_POST_LIMIT_2029 } from './src/lib/postReadQueries2029.js'
 import { startPrimaryReads2029 } from './src/lib/earlyPrimaryRead2029.js'
 import { SUPABASE_URL, SUPABASE_ANON } from './src/lib/supabasePublicConfig.js'
+import { isNumberReviewPreviewBuild2029 } from './src/lib/numberReviewPreview2029.js'
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 const is2029 = process.env.SOD_BUILD_TARGET === '2029'
+const numberReviewPreviewOpen = isNumberReviewPreviewBuild2029(process.env)
 
 // G3-A hard isolation: legacy and 2029 are built as two independent module graphs.
 // This prevents Rollup from re-sharing a common chunk that carries legacy-only presentation
 // into the 2029 document merely because both runtimes consume Foundation modules.
 export default defineConfig({
-  define: { __SOD_2029_BUILD__: JSON.stringify(is2029) },
+  define: {
+    __SOD_2029_BUILD__: JSON.stringify(is2029),
+    __SOD_NUMBER_REVIEW_PREVIEW_OPEN__: JSON.stringify(numberReviewPreviewOpen),
+  },
   plugins: [react(), {
     name: '2029-entry-primary-reads',
     transformIndexHtml: {

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
+import { projectNumberReviewFlag2029 } from "../lib/numberReviewPreview2029.js";
 import { LOGO_URL } from "../theme.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
@@ -93,7 +94,7 @@ export function useSiteFlag(flag) {
   useEffect(() => {
     let alive = true;
     getSiteFlags()
-      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null }); })
+      .then(f => { if (alive) setSt({ loading: false, lock: projectNumberReviewFlag2029(flag, f[flag] || null) }); })
       .catch(() => { if (alive) setSt({ loading: false, lock: null }); });
     return () => { alive = false; };
   }, [flag]);

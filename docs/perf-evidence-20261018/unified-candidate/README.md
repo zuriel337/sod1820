@@ -18,6 +18,13 @@ The seven source commits were cherry-picked in their original order. They applie
 2. World and Number start only their current route code while Auth/site-flag gates are resolving. `Locked` still owns mount/render. No protected route data is read before the gate. The obsolete `/world` document-head post read is removed; Home and Post head reads are unchanged.
 3. A human top-level `GET /post/:slug` navigation no longer waits for `public_post_slug_exists`. Crawlers, `HEAD`, old/non-navigation clients, and Legacy `/:slug` retain the lookup and hard 404/308 behavior. The lookup has an 800 ms fail-open timeout.
 
+## Preview review corrections
+
+- The normal Vercel build now projects the existing `lock_number` row as open only when all three build facts match: target `2029`, Vercel environment `preview`, and branch `gpt/perf-unified-candidate-20261018`. Legacy, Production, `main`, other Preview branches, a missing launch flag, and failed flag reads remain fail-closed. The live `lock_number` row is not changed.
+- `fx_number_lookup_page` remains OFF. Opening the review surface does not enable that separate optimization.
+- The initial `/` Suspense fallback keeps the Home background quiet, without the visible `טוען את התוכן…` status. Other document handoffs and route transitions retain the visible loading state.
+- Review through the stable branch alias `sod1820-git-gpt-perf-unified-candidat-cfdedb-sod1820-s-projects.vercel.app`, and accept it only after Vercel metadata proves that its Git SHA equals the current remote branch head.
+
 ## Combined verification
 
 - `npm run build`: PASS for Legacy and 2029. Existing large-chunk and ineffective-dynamic-import warnings remain.
@@ -27,6 +34,7 @@ The seven source commits were cherry-picked in their original order. They applie
 - Entry Contextual Learn, issue-report emitter, System Frame, and Control Plane: PASS.
 - StoryViewer/report-form isolation on real builds and Chromium: 19/19 PASS, no skips.
 - Combined locked-route Chromium harness: PASS. World/Number code began before a synthetic 1500 ms flag gate; protected content did not mount and route data did not start before authorization.
+- Exact-Preview browser check: PASS. `/number/718` rendered the Number surface against a synthetic closed `lock_number` row, without mutating the row; the normal build retained the canonical lock. Initial Home fallback check: PASS with a delayed real Home chunk and no visible loading status.
 
 The combined 2029 shell is approximately 63.7 KB gzip versus approximately 70.4 KB on the pinned base (about 9.5% smaller). This is a bundle result, not a latency or LCP claim.
 
@@ -38,4 +46,4 @@ F5's loopback result proves removal of one synthetic 150 ms slug-existence round
 
 ## Release boundary
 
-No PR, CI, Preview, merge, deployment, live flag, RLS, schema, or product-data change is part of this integration. Before release, verify the exact remote SHA, create an isolated Preview without invoking live-writing CI, and run guest/authenticated/admin/mobile acceptance for Home, World, Number, Post, StoryViewer, report form, crawler 404, human missing-post noindex, and Legacy containment.
+The branch may be deployed to an isolated Vercel Preview for review. No PR, CI, merge, Production deployment, live flag, RLS, schema, or product-data change is authorized by this integration. Before release, verify the exact remote SHA and run guest/authenticated/admin/mobile acceptance for Home, World, Number, Post, StoryViewer, report form, crawler 404, human missing-post noindex, and Legacy containment.

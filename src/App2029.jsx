@@ -40,6 +40,7 @@ const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx")
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
+const initial2029Pathname = typeof window === "undefined" ? null : window.location.pathname;
 
 // Design review on an existing document route; does not open public Community
 // navigation or require a competing edit to the deployment rewrite configuration.
@@ -65,11 +66,16 @@ const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "tr
 const IntegratedPreview2029Page = integratedPreviewEnabled
   ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
 
-function Loading2029() {
+function Loading2029({ quiet = false }) {
   const palette = use2029Palette();
-  return <div role="status" dir="rtl" style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui, fontSize: 18 }}>
-    <span>טוען את התוכן…</span>
+  return <div role={quiet ? undefined : "status"} aria-hidden={quiet ? "true" : undefined} dir="rtl" style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: palette.pageBg, color: palette.ink, fontFamily: TYPEFACE.ui, fontSize: 18 }}>
+    {quiet ? null : <span>טוען את התוכן…</span>}
   </div>;
+}
+
+function RouteLoading2029() {
+  const { pathname } = useLocation();
+  return <Loading2029 quiet={initial2029Pathname === "/" && pathname === "/"} />;
 }
 
 function RouteCodeLoadFailure2029() {
@@ -208,7 +214,7 @@ export default function App2029() {
         <LockedRouteCodePreparation2029 />
         <ResearchProvider>
           <RouteEffects2029 />
-          <Suspense fallback={<Loading2029 />}>
+          <Suspense fallback={<RouteLoading2029 />}>
             <Routes>
               <Route path="/" element={<HomeEntry2029 />} />
               <Route path="/2029/*" element={<HomeAddressAlias2029 />} />
