@@ -1,0 +1,67 @@
+{
+  "measuredAt": "2026-10-18T04:25:00Z",
+  "baseSha": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
+  "codeSha": "c069b0f0baa8388c86f79124b62560eae2c1698c",
+  "branch": "gpt/perf-post-body-media-defer-20261018",
+  "postSlug": "flydubai-fz1073-363-14000-remzei-geula",
+  "publicBodyMedia": [
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/plane-363-hamashiach-card-20261001.png",
+      "bytes": 2087487,
+      "width": 941,
+      "height": 1672,
+      "sha256": "a450baf86a9943d22f61ce6d22f52841faae0280445511d33e9ccf6553b90bc8",
+      "authoredLoading": null,
+      "authoredWidth": null,
+      "authoredHeight": null
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg",
+      "bytes": 31166,
+      "width": 576,
+      "height": 1024,
+      "sha256": "cbb11df6aebd569d1170b1f53896c834f576f6b41862483f05dea5453af265f8",
+      "authoredLoading": null,
+      "authoredWidth": null,
+      "authoredHeight": null
+    },
+    {
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+      "bytes": 190253,
+      "width": 691,
+      "height": 1536,
+      "sha256": "dc86a86e9b9cccf87a9f929347491a9bfebe9106529db58cce887fc1239d1baa",
+      "authoredLoading": null,
+      "authoredWidth": null,
+      "authoredHeight": null
+    }
+  ],
+  "bodyMediaBytes": 2308906,
+  "heavyImageSharePercent": 90.4102,
+  "isolatedBrowser": {
+    "browser": "Chromium 141.0.7390.37",
+    "viewports": [320, 390, 1440],
+    "themes": ["light", "parchment", "dark"],
+    "approachRootMargin": "600px 0px",
+    "rawAuthoredInitialRequests": 3,
+    "candidateInitialRequests": 0,
+    "candidateRequestsPerActivatedPicture": 1,
+    "clsGate": "<=0.1",
+    "focusedTests": { "passed": 15, "failed": 0, "skipped": 0 }
+  },
+  "builtRouteGraphGzipKb": {
+    "basePost": 175.3,
+    "candidatePost": 176.6,
+    "deltaPost": 1.3,
+    "budgetPost": 185.0,
+    "baseEntry": 187.2,
+    "candidateEntry": 187.2
+  },
+  "legacyBuild": {
+    "baseFiles": 293,
+    "candidateFiles": 293,
+    "baseBytes": 24504416,
+    "candidateBytes": 24504416,
+    "changedFiles": 0
+  }
+}
