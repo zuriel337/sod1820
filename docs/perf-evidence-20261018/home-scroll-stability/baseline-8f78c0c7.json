@@ -1,0 +1,273 @@
+{
+  "tool": "home-scroll-shell-matrix-v1",
+  "sourceSha": "8f78c0c7ced835849a816a815abf05a7247ceead",
+  "expectation": "baseline",
+  "dist": {
+    "sha256": "1f7b1a1f8aa2c8743419c40306751165840e91d896e787fa0bb8b556abac445d",
+    "files": 239,
+    "bytes": 21682048
+  },
+  "repositoryHead": "f75912dea3b5810b08ed24367f309b9946722ce3",
+  "widths": [
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 640,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.125,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": null,
+      "themePreset": "dark",
+      "legacyTheme": "dark"
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0831,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": null,
+      "themePreset": "dark",
+      "legacyTheme": "dark"
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0434,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": 78,
+      "themePreset": "dark",
+      "legacyTheme": "dark"
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0275,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": 78,
+      "themePreset": "dark",
+      "legacyTheme": "dark"
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 640,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.125,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": null,
+      "themePreset": "light",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0831,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": null,
+      "themePreset": "light",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0434,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": 78,
+      "themePreset": "light",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0275,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": 78,
+      "themePreset": "light",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "parchment",
+      "width": 320,
+      "height": 640,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.125,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": null,
+      "themePreset": "parchment",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "parchment",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0831,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": null,
+      "themePreset": "parchment",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "parchment",
+      "width": 1440,
+      "height": 900,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0434,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": 78,
+      "themePreset": "parchment",
+      "legacyTheme": "light"
+    },
+    {
+      "theme": "parchment",
+      "width": 1920,
+      "height": 1080,
+      "overflow": {
+        "htmlX": "clip",
+        "bodyX": "clip",
+        "rootX": "clip",
+        "shellX": "hidden",
+        "shellY": "auto"
+      },
+      "reservePx": 160,
+      "correctedDriftPx": -740,
+      "readingMarkerDeltaPx": 0,
+      "cls": 0.0275,
+      "horizontalOverflowPx": 0,
+      "headerTopPx": -560,
+      "sidebarTopPx": 78,
+      "themePreset": "parchment",
+      "legacyTheme": "light"
+    }
+  ],
+  "thresholds": {
+    "reservePx": 160,
+    "clsMax": 0.001,
+    "readingMarkerDeltaMaxPx": 1,
+    "horizontalOverflowMaxPx": 1
+  },
+  "pass": null,
+  "failures": []
+}
