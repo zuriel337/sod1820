@@ -9,6 +9,7 @@
     "build:legacy": "SOD_BUILD_TARGET=legacy vite build",
     "build:2029": "SOD_BUILD_TARGET=2029 vite build",
     "build:hybrid-preview": "node scripts/build-hybrid-preview.mjs",
+    "inventory:hybrid-preview": "node scripts/generate-hybrid-route-inventory.mjs",
     "preview:hybrid-local": "node scripts/serve-hybrid-preview.mjs",
     "test:hybrid-preview": "node --test test/hybrid-preview-routing.test.mjs test/hybrid-preview-build.test.mjs",
     "preview": "vite preview",

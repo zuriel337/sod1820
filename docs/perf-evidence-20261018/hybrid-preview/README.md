@@ -12,3 +12,5 @@ Both commits must remain ancestors of the hybrid HEAD. The local build creates t
 The local server binds only to `127.0.0.1`, marks all documents `noindex`, sends `no-store`, and injects an early local read-only transport guard. The receipt intentionally says `hostedPreviewReady: false`. A hosted Preview requires a separately reviewed service-worker attestation and Vercel configuration. Production requires the full release checklist and explicit Human Gate approval.
 
 Posts and World product files are outside this branch's implementation scope. Parallel work on their content and product behavior is integrated only after its own review.
+
+`route-inventory.json` is the generated static declaration inventory. It currently records 129 Legacy declarations plus the terminal wildcard, and 28 non-wildcard 2029 declarations. Twenty-five patterns are in the 2029 acceptance set, `/code` and `/els` remain explicitly Legacy, and every other declared or unknown route uses the Legacy fallback. This is an operational migration inventory, not a new route owner or product contract.

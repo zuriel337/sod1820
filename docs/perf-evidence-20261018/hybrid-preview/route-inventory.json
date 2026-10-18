@@ -1,0 +1,831 @@
+{
+  "schemaVersion": 1,
+  "status": "acceptance-only-not-production-approved",
+  "sources": {
+    "legacyBranch": "gpt/legacy-now-yaniv-20261016",
+    "legacySha": "0f3443a9a4dcb78e935d74f2a937c47dbf35d18c",
+    "candidateBranch": "gpt/perf-unified-wave4-preview-20261018",
+    "candidateSha": "e994cb67120fa0f735ab3859aa5acba67e24adba"
+  },
+  "note": "Static JSX route declarations only. Dynamic aliases and product acceptance still require browser/SEO review.",
+  "summary": {
+    "legacyDeclarations": 129,
+    "candidate2029Declarations": 28,
+    "unionRoutePatterns": 135,
+    "candidate2029Assignments": 25,
+    "explicitLegacyAssignments": 2,
+    "legacyDefaultAssignments": 108
+  },
+  "routes": [
+    {
+      "route": "/",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/2029/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/888",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/about",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/admin",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/archive",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/beit-midrash",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/beit-midrash/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/book",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/book/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/books",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/books/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/broadcasts",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/buy",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/calculator",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/category/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/chat",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/cheder/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/code",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "legacy-explicit"
+    },
+    {
+      "route": "/codes",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/codes/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/codes/מחקר",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community-shadow-preview-2029",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community/calculator",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community/chat",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/community/comments",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community/researcher/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community/researchers",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/community/whatsapp",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/contact",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/control",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/credits",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/cross",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/dev/torah-occurrence-scene",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/early-access",
+      "declaredInLegacy": false,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/editor",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/editor/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/els",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "legacy-explicit"
+    },
+    {
+      "route": "/enter",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/entity-hub-preview",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/entity-hub-preview/(.*)/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/experience",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/explorer-preview",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/forum",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/forum/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/galaxy",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/galaxy/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/gallery",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/gallery-updates",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/gematria",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/gematria-3d",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/gematria/viral",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/heichal",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/home-classic",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/home-new",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/home-preview",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/join",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/journey",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/journey-beta",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/kingdom",
+      "declaredInLegacy": false,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/lab",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/lab/els",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/languages",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/login",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/map",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/meaning-lab",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/melech-hamisparim/718",
+      "declaredInLegacy": false,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/members",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/name",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/name-lab",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/number",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/number/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/numbers",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/numbers-report",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/or-geula",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/or-geula/video/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/post",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/post/(.*)",
+      "declaredInLegacy": false,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/posts",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/preview",
+      "declaredInLegacy": false,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/privacy",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/profile",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/reality",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/research",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/research-viewer",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/researcher/(.*)",
+      "declaredInLegacy": false,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/reveal",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/spatial-gematria",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/start",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/stream",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot10",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot11",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot2",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot3",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot4",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot5",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot6",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot7",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot8",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/sulamot9",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/tag/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/theme-preview",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/theme/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/timeline",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/topic/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/traffic",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/unsubscribe",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/verified",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/verse-gematria",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/video/(.*)",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/welcome",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/whats-new",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/world",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/אור-הגאולה",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/בית-חדש",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/גימטריה",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/גימטריה-מרחבית",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/גימטריה-תלת-ממדית",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/דף-צאט-ראשי",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/היכל",
+      "declaredInLegacy": true,
+      "declaredIn2029": true,
+      "acceptanceRuntime": "2029-candidate"
+    },
+    {
+      "route": "/הצלבה",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/חישוב",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/מסע",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/מעבדת-השם",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/מעבדת-משמעות",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/ניסיון",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/פוסטים-אחרונים",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/פוסטים-אחרונים-2",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/פסוקים",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/צור-קשר",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/קשרי-שפות",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    },
+    {
+      "route": "/שם",
+      "declaredInLegacy": true,
+      "declaredIn2029": false,
+      "acceptanceRuntime": "legacy-default"
+    }
+  ]
+}
