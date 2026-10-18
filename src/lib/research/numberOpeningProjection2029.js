@@ -45,6 +45,21 @@ function exactNullableBoolean(value, code) {
   throw openingError(code, value);
 }
 
+function exactRootInteger(value, code, detail) {
+  if (typeof value === "number") {
+    if (Number.isSafeInteger(value)) return Object.is(value, -0) ? 0 : value;
+    throw openingError(code, detail);
+  }
+  if (
+    typeof value === "string"
+    && /^(?:0|[1-9]\d*|-[1-9]\d*)$/.test(value)
+  ) {
+    const parsed = Number(value);
+    if (Number.isSafeInteger(parsed)) return parsed;
+  }
+  throw openingError(code, detail);
+}
+
 function sameCheckpointValue(left, right) {
   if (left == null || right == null) return left == null && right == null;
   return String(left) === String(right);
@@ -375,8 +390,16 @@ export function projectNumberOpeningCore(opening, { identity = null, anchorProfi
     ? opening
     : normalizeNumberOpeningProjection(opening);
   if (identity != null) {
-    const identityValue = Number(identity?.label);
-    if (!Number.isSafeInteger(identityValue) || identityValue !== source.value) {
+    const mismatch = {
+      opening: source.value,
+      identity: identity?.label ?? null,
+    };
+    const identityValue = exactRootInteger(
+      identity?.label,
+      "NUMBER_OPENING_IDENTITY_VALUE_MISMATCH",
+      mismatch,
+    );
+    if (identityValue !== source.value) {
       throw openingError("NUMBER_OPENING_IDENTITY_VALUE_MISMATCH", {
         opening: source.value,
         identity: identity?.label ?? null,
@@ -385,8 +408,16 @@ export function projectNumberOpeningCore(opening, { identity = null, anchorProfi
   }
   const anchorRow = anchorProfile?.row;
   if (anchorRow && own(anchorRow, "value")) {
-    const anchorValue = Number(anchorRow.value);
-    if (!Number.isSafeInteger(anchorValue) || anchorValue !== source.value) {
+    const mismatch = {
+      opening: source.value,
+      anchor: anchorRow.value,
+    };
+    const anchorValue = exactRootInteger(
+      anchorRow.value,
+      "NUMBER_OPENING_ANCHOR_VALUE_MISMATCH",
+      mismatch,
+    );
+    if (anchorValue !== source.value) {
       throw openingError("NUMBER_OPENING_ANCHOR_VALUE_MISMATCH", {
         opening: source.value,
         anchor: anchorRow.value,

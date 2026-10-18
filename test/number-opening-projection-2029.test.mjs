@@ -522,6 +522,71 @@ test("projected core rejects a 718/719 root mix and does not invent absent ancho
   }
 });
 
+test("projected core rejects coercible non-canonical roots, including null and empty root zero", async () => {
+  const db = await makeDb();
+  try {
+    const zeroPayload = await asRole(db, "anon", { value: 0, perMethod: 12 });
+    const zeroOpening = normalizeNumberOpeningProjection(zeroPayload, {
+      expectedValue: 0,
+      expectedPerMethod: 12,
+    });
+    const hostileRoots = [
+      null,
+      undefined,
+      "",
+      " ",
+      false,
+      true,
+      [],
+      {},
+      "00",
+      "-0",
+      "+0",
+      "0.0",
+      "0e0",
+    ];
+
+    for (const hostile of hostileRoots) {
+      assert.throws(
+        () => projectNumberOpeningCore(zeroOpening, { identity: { label: hostile } }),
+        (error) => error.code === "NUMBER_OPENING_IDENTITY_VALUE_MISMATCH",
+        `identity root ${String(hostile)} must fail closed`,
+      );
+      assert.throws(
+        () => projectNumberOpeningCore(zeroOpening, {
+          identity: { label: "0" },
+          anchorProfile: { row: { value: hostile } },
+        }),
+        (error) => error.code === "NUMBER_OPENING_ANCHOR_VALUE_MISMATCH",
+        `anchor root ${String(hostile)} must fail closed`,
+      );
+    }
+
+    for (const canonicalZero of [0, -0, "0"]) {
+      assert.doesNotThrow(() => projectNumberOpeningCore(zeroOpening, {
+        identity: { label: canonicalZero },
+        anchorProfile: { row: { value: canonicalZero } },
+      }));
+    }
+
+    const negativePayload = await asRole(db, "anon", { value: -1, perMethod: 12 });
+    const negativeOpening = normalizeNumberOpeningProjection(negativePayload, {
+      expectedValue: -1,
+      expectedPerMethod: 12,
+    });
+    assert.doesNotThrow(() => projectNumberOpeningCore(negativeOpening, {
+      identity: { label: "-1" },
+      anchorProfile: { row: { value: -1 } },
+    }));
+    assert.throws(
+      () => projectNumberOpeningCore(negativeOpening, { identity: { label: "-01" } }),
+      (error) => error.code === "NUMBER_OPENING_IDENTITY_VALUE_MISMATCH",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
 test("canonical Registry order is stable, including a deterministic equal-sort-order tie", async () => {
   const db = await makeDb();
   try {
