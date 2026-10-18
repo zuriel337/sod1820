@@ -1,0 +1,78 @@
+{
+  "base_sha": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
+  "entry_static_chunks": 9,
+  "entry_static_js_gzip_bytes": 191697,
+  "supabase": {
+    "key": "_supabase-Ci9SxQAV.js",
+    "file": "assets/supabase-Ci9SxQAV.js",
+    "raw": 240478,
+    "gzip": 63543,
+    "realtime": true
+  },
+  "realtime_in_static": true,
+  "static_files": [
+    {
+      "key": "2029.html",
+      "file": "assets/2029-BwUvEvTp.js",
+      "raw": 357177,
+      "gzip": 114544,
+      "realtime": false
+    },
+    {
+      "key": "_react-DB-4Zxce.js",
+      "file": "assets/react-DB-4Zxce.js",
+      "raw": 8529,
+      "gzip": 3282,
+      "realtime": false
+    },
+    {
+      "key": "_preload-helper-BZ1Pz5am.js",
+      "file": "assets/preload-helper-BZ1Pz5am.js",
+      "raw": 1218,
+      "gzip": 688,
+      "realtime": false
+    },
+    {
+      "key": "_supabase-Ci9SxQAV.js",
+      "file": "assets/supabase-Ci9SxQAV.js",
+      "raw": 240478,
+      "gzip": 63543,
+      "realtime": true
+    },
+    {
+      "key": "_theme-B2UPacu4.js",
+      "file": "assets/theme-B2UPacu4.js",
+      "raw": 1807,
+      "gzip": 872,
+      "realtime": false
+    },
+    {
+      "key": "_auth-FoMFQRfD.js",
+      "file": "assets/auth-FoMFQRfD.js",
+      "raw": 3393,
+      "gzip": 1501,
+      "realtime": false
+    },
+    {
+      "key": "_tracking-nNrxiYFD.js",
+      "file": "assets/tracking-nNrxiYFD.js",
+      "raw": 9752,
+      "gzip": 3936,
+      "realtime": false
+    },
+    {
+      "key": "_jsx-runtime-BtH0gOTJ.js",
+      "file": "assets/jsx-runtime-BtH0gOTJ.js",
+      "raw": 424,
+      "gzip": 294,
+      "realtime": false
+    },
+    {
+      "key": "_gematria-Ud5dslyW.js",
+      "file": "assets/gematria-Ud5dslyW.js",
+      "raw": 7546,
+      "gzip": 3037,
+      "realtime": false
+    }
+  ]
+}
