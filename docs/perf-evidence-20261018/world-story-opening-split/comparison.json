@@ -1,9 +1,9 @@
 {
-  "schema": "sod1820.world_story_opening_split.local_manifest.v2",
-  "measured_at_utc": "2026-10-18T04:45:02Z",
+  "schema": "sod1820.world_story_opening_split.local_manifest.v3",
+  "measured_at_utc": "2026-10-18T04:53:05Z",
   "base_commit": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
   "opening_split_parent": "b55f914c9472cfb8067924413fc519fb983da1a8",
-  "repair_code_commit": "577d71cae9453b93cc008d4f511f3b4528599200",
+  "repair_code_commit": "3b5b0d1c82891ce51136167f57d110e8ed7201cc",
   "build_command": "npm run build",
   "compression": "node:zlib gzipSync level=9",
   "closure_rule": "Vite manifest static imports; route figures exclude the 2029 entry closure",
@@ -30,9 +30,9 @@
     }
   },
   "after": {
-    "entry": { "chunks": 9, "gzip_bytes": 191702 },
-    "home_route_extra": { "chunks": 26, "gzip_bytes": 155993 },
-    "world_route_extra": { "chunks": 37, "gzip_bytes": 260236 },
+    "entry": { "chunks": 9, "gzip_bytes": 191690 },
+    "home_route_extra": { "chunks": 26, "gzip_bytes": 155972 },
+    "world_route_extra": { "chunks": 37, "gzip_bytes": 260209 },
     "image_bearing_world_opening": {
       "reads": ["getPostCardBySlug"],
       "projection_chunks": 0,
@@ -50,29 +50,31 @@
     },
     "world_timeline_action_projection_closure": {
       "chunks": 2,
-      "gzip_bytes": 30046,
+      "gzip_bytes": 30040,
       "files": [
-        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21561 },
-        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8485 }
+        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21557 },
+        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8483 }
       ]
     }
   },
   "module_recovery": {
     "known_url_first_failure": { "module_requests": 2, "second_request_is_recovery_url": true, "third_request": false },
     "no_url_first_failure": { "module_requests": 1, "action": "explicit document reload", "remount_request": false },
+    "delayed_no_url_after_unmount": { "module_requests_after_remount": 1, "action": "explicit document reload" },
     "recovery_url_failure": { "module_requests": 2, "action": "explicit document reload", "third_request": false },
+    "delayed_recovery_failure_after_unmount": { "module_requests_after_remount": 2, "retry_2_request": false, "action": "explicit document reload" },
     "extension_failure": { "module_requests": 1, "action": "explicit document reload" }
   },
   "locked_route_synthetic_gate": {
     "image_bearing_main_fixture": true,
     "test_passed": true,
     "samples": 1,
-    "world_0ms": { "route_start_ms": 145.2, "usable_content_ms": 761.2 },
-    "world_1500ms": { "route_start_ms": 133.0, "usable_content_ms": 2280.9 },
+    "world_0ms": { "route_start_ms": 241.5, "usable_content_ms": 1128.5 },
+    "world_1500ms": { "route_start_ms": 240.1, "usable_content_ms": 3139.4 },
     "timing_is_speed_claim": false
   },
   "verification": {
-    "home_world_chromium": { "passed": 17, "failed": 0, "skipped": 0 },
+    "home_world_chromium": { "passed": 19, "failed": 0, "skipped": 0 },
     "locked_route_chromium": { "passed": 1, "failed": 0, "skipped": 0 },
     "early_primary_read": { "passed": 11, "failed": 0 },
     "world_discovery_stream": { "passed": 13, "failed": 0 },
