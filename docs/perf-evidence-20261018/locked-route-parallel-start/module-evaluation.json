@@ -1,0 +1,20 @@
+{
+  "schema": "locked-route-module-evaluation-2029.v1",
+  "base": "8c8e9df9b2b012b70479e398e75f16e7008b8619",
+  "synthetic": true,
+  "network": "blocked fetch recorder",
+  "method": "fresh Vite middleware server per module; ssrLoadModule; 100ms observation after evaluation",
+  "results": [
+    {
+      "module": "/src/pages/World2029Page.jsx",
+      "fetchCalls": [],
+      "error": null
+    },
+    {
+      "module": "/src/pages/Number2029Page.jsx",
+      "fetchCalls": [],
+      "error": null
+    }
+  ],
+  "conclusion": "Direct module evaluation did not itself call fetch in the isolated evaluator. The blocking early World read is instead injected into built 2029.html and executes before the application entry."
+}
