@@ -1,0 +1,76 @@
+[
+  {
+    "event": "Network.requestWillBeSent",
+    "payload": {
+      "requestId": "one",
+      "timestamp": 100.0,
+      "type": "Script",
+      "request": {
+        "url": "https://example.test/assets/app.js?v=build-123&X-Amz-Signature=fixture-secret#fragment",
+        "method": "GET"
+      },
+      "initiator": {
+        "type": "parser",
+        "url": "https://example.test/?_vercel_share=fixture-private"
+      }
+    }
+  },
+  {
+    "event": "Network.responseReceived",
+    "payload": {
+      "requestId": "one",
+      "response": {"status": 200, "mimeType": "text/javascript"}
+    }
+  },
+  {
+    "event": "Network.dataReceived",
+    "payload": {
+      "requestId": "one",
+      "timestamp": 100.4,
+      "dataLength": 1000,
+      "encodedDataLength": 800
+    }
+  },
+  {
+    "event": "Network.loadingFinished",
+    "payload": {
+      "requestId": "one",
+      "timestamp": 100.5,
+      "encodedDataLength": 900
+    }
+  },
+  {
+    "event": "Network.requestWillBeSent",
+    "payload": {
+      "requestId": "two",
+      "timestamp": 100.25,
+      "type": "Image",
+      "request": {
+        "url": "https://cdn.example.test/private/object.png?token=fixture-token&width=640",
+        "method": "GET"
+      },
+      "initiator": {"type": "script"}
+    }
+  },
+  {
+    "event": "Network.requestWillBeSent",
+    "payload": {
+      "requestId": "three",
+      "timestamp": 100.6,
+      "type": "Fetch",
+      "request": {
+        "url": "https://api.example.test/rest/v1/site_flags?select=key,value",
+        "method": "GET"
+      },
+      "initiator": {"type": "script"}
+    }
+  },
+  {
+    "event": "Network.loadingFailed",
+    "payload": {
+      "requestId": "three",
+      "timestamp": 100.7,
+      "errorText": "net::ERR_FAILED token=fixture-error-token"
+    }
+  }
+]
