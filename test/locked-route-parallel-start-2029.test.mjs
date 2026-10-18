@@ -49,8 +49,8 @@ const worldPostFixture = [{
   source: "synthetic",
   date: "2026-09-30T20:15:36.000Z",
   modified: "2026-09-30T20:15:36.000Z",
-  image_url: null,
-  thumb_url: null,
+  image_url: "https://img.test/synthetic-fz1073-full.webp",
+  thumb_url: "https://img.test/synthetic-fz1073-thumb.webp",
 }];
 
 function isWorldPostRead(path) {

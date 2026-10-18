@@ -18,20 +18,44 @@ export async function getPostCardBySlug(slug) {
   return picked;
 }
 export const supabase = null;
-// The production component uses createOnDemandLoader. This bounded stand-in lets the component integration test make
-// the module request fail once while separately retaining the real loader's own unit coverage.
+// The production component uses createOnDemandLoader. This stand-in preserves
+// the recovery contract: only a first failure carrying a module URL can retry;
+// a no-URL failure or a failed recovery is terminal until document reload.
 export function createOnDemandLoader(importer) {
   let pending = null;
-  return () => {
+  let failedUrl = null;
+  let retryFailed = false;
+  let retryNumber = 0;
+  const load = () => {
     if (pending) return pending;
+    const retrying = Boolean(failedUrl);
     if (window.__trackModuleRequests) calls.push('projection module request');
-    if ((window.__moduleFailures || 0) > 0) {
-      window.__moduleFailures -= 1;
-      return Promise.reject(new Error('Failed to fetch dynamically imported module: https://fixture.test/projection.js'));
-    }
-    pending = Promise.resolve().then(importer).catch((error) => { pending = null; throw error; });
+    retryNumber += retrying ? 1 : 0;
+    const failure = Array.isArray(window.__moduleFailurePlan) ? window.__moduleFailurePlan.shift() : null;
+    window.__moduleRequestDetails.push({
+      retrying,
+      retryNumber,
+      outcome: failure || 'success',
+      url: retrying ? `https://fixture.test/projection.js?retry=${retryNumber}` : 'importer',
+    });
+    pending = Promise.resolve().then(() => {
+      if (failure === 'url') throw new Error('Failed to fetch dynamically imported module: https://fixture.test/projection.js');
+      if (failure === 'no-url') throw new Error('Importing a module script failed.');
+      return importer();
+    }).then((module) => {
+      failedUrl = null;
+      retryFailed = false;
+      return module;
+    }).catch((error) => {
+      if (failure === 'url') failedUrl = 'https://fixture.test/projection.js';
+      retryFailed = retrying;
+      pending = null;
+      throw error;
+    });
     return pending;
   };
+  load.recovery = () => ({ canRetry: Boolean(failedUrl) && !retryFailed });
+  return load;
 }
 // the projection builder: logs, hands the row out early (onPrimary) like the real one, then resolves the full projection after its extension reads
 export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
