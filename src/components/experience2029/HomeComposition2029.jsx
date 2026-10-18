@@ -196,10 +196,13 @@ export default function HomeComposition2029({
     observer.observe(node);
     return () => observer.disconnect();
   }, [worldOpen, notableRequested]);
+  const data = useHomeCompositionData({ includeWorld: worldOpen, loadNotable: notableRequested });
   const [worldPreviewRequested, setWorldPreviewRequested] = useState(false);
   const worldPreviewTriggerRef = useRef(null);
   useEffect(() => {
-    if (worldPreviewRequested) return undefined;
+    // The initial skeleton is shorter than the settled Hero/update cards. Observing that temporary
+    // geometry can arm a far-below section and then have it pushed away by the real cards.
+    if (worldPreviewRequested || data.loading || !data.enriched) return undefined;
     const node = worldPreviewTriggerRef.current;
     if (!node || typeof IntersectionObserver === "undefined") {
       setWorldPreviewRequested(true);
@@ -214,8 +217,7 @@ export default function HomeComposition2029({
     }, { rootMargin: HOME_WORLD_PREVIEW_ROOT_MARGIN });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [onWorldPreviewApproach, worldPreviewRequested]);
-  const data = useHomeCompositionData({ includeWorld: worldOpen, loadNotable: notableRequested });
+  }, [data.enriched, data.loading, onWorldPreviewApproach, worldPreviewRequested]);
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const lead = data.posts[0] || null;
