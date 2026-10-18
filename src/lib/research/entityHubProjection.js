@@ -433,6 +433,16 @@ const SHOWN_PHRASES_PER_FAMILY = 18;
 
 const hubHref = (type, key) => `${HUB_ROUTE}/${encodeURIComponent(type)}/${encodeURIComponent(key)}`;
 
+function projectNumberNodeIdentity(node) {
+  return {
+    nodeId: String(node.id),
+    type: node.type,
+    key: node.identity_key || String(node.id),
+    label: node.label,
+    hubHref: hubHref(node.type, node.label),
+  };
+}
+
 /**
  * Pure. Joins canonical engine findings (kind="gematria") with the public gematria_words row, the
  * Registry (by db_column) and existing number nodes into typed projection links. Never computes a
@@ -604,7 +614,7 @@ async function fetchZeroScale(number) {
 // getNumberAnchor() client path. World/Entity Hub reads the existing curated row directly and
 // immediately converts it through the governed Universal Finding adapter, preserving the v8
 // boundary: current curated context != engine truth != canonical/publication state.
-async function fetchNumberAnchorProfile(number) {
+export async function fetchNumberAnchorProfile(number) {
   const { data, error } = await supabase
     .from("number_anchors")
     .select(NUMBER_ANCHOR_FIELDS)
@@ -625,6 +635,27 @@ async function fetchNumberAnchorProfile(number) {
     row,
     finding: row ? numberAnchorToUniversalFinding(row) : null,
     access: { available: true, reason: null },
+  };
+}
+
+// Bounded seam for the compact Number opening. Resolve the existing Number identity first so a
+// missing node (including value 0) stays null exactly as it does in fetchEntityHubProjection.
+// Callers may start this promise beside the compact opening RPC; this path does not read families,
+// graph depth or full Number rows, and it never invents a partial identity.
+export async function fetchNumberOpeningContext(number) {
+  if (number == null || (typeof number === "string" && !number.trim())) return null;
+  const value = Number(number);
+  if (!Number.isSafeInteger(value)) return null;
+
+  const node = await resolveEntityHubNode({ type: "number", key: String(value) });
+  if (!node) return null;
+
+  const resolvedValue = Number(node.label);
+  if (!Number.isSafeInteger(resolvedValue)) return null;
+
+  return {
+    identity: projectNumberNodeIdentity(node),
+    anchorProfile: await fetchNumberAnchorProfile(resolvedValue),
   };
 }
 
@@ -1083,10 +1114,7 @@ export async function fetchEntityHubProjection({
     return full.error ? [] : full.data || [];
   };
   const progressive = isNumberNode && typeof onNumberCore === "function";
-  const numberIdentity = {
-    nodeId: String(node.id), type: node.type, key: node.identity_key || String(node.id),
-    label: node.label, hubHref: hubHref(node.type, node.label),
-  };
+  const numberIdentity = projectNumberNodeIdentity(node);
   if (progressive) onNumberCore({ identity: numberIdentity, gematria: { pending: true }, numberPagePending: true });
 
   // Start Number identity/method inputs before graph, media and topic hydration. The
