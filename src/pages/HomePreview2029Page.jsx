@@ -227,7 +227,6 @@ export default function HomePreview2029Page() {
   const lead = data.posts?.[0] || null;
   const world = data.projection?.worldPreview?.research || [];
   const people = data.projection?.worldPreview?.people || [];
-  const pulse = data.projection?.systemPulse || null;
   const active = selection || selectionFromHero(now, lead);
 
   const select = (next) => { setSelection(next); setSheetOpen(true); };
@@ -354,10 +353,6 @@ export default function HomePreview2029Page() {
           </div>
         </Section>
 
-        <section className="hp29-quiet" aria-label="דופק ומצב בנייה">
-          <span>{pulse?.corpusTotal ? `${pulse.corpusTotal.toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
-          <a href="/map">מה כבר חי ומה בדרך ←</a>
-        </section>
       </main>
 
       <div className={`hp29-sel-wrap${sheetOpen || razielOpen ? " is-sheet-open" : ""}`}>

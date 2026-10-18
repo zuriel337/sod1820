@@ -164,7 +164,7 @@ function syntheticSession() {
 
 const switchRows = [
   "fx_analytics", "fx_now_feed", "fx_tier_signals", "fx_number_dossier",
-  "fx_number_journey", "fx_home_videos", "fx_home_gateways", "fx_home_pulse",
+  "fx_number_journey", "fx_home_videos", "fx_home_gateways",
   "fx_home_temporal", "fx_home_world_preview", "fx_home_convergences",
   "fx_world_discovery", "fx_els_gallery", "fx_world_relation_identity",
   "fx_number_lookup_page",

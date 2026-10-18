@@ -33,8 +33,6 @@ npm run package:research-run
 npm run test:2029-server-seo-ai
 # Research Path resumability runtime acceptance
 npm run test:research-path-resume
-# Home 2029 System Pulse acceptance
-npm run test:home-2029-pulse
 # 2029 cheap route/test/least-privilege hardening
 npm run test:2029-cheap-hardening
 # Legacy Research containment + unopened Heichal entrypoint acceptance

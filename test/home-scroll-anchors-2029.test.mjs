@@ -23,7 +23,7 @@ test("Home marks its hero slot, notices, every Section, every Reveal, each gatew
   const home = read("src/components/experience2029/HomeComposition2029.jsx");
   assert.match(home, /data-h29-hold=\{heroBox\.hold\} data-scroll-anchor="home:hero"/);
   assert.match(home, /data-home-launch-notice="gradual-opening" data-scroll-anchor="home:launch-notice"/);
-  assert.match(home, /aria-label="דופק ומצב בנייה" data-scroll-anchor="home:pulse"/);
+  assert.doesNotMatch(home, /home:pulse|דופק ומצב בנייה/);
   assert.match(home, /data-scroll-anchor=\{`home:\$\{label \|\| title\}`\}/, "Section: the label or the title");
   assert.match(home, /data-scroll-anchor=\{`home:reveal:\$\{id\}`\}/, "Reveal: its id");
   assert.match(read("src/components/experience2029/DiscoveryGateways2029.jsx"), /className="dg29-gateway" data-scroll-anchor=\{`dg:\$\{title\}`\}/);
@@ -36,7 +36,7 @@ test("the ids that Home renders are unique (a repeated id would make the restore
   const sections = [...home.matchAll(/<Section (?:title|label)="([^"]+)"/g)].map((m) => `home:${m[1]}`);
   const reveals = [...home.matchAll(/<Reveal id="([^"]+)"/g)].map((m) => `home:reveal:${m[1]}`);
   const gateways = [...read("src/components/experience2029/DiscoveryGateways2029.jsx").matchAll(/<Gateway title="([^"]+)"/g)].map((m) => `dg:${m[1]}`);
-  const ids = [...sections, ...reveals, ...gateways, "home:hero", "home:launch-notice", "home:pulse", "dg:dimension-five", "home:build-signup"];
+  const ids = [...sections, ...reveals, ...gateways, "home:hero", "home:launch-notice", "dg:dimension-five", "home:build-signup"];
   assert.ok(sections.length >= 4 && reveals.length === 2 && gateways.length === 3, `found ${sections.length} sections, ${reveals.length} reveals, ${gateways.length} gateways`);
   assert.equal(new Set(ids).size, ids.length, `duplicate ids in ${ids.join(", ")}`);
 });
