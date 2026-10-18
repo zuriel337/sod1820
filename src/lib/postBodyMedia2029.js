@@ -1,6 +1,9 @@
 const POST_BODY_MEDIA_STATE = "data-sod-post-media-state";
 const POST_BODY_MEDIA_SRC = "data-sod-post-media-src";
 const POST_BODY_MEDIA_SRCSET = "data-sod-post-media-srcset";
+const POST_BODY_MEDIA_PLACEHOLDER = "data-sod-post-media-placeholder";
+const APPROACH_INTENT_DISTANCE_PX = 24;
+const APPROACH_INTENT_IDLE_MS = 600;
 
 // Verified against the public FZ1073 post row and the exact public object bytes on
 // 2026-10-18. Keep these exact: unrelated authored images do not inherit a
@@ -47,15 +50,29 @@ function moveToDeferredAttribute(element, sourceName, deferredName) {
 function reserveImageSpace(image, source) {
   const authoredWidth = positiveAuthoredDimension(image.getAttribute("width"));
   const authoredHeight = positiveAuthoredDimension(image.getAttribute("height"));
-  if (authoredWidth && authoredHeight) return true;
+  if (authoredWidth && authoredHeight) {
+    return { width: authoredWidth, height: authoredHeight };
+  }
 
   const intrinsic = KNOWN_POST_BODY_MEDIA_DIMENSIONS_2029[source];
-  if (!intrinsic) return false;
+  if (!intrinsic) return null;
   // A partial or invalid authored pair cannot reserve a stable box. Replace
   // both values together only when exact object dimensions were verified.
   image.setAttribute("width", String(intrinsic.width));
   image.setAttribute("height", String(intrinsic.height));
   image.setAttribute("data-sod-post-media-intrinsic", `${intrinsic.width}x${intrinsic.height}`);
+  return intrinsic;
+}
+
+function transparentPlaceholderSource({ width, height }) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+function restoreTransparentPlaceholder(image) {
+  const placeholder = image.getAttribute(POST_BODY_MEDIA_PLACEHOLDER);
+  if (!meaningful(placeholder)) return false;
+  if (image.getAttribute("src") !== placeholder) image.setAttribute("src", placeholder);
   return true;
 }
 
@@ -80,7 +97,8 @@ export function preparePostBodyMedia2029(html, documentRef = globalThis.document
     const authoredSource = image.getAttribute("src");
     const authoredSourceSet = image.getAttribute("srcset");
     if (!meaningful(authoredSource) && !meaningful(authoredSourceSet)) continue;
-    if (!reserveImageSpace(image, authoredSource)) continue;
+    const reservation = reserveImageSpace(image, authoredSource);
+    if (!reservation) continue;
 
     // A picture's candidates are deferred only with its managed fallback img.
     // This preserves source-only pictures and malformed-but-renderable markup.
@@ -98,10 +116,13 @@ export function preparePostBodyMedia2029(html, documentRef = globalThis.document
     if (!source && !sourceSet) continue;
 
     managedCount += 1;
+    const placeholder = transparentPlaceholderSource(reservation);
+    image.setAttribute(POST_BODY_MEDIA_PLACEHOLDER, placeholder);
     image.setAttribute(POST_BODY_MEDIA_STATE, "pending");
-    // Native lazy loading is a conservative fallback after activation and in a
-    // browser that has no IntersectionObserver.
-    image.setAttribute("loading", "lazy");
+    // A local transparent replaced-image source gives the browser the exact
+    // intrinsic ratio while retaining authored inline/block sizing semantics.
+    // It performs no network request and is replaced only at activation.
+    image.setAttribute("src", placeholder);
   }
 
   // Keep wholly ineligible authored HTML byte-for-byte equivalent to the
@@ -195,7 +216,10 @@ function activateImage(image) {
     restoreDeferredAttribute(source, "srcset", POST_BODY_MEDIA_SRCSET);
   }
   restoreDeferredAttribute(image, "srcset", POST_BODY_MEDIA_SRCSET);
-  restoreDeferredAttribute(image, "src", POST_BODY_MEDIA_SRC);
+  const restoredSource = restoreDeferredAttribute(image, "src", POST_BODY_MEDIA_SRC);
+  if (!restoredSource && image.getAttribute("src") === image.getAttribute(POST_BODY_MEDIA_PLACEHOLDER)) {
+    image.removeAttribute("src");
+  }
   return true;
 }
 
@@ -228,18 +252,24 @@ export function observePostBodyMedia2029(root, {
       removeFailureNotice(image);
       clearActiveSources(image);
       image.setAttribute(POST_BODY_MEDIA_STATE, "pending");
+      restoreTransparentPlaceholder(image);
       // A separate task is queued so removing and restoring the exact same URL
       // is observable to the browser without adding a cache-busting URL.
       queueMicrotask(() => { if (!disposed) activateImage(image); });
     };
     const loaded = () => {
+      if (image.getAttribute(POST_BODY_MEDIA_STATE) !== "loading") return;
       image.setAttribute(POST_BODY_MEDIA_STATE, "loaded");
+      image.removeAttribute(POST_BODY_MEDIA_PLACEHOLDER);
       clearFailureListener?.();
       clearFailureListener = null;
       removeFailureNotice(image);
     };
     const failed = () => {
+      if (image.getAttribute(POST_BODY_MEDIA_STATE) !== "loading") return;
+      clearActiveSources(image);
       image.setAttribute(POST_BODY_MEDIA_STATE, "failed");
+      restoreTransparentPlaceholder(image);
       clearFailureListener?.();
       clearFailureListener = showFailureNotice(image, root, retry);
     };
@@ -278,29 +308,142 @@ export function observePostBodyMedia2029(root, {
 
     const view = root.ownerDocument?.defaultView;
     const scrollKeys = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "]);
-    const enableApproach = (event) => {
-      if (disposed || approachEnabled || event?.isTrusted === false) return;
-      if (event?.type === "keydown" && !scrollKeys.has(event.key)) return;
+    let intentMode = null;
+    let intentDistance = 0;
+    let intentScrollOrigin = null;
+    let pointerGesture = null;
+    let touchGesture = null;
+    let intentResetTimer = null;
+    let lastScrollPosition = { x: view?.scrollX || 0, y: view?.scrollY || 0 };
+
+    const clearIntentTimer = () => {
+      if (intentResetTimer !== null) view?.clearTimeout(intentResetTimer);
+      intentResetTimer = null;
+    };
+    const resetIntent = () => {
+      clearIntentTimer();
+      intentMode = null;
+      intentDistance = 0;
+      intentScrollOrigin = null;
+      pointerGesture = null;
+      touchGesture = null;
+    };
+    const scheduleIntentReset = () => {
+      clearIntentTimer();
+      intentResetTimer = view?.setTimeout(resetIntent, APPROACH_INTENT_IDLE_MS) ?? null;
+    };
+    const beginIntent = (mode) => {
+      if (intentMode !== mode) resetIntent();
+      intentMode = mode;
+      if (!intentScrollOrigin) {
+        // Compositor scrolling can update scrollX/scrollY before a window-level
+        // wheel callback runs. The last observed scroll event is the reliable
+        // pre-input origin; programmatic/hash/restoration scrolls update it
+        // without creating intent.
+        intentScrollOrigin = { ...lastScrollPosition };
+      }
+      scheduleIntentReset();
+    };
+    const scrollDistance = () => intentScrollOrigin
+      ? Math.hypot((view?.scrollX || 0) - intentScrollOrigin.x, (view?.scrollY || 0) - intentScrollOrigin.y)
+      : 0;
+    const enableApproach = () => {
+      if (disposed || approachEnabled) return;
       approachEnabled = true;
+      resetIntent();
       removeIntentListeners();
       observePending(rootMargin);
     };
+    const acceptProvenIntent = () => {
+      if (intentDistance >= APPROACH_INTENT_DISTANCE_PX && scrollDistance() >= APPROACH_INTENT_DISTANCE_PX) {
+        enableApproach();
+      }
+    };
+    const onWheel = (event) => {
+      if (event.isTrusted === false) return;
+      beginIntent("wheel");
+      intentDistance += Math.hypot(event.deltaX || 0, event.deltaY || 0);
+      acceptProvenIntent();
+    };
+    const onKeyDown = (event) => {
+      if (event.isTrusted === false || !scrollKeys.has(event.key)) return;
+      beginIntent("keyboard");
+      intentDistance += event.key.startsWith("Arrow") ? 40 : Math.max(APPROACH_INTENT_DISTANCE_PX, (view?.innerHeight || 0) * 0.8);
+      acceptProvenIntent();
+    };
+    const onPointerDown = (event) => {
+      if (event.isTrusted === false || event.isPrimary === false) return;
+      beginIntent("pointer");
+      pointerGesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    };
+    const onPointerMove = (event) => {
+      if (event.isTrusted === false || !pointerGesture || event.pointerId !== pointerGesture.id) return;
+      intentDistance += Math.hypot(event.clientX - pointerGesture.x, event.clientY - pointerGesture.y);
+      pointerGesture.x = event.clientX;
+      pointerGesture.y = event.clientY;
+      scheduleIntentReset();
+      acceptProvenIntent();
+    };
+    const onPointerEnd = (event) => {
+      if (!pointerGesture || event.pointerId !== pointerGesture.id) return;
+      pointerGesture = null;
+      if (intentDistance < APPROACH_INTENT_DISTANCE_PX) resetIntent();
+      else scheduleIntentReset();
+    };
+    const touchPoint = (event) => event.touches?.[0] || event.changedTouches?.[0] || null;
+    const onTouchStart = (event) => {
+      if (event.isTrusted === false || pointerGesture) return;
+      const point = touchPoint(event);
+      if (!point) return;
+      beginIntent("touch");
+      touchGesture = { x: point.clientX, y: point.clientY };
+    };
+    const onTouchMove = (event) => {
+      if (event.isTrusted === false || !touchGesture || pointerGesture) return;
+      const point = touchPoint(event);
+      if (!point) return;
+      intentDistance += Math.hypot(point.clientX - touchGesture.x, point.clientY - touchGesture.y);
+      touchGesture.x = point.clientX;
+      touchGesture.y = point.clientY;
+      scheduleIntentReset();
+      acceptProvenIntent();
+    };
+    const onTouchEnd = () => {
+      touchGesture = null;
+      if (intentDistance < APPROACH_INTENT_DISTANCE_PX) resetIntent();
+      else scheduleIntentReset();
+    };
+    const onScroll = () => {
+      if (intentMode) {
+        scheduleIntentReset();
+        acceptProvenIntent();
+      }
+      lastScrollPosition = { x: view?.scrollX || 0, y: view?.scrollY || 0 };
+    };
     if (view?.addEventListener) {
       const intentListeners = [
-        ["wheel", enableApproach, { passive: true }],
-        ["touchstart", enableApproach, { passive: true }],
-        ["pointerdown", enableApproach, { passive: true }],
-        ["keydown", enableApproach, false],
+        ["wheel", onWheel, { passive: true }],
+        ["touchstart", onTouchStart, { passive: true }],
+        ["touchmove", onTouchMove, { passive: true }],
+        ["touchend", onTouchEnd, { passive: true }],
+        ["touchcancel", onTouchEnd, { passive: true }],
+        ["pointerdown", onPointerDown, { passive: true }],
+        ["pointermove", onPointerMove, { passive: true }],
+        ["pointerup", onPointerEnd, { passive: true }],
+        ["pointercancel", onPointerEnd, { passive: true }],
+        ["keydown", onKeyDown, false],
+        ["scroll", onScroll, { passive: true }],
       ];
       for (const [type, listener, options] of intentListeners) view.addEventListener(type, listener, options);
       removeIntentListeners = () => {
         for (const [type, listener, options] of intentListeners) view.removeEventListener(type, listener, options);
+        resetIntent();
         removeIntentListeners = () => {};
       };
     }
   } else {
-    // Capability wins in older browsers. Native loading=lazy still provides a
-    // hint, while restoring immediately avoids a permanently blank article.
+    // Capability wins in older browsers: restore immediately rather than leave
+    // article media permanently blank.
     queueMicrotask(() => {
       if (!disposed) {
         for (const image of images) {
@@ -322,4 +465,6 @@ export const postBodyMedia2029Internals = Object.freeze({
   stateAttribute: POST_BODY_MEDIA_STATE,
   sourceAttribute: POST_BODY_MEDIA_SRC,
   sourceSetAttribute: POST_BODY_MEDIA_SRCSET,
+  placeholderAttribute: POST_BODY_MEDIA_PLACEHOLDER,
+  approachIntentDistancePx: APPROACH_INTENT_DISTANCE_PX,
 });
