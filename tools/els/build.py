@@ -8,10 +8,10 @@ from contextlib import contextmanager
 import fcntl
 import gzip
 import hashlib
-import io
 import json
 import os
 import re
+import secrets
 import stat
 import sys
 import tempfile
@@ -23,13 +23,16 @@ REPO_ROOT_REAL = os.path.realpath(ROOT)
 DATA = os.path.join(HERE, "data")
 OUT = os.path.join(ROOT, "public", "tzofen.html")
 ASSET_DIR = os.path.join(ROOT, "public", "els-data")
-OWNED_ASSET = re.compile(r"^tk-vtext\.([0-9a-f]{16})\.gzdata$")
 EXPECTED_LETTER_COUNT = 1_204_583
 EXPECTED_VERSE_COUNT = 23_204
-MAX_OWNED_ASSET_BYTES = 16 * 1024 * 1024
-MAX_OWNED_SOURCE_BYTES = 32 * 1024 * 1024
 TEST_FAIL_PHASE_ENV = "SOD1820_ELS_TEST_FAIL_PHASE"
 TEST_PAUSE_PHASE_ENV = "SOD1820_ELS_TEST_PAUSE_PHASE"
+DIRECTORY_OPEN_FLAGS = (
+    os.O_RDONLY
+    | getattr(os, "O_DIRECTORY", 0)
+    | getattr(os, "O_NOFOLLOW", 0)
+    | getattr(os, "O_CLOEXEC", 0)
+)
 
 
 def read_text(path):
@@ -74,73 +77,6 @@ def atomic_write(path, payload, *, before_replace_phase=None, create_parent=Fals
             os.unlink(temporary)
 
 
-def is_generator_owned_asset(entry, expected_hash_prefix):
-    """Recognize a regular, content-addressed gzip emitted by this generator."""
-    try:
-        before = os.lstat(entry.path)
-    except FileNotFoundError:
-        return False
-    if not stat.S_ISREG(before.st_mode) or before.st_size > MAX_OWNED_ASSET_BYTES:
-        return False
-
-    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        descriptor = os.open(entry.path, flags)
-    except (FileNotFoundError, OSError):
-        return False
-    try:
-        opened = os.fstat(descriptor)
-        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino):
-            return False
-        with os.fdopen(descriptor, "rb", closefd=False) as handle:
-            payload = handle.read(MAX_OWNED_ASSET_BYTES + 1)
-    finally:
-        os.close(descriptor)
-
-    if len(payload) > MAX_OWNED_ASSET_BYTES or len(payload) < 10:
-        return False
-    # The generator emits a header with no optional fields and mtime=0.
-    if payload[:8] != b"\x1f\x8b\x08\x00\x00\x00\x00\x00":
-        return False
-    try:
-        with gzip.GzipFile(fileobj=io.BytesIO(payload), mode="rb") as archive:
-            source = archive.read(MAX_OWNED_SOURCE_BYTES + 1)
-        source_text = source.decode("utf-8")
-    except (EOFError, OSError, UnicodeDecodeError):
-        return False
-    if len(source) > MAX_OWNED_SOURCE_BYTES or not source_text.endswith("\n"):
-        return False
-    if len(source_text.splitlines()) != EXPECTED_VERSE_COUNT:
-        return False
-    return hashlib.sha256(source).hexdigest().startswith(expected_hash_prefix)
-
-
-def remove_stale_owned_assets(current_name):
-    """Remove only stale regular payloads whose bytes prove generator ownership."""
-    removed = []
-    for entry in sorted(os.scandir(ASSET_DIR), key=lambda item: item.name):
-        match = OWNED_ASSET.fullmatch(entry.name)
-        if entry.name == current_name or not match:
-            continue
-        # lstat and is_file(..., follow_symlinks=False) both make the no-link
-        # contract explicit. Directories, links, FIFOs, sockets and devices survive.
-        try:
-            metadata = os.lstat(entry.path)
-        except FileNotFoundError:
-            continue
-        if not stat.S_ISREG(metadata.st_mode) or not entry.is_file(follow_symlinks=False):
-            continue
-        if not is_generator_owned_asset(entry, match.group(1)):
-            continue
-        latest = os.lstat(entry.path)
-        if not stat.S_ISREG(latest.st_mode) or (latest.st_dev, latest.st_ino) != (metadata.st_dev, metadata.st_ino):
-            continue
-        test_checkpoint("inside_cleanup")
-        os.unlink(entry.path)
-        removed.append(entry.name)
-    return removed
-
-
 def path_is_within(path, parent):
     try:
         return os.path.commonpath((path, parent)) == parent
@@ -148,48 +84,147 @@ def path_is_within(path, parent):
         return False
 
 
-def reject_symlink_components(raw_absolute_path):
-    """Reject every existing symbolic-link component without following it."""
-    drive, tail = os.path.splitdrive(raw_absolute_path)
-    current = drive + os.sep
-    for component in tail.split(os.sep):
-        if not component or component == ".":
-            continue
-        if component == "..":
-            current = os.path.dirname(current.rstrip(os.sep)) or drive + os.sep
-            continue
-        current = os.path.join(current, component)
-        try:
-            metadata = os.lstat(current)
-        except FileNotFoundError:
-            continue
-        if stat.S_ISLNK(metadata.st_mode):
-            raise ValueError(f"standalone output path contains a symlink component: {current}")
+def open_directory_no_symlinks(absolute_path):
+    """Bind an absolute directory one component at a time without following links."""
+    if not os.path.isabs(absolute_path):
+        raise ValueError("directory path must be absolute")
+    descriptor = os.open(os.sep, DIRECTORY_OPEN_FLAGS)
+    try:
+        for component in absolute_path.split(os.sep):
+            if not component or component == ".":
+                continue
+            next_descriptor = os.open(component, DIRECTORY_OPEN_FLAGS, dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = next_descriptor
+        return descriptor
+    except Exception:
+        os.close(descriptor)
+        raise
 
 
-def validate_standalone_output(output_path):
-    """Return one canonical external regular-file destination, or fail without mutation."""
+def directory_fd_is_within(candidate_fd, root_fd):
+    """Check ancestry using only bound directory descriptors and inode identities."""
+    root_metadata = os.fstat(root_fd)
+    root_identity = (root_metadata.st_dev, root_metadata.st_ino)
+    cursor = os.dup(candidate_fd)
+    seen = set()
+    try:
+        while True:
+            metadata = os.fstat(cursor)
+            identity = (metadata.st_dev, metadata.st_ino)
+            if identity == root_identity:
+                return True
+            if identity in seen:
+                raise RuntimeError("directory ancestry cycle while validating standalone output")
+            seen.add(identity)
+            parent = os.open("..", DIRECTORY_OPEN_FLAGS, dir_fd=cursor)
+            try:
+                parent_metadata = os.fstat(parent)
+                parent_identity = (parent_metadata.st_dev, parent_metadata.st_ino)
+            except Exception:
+                os.close(parent)
+                raise
+            if parent_identity == identity:
+                os.close(parent)
+                return False
+            os.close(cursor)
+            cursor = parent
+    finally:
+        os.close(cursor)
+
+
+@contextmanager
+def standalone_destination(output_path):
+    """Bind one create-new external destination until publication is complete."""
     if not output_path or "\x00" in output_path:
         raise ValueError("standalone output path is empty or invalid")
     raw_absolute = output_path if os.path.isabs(output_path) else os.path.join(os.getcwd(), output_path)
-    reject_symlink_components(raw_absolute)
-    canonical = os.path.realpath(raw_absolute)
-    if path_is_within(canonical, REPO_ROOT_REAL):
-        raise ValueError("standalone output must be outside the entire repository root")
+    parent_path, basename = os.path.split(raw_absolute)
+    if not basename or basename in {".", ".."}:
+        raise ValueError("standalone output must name a new file")
 
-    parent = os.path.dirname(canonical)
     try:
-        parent_metadata = os.lstat(parent)
-    except FileNotFoundError as error:
-        raise ValueError("standalone output parent must already exist") from error
-    if not stat.S_ISDIR(parent_metadata.st_mode) or stat.S_ISLNK(parent_metadata.st_mode):
-        raise ValueError("standalone output parent must be an unambiguous real directory")
+        parent_fd = open_directory_no_symlinks(parent_path)
+    except OSError as error:
+        raise ValueError("standalone output parent must be an existing real directory without symlinks") from error
+    try:
+        repo_fd = open_directory_no_symlinks(REPO_ROOT_REAL)
+        try:
+            if directory_fd_is_within(parent_fd, repo_fd):
+                raise ValueError("standalone output must be outside the entire repository root")
+        finally:
+            os.close(repo_fd)
 
-    if os.path.lexists(canonical):
-        target_metadata = os.lstat(canonical)
-        if not stat.S_ISREG(target_metadata.st_mode) or stat.S_ISLNK(target_metadata.st_mode):
-            raise ValueError("standalone output must be a regular file path")
-    return canonical
+        try:
+            os.stat(basename, dir_fd=parent_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            raise ValueError("standalone output is create-new and refuses to overwrite any entry")
+
+        test_checkpoint("standalone_parent_bound")
+        yield {"parent_fd": parent_fd, "basename": basename}
+    finally:
+        os.close(parent_fd)
+
+
+def atomic_create_at(destination, payload):
+    """Publish complete bytes create-new through one held parent directory descriptor."""
+    parent_fd = destination["parent_fd"]
+    basename = destination["basename"]
+    temporary = None
+    for _ in range(128):
+        candidate = f".{basename}.{os.getpid()}.{secrets.token_hex(8)}.tmp"
+        flags = (
+            os.O_WRONLY
+            | os.O_CREAT
+            | os.O_EXCL
+            | getattr(os, "O_NOFOLLOW", 0)
+            | getattr(os, "O_CLOEXEC", 0)
+        )
+        try:
+            descriptor = os.open(candidate, flags, 0o600, dir_fd=parent_fd)
+        except FileExistsError:
+            continue
+        temporary = candidate
+        break
+    if temporary is None:
+        raise RuntimeError("could not allocate standalone temporary file")
+
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fchmod(handle.fileno(), 0o644)
+            os.fsync(handle.fileno())
+        test_checkpoint("before_standalone_publish")
+        os.link(
+            temporary,
+            basename,
+            src_dir_fd=parent_fd,
+            dst_dir_fd=parent_fd,
+            follow_symlinks=False,
+        )
+        os.unlink(temporary, dir_fd=parent_fd)
+        temporary = None
+
+        verify_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+        verify_fd = os.open(basename, verify_flags, dir_fd=parent_fd)
+        try:
+            metadata = os.fstat(verify_fd)
+            if not stat.S_ISREG(metadata.st_mode):
+                raise RuntimeError("standalone output is not a regular file")
+            with os.fdopen(verify_fd, "rb", closefd=False) as handle:
+                if handle.read() != payload:
+                    raise RuntimeError("generated standalone HTML bytes changed on disk")
+        finally:
+            os.close(verify_fd)
+    finally:
+        if temporary is not None:
+            try:
+                os.unlink(temporary, dir_fd=parent_fd)
+            except FileNotFoundError:
+                pass
 
 
 @contextmanager
@@ -372,23 +407,16 @@ def build_hosted(inputs, verse_gzip, asset_name):
         with open(OUT, "rb") as handle:
             if handle.read() != html:
                 raise RuntimeError("generated hosted HTML bytes changed on disk")
-        test_checkpoint("after_html_before_cleanup")
-
-        # Cleanup is deliberately last: any process failure leaves an old or new usable pair.
-        removed = remove_stale_owned_assets(asset_name)
+        test_checkpoint("after_html_publish")
     print("wrote", OUT, "| KB:", round(len(html) / 1024))
     print("wrote", asset_path, "| KB:", round(len(verse_gzip) / 1024), "| source sha256:", hashlib.sha256(inputs["verse_text"]).hexdigest())
-    if removed:
-        print("removed stale owned verse assets:", ", ".join(removed))
 
 
-def build_standalone(inputs, verse_gzip, output_path):
+def build_standalone(inputs, verse_gzip, destination):
     asset_data_url = "data:application/gzip;base64," + base64.b64encode(verse_gzip).decode("ascii")
     html = render(inputs, asset_data_url, standalone=True)
-    atomic_write(output_path, html)
-    with open(output_path, "rb") as handle:
-        assert handle.read() == html, "generated standalone HTML bytes changed on disk"
-    print("wrote standalone", output_path, "| KB:", round(len(html) / 1024), "| source sha256:", hashlib.sha256(inputs["verse_text"]).hexdigest())
+    atomic_create_at(destination, html)
+    print("wrote standalone", destination["basename"], "through bound external directory | KB:", round(len(html) / 1024), "| source sha256:", hashlib.sha256(inputs["verse_text"]).hexdigest())
 
 
 def parse_args():
@@ -403,18 +431,24 @@ def parse_args():
 
 def main():
     args = parse_args()
-    standalone_output = validate_standalone_output(args.standalone_out) if args.standalone_out else None
-    inputs = load_inputs()
-    validate_source_inputs(inputs)
-    test_checkpoint("inputs_validated")
-    verse_text = inputs["verse_text"]
-    verse_sha256 = hashlib.sha256(verse_text).hexdigest()
-    verse_gzip = gzip.compress(verse_text, compresslevel=9, mtime=0)
-    asset_name = f"tk-vtext.{verse_sha256[:16]}.gzdata"
-    if standalone_output:
-        build_standalone(inputs, verse_gzip, standalone_output)
-    else:
-        build_hosted(inputs, verse_gzip, asset_name)
+
+    def prepare_payload():
+        inputs = load_inputs()
+        validate_source_inputs(inputs)
+        test_checkpoint("inputs_validated")
+        verse_text = inputs["verse_text"]
+        verse_sha256 = hashlib.sha256(verse_text).hexdigest()
+        verse_gzip = gzip.compress(verse_text, compresslevel=9, mtime=0)
+        return inputs, verse_gzip, f"tk-vtext.{verse_sha256[:16]}.gzdata"
+
+    if args.standalone_out:
+        with standalone_destination(args.standalone_out) as destination:
+            inputs, verse_gzip, _ = prepare_payload()
+            build_standalone(inputs, verse_gzip, destination)
+        return
+
+    inputs, verse_gzip, asset_name = prepare_payload()
+    build_hosted(inputs, verse_gzip, asset_name)
 
 
 if __name__ == "__main__":
