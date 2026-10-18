@@ -7,8 +7,10 @@ deployed, Preview-tested or released.
   (`gpt/perf-unified-wave3-20261018`).
 - Opening-split parent: `b55f914c9472cfb8067924413fc519fb983da1a8`.
 - NO_GO repair implementation: `577d71cae9453b93cc008d4f511f3b4528599200`.
+- Unmount/terminal-state repair: `3b5b0d1c82891ce51136167f57d110e8ed7201cc`.
 - Branch: `gpt/perf-world-story-opening-split-20261018`.
 - Repair work-log BEFORE: `945f5018-eb49-4161-89a9-bfe894934cfd`.
+- Unmount repair work-log BEFORE: `34bc5dd2-ef41-4fa1-a0ab-b429414c6c94`.
 
 ## Opening-read contract
 
@@ -40,11 +42,18 @@ separately asserts the honest two-read no-image and thumb-only World exceptions.
   cannot start a third request;
 - closing/reopening details and same-document remount after a terminal failure
   do not start another module request;
+- a no-URL failure that settles after unmount is recorded before lifecycle
+  checks, so the remount remains at one module request;
+- a failed recovery that settles after unmount is likewise recorded before
+  lifecycle checks, so the remount remains at two requests and never asks for
+  `?retry=2`;
 - an extension-data failure is not mislabeled as a module retry.
 
-The story opening stays mounted in every failure case. The loader fixture now
-implements `recovery()` and records whether each request was the importer, a
-recovery URL, a no-URL failure or a second failure.
+The story opening stays mounted in every mounted failure case. The loader
+fixture implements `recovery()`, delayed deterministic failures and records
+whether each request was the importer, a recovery URL, a no-URL failure or a
+second failure. React state remains lifecycle-bound; only the shared loader's
+terminal state survives an unmount.
 
 ## Exact Home parity anchor
 
@@ -63,8 +72,9 @@ the compact card.
 ## Verification
 
 - `PERF_CHROME=/workspace/private-perf-20261017/browsers/chromium-1194/chrome-linux/chrome node --test test/home-story-2029.test.mjs`
-  — **17/17 pass**, real Chromium; Home/World, normal and fallback reads,
-  loader URL/no-URL/second-failure request counts, lifecycle and navigation.
+  — **19/19 pass**, real Chromium; Home/World, normal and fallback reads,
+  loader URL/no-URL/second-failure request counts, delayed failures across
+  unmount/remount, lifecycle and navigation.
 - `LOCKED_ROUTE_DIST=dist LOCKED_ROUTE_EXPECT=after LOCKED_ROUTE_REPS=1 CHROMIUM_PATH=/workspace/private-perf-20261017/browsers/chromium-1194/chrome-linux/chrome node --test test/locked-route-parallel-start-2029.test.mjs`
   — **1/1 pass**. The normal image-bearing World fixture receives one Post
   response/read after the lock gate opens; blocked World receives none.
@@ -85,11 +95,11 @@ outside this branch's scope; this is the same pre-existing baseline failure.
 [comparison.json](./comparison.json) records gzip-9 manifest closures. Relative
 to exact Wave 3, the final candidate is:
 
-- entry: 9 chunks / 191,702 bytes;
-- Home route extra: 26 chunks / 155,993 bytes;
-- World route extra: 37 chunks / 260,236 bytes;
+- entry: 9 chunks / 191,690 bytes;
+- Home route extra: 26 chunks / 155,972 bytes;
+- World route extra: 37 chunks / 260,209 bytes;
 - the timeline action still reaches the two deferred projection/executor
-  chunks, 30,046 bytes total;
+  chunks, 30,040 bytes total;
 - image-bearing World opening reaches zero of those deferred chunks.
 
 These are deterministic local bundle/request-path results. `NOT_MEASURED`:
