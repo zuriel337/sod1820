@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { buildCalculator2029FastPreview, CALCULATOR_2029_FAST_CORE_KEYS } from "../../lib/research/calculator2029FastPreview.js";
 import { buildNumberExpressionHandoff } from "../../lib/research/numberExpressionFocus.js";
+import { buildNumberQuickFacts, NUMBER_PAGE_TEASERS } from "../../lib/research/numberQuickFacts.js";
+import { loadNumber2029RouteCode } from "../../lib/lockedRouteCode2029.js";
 import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import "./numberQuickInspect2029.css";
 
@@ -98,14 +100,17 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
   const root = numeric ? safeInt(committed) : (active?.value ?? null);
   const expression = numeric ? null : committed || null;
 
-  const openFull = useCallback(() => {
+  const openFull = useCallback((hash = "") => {
     if (root == null) return;
     const focus = { root, expression, method: expression ? active?.key || seedMethod || null : null, resultValue: expression ? root : null, sourceReturn, lens: "number" };
     const handoff = buildNumberExpressionHandoff({ ...focus, context });
     if (!handoff) return;
     research?.updateResearchContext?.((current) => buildNumberExpressionHandoff({ ...focus, context: current }).context);
-    go?.(handoff.href, { preserve: false });
+    go?.(`${handoff.href}${hash}`, { preserve: false });
   }, [root, expression, active, seedMethod, sourceReturn, context, research, go]);
+
+  const prefetchFull = useCallback(() => { loadNumber2029RouteCode().catch(() => {}); }, []);
+  const quickFacts = useMemo(() => (root != null ? buildNumberQuickFacts(root) : []), [root]);
 
   const submit = (event) => {
     event.preventDefault();
@@ -166,8 +171,26 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
         </section>
       ) : null}
 
+      {quickFacts.length ? (
+        <section className="sod29-quick-inspect-facts" aria-label="עובדות מתמטיות על המספר">
+          <small>עובדות מתמטיות · {root}</small>
+          <ul>{quickFacts.map((f) => <li key={f.key}>{f.label}</li>)}</ul>
+        </section>
+      ) : null}
+
       {root != null ? (
-        <button type="button" className="sod29-quick-inspect-open" onClick={openFull}>לדף המספר המלא · {root}</button>
+        <section className="sod29-quick-inspect-teasers" aria-label="מה מחכה בדף המלא">
+          <small>מה מחכה בדף המלא</small>
+          <ul>
+            {NUMBER_PAGE_TEASERS.map((t) => (
+              <li key={t.key}><button type="button" onMouseEnter={prefetchFull} onFocus={prefetchFull} onClick={() => openFull(t.hash)}>{t.label}</button></li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {root != null ? (
+        <button type="button" className="sod29-quick-inspect-open" onMouseEnter={prefetchFull} onFocus={prefetchFull} onClick={() => openFull()}>לדף המספר המלא · {root}</button>
       ) : null}
     </div>
   );

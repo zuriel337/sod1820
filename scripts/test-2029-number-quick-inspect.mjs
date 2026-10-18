@@ -61,3 +61,14 @@ test('full-page link uses the existing handoff contract; Number2029Page untouche
   assert.match(src, /preserve: false/);
   assert.match(src, /לדף המספר המלא/);
 });
+
+test('teaser facts reuse numberMathProfile and add no network; prefetch is intent-only', () => {
+  const facts = read('src/lib/research/numberQuickFacts.js');
+  assert.match(facts, /from "\.\/numberMathProfile\.js"/);
+  assert.doesNotMatch(facts, /supabase|fetch\(|rpc\(/);
+  const src = read(QUICK);
+  assert.equal((src.match(/\.rpc\(/g) || []).length, 1);
+  assert.match(src, /onMouseEnter=\{prefetchFull\}/);
+  assert.match(src, /loadNumber2029RouteCode/);
+  assert.match(src, /NUMBER_PAGE_TEASERS/);
+});
