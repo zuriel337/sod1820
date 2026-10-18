@@ -48,9 +48,9 @@ test.before(async () => {
 test.after(async () => { await browser?.close(); });
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function open(plan = {}, { farBiblical = false, farGateways = false, disableIO = false } = {}) {
+async function open(plan = {}, { farBiblical = false, farGateways = false, farHome = false, disableIO = false } = {}) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  const geometry = `${farGateways ? "#root{padding-top:2000px}" : ""}${farBiblical ? ".dg29-grid{display:block}.dg29-gateway{display:block;min-height:900px}" : ""}`;
+  const geometry = `${farGateways || farHome ? "#root{padding-top:2000px}" : ""}${farBiblical ? ".dg29-grid{display:block}.dg29-gateway{display:block;min-height:900px}" : ""}`;
   await page.setContent(`<!doctype html><style>${holdRules}\nbody{margin:0}${geometry}</style><body><div id='root'></div></body>`);
   await page.evaluate(({ p, noIO }) => {
     window.__plan = p;
@@ -66,6 +66,41 @@ const videoPayloadBytes = (page) => page.evaluate(() => window.__videoPayloadByt
 const settle = async (page, ms = 400) => { await sleep(ms); };
 const gateway = (page, title) => page.locator(`article.dg29-gateway:has(h3:text-is("${title}"))`);
 const texts = (locator) => locator.evaluate((node) => node.innerText);
+
+test("Home: notable convergences make no read until their position approaches the viewport", { skip }, async (t) => {
+  const page = await open({}, { farHome: true });
+  try {
+    await page.evaluate(() => window.__api.mount("home"));
+    await settle(page);
+    assert.equal((await calls(page)).filter((name) => name === "notable").length, 0, "offscreen secondary strip makes no initial request");
+    const trigger = page.locator("[data-h29-notable-load-state]");
+    assert.equal(await trigger.getAttribute("data-h29-notable-load-state"), "deferred");
+    const box = await trigger.boundingBox(), viewport = page.viewportSize();
+    assert.ok(box.y > viewport.height + 500, `fixture starts beyond the bounded lead: ${box.y}`);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 450), { y: box.y, h: viewport.height });
+    await page.waitForFunction(() => window.__calls.filter((name) => name === "notable").length === 1);
+    await settle(page, 80);
+    assert.equal(await trigger.getAttribute("data-h29-notable-load-state"), "armed");
+    assert.equal(await page.locator(".h29-notable article").count(), 4, "the same four cards appear after approach");
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settle(page, 80);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 450), { y: box.y, h: viewport.height });
+    await settle(page, 100);
+    assert.equal((await calls(page)).filter((name) => name === "notable").length, 1, "re-entry does not repeat the read");
+    t.diagnostic("fixture initial delta: -1 top-level notable read; its fan-out is covered by the hosted measurement");
+  } finally { await page.close(); }
+});
+
+test("Home: browsers without IntersectionObserver load notable convergences once", { skip }, async () => {
+  const page = await open({}, { farHome: true, disableIO: true });
+  try {
+    await page.evaluate(() => window.__api.mount("home"));
+    await settle(page);
+    assert.equal((await calls(page)).filter((name) => name === "notable").length, 1);
+    assert.equal(await page.locator("[data-h29-notable-load-state]").getAttribute("data-h29-notable-load-state"), "armed");
+    assert.equal(await page.locator(".h29-notable article").count(), 4);
+  } finally { await page.close(); }
+});
 
 test("gateways: a cold Home entry makes no discovery read until the secondary area approaches the viewport", { skip }, async (t) => {
   const page = await open({}, { farGateways: true, farBiblical: true });
