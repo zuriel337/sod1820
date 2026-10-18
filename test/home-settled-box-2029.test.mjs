@@ -116,7 +116,7 @@ test("loading slots stay presentational: hidden from assistive technology, never
   const gateways = read("src/components/experience2029/DiscoveryGateways2029.jsx");
   assert.match(home, /className="h29-card is-loading" aria-hidden="true"/);
   assert.match(home, /data-h29-primary=\{primary\}/);
-  assert.match(home, /hasHero: Boolean\(nowHero\) \|\| Boolean\(lead\), postCount: visiblePosts\.length/);
+  assert.match(home, /hasHero: Boolean\(lead\), postCount: visiblePosts\.length/);
   assert.match(gateways, /data-dg29-state=\{gatewayContentState\(/);
   assert.match(gateways, /failed: INITIAL_READS\.every\(\(name\) => reads\[name\]\.failed\)/);
   assert.match(gateways, /data-dg29-videos-state=\{videoState\}/);

@@ -175,7 +175,7 @@ function Section({ title, link, label, children, className = "" }) {
 }
 
 export default function HomeComposition2029({
-  projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
+  projection, story, arrivals, calculator, entry, continuity,
   selectedSlug, onSelectPost, onOpenWorkspace, onWorldPreviewApproach, journeyLocked = false, corePublic = false, worldOpen = false, worldPending,
 }) {
   const [notableRequested, setNotableRequested] = useState(false);
@@ -218,10 +218,9 @@ export default function HomeComposition2029({
     observer.observe(node);
     return () => observer.disconnect();
   }, [data.enriched, data.loading, onWorldPreviewApproach, worldPreviewRequested]);
-  const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const lead = data.posts[0] || null;
-  const heroPostSlug = nowHero ? null : lead?.slug;
+  const heroPostSlug = lead?.slug;
   const showFixedStory = Boolean(story) && heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";
 
   // Display priority, shared across all Home blocks: Hero > dedicated story > updates
@@ -263,11 +262,11 @@ export default function HomeComposition2029({
 
   // Non-visual: real hero or real update cards decide ready; loading slots and the loading hero never do; a settled outcome
   // without content is explicit (empty / error).
-  const primary = primaryContentState({ loading: data.loading, failed: data.failed, hasHero: Boolean(nowHero) || Boolean(lead), postCount: visiblePosts.length });
+  const primary = primaryContentState({ loading: data.loading, failed: data.failed, hasHero: Boolean(lead), postCount: visiblePosts.length });
   return <div className="h29" data-experience-capability="home-composition" data-h29-primary={primary}>
-    {nowHero || <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold} data-scroll-anchor="home:hero">
+    <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold} data-scroll-anchor="home:hero">
       {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : " is-unavailable"}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}{!data.loading ? <div className="h29-actions"><button type="button" className="h29-btn" onClick={data.retryPosts}>נסו שוב</button></div> : null}</div></section>}
-    </div>}
+    </div>
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening" data-scroll-anchor="home:launch-notice">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
@@ -340,8 +339,6 @@ export default function HomeComposition2029({
       <div className="h29-portions">
         {calculator}
         {corePublic && worldOpen ? <Link className="h29-portion k29-rv" to="/world" data-home-world="open"><span className="h29-portion-h"><NavigationIcon2029 name="cosmos" />העולם</span><small>מקורות, סיפורים וחיבורים במקום אחד</small></Link> : null}
-        {!corePublic && now ? <Link className="h29-portion k29-rv" to={`/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
-          <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
         {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />צ׳אט</span><small>לשיחות הקהילה</small></a>
           : <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>}
         {journeyLocked
