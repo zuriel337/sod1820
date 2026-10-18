@@ -225,7 +225,9 @@ function activateImage(image) {
 
 /**
  * Activates visible prepared images immediately. The 600px approach zone is
- * enabled only after real pointer, touch, wheel or keyboard scroll intent.
+ * enabled only after significant trusted wheel or touch movement also produces
+ * real page movement. Pointer and keyboard events never authorize prefetch;
+ * their actual viewport movement is still handled by the 0px observer.
  * The returned cleanup is safe under React StrictMode: it removes observers and
  * listeners but never rewinds a request that already started.
  */
@@ -307,11 +309,9 @@ export function observePostBodyMedia2029(root, {
     observePending("0px");
 
     const view = root.ownerDocument?.defaultView;
-    const scrollKeys = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "]);
     let intentMode = null;
     let intentDistance = 0;
     let intentScrollOrigin = null;
-    let pointerGesture = null;
     let touchGesture = null;
     let intentResetTimer = null;
     let lastScrollPosition = { x: view?.scrollX || 0, y: view?.scrollY || 0 };
@@ -325,7 +325,6 @@ export function observePostBodyMedia2029(root, {
       intentMode = null;
       intentDistance = 0;
       intentScrollOrigin = null;
-      pointerGesture = null;
       touchGesture = null;
     };
     const scheduleIntentReset = () => {
@@ -360,46 +359,21 @@ export function observePostBodyMedia2029(root, {
       }
     };
     const onWheel = (event) => {
-      if (event.isTrusted === false) return;
+      if (event.isTrusted === false || event.defaultPrevented) return;
       beginIntent("wheel");
       intentDistance += Math.hypot(event.deltaX || 0, event.deltaY || 0);
       acceptProvenIntent();
     };
-    const onKeyDown = (event) => {
-      if (event.isTrusted === false || !scrollKeys.has(event.key)) return;
-      beginIntent("keyboard");
-      intentDistance += event.key.startsWith("Arrow") ? 40 : Math.max(APPROACH_INTENT_DISTANCE_PX, (view?.innerHeight || 0) * 0.8);
-      acceptProvenIntent();
-    };
-    const onPointerDown = (event) => {
-      if (event.isTrusted === false || event.isPrimary === false) return;
-      beginIntent("pointer");
-      pointerGesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
-    };
-    const onPointerMove = (event) => {
-      if (event.isTrusted === false || !pointerGesture || event.pointerId !== pointerGesture.id) return;
-      intentDistance += Math.hypot(event.clientX - pointerGesture.x, event.clientY - pointerGesture.y);
-      pointerGesture.x = event.clientX;
-      pointerGesture.y = event.clientY;
-      scheduleIntentReset();
-      acceptProvenIntent();
-    };
-    const onPointerEnd = (event) => {
-      if (!pointerGesture || event.pointerId !== pointerGesture.id) return;
-      pointerGesture = null;
-      if (intentDistance < APPROACH_INTENT_DISTANCE_PX) resetIntent();
-      else scheduleIntentReset();
-    };
     const touchPoint = (event) => event.touches?.[0] || event.changedTouches?.[0] || null;
     const onTouchStart = (event) => {
-      if (event.isTrusted === false || pointerGesture) return;
+      if (event.isTrusted === false || event.defaultPrevented) return;
       const point = touchPoint(event);
       if (!point) return;
       beginIntent("touch");
       touchGesture = { x: point.clientX, y: point.clientY };
     };
     const onTouchMove = (event) => {
-      if (event.isTrusted === false || !touchGesture || pointerGesture) return;
+      if (event.isTrusted === false || event.defaultPrevented || !touchGesture) return;
       const point = touchPoint(event);
       if (!point) return;
       intentDistance += Math.hypot(point.clientX - touchGesture.x, point.clientY - touchGesture.y);
@@ -427,11 +401,6 @@ export function observePostBodyMedia2029(root, {
         ["touchmove", onTouchMove, { passive: true }],
         ["touchend", onTouchEnd, { passive: true }],
         ["touchcancel", onTouchEnd, { passive: true }],
-        ["pointerdown", onPointerDown, { passive: true }],
-        ["pointermove", onPointerMove, { passive: true }],
-        ["pointerup", onPointerEnd, { passive: true }],
-        ["pointercancel", onPointerEnd, { passive: true }],
-        ["keydown", onKeyDown, false],
         ["scroll", onScroll, { passive: true }],
       ];
       for (const [type, listener, options] of intentListeners) view.addEventListener(type, listener, options);
