@@ -1,5 +1,10 @@
 # Locked route parallel start — safety stop
 
+> Historical V1 record. The separately approved V2 continuation expands the
+> scope, removes the World head read, and implements the route-code start. See
+> [V2.md](./V2.md), `before-v2.json`, and `after-v2.json` for the completed V2
+> result. The V1 facts below remain unchanged as the reason V2 was required.
+
 Task: `SOD1820_2029_LOCKED_ROUTE_PARALLEL_START_20261018`
 
 Base: `origin/gpt/perf-unified-candidate-20261017@8c8e9df9b2b012b70479e398e75f16e7008b8619`

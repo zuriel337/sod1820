@@ -46,6 +46,5 @@ export function entryPrimaryReads2029(pathname) {
       return [postBySlugRead(slug)];
     } catch { return []; } // Malformed route: let the normal reader report it.
   }
-  if (pathname === '/world') return [postBySlugRead(WORLD_FLIGHT_POST_SLUG)];
   return [];
 }

@@ -126,8 +126,9 @@ test('Home story card read: the post lookup with only the card columns, nothing 
   const columns = HOME_STORY_POST_COLUMNS_2029.split(',');
   for (const needed of ['id', 'slug', 'title', 'tags', 'home_hidden', 'source', 'categories', 'date', 'thumb_url', 'image_url']) assert.ok(columns.includes(needed), needed);
   for (const unwanted of ['content', 'excerpt', 'author', '*']) assert.ok(!columns.includes(unwanted), unwanted);
-  // the head preload for the post and World routes keeps reading the whole row
-  assert.equal(entryPrimaryReads2029('/world')[0].columns, '*');
+  // World is access-gated, so its regular reader owns the unchanged full-row read only after Locked opens.
+  assert.deepEqual(entryPrimaryReads2029('/world'), []);
+  assert.deepEqual(entryPrimaryReads2029('/world/'), []);
   assert.equal(entryPrimaryReads2029('/post/hello')[0].columns, '*');
 });
 test('Home story card admission is the same on the card columns as on the whole row', () => {
