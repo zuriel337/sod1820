@@ -3,8 +3,8 @@ import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/r
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchEntityHubProjection, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildNumberDeepViewProjection } from "../lib/research/numberDeepViewProjection.js";
@@ -30,8 +30,15 @@ import { getValuePhrasesPage, langLinksList } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
 import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
-import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
+import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/numberSystemMethods.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
+import {
+  createLatestNumberRequestGate,
+  fetchTopicSourceContextOnDemand,
+  numberOpeningOrchestrator2029,
+  numberProjectionAccessContext,
+  summarizeNumberOpening,
+} from "../lib/research/numberOpeningOrchestration2029.js";
 import { PaletteProvider, useNumber2029Scope } from "../lib/palette.js";
 import "./number2029.css";
 import "./number2029-wide.css";
@@ -40,9 +47,6 @@ const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
 const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
-const NUMBER_METHOD_RESULT_CACHE = new Map();
-const NUMBER_PAGE_PROJECTION_CACHE = new Map();
-const NUMBER_REGULAR_PHRASE_CACHE = new Map();
 const NUMBER_HIDDEN_CROSS_CACHE = new Map();
 const NUMBER_SYSTEM_METHODS_CACHE = new Map();
 const NUMBER_METHOD_PROFILE_CACHE = new Map();
@@ -58,27 +62,28 @@ function rememberBounded(cache, key, value, max = 36) {
 
 // Engine-returned method profiles are deterministic per expression, so a bounded cache is safe.
 // In-flight requests are shared so a prefetch and a real selection never double-fetch.
-function loadMethodProfileCached(expression) {
+function loadMethodProfileCached(expression, accessContext) {
   const expr = clean(expression);
-  const cached = NUMBER_METHOD_PROFILE_CACHE.get(expr);
+  const key = `${accessContext}::${expr}`;
+  const cached = NUMBER_METHOD_PROFILE_CACHE.get(key);
   if (cached) return Promise.resolve(cached);
-  const inflight = NUMBER_METHOD_PROFILE_INFLIGHT.get(expr);
+  const inflight = NUMBER_METHOD_PROFILE_INFLIGHT.get(key);
   if (inflight) return inflight;
   const pending = fetchNumberMethodProfile(expr)
     .then((rows) => {
-      if (Array.isArray(rows) && rows.length) rememberBounded(NUMBER_METHOD_PROFILE_CACHE, expr, rows, 48);
+      if (Array.isArray(rows) && rows.length) rememberBounded(NUMBER_METHOD_PROFILE_CACHE, key, rows, 48);
       return rows;
     })
-    .finally(() => { NUMBER_METHOD_PROFILE_INFLIGHT.delete(expr); });
-  NUMBER_METHOD_PROFILE_INFLIGHT.set(expr, pending);
+    .finally(() => { NUMBER_METHOD_PROFILE_INFLIGHT.delete(key); });
+  NUMBER_METHOD_PROFILE_INFLIGHT.set(key, pending);
   return pending;
 }
 
-function hiddenCrossCacheKey(expression, profileRows) {
+function hiddenCrossCacheKey(expression, profileRows, accessContext) {
   const profileKey = (profileRows || [])
     .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
     .join("|");
-  return `${clean(expression)}::${profileKey}`;
+  return `${accessContext}::${clean(expression)}::${profileKey}`;
 }
 
 function railNeighbourPhrases(rows, active, reach = 2) {
@@ -148,6 +153,40 @@ function methodProfileLabel(profile) {
   return canonicalMethodPublicLabel({
     method_key: profile?.methodKey,
     display_label: profile?.displayLabel,
+  });
+}
+
+function openingMethodProfile(families, expression, root) {
+  const phrase = clean(expression);
+  if (!phrase) return [];
+  return (Array.isArray(families) ? families : []).flatMap((group) => {
+    const containsExpression = (Array.isArray(group?.phrases) ? group.phrases : [])
+      .some((item) => phraseOf(item) === phrase);
+    const registry = group?.registry || null;
+    const key = methodKey(group);
+    if (!containsExpression || !key) return [];
+    return [{
+      methodKey: key,
+      displayLabel: registry?.display_label || group?.display_label || group?.method || key,
+      category: registry?.category || null,
+      mathematicalFamily: registry?.mathematical_family || null,
+      lifecycleActive: registry?.active !== false,
+      requiredEntitlement: registry?.required_entitlement || null,
+      atomicOrComposite: group?.composite === true ? "composite" : "atomic",
+      computedValue: root,
+      definitionVersion: registry?.version ?? null,
+      dbColumn: registry?.db_column || null,
+      sortOrder: registry?.sort_order ?? null,
+      sub: registry?.sub || null,
+      soul: registry?.soul || null,
+      executionKind: registry?.execution_kind || null,
+      operator: registry?.operator || group?.operator || null,
+      derivedFrom: Array.isArray(registry?.derived_from) ? registry.derived_from : [],
+      sourceOfTruth: registry?.source_of_truth || null,
+      dependencyRules: Array.isArray(registry?.dependency_rules) ? registry.dependency_rules : [],
+      dependencyVersion: registry?.dependency_version ?? null,
+      openingSample: true,
+    }];
   });
 }
 
@@ -257,7 +296,16 @@ function NumberPageBody() {
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
+  const { user, profile, isAdmin, isMember, loading: authLoading } = useAuth();
+  const accessContext = useMemo(() => numberProjectionAccessContext({
+    loading: authLoading,
+    user,
+    profile,
+    isAdmin,
+    isMember,
+  }), [authLoading, user, profile, isAdmin, isMember]);
   // The literal "0" is valid. Empty, malformed or unsafe root strings are not.
+  // Preserve existing leading-zero URL compatibility while still rejecting absent/blank route input.
   const root = /^\d+$/.test(String(value || "")) && Number.isSafeInteger(Number(value))
     ? Number(value)
     : null;
@@ -280,7 +328,10 @@ function NumberPageBody() {
     } catch { return false; }
   }, [location.search]);
 
-  const [state, setState] = useState({ loading: true, data: null, error: null });
+  const [openingState, setOpeningState] = useState({ status: "loading", data: null, error: null, key: null });
+  const [openingRetry, setOpeningRetry] = useState(0);
+  const [depthState, setDepthState] = useState({ status: "idle", data: null, error: null, key: null });
+  const [depthRetry, setDepthRetry] = useState(0);
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
   const [activeExpression, setActiveExpression] = useState("");
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
@@ -304,10 +355,12 @@ function NumberPageBody() {
     error: null,
   });
   const deepSentinelRef = useRef(null);
+  const openingRequestGate = useRef(createLatestNumberRequestGate());
+  const depthRequestGate = useRef(createLatestNumberRequestGate());
 
   useEffect(() => {
     if (!Number.isSafeInteger(root) || root < 0) {
-      setState({ loading: false, data: null, error: new Error("invalid-number") });
+      setOpeningState({ status: "error", data: null, error: new Error("invalid-number"), key: null });
       return undefined;
     }
     const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
@@ -322,6 +375,8 @@ function NumberPageBody() {
     setFocusedCrossingPartner(clean(urlFocus.crossingPartner) || contextCrossing);
     setTraceOpen(false);
     setDeepRequested(false);
+    setDepthState({ status: "idle", data: null, error: null, key: null });
+    setDepthRetry(0);
     setExpandedVerseState({
       loading: false,
       rows: null,
@@ -332,57 +387,38 @@ function NumberPageBody() {
   }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
 
   useEffect(() => {
-    if (!Number.isSafeInteger(root) || root < 0) return undefined;
-    let alive = true;
-    let settled = false;
-    const cacheKey = String(root);
-    const cached = NUMBER_PAGE_PROJECTION_CACHE.get(cacheKey);
-    if (cached?.data && !cached.promise) {
-      setState({ loading: false, data: cached.data, error: null });
-      return () => { alive = false; };
-    }
-    setState({ loading: true, data: cached?.data || null, error: null });
-
-    const entry = cached || { data: null, promise: null };
-    entry.listeners ||= new Set();
-    const receiveCore = (partial) => {
-      if (alive) setState({ loading: true, data: partial, error: null });
-    };
-    entry.listeners.add(receiveCore);
-    const pending = entry.promise || fetchEntityHubProjection({
-      type: "number",
-      key: cacheKey,
-      relationLimit: 140,
-      researchLimit: 80,
-      topicLimit: 24,
-      onNumberCore: (partial) => {
-        if (settled) return;
-        entry.data = partial;
-        for (const receive of entry.listeners) receive(partial);
-      },
-    });
-    entry.promise = pending;
-    rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, entry, 20);
-
-    pending
-      .then((data) => {
-        settled = true;
-        if (data) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { data }, 20);
-        else NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
-        if (alive) setState({ loading: false, data, error: null });
+    if (!Number.isSafeInteger(root) || root < 0 || authLoading || !accessContext) return undefined;
+    const key = `${accessContext}::${root}`;
+    const token = openingRequestGate.current.begin();
+    setOpeningState({ status: "loading", data: null, error: null, key });
+    setDepthState({ status: "idle", data: null, error: null, key });
+    numberOpeningOrchestrator2029.loadOpening(root, { accessContext })
+      .then((result) => {
+        if (!openingRequestGate.current.isCurrent(token)) return;
+        if (result.status === "empty") setOpeningState({ status: "empty", data: null, error: null, key });
+        else setOpeningState({ status: "ready", data: result.data, error: null, key });
       })
       .catch((error) => {
-        settled = true;
-        NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
-        if (alive) setState((current) => ({ loading: false, data: current.data, error }));
+        if (openingRequestGate.current.isCurrent(token)) {
+          setOpeningState({ status: "error", data: null, error, key });
+        }
       });
-    return () => { alive = false; entry.listeners.delete(receiveCore); };
-  }, [root]);
+    return () => openingRequestGate.current.cancel(token);
+  }, [root, authLoading, accessContext, openingRetry]);
 
-  const data = state.data;
+  const projectionContextKey = Number.isSafeInteger(root) && accessContext ? `${accessContext}::${root}` : null;
+  const openingMatchesContext = Boolean(projectionContextKey && openingState.key === projectionContextKey);
+  const depthMatchesContext = Boolean(projectionContextKey && depthState.key === projectionContextKey);
+  const openingStatus = openingMatchesContext ? openingState.status : "loading";
+  const depthStatus = depthMatchesContext ? depthState.status : "idle";
+  const openingData = openingMatchesContext ? openingState.data : null;
+  const depthData = depthMatchesContext ? depthState.data : null;
+  const data = depthData || openingData;
+  const compactOpening = Boolean(openingData && !depthData);
+  const openingSummary = useMemo(() => summarizeNumberOpening(openingData), [openingData]);
 
   useEffect(() => {
-    if (!data || data.numberPagePending || !Number.isSafeInteger(root)) return undefined;
+    if (depthStatus !== "ready" || !data || !Number.isSafeInteger(root)) return undefined;
     let alive = true;
     fetchVersesByGematria(root, { limit: DEFAULT_VERSE_GEMATRIA_LIMIT })
       .then((result) => {
@@ -393,36 +429,73 @@ function NumberPageBody() {
         if (alive) setExpandedVerseState((current) => ({ ...current, error }));
       });
     return () => { alive = false; };
-  }, [data, root]);
+  }, [depthStatus, data, root]);
 
   useEffect(() => {
+    if (!deepRequested) return undefined;
     let alive = true;
     setCurationState((current) => current.catalog ? current : { loading: true, catalog: null, error: null });
     fetchCurationCatalog2029()
       .then((catalog) => { if (alive) setCurationState({ loading: false, catalog, error: null }); })
       .catch((error) => { if (alive) setCurationState({ loading: false, catalog: null, error }); });
     return () => { alive = false; };
-  }, []);
+  }, [deepRequested]);
 
   useEffect(() => {
     const node = deepSentinelRef.current;
-    if (!node || deepRequested || state.loading) return undefined;
+    if (!node || deepRequested || openingStatus !== "ready") return undefined;
     if (typeof IntersectionObserver === "undefined") {
-      setDeepRequested(true);
+      // Without proximity observation, keep the bounded explicit depth action available.
       return undefined;
     }
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
+    let scrollIntent = window.scrollY > 0;
+    const requestWhenNear = () => {
+      if (!scrollIntent) return;
+      const bounds = node.getBoundingClientRect();
+      if (bounds.top <= window.innerHeight + 900 && bounds.bottom >= -900) {
         setDeepRequested(true);
         observer.disconnect();
       }
+    };
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) requestWhenNear();
     }, { rootMargin: "900px 0px", threshold: 0 });
+    const onScroll = () => {
+      if (window.scrollY <= 0) return;
+      scrollIntent = true;
+      requestWhenNear();
+    };
     observer.observe(node);
-    return () => observer.disconnect();
-  }, [data, root, deepRequested, state.loading]);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [data, root, deepRequested, openingStatus]);
 
   useEffect(() => {
-    if (!deepRequested || !data?.identity || data.identity.type !== "number") {
+    if (!deepRequested || openingStatus !== "ready" || !Number.isSafeInteger(root) || root < 0 || !accessContext) return undefined;
+    const key = `${accessContext}::${root}`;
+    const token = depthRequestGate.current.begin();
+    setDepthState((current) => ({ status: "loading", data: current.key === key ? current.data : null, error: null, key }));
+    numberOpeningOrchestrator2029.loadDepth(root, { accessContext })
+      .then((full) => {
+        if (depthRequestGate.current.isCurrent(token)) {
+          // Canonical full truth replaces the compact projection wholesale. Compact samples are
+          // never merged into findings, graph rows or the full family population.
+          setDepthState({ status: "ready", data: full, error: null, key });
+        }
+      })
+      .catch((error) => {
+        if (depthRequestGate.current.isCurrent(token)) {
+          setDepthState({ status: "error", data: null, error, key });
+        }
+      });
+    return () => depthRequestGate.current.cancel(token);
+  }, [deepRequested, openingStatus, root, accessContext, depthRetry]);
+
+  useEffect(() => {
+    if (depthStatus !== "ready" || !data?.identity || data.identity.type !== "number") {
       if (!deepRequested) setDeepViewInputState({ loading: false, data: null, error: null });
       return undefined;
     }
@@ -442,7 +515,7 @@ function NumberPageBody() {
         }
       });
     return () => { alive = false; };
-  }, [deepRequested, data, root]);
+  }, [deepRequested, depthStatus, data, root]);
 
   const families = Array.isArray(data?.gematria?.families) ? data.gematria.families : [];
   const topics = Array.isArray(data?.topics?.rows) ? data.topics.rows : [];
@@ -509,28 +582,31 @@ function NumberPageBody() {
   }, [root]);
 
   const expressions = useMemo(() => expressionItems(families), [families]);
+  const compactMethodProfile = useMemo(
+    () => openingMethodProfile(families, activeExpression, root),
+    [families, activeExpression, root],
+  );
+  const followOnReadsAllowed = focusExplicit || deepRequested;
 
   useEffect(() => {
     if (!Number.isSafeInteger(root) || root < 1) {
       setRegularPhraseState({ loading: false, rows: [], count: 0, error: null });
       return undefined;
     }
-    let alive = true;
-    const cacheKey = String(root);
-    const cached = NUMBER_REGULAR_PHRASE_CACHE.get(cacheKey);
-    if (cached) {
-      setRegularPhraseState({ loading: false, ...cached, error: null });
-      return () => { alive = false; };
-    }
-    setRegularPhraseState({ loading: true, rows: [], count: 0, error: null });
-    getValuePhrasesPage(root, { limit: 30 })
-      .then((page) => {
-        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, cacheKey, page, 40);
-        if (alive) setRegularPhraseState({ loading: false, ...page, error: null });
-      })
-      .catch((error) => { if (alive) setRegularPhraseState({ loading: false, rows: [], count: 0, error }); });
-    return () => { alive = false; };
-  }, [root]);
+    const regular = families.find((group) => (
+      isRegularMethodIdentity(methodKey(group)) || isRegularMethodIdentity(methodLabel(group))
+    )) || null;
+    const rows = (Array.isArray(regular?.phrases) ? regular.phrases : []).map((row) => (
+      typeof row === "string" ? { phrase: row } : row
+    ));
+    setRegularPhraseState({
+      loading: false,
+      rows,
+      count: Math.max(rows.length, Number(regular?.count) || 0),
+      error: null,
+    });
+    return undefined;
+  }, [root, families]);
 
   const loadMoreRegularPhrases = async () => {
     if (regularPhraseState.loading || regularPhraseState.rows.length >= regularPhraseState.count) return;
@@ -538,9 +614,7 @@ function NumberPageBody() {
     try {
       const page = await getValuePhrasesPage(root, { offset: regularPhraseState.rows.length, limit: 30 });
       setRegularPhraseState((current) => {
-        const next = { loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
-        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, String(root), next, 40);
-        return next;
+        return { loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
       });
     } catch (error) {
       setRegularPhraseState((current) => ({ ...current, loading: false, error }));
@@ -566,8 +640,13 @@ function NumberPageBody() {
       setMethodProfileState({ loading: false, rows: [], error: null });
       return undefined;
     }
+    if (!followOnReadsAllowed) {
+      setMethodProfileState({ loading: false, rows: [], expression: expr, error: null });
+      return undefined;
+    }
     let alive = true;
-    const warm = smartRail ? NUMBER_METHOD_PROFILE_CACHE.get(expr) : null;
+    const profileCacheKey = `${accessContext}::${expr}`;
+    const warm = smartRail ? NUMBER_METHOD_PROFILE_CACHE.get(profileCacheKey) : null;
     if (warm) {
       // Prefetched by the smart rail: settle instantly, no empty/loading flash between neighbours.
       setMethodProfileState({ loading: false, rows: warm, expression: expr, error: null });
@@ -577,7 +656,7 @@ function NumberPageBody() {
       return undefined;
     }
     setMethodProfileState({ loading: true, rows: [], error: null });
-    (smartRail ? loadMethodProfileCached : fetchNumberMethodProfile)(expr)
+    (smartRail ? loadMethodProfileCached(expr, accessContext) : fetchNumberMethodProfile(expr))
       .then((rows) => {
         if (!alive) return;
         setMethodProfileState({ loading: false, rows, expression: expr, error: null });
@@ -589,22 +668,26 @@ function NumberPageBody() {
         if (alive) setMethodProfileState({ loading: false, rows: [], error });
       });
     return () => { alive = false; };
-  }, [activeExpression]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeExpression, followOnReadsAllowed, accessContext]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const effectiveMethodProfile = methodProfileState.rows.length
+    ? methodProfileState.rows
+    : compactMethodProfile;
 
   const selectedMethodProfile = useMemo(
-    () => methodProfileEntry(methodProfileState.rows, selectedMethodKey),
-    [methodProfileState.rows, selectedMethodKey],
+    () => methodProfileEntry(effectiveMethodProfile, selectedMethodKey),
+    [effectiveMethodProfile, selectedMethodKey],
   );
 
 
   useEffect(() => {
     const expr = clean(activeExpression);
-    if (!expr || /^\d+$/.test(expr) || !methodProfileState.rows.length) {
+    if (!followOnReadsAllowed || !expr || /^\d+$/.test(expr) || !effectiveMethodProfile.length) {
       setHiddenCrossState({ loading: false, rows: [], error: null });
       return undefined;
     }
 
-    const cacheKey = hiddenCrossCacheKey(expr, methodProfileState.rows);
+    const cacheKey = hiddenCrossCacheKey(expr, effectiveMethodProfile, accessContext);
     const cached = NUMBER_HIDDEN_CROSS_CACHE.get(cacheKey);
     if (cached) {
       setHiddenCrossState({ loading: false, rows: cached, error: null });
@@ -617,7 +700,7 @@ function NumberPageBody() {
     cancelDeferred = deferClientWork(() => {
       if (!alive) return;
       setHiddenCrossState({ loading: true, rows: [], error: null });
-      fetchNumberHiddenCrossings(expr, methodProfileState.rows, { limit: 13 })
+      fetchNumberHiddenCrossings(expr, effectiveMethodProfile, { limit: 13 })
         .then((rows) => {
           const next = Array.isArray(rows) ? rows : [];
           rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, cacheKey, next, 48);
@@ -631,14 +714,14 @@ function NumberPageBody() {
       alive = false;
       cancelDeferred?.();
     };
-  }, [activeExpression, methodProfileState.rows]);
+  }, [followOnReadsAllowed, activeExpression, effectiveMethodProfile, accessContext]);
 
 
   const regularMethodProfile = useMemo(
-    () => methodProfileState.rows.find((row) => (
+    () => effectiveMethodProfile.find((row) => (
       isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
     )) || null,
-    [methodProfileState.rows],
+    [effectiveMethodProfile],
   );
   const regularGroup = useMemo(
     () => families.find((group) => (
@@ -717,17 +800,17 @@ function NumberPageBody() {
   // Smart rail: crossing counts appear on a chip only after the canonical reader computed them (unknown stays blank).
   const [railSignals, setRailSignals] = useState({});
   useEffect(() => {
-    if (!smartRail) return;
+    if (!smartRail || !followOnReadsAllowed) return;
     const expr = clean(activeExpression);
     if (!expr || methodProfileState.expression !== expr || methodProfileState.loading || !methodProfileState.rows.length) return;
-    const known = NUMBER_HIDDEN_CROSS_CACHE.get(hiddenCrossCacheKey(expr, methodProfileState.rows));
+    const known = NUMBER_HIDDEN_CROSS_CACHE.get(hiddenCrossCacheKey(expr, methodProfileState.rows, accessContext));
     if (!Array.isArray(known)) return;
     setRailSignals((prev) => (prev[expr] === known.length ? prev : { ...prev, [expr]: known.length }));
-  }, [smartRail, activeExpression, methodProfileState, hiddenCrossState]);
+  }, [smartRail, followOnReadsAllowed, activeExpression, methodProfileState, hiddenCrossState, accessContext]);
 
   // Idle-time warm-up of the nearest rail neighbours, one request chain at a time, cancelled on any selection.
   useEffect(() => {
-    if (!smartRail || typeof window === "undefined") return undefined;
+    if (!smartRail || !followOnReadsAllowed || typeof window === "undefined") return undefined;
     const expr = clean(activeExpression);
     if (!expr || methodProfileState.expression !== expr || methodProfileState.loading || hiddenCrossState.loading) return undefined;
     const connection = typeof navigator !== "undefined" ? navigator.connection : null;
@@ -739,9 +822,9 @@ function NumberPageBody() {
       for (const phrase of targets) {
         if (!alive) return;
         try {
-          const rows = await loadMethodProfileCached(phrase);
+          const rows = await loadMethodProfileCached(phrase, accessContext);
           if (!alive || !Array.isArray(rows) || !rows.length) continue;
-          const key = hiddenCrossCacheKey(phrase, rows);
+          const key = hiddenCrossCacheKey(phrase, rows, accessContext);
           let crossings = NUMBER_HIDDEN_CROSS_CACHE.get(key);
           if (!Array.isArray(crossings)) {
             crossings = await fetchNumberHiddenCrossings(phrase, rows, { limit: 13 });
@@ -755,7 +838,7 @@ function NumberPageBody() {
     };
     const cancel = deferClientWork(() => { if (alive) void run(); }, { delay: 600, timeout: 2500 });
     return () => { alive = false; cancel(); };
-  }, [smartRail, activeExpression, methodProfileState.expression, methodProfileState.loading, hiddenCrossState.loading, regularExpressions]);
+  }, [smartRail, followOnReadsAllowed, activeExpression, methodProfileState.expression, methodProfileState.loading, hiddenCrossState.loading, regularExpressions, accessContext]);
 
   const selectedGroup = useMemo(
     () => families.find((group) => methodKey(group) === selectedMethodKey) || null,
@@ -763,7 +846,7 @@ function NumberPageBody() {
   );
   useEffect(() => {
     const key = selectedMethodProfile?.methodKey || selectedMethodKey;
-    if (!key || !activeExpression) {
+    if (!followOnReadsAllowed || !key || !activeExpression) {
       setTraceState({ loading: false, finding: null, error: null });
       return undefined;
     }
@@ -777,7 +860,7 @@ function NumberPageBody() {
         if (alive) setTraceState({ loading: false, finding: null, error });
       });
     return () => { alive = false; };
-  }, [selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression]);
+  }, [followOnReadsAllowed, selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression]);
 
   const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
   const trace = isVerifiedMethodTrace(rawTrace, { expression: activeExpression, methodKey: selectedMethodProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
@@ -786,12 +869,13 @@ function NumberPageBody() {
 
   useEffect(() => {
     const next = traceNumber(activeResult);
-    if (!Number.isSafeInteger(next) || next < 0) {
+    if (!followOnReadsAllowed || !Number.isSafeInteger(next) || next < 0) {
       setSystemMethodsState({ loading: false, cards: [], error: null, key: null });
       return undefined;
     }
 
-    const cached = NUMBER_SYSTEM_METHODS_CACHE.get(next);
+    const systemCacheKey = `${accessContext}::${next}`;
+    const cached = NUMBER_SYSTEM_METHODS_CACHE.get(systemCacheKey);
     if (cached) {
       setSystemMethodsState({ loading: false, cards: cached, error: null, key: next });
       return undefined;
@@ -807,7 +891,7 @@ function NumberPageBody() {
         .then((result) => {
           if (!alive) return;
           const cards = Array.isArray(result?.cards) ? result.cards : [];
-          rememberBounded(NUMBER_SYSTEM_METHODS_CACHE, next, cards, 48);
+          rememberBounded(NUMBER_SYSTEM_METHODS_CACHE, systemCacheKey, cards, 48);
           setSystemMethodsState({ loading: false, cards, error: null, key: next });
         })
         .catch((error) => {
@@ -818,50 +902,29 @@ function NumberPageBody() {
       alive = false;
       cancelDeferred?.();
     };
-  }, [activeResult]);
+  }, [followOnReadsAllowed, activeResult, accessContext]);
 
   useEffect(() => {
     const next = traceNumber(activeResult);
-    if (!Number.isSafeInteger(next) || next === root) {
+    if (!focusExplicit || !Number.isSafeInteger(next) || next === root || !accessContext) {
       setMethodResultState({ loading: false, data: null, error: null, key: null });
-      return undefined;
-    }
-
-    const cached = NUMBER_METHOD_RESULT_CACHE.get(next);
-    if (cached?.data) {
-      setMethodResultState({ loading: false, data: cached.data, error: null, cached: true, key: next });
       return undefined;
     }
 
     let alive = true;
     setMethodResultState({ loading: true, data: null, error: null, cached: false, key: next });
-    const pending = cached?.promise || fetchEntityHubProjection({
-      type: "number",
-      key: String(next),
-      relationLimit: 36,
-      researchLimit: 16,
-      topicLimit: 8,
-      numberResearchLenses: ["number_lookup", "neighbors"],
-      numberLookupLimit: 80,
-      includeMedia: false,
-    });
-    if (!cached?.promise) NUMBER_METHOD_RESULT_CACHE.set(next, { promise: pending });
-
-    pending.then((nextData) => {
+    numberOpeningOrchestrator2029.loadStage(next, { accessContext }).then((nextData) => {
       const dataValue = nextData || null;
-      if (dataValue) NUMBER_METHOD_RESULT_CACHE.set(next, { data: dataValue });
-      else NUMBER_METHOD_RESULT_CACHE.delete(next);
       if (alive) setMethodResultState({ loading: false, data: dataValue, error: null, cached: false, key: next });
     }).catch((error) => {
-      NUMBER_METHOD_RESULT_CACHE.delete(next);
       if (alive) setMethodResultState({ loading: false, data: null, error, cached: false, key: next });
     });
     return () => { alive = false; };
-  }, [activeResult, root]);
+  }, [focusExplicit, activeResult, root, accessContext]);
 
   useEffect(() => {
     const expr = clean(activeExpression);
-    if (!expr || /^\d+$/.test(expr)) {
+    if (!followOnReadsAllowed || !expr || /^\d+$/.test(expr)) {
       setLanguageBridgeState({ loading: false, rows: [] });
       return undefined;
     }
@@ -879,7 +942,7 @@ function NumberPageBody() {
       })
       .catch(() => { if (alive) setLanguageBridgeState({ loading: false, rows: [] }); });
     return () => { alive = false; };
-  }, [activeExpression]);
+  }, [followOnReadsAllowed, activeExpression]);
 
   const leadMeeting = topics[0] || null;
   const leadExpression = expressions.find((item) => item.phrase !== activeExpression) || expressions[0] || null;
@@ -899,7 +962,7 @@ function NumberPageBody() {
     root,
     expression: activeExpression,
     selectedMethodKey,
-    methodProfile: methodProfileState.rows,
+    methodProfile: effectiveMethodProfile,
     families,
     topics,
     relations,
@@ -913,7 +976,7 @@ function NumberPageBody() {
     activityCount,
     journeyAvailable: true,
     heroMedia: leadMedia,
-  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
+  }), [root, activeExpression, selectedMethodKey, effectiveMethodProfile, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
 
   const explicitStageResult = focusExplicit && (traceNumber(activeResult) != null)
     ? Number(activeResult)
@@ -944,7 +1007,7 @@ function NumberPageBody() {
     root: stageRoot,
     expression: activeExpression,
     selectedMethodKey,
-    methodProfile: methodProfileState.rows,
+    methodProfile: effectiveMethodProfile,
     families: stageFamilies,
     topics: stageTopics,
     relations: stageRelations,
@@ -958,7 +1021,7 @@ function NumberPageBody() {
     activityCount: stageActivityCount,
     journeyAvailable: true,
     heroMedia: stageMedia[0] || null,
-  }), [stageRoot, activeExpression, selectedMethodKey, methodProfileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
+  }), [stageRoot, activeExpression, selectedMethodKey, effectiveMethodProfile, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
   const deepViewModel = useMemo(() => buildNumberDeepViewProjection({
     root,
@@ -1120,7 +1183,7 @@ function NumberPageBody() {
   const sourceReturn = selectedTopicSourceReturn(research.context?.returnTo);
   const returnToSelectedSource = async () => {
     const request = ++sourceReturnRequest.current;
-    const result = await resolveJourneySourceReturn(sourceReturn, fetchTopicSourceContext);
+    const result = await resolveJourneySourceReturn(sourceReturn, fetchTopicSourceContextOnDemand);
     if (request !== sourceReturnRequest.current) return;
     if (!result.ok) { setPathError("המקור אינו זמין כעת. הבחירה והמסע נשמרו; אפשר לנסות שוב."); return; }
     // Destination Topic re-reads the envelope; no saved content/access is rendered.
@@ -1342,28 +1405,38 @@ function NumberPageBody() {
     navigate(nextHref);
   };
 
+  const retryOpening = () => {
+    // Browser module-map failures can retain a rejected dynamic import for the document lifetime.
+    // A reload is the only reliable retry for that case; RPC/data failures retry in place.
+    if (openingState.error?.code === "NUMBER_OPENING_MODULE_UNAVAILABLE" && typeof window !== "undefined") {
+      window.location.reload();
+      return;
+    }
+    setOpeningRetry((value) => value + 1);
+  };
+
   // Loading / unavailable states live inside the same Number colour scope as the ready page.
   const inNumberScope = (node) => <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-wide-layout={wideLayout} data-number-root={root}>{node}</div></PaletteProvider>;
 
   if (!Number.isSafeInteger(root) || root < 0) {
     return inNumberScope(<FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>);
   }
-  if (state.loading && !data) {
+  if ((authLoading || openingStatus === "loading") && !data) {
     return inNumberScope(<FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>);
   }
   // A valid numeric zero currently has no public Number node. Render a bounded
   // full-page empty state, not a fabricated Research/Graph or a fake 0 result.
   // A real canonical node, if approved later, naturally uses NumberCore instead.
-  if (root === 0 && !state.error && !data) {
-    return <div className="sod29-number-page" data-experience-surface="number" data-number-root="0" data-number-empty="true">
-      <section className="sod29-number-zero-empty" aria-label="דף המספר 0">
+  if (openingStatus === "empty" && !data) {
+    return <div className="sod29-number-page" data-experience-surface="number" data-number-root={root} data-number-empty="true">
+      <section className="sod29-number-zero-empty" aria-label={`דף המספר ${root}`}>
         <div className="sod29-number-zero-identity">
           <span>דף המספר · Root</span>
-          <strong>0</strong>
+          <strong>{root}</strong>
         </div>
         <div>
-          <h1>אין עדיין חומר מחקרי מקושר ל־0</h1>
-          <p>המספר 0 הוא ערך תקין. מאגר המחקר לא החזיר עבורו כרגע רשומת מספר ציבורית. אין כאן חישוב, מקור או הצלבה שנוצרו באופן מלאכותי.</p>
+          <h1>אין עדיין חומר מחקרי מקושר ל־{root}</h1>
+          <p>המספר {root} הוא ערך תקין. מאגר המחקר לא החזיר עבורו כרגע רשומת מספר ציבורית. אין כאן חישוב, מקור או הצלבה שנוצרו באופן מלאכותי.</p>
           <form className="sod29-number-zero-search" onSubmit={(event) => {
             event.preventDefault();
             const input = event.currentTarget.elements.namedItem("number");
@@ -1376,10 +1449,17 @@ function NumberPageBody() {
       </section>
     </div>;
   }
+  if (openingStatus === "error" && !data) {
+    return inNumberScope(<section data-number-opening-status="error"><FrameState
+      kind="unavailable"
+      title="דף המספר לא זמין כרגע"
+      action={<button type="button" className="sod29-frame-state-retry" data-number-opening-action="retry" onClick={retryOpening}>נסה שוב</button>}
+    >הפתיחה המצומצמת לא נטענה. אפשר לנסות שוב; חומר העומק לא ייטען במקומה.</FrameState></section>);
+  }
   if (!data) {
     return inNumberScope(<FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>);
   }
-  return <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-depth={state.loading ? "loading" : state.error ? "unavailable" : "ready"}>
+  return <PaletteProvider value={numberScope.palette}><div className="sod29-number-page" style={numberScope.style} data-number-scope={numberScope.scopeAttr} data-experience-surface="number" data-experience-question="מה זה?" data-wide-layout={wideLayout} data-number-root={root} data-truth-safe="true" data-number-opening-status="ready" data-number-opening-complete={openingSummary?.fullProjectionComplete === true ? "true" : "false"} data-number-depth-status={depthStatus}>
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
@@ -1395,6 +1475,18 @@ function NumberPageBody() {
         <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את {root} בלי מיקוד</button>
       </div>
     </section> : null}
+    {compactOpening && openingSummary ? <section
+      className="sod29-section sod29-number-opening-status"
+      data-number-opening-sample="true"
+      data-number-opening-returned={openingSummary.returnedCount}
+      data-number-opening-total={openingSummary.totalCount}
+      data-number-opening-samples-complete={openingSummary.samplesComplete ? "true" : "false"}
+      aria-live="polite"
+    >
+      <div className="sod29-number-core2029-note">
+        תצוגה ראשונית: {openingSummary.returnedCount} מתוך {openingSummary.totalCount} ביטויים ב־{openingSummary.familyCount} שיטות. {openingSummary.samplesComplete ? "כל דוגמאות הפתיחה מוצגות; חומר העומק עדיין ממתין לבקשה." : "אלו דוגמאות בלבד; חומר העומק ממתין לבקשה."}
+      </div>
+    </section> : null}
     <section className="sod29-number-hero" id="number-now">
       <NumberCore2029
         projection={coreProjection}
@@ -1406,10 +1498,10 @@ function NumberPageBody() {
         traceSteps={traceSteps}
         traceDetail={trace}
         stageProjection={stageProjection}
-        stageLoading={methodResultState.loading || (stageRoot === root && state.loading)}
-        contentPending={Boolean(data.numberPagePending)}
-        contentError={Boolean(state.error)}
-        methodsLoading={methodProfileState.loading || (!methodProfileState.rows.length && !state.error && (Boolean(data.gematria?.pending) || (state.loading && !activeExpression)))}
+        stageLoading={methodResultState.loading}
+        contentPending={depthStatus === "loading"}
+        contentError={false}
+        methodsLoading={methodProfileState.loading}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
@@ -1480,7 +1572,7 @@ function NumberPageBody() {
         const request = ++sourceReturnRequest.current;
         const step = research.researchPathSteps?.[index];
         if (selectedTopicSourceReturn(step?.context)) {
-          const source = await resolveJourneySourceReturn(step.context, fetchTopicSourceContext);
+          const source = await resolveJourneySourceReturn(step.context, fetchTopicSourceContextOnDemand);
           if (request !== sourceReturnRequest.current) return;
           if (!source.ok) { setPathError("המקור אינו זמין כעת. הבחירה והמסע נשמרו."); return; }
         }
@@ -1491,9 +1583,18 @@ function NumberPageBody() {
       error={pathError}
     />
 
-    {state.loading ? <FrameState kind="loading" title="טוען את הקשרים והמקורות">אפשר כבר לחקור את המספר והשיטות.</FrameState>
-      : state.error ? <FrameState kind="unavailable" title="הקשרים והמקורות לא זמינים כרגע">אפשר להמשיך עם המידע שכבר נטען.</FrameState>
-      : <NumberLivingWorld2029
+    <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
+    {depthStatus === "idle" ? <section className="sod29-section sod29-number-depth-boundary" data-number-depth-boundary="deferred">
+      <div className="sod29-number-core2029-note">הקשרים, המקורות ושכבות המחקר המלאות עדיין לא נטענו.</div>
+      <div className="sod29-number-depth-nav"><button type="button" data-number-depth-action="load" onClick={() => setDeepRequested(true)}>טען קשרים ומקורות</button></div>
+    </section> : null}
+    {depthStatus === "loading" ? <section className="sod29-section sod29-number-depth-boundary" data-number-depth-boundary="loading"><FrameState kind="loading" title="טוען את הקשרים והמקורות">אפשר כבר לחקור את המספר והשיטות.</FrameState></section> : null}
+    {depthStatus === "error" ? <section className="sod29-section sod29-number-depth-boundary" data-number-depth-boundary="error"><FrameState
+      kind="unavailable"
+      title="הקשרים והמקורות לא זמינים כרגע"
+      action={<button type="button" className="sod29-frame-state-retry" data-number-depth-action="retry" onClick={() => { setDeepRequested(true); setDepthRetry((value) => value + 1); }}>נסה שוב</button>}
+    >הפתיחה נשארת זמינה. אפשר לנסות שוב כאן בלי לטעון מחדש את הדף.</FrameState></section> : null}
+    {depthStatus === "ready" ? <NumberLivingWorld2029
       root={root}
       data={data}
       activeExpression={activeExpression}
@@ -1534,10 +1635,9 @@ function NumberPageBody() {
         expression: activeExpression || null,
         method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       })}
-    />}
+    /> : null}
 
-    <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
-    {deepRequested && deepViewModel ? <NumberDeepView2029
+    {depthStatus === "ready" && deepRequested && deepViewModel ? <NumberDeepView2029
       model={deepViewModel}
       onRazielAction={askRaziel}
     /> : deepRequested && deepViewInputState.loading ? <section className="sod29-section sod29-number-deep-view" id="number-deep-view" aria-busy="true">

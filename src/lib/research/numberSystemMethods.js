@@ -3,6 +3,18 @@ import {
   createCanonicalNumberW2Executors,
   NUMERIC_SYSTEM_METHOD_RULE_IDS,
 } from "./researchW2ExecutorsBase.js";
+// This module is the existing shared Number runtime already present on Number and World routes.
+// Re-export canonical readers here so the compact/full split does not create parallel semantics
+// or fragment those routes into extra eager chunks. None of these readers run on import.
+export { researchNumber } from "./researchW2ExecutorsBase.js";
+export {
+  entityHubHref,
+  fetchNumberAnchorProfile,
+  fetchNumberOpeningContext,
+  fetchNumberOpeningIdentity,
+  resolveEntityHubNode,
+} from "./numberOpeningIdentity2029.js";
+export { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "./verseGematriaSources.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 

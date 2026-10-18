@@ -1,4 +1,4 @@
-import { fetchVersesByGematria } from "./verseGematriaSources.js";
+import { fetchVersesByGematria } from "./numberSystemMethods.js";
 
 export const SCRIPTURE_DISCOVERY_DEFAULT_MAX_SEEDS = 3;
 export const SCRIPTURE_DISCOVERY_MAX_SEEDS = 8;

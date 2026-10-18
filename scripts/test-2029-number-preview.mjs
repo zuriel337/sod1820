@@ -6,6 +6,7 @@ import { humanSystemMethodCard } from "../src/lib/research/numberSystemMethods.j
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const page = read("src/pages/Number2029Page.jsx");
+const openingOrchestration = read("src/lib/research/numberOpeningOrchestration2029.js");
 const css = read("src/pages/number2029.css");
 const app = read("src/App2029.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
@@ -36,7 +37,7 @@ const semanticAnimation = read("src/lib/research/semanticAnimationProjection.js"
 
 for (const required of [
   "Sod2029Shell",
-  "fetchEntityHubProjection",
+  "numberOpeningOrchestrator2029",
   "fetchGematriaMethodTrace",
   "useResearch",
   "NumberLivingWorld2029",
@@ -50,6 +51,9 @@ for (const required of [
 ]) {
   assert.equal(page.includes(required), true, `Number 2029 preview must preserve native capability: ${required}`);
 }
+assert.match(openingOrchestration, /import\("\.\/entityHubProjection\.js"\)/, "full Entity Hub remains available through the deferred depth boundary");
+assert.match(openingOrchestration, /fetchEntityHubProjection/, "deferred depth still uses the canonical full projection");
+assert.doesNotMatch(page, /from ["'][^"']*entityHubProjection\.js["']/, "the Number opening must not statically close over full Entity Hub");
 
 for (const forbidden of [
   "entity-hub-preview",

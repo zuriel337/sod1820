@@ -2,10 +2,8 @@ import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
-import { researchNumber } from "./numericResearch.js";
 import { createNumberLookupTransport } from "./numberLookupTransport2029.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
-import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
 import { makeUniversalFinding, VALID_VERIFICATION_STATES } from "./universalFinding.js";
 import { canonicalMediaPublicLabel } from "../presentation/canonicalPresentation.js";
 import { MEDIA_RELATION_KIND, buildMediaEnvelope, dedupeMediaEnvelopes, normalizeMediaPostSlug } from "./galleryMediaEnvelope.js";
@@ -14,14 +12,24 @@ import { normalizeResearchDisplayText } from "./researchObjectPresentation.js";
 import { fetchScriptureDiscoveryForFindings } from "./scriptureDiscoveryProjection.js";
 import { fetchScriptureTermDiscoveryForFindings } from "./scriptureTermDiscoveryProjection.js";
 import { buildTopicSourceContext, buildGallerySourceContext, INDIA_CAPTAIN_SOURCE, isPublicSourceImage, TOPIC_SOURCE_LIMIT, TOPIC_OCCURRENCE_LIMIT } from "./topicSourceContext.js";
+import {
+  entityHubHref as hubHref,
+  fetchNumberAnchorProfile,
+  researchNumber,
+  resolveEntityHubNode,
+} from "./numberSystemMethods.js";
+export {
+  fetchNumberAnchorProfile,
+  fetchNumberOpeningContext,
+  fetchNumberOpeningIdentity,
+  resolveEntityHubNode,
+} from "./numberSystemMethods.js";
 
-const NODE_FIELDS = "id,type,label,description,metadata,identity_key,is_active,created_at";
 const ENTITY_TYPE_FIELDS = "type,label,parent,icon,tabs,relations,stats,route_pattern";
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
 const VIDEO_SEMANTIC_MAP_FIELDS = "id,created_at,source_ref,terms,status,privacy_scope,meta";
 const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,status,contributor_id";
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
-const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
 const TOPIC_MEDIA_FIELDS = `${WORLD_MEDIA_FIELDS},min_tier,wp_image_id`;
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
@@ -30,7 +38,6 @@ const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_enti
 // internal keys stripped server-side. Never the raw table from a public projection.
 const TOPIC_SOURCE = "topic_cards_public";
 const GW_IDENTITY_PREFIX = "gw:";
-const HUB_ROUTE = "/entity-hub-preview";
 const DEFAULT_NUMBER_RESEARCH_OPTIONS = Object.freeze({ lookupWindow: { limit: 500 } });
 
 function clean(value) {
@@ -64,41 +71,6 @@ export async function fetchEntityTypeDefinition(type) {
     .maybeSingle();
   if (error) throw error;
   return data || null;
-}
-
-export async function resolveEntityHubNode({ nodeId = null, type = null, key = null } = {}) {
-  const exactNodeId = clean(nodeId);
-  if (exactNodeId) {
-    const { data, error } = await supabase
-      .from("nodes")
-      .select(NODE_FIELDS)
-      .eq("id", exactNodeId)
-      .maybeSingle();
-    if (error) throw error;
-    return data || null;
-  }
-
-  const entityType = clean(type);
-  const entityKey = clean(key);
-  if (!entityType || !entityKey) return null;
-
-  const { data: identityHit, error: identityError } = await supabase
-    .from("nodes")
-    .select(NODE_FIELDS)
-    .eq("type", entityType)
-    .eq("identity_key", entityKey)
-    .limit(1);
-  if (identityError) throw identityError;
-  if (identityHit?.[0]) return identityHit[0];
-
-  const { data: labelHit, error: labelError } = await supabase
-    .from("nodes")
-    .select(NODE_FIELDS)
-    .eq("type", entityType)
-    .eq("label", entityKey)
-    .limit(1);
-  if (labelError) throw labelError;
-  return labelHit?.[0] || null;
 }
 
 async function runResearchQuery(builder, limit) {
@@ -431,8 +403,6 @@ async function fetchNodesByLabels(type, labels = [], { limit = LABEL_LOOKUP_CAP 
 // Phrases a renderer actually shows per family (page cards show 7, controls/modal up to 18).
 const SHOWN_PHRASES_PER_FAMILY = 18;
 
-const hubHref = (type, key) => `${HUB_ROUTE}/${encodeURIComponent(type)}/${encodeURIComponent(key)}`;
-
 function projectNumberNodeIdentity(node) {
   return {
     nodeId: String(node.id),
@@ -608,68 +578,6 @@ async function fetchZeroScale(number) {
   const { data, error } = await supabase.rpc("fn_zero_scale", { p_value: number });
   if (error) throw error;
   return data || null;
-}
-
-// 2029 Anchor Profile projection. This intentionally does NOT revive the legacy Number-page
-// getNumberAnchor() client path. World/Entity Hub reads the existing curated row directly and
-// immediately converts it through the governed Universal Finding adapter, preserving the v8
-// boundary: current curated context != engine truth != canonical/publication state.
-export async function fetchNumberAnchorProfile(number) {
-  const { data, error } = await supabase
-    .from("number_anchors")
-    .select(NUMBER_ANCHOR_FIELDS)
-    .eq("value", number)
-    .maybeSingle();
-  if (error) {
-    if (isAccessDenied(error)) {
-      return {
-        row: null,
-        finding: null,
-        access: { available: false, reason: "number_anchor_not_readable_for_current_session" },
-      };
-    }
-    throw error;
-  }
-  const row = data || null;
-  return {
-    row,
-    finding: row ? numberAnchorToUniversalFinding(row) : null,
-    access: { available: true, reason: null },
-  };
-}
-
-// Identity-only gate for the compact Number opening. It deliberately performs no anchor, family,
-// graph or full-row read. A future surface must await this gate first; once it succeeds, it can
-// start fetchNumberOpeningProjection(identity.value) and fetchNumberAnchorProfile(identity.value)
-// together with Promise.all. That preserves the existing node-first truth boundary without making
-// the curated anchor delay the compact RPC.
-export async function fetchNumberOpeningIdentity(number) {
-  if (number == null || (typeof number === "string" && !number.trim())) return null;
-  const value = Number(number);
-  if (!Number.isSafeInteger(value)) return null;
-
-  const node = await resolveEntityHubNode({ type: "number", key: String(value) });
-  if (!node) return null;
-
-  const resolvedValue = Number(node.label);
-  if (!Number.isSafeInteger(resolvedValue) || resolvedValue !== value) return null;
-
-  return {
-    value: resolvedValue,
-    identity: projectNumberNodeIdentity(node),
-  };
-}
-
-// Backward-compatible combined seam for non-critical callers. The performance-sensitive 2029
-// opening should use fetchNumberOpeningIdentity first and then start compact + anchor in parallel.
-export async function fetchNumberOpeningContext(number) {
-  const openingIdentity = await fetchNumberOpeningIdentity(number);
-  if (!openingIdentity) return null;
-
-  return {
-    identity: openingIdentity.identity,
-    anchorProfile: await fetchNumberAnchorProfile(openingIdentity.value),
-  };
 }
 
 function mediaRelationPriority(type) {
