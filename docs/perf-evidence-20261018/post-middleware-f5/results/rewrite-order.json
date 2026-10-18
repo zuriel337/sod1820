@@ -1,0 +1,110 @@
+{
+  "matcher": "/((?!api/|assets/|.*\\.).*)",
+  "firstPostRewriteIdx": 48,
+  "genericShareBotRewriteIdx": 50,
+  "plain2029PostRewriteIdx": 54,
+  "catchAllIdx": 78,
+  "cases": [
+    {
+      "case": "browser",
+      "path": "/post/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[54] -> /2029.html"
+      ]
+    },
+    {
+      "case": "Googlebot",
+      "path": "/post/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[48] -> /api/og?path=/post/some-slug&crawler=search"
+      ]
+    },
+    {
+      "case": "Bingbot",
+      "path": "/post/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[48] -> /api/og?path=/post/some-slug&crawler=search"
+      ]
+    },
+    {
+      "case": "facebookexternalhit",
+      "path": "/post/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[50] -> /api/og?path=/post/some-slug"
+      ]
+    },
+    {
+      "case": "GPTBot",
+      "path": "/post/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[50] -> /api/og?path=/post/some-slug"
+      ]
+    },
+    {
+      "case": "Yahoo Slurp (kind=browser)",
+      "path": "/post/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[54] -> /2029.html"
+      ]
+    },
+    {
+      "case": "Googlebot, trailing slash",
+      "path": "/post/some-slug/",
+      "chain": [
+        "REDIRECT 308 -> /post/some-slug (redirects[100])"
+      ]
+    },
+    {
+      "case": "browser, Hebrew slug",
+      "path": "/post/%D7%AA%D7%A4%D7%99%D7%9C%D7%94",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[54] -> /2029.html"
+      ]
+    },
+    {
+      "case": "Googlebot, legacy /slug",
+      "path": "/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[78] -> /legacy.html"
+      ]
+    },
+    {
+      "case": "browser, legacy /slug",
+      "path": "/some-slug",
+      "chain": [
+        "MIDDLEWARE runs (matcher matches)",
+        "REWRITE rewrites[78] -> /legacy.html"
+      ]
+    },
+    {
+      "case": "browser, /post (list alias)",
+      "path": "/post",
+      "chain": [
+        "REDIRECT 308 -> /posts (redirects[5])"
+      ]
+    },
+    {
+      "case": "browser, slug with dot",
+      "path": "/post/foo.bar",
+      "chain": [
+        "middleware SKIPPED (matcher excludes path)",
+        "REWRITE rewrites[54] -> /2029.html"
+      ]
+    },
+    {
+      "case": "Googlebot, direct /api/og",
+      "path": "/api/og",
+      "chain": [
+        "FILESYSTEM: serverless function wins before rewrites (middleware skipped by matcher)"
+      ]
+    }
+  ]
+}

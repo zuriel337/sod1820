@@ -1,0 +1,45 @@
+--- a/middleware-core.js
++++ b/middleware-core.js	2026-10-18 00:21:29.453205081 +0000
+@@ -259,6 +259,8 @@
+ // lookup רק ל-single-segment שאינו route/redirect ידוע; exact+indexed; cache קצר; כשל DB = fail-open.
+ const POST_ROUTE_CACHE_MS = 10 * 60 * 1000;
+ const POST_ROUTE_CACHE_MAX = 512;
++// A hung Supabase must not hold the document: past this budget the lookup is uncertain -> fail-open.
++const POST_ROUTE_LOOKUP_TIMEOUT_MS = 800;
+ const POST_ROUTE_CACHE = new Map();
+ 
+ async function publicPostSlugExists(path) {
+@@ -272,6 +274,7 @@
+       method: 'POST',
+       headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+       body: JSON.stringify({ p_slug: decoded, p_encoded_slug: encodedLower }),
++      signal: AbortSignal.timeout(POST_ROUTE_LOOKUP_TIMEOUT_MS),
+     });
+     if (!r.ok) return null;
+     const data = await r.json();
+@@ -284,6 +287,16 @@
+   }
+ }
+ 
++// A browser-class client that labels the request as a top-level document navigation does not wait for the
++// existence lookup on /post/:slug: the 2029 SPA already renders the noindex Not Found page for a missing slug.
++// Everything else (goodbot, ai, unlisted crawlers such as Slurp/Yeti/Qwantify that classify as 'browser' but send no
++// Sec-Fetch metadata, HEAD/GET tools, old browsers) keeps the exact lookup and the real HTTP 404.
++function isHumanDocumentNavigation(request, kind) {
++  return kind === 'browser'
++    && request.headers.get('sec-fetch-mode') === 'navigate'
++    && request.headers.get('sec-fetch-dest') === 'document';
++}
++
+ function routeNotFoundResponse() {
+   const html = '<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>העמוד לא נמצא · SOD1820</title></head><body><main style="font-family:system-ui,sans-serif;max-width:680px;margin:12vh auto;padding:24px;text-align:center"><h1>העמוד לא נמצא</h1><p>הכתובת שביקשתם אינה קיימת ב-SOD1820.</p><a href="/">חזרה לדף הראשי</a></main></body></html>';
+   return new Response(html, {
+@@ -390,7 +403,7 @@
+ 
+     // 2029 Post uses the same exact indexed slug owner — no second route-validity system.
+     const post2029 = path.match(/^\/post\/([^/]+)\/?$/);
+-    if (post2029) {
++    if (post2029 && !isHumanDocumentNavigation(request, kind)) {
+       const exists = await publicPostSlugExists('/' + post2029[1]);
+       if (exists === false) return routeNotFoundResponse();
+     }
