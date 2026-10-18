@@ -12,6 +12,10 @@
 מקור/פסוק/אות מושכת אותו מאותו origin, מפענחת אותו במפורש ומאמתת SHA-256 של המקור.
 הסימון `.gzdata` מכוון: הדפדפן אינו מסתמך על כותרת `Content-Encoding` של השרת.
 
+המחולל מחזיק תחת `public/els-data/` בדיוק את נכס-הפסוקים הנוכחי. רק שמות בבעלות המחולל
+שתואמים במלואם ל־`tk-vtext.<16 lowercase hex>.gzdata` מוסרים אחרי שבניית ה־HTML והנכס
+הנוכחי הסתיימה ואומתה; קבצים זרים, שמות כמעט-תואמים ותיקיות אינם נמחקים.
+
 ## איך זה מוטמע באתר
 `public/tzofen.html` מוצג כ-**iframe** דרך הרכיב `src/components/TzofenEmbed.jsx`
 (אותו דפוס כמו `public/heichal.html`). מוצג ב:
@@ -44,11 +48,23 @@
 ## בנייה / עריכה
 ```bash
 cd tools/els
-python3 build.py            # → כותב tzofen.html + public/els-data/tk-vtext.<sha16>.gzdata
+python3 build.py
+# → כותב public/tzofen.html + public/els-data/tk-vtext.<sha16>.gzdata
+
+python3 build.py --standalone-out /tmp/tzofen-offline.html
+# → כותב קובץ HTML עצמאי אחד בלבד; אינו משנה את פלט האתר או את public/els-data
 ```
 - **לערוך את הכלי:** משנים את `els-code.template.html` (זה המקור — ~190KB, כל ה-HTML/CSS/JS),
   ואז `python3 build.py`. **לא לערוך את `public/tzofen.html` או את הנכס תחת `public/els-data/`
   ישירות** — שניהם פלטים דטרמיניסטיים.
+- **ארטיפקט אופליין נתמך:** `--standalone-out` מטמיע את אותם בתים דטרמיניסטיים של gzip
+  כ־data URL בתוך HTML יחיד, עם אותו SHA-256 ואורך-מקור. חיפוש ELS רגיל משתמש באותו מנוע
+  דפדפן ובמתאם replay מקומי שבודק כל מועמד מול קורפוס-האותיות הקנוני המוטמע; הקשה על אות
+  מציגה את ההפניה ואת טקסט-הפסוק המלא בלי קובץ-אח. אין להוסיף עותק כזה ל־`public/` או לנתיב
+  אתר נוסף — מייצרים אותו לפי צורך לנתיב זמני/מקומי.
+- ארטיפקט האופליין אינו מחליף יכולות שרת: exhaustive ordered pages, שמירה/ספרייה/חשבון,
+  הרשאות ו־trace שרת נשארים יכולות של האתר. לכן replay אופליין מסומן בנפרד ואינו נטען לפלט
+  האתר; `public/tzofen.html` ממשיך להשתמש בגשר האימות הקנוני של השרת.
 - `data/` = מקורות הבנייה: `tk-letters.txt` (אותיות התנ״ך המנורמלות), `tk-vtext.txt`
   (טקסט-פסוקים שנארז בנפרד), `tk-vlens.txt`/`tk-vchap.txt`/`tk-meta.json` (אינדקס-פסוקים מיושר),
   `niqqud-compact.txt` (ניקוד-תורה), `els-logo-b64.txt` (לוגו ELS של האתר).

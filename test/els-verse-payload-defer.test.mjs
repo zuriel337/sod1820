@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
-import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
 import { gunzipSync, gzipSync } from 'node:zlib';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -25,36 +26,94 @@ const assetMetadata = html => {
   return { url, sourceSha, sourceBytes, path: join(root, 'public', url.replace(/^\/+/, '')) };
 };
 
-test('generator emits a deterministic content-addressed display payload with exact source bytes', () => {
+test('generator is deterministic, prunes only stale owned assets, and emits exact standalone bytes', () => {
   const source = readFileSync(sourcePath);
   const beforeHtml = readFileSync(generatedPath);
   const beforeMeta = assetMetadata(beforeHtml.toString('utf8'));
   const beforeAsset = readFileSync(beforeMeta.path);
+  const assetDir = join(root, 'public/els-data');
+  let staleHash = sha256(Buffer.from(`owned-fixture-${process.pid}`)).slice(0, 16);
+  if (staleHash === sha256(source).slice(0, 16)) staleHash = '0000000000000000';
+  const staleOwnedPath = join(assetDir, `tk-vtext.${staleHash}.gzdata`);
+  const nearPatternForeignPath = join(assetDir, `tk-vtext.${staleHash}.gzdata.bak`);
+  const foreignPath = join(assetDir, `foreign-verse-fixture-${process.pid}.keep`);
+  const fixturePaths = [staleOwnedPath, nearPatternForeignPath, foreignPath];
+  const previousFixtures = new Map(fixturePaths.map(path => [path, existsSync(path) ? readFileSync(path) : null]));
+  const standaloneDir = mkdtempSync(join(tmpdir(), 'sod1820-els-standalone-'));
+  const standalonePath = join(standaloneDir, 'tzofen-offline.html');
 
-  for (let pass = 0; pass < 2; pass++) {
-    const result = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
-    assert.equal(result.status, 0, result.stderr || result.stdout);
+  try {
+    writeFileSync(beforeMeta.path, beforeAsset); // Plant the current owned payload explicitly.
+    writeFileSync(staleOwnedPath, Buffer.from('stale-owned-payload'));
+    writeFileSync(nearPatternForeignPath, Buffer.from('foreign-near-pattern'));
+    writeFileSync(foreignPath, Buffer.from('foreign-payload'));
+
+    const firstBuild = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
+    assert.equal(firstBuild.status, 0, firstBuild.stderr || firstBuild.stdout);
+    const secondBuild = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
+    assert.equal(secondBuild.status, 0, secondBuild.stderr || secondBuild.stdout);
+
+    const afterHtml = readFileSync(generatedPath);
+    const afterMeta = assetMetadata(afterHtml.toString('utf8'));
+    const afterAsset = readFileSync(afterMeta.path);
+    assert.ok(afterHtml.equals(beforeHtml), 'tzofen.html is byte-deterministic across rebuilds');
+    assert.ok(afterAsset.equals(beforeAsset), 'current verse display asset is retained byte-identically');
+    assert.equal(afterMeta.url, `/els-data/tk-vtext.${sha256(source).slice(0, 16)}.gzdata`);
+    assert.equal(afterMeta.sourceSha, sha256(source));
+    assert.equal(afterMeta.sourceBytes, source.length);
+    assert.ok(gunzipSync(afterAsset).equals(source), 'decompressed asset equals tk-vtext.txt byte-for-byte');
+    assert.equal(afterAsset.readUInt32LE(4), 0, 'gzip mtime is zero');
+    assert.ok(!afterMeta.url.startsWith('http'), 'asset stays on the current origin');
+    assert.match(afterMeta.url, /\.gzdata$/, 'custom binary suffix does not ask the server to apply Content-Encoding');
+    assert.equal(existsSync(staleOwnedPath), false, 'strictly named stale owned payload is removed');
+    assert.equal(readFileSync(nearPatternForeignPath, 'utf8'), 'foreign-near-pattern', 'near-pattern foreign file is untouched');
+    assert.equal(readFileSync(foreignPath, 'utf8'), 'foreign-payload', 'unrelated foreign file is untouched');
+    assert.deepEqual(
+      readdirSync(assetDir).filter(name => /^tk-vtext\.[0-9a-f]{16}\.gzdata$/.test(name)),
+      [basename(afterMeta.path)],
+      'exactly the current generator-owned payload remains',
+    );
+
+    const hostedBeforeStandalone = readFileSync(generatedPath);
+    const assetBeforeStandalone = readFileSync(afterMeta.path);
+    const firstStandalone = spawnSync('python3', ['tools/els/build.py', '--standalone-out', standalonePath], { cwd: root, encoding: 'utf8' });
+    assert.equal(firstStandalone.status, 0, firstStandalone.stderr || firstStandalone.stdout);
+    const standaloneOne = readFileSync(standalonePath);
+    const secondStandalone = spawnSync('python3', ['tools/els/build.py', '--standalone-out', standalonePath], { cwd: root, encoding: 'utf8' });
+    assert.equal(secondStandalone.status, 0, secondStandalone.stderr || secondStandalone.stdout);
+    const standaloneTwo = readFileSync(standalonePath);
+    assert.ok(standaloneTwo.equals(standaloneOne), 'standalone HTML is byte-deterministic');
+    assert.ok(readFileSync(generatedPath).equals(hostedBeforeStandalone), 'standalone mode does not rewrite hosted HTML');
+    assert.ok(readFileSync(afterMeta.path).equals(assetBeforeStandalone), 'standalone mode does not rewrite hosted assets');
+
+    const standaloneHtml = standaloneTwo.toString('utf8');
+    const standaloneUrl = standaloneHtml.match(/const VERSE_TEXT_ASSET="([^"]+)"/i)?.[1];
+    assert.ok(standaloneUrl?.startsWith('data:application/gzip;base64,'), 'standalone payload is embedded as a data URL');
+    const embeddedGzip = Buffer.from(standaloneUrl.slice(standaloneUrl.indexOf(',') + 1), 'base64');
+    assert.ok(embeddedGzip.equals(afterAsset), 'standalone embeds the exact hosted gzip bytes');
+    assert.ok(gunzipSync(embeddedGzip).equals(source), 'standalone payload expands to the exact canonical source bytes');
+    assert.match(standaloneHtml, /function standaloneVerifyBatch\(payload\)/, 'standalone includes its bounded offline replay adapter');
+    assert.doesNotMatch(afterHtml.toString('utf8'), /function standaloneVerifyBatch\(payload\)/, 'hosted output keeps the server bridge');
+
+    const html = afterHtml.toString('utf8');
+    assert.doesNotMatch(html, /id="verse-text"|__VERSE_TEXT_/);
+    assert.doesNotMatch(html, /_idle\(\(\)=>\{ensureVerseText\(\);\}\)/, 'no mount/idle verse-text preload remains');
+    assert.match(html, /if\(_vtextPending\)return _vtextPending/);
+    assert.match(html, /finally\(\(\)=>\{if\(!VTEXT\)_vtextPending=null;\}\)/, 'failed loads release the shared promise for retry');
+    assert.match(readFileSync(templatePath, 'utf8'), /cache:!embedded&&attempt\?"reload":"default"/);
+  } finally {
+    writeFileSync(generatedPath, beforeHtml);
+    writeFileSync(beforeMeta.path, beforeAsset);
+    for (const path of fixturePaths) {
+      const previous = previousFixtures.get(path);
+      if (previous === null) {
+        if (existsSync(path)) unlinkSync(path);
+      } else {
+        writeFileSync(path, previous);
+      }
+    }
+    rmSync(standaloneDir, { recursive: true, force: true });
   }
-
-  const afterHtml = readFileSync(generatedPath);
-  const afterMeta = assetMetadata(afterHtml.toString('utf8'));
-  const afterAsset = readFileSync(afterMeta.path);
-  assert.ok(afterHtml.equals(beforeHtml), 'tzofen.html is byte-deterministic across rebuilds');
-  assert.ok(afterAsset.equals(beforeAsset), 'verse display asset is byte-deterministic across rebuilds');
-  assert.equal(afterMeta.url, `/els-data/tk-vtext.${sha256(source).slice(0, 16)}.gzdata`);
-  assert.equal(afterMeta.sourceSha, sha256(source));
-  assert.equal(afterMeta.sourceBytes, source.length);
-  assert.ok(gunzipSync(afterAsset).equals(source), 'decompressed asset equals tk-vtext.txt byte-for-byte');
-  assert.equal(afterAsset.readUInt32LE(4), 0, 'gzip mtime is zero');
-  assert.ok(!afterMeta.url.startsWith('http'), 'asset stays on the current origin');
-  assert.match(afterMeta.url, /\.gzdata$/, 'custom binary suffix does not ask the server to apply Content-Encoding');
-
-  const html = afterHtml.toString('utf8');
-  assert.doesNotMatch(html, /id="verse-text"|__VERSE_TEXT_/);
-  assert.doesNotMatch(html, /_idle\(\(\)=>\{ensureVerseText\(\);\}\)/, 'no mount/idle verse-text preload remains');
-  assert.match(html, /if\(_vtextPending\)return _vtextPending/);
-  assert.match(html, /finally\(\(\)=>\{if\(!VTEXT\)_vtextPending=null;\}\)/, 'failed loads release the shared promise for retry');
-  assert.match(readFileSync(templatePath, 'utf8'), /cache:attempt\?"reload":"default"/);
 });
 
 function loadPlaywright() {
@@ -159,6 +218,45 @@ async function withBrowser(assetReplies, run, { assetDelayMs = 0 } = {}) {
   }
 }
 
+async function withStandaloneBrowser(run) {
+  const standaloneDir = mkdtempSync(join(tmpdir(), 'sod1820-els-file-browser-'));
+  const standalonePath = join(standaloneDir, 'tzofen-offline.html');
+  const result = spawnSync('python3', ['tools/els/build.py', '--standalone-out', standalonePath], { cwd: root, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  let browser;
+  let context;
+  try {
+    browser = await playwright.chromium.launch({ headless: true, executablePath: chromiumPath });
+    context = await browser.newContext({ offline: true });
+    const page = await context.newPage();
+    const documentUrl = 'http://127.0.0.1/standalone-offline.html?bridge=hidden';
+    const standaloneHtml = readFileSync(standalonePath);
+    const externalRequests = [];
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(String(error)));
+    await page.route(/^https?:\/\//i, route => {
+      if (route.request().url() === documentUrl) {
+        return route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: standaloneHtml });
+      }
+      externalRequests.push(route.request().url());
+      return route.abort('internetdisconnected');
+    });
+    await page.goto(documentUrl, { waitUntil: 'load', timeout: 60000 });
+    await page.locator('#q').waitFor({ timeout: 60000 });
+    await run({
+      page,
+      sourceRows: readFileSync(sourcePath, 'utf8').split('\n'),
+      verseLengths: readFileSync(join(root, 'tools/els/data/tk-vlens.txt'), 'utf8').trim().split(',').map(Number),
+    });
+    assert.deepEqual(externalRequests, [], 'strict standalone acceptance attempts no HTTP(S) request beyond its in-process document');
+    assert.deepEqual(pageErrors, [], 'standalone produces no uncaught browser errors');
+  } finally {
+    await context?.close();
+    await browser?.close();
+    rmSync(standaloneDir, { recursive: true, force: true });
+  }
+}
+
 async function search(page, frame) {
   await frame.locator('#q').fill('משיח');
   await frame.locator('#go').click();
@@ -176,7 +274,7 @@ async function requestSourceLenses(page, state, sequence) {
   }, { hitId: state.axis.hitId, index, sequence });
 }
 
-test('browser: mount, idle and regular search make zero display-payload requests; source actions share one',
+test('browser: hosted payload stays demand-only and standalone serves exact source bytes without network',
   { skip: !canRunBrowser && 'Playwright/Chromium unavailable', timeout: 300000 }, async () => {
     await withBrowser(['success'], async ({ page, frame, assetRequests, sourceRows }) => {
       await page.waitForTimeout(1200);
@@ -200,6 +298,36 @@ test('browser: mount, idle and regular search make zero display-payload requests
       await page.waitForFunction(() => window.__log.some(message => message.type === 'lens' && message.target?.nativeSeq === 102));
       assert.equal(assetRequests.length, 1, 'loaded display text is reused without a second request');
     }, { assetDelayMs: 150 });
+
+    await withStandaloneBrowser(async ({ page, sourceRows, verseLengths }) => {
+      await page.locator('#q').fill('משיח');
+      await page.locator('#go').click();
+      const found = page.locator('.rhead .found');
+      await found.waitFor({ timeout: 120000 });
+      assert.match(await found.textContent(), /נמצא\s+משיח/, 'ordinary ELS search renders a verified matrix offline');
+
+      const letter = page.locator('.matrix .mc.main[data-i]').first();
+      const corpusIndex = Number(await letter.getAttribute('data-i'));
+      assert.ok(Number.isInteger(corpusIndex) && corpusIndex >= 0, 'offline matrix exposes a canonical corpus index');
+      await letter.click();
+      await page.waitForFunction(() => {
+        const verse = document.querySelector('#locpop .lp-verse');
+        return verse && !verse.classList.contains('lp-vwait') && /^«.+»$/.test(verse.textContent || '');
+      }, null, { timeout: 60000 });
+
+      let verseIndex = 0;
+      let verseStart = 0;
+      while (verseIndex < verseLengths.length && corpusIndex >= verseStart + verseLengths[verseIndex]) {
+        verseStart += verseLengths[verseIndex++];
+      }
+      assert.ok(verseIndex < verseLengths.length, 'clicked letter maps to a canonical verse boundary');
+      assert.equal(
+        await page.locator('#locpop .lp-verse').textContent(),
+        `«${sourceRows[verseIndex]}»`,
+        'clicked-letter source popup shows the exact canonical verse row from the embedded payload',
+      );
+      assert.match(await page.locator('#locpop .lp-ref').textContent(), /📍\s*.+/, 'clicked letter exposes its source reference');
+    });
   });
 
 test('browser: missing and corrupt payloads fail closed for display, then a later action retries successfully',

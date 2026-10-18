@@ -1112,8 +1112,9 @@
   let VTEXT=null;
   let _vtextPending=null,_vtextAttempt=0;
   async function loadVerseText(){
-    const attempt=_vtextAttempt++,url=VERSE_TEXT_ASSET+(attempt?"?retry="+attempt:"");
-    const response=await fetch(url,{credentials:"same-origin",cache:attempt?"reload":"default"});
+    const attempt=_vtextAttempt++,embedded=VERSE_TEXT_ASSET.startsWith("data:");
+    const url=VERSE_TEXT_ASSET+(!embedded&&attempt?"?retry="+attempt:"");
+    const response=await fetch(url,{credentials:embedded?"omit":"same-origin",cache:!embedded&&attempt?"reload":"default"});
     if(!response.ok)throw new Error("verse_text_http_"+response.status);
     const compressed=await response.arrayBuffer(),ds=new DecompressionStream("gzip");
     const raw=await new Response(new Blob([compressed]).stream().pipeThrough(ds)).arrayBuffer();
@@ -1321,8 +1322,10 @@
   const CORPUS_ID={torah:"__CORPUS_ID_TORAH__",tanakh:"__CORPUS_ID_TANAKH__"};
   const VB_MAX_CANDIDATES=4000,VB_MAX_LETTER_CHECKS=64000;
   const AD_POLICY="ADAPTIVE_CAPPED_V1",AD_BANDS=8,AD_PROBE_PAIRS=500000,AD_PROBE_PAIRS_EXT=2000000;
+__STANDALONE_VERIFIER__
   const _engPending=new Map();let _engSeq=0;
   function engineCall(op,payload,timeoutMs,operation){
+__STANDALONE_ENGINE_DISPATCH__
     return new Promise(res=>{
       if(!EMBED||!window.parent||window.parent===window){res({ok:false,error:"no_host"});return;}
       const requestId="e"+(++_engSeq)+"_"+Math.random().toString(36).slice(2,8);
