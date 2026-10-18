@@ -105,10 +105,15 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         return projection;
       })
       .catch(() => {
-        if (!current()) return null;
         const canRetry = Boolean(loadPostReadingProjection.recovery?.().canRetry);
         const recovery = canRetry ? 'retry' : 'reload';
+        // The shared module loader settles independently of this React mount.
+        // Record a terminal module failure even when navigation unmounted the
+        // story while the request was in flight; only component/UI state is
+        // lifecycle-bound. Otherwise a remount can accidentally request the
+        // same failed importer (or a second recovery URL) again.
         if (!moduleReady && !canRetry) projectionModuleNeedsReload = true;
+        if (!current()) return null;
         fullStatusRef.current = canRetry ? 'retryable-error' : 'terminal-error';
         setState((value) => value.projection
           ? { ...value, loading: false, extensionsStatus: 'error', extensionsRecovery: recovery }
