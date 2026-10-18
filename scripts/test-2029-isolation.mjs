@@ -15,6 +15,9 @@ const books2029 = read("src/pages/Books2029Page.jsx");
 const vite = read("vite.config.js");
 const pkg = JSON.parse(read("package.json"));
 const vercel = JSON.parse(read("vercel.json"));
+const hybridPolicyPath = path.join(root, "config/hybrid-preview-routes.json");
+const hybridPolicy = fs.existsSync(hybridPolicyPath) ? JSON.parse(fs.readFileSync(hybridPolicyPath, "utf8")) : null;
+const explicitHybridLegacy = new Set(hybridPolicy?.explicitLegacyRoutes || []);
 const manifest = JSON.parse(read("public/site.webmanifest"));
 const auth = read("src/lib/auth.js");
 const sw = read("public/sw.js");
@@ -68,13 +71,15 @@ assert.match(vite, /2029\.html/);
 assert.match(vite, /index\.html/);
 assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_BUILD_TARGET=2029 vite build/);
 
-// Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
+// Active routing profile: the ordinary 2029 candidate crosses into 2029.html. A bounded
+// Hybrid acceptance branch may keep named routes on Legacy while its fallback stays Legacy.
 const rewrites = vercel.rewrites || [];
 const expected = ["/", "/posts", "/gematria", "/calculator", "/community/chat", "/melech-hamisparim/718", "/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
-  assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
-  assert.equal(item.destination, "/2029.html", `human 2029 rewrite must target isolated document: ${source}`);
+  assert.ok(item, `missing unconditional human runtime rewrite: ${source}`);
+  const destination = explicitHybridLegacy.has(source) ? "/index.html" : "/2029.html";
+  assert.equal(item.destination, destination, `human route must target its isolated runtime: ${source}`);
 }
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
@@ -92,7 +97,8 @@ for (const route of ["/heichal", "/היכל"]) {
 assert.match(legacyApp, /function Product2029DocumentHandoff\(\{ to = null \}\)/, "Legacy SPA must cross the document boundary for 2029 routes");
 assert.match(legacyApp, /window\.location\.replace\(href\)/, "canonical document handoffs must not leave a redirecting alias in back history");
 for (const route of ["/code", "/els"]) {
-  assert.ok(legacyApp.includes(`path="${route}" element={<Product2029DocumentHandoff />}`), `${route} must cross into isolated 2029 runtime`);
+  const element = explicitHybridLegacy.has(route) ? "<CodePage />" : "<Product2029DocumentHandoff />";
+  assert.ok(legacyApp.includes(`path="${route}" element={${element}}`), `${route} must use its active runtime`);
 }
 assert.ok(app2029.includes('path="/code" element={<Els2029Page />}' ), "canonical cipher tool must render natively at /code");
 assert.ok(app2029.includes('path="/els" element={<ElsAddressAlias2029 />}' ), "old /els address must preserve its alias");

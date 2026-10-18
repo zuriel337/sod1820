@@ -385,7 +385,7 @@ export default function App() {
           <Route path="/גימטריה-מרחבית" element={<Gematria3DPage />} />
           <Route path="/gematria-3d" element={<Gematria3DPage />} />
           <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
-          <Route path="/code" element={<Product2029DocumentHandoff />} />
+          <Route path="/code" element={<CodePage />} />
           {/* הפרדה: /code = הכלי · /codes = ספרייה · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
           <Route path="/codes" element={<CiphersLibraryPage />} />
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}

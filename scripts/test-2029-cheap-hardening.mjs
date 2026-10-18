@@ -8,6 +8,9 @@ const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 
 const app2029 = read("src/App2029.jsx");
 const vercel = JSON.parse(read("vercel.json"));
+const hybridPolicyPath = path.join(root, "config/hybrid-preview-routes.json");
+const hybridPolicy = fs.existsSync(hybridPolicyPath) ? JSON.parse(fs.readFileSync(hybridPolicyPath, "utf8")) : null;
+const explicitHybridLegacy = new Set(hybridPolicy?.explicitLegacyRoutes || []);
 const migration = read("supabase/migrations/20260922211700_g3_journey_saves_least_privilege_v1.sql");
 
 function routePattern(route) {
@@ -33,6 +36,7 @@ const previewRoutes = ["/kingdom", "/preview"];
 assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/kingdom"/);
 assert.match(app2029, /integratedPreviewEnabled && <Route path="\/preview"/);
 const publicAppRoutes = appRoutes.filter((route) => route !== "/2029/*");
+const active2029DocumentRoutes = publicAppRoutes.filter((route) => !explicitHybridLegacy.has(route));
 
 const documentRoutes = (vercel.rewrites || [])
   .filter((row) => row.destination === "/2029.html")
@@ -42,10 +46,14 @@ const documentRoutes = (vercel.rewrites || [])
 
 assert.deepEqual(
   documentRoutes,
-  publicAppRoutes,
-  "every explicit App2029 route must have exactly one isolated /2029.html document rewrite and vice versa",
+  active2029DocumentRoutes,
+  "every route assigned to 2029 must have exactly one isolated /2029.html document rewrite and vice versa",
 );
 assert.ok(publicAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
+for (const route of explicitHybridLegacy) {
+  assert.ok(publicAppRoutes.includes(route), `${route} must remain implemented in App2029 while Hybrid acceptance keeps it on Legacy`);
+  assert.ok(vercel.rewrites.some((row) => row.source === route && row.destination === "/index.html"), `${route} must route to Legacy in the Hybrid profile`);
+}
 for (const route of previewRoutes) assert.ok(vercel.rewrites.some(row => row.source === route && row.destination === "/2029.html"), `${route} must load its isolated document when the preview flag is enabled`);
 
 // Legacy Journey telemetry: direct table reads are not a browser capability.

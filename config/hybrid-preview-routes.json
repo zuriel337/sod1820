@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "status": "acceptance-only-not-production-approved",
+  "sources": {
+    "legacyBranch": "gpt/legacy-now-yaniv-20261016",
+    "legacySha": "0f3443a9a4dcb78e935d74f2a937c47dbf35d18c",
+    "candidateBranch": "gpt/perf-unified-wave4-preview-20261018",
+    "candidateSha": "e994cb67120fa0f735ab3859aa5acba67e24adba"
+  },
+  "documents": {
+    "legacy": "legacy.html",
+    "candidate2029": "2029.html"
+  },
+  "defaultRuntime": "legacy",
+  "candidate2029Routes": [
+    "/",
+    "/posts",
+    "/community/chat",
+    "/home-preview",
+    "/post/(.*)",
+    "/video/(.*)",
+    "/gematria",
+    "/gematria/viral",
+    "/calculator",
+    "/journey",
+    "/world",
+    "/topic/(.*)",
+    "/books",
+    "/books/(.*)",
+    "/book/(.*)",
+    "/heichal",
+    "/היכל",
+    "/researcher/(.*)",
+    "/number/(.*)",
+    "/control",
+    "/entity-hub-preview/(.*)/(.*)",
+    "/melech-hamisparim/718",
+    "/early-access",
+    "/preview",
+    "/kingdom"
+  ],
+  "explicitLegacyRoutes": [
+    "/code",
+    "/els"
+  ]
+}
