@@ -1,10 +1,24 @@
 {
-  "schema": "sod1820.world_story_opening_split.local_manifest.v1",
-  "measured_at_utc": "2026-10-18",
+  "schema": "sod1820.world_story_opening_split.local_manifest.v2",
+  "measured_at_utc": "2026-10-18T04:45:02Z",
   "base_commit": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
-  "build_command": "npm run build:2029",
+  "opening_split_parent": "b55f914c9472cfb8067924413fc519fb983da1a8",
+  "repair_code_commit": "577d71cae9453b93cc008d4f511f3b4528599200",
+  "build_command": "npm run build",
   "compression": "node:zlib gzipSync level=9",
   "closure_rule": "Vite manifest static imports; route figures exclude the 2029 entry closure",
+  "exact_wave3_home_fixture": {
+    "source_sha256": "771c7d8eec67e6b8fec05896b9a10e96ec4d467fbdcaf042b6aba6a2fea8a8a1",
+    "scenarios": [
+      "both image fields",
+      "image_url only",
+      "thumb_url only",
+      "neither image field with experience-media fallback",
+      "rejected draft"
+    ],
+    "html_parity": true,
+    "read_sequence_parity": true
+  },
   "before": {
     "entry": { "chunks": 9, "gzip_bytes": 191697 },
     "home_route_extra": { "chunks": 26, "gzip_bytes": 155379 },
@@ -12,37 +26,65 @@
     "world_opening_projection_requests": {
       "chunks": 2,
       "gzip_bytes": 30042,
-      "reason": "the base World mount calls the full projection and its FZ1073 extension executor",
-      "files": [
-        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21558 },
-        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8484 }
-      ]
+      "reason": "exact Wave 3 World mount calls the full projection and its FZ1073 extension executor"
     }
   },
   "after": {
-    "entry": { "chunks": 9, "gzip_bytes": 191688 },
-    "home_route_extra": { "chunks": 26, "gzip_bytes": 155725 },
-    "world_route_extra": { "chunks": 37, "gzip_bytes": 259963 },
-    "world_opening_projection_requests": {
-      "chunks": 0,
-      "gzip_bytes": 0,
-      "reason": "the focused browser proof observes only getPostCardBySlug before timeline intent"
+    "entry": { "chunks": 9, "gzip_bytes": 191702 },
+    "home_route_extra": { "chunks": 26, "gzip_bytes": 155993 },
+    "world_route_extra": { "chunks": 37, "gzip_bytes": 260236 },
+    "image_bearing_world_opening": {
+      "reads": ["getPostCardBySlug"],
+      "projection_chunks": 0,
+      "projection_gzip_bytes": 0
+    },
+    "world_no_image_fallback": {
+      "trigger": "image_url is absent, whether thumb_url is absent or present",
+      "reads": [
+        "getPostCardBySlug",
+        "fetchPost2029ReadingProjection",
+        "getPostBySlug",
+        "extension reads"
+      ],
+      "explicit_exception": true
     },
     "world_timeline_action_projection_closure": {
       "chunks": 2,
-      "gzip_bytes": 30042,
+      "gzip_bytes": 30046,
       "files": [
-        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21559 },
-        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8483 }
+        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21561 },
+        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8485 }
       ]
     }
   },
-  "exceptions": [
-    "A compact row with neither thumb_url nor image_url retains the established automatic full-reader media fallback."
+  "module_recovery": {
+    "known_url_first_failure": { "module_requests": 2, "second_request_is_recovery_url": true, "third_request": false },
+    "no_url_first_failure": { "module_requests": 1, "action": "explicit document reload", "remount_request": false },
+    "recovery_url_failure": { "module_requests": 2, "action": "explicit document reload", "third_request": false },
+    "extension_failure": { "module_requests": 1, "action": "explicit document reload" }
+  },
+  "locked_route_synthetic_gate": {
+    "image_bearing_main_fixture": true,
+    "test_passed": true,
+    "samples": 1,
+    "world_0ms": { "route_start_ms": 145.2, "usable_content_ms": 761.2 },
+    "world_1500ms": { "route_start_ms": 133.0, "usable_content_ms": 2280.9 },
+    "timing_is_speed_claim": false
+  },
+  "verification": {
+    "home_world_chromium": { "passed": 17, "failed": 0, "skipped": 0 },
+    "locked_route_chromium": { "passed": 1, "failed": 0, "skipped": 0 },
+    "early_primary_read": { "passed": 11, "failed": 0 },
+    "world_discovery_stream": { "passed": 13, "failed": 0 },
+    "bundle_budget": { "passed": 5, "failed": 0 },
+    "full_legacy_and_2029_build": "PASS"
+  },
+  "known_baseline_failures": [
+    "test/date-display-rule-2029.test.mjs: SourceRepeatInfo2029.jsx and ZviGroupTimeline2029.jsx; both unchanged from exact Wave 3"
   ],
   "limitations": [
-    "Local production builds and a deterministic browser fixture only.",
-    "No hosted run, real-user timing, LCP claim, live Supabase payload measurement, or production cache/contention claim.",
-    "The runtime request classification combines executed-path browser proof with emitted manifest closure sizes; it is not a packet trace of Production."
+    "Local production builds and deterministic synthetic browser fixtures only.",
+    "No hosted run, real-user timing, LCP claim, physical-phone run, live Supabase payload measurement, or Production cache/contention claim.",
+    "Locked-route milliseconds are synthetic gate evidence and are not used as a speed claim."
   ]
 }
