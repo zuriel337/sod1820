@@ -1384,9 +1384,6 @@
 .sod29-reading-source :is(h1,h2,h3,h4) :is(span,strong,b,font)[style*="font-size"]{font-size:inherit!important}
 .sod29-reading-source img,.sod29-reading-source video,.sod29-reading-source iframe{max-width:100%;height:auto}
 .sod29-reading-source img[data-sod-post-media-state]{
-  display:block;
-  max-inline-size:100%;
-  block-size:auto;
   background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
 }
 .sod29-reading-source img[data-sod-post-media-intrinsic="941x1672"]{
