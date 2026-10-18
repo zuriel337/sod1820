@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
+  RUM_METRIC_SCOPE,
   WEB_VITALS_VERSION,
   buildWebVitalsSnapshot,
   createClsState,
   createInpState,
+  preferredRumPhase,
   rateWebVital,
 } from "../src/lib/webVitalsCore.js";
 
-assert.equal(WEB_VITALS_VERSION, 1);
+assert.equal(WEB_VITALS_VERSION, 2);
+assert.equal(RUM_METRIC_SCOPE.HARD_LOAD, "hard_load_cwv_and_usable");
+assert.equal(RUM_METRIC_SCOPE.SPA_NAVIGATION, "spa_navigation_usable_only");
 
 // CLS: shifts within <1s gaps and <5s window accumulate; later window stands alone.
 {
@@ -21,6 +25,14 @@ assert.equal(WEB_VITALS_VERSION, 1);
     cls: 0.09,
     cls_shift_sources: ["main.hero", "section.async"],
   });
+}
+
+// A final beacon wins even when an older checkpoint finishes ingestion later.
+{
+  const final = { phase: "final", sequence: 2 };
+  const laterCheckpoint = { phase: "checkpoint", sequence: 99 };
+  assert.equal(preferredRumPhase(final, laterCheckpoint), final);
+  assert.equal(preferredRumPhase(laterCheckpoint, final), final);
 }
 
 // A 5s boundary resets the session window even when individual shifts are small.
@@ -73,26 +85,44 @@ console.log("G3 2029 Web Vitals core: PASS");
 
 const collector = fs.readFileSync("src/lib/webVitals2029.js", "utf8");
 const app2029 = fs.readFileSync("src/App2029.jsx", "utf8");
-const migration = fs.readFileSync("supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql", "utf8");
+const main2029 = fs.readFileSync("src/main2029.jsx", "utf8");
+const vite = fs.readFileSync("vite.config.js", "utf8");
+const migrationV1 = fs.readFileSync("supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql", "utf8");
+const migration = fs.readFileSync("supabase/migrations/20261018021029_g3_2029_web_vitals_acceptance_rum_v2.sql", "utf8");
 
 assert.match(collector, /p_surface:\s*"performance"/);
 assert.match(collector, /p_event_type:\s*"web_vital"/);
 assert.match(collector, /PerformanceObserver/);
 assert.match(collector, /sod1820\.co\.il/);
-assert.match(collector, /document_navigation_hard_load_only/);
-assert.match(collector, /stillInitialPath/);
+assert.match(collector, /hard_load_cwv_and_usable|RUM_METRIC_SCOPE\.HARD_LOAD/);
+assert.match(collector, /spa_navigation_usable_only|RUM_METRIC_SCOPE\.SPA_NAVIGATION/);
+assert.match(collector, /route_instance_id/);
+assert.match(collector, /build_sha/);
+assert.match(collector, /deploy_env/);
+assert.match(collector, /device_class/);
+assert.match(collector, /traffic_hint/);
 assert.doesNotMatch(collector, /create\s+table/i);
 
 assert.match(app2029, /startWebVitals2029/);
+assert.match(main2029, /prepareWebVitals2029\(\)/);
+assert.match(vite, /__SOD_BUILD_SHA__/);
+assert.match(vite, /__SOD_DEPLOY_ENV__/);
 
 assert.match(migration, /percentile_cont\(0\.75\)/i);
 assert.match(migration, /events\.performance\.web_vital/i);
-assert.match(migration, /document_navigation_hard_load_rum_not_crux/i);
+assert.match(migration, /hard_load_cwv_plus_usable_and_spa_usable_navigation_rum_not_crux/i);
+assert.match(migration, /case when props->>'phase' = 'final' then 1 else 0 end desc/i);
+assert.match(migration, /hard_load_cwv_and_usable/i);
+assert.match(migration, /spa_navigation_usable_only/i);
+assert.match(migration, /build_sha/i);
+assert.match(migration, /device_class/i);
+assert.match(migration, /usable_p75_ms/i);
 assert.match(migration, /latest_cls_issue/i);
 assert.match(migration, /audience_kind\s*<>\s*'internal_admin'/i);
 assert.match(migration, /surface\s*=\s*'performance'/i);
 assert.match(migration, /event_type\s*=\s*'web_vital'/i);
 assert.doesNotMatch(migration, /create\s+table/i);
 assert.doesNotMatch(migration, /alter\s+table/i);
+assert.match(migrationV1, /document_navigation_hard_load_rum_not_crux/i);
 
 console.log("G3 2029 Web Vitals wiring: PASS");

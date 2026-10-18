@@ -2,7 +2,12 @@
 // Owner: Experience release acceptance + Traffic Intelligence measurement truth.
 // This module intentionally keeps the Google-compatible thresholds explicit and versioned.
 
-export const WEB_VITALS_VERSION = 1;
+export const WEB_VITALS_VERSION = 2;
+
+export const RUM_METRIC_SCOPE = Object.freeze({
+  HARD_LOAD: "hard_load_cwv_and_usable",
+  SPA_NAVIGATION: "spa_navigation_usable_only",
+});
 
 export const WEB_VITAL_THRESHOLDS = Object.freeze({
   cls: Object.freeze({ good: 0.1, poor: 0.25 }),
@@ -139,4 +144,14 @@ export function buildWebVitalsSnapshot({
     ttfb: rateWebVital("ttfb_ms", snapshot.ttfb_ms),
   };
   return snapshot;
+}
+
+// Checkpoint delivery may finish after the pagehide beacon even though it was
+// created earlier. Consumers therefore rank phase before ingestion time.
+export function preferredRumPhase(current, candidate) {
+  if (!current) return candidate || null;
+  if (!candidate) return current;
+  const rank = (sample) => sample?.phase === "final" ? 2 : sample?.phase === "checkpoint" ? 1 : 0;
+  if (rank(candidate) !== rank(current)) return rank(candidate) > rank(current) ? candidate : current;
+  return Number(candidate.sequence || 0) >= Number(current.sequence || 0) ? candidate : current;
 }

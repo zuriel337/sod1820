@@ -10,6 +10,8 @@ import { isNumberReviewPreviewBuild2029 } from './src/lib/numberReviewPreview202
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 const is2029 = process.env.SOD_BUILD_TARGET === '2029'
 const numberReviewPreviewOpen = isNumberReviewPreviewBuild2029(process.env)
+const buildSha = process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || process.env.SOD_BUILD_SHA || 'unknown'
+const deployEnv = process.env.VERCEL_ENV || process.env.SOD_DEPLOY_ENV || 'unknown'
 
 // G3-A hard isolation: legacy and 2029 are built as two independent module graphs.
 // This prevents Rollup from re-sharing a common chunk that carries legacy-only presentation
@@ -18,6 +20,8 @@ export default defineConfig({
   define: {
     __SOD_2029_BUILD__: JSON.stringify(is2029),
     __SOD_NUMBER_REVIEW_PREVIEW_OPEN__: JSON.stringify(numberReviewPreviewOpen),
+    __SOD_BUILD_SHA__: JSON.stringify(buildSha),
+    __SOD_DEPLOY_ENV__: JSON.stringify(deployEnv),
   },
   plugins: [react(), {
     name: '2029-entry-primary-reads',

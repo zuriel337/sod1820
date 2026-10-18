@@ -1,39 +1,47 @@
-// SOD1820 real-user Web Vitals collector.
-// EXTEND_EXISTING only: writes one semantic event family into the existing
-// public.events pipeline through public.ingest_event. No second analytics store.
-// Release-gate measurement remains separate browser evidence; this module is RUM.
+// SOD1820 2029 real-user performance collector.
+// EXTEND_EXISTING only: the existing public.events -> public.ingest_event path
+// remains the sole store. Preview builds collect nothing outside memory and make
+// zero telemetry/identity writes.
 
 import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 import { getSodId, appContext, sessionId } from "./identity.js";
 import { isBot } from "./botVerdict.js";
 import {
+  RUM_METRIC_SCOPE,
   WEB_VITALS_VERSION,
   buildWebVitalsSnapshot,
   createClsState,
   createInpState,
 } from "./webVitalsCore.js";
+import { primaryContentState2029 } from "./usableContent2029.js";
 
 const CANONICAL_HOSTS = new Set(["sod1820.co.il", "www.sod1820.co.il"]);
 const CHECKPOINT_MS = 15000;
+const USABLE_TIMEOUT_MS = 30000;
+const AUTHORIZATION_TIMEOUT_MS = 30000;
+const USABLE_POLL_MS = 100;
 const RPC_URL = `${SUPABASE_URL}/rest/v1/rpc/ingest_event?apikey=${SUPABASE_ANON}`;
 
-function canonicalProduction() {
-  try { return CANONICAL_HOSTS.has(String(location.hostname || "").toLowerCase()); }
+const COMPILED_BUILD_SHA = typeof __SOD_BUILD_SHA__ === "string" ? __SOD_BUILD_SHA__ : "unknown";
+const COMPILED_DEPLOY_ENV = typeof __SOD_DEPLOY_ENV__ === "string" ? __SOD_DEPLOY_ENV__ : "unknown";
+
+let preparedRuntime = null;
+
+function canonicalProduction(win) {
+  try { return CANONICAL_HOSTS.has(String(win?.location?.hostname || "").toLowerCase()); }
   catch { return false; }
 }
 
-function sampleId() {
-  try { return crypto?.randomUUID?.() || `wv-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
-  catch { return `wv-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+function newId(prefix, cryptoObject = globalThis.crypto) {
+  try { return `${prefix}-${cryptoObject?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`}`; }
+  catch { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
 }
 
 function nodeLabel(node) {
   try {
     if (!node || node.nodeType !== 1) return null;
     const tag = String(node.tagName || "").toLowerCase();
-    // RUM diagnostics deliberately omit DOM ids/text/content. Class names are
-    // sufficient to find the shifting component while avoiding accidental
-    // capture of user- or content-derived identifiers.
+    // No ids, text or content-derived values enter diagnostics.
     const cls = typeof node.className === "string"
       ? node.className.trim().split(/\s+/).filter(Boolean).slice(0, 3).map((x) => `.${x}`).join("")
       : "";
@@ -41,9 +49,9 @@ function nodeLabel(node) {
   } catch { return null; }
 }
 
-function navDiagnostics() {
+function navigationDiagnostics(win) {
   try {
-    const nav = performance.getEntriesByType("navigation")?.[0] || null;
+    const nav = win.performance?.getEntriesByType?.("navigation")?.[0] || null;
     if (!nav) return { ttfbMs: null, navType: null };
     return {
       ttfbMs: Math.max(0, Number(nav.responseStart || 0) - Number(nav.startTime || 0)),
@@ -52,91 +60,135 @@ function navDiagnostics() {
   } catch { return { ttfbMs: null, navType: null }; }
 }
 
-function keepaliveSend(payload) {
-  const body = JSON.stringify(payload);
+function deviceClass(win) {
   try {
-    if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
-      const blob = new Blob([body], { type: "application/json" });
-      if (navigator.sendBeacon(RPC_URL, blob)) return;
-    }
-  } catch { /* fall through */ }
+    const ua = String(win.navigator?.userAgent || "");
+    const width = Number(win.innerWidth || win.document?.documentElement?.clientWidth || 0);
+    if (/iPad|Tablet/i.test(ua) || (/Macintosh/i.test(ua) && Number(win.navigator?.maxTouchPoints || 0) > 1)) return "tablet";
+    if (/Mobi|Android|iPhone|iPod/i.test(ua) || (width > 0 && width < 768)) return "mobile";
+    if (width > 0 && width <= 1100 && win.matchMedia?.("(pointer: coarse)")?.matches) return "tablet";
+    return "desktop";
+  } catch { return "unknown"; }
+}
 
+function trafficHint(doc, win, botVerdict) {
+  if (botVerdict) return "suspected";
   try {
-    fetch(RPC_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-      keepalive: true,
-    }).catch(() => {});
-  } catch { /* observability must never break navigation */ }
+    const edge = doc.cookie.match(/(?:^|;\s*)vb=([a-z]+)/i)?.[1]?.toLowerCase() || null;
+    if (edge === "browser" && win.navigator?.webdriver !== true) return "human_like";
+  } catch { /* unknown remains explicit */ }
+  return "unknown";
 }
 
 function ordinarySend(payload) {
   if (!supabase) return;
   try { supabase.rpc("ingest_event", payload).then(() => {}).catch(() => {}); }
-  catch { /* observability must never break navigation */ }
+  catch { /* observability never blocks runtime */ }
 }
 
-function makePayload({ id, initialPath, phase, reason, snapshot, navType }) {
-  return {
-    p_sod_id: getSodId(),
-    p_surface: "performance",
-    p_event_type: "web_vital",
-    p_path: initialPath,
-    p_app_context: appContext(),
-    p_session_id: sessionId(),
-    p_is_bot: false,
-    p_props: {
-      ...snapshot,
-      sample_id: id,
-      phase,
-      flush_reason: reason,
-      initial_path: initialPath,
-      current_path: typeof location !== "undefined" ? location.pathname : initialPath,
-      collector: "performance_observer",
-      measurement_scope: "document_navigation_hard_load_only",
-      nav_type: navType,
-      visibility_at_flush: typeof document !== "undefined" ? document.visibilityState : null,
-    },
-  };
+function keepaliveSend(payload, win) {
+  const body = JSON.stringify(payload);
+  try {
+    if (typeof win.navigator?.sendBeacon === "function") {
+      const blob = new Blob([body], { type: "application/json" });
+      if (win.navigator.sendBeacon(RPC_URL, blob)) return;
+    }
+  } catch { /* fall through */ }
+  try {
+    win.fetch?.(RPC_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    })?.catch?.(() => {});
+  } catch { /* observability never blocks runtime */ }
 }
 
-export function startWebVitals2029(deps = {}) {
+function defaultTransport(payload, { keepalive = false, win } = {}) {
+  if (keepalive) keepaliveSend(payload, win);
+  else ordinarySend(payload);
+}
+
+function currentRoute(win) {
+  try { return win.location?.pathname || "/"; }
+  catch { return "/"; }
+}
+
+function hardNavKind(navType) {
+  if (navType === "reload") return "hard_reload";
+  if (navType === "back_forward") return "hard_back_forward";
+  return "hard_load";
+}
+
+function phaseRank(phase) {
+  return phase === "final" ? 2 : phase === "checkpoint" ? 1 : 0;
+}
+
+export function createWebVitalsRuntime2029(deps = {}) {
   const win = deps.win ?? (typeof window !== "undefined" ? window : null);
   const doc = deps.doc ?? (typeof document !== "undefined" ? document : null);
-  const PerfObserver = deps.PerformanceObserverCtor ?? (typeof PerformanceObserver !== "undefined" ? PerformanceObserver : null);
-  const setTimeoutFn = deps.setTimeoutFn ?? (win ? win.setTimeout.bind(win) : null);
-  const clearTimeoutFn = deps.clearTimeoutFn ?? (win ? win.clearTimeout.bind(win) : null);
-  const production = deps.production ?? canonicalProduction();
-  const bot = deps.bot ?? (() => { try { return !!isBot(); } catch { return false; } })();
+  const PerfObserver = Object.prototype.hasOwnProperty.call(deps, "PerformanceObserverCtor")
+    ? deps.PerformanceObserverCtor
+    : (typeof PerformanceObserver !== "undefined" ? PerformanceObserver : null);
+  if (!win || !doc) return null;
 
-  if (!production || bot || !win || !doc || !PerfObserver) return () => {};
-
-  const initialPath = deps.initialPath || win.location?.pathname || "/";
-  const id = deps.sampleId || sampleId();
+  const setTimeoutFn = deps.setTimeoutFn ?? win.setTimeout.bind(win);
+  const clearTimeoutFn = deps.clearTimeoutFn ?? win.clearTimeout.bind(win);
+  const now = deps.now ?? (() => Number(win.performance?.now?.() || 0));
+  const production = deps.production ?? canonicalProduction(win);
+  const buildSha = String((deps.buildSha ?? COMPILED_BUILD_SHA) || "unknown").slice(0, 80);
+  const deployEnv = String((deps.deployEnv ?? COMPILED_DEPLOY_ENV) || "unknown").slice(0, 40);
+  const botVerdict = deps.bot ?? (() => { try { return Boolean(isBot()); } catch { return false; } })();
+  const audienceHint = deps.trafficHint ?? trafficHint(doc, win, botVerdict);
+  const device = deps.deviceClass ?? deviceClass(win);
+  const transport = deps.transport ?? ((payload, options) => defaultTransport(payload, { ...options, win }));
+  const readiness = deps.readiness ?? ((route) => primaryContentState2029({ pathname: route, doc, win }));
+  const checkpointMs = Number(deps.checkpointMs ?? CHECKPOINT_MS);
+  const usableTimeoutMs = Number(deps.usableTimeoutMs ?? USABLE_TIMEOUT_MS);
+  const authorizationTimeoutMs = Number(deps.authorizationTimeoutMs ?? AUTHORIZATION_TIMEOUT_MS);
+  const usablePollMs = Number(deps.usablePollMs ?? USABLE_POLL_MS);
+  const initialRoute = deps.initialPath || currentRoute(win);
+  const { ttfbMs, navType } = deps.navigation ?? navigationDiagnostics(win);
   const clsState = createClsState();
   const inpState = createInpState();
   const observers = [];
+  const pending = new Map();
+  const sentPhase = new Map();
+  const listeners = [];
+  const originalHistory = {};
+  let authorization = "unknown";
+  let disposed = false;
   let lcpMs = null;
   let fcpMs = null;
-  let finalized = false;
-  let checkpointSent = false;
+  let sequence = 0;
+  let hardFinalized = false;
+  let activeRoute = null;
   let checkpointTimer = null;
-  const { ttfbMs, navType } = navDiagnostics();
+  let authorizationTimer = null;
+  let hardUsableStop = null;
+  let softUsableStop = null;
 
-  // This collector intentionally measures the hard document navigation only.
-  // SPA route changes are not silently re-labeled as Core Web Vitals for the
-  // destination URL. Observer callbacks after a client-side route change are ignored.
-  const stillInitialPath = () => {
-    try { return (win.location?.pathname || "/") === initialPath; }
-    catch { return false; }
+  const hardSample = {
+    sampleId: deps.sampleId || newId("rum", deps.cryptoObject),
+    routeInstanceId: deps.routeInstanceId || newId("route", deps.cryptoObject),
+    route: initialRoute,
+    navKind: hardNavKind(navType),
+    navType,
+    startedAt: 0,
+    usableMs: null,
+    usableKind: null,
   };
 
+  function addListener(target, type, callback, options) {
+    target?.addEventListener?.(type, callback, options);
+    listeners.push(() => target?.removeEventListener?.(type, callback, options));
+  }
+
   function observe(type, callback, options = {}) {
+    if (!PerfObserver) return false;
     try {
       const observer = new PerfObserver((list) => {
-        if (!stillInitialPath()) return;
-        try { callback(list.getEntries()); } catch { /* metric failure is isolated */ }
+        try { callback(list.getEntries()); } catch { /* isolate metric failure */ }
       });
       observer.observe({ type, ...options });
       observers.push(observer);
@@ -144,7 +196,8 @@ export function startWebVitals2029(deps = {}) {
     } catch { return false; }
   }
 
-  observe("layout-shift", (entries) => {
+  const metricSupport = { cls: false, lcp: false, fcp: false, inp: false };
+  metricSupport.cls = observe("layout-shift", (entries) => {
     for (const entry of entries) {
       clsState.add({
         value: entry.value,
@@ -154,77 +207,302 @@ export function startWebVitals2029(deps = {}) {
       });
     }
   }, { buffered: true });
-
-  observe("largest-contentful-paint", (entries) => {
+  metricSupport.lcp = observe("largest-contentful-paint", (entries) => {
     const last = entries[entries.length - 1];
     if (last) lcpMs = Number(last.startTime || 0);
   }, { buffered: true });
-
-  observe("paint", (entries) => {
+  metricSupport.fcp = observe("paint", (entries) => {
     const fcp = entries.find((entry) => entry.name === "first-contentful-paint");
     if (fcp) fcpMs = Number(fcp.startTime || 0);
   }, { buffered: true });
-
-  if (!observe("event", (entries) => {
+  metricSupport.inp = observe("event", (entries) => {
     for (const entry of entries) inpState.add(entry);
-  }, { durationThreshold: 40 })) {
-    observe("event", (entries) => {
+  }, { durationThreshold: 40 });
+  if (!metricSupport.inp) {
+    metricSupport.inp = observe("event", (entries) => {
       for (const entry of entries) inpState.add(entry);
     });
   }
 
-  function snapshot() {
-    return buildWebVitalsSnapshot({ clsState, inpState, lcpMs, fcpMs, ttfbMs });
-  }
-
-  function send(phase, reason, keepalive = false) {
-    if (phase === "checkpoint" && checkpointSent) return null;
-    if (phase === "final" && finalized) return null;
-    if (phase === "checkpoint") checkpointSent = true;
-    if (phase === "final") finalized = true;
-
-    const payload = makePayload({ id, initialPath, phase, reason, snapshot: snapshot(), navType });
-    try {
-      if (keepalive) keepaliveSend(payload);
-      else ordinarySend(payload);
-    } catch { /* never break UI */ }
-    return payload;
-  }
-
-  function disconnect() {
-    for (const observer of observers) {
+  function disconnectMetricObservers() {
+    for (const observer of observers.splice(0)) {
       try { observer.disconnect(); } catch { /* ignore */ }
     }
-    if (checkpointTimer && clearTimeoutFn) clearTimeoutFn(checkpointTimer);
+  }
+
+  function makeMeasurement(sample, { phase = "final", reason, hard = false } = {}) {
+    const common = {
+      vitals_version: WEB_VITALS_VERSION,
+      build_sha: buildSha,
+      deploy_env: deployEnv,
+      route: sample.route,
+      route_instance_id: sample.routeInstanceId,
+      nav_kind: sample.navKind,
+      device_class: device,
+      sample_id: sample.sampleId,
+      phase,
+      sequence: ++sequence,
+      flush_reason: reason,
+      usable_ms: sample.usableMs,
+      usable_kind: sample.usableKind,
+      usable_state: sample.usableMs == null ? "not_observed" : "usable",
+      collector: "performance_observer",
+      traffic_hint: audienceHint,
+      visibility_at_flush: doc.visibilityState || null,
+    };
+    if (!hard) return { ...common, measurement_scope: RUM_METRIC_SCOPE.SPA_NAVIGATION };
+    const snapshot = buildWebVitalsSnapshot({ clsState, inpState, lcpMs, fcpMs, ttfbMs });
+    if (!metricSupport.cls) {
+      snapshot.cls = null;
+      snapshot.cls_shift_sources = [];
+      snapshot.ratings.cls = null;
+    }
+    return {
+      ...snapshot,
+      ...common,
+      measurement_scope: RUM_METRIC_SCOPE.HARD_LOAD,
+      nav_type: sample.navType,
+      metric_support: { ...metricSupport, navigation: ttfbMs != null },
+    };
+  }
+
+  function rpcPayload(measurement) {
+    const pIsBot = audienceHint === "suspected" || botVerdict;
+    return {
+      p_sod_id: (deps.getSodId ?? getSodId)(),
+      p_surface: "performance",
+      p_event_type: "web_vital",
+      p_path: measurement.route,
+      p_app_context: (deps.appContext ?? appContext)(),
+      p_device: device,
+      p_session_id: (deps.sessionId ?? sessionId)(),
+      p_is_bot: pIsBot,
+      p_props: measurement,
+    };
+  }
+
+  function transmit(record) {
+    if (!production || authorization !== "enabled" || disposed) return;
+    const previousRank = sentPhase.get(record.measurement.sample_id) || 0;
+    const nextRank = phaseRank(record.measurement.phase);
+    if (nextRank < previousRank || (nextRank === previousRank && nextRank > 0)) return;
+    try {
+      transport(rpcPayload(record.measurement), { keepalive: record.keepalive });
+      sentPhase.set(record.measurement.sample_id, nextRank);
+    } catch { /* observability never blocks runtime */ }
+  }
+
+  function queue(record) {
+    if (authorization === "disabled" || disposed) return;
+    const id = record.measurement.sample_id;
+    const prior = pending.get(id);
+    if (!prior || phaseRank(record.measurement.phase) >= phaseRank(prior.measurement.phase)) pending.set(id, record);
+    if (authorization === "enabled") {
+      const next = pending.get(id);
+      pending.delete(id);
+      transmit(next);
+    }
+  }
+
+  function flushPending() {
+    for (const record of pending.values()) transmit(record);
+    pending.clear();
+  }
+
+  function watchUsable(sample, onOutcome, { deferFirst = false } = {}) {
+    let stopped = false;
+    let pollTimer = null;
+    const deadline = now() + usableTimeoutMs;
+    const check = () => {
+      if (stopped || disposed) return;
+      let state = null;
+      try { state = readiness(sample.route); } catch { state = null; }
+      sample.usableKind = state?.kind || sample.usableKind;
+      if (state?.usable) {
+        sample.usableMs = Math.max(0, Math.round((now() - sample.startedAt) * 10) / 10);
+        stopped = true;
+        onOutcome?.("usable");
+        return;
+      }
+      if (now() >= deadline) {
+        stopped = true;
+        onOutcome?.("timeout");
+        return;
+      }
+      pollTimer = setTimeoutFn(check, usablePollMs);
+    };
+    if (deferFirst) pollTimer = setTimeoutFn(check, 0);
+    else check();
+    return () => {
+      stopped = true;
+      if (pollTimer != null) clearTimeoutFn(pollTimer);
+    };
+  }
+
+  function sendHard(phase, reason, keepalive = false) {
+    if (phase === "final" && hardFinalized) return;
+    if (phase === "final") hardFinalized = true;
+    queue({ measurement: makeMeasurement(hardSample, { phase, reason, hard: true }), keepalive });
+    if (phase === "final") {
+      disconnectMetricObservers();
+      hardUsableStop?.();
+      hardUsableStop = null;
+      if (checkpointTimer != null) clearTimeoutFn(checkpointTimer);
+      checkpointTimer = null;
+    }
+  }
+
+  function finishActiveRoute(reason, keepalive = false) {
+    if (!activeRoute || activeRoute.sent) return;
+    activeRoute.sent = true;
+    softUsableStop?.();
+    softUsableStop = null;
+    queue({ measurement: makeMeasurement(activeRoute, { phase: "final", reason, hard: false }), keepalive });
+  }
+
+  function beginRoute(route, navKind, force = false, startedAt = now()) {
+    if (!force && route === (activeRoute?.route || hardSample.route) && !hardFinalized) return;
+    if (!hardFinalized) sendHard("final", "spa_departure", false);
+    else finishActiveRoute("navigation_superseded", false);
+    activeRoute = {
+      sampleId: newId("rum", deps.cryptoObject),
+      routeInstanceId: newId("route", deps.cryptoObject),
+      route,
+      navKind,
+      startedAt,
+      usableMs: null,
+      usableKind: null,
+      sent: false,
+    };
+    softUsableStop = watchUsable(activeRoute, (outcome) => {
+      finishActiveRoute(outcome === "usable" ? "usable_content" : "usable_timeout", false);
+    }, { deferFirst: true });
+  }
+
+  function routeChanged(navKind, force = false, startedAt = now()) {
+    const route = currentRoute(win);
+    const current = activeRoute?.route || (!hardFinalized ? hardSample.route : null);
+    if (!force && route === current) return;
+    beginRoute(route, navKind, force, startedAt);
+  }
+
+  function wrapHistory(method, navKind) {
+    const history = win.history;
+    if (!history || typeof history[method] !== "function") return;
+    const original = history[method];
+    const wrapped = function wrappedHistory(...args) {
+      const result = original.apply(this, args);
+      // Close hard-load CWV at the route boundary, before destination rendering
+      // can contaminate it. The destination readiness check itself waits a task.
+      routeChanged(navKind, false, now());
+      return result;
+    };
+    originalHistory[method] = { original, wrapped };
+    history[method] = wrapped;
+  }
+
+  function pageHidden(reason) {
+    if (!hardFinalized) sendHard("final", reason, true);
+    else finishActiveRoute(reason, true);
+  }
+
+  hardUsableStop = watchUsable(hardSample);
+  checkpointTimer = setTimeoutFn(() => {
+    if (!hardFinalized) sendHard("checkpoint", "15s_checkpoint", false);
+  }, checkpointMs);
+  authorizationTimer = setTimeoutFn(() => {
+    if (authorization === "unknown") dispose();
+  }, authorizationTimeoutMs);
+
+  addListener(doc, "visibilitychange", () => {
+    if (doc.visibilityState === "hidden") pageHidden("visibility_hidden");
+  });
+  addListener(win, "pagehide", () => pageHidden("pagehide"));
+  addListener(win, "popstate", () => routeChanged("spa_pop"));
+  addListener(win, "pageshow", (event) => {
+    if (event.persisted) routeChanged("bfcache_restore", true);
+  });
+  wrapHistory("pushState", "spa_push");
+  wrapHistory("replaceState", "spa_replace");
+
+  function authorize() {
+    if (disposed) return;
+    authorization = "enabled";
+    if (authorizationTimer != null) clearTimeoutFn(authorizationTimer);
+    authorizationTimer = null;
+    if (!production) {
+      pending.clear();
+      dispose();
+      return;
+    }
+    flushPending();
+  }
+
+  function suspend() {
+    if (disposed) return;
+    authorization = "disabled";
+    pending.clear();
+  }
+
+  function dispose() {
+    if (disposed) return;
+    pending.clear();
+    disconnectMetricObservers();
+    hardUsableStop?.();
+    softUsableStop?.();
+    hardUsableStop = null;
+    softUsableStop = null;
+    if (checkpointTimer != null) clearTimeoutFn(checkpointTimer);
+    if (authorizationTimer != null) clearTimeoutFn(authorizationTimer);
     checkpointTimer = null;
-    doc.removeEventListener("visibilitychange", onVisibilityChange);
-    win.removeEventListener("pagehide", onPageHide);
+    authorizationTimer = null;
+    for (const remove of listeners.splice(0)) {
+      try { remove(); } catch { /* ignore */ }
+    }
+    for (const [method, entry] of Object.entries(originalHistory)) {
+      try {
+        // Never erase a history wrapper installed by another owner after ours.
+        if (win.history[method] === entry.wrapped) win.history[method] = entry.original;
+      } catch { /* ignore */ }
+    }
+    disposed = true;
   }
 
-  function finalize(reason) {
-    if (finalized) return;
-    send("final", reason, true);
-    disconnect();
-  }
-
-  function onVisibilityChange() {
-    if (doc.visibilityState === "hidden") finalize("visibility_hidden");
-  }
-  function onPageHide() { finalize("pagehide"); }
-
-  doc.addEventListener("visibilitychange", onVisibilityChange);
-  win.addEventListener("pagehide", onPageHide);
-
-  if (setTimeoutFn) {
-    checkpointTimer = setTimeoutFn(() => {
-      if (!finalized) send("checkpoint", "15s_checkpoint", false);
-    }, CHECKPOINT_MS);
-  }
-
-  return () => {
-    // React/runtime teardown is not a user page finalization signal. Disconnect only.
-    disconnect();
+  return {
+    authorize,
+    suspend,
+    dispose,
+    isDisposed: () => disposed,
+    state: () => ({
+      authorization,
+      production,
+      buildSha,
+      deployEnv,
+      deviceClass: device,
+      trafficHint: audienceHint,
+      pending: pending.size,
+      hardFinalized,
+      activeRoute: activeRoute?.route || null,
+    }),
   };
 }
 
-export { WEB_VITALS_VERSION };
+// Called from the 2029 entry module before React renders. Observation is memory-only
+// until the existing fx_analytics effect calls startWebVitals2029 after the switch resolves.
+export function prepareWebVitals2029(deps = {}) {
+  if (!preparedRuntime || preparedRuntime.isDisposed()) preparedRuntime = createWebVitalsRuntime2029(deps);
+  return preparedRuntime;
+}
+
+export function startWebVitals2029(deps = {}) {
+  const runtime = prepareWebVitals2029(deps);
+  runtime?.authorize();
+  return () => runtime?.suspend();
+}
+
+export function resetWebVitalsRuntimeForTest2029() {
+  preparedRuntime?.dispose();
+  preparedRuntime = null;
+}
+
+export { RUM_METRIC_SCOPE, WEB_VITALS_VERSION };
