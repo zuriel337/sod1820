@@ -20,9 +20,9 @@ const finiteNumber = (value) => {
 /**
  * A small input-intent gate for the Number depth sentinel.
  *
- * Scroll position is deliberately not an input. Only an explicit wheel, scrolling key, touch
- * movement, or primary pointer drag can accumulate intent. Navigation/restoration callers can
- * clear pending intent without re-enabling a consumed gate.
+ * Scroll position is deliberately not an input. Only an explicit wheel, scrolling key or touch
+ * movement can accumulate intent. Mouse/pen selection and drag gestures are deliberately absent.
+ * Navigation/restoration callers can clear pending intent without re-enabling a consumed gate.
  */
 export function createNumberDepthIntentState({
   minDelta = NUMBER_DEPTH_INTENT_MIN_DELTA,
@@ -33,7 +33,6 @@ export function createNumberDepthIntentState({
   let accumulatedDelta = 0;
   let lastInputAt = null;
   let touchY = null;
-  let pointer = null;
   let consumed = false;
 
   const fresh = (now) => (
@@ -65,7 +64,6 @@ export function createNumberDepthIntentState({
     accumulatedDelta = 0;
     lastInputAt = null;
     touchY = null;
-    pointer = null;
   };
 
   return Object.freeze({
@@ -101,28 +99,6 @@ export function createNumberDepthIntentState({
       touchY = null;
     },
 
-    pointerStart({ pointerId = null, clientY = null, pointerType = "mouse", button = 0, isPrimary = true } = {}) {
-      const y = finiteNumber(clientY);
-      if (y == null || isPrimary === false || button !== 0 || !["mouse", "pen"].includes(pointerType)) {
-        pointer = null;
-        return false;
-      }
-      pointer = { pointerId, clientY: y, pointerType };
-      return false;
-    },
-
-    pointerMove({ pointerId = null, clientY = null, buttons = 1 } = {}, now = Date.now()) {
-      const y = finiteNumber(clientY);
-      if (!pointer || pointer.pointerId !== pointerId || y == null || (Number(buttons) & 1) !== 1) return false;
-      const delta = y - pointer.clientY;
-      pointer = { ...pointer, clientY: y };
-      return addDelta(delta, now);
-    },
-
-    pointerEnd(pointerId = null) {
-      if (pointer && (pointerId == null || pointer.pointerId === pointerId)) pointer = null;
-    },
-
     clearPending,
 
     ready(now = Date.now()) {
@@ -151,7 +127,6 @@ export function createNumberDepthIntentState({
         ready: !consumed && at != null && fresh(at) && accumulatedDelta >= threshold,
         consumed,
         trackingTouch: touchY != null,
-        trackingPointer: pointer != null,
       });
     },
   });

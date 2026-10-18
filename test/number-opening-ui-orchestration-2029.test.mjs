@@ -391,7 +391,7 @@ test("depth intent ignores position/restoration and requires fresh accumulated e
   assert.equal(expired.consumeIfNear(true, 103), false, "hash/pop/pageshow reset pending intent");
 });
 
-test("depth intent admits scrolling keys, touch movement and primary pointer drag", () => {
+test("depth intent admits scrolling keys and touch movement but never pointer drag alone", () => {
   const keyboard = createNumberDepthIntentState();
   assert.equal(keyboard.key("Enter", { now: 1 }), false);
   assert.equal(keyboard.key("ArrowDown", { viewportHeight: 700, now: 2 }), true);
@@ -403,16 +403,10 @@ test("depth intent admits scrolling keys, touch movement and primary pointer dra
   assert.equal(touch.touchMove(350, 2), true);
   assert.equal(touch.consumeIfNear(true, 3), true);
 
-  const pointer = createNumberDepthIntentState();
-  pointer.pointerStart({ pointerId: 7, clientY: 500, pointerType: "mouse", button: 0, isPrimary: true });
-  assert.equal(pointer.pointerMove({ pointerId: 7, clientY: 490, buttons: 1 }, 1), false);
-  assert.equal(pointer.pointerMove({ pointerId: 7, clientY: 450, buttons: 1 }, 2), true);
-  assert.equal(pointer.consumeIfNear(true, 3), true);
-
-  const rejectedPointer = createNumberDepthIntentState();
-  rejectedPointer.pointerStart({ pointerId: 8, clientY: 500, pointerType: "touch", button: 0, isPrimary: true });
-  assert.equal(rejectedPointer.pointerMove({ pointerId: 8, clientY: 400, buttons: 1 }, 1), false);
-  assert.equal(rejectedPointer.consumeIfNear(true, 2), false);
+  const drag = createNumberDepthIntentState();
+  assert.equal(typeof drag.pointerStart, "undefined");
+  assert.equal(typeof drag.pointerMove, "undefined");
+  assert.equal(drag.consumeIfNear(true, 3), false);
 });
 
 test("access cache key is stable within one context and changes across principals or roles", () => {

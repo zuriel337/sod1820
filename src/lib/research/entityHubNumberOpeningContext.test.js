@@ -144,11 +144,11 @@ test("identity-only gate resolves the exact root without reading its anchor", as
   assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
 });
 
-test("identity-only gate accepts canonical numeric inputs and leading-zero route strings", async (t) => {
+test("identity-only gate accepts only canonical numeric inputs at its direct seam", async (t) => {
   const zero = {
     id: "00000000-0000-4000-8000-000000000000",
     type: "number",
-    label: "0",
+    label: 0,
     identity_key: "0",
     is_active: true,
   };
@@ -159,14 +159,64 @@ test("identity-only gate accepts canonical numeric inputs and leading-zero route
     identity_key: "1820",
     is_active: true,
   };
-  const calls = installReadTransport(t, { nodes: [zero, eighteenTwenty] });
+  const maxSafe = {
+    id: "90071992-5474-4991-8000-000000000001",
+    type: "number",
+    label: String(Number.MAX_SAFE_INTEGER),
+    identity_key: String(Number.MAX_SAFE_INTEGER),
+    is_active: true,
+  };
+  const calls = installReadTransport(t, { nodes: [zero, eighteenTwenty, maxSafe] });
 
-  for (const input of [0, "0", "000", 1820, "1820", "001820"]) {
+  for (const input of [0, "0", 1820, "1820", Number.MAX_SAFE_INTEGER, String(Number.MAX_SAFE_INTEGER)]) {
     const result = await fetchNumberOpeningIdentity(input);
     assert.equal(result?.value, Number(input), `admitted ${JSON.stringify(input)} resolves canonically`);
     assert.equal(result?.identity.label, String(Number(input)));
   }
   assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
+});
+
+test("identity-only gate rejects coercible and noncanonical returned Number labels", async (t) => {
+  const cases = [
+    { input: 0, label: null, name: "null" },
+    { input: 0, label: undefined, name: "undefined" },
+    { input: 0, label: "", name: "empty string" },
+    { input: 0, label: " ", name: "whitespace" },
+    { input: 0, label: "\t", name: "tab" },
+    { input: 0, label: false, name: "false" },
+    { input: 1, label: true, name: "true" },
+    { input: 0, label: [], name: "array" },
+    { input: 0, label: {}, name: "object" },
+    { input: 0, label: "00", name: "leading-zero zero" },
+    { input: 1820, label: "001820", name: "leading-zero decimal" },
+    { input: 0, label: "+0", name: "signed zero" },
+    { input: 1000, label: "1e3", name: "exponential string" },
+    { input: 1, label: "1.0", name: "fraction syntax" },
+    { input: 1, label: " 1 ", name: "trim-coercible decimal" },
+    { input: 0, label: -1, name: "negative number" },
+    { input: 0, label: 1.5, name: "fractional number" },
+    { input: 0, label: Number.NaN, name: "NaN" },
+    { input: 0, label: Number.POSITIVE_INFINITY, name: "infinity" },
+    { input: Number.MAX_SAFE_INTEGER, label: Number.MAX_SAFE_INTEGER + 1, name: "unsafe number" },
+    { input: Number.MAX_SAFE_INTEGER, label: String(Number.MAX_SAFE_INTEGER + 1), name: "unsafe string" },
+  ];
+
+  for (const { input, label, name } of cases) {
+    await t.test(`rejects node.label ${name}`, async (child) => {
+      const calls = installReadTransport(child, {
+        nodes: [{
+          id: `node-${input}`,
+          type: "number",
+          label,
+          identity_key: String(input),
+          is_active: true,
+        }],
+      });
+
+      assert.equal(await fetchNumberOpeningIdentity(input), null);
+      assert.equal(calls.filter((call) => call.table === "number_anchors").length, 0);
+    });
+  }
 });
 
 test("identity-key hit with a different Number label fails closed before anchor read", async (t) => {
@@ -229,6 +279,10 @@ test("coercible, malformed, negative and unsafe identity values fail before any 
     true,
     [],
     {},
+    "00",
+    "000",
+    "001820",
+    "+0",
     "1e3",
     -1,
     "-1",
