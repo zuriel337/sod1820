@@ -14,6 +14,10 @@ const root = new URL('..', import.meta.url).pathname;
 const letters = readFileSync(join(root, 'tools/els/data/tk-letters.txt'), 'utf8');
 const TORAH_LEN = 304805;
 const tool = readFileSync(join(root, 'public/tzofen.html'));
+// Packaging fixture only: the canonical engine now requests verse display text from this generated
+// same-origin asset. Search/result assertions and the host oracle below remain unchanged.
+const verseTextAssetPath = tool.toString('utf8').match(/const VERSE_TEXT_ASSET="([^"]+)"/)[1];
+const verseTextAsset = readFileSync(join(root, 'public', verseTextAssetPath.replace(/^\/+/, '')));
 
 function loadPlaywright() {
   const req = createRequire(import.meta.url);
@@ -65,6 +69,9 @@ function oracleVerify(p, reject) {
 async function withHarness(fn, { mode = 'ok', onboarded = true, hiddenBridge = false, tier = 'admin', native2029 = false } = {}) {
   const calls = [];
   const srv = createServer((req, res) => {
+    if (new URL(req.url, 'http://loopback.test').pathname === verseTextAssetPath) {
+      res.setHeader('content-type', 'application/octet-stream'); res.end(verseTextAsset); return;
+    }
     if (req.url === '/oracle' && req.method === 'POST') {
       let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => {
         const m = JSON.parse(b); calls.push(m);
