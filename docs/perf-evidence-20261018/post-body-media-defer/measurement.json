@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-10-18T05:36:12Z",
+  "measuredAt": "2026-10-18T05:54:22Z",
   "decision": "INDEPENDENT_REVIEW_REQUIRED",
   "baseSha": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
   "branch": "gpt/perf-post-body-media-defer-20261018",
@@ -8,9 +8,11 @@
     "fc78fa80bbf3359479cf710fcb06f79bc7a7b7b2",
     "34b8e77ae2a6e9a19de4234d1c025b47cc83466e",
     "4bbaa1e1a878aa4a938a23708215cd3f92aa7cc8",
-    "99aff99a89d461bb0b512b43efb4e1901e765edd"
+    "99aff99a89d461bb0b512b43efb4e1901e765edd",
+    "83845c974f9c42a33168a9372c8d9e88251bb6c3",
+    "825712229149c8ab2307627acaf2afa5f5282cb0"
   ],
-  "successorImplementationSha": "99aff99a89d461bb0b512b43efb4e1901e765edd",
+  "successorImplementationSha": "825712229149c8ab2307627acaf2afa5f5282cb0",
   "postSlug": "flydubai-fz1073-363-14000-remzei-geula",
   "capturedPostBody": {
     "characters": 26696,
@@ -75,13 +77,20 @@
     "cumulativeTrustedInputThresholdPx": 24,
     "actualScrollThresholdPx": 24,
     "intentIdleResetMs": 600,
+    "authorizedInputSources": [
+      "trusted non-prevented wheel",
+      "trusted non-prevented touch"
+    ],
+    "pointerOrKeyboardIntentListeners": false,
     "negativeCases": [
       "synthetic wheel",
       "trusted 1px wheel",
       "pointer down/up without movement",
+      "80px pointer drag then programmatic scrollBy(80) within 600ms",
       "click/tap",
       "5px touch",
-      "non-scroll key",
+      "keyboard input",
+      "prevented ArrowDown then programmatic scrollBy(80)",
       "programmatic scroll",
       "hash scroll",
       "browser back restoration",
@@ -90,8 +99,8 @@
     "positiveCases": [
       "meaningful trusted wheel with actual scroll",
       "meaningful trusted touch with actual scroll",
-      "trusted scroll key with actual scroll",
-      "actual viewport intersection without input"
+      "actual viewport intersection without input",
+      "keyboard navigation once the target actually intersects the 0px viewport"
     ],
     "cleanupStrictModeRemount": "PASS"
   },
@@ -107,9 +116,19 @@
   "chromium": {
     "version": "151.0.7922.173",
     "focusedSuite": {
-      "passed": 34,
+      "passed": 35,
       "failed": 0,
       "skipped": 0
+    },
+    "rejectedCombinedIntentHeadRegressionSelection": {
+      "head": "83845c974f9c42a33168a9372c8d9e88251bb6c3",
+      "passed": 0,
+      "failed": 2,
+      "skipped": 0,
+      "coveredBlockers": [
+        "pointer drag cannot seed programmatic scroll authorization",
+        "prevented keyboard input cannot seed programmatic scroll authorization"
+      ]
     },
     "rejectedHeadRegressionSelection": {
       "head": "4bbaa1e1a878aa4a938a23708215cd3f92aa7cc8",
@@ -221,7 +240,7 @@
     "fullBuild": "PASS",
     "bundleBudget": "5/5 PASS, 0 skipped",
     "entryGzipKb": 187.2,
-    "postGzipKb": 177.5,
+    "postGzipKb": 177.4,
     "postBudgetGzipKb": 185,
     "postExtraChunks": 29
   },
@@ -241,10 +260,10 @@
     "gitApplyCheck": "PASS",
     "manualMergeRequired": false,
     "fullBuild": "PASS",
-    "postChromium": "34/34 PASS, 0 skipped",
+    "postChromium": "35/35 PASS, 0 skipped",
     "bundleBudget": "5/5 PASS, 0 skipped",
     "entryGzipKb": 173.2,
-    "postGzipKb": 177.6,
+    "postGzipKb": 177.4,
     "realtimeStaticSdkLoopback": "16/16 PASS, 0 skipped"
   },
   "seoFallbackAdded": false,

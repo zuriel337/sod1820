@@ -10,7 +10,12 @@ Preview-tested or released.
 - First hardening implementation: `34b8e77ae2a6e9a19de4234d1c025b47cc83466e`.
 - First hardening evidence / independently rejected head:
   `4bbaa1e1a878aa4a938a23708215cd3f92aa7cc8`.
-- Successor implementation: `99aff99a89d461bb0b512b43efb4e1901e765edd`.
+- Reservation/intent successor implementation:
+  `99aff99a89d461bb0b512b43efb4e1901e765edd`.
+- Its evidence commit / independently rejected combined-intent head:
+  `83845c974f9c42a33168a9372c8d9e88251bb6c3`.
+- Current narrow intent successor implementation:
+  `825712229149c8ab2307627acaf2afa5f5282cb0`.
 - Branch: `gpt/perf-post-body-media-defer-20261018`.
 - Existing work-log BEFORE reference: `24840318-dd8d-4010-bd1a-751549ae1dad`.
   This repair performed no DB or work-log write.
@@ -63,26 +68,33 @@ that has neither `src` nor `srcset`) remains unchanged and loads normally.
 
 ### Meaningful approach intent
 
-The first observer remains `0px`, so only actual viewport intersection can load
-without input. The persistent `600px 0px` approach observer is enabled only
-when both conditions are true within the bounded 600 ms intent window:
+The first observer remains `0px`, so actual viewport intersection can load
+without approach authorization. The persistent `600px 0px` approach observer
+is enabled only when both conditions are true within the bounded 600 ms intent
+window:
 
-1. cumulative trusted wheel, pointer, touch or scroll-key movement reaches 24
-   px; and
+1. cumulative trusted, non-prevented wheel or touch movement reaches 24 px; and
 2. the document has actually moved at least 24 px from the pre-input scroll
    position.
+
+Pointer and keyboard events are not authorization sources and have no intent
+listeners or state. Keyboard navigation retains capability through the always
+active `0px` observer when it truly moves the image into the viewport.
 
 The implementation tracks the last observed scroll position because Chromium
 can expose compositor movement before a window-level wheel callback. A plain
 scroll event cannot create intent. Cleanup removes the observer, all input and
 scroll listeners, and the reset timer.
 
-Browser negatives prove that a trusted 1 px wheel, synthetic wheel, pointer
-down/up without movement, click/tap, 5 px touch, non-scroll key, programmatic
+Browser negatives prove that a trusted 1 px wheel, synthetic wheel, any pointer
+click/tap, an 80 px pointer drag, a 5 px touch, keyboard input, programmatic
 scroll, hash navigation, browser back and forward restoration do not authorize
-the approach margin. Meaningful trusted wheel, touch and keyboard scrolling do.
-The same suite covers cleanup, StrictMode replay and remount without duplicate
-requests or listeners.
+the approach margin. In the two exact rejected combinations, an 80 px pointer
+drag followed within 600 ms by `scrollBy(80)`, and a prevented `ArrowDown`
+followed by `scrollBy(80)`, both remain pending with zero requests. Meaningful
+trusted wheel and touch movement do authorize approach. A later `End` key loads
+only after the target enters the actual viewport. The same suite covers
+cleanup, StrictMode replay and remount without duplicate requests or listeners.
 
 ### Transparent loaded parity and failures
 
@@ -133,8 +145,12 @@ preparation and insertion.
 
 ## Reproduced checks
 
-- `PERF_CHROME=/usr/bin/chromium node --test test/post-body-media-defer-2029.test.mjs`:
-  **34/34 passed, 0 failed, 0 skipped**, Chromium `151.0.7922.173`.
+- `PERF_CHROME=/usr/bin/chromium PLAYWRIGHT_DIR=/workspace/sod1820-perf-wave3-20261018 node --test test/post-body-media-defer-2029.test.mjs`:
+  **35/35 passed, 0 failed, 0 skipped**, Chromium `151.0.7922.173`.
+- The two new runtime regressions replayed against exact rejected head
+  `83845c974f9c42a33168a9372c8d9e88251bb6c3`: **0/2 passed, 2/2 failed**.
+  That head loaded after pointer-drag + programmatic scroll and after prevented
+  `ArrowDown` + programmatic scroll.
 - Selected regression replay against exact rejected head `4bbaa1e1`:
   **0/4 passed, 4/4 failed**. It independently fails the 24 px source contract,
   real-CSS intrinsic placeholder, tall first-frame/tiny-input case and loaded
@@ -147,7 +163,7 @@ preparation and insertion.
 - `node scripts/test-entry-contextual-learn-2029.mjs`: PASS.
 - `npm run build`: PASS for Legacy and 2029.
 - `npm run test:2029-bundle-budget`: **5/5 passed, 0 skipped**. Wave3 entry is
-  187.2 KB gzip; Post is 177.5 KB gzip with 29 extra chunks, below the 185 KB
+  187.2 KB gzip; Post is 177.4 KB gzip with 29 extra chunks, below the 185 KB
   gate.
 - Fresh Legacy-only builds from exact base and successor: **293 files /
   24,504,416 bytes each / zero changed files**. A deterministic
@@ -159,9 +175,9 @@ preparation and insertion.
 
 Against Wave4 head `d03627e2cade2484c3ec5422229845a1c5eb675d`, the complete Post branch has
 zero overlapping paths and `git apply --check` succeeds. A locally composed
-tree passes the full build, the 34-test Post Chromium suite, the 5-test bundle
+tree passes the full build, the 35-test Post Chromium suite, the 5-test bundle
 gate and all 16 Realtime static/SDK/loopback tests with zero skips. Its entry is
-173.2 KB gzip and Post is 177.6 KB gzip. No manual merge is required for that
+173.2 KB gzip and Post is 177.4 KB gzip. No manual merge is required for that
 exact Wave4 head.
 
 ## Honest holds
