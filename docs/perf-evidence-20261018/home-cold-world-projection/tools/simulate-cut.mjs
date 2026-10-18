@@ -1,0 +1,16 @@
+import { readFileSync } from 'node:fs'; import { gzipSync } from 'node:zlib'; import { join } from 'node:path';
+const dist = process.argv[2]; const cut = process.argv[3] || 'home2029Projection';
+const m = JSON.parse(readFileSync(join(dist, '.vite/manifest.json'), 'utf8'));
+const gzc = new Map();
+const gz = (k) => { const f = m[k].file; if (!f?.endsWith('.js')) return 0; if (!gzc.has(f)) gzc.set(f, gzipSync(readFileSync(join(dist, f)), { level: 9 }).length); return gzc.get(f); };
+const closure = (start, skip = new Set()) => { const seen = new Set(); const q = [start]; while (q.length) { const k = q.shift(); if (!k || seen.has(k) || skip.has(k)) continue; seen.add(k); for (const d of m[k].imports || []) q.push(d); } return seen; };
+const entry = closure(Object.keys(m).find((k) => k === '2029.html'));
+const routeKey = Object.keys(m).find((k) => m[k].src === 'src/pages/Home2029Page.jsx');
+const cutKey = Object.keys(m).find((k) => k === cut || m[k].name === cut || (m[k].src||'').includes(cut));
+const before = closure(routeKey); const after = closure(routeKey, new Set([cutKey]));
+const removed = [...before].filter((k) => !after.has(k) && !entry.has(k));
+const kb = (s) => (s / 1024).toFixed(1);
+console.log('cut', cutKey, m[cutKey].file);
+console.log('static imports of cut chunk:', (m[cutKey].imports||[]).map(k=>m[k].name||k).join(', '));
+for (const k of removed) console.log(' removed', kb(gz(k)).padStart(6), 'KB gz ', m[k].name || k, m[k].src||'');
+console.log('removed total', removed.length, 'chunks', kb(removed.reduce((n,k)=>n+gz(k),0)), 'KB gz; remaining route extra', [...after].filter(k=>!entry.has(k)).length, 'chunks', kb([...after].filter(k=>!entry.has(k)).reduce((n,k)=>n+gz(k),0)), 'KB gz');
