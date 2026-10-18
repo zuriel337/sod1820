@@ -14,6 +14,11 @@ import {
   isNumberReviewPreviewRuntime2029,
   projectNumberReviewFlag2029,
 } from "../src/lib/numberReviewPreview2029.js";
+import {
+  previewReceiptIdentity,
+  verifyPreviewArtifactInventory,
+} from "../scripts/preview-artifact-inventory.mjs";
+import { PREVIEW_READ_RPC_ALLOWLIST } from "../scripts/preview-readonly-worker.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const dist = resolve(process.env.NUMBER_REVIEW_DIST || resolve(root, "preview-deploy/dist"));
@@ -24,6 +29,24 @@ try { ({ chromium } = require("/opt/codex/cua_node/lib/node_modules/playwright")
 const runnable = Boolean(chromium && existsSync(chromiumPath) && existsSync(resolve(dist, "2029.html")));
 let tls = null;
 let tlsDir = null;
+const browserDiagnostics = new WeakMap();
+
+function captureBrowserDiagnostics(page) {
+  const diagnostics = { requestFailures: [], badResponses: [], consoleErrors: [], pageErrors: [] };
+  browserDiagnostics.set(page, diagnostics);
+  page.on("requestfailed", (request) => diagnostics.requestFailures.push({
+    url: request.url(),
+    method: request.method(),
+    error: request.failure()?.errorText || "request failed",
+  }));
+  page.on("response", (response) => {
+    if (response.status() >= 400) diagnostics.badResponses.push({ url: response.url(), status: response.status() });
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error") diagnostics.consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => diagnostics.pageErrors.push(String(error?.stack || error)));
+}
 
 async function localTls(host) {
   if (tls) return tls;
@@ -67,9 +90,11 @@ const requiredFlags = [
   { key: "lock_life_journey", enabled: true, mode: "all", message: "" },
   { key: "lock_raziel_site", enabled: true, mode: "all", message: "" },
   { key: "fx_number_lookup_page", enabled: false, mode: "all", message: "" },
+  { key: "fx_now_feed", enabled: false, mode: "all", message: "" },
   { key: "fx_analytics", enabled: false, mode: "all", message: "" },
 ];
 const withoutNumber = requiredFlags.filter((row) => row.key !== "lock_number");
+const requiredNumber = requiredFlags.find((row) => row.key === "lock_number");
 
 async function loadBuild() {
   const metadata = JSON.parse(await readFile(resolve(dist, "preview-build.json"), "utf8"));
@@ -82,13 +107,22 @@ async function loadBuild() {
   return { metadata, html, manifest, entryPath: entryPath.replace(/^\//, ""), homePath };
 }
 
-async function localServer(build, { delayWorker = 0, delayEntry = 0, delayHome = 0 } = {}) {
+async function localServer(build, {
+  delayWorker = 0,
+  delayEntry = 0,
+  delayHome = 0,
+  startUnsafeExpected = false,
+  entryWriteProbe = false,
+} = {}) {
   const htmlPath = resolve(dist, "2029.html");
   const state = {
     postRequests: 0,
     workerRespondedAt: 0,
+    expectedWorkerRespondedAt: 0,
+    workerRequests: [],
     entryRequestedAt: 0,
     homeRequestedAt: 0,
+    workerSource: startUnsafeExpected ? "unsafe" : "safe",
   };
   const oldWorker = "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));";
   const server = createServer(await localTls(build.metadata.host), async (request, response) => {
@@ -111,7 +145,22 @@ async function localServer(build, { delayWorker = 0, delayEntry = 0, delayHome =
         return;
       }
       const requested = decodeURIComponent(url.pathname).replace(/^\/+/, "");
-      if (requested === "preview-readonly-sw.js" && delayWorker) await sleep(delayWorker);
+      if (requested === "preview-readonly-sw.js") {
+        const unsafe = state.workerSource === "unsafe";
+        state.workerRequests.push({ url: `${url.pathname}${url.search}`, unsafe, at: Date.now() });
+        if (!unsafe && delayWorker) await sleep(delayWorker);
+        if (unsafe) {
+          response.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "public,max-age=31536000,immutable" });
+          response.end(oldWorker);
+        } else {
+          const body = await readFile(resolve(dist, requested));
+          response.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" });
+          response.end(body);
+          state.workerRespondedAt = Date.now();
+          if (`${url.pathname}${url.search}` === build.metadata.workerScript) state.expectedWorkerRespondedAt = state.workerRespondedAt;
+        }
+        return;
+      }
       if (requested === build.entryPath) {
         state.entryRequestedAt = Date.now();
         if (delayEntry) await sleep(delayEntry);
@@ -122,10 +171,15 @@ async function localServer(build, { delayWorker = 0, delayEntry = 0, delayHome =
       }
       let file = requested && extname(requested) ? resolve(dist, requested) : htmlPath;
       if (!file.startsWith(`${dist}${sep}`) && file !== htmlPath) file = htmlPath;
-      const body = await readFile(file);
+      let body = await readFile(file);
+      if (requested === build.entryPath && entryWriteProbe) {
+        body = Buffer.concat([
+          Buffer.from("globalThis.__sodAppWriteProbe=fetch('/app-write-probe',{method:'POST',body:'synthetic'}).then(r=>({status:r.status,blocked:r.headers.get('X-Preview-Write-Blocked')}));\n"),
+          body,
+        ]);
+      }
       response.writeHead(200, { "content-type": contentType(file), "cache-control": "no-store" });
       response.end(body);
-      if (requested === "preview-readonly-sw.js") state.workerRespondedAt = Date.now();
     } catch {
       response.writeHead(404, { "content-type": "text/plain" });
       response.end("not found");
@@ -143,19 +197,29 @@ async function localServer(build, { delayWorker = 0, delayEntry = 0, delayHome =
   };
 }
 
-async function installBoundary(context, origin, flagResponses = [requiredFlags]) {
-  await context.addInitScript(({ responses }) => {
+async function installBoundary(context, origin, {
+  flagResponses = [requiredFlags],
+  targetedFlagResponses = [[requiredNumber]],
+  targetedFlagDelays = [],
+} = {}) {
+  await context.addInitScript(({ responses, targetedResponses, targetedDelays }) => {
     const nativeFetch = window.fetch.bind(window);
     Object.defineProperty(window, "__sodNativeFetch", { value: nativeFetch });
-    window.__sodFlagReads = 0;
+    window.__sodFlagReads = { full: 0, targeted: 0 };
     window.__sodUnsafeRequests = [];
+    window.__sodSupabaseRequests = [];
     window.fetch = async (input, init) => {
       const request = input instanceof Request ? input : new Request(input, init);
       const url = new URL(request.url, location.href);
       if (url.hostname === "linswmnnkjxvweumprav.supabase.co") {
+        window.__sodSupabaseRequests.push(`${request.method} ${url.pathname}${url.search}`);
         if (url.pathname === "/rest/v1/site_flags" && request.method === "GET") {
-          const index = window.__sodFlagReads++;
-          const rows = responses[Math.min(index, responses.length - 1)] || [];
+          const targeted = url.searchParams.get("key") === "eq.lock_number";
+          const kind = targeted ? "targeted" : "full";
+          const index = window.__sodFlagReads[kind]++;
+          if (targeted && targetedDelays[index]) await new Promise((resolve) => setTimeout(resolve, targetedDelays[index]));
+          const sequence = targeted ? targetedResponses : responses;
+          const rows = sequence[Math.min(index, sequence.length - 1)] || [];
           return new Response(JSON.stringify(rows), { status: 200, headers: { "content-type": "application/json", "cache-control": "no-store" } });
         }
         if (request.method === "OPTIONS") return new Response("", { status: 204 });
@@ -171,16 +235,8 @@ async function installBoundary(context, origin, flagResponses = [requiredFlags])
       if (url.origin === location.origin) return nativeFetch(input, init);
       return new Response("", { status: 204 });
     };
-  }, { responses: flagResponses });
+  }, { responses: flagResponses, targetedResponses: targetedFlagResponses, targetedDelays: targetedFlagDelays });
 
-  await context.route("**/*", async (route) => {
-    const url = new URL(route.request().url());
-    if (url.origin === origin) return route.continue();
-    if (url.hostname === "linswmnnkjxvweumprav.supabase.co") {
-      return route.fulfill({ status: 200, contentType: "application/json", body: url.pathname.startsWith("/rest/v1/rpc/") ? "null" : "[]" });
-    }
-    return route.abort("blockedbyclient");
-  });
 }
 
 async function launchHarness(build, options = {}) {
@@ -193,18 +249,42 @@ async function launchHarness(build, options = {}) {
       "--disable-dev-shm-usage",
       "--no-proxy-server",
       "--ignore-certificate-errors",
-      `--host-resolver-rules=MAP ${build.metadata.host} 127.0.0.1`,
+      `--host-resolver-rules=MAP ${build.metadata.host} 127.0.0.1, MAP fonts.googleapis.com ~NOTFOUND, MAP fonts.gstatic.com ~NOTFOUND, MAP linswmnnkjxvweumprav.supabase.co ~NOTFOUND`,
     ],
   });
   const context = await browser.newContext({ serviceWorkers: "allow", ignoreHTTPSErrors: true });
-  await installBoundary(context, server.origin, options.flagResponses);
+  context.on("page", captureBrowserDiagnostics);
+  await installBoundary(context, server.origin, options);
   return { server, browser, context };
 }
 
 async function exactController(page, build, origin) {
   const expected = new URL(build.metadata.workerScript, origin).href;
-  await page.waitForFunction((script) => navigator.serviceWorker.controller?.scriptURL === script, expected, { timeout: 15_000 });
+  await page.waitForFunction(({ script, guard }) => navigator.serviceWorker.controller?.scriptURL === script
+    && document.documentElement.dataset.sodPreviewGuard === guard,
+  { script: expected, guard: build.metadata.guardIdentitySha256 }, { timeout: 15_000 });
   assert.equal(await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL), expected);
+  const attestation = await page.evaluate(async () => {
+    const worker = navigator.serviceWorker.controller;
+    const channel = new MessageChannel();
+    const nonce = "browser-verification";
+    const response = new Promise((resolve) => { channel.port1.onmessage = (event) => resolve(event.data); });
+    worker.postMessage({ type: "SOD_PREVIEW_GUARD_CHALLENGE", nonce }, [channel.port2]);
+    return response;
+  });
+  assert.equal(attestation.type, "SOD_PREVIEW_GUARD_ATTESTATION");
+  assert.equal(attestation.nonce, "browser-verification");
+  assert.deepEqual(attestation.identity, {
+    protocol: build.metadata.guardProtocol,
+    commit: build.metadata.commit,
+    branch: build.metadata.branch,
+    host: build.metadata.host,
+    buildTarget: build.metadata.buildTarget,
+    vercelEnv: build.metadata.vercelEnv,
+    readRpcAllowlist: [...PREVIEW_READ_RPC_ALLOWLIST],
+    guardIdentitySha256: build.metadata.guardIdentitySha256,
+    workerContentSha256: build.metadata.workerContentSha256,
+  });
   return expected;
 }
 
@@ -217,34 +297,38 @@ async function waitForNumber(page) {
       controller: navigator.serviceWorker.controller?.scriptURL || null,
       body: document.body?.innerText?.slice(0, 1200) || "",
     })).catch(() => ({ guard: null, controller: null, body: "document unavailable" }));
-    throw new Error(`Number did not mount: ${JSON.stringify(state)}`, { cause: error });
+    throw new Error(`Number did not mount: ${JSON.stringify({ ...state, diagnostics: browserDiagnostics.get(page) || null })}`, { cause: error });
   }
   assert.equal(await page.locator(".mlock").count(), 0);
 }
 
-test("Preview receipt binds the exact build, host, HTML, manifest and SHA-versioned worker", { skip: !runnable }, async () => {
+test("Preview receipt binds the clean source, exact guard and complete deployed inventory", { skip: !runnable }, async () => {
   const build = await loadBuild();
   const { metadata, html } = build;
   assert.equal(metadata.branch, NUMBER_REVIEW_PREVIEW_BRANCH_2029);
   assert.equal(metadata.buildTarget, "2029");
   assert.equal(metadata.vercelEnv, "preview");
+  assert.equal(metadata.sourceClean, true);
   assert.equal(metadata.numberReviewPreviewOpen, true);
   assert.deepEqual(metadata.previewOverrides, ["lock_number"]);
   assert.match(metadata.commit, /^[a-f0-9]{40}$/);
   assert.match(metadata.host, /^sod1820-[a-z0-9-]+-sod1820-s-projects\.vercel\.app$/);
-  assert.equal(metadata.workerScript, `/preview-readonly-sw.js?build=${metadata.commit}`);
+  assert.equal(metadata.workerScript, `/preview-readonly-sw.js?content=${metadata.workerContentSha256}`);
+  assert.match(metadata.workerContentSha256, /^[a-f0-9]{64}$/);
+  assert.match(metadata.guardIdentitySha256, /^[a-f0-9]{64}$/);
+  assert.ok(metadata.guardDeadlineMs < 20_000);
   assert.equal(metadata.manifestSha256, sha256(await readFile(resolve(dist, ".vite/manifest.json"))));
   assert.equal(metadata.htmlSha256, sha256(await readFile(resolve(dist, "2029.html"))));
+  assert.equal(metadata.indexHtmlSha256, sha256(await readFile(resolve(dist, "index.html"))));
   assert.equal(metadata.workerSha256, sha256(await readFile(resolve(dist, "preview-readonly-sw.js"))));
-  const identity = {
-    commit: metadata.commit, branch: metadata.branch, host: metadata.host,
-    buildTarget: metadata.buildTarget, vercelEnv: metadata.vercelEnv,
-    workerScript: metadata.workerScript, manifestSha256: metadata.manifestSha256,
-    htmlSha256: metadata.htmlSha256, workerSha256: metadata.workerSha256,
-  };
-  assert.equal(metadata.identitySha256, sha256(JSON.stringify(identity)));
+  assert.equal(metadata.fallbackWorkerSha256, sha256(await readFile(resolve(dist, "sw.js"))));
+  assert.equal(metadata.workerContentSha256, metadata.workerSha256);
+  assert.equal(metadata.identitySha256, sha256(JSON.stringify(previewReceiptIdentity(metadata))));
+  const verified = await verifyPreviewArtifactInventory(dist);
+  assert.equal(verified.inventory.artifacts.length, metadata.artifactCount);
   assert.match(html, new RegExp(metadata.commit));
   assert.match(html, new RegExp(metadata.host.replaceAll(".", "\\.")));
+  assert.match(html, new RegExp(metadata.guardIdentitySha256));
 });
 
 test("Production, another branch, a regular build, another host and malformed gates stay closed", () => {
@@ -268,7 +352,7 @@ test("Production, another branch, a regular build, another host and malformed ga
   ]) assert.equal(projectNumberReviewFlag2029("lock_number", malformed, true), null);
 });
 
-test("direct first install, reload, internal navigation and a fresh context all open Number under the exact controller", { skip: !runnable, timeout: 90_000 }, async () => {
+test("first install, reload, internal navigation, back-forward and a fresh context all require attestation", { skip: !runnable, timeout: 90_000 }, async () => {
   const build = await loadBuild();
   const harness = await launchHarness(build, { flagResponses: [requiredFlags] });
   try {
@@ -276,7 +360,7 @@ test("direct first install, reload, internal navigation and a fresh context all 
     await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
     await waitForNumber(page);
     await exactController(page, build, harness.server.origin);
-    assert.equal(await page.evaluate(() => window.__sodFlagReads), 1);
+    assert.deepEqual(await page.evaluate(() => window.__sodFlagReads), { full: 1, targeted: 0 });
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForNumber(page);
@@ -287,10 +371,17 @@ test("direct first install, reload, internal navigation and a fresh context all 
     await page.locator('a[href="/number/1820"]').first().click();
     await waitForNumber(page);
     await exactController(page, build, harness.server.origin);
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".sod29-root.surface-home", { timeout: 20_000 });
+    await exactController(page, build, harness.server.origin);
+    await page.goForward({ waitUntil: "domcontentloaded" });
+    await waitForNumber(page);
+    await exactController(page, build, harness.server.origin);
     assert.deepEqual(await page.evaluate(() => window.__sodUnsafeRequests), []);
 
     const fresh = await harness.browser.newContext({ serviceWorkers: "allow", ignoreHTTPSErrors: true });
-    await installBoundary(fresh, harness.server.origin, [requiredFlags]);
+    fresh.on("page", captureBrowserDiagnostics);
+    await installBoundary(fresh, harness.server.origin, { flagResponses: [requiredFlags] });
     const second = await fresh.newPage();
     await second.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
     await waitForNumber(second);
@@ -303,25 +394,56 @@ test("direct first install, reload, internal navigation and a fresh context all 
   }
 });
 
-test("an old controller is replaced before the application entry is requested", { skip: !runnable, timeout: 60_000 }, async () => {
+test("an unsafe same-URL controller cannot authorize app import or writes while the corrected worker installs", { skip: !runnable, timeout: 60_000 }, async () => {
   const build = await loadBuild();
-  const harness = await launchHarness(build, { flagResponses: [requiredFlags], delayWorker: 700 });
+  const harness = await launchHarness(build, {
+    flagResponses: [requiredFlags],
+    delayWorker: 1_200,
+    startUnsafeExpected: true,
+    entryWriteProbe: true,
+  });
   try {
     const page = await harness.context.newPage();
     await page.goto(`${harness.server.origin}/old-controller.html`, { waitUntil: "domcontentloaded" });
-    await page.evaluate(async () => {
-      await navigator.serviceWorker.register("/old-sw.js", { scope: "/" });
+    await page.evaluate(async (workerScript) => {
+      await navigator.serviceWorker.register(workerScript, { scope: "/", updateViaCache: "all" });
       if (!navigator.serviceWorker.controller) {
         await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
       }
+    }, build.metadata.workerScript);
+    assert.equal(await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL), new URL(build.metadata.workerScript, harness.server.origin).href);
+    harness.server.state.workerSource = "safe";
+    await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "commit" });
+    await page.waitForFunction(() => document.documentElement.dataset.sodPreviewGuard === "checking");
+    assert.equal(harness.server.state.entryRequestedAt, 0, "same scriptURL without an attestation must not import the app");
+    const probes = await page.evaluate(async () => {
+      const fetchResponse = await fetch("/race-fetch-write", { method: "POST", body: "synthetic" });
+      let xhrBlocked = false;
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/race-xhr-write");
+        xhr.send("synthetic");
+      } catch (error) { xhrBlocked = error?.name === "SecurityError"; }
+      const beaconBlocked = navigator.sendBeacon("/race-beacon-write", "synthetic") === false;
+      return {
+        fetch: { status: fetchResponse.status, blocked: fetchResponse.headers.get("X-Preview-Write-Blocked") },
+        xhrBlocked,
+        beaconBlocked,
+      };
     });
-    assert.match(await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL || ""), /\/old-sw\.js$/);
-    await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
+    assert.deepEqual(probes, {
+      fetch: { status: 403, blocked: "true" },
+      xhrBlocked: true,
+      beaconBlocked: true,
+    });
+    assert.equal(harness.server.state.postRequests, 0);
     await waitForNumber(page);
     await exactController(page, build, harness.server.origin);
-    assert.ok(harness.server.state.workerRespondedAt > 0);
-    assert.ok(harness.server.state.entryRequestedAt >= harness.server.state.workerRespondedAt,
-      `entry ${harness.server.state.entryRequestedAt} must follow worker ${harness.server.state.workerRespondedAt}`);
+    assert.ok(harness.server.state.expectedWorkerRespondedAt > 0);
+    assert.ok(harness.server.state.entryRequestedAt >= harness.server.state.expectedWorkerRespondedAt,
+      `entry ${harness.server.state.entryRequestedAt} must follow corrected worker ${harness.server.state.expectedWorkerRespondedAt}`);
+    assert.deepEqual(await page.evaluate(() => window.__sodAppWriteProbe), { status: 403, blocked: "true" });
+    assert.equal(harness.server.state.postRequests, 0, "neither pending bootstrap nor imported app reached the write endpoint");
   } finally {
     await harness.context.close();
     await harness.browser.close();
@@ -329,7 +451,61 @@ test("an old controller is replaced before the application entry is requested", 
   }
 });
 
-test("the write guard returns 403 before the delayed application starts", { skip: !runnable, timeout: 60_000 }, async () => {
+test("a controller whose query differs cannot satisfy the active-worker gate", { skip: !runnable, timeout: 60_000 }, async () => {
+  const build = await loadBuild();
+  const harness = await launchHarness(build, { flagResponses: [requiredFlags], delayWorker: 900 });
+  try {
+    const page = await harness.context.newPage();
+    const mismatch = `${build.metadata.workerScript}&stale=1`;
+    await page.goto(`${harness.server.origin}/old-controller.html`, { waitUntil: "domcontentloaded" });
+    await page.evaluate(async (workerScript) => {
+      await navigator.serviceWorker.register(workerScript, { scope: "/", updateViaCache: "none" });
+      if (!navigator.serviceWorker.controller) {
+        await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
+      }
+    }, mismatch);
+    assert.equal(await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL), new URL(mismatch, harness.server.origin).href);
+    await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "commit" });
+    await page.waitForFunction(() => document.documentElement.dataset.sodPreviewGuard === "checking");
+    assert.equal(harness.server.state.entryRequestedAt, 0);
+    await waitForNumber(page);
+    await exactController(page, build, harness.server.origin);
+  } finally {
+    await harness.context.close();
+    await harness.browser.close();
+    await harness.server.close();
+  }
+});
+
+test("a 20 second worker stall shows the Hebrew fail-closed state inside the one total deadline", { skip: !runnable, timeout: 35_000 }, async () => {
+  const build = await loadBuild();
+  const harness = await launchHarness(build, { flagResponses: [requiredFlags], delayWorker: 20_000 });
+  try {
+    const page = await harness.context.newPage();
+    const started = Date.now();
+    await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "commit" });
+    await page.waitForFunction(() => document.documentElement.dataset.sodPreviewGuard === "blocked"
+      && document.body?.innerText.includes("לא ניתן לאמת את מצב הקריאה בלבד"), null,
+    { timeout: build.metadata.guardDeadlineMs + 3_000 });
+    const elapsed = Date.now() - started;
+    assert.ok(elapsed <= build.metadata.guardDeadlineMs + 2_000, `visible failure took ${elapsed}ms`);
+    assert.ok(elapsed < 20_000, "failure must appear before the stalled response");
+    assert.equal(harness.server.state.entryRequestedAt, 0);
+    assert.match(await page.locator("body").innerText(), /לא ניתן לאמת את מצב הקריאה בלבד/);
+    const blocked = await page.evaluate(async () => {
+      const response = await fetch("/deadline-write", { method: "POST", body: "synthetic" });
+      return { status: response.status, header: response.headers.get("X-Preview-Write-Blocked") };
+    });
+    assert.deepEqual(blocked, { status: 403, header: "true" });
+    assert.equal(harness.server.state.postRequests, 0);
+  } finally {
+    await harness.context.close();
+    await harness.browser.close();
+    await harness.server.close();
+  }
+});
+
+test("the active guard allows only the exact Number reader and blocks adjacent RPCs and every write", { skip: !runnable, timeout: 60_000 }, async () => {
   const build = await loadBuild();
   const harness = await launchHarness(build, { flagResponses: [requiredFlags], delayEntry: 900 });
   try {
@@ -337,13 +513,31 @@ test("the write guard returns 403 before the delayed application starts", { skip
     await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "commit" });
     await exactController(page, build, harness.server.origin);
     assert.equal(await page.locator(".sod29-number-page").count(), 0);
-    const result = await page.evaluate(async () => {
-      const response = await window.__sodNativeFetch("/write-probe", { method: "POST", body: "synthetic" });
-      return { status: response.status, blocked: response.headers.get("X-Preview-Write-Blocked") };
-    });
-    assert.deepEqual(result, { status: 403, blocked: "true" });
-    assert.equal(harness.server.state.postRequests, 0);
     await waitForNumber(page);
+    await harness.context.route("https://linswmnnkjxvweumprav.supabase.co/**", (route) => route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "null",
+    }));
+    const result = await page.evaluate(async () => {
+      const request = async (url, init) => {
+        const response = await window.__sodNativeFetch(url, init);
+        return { status: response.status, blocked: response.headers.get("X-Preview-Write-Blocked") };
+      };
+      return {
+        sameOriginWrite: await request("/write-probe", { method: "POST", body: "synthetic" }),
+        exactReader: await request("https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_opening_projection_2029", { method: "POST", body: "{}" }),
+        adjacentReader: await request("https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_number_opening_projection_depth_2029", { method: "POST", body: "{}" }),
+        tableWrite: await request("https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?id=eq.1", { method: "PATCH", body: "{}" }),
+      };
+    });
+    assert.deepEqual(result, {
+      sameOriginWrite: { status: 403, blocked: "true" },
+      exactReader: { status: 200, blocked: null },
+      adjacentReader: { status: 403, blocked: "true" },
+      tableWrite: { status: 403, blocked: "true" },
+    });
+    assert.equal(harness.server.state.postRequests, 0);
   } finally {
     await harness.context.close();
     await harness.browser.close();
@@ -353,12 +547,15 @@ test("the write guard returns 403 before the delayed application starts", { skip
 
 test("one automatic fresh read recovers a transient missing Number gate", { skip: !runnable, timeout: 45_000 }, async () => {
   const build = await loadBuild();
-  const harness = await launchHarness(build, { flagResponses: [withoutNumber, requiredFlags] });
+  const harness = await launchHarness(build, {
+    flagResponses: [withoutNumber],
+    targetedFlagResponses: [[requiredNumber]],
+  });
   try {
     const page = await harness.context.newPage();
     await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
     await waitForNumber(page);
-    assert.equal(await page.evaluate(() => window.__sodFlagReads), 2);
+    assert.deepEqual(await page.evaluate(() => window.__sodFlagReads), { full: 1, targeted: 1 });
   } finally {
     await harness.context.close();
     await harness.browser.close();
@@ -368,16 +565,60 @@ test("one automatic fresh read recovers a transient missing Number gate", { skip
 
 test("two missing reads fail closed and expose a bounded manual retry", { skip: !runnable, timeout: 45_000 }, async () => {
   const build = await loadBuild();
-  const harness = await launchHarness(build, { flagResponses: [withoutNumber, withoutNumber, requiredFlags] });
+  const harness = await launchHarness(build, {
+    flagResponses: [withoutNumber],
+    targetedFlagResponses: [[], [requiredNumber]],
+  });
   try {
     const page = await harness.context.newPage();
     await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".mlock button.mlock-retry", { timeout: 20_000 });
     assert.equal(await page.locator(".sod29-number-page").count(), 0);
-    assert.equal(await page.evaluate(() => window.__sodFlagReads), 2);
+    assert.deepEqual(await page.evaluate(() => window.__sodFlagReads), { full: 1, targeted: 1 });
     await page.locator(".mlock button.mlock-retry").click();
     await waitForNumber(page);
-    assert.equal(await page.evaluate(() => window.__sodFlagReads), 3);
+    assert.deepEqual(await page.evaluate(() => window.__sodFlagReads), { full: 1, targeted: 2 });
+  } finally {
+    await harness.context.close();
+    await harness.browser.close();
+    await harness.server.close();
+  }
+});
+
+test("manual Number retry issues one targeted request without shared callbacks or switch restarts", { skip: !runnable, timeout: 45_000 }, async () => {
+  const build = await loadBuild();
+  const harness = await launchHarness(build, {
+    flagResponses: [withoutNumber],
+    targetedFlagResponses: [[], []],
+    targetedFlagDelays: [0, 500],
+  });
+  try {
+    const page = await harness.context.newPage();
+    await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
+    const button = page.locator(".mlock button.mlock-retry");
+    await button.waitFor({ timeout: 20_000 });
+    await sleep(250);
+    const before = await page.evaluate(() => ({
+      reads: { ...window.__sodFlagReads },
+      nonTarget: window.__sodSupabaseRequests.filter((value) => !value.includes("key=eq.lock_number")).length,
+    }));
+    assert.deepEqual(before.reads, { full: 1, targeted: 1 });
+    await button.click();
+    await page.waitForFunction(() => window.__sodFlagReads.targeted === 2);
+    assert.equal(await button.isDisabled(), true, "manual control is disabled while its one request is pending");
+    await page.waitForFunction(() => {
+      const retry = document.querySelector(".mlock button.mlock-retry");
+      return retry && !retry.disabled;
+    });
+    await sleep(100);
+    const afterRetry = await page.evaluate(() => ({
+      reads: { ...window.__sodFlagReads },
+      nonTarget: window.__sodSupabaseRequests.filter((value) => !value.includes("key=eq.lock_number")).length,
+    }));
+    assert.deepEqual(afterRetry.reads, { full: 1, targeted: 2 });
+    assert.equal(afterRetry.nonTarget, before.nonTarget,
+      "the targeted retry must not invalidate site_flags or restart fx_now_feed/fx_analytics/other consumers");
+    assert.equal(await page.locator(".sod29-number-page").count(), 0);
   } finally {
     await harness.context.close();
     await harness.browser.close();
@@ -391,13 +632,17 @@ test("malformed enabled or mode values stay closed after the single retry", { sk
     requiredFlags.map((row) => row.key === "lock_number" ? { ...row, enabled: "true" } : row),
     requiredFlags.map((row) => row.key === "lock_number" ? { ...row, mode: "everyone" } : row),
   ]) {
-    const harness = await launchHarness(build, { flagResponses: [malformed, malformed] });
+    const malformedNumber = malformed.find((row) => row.key === "lock_number");
+    const harness = await launchHarness(build, {
+      flagResponses: [malformed],
+      targetedFlagResponses: [[malformedNumber]],
+    });
     try {
       const page = await harness.context.newPage();
       await page.goto(`${harness.server.origin}/number/1820`, { waitUntil: "domcontentloaded" });
       await page.waitForSelector(".mlock button.mlock-retry", { timeout: 20_000 });
       assert.equal(await page.locator(".sod29-number-page").count(), 0);
-      assert.equal(await page.evaluate(() => window.__sodFlagReads), 2);
+      assert.deepEqual(await page.evaluate(() => window.__sodFlagReads), { full: 1, targeted: 1 });
     } finally {
       await harness.context.close();
       await harness.browser.close();

@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { getSiteFlags } from "../lib/supabase.js";
+import { getSiteFlags, supabase } from "../lib/supabase.js";
 import {
   isNumberReviewPreviewRuntime2029,
   isValidNumberReviewFlag2029,
   projectNumberReviewFlag2029,
+  readNumberReviewFlagUncached2029,
 } from "../lib/numberReviewPreview2029.js";
 import { LOGO_URL } from "../theme.js";
 
@@ -30,7 +31,7 @@ function numberPreviewNavigationIdentity() {
 function readNumberPreviewFlagFreshOnce() {
   const identity = numberPreviewNavigationIdentity();
   if (numberPreviewAutomaticRetry?.identity === identity) return numberPreviewAutomaticRetry.promise;
-  const promise = getSiteFlags({ fresh: true }).catch(() => ({}));
+  const promise = readNumberReviewFlagUncached2029(supabase).catch(() => null);
   numberPreviewAutomaticRetry = { identity, promise };
   return promise;
 }
@@ -130,26 +131,36 @@ export function LockTeaser({ message, showLogin = false }) {
 export function useSiteFlag(flag) {
   const [attempt, setAttempt] = useState(0);
   const [st, setSt] = useState({ loading: true, lock: null, canRetry: false, retrying: false });
-  const retry = useCallback(() => setAttempt(value => value + 1), []);
+  const manualPending = useRef(false);
+  const retry = useCallback(() => {
+    if (manualPending.current) return;
+    manualPending.current = true;
+    setSt(previous => ({ ...previous, canRetry: true, retrying: true }));
+    setAttempt(value => value + 1);
+  }, []);
   useEffect(() => {
     let alive = true;
     const numberPreview = flag === "lock_number" && isNumberReviewPreviewRuntime2029();
-    if (attempt > 0) setSt(previous => ({ ...previous, canRetry: false, retrying: true }));
     (async () => {
-      let flags = await getSiteFlags(attempt > 0 ? { fresh: true } : undefined);
-      let lock = flags?.[flag] || null;
+      let lock;
+      if (numberPreview && attempt > 0) {
+        lock = await readNumberReviewFlagUncached2029(supabase);
+      } else {
+        const flags = await getSiteFlags();
+        lock = flags?.[flag] || null;
+      }
       let validNumberGate = flag !== "lock_number" || isValidNumberReviewFlag2029(flag, lock);
 
       // The exact Number review Preview gets one automatic fresh read when its
       // required canonical row was absent or malformed. A manual retry starts a
       // new fresh attempt, but never loops in the background.
       if (numberPreview && attempt === 0 && !validNumberGate) {
-        flags = await readNumberPreviewFlagFreshOnce();
-        lock = flags?.[flag] || null;
+        lock = await readNumberPreviewFlagFreshOnce();
         validNumberGate = isValidNumberReviewFlag2029(flag, lock);
       }
 
       if (!alive) return;
+      manualPending.current = false;
       const safeLock = flag === "lock_number" && !validNumberGate ? null : lock;
       setSt({
         loading: false,
@@ -158,7 +169,10 @@ export function useSiteFlag(flag) {
         retrying: false,
       });
     })().catch(() => {
-      if (alive) setSt({ loading: false, lock: null, canRetry: numberPreview, retrying: false });
+      if (alive) {
+        manualPending.current = false;
+        setSt({ loading: false, lock: null, canRetry: numberPreview, retrying: false });
+      }
     });
     return () => { alive = false; };
   }, [flag, attempt]);
