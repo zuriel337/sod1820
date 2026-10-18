@@ -14,7 +14,11 @@ try { ({ chromium } = require("playwright")); } catch {
 
 const chromiumPath = process.env.CHROMIUM_PATH || "/usr/bin/chromium";
 const dist = new URL("../dist", import.meta.url).pathname;
-const runnable = Boolean(chromium && existsSync(chromiumPath) && existsSync(join(dist, "2029.html")));
+const manifestPath = join(dist, ".vite", "manifest.json");
+const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : {};
+const depthChunkFile = manifest["src/lib/research/entityHubProjection.js"]?.file || null;
+const depthChunkPath = depthChunkFile ? `/${depthChunkFile}` : null;
+const runnable = Boolean(chromium && existsSync(chromiumPath) && existsSync(join(dist, "2029.html")) && depthChunkPath);
 const jsonHeaders = {
   "access-control-allow-origin": "*",
   "access-control-expose-headers": "content-range",
@@ -139,7 +143,7 @@ async function waitFor(predicate, message, timeout = 8_000) {
   assert.fail(message);
 }
 
-test("loopback opening becomes usable before depth, preserves click handoff, and does not auto-load at common widths", { skip: !runnable }, async () => {
+test("loopback opening rejects programmatic navigation/scroll and admits explicit depth intent once", { skip: !runnable }, async () => {
   const server = await startStaticServer();
   const port = server.address().port;
   const origin = `http://127.0.0.1:${port}`;
@@ -152,22 +156,33 @@ test("loopback opening becomes usable before depth, preserves click handoff, and
 
   try {
     for (const scenario of [
-      { width: 320, height: 700, trigger: "scroll", path: "/number/1820" },
-      { width: 390, height: 844, trigger: "expression-then-action", path: "/number/1820" },
-      { width: 1440, height: 1000, trigger: "action", path: "/number/001820" },
+      { width: 320, height: 700, trigger: "wheel", path: "/number/1820" },
+      { width: 390, height: 844, trigger: "keyboard", path: "/number/1820", expressionClick: true },
+      { width: 1440, height: 1000, trigger: "touch", path: "/number/001820", hasTouch: true },
+      { width: 390, height: 844, trigger: "action", path: "/number/1820", programmaticCases: false },
+      { width: 390, height: 844, trigger: "module-retry", path: "/number/1820", programmaticCases: false, failDepthChunkOnce: true },
     ]) {
       const context = await browser.newContext({
         viewport: { width: scenario.width, height: scenario.height },
         serviceWorkers: "block",
+        hasTouch: scenario.hasTouch === true,
       });
       const reads = [];
       const errors = [];
       let compactBytes = 0;
+      const compactResponseBytes = [];
+      let depthChunkFailures = 0;
 
       await context.route("**/*", async (route) => {
         const request = route.request();
         const url = new URL(request.url());
-        if (url.origin === origin) return route.continue();
+        if (url.origin === origin) {
+          if (scenario.failDepthChunkOnce && url.pathname === depthChunkPath && depthChunkFailures === 0) {
+            depthChunkFailures += 1;
+            return route.abort("failed");
+          }
+          return route.continue();
+        }
         if (url.hostname !== "linswmnnkjxvweumprav.supabase.co") return route.abort("blockedbyclient");
         if (request.method() === "OPTIONS") return route.fulfill({ status: 204, headers: jsonHeaders, body: "" });
 
@@ -216,7 +231,9 @@ test("loopback opening becomes usable before depth, preserves click handoff, and
         if (rpc === "fn_number_opening_projection_2029") {
           const payload = openingPayload(Number(body?.p_value));
           const encoded = JSON.stringify(payload);
-          compactBytes += Buffer.byteLength(encoded);
+          const bytes = Buffer.byteLength(encoded);
+          compactBytes += bytes;
+          compactResponseBytes.push(bytes);
           return route.fulfill({ status: 200, headers: jsonHeaders, body: encoded });
         }
         if (rpc === "fn_method_profile") {
@@ -245,6 +262,9 @@ test("loopback opening becomes usable before depth, preserves click handoff, and
             dependency_rules: [],
           }]) });
         }
+        if (rpc === "fn_number_lookup") {
+          return route.fulfill({ status: 200, headers: jsonHeaders, body: "[]" });
+        }
         return route.fulfill({ status: 200, headers: jsonHeaders, body: rpc ? "null" : "[]" });
       });
 
@@ -253,7 +273,13 @@ test("loopback opening becomes usable before depth, preserves click handoff, and
       await page.goto(`${origin}${scenario.path}`, { waitUntil: "domcontentloaded" });
       await page.locator('[data-number-opening-status="ready"]').waitFor({ timeout: 15_000 });
       const firstUsableAt = performance.now();
-      await page.waitForTimeout(900);
+      await page.waitForTimeout(600);
+
+      const depthReadCount = () => reads.filter((read) => read.rpc === "fn_number_lookup").length;
+      const assertDepthIdle = async (label) => {
+        await page.waitForTimeout(140);
+        assert.equal(depthReadCount(), 0, `${scenario.width}/${scenario.trigger}: ${label}`);
+      };
 
       const openingRpc = reads.find((read) => read.rpc === "fn_number_opening_projection_2029");
       const identityRead = reads.find((read) => read.table === "nodes");
@@ -274,34 +300,152 @@ test("loopback opening becomes usable before depth, preserves click handoff, and
       assert.equal(openingRpc.body?.p_value, 1820, `${scenario.width}: compact RPC receives canonical numeric root`);
       assert.equal(reads.filter((read) => read.rpc === "fn_number_opening_projection_2029").length, 1, `${scenario.width}: initial StrictMode/rerender shares one compact request`);
 
-      if (scenario.trigger === "expression-then-action") {
+      if (scenario.expressionClick) {
         assert.equal(reads.some((read) => read.rpc === "fn_method_profile"), false, "method profile is deferred before a real click");
-        await page.locator('[data-experience-capability="number-regular-expressions"] button').first().evaluate((button) => button.click());
+        await page.locator('[data-experience-capability="number-regular-expressions"] button').first().click();
         await waitFor(() => reads.some((read) => read.rpc === "fn_method_profile"), "compact expression click did not start its canonical method profile");
         assert.equal(reads.some((read) => read.rpc === "fn_number_lookup"), false, "expression focus loads its own reads without silently starting full depth");
       }
 
+      if (scenario.programmaticCases !== false) {
+        for (const y of [1, 20, 500]) {
+          await page.evaluate((top) => window.scrollTo(0, top), y);
+          await assertDepthIdle(`programmatic scrollTo(${y}) cannot create intent`);
+        }
+
+        await page.evaluate(() => { window.location.hash = "number-depth-sentinel"; });
+        await page.waitForFunction(() => window.location.hash === "#number-depth-sentinel");
+        await assertDepthIdle("hash navigation to the sentinel cannot create intent");
+        await page.evaluate(() => window.history.back());
+        await page.waitForFunction(() => window.location.hash === "");
+        await assertDepthIdle("hash back/saved-position restoration cannot create intent");
+
+        await page.locator('.sod29-number-v10-search input').fill("376");
+        await page.locator('.sod29-number-v10-search button[type="submit"]').click();
+        await page.locator('[data-number-root="376"][data-number-opening-status="ready"]').waitFor();
+        await page.evaluate(() => window.scrollTo(0, 500));
+        await assertDepthIdle("internal navigation and its programmatic position cannot create intent");
+        await page.locator('.sod29-number-v10-search input').fill("1820");
+        await page.locator('.sod29-number-v10-search button[type="submit"]').click();
+        await page.locator('[data-number-root="1820"][data-number-opening-status="ready"]').waitFor();
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await assertDepthIdle("a second internal navigation remains idle");
+        await page.evaluate(() => window.history.back());
+        await page.waitForFunction(() => window.location.pathname === "/number/376");
+        await page.locator('[data-number-root="376"][data-number-opening-status="ready"]').waitFor();
+        const restored = await page.evaluate(() => {
+          window.__numberSavedRestoreStyles = {
+            html: document.documentElement.getAttribute("style"),
+            body: document.body.getAttribute("style"),
+          };
+          document.documentElement.style.setProperty("height", "auto", "important");
+          document.documentElement.style.setProperty("min-height", "2400px", "important");
+          document.documentElement.style.setProperty("overflow-y", "auto", "important");
+          document.documentElement.style.setProperty("position", "static", "important");
+          document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
+          document.body.style.setProperty("height", "auto", "important");
+          document.body.style.setProperty("min-height", "2400px", "important");
+          document.body.style.setProperty("overflow-y", "visible", "important");
+          document.body.style.setProperty("position", "static", "important");
+          const spacer = document.createElement("div");
+          spacer.dataset.numberSavedRestoreFixture = "true";
+          spacer.style.height = "1200px";
+          document.body.appendChild(spacer);
+          window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+          window.scrollTo(0, 500);
+          return {
+            y: window.scrollY,
+            htmlHeight: document.documentElement.scrollHeight,
+            bodyHeight: document.body.scrollHeight,
+            htmlOverflow: getComputedStyle(document.documentElement).overflowY,
+            bodyOverflow: getComputedStyle(document.body).overflowY,
+            scrolling: document.scrollingElement?.tagName || null,
+          };
+        });
+        assert.ok(restored.y > 0, `${scenario.width}: browser applies a nonzero saved-position restoration fixture ${JSON.stringify(restored)}`);
+        await assertDepthIdle("internal back/saved-position restoration cannot create intent");
+        await page.evaluate(() => {
+          document.querySelector('[data-number-saved-restore-fixture="true"]')?.remove();
+          const saved = window.__numberSavedRestoreStyles;
+          if (saved?.html == null) document.documentElement.removeAttribute("style");
+          else document.documentElement.setAttribute("style", saved.html);
+          if (saved?.body == null) document.body.removeAttribute("style");
+          else document.body.setAttribute("style", saved.body);
+          delete window.__numberSavedRestoreStyles;
+        });
+        await page.evaluate(() => window.history.forward());
+        await page.waitForFunction(() => window.location.pathname === "/number/1820");
+        await page.locator('[data-number-root="1820"][data-number-opening-status="ready"]').waitFor();
+        await assertDepthIdle("internal forward/restore cannot create intent");
+
+        const compactValues = reads
+          .filter((read) => read.rpc === "fn_number_opening_projection_2029")
+          .map((read) => read.body?.p_value);
+        assert.deepEqual(compactValues, [1820, 376], `${scenario.width}: StrictMode and back reuse settled openings without duplicates`);
+
+        await page.evaluate(() => {
+          const node = document.querySelector('[data-number-depth-sentinel="true"]');
+          const top = window.scrollY + node.getBoundingClientRect().top;
+          window.scrollTo(0, Math.max(0, top - window.innerHeight - 600));
+        });
+        await assertDepthIdle("programmatic placement inside the 900px margin remains idle");
+        await page.evaluate(() => {
+          window.dispatchEvent(new WheelEvent("wheel", { deltaY: 240 }));
+          window.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
+        });
+        await assertDepthIdle("script-dispatched wheel/key events cannot impersonate user intent");
+      }
+
       let depthIntentAt;
-      if (scenario.trigger === "scroll") {
+      if (scenario.trigger === "module-retry") {
+        await page.locator('[data-number-depth-action="load"]').click();
+        await page.locator('[data-number-depth-boundary="error"] [data-number-depth-action="retry"]').waitFor();
+        assert.equal(depthReadCount(), 0, "a failed depth chunk cannot fall through to the full lookup");
+        assert.equal(await page.locator('[data-number-opening-status="ready"]').count(), 1, "depth chunk failure retains the usable opening");
+        assert.equal(depthChunkFailures, 1);
         depthIntentAt = performance.now();
-        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+        const reloaded = page.waitForNavigation({ waitUntil: "domcontentloaded" });
+        await page.locator('[data-number-depth-action="retry"]').click();
+        await reloaded;
+        await page.locator('[data-number-opening-status="ready"]').waitFor({ timeout: 15_000 });
+      } else if (scenario.trigger === "wheel") {
+        depthIntentAt = performance.now();
+        await page.mouse.wheel(0, 120);
+      } else if (scenario.trigger === "keyboard") {
+        depthIntentAt = performance.now();
+        await page.locator("body").press("End");
+      } else if (scenario.trigger === "touch") {
+        depthIntentAt = performance.now();
+        const cdp = await context.newCDPSession(page);
+        const x = Math.round(scenario.width / 2);
+        const startY = Math.round(scenario.height * 0.72);
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y: startY }] });
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: startY - 80 }] });
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+        await cdp.detach();
       } else {
         depthIntentAt = performance.now();
-        await page.locator('[data-number-depth-action="load"]').evaluate((button) => button.click());
+        await page.locator('[data-number-depth-action="load"]').click();
       }
       await waitFor(() => reads.some((read) => read.rpc === "fn_number_lookup"), `${scenario.width}: explicit/near-depth trigger did not start canonical full lookup`);
+      await page.waitForTimeout(300);
       const depthRead = reads.find((read) => read.rpc === "fn_number_lookup");
       assert.ok(depthRead.at >= firstUsableAt, `${scenario.width}: first usable compact marker precedes full lookup`);
       assert.ok(depthRead.at >= depthIntentAt, `${scenario.width}: full lookup begins only after scroll/action intent`);
+      assert.equal(depthReadCount(), 1, `${scenario.width}/${scenario.trigger}: one intent starts exactly one canonical depth lookup`);
       assert.deepEqual(errors, [], `${scenario.width}: no browser runtime errors`);
 
       receipt.push({
         viewport: `${scenario.width}x${scenario.height}`,
         trigger: scenario.trigger,
-        compactBytes,
+        initialCompactBytes: compactResponseBytes[0],
+        compactTransportBytes: compactBytes,
         requestCountBeforeDepth: reads.filter((read) => read.at < depthIntentAt).length,
         openingBeforeDepth: true,
         autoDepthAtRest: false,
+        programmaticNavigationIdle: scenario.programmaticCases !== false,
+        depthLookupCount: depthReadCount(),
+        depthChunkFailures,
       });
       await context.close();
     }
@@ -310,6 +454,6 @@ test("loopback opening becomes usable before depth, preserves click handoff, and
     await new Promise((resolve) => server.close(resolve));
   }
 
-  assert.equal(receipt.length, 3);
+  assert.equal(receipt.length, 5);
   console.log(`NUMBER_OPENING_BROWSER_RECEIPT ${JSON.stringify(receipt)}`);
 });

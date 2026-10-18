@@ -84,12 +84,20 @@ function projectNumberNodeIdentity(node) {
   };
 }
 
+function admittedNumberValue(number) {
+  if (typeof number === "number") {
+    return Number.isSafeInteger(number) && number >= 0 ? number : null;
+  }
+  if (typeof number !== "string" || !/^\d+$/.test(number)) return null;
+  const value = Number(number);
+  return Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
 // Identity-only gate for the compact Number opening. It performs no anchor, family, graph,
 // research or full-row read. A label mismatch fails closed before any dependent request begins.
 export async function fetchNumberOpeningIdentity(number) {
-  if (number == null || (typeof number === "string" && !number.trim())) return null;
-  const value = Number(number);
-  if (!Number.isSafeInteger(value)) return null;
+  const value = admittedNumberValue(number);
+  if (value == null) return null;
 
   const node = await resolveEntityHubNode({ type: "number", key: String(value) });
   if (!node) return null;
