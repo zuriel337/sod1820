@@ -435,9 +435,12 @@ export function projectNumberOpeningCore(opening, { identity = null, anchorProfi
     numberPagePending: source.depth.hasMore,
     numberOpening: {
       value: source.value,
+      familyCount: source.familyCount,
+      openingPhraseCount: source.openingPhraseCount,
       depth: source.depth,
       sourceRowCount: source.sourceRowCount,
       distinctMethodPhraseCount: source.distinctMethodPhraseCount,
+      completeness: source.completeness,
     },
   };
 }

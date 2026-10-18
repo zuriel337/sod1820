@@ -60,6 +60,7 @@ const adminMigration = read("supabase/migrations/20260917191500_world_admin_grap
 const prominenceHelper = read("src/lib/research/worldContextualProminence.js");
 const prominenceInputs = read("src/lib/research/worldProminenceInputs.js");
 const entityHubProjection = read("src/lib/research/entityHubProjection.js");
+const numberOpeningIdentity = read("src/lib/research/numberOpeningIdentity2029.js");
 const worldCss = read("src/pages/world2029-human.css");
 const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
@@ -858,8 +859,8 @@ for (const lane of ["overview", "media", "calculations", "sources", "relations",
 }
 
 // Anchor Profile is consumed through the 2029 Entity projection + existing Universal Finding adapter.
-assert.match(entityHubProjection, /numberAnchorToUniversalFinding/);
-assert.match(entityHubProjection, /from\("number_anchors"\)/);
+assert.match(numberOpeningIdentity, /numberAnchorToUniversalFinding/);
+assert.match(numberOpeningIdentity, /from\("number_anchors"\)/);
 assert.match(entityHubProjection, /anchorProfile/);
 const anchorFinding = numberAnchorToUniversalFinding({
   value: 1820,

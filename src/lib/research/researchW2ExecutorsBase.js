@@ -3,6 +3,10 @@ import { researchObjectsToUniversalFindings } from './researchObjectFinding.js';
 import { makeUniversalFinding } from './universalFinding.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, EVIDENCE_RELATION, SEMANTIC_CLASS } from './researchResultBundle.js';
 
+// Shared Number runtime binding. Keeping the canonical numeric reader behind this already-shared
+// runtime avoids adding another eagerly fetched route chunk when a surface defers Entity Hub.
+export { researchNumber };
+
 const SAFE_W2_NUMERIC_LENSES = Object.freeze([
   'number_lookup',
   'number_dossier',
