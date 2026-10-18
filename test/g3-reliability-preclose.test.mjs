@@ -67,7 +67,8 @@ test("wiring: boundary + window handlers go through track(); entries install onc
   assert.match(eb, /reportRuntimeIncident\("error_boundary"/);
   assert.ok(!/track\("runtime_error"/.test(eb), "boundary no longer bypasses the shared capture");
   assert.match(read("src/main.jsx"), /initRuntimeErrorCapture\(\)/);
-  assert.match(read("src/main2029.jsx"), /initRuntimeErrorCapture\(\)/);
+  assert.match(read("src/main2029.jsx"), /prepareRuntimeErrorCapture2029\(\)/);
+  assert.match(read("src/lib/analyticsEmitter2029.js"), /attachRuntimeErrorReporter2029\(track\)/);
 });
 
 test("migration: additive one-tree reliability + narrow public readers; no public write", () => {

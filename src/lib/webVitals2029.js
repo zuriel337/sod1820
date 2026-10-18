@@ -3,8 +3,6 @@
 // remains the sole store. Preview builds collect nothing outside memory and make
 // zero telemetry/identity writes.
 
-import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
-import { getSodId, appContext, sessionId } from "./identity.js";
 import { isBot } from "./botVerdict.js";
 import {
   RUM_METRIC_SCOPE,
@@ -20,8 +18,6 @@ const CHECKPOINT_MS = 15000;
 const USABLE_TIMEOUT_MS = 30000;
 const AUTHORIZATION_TIMEOUT_MS = 30000;
 const USABLE_POLL_MS = 100;
-const RPC_URL = `${SUPABASE_URL}/rest/v1/rpc/ingest_event?apikey=${SUPABASE_ANON}`;
-
 const COMPILED_BUILD_SHA = typeof __SOD_BUILD_SHA__ === "string" ? __SOD_BUILD_SHA__ : "unknown";
 const COMPILED_DEPLOY_ENV = typeof __SOD_DEPLOY_ENV__ === "string" ? __SOD_DEPLOY_ENV__ : "unknown";
 
@@ -80,35 +76,6 @@ function trafficHint(doc, win, botVerdict) {
   return "unknown";
 }
 
-function ordinarySend(payload) {
-  if (!supabase) return;
-  try { supabase.rpc("ingest_event", payload).then(() => {}).catch(() => {}); }
-  catch { /* observability never blocks runtime */ }
-}
-
-function keepaliveSend(payload, win) {
-  const body = JSON.stringify(payload);
-  try {
-    if (typeof win.navigator?.sendBeacon === "function") {
-      const blob = new Blob([body], { type: "application/json" });
-      if (win.navigator.sendBeacon(RPC_URL, blob)) return;
-    }
-  } catch { /* fall through */ }
-  try {
-    win.fetch?.(RPC_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-      keepalive: true,
-    })?.catch?.(() => {});
-  } catch { /* observability never blocks runtime */ }
-}
-
-function defaultTransport(payload, { keepalive = false, win } = {}) {
-  if (keepalive) keepaliveSend(payload, win);
-  else ordinarySend(payload);
-}
-
 function currentRoute(win) {
   try { return win.location?.pathname || "/"; }
   catch { return "/"; }
@@ -141,7 +108,14 @@ export function createWebVitalsRuntime2029(deps = {}) {
   const botVerdict = deps.bot ?? (() => { try { return Boolean(isBot()); } catch { return false; } })();
   const audienceHint = deps.trafficHint ?? trafficHint(doc, win, botVerdict);
   const device = deps.deviceClass ?? deviceClass(win);
-  const transport = deps.transport ?? ((payload, options) => defaultTransport(payload, { ...options, win }));
+  // The early collector deliberately has no transport or identity import. The
+  // fx_analytics owner injects those dependencies only after the switch is ON.
+  let emitter = {
+    transport: deps.transport ?? null,
+    getSodId: deps.getSodId ?? null,
+    appContext: deps.appContext ?? null,
+    sessionId: deps.sessionId ?? null,
+  };
   const readiness = deps.readiness ?? ((route) => primaryContentState2029({ pathname: route, doc, win }));
   const checkpointMs = Number(deps.checkpointMs ?? CHECKPOINT_MS);
   const usableTimeoutMs = Number(deps.usableTimeoutMs ?? USABLE_TIMEOUT_MS);
@@ -269,13 +243,13 @@ export function createWebVitalsRuntime2029(deps = {}) {
   function rpcPayload(measurement) {
     const pIsBot = audienceHint === "suspected" || botVerdict;
     return {
-      p_sod_id: (deps.getSodId ?? getSodId)(),
+      p_sod_id: emitter.getSodId?.() ?? null,
       p_surface: "performance",
       p_event_type: "web_vital",
       p_path: measurement.route,
-      p_app_context: (deps.appContext ?? appContext)(),
+      p_app_context: emitter.appContext?.() ?? null,
       p_device: device,
-      p_session_id: (deps.sessionId ?? sessionId)(),
+      p_session_id: emitter.sessionId?.() ?? null,
       p_is_bot: pIsBot,
       p_props: measurement,
     };
@@ -287,7 +261,8 @@ export function createWebVitalsRuntime2029(deps = {}) {
     const nextRank = phaseRank(record.measurement.phase);
     if (nextRank < previousRank || (nextRank === previousRank && nextRank > 0)) return;
     try {
-      transport(rpcPayload(record.measurement), { keepalive: record.keepalive });
+      if (typeof emitter.transport !== "function") return;
+      emitter.transport(rpcPayload(record.measurement), { keepalive: record.keepalive, win });
       sentPhase.set(record.measurement.sample_id, nextRank);
     } catch { /* observability never blocks runtime */ }
   }
@@ -425,8 +400,14 @@ export function createWebVitalsRuntime2029(deps = {}) {
   wrapHistory("pushState", "spa_push");
   wrapHistory("replaceState", "spa_replace");
 
-  function authorize() {
+  function authorize(emitterDeps = {}) {
     if (disposed) return;
+    emitter = {
+      transport: emitterDeps.transport ?? emitter.transport,
+      getSodId: emitterDeps.getSodId ?? emitter.getSodId,
+      appContext: emitterDeps.appContext ?? emitter.appContext,
+      sessionId: emitterDeps.sessionId ?? emitter.sessionId,
+    };
     authorization = "enabled";
     if (authorizationTimer != null) clearTimeoutFn(authorizationTimer);
     authorizationTimer = null;
@@ -496,8 +477,13 @@ export function prepareWebVitals2029(deps = {}) {
 
 export function startWebVitals2029(deps = {}) {
   const runtime = prepareWebVitals2029(deps);
-  runtime?.authorize();
+  runtime?.authorize(deps);
   return () => runtime?.suspend();
+}
+
+export function suspendWebVitalsCollection2029() {
+  preparedRuntime?.dispose();
+  preparedRuntime = null;
 }
 
 export function resetWebVitalsRuntimeForTest2029() {

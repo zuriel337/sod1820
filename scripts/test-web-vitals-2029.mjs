@@ -84,6 +84,7 @@ console.log("G3 2029 Web Vitals core: PASS");
 
 
 const collector = fs.readFileSync("src/lib/webVitals2029.js", "utf8");
+const emitter = fs.readFileSync("src/lib/webVitalsEmitter2029.js", "utf8");
 const app2029 = fs.readFileSync("src/App2029.jsx", "utf8");
 const main2029 = fs.readFileSync("src/main2029.jsx", "utf8");
 const vite = fs.readFileSync("vite.config.js", "utf8");
@@ -103,7 +104,10 @@ assert.match(collector, /device_class/);
 assert.match(collector, /traffic_hint/);
 assert.doesNotMatch(collector, /create\s+table/i);
 
-assert.match(app2029, /startWebVitals2029/);
+assert.match(emitter, /startWebVitals2029/);
+assert.doesNotMatch(collector, /from\s+["']\.\/supabase\.js["']/);
+assert.doesNotMatch(collector, /from\s+["']\.\/identity\.js["']/);
+assert.match(app2029, /activateAnalyticsEmitter2029/);
 assert.match(main2029, /prepareWebVitals2029\(\)/);
 assert.match(vite, /__SOD_BUILD_SHA__/);
 assert.match(vite, /__SOD_DEPLOY_ENV__/);

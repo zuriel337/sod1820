@@ -2,18 +2,21 @@ import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef } from "react
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigationType, useParams } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
-import { initGA, trackPageview } from "./lib/analytics.js";
-import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
-import { trackVisit } from "./lib/visits.js";
-import { startPageEngagement } from "./lib/engagement.js";
-import { ensureIdentity } from "./lib/identity.js";
-import { startWebVitals2029 } from "./lib/webVitals2029.js";
+import {
+  activateAnalyticsEmitter2029,
+  beginRouteAnalytics2029,
+} from "./lib/analyticsEmitterBoundary2029.js";
 import { createScrollRestorer2029 } from "./lib/scrollRestore2029.js";
 import { use2029Palette } from "./lib/palette.js";
 import { TYPEFACE } from "./lib/designTokens.js";
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import { useRuntimeSwitch } from "./lib/runtimeSwitches2029.js";
+import { analyticsEmissionAllowed2029 } from "./lib/analyticsPolicy2029.js";
+import {
+  discardEarlyAnalyticsCollection2029,
+  resumeEarlyAnalyticsCollection2029,
+} from "./lib/analyticsCollectorBoundary2029.js";
 import {
   loadNumber2029RouteCode,
   loadWorld2029RouteCode,
@@ -63,6 +66,7 @@ const kingdomPreviewEnabled = import.meta.env.VITE_KINGDOM_PREVIEW === "true";
 const Kingdom2029Page = kingdomPreviewEnabled
   ? lazy(() => import("./pages/Kingdom2029Page.jsx")) : null;
 const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+const hostedPreviewEnabled = typeof __SOD_DEPLOY_ENV__ === "string" && __SOD_DEPLOY_ENV__ === "preview";
 const IntegratedPreview2029Page = integratedPreviewEnabled
   ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
 
@@ -141,30 +145,33 @@ function RouteEffects2029() {
   }, [key]);
   // Owner switch fx_analytics (control panel): while OFF nothing below starts. Nothing starts before the switch is known.
   const analyticsSwitch = useRuntimeSwitch("fx_analytics");
-  const analyticsOn = !analyticsSwitch.loading && analyticsSwitch.on;
+  const analyticsOn = analyticsEmissionAllowed2029({
+    switchState: analyticsSwitch,
+    pathname,
+    hostedPreview: hostedPreviewEnabled,
+    integratedPreview: integratedPreviewEnabled,
+    kingdomPreview: kingdomPreviewEnabled,
+  });
+
+  useEffect(() => {
+    const previewBlocked = hostedPreviewEnabled || integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom");
+    if (previewBlocked || (!analyticsSwitch.loading && !analyticsSwitch.on)) {
+      discardEarlyAnalyticsCollection2029();
+      return;
+    }
+    resumeEarlyAnalyticsCollection2029();
+  }, [analyticsSwitch.loading, analyticsSwitch.on, pathname]);
 
   useEffect(() => {
     if (!analyticsOn) return undefined;
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
-    initGA();
-    initMarketing();
-    ensureIdentity();
-    const stopWebVitals = startWebVitals2029();
-    return () => { try { stopWebVitals?.(); } catch { /* observability never blocks runtime */ } };
+    return activateAnalyticsEmitter2029();
   }, [analyticsOn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!analyticsOn) return undefined;
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/control")) return undefined;
-    const timer = setTimeout(() => {
-      trackPageview(pathname);
-      trackMarketingPageview();
-    }, 350);
-    trackVisit(pathname);
-    startPageEngagement(pathname);
-    return () => clearTimeout(timer);
+    return beginRouteAnalytics2029(pathname);
   }, [pathname, analyticsOn]);
 
   return null;

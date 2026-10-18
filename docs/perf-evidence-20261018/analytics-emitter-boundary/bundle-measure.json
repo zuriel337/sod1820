@@ -1,0 +1,50 @@
+{
+  "schema": "analytics-emitter-boundary-2029.v1",
+  "measurement": "production build manifest closures; JavaScript bytes only",
+  "timings": "NOT_MEASURED",
+  "baseline": {
+    "branch": "gpt/perf-wave3-integration-20261018",
+    "sha": "6124db8d7ddac82654a09c49abf8ed60fe999d47"
+  },
+  "candidate": {
+    "branch": "gpt/perf-analytics-emitter-boundary-20261018"
+  },
+  "entry": {
+    "before": { "chunks": 9, "raw": 630681, "gzip": 192009 },
+    "after": { "chunks": 9, "raw": 624835, "gzip": 189914 },
+    "delta": { "chunks": 0, "raw": -5846, "gzip": -2095 }
+  },
+  "routes": {
+    "Home": {
+      "before": { "chunks": 35, "raw": 1100692, "gzip": 348477 },
+      "after": { "chunks": 35, "raw": 1093367, "gzip": 345254 },
+      "delta": { "chunks": 0, "raw": -7325, "gzip": -3223 }
+    },
+    "World": {
+      "before": { "chunks": 46, "raw": 1453636, "gzip": 453168 },
+      "after": { "chunks": 46, "raw": 1445678, "gzip": 449490 },
+      "delta": { "chunks": 0, "raw": -7958, "gzip": -3678 }
+    },
+    "Post": {
+      "before": { "chunks": 38, "raw": 1167420, "gzip": 372741 },
+      "after": { "chunks": 38, "raw": 1159917, "gzip": 369433 },
+      "delta": { "chunks": 0, "raw": -7503, "gzip": -3308 }
+    },
+    "Number": {
+      "before": { "chunks": 40, "raw": 1265294, "gzip": 400981 },
+      "after": { "chunks": 40, "raw": 1257661, "gzip": 397565 },
+      "delta": { "chunks": 0, "raw": -7633, "gzip": -3416 }
+    }
+  },
+  "authorizedEmitterExtra": {
+    "chunks": 3,
+    "raw": 9066,
+    "gzip": 4018,
+    "note": "Downloaded only after fx_analytics resolves ON outside Preview"
+  },
+  "legacy": {
+    "before": { "files": 293, "bytes": 24504416, "treeHash": "cdc717c9db647ef97309cf6db7d40b4e12294387c8e9843b9c41251ff6044e64" },
+    "after": { "files": 293, "bytes": 24504416, "treeHash": "cdc717c9db647ef97309cf6db7d40b4e12294387c8e9843b9c41251ff6044e64" },
+    "changedFiles": 0
+  }
+}

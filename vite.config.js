@@ -24,6 +24,25 @@ export default defineConfig({
     __SOD_DEPLOY_ENV__: JSON.stringify(deployEnv),
   },
   plugins: [react(), {
+    // Preserve the shared source/Legacy graph while the 2029 first-load graph
+    // binds pure identity calls and memory-only telemetry to its flag boundary.
+    name: '2029-telemetry-entry-boundary',
+    enforce: 'pre',
+    resolveId(source, importer) {
+      if (!is2029 || !importer) return null
+      const normalized = importer.replace(/\\/g, '/')
+      if (/(?:^|\/)tracking\.js$/.test(source) && /(?:lib\/(?:AuthContext|commandCenter|push)|components\/(?:WatchButton|experience2029\/(?:SystemFrame2029|HomeBuildSignup2029)))\.jsx?$/.test(normalized)) {
+        return resolve(rootDir, 'src/lib/visitorId.js')
+      }
+      if (/(?:^|\/)tracking\.js$/.test(source) && /(?:lib\/research\/ResearchProvider|lib\/storyTrack|lib\/propagation|lib\/share\/shareTelemetry|components\/(?:BrandTicker|Lightbox|OrGeulaStoryColumnCore))\.jsx?$/.test(normalized)) {
+        return resolve(rootDir, 'src/lib/trackingEntryFacade2029.js')
+      }
+      if (/(?:^|\/)marketing\.js$/.test(source) && /components\/(?:EmailVerify|WatchButton)\.jsx$/.test(normalized)) {
+        return resolve(rootDir, 'src/lib/trackingEntryFacade2029.js')
+      }
+      return null
+    },
+  }, {
     name: '2029-entry-primary-reads',
     transformIndexHtml: {
       order: 'pre',
