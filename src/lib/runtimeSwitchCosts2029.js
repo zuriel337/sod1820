@@ -63,13 +63,6 @@ export const RUNTIME_SWITCH_COSTS_2029 = Object.freeze({
       "ms": 102
     }
   },
-  "fx_home_pulse": {
-    "home": {
-      "n": 7,
-      "kb": 1,
-      "ms": 244
-    }
-  },
   "fx_home_temporal": {
     "home": {
       "n": 7,

@@ -89,13 +89,13 @@ test("frozenOr: ON fetches and keeps a copy; OFF returns the kept copy without c
     const { frozenOr, primeRuntimeSwitches } = await import("../src/lib/runtimeSwitches2029.js");
     let calls = 0; const fetcher = async () => { calls += 1; return { n: calls }; };
     primeRuntimeSwitches({});
-    assert.deepEqual(await frozenOr("fx_home_pulse", fetcher), { n: 1 });
-    primeRuntimeSwitches({ fx_home_pulse: false });
-    assert.deepEqual(await frozenOr("fx_home_pulse", fetcher), { n: 1 });   // kept copy, fetcher not called
+    assert.deepEqual(await frozenOr("fx_home_temporal", fetcher), { n: 1 });
+    primeRuntimeSwitches({ fx_home_temporal: false });
+    assert.deepEqual(await frozenOr("fx_home_temporal", fetcher), { n: 1 });   // kept copy, fetcher not called
     assert.equal(calls, 1);
     primeRuntimeSwitches({ fx_home_world_preview: false });
     assert.equal(await frozenOr("fx_home_world_preview", fetcher), null);   // OFF and nothing kept: nothing shown, no fetch
     assert.equal(calls, 1);
-    primeRuntimeSwitches({}); assert.deepEqual(await frozenOr("fx_home_pulse", fetcher), { n: calls });  // ON again refreshes
+    primeRuntimeSwitches({}); assert.deepEqual(await frozenOr("fx_home_temporal", fetcher), { n: calls });  // ON again refreshes
   } finally { delete globalThis.localStorage; delete globalThis.__SOD_2029_BUILD__; }
 });

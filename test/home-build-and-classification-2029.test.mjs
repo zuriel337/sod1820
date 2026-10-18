@@ -7,6 +7,7 @@ const gateways = readFileSync(new URL("../src/components/experience2029/Discover
 const signup = readFileSync(new URL("../src/components/experience2029/HomeBuildSignup2029.jsx", import.meta.url), "utf8");
 const page = readFileSync(new URL("../src/pages/Home2029Page.jsx", import.meta.url), "utf8");
 const readQueries = readFileSync(new URL("../src/lib/postReadQueries2029.js", import.meta.url), "utf8");
+const projection = readFileSync(new URL("../src/lib/research/home2029Projection.js", import.meta.url), "utf8");
 
 test("Home 2029 never repeats featured, story, updated or arrived Post identities", () => {
   // the bounded Home read keeps its 16 latest cards; the limit now lives in the shared read-query module (same value)
@@ -32,12 +33,14 @@ test("Dimension Five is a video-series category, never a writer identity", () =>
   assert.match(home, /<Section label="כותבים וערוצים"/);
 });
 
-test("construction meter is sourced from canonical release map and public pulse reader", () => {
+test("construction meter is sourced from canonical release map without the removed system pulse", () => {
   assert.match(signup, /BUILD_PROGRESS, FIRST_STAGE_RELEASE_GATES/);
   assert.match(signup, /זה אינו אחוז ההשלמה של האתר כולו/);
   assert.match(signup, /role="progressbar"/);
-  assert.match(home, /<HomeBuildSignup2029 pulsePanel=\{pulsePanel\}/);
-  assert.match(page, /pulsePanel=\{<HomeSystemPulse/);
+  assert.match(home, /<HomeBuildSignup2029 \/>/);
+  assert.doesNotMatch(home, /pulsePanel|systemPulse|home:pulse/);
+  assert.doesNotMatch(page, /HomeSystemPulse|pulsePanel|systemPulse|home-system-pulse/);
+  assert.doesNotMatch(projection, /fx_home_pulse|fetchHomeSystemPulse2029|PULSE_WINDOW_DAYS|PULSE_LATEST_LIMIT/);
 });
 
 test("newsletter signup uses canonical opt-in endpoint with attribution", () => {

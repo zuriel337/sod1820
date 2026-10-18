@@ -6,118 +6,6 @@ import { frozenOr } from "../runtimeSwitches2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
-const PULSE_WINDOW_DAYS = 7;
-const PULSE_LATEST_LIMIT = 3;
-
-function publicWordQuery(columns, options = {}) {
-  return supabase
-    .from("gematria_words")
-    .select(columns, options)
-    .eq("is_verified", true)
-    .eq("is_published", true)
-    .or("is_encrypted.is.null,is_encrypted.eq.false");
-}
-
-function effectivePublicAt(row) {
-  const created = row?.created_at ? new Date(row.created_at).getTime() : 0;
-  const visible = row?.visibility_changed_at ? new Date(row.visibility_changed_at).getTime() : 0;
-  const ms = Math.max(created || 0, visible || 0);
-  return ms > 0 ? new Date(ms).toISOString() : null;
-}
-
-function mergeLatestPublicWords(...groups) {
-  const seen = new Set();
-  const out = [];
-  for (const row of groups.flat()) {
-    const phrase = clean(row?.phrase);
-    const value = Number(row?.ragil);
-    const publicAt = effectivePublicAt(row);
-    if (!phrase || !Number.isFinite(value) || !publicAt) continue;
-    const key = [phrase, value, publicAt].join("|");
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({ phrase, value, publicAt });
-  }
-  return out
-    .sort((a, b) => new Date(b.publicAt).getTime() - new Date(a.publicAt).getTime())
-    .slice(0, PULSE_LATEST_LIMIT);
-}
-
-async function fetchHomeSystemPulse2029() {
-  const since = new Date(Date.now() - PULSE_WINDOW_DAYS * 86400000).toISOString();
-
-  const [
-    totalResult,
-    createdResult,
-    visibilityResult,
-    overlapResult,
-    latestCreatedResult,
-    latestVisibilityResult,
-    contributionsResult,
-  ] = await Promise.all([
-    publicWordQuery("phrase", { count: "exact", head: true }),
-    publicWordQuery("phrase", { count: "exact", head: true }).gte("created_at", since),
-    publicWordQuery("phrase", { count: "exact", head: true }).gte("visibility_changed_at", since),
-    publicWordQuery("phrase", { count: "exact", head: true }).gte("created_at", since).gte("visibility_changed_at", since),
-    publicWordQuery("phrase,ragil,created_at,visibility_changed_at")
-      .order("created_at", { ascending: false, nullsFirst: false })
-      .limit(PULSE_LATEST_LIMIT),
-    publicWordQuery("phrase,ragil,created_at,visibility_changed_at")
-      .order("visibility_changed_at", { ascending: false, nullsFirst: false })
-      .limit(PULSE_LATEST_LIMIT),
-    supabase
-      .from("research_contributions")
-      .select("id,author_user_id,author_contributor_id,author_name,created_at", { count: "exact" })
-      .eq("status", "approved")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(1000),
-  ]);
-
-  const hasCorpusError = [totalResult, createdResult, visibilityResult, overlapResult]
-    .some((result) => Boolean(result?.error));
-  const contributionsError = contributionsResult?.error || null;
-
-  const corpusTotal = hasCorpusError ? null : Number(totalResult.count || 0);
-  const corpusAdded7d = hasCorpusError
-    ? null
-    : Math.max(
-      0,
-      Number(createdResult.count || 0)
-      + Number(visibilityResult.count || 0)
-      - Number(overlapResult.count || 0)
-    );
-
-  const latestWords = mergeLatestPublicWords(
-    latestCreatedResult?.error ? [] : (latestCreatedResult.data || []),
-    latestVisibilityResult?.error ? [] : (latestVisibilityResult.data || [])
-  );
-
-  const contributionRows = contributionsError ? [] : (contributionsResult.data || []);
-  const writers = new Set();
-  for (const row of contributionRows) {
-    const identity = row.author_contributor_id
-      || row.author_user_id
-      || clean(row.author_name)
-      || null;
-    if (identity) writers.add(String(identity));
-  }
-
-  return {
-    windowDays: PULSE_WINDOW_DAYS,
-    corpusTotal,
-    corpusAdded7d,
-    corpusLatestAt: latestWords[0]?.publicAt || null,
-    latestWords,
-    contributions7d: contributionsError ? null : Number(contributionsResult.count || 0),
-    writers7d: contributionsError ? null : writers.size,
-    // Journey/search/calculator counts intentionally stay out until their canonical public readers are live.
-    journeysToday: null,
-    searchesToday: null,
-    calculatorComputesToday: null,
-  };
-}
-
 export function projectHomeWorldPreviewItem(item) {
   if (!item?.id || !item.kind) return null;
   return {
@@ -405,9 +293,8 @@ async function fetchTemporalNow2029() {
 
 export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
   // Owner switches (freeze mode): ON = read and keep a copy; OFF = the last kept copy, no request, no update.
-  const pulsePromise = frozenOr("fx_home_pulse", fetchHomeSystemPulse2029).catch(() => null);
   const worldPreviewPromise = includeWorld ? frozenOr("fx_home_world_preview", fetchHomeWorldPreview2029).catch(() => null) : Promise.resolve(null);
-  if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!includeTemporal) return { temporalNow: null, systemPulse: null, worldPreview: await worldPreviewPromise };
   const temporal = await frozenOr("fx_home_temporal", fetchTemporalNow2029).catch(() => null);
-  return { temporalNow: temporal?.temporalNow || null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  return { temporalNow: temporal?.temporalNow || null, systemPulse: null, worldPreview: await worldPreviewPromise };
 }

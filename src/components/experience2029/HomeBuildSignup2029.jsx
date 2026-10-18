@@ -1,5 +1,5 @@
-// Home 2029 presentation of existing milestone readiness, measured public pulse,
-// and the canonical newsletter-signup edge function. No local metric store.
+// Home 2029 presentation of existing milestone readiness and the canonical
+// newsletter-signup edge function. No local metric store.
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { BUILD_PROGRESS, FIRST_STAGE_RELEASE_GATES } from "../../lib/knowledgeMap.js";
@@ -11,7 +11,7 @@ import "./homeBuildSignup2029.css";
 const SIGNUP_SOURCE = "home-2029-discovery";
 const emailIsValid = value => /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(value || "").trim());
 
-export default function HomeBuildSignup2029({ pulsePanel }) {
+export default function HomeBuildSignup2029() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle");
   const closed = FIRST_STAGE_RELEASE_GATES.filter(gate => gate.state === "closed").length;
@@ -60,7 +60,6 @@ export default function HomeBuildSignup2029({ pulsePanel }) {
       </div>
       <small>{closed} מתוך {total} שערי הכנה נסגרו לפי מפת המערכת. זה אינו אחוז ההשלמה של האתר כולו; המיפוי עודכן ב־9.10.2026.</small>
       <Link className="hb29-link" to="/map">מה פתוח ומה נבנה ←</Link>
-      {pulsePanel ? <div className="hb29-pulse">{pulsePanel}</div> : null}
     </div>
 
     <div className="hb29-signup">

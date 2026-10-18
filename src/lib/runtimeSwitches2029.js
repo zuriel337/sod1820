@@ -23,7 +23,6 @@ export const RUNTIME_SWITCHES_2029 = Object.freeze([
   { key: "fx_number_journey", group: "מספרים", label: "מסע המספר", note: "fn_number_journey; נקרא רק כשמבקשים את המסע" },
   { key: "fx_home_videos", group: "בית", label: "סרטוני הצפנים בשערי הגילוי", note: "get_category_videos, עד 80 סרטונים" },
   { key: "fx_home_gateways", group: "בית", label: "שערי הגילוי: שפה, קולנוע, מימד חמש, צפנים", note: "ארבע שאילתות קטגוריה" },
-  { key: "fx_home_pulse", group: "בית", label: "דופק המערכת — מילים חדשות", mode: "freeze", note: "ספירות ומילים אחרונות מ־gematria_words. כבוי = מציג את האחרון שנשמר, בלי עדכון" },
   { key: "fx_home_temporal", group: "בית", label: "״העת עכשיו״ בבית", mode: "freeze", note: "אימות שנה, ממצאים, תרומות ואוצרות. כבוי = מציג את האחרון שנשמר, בלי עדכון" },
   { key: "fx_home_world_preview", group: "בית", label: "תצוגת העולם בבית", mode: "freeze", note: "זרם גילוי, כותבים ותרומות. כבוי = מציג את האחרון שנשמר, בלי עדכון" },
   { key: "fx_home_convergences", group: "בית", label: "התכנסויות בולטות", mode: "freeze", note: "הרצועה מתחת לעדכונים האחרונים. כבוי = ממשיכה להציג את מה שנשמר אצל הגולש, בלי בקשות ובלי עדכון" },

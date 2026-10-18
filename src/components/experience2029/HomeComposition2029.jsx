@@ -169,13 +169,12 @@ function Section({ title, link, label, children, className = "" }) {
 }
 
 export default function HomeComposition2029({
-  projection, loading, nowHero, story, arrivals, calculator, entry, continuity, pulsePanel,
+  projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false, worldPending,
 }) {
   const data = useHomeCompositionData({ includeWorld: worldOpen });
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
-  const pulse = projection?.systemPulse || null;
   const lead = data.posts[0] || null;
   const heroPostSlug = nowHero ? null : lead?.slug;
   const showFixedStory = Boolean(story) && heroPostSlug !== "flydubai-fz1073-363-14000-remzei-geula";
@@ -304,15 +303,11 @@ export default function HomeComposition2029({
       </div>
     </Section>
 
-    <HomeBuildSignup2029 pulsePanel={pulsePanel} />
+    <HomeBuildSignup2029 />
 
     {entry}
     {continuity}
 
-    <section className="h29-quiet" aria-label="דופק ומצב בנייה" data-scroll-anchor="home:pulse">
-      <span>{pulse?.corpusTotal ? `${Number(pulse.corpusTotal).toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
-      {!corePublic ? <a href="/map">מה כבר חי ומה בדרך ←</a> : null}
-    </section>
   </div>;
 }
 

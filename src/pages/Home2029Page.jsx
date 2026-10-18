@@ -98,83 +98,8 @@ function ConnectedGoldenStory({ onOpenPost, razielLocked }) {
   </article>;
 }
 
-function formatPulseNumber(value) {
-  return Number.isFinite(Number(value)) ? Number(value).toLocaleString("he-IL") : null;
-}
-
-function formatPulseDate(value) {
-  return relativeTimeLabel(value) || null;
-}
-
 function formatWorldArrival(value) {
   return relativeTimeLabel(value, "זמן לא צוין");
-}
-
-function HomeSystemPulse({ pulse, loading }) {
-  if (loading) {
-    return <section
-      className="sod29-home-system-pulse is-loading"
-      data-experience-capability="home-system-pulse"
-      aria-label="דופק המערכת"
-    >
-      <div className="sod29-home-system-pulse-head">
-        <div>
-          <div className="sod29-kicker">דופק המערכת</div>
-          <strong>בודק מה באמת זז עכשיו…</strong>
-        </div>
-      </div>
-    </section>;
-  }
-
-  if (!pulse) return null;
-
-  const metrics = [];
-  const corpusTotal = formatPulseNumber(pulse.corpusTotal);
-  if (corpusTotal) metrics.push({ key: "corpus", value: corpusTotal, label: "ביטויים במאגר" });
-
-  if (Number(pulse.corpusAdded7d) > 0) {
-    metrics.push({ key: "corpus-week", value: "+" + formatPulseNumber(pulse.corpusAdded7d), label: "נוספו השבוע" });
-  } else {
-    const latestDate = formatPulseDate(pulse.corpusLatestAt);
-    if (latestDate) metrics.push({ key: "corpus-last", value: latestDate, label: "עדכון אחרון למאגר" });
-  }
-
-  if (Number(pulse.contributions7d) > 0) {
-    metrics.push({ key: "contributions", value: formatPulseNumber(pulse.contributions7d), label: "תרומות השבוע" });
-  }
-
-  if (Number(pulse.writers7d) > 0) {
-    metrics.push({ key: "writers", value: formatPulseNumber(pulse.writers7d), label: "כותבים פעילים" });
-  }
-
-  if (Number(pulse.journeysToday) > 0) {
-    metrics.push({ key: "journeys", value: formatPulseNumber(pulse.journeysToday), label: "יצאו למסע היום" });
-  }
-
-  if (!metrics.length) return null;
-  const latestWord = pulse.latestWords?.[0] || null;
-
-  return <section
-    className="sod29-home-system-pulse"
-    data-experience-capability="home-system-pulse"
-    aria-label="דופק המערכת"
-  >
-    <div className="sod29-home-system-pulse-head">
-      <div>
-        <div className="sod29-kicker">דופק המערכת</div>
-        <strong>מה זז עכשיו</strong>
-      </div>
-      {latestWord ? <small>
-        האחרון שנוסף · <b>{latestWord.phrase} = {latestWord.value}</b>
-      </small> : null}
-    </div>
-    <div className="sod29-home-system-pulse-grid">
-      {metrics.map((metric) => <div className="sod29-home-system-pulse-metric" key={metric.key}>
-        <strong>{metric.value}</strong>
-        <span>{metric.label}</span>
-      </div>)}
-    </div>
-  </section>;
 }
 
 function HomeMiniGematria({ onOpenCalculator }) {
@@ -480,7 +405,6 @@ function HomeBody() {
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
     </div>}
     calculator={<HomeMiniGematria onOpenCalculator={openCalculator} />}
-    pulsePanel={<HomeSystemPulse pulse={homeState.projection?.systemPulse || null} loading={homeState.loading} />}
     entry={
     <section className="sod29-home-review-entry" aria-label="התחלה משלך">
         <div className="sod29-kicker">ומה מסקרן אותך?</div><h2>גם מילה אחת יכולה לפתוח דרך.</h2>
@@ -516,11 +440,6 @@ function HomeBody() {
       />
       {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
-
-    <HomeSystemPulse
-      pulse={homeState.projection?.systemPulse || null}
-      loading={homeState.loading}
-    />
 
     <section className="sod29-focus-stage" id="universal-entry">
       <div className="sod29-command-shell">
