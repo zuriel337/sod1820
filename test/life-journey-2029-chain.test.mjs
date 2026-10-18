@@ -12,12 +12,12 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const css = read("src/components/person-journey.css");
   const vercel = JSON.parse(read("vercel.json"));
 
-  assert.match(app, /path="\/2029\/journey" element=\{<Locked flag="lock_life_journey" requireFlag homeHref="\/2029"><LifeJourney2029Page \/><\/Locked>\}/);
+  assert.match(app, /path="\/journey" element=\{<Locked flag="lock_life_journey" requireFlag homeHref="\/"><LifeJourney2029Page \/><\/Locked>\}/);
   assert.match(page, /data-experience-surface="life-journey-2029"/);
   assert.match(page, /<PersonJourney variant="2029"/);
 
   assert.match(home, /buildUnifiedResearchEntry/);
-  assert.match(home, /navigate\("\/2029\/journey"\)/);
+  assert.match(home, /navigate\("\/journey"\)/);
   assert.match(home, /useFeatureState\("lock_life_journey", \{ requireFlag: true \}\)/);
   assert.doesNotMatch(home, /const numeric = \/\^\\d\+\$\//);
 
@@ -35,8 +35,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.doesNotMatch(journey, /fn_cross_name_date/);
   assert.doesNotMatch(journey, /\.from\(["'](?:nodes|edges)["']\)/);
 
-  assert.ok(vercel.rewrites.some((row) => row.source === "/2029/journey" && row.destination === "/2029.html"));
-  const headers = vercel.headers.find((row) => row.source === "/2029/journey")?.headers || [];
+  assert.ok(vercel.rewrites.some((row) => row.source === "/journey" && row.destination === "/2029.html"));
+  const headers = vercel.headers.find((row) => row.source === "/journey")?.headers || [];
   assert.ok(headers.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value)));
 
   assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);

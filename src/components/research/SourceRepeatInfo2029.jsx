@@ -1,9 +1,6 @@
 import React from "react";
+import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import "../../pages/home-world-story2029.css";
-
-const israelTime = (value) => new Date(value).toLocaleString("he-IL", {
-  dateStyle: "short", timeStyle: "short", timeZone: "Asia/Jerusalem",
-});
 
 // One display card, every source occurrence still addressable by its own ID.
 export default function SourceRepeatInfo2029({ item, onSelect, anchorIds = false }) {
@@ -13,7 +10,7 @@ export default function SourceRepeatInfo2029({ item, onSelect, anchorIds = false
     <ul>{item.occurrences.map((event, index) => <li key={event.id}
       id={anchorIds && index ? `group-source-${event.id}` : undefined}>
       <button type="button" onClick={() => onSelect?.(event)}>
-        הופעה {index + 1} · {israelTime(event.at)}
+        הופעה {index + 1} · {relativeTimeLabel(event.at, "זמן לא צוין")}
       </button>
     </li>)}</ul>
   </div>;

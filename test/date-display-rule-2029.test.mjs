@@ -21,6 +21,7 @@ const RELATIVE_ALLOWED = new Set([
   "src/components/experience2029/HomeComposition2029.jsx", "src/components/experience2029/HomeHeroMotion2029.jsx",
   "src/components/experience2029/CompanionPanel2029.jsx", "src/components/experience2029/SystemFrame2029.jsx",
   "src/components/research/SourceArrivalList2029.jsx", "src/components/research/WorldFlightStory2029.jsx",
+  "src/components/research/SourceRepeatInfo2029.jsx", "src/components/research/ZviGroupTimeline2029.jsx",
   "src/components/research/WorldAllResearchTable.jsx", "src/components/research/WorldConvergenceLens.jsx",
   "src/components/research/ContributorFindingsLens.jsx", // default mode is relative; non-Home/World callers pass timeMode="bilingual"
   "src/lib/relativeTime2029.js",

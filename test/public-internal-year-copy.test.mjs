@@ -19,8 +19,9 @@ test("new Home branding still hides the internal version from public titles", ()
   const home = source("src/pages/Home2029Page.jsx");
   assert.doesNotMatch(home, /title="SOD1820 2029"/);
   assert.doesNotMatch(home, /title: "SOD1820 · 2029"/);
-  assert.match(home, /title="SOD1820 · העולם החדש"/);
-  assert.match(home, /path: "\/2029"/);
+  assert.match(home, /title=\{CORE_PUBLIC_LAUNCH_2029 \? "SOD1820" : "SOD1820 · העולם החדש"\}/);
+  assert.match(home, /path: "\/"/);
+  assert.doesNotMatch(home, /path: "\/2029"/);
 });
 
 test("public build model and core page SEO do not brand as 2029", () => {
@@ -34,5 +35,6 @@ test("public build model and core page SEO do not brand as 2029", () => {
   assert.doesNotMatch(numbers, /דף המספר 2029/);
   assert.doesNotMatch(video, /title="וידאו · SOD1820 2029"/);
   assert.doesNotMatch(researcher, /RESEARCHER CORPUS · 2029/);
-  assert.match(numbers, /\/2029\/number/); // Internal routing remains unchanged.
+  assert.match(numbers, /\/number\//);
+  assert.doesNotMatch(numbers, /\/2029\/number/); // Public routes must not expose the internal codename.
 });
