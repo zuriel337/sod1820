@@ -23,3 +23,7 @@
 .sod29-quick-inspect-facts li{padding:6px 10px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-ink)}
 .sod29-quick-inspect-teasers button{min-height:44px;padding:0 12px;border:1px solid var(--s29-line);border-radius:999px;background:transparent;color:var(--s29-ink);font:inherit;cursor:pointer}
 .sod29-quick-inspect-teasers button:hover{border-color:var(--s29-accent)}
+.sod29-quick-inspect-topics{display:grid;gap:8px}
+.sod29-quick-inspect-topics ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sod29-quick-inspect-topics button{width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;border:1px solid var(--s29-line-strong);border-radius:12px;background:transparent;color:var(--s29-ink);font:inherit;text-align:start;cursor:pointer}
+.sod29-quick-inspect-topics small{color:var(--s29-accent-text)}

@@ -72,3 +72,11 @@ test('teaser facts reuse numberMathProfile and add no network; prefetch is inten
   assert.match(src, /loadNumber2029RouteCode/);
   assert.match(src, /NUMBER_PAGE_TEASERS/);
 });
+
+test('topic convergences: one bounded read (limit 6) only on click; key numbers need no network', () => {
+  const src = read(QUICK);
+  assert.match(src, /getTopicCardsByNumber\(topicsRoot, 6\)/);
+  assert.match(src, /onClick=\{loadTopics\}/);
+  assert.doesNotMatch(src, /useEffect\([^)]*loadTopics/);
+  assert.match(src, /KEY_NUMBERS/);
+});

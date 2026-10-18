@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildCalculator2029FastPreview, CALCULATOR_2029_FAST_CORE_KEYS } from "../../lib/research/calculator2029FastPreview.js";
 import { buildNumberExpressionHandoff } from "../../lib/research/numberExpressionFocus.js";
 import { buildNumberQuickFacts, NUMBER_PAGE_TEASERS } from "../../lib/research/numberQuickFacts.js";
@@ -11,6 +11,7 @@ import "./numberQuickInspect2029.css";
 // (fn_method_profile, value depth) verifies the expression/method; it is aborted on close.
 const clean = (value) => value == null ? "" : String(value).trim();
 const CANONICAL_TIMEOUT_MS = 8000;
+const KEY_NUMBERS = Object.freeze([1820, 506, 67, 424, 45, 26]);
 const CORE_KEYS = new Set(CALCULATOR_2029_FAST_CORE_KEYS);
 const safeInt = (value) => {
   if (value == null || value === "") return null;
@@ -112,6 +113,24 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
   const prefetchFull = useCallback(() => { loadNumber2029RouteCode().catch(() => {}); }, []);
   const quickFacts = useMemo(() => (root != null ? buildNumberQuickFacts(root) : []), [root]);
 
+  // Topic convergences containing the number: one bounded read (limit 6), only on the person's click.
+  const topicsAliveRef = useRef(null);
+  const [topics, setTopics] = useState({ status: "idle", rows: [] });
+  const topicsRoot = root;
+  useEffect(() => { topicsAliveRef.current?.(); setTopics({ status: "idle", rows: [] }); }, [topicsRoot]);
+  const loadTopics = useCallback(() => {
+    if (topicsRoot == null) return;
+    let alive = true;
+    setTopics({ status: "loading", rows: [] });
+    import("../../lib/supabase.js")
+      .then((m) => m.getTopicCardsByNumber(topicsRoot, 6))
+      .then((rows) => { if (alive) setTopics({ status: "ready", rows: Array.isArray(rows) ? rows : [] }); })
+      .catch(() => { if (alive) setTopics({ status: "error", rows: [] }); });
+    topicsAliveRef.current = () => { alive = false; };
+  }, [topicsRoot]);
+  useEffect(() => () => { topicsAliveRef.current?.(); }, []);
+  const openTopic = (slug) => { if (slug) go?.(`/topic/${encodeURIComponent(slug)}`); };
+
   const submit = (event) => {
     event.preventDefault();
     const raw = clean(input).replace(/\s+/g, " ");
@@ -128,7 +147,17 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
         <button type="submit">בדוק</button>
       </form>
 
-      {!committed ? <p className="sod29-quick-inspect-note">הקלד מספר או ביטוי לבדיקה מהירה. העומק המלא נמצא בדף המספר.</p> : null}
+      {!committed ? (
+        <>
+          <p className="sod29-quick-inspect-note">הקלד מספר או ביטוי לבדיקה מהירה. העומק המלא נמצא בדף המספר.</p>
+          <section className="sod29-quick-inspect-teasers" aria-label="מספרי מפתח">
+            <small>מספרי מפתח</small>
+            <ul>{KEY_NUMBERS.map((n) => (
+              <li key={n}><button type="button" onClick={() => { setInput(String(n)); setPickedKey(null); setCommitted(String(n)); }}>{n}</button></li>
+            ))}</ul>
+          </section>
+        </>
+      ) : null}
 
       {numeric ? (
         <section className="sod29-quick-inspect-result" aria-live="polite">
@@ -175,6 +204,20 @@ export default function NumberQuickInspect2029({ target, context, research, go, 
         <section className="sod29-quick-inspect-facts" aria-label="עובדות מתמטיות על המספר">
           <small>עובדות מתמטיות · {root}</small>
           <ul>{quickFacts.map((f) => <li key={f.key}>{f.label}</li>)}</ul>
+        </section>
+      ) : null}
+
+      {root != null && root >= 10 ? (
+        <section className="sod29-quick-inspect-topics" aria-label="התכנסויות שמכילות את המספר">
+          {topics.status === "idle" ? (
+            <button type="button" onClick={loadTopics}>🧠 התכנסויות שמכילות את {root}</button>
+          ) : topics.status === "loading" ? <small role="status">טוען התכנסויות…</small>
+          : topics.status === "error" ? <div className="sod29-quick-inspect-error" role="alert"><span>לא נטען</span><button type="button" onClick={loadTopics}>נסה שוב</button></div>
+          : topics.rows.length ? (
+            <ul>{topics.rows.map((t) => (
+              <li key={t.slug}><button type="button" onClick={() => openTopic(t.slug)}><span>{t.title}</span><small>{"★".repeat(Math.max(0, Math.min(5, Math.round((t.quality || 0) / 2))))}</small></button></li>
+            ))}</ul>
+          ) : <small role="status">אין התכנסויות מאושרות למספר הזה.</small>}
         </section>
       ) : null}
 
