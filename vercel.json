@@ -1,5 +1,5 @@
 {
-  "buildCommand": "SOD_BUILD_TARGET=2029 node scripts/build-integrated-preview.mjs",
+  "buildCommand": "git checkout -- vercel.json && SOD_BUILD_TARGET=2029 node scripts/build-integrated-preview.mjs",
   "outputDirectory": "preview-deploy/dist",
   "redirects": [
     {
