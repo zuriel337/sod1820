@@ -5,42 +5,57 @@ import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import {
+  NUMBER_REVIEW_PREVIEW_BRANCH_2029,
+  isNumberReviewPreviewBuild2029,
+} from "../src/lib/numberReviewPreview2029.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
-process.env.SOD_BUILD_TARGET = "2029";
-await build({ root, define: {
-  "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
-  "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
-}, build: { outDir: output, emptyOutDir: true, manifest: true } });
+const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
-const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v3", "world_group_source_arrivals_v2", "convergence_meter", "get_category_videos", "notification_prefs_guest_get_v1"];
-const worker = `const reads = new Set(${JSON.stringify(allow)});
+function approvedPreviewHost(raw) {
+  if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";
+  if (!/^sod1820-[a-z0-9](?:[a-z0-9-]*[a-z0-9])?-sod1820-s-projects\.vercel\.app$/.test(raw)) return "";
+  if (raw === "sod1820-sod1820-s-projects.vercel.app") return "";
+  try {
+    const parsed = new URL(`https://${raw}`);
+    return parsed.hostname === raw && parsed.host === raw && parsed.pathname === "/" ? raw : "";
+  } catch {
+    return "";
+  }
+}
+
+process.env.SOD_BUILD_TARGET = "2029";
+const commit = process.env.VERCEL_GIT_COMMIT_SHA || "";
+const previewHost = approvedPreviewHost(process.env.VERCEL_URL || "");
+const numberReviewPreviewOpen = isNumberReviewPreviewBuild2029(process.env);
+if (!numberReviewPreviewOpen) {
+  throw new Error(`Integrated Preview requires target=2029, VERCEL_ENV=preview and branch=${NUMBER_REVIEW_PREVIEW_BRANCH_2029}`);
+}
+if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error("Exact 40-hex preview source commit required");
+if (!previewHost) throw new Error("Approved exact VERCEL_URL Preview host required");
+const checkoutCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+if (checkoutCommit !== commit) throw new Error("VERCEL_GIT_COMMIT_SHA must match the checked-out source commit");
+
+await build({
+  root,
+  define: {
+    "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
+    "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
+    __SOD_NUMBER_REVIEW_PREVIEW_HOST__: JSON.stringify(previewHost),
+  },
+  build: { outDir: output, emptyOutDir: true, manifest: true },
+});
+
+const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_opening_projection_2029", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v3", "world_group_source_arrivals_v2", "convergence_meter", "get_category_videos", "notification_prefs_guest_get_v1"];
+const worker = `const previewIdentity=Object.freeze(${JSON.stringify({ commit, branch: NUMBER_REVIEW_PREVIEW_BRANCH_2029, host: previewHost })});
+const reads = new Set(${JSON.stringify(allow)});
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
-// A Preview-only projection of the existing launch gate. Never mutate live
-// flags, grant identity/roles, or enable the separate Number optimization.
-const host=self.location?.hostname||'';
-const numberPreviewHost=['localhost','127.0.0.1','[::1]'].includes(host)||
- (host.startsWith('sod1820-')&&host.endsWith('-sod1820-s-projects.vercel.app')&&host!=='sod1820-sod1820-s-projects.vercel.app');
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
- if(numberPreviewHost&&req.method==='GET'&&u.origin===authOrigin&&u.pathname==='/rest/v1/site_flags'){
-  event.respondWith((async()=>{
-   const response=await fetch(req,{cache:'no-store'});
-   if(!response.ok)return response;
-   let rows;try{rows=await response.clone().json();}catch{return response;}
-   // Missing gates and malformed reads keep their original fail-closed meaning.
-   if(!Array.isArray(rows)||!rows.some(row=>row?.key==='lock_number'))return response;
-   const headers=new Headers(response.headers);
-   for(const name of ['Content-Length','Content-Encoding','ETag','Last-Modified','Content-MD5','Digest'])headers.delete(name);
-   headers.set('Cache-Control','no-store');
-   headers.set('X-SOD-Preview-Overrides','lock_number');
-   return new Response(JSON.stringify(rows.map(row=>row?.key==='lock_number'?{...row,enabled:false}:row)),{status:response.status,headers});
-  })());
-  return;
- }
  const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))||(u.hostname==='linswmnnkjxvweumprav.supabase.co'&&reads.has(rpc));
  if(safe)return;
  event.respondWith((async()=>{
@@ -68,22 +83,42 @@ self.addEventListener('fetch',event=>{
 await writeFile(resolve(output, "preview-readonly-sw.js"), worker);
 // A push opt-in must never replace the Preview guard with the production push worker.
 await writeFile(resolve(output, "sw.js"), worker);
-const bootstrap = `<script type="module">if(!('serviceWorker' in navigator)){document.body.textContent='פריוויו זה דורש דפדפן התומך בתצוגה לקריאה בלבד.';}else{await navigator.serviceWorker.register('/preview-readonly-sw.js',{scope:'/'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));await import('__ENTRY__');}</script>`;
+
+const workerScript = `/preview-readonly-sw.js?build=${commit}`;
+const bootstrap = `<script type="module">const expectedHost=${JSON.stringify(previewHost)},workerScript=${JSON.stringify(workerScript)},build=${JSON.stringify(commit)};const fail=()=>{document.documentElement.dataset.sodPreviewGuard='blocked';document.body.textContent='לא ניתן לאמת את מצב הקריאה בלבד של הפריוויו. יש לרענן את הדף.';};if(!('serviceWorker' in navigator)||location.hostname.toLowerCase()!==expectedHost){fail();}else{try{const expected=new URL(workerScript,location.href).href;const exact=()=>navigator.serviceWorker.controller?.scriptURL===expected;const registration=await navigator.serviceWorker.register(workerScript,{scope:'/',updateViaCache:'none'});if(!exact())await new Promise((resolve,reject)=>{let done=false;const finish=error=>{if(done)return;done=true;clearTimeout(timer);navigator.serviceWorker.removeEventListener('controllerchange',check);for(const worker of [registration.installing,registration.waiting,registration.active])worker?.removeEventListener('statechange',check);error?reject(error):resolve();};const check=()=>{if(exact())finish();};const timer=setTimeout(()=>finish(new Error('preview_guard_controller_timeout')),15000);navigator.serviceWorker.addEventListener('controllerchange',check);for(const worker of [registration.installing,registration.waiting,registration.active])worker?.addEventListener('statechange',check);check();});if(!exact())throw new Error('preview_guard_controller_mismatch');document.documentElement.dataset.sodPreviewGuard=build;await import('__ENTRY__');}catch{fail();}}</script>`;
 let html = await readFile(resolve(output, "2029.html"), "utf8");
 const entry = html.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/);
 if (!entry) throw new Error("missing2029Entry");
 html = html.replace(entry[0], bootstrap.replace("__ENTRY__", entry[1]));
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
-let commit = process.env.VERCEL_GIT_COMMIT_SHA;
-if (!commit) commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
-if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Exact preview source commit required');
-const manifestBytes = await readFile(resolve(output, '.vite/manifest.json'));
-await writeFile(resolve(output, 'preview-build.json'), JSON.stringify({ commit, buildTarget: '2029',
-  readOnly: true, previewOverrides: ['lock_number'],
-  manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') }, null, 2));
+
+const manifestBytes = await readFile(resolve(output, ".vite/manifest.json"));
+const htmlBytes = await readFile(resolve(output, "2029.html"));
+const workerBytes = await readFile(resolve(output, "preview-readonly-sw.js"));
+const artifacts = {
+  manifestSha256: sha256(manifestBytes),
+  htmlSha256: sha256(htmlBytes),
+  workerSha256: sha256(workerBytes),
+};
+const identity = {
+  commit,
+  branch: NUMBER_REVIEW_PREVIEW_BRANCH_2029,
+  host: previewHost,
+  buildTarget: "2029",
+  vercelEnv: "preview",
+  workerScript,
+  ...artifacts,
+};
+await writeFile(resolve(output, "preview-build.json"), JSON.stringify({
+  ...identity,
+  identitySha256: sha256(JSON.stringify(identity)),
+  readOnly: true,
+  numberReviewPreviewOpen,
+  previewOverrides: numberReviewPreviewOpen ? ["lock_number"] : [],
+}, null, 2));
 await mkdir(resolve(output, "preview-evidence"), { recursive: true });
 for (const name of ["corrected-answer.png", "fresh-session-next-question.png", "failed-save-reopens-question.png", "fresh-session-completes-pending-save.png"]) {
   await copyFile(resolve(root, "preview-deploy/evidence", name), resolve(output, "preview-evidence", name));
 }
-console.log("Static integrated Preview built; read-only guard runs before App2029.");
+console.log("Static integrated Preview built; exact read-only controller runs before App2029.");

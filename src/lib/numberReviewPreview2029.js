@@ -1,4 +1,4 @@
-export const NUMBER_REVIEW_PREVIEW_BRANCH_2029 = "gpt/perf-unified-candidate-20261018";
+export const NUMBER_REVIEW_PREVIEW_BRANCH_2029 = "gpt/perf-unified-wave4-preview-20261018";
 
 // This is a review-only projection of the existing launch gate. Vercel exposes
 // these system values during the build, so a cherry-pick, another Preview branch
@@ -13,7 +13,46 @@ const NUMBER_REVIEW_PREVIEW_OPEN =
   typeof __SOD_NUMBER_REVIEW_PREVIEW_OPEN__ !== "undefined"
   && __SOD_NUMBER_REVIEW_PREVIEW_OPEN__ === true;
 
-export function projectNumberReviewFlag2029(flag, lock, previewOpen = NUMBER_REVIEW_PREVIEW_OPEN) {
-  if (!previewOpen || flag !== "lock_number" || !lock) return lock;
+const NUMBER_REVIEW_PREVIEW_HOST =
+  typeof __SOD_NUMBER_REVIEW_PREVIEW_HOST__ !== "undefined"
+  && typeof __SOD_NUMBER_REVIEW_PREVIEW_HOST__ === "string"
+    ? __SOD_NUMBER_REVIEW_PREVIEW_HOST__.trim().toLowerCase()
+    : "";
+
+export function isApprovedNumberReviewPreviewHost2029(hostname, approvedHost = NUMBER_REVIEW_PREVIEW_HOST) {
+  return typeof hostname === "string"
+    && typeof approvedHost === "string"
+    && approvedHost.length > 0
+    && hostname.trim().toLowerCase() === approvedHost.trim().toLowerCase();
+}
+
+export function isNumberReviewPreviewRuntime2029({
+  previewOpen = NUMBER_REVIEW_PREVIEW_OPEN,
+  approvedHost = NUMBER_REVIEW_PREVIEW_HOST,
+  hostname = typeof location === "undefined" ? "" : location.hostname,
+} = {}) {
+  return previewOpen === true
+    && isApprovedNumberReviewPreviewHost2029(hostname, approvedHost);
+}
+
+export function isValidNumberReviewFlag2029(flag, lock) {
+  return flag === "lock_number"
+    && !!lock
+    && typeof lock === "object"
+    && lock.key === "lock_number"
+    && typeof lock.enabled === "boolean"
+    && (lock.mode === "all" || lock.mode === "anon");
+}
+
+export function projectNumberReviewFlag2029(
+  flag,
+  lock,
+  previewOpen = isNumberReviewPreviewRuntime2029(),
+) {
+  if (flag !== "lock_number") return lock;
+  // A missing or malformed canonical gate can never be converted into an open
+  // Preview projection. Locked(requireFlag) will therefore remain fail-closed.
+  if (!isValidNumberReviewFlag2029(flag, lock)) return null;
+  if (!previewOpen) return lock;
   return { ...lock, enabled: false };
 }
