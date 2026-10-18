@@ -168,12 +168,17 @@ const FAILED_TEXT = "הטעינה נכשלה. אפשר לנסות שוב.";
 // The slow video read starts before its gateway is visible. The lead is bounded to 600px (not the whole
 // page) and gives the observed ~580ms cold read roughly one second at a moderate 600px/s scroll.
 export const BIBLICAL_VIDEO_ROOT_MARGIN = "600px 0px";
+// The whole secondary discovery area is below Home's primary story. Its readers start only
+// when the person approaches it; the rendered slots keep the area stable while they settle.
+export const DISCOVERY_GATEWAYS_ROOT_MARGIN = "400px 0px";
 
 export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
   // One entry per reader: deferred/loading, failed (the reader rejected) and the value it returned. The first load runs every primary reader; videos start near
   // their gateway. A retry runs only the readers of one area, with the same arguments, and leaves every other area as it is.
-  const [reads, setReads] = useState(() => Object.fromEntries(ALL_READS.map((name) => [name, name === "videos" ? DEFERRED : SETTLING])));
-  const live = useRef({ active: true, token: 0, latest: {}, off: null, videosRequested: false });
+  const [reads, setReads] = useState(() => Object.fromEntries(ALL_READS.map((name) => [name, DEFERRED])));
+  const [armed, setArmed] = useState(false);
+  const live = useRef({ active: true, token: 0, latest: {}, off: null, primaryRequested: false, videosRequested: false });
+  const sectionRef = useRef(null);
   const biblicalRef = useRef(null);
   const load = useCallback((names) => {
     const state = live.current, token = ++state.token;
@@ -194,13 +199,35 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
         });
       });
   }, []);
-  useEffect(() => { live.current.active = true; load(INITIAL_READS); return () => { live.current.active = false; }; }, [load]);
+  useEffect(() => { live.current.active = true; return () => { live.current.active = false; }; }, []);
+  const loadInitial = useCallback(() => {
+    if (live.current.primaryRequested) return;
+    live.current.primaryRequested = true;
+    setArmed(true);
+    load(INITIAL_READS);
+  }, [load]);
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      // Compatibility and accessibility fallback: secondary content remains reachable.
+      loadInitial();
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      loadInitial();
+    }, { rootMargin: DISCOVERY_GATEWAYS_ROOT_MARGIN });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loadInitial]);
   const loadVideos = useCallback(() => {
     if (live.current.videosRequested) return;
     live.current.videosRequested = true;
     load(["videos"]);
   }, [load]);
   useEffect(() => {
+    if (!armed) return undefined;
     const node = biblicalRef.current;
     if (!node || typeof IntersectionObserver === "undefined") {
       // Compatibility and accessibility fallback: content never stays hidden in browsers without IO.
@@ -214,10 +241,11 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
     }, { rootMargin: BIBLICAL_VIDEO_ROOT_MARGIN });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [loadVideos]);
+  }, [armed, loadVideos]);
   const areaLoading = (area) => AREA_READS[area].some((name) => reads[name].loading);
   const areaFailed = (area) => AREA_READS[area].some((name) => reads[name].failed);
   const areaDeferred = (area) => AREA_READS[area].some((name) => reads[name].deferred);
+  const areaPending = (area) => areaLoading(area) || areaDeferred(area);
   const retryArea = (area) => () => load(AREA_READS[area]);
   // Deferred secondary work cannot hold Home's usable-content marker open. Its own state remains explicit below.
   const loading = INITIAL_READS.some((name) => reads[name].loading);
@@ -271,7 +299,7 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
   // Non-visual: populated gateway rows (not loading slots) decide ready; a settled outcome without any is explicit.
   const itemCount = (languageFeature ? 1 : 0) + languageLinks.length + cinema.items.length + biblicalSources.length + dimension.items.length;
   const videoState = reads.videos.deferred ? "deferred" : reads.videos.loading ? "loading" : reads.videos.failed ? "error" : state.videos.length ? "ready" : "empty";
-  return <section className="dg29" aria-label="שערי הגילוי" data-dg29-state={gatewayContentState({ loading: state.loading, failed: state.failed, itemCount })} data-dg29-videos-state={videoState}>
+  return <section ref={sectionRef} className="dg29" aria-label="שערי הגילוי" data-dg29-load-state={armed ? "armed" : "deferred"} data-dg29-state={gatewayContentState({ loading: state.loading, failed: state.failed, itemCount })} data-dg29-videos-state={videoState}>
     <div className="h29-sec-h">
       <h2>שערי הגילוי</h2>
       <span className="dg29-intro">שלושה שערי מחקר ורצועה רחבה למימד חמש</span>
@@ -280,18 +308,18 @@ export default function DiscoveryGateways2029({ excludedPostKeys = [] }) {
       <Gateway title="שבילי שפה" subtitle="מילים, שורשים וקשרים בין שפות" symbol="🌍"
         href="/languages" action="למחקר השפות"
         followTopics={[{ category: "שבילי שפה" }]}
-        feature={languageFeature} items={languageLinks} loading={areaLoading("language")} failed={areaFailed("language")} slots={slots ? slots.language : null} onRetry={retryFor("language")} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
+        feature={languageFeature} items={languageLinks} loading={areaPending("language")} failed={areaFailed("language")} slots={slots ? slots.language : null} onRetry={retryFor("language")} empty="אין כרגע פוסטים ציבוריים בקטגוריה זו" />
       <Gateway title="הצופן בקולנוע" subtitle="מחקרים על סרטים, סדרות ומספרים" symbol="🎬"
         href="/category/הצופן בסרטים" action="לכל מחקרי הקולנוע"
         followTopics={[{ category: "הצופן בסרטים" }]}
-        items={cinema.items} loading={areaLoading("cinema")} failed={areaFailed("cinema")} slots={slots ? { rows: slots.cinema } : null} onRetry={retryFor("cinema")} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
+        items={cinema.items} loading={areaPending("cinema")} failed={areaFailed("cinema")} slots={slots ? { rows: slots.cinema } : null} onRetry={retryFor("cinema")} empty="אין כרגע מחקרי קולנוע ציבוריים להצגה" />
       <Gateway title="הצופן התנ״כי" subtitle="סרטוני צפונות התורה, דילוגי אותיות ומטריצות ELS" symbol="✦"
         observeRef={biblicalRef}
         href="/category/צפונות בתורה" action="לכל מחקרי הצופן התנ״כי"
         secondaryHref="/els?library=public" secondaryAction="לספריית ELS ולמנוע הדילוגים"
         followTopics={[{ category: "צפונות בתורה" }, { topic: "codes:new", title: "עקבו אחרי צפני ELS חדשים" }]}
-        items={biblicalSources} loading={areaLoading("biblical")} failed={areaFailed("biblical")} slots={slots ? { rows: slots.biblical, detail: true } : null} onRetry={retryFor("biblical", true)} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
+        items={biblicalSources} loading={areaPending("biblical")} failed={areaFailed("biblical")} slots={slots ? { rows: slots.biblical, detail: true } : null} onRetry={retryFor("biblical", true)} empty="אין כרגע סרטונים או מטריצות ציבוריות להצגה" />
     </div>
-    <DimensionFiveFeature items={dimension.items} loading={areaLoading("dimension")} failed={areaFailed("dimension")} onRetry={retryFor("dimension")} dimensionSlots={slots ? slots.dimension : 0} />
+    <DimensionFiveFeature items={dimension.items} loading={areaPending("dimension")} failed={areaFailed("dimension")} onRetry={retryFor("dimension")} dimensionSlots={slots ? slots.dimension : 0} />
   </section>;
 }

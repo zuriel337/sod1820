@@ -27,14 +27,19 @@ test("automatic gateway membership comes ONLY from categories, not tags/keywords
   assert.doesNotMatch(gateway, /getRealityCodePosts|getRealityVideos|\.tags|isCinemaPost|includes\("מטריקס"\)/);
 });
 
-test("the costly video reader is the only deferred gateway read and keeps an explicit bounded fallback", () => {
-  assert.match(gateway, /const INITIAL_READS = ALL_READS\.filter\(\(name\) => name !== "videos"\)/);
+test("all secondary gateway readers defer until the area is approached and keep explicit bounded fallbacks", () => {
+  assert.match(gateway, /Object\.fromEntries\(ALL_READS\.map\(\(name\) => \[name, DEFERRED\]\)\)/);
+  assert.match(gateway, /export const DISCOVERY_GATEWAYS_ROOT_MARGIN = "400px 0px"/);
+  assert.match(gateway, /rootMargin: DISCOVERY_GATEWAYS_ROOT_MARGIN/);
+  assert.match(gateway, /if \(live\.current\.primaryRequested\) return/);
+  assert.match(gateway, /data-dg29-load-state=\{armed \? "armed" : "deferred"\}/);
   assert.match(gateway, /export const BIBLICAL_VIDEO_ROOT_MARGIN = "600px 0px"/);
   assert.match(gateway, /new IntersectionObserver\([\s\S]+rootMargin: BIBLICAL_VIDEO_ROOT_MARGIN/);
   assert.match(gateway, /typeof IntersectionObserver === "undefined"[\s\S]+loadVideos\(\)/);
   assert.match(gateway, /if \(live\.current\.videosRequested\) return/);
   assert.match(gateway, /data-dg29-videos-state=\{videoState\}/);
   assert.match(gateway, /const loading = INITIAL_READS\.some/);
+  assert.match(gateway, /const areaPending = \(area\) => areaLoading\(area\) \|\| areaDeferred\(area\)/);
 });
 
 
