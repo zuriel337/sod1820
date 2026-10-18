@@ -1,0 +1,48 @@
+{
+  "schema": "sod1820.world_story_opening_split.local_manifest.v1",
+  "measured_at_utc": "2026-10-18",
+  "base_commit": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
+  "build_command": "npm run build:2029",
+  "compression": "node:zlib gzipSync level=9",
+  "closure_rule": "Vite manifest static imports; route figures exclude the 2029 entry closure",
+  "before": {
+    "entry": { "chunks": 9, "gzip_bytes": 191697 },
+    "home_route_extra": { "chunks": 26, "gzip_bytes": 155379 },
+    "world_route_extra": { "chunks": 37, "gzip_bytes": 259638 },
+    "world_opening_projection_requests": {
+      "chunks": 2,
+      "gzip_bytes": 30042,
+      "reason": "the base World mount calls the full projection and its FZ1073 extension executor",
+      "files": [
+        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21558 },
+        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8484 }
+      ]
+    }
+  },
+  "after": {
+    "entry": { "chunks": 9, "gzip_bytes": 191688 },
+    "home_route_extra": { "chunks": 26, "gzip_bytes": 155725 },
+    "world_route_extra": { "chunks": 37, "gzip_bytes": 259963 },
+    "world_opening_projection_requests": {
+      "chunks": 0,
+      "gzip_bytes": 0,
+      "reason": "the focused browser proof observes only getPostCardBySlug before timeline intent"
+    },
+    "world_timeline_action_projection_closure": {
+      "chunks": 2,
+      "gzip_bytes": 30042,
+      "files": [
+        { "source": "src/lib/research/post2029ReadingProjection.js", "gzip_bytes": 21559 },
+        { "source": "src/lib/research/researchW2Executors.js", "gzip_bytes": 8483 }
+      ]
+    }
+  },
+  "exceptions": [
+    "A compact row with neither thumb_url nor image_url retains the established automatic full-reader media fallback."
+  ],
+  "limitations": [
+    "Local production builds and a deterministic browser fixture only.",
+    "No hosted run, real-user timing, LCP claim, live Supabase payload measurement, or production cache/contention claim.",
+    "The runtime request classification combines executed-path browser proof with emitted manifest closure sizes; it is not a packet trace of Production."
+  ]
+}

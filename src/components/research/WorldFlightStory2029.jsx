@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import PostTimeline2029 from '../experience2029/PostTimeline2029.jsx';
+import { createOnDemandLoader } from '../experience2029/onDemandLoader2029.js';
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import { getPostCardBySlug } from '../../lib/supabase.js';
 import { WORLD_FLIGHT_POST_SLUG } from '../../lib/postReadQueries2029.js';
@@ -11,6 +12,18 @@ import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
 import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
 
 const slug = WORLD_FLIGHT_POST_SLUG;
+const loadPostReadingProjection = createOnDemandLoader(() => import('../../lib/research/post2029ReadingProjection.js'));
+const admitProjection = (projection) => projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
+  && postRowToWorldUpdate(projection.post);
+const compactProjection = (post, extensionsPending = false) => ({
+  post,
+  identity: { type: 'post', id: String(post.id), slug: post.slug, href: `/post/${post.slug}` },
+  experience: { media: null, timeline: [] },
+  draft: false,
+  privateStage: false,
+  previewSnapshot: false,
+  extensionsPending,
+});
 const directions = [
   { id: 'people', icon: 'community', label: 'האנשים והמקומות', value: 'הודו',
     reason: 'צילום המקור מזהה את הקפטן כאזרח הודי. מכאן נפתח התיעוד ההיסטורי של הודו.', href: '/world#world-plane-india' },
@@ -24,47 +37,104 @@ const directions = [
  * new source identity, publication decision or automatic Research Path start. */
 export default function WorldFlightStory2029({ surface = 'world', research, shell }) {
   const location = useLocation(), navigate = useNavigate();
-  const [state, setState] = useState({ loading: true, projection: null });
+  const [state, setState] = useState({ loading: true, projection: null, extensionsStatus: 'idle' });
   const [attempt, setAttempt] = useState(0);
+  const lifecycleRef = useRef({ active: false, generation: 0 });
+  const fullLoadRef = useRef(null);
+  const fullStatusRef = useRef('idle');
   const home = surface === 'home';
   const anchor = home ? 'home-plane' : 'world-plane-story';
+
+  const requestFullProjection = useCallback(() => {
+    const generation = lifecycleRef.current.generation;
+    const current = () => lifecycleRef.current.active && lifecycleRef.current.generation === generation;
+    if (!current() || fullStatusRef.current === 'ready') return fullLoadRef.current || Promise.resolve(null);
+    if (fullLoadRef.current) return fullLoadRef.current;
+
+    fullStatusRef.current = 'loading';
+    setState((value) => value.projection ? { ...value, extensionsStatus: 'loading' } : value);
+    let request;
+    request = loadPostReadingProjection()
+      .then((module) => {
+        if (!current()) return null;
+        return module.fetchPost2029ReadingProjection(slug, {
+          onPrimary: (projection) => {
+            if (!current()) return;
+            if (!admitProjection(projection)) {
+              fullStatusRef.current = 'rejected';
+              setState({ loading: false, projection: null, extensionsStatus: 'idle' });
+              return;
+            }
+            setState({ loading: false, projection, extensionsStatus: 'loading' });
+          },
+        });
+      })
+      .then((projection) => {
+        if (!current()) return null;
+        if (!admitProjection(projection)) {
+          fullStatusRef.current = 'rejected';
+          setState({ loading: false, projection: null, extensionsStatus: 'idle' });
+          return null;
+        }
+        fullStatusRef.current = 'ready';
+        setState({ loading: false, projection, extensionsStatus: 'ready' });
+        return projection;
+      })
+      .catch(() => {
+        if (!current()) return null;
+        fullStatusRef.current = 'error';
+        setState((value) => value.projection
+          ? { ...value, loading: false, extensionsStatus: 'error' }
+          : { loading: false, projection: null, extensionsStatus: 'error' });
+        return null;
+      })
+      .finally(() => { if (fullLoadRef.current === request) fullLoadRef.current = null; });
+    fullLoadRef.current = request;
+    return request;
+  }, []);
+
   useEffect(() => {
     let live = true;
-    setState({ loading: true, projection: null });
-    // This consumer never adopts a private stage or preview snapshot as public material.
-    const admit = (projection) => projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
-      && postRowToWorldUpdate(projection.post);
-    // Loaded on demand: the reading-projection builder is ~42KB br that must not gate the first paint of Home/World.
-    const loadFull = () => import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
-      onPrimary: (projection) => { if (live && admit(projection)) setState({ loading: false, projection, extensionsLoading: true }); },
+    const generation = lifecycleRef.current.generation + 1;
+    lifecycleRef.current = { active: true, generation };
+    fullLoadRef.current = null;
+    fullStatusRef.current = 'idle';
+    setState({ loading: true, projection: null, extensionsStatus: 'idle' });
+    // Home's established missing-image fallback stays intact, including its existing direct module request.
+    const loadFullForHome = () => import('../../lib/research/post2029ReadingProjection.js').then((m) => m.fetchPost2029ReadingProjection(slug, {
+      onPrimary: (projection) => { if (live && admitProjection(projection)) setState({ loading: false, projection, extensionsStatus: 'loading' }); },
     })).then((projection) => {
-      if (live) setState({ loading: false, projection: admit(projection) ? projection : null, extensionsLoading: false });
+      if (live) setState({ loading: false, projection: admitProjection(projection) ? projection : null, extensionsStatus: 'ready' });
     });
     // Home draws the post's own row (image, categories, date) and nothing of the reading projection's extension phase (timeline, verifications, method traces: they live in a
     // collapsed section that only the World surface has). So Home asks for that row's card columns (not the body: the same lookup as the projection's first read, narrower),
     // and does not load the projection builder or run its extension reads on every entry. A row without an image still goes through the full reader, which may supply one from the post's experience media.
-    const task = !home ? loadFull() : getPostCardBySlug(slug).then((post) => {
+    const task = getPostCardBySlug(slug).then((post) => {
       if (!live) return null;
       const draft = Array.isArray(post?.tags) && post.tags.includes('טיוטה');
       if (!post || draft || !postRowToWorldUpdate(post)) { setState({ loading: false, projection: null }); return null; }   // not public Home material: the same outcome the full reader gives
-      if (!post.thumb_url && !post.image_url) return loadFull();
-      setState({ loading: false, extensionsLoading: false, projection: {
-        post, identity: { type: 'post', id: String(post.id), slug: post.slug, href: `/post/${post.slug}` },
-        // the media only supplies an image when the row has none, and then the full reader is used
-        experience: { media: null, timeline: [] }, draft: false, privateStage: false, previewSnapshot: false, extensionsPending: false,
-      } });
+      if (home && !post.thumb_url && !post.image_url) return loadFullForHome();
+      setState({ loading: false, projection: compactProjection(post, !home), extensionsStatus: 'idle' });
+      // Keep the established media fallback: a row with neither image field asks the full reader for experience media.
+      if (!home && !post.thumb_url && !post.image_url) return requestFullProjection();
       return null;
     });
     task.catch(() => { if (live) setState((current) => current.projection
-      ? { ...current, loading: false, extensionsLoading: false, extensionsError: true }
+      ? { ...current, loading: false, extensionsStatus: 'error' }
       : { loading: false, projection: null }); });
-    return () => { live = false; };
-  }, [attempt]);
+    return () => {
+      live = false;
+      if (lifecycleRef.current.generation === generation) lifecycleRef.current = { active: false, generation };
+    };
+  }, [attempt, home, requestFullProjection]);
   useEffect(() => {
     if (state.loading || location.hash !== `#${anchor}`) return;
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
     return () => cancelAnimationFrame(frame);
   }, [anchor, location.hash, state.loading]);
+  const openTimeline = (event) => {
+    if (event.currentTarget.open && fullStatusRef.current === 'idle') requestFullProjection();
+  };
   if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
     <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
   </section>;
@@ -119,11 +189,12 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
           <strong>{direction.label}</strong><span>{direction.reason}</span><em>פתיחת המקורות ←</em>
         </button>)}
       </div>
-      <details className="sod29-flight-time"><summary>הסיפור לאורך הזמן</summary>
-        {state.extensionsLoading ? <FrameState kind="loading" title="המקור והחיבורים נטענים" />
-          : state.extensionsError ? <FrameState kind="unavailable" title="החיבורים אינם זמינים כרגע">
-            <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב</button>
-          </FrameState> : <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />}
+      <details className="sod29-flight-time" onToggle={openTimeline}><summary>הסיפור לאורך הזמן</summary>
+        {state.extensionsStatus === 'loading' ? <FrameState kind="loading" title="המקור והחיבורים נטענים" />
+          : state.extensionsStatus === 'error' ? <FrameState kind="unavailable" title="החיבורים אינם זמינים כרגע">
+            <button className="sod29-action" onClick={requestFullProjection}>נסה שוב</button>
+          </FrameState> : state.extensionsStatus === 'ready'
+            ? <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} /> : null}
         {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
         <p>מועד גילוי החיבורים לא תועד במקור הזמין. תאריכי הפרסום, האירוע ושמירת המדיה נשמרים בנפרד.</p>
       </details>
