@@ -203,7 +203,7 @@ test("an empty or failed read has a message with a retry that repeats the same r
   const home = read("src/components/experience2029/HomeComposition2029.jsx");
   assert.match(home, /const retryPosts = useCallback\(\(\) => \{\s*setState\(\(current\) => \(\{ \.\.\.current, loading: true, failed: false, enriched: false \}\)\);/);
   assert.match(home, /\}, \[attempt\.posts\]\);/, "the posts read runs again for a new attempt");
-  assert.match(home, /\}, \[includeWorld, attempt\.notable\]\);/, "and so does the strip's read");
+  assert.match(home, /\}, \[includeWorld, loadNotable, attempt\.notable\]\);/, "and so does the strip's read after its bounded approach trigger");
   assert.match(home, /<HomeReadNotice2029 onRetry=\{data\.retryPosts\}>/);
   assert.match(home, /<HomeReadNotice2029 onRetry=\{data\.retryNotable\}>/);
   assert.match(home, /<button type="button" className="h29-btn" onClick=\{data\.retryPosts\}>נסו שוב<\/button>/);

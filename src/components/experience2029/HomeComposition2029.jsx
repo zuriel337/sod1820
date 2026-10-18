@@ -1,7 +1,7 @@
 // Approved Home composition (reference fa0e26f) inside the single System Frame.
 // Presentation over existing public readers: latest posts, cipher posts, home videos and the
 // Home projection. Existing capability components arrive as slots so none is duplicated here.
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
@@ -29,6 +29,9 @@ import "./homeComposition2029.css";
 // place in the same block, and kept there while the layout settles (late content, a held box collapsing because its read failed or came back empty). Attribute only, no visual effect.
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
 const HOME_UPDATE_SLOTS = 4;       // latest-updates cards shown
+// The convergence strip is secondary to the Hero and latest updates. Begin its reader shortly
+// before the strip's position reaches the viewport instead of competing with the opening path.
+export const HOME_NOTABLE_ROOT_MARGIN = "500px 0px";
 // Presentation memory only (never data): how many cards the strips showed the last time Home was on screen in this
 // session, so a return to Home reserves the same rows while its reads repeat. null = not seen yet (cold load): the updates strip reserves
 // the standard four cards (the strip is in the first screen on a wide page: without them everything below it jumps when the cards arrive),
@@ -52,7 +55,7 @@ function titleNumber(title, tags) {
   return null;
 }
 
-function useHomeCompositionData({ includeWorld = true } = {}) {
+function useHomeCompositionData({ includeWorld = true, loadNotable = false } = {}) {
   // enriched: the secondary Post-row read (categories / update mark) has settled; notableDone: the strip's reader has settled.
   const [state, setState] = useState({ loading: true, failed: false, enriched: false, notableDone: false, posts: [], notable: [] });
   // A retry repeats the same reads with the same arguments (nothing else changes): the block goes back to its loading state, which keeps the box it holds.
@@ -91,7 +94,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
     return () => { live = false; };
   }, [attempt.posts]);
   useEffect(() => {
-    if (!includeWorld) return;
+    if (!includeWorld || !loadNotable) return;
     let live = true;
     // Secondary strip below the latest updates: its reader (and the entity-hub/topic projections it
     // imports) loads with this same trigger instead of being part of Home's code before the first cards.
@@ -108,7 +111,7 @@ function useHomeCompositionData({ includeWorld = true } = {}) {
       .then((result) => { if (live) setState((current) => ({ ...current, notableDone: true, notable: result?.cards || [] })); })
       .catch(() => { if (live) setState((current) => ({ ...current, notableDone: true })); });
     return () => { live = false; };
-  }, [includeWorld, attempt.notable]);
+  }, [includeWorld, loadNotable, attempt.notable]);
   return { ...state, retryPosts, retryNotable };
 }
 
@@ -172,7 +175,25 @@ export default function HomeComposition2029({
   projection, loading, nowHero, story, arrivals, calculator, entry, continuity,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false, worldPending,
 }) {
-  const data = useHomeCompositionData({ includeWorld: worldOpen });
+  const [notableRequested, setNotableRequested] = useState(false);
+  const notableTriggerRef = useRef(null);
+  useEffect(() => {
+    if (!worldOpen || notableRequested) return undefined;
+    const node = notableTriggerRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      // Compatibility/accessibility fallback: the strip remains available in older browsers.
+      setNotableRequested(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      setNotableRequested(true);
+    }, { rootMargin: HOME_NOTABLE_ROOT_MARGIN });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [worldOpen, notableRequested]);
+  const data = useHomeCompositionData({ includeWorld: worldOpen, loadNotable: notableRequested });
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
   const lead = data.posts[0] || null;
@@ -252,6 +273,7 @@ export default function HomeComposition2029({
       </div>
     </Section>
 
+    <div ref={notableTriggerRef} className="h29-notable-trigger" data-h29-notable-load-state={notableRequested ? "armed" : "deferred"}>
     {notableShown ? <Section title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
       <div className="h29-notable" ref={notableBox.ref} data-h29-hold={notableBox.hold} data-h29-loading={notableWaiting && notableBox.held ? "" : undefined} data-h29-notice={notableUnavailable ? "" : undefined} aria-busy={notableWaiting ? "true" : undefined}>
@@ -272,6 +294,7 @@ export default function HomeComposition2029({
         })}
       </div>
     </Section> : null}
+    </div>
 
     {story && showFixedStory ? <Reveal id="story" remember>{story}</Reveal> : null}
 
