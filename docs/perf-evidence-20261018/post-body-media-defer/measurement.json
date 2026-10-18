@@ -1,10 +1,16 @@
 {
-  "measuredAt": "2026-10-18T05:00:17Z",
+  "measuredAt": "2026-10-18T05:36:12Z",
+  "decision": "INDEPENDENT_REVIEW_REQUIRED",
   "baseSha": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
-  "initialImplementationSha": "c069b0f0baa8388c86f79124b62560eae2c1698c",
-  "independentReviewEvidenceSha": "fc78fa80bbf3359479cf710fcb06f79bc7a7b7b2",
-  "hardeningCodeSha": "34b8e77ae2a6e9a19de4234d1c025b47cc83466e",
   "branch": "gpt/perf-post-body-media-defer-20261018",
+  "commitChain": [
+    "c069b0f0baa8388c86f79124b62560eae2c1698c",
+    "fc78fa80bbf3359479cf710fcb06f79bc7a7b7b2",
+    "34b8e77ae2a6e9a19de4234d1c025b47cc83466e",
+    "4bbaa1e1a878aa4a938a23708215cd3f92aa7cc8",
+    "99aff99a89d461bb0b512b43efb4e1901e765edd"
+  ],
+  "successorImplementationSha": "99aff99a89d461bb0b512b43efb4e1901e765edd",
   "postSlug": "flydubai-fz1073-363-14000-remzei-geula",
   "capturedPostBody": {
     "characters": 26696,
@@ -17,132 +23,175 @@
       "bytes": 2087487,
       "width": 941,
       "height": 1672,
-      "sha256": "a450baf86a9943d22f61ce6d22f52841faae0280445511d33e9ccf6553b90bc8",
-      "authoredLoading": null,
-      "authoredWidth": null,
-      "authoredHeight": null
+      "sha256": "a450baf86a9943d22f61ce6d22f52841faae0280445511d33e9ccf6553b90bc8"
     },
     {
       "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/assaf-rajuan-evidence-frame-20261001.jpg",
       "bytes": 31166,
       "width": 576,
       "height": 1024,
-      "sha256": "cbb11df6aebd569d1170b1f53896c834f576f6b41862483f05dea5453af265f8",
-      "authoredLoading": null,
-      "authoredWidth": null,
-      "authoredHeight": null
+      "sha256": "cbb11df6aebd569d1170b1f53896c834f576f6b41862483f05dea5453af265f8"
     },
     {
       "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
       "bytes": 190253,
       "width": 691,
       "height": 1536,
-      "sha256": "dc86a86e9b9cccf87a9f929347491a9bfebe9106529db58cce887fc1239d1baa",
-      "authoredLoading": null,
-      "authoredWidth": null,
-      "authoredHeight": null
+      "sha256": "dc86a86e9b9cccf87a9f929347491a9bfebe9106529db58cce887fc1239d1baa"
     }
   ],
   "bodyImageCount": 3,
   "bodyImageBytes": 2308906,
-  "heavyImageSharePercent": 90.4102,
   "videoPosters": {
     "count": 2,
     "requestsBefore": 2,
     "requestsAfter": 2,
     "scope": "unchanged and intentionally outside the image-only deferral"
   },
-  "deferralEligibility": {
-    "validAuthoredWidthAndHeight": true,
-    "verifiedUrlDimensions": true,
-    "unknownWithoutDimensions": false,
-    "sourceOnlyPicture": false,
-    "ineligibleMarkupGetsPrivateDataAttributes": false,
-    "inventedRatio": false
+  "reservation": {
+    "realProductCssImported": true,
+    "fixtureImageDisplayOverride": false,
+    "localPlaceholder": "transparent SVG data URL with exact proved intrinsic dimensions",
+    "placeholderNetworkRequests": 0,
+    "eligibleSources": [
+      "valid positive authored width and height pair",
+      "exact URL in the verified three-object dimension map"
+    ],
+    "unknownWithoutDimensionsDeferred": false,
+    "unknown400x800StandaloneMarkupByteIdentical": true,
+    "verifiedAssetsTested": 3,
+    "responsiveWidthsPx": [390, 400, 1440],
+    "statesCompared": ["pending", "loading", "loaded"],
+    "geometryTolerancePx": 0.51,
+    "activationClsMaximum": 0.001,
+    "activationClsMeasured": 0,
+    "inlineDisplayAndTextBaselinePreserved": true,
+    "sourceOnlyPicturePreserved": true,
+    "selectedPictureRequests": 1
   },
-  "isolatedBrowser": {
-    "browser": "Chromium 151.0.7922.173",
-    "themes": [
-      "light",
-      "parchment",
-      "dark"
-    ],
-    "standardViewports": [
-      "320x844",
-      "390x844",
-      "1440x900"
-    ],
-    "tallViewports": [
-      "1440x1080",
-      "1440x1200"
-    ],
+  "approachIntent": {
     "initialObserverRootMargin": "0px",
-    "intentObserverRootMargin": "600px 0px",
-    "rawAuthoredInitialImageRequests": 3,
-    "candidateInitialImageRequests": 0,
-    "candidateRequestsPerActivatedPicture": 1,
-    "unknown400x800MarkupByteIdentical": true,
-    "unknownMixedWithManagedRemainsEager": true,
-    "sourceOnlyPicturePreservedAndLoaded": true,
-    "videoPostersUntouched": true,
-    "focusedTests": {
-      "passed": 27,
+    "authorizedObserverRootMargin": "600px 0px",
+    "cumulativeTrustedInputThresholdPx": 24,
+    "actualScrollThresholdPx": 24,
+    "intentIdleResetMs": 600,
+    "negativeCases": [
+      "synthetic wheel",
+      "trusted 1px wheel",
+      "pointer down/up without movement",
+      "click/tap",
+      "5px touch",
+      "non-scroll key",
+      "programmatic scroll",
+      "hash scroll",
+      "browser back restoration",
+      "browser forward restoration"
+    ],
+    "positiveCases": [
+      "meaningful trusted wheel with actual scroll",
+      "meaningful trusted touch with actual scroll",
+      "trusted scroll key with actual scroll",
+      "actual viewport intersection without input"
+    ],
+    "cleanupStrictModeRemount": "PASS"
+  },
+  "loadedAndFailureState": {
+    "placeholderBackgroundStates": ["pending", "loading", "failed"],
+    "loadedBackgroundTransparent": true,
+    "transparentSvgPixelAlpha": 0,
+    "transparentPngPixelAlpha": 0,
+    "slowRealRequestCannotBeCompletedByPlaceholderEvent": true,
+    "retryExactAttempts": 2,
+    "retryLoopOrDuplicate": false
+  },
+  "chromium": {
+    "version": "151.0.7922.173",
+    "focusedSuite": {
+      "passed": 34,
       "failed": 0,
       "skipped": 0
+    },
+    "rejectedHeadRegressionSelection": {
+      "head": "4bbaa1e1a878aa4a938a23708215cd3f92aa7cc8",
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "coveredBlockers": [
+        "real-CSS reservation",
+        "meaningful intent threshold",
+        "transparent loaded background"
+      ]
     }
   },
   "capturedPostReplay": {
     "externalRequestsInterceptedLocally": true,
     "liveTelemetry": false,
     "caseCount": 15,
-    "themes": [
-      "light",
-      "parchment",
-      "dark"
-    ],
+    "themes": ["light", "parchment", "dark"],
     "initial": [
       {
         "viewport": "320x844",
-        "firstTargetTopPx": 2121.046875,
+        "themes": 3,
+        "firstTargetTopPx": 2566.921875,
+        "widthPx": 250,
+        "heightPx": 444.203125,
         "observerRootBottomPx": 844,
         "state": "pending",
-        "src": null,
+        "localPlaceholder": true,
         "targetRequests": 0
       },
       {
         "viewport": "390x844",
-        "firstTargetTopPx": 1878.5,
+        "themes": 3,
+        "firstTargetTopPx": 2403.125,
+        "widthPx": 320,
+        "heightPx": 568.578125,
         "observerRootBottomPx": 844,
         "state": "pending",
-        "src": null,
+        "localPlaceholder": true,
         "targetRequests": 0
       },
       {
         "viewport": "1440x900",
-        "firstTargetTopPx": 1661.125,
+        "themes": 3,
+        "firstTargetTopPx": 2479.875,
+        "widthPx": 576,
+        "heightPx": 1023.453125,
         "observerRootBottomPx": 900,
         "state": "pending",
-        "src": null,
+        "localPlaceholder": true,
         "targetRequests": 0
       },
       {
         "viewport": "1440x1080",
-        "firstTargetTopPx": 1661.125,
+        "themes": 3,
+        "firstTargetTopPx": 2479.875,
+        "widthPx": 576,
+        "heightPx": 1023.453125,
         "observerRootBottomPx": 1080,
         "state": "pending",
-        "src": null,
+        "localPlaceholder": true,
         "targetRequests": 0
       },
       {
         "viewport": "1440x1200",
-        "firstTargetTopPx": 1661.125,
+        "themes": 3,
+        "firstTargetTopPx": 2479.875,
+        "widthPx": 576,
+        "heightPx": 1023.453125,
         "observerRootBottomPx": 1200,
         "state": "pending",
-        "src": null,
+        "localPlaceholder": true,
         "targetRequests": 0
       }
     ],
-    "spaBackAt390x844": {
+    "wave3LoadedBaselineParity390x844": {
+      "themes": 3,
+      "topWidthHeightExact": true,
+      "wave3RawTargetRequests": 3,
+      "candidateInitialTargetRequests": 0
+    },
+    "spaBack390x844": {
       "themesPassed": 3,
       "requestsAfterLoad": 1,
       "requestsAfterBack": 1,
@@ -165,15 +214,15 @@
       "videos": 2,
       "links": 2,
       "captions": 4
-    }
+    },
+    "hardenThenPrepareSequenceUnchanged": true
   },
-  "wave3BuiltRouteGraphGzipKb": {
-    "basePost": 175.3,
-    "candidatePost": 176.9,
-    "deltaPost": 1.6,
-    "budgetPost": 185.0,
-    "baseEntry": 187.2,
-    "candidateEntry": 187.2,
+  "wave3Build": {
+    "fullBuild": "PASS",
+    "bundleBudget": "5/5 PASS, 0 skipped",
+    "entryGzipKb": 187.2,
+    "postGzipKb": 177.5,
+    "postBudgetGzipKb": 185,
     "postExtraChunks": 29
   },
   "legacyBuild": {
@@ -181,34 +230,25 @@
     "candidateFiles": 293,
     "baseBytes": 24504416,
     "candidateBytes": 24504416,
-    "baseTreeSha256": "cdc717c9db647ef97309cf6db7d40b4e12294387c8e9843b9c41251ff6044e64",
-    "candidateTreeSha256": "cdc717c9db647ef97309cf6db7d40b4e12294387c8e9843b9c41251ff6044e64",
-    "changedFiles": 0
+    "changedFiles": 0,
+    "manifestAlgorithm": "sha256(path\\0size\\0file-sha256\\n)",
+    "baseManifestSha256": "d7f0a63b31c8933c41bd4f08e24320cfbb63118cc21487bd178bf29730da4536",
+    "candidateManifestSha256": "d7f0a63b31c8933c41bd4f08e24320cfbb63118cc21487bd178bf29730da4536"
   },
   "wave4Compatibility": {
     "head": "d03627e2cade2484c3ec5422229845a1c5eb675d",
     "overlappingPaths": 0,
-    "patchApply": "clean",
+    "gitApplyCheck": "PASS",
     "manualMergeRequired": false,
-    "fullBuild": "pass",
-    "focusedChromium": {
-      "passed": 27,
-      "failed": 0,
-      "skipped": 0
-    },
-    "bundleBudget": {
-      "passed": 5,
-      "failed": 0,
-      "skipped": 0,
-      "entryGzipKb": 173.2,
-      "postGzipKb": 176.9
-    },
-    "realtimeTests": {
-      "passed": 16,
-      "failed": 0,
-      "skipped": 0
-    }
+    "fullBuild": "PASS",
+    "postChromium": "34/34 PASS, 0 skipped",
+    "bundleBudget": "5/5 PASS, 0 skipped",
+    "entryGzipKb": 173.2,
+    "postGzipKb": 177.6,
+    "realtimeStaticSdkLoopback": "16/16 PASS, 0 skipped"
   },
+  "seoFallbackAdded": false,
+  "seoFallbackReason": "A client-created noscript cannot help a JavaScript-disabled client and could duplicate media requests or semantics; hosted crawler acceptance is unproved.",
   "productionHolds": [
     "hosted Preview and crawler acceptance",
     "Safari",
@@ -217,14 +257,13 @@
     "authenticated reader",
     "hosted end-to-end LCP and usable time"
   ],
-  "seoFallbackAdded": false,
-  "seoFallbackReason": "A client-created noscript cannot help a JavaScript-disabled client and could duplicate media requests or semantics; hosted crawler acceptance is unproved.",
   "writes": {
     "deployment": false,
     "merge": false,
     "production": false,
     "database": false,
     "workLog": false,
-    "liveTelemetry": false
+    "liveTelemetry": false,
+    "liveMediaNetwork": false
   }
 }

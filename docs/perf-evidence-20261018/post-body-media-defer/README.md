@@ -1,15 +1,19 @@
-# Post 2029 body-image deferral — hardened branch evidence
+# Post 2029 body-image deferral — successor evidence
 
-Status: **IMPLEMENTED / LOCAL TESTED / BRANCH ONLY**. This is not merged,
-deployed, Preview-tested or released.
+Status: **IMPLEMENTED / LOCAL TESTED / BRANCH ONLY / INDEPENDENT REVIEW
+REQUIRED**. This document does not assert GO. Nothing here is merged, deployed,
+Preview-tested or released.
 
-- Exact base: `6124db8d7ddac82654a09c49abf8ed60fe999d47`.
+- Exact Wave3 base: `6124db8d7ddac82654a09c49abf8ed60fe999d47`.
 - Initial implementation: `c069b0f0baa8388c86f79124b62560eae2c1698c`.
-- Independent-review evidence: `fc78fa80bbf3359479cf710fcb06f79bc7a7b7b2`.
-- Hardening implementation: `34b8e77a`.
+- First evidence commit: `fc78fa80bbf3359479cf710fcb06f79bc7a7b7b2`.
+- First hardening implementation: `34b8e77ae2a6e9a19de4234d1c025b47cc83466e`.
+- First hardening evidence / independently rejected head:
+  `4bbaa1e1a878aa4a938a23708215cd3f92aa7cc8`.
+- Successor implementation: `99aff99a89d461bb0b512b43efb4e1901e765edd`.
 - Branch: `gpt/perf-post-body-media-defer-20261018`.
 - Existing work-log BEFORE reference: `24840318-dd8d-4010-bd1a-751549ae1dad`.
-  This hardening performed no DB or work-log write.
+  This repair performed no DB or work-log write.
 
 ## Exact scope
 
@@ -22,127 +26,154 @@ The captured public FZ1073 Post body contains three `img` assets and two
 | Assaf frame | 31,166 | 576×1024 | `cbb11df6aebd569d1170b1f53896c834f576f6b41862483f05dea5453af265f8` |
 | Smit frame | 190,253 | 691×1536 | `dc86a86e9b9cccf87a9f929347491a9bfebe9106529db58cce887fc1239d1baa` |
 
-The image-only optimization does not defer video posters. **Both body poster
-requests remain eager**. It also makes no whole-page zero-media claim: the
-cover, shell and other page media remain outside this boundary.
+The image-only optimization still leaves both video posters eager. It makes no
+whole-page zero-media claim: cover, shell and other page media remain outside
+this boundary.
 
-## Hardening behavior
+## Repaired contracts
 
-`Post2029Page` still runs `hardenPassiveMediaHtml` first, then prepares the
-result in an inert template before insertion. Deferral now requires a stable
-reservation proven by either:
+### Stable reservation under the product CSS
 
-1. a valid, positive authored `width` and `height` pair; or
-2. an exact image URL in the three-entry verified-dimensions map.
+Eligibility remains narrow: an image is deferred only when it has a valid,
+positive authored `width` and `height` pair or its exact `src` is one of the
+three verified URLs above. An unknown image without dimensions remains on the
+base path with byte-identical standalone markup, its eager request and no
+private state/source attributes.
 
-An unknown image without that reservation stays on the base path. Its `src`,
-`srcset`, `loading`, dimensions and state attributes are not changed. If a body
-contains no eligible image, its hardened HTML string is returned byte-for-byte.
-The mixed eligible/ineligible browser case also proves the unknown image stays
-eager and receives no private data attributes.
+Before insertion, an eligible image receives a transparent local SVG data URL
+whose intrinsic dimensions equal the proved reservation. This is a replaced
+image with the same box rules as the eventual asset and makes no network
+request. It therefore works with the actual `post2029-reading.css` rule
+(`max-width:100%; height:auto`) for authored inline images as well as the
+captured Post's authored `display:block; width:100%; height:auto` images. The
+former one-URL CSS sizing exception was removed; loaded layout follows the
+authored/base CSS.
 
-`picture source[srcset]` moves only when its associated fallback `img` is
-eligible and managed. A source-only picture (`source[srcset]` plus an `img`
-without `src`/`srcset`) remains unchanged and loads normally. On activation,
-picture candidates are restored before the fallback image; Chromium selected
-one candidate and made one request.
+Chromium comparisons at 390, 400 and 1440 px used the real product stylesheet.
+For all three verified objects and a generic authored 400×800 image, pending,
+held-loading and loaded rectangles, display mode, vertical alignment and the
+following text/caption position matched a raw loaded baseline within 0.51 px.
+Activation CLS was at most 0.001 (measured result: zero). The committed test
+would fail against `4bbaa1e1`: that head has no local intrinsic placeholder and
+collapses under the same stylesheet.
 
-The first observer uses `0px` margin, so only an image intersecting the actual
-viewport may activate without input. A trusted wheel, touch, pointer or scroll
-key event replaces it with the persistent `600px 0px` approach observer.
-Synthetic events do not enable prefetch. Cleanup removes both observers and all
-intent/load/error/retry listeners. Retry restores the exact URL once without a
-cache-busting mutation or loop.
+`picture` candidates are still restored before the fallback image, producing
+one selected request. A source-only picture (`source[srcset]` with an `img`
+that has neither `src` nor `srcset`) remains unchanged and loads normally.
 
-The three verified assets reserve their exact ratios. The generic managed-image
-CSS no longer forces authored inline images to become blocks. No ratio is
-invented for another image.
+### Meaningful approach intent
 
-## Passive BEFORE / AFTER evidence
+The first observer remains `0px`, so only actual viewport intersection can load
+without input. The persistent `600px 0px` approach observer is enabled only
+when both conditions are true within the bounded 600 ms intent window:
 
-| Case | Before hardening | Hardened result |
-| --- | --- | --- |
-| three raw FZ `img[src]` tags | 3 eager target requests at insertion | 0 target requests before viewport/authorized approach |
-| old 600px first observer at 1440×1080/1200 | real first target at 1661.125px was already in the margin | first observer root ends at 1080/1200; state stays `pending`, `src=null`, 0 target requests |
-| trusted 1px wheel near an image | no separate intent gate | enables the persistent 600px approach observer; one eventual request |
-| unknown 400×800 asset without authored dimensions | raw eager markup | byte-identical raw markup, one normal eager request, no inferred dimensions or data attrs |
-| source-only picture | normal selected-source load | unchanged source, one normal selected-source request |
-| two video posters | 2 eager body-poster requests | 2 eager body-poster requests; videos untouched |
+1. cumulative trusted wheel, pointer, touch or scroll-key movement reaches 24
+   px; and
+2. the document has actually moved at least 24 px from the pre-input scroll
+   position.
 
-The committed tall-viewport fixture places the target at 1650px, matching the
-captured Post's first-observer top of 1661.125px. It therefore exercises the
-failure boundary that the former 2200px spacer missed.
+The implementation tracks the last observed scroll position because Chromium
+can expose compositor movement before a window-level wheel callback. A plain
+scroll event cannot create intent. Cleanup removes the observer, all input and
+scroll listeners, and the reset timer.
+
+Browser negatives prove that a trusted 1 px wheel, synthetic wheel, pointer
+down/up without movement, click/tap, 5 px touch, non-scroll key, programmatic
+scroll, hash navigation, browser back and forward restoration do not authorize
+the approach margin. Meaningful trusted wheel, touch and keyboard scrolling do.
+The same suite covers cleanup, StrictMode replay and remount without duplicate
+requests or listeners.
+
+### Transparent loaded parity and failures
+
+The neutral placeholder background now applies only to `pending`, `loading`
+and `failed`. On `loaded`, the private placeholder source is removed and the
+computed background returns to the transparent base value. Real transparent
+SVG and PNG responses were drawn into a canvas and both produced alpha zero
+with `rgba(0, 0, 0, 0)` computed backgrounds.
+
+A slow in-viewport response remains `loading` until the real response arrives;
+the local placeholder's load event cannot complete it. Failure clears active
+picture/image candidates, returns to the reserved local placeholder and exposes
+one retry. Retry restores the exact source once, with no cache-busting URL,
+loop or duplicate request.
 
 ## Exact captured-Post replay
 
-The prior read-only public-row capture was replayed locally through the exact
-production build. Its UTF-8 body is 31,843 bytes with SHA-256
+The locally captured public row was replayed through the final production
+build. Its UTF-8 body is 31,843 bytes with SHA-256
 `772ab9168dc437bad9b582dc93ffee3e9b32ea001bcfababc050005a77da14f2`.
-All external requests were intercepted locally; no live telemetry or write was
-allowed.
+Every external request was intercepted locally and write-like RPCs were
+aborted; no live telemetry or write was allowed.
 
-For every theme (`light`, `parchment`, `dark`):
+| Viewport | Themes | First target top | Reserved box | Initial observer bottom | Initial target requests |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 320×844 | 3 | 2566.922 px | 250×444.203 px | 844 px | 0 |
+| 390×844 | 3 | 2403.125 px | 320×568.578 px | 844 px | 0 |
+| 1440×900 | 3 | 2479.875 px | 576×1023.453 px | 900 px | 0 |
+| 1440×1080 | 3 | 2479.875 px | 576×1023.453 px | 1080 px | 0 |
+| 1440×1200 | 3 | 2479.875 px | 576×1023.453 px | 1200 px | 0 |
 
-| Viewport | First target top at initial observer | Initial state | Target requests |
-| --- | ---: | --- | ---: |
-| 320×844 | 2121.047px | `pending`, `src=null` | 0 |
-| 390×844 | 1878.500px | `pending`, `src=null` | 0 |
-| 1440×900 | 1661.125px | `pending`, `src=null` | 0 |
-| 1440×1080 | 1661.125px | `pending`, `src=null` | 0 |
-| 1440×1200 | 1661.125px | `pending`, `src=null` | 0 |
+All 15 cases were `pending` with the local intrinsic placeholder, the exact
+real URL in the deferred attribute, a nonintersecting `0px` observer result and
+zero target requests. At 390×844 in all themes, the pending target's top,
+width and height exactly matched a separately built raw Wave3 page after its
+first target loaded. The raw page made all three eager target requests; the
+candidate made zero before approach.
 
-At 390×844 in all themes, approach/loading followed by a real SPA navigation
-away and browser back produced one target request total, returned in `loaded`
-state, and restored scroll position (`scrollY=2265`).
+At 390×844 in all themes, activation followed by real SPA navigation away and
+browser back produced one target request total, returned in `loaded` state and
+restored `scrollY=2265`.
 
-An independent DOM comparison after activation found 349 elements on both
-sides, identical tag order and text, zero authored-attribute differences, and
-identical image, video, link and caption semantics. Counts were 3 images, 2
-videos, 2 links and 4 captions. The `hardenPassiveMediaHtml` → prepare → insert
-sequence remains unchanged.
+An independent DOM comparison after activation found 349 elements on each
+side, identical tag order and text, zero authored-attribute differences, and
+identical image, video, link and caption semantics. Counts remain 3 images, 2
+videos, 2 links and 4 captions. `hardenPassiveMediaHtml` still runs before
+preparation and insertion.
 
 ## Reproduced checks
 
 - `PERF_CHROME=/usr/bin/chromium node --test test/post-body-media-defer-2029.test.mjs`:
-  **27/27 passed, 0 failed, 0 skipped**, Chromium `151.0.7922.173`.
-  Coverage includes 320/390/1440 and all themes; 1440×1080/1200 first frame;
-  trusted tiny scroll; true in-viewport loading; distinct picture candidates;
-  unknown 400×800 standalone and mixed cases; source-only picture; retry
-  bounding; no-IO fallback; cleanup/remount; StrictMode replay; cache-backed
-  return; and both untouched video posters.
-- Exact captured-Post replay: 15 viewport/theme first-frame cases passed; the
-  390×844 three-theme SPA/back lifecycle passed.
+  **34/34 passed, 0 failed, 0 skipped**, Chromium `151.0.7922.173`.
+- Selected regression replay against exact rejected head `4bbaa1e1`:
+  **0/4 passed, 4/4 failed**. It independently fails the 24 px source contract,
+  real-CSS intrinsic placeholder, tall first-frame/tiny-input case and loaded
+  transparent-media background.
+- Exact captured-Post replay: all 15 viewport/theme first-frame cases and all
+  three SPA/back lifecycle cases passed.
 - Exact semantic comparison: 349/349 elements, tag/text/link/caption/image/video
-  parity, zero authored-attribute differences.
+  parity and zero authored-attribute differences.
 - `node scripts/test-2029-control-plane.mjs`: PASS.
-- `node scripts/test-entry-contextual-learn-2029.mjs`: PASS in the isolated
-  dependency-complete checkout.
+- `node scripts/test-entry-contextual-learn-2029.mjs`: PASS.
 - `npm run build`: PASS for Legacy and 2029.
-- `npm run test:2029-bundle-budget`: **5/5 passed**. Wave3 entry is 187.2 KB
-  gzip; Post is 176.9 KB gzip (`+1.6 KB` from the 175.3 KB base), below the
-  185 KB gate; Post remains +29 chunks.
-- Independent Legacy-only builds from the exact base and hardened commit:
-  **293 files / 24,504,416 bytes each / 0 changed files**. Both tree hashes are
-  `cdc717c9db647ef97309cf6db7d40b4e12294387c8e9843b9c41251ff6044e64`.
+- `npm run test:2029-bundle-budget`: **5/5 passed, 0 skipped**. Wave3 entry is
+  187.2 KB gzip; Post is 177.5 KB gzip with 29 extra chunks, below the 185 KB
+  gate.
+- Fresh Legacy-only builds from exact base and successor: **293 files /
+  24,504,416 bytes each / zero changed files**. A deterministic
+  `path\0size\0file-sha256` manifest hashes to
+  `d7f0a63b31c8933c41bd4f08e24320cfbb63118cc21487bd178bf29730da4536`
+  on both sides.
 
 ## Wave4 compatibility
 
-Against local Wave4 head `d03627e2cade2484c3ec5422229845a1c5eb675d`,
-the implementation has zero overlapping paths and applies cleanly. The combined
-tree passes the full build, the 27-test Chromium suite, the 5-test bundle gate,
-and all 16 Realtime static/loopback tests with zero skips. Its entry is 173.2 KB
-gzip and Post is 176.9 KB gzip. No manual merge is required; the branch can be
-integrated into that Wave4 head as-is.
+Against Wave4 head `d03627e2cade2484c3ec5422229845a1c5eb675d`, the complete Post branch has
+zero overlapping paths and `git apply --check` succeeds. A locally composed
+tree passes the full build, the 34-test Post Chromium suite, the 5-test bundle
+gate and all 16 Realtime static/SDK/loopback tests with zero skips. Its entry is
+173.2 KB gzip and Post is 177.6 KB gzip. No manual merge is required for that
+exact Wave4 head.
 
 ## Honest holds
 
-No client-generated `noscript` fallback was added. This is a client-only React
-surface: JavaScript must run before it could create such markup, so it would not
-help a JavaScript-disabled crawler, while duplicating live media markup could
-create request and semantic risk. The exact URL remains in the DOM data
-attribute for managed images, but that is not proof of crawler acceptance.
-Hosted Preview/crawler acceptance therefore remains a **Production HOLD**.
+No client-generated `noscript` fallback was added. This client-only React
+surface cannot create useful markup for a JavaScript-disabled crawler, while a
+duplicate live source risks extra requests and duplicate semantics. The exact
+URL remains in a private DOM attribute, but that is not proof of crawler
+acceptance. Hosted Preview/crawler acceptance therefore remains a **Production
+HOLD**.
 
-Safari, Firefox, hosted Preview timings, physical devices, authenticated
-readers and end-to-end hosted LCP remain `NOT_MEASURED`. No deploy, merge,
-Production action, live DB write, work-log write or live telemetry was run.
+Safari, Firefox, hosted Preview timing, physical devices, authenticated readers
+and hosted end-to-end LCP remain `NOT_MEASURED`. No deploy, merge, CI run,
+Production action, live database write, work-log write, live telemetry or live
+media request was performed.
