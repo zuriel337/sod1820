@@ -5,12 +5,13 @@
 - Exact source base: `gpt/perf-unified-wave4-20261018@5a26aee5493dda6504815332d0f7ee0ae23f4d14`.
 - Isolated implementation branch: `gpt/perf-wave4-preview-number-gate-20261018`.
 - Predecessor commits: code `6e280324f0d0e1648642df0d65718970b7469cec`, evidence `6134a5abc318030e6bbe438872a7ed42c114a3af`.
-- Successor code commit under test: `3b59c99e6978907a396006ce134ead2496e473d3`.
+- Five-blocker successor commits: code `3b59c99e6978907a396006ce134ead2496e473d3`, evidence `613b7d30d7984e234c6617f753bceea3a9d492af`.
+- Ignored-input hardening code commit under test: `ef0138f48ef4dd4698a4eb8c6fc886fb311ea5b9`.
 - Local decision: **PASS for independent re-review and integration into the exact Wave 4 Preview branch**.
 - Hosted protected Preview acceptance remains open. This evidence does not claim a hosted deployment passed.
 - No deployment, merge, database mutation, RLS change, live flag change, PR, or CI run was performed.
 
-The predecessor received an independent `NO_GO` for five gaps: a stale same-URL controller could be mistaken for the corrected guard; worker setup had no single end-to-end deadline; the builder supplied its own target; Number retry could disturb the shared flag snapshot; and the receipt did not prove a clean source or complete deploy tree. This successor closes those gaps without changing Legacy behavior or product semantics outside the exact Preview Number gate.
+The predecessor received an independent `NO_GO` for five gaps: a stale same-URL controller could be mistaken for the corrected guard; worker setup had no single end-to-end deadline; the builder supplied its own target; Number retry could disturb the shared flag snapshot; and the receipt did not prove a clean source or complete deploy tree. The five-blocker successor closed those gaps. A follow-up independent review approved those repairs and found one remaining source-binding gap: Git-ignored Vite inputs could enter the artifact while the receipt said `sourceClean: true`. This narrow successor closes that gap without changing Legacy behavior or product semantics outside the exact Preview Number gate.
 
 ## Guard and bootstrap contract
 
@@ -34,7 +35,9 @@ The service worker still allows only the reviewed read/auth surface. The exact c
 - a lowercase 40-hex `VERCEL_GIT_COMMIT_SHA` equal to checked-out `HEAD`;
 - an approved exact SOD1820 Vercel Preview hostname in `VERCEL_URL`.
 
-Before Vite or output, the builder inspects staged, unstaged, and nonignored untracked paths. It rejects every build-input difference, including additions below `public/`. Installed `node_modules` and ignored build caches may remain. The executable fixture proves that a tracked worker/builder edit with unchanged `HEAD`, an untracked `public/` file, and a staged public input each fail before Vite and leave no output.
+Before Vite or output, the builder inspects staged, unstaged, and nonignored untracked paths. It also performs a targeted Git ignored-file scan over every current Vite input root: `public/**`, `src/**`, both HTML entries, Vite and root config files, package manifests, `.env*`, and `preview-deploy/evidence/**`. It rejects every matching ignored or untracked input while avoiding dependency and generated-output trees such as `node_modules/`, `dist/`, and `preview-deploy/dist/`.
+
+The executable fixture proves that a tracked worker/builder edit with unchanged `HEAD`, an untracked `public/` file, a staged public input, an ignored `public/preview-audit-ignored.log`, and an ignored `.env.production.local` each fail before Vite. Both ignored-input regressions begin with an existing output sentinel and prove that rejection preserves it byte for byte and creates no other output.
 
 ## Number flag retry contract
 
@@ -75,12 +78,12 @@ The exact successor code commit was built locally with the required Preview iden
 
 `node --test test/number-review-preview-browser-2029.test.mjs scripts/test-integrated-preview-auth-guard.mjs test/number-review-preview-2029.test.mjs test/site-flags-inflight-2029.test.mjs test/preview-number-build-integrity.test.mjs`
 
-- 35 passed, 0 failed, 0 skipped.
+- 37 passed, 0 failed, 0 skipped. This preserves all 35 previously approved checks and adds two ignored-input regressions.
 - Passed first install, reload, internal navigation, back/forward, and a fresh browser context with exact attestation.
 - Passed a real unsafe old worker installed at the exact expected URL while the corrected worker response was delayed; no application import or server write occurred during the race.
 - Passed controller query mismatch, 20-second worker stall, exact/adjacent RPC checks, and all write blocking.
 - Passed automatic and manual targeted retry isolation, two-read fail-closed behavior, malformed rows, and a quiet initial Home fallback.
-- Passed missing/non-exact target rejection, tracked/staged/untracked source rejection, complete inventory coverage, and extra/mutated artifact rejection.
+- Passed missing/non-exact target rejection, tracked/staged/untracked source rejection, ignored public and production-env rejection with output-sentinel preservation, complete inventory coverage, and extra/mutated artifact rejection.
 
 `node scripts/verify-integrated-preview-artifacts.mjs`
 
@@ -96,20 +99,20 @@ The exact successor code commit was built locally with the required Preview iden
 - Built entry: 9 chunks / 173.9 KB gzip.
 - Number route increment: 31 chunks / 202.9 KB gzip.
 
-`git diff --check` passed. The source tree used by the integrated builder contained no staged or tracked difference and no nonignored build input; the pre-existing root `node_modules` dependency symlink was the only reported untracked path and is explicitly excluded from build inputs.
+`git diff --check` passed. The source tree used by the integrated builder contained no staged or tracked difference and no untracked or ignored input in the bounded Vite input set; the pre-existing root `node_modules` dependency symlink was the only reported untracked path and is explicitly excluded from build inputs.
 
 ## Generated receipt used by the executable tests
 
-- Commit: `3b59c99e6978907a396006ce134ead2496e473d3`
+- Commit: `ef0138f48ef4dd4698a4eb8c6fc886fb311ea5b9`
 - Branch: `gpt/perf-unified-wave4-preview-20261018`
 - Host: `sod1820-wave4-number-test-sod1820-s-projects.vercel.app`
-- Worker: `/preview-readonly-sw.js?content=2fddc4e6dc4deeeaec12118ecea5c107b05c371d1791b29a32632ec00c059dd6`
+- Worker: `/preview-readonly-sw.js?content=ceac6f3a4c81fbdb4f2946a95904410d7bf47f56fda6816cba21fa2b2fa871ca`
 - Guard protocol: `sod1820-preview-readonly-v3`
-- Guard identity SHA-256: `b70cafd958683e4168ccaffddb619d63ea9a1b62d8124f8325679328bdbc646f`
-- Manifest SHA-256: `3b3e47a7d666bc089463e0b9e295e0864c43c8ff5650471ba9a222330df5d403`
-- HTML SHA-256: `fdacdfaf8db67c7798b4d6dde661700a6892c6d184fb790c60b4c86331f580ce`
-- Inventory SHA-256: `a6d78a2a27c48b31073768cefa7a846d0128ae5c824eaac2a0690764d6e73ec4`
-- Receipt identity SHA-256: `3970461635bacb6e5cdea3f23f895f1e329c730eea561fd67a68c886e380457e`
+- Guard identity SHA-256: `bafc43a55481999e86d477092d2c25d9cddc2313f814759f0f63ec33cff82697`
+- Manifest SHA-256: `709eecc4da31dccaa04c17161d26f5225869abebc1d61c90e9951d71e36ac550`
+- HTML SHA-256: `681f398e9edceaebe5246846a450b24ead27d3d3c889faba3742dad4376046a3`
+- Inventory SHA-256: `542965227791f4e39da943d6157dbf059d927ac894b9c3d8056ec514a8daeb35`
+- Receipt identity SHA-256: `7cd10ab73737cbc6aee0a7e611f42a3763a98d806ed386182cdbf070053749e9`
 - Artifact count: `256`
 
 The matching machine-readable receipt is in `receipt.json`.

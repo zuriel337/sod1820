@@ -10,29 +10,31 @@
   },
   "implementation": {
     "branch": "gpt/perf-wave4-preview-number-gate-20261018",
-    "codeCommit": "3b59c99e6978907a396006ce134ead2496e473d3"
+    "reviewedSuccessorParent": "613b7d30d7984e234c6617f753bceea3a9d492af",
+    "codeCommit": "ef0138f48ef4dd4698a4eb8c6fc886fb311ea5b9"
   },
   "localPreviewBuild": {
-    "commit": "3b59c99e6978907a396006ce134ead2496e473d3",
+    "commit": "ef0138f48ef4dd4698a4eb8c6fc886fb311ea5b9",
     "branch": "gpt/perf-unified-wave4-preview-20261018",
     "host": "sod1820-wave4-number-test-sod1820-s-projects.vercel.app",
     "buildTarget": "2029",
     "vercelEnv": "preview",
     "sourceClean": true,
-    "workerScript": "/preview-readonly-sw.js?content=2fddc4e6dc4deeeaec12118ecea5c107b05c371d1791b29a32632ec00c059dd6",
-    "workerContentSha256": "2fddc4e6dc4deeeaec12118ecea5c107b05c371d1791b29a32632ec00c059dd6",
+    "workerScript": "/preview-readonly-sw.js?content=ceac6f3a4c81fbdb4f2946a95904410d7bf47f56fda6816cba21fa2b2fa871ca",
+    "workerContentSha256": "ceac6f3a4c81fbdb4f2946a95904410d7bf47f56fda6816cba21fa2b2fa871ca",
     "guardProtocol": "sod1820-preview-readonly-v3",
-    "guardIdentitySha256": "b70cafd958683e4168ccaffddb619d63ea9a1b62d8124f8325679328bdbc646f",
+    "guardIdentitySha256": "bafc43a55481999e86d477092d2c25d9cddc2313f814759f0f63ec33cff82697",
     "guardDeadlineMs": 8000,
-    "manifestSha256": "3b3e47a7d666bc089463e0b9e295e0864c43c8ff5650471ba9a222330df5d403",
-    "htmlSha256": "fdacdfaf8db67c7798b4d6dde661700a6892c6d184fb790c60b4c86331f580ce",
-    "indexHtmlSha256": "fdacdfaf8db67c7798b4d6dde661700a6892c6d184fb790c60b4c86331f580ce",
-    "workerSha256": "2fddc4e6dc4deeeaec12118ecea5c107b05c371d1791b29a32632ec00c059dd6",
-    "fallbackWorkerSha256": "2fddc4e6dc4deeeaec12118ecea5c107b05c371d1791b29a32632ec00c059dd6",
+    "manifestSha256": "709eecc4da31dccaa04c17161d26f5225869abebc1d61c90e9951d71e36ac550",
+    "htmlSha256": "681f398e9edceaebe5246846a450b24ead27d3d3c889faba3742dad4376046a3",
+    "indexHtmlSha256": "681f398e9edceaebe5246846a450b24ead27d3d3c889faba3742dad4376046a3",
+    "workerSha256": "ceac6f3a4c81fbdb4f2946a95904410d7bf47f56fda6816cba21fa2b2fa871ca",
+    "fallbackWorkerSha256": "ceac6f3a4c81fbdb4f2946a95904410d7bf47f56fda6816cba21fa2b2fa871ca",
     "artifactInventoryPath": "preview-artifacts.json",
-    "artifactInventorySha256": "a6d78a2a27c48b31073768cefa7a846d0128ae5c824eaac2a0690764d6e73ec4",
+    "artifactInventorySha256": "542965227791f4e39da943d6157dbf059d927ac894b9c3d8056ec514a8daeb35",
     "artifactCount": 256,
-    "identitySha256": "3970461635bacb6e5cdea3f23f895f1e329c730eea561fd67a68c886e380457e",
+    "inventoryHashConvention": "ordinary files use exact bytes; preview-build.json hashes exact bytes after its artifactInventorySha256 and identitySha256 values are replaced by 64 zeroes; preview-artifacts.json hashes exact bytes after only its own sha256 value is replaced by 64 zeroes",
+    "identitySha256": "7cd10ab73737cbc6aee0a7e611f42a3763a98d806ed386182cdbf070053749e9",
     "readOnly": true,
     "numberReviewPreviewOpen": true,
     "previewOverrides": [
@@ -41,7 +43,7 @@
   },
   "verification": {
     "browserAndContractTests": {
-      "passed": 35,
+      "passed": 37,
       "failed": 0,
       "skipped": 0,
       "serviceWorkers": "allow",
@@ -68,7 +70,10 @@
       "nonExactTargetVariants": "rejected_before_vite_or_output",
       "trackedMutationWithUnchangedHead": "rejected_before_vite_or_output",
       "stagedMutation": "rejected_before_vite_or_output",
-      "untrackedPublicAddition": "rejected_before_vite_or_output"
+      "untrackedPublicAddition": "rejected_before_vite_or_output",
+      "ignoredPublicInput": "rejected_before_vite_and_output_preserved",
+      "ignoredProductionEnv": "rejected_before_vite_and_output_preserved",
+      "existingOutputSentinel": "preserved_byte_for_byte"
     },
     "guardCases": {
       "unsafeSameUrlControllerRace": "passed",
