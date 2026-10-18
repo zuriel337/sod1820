@@ -11,6 +11,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { logView, logActivity } from "../lib/supabase.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
+import { observePostBodyMedia2029, preparePostBodyMedia2029 } from "../lib/postBodyMedia2029.js";
 import { pauseOffscreenAnimations } from "../lib/pauseOffscreenAnimations2029.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -40,6 +41,11 @@ export function postReadingCoverItem(post) {
   };
 }
 
+export function postReadingBodyHtml2029(post) {
+  post = post || {};
+  return preparePostBodyMedia2029(hardenPassiveMediaHtml(post.content || ""));
+}
+
 function revealReadingAnchor(node) {
   for (let parent = node?.parentElement; parent; parent = parent.parentElement) {
     if (parent.tagName === "DETAILS") parent.open = true;
@@ -61,6 +67,10 @@ function PostReadingBody() {
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
+  const preparedPostBody = useMemo(
+    () => postReadingBodyHtml2029(state.projection?.post),
+    [state.projection?.post?.content],
+  );
 
   useEffect(() => {
     let live = true;
@@ -286,6 +296,11 @@ function PostReadingBody() {
     if (!state.projection) return undefined;
     return pauseOffscreenAnimations(sourceRef.current);
   }, [state.projection]);
+
+  useEffect(() => {
+    if (!state.projection || !sourceRef.current) return undefined;
+    return observePostBodyMedia2029(sourceRef.current);
+  }, [state.projection?.post?.id, preparedPostBody]);
 
   useEffect(() => {
     // Golden Posts only (contextPack is ID-scoped to 5112/92): a legacy body without mapped regions
@@ -835,7 +850,7 @@ function PostReadingBody() {
             handleSourceContextualFocus(event);
           }
         }}
-        dangerouslySetInnerHTML={{ __html: hardenPassiveMediaHtml(post.content || "") }}
+        dangerouslySetInnerHTML={{ __html: preparedPostBody }}
       />
 
 
