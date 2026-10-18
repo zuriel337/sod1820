@@ -40,7 +40,8 @@ import {
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import ContactGateway from "../ContactGateway.jsx";
+// Opened on demand from the report action: the form and its report hint stay out of every page's first load.
+const ContactGateway = lazy(() => import("../ContactGateway.jsx"));
 // Opened on demand from the capability panel: its research/spatial dependencies stay out of every page's first load.
 const NumberDrawer2029 = lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
@@ -2088,7 +2089,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
-    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
+    if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><Suspense fallback={<FrameState kind="loading" title="פותח את הדיווח…" />}><ContactGateway
       pathname={location.pathname}
       surface={surface}
       capability={transient?.payload?.capability || null}
@@ -2098,7 +2099,7 @@ export default function SystemFrame2029({
       initialText={transient?.payload?.initialText || ""}
       locale={locale}
       onDone={closeTransient}
-    /></PanelShell>;
+    /></Suspense></PanelShell>;
     return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
