@@ -1,5 +1,5 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -244,16 +244,26 @@ function HomeBody() {
   const razielLocked = razielFeature.loading || razielFeature.blocked;
   const worldOpen = !worldFeature.loading && worldFeature.allowed;
   const [query, setQuery] = useState("");
-  const [homeState, setHomeState] = useState({ loading: true, projection: null });
+  const [homeState, setHomeState] = useState({ temporalLoading: true, worldLoading: true, projection: null });
+  const [worldPreviewRequested, setWorldPreviewRequested] = useState(false);
   const context = research.context || null;
 
   useEffect(() => {
     let live = true;
-    fetchHome2029Projection({ includeWorld: true, includeTemporal: true })
-      .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
-      .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
+    fetchHome2029Projection({ includeWorld: false, includeTemporal: true })
+      .then((projection) => { if (live) setHomeState((current) => ({ ...current, temporalLoading: false, projection: { ...current.projection, ...projection } })); })
+      .catch(() => { if (live) setHomeState((current) => ({ ...current, temporalLoading: false })); });
     return () => { live = false; };
   }, []);
+  useEffect(() => {
+    if (!worldPreviewRequested) return undefined;
+    let live = true;
+    fetchHome2029Projection({ includeWorld: true, includeTemporal: false })
+      .then((projection) => { if (live) setHomeState((current) => ({ ...current, worldLoading: false, projection: { ...current.projection, worldPreview: projection?.worldPreview || null } })); })
+      .catch(() => { if (live) setHomeState((current) => ({ ...current, worldLoading: false })); });
+    return () => { live = false; };
+  }, [worldPreviewRequested]);
+  const requestWorldPreview = useCallback(() => setWorldPreviewRequested(true), []);
 
   const start = (e) => {
     e?.preventDefault?.();
@@ -391,15 +401,16 @@ function HomeBody() {
   // Include/Publish is unchanged; production keeps its current body until release.
   if (HOME_COMPOSED) return <HomeComposition2029
     projection={homeState.projection}
-    loading={homeState.loading}
+    loading={homeState.temporalLoading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
     onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
     worldPending={worldFeature.loading}
-    nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
+    onWorldPreviewApproach={requestWorldPreview}
+    nowHero={!homeState.temporalLoading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
     story={<WorldFlightStory2029 surface="home" research={research} shell={shell} />}
     arrivals={(homeArrivals) => <div className="h29-stream">
-      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
+      <SourceArrivalList2029 surface="home" loading={homeState.worldLoading} limit={4} showNew
         items={homeArrivals}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
@@ -429,16 +440,16 @@ function HomeBody() {
           <h2>מה מתגלה עכשיו</h2>
           <div className="sod29-muted">לא כל דבר חדש הופך לפוסט. כאן עולים רק חיבורים שהפכו משמעותיים עכשיו.</div>
         </div>
-        <span className="sod29-chip">{homeState.loading ? "בודק…" : temporalNow ? "חיבור חי" : "שקט עכשיו"}</span>
+        <span className="sod29-chip">{homeState.temporalLoading ? "בודק…" : temporalNow ? "חיבור חי" : "שקט עכשיו"}</span>
       </div>
 
-      {homeState.loading ? <div className="sod29-home-now-empty">בודק מה באמת התחבר לעת הזאת…</div> : null}
-      {!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
+      {homeState.temporalLoading ? <div className="sod29-home-now-empty">בודק מה באמת התחבר לעת הזאת…</div> : null}
+      {!homeState.temporalLoading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
       <ConnectedGoldenStory
         razielLocked={razielLocked}
         onOpenPost={() => shell.go("/post/remzei-geula-ai-sod-hashir")}
       />
-      {!homeState.loading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
+      {!homeState.temporalLoading && !temporalNow ? <div className="sod29-home-now-empty">אין כרגע חיבור מספיק חזק להבלטה. הבית נשאר שקט במקום להמציא עדכון.</div> : null}
     </section>
 
     <section className="sod29-focus-stage" id="universal-entry">
@@ -470,7 +481,7 @@ function HomeBody() {
 
     <HomeWorldPreview
       preview={worldPreview}
-      loading={homeState.loading}
+      loading={homeState.temporalLoading}
       onOpenItem={openWorldItem}
       onOpenResearcher={openResearcher}
       onOpenWorld={() => navigate("/world")}

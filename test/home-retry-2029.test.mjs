@@ -102,6 +102,37 @@ test("Home: browsers without IntersectionObserver load notable convergences once
   } finally { await page.close(); }
 });
 
+test("Home: the world projection starts once with a bounded lead before its lower sections", { skip }, async () => {
+  const page = await open({}, { farHome: true });
+  try {
+    await page.evaluate(() => window.__api.mount("home", { watchWorldPreview: true }));
+    await settle(page);
+    assert.equal((await calls(page)).filter((name) => name === "world-preview").length, 0);
+    const trigger = page.locator("[data-h29-world-preview-load-state]");
+    assert.equal(await trigger.getAttribute("data-h29-world-preview-load-state"), "deferred");
+    const box = await trigger.boundingBox(), viewport = page.viewportSize();
+    assert.ok(box.y > viewport.height + 800, `fixture starts beyond the bounded lead: ${box.y}`);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 750), { y: box.y, h: viewport.height });
+    await page.waitForFunction(() => window.__calls.filter((name) => name === "world-preview").length === 1);
+    assert.equal(await trigger.getAttribute("data-h29-world-preview-load-state"), "armed");
+    await page.evaluate(() => { window.scrollTo(0, 0); });
+    await settle(page, 80);
+    await page.evaluate(({ y, h }) => window.scrollTo(0, y - h - 750), { y: box.y, h: viewport.height });
+    await settle(page, 100);
+    assert.equal((await calls(page)).filter((name) => name === "world-preview").length, 1);
+  } finally { await page.close(); }
+});
+
+test("Home: the world projection remains reachable without IntersectionObserver", { skip }, async () => {
+  const page = await open({}, { farHome: true, disableIO: true });
+  try {
+    await page.evaluate(() => window.__api.mount("home", { watchWorldPreview: true }));
+    await settle(page);
+    assert.equal((await calls(page)).filter((name) => name === "world-preview").length, 1);
+    assert.equal(await page.locator("[data-h29-world-preview-load-state]").getAttribute("data-h29-world-preview-load-state"), "armed");
+  } finally { await page.close(); }
+});
+
 test("gateways: a cold Home entry makes no discovery read until the secondary area approaches the viewport", { skip }, async (t) => {
   const page = await open({}, { farGateways: true, farBiblical: true });
   try {

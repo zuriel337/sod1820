@@ -120,6 +120,7 @@
 /* Notable convergences with their separate ratings */
 .h29-note { margin: -4px 0 0; font: 400 14px/1.5 var(--s29-font-ui); color: var(--s29-muted); }
 .h29-notable-trigger { min-block-size: 1px; }
+.h29-world-preview-trigger { min-block-size: 1px; }
 .h29-notable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .h29-notable-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; border: 1px solid var(--s29-line); background: var(--s29-panel); min-width: 0; }
 .h29-notable-card:hover { border-color: var(--s29-line-strong); }
