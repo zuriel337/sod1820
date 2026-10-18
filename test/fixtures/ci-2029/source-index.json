@@ -29,13 +29,224 @@
     "source": "test/fixtures/ci-2029/source/public-profile-cards.json"
   },
   "coverageLimits": [
-    "Bennett 5113 is tagged draft; full required Golden body not read/exported.",
-    "Runtime unknown-request auditing remains required; minimum semantic coverage is not full route parity.",
-    "Home rolling-week contribution request has2 approved rows;0 match approved public profile IDs/names. No account IDs or unverified attribution read/exported; response remains absent.",
-    "Bennett body permission is local inspection only. No public retained authored input or complete browser acceptance is implied.",
-    "Group-source aggregate admission was reviewed locally under explicit count-only permission; results remain local, no message body read/export approved. RPC response remains absent and unknown attempts must fail."
+    "Bennett 5113 remains tagged draft; its complete authored body is not admitted to the public corpus.",
+    "Home weekly contribution identity query requests author_user_id and lacks an account-free verified-public projection; no row is retained.",
+    "Home Number 787 contribution content/bylines and posts.ai_addition content are not independently admitted public payloads; no row is retained.",
+    "world_group_source_arrivals_v2 combines private source bodies; aggregate-only inspection does not authorize body retention for p_limit 8 or 24.",
+    "The current Topic research-object reads return public 401/42501 permission errors. Exact errors are retained for replay, but this does not establish successful research data coverage.",
+    "The Topic math-link node response contains metadata.created_by=agent:claude. It is publicly readable but is outside the explicitly reviewed attribution allowlist, so the exact response is not retained.",
+    "Runtime unknown-request auditing remains required; this revision adds only anon-verifiable public request shapes and exact public errors.",
+    "The independent Number-owner interaction preflight still lacks six historical canonical contracts: Number identities 0/376/1237/1820, fn_number_lookup(376), and fn_method_profile for שלום."
   ],
-  "date": "2026-10-15",
+  "currentRouteAdmission": {
+    "contracts": [
+      {
+        "bytes": 2,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at,dst:nodes!edges_to_node_fkey!inner(type)&from_node=eq.44352fda-6a13-4841-b0b1-fa4141113ebc&dst.type=in.(image,media)&order=created_at.desc&limit=90  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2047,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at,src:nodes!edges_from_node_fkey!inner(type),dst:nodes!edges_to_node_fkey!inner(type)&or=(from_node.eq.44352fda-6a13-4841-b0b1-fa4141113ebc,to_node.eq.44352fda-6a13-4841-b0b1-fa4141113ebc)&src.type=not.in.(image,media)&dst.type=not.in.(image,media)&order=created_at.desc&limit=90  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "f34ce84ab8c5b899a22795957d8f8587c99e89a0805786f41ab88a75d1ceaf23",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at,src:nodes!edges_from_node_fkey!inner(type)&to_node=eq.44352fda-6a13-4841-b0b1-fa4141113ebc&src.type=in.(image,media)&order=created_at.desc&limit=90  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 1662,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at&from_node=eq.44352fda-6a13-4841-b0b1-fa4141113ebc  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "2162dd6e40df8b9dd6b4647c2d65a06e03790259c5470201574c8164f78c7bec",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/entity_types?select=type,label,parent,icon,tabs,relations,stats,route_pattern&type=eq.convergence  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 42469,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 42469,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 3287,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_methods?select=method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator&db_column=in.(albam,gadol,kadmi,miluy,ragil,atbash,siduri,misratar,kadmi_gadol)&order=sort_order.asc.nullslast  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "2594c3745c0c0393c5d860ab6f596aa1bfeed50cd4edea687d0001bc2745e0f0",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=*&phrase=eq.הציר+ההודי&order=is_verified.desc&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 507,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&id=eq.44352fda-6a13-4841-b0b1-fa4141113ebc  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "f8c2adb4a9d719fd6764d60273e12100510c84022d207cca5897ac9df77d3572",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 4288,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&id=in.(44352fda-6a13-4841-b0b1-fa4141113ebc,69bcfbd0-8d4a-464f-9b6f-6f44de37c719,a0e5ad64-2901-49c0-a113-abc0114be09a,56e0f37c-1b43-4dc6-b55d-81fa97afb1ad,2fa46cdf-977a-4b0a-abdd-8fcbb5eb1765,9cd22c3e-be5c-4283-ba6d-f974530d4dbc,dc9fa5d5-edf0-4e1d-8212-0d1e34b729fd,249f38f0-cc24-48f4-81d2-2586dd7a73a6)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "277d58d3d54338add1a19556d1a6e69a4cb717ebc547a417dd3f1bbd6283ebf8",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 461,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,is_active,weight,created_at&id=eq.44352fda-6a13-4841-b0b1-fa4141113ebc&type=eq.convergence  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "77c873c0a2e1ea97965cfcae7ef8c898e8468a6764e0bdaa10b264bdfa2c8a00",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2490,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,metadata,is_active&id=in.(69bcfbd0-8d4a-464f-9b6f-6f44de37c719,a0e5ad64-2901-49c0-a113-abc0114be09a,56e0f37c-1b43-4dc6-b55d-81fa97afb1ad,2fa46cdf-977a-4b0a-abdd-8fcbb5eb1765,9cd22c3e-be5c-4283-ba6d-f974530d4dbc,dc9fa5d5-edf0-4e1d-8212-0d1e34b729fd,249f38f0-cc24-48f4-81d2-2586dd7a73a6)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "fc76ed83b52eee80227e9e6b26b1f0c53e044d1d98bf241f53c23deffeb8a10e",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 34004,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,content,tags,author,authors,date,modified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 1401,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,tags,home_hidden,source,categories,date,thumb_url,image_url&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "be1defe7f35f0fc2ee6d9ed2f8d2ccfec0ec0ef63e72e4bbc37fe591a867c0bb",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 202,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&relates=cs.{tc:95945c0d-7b7b-482f-a2f9-a5a097621452}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+        "status": 401,
+        "type": "application/json"
+      },
+      {
+        "bytes": 202,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&relates=cs.{הציר+ההודי}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+        "status": 401,
+        "type": "application/json"
+      },
+      {
+        "bytes": 202,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&terms=cs.{tc:95945c0d-7b7b-482f-a2f9-a5a097621452}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+        "status": 401,
+        "type": "application/json"
+      },
+      {
+        "bytes": 202,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&terms=cs.{הציר+ההודי}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+        "status": 401,
+        "type": "application/json"
+      },
+      {
+        "bytes": 1466,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 1466,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2648,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id,findings,created_by,search_terms,image_ids,occurred_at&slug=in.(india-axis)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "f54409a2adf0e3d3d09e65e42ca9c870589d56214a64a5599f7bd1c139baa567",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 2,
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by&search_terms=ov.{הציר+ההודי}&order=quality.desc.nullslast&limit=16  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 9274,
+        "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":424} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+        "sha256": "692fe0e2c7fd83ddbca17e22de37c4c1bbc8657ad3a3781d97990268f39be41d",
+        "status": 200,
+        "type": "application/json"
+      },
+      {
+        "bytes": 226,
+        "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_api {\"p_text\":\"הציר ההודי\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+        "sha256": "3bcfa35f26704be41c0d37af2ff33b2b2a5d5733912eb4996964ce86bb48f920",
+        "status": 200,
+        "type": "application/json"
+      }
+    ],
+    "privacy": [
+      "No account UUID, author_user_id, contact, dossier, draft, hidden or unpublished body retained",
+      "topic_cards_public.created_by=ai is an explicitly reviewed public attribution label",
+      "Published Post 5112 author/authors are null; the previously authorized public attribution fields add no identity here"
+    ],
+    "publicationChecks": [
+      "Post 5112 home_hidden=false and tags exclude טיוטה; exact full-post projection has null author/authors and no contact string",
+      "Topic india-axis and all linked Topic cards are approved through topic_cards_public",
+      "Convergence node and all linked graph nodes are active; the node is the approved india-axis card node",
+      "Convergence edges are publicly returned to anon and contain only graph IDs, relation types, empty metadata and timestamps",
+      "Four research_objects requests return the current public 401/42501 permission error; no research row is retained",
+      "All 14 gallery rows are published, tier zero and not curator-hidden; image URLs use the public media bucket"
+    ],
+    "reason": "Exact unified candidate 8f78c0c7 issued 23 new publicly observable request shapes after the Home card reader and current Topic route wiring; one pre-existing gallery response was refreshed so its two current header signatures collapse without mixing historical and current bodies.",
+    "refreshedContracts": [
+      {
+        "currentSha256": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b",
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "previousSha256": "9aab674029746de7558c56fe02d388dfdbc22fbb9aaff7caf0e8f01541ca678f",
+        "reason": "Current public row fields changed; both current Prefer signatures were acquired in one bounded read and have byte-identical bodies."
+      },
+      {
+        "currentSha256": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb",
+        "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "previousSha256": "7942a8b2204f5b4d74fff49ceecb3a41576415bf62efe1a8aa069a70ef28fbe7",
+        "reason": "Current public row fields changed; both current Prefer signatures were acquired in one bounded read and have byte-identical bodies."
+      }
+    ],
+    "verifiedAsRole": "anon"
+  },
+  "date": "2026-10-18",
   "experiment": "new-offline-public-corpus-v1",
   "extraBaselineCanonicalConvergence": {
     "definitionMd5": "8bcd7efbb13fdfdc385b301103077a39",
@@ -86,17 +297,22 @@
   "headerResolution": [
     {
       "decision": "equal status/type/body; retain exact canonical count metadata; no payload collision accepted",
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256 "
+    },
+    {
+      "decision": "equal status/type/body; retain exact canonical count metadata; no payload collision accepted",
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256 "
+    },
+    {
+      "decision": "equal status/type/body; retain exact canonical count metadata; no payload collision accepted",
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24 "
     }
   ],
   "historicalComparison": false,
   "homeScenario": "21 genuinely public non-draft source cards with actual source ordering and full original fields; 21-card volume preserved, excluding unapproved draft 5113. Explicit new public-only scenario, not raw unfiltered live-list parity.",
   "liveParity": false,
-  "packageRevision": "public-body-admission-v3",
-  "previousRevision": {
-    "commit": "abafdb6c8cbd67e7adaedb3648f7c5d8ac191a30",
-    "sourceIndexSha256": "0caa609cef9fc535d51ec83cd47a3ea1091109443977959acf617ac66af249fb"
-  },
+  "packageRevision": "public-current-route-admission-v4",
+  "previousRevision": "public-body-admission-v3",
   "privacyProjection": {
     "authors": "Only NULL in retained full Posts; verified NULL on canonical 5112/5116. No whole authors objects exported.",
     "contributors": "Explicit user approval of proposed seven-field public-card DTO; source profile id is not an account id. Aliases and dossier objects omitted. Real role/kind/trust/active values preserved, no invented admission flags. SQL-derived partial projection of reader requests, not raw full-response parity.",
@@ -307,6 +523,14 @@
       "type": "application/json"
     },
     {
+      "bytes": 1662,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at&from_node=eq.44352fda-6a13-4841-b0b1-fa4141113ebc  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-6/*",
+      "sha256": "2162dd6e40df8b9dd6b4647c2d65a06e03790259c5470201574c8164f78c7bec",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 3779,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at&from_node=in.(9cd22c3e-be5c-4283-ba6d-f974530d4dbc,9e59d335-0e40-4646-817f-f683d30d6619)&relation_type=eq.related&metadata->>relation_role=eq.research_anchor_branch&order=created_at.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-8/*",
@@ -315,10 +539,42 @@
       "type": "application/json"
     },
     {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at,dst:nodes!edges_to_node_fkey!inner(type)&from_node=eq.44352fda-6a13-4841-b0b1-fa4141113ebc&dst.type=in.(image,media)&order=created_at.desc&limit=90  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at,src:nodes!edges_from_node_fkey!inner(type)&to_node=eq.44352fda-6a13-4841-b0b1-fa4141113ebc&src.type=in.(image,media)&order=created_at.desc&limit=90  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2047,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/edges?select=id,from_node,to_node,relation_type,metadata,created_at,src:nodes!edges_from_node_fkey!inner(type),dst:nodes!edges_to_node_fkey!inner(type)&or=(from_node.eq.44352fda-6a13-4841-b0b1-fa4141113ebc,to_node.eq.44352fda-6a13-4841-b0b1-fa4141113ebc)&src.type=not.in.(image,media)&dst.type=not.in.(image,media)&order=created_at.desc&limit=90  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-6/*",
+      "sha256": "f34ce84ab8c5b899a22795957d8f8587c99e89a0805786f41ab88a75d1ceaf23",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 6410,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/els_records?select=id,slug,title,search_term,scope,skip_distance,direction,start_index,corpus_id,image_url,description,author_name,primary_number,anchor_numbers,source,created_at,self_published,status,visibility,owner_user_id&status=eq.published&visibility=eq.public&or=(source.is.null,source.neq.research)&order=created_at.desc,id.desc&offset=0&limit=5  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-4/*",
       "sha256": "17935746aa00534bf1d85da94433a588905e5aa80adaa5954291a76dfaa184f9",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/entity_types?select=type,label,parent,icon,tabs,relations,stats,route_pattern&type=eq.convergence  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "status": 200,
       "type": "application/json"
     },
@@ -355,10 +611,18 @@
       "type": "application/json"
     },
     {
-      "bytes": 42006,
+      "bytes": 42469,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-13/*",
-      "sha256": "9aab674029746de7558c56fe02d388dfdbc22fbb9aaff7caf0e8f01541ca678f",
+      "sha256": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 42469,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/09/hvdv-svd-hvyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/rash-mmshlt-hvdv.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/07/140-avbdym.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2021/06/bnyymynh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/06/kvkb.png,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/08/rkbt-216.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/11/hvdv-14.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/02/450-ltvrkyh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/07/dvyd-vgvlyt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/psl-hachdvt.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/03/rmzy-140-1932020.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2022/09/hvdv-45.jpg)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-13/14",
+      "sha256": "ca3c50d0b0df796a15605dc98452cd7fe60bd908d110126c9b37eeecd9338a2b",
       "status": 200,
       "type": "application/json"
     },
@@ -375,6 +639,22 @@
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gallery_images?select=id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values,min_tier,wp_image_id&image_url=in.(https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2020/12/hvdv-450.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2017/05/hnshya-bkvtl-b-424.jpeg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2019/07/chkmh.jpg,https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png)&published=eq.1&min_tier=eq.0&or=(curator_hidden.is.null,curator_hidden.eq.false)&order=gallery_id.asc,ordering.asc,id.asc&limit=256  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-5/6",
       "sha256": "a2b3191b6667c55c1d6c8f4e3ac73b3429d9cb1f4cb7e4b73b81713de0a8e070",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 3287,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_methods?select=method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator&db_column=in.(albam,gadol,kadmi,miluy,ragil,atbash,siduri,misratar,kadmi_gadol)&order=sort_order.asc.nullslast  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-8/*",
+      "sha256": "2594c3745c0c0393c5d860ab6f596aa1bfeed50cd4edea687d0001bc2745e0f0",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/gematria_words?select=*&phrase=eq.הציר+ההודי&order=is_verified.desc&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "status": 200,
       "type": "application/json"
     },
@@ -435,6 +715,22 @@
       "type": "application/json"
     },
     {
+      "bytes": 507,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&id=eq.44352fda-6a13-4841-b0b1-fa4141113ebc  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "f8c2adb4a9d719fd6764d60273e12100510c84022d207cca5897ac9df77d3572",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 4288,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&id=in.(44352fda-6a13-4841-b0b1-fa4141113ebc,69bcfbd0-8d4a-464f-9b6f-6f44de37c719,a0e5ad64-2901-49c0-a113-abc0114be09a,56e0f37c-1b43-4dc6-b55d-81fa97afb1ad,2fa46cdf-977a-4b0a-abdd-8fcbb5eb1765,9cd22c3e-be5c-4283-ba6d-f974530d4dbc,dc9fa5d5-edf0-4e1d-8212-0d1e34b729fd,249f38f0-cc24-48f4-81d2-2586dd7a73a6)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-7/*",
+      "sha256": "277d58d3d54338add1a19556d1a6e69a4cb717ebc547a417dd3f1bbd6283ebf8",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 2787,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&type=eq.event&is_active=eq.true&order=created_at.desc,id.asc&offset=0&limit=7  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-6/*",
@@ -455,6 +751,22 @@
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,identity_key,is_active,created_at&type=eq.phrase&is_active=eq.true&order=created_at.desc,id.asc&offset=0&limit=7  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-6/*",
       "sha256": "ae346ff43f10b587419901f24e6645fde10a832279345e7d58d0898435b29c3e",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 461,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,description,metadata,is_active,weight,created_at&id=eq.44352fda-6a13-4841-b0b1-fa4141113ebc&type=eq.convergence  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "77c873c0a2e1ea97965cfcae7ef8c898e8468a6764e0bdaa10b264bdfa2c8a00",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2490,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,metadata,is_active&id=in.(69bcfbd0-8d4a-464f-9b6f-6f44de37c719,a0e5ad64-2901-49c0-a113-abc0114be09a,56e0f37c-1b43-4dc6-b55d-81fa97afb1ad,2fa46cdf-977a-4b0a-abdd-8fcbb5eb1765,9cd22c3e-be5c-4283-ba6d-f974530d4dbc,dc9fa5d5-edf0-4e1d-8212-0d1e34b729fd,249f38f0-cc24-48f4-81d2-2586dd7a73a6)  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-6/*",
+      "sha256": "fc76ed83b52eee80227e9e6b26b1f0c53e044d1d98bf241f53c23deffeb8a10e",
       "status": 200,
       "type": "application/json"
     },
@@ -579,6 +891,14 @@
       "type": "application/json"
     },
     {
+      "bytes": 34004,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,content,tags,author,authors,date,modified&id=eq.5112&slug=eq.flydubai-fz1073-363-14000-remzei-geula  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "4b58c3f3a14b578ef7a1d154e51caff32348267fe3966b1f497d4ce71b9ce0df",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 26186,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at&home_hidden=eq.false&tags=not.cs.{טיוטה}&tags=not.cs.{פורום}&source=in.(wordpress,SOD1820,sod1820,source_document,ai,uploaded_file)&order=modified.desc.nullslast&limit=32  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-31/*",
@@ -635,6 +955,14 @@
       "type": "application/json"
     },
     {
+      "bytes": 1401,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,slug,title,tags,home_hidden,source,categories,date,thumb_url,image_url&slug=in.(flydubai-fz1073-363-14000-remzei-geula)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "be1defe7f35f0fc2ee6d9ed2f8d2ccfec0ec0ef63e72e4bbc37fe591a867c0bb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 993,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_contributor_id,title,target_type,target_id,gematria_claim,convergence_slug,status,created_at&author_contributor_id=in.(c66f0464-0928-490e-be9b-66d8a87e7fc8,c0459430-6ba0-44a9-b1be-b5952344e74d,d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86,e4fc2c19-9669-49e5-9564-d27cc3558f67,9594ec7d-159d-4148-ad6d-0371ffca8282)&status=eq.approved&convergence_slug=not.is.null&order=created_at.desc&limit=100  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-1/*",
@@ -648,6 +976,38 @@
       "range": "*/*",
       "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 202,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&relates=cs.{tc:95945c0d-7b7b-482f-a2f9-a5a097621452}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": null,
+      "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+      "status": 401,
+      "type": "application/json"
+    },
+    {
+      "bytes": 202,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&relates=cs.{הציר+ההודי}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": null,
+      "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+      "status": 401,
+      "type": "application/json"
+    },
+    {
+      "bytes": 202,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&terms=cs.{tc:95945c0d-7b7b-482f-a2f9-a5a097621452}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": null,
+      "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+      "status": 401,
+      "type": "application/json"
+    },
+    {
+      "bytes": 202,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_objects?select=id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta&terms=cs.{הציר+ההודי}&order=created_at.desc&limit=48  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": null,
+      "sha256": "06b91ce177cd00522b9035f0eef6fbdaff5a0498563cdd524df6652e284809a3",
+      "status": 401,
       "type": "application/json"
     },
     {
@@ -683,10 +1043,18 @@
       "type": "application/json"
     },
     {
-      "bytes": 1460,
+      "bytes": 1466,
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-2/*",
-      "sha256": "7942a8b2204f5b4d74fff49ceecb3a41576415bf62efe1a8aa069a70ef28fbe7",
+      "sha256": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 1466,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,status,node_id,image_ids&status=eq.approved&image_ids=ov.{00155e62-5627-4127-b57c-2784afa3f22d,1ab8cc24-cc46-46ab-b267-f2debb65085c,465bf326-6d0c-4fa9-b755-6f831b3b199e,5579cca1-ff12-4a9a-87ee-e32e89ca9af3,58b3b31c-9119-439c-81cc-22de18176827,6232be42-82a3-41ac-b4d3-004a21e48c7f,8940efb2-8423-4a27-a10a-d3fdd07cf595,96207e5d-ac80-4344-9e50-f50a8cc0a726,9709efef-1c9a-47ad-8f21-a7e9f9da3714,aec24537-aec2-44d0-b513-1941cf80c629,c6a63e40-48fa-46dd-82c4-ccbebd0be10f,f532a507-fa0c-444f-9a4e-6fbf4051cdd0,fcbcfb23-90ed-4b71-afd8-14cf7d1d4c3e,4d0b8d36-0801-449b-a0a6-0c7ff543c5b0}&order=slug.asc&limit=24  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-2/3",
+      "sha256": "2b68aa4fd6103fc96e4afda74b96f6d9f8095f418e48b031b21ff4ff8899e8bb",
       "status": 200,
       "type": "application/json"
     },
@@ -791,6 +1159,22 @@
       "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id,findings,created_by,search_terms,image_ids,occurred_at&slug=eq.india-axis  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
       "range": "0-0/*",
       "sha256": "4e723c7687dc32e8cf080ee03e9ed57c42d3f0c332e615dd79fef14b6ea9ab85",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2648,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id,findings,created_by,search_terms,image_ids,occurred_at&slug=in.(india-axis)&limit=1  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "0-0/*",
+      "sha256": "f54409a2adf0e3d3d09e65e42ca9c870589d56214a64a5599f7bd1c139baa567",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 2,
+      "key": "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/topic_cards_public?select=id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by&search_terms=ov.{הציר+ההודי}&order=quality.desc.nullslast&limit=16  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+      "range": "*/*",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "status": 200,
       "type": "application/json"
     },
@@ -1203,6 +1587,14 @@
       "type": "application/json"
     },
     {
+      "bytes": 9274,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":424} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-0/*",
+      "sha256": "692fe0e2c7fd83ddbca17e22de37c4c1bbc8657ad3a3781d97990268f39be41d",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
       "bytes": 1458,
       "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/convergence_meter {\"p_n\":5844} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
       "range": null,
@@ -1479,6 +1871,14 @@
       "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/fn_zero_scale {\"p_value\":730} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
       "range": null,
       "sha256": "dd8b906d55cf43e55293e30da7ec4d11ea38700a580981564bb172230b7211b1",
+      "status": 200,
+      "type": "application/json"
+    },
+    {
+      "bytes": 226,
+      "key": "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/gematria_api {\"p_text\":\"הציר ההודי\"} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}",
+      "range": "0-0/*",
+      "sha256": "3bcfa35f26704be41c0d37af2ff33b2b2a5d5733912eb4996964ce86bb48f920",
       "status": 200,
       "type": "application/json"
     },

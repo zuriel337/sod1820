@@ -1,7 +1,7 @@
 {
   "performance": {
     "kind": "performance",
-    "responses": 171,
+    "responses": 192,
     "checks": [
       {
         "name": "request header signatures",
@@ -28,7 +28,7 @@
   },
   "navigation": {
     "kind": "navigation",
-    "responses": 172,
+    "responses": 195,
     "checks": [
       {
         "name": "request header signatures",
@@ -59,7 +59,7 @@
   },
   "browser": {
     "kind": "browser",
-    "responses": 171,
+    "responses": 192,
     "checks": [
       {
         "name": "request header signatures",

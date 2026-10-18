@@ -1,22 +1,27 @@
 # New public frozen inputs: incomplete acceptance
 
-Revision `public-body-admission-v3` is retained and reproducible from Git:
-172 navigation contracts and 171 performance/browser contracts. All 161 prior
-navigation response objects are unchanged. Eleven actual reviewed contracts
-were added; no text, row count, relationship, image weight or speed/sample budget
-was reduced. The complete public5116 body is checked by source identity and
-SHA256, with truncation/change/padding/identity negatives, under explicit user
-approval. The seven-field approved public contributor DTO is unchanged.
+Revision `public-current-route-admission-v4` is retained and reproducible from
+Git: 195 navigation contracts and 192 performance/browser contracts. Relative
+to revision 3, 23 exact current-route contracts were added and two current
+public response bodies were refreshed as matched empty/count header pairs. No
+previous contract was removed. The added inputs are limited to verified public
+Post/Topic/graph/gallery/math reads and four exact public `401/42501` responses;
+the latter contain no research rows. All 37 image bodies decode successfully.
 
-Performance/navigation minimum preflights pass, then full execution fails closed
-on absent source responses. Browser preflight still fails on the non-retainable
-Bennett Golden body. The independent Post-only comparison has seven samples on
-each side with one frozen input and tool; it is not full performance acceptance.
-This is a new offline experiment, not historical snapshot recovery or live parity.
-See [`current evidence`](../../../docs/perf-evidence-20261015/ci-corpus/admission-v3/README.md),
-`manifest.json`, `source-index.json` and `coverage.json` for sources, hashes and
-exact missing inputs. No local-only draft, unverified attribution or group message
-body is packaged; no empty substitute or live fallback is permitted.
+Performance/navigation minimum preflights and the 35 privacy/contract/repack
+tests pass. A current built-route diagnostic has no unknown request for the
+Number 376 or public Post 5116 startup paths. Full execution still fails closed:
+Home has four non-admitted inputs, World has one private-inclusive RPC, Topic has
+one response with an unreviewed attribution, and Browser still requires the
+non-retainable Bennett draft body. The independent historical Post-only
+comparison remains seven samples on each side; it is not full performance
+acceptance. This is a new offline experiment, not historical snapshot recovery
+or live parity. See the
+[`2026-10-18 completion evidence`](../../../docs/perf-evidence-20261018/ci-corpus-completion/README.md),
+the prior [`admission-v3 evidence`](../../../docs/perf-evidence-20261015/ci-corpus/admission-v3/README.md),
+`manifest.json`, `source-index.json` and `coverage.json`. No local-only draft,
+account UUID, unreviewed attribution, contributor content or group message body
+is packaged; no empty substitute or live fallback is permitted.
 
 The workflow requires `manifest.json` and `browser.json.gz`,
 `navigation.json.gz`, `performance.json.gz`. Input staging must finish before

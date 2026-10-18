@@ -1,0 +1,25 @@
+✔ missing safety configuration stops before a connection (54.771337ms)
+✔ record and hosted paths refuse to connect, including child curl capture (0.413174ms)
+✔ frozen snapshot is hash-pinned, nonempty and structurally checked (894.820444ms)
+✔ UDP write 127.0.0.1: unguarded local trap control receives one packet (64.576533ms)
+✔ UDP write 127.0.0.1: swallowed denial fails parent with zero trap hits (298.829951ms)
+✔ UDP write 127.0.0.1: explicitly registered local peer works (284.89499ms)
+✔ UDP writev 127.0.0.1: unguarded local trap control receives one packet (53.795319ms)
+✔ UDP writev 127.0.0.1: swallowed denial fails parent with zero trap hits (276.981071ms)
+✔ UDP writev 127.0.0.1: explicitly registered local peer works (280.216656ms)
+✔ UDP write ::1: unguarded local trap control receives one packet (58.69695ms)
+✔ UDP write ::1: swallowed denial fails parent with zero trap hits (275.52826ms)
+✔ UDP write ::1: explicitly registered local peer works (288.44267ms)
+✔ UDP writev ::1: unguarded local trap control receives one packet (55.984764ms)
+✔ UDP writev ::1: swallowed denial fails parent with zero trap hits (274.324409ms)
+✔ UDP writev ::1: explicitly registered local peer works (262.719297ms)
+✔ packetless UDP connect remains permitted (300.988045ms)
+✔ ordinary file write and writev remain permitted (266.214939ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3211.456052

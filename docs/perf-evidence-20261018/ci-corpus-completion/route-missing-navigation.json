@@ -1,0 +1,35 @@
+{
+  "fixtureFile": "test/fixtures/ci-2029/navigation.json.gz",
+  "headers": true,
+  "paths": {
+    "/": {
+      "misses": [
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/posts?select=id,title,slug,link,modified,date,author,ai_addition,space,home_hidden&space=eq.core&home_hidden=eq.false&ai_addition=not.is.null&ai_addition=ilike.%787%&order=modified.desc.nullslast&limit=12  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_name,title,gematria_claim,created_at&target_type=eq.number&target_id=eq.787&status=eq.approved&order=created_at.desc&limit=12  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/research_contributions?select=id,author_user_id,author_contributor_id,author_name,created_at&status=eq.approved&created_at=gte.TS&order=created_at.desc&limit=1000  {\"prefer\":\"count=exact\",\"range\":\"\",\"accept-profile\":\"public\"}",
+        "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/world_group_source_arrivals_v2 {\"p_before\":null,\"p_limit\":8} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}"
+      ],
+      "errors": []
+    },
+    "/world": {
+      "misses": [
+        "POST https://linswmnnkjxvweumprav.supabase.co/rest/v1/rpc/world_group_source_arrivals_v2 {\"p_before\":null,\"p_limit\":24} {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"\"}"
+      ],
+      "errors": []
+    },
+    "/number/376": {
+      "misses": [],
+      "errors": []
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "misses": [],
+      "errors": []
+    },
+    "/topic/india-axis": {
+      "misses": [
+        "GET https://linswmnnkjxvweumprav.supabase.co/rest/v1/nodes?select=id,type,label,identity_key,metadata&type=eq.number&is_active=eq.true&label=in.(966,335,1476,1155,538,83,364)&limit=7  {\"prefer\":\"\",\"range\":\"\",\"accept-profile\":\"public\"}"
+      ],
+      "errors": []
+    }
+  }
+}

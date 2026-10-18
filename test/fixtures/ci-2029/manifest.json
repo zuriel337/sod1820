@@ -90,12 +90,12 @@
       "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
     "readiness": "INCOMPLETE_NOT_ACCEPTED",
-    "sha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "sha256": "7a75c1033b38eb09cb8c46dd578bccf62b89b1a7fb6e91bf58540d5b76e28365",
     "source": {
       "access": "public-reviewed",
-      "date": "2026-10-15",
+      "date": "2026-10-18",
       "reference": "test/fixtures/ci-2029/source-index.json",
-      "sha256": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981"
+      "sha256": "6413ded17d94d774f420b0b36f9fde1653f42f0a5446a98b337267abb8caed42"
     },
     "version": 1
   },
@@ -190,12 +190,12 @@
       "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
     "readiness": "INCOMPLETE_NOT_ACCEPTED",
-    "sha256": "b4fc08cd1046f97f52372c570df6d3ed43118a1151a19cb939ca68b22f02efc1",
+    "sha256": "8e7e799cb64fda1446af70912a3dc00f8009c604b7014f954f080253f898d3e9",
     "source": {
       "access": "public-reviewed",
-      "date": "2026-10-15",
+      "date": "2026-10-18",
       "reference": "test/fixtures/ci-2029/source-index.json",
-      "sha256": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981"
+      "sha256": "6413ded17d94d774f420b0b36f9fde1653f42f0a5446a98b337267abb8caed42"
     },
     "version": 1
   },
@@ -290,12 +290,12 @@
       "reference": "docs/perf-evidence-20261015/ci-corpus/README.md#privacy-and-source-admission"
     },
     "readiness": "INCOMPLETE_NOT_ACCEPTED",
-    "sha256": "33c9469ac6a667f25fa57670fd9fadd650a087705dbd196691090e807e9098e9",
+    "sha256": "7a75c1033b38eb09cb8c46dd578bccf62b89b1a7fb6e91bf58540d5b76e28365",
     "source": {
       "access": "public-reviewed",
-      "date": "2026-10-15",
+      "date": "2026-10-18",
       "reference": "test/fixtures/ci-2029/source-index.json",
-      "sha256": "a5e119cc6a2afc238933974bade80e045c3329dcdb64a46dd90e5d7228fc7981"
+      "sha256": "6413ded17d94d774f420b0b36f9fde1653f42f0a5446a98b337267abb8caed42"
     },
     "version": 1
   }

@@ -1,0 +1,346 @@
+{
+  "snapshot": "8e7e799cb64fda1446af70912a3dc00f8009c604b7014f954f080253f898d3e9",
+  "images": 37,
+  "uniqueBodies": 37,
+  "formats": {
+    "JPEG": 34,
+    "PNG": 3
+  },
+  "allDecoded": true,
+  "invalid": [],
+  "entries": [
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC023805C9B2BA07AADD04FF6A3646F4.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1079,
+      "height": 992,
+      "bytes": 82895,
+      "sha256": "c65e53f29142fb9c85dec53c35868a5b9729df32cba2c71eb96d305e951bb5e4"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC11282B9F9B08C44760F6A158D5F853.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1080,
+      "height": 1080,
+      "bytes": 169091,
+      "sha256": "ed7a3bb146ff213c6806cddce985d9808ce212df60cb30c9fb2db89b61ca1ccd"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/AC8B47EC03D88B1D3840DEC103BEC859.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 778,
+      "height": 1142,
+      "bytes": 46269,
+      "sha256": "bf95bdb1ef54a64d2a5fbe2965d8ad8b8ed59b9f3c440ac0ef976ce8b8588aee"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/ACBA5EBF3A6336E0F4DF7951E3FBDCC3.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1035,
+      "height": 1280,
+      "bytes": 88145,
+      "sha256": "dc4ecf04f4522740f5b626450ab4af0d7114d3316cdc479e12c0103a048d139e"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png",
+      "type": "image/png",
+      "format": "PNG",
+      "width": 512,
+      "height": 512,
+      "bytes": 425350,
+      "sha256": "25892cf2e9a482ed43d67a43fdf13faae2970a40fe380fd7bebbd7c009b8e3f4"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/cards/dim5-koach-hashtika.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1080,
+      "height": 1080,
+      "bytes": 89563,
+      "sha256": "ff30aaea891be0625efbe61276ed7bd039c576f8fe1dcafc65d5478a99144411"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/cards/dim5-ma-becha-nishar.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1080,
+      "height": 1080,
+      "bytes": 166524,
+      "sha256": "91e5865786077719fc50c927735b1cb2c811edad01587ac628c5f5db09cd28a3"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/17562bdf-001b-4436-8da7-516d180420ae.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1151,
+      "bytes": 46981,
+      "sha256": "dd903fa99f40073ae92b6e3f0ec868dd8ff3c4ab7eaf15d130d520346db38230"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/24fe5173-a6ac-4a35-855e-5115006f790b.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1138,
+      "bytes": 68815,
+      "sha256": "f0c3bbcaacacbb9b51ba3a78cd87ed6a8035af6df075685eb0dac3643f098972"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/2b9f8ea8-fcfb-4501-b68c-9ff45f7488fc.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 350,
+      "bytes": 9561,
+      "sha256": "fd30969bfa32cd726e6ddfdf5e59bd23bf6cce932df761c872a409131446191b"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/373b1c77-38f6-48ec-907a-76ea0d36a43a.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1138,
+      "bytes": 49194,
+      "sha256": "4bb600b4fa211d8712227d0d3142979811bc972db1dc409179981bd2ac056e3c"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/6a3d5eeb-b8ac-4e3a-a0b1-99f94b4f4844.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1138,
+      "bytes": 64413,
+      "sha256": "2879d97da2b951c813937d25861848166c6a0bebce05d0b6d5a352d716301995"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/a1c37297-31f9-4895-aefe-4f6e305df20a.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1138,
+      "bytes": 66096,
+      "sha256": "cb76446235347f4a5f7d3407df145f3f97d52417b550682995357d9ace2144b0"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/aba409e4-9674-4ba2-a722-93b018e6bd44.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1138,
+      "bytes": 43437,
+      "sha256": "2b4967d7fd0a15700d7d7615bf5725f6c572e27a0283fef4c18da5639b7fbbde"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/channel-thumbs/ecad15ac-97e4-4224-9c20-3fc817b07e30.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 640,
+      "height": 1140,
+      "bytes": 15354,
+      "sha256": "9a7ea16fff5a71be98d5c8b5c26ea542411da4c21645a29f7a8d1f457c32cdd7"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/posts/fz1073/smit-machchhar-source-20261001.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 691,
+      "height": 1536,
+      "bytes": 190253,
+      "sha256": "dc86a86e9b9cccf87a9f929347491a9bfebe9106529db58cce887fc1239d1baa"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/6232be42-82a3-41ac-b4d3-004a21e48c7f.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 400,
+      "bytes": 27944,
+      "sha256": "4f979947c7dcb6a3e1595914ca32ec1736ea2af4d7674f3e83138fd3151fa61e"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/62ffc447-fd91-4027-9fe9-4a19d09679fd.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 270,
+      "bytes": 31882,
+      "sha256": "f97d149823fa3f627a0ee6e34c0de64c0fdc53b01d8d81fd66e065f6a0efc490"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/c/32fdbfd1-a729-4af3-807c-219c32155a8d.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 441,
+      "bytes": 45636,
+      "sha256": "87516c62c263237292ba8467060b12438ff7cb8b5fc780e13892b8b79acc6bd3"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/c/549495de-8f1b-4f95-bfa1-3ff8688a9a85.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 704,
+      "bytes": 28919,
+      "sha256": "3cffacd61766fe5ad6d5e19a60ebf76a5344108d07b9c1e470b5d4781d1a638a"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/c/944e4fff-2fc7-4ff3-b238-a078ded5ecfb.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 480,
+      "bytes": 50974,
+      "sha256": "1ce8fa4749903390d640504492bd34d1766caf67dd5ea32e46bda69e92d2d23f"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/c/d2e58001-c141-4d37-93f6-38c4ac7758ff.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 593,
+      "bytes": 64448,
+      "sha256": "4eece8bc501834c6e83ff09e8f32c2c99de898271479a33ca39d736e58dc4269"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/c502fa89-96f1-495b-aeb7-b16deaaa96b3.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 249,
+      "bytes": 18491,
+      "sha256": "7f22173b39204b24007771d143071c19da45e48062df471101dd916d3b871173"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5100.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 480,
+      "bytes": 19372,
+      "sha256": "ac6f3a7b8553fd67d92224466be265d34d3261b7a82cd769a50b4c6c06c5c5cf"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5109.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 853,
+      "bytes": 25913,
+      "sha256": "d2af2db4c67d82aed21a96cab4d61571127c6679acb21ad9c26b5852c039799f"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5107-cover-20261012/thumb-fast-v1.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 300,
+      "bytes": 29754,
+      "sha256": "96889ba7b3d02387949f26432668a3267f07a20cdacad97ea59b3325d72320c7"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1586,
+      "height": 992,
+      "bytes": 296771,
+      "sha256": "b34b1b7f661d2bb5a8489aba9ca9fd380b693e9d703f62022e9bfc8e24f79db0"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/thumb-fast-v1.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 300,
+      "bytes": 23855,
+      "sha256": "7b85ef4d7b1474a2360fd14a480af8bcfb2b81e45b8d0e39cb669812b8817801"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 300,
+      "bytes": 27310,
+      "sha256": "339f612e42b2af76654bd6e1061f4fd7411a0ef6c3a9de5f6f052689c9284f4b"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5115-cover-20261012/thumb-fast-v1.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 300,
+      "bytes": 25085,
+      "sha256": "6d433390d696f22f84cb62d0f8f943a3ebe26a31060de33f69ae61697459cec3"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 1586,
+      "height": 992,
+      "bytes": 213687,
+      "sha256": "30ae8e0b9de79056b0af69b8435eebc590c372ad7fb6f3886b782c039ba37225"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/thumb-fast-v1.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 480,
+      "height": 300,
+      "bytes": 11426,
+      "sha256": "efeba90dd74adfe4c6c42774f2695097b7fb0911e3b42e8395e1e5c8275dba3b"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/10b548b4-ab22-40fc-a12c-5a622434f0bd/derivatives/poster.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 144,
+      "height": 256,
+      "bytes": 2436,
+      "sha256": "8cbaed9007fb35d085429ebcf83c49a0594f30bc1c70af567d1f51b4590d521e"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/b3b67517-7c04-49aa-b2bb-986533e8b7c3/derivatives/preview.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 360,
+      "height": 640,
+      "bytes": 16563,
+      "sha256": "47a7313912dfbe2386b64df465271a9efe13ea78bc6cb49afd3514a0e8c46917"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/posts/shvilei-safa-emblem.png",
+      "type": "image/png",
+      "format": "PNG",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 1873471,
+      "sha256": "d60ac9ea78c51625f60c37034b17679e3606e2ef1f6b9e23f3bbbde67dcb1862"
+    },
+    {
+      "path": "/storage/v1/object/public/media/uploads/2018/10/vrayt-at.png",
+      "type": "image/png",
+      "format": "PNG",
+      "width": 872,
+      "height": 265,
+      "bytes": 7640,
+      "sha256": "d8accd1d9b691f2ed58983fd504d233bf2a5973baaf0e78de634dd4b050d6f49"
+    },
+    {
+      "path": "/storage/v1/render/image/public/media/sod1820/2029/image/2026/10/post-5116-cover-20261012/reading-v2.jpg",
+      "type": "image/jpeg",
+      "format": "JPEG",
+      "width": 768,
+      "height": 480,
+      "bytes": 53538,
+      "sha256": "ba07b03256c673ee3eaefee40a18c30b642d089387f4d149e6f11d0dbd7f8d32"
+    }
+  ]
+}

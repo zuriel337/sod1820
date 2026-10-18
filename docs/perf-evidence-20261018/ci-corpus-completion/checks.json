@@ -1,0 +1,116 @@
+{
+  "baseline": {
+    "branch": "gpt/perf-unified-candidate-20261018",
+    "sha": "8f78c0c7ced835849a816a815abf05a7247ceead",
+    "remoteVerified": true
+  },
+  "package": {
+    "revision": "public-current-route-admission-v4",
+    "navigation": {
+      "responses": 195,
+      "sha256": "8e7e799cb64fda1446af70912a3dc00f8009c604b7014f954f080253f898d3e9",
+      "coverage": "PASS"
+    },
+    "performance": {
+      "responses": 192,
+      "sha256": "7a75c1033b38eb09cb8c46dd578bccf62b89b1a7fb6e91bf58540d5b76e28365",
+      "coverage": "PASS"
+    },
+    "browser": {
+      "responses": 192,
+      "sha256": "7a75c1033b38eb09cb8c46dd578bccf62b89b1a7fb6e91bf58540d5b76e28365",
+      "coverage": "BLOCKED_BENNETT_DRAFT"
+    },
+    "manifestSha256": "8a46e770fa19ad00ebdac1a731845d452d12ec66c83b923517448463ce9054dc",
+    "sourceIndexSha256": "6413ded17d94d774f420b0b36f9fde1653f42f0a5446a98b337267abb8caed42",
+    "coverageSha256": "07394e7b7a2a3d9cbe9b38ddfe1c75b0566ea42d64dc0beb2fc3dfd0276c0434",
+    "readiness": "INCOMPLETE_NOT_ACCEPTED",
+    "byteIdenticalRepack": true
+  },
+  "privacy": {
+    "actualCorpus": "PASS",
+    "tests": "18/18 PASS",
+    "newAccountUuid": 0,
+    "newContactData": 0,
+    "draftOrHiddenBodies": 0,
+    "privateGroupBodies": 0
+  },
+  "contractTests": {
+    "result": "35/35 PASS"
+  },
+  "images": {
+    "result": "37/37 PASS",
+    "jpeg": 34,
+    "png": 3,
+    "uniqueBodies": 37
+  },
+  "routeDiagnostics": {
+    "/": {
+      "navigationMisses": 4,
+      "performanceMisses": 4,
+      "pageErrorsNavigation": 0,
+      "pageErrorsPerformance": 0
+    },
+    "/world": {
+      "navigationMisses": 1,
+      "performanceMisses": 1,
+      "pageErrorsNavigation": 0,
+      "pageErrorsPerformance": 0
+    },
+    "/number/376": {
+      "navigationMisses": 0,
+      "performanceMisses": 0,
+      "pageErrorsNavigation": 0,
+      "pageErrorsPerformance": 0
+    },
+    "/post/seventh-to-tenth-sefirot-2027": {
+      "navigationMisses": 0,
+      "performanceMisses": 0,
+      "pageErrorsNavigation": 0,
+      "pageErrorsPerformance": 0
+    },
+    "/topic/india-axis": {
+      "navigationMisses": 1,
+      "performanceMisses": 1,
+      "pageErrorsNavigation": 0,
+      "pageErrorsPerformance": 0
+    }
+  },
+  "sourceGate": {
+    "result": "FAIL",
+    "passedBeforeFailure": [
+      "source suites",
+      "A3 memory trace with 5 stored spans and 11 persistence-failure cases",
+      "legacy and 2029 builds",
+      "built graph",
+      "bundle budget",
+      "measurement unit and browser tests",
+      "config preflight"
+    ],
+    "failure": "egress browser teardown outer runner exit was 0 instead of 1"
+  },
+  "egressRetry": {
+    "result": "16/17 PASS",
+    "failure": "browser teardown",
+    "reproduced": true
+  },
+  "udpAndConfig": {
+    "result": "17/17 PASS"
+  },
+  "numberOwnerBrowser": {
+    "result": "BLOCKED_PREFLIGHT",
+    "missingContracts": 6
+  },
+  "fullComparisons": {
+    "result": "NOT_RUN_BLOCKED",
+    "reason": "Home/World/Topic/private/draft inputs remain absent; no response was fabricated and no live fallback was used"
+  },
+  "externalActions": {
+    "hostedCi": false,
+    "pullRequest": false,
+    "deploy": false,
+    "databaseWrite": false,
+    "rlsOrFlagWrite": false,
+    "workLogWrite": false
+  }
+}

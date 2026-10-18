@@ -1,0 +1,46 @@
+✔ isolated fetch with local forbidden target (405.545885ms)
+✔ isolated http with local forbidden target (323.836281ms)
+✔ isolated curl with local forbidden target (623.295164ms)
+✔ isolated child-node with local forbidden target (878.739847ms)
+✔ isolated udp with local forbidden target (375.325804ms)
+✔ isolated permitted with local forbidden target (431.316574ms)
+✔ browser write cannot reach a local forbidden target (1896.478515ms)
+✔ browser rpc cannot reach a local forbidden target (1534.929423ms)
+✔ browser research cannot reach a local forbidden target (1335.2353ms)
+✔ browser beacon cannot reach a local forbidden target (1309.515345ms)
+✔ browser early cannot reach a local forbidden target (1284.340044ms)
+✖ browser teardown cannot reach a local forbidden target (1452.553515ms)
+✔ browser close cannot reach a local forbidden target (1296.504328ms)
+✔ browser worker cannot reach a local forbidden target (1501.648235ms)
+✔ browser websocket cannot reach a local forbidden target (1279.081685ms)
+✔ browser sw cannot reach a local forbidden target (1302.316104ms)
+✔ browser replay cannot reach a local forbidden target (1411.682697ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 16
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18652.320523
+
+✖ failing tests:
+
+test at test/ci-isolation/egress.test.mjs:24:2
+✖ browser teardown cannot reach a local forbidden target (1452.553515ms)
+  AssertionError [ERR_ASSERTION]: Child completed; any forbidden attempt must still fail the outer runner
+  
+  
+  0 !== 1
+  
+      at probe (file:///workspace/sod1820-ci-corpus-completion-20261018/test/ci-isolation/egress.test.mjs:18:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
