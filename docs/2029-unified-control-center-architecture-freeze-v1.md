@@ -12,6 +12,42 @@ Single canonical private admin experience: `/2029/control`.
 - **PR #1018** is cost/consumption policy contract V1.1; integrate full project expense ledger VIEW using evidence-backed source adapters. Do not treat its prose as deployed implementation.
 - **PR #1007** is native Control Plane repair, NOT a separate admin product. Its authenticated preview acceptance found admin_system_health and admin_video_map_health 500 / SQLSTATE 57014 (backend timeout). Must resolve before actual release. Do not represent missing card data as zero.
 
+## Approved AI command experience direction — 18.10.2026
+
+**Human decision:** ZURIEL will **manage the SOD1820 site, not a collection of chat sessions or agents**. The sole private management UI is the existing `/2029/control`. An authenticated **"בקש שינוי באתר" / AI Command** experience belongs *inside* that UI and its existing Control Plane owners, including mobile/RTL. It is not a new admin site, replacement research AI, chat-to-chat messaging system, agent wake service, new canonical owner or permission system.
+
+### User journey and truthful state
+
+- ZURIEL gives a natural-language site request, e.g. "check the homepage speed, prepare a fix and let me inspect mobile preview".
+- Control Plane resolves current domain/owner and active writer, live `origin/main`, relevant canonical `work_log`, and the minimum necessary source evidence. The response shows **observed facts**, **recommendation**, **work in progress**, **PR/tests**, **exact-sha preview**, **blockers**, **cost**, and **approval needed** as distinct statuses.
+- A single user-facing manager presents progress and results. Specialist execution is internal and invoked only when an authorized, verified provider/runtime path exists. ZURIEL is not asked to shuttle raw handoff messages or orchestrate individual chats.
+- A request cannot imply that Claude/Codex/ChatGPT Work conversations were remotely resumed. **API/SDK managed agent sessions are separate from preexisting ChatGPT Work conversations.** State `NOT_WIRED` / `UNVERIFIED` until execution provenance exists.
+- All actions use the **existing** domain owners, GitHub Issue/PR workflow, release/provenance rules and operational traces. Do not create a duplicate task ledger, job queue, provider registry, analytics, audit log or second work_log.
+
+### Staged, enforceable delivery (no implicit release permission)
+
+**P0 — source/ownership and release blockers (READ_ONLY).**
+Recheck `ControlPlane2029Page.jsx`, route/auth, PR #908 and #1007 against *current* main and current preview; resolve or explicitly gate existing admin 500/timeout risks before release. PR #908 is an old divergent draft, not a merge candidate without scoped reconciliation. Inventory existing AI/provider runtime and cost trace contracts; do not claim OpenAI is wired because SDK documentation exists.
+
+**P1 — real authenticated READ_ONLY command vertical slice (isolated PR).**
+Extend the existing Control Plane page and owner-qualified server boundary to accept a bounded natural-language intent, resolve relevant current GitHub/Supabase/Vercel facts, return citations/evidence and `UNKNOWN` for gaps, and render errors without hiding existing health cards. Minimum acceptance: real admin auth **on server**, unauthorized 401/403, rate/abuse limits, mobile/RTL/a11y, no client-side secrets, no anonymous external tool calls, no fake tasks or simulated success. The UI is not considered functional until server-side read and exact evidence are verified in private preview.
+
+**P2 — OpenAI model/runtime, gated and metered (separate approval).**
+Prefer the official OpenAI Agents SDK manager-style workflow or Responses API **as an implementation choice**, not a second independent product/AI owner; verify compatibility with existing provider orchestration/operational trace first. OpenAI may be marked `WIRED` only after real server-side integration, authorization, privacy, redaction, concurrency and trace tests. Keep `OPENAI_API_KEY` in approved **server-only** encrypted environment configuration, never browser JS, repo, prompts or work_log. API usage is billed separately from ChatGPT; require explicit ZURIEL approval of provider, spending ceiling (per request/day/month), fallback and stop-on-budget policy before any billable call. Fail closed on missing entitlement/cost provenance.
+
+**P3 — bounded build/PR execution (separate write authorization).**
+After an explicit task-level command, validate canonical owner and **one scope/file–one active writer**, set isolated branch and test criteria, use an existing authenticated runner/connector, and produce a real GitHub PR plus preview. A work_log entry or created Issue is not proof a remote code worker ran. Under active `inter_agent_coordination_law v17`, no GPT-directed task wake, ACK wait or agent-to-existing-Work-chat injection; do not silently change v17 to make this work. If an execution path requires a governance change, HOLD and obtain a new explicit Human Gate first.
+
+**P4 — governed release.**
+Propose release with exact tested head, approved diff, CI, mobile preview, backend auth, rollback and change impact. Explicit ZURIEL approval is required for merge, deploy, production DB writes and publishing. A successful API/model response never authorizes a release.
+
+### Acceptance checkpoints and non-goals
+
+- One private UI at `/2029/control`, reuse current `Sod2029Shell`, data-access adapters and operational traces, preserve Legacy/2029 isolation.
+- Verify genuine task progress by provider execution ID and exact PR/commit/preview refs. Distinguish `PLANNED`, `AUTHORIZED`, `EXECUTING`, `IMPLEMENTED`, `TESTED`, `PR_READY`, `MERGED`, `DEPLOYED`, `LIVE`, `VERIFIED`. Never substitute Issue-comment identity for an authenticated Work-session identity.
+- No autonomous production action, no prompts as permission to edit arbitrary filesystem/DB, no new persistent agent hierarchy required for the user-facing experience.
+- This amendment is **documentary direction only**. It is not an API key setup, runtime implementation, applied migration, merged change, release authorization or live feature. Carry out P1–P4 only in separate scoped, reviewed PRs and with the required permissions and cost approvals.
+
 ## Canonical navigation after ready
 1. Overview: health, incidents, active attention and freshness.
 2. Finance & Consumption: ChatGPT Pro/Codex, OpenAI/Claude/Gemini subscriptions/API, Vercel, Supabase, GitHub, automation/media/business services; confirmed bill vs observed vs estimated vs unknown, renewal, prepaid/no double counting; expense allocation.
