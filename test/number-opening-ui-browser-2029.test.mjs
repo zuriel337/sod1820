@@ -172,6 +172,8 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
       let compactBytes = 0;
       const compactResponseBytes = [];
       let depthChunkFailures = 0;
+      let pointerDragIdle = scenario.programmaticCases === false ? null : false;
+      let actualScrollObserved = null;
 
       await context.route("**/*", async (route) => {
         const request = route.request();
@@ -384,11 +386,50 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
         assert.deepEqual(compactValues, [1820, 376], `${scenario.width}: StrictMode and back reuse settled openings without duplicates`);
 
         await page.evaluate(() => {
+          window.__numberPointerProbeStyles = {
+            html: document.documentElement.getAttribute("style"),
+            body: document.body.getAttribute("style"),
+          };
+          document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
+          document.body.style.setProperty("scroll-behavior", "auto", "important");
           const node = document.querySelector('[data-number-depth-sentinel="true"]');
           const top = window.scrollY + node.getBoundingClientRect().top;
           window.scrollTo(0, Math.max(0, top - window.innerHeight - 600));
         });
         await assertDepthIdle("programmatic placement inside the 900px margin remains idle");
+
+        const dragProbe = await page.evaluate(() => {
+          const probe = document.createElement("div");
+          probe.dataset.numberPointerDragProbe = "true";
+          probe.style.cssText = "position:fixed;inset:100px auto auto 16px;width:120px;height:180px;z-index:2147483647;user-select:none;touch-action:none";
+          probe.addEventListener("pointerdown", (event) => event.preventDefault());
+          probe.addEventListener("pointermove", (event) => event.preventDefault());
+          document.body.appendChild(probe);
+          return {
+            x: 64,
+            startY: 140,
+            scrollY: window.scrollY,
+          };
+        });
+        await page.mouse.move(dragProbe.x, dragProbe.startY);
+        await page.mouse.down();
+        await page.mouse.move(dragProbe.x, dragProbe.startY + 80, { steps: 4 });
+        await page.mouse.up();
+        const dragScrollY = await page.evaluate(() => {
+          document.querySelector('[data-number-pointer-drag-probe="true"]')?.remove();
+          const y = window.scrollY;
+          const saved = window.__numberPointerProbeStyles;
+          if (saved?.html == null) document.documentElement.removeAttribute("style");
+          else document.documentElement.setAttribute("style", saved.html);
+          if (saved?.body == null) document.body.removeAttribute("style");
+          else document.body.setAttribute("style", saved.body);
+          delete window.__numberPointerProbeStyles;
+          return y;
+        });
+        assert.equal(dragScrollY, dragProbe.scrollY, "primary mouse selection/drag probe must not scroll the document");
+        await assertDepthIdle("primary mouse drag with unchanged scroll position cannot create depth intent");
+        pointerDragIdle = true;
+
         await page.evaluate(() => {
           window.dispatchEvent(new WheelEvent("wheel", { deltaY: 240 }));
           window.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
@@ -409,8 +450,11 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
         await reloaded;
         await page.locator('[data-number-opening-status="ready"]').waitFor({ timeout: 15_000 });
       } else if (scenario.trigger === "wheel") {
+        const beforeWheelY = await page.evaluate(() => window.scrollY);
         depthIntentAt = performance.now();
         await page.mouse.wheel(0, 120);
+        await page.waitForFunction((before) => window.scrollY !== before, beforeWheelY);
+        actualScrollObserved = true;
       } else if (scenario.trigger === "keyboard") {
         depthIntentAt = performance.now();
         await page.locator("body").press("End");
@@ -444,6 +488,8 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
         openingBeforeDepth: true,
         autoDepthAtRest: false,
         programmaticNavigationIdle: scenario.programmaticCases !== false,
+        pointerDragIdle,
+        actualScrollObserved,
         depthLookupCount: depthReadCount(),
         depthChunkFailures,
       });

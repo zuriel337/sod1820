@@ -74,40 +74,41 @@ export async function fetchNumberAnchorProfile(number) {
   };
 }
 
-function projectNumberNodeIdentity(node) {
+function projectNumberNodeIdentity(node, value) {
+  const label = String(value);
   return {
     nodeId: String(node.id),
     type: node.type,
     key: node.identity_key || String(node.id),
-    label: node.label,
-    hubHref: entityHubHref(node.type, node.label),
+    label,
+    hubHref: entityHubHref(node.type, label),
   };
 }
 
-function admittedNumberValue(number) {
-  if (typeof number === "number") {
-    return Number.isSafeInteger(number) && number >= 0 ? number : null;
+function parseCanonicalNumberValue(candidate) {
+  if (typeof candidate === "number") {
+    return Number.isSafeInteger(candidate) && candidate >= 0 ? candidate : null;
   }
-  if (typeof number !== "string" || !/^\d+$/.test(number)) return null;
-  const value = Number(number);
+  if (typeof candidate !== "string" || !/^(?:0|[1-9]\d*)$/.test(candidate)) return null;
+  const value = Number(candidate);
   return Number.isSafeInteger(value) && value >= 0 ? value : null;
 }
 
 // Identity-only gate for the compact Number opening. It performs no anchor, family, graph,
 // research or full-row read. A label mismatch fails closed before any dependent request begins.
 export async function fetchNumberOpeningIdentity(number) {
-  const value = admittedNumberValue(number);
+  const value = parseCanonicalNumberValue(number);
   if (value == null) return null;
 
   const node = await resolveEntityHubNode({ type: "number", key: String(value) });
   if (!node) return null;
 
-  const resolvedValue = Number(node.label);
-  if (!Number.isSafeInteger(resolvedValue) || resolvedValue !== value) return null;
+  const resolvedValue = parseCanonicalNumberValue(node.label);
+  if (resolvedValue == null || resolvedValue !== value) return null;
 
   return {
     value: resolvedValue,
-    identity: projectNumberNodeIdentity(node),
+    identity: projectNumberNodeIdentity(node, resolvedValue),
   };
 }
 
