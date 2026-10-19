@@ -193,7 +193,7 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
   browser = await chromium.launch({
     executablePath: "/usr/bin/chromium",
     headless: true,
-    args: ["--no-sandbox", "--disable-dev-shm-usage", "--ignore-certificate-errors", `--host-resolver-rules=MAP ${receipt.host} 127.0.0.1`],
+    args: ["--no-sandbox", "--disable-dev-shm-usage", "--no-proxy-server", "--ignore-certificate-errors", `--host-resolver-rules=MAP ${receipt.host} 127.0.0.1`],
   });
   const context = await browser.newContext({ serviceWorkers: "allow", ignoreHTTPSErrors: true });
   await context.route("https://linswmnnkjxvweumprav.supabase.co/**", (requestRoute) => {
@@ -207,8 +207,22 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
   const page = await context.newPage();
   for (const [path, runtime] of [["/unmapped-legacy-surface", "legacy"], ["/world", "2029"]]) {
     await page.goto(`${origin}${path}`, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction((identity) => document.documentElement.dataset.sodPreviewGuard === identity,
-      receipt.guardIdentitySha256, { timeout: 20_000 });
+    try {
+      await page.waitForFunction((identity) => document.documentElement.dataset.sodPreviewGuard === identity,
+        receipt.guardIdentitySha256, { timeout: 20_000 });
+    } catch (error) {
+      const state = await page.evaluate(async () => ({
+        guard: document.documentElement.dataset.sodPreviewGuard || null,
+        body: document.body?.innerText?.slice(0, 600) || "",
+        controller: navigator.serviceWorker.controller?.scriptURL || null,
+        registrations: (await navigator.serviceWorker.getRegistrations()).map((registration) => ({
+          active: registration.active?.scriptURL || null,
+          installing: registration.installing?.scriptURL || null,
+          waiting: registration.waiting?.scriptURL || null,
+        })),
+      })).catch(() => ({ state: "unavailable" }));
+      throw new Error(`Hybrid guard did not attest for ${runtime}: ${JSON.stringify(state)}`, { cause: error });
+    }
     assert.equal(await page.locator('meta[name="sod-hybrid-runtime"]').getAttribute("content"), runtime);
     const attestation = await page.evaluate(async () => {
       const channel = new MessageChannel();
