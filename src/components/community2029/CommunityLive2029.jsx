@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
@@ -8,6 +8,7 @@ import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
+import { MessageConfirm, MessageEditor, communityMessagePermissions } from "./CommunityMessageManage.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
@@ -41,21 +42,40 @@ function LiveLike({ row }) {
   </div>;
 }
 
-function LiveMessage({ row, onReply, accountProfiles, showSource = false }) {
+// Per-viewer capabilities and locally applied changes. The server stays the authority:
+// patches only bridge the moment between a confirmed action and the next read.
+const CommunityActionsContext = createContext({ actionsAvailable: false, user: null, isAdmin: false, patches: {}, onMessageChanged: () => {} });
+
+function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, hasReplies = false }) {
+  const { actionsAvailable, user, isAdmin, patches, onMessageChanged } = useContext(CommunityActionsContext);
+  const [mode, setMode] = useState(null);
+  const row = patches[sourceRow.id] ? { ...sourceRow, ...patches[sourceRow.id] } : sourceRow;
+  const manageRef = useRef(null);
+  const closeMode = () => { setMode(null); requestAnimationFrame(() => manageRef.current?.focus()); };
+  if (row.isDeleted && showSource) return null;
+  if (row.isDeleted) return <article id={`message-${row.id}`} className="sod29-community-thread sod29-community-thread--deleted">
+    <p className="sod29-community-deleted" role="note">ההודעה נמחקה</p>
+  </article>;
+  const can = communityMessagePermissions({ row, user, isAdmin, actionsAvailable });
   const canReply = row.origin === "openweb" || row.origin === "community_2029";
   const target = row.targetType === "number" && row.targetId ? `/number/${encodeURIComponent(row.targetId)}`
     : row.targetType === "els" && row.targetId ? `/codes/${encodeURIComponent(row.targetId)}`
     : row.targetType === "topic" && row.targetId ? `/topic/${encodeURIComponent(row.targetId)}` : null;
   return <article id={`message-${row.id}`} className="sod29-community-thread">
-    <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} /></div>
+    <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} />{row.editedAt ? <span className="sod29-community-edited" title="ההודעה נערכה אחרי הפרסום">נערך</span> : null}</div>
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
-    {row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
+    {mode === "edit" ? <MessageEditor row={row} onCancel={closeMode} onSaved={(patch) => { onMessageChanged("edit", row, patch); closeMode(); }} />
+      : row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
     <div className="sod29-community-thread-actions">
       {canReply ? <button type="button" className="sod29-community-reply-action" onClick={() => onReply(row)}>השב</button> : null}
       <LiveLike row={row} />
+      {can.edit && mode !== "edit" ? <button type="button" ref={manageRef} className="sod29-community-manage-action" onClick={() => setMode("edit")}>עריכה</button> : null}
+      {can.remove && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => setMode("delete")}>מחיקה</button> : null}
+      {can.hideThread && hasReplies && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => setMode("hide-thread")}>הסתרת השרשור</button> : null}
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
     </div>
+    {mode === "delete" || mode === "hide-thread" ? <MessageConfirm row={row} kind={mode} onCancel={closeMode} onDone={(kind) => { onMessageChanged(kind, row); setMode(null); }} /> : null}
   </article>;
 }
 
@@ -71,6 +91,9 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const knownCount = replyCounts[row.id];
   const count = replyTotal ?? knownCount;
   const canExpand = expanded || count == null || count > 0 || replies.length > 0;
+  const { patches } = useContext(CommunityActionsContext);
+  // A deleted message with nothing left under it has no thread to open.
+  const deletedLeaf = (patches[row.id]?.isDeleted || row.isDeleted) && count === 0 && !replies.length;
   const childrenId = `community-replies-${row.id}`;
 
   const loadReplies = async (offset = 0) => {
@@ -100,22 +123,22 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
   return <div className="sod29-community-thread-group">
-    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} />
-    {canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
+    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} hasReplies={!(count === 0)} />
+    {canExpand && !deletedLeaf ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} title="תגובות ישירות להודעה הזאת" onClick={toggleReplies}>{expanded ? "הסתר תגובות" : count > 0 ? `פתח עוד — ${count === 1 ? "תגובה אחת" : `${count.toLocaleString("he-IL")} תגובות`}` : "הצג תגובות"}</button> : null}
     <div id={childrenId} className="sod29-community-replies" hidden={!expanded}>
       {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
       {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
       {replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} />)}
       {!loadingReplies && !replyError && replyTotal === 0 ? <p>אין תגובות גלויות.</p> : null}
-      {replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : "עוד תגובות"}</button> : null}
+      {replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : (replyTotal - nextReplyOffset) === 1 ? "עוד תגובות — נותרה תגובה אחת" : `עוד תגובות — ${(replyTotal - nextReplyOffset).toLocaleString("he-IL")} נותרו`}</button> : null}
     </div>
   </div>;
 }
 
 
-export default function CommunityLive2029({ leadingContent = null, canonicalPath = "/?preview=community&data=live" }) {
+export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/?preview=community&data=live" }) {
   const palette = use2029Palette();
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const [params, setParams] = useSearchParams();
   const claimId = params.get("claim") || "";
   const memberId = claimId ? "" : params.get("member") || "";
@@ -124,6 +147,12 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   const [rows, setRows] = useState([]);
   const [nextOffset, setNextOffset] = useState(0);
   const [total, setTotal] = useState(COMMUNITY_ARCHIVE_TOTAL);
+  const [totalVerified, setTotalVerified] = useState(false);
+  const [actionsAvailable, setActionsAvailable] = useState(false);
+  // The OpenWeb history below mounts only after the first read settles; before that the page is short
+  // and the history would look "near" and load on entry.
+  const [feedSettled, setFeedSettled] = useState(false);
+  const [patches, setPatches] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -170,13 +199,14 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
       if (request !== streamRequestRef.current) return;
       setRows((current) => replace ? page.rows : [...current, ...page.rows.filter((item) => !current.some((existing) => existing.id === item.id))]);
       setNextOffset(page.nextOffset);
-      if (page.count != null) setTotal(page.count);
+      if (page.count != null) { setTotal(page.count); setTotalVerified(true); }
+      setActionsAvailable(Boolean(page.actions));
     } catch {
       if (request !== streamRequestRef.current) return;
       setError("לא הצלחנו לטעון את השיחות כרגע.");
     } finally {
       if (feedReadRef.current === read) feedReadRef.current = null;
-      if (request === streamRequestRef.current) setLoading(false);
+      if (request === streamRequestRef.current) { setLoading(false); setFeedSettled(true); }
     }
   }, [sort]);
 
@@ -200,7 +230,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
           setRows(merged);
           setNextOffset(merged.length);
         }
-        if (page.count != null) setTotal(page.count);
+        if (page.count != null) { setTotal(page.count); setTotalVerified(true); }
         // Open threads refresh through the same approved-reply reader. Closed
         // threads need only one bounded count read for this public feed page.
         const counts = await fetchCommunityReplyCounts(page.rows.map((item) => item.id));
@@ -265,14 +295,33 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
-    const visible = rows.filter((row) => row.body || replyCounts[row.id] > 0);
-    return needle ? visible.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
+    const visible = rows.filter((row) => row.body || row.isDeleted || replyCounts[row.id] > 0);
+    return needle ? visible.filter((row) => !row.isDeleted && `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
   }, [query, rows, replyCounts]);
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
   const linkedAccountId = profileRows.find((row) => row.linkedUserId)?.linkedUserId || baseline?.accountUserId;
   const linkedAccount = linkedAccountId ? accountProfiles[linkedAccountId] : null;
   const memberName = linkedAccount?.display_name || linkedAccount?.username || baseline?.name || profileRows[0]?.authorName || "חבר הקהילה";
   const isOwner = Boolean(user?.id && (linkedAccountId === user.id || selectedAuthorId === `user:${user.id}`));
+
+  const refreshReplyCounts = useCallback((ids) => {
+    const clean = ids.filter(Boolean);
+    if (clean.length) fetchCommunityReplyCounts(clean).then((counts) => setReplyCounts((current) => ({ ...current, ...counts }))).catch(() => {});
+  }, []);
+  // Applies a server-confirmed edit, delete or hide, then lets the open threads re-read the truth.
+  const onMessageChanged = useCallback((kind, row, patch) => {
+    if (kind === "edit") { setPatches((current) => ({ ...current, [row.id]: { ...current[row.id], ...patch } })); return; }
+    if (kind === "hide-thread" || (kind === "delete" && !row.parentId && replyCounts[row.id] === 0)) {
+      // The root leaves the feed: keep the paging offset and the remaining count honest.
+      setRows((current) => current.filter((item) => item.id !== row.id));
+      setNextOffset((current) => Math.max(0, current - 1));
+      setTotal((current) => Math.max(0, current - 1));
+    } else setPatches((current) => ({ ...current, [row.id]: { isDeleted: true, body: "" } }));
+    if (row.parentId) { requestedReplyCounts.current.delete(row.parentId); refreshReplyCounts([row.parentId]); }
+    setThreadRefresh((value) => value + 1);
+    setNotice(kind === "hide-thread" ? "השרשור הוסתר." : "ההודעה נמחקה.");
+  }, [replyCounts, refreshReplyCounts]);
+  const actionsContext = useMemo(() => ({ actionsAvailable, user, isAdmin: Boolean(isAdmin), patches, onMessageChanged }), [actionsAvailable, user, isAdmin, patches, onMessageChanged]);
 
   const closeProfile = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("member"); return next; });
   const closeCard = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("memberCard"); return next; });
@@ -315,6 +364,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   };
 
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
+    <CommunityActionsContext.Provider value={actionsContext}>
     {leadingContent}
     <main id="community-new-chat" className="sod29-community" data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
       {claimId ? <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
@@ -345,7 +395,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
         {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
         {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
         <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} />)}</div>
-        {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
+        {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : totalVerified ? `עוד הודעות — ${Math.max(0, total - nextOffset).toLocaleString("he-IL")} נותרו` : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
       </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
@@ -361,5 +411,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
         </section>
       </div> : null}
     </main>
+    {feedSettled ? trailingContent : null}
+    </CommunityActionsContext.Provider>
   </Sod2029Shell>;
 }
