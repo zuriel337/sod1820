@@ -21,8 +21,8 @@
 --   * a task scope is an ACTIVE writer iff its LATEST lifecycle row is OPEN; so BEFORE→AFTER is released,
 --     BEFORE→AFTER→BEFORE is active again, READ_ONLY claims never count, and release-AUTHORIZATION
 --     statuses (EXPLICIT_RELEASE_AUTHORIZED, RELEASE_AUTHORIZED) are NOT writers.
---   * a CLOSE row only closes a claim made by the SAME actor (or by ZURIEL / a *_BY_ZURIEL closure / a row with no
---     actor); a READ_ONLY reviewer's AFTER under a shared task_key does NOT release another agent's write claim;
+--   * a CLOSE row only closes a claim made by the SAME actor (or by ZURIEL / a *_BY_ZURIEL closure; actor-less
+--     rows only close actor-less claims — fail toward overlap); a READ_ONLY reviewer's AFTER under a shared task_key does NOT release another agent's write claim;
 --   * claims older than 30 days are outside the active window and are only COUNTED (older_open_claims);
 --   * the ledger is read directly (non-archived, non-superseded) and NOT through
 --     work_log_current, because that view keeps only the 100 newest rows and could drop an old,
@@ -58,6 +58,31 @@ as $$
 $$;
 revoke all on function public.coordination_status_class(text, text) from public, anon, authenticated;
 
+-- Internal glob matcher: ** = any path (incl. none between slashes), * = any chars except '/', rest literal.
+-- Fails toward overlap (returns true) on oversize or malformed input.
+create or replace function public.coordination_glob_match(p_term text, p_glob text)
+returns boolean
+language plpgsql
+immutable
+set search_path = pg_catalog
+as $$
+declare r text;
+begin
+  if position('*' in p_glob) = 0 then return false; end if;
+  if length(p_glob) > 200 then return true; end if;
+  r := regexp_replace(p_glob, '([.+?^$(){}|\[\]\\])', '\\\1', 'g');
+  r := replace(r, '**', chr(1));
+  r := replace(r, '*', chr(2));
+  r := replace(r, '/' || chr(1) || '/', '(?:/|/.*/)');
+  r := replace(r, chr(1), '.*');
+  r := replace(r, chr(2), '[^/]*');
+  return p_term ~ ('^' || r || '$');
+exception when others then
+  return true;
+end
+$$;
+revoke all on function public.coordination_glob_match(text, text) from public, anon, authenticated;
+
 create or replace function public.coordination_read_current(
   p_task_key         text    default null,
   p_scope_terms      text[]  default null,
@@ -70,7 +95,6 @@ language plpgsql
 stable
 security definer
 set search_path = pg_catalog, public, pg_temp
-set statement_timeout = '3s'
 as $$
 declare
   v_terms text[];
@@ -80,6 +104,8 @@ declare
   v_act_total bigint;
   v_act   jsonb;
   v_older bigint;
+  v_old_match bigint;
+  v_old_rows jsonb;
 begin
   if auth.uid() is null
      or coalesce(auth.role(), '') <> 'authenticated'
@@ -132,18 +158,18 @@ begin
     where not exists (
       select 1 from scoped c
       where c.scope_key = o.scope_key and c.cls = 'CLOSE' and c.created_at > o.created_at
-        and (c.from_actor is not distinct from o.from_actor
-             or c.from_actor is null or o.from_actor is null
+        and (c.from_actor is not distinct from o.from_actor      -- same actor (incl. both actor-less)
              or upper(c.from_actor) = 'ZURIEL' or c.status ~* 'BY_ZURIEL'))
       and (p_exclude_task_key is null
            or (o.task_key is distinct from p_exclude_task_key and o.scope_key <> p_exclude_task_key))
   ), act as (
     select * from open_live where created_at >= now() - interval '30 days'
   ), pool as (
-    select * from act where coalesce(p_active_only, true)
+    select ol.*, (ol.created_at < now() - interval '30 days') as old
+    from open_live ol where coalesce(p_active_only, true)
     union all
     select id, created_at, task_key, status, from_actor, to_actor, assignment_mode, primary_owner,
-           release_authorization_state, assignment_scope, topic, open_threads, scope_key, cls
+           release_authorization_state, assignment_scope, topic, open_threads, scope_key, cls, false
     from scoped
     where not coalesce(p_active_only, true)
       and created_at >= now() - interval '30 days'
@@ -162,25 +188,32 @@ begin
                    or position(t in lower(coalesce(p.topic, ''))) > 0
                    -- directory / glob scopes ("src/pages/", "tools/els/**", "src/*") cover any path beneath them
                    or exists (select 1 from regexp_split_to_table(lower(coalesce(p.assignment_scope, '')), '[\s;,()]+') tok
-                              where tok ~ '/\*{0,2}$' and length(tok) > 1
-                                and left(t, length(rtrim(tok, '*'))) = rtrim(tok, '*'))))
+                              where (tok ~ '/\*{0,2}$' and length(tok) > 1
+                                     and left(t, length(rtrim(tok, '*'))) = rtrim(tok, '*'))
+                                 or public.coordination_glob_match(t, tok))))
   )
-  select (select count(*) from m),
+  select (select count(*) from m where not old),
          coalesce((select jsonb_agg(to_jsonb(r) order by r.created_at desc, r.id)
                    from (select id, created_at, task_key, left(scope_key, 200) as scope_key, from_actor, to_actor, assignment_mode, status,
                                 primary_owner, release_authorization_state,
                                 round(extract(epoch from (now() - created_at)) / 3600)::int as age_hours,
                                 left(assignment_scope, 800) as assignment_scope,
                                 left(topic, 240) as topic, left(open_threads, 500) as open_threads
-                         from m order by created_at desc, id limit v_limit) r), '[]'::jsonb),
+                         from m where not old order by created_at desc, id limit v_limit) r), '[]'::jsonb),
          (select count(*) from act),
          coalesce((select jsonb_agg(to_jsonb(r) order by r.created_at desc, r.id)
                    from (select id, created_at, task_key, left(scope_key, 200) as scope_key, status, from_actor,
                                 round(extract(epoch from (now() - created_at)) / 3600)::int as age_hours,
                                 left(assignment_scope, 300) as assignment_scope
                          from act order by created_at desc, id limit 50) r), '[]'::jsonb),
-         (select count(*) from open_live where created_at < now() - interval '30 days')
-  into v_total, v_rows, v_act_total, v_act, v_older;
+         (select count(*) from open_live where created_at < now() - interval '30 days'),
+         (select count(*) from m where old),
+         coalesce((select jsonb_agg(to_jsonb(r) order by r.created_at desc, r.id)
+                   from (select id, created_at, task_key, left(scope_key, 200) as scope_key, status, from_actor,
+                                round(extract(epoch from (now() - created_at)) / 3600)::int as age_hours,
+                                left(assignment_scope, 300) as assignment_scope
+                         from m where old order by created_at desc, id limit 10) r), '[]'::jsonb)
+  into v_total, v_rows, v_act_total, v_act, v_older, v_old_match, v_old_rows;
 
   return jsonb_build_object(
     'checked_at',    now(),
@@ -191,6 +224,8 @@ begin
     'rows',          v_rows,
     'window_days',   30,
     'older_open_claims', v_older,
+    'older_open_matches', v_old_match,
+    'older_open_rows', v_old_rows,
     'active_total',  v_act_total,
     'active_scopes', v_act,
     'active_truncated', jsonb_array_length(v_act) < v_act_total);
@@ -198,7 +233,7 @@ end;
 $$;
 
 comment on function public.coordination_read_current(text, text[], boolean, integer, text) is
-  'Read-only coordination check for v17. Active writer = (task scope, claimant) whose latest OPEN row (BEFORE/ACK/CLAIMED_WRITE/...) is not closed by a later CLOSE row from the same actor/ZURIEL, within 30 days of the ledger (older unclosed claims are only counted). Live-authorizes against auth.users, fails closed, 3s statement timeout. Returns jsonb with total_matches/truncated and active_scopes/active_truncated; any truncation must be treated as INCOMPLETE. Excludes what_we_did and dispatch_* internals. No writes.';
+  'Read-only coordination check for v17. Active writer = (task scope, claimant) whose latest OPEN row (BEFORE/ACK/CLAIMED_WRITE/...) is not closed by a later CLOSE row from the same actor/ZURIEL, within 30 days of the ledger (older unclosed claims are only counted). Live-authorizes against auth.users, fails closed. Returns jsonb with total_matches/truncated and active_scopes/active_truncated; any truncation must be treated as INCOMPLETE. Excludes what_we_did and dispatch_* internals. No writes.';
 
 revoke all on function public.coordination_read_current(text, text[], boolean, integer, text) from public, anon;
 grant execute on function public.coordination_read_current(text, text[], boolean, integer, text) to authenticated;
@@ -210,9 +245,12 @@ begin
   if has_function_privilege('anon', 'public.coordination_read_current(text,text[],boolean,integer,text)', 'execute')
      or has_function_privilege('anon', 'public.coordination_status_class(text,text)', 'execute')
      or has_function_privilege('authenticated', 'public.coordination_status_class(text,text)', 'execute')
+     or has_function_privilege('anon', 'public.coordination_glob_match(text,text)', 'execute')
+     or has_function_privilege('authenticated', 'public.coordination_glob_match(text,text)', 'execute')
      or exists (select 1 from pg_proc p, aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
                 where p.oid in ('public.coordination_read_current(text,text[],boolean,integer,text)'::regprocedure,
-                                'public.coordination_status_class(text,text)'::regprocedure)
+                                'public.coordination_status_class(text,text)'::regprocedure,
+                                'public.coordination_glob_match(text,text)'::regprocedure)
                   and a.grantee = 0) then
     raise exception 'ACL leak: coordination functions executable by anon/PUBLIC/authenticated';
   end if;

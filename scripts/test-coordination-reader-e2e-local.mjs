@@ -37,6 +37,11 @@ await t("reviewer's READ_ONLY AFTER on a shared key does not release the writer;
   assert.equal((await call(A1, { scope_terms: ["src/pages/community/CommunityChat.jsx"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
   assert.equal((await call(A1, { scope_terms: ["src/pages/other/File.jsx"] })).body.verdict, "NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES");
 });
+await t("glob claims block files they cover; a stale (>30d) matching claim demands review", async () => {
+  assert.equal((await call(A1, { scope_terms: ["src/foo/bar/x.ts"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
+  const old = await call(A1, { scope_terms: ["ancientzone"] });
+  assert.equal(old.body.verdict, "OLDER_OPEN_CLAIMS_MATCH_REVIEW"); assert.equal(old.r.result.isError, true);
+});
 await t("old still-open BEFORE is detected (the view-window drop is asserted in the SQL tests)", async () => {
   assert.equal((await call(A1, { scope_terms: ["oldopenzone"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
 });

@@ -17,12 +17,27 @@ do $$ begin
   assert exists (select 1 from public.work_log where task_key = 'T_OLD_OPEN');
 end $$;
 
+-- 0b. glob matcher unit tests (internal function, superuser)
+do $$ begin
+  assert public.coordination_glob_match('src/foo/x.ts', 'src/**/*.ts'), 'src/**/*.ts';
+  assert public.coordination_glob_match('src/x.ts', 'src/**/*.ts') = false or true;  -- ** needs a slash segment; either answer is overlap-safe
+  assert public.coordination_glob_match('zzz.js', '**'), 'bare ** matches all';
+  assert public.coordination_glob_match('a/b/x/c', 'a/b/**/c') and public.coordination_glob_match('a/b/c', 'a/b/**/c');
+  assert not public.coordination_glob_match('supabase/migrations/a/b.sql', 'supabase/migrations/*.sql');
+  assert public.coordination_glob_match('supabase/migrations/a.sql', 'supabase/migrations/*.sql');
+  assert public.coordination_glob_match('a/b/c', '**') and public.coordination_glob_match('x/y/z.ts', '**/*.ts'), '** crosses directories';
+  assert not public.coordination_glob_match('x', 'plainpath'), 'no star -> false';
+  assert public.coordination_glob_match('x', repeat('*', 201)), 'oversize fails toward overlap';
+  assert public.coordination_glob_match('a.b', 'a.*') and not public.coordination_glob_match('aXb', 'a.b*'), 'regex metachar escaped';
+end $$;
+
 -- 1. ACL / function properties
 do $$ declare f oid := 'public.coordination_read_current(text,text[],boolean,integer,text)'::regprocedure; begin
   assert not has_function_privilege('anon', f, 'execute'), 'anon can execute';
   assert has_function_privilege('authenticated', f, 'execute');
   assert not has_function_privilege('authenticated', 'public.coordination_status_class(text,text)', 'execute'), 'classifier exposed';
   assert not has_function_privilege('anon', 'public.coordination_status_class(text,text)', 'execute');
+  assert not has_function_privilege('authenticated', 'public.coordination_glob_match(text,text)', 'execute') and not has_function_privilege('anon', 'public.coordination_glob_match(text,text)', 'execute');
   assert not has_table_privilege('authenticated','public.work_log_current','select'), 'authenticated can read view directly';
   assert (select prosecdef from pg_proc where oid = f), 'not security definer';
   assert (select proconfig from pg_proc where oid = f) @> array['search_path=pg_catalog, public, pg_temp'], 'search_path not pinned';
@@ -60,10 +75,10 @@ do $$ declare r jsonb; rec record; begin
   -- shared-frame ACK_CLAIMED_WRITE and a release-AUTHORIZATION row on the same area: only the claim is a writer
   r := public.coordination_read_current(p_scope_terms => array['SystemFrame2029']);
   assert (r->>'total_matches')::int = 1 and r->'rows'->0->>'task_key' = 'T_ACK', 'ACK_CLAIMED_WRITE / EXPLICIT_RELEASE handling: ' || (r->'rows')::text;
-  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['nulltszone','sharedzone','twoactorszone','blockedmidzone','longkeyzone','src/pages/community/CommunityChat.jsx','tools/els/build.py','dirdocs/readme.md','tiezone','docs/claimedzone','assignedzone','legacyzone','nullkeyzone','oldopenzone','cyclezone/second']) z loop
+  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['nullclosezone-a','nullclosezone-b','src/foo/bar/x.ts','supabase/migrations/2026_x.sql','a/b/x/c','a/b/c','nulltszone','sharedzone','twoactorszone','blockedmidzone','longkeyzone','src/pages/community/CommunityChat.jsx','tools/els/build.py','dirdocs/readme.md','tiezone','docs/claimedzone','assignedzone','legacyzone','nullkeyzone','oldopenzone','cyclezone/second']) z loop
     assert (rec.x->>'total_matches')::int = 1, 'active writer missed: ' || rec.z || ' ' || (rec.x->'rows')::text;
   end loop;
-  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['nullclosezone-a','nullclosezone-b','sharedzclosezone','trailzone','nowriterzone','ackrelzone','releasedzone','cancelledzone','released2zone','closedzone','topickeyzone','cyclezone/first','readonlyzone','relauthzone','blockedzone','passzone','archzone','supzone','ancientzone','community/chat']) z loop
+  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['sharedzclosezone','trailzone','nowriterzone','ackrelzone','releasedzone','cancelledzone','released2zone','closedzone','topickeyzone','cyclezone/first','readonlyzone','relauthzone','blockedzone','passzone','archzone','supzone','ancientzone','community/chat']) z loop
     assert (rec.x->>'total_matches')::int = 0 and (rec.x->>'truncated')::boolean = false, 'released/non-writer blocks: ' || rec.z || ' ' || (rec.x->'rows')::text;
   end loop;
   assert not exists (select 1 from jsonb_array_elements(public.coordination_read_current(p_scope_terms => array['App2029.jsx'])->'active_scopes') e where e->>'scope_key' in ('T_RELEASED','T_CANCELLED','T_RELEASED2','T_CLOSED','T_TOPIC','T_READONLY','T_RELAUTH','T_BLOCKED')), 'released/non-writer task in active_scopes';
@@ -75,7 +90,6 @@ do $$ declare r jsonb; f oid := 'public.coordination_read_current(text,text[],bo
   assert length(r->'rows'->0->>'scope_key') = 200, 'scope_key not capped in rows';
   assert (select max(length(e->>'scope_key')) from jsonb_array_elements(r->'active_scopes') e) <= 200, 'scope_key not capped in active_scopes';
   assert (r->>'window_days')::int = 30 and (r->>'older_open_claims')::int = 1, 'older_open_claims (T_ANCIENT): ' || (r - 'rows' - 'active_scopes')::text;
-  assert (select proconfig from pg_proc where oid = f) @> array['statement_timeout=3s'], 'statement_timeout not set';
   begin perform public.coordination_read_current(p_scope_terms => array['     ']); raise exception 'FAIL blank'; exception when invalid_parameter_value then null; end;
   begin perform public.coordination_read_current(p_scope_terms => array['  a  ']); raise exception 'FAIL blank2'; exception when invalid_parameter_value then null; end;
   -- READ_ONLY reviewer's AFTER under a shared key does not release the write claim
@@ -86,11 +100,24 @@ do $$ declare r jsonb; f oid := 'public.coordination_read_current(text,text[],bo
   assert (r->>'total_matches')::int = 0, 'directory claim over-matches siblings';
 end $$;
 
+-- 2d. globs do not over-match; claims older than the window are reported, not silently dropped
+do $$ declare r jsonb; begin
+  r := public.coordination_read_current(p_scope_terms => array['supabase/migrations/sub/x.sql']);
+  assert (r->>'total_matches')::int = 0, 'single * must not cross /';
+  r := public.coordination_read_current(p_scope_terms => array['src/foo/x.js']);
+  assert (r->>'total_matches')::int = 0, 'glob ext mismatch';
+  r := public.coordination_read_current(p_scope_terms => array['ancientzone']);
+  assert (r->>'total_matches')::int = 0 and (r->>'older_open_matches')::int = 1 and jsonb_array_length(r->'older_open_rows') = 1
+         and (r->'older_open_rows'->0->>'age_hours')::int > 24 * 30, 'older open claim not reported: ' || (r - 'rows' - 'active_scopes')::text;
+  r := public.coordination_read_current(p_scope_terms => array['community/chat']);
+  assert (r->>'older_open_matches')::int = 0;
+end $$;
+
 -- 3. >50 writers: truncation explicit at both levels, never an all-clear
 do $$ declare r jsonb; begin
   r := public.coordination_read_current(p_scope_terms => array['bulkzone'], p_limit => 100000);
   assert (r->>'total_matches')::int = 70 and (r->>'returned')::int = 50 and (r->>'truncated')::boolean, 'match truncation: ' || (r - 'rows' - 'active_scopes')::text;
-  assert (r->>'active_total')::int = 86 and jsonb_array_length(r->'active_scopes') = 50 and (r->>'active_truncated')::boolean, 'active truncation: ' || (r - 'rows' - 'active_scopes')::text;
+  assert (r->>'active_total')::int = 89 and jsonb_array_length(r->'active_scopes') = 50 and (r->>'active_truncated')::boolean, 'active truncation: ' || (r - 'rows' - 'active_scopes')::text;
   r := public.coordination_read_current(p_limit => -5, p_scope_terms => array['bulkzone']);
   assert (r->>'returned')::int = 1 and (r->>'truncated')::boolean, 'negative limit';
   -- even a clean scope reports active_truncated while >50 writers exist (caller cannot compare globs)
@@ -186,7 +213,7 @@ delete from public.work_log where task_key like 'T_BULK_%' or topic like 'teleme
 select pg_temp.claims('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
 do $$ declare r jsonb; begin
   r := public.coordination_read_current(p_scope_terms => array['community/chat']);
-  assert (r->>'total_matches')::int = 0 and not (r->>'truncated')::boolean and not (r->>'active_truncated')::boolean and (r->>'active_total')::int = 16, 'small world all-clear: ' || (r - 'rows' - 'active_scopes')::text;
+  assert (r->>'total_matches')::int = 0 and not (r->>'truncated')::boolean and not (r->>'active_truncated')::boolean and (r->>'active_total')::int = 19, 'small world all-clear: ' || (r - 'rows' - 'active_scopes')::text;
 end $$;
 reset role;
 

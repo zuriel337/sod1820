@@ -54,6 +54,8 @@ insert into public.work_log(task_key, status, assignment_scope, topic, from_acto
  ('T_NULLCLOSE_B', 'AFTER_X',  'nullclosezone-b', 'x', 'GPT',  now() - interval '2 hours'),
  ('T_NULLTS',      'BEFORE_X', 'nulltszone',      'x', 'GPT',  null);
 
+select pg_temp.w('T_GLOB', 'BEFORE_X', 'WRITE', 'Exclusive: src/**/*.ts supabase/migrations/*.sql a/b/**/c', interval '1 hour');
+
 -- RELEASED / closed (must NOT block)
 select pg_temp.w('T_RELEASED', 'BEFORE_BRANCH_ONLY_ACTIVE_WRITER_PASSIVE', 'WRITE', 'src/App2029.jsx; releasedzone', interval '5 hours');
 select pg_temp.w('T_RELEASED', 'AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_MEASURED_PUSHED_SCOPE_RELEASED_PASSIVE', 'WRITE', 'src/App2029.jsx; releasedzone', interval '4 hours');

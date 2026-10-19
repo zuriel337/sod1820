@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { handleMcp, bearerOf, TOOL } from "../supabase/functions/coordination-mcp/handler.js";
 
 const NOW = Date.parse("2026-10-19T12:00:00Z");
-const payload = (o = {}) => ({ checked_at: new Date(NOW).toISOString(), total_matches: 1, returned: 1, limit: 25, truncated: false, window_days: 30, older_open_claims: 0, active_total: 1, active_truncated: false, active_scopes: [{ task_key: "T1", status: "BEFORE_X", assignment_scope: "src/**" }],
+const payload = (o = {}) => ({ checked_at: new Date(NOW).toISOString(), total_matches: 1, returned: 1, limit: 25, truncated: false, window_days: 30, older_open_claims: 0, older_open_matches: 0, older_open_rows: [], active_total: 1, active_truncated: false, active_scopes: [{ task_key: "T1", status: "BEFORE_X", assignment_scope: "src/**" }],
   rows: [{ id: "i1", created_at: "2026-10-18T00:00:00Z", task_key: "T1", status: "BEFORE_X_ACTIVE_WRITER", assignment_scope: "src/App2029.jsx" }], ...o });
 const run = (args, rpc, token = "tok", extra = {}) => handleMcp({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: TOOL.name, arguments: args } }, token, { rpc, now: () => NOW, ...extra });
 const text = (r) => JSON.parse(r.result.content[0].text);
@@ -24,6 +24,17 @@ await t("complete empty result with scope -> NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES
 await t("scoped, zero active writers -> NO_ACTIVE_WRITERS", async () => {
   const [, r] = await run({ scope_terms: ["community/chat"] }, ok(payload({ total_matches: 0, returned: 0, rows: [], active_total: 0, active_scopes: [] })));
   assert.equal(text(r).verdict, "NO_ACTIVE_WRITERS"); assert.equal(text(r).older_open_claims, 0);
+});
+await t("only out-of-window open claims match -> OLDER_OPEN_CLAIMS_MATCH_REVIEW (error, not a clear)", async () => {
+  const [s, r] = await run({ scope_terms: ["ancientzone"] }, ok(payload({ total_matches: 0, returned: 0, rows: [], older_open_matches: 1, older_open_rows: [{ task_key: "T_OLD", status: "BEFORE_X", age_hours: 900, assignment_scope: "ancientzone" }] })));
+  assert.equal(s, 200); assert.equal(r.result.isError, true); assert.equal(text(r).verdict, "OLDER_OPEN_CLAIMS_MATCH_REVIEW"); assert.equal(text(r).older_open_rows[0].task_key, "T_OLD");
+});
+await t("in-window match plus older matches still reports the active match", async () => {
+  const [, r] = await run({ scope_terms: ["abc"] }, ok(payload({ older_open_matches: 1, older_open_rows: [{ status: "S" }] })));
+  assert.equal(text(r).verdict, "ACTIVE_WRITER_TERM_MATCH"); assert.equal(text(r).older_open_matches, 1);
+});
+await t("blank task_key / exclude_task_key rejected", async () => {
+  for (const a of [{ task_key: "" }, { task_key: "   " }, { exclude_task_key: " " }]) { const [, r] = await run(a, ok(payload())); assert.equal(r.error?.code, -32602); }
 });
 await t("blank scope terms rejected", async () => {
   const [, r] = await run({ scope_terms: ["     "] }, ok(payload())); assert.equal(r.error?.code, -32602);
@@ -114,7 +125,7 @@ await t("output is marked untrusted, projected through an allowlist, control cha
   assert.ok(Object.keys(b)[0] === "verdict"); assert.match(b.caveat, /manual comparison/); assert.ok(b.active_scopes.length === 1);
 });
 await t("active_scopes/active_total inconsistencies fail closed", async () => {
-  for (const o of [{ active_total: 0 }, { active_truncated: true }, { active_scopes: undefined }, { active_total: "1" }, { window_days: undefined }, { older_open_claims: -1 }, { older_open_claims: "x" }, { active_scopes: [{ status: 1 }] }, { active_scopes: [{ status: "S", what_we_did: "x" }] }]) {
+  for (const o of [{ active_total: 0 }, { active_truncated: true }, { active_scopes: undefined }, { active_total: "1" }, { window_days: undefined }, { older_open_claims: -1 }, { older_open_matches: 2 }, { older_open_matches: 1, older_open_rows: [] }, { older_open_matches: 0, older_open_rows: [{ status: "S" }] }, { older_open_matches: 1, older_open_rows: [{ status: "S", what_we_did: "x" }] }, { older_open_claims: "x" }, { active_scopes: [{ status: 1 }] }, { active_scopes: [{ status: "S", what_we_did: "x" }] }]) {
     const [s] = await run({ scope_terms: ["abc"] }, ok(payload(o))); assert.equal(s, 502, JSON.stringify(o));
   }
 });
