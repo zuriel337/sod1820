@@ -19,3 +19,7 @@ Provenance/evidence note, not a contract or owner map. Owners unchanged: System 
 ## Tests
 - `npm run test:community-edit-delete-sql` — throwaway local Postgres, permissions, soft-delete cases, trigger interaction, grants.
 - `npm run test:community-edit-delete-ui` — built app (`npm run build:2029` first) against an in-memory stand-in of the `community_*` functions; needs `PLAYWRIGHT_MODULE` when Playwright is not installed locally.
+
+## Local preview (offline)
+`npm run build:2029`, then `npm run preview:community-edit-delete` (needs Playwright + Chromium: `npm i --no-save playwright && npx playwright install chromium`).
+Serves `http://127.0.0.1:4173/community/chat` and opens four windows (guest, author, other user, admin) over one shared in-memory store; nothing reaches a live service. `--personas=`, `--port=`, `--rpc=missing` (simulates the migration not being applied).
