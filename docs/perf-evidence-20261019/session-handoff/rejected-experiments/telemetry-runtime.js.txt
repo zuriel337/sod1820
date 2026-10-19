@@ -1,0 +1,9 @@
+// Telemetry is not part of usable content. App2029 loads this owner bundle only
+// after the existing fx_analytics switch resolves ON, preserving the existing
+// emitters while keeping them outside every route's first render graph.
+export { initGA, trackPageview } from "./analytics.js";
+export { initMarketing, trackMarketingPageview } from "./marketing.js";
+export { trackVisit } from "./visits.js";
+export { startPageEngagement } from "./engagement.js";
+export { ensureIdentity } from "./identity.js";
+export { startWebVitals2029 } from "./webVitals2029.js";

@@ -1,0 +1,39 @@
+{
+  "base": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+  "branch": "gpt/2029-systemframe-entry-wave-20261019",
+  "status": "EXPERIMENTS_NOT_ACCEPTED_RUNTIME_RESTORED_TO_BASE",
+  "telemetry": {
+    "decision": "not retained; marginal entry byte saving",
+    "timing": "NOT_MEASURED",
+    "patch_archive": "telemetry-app.patch.gz",
+    "newModuleArchive": "telemetry-runtime.js.txt",
+    "testArchive": "telemetry-test.mjs.txt"
+  },
+  "desktop_companion": {
+    "decision": "not retained; plain dynamic split adds seo and timeline shared requests and fails unchanged Home 18-chunk budget; conditional static/dynamic variant does not isolate the module",
+    "plain_dynamic_home_chunks": 19,
+    "budget": 18,
+    "timing": "NOT_MEASURED",
+    "additional_requirements": [
+      "Preserve Legacy static graph",
+      "Keep mobile feed-chip CSS in initial frame",
+      "Contain slow and failed imports with a recovery UI"
+    ],
+    "reported_shell_gzip_kb_before": 63.45,
+    "reported_shell_gzip_kb_plain_dynamic": 55.32,
+    "patch_archive": "companion-conditional.patch.gz",
+    "note": "The retained patch is the final conditional static/dynamic counter-experiment; the earlier plain-dynamic measurement is recorded separately. None is an accepted implementation."
+  },
+  "product_changes_committed": false,
+  "main_or_production_changed": false,
+  "archiveChecksums": {
+    "companion-conditional.patch.gz": {
+      "uncompressedSha256": "cb7978e29397b58be11fdbbf1092d7b08be1add3f1a050598998ba5c3d08b1ca",
+      "encoding": "gzip"
+    },
+    "telemetry-app.patch.gz": {
+      "uncompressedSha256": "cc7450307adb62d066076b1842c59a4fb7aa8330baa60c02fccff153c621e1c7",
+      "encoding": "gzip"
+    }
+  }
+}
