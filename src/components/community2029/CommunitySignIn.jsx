@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { requestEmailOtp, signInWithGoogle, signInWithPassword, verifyEmailOtp } from "../../lib/auth.js";
+import { requestEmailOtp, signInWithGoogle, signInWithPassword, signUpWithPassword, verifyEmailOtp } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -11,18 +12,70 @@ function GoogleMark() {
 
 export default function CommunitySignIn() {
   const { user, profile, loading, signOut, isAdmin } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState("password");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const dialogRef = useRef(null);
+  const triggerRef = useRef(null);
+  const busyRef = useRef(false);
+  busyRef.current = busy;
+
+  const closeDialog = () => {
+    if (busy) return;
+    setOpen(false);
+    setError("");
+    setNotice("");
+    setPassword("");
+    setConfirmPassword("");
+    setCode("");
+    setStep("password");
+  };
+
+  const openDialog = (mode = "login") => {
+    setAuthMode(mode);
+    setStep("password");
+    setError("");
+    setNotice("");
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open || user) return undefined;
+    const previous = document.activeElement;
+    const dialog = dialogRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusable = () => Array.from(dialog?.querySelectorAll('button:not([disabled]),input:not([disabled])') || []);
+    focusable()[0]?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && !busyRef.current) { event.preventDefault(); setOpen(false); return; }
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      if (!items.length) return;
+      const first = items[0]; const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => { document.removeEventListener("keydown", onKeyDown); document.body.style.overflow = previousOverflow; previous?.focus?.(); };
+  }, [open, user]);
 
   const changeStep = (next) => {
+    setAuthMode("login");
     setStep(next);
     setCode("");
     setPassword("");
+    setConfirmPassword("");
     setError("");
+    setNotice("");
   };
 
   const loginGoogle = async () => {
@@ -46,8 +99,26 @@ export default function CommunitySignIn() {
     if (!EMAIL_PATTERN.test(email.trim())) { setError("יש להזין כתובת מייל תקינה."); return; }
     if (!password) { setError("יש להזין סיסמה."); return; }
     setBusy(true);
-    try { await signInWithPassword(email, password); setPassword(""); }
+    try { await signInWithPassword(email, password); setPassword(""); setOpen(false); }
     catch { setError("האימייל או הסיסמה אינם נכונים."); }
+    finally { setBusy(false); }
+  };
+
+  const signupPassword = async (event) => {
+    event.preventDefault();
+    if (busy) return;
+    setError(""); setNotice("");
+    if (!displayName.trim()) { setError("יש להזין שם שיופיע בקהילה."); return; }
+    if (!EMAIL_PATTERN.test(email.trim())) { setError("יש להזין כתובת מייל תקינה."); return; }
+    if (password.length < 8) { setError("הסיסמה צריכה להכיל לפחות 8 תווים."); return; }
+    if (password !== confirmPassword) { setError("הסיסמאות אינן תואמות."); return; }
+    setBusy(true);
+    try {
+      const result = await signUpWithPassword(email, password, { displayName });
+      setPassword(""); setConfirmPassword("");
+      if (result?.session) setOpen(false);
+      else setNotice("שלחנו למייל קישור לאישור החשבון. לאחר האישור תוכלו להתחבר.");
+    } catch { setError("לא הצלחנו להשלים את ההרשמה כרגע. בדקו את הפרטים ונסו שוב."); }
     finally { setBusy(false); }
   };
 
@@ -80,27 +151,47 @@ export default function CommunitySignIn() {
     {error ? <p role="alert">{error}</p> : null}
   </section>;
 
-  return <section className="sod29-community-sign-in" aria-label="התחברות לקהילה">
-    <div><h2>התחברות</h2><p>התחברו כדי להשתתף בשיחה. אפשר לבחור Google, מייל וסיסמה, או קוד חד־פעמי למייל.</p></div>
-    <button type="button" className="sod29-community-secondary sod29-community-google" disabled={busy} onClick={loginGoogle}><GoogleMark /> המשך עם Google</button>
-    <div className="sod29-community-sign-in-divider" aria-hidden="true"><span>או</span></div>
-    {step === "password" ? <>
-      <form className="sod29-community-auth-form" onSubmit={loginPassword}>
-        <label htmlFor="community-sign-in-email"><span>אימייל</span><input id="community-sign-in-email" type="email" inputMode="email" autoComplete="username" dir="ltr" required value={email} onChange={(event) => { setEmail(event.target.value); setError(""); }} placeholder="name@gmail.com" /></label>
-        <label htmlFor="community-sign-in-password"><span>סיסמה</span><input id="community-sign-in-password" type="password" autoComplete="current-password" dir="ltr" required value={password} onChange={(event) => { setPassword(event.target.value); setError(""); }} placeholder="••••••••" /></label>
-        <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "מתחבר…" : "התחברות"}</button>
-      </form>
-      <button type="button" className="sod29-community-sign-in-back" disabled={busy} onClick={() => changeStep("email")}>אין לכם סיסמה? קבלת קוד למייל</button>
-    </> : step === "email" ? <form className="sod29-community-auth-form sod29-community-auth-form--otp" onSubmit={sendCode}>
-      <label htmlFor="community-sign-in-email"><span>אימייל</span><input id="community-sign-in-email" type="email" inputMode="email" autoComplete="email" dir="ltr" required value={email} onChange={(event) => { setEmail(event.target.value); setError(""); }} placeholder="name@gmail.com" /></label>
-      <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "שולח קוד…" : "שליחת קוד"}</button>
-      <button type="button" className="sod29-community-sign-in-back" disabled={busy} onClick={() => changeStep("password")}>כניסה עם סיסמה</button>
-    </form> : <form className="sod29-community-auth-form sod29-community-auth-form--otp" onSubmit={confirmCode}>
-      <label htmlFor="community-sign-in-code"><span>הקוד שנשלח ל־<b dir="ltr">{email.trim()}</b></span><input id="community-sign-in-code" type="text" inputMode="numeric" autoComplete="one-time-code" dir="ltr" required minLength={6} maxLength={EMAIL_OTP_MAX_LENGTH} value={code} onChange={(event) => { setCode(sanitizeEmailOtp(event.target.value)); setError(""); }} placeholder="קוד כניסה" /></label>
-      <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "מאמת…" : "התחברות"}</button>
-      <button type="button" className="sod29-community-sign-in-back" disabled={busy} onClick={() => changeStep("email")}>שינוי כתובת המייל</button>
-    </form>}
-    {error ? <p className="sod29-community-sign-in-error" role="alert">{error}</p> : null}
+  const dialog = open ? createPortal(<div className="sod29-community-auth-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeDialog(); }}>
+    <section ref={dialogRef} className="sod29-community-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="community-auth-title" dir="rtl">
+      <button type="button" className="sod29-community-auth-close" aria-label="סגירת חלון ההתחברות" disabled={busy} onClick={closeDialog}>×</button>
+      <header><h2 id="community-auth-title">התחברות או הרשמה</h2><p>בחרו בדרך הנוחה לכם והמשיכו להשתתף בקהילה.</p></header>
+      <button type="button" className="sod29-community-secondary sod29-community-google" disabled={busy} onClick={loginGoogle}><GoogleMark /> המשך עם Google</button>
+      <div className="sod29-community-sign-in-divider" aria-hidden="true"><span>או</span></div>
+      {step === "password" ? <>
+        <div className="sod29-community-auth-tabs" role="tablist" aria-label="בחירת התחברות או הרשמה">
+          <button type="button" role="tab" aria-selected={authMode === "login"} disabled={busy} onClick={() => { setAuthMode("login"); setError(""); setNotice(""); }}>התחברות</button>
+          <button type="button" role="tab" aria-selected={authMode === "signup"} disabled={busy} onClick={() => { setAuthMode("signup"); setError(""); setNotice(""); }}>הרשמה</button>
+        </div>
+        {authMode === "login" ? <form className="sod29-community-auth-form" onSubmit={loginPassword}>
+          <label htmlFor="community-sign-in-email"><span>אימייל</span><input id="community-sign-in-email" type="email" inputMode="email" autoComplete="username" dir="ltr" required value={email} onChange={(event) => { setEmail(event.target.value); setError(""); }} placeholder="name@gmail.com" /></label>
+          <label htmlFor="community-sign-in-password"><span>סיסמה</span><input id="community-sign-in-password" type="password" autoComplete="current-password" dir="ltr" required value={password} onChange={(event) => { setPassword(event.target.value); setError(""); }} placeholder="••••••••" /></label>
+          <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "מתחבר…" : "התחברות"}</button>
+        </form> : <form className="sod29-community-auth-form sod29-community-auth-form--signup" onSubmit={signupPassword}>
+          <label htmlFor="community-sign-up-name"><span>השם שיופיע בקהילה</span><input id="community-sign-up-name" type="text" autoComplete="name" required maxLength={80} value={displayName} onChange={(event) => { setDisplayName(event.target.value); setError(""); }} placeholder="השם שלכם" /></label>
+          <label htmlFor="community-sign-up-email"><span>אימייל</span><input id="community-sign-up-email" type="email" inputMode="email" autoComplete="email" dir="ltr" required value={email} onChange={(event) => { setEmail(event.target.value); setError(""); }} placeholder="name@gmail.com" /></label>
+          <label htmlFor="community-sign-up-password"><span>סיסמה</span><input id="community-sign-up-password" type="password" autoComplete="new-password" dir="ltr" required minLength={8} value={password} onChange={(event) => { setPassword(event.target.value); setError(""); }} placeholder="לפחות 8 תווים" /></label>
+          <label htmlFor="community-sign-up-confirm"><span>אימות סיסמה</span><input id="community-sign-up-confirm" type="password" autoComplete="new-password" dir="ltr" required minLength={8} value={confirmPassword} onChange={(event) => { setConfirmPassword(event.target.value); setError(""); }} placeholder="הקלידו שוב" /></label>
+          <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "נרשם…" : "יצירת חשבון"}</button>
+        </form>}
+        <button type="button" className="sod29-community-sign-in-back" disabled={busy} onClick={() => changeStep("email")}>כניסה או הרשמה עם קוד למייל</button>
+      </> : step === "email" ? <form className="sod29-community-auth-form sod29-community-auth-form--otp" onSubmit={sendCode}>
+        <label htmlFor="community-sign-in-email"><span>אימייל</span><input id="community-sign-in-email" type="email" inputMode="email" autoComplete="email" dir="ltr" required value={email} onChange={(event) => { setEmail(event.target.value); setError(""); }} placeholder="name@gmail.com" /></label>
+        <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "שולח קוד…" : "שליחת קוד"}</button>
+        <button type="button" className="sod29-community-sign-in-back" disabled={busy} onClick={() => changeStep("password")}>חזרה לאימייל וסיסמה</button>
+      </form> : <form className="sod29-community-auth-form sod29-community-auth-form--otp" onSubmit={confirmCode}>
+        <label htmlFor="community-sign-in-code"><span>הקוד שנשלח ל־<b dir="ltr">{email.trim()}</b></span><input id="community-sign-in-code" type="text" inputMode="numeric" autoComplete="one-time-code" dir="ltr" required minLength={6} maxLength={EMAIL_OTP_MAX_LENGTH} value={code} onChange={(event) => { setCode(sanitizeEmailOtp(event.target.value)); setError(""); }} placeholder="קוד כניסה" /></label>
+        <button type="submit" className="sod29-community-primary" disabled={busy}>{busy ? "מאמת…" : "התחברות"}</button>
+        <button type="button" className="sod29-community-sign-in-back" disabled={busy} onClick={() => changeStep("email")}>שינוי כתובת המייל</button>
+      </form>}
+      {notice ? <p className="sod29-community-sign-in-notice" role="status">{notice}</p> : null}
+      {error ? <p className="sod29-community-sign-in-error" role="alert">{error}</p> : null}
+    </section>
+  </div>, document.body) : null;
+
+  return <section className="sod29-community-sign-in sod29-community-sign-in--compact" aria-label="התחברות לקהילה">
+    <div><h2>רוצים להשתתף?</h2><p>התחברו כדי להגיב, לעשות לייק ולשמור את הפעילות בחשבון שלכם.</p></div>
+    <button ref={triggerRef} id="community-sign-in-trigger" type="button" className="sod29-community-primary" onClick={() => openDialog("login")}>התחברות / הרשמה</button>
+    {dialog}
   </section>;
 }
 

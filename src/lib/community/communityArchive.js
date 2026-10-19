@@ -143,6 +143,19 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
   return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length, actions: false };
 }
 
+export async function fetchCommunityMessageTotal() {
+  const { count, error } = await supabase
+    .from("research_contributions")
+    .select("id", { count: "exact" })
+    .eq("status", "approved")
+    .in("origin", ["openweb", "community_2029"])
+    .not("body", "is", null)
+    .neq("body", "")
+    .range(0, 0);
+  if (error) throw error;
+  return Number(count || 0);
+}
+
 // The feed pages roots only. Replies are read from the same RLS-protected source
 // when a thread opens, so an approved reply never appears detached from its parent.
 export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMMUNITY_REPLY_PAGE_SIZE } = {}) {

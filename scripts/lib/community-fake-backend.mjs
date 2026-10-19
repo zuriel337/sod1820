@@ -141,13 +141,18 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
     if (url.host === "launcher.spot.im") { log.launcher++; return route.fulfill({ status: 200, contentType: "application/javascript", body: "" }); }
     if (url.host !== "linswmnnkjxvweumprav.supabase.co") return route.abort();
     const req = route.request(); const uid = subOf(req.headers()["authorization"]) || null;
-    const json = (data, status = 200, headers = {}) => route.fulfill({ status, contentType: "application/json", headers, body: JSON.stringify(data) });
+    const json = (data, status = 200, headers = {}) => route.fulfill({ status, contentType: "application/json", headers: { "access-control-expose-headers": "Content-Range", ...headers }, body: JSON.stringify(data) });
     const path = url.pathname;
     if (path === "/auth/v1/user") return json(sessionFor(uid || A).user);
     if (path === "/auth/v1/token" && url.searchParams.get("grant_type") === "password") {
       const body = req.postDataJSON() || {};
       if (log.authCalls) log.authCalls.push({ method: "password", email: body.email || null, passwordPresent: Boolean(body.password) });
       return json(sessionFor(A).session);
+    }
+    if (path === "/auth/v1/signup") {
+      const body = req.postDataJSON() || {};
+      if (log.authCalls) log.authCalls.push({ method: "signup", email: body.email || null, passwordPresent: Boolean(body.password), displayName: body.data?.full_name || null });
+      return json({ user: sessionFor(A).user, session: null });
     }
     if (path === "/rest/v1/users") { const ids = (url.searchParams.get("id") || "").replace(/^in\.\(|\)$/g, "").split(","); const hit = (uid && profiles[uid] ? [profiles[uid]] : []).concat(ids.filter((x) => profiles[x] && x !== uid).map((x) => profiles[x])); return json(hit); }
     if (path === "/rest/v1/site_flags") return json([]);
@@ -175,6 +180,7 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
     if (path === "/rest/v1/research_contributions") {
       log.tableReads++;
       const parent = url.searchParams.get("parent_id"); const desc = (url.searchParams.get("order") || "").includes("created_at.desc"); const list = rows.filter((r) => r.status === "approved" && r.body && (parent === "is.null" ? !r.parent_id : parent?.startsWith("eq.") ? r.parent_id === parent.slice(3) : parent?.startsWith("in.") ? parent.slice(4, -1).split(",").includes(r.parent_id) : true)).sort((x, y) => (desc ? -1 : 1) * (x.created_at.localeCompare(y.created_at) || x.id.localeCompare(y.id)));
+      if (req.method() === "HEAD") return route.fulfill({ status: 200, headers: { "content-type": "application/json", "content-range": `*/${list.length}`, "access-control-expose-headers": "Content-Range" }, body: "" });
       const range = req.headers()["range"] || "0-39"; const [a, z] = range.split("-").map(Number);
       return json(list.slice(a, z + 1), 200, { "content-range": `${a}-${a + Math.max(0, Math.min(list.length - a, z - a + 1) - 1)}/${list.length}` });
     }

@@ -5,7 +5,7 @@ import { describeCommunityActionError } from "../../lib/community/communityArchi
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { use2029Palette } from "../../lib/palette.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReplies, fetchCommunityMessageContext, fetchCommunityReplyCounts, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage, restoreCommunityMessage, searchCommunityArchive } from "../../lib/community/communityArchive.js";
+import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReplies, fetchCommunityMessageContext, fetchCommunityMessageTotal, fetchCommunityReplyCounts, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage, restoreCommunityMessage, searchCommunityArchive } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
@@ -17,6 +17,7 @@ import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
 import { claimLegacyByEmail, isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
+import ReportHint from "../ReportHint.jsx";
 
 const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short" });
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
@@ -164,6 +165,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [nextOffset, setNextOffset] = useState(0);
   const [total, setTotal] = useState(COMMUNITY_ARCHIVE_TOTAL);
   const [totalVerified, setTotalVerified] = useState(false);
+  const [messageTotal, setMessageTotal] = useState(null);
   const [actionsAvailable, setActionsAvailable] = useState(false);
   // The OpenWeb history below mounts only after the first read settles; before that the page is short
   // and the history would look "near" and load on entry.
@@ -205,6 +207,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const feedAnchorRef = useRef(null);
   feedStateRef.current = { rows, loading, sending };
 
+  const refreshMessageTotal = useCallback(() => {
+    fetchCommunityMessageTotal().then(setMessageTotal).catch(() => {});
+  }, []);
+
   const loadPage = useCallback(async (offset = 0, replace = false) => {
     const request = ++streamRequestRef.current;
     setLoading(true); setError("");
@@ -232,6 +238,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [sort]);
 
   useEffect(() => { loadPage(0, true); return () => { streamRequestRef.current++; }; }, [loadPage]);
+  useEffect(() => { refreshMessageTotal(); }, [refreshMessageTotal]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(feedAnchorRef.current); feedAnchorRef.current = null; }, [rows]);
   useEffect(() => {
     if (memberId || claimId || cardId) return undefined;
@@ -325,7 +332,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const memberName = linkedAccount?.display_name || linkedAccount?.username || baseline?.name || profileRows[0]?.authorName || "חבר הקהילה";
   const isOwner = Boolean(user?.id && (linkedAccountId === user.id || selectedAuthorId === `user:${user.id}`));
 
-  const refreshAfterRestore = useCallback(() => { setThreadRefresh((value) => value + 1); loadPage(0, true); }, [loadPage]);
+  const refreshAfterRestore = useCallback(() => { setThreadRefresh((value) => value + 1); loadPage(0, true); refreshMessageTotal(); }, [loadPage, refreshMessageTotal]);
   const refreshReplyCounts = useCallback((ids) => {
     const clean = ids.filter(Boolean);
     if (clean.length) fetchCommunityReplyCounts(clean).then((counts) => setReplyCounts((current) => ({ ...current, ...counts }))).catch(() => {});
@@ -344,7 +351,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     setThreadRefresh((value) => value + 1);
     setNotice(kind === "hide-thread" ? "השרשור הוסתר." : "ההודעה נמחקה.");
     setUndo({ id: row.id, kind });
-  }, [replyCounts, refreshReplyCounts]);
+    refreshMessageTotal();
+  }, [replyCounts, refreshReplyCounts, refreshMessageTotal]);
   useEffect(() => {
     if (!undo) return undefined;
     const timer = setTimeout(() => setUndo(null), 15000);
@@ -383,7 +391,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     try { if (sessionStorage.getItem(`sod-legacy-auto-claim:${user.id}`)) return; } catch { /* storage unavailable: try once per mount */ }
     checkLegacy();
   }, [user?.id, checkLegacy]);
-  const focusSignIn = () => { const field = document.getElementById("community-sign-in-email"); field?.scrollIntoView({ block: "center" }); field?.focus(); };
+  const focusSignIn = () => {
+    const trigger = document.getElementById("community-sign-in-trigger");
+    trigger?.scrollIntoView({ block: "center" });
+    trigger?.click();
+    requestAnimationFrame(() => document.getElementById("community-sign-in-email")?.focus());
+  };
 
   const messageParam = params.get("message") || "";
   useEffect(() => {
@@ -448,6 +461,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       }
       setDraft(""); setAttachments([]); setReplyTo(null); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
       await loadPage(0, true);
+      refreshMessageTotal();
     } catch { setNotice("השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר."); }
     finally { setSending(false); }
   };
@@ -457,7 +471,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {leadingContent}
     <main id="community-new-chat" className="sod29-community" data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
       {claimId ? <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><div><h1>הקהילה</h1><p>השיחות שלנו, במקום אחד.</p></div></header> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro"><div><div className="sod29-community-intro-heading"><h1>הקהילה</h1>{messageTotal != null ? <span className="sod29-community-message-total" aria-label={`${messageTotal.toLocaleString("he-IL")} הודעות בשיחה`}><strong>{messageTotal.toLocaleString("he-IL")}</strong> הודעות</span> : null}</div><p>השיחות שלנו, במקום אחד.</p></div></header> : null}
       {claimId ? null : memberId ? <section className="sod29-community-profile" aria-label={`הפרופיל של ${memberName}`}>
         <button type="button" className="sod29-community-text-action" onClick={closeProfile}>→ חזרה לשיחות</button>
         <header className="sod29-community-profile-hero"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{baseline?.name && baseline.name !== memberName ? <p>הודעות עבר בשם {baseline.name}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
@@ -469,6 +483,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       </section> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunitySignIn />
         {isAdmin && actionsAvailable ? <CommunityAdminPanel onChanged={refreshAfterRestore} refreshKey={threadRefresh} /> : null}
+        <section className="sod29-community-hint-mobile" aria-label="הוספת רמז לעץ"><div><strong>מצאתם רמז?</strong><p>מספר, תמונה, מקור או חיבור מעניין — שלחו לבדיקה. רמז שיאושר יצטרף לעץ הכללי.</p></div><ReportHint label="הוספת רמז לעץ" /></section>
         <LegacyClaimCard user={user} legacy={legacy} onCheck={() => checkLegacy({ manual: true })} onSignInFocus={focusSignIn} />
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
           <label htmlFor="community-live-draft">מה תרצו לשתף?</label>
@@ -503,7 +518,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : totalVerified ? `עוד הודעות — ${Math.max(0, total - nextOffset).toLocaleString("he-IL")} נותרו` : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
         </>}
-      </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
+      </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card sod29-community-hint-card"><span className="sod29-community-side-symbol" aria-hidden="true">🌳</span><h2>מצאתם רמז?</h2><p>מספר, תמונה, מקור או חיבור מעניין — שלחו לבדיקה. רמז שיאושר יצטרף לעץ הכללי ולזרם המציאות.</p><ReportHint label="הוספת רמז לעץ" /></section><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
           <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>

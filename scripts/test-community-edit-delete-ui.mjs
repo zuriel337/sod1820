@@ -72,26 +72,56 @@ await scenario("workspace nav item no longer shares the community icon", async (
   await context.close();
 });
 
-await scenario("sign-in: natural copy, Google, email/password and email-code choices", async () => {
+await scenario("sign-in: compact launcher opens Google, login, registration and email-code choices", async () => {
   const { page, context, log } = await open();
   const signIn = page.getByRole("region", { name: "התחברות לקהילה" });
-  await signIn.getByRole("heading", { name: "התחברות", exact: true }).waitFor();
+  await signIn.getByRole("heading", { name: "רוצים להשתתף?", exact: true }).waitFor();
   assert.equal(await signIn.getByText(/לתת לייקים בשם שלכם/).count(), 0);
-  await signIn.getByRole("button", { name: "המשך עם Google" }).waitFor();
-  await signIn.getByLabel("אימייל").fill("member@example.com");
-  await signIn.getByLabel("סיסמה").fill("correct-horse-battery-staple");
-  await signIn.getByRole("button", { name: "התחברות", exact: true }).click();
+  await signIn.getByRole("button", { name: "התחברות / הרשמה" }).click();
+  const dialog = page.getByRole("dialog", { name: "התחברות או הרשמה" });
+  await dialog.getByRole("button", { name: "המשך עם Google" }).waitFor();
+  await dialog.getByLabel("אימייל").fill("member@example.com");
+  await dialog.getByLabel("סיסמה", { exact: true }).fill("correct-horse-battery-staple");
+  await dialog.getByRole("button", { name: "התחברות", exact: true }).click();
   await page.getByRole("region", { name: "חשבון הקהילה" }).getByText(/מחובר\/ת כ־אילנה/).waitFor();
   assert.deepEqual(log.authCalls, [{ method: "password", email: "member@example.com", passwordPresent: true }]);
   await context.close();
 
   const code = await open();
   const codeSignIn = code.page.getByRole("region", { name: "התחברות לקהילה" });
-  await codeSignIn.getByRole("button", { name: "אין לכם סיסמה? קבלת קוד למייל" }).click();
-  await codeSignIn.getByRole("button", { name: "שליחת קוד" }).waitFor();
-  await codeSignIn.getByRole("button", { name: "כניסה עם סיסמה" }).click();
-  await codeSignIn.getByLabel("סיסמה").waitFor();
+  await codeSignIn.getByRole("button", { name: "התחברות / הרשמה" }).click();
+  const codeDialog = code.page.getByRole("dialog", { name: "התחברות או הרשמה" });
+  await codeDialog.getByRole("button", { name: "כניסה או הרשמה עם קוד למייל" }).click();
+  await codeDialog.getByRole("button", { name: "שליחת קוד" }).waitFor();
+  await codeDialog.getByRole("button", { name: "חזרה לאימייל וסיסמה" }).click();
+  await codeDialog.getByLabel("סיסמה", { exact: true }).waitFor();
   await code.context.close();
+
+  const signup = await open();
+  await signup.page.getByRole("button", { name: "התחברות / הרשמה" }).click();
+  const signupDialog = signup.page.getByRole("dialog", { name: "התחברות או הרשמה" });
+  await signupDialog.getByRole("tab", { name: "הרשמה" }).click();
+  await signupDialog.getByLabel("השם שיופיע בקהילה").fill("חוקר חדש");
+  await signupDialog.getByLabel("אימייל").fill("new@example.com");
+  await signupDialog.getByLabel("סיסמה", { exact: true }).fill("new-password-1820");
+  await signupDialog.getByLabel("אימות סיסמה").fill("new-password-1820");
+  await signupDialog.getByRole("button", { name: "יצירת חשבון" }).click();
+  await signupDialog.getByRole("status").filter({ hasText: "שלחנו למייל" }).waitFor();
+  assert.deepEqual(signup.log.authCalls, [{ method: "signup", email: "new@example.com", passwordPresent: true, displayName: "חוקר חדש" }]);
+  await signup.context.close();
+});
+
+await scenario("community orientation: verified message total and a distinct moderated hint path", async () => {
+  const { page, context } = await open();
+  await page.getByText("76 הודעות", { exact: true }).waitFor();
+  const hint = page.getByRole("button", { name: /הוספת רמז לעץ/ }).first();
+  await hint.waitFor();
+  await hint.click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByText(/דיווח רמז/).waitFor();
+  await dialog.getByText(/הדיווח עובר בדיקה לפני פרסום/).waitFor();
+  await dialog.getByRole("button", { name: "סגור" }).click();
+  await context.close();
 });
 
 await scenario("page order: new community on top, ״הצ׳אט הוותיק״ at the bottom; single h1; OpenWeb loads only near the bottom", async () => {
@@ -478,6 +508,7 @@ await scenario("legacy claim card: guest sees it and is sent to the sign-in; dis
   await card.getByRole("button", { name: "מצא את החשבון הישן שלי" }).click();
   await guest.page.waitForFunction(() => document.activeElement?.id === "community-sign-in-email");
   assert.equal(guest.log.rpcCalls.filter((c) => c === "claim_by_email").length, 0, "guest never calls the server");
+  await guest.page.getByRole("button", { name: "סגירת חלון ההתחברות" }).click();
   await card.getByRole("button", { name: "לא רלוונטי" }).click();
   await card.waitFor({ state: "detached" });
   await guest.page.reload(); await guest.page.waitForSelector(".sod29-community-thread");
