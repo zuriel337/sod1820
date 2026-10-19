@@ -7,7 +7,8 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 create table public.users (id uuid primary key, role text, email text, display_name text, username text);
 create table public.user_notifications (id bigserial primary key, user_id uuid, email text, kind text, title text, body text, link text);
 create table public.notification_prefs (user_id uuid, topics text[]);
-create table public.contributors (id uuid primary key, user_id uuid, display_name text, avatar_url text);
+create table public.contributors (id uuid primary key, user_id uuid, display_name text, avatar_url text, email text, source text, merged_into text, trusted boolean, vip boolean, locked boolean, active boolean default true, created_at timestamptz default now(), updated_at timestamptz default now());
+create table auth.users (id uuid primary key, email text, email_confirmed_at timestamptz);
 create table public.research_contributions (
   id uuid primary key default gen_random_uuid(), author_user_id uuid, author_contributor_id uuid, author_name text,
   origin text not null default 'beit_midrash', status text not null default 'pending', parent_id uuid references public.research_contributions(id),
@@ -20,6 +21,7 @@ create trigger trg_zvi before insert or update of status on public.research_cont
 
 \i supabase/migrations/20261019130000_community_edit_soft_delete_threads.sql
 \i supabase/migrations/20261019140000_community_restore_report_search_history.sql
+\i supabase/migrations/20261019150000_community_auto_claim_legacy_by_email.sql
 
 -- fixtures
 insert into public.users (id, role, email, display_name) values
@@ -232,6 +234,71 @@ select pg_temp.expect_error($$select * from community_admin_reports(5)$$, 'permi
 select pg_temp.expect_error($$select community_report_message('40000000-0000-0000-0000-000000000002','spam')$$, 'permission denied');
 select pg_temp.expect_error($$select * from community_reports$$, 'permission denied');
 select pg_temp.expect_error($$select * from research_contribution_edits$$, 'permission denied');
+reset role;
+
+-- ===== third migration: automatic legacy link by confirmed email =====
+insert into auth.users (id, email, email_confirmed_at) values
+ ('00000000-0000-0000-0000-0000000000a1','Ilana@Example.invalid', now()),   -- confirmed, mixed case; matches c1 below
+ ('00000000-0000-0000-0000-0000000000a2','boaz@example.invalid', null),     -- NOT confirmed; matches c2
+ ('00000000-0000-0000-0000-0000000000ad','admin@example.invalid', now()),
+ ('50000000-0000-0000-0000-0000000000e1','owner@example.invalid', now()),   -- already owns a contributor; matches c3
+ ('50000000-0000-0000-0000-0000000000e2','trusted@example.invalid', now()), -- matches a trusted contributor
+ ('50000000-0000-0000-0000-0000000000e3','nomatch@example.invalid', now()),
+ ('50000000-0000-0000-0000-0000000000e4','other@example.invalid', now()),   -- matches an already-claimed contributor
+ ('50000000-0000-0000-0000-0000000000e5','wa@example.invalid', now()),      -- matches a non-openweb contributor
+ ('50000000-0000-0000-0000-0000000000e6','reg@example.invalid', now());     -- backfill candidate (no contributor yet)
+insert into public.contributors (id, display_name, email, source, user_id, trusted) values
+ ('c0000000-0000-0000-0000-0000000000c1','ilana-old','  ilana@example.invalid ','openweb_import',null,false),
+ ('c0000000-0000-0000-0000-0000000000c2','boaz-old','boaz@example.invalid','openweb_import',null,false),
+ ('c0000000-0000-0000-0000-0000000000c3','owner-old','owner@example.invalid','openweb_import',null,false),
+ ('c0000000-0000-0000-0000-0000000000c9','owner-own','own@example.invalid','manual','50000000-0000-0000-0000-0000000000e1',false),
+ ('c0000000-0000-0000-0000-0000000000c4','trusted-old','trusted@example.invalid','openweb_import',null,true),
+ ('c0000000-0000-0000-0000-0000000000c5','claimed-old','other@example.invalid','openweb_import','00000000-0000-0000-0000-0000000000ad',false),
+ ('c0000000-0000-0000-0000-0000000000c6','wa-contact','wa@example.invalid','whatsapp_group',null,false),
+ ('c0000000-0000-0000-0000-0000000000c7','reg-old','reg@example.invalid','openweb_import',null,false);
+insert into public.research_contributions (id, author_contributor_id, origin, status, body) values
+ ('60000000-0000-0000-0000-000000000001','c0000000-0000-0000-0000-0000000000c1','openweb','approved','old one'),
+ ('60000000-0000-0000-0000-000000000002','c0000000-0000-0000-0000-0000000000c1','openweb','approved','old two'),
+ ('60000000-0000-0000-0000-000000000003','c0000000-0000-0000-0000-0000000000c1','openweb','hidden','old hidden');
+
+select pg_temp.as_user(null);
+select pg_temp.expect_error($$select contributors_claim_legacy_by_email()$$, 'not_authenticated');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'email_not_confirmed', 'unconfirmed email never claims');
+select pg_temp.assert((select user_id is null from contributors where id='c0000000-0000-0000-0000-0000000000c2'), 'unconfirmed email left the record unclaimed');
+select pg_temp.as_user('50000000-0000-0000-0000-0000000000e3');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'no_match', 'no matching email, nothing claimed');
+select pg_temp.as_user('50000000-0000-0000-0000-0000000000e1');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'account_has_contributor', 'account that already owns a contributor is skipped');
+select pg_temp.as_user('50000000-0000-0000-0000-0000000000e2');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'no_match', 'trusted contributor is never auto-claimed');
+select pg_temp.as_user('50000000-0000-0000-0000-0000000000e4');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'no_match' and (select user_id from contributors where id='c0000000-0000-0000-0000-0000000000c5') = '00000000-0000-0000-0000-0000000000ad', 'an already-claimed contributor is not taken over');
+select pg_temp.as_user('50000000-0000-0000-0000-0000000000e5');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'no_match', 'non-OpenWeb contributors are not auto-claimed');
+-- the real match: confirmed, case/space-insensitive, counts only approved OpenWeb messages
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select pg_temp.assert((select (r->>'claimed')::int = 1 and (r->>'messages')::int = 2 from (select contributors_claim_legacy_by_email() r) x), 'confirmed matching email claims the old author (2 approved messages)');
+select pg_temp.assert((select user_id from contributors where id='c0000000-0000-0000-0000-0000000000c1') = '00000000-0000-0000-0000-0000000000a1', 'record now belongs to the signed-in account');
+select pg_temp.assert((select count(*) from contributor_claim_events where method='auto_login') = 1, 'claim is logged for audit and undo');
+select pg_temp.assert((select contributors_claim_legacy_by_email()->>'reason') = 'account_has_contributor', 'second call is a harmless no-op');
+-- the messages now resolve to the account through the existing contributor join
+select pg_temp.as_user(null);
+select pg_temp.assert((select count(*) from research_contributions r join contributors c on c.id = r.author_contributor_id where c.user_id = '00000000-0000-0000-0000-0000000000a1' and r.origin = 'openweb') = 3, 'all of the old author''s rows now join to the account');
+
+-- admin backfill: links the registered, skips accounts that already own a contributor, idempotent, admin only
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+select pg_temp.expect_error($$select contributors_link_registered_legacy()$$, 'not authorized');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select pg_temp.assert((select (r->>'linked')::int = 1 and (r->>'skipped_account_has_contributor')::int = 1 from (select contributors_link_registered_legacy() r) x), 'backfill links the one registered author and reports the one needing review');
+select pg_temp.assert((select user_id from contributors where id='c0000000-0000-0000-0000-0000000000c7') = '50000000-0000-0000-0000-0000000000e6', 'registered author linked by backfill');
+select pg_temp.assert((select user_id is null from contributors where id='c0000000-0000-0000-0000-0000000000c3'), 'account owning another contributor not touched by backfill');
+select pg_temp.assert((select (contributors_link_registered_legacy()->>'linked')::int) = 0, 'backfill is idempotent');
+select pg_temp.assert((select count(*) from contributor_claim_events where method='auto_backfill') = 1, 'backfill logged');
+set role anon;
+select pg_temp.expect_error($$select contributors_claim_legacy_by_email()$$, 'permission denied');
+select pg_temp.expect_error($$select contributors_link_registered_legacy()$$, 'permission denied');
+select pg_temp.expect_error($$select * from contributor_claim_events$$, 'permission denied');
 reset role;
 
 -- role grants: anon can read through the definer functions but cannot call any write function or the private helper

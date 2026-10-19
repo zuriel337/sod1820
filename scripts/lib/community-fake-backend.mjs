@@ -21,7 +21,7 @@ export function makeStore() {
 }
 
 export function semantics(rows) {
-  const archive = new Map(); const edits = []; const reports = [];
+  const archive = new Map(); const edits = []; const reports = []; const legacy = new Map([[B, { messages: 3 }]]);
   const live = (r) => r.status === "approved" && !r.deleted_at && !r.thread_hidden_at && ["openweb", "community_2029"].includes(r.origin) && (r.body || "").trim();
   const kids = (pid) => rows.filter((r) => r.parent_id === pid);
   const hasLive = (pid, depth = 0) => depth < 64 && kids(pid).some((c) => live(c) || (c.deleted_at && !c.thread_hidden_at && hasLive(c.id, depth + 1)));
@@ -58,6 +58,11 @@ export function semantics(rows) {
       const stack = [p_root]; let n = 0;
       while (stack.length) { const cur = stack.pop(); const r = rows.find((x) => x.id === cur); if (r && !r.thread_hidden_at && (r.status === "approved" || r.deleted_at)) { r.thread_hidden_at = new Date().toISOString(); if (r.status === "approved") r.status = "hidden"; n++; } kids(cur).forEach((k) => stack.push(k.id)); }
       return n;
+    },
+    claimByEmail(uid) {
+      if (!uid) throw new Error("not_authenticated");
+      const hit = legacy.get(uid); if (!hit) return { claimed: 0, messages: 0, reason: "account_has_contributor" };
+      legacy.delete(uid); return { claimed: 1, messages: hit.messages, reason: null };
     },
     restore(uid, { p_id }) {
       if (!uid) throw new Error("auth required");
@@ -169,6 +174,11 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
       return json(list.slice(a, z + 1), 200, { "content-range": `${a}-${a + Math.max(0, Math.min(list.length - a, z - a + 1) - 1)}/${list.length}` });
     }
     if (path === "/rest/v1/contributors") return json([]);
+    if (path === "/rest/v1/rpc/contributors_claim_legacy_by_email") {
+      log.rpcCalls.push("claim_by_email");
+      if (rpc === "missing") return json({ code: "PGRST202", message: "Could not find the function public.contributors_claim_legacy_by_email", details: null, hint: null }, 404);
+      try { return json(sem.claimByEmail(uid)); } catch (error) { return json({ code: "P0001", message: error.message, details: null, hint: null }, 400); }
+    }
     if (path.startsWith("/rest/v1/rpc/")) return json(null);
     return json([]);
   });

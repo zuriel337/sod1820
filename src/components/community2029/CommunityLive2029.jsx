@@ -13,7 +13,7 @@ import { EditHistory, MessageConfirm, MessageEditor, MessageReport, communityMes
 import CommunityAdminPanel from "./CommunityAdminPanel.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
-import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
+import { claimLegacyByEmail, isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
 
@@ -359,6 +359,22 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     } catch (err) { setNotice(describeCommunityActionError(err)); }
   };
   const actionsContext = useMemo(() => ({ actionsAvailable, user, isAdmin: Boolean(isAdmin), patches, onMessageChanged }), [actionsAvailable, user, isAdmin, patches, onMessageChanged]);
+
+  // A signed-in account whose confirmed email matches an old chat author is linked automatically, once per tab session.
+  useEffect(() => {
+    if (!user?.id) return undefined;
+    const key = `sod-legacy-auto-claim:${user.id}`;
+    try { if (sessionStorage.getItem(key)) return undefined; } catch { /* storage unavailable: try once per mount */ }
+    let active = true;
+    claimLegacyByEmail().then((result) => {
+      try { sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
+      if (!active || !result?.claimed) return;
+      setNotice(result.messages > 0 ? `מצאנו את החשבון שלך בצ׳אט הוותיק וקישרנו אליו ${result.messages.toLocaleString("he-IL")} הודעות.` : "מצאנו את החשבון שלך בצ׳אט הוותיק וקישרנו אותו.");
+      fetchLinkedAccountProfiles([user.id]).then((accounts) => setAccountProfiles((current) => ({ ...current, ...accounts }))).catch(() => {});
+      loadPage(0, true);
+    }).catch(() => { /* a failed attempt is retried on the next visit */ });
+    return () => { active = false; };
+  }, [user?.id, loadPage]);
 
   const messageParam = params.get("message") || "";
   useEffect(() => {

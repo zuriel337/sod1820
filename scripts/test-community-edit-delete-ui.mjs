@@ -417,6 +417,30 @@ await scenario("report and admin panel: report as a reader; admin deletes from t
   await admin.context.close();
 });
 
+await scenario("auto link: a signed-in account matching an old author is linked once, with a notice; guests and the missing migration stay silent", async () => {
+  const shared = shareStore();
+  const first = await open({ as: B, shared });
+  await first.page.getByText("מצאנו את החשבון שלך בצ׳אט הוותיק וקישרנו אליו 3 הודעות.").waitFor();
+  await first.page.reload(); await first.page.waitForSelector(".sod29-community-thread");
+  await first.page.waitForTimeout(500);
+  assert.equal(await first.page.getByText(/מצאנו את החשבון שלך/).count(), 0, "attempted once per tab session");
+  assert.equal(first.log.rpcCalls.filter((c) => c === "claim_by_email").length, 1, "one claim call across the reload");
+  await first.context.close();
+  const second = await open({ as: B, shared });
+  await second.page.waitForTimeout(600);
+  assert.equal(await second.page.getByText(/מצאנו את החשבון שלך/).count(), 0, "already linked: no repeated notice");
+  await second.context.close();
+  const guest = await open({ shared });
+  await guest.page.waitForTimeout(400);
+  assert.equal(guest.log.rpcCalls.filter((c) => c === "claim_by_email").length, 0, "guests never call it");
+  await guest.context.close();
+  const old = await open({ as: A, rpc: "missing" });
+  await old.page.waitForTimeout(500);
+  assert.equal(await old.page.getByText(/מצאנו את החשבון שלך/).count(), 0);
+  assert.deepEqual(old.log.errors, []);
+  await old.context.close();
+});
+
 await scenario("no page errors in any run", async () => {
   const { page, context, log } = await open({ as: A });
   await page.waitForTimeout(300);

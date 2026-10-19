@@ -16,6 +16,10 @@ Provenance/evidence note, not a contract or owner map. Owners unchanged: System 
 - Search: `חיפוש בכל הארכיון` (trigram index; never returns hidden/deleted text or replies under moderated-hidden parents).
 - Reports: signed-in readers report others' messages (4 reasons, 20/day); admins settle them from the same panel (dismiss / delete / hide thread).
 
+## Automatic legacy link (third migration)
+`20261019150000_community_auto_claim_legacy_by_email.sql`: `contributors_claim_legacy_by_email()` (called by the community page after sign-in, once per tab session) links a signed-in account to its old OpenWeb author record when the account's CONFIRMED email equals the contributor's email exactly. `contributors_link_registered_legacy()` is an admin one-shot for accounts that already exist; it is not run by anything.
+Not auto-linked: accounts that already own a contributor row, trusted/vip/locked/inactive/merged contributors, other sources, already-claimed records. Every link is logged in `contributor_claim_events` (undo SQL at the top of the migration).
+
 ## Migrations (NOT applied to any live database; apply in order)
 `supabase/migrations/20261019130000_community_edit_soft_delete_threads.sql`, then `20261019140000_community_restore_report_search_history.sql`
 - Second migration: 2 private tables (edit history, reports), a trigram index (`create index` takes a short write lock on ~41k rows), the functions above, and `notify_on_contribution` re-created with the same body except the link of a `community_2029` reply.
