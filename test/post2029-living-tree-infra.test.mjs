@@ -201,10 +201,10 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   const postCss = readFileSync(new URL("../src/pages/post2029-reading.css", import.meta.url), "utf8");
   const config = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
 
-  assert.match(app, /path="\/2029\/posts" element={<Posts2029Page/);
+  assert.match(app, /path="\/posts" element={<Posts2029Page/);
   assert.match(app, /path="\/post\/:slug" element={<Post2029Page/);
   assert.doesNotMatch(app, /path="\/post" element={<Posts2029Page/);
-  assert.match(frame, /to: "\/2029\/posts", label: "פוסטים"/);
+  assert.match(frame, /to: "\/posts", label: "פוסטים"/);
 
   assert.match(index, /<Sod2029Shell surface="post"/);
   assert.doesNotMatch(index, /<Sod2029Shell surface="posts"/);
@@ -225,10 +225,9 @@ test("Posts-first High-Fidelity Golden reconciles onto current 2029 shell", () =
   assert.match(postCss, /Post Master high-fidelity hero/);
   assert.doesNotMatch(indexCss, /#[0-9a-fA-F]{3,8}/);
 
-  assert.ok(config.rewrites.some((row) => row.source === "/2029/posts" && row.destination === "/2029.html"));
-  const previewHeaders = config.headers.find((row) => row.source === "/2029/posts");
-  assert.ok(previewHeaders);
-  assert.ok(previewHeaders.headers.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value)));
+  assert.ok(config.rewrites.some((row) => row.source === "/posts" && row.destination === "/2029.html"));
+  const publicPostsHeaders = config.headers.filter((row) => row.source === "/posts" || row.source === "/(.*)");
+  assert.equal(publicPostsHeaders.some((row) => row.headers.some((header) => header.key === "X-Robots-Tag" && /noindex/.test(header.value))), false);
 });
 
 test("Bennett and FZ1073 remain the two Post Master fixtures", () => {
