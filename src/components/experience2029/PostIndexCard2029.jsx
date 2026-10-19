@@ -25,7 +25,7 @@ const isGoldenPost = (post) => Array.isArray(post?.tags)
  * the card link and a click opens the full explanation in place. `mapReaders` are the existing owners'
  * readers, used only after the reader picks a number.
  */
-export default function PostIndexCard({ post, index, depth = null, mapReaders = null, onMapOpen = null }) {
+export default function PostIndexCard({ post, index, depth = null, mapReaders = null, onMapOpen = null, depthLook = "strip" }) {
   const title = humanContentTitle(post?.title, { max: 92 });
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
   const numbers = numericSignals(post?.tags);
@@ -70,7 +70,7 @@ export default function PostIndexCard({ post, index, depth = null, mapReaders = 
       </div>
     </Link>
     {depth ? <div className="sod29-post-index-depth">
-      <ContextDepthMeter2029 depth={depth} variant="compact" expanded={open} onToggle={() => setOpen((value) => !value)} panelId={panelId} />
+      <ContextDepthMeter2029 depth={depth} variant="compact" look={depthLook} expanded={open} onToggle={() => setOpen((value) => !value)} panelId={panelId} />
     </div> : null}
     {depth && open ? <div className="sod29-post-index-depth-panel" id={panelId}>
       <ContextDepthMeter2029 depth={depth} variant="full" selectedValue={picked} onSelectValue={setPicked}>

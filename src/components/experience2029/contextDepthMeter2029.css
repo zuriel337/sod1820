@@ -46,3 +46,25 @@
 .sod29-post-index-depth{padding:10px 14px 12px}
 .sod29-posts-index-grid .sod29-post-index-card.is-depth-open{grid-column:1/-1}
 .sod29-post-index-depth-panel{padding:0 14px 14px}
+/* Compact looks for the visual comparison (strip is the approved default). */
+.sod29-depth-compact[data-look="chips"]{border-radius:16px}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips{flex-wrap:wrap;max-width:260px;gap:4px}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i{width:auto;height:auto;padding:1px 7px;border-radius:999px;font-size:11px;line-height:1.45;color:var(--s29-ink)}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i[data-coverage="full"]{color:var(--s29-on-accent,#fff)}
+.sod29-depth-icons{display:inline-flex;gap:4px}
+.sod29-depth-icons i{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;border:1.5px solid var(--s29-accent);color:var(--s29-accent-text);font-style:normal}
+.sod29-depth-icons i svg{width:16px;height:16px}
+.sod29-depth-icons i[data-coverage="full"]{background:var(--s29-accent);color:var(--s29-on-accent,#fff)}
+.sod29-depth-icons i[data-coverage="partial"]{background:linear-gradient(to top,color-mix(in srgb,var(--s29-accent) 38%,transparent) 50%,transparent 50%)}
+.sod29-depth-icons i[data-coverage="none"]{border-color:var(--s29-line-strong);color:var(--s29-muted);opacity:.75}
+.sod29-depth-icons i[data-coverage="unmapped"]{border-style:dashed;border-color:var(--s29-muted);color:var(--s29-muted)}
+.sod29-depth-missing{color:var(--s29-muted);font-size:var(--s29-type-micro);white-space:normal;text-align:start}
+.sod29-depth-compact[data-look="missing"]{flex-wrap:wrap;border-radius:16px}
+.sod29-depth-radar{width:44px;height:44px}
+.sod29-depth-radar .ring{fill:none;stroke:var(--s29-line-strong);stroke-width:.8}
+.sod29-depth-radar .spoke{stroke:var(--s29-line);stroke-width:.6}
+.sod29-depth-radar .shape{fill:color-mix(in srgb,var(--s29-accent) 32%,transparent);stroke:var(--s29-accent);stroke-width:1.2}
+.sod29-depth-compact[data-look="chips"],.sod29-depth-compact[data-look="icons"]{flex-wrap:wrap;row-gap:6px}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i{white-space:nowrap;padding:2px 8px}
+.sod29-depth-icons{flex-wrap:wrap}
+@media(max-width:520px){.sod29-depth-icons i{width:24px;height:24px}.sod29-depth-icons i svg{width:15px;height:15px}.sod29-depth-compact[data-look="chips"] .sod29-depth-pips{max-width:none}}

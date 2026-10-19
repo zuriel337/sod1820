@@ -5,6 +5,31 @@ import "./contextDepthMeter2029.css";
 const methodList = (results) => results.map((r) => `${r.phrase} · ${r.method} ${r.value}`);
 const groupLabel = (ref) => String(ref).replace(/^post:/, "פוסט ");
 const direct = (n) => (n === 1 ? "קשר ישיר אחד" : `${n} קשרים ישירים`);
+// Compact looks. `strip` is the approved default; the others exist for the visual comparison.
+// All of them show coverage per dimension, never a total.
+const ICON = Object.freeze({
+  calculations: <><path d="M5 8h10M5 12h10" /><path d="M13 4l-6 12" /></>,
+  links: <><circle cx="4.5" cy="10" r="1.8" /><circle cx="15.5" cy="4.5" r="1.8" /><circle cx="15.5" cy="15.5" r="1.8" /><path d="M6.2 9.2l7.6-4M6.2 10.8l7.6 4" /></>,
+  convergence: <><path d="M3 4l7 6-7 6M17 4l-7 6 7 6" /></>,
+  independence: <><circle cx="5" cy="6" r="2" /><circle cx="15" cy="6" r="2" /><circle cx="10" cy="15" r="2" /></>,
+  editor: <><path d="M10 3l2 4.5 4.8.5-3.6 3.2 1 4.8L10 13.6 5.8 16l1-4.8L3.2 8l4.8-.5z" /></>,
+  approval: <><path d="M4 10.5l4 4 8-9" /></>,
+});
+const RADAR_LEVEL = Object.freeze({ full: 1, partial: 0.6, none: 0.18, unmapped: 0.1 });
+const missingOf = (depth) => depth.dimensions.filter((d) => d.coverage === "none" || d.coverage === "unmapped").map((d) => d.label);
+function Radar({ depth }) {
+  const pts = depth.dimensions.map((d, i) => {
+    const a = (-90 + i * (360 / depth.dimensions.length)) * (Math.PI / 180), r = 16 * RADAR_LEVEL[d.coverage];
+    return [20 + r * Math.cos(a), 20 + r * Math.sin(a)];
+  });
+  const ring = depth.dimensions.map((_, i) => { const a = (-90 + i * 60) * (Math.PI / 180); return `${20 + 16 * Math.cos(a)},${20 + 16 * Math.sin(a)}`; }).join(" ");
+  return <svg className="sod29-depth-radar" viewBox="0 0 40 40" aria-hidden="true">
+    <polygon points={ring} className="ring" />
+    {depth.dimensions.map((_, i) => { const a = (-90 + i * 60) * (Math.PI / 180); return <line key={i} x1="20" y1="20" x2={20 + 16 * Math.cos(a)} y2={20 + 16 * Math.sin(a)} className="spoke" />; })}
+    <polygon points={pts.map((q) => q.join(",")).join(" ")} className="shape" />
+  </svg>;
+}
+
 const SOURCE_KIND = Object.freeze({ post_body: "גוף הפוסט", tag: "תגית", plan_doc: "מסמך תכנון" });
 
 function factLine(dim) {
@@ -54,18 +79,23 @@ function ExpressionLayers({ expr }) {
  * dimension separately. Without derived data it renders nothing, so a list card never triggers a read or
  * invents a state.
  */
-export default function ContextDepthMeter2029({ depth, variant = "full", expanded = false, onToggle, panelId = null, selectedValue = null, onSelectValue, children }) {
+export default function ContextDepthMeter2029({ depth, variant = "full", look = "strip", expanded = false, onToggle, panelId = null, selectedValue = null, onSelectValue, children }) {
   const autoId = useId();
   const id = panelId || autoId;
   if (!depth) return null;
   const summary = depth.dimensions.map((d) => `${d.label}: ${d.coverageLabel}`).join(", ");
   if (variant === "compact") {
-    return <button type="button" className="sod29-depth-compact" aria-expanded={expanded} aria-controls={id}
+    const missing = look === "missing" ? missingOf(depth) : null;
+    return <button type="button" className="sod29-depth-compact" data-look={look} aria-expanded={expanded} aria-controls={id}
       aria-label={`עומק ההקשר. ${summary}`} onClick={onToggle} data-context-depth-compact>
       <span className="sod29-depth-compact-title">עומק</span>
-      <span className="sod29-depth-pips" aria-hidden="true">
-        {depth.dimensions.map((d) => <i key={d.key} data-coverage={d.coverage} title={`${d.label}: ${d.coverageLabel}`} />)}
-      </span>
+      {look === "radar" ? <Radar depth={depth} /> : look === "icons" ? <span className="sod29-depth-icons" aria-hidden="true">
+        {depth.dimensions.map((d) => <i key={d.key} data-coverage={d.coverage} title={`${d.label}: ${d.coverageLabel}`}>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{ICON[d.key]}</svg></i>)}
+      </span> : <span className="sod29-depth-pips" aria-hidden="true">
+        {depth.dimensions.map((d) => <i key={d.key} data-coverage={d.coverage} title={`${d.label}: ${d.coverageLabel}`}>{look === "chips" ? d.label : null}</i>)}
+      </span>}
+      {missing ? <span className="sod29-depth-missing">{missing.length ? `חסר: ${missing.join(", ")}` : "אין פערים"}</span> : null}
     </button>;
   }
   const active = depth.numbers.find((n) => n.value === selectedValue) || null;

@@ -32,8 +32,11 @@ createRoot(document.getElementById("root")).render(<MemoryRouter>
     <main className="sod29-posts-index" style={{ maxWidth: 1180, margin: "0 auto" }}>
       <section className="sod29-posts-index-stage" aria-label="פוסטים">
         <div className="sod29-posts-index-grid">
+          {q.get("view") === "looks" ? ["strip", "chips", "icons", "missing", "radar"].map((look, i) => <div key={look} style={{ gridColumn: "span 6" }} data-look-sample={look}>
+            <p style={{ margin: "0 0 6px", fontSize: 13, color: "var(--s29-muted)" }}>{({ strip: "א · פסים (מצב היום)", chips: "ב · תוויות ממדים", icons: "ג · פסים עם אייקונים", missing: "ד · פסים + מה חסר", radar: "ה · רדאר (לא מומלץ, להמחשה בלבד)" })[look]}</p>
+            <PostIndexCard post={POST_ROW_5112} index={i + 2} depth={depth} depthLook={look} mapReaders={mapReaders} onMapOpen={() => {}} /></div>) : null}
           {q.get("view") === "compare" ? <PostIndexCard post={POST_ROW_5112} index={0} /> : null}
-          <PostIndexCard post={POST_ROW_5112} index={q.get("view") === "compare" ? 1 : 0} depth={depth} mapReaders={mapReaders} />
+          {q.get("view") === "looks" ? null : <PostIndexCard post={POST_ROW_5112} index={q.get("view") === "compare" ? 1 : 0} depth={depth} mapReaders={mapReaders} />}
         </div>
       </section>
     </main>
