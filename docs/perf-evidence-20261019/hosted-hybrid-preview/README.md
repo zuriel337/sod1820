@@ -1,10 +1,15 @@
 # Hosted Hybrid Preview acceptance handoff
 
-Date: 2026-10-19  
-Task: `HOSTED_HYBRID_PREVIEW_20261019`  
-Implementation branch: `gpt/hosted-hybrid-preview-20261019`  
-Integration target: `gpt/2029-hybrid-stage-preview-20261018`  
-Integration base inspected: `aa0b27500457bb89f96f36ecf0a73b7a80488c50`  
+Date: 2026-10-19
+
+Task: `HOSTED_HYBRID_PREVIEW_20261019`
+
+Implementation branch: `gpt/hosted-hybrid-preview-20261019`
+
+Integration target: `gpt/2029-hybrid-stage-preview-20261018`
+
+Integration base inspected: `aa0b27500457bb89f96f36ecf0a73b7a80488c50`
+
 Locally sealed implementation SHA: `f2f5cc8ceca67743b8fe6bb6f80a3d2a7592173a`
 
 ## Outcome
