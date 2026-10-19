@@ -55,4 +55,10 @@ A conditional route-module preload was measured and removed because it did not i
 - The Hybrid routing/build gate passed 8/8, including the early write guard and the exact candidate route inventory.
 - `git diff --check` passed.
 
+The first remote run on PR #1123 exposed one stale Golden wiring assertion; it was updated to follow the same governed call after that call moved behind the dynamic enrichment boundary, and its 10/10 suite passes. The remaining remote failures are candidate-base CI infrastructure blockers outside this Post patch:
+
+- navigation replay invokes `build-integrated-preview.mjs` without its required external `SOD_BUILD_TARGET=2029`;
+- G4 launches all 23 browser cases without the now-required CI isolation wrapper, so every case stops before navigation;
+- the performance replay corpus does not map two Home Post reads already made by the exact base SHA. A local isolated replay of `aa0b2750` reproduces those same two misses, while a Post-only replay of this branch passes with zero forbidden I/O.
+
 Raw measurements are in `measurements.json`.
