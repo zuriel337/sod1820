@@ -24,7 +24,7 @@ const video = {
   asset_key: "existing-asset-key", video_kind: "selfhost",
 };
 const archive = SHAUL_DAVID_REVIEW_IDS.map((id) => ({
-  id, slug: `historical-${id}`, title: `פוסט היסטורי ${id}`, tags: [],
+  source: "wordpress", id, slug: `historical-${id}`, title: `פוסט היסטורי ${id}`, tags: [],
 }));
 
 test("full episode has three independent events, but one post source and no approved Graph edge", () => {
