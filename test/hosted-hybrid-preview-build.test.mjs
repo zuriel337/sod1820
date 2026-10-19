@@ -159,7 +159,15 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
   const receipt = JSON.parse(await readFile(resolve(dist, "preview-build.json"), "utf8"));
   const policy = await loadHybridRoutePolicy();
   const route = createHybridRouteResolver(policy);
-  const state = { writes: 0 };
+  const runtimeDocuments = new Set(["legacy.html", "index.html", "2029.html"]);
+  const runtimeEntries = new Set();
+  for (const name of runtimeDocuments) {
+    const html = await readFile(resolve(dist, name), "utf8");
+    const entry = html.match(/await import\((['"])(\/assets\/[^'"]+\.js)\1\)/)?.[2];
+    assert.ok(entry, `${name} exact hosted entry is discoverable`);
+    runtimeEntries.add(entry.replace(/^\/+/, ""));
+  }
+  const state = { writes: 0, entries: [] };
   server = createServer(await tlsFor(receipt.host), async (request, response) => {
     try {
       const url = new URL(request.url || "/", "https://local.invalid");
@@ -172,7 +180,16 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
       if (!requested || !extname(requested)) requested = route(url.pathname).document;
       let file = resolve(dist, requested);
       if (!file.startsWith(`${dist}${sep}`)) throw new Error("unsafe path");
-      const bytes = await readFile(file);
+      let bytes = await readFile(file);
+      // The artifact is validated byte-for-byte above. The browser harness removes
+      // HTTP/1.1 preload contention and substitutes only the final product entry,
+      // so it measures guard ordering rather than the full runtime's network cost.
+      if (runtimeDocuments.has(requested)) {
+        bytes = Buffer.from(bytes.toString("utf8").replace(/<link\b[^>]*>/g, ""));
+      } else if (runtimeEntries.has(requested)) {
+        state.entries.push(requested);
+        bytes = Buffer.from("document.documentElement.dataset.sodHybridEntry='loaded';\n");
+      }
       response.writeHead(200, { "content-type": mime(file), "cache-control": "no-store" });
       response.end(bytes);
     } catch {
@@ -233,6 +250,7 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
     assert.equal(attestation.identity.buildTarget, "hybrid");
     assert.equal(attestation.identity.guardIdentitySha256, receipt.guardIdentitySha256);
     assert.deepEqual(attestation.identity.readRpcAllowlist, [...PREVIEW_READ_RPC_ALLOWLIST]);
+    await page.waitForFunction(() => document.documentElement.dataset.sodHybridEntry === "loaded");
     const blocked = await page.evaluate(async () => {
       const fetchResponse = await fetch("/hybrid-write", { method: "POST", body: "synthetic" });
       const xhr = await new Promise((resolveXhr) => {
@@ -254,5 +272,6 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
     assert.deepEqual(blocked.xhr, { status: 403, blocked: "true" });
     assert.equal(state.writes, 0, `${runtime} write reached the origin`);
   }
+  assert.deepEqual(new Set(state.entries), runtimeEntries);
   await context.close();
 });
