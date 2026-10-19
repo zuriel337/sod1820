@@ -21,6 +21,7 @@ create trigger trg_zvi before insert or update of status on public.research_cont
 
 \i supabase/migrations/20261019130000_community_edit_soft_delete_threads.sql
 \i supabase/migrations/20261019140000_community_restore_report_search_history.sql
+\i supabase/migrations/20261019145000_community_reply_notification_link.sql
 \i supabase/migrations/20261019150000_community_auto_claim_legacy_by_email.sql
 
 -- fixtures

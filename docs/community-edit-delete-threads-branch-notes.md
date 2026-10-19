@@ -35,3 +35,6 @@ Not auto-linked: accounts that already own a contributor row, trusted/vip/locked
 ## Local preview (offline)
 `npm run build:2029`, then `npm run preview:community-edit-delete` (needs Playwright + Chromium: `npm i --no-save playwright && npx playwright install chromium`).
 Serves `http://127.0.0.1:4173/community/chat` and opens four windows (guest, author, other user, admin) over one shared in-memory store; nothing reaches a live service. `--personas=`, `--port=`, `--rpc=missing` (simulates the migration not being applied).
+
+## Notification link (separate, optional)
+`20261019145000_community_reply_notification_link.sql` re-creates the shared `notify_on_contribution` trigger function (same body as live, md5 `d9e068d8…`) so a reply to a community message links to `/community/chat?message=<id>`. Kept apart from the other migrations because it touches a shared function. Without it, reply notifications keep the old `/forum/…` link.
