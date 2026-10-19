@@ -12,10 +12,15 @@ import { fileURLToPath } from "node:url";
 import { createHybridRouteResolver, loadHybridRoutePolicy } from "../scripts/hybrid-preview-routing.mjs";
 import { verifyPreviewArtifactInventory } from "../scripts/preview-artifact-inventory.mjs";
 import { PREVIEW_READ_RPC_ALLOWLIST } from "../scripts/preview-readonly-worker.mjs";
+import {
+  approvedHybridPreviewHost,
+  HOSTED_HYBRID_BRANCH,
+  isExactHostedShallowCheckout,
+} from "../scripts/hybrid-preview-source-boundary.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const dist = resolve(root, "hybrid-preview-dist");
-const REQUIRED_BRANCH = "gpt/2029-hybrid-stage-preview-20261018";
+const REQUIRED_BRANCH = HOSTED_HYBRID_BRANCH;
 const built = existsSync(resolve(dist, "preview-build.json"));
 const temporary = [];
 let browser;
@@ -32,7 +37,9 @@ async function miniRepository() {
   const directory = await mkdtemp(resolve(tmpdir(), "sod-hosted-hybrid-gate-"));
   temporary.push(directory);
   await mkdir(resolve(directory, "scripts"), { recursive: true });
-  await copyFile(resolve(root, "scripts/build-hosted-hybrid-preview.mjs"), resolve(directory, "scripts/build-hosted-hybrid-preview.mjs"));
+  for (const name of ["build-hosted-hybrid-preview.mjs", "hybrid-preview-source-boundary.mjs"]) {
+    await copyFile(resolve(root, `scripts/${name}`), resolve(directory, `scripts/${name}`));
+  }
   await writeFile(resolve(directory, ".gitignore"), "hybrid-preview-dist/\nnode_modules/\n");
   execFileSync("git", ["init", "-q"], { cwd: directory });
   execFileSync("git", ["add", "."], { cwd: directory });
@@ -78,6 +85,32 @@ test("non-exact target, environment, branch, commit and host fail before Hybrid 
     assert.match(result.stderr, expected, label);
     assert.doesNotMatch(result.stderr, /build-hybrid-preview|ERR_MODULE_NOT_FOUND/i, label);
     assert.equal(await readFile(sentinel, "utf8"), "sealed\n", label);
+  }
+});
+
+test("only an exact Vercel Preview identity may compensate for unavailable shallow ancestry", () => {
+  const head = "a".repeat(40);
+  const env = {
+    VERCEL: "1",
+    SOD_HYBRID_HOSTED_SHALLOW: "1",
+    SOD_BUILD_TARGET: "hybrid",
+    VERCEL_ENV: "preview",
+    VERCEL_GIT_COMMIT_REF: REQUIRED_BRANCH,
+    VERCEL_GIT_COMMIT_SHA: head,
+    VERCEL_URL: "sod1820-shallow-gate-sod1820-s-projects.vercel.app",
+  };
+  assert.equal(approvedHybridPreviewHost(env.VERCEL_URL), env.VERCEL_URL);
+  assert.equal(isExactHostedShallowCheckout({ env, head, isShallow: true }), true);
+  for (const [label, change] of [
+    ["full checkout", { isShallow: false }],
+    ["not Vercel", { env: { ...env, VERCEL: "0" } }],
+    ["missing handoff", { env: { ...env, SOD_HYBRID_HOSTED_SHALLOW: "0" } }],
+    ["production", { env: { ...env, VERCEL_ENV: "production" } }],
+    ["other branch", { env: { ...env, VERCEL_GIT_COMMIT_REF: "main" } }],
+    ["other commit", { env: { ...env, VERCEL_GIT_COMMIT_SHA: "b".repeat(40) } }],
+    ["unapproved host", { env: { ...env, VERCEL_URL: "sod1820.vercel.app" } }],
+  ]) {
+    assert.equal(isExactHostedShallowCheckout({ env: change.env || env, head, isShallow: change.isShallow ?? true }), false, label);
   }
 });
 
