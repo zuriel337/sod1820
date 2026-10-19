@@ -4,6 +4,7 @@ import { copyFile, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadHybridRoutePolicy } from "./hybrid-preview-routing.mjs";
+import { isExactHostedShallowCheckout } from "./hybrid-preview-source-boundary.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "hybrid-preview-dist");
@@ -11,11 +12,21 @@ const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 const policy = await loadHybridRoutePolicy();
 const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 const branch = execFileSync("git", ["branch", "--show-current"], { cwd: root, encoding: "utf8" }).trim();
+const isShallow = execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
+  cwd: root,
+  encoding: "utf8",
+}).trim() === "true";
+const exactHostedShallow = isExactHostedShallowCheckout({ env: process.env, head, isShallow });
+const unavailableAncestorChecks = [];
 
 function requireAncestor(sha, label) {
   try {
     execFileSync("git", ["merge-base", "--is-ancestor", sha, head], { cwd: root, stdio: "ignore" });
   } catch {
+    if (exactHostedShallow) {
+      unavailableAncestorChecks.push({ label, sha });
+      return;
+    }
     throw new Error(`Hybrid HEAD does not contain the exact ${label} source ${sha}`);
   }
 }
@@ -66,6 +77,10 @@ const receipt = {
   branch,
   head,
   sourceClean: !dirty,
+  sourceAncestryMode: unavailableAncestorChecks.length
+    ? "exact-hosted-shallow-identity; full ancestry verified before merge"
+    : "full-git-ancestry",
+  unavailableAncestorChecks,
   sources: policy.sources,
   defaultRuntime: policy.defaultRuntime,
   routePolicySha256: sha256(policyBytes),

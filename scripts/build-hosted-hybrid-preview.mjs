@@ -4,10 +4,13 @@ import { execFileSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  approvedHybridPreviewHost,
+  HOSTED_HYBRID_BRANCH as REQUIRED_BRANCH,
+} from "./hybrid-preview-source-boundary.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "hybrid-preview-dist");
-const REQUIRED_BRANCH = "gpt/2029-hybrid-stage-preview-20261018";
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 const GIT_BOUND_BUILD_INPUTS = Object.freeze([
   "public",
@@ -24,18 +27,6 @@ const GIT_BOUND_BUILD_INPUTS = Object.freeze([
   ":(top,glob).env*",
   ":(top,glob)*.config.*",
 ]);
-
-function approvedPreviewHost(raw) {
-  if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";
-  if (!/^sod1820-[a-z0-9](?:[a-z0-9-]*[a-z0-9])?-sod1820-s-projects\.vercel\.app$/.test(raw)) return "";
-  if (raw === "sod1820-sod1820-s-projects.vercel.app") return "";
-  try {
-    const parsed = new URL(`https://${raw}`);
-    return parsed.hostname === raw && parsed.host === raw && parsed.pathname === "/" ? raw : "";
-  } catch {
-    return "";
-  }
-}
 
 function assertCleanBuildSource() {
   const raw = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all"], {
@@ -70,17 +61,22 @@ if (process.env.VERCEL_ENV !== "preview" || process.env.VERCEL_GIT_COMMIT_REF !=
 }
 const commit = process.env.VERCEL_GIT_COMMIT_SHA || "";
 if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error("Exact 40-hex Hybrid Preview source commit required");
-const previewHost = approvedPreviewHost(process.env.VERCEL_URL || "");
+const previewHost = approvedHybridPreviewHost(process.env.VERCEL_URL || "");
 if (!previewHost) throw new Error("Approved exact VERCEL_URL Hybrid Preview host required");
 const checkoutCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 if (checkoutCommit !== commit) throw new Error("VERCEL_GIT_COMMIT_SHA must match the checked-out Hybrid source commit");
 const sourceState = assertCleanBuildSource();
+const isShallow = execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
+  cwd: root,
+  encoding: "utf8",
+}).trim() === "true";
 
 execFileSync(process.execPath, ["scripts/build-hybrid-preview.mjs"], {
   cwd: root,
   env: {
     ...process.env,
     ...(sourceState.nodeModulesSymlinkOnly ? { SOD_HYBRID_ALLOW_DIRTY: "1" } : {}),
+    ...(isShallow ? { SOD_HYBRID_HOSTED_SHALLOW: "1" } : {}),
   },
   stdio: "inherit",
 });
