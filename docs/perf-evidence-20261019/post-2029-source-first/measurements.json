@@ -1,0 +1,46 @@
+{
+  "profile": {
+    "viewport": "390x844",
+    "colorScheme": "dark",
+    "latencyMs": 150,
+    "downloadBytesPerSecond": 200000,
+    "uploadBytesPerSecond": 75000,
+    "cpuThrottle": 4,
+    "contexts": 3,
+    "data": "real anonymous public reads",
+    "writeBoundary": "hybrid local read-only guard"
+  },
+  "before": {
+    "productBase": "aa0b27500457bb89f96f36ecf0a73b7a80488c50",
+    "heroMs": [12529, 11729, 12829],
+    "fcpMs": [3916, 3948, 3916],
+    "lcpMs": [13732, 12908, 13924],
+    "cls": [0.00381, 0.00374, 0.00387],
+    "transferBytes": 1560935,
+    "resources": 85,
+    "requests": 88,
+    "supabaseRequests": 30
+  },
+  "after": {
+    "commit": "5af011bcb1714aefeccfe20a9f631cfb2881a8b5",
+    "heroMs": [9148.6, 9128.4, 9390.5],
+    "sourceMs": [9167.7, 9157, 9429.9],
+    "extensionsReadyMs": [13444.5, 14550.7, 16271.6],
+    "fcpMs": [4124, 4076, 4084],
+    "lcpMs": [10976, 11088, 11064],
+    "cls": [0.0126506514, 0.0126506514, 0.0126506514],
+    "longTaskMs": [1449, 1717, 2504],
+    "transferBytes": 1570938,
+    "resources": [91, 91, 90],
+    "requests": 94,
+    "supabaseRequests": 30,
+    "unexpectedWrites": 0,
+    "pageErrors": 0
+  },
+  "diagnostic": {
+    "postResponseBytes": 35336,
+    "postResponseCompletedAboutMs": 1000,
+    "remainingBottleneck": "2029 entry and shared System Frame route waterfall",
+    "releaseTargetPassed": false
+  }
+}

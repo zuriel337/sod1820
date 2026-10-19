@@ -1,15 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx";
-import { fetchPost2029ReadingProjection, resolvePostReadingRegion } from "../lib/research/post2029ReadingProjection.js";
-import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
-import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
+import { buildPost2029PrimaryProjection, resolvePostReadingRegion } from "../lib/research/post2029PrimaryProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
-import { logView, logActivity } from "../lib/supabase.js";
+import { getPostBySlug, logView, logActivity } from "../lib/supabase.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { observePostBodyMedia2029, preparePostBodyMedia2029 } from "../lib/postBodyMedia2029.js";
 import { pauseOffscreenAnimations } from "../lib/pauseOffscreenAnimations2029.js";
@@ -18,10 +16,11 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
-import PostConvergenceMeasures2029 from "../components/experience2029/PostConvergenceMeasures2029.jsx";
-import PostComments2029 from "../components/experience2029/PostComments2029.jsx";
 import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
 import "./post2029-reading.css";
+
+const PostConvergenceMeasures2029 = lazy(() => import("../components/experience2029/PostConvergenceMeasures2029.jsx"));
+const PostComments2029 = lazy(() => import("../components/experience2029/PostComments2029.jsx"));
 
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
@@ -53,6 +52,15 @@ function revealReadingAnchor(node) {
   return node;
 }
 
+function afterPrimarySourcePaint() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (typeof requestIdleCallback === "function") requestIdleCallback(resolve, { timeout: 800 });
+      else setTimeout(resolve, 0);
+    }));
+  });
+}
+
 function PostReadingBody() {
   const { slug } = useParams();
   const location = useLocation();
@@ -64,7 +72,13 @@ function PostReadingBody() {
   const entryRef = useRef(null);
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
-  const [state, setState] = useState({ loading: true, projection: null, error: null });
+  const [state, setState] = useState({
+    loading: true,
+    projection: null,
+    error: null,
+    extensionsLoading: false,
+    extensionsError: null,
+  });
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
   const preparedPostBody = useMemo(
@@ -76,21 +90,46 @@ function PostReadingBody() {
     let live = true;
     explicitGematriaFocusRef.current = null;
     restoredRegionRef.current = null;
-    setState({ loading: true, projection: null, error: null });
-    fetchPost2029ReadingProjection(slug)
+    setState({ loading: true, projection: null, error: null, extensionsLoading: false, extensionsError: null });
+    const acceptProjection = (projection, extensionsLoading) => {
+      if (!live || !projection) return;
+      setState({
+        loading: false,
+        projection,
+        error: null,
+        extensionsLoading,
+        extensionsError: null,
+      });
+      const restored = resolvePostReadingRegion(projection, entryRef.current?.context, entryRef.current?.hash);
+      restoredRegionRef.current = restored;
+      setActiveRegionId(restored || projection.defaultRegionId || null);
+    };
+    getPostBySlug(slug)
+      .then(async (post) => {
+        if (!live) return null;
+        if (post) acceptProjection(buildPost2029PrimaryProjection(post), true);
+        // Commit and paint the source before optional code competes for the
+        // connection or main thread. A public row is reused, so enrichment
+        // does not repeat the body read.
+        if (post) await afterPrimarySourcePaint();
+        if (!live) return null;
+        const module = await import("../lib/research/post2029ReadingProjection.js");
+        if (!live) return null;
+        return post
+          ? module.enrichPost2029ReadingProjection(post)
+          : module.fetchPost2029ReadingProjection(slug);
+      })
       .then((projection) => {
         if (!live) return;
-        setState({
-          loading: false,
-          projection,
-          error: projection ? null : "הפוסט לא נמצא",
-        });
-        const restored = resolvePostReadingRegion(projection, entryRef.current?.context, entryRef.current?.hash);
-        restoredRegionRef.current = restored;
-        setActiveRegionId(restored || projection?.defaultRegionId || null);
+        if (projection) acceptProjection(projection, false);
+        else setState({ loading: false, projection: null, error: "הפוסט לא נמצא", extensionsLoading: false, extensionsError: null });
       })
       .catch((error) => {
-        if (live) setState({ loading: false, projection: null, error: error?.message || "טעינת הפוסט נכשלה" });
+        if (!live) return;
+        const message = error?.message || "טעינת הפוסט נכשלה";
+        setState((current) => current.projection
+          ? { ...current, loading: false, error: null, extensionsLoading: false, extensionsError: message }
+          : { loading: false, projection: null, error: message, extensionsLoading: false, extensionsError: null });
       });
     return () => { live = false; };
   }, [slug]);
@@ -105,7 +144,14 @@ function PostReadingBody() {
       type: "article",
       noindex: projection.draft || projection.privateStage || projection.previewSnapshot,
     });
-  }, [state.projection]);
+  }, [
+    state.projection?.post?.slug,
+    state.projection?.post?.title,
+    state.projection?.excerpt,
+    state.projection?.draft,
+    state.projection?.privateStage,
+    state.projection?.previewSnapshot,
+  ]);
 
   useEffect(() => {
     const projection = state.projection;
@@ -115,7 +161,12 @@ function PostReadingBody() {
     // view meter and signed-in reading history. logView deduplicates per session.
     void logView("post", post.slug);
     void logActivity("post", post.slug, post.title);
-  }, [state.projection]);
+  }, [
+    state.projection?.post?.slug,
+    state.projection?.draft,
+    state.projection?.privateStage,
+    state.projection?.previewSnapshot,
+  ]);
 
   useEffect(() => {
     if (state.loading || state.projection) return;
@@ -133,6 +184,7 @@ function PostReadingBody() {
     [regions, activeRegionId],
   );
   const activeRegionFocus = activeFocus;
+  const [contextPackFindings, setContextPackFindings] = useState([]);
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
   const sectionItems = useMemo(() => [
     { id: "post-story", label: "הסיפור", targetId: "post-story" },
@@ -143,6 +195,28 @@ function PostReadingBody() {
     ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
     { id: "post-next", label: "המשך", targetId: "post-next" },
   ], [regions, state.projection, commentArchiveId]);
+
+  useEffect(() => {
+    let live = true;
+    const pack = state.projection?.contextPack;
+    if (!pack || state.projection?.post?.slug === "bennett-melach-631-78") {
+      setContextPackFindings([]);
+      return () => { live = false; };
+    }
+    Promise.all([
+      import("../lib/research/goldenPostContextPacks.js"),
+      import("../lib/research/goldenProjectorModes.js"),
+    ]).then(([packModule, projectorModule]) => {
+      if (!live) return;
+      setContextPackFindings(projectorModule.goldenPublicSurfaceFindings({
+        rows: packModule.mergeContextPackWithConnections(pack, state.projection?.experience?.connections || []),
+        // The active focus is the focal object, not a "connection" to itself.
+        exclude: (row) => row.id === activeFocus?.id
+          || (activeFocus?.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
+      }));
+    }).catch(() => { if (live) setContextPackFindings([]); });
+    return () => { live = false; };
+  }, [state.projection?.contextPack, state.projection?.experience?.connections, state.projection?.post?.slug, activeFocus?.id, activeFocus?.number]);
 
   useEffect(() => {
     setSourceUpdates(state.projection ? provenSourceUpdatesFor(state.projection.post?.id, sourceRef.current) : []);
@@ -388,15 +462,7 @@ function PostReadingBody() {
               href: connection.href,
               sourceLabel: connection.provenanceLabel || connection.kind,
             }))
-          : state.projection.contextPack
-            // Golden Posts 5112/92 only: governed pack rows + existing connections, public layer only.
-            ? goldenPublicSurfaceFindings({
-              rows: mergeContextPackWithConnections(state.projection.contextPack, state.projection.experience?.connections || []),
-              // The active focus is the focal object, not a "connection" to itself.
-              exclude: (row) => row.id === activeFocus.id
-                || (activeFocus.number != null && row.value != null && String(row.value) === String(activeFocus.number)),
-            })
-            : [],
+          : contextPackFindings,
         surfaceFocus: preserveExplicitGematriaFocus && protectedSurfaceFocus?.type === "gematria_expression"
           ? protectedSurfaceFocus
           : passiveSurfaceFocus,
@@ -413,7 +479,7 @@ function PostReadingBody() {
         },
       },
     });
-  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack)]);
+  }, [activeRegionFocus?.id, state.projection?.post?.id, Boolean(state.projection?.contextPack), contextPackFindings]);
 
   if (state.loading) {
     return <FrameState kind="loading" title="פותח את המקור">המילים נשארות במרכז; שכבת ההקשר נטענת מסביבן.</FrameState>;
@@ -760,6 +826,7 @@ function PostReadingBody() {
     data-experience-capability="post-master-reading-stage"
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
     data-post-slug={post.slug}
+    data-extensions-status={state.extensionsLoading ? "loading" : state.extensionsError ? "error" : "ready"}
   >
     {experience.wireframe ? <section className="sod29-architecture-wireframe-note" aria-label="מבנה בלבד">
       <b>מבנה בלבד</b>
@@ -856,7 +923,9 @@ function PostReadingBody() {
 
     </div>
 
-    <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+    {!state.extensionsLoading ? <Suspense fallback={null}>
+      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+    </Suspense> : null}
 
     {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
       <header>
@@ -892,7 +961,9 @@ function PostReadingBody() {
       <strong>{projection.sourceLine}</strong>
       <p>{projection.caveat}</p>
     </footer>
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
+    {commentArchiveId != null && !state.extensionsLoading ? <Suspense fallback={null}>
+      <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} />
+    </Suspense> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       <a href="/posts" onClick={(event) => openConnection(event, "/posts")}>לכל הפוסטים ←</a>
       <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
