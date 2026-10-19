@@ -46,5 +46,12 @@ SQL_PASS (classifier truth table, lifecycle scenarios incl. shared keys/actors, 
    - *Codex Cloud / Work:* attach per task interface; support unverified.
 7. **Record** a passive AFTER in `work_log` (to ZURIEL).
 
-## Acceptance (required before removing `COORDINATION_UNVERIFIED`) — NOT DONE
-In a **fresh** session per platform: connector appears without re-setup → `coordination_check{scope_terms:[…]}` returns a real active writer → a write/`what_we_did` attempt is impossible → remove flag ⇒ next call 403 (same session) → re-grant ⇒ works. Evidence recorded in `work_log`. Until then every platform reports `COORDINATION_UNVERIFIED`.
+## Acceptance script for a FRESH ChatGPT session (required before removing `COORDINATION_UNVERIFIED`) — NOT DONE
+Preconditions: steps 1–6 above done; the agent Auth user for ChatGPT has the flag; a known synthetic active claim exists on the Supabase *branch* (or a real active claim, read-only).
+1. New ChatGPT session, no prior setup: ask "run coordination_check for scope_terms [<a path of the known claim>] and report the verdict". Expect: connector present without re-configuration; `ACTIVE_WRITER_TERM_MATCH` naming the known claim.
+2. Ask for an unrelated scope. Expect `NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES` (or `NO_ACTIVE_WRITERS`) and that the agent compares `active_scopes` before proceeding.
+3. Ask it to write to work_log / read `what_we_did`. Expect refusal/absence (no such tool; reader has no direct grants).
+4. Admin clears the flag; in the **same** session repeat step 1. Expect `COORDINATION_UNVERIFIED` (403) immediately, even though the token is unexpired.
+5. Admin restores the flag; repeat step 1 (a re-auth may be needed if the token expired). Expect success.
+6. Repeat 1–5 in a fresh Claude Code session and a fresh Codex task; record per-platform support, or `COORDINATION_UNVERIFIED` where the platform cannot hold the connector.
+Record evidence (verdict text, timestamps, versions) as a passive AFTER in `work_log` (to ZURIEL). Only then is removing `COORDINATION_UNVERIFIED` justified.
