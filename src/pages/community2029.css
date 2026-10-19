@@ -183,3 +183,39 @@
 @media(max-width:600px){.sod29-community-main{padding:0 14px 16px}.sod29-community-intro{padding:20px 0 16px}.sod29-community-composer{padding:0}.sod29-community-thread{padding:18px 0 10px}.sod29-community-profile{padding:16px}.sod29-community-author{gap:8px}.sod29-community-body{line-height:1.75}}
 @media(max-width:600px){.sod29-community-card-backdrop{align-items:end;padding:0}.sod29-community-card{width:100%;max-height:88dvh;border-radius:20px 20px 0 0;padding-bottom:max(24px,env(safe-area-inset-bottom))}}
 @media(max-width:600px){.sod29-community-sign-in{padding:16px}.sod29-community-sign-in form{align-items:stretch}.sod29-community-sign-in input,.sod29-community-sign-in .sod29-community-primary{flex-basis:100%;width:100%}.sod29-community-signed-in{align-items:flex-start}.sod29-community-signed-in .sod29-community-secondary{width:100%}}
+
+.sod29-community-edited{color:var(--s29-muted);font-size:13px}
+.sod29-community-deleted{margin:0;padding:10px 0;color:var(--s29-muted);font-size:15px}
+.sod29-community-thread--deleted{padding:14px 0 6px}
+.sod29-community-thread-actions .sod29-community-manage-action{min-height:44px;padding:8px 2px}
+.sod29-community-editor{display:grid;gap:10px;margin:8px 0 4px}
+.sod29-community-editor textarea{width:100%;display:block;min-height:96px;resize:vertical;border:1px solid var(--s29-line-strong);border-radius:6px;padding:14px;background:var(--community-input);color:var(--s29-ink);font:inherit;line-height:1.65}
+.sod29-community-editor-actions{display:flex;gap:10px;flex-wrap:wrap}
+.sod29-community-editor-actions button{min-height:44px}
+.sod29-community-confirm{display:grid;gap:10px;margin:10px 0 6px;padding:14px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft)}
+.sod29-community-confirm p{margin:0;color:var(--s29-ink);font-size:15px;line-height:1.6}
+.sod29-community-report-field{display:grid;gap:6px;color:var(--s29-muted);font-size:14px}
+.sod29-community-report-field select,.sod29-community-report-field textarea{width:100%;border:1px solid var(--s29-line-strong);border-radius:8px;padding:10px 12px;background:var(--community-input);color:var(--s29-ink);font:inherit;font-size:16px}
+.sod29-community-history{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.sod29-community-history small{color:var(--s29-muted);font-size:13px}
+.sod29-community-history p{margin:2px 0 0;font-size:15px;line-height:1.6}
+.sod29-community-archive-search{display:flex;min-height:44px;margin-top:6px;text-align:start}
+.sod29-community-focus{margin:14px 0;padding:12px 16px;border:1px solid var(--s29-line-strong);border-inline-start:3px solid var(--s29-accent);border-radius:12px;background:var(--s29-panel-soft);scroll-margin-top:96px}
+.sod29-community-focus-ancestor{opacity:.85}
+.sod29-community-focus-ancestor .sod29-community-thread{border-bottom:1px dashed var(--s29-line)}
+.sod29-community-result{border-bottom:1px solid var(--s29-line)}
+.sod29-community-result .sod29-community-thread{border-bottom:0}
+.sod29-community-admin{margin:22px 0 8px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);padding:4px 16px}
+.sod29-community-admin>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--s29-accent-text);font-size:16px}
+.sod29-community-admin h3{margin:14px 0 6px;font-size:16px}
+.sod29-community-admin-list{display:grid;gap:14px;margin:0 0 12px;padding:0;list-style:none}
+.sod29-community-admin-list li{padding:12px 0;border-top:1px solid var(--s29-line)}
+.sod29-community-admin-list small{color:var(--s29-muted);font-size:13px}
+.sod29-community-admin-list p{margin:4px 0 8px;font-size:15px;line-height:1.6}
+.sod29-community-admin-note{color:var(--s29-muted)}
+.sod29-community-legacy-card{margin:0 0 18px;padding:16px 18px;border:1px solid var(--s29-line-strong);border-inline-start:3px solid var(--s29-accent);border-radius:12px;background:var(--s29-panel-soft);scroll-margin-top:96px}
+.sod29-community-legacy-card h2{margin:0 0 4px;font-size:18px}
+.sod29-community-legacy-card p{margin:0 0 12px;color:var(--s29-ink);font-size:15px;line-height:1.6}
+.sod29-community-legacy-card a{color:var(--s29-accent-text)}
+.sod29-community-legacy-card .sod29-community-editor-actions button{min-height:44px}
+@media(prefers-reduced-motion:no-preference){.sod29-community-legacy-card:not(.is-done){animation:sod29-legacy-card-glow 1.6s ease-in-out 2}@keyframes sod29-legacy-card-glow{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--s29-accent) 35%,transparent)}}}

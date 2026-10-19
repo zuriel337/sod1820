@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, legacyLikeCount, normalizeCommunityRow, resetCommunityRpcProbe } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -38,7 +38,7 @@ test("normalizes an archive message without exposing identity fields", () => {
   assert.equal(row.authorKey, "c1");
   assert.equal(row.parentId, "p1");
   assert.equal(row.body, decodeCommunityText("שלום &#34;עולם&#34;"));
-  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
+  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "editedAt", "isDeleted", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
   assert.equal(row.authorUserId, null);
   assert.equal(row.linkedUserId, null);
 });
@@ -68,13 +68,19 @@ test("same display name never makes an unlinked message part of a known author p
   assert.notEqual(signedIn.authorKey, "e7581ab5-8c15-4832-b602-f361e41ff373");
 });
 
-test("the chat pages roots and fetches approved direct replies in reading order", async () => {
+test("without Community RPCs, the chat keeps filtered table paging and direct-reply order", async () => {
   const parentId = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57";
   const childId = "d69c5c78-fc0c-4f2c-9da5-620d426d84ed";
   const requests = [];
+  let probes = 0;
   const previousFetch = globalThis.fetch;
+  resetCommunityRpcProbe();
   globalThis.fetch = async (input) => {
     const url = new URL(input.url || input);
+    if (url.pathname.includes("/rpc/")) {
+      probes++;
+      return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function" }), { status: 404, headers: { "content-type": "application/json" } });
+    }
     requests.push(url);
     const isRoot = url.searchParams.get("parent_id") === "is.null";
     const isReply = url.searchParams.get("parent_id") === `eq.${parentId}`;
@@ -94,8 +100,9 @@ test("the chat pages roots and fetches approved direct replies in reading order"
     assert.equal(replies.rows[0].parentId, parentId);
     assert.equal(replies.count, 1);
     assert.equal(counts[parentId], 1);
+    assert.equal(probes, 1, "the missing RPC is checked once before the unchanged table fallback");
     assert.match(requests[1].searchParams.get("order"), /created_at\.asc,id\.asc/);
     assert.ok(requests[1].searchParams.getAll("body").includes("neq."));
     assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
-  } finally { globalThis.fetch = previousFetch; }
+  } finally { globalThis.fetch = previousFetch; resetCommunityRpcProbe(); }
 });

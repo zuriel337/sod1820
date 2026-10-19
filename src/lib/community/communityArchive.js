@@ -87,7 +87,33 @@ export function normalizeCommunityRow(row) {
     targetType: row.target_type || null,
     targetId: row.target_id || null,
     createdAt: row.created_at,
+    editedAt: row.edited_at || null,
+    isDeleted: Boolean(row.is_deleted),
   };
+}
+
+// The community_* functions come from the soft-delete migration. Until it is applied
+// they do not exist, and every reader below falls back to the original table reads.
+// rpcState: null = not probed yet, true = available, false = missing.
+let rpcState = null;
+const isMissingRpc = (error) => error && (error.code === "PGRST202" || error.code === "42883" || /could not find the function|function .* does not exist/i.test(error.message || ""));
+export const communityActionsAvailable = () => rpcState === true;
+export function resetCommunityRpcProbe() { rpcState = null; }
+
+function rpcRow(row) {
+  return {
+    ...row,
+    contributor: row.contributor_id ? { id: row.contributor_id, user_id: row.contributor_user_id, display_name: row.contributor_display_name, avatar_url: row.contributor_avatar_url } : null,
+  };
+}
+
+async function tryRpc(name, args) {
+  if (rpcState === false) return null;
+  const { data, error } = await supabase.rpc(name, args);
+  if (isMissingRpc(error)) { rpcState = false; return null; }
+  if (error) throw error;
+  rpcState = true;
+  return data || [];
 }
 
 export function legacyLikeCount(reactions) {
@@ -99,6 +125,11 @@ export function legacyLikeCount(reactions) {
 export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest" } = {}) {
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const viaRpc = await tryRpc("community_feed_page", { p_offset: safeOffset, p_limit: safeLimit, p_sort: sort === "oldest" ? "oldest" : "newest" });
+  if (viaRpc) {
+    const total = viaRpc[0]?.total_count;
+    return { rows: viaRpc.map((row) => normalizeCommunityRow(rpcRow(row))), count: safeOffset === 0 ? (total == null ? 0 : Number(total)) : null, nextOffset: safeOffset + viaRpc.length, actions: true };
+  }
   const { data, error, count } = await supabase
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
@@ -109,7 +140,7 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
     .order("id", { ascending: sort === "oldest" })
     .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
-  return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length };
+  return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length, actions: false };
 }
 
 // The feed pages roots only. Replies are read from the same RLS-protected source
@@ -118,6 +149,11 @@ export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMM
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parentId || "")) throw new Error("invalid parent id");
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const viaRpc = await tryRpc("community_replies_page", { p_parent: parentId, p_offset: safeOffset, p_limit: safeLimit });
+  if (viaRpc) {
+    const total = viaRpc[0]?.total_count;
+    return { rows: viaRpc.map((row) => normalizeCommunityRow(rpcRow(row))), count: total == null ? safeOffset : Number(total), nextOffset: safeOffset + viaRpc.length };
+  }
   const { data, error, count } = await supabase
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
@@ -137,6 +173,13 @@ export async function fetchCommunityReplyCounts(parentIds) {
   const ids = [...new Set(parentIds)].filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || ""));
   if (!ids.length) return {};
   const counts = Object.fromEntries(ids.map((id) => [id, 0]));
+  // One aggregated read per 200 ids; direct replies only (nested replies count under their own parent).
+  const viaRpc = rpcState === false ? null : await tryRpc("community_reply_counts", { p_ids: ids.slice(0, 200) });
+  if (viaRpc) {
+    for (const row of viaRpc) counts[row.parent_id] = Number(row.reply_count);
+    if (ids.length > 200) Object.assign(counts, await fetchCommunityReplyCounts(ids.slice(200)));
+    return counts;
+  }
   for (let offset = 0; offset < 25000; offset += 1000) {
     const { data, error } = await supabase.from("research_contributions")
       .select("id,parent_id")
@@ -217,3 +260,77 @@ export async function publishCommunityMessage({ body, parentId = null, authorNam
   });
 }
 
+
+// Server-authorized actions. The database checks the signed-in user on every call;
+// the UI only decides whether to show the control.
+export async function editCommunityMessage(id, body) {
+  const { data, error } = await supabase.rpc("community_edit_message", { p_id: id, p_body: body });
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteCommunityMessage(id) {
+  const { data, error } = await supabase.rpc("community_delete_message", { p_id: id });
+  if (error) throw error;
+  return data;
+}
+
+export async function hideCommunityThread(id) {
+  const { data, error } = await supabase.rpc("community_hide_thread", { p_root: id });
+  if (error) throw error;
+  return data;
+}
+
+export function describeCommunityActionError(error) {
+  const text = String(error?.message || "");
+  if (/auth required/.test(text)) return "צריך להתחבר כדי לבצע את הפעולה.";
+  if (/not authorized/.test(text)) return "אין לך הרשאה לבצע את הפעולה הזאת, או שחלון הביטול כבר נסגר.";
+  if (/not editable|not deletable/.test(text)) return "אי אפשר לשנות את ההודעה הזאת יותר.";
+  if (/not found/.test(text)) return "ההודעה כבר לא קיימת.";
+  if (/empty body/.test(text)) return "אי אפשר לשמור הודעה ריקה.";
+  if (/rate_limited/.test(text)) return "שלחת הרבה דיווחים היום. נסו שוב מחר.";
+  if (/own message/.test(text)) return "אי אפשר לדווח על הודעה שלך.";
+  if (/nothing to restore/.test(text)) return "אין מה לשחזר.";
+  return "הפעולה לא הושלמה. נסו שוב בעוד רגע.";
+}
+
+// ── second step: restore, history, deep link context, archive search, reports ──
+async function rpcWrite(name, args) {
+  const { data, error } = await supabase.rpc(name, args);
+  if (error) throw error;
+  return data;
+}
+
+export const restoreCommunityMessage = (id) => rpcWrite("community_restore", { p_id: id });
+export const resolveCommunityReport = (reportId, action) => rpcWrite("community_resolve_report", { p_report: reportId, p_action: action });
+export const reportCommunityMessage = (id, reason, note = "") => rpcWrite("community_report_message", { p_id: id, p_reason: reason, p_note: note || null });
+
+export async function fetchCommunityEditHistory(id) {
+  const data = await rpcWrite("community_edit_history", { p_id: id });
+  return (data || []).map((row) => ({ body: decodeCommunityText(row.body || ""), editedBy: row.edited_by_name, editedAt: row.edited_at }));
+}
+
+export async function fetchCommunityRemoved(limit = 50) {
+  const data = await rpcWrite("community_admin_removed", { p_limit: limit });
+  return (data || []).map((row) => ({ kind: row.kind, id: row.id, parentId: row.parent_id, authorName: row.author_name || "חבר הקהילה", body: decodeCommunityText(row.body || ""), at: row.at }));
+}
+
+export async function fetchCommunityReports(limit = 50) {
+  const data = await rpcWrite("community_admin_reports", { p_limit: limit });
+  return (data || []).map((row) => ({ reportId: row.report_id, messageId: row.message_id, parentId: row.parent_id, reason: row.reason, note: row.note || "", body: decodeCommunityText(row.body || ""), authorName: row.author_name || "חבר הקהילה", reporterName: row.reporter_name, at: row.created_at, count: Number(row.report_count) || 1 }));
+}
+
+// Message with its visible ancestors, root first. null when the reads are unavailable (migration not applied);
+// an empty list when the message is not visible.
+export async function fetchCommunityMessageContext(id) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")) return [];
+  const data = await tryRpc("community_message_context", { p_id: id });
+  return data ? data.map((row) => normalizeCommunityRow(rpcRow(row))) : null;
+}
+
+export async function searchCommunityArchive(query, { offset = 0, limit = 20 } = {}) {
+  const data = await tryRpc("community_search", { p_query: String(query || "").trim(), p_offset: Math.max(0, Math.trunc(offset)), p_limit: limit });
+  if (!data) return null;
+  const rows = data.map((row) => normalizeCommunityRow(rpcRow(row)));
+  return { rows, count: offset === 0 ? (data[0]?.total_count == null ? 0 : Number(data[0].total_count)) : null, nextOffset: offset + rows.length };
+}
