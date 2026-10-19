@@ -21,6 +21,7 @@ export function makeStore() {
 }
 
 export function semantics(rows) {
+  const archive = new Map(); const edits = []; const reports = [];
   const live = (r) => r.status === "approved" && !r.deleted_at && !r.thread_hidden_at && ["openweb", "community_2029"].includes(r.origin) && (r.body || "").trim();
   const kids = (pid) => rows.filter((r) => r.parent_id === pid);
   const hasLive = (pid, depth = 0) => depth < 64 && kids(pid).some((c) => live(c) || (c.deleted_at && !c.thread_hidden_at && hasLive(c.id, depth + 1)));
@@ -40,6 +41,7 @@ export function semantics(rows) {
       if (r.origin !== "community_2029" || r.author_user_id !== uid) throw new Error("not authorized");
       if (r.deleted_at || r.status !== "approved") throw new Error("not editable");
       if (!p_body.trim()) throw new Error("empty body");
+      edits.push({ id: r.id, body: r.body, by: uid, at: new Date().toISOString() });
       r.body = p_body.trim(); r.edited_at = new Date().toISOString(); return r.edited_at;
     },
     remove(uid, { p_id }) {
@@ -48,13 +50,71 @@ export function semantics(rows) {
       const admin = profiles[uid]?.role === "admin";
       if (!admin && !(r.origin === "community_2029" && r.author_user_id === uid)) throw new Error("not authorized");
       if (r.deleted_at) return "already_deleted";
-      Object.assign(r, { body: null, deleted_at: new Date().toISOString(), status: "hidden" }); return "deleted";
+      archive.set(r.id, { body: r.body, status: r.status });
+      Object.assign(r, { body: null, deleted_at: new Date().toISOString(), deleted_by: uid, status: "hidden" }); return "deleted";
     },
     hide(uid, { p_root }) {
       if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
       const stack = [p_root]; let n = 0;
       while (stack.length) { const cur = stack.pop(); const r = rows.find((x) => x.id === cur); if (r && !r.thread_hidden_at && (r.status === "approved" || r.deleted_at)) { r.thread_hidden_at = new Date().toISOString(); if (r.status === "approved") r.status = "hidden"; n++; } kids(cur).forEach((k) => stack.push(k.id)); }
       return n;
+    },
+    restore(uid, { p_id }) {
+      if (!uid) throw new Error("auth required");
+      const r = rows.find((x) => x.id === p_id); if (!r) throw new Error("not found");
+      const admin = profiles[uid]?.role === "admin";
+      if (r.thread_hidden_at) {
+        if (!admin) throw new Error("not authorized");
+        const stamp = r.thread_hidden_at; rows.filter((x) => x.thread_hidden_at === stamp).forEach((x) => { x.thread_hidden_at = null; if (!x.deleted_at && x.status === "hidden") x.status = "approved"; });
+        return "thread_restored";
+      }
+      if (!r.deleted_at) throw new Error("nothing to restore");
+      if (!admin && !(r.author_user_id === uid && r.deleted_by === uid && Date.now() - Date.parse(r.deleted_at) < 5 * 60000)) throw new Error("not authorized");
+      const a = archive.get(r.id); if (!a) throw new Error("nothing to restore");
+      Object.assign(r, { body: a.body, status: a.status || "approved", deleted_at: null, deleted_by: null }); archive.delete(r.id); return "restored";
+    },
+    removed(uid) {
+      if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
+      const out = [];
+      rows.forEach((r) => {
+        if (r.thread_hidden_at && !rows.some((p) => p.id === r.parent_id && p.thread_hidden_at === r.thread_hidden_at)) out.push({ kind: "thread", id: r.id, parent_id: r.parent_id, author_name: r.author_name, body: r.body ?? archive.get(r.id)?.body ?? null, at: r.thread_hidden_at });
+        else if (r.deleted_at && !r.thread_hidden_at && archive.has(r.id)) out.push({ kind: "deleted", id: r.id, parent_id: r.parent_id, author_name: r.author_name, body: archive.get(r.id).body, at: r.deleted_at });
+      });
+      return out.sort((x, y) => y.at.localeCompare(x.at));
+    },
+    history(uid, { p_id }) {
+      if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
+      return edits.filter((e) => e.id === p_id).reverse().map((e) => ({ body: e.body, edited_by_name: profiles[e.by]?.display_name || "חבר הקהילה", edited_at: e.at }));
+    },
+    chainVisible(r) { let cur = r; for (let d = 0; d < 30 && cur.parent_id; d++) { cur = rows.find((x) => x.id === cur.parent_id); if (!cur || !visible(cur)) return false; } return !cur?.parent_id; },
+    context({ p_id }) {
+      const target = rows.find((x) => x.id === p_id);
+      if (!target || !visible(target) || !this.chainVisible(target)) return [];
+      const chain = []; for (let cur = target; cur; cur = rows.find((x) => x.id === cur.parent_id)) { chain.unshift(cur); if (!cur.parent_id) break; }
+      return chain.map((r) => shape(r, visible(r), null));
+    },
+    search({ p_query, p_offset = 0, p_limit = 20 }) {
+      const q = (p_query || "").trim().toLowerCase(); if (q.length < 2) return [];
+      const hits = rows.filter((r) => live(r) && r.body.toLowerCase().includes(q) && this.chainVisible(r)).sort((x, y) => y.created_at.localeCompare(x.created_at) || y.id.localeCompare(x.id));
+      return hits.slice(p_offset, p_offset + p_limit).map((r) => shape(r, false, p_offset === 0 ? hits.length : null));
+    },
+    report(uid, { p_id, p_reason, p_note }) {
+      if (!uid) throw new Error("auth required");
+      const r = rows.find((x) => x.id === p_id); if (!r || !live(r)) throw new Error("not found");
+      if (r.author_user_id === uid) throw new Error("own message");
+      if (reports.some((x) => x.message_id === p_id && x.reporter_id === uid)) return "already_reported";
+      reports.push({ id: `r${reports.length + 1}`, message_id: p_id, reporter_id: uid, reason: p_reason, note: p_note, status: "open", created_at: new Date().toISOString() }); return "reported";
+    },
+    adminReports(uid) {
+      if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
+      const seen = new Set();
+      return reports.filter((x) => x.status === "open" && !seen.has(x.message_id) && seen.add(x.message_id)).map((x) => { const r = rows.find((m) => m.id === x.message_id); return { report_id: x.id, message_id: x.message_id, parent_id: r.parent_id, reason: x.reason, note: x.note, body: r.body ?? archive.get(r.id)?.body, author_name: r.author_name, reporter_name: profiles[x.reporter_id]?.display_name, created_at: x.created_at, report_count: reports.filter((y) => y.message_id === x.message_id && y.status === "open").length }; });
+    },
+    resolve(uid, { p_report, p_action }) {
+      if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
+      const rep = reports.find((x) => x.id === p_report); if (!rep) throw new Error("not found");
+      if (p_action === "delete") this.remove(uid, { p_id: rep.message_id }); else if (p_action === "hide_thread") this.hide(uid, { p_root: rep.message_id });
+      reports.filter((x) => x.message_id === rep.message_id && x.status === "open").forEach((x) => { x.status = p_action === "dismiss" ? "dismissed" : "resolved"; }); return p_action;
     },
   };
 }
@@ -91,6 +151,14 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
         if (fn === "community_reply_counts") return json(sem.counts(args));
         if (fn === "community_edit_message") { log.writes.push(fn); return json(sem.edit(uid, args)); }
         if (fn === "community_delete_message") { log.writes.push(fn); if (failDelete) return json({ code: "XX000", message: "boom", details: null, hint: null }, 500); return json(sem.remove(uid, args)); }
+        if (fn === "community_restore") { log.writes.push(fn); return json(sem.restore(uid, args)); }
+        if (fn === "community_admin_removed") return json(sem.removed(uid));
+        if (fn === "community_edit_history") return json(sem.history(uid, args));
+        if (fn === "community_message_context") return json(sem.context(args));
+        if (fn === "community_search") return json(sem.search(args));
+        if (fn === "community_report_message") { log.writes.push(fn); return json(sem.report(uid, args)); }
+        if (fn === "community_admin_reports") return json(sem.adminReports(uid));
+        if (fn === "community_resolve_report") { log.writes.push(fn); return json(sem.resolve(uid, args)); }
         if (fn === "community_hide_thread") { log.writes.push(fn); return json(sem.hide(uid, args)); }
       } catch (error) { return json({ code: "P0001", message: error.message, details: null, hint: null }, 400); }
     }

@@ -34,19 +34,20 @@ async function scenario(name, fn) {
 
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
 
-async function open({ as = null, rpc = "on", failDelete = false, viewport = { width: 1280, height: 900 }, theme = null } = {}) {
-  const context = await browser.newContext({ viewport, locale: "he-IL" });
-  const rows = makeStore(); const sem = semantics(rows);
+async function open({ as = null, rpc = "on", failDelete = false, viewport = { width: 1280, height: 900 }, theme = null, path = "/community/chat", selector = ".sod29-community-thread", shared = null } = {}) {
+  const context = await browser.newContext({ viewport, locale: "he-IL", permissions: ["clipboard-read", "clipboard-write"] });
+  const rows = shared?.rows || makeStore(); const sem = shared?.sem || semantics(rows);
   const log = { launcher: 0, tableReads: 0, rpcCalls: [], writes: [], errors: [] };
   if (as) { const { session } = sessionFor(as); await context.addInitScript((v) => localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token", JSON.stringify(v)), session); }
   if (theme) await context.addInitScript((t) => { try { localStorage.setItem("sod29-theme-preset", t); localStorage.setItem("theme-preset", t); } catch {} }, theme);
   await installFakeBackend(context, { base: BASE, rows, sem, log, rpc, failDelete });
   const page = await context.newPage();
   page.on("pageerror", (error) => log.errors.push(error.message));
-  await page.goto(`${BASE}/community/chat`);
-  await page.waitForSelector(".sod29-community-thread", { timeout: 15000 });
-  return { page, context, rows, log };
+  await page.goto(`${BASE}${path}`);
+  await page.waitForSelector(selector, { timeout: 15000 });
+  return { page, context, rows, sem, log };
 }
+const shareStore = () => { const rows = makeStore(); return { rows, sem: semantics(rows) }; };
 const msg = (page, text) => page.locator(".sod29-community-thread", { hasText: text }).first();
 const group = (page, text) => page.locator(".sod29-community-thread-group", { has: page.locator(".sod29-community-thread", { hasText: text }) }).first();
 
@@ -291,6 +292,129 @@ await scenario("targets: manage/toggle/more controls are at least 44px tall", as
   assert.ok(sizes.length > 0);
   for (const [text, h] of sizes) assert.ok(h >= 44, `${text} is ${h}px`);
   await context.close();
+});
+
+
+await scenario("undo: ״ביטול מחיקה״ brings a deleted message (and a leaf root) back; hidden thread undo for admin", async () => {
+  const { page, context, rows } = await open({ as: B });
+  const m = msg(page, "הודעה בלי תגובות של בועז");
+  await m.getByRole("button", { name: "מחיקה" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "מחיקה" }).click();
+  await page.getByText("הודעה בלי תגובות של בועז").waitFor({ state: "hidden" });
+  await page.getByRole("button", { name: "ביטול מחיקה" }).click();
+  await page.getByText("הודעה בלי תגובות של בועז").waitFor();
+  assert.equal(rows.find((x) => x.id === id(5)).deleted_at, null);
+  await context.close();
+  const admin = await open({ as: ADMIN });
+  await admin.page.locator(`#message-${id(1)}`).getByRole("button", { name: "הסתרת השרשור" }).click();
+  await admin.page.getByRole("alertdialog").getByRole("button", { name: "הסתרת השרשור" }).click();
+  await admin.page.getByRole("button", { name: "ביטול הסתרה" }).click();
+  await admin.page.getByText("הודעת מקור של אילנה").waitFor();
+  assert.ok(admin.rows.filter((r) => [id(1), id(2), id(3), id(4)].includes(r.id)).every((r) => !r.thread_hidden_at));
+  await admin.context.close();
+});
+
+await scenario("edited label shows how long ago; admin sees previous versions, regular users do not", async () => {
+  const shared = shareStore();
+  const author = await open({ as: A, shared });
+  const mine = author.page.locator(`#message-${id(1)}`);
+  await mine.getByRole("button", { name: "עריכה" }).click();
+  await author.page.getByRole("textbox", { name: "עריכת ההודעה" }).fill("גרסה חדשה");
+  await author.page.getByRole("button", { name: "שמירה" }).click();
+  await mine.locator(".sod29-community-edited", { hasText: "נערך עכשיו" }).waitFor();
+  assert.equal(await mine.getByRole("button", { name: "היסטוריית עריכות" }).count(), 0, "author gets no history control");
+  await author.context.close();
+  const other = await open({ as: B, shared });
+  assert.equal(await other.page.locator(`#message-${id(1)}`).getByRole("button", { name: "היסטוריית עריכות" }).count(), 0);
+  await other.context.close();
+  const admin = await open({ as: ADMIN, shared });
+  await admin.page.locator(`#message-${id(1)}`).getByRole("button", { name: "היסטוריית עריכות" }).click();
+  const history = admin.page.getByRole("group", { name: "היסטוריית עריכות" });
+  await history.getByText("הודעת מקור של אילנה https://example.org/page").waitFor();
+  await history.getByRole("button", { name: "סגירה" }).click();
+  await admin.context.close();
+});
+
+await scenario("message link: copy button, deep link shows the message with its ancestors, bad link is handled", async () => {
+  const { page, context } = await open({ as: A });
+  await page.locator(`#message-${id(3)}`).waitFor({ state: "detached" }).catch(() => {});
+  await page.locator(`#message-${id(1)}`).getByRole("button", { name: "קישור" }).click();
+  await page.locator(`#message-${id(1)}`).getByRole("status").filter({ hasText: /הקישור הועתק|message=/ }).waitFor();
+  await context.close();
+  const deep = await open({ path: `/community/chat?message=${id(3)}`, selector: ".sod29-community-focus" });
+  const focus = deep.page.locator(".sod29-community-focus");
+  await focus.getByText("הודעת מקור של אילנה").waitFor();
+  await focus.getByText("תגובה של בועז").waitFor();
+  await focus.getByText("תגובה מקוננת של אילנה").waitFor();
+  await focus.getByRole("button", { name: "סגירה" }).click();
+  await focus.waitFor({ state: "detached" });
+  await deep.context.close();
+  const bad = await open({ path: `/community/chat?message=${id(999)}` });
+  await bad.page.getByText("ההודעה שביקשת כבר לא זמינה.").waitFor();
+  assert.equal(await bad.page.locator(".sod29-community-focus").count(), 0);
+  await bad.context.close();
+});
+
+await scenario("archive search: finds messages beyond the loaded page, shows remaining count, opens the thread context", async () => {
+  const { page, context } = await open();
+  assert.equal(await page.getByRole("button", { name: /חיפוש בכל הארכיון/ }).count(), 0, "no archive button before typing");
+  await page.getByRole("searchbox").fill("ותיקה 1");
+  await page.getByRole("button", { name: /חיפוש בכל הארכיון/ }).click();
+  await page.getByText(/תוצאות ל״ותיקה 1״/).waitFor();
+  const results = page.locator(".sod29-community-archive-results");
+  await results.getByText("תגובה ותיקה 19", { exact: true }).waitFor();
+  assert.equal(await results.locator(".sod29-community-thread").count(), 20, "first page of results");
+  await results.getByRole("button", { name: "עוד תוצאות — 2 נותרו" }).click();
+  await results.getByText("הודעה ותיקה 1", { exact: true }).waitFor();
+  assert.equal(await results.locator(".sod29-community-thread").count(), 22);
+  await results.getByRole("button", { name: /הצגה בהקשר השרשור/ }).first().click();
+  await page.locator(".sod29-community-focus").waitFor();
+  await results.getByRole("button", { name: "חזרה לשיחות" }).click();
+  await page.locator(".sod29-community-archive-results").waitFor({ state: "detached" });
+  await context.close();
+});
+
+await scenario("report and admin panel: report as a reader; admin deletes from the queue, restores from ״הוסרו לאחרונה״, hides a thread and restores it", async () => {
+  const shared = shareStore();
+  const guest = await open({ shared });
+  assert.equal(await guest.page.getByRole("button", { name: "דיווח" }).count(), 0);
+  assert.equal(await guest.page.getByText("ניהול הקהילה").count(), 0);
+  await guest.context.close();
+  const author = await open({ as: A, shared });
+  assert.equal(await author.page.locator(`#message-${id(1)}`).getByRole("button", { name: "דיווח" }).count(), 0, "no report on own message");
+  assert.equal(await author.page.getByText("ניהול הקהילה").count(), 0, "no admin panel for a regular user");
+  await author.context.close();
+  const reader = await open({ as: B, shared });
+  await reader.page.locator(`#message-${id(1)}`).getByRole("button", { name: "דיווח" }).click();
+  await reader.page.getByLabel("סיבה").selectOption("abuse");
+  await reader.page.getByLabel(/הערה/).fill("תוכן פוגעני");
+  await reader.page.getByRole("button", { name: "שליחת הדיווח" }).click();
+  await reader.page.getByText("הדיווח נשלח למנהלים. תודה.").waitFor();
+  await reader.context.close();
+
+  const admin = await open({ as: ADMIN, shared });
+  const page = admin.page;
+  await page.getByText(/ניהול הקהילה/).first().click();
+  const panel = page.locator(".sod29-community-admin");
+  await panel.getByText("פגיעה או הטרדה").waitFor();
+  await panel.getByText("הערה: תוכן פוגעני").waitFor();
+  await panel.getByRole("button", { name: "מחיקת ההודעה" }).click();
+  await panel.getByText("אין דיווחים פתוחים.").waitFor();
+  await page.locator(".sod29-community-deleted").first().waitFor();
+  assert.ok(admin.rows.find((x) => x.id === id(1)).deleted_at);
+  const removed = panel.locator("section[aria-label='הוסרו לאחרונה']");
+  await removed.getByText("הודעה שנמחקה").waitFor();
+  await removed.getByRole("button", { name: "שחזור" }).first().click();
+  await page.locator(`#message-${id(1)}`).getByText("הודעת מקור של אילנה").waitFor();
+  assert.equal(admin.rows.find((x) => x.id === id(1)).deleted_at, null);
+  // hide the thread, then restore it from the same list
+  await page.locator(`#message-${id(1)}`).getByRole("button", { name: "הסתרת השרשור" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "הסתרת השרשור" }).click();
+  await removed.getByText("שרשור שהוסתר").waitFor();
+  await removed.getByRole("button", { name: "שחזור" }).first().click();
+  await page.locator(`#message-${id(1)}`).getByText("הודעת מקור של אילנה").waitFor();
+  assert.ok(admin.rows.filter((r) => [id(1), id(2), id(3), id(4)].includes(r.id)).every((r) => !r.thread_hidden_at && !r.deleted_at));
+  await admin.context.close();
 });
 
 await scenario("no page errors in any run", async () => {

@@ -194,3 +194,22 @@
 .sod29-community-editor-actions button{min-height:44px}
 .sod29-community-confirm{display:grid;gap:10px;margin:10px 0 6px;padding:14px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft)}
 .sod29-community-confirm p{margin:0;color:var(--s29-ink);font-size:15px;line-height:1.6}
+.sod29-community-report-field{display:grid;gap:6px;color:var(--s29-muted);font-size:14px}
+.sod29-community-report-field select,.sod29-community-report-field textarea{width:100%;border:1px solid var(--s29-line-strong);border-radius:8px;padding:10px 12px;background:var(--community-input);color:var(--s29-ink);font:inherit;font-size:16px}
+.sod29-community-history{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.sod29-community-history small{color:var(--s29-muted);font-size:13px}
+.sod29-community-history p{margin:2px 0 0;font-size:15px;line-height:1.6}
+.sod29-community-archive-search{display:flex;min-height:44px;margin-top:6px;text-align:start}
+.sod29-community-focus{margin:14px 0;padding:12px 16px;border:1px solid var(--s29-line-strong);border-inline-start:3px solid var(--s29-accent);border-radius:12px;background:var(--s29-panel-soft);scroll-margin-top:96px}
+.sod29-community-focus-ancestor{opacity:.85}
+.sod29-community-focus-ancestor .sod29-community-thread{border-bottom:1px dashed var(--s29-line)}
+.sod29-community-result{border-bottom:1px solid var(--s29-line)}
+.sod29-community-result .sod29-community-thread{border-bottom:0}
+.sod29-community-admin{margin:22px 0 8px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);padding:4px 16px}
+.sod29-community-admin>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--s29-accent-text);font-size:16px}
+.sod29-community-admin h3{margin:14px 0 6px;font-size:16px}
+.sod29-community-admin-list{display:grid;gap:14px;margin:0 0 12px;padding:0;list-style:none}
+.sod29-community-admin-list li{padding:12px 0;border-top:1px solid var(--s29-line)}
+.sod29-community-admin-list small{color:var(--s29-muted);font-size:13px}
+.sod29-community-admin-list p{margin:4px 0 8px;font-size:15px;line-height:1.6}
+.sod29-community-admin-note{color:var(--s29-muted)}

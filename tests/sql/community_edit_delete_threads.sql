@@ -4,24 +4,28 @@
 create role anon nologin; create role authenticated nologin;
 create schema auth;
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-create table public.users (id uuid primary key, role text);
+create table public.users (id uuid primary key, role text, email text, display_name text, username text);
+create table public.user_notifications (id bigserial primary key, user_id uuid, email text, kind text, title text, body text, link text);
+create table public.notification_prefs (user_id uuid, topics text[]);
 create table public.contributors (id uuid primary key, user_id uuid, display_name text, avatar_url text);
 create table public.research_contributions (
   id uuid primary key default gen_random_uuid(), author_user_id uuid, author_contributor_id uuid, author_name text,
   origin text not null default 'beit_midrash', status text not null default 'pending', parent_id uuid references public.research_contributions(id),
   title text, body text, reactions jsonb not null default '{}', image_url text, media jsonb not null default '[]',
-  created_at timestamptz not null default now(), updated_at timestamptz not null default now(), last_activity_at timestamptz default now());
+  created_at timestamptz not null default now(), updated_at timestamptz not null default now(), last_activity_at timestamptz default now(), intent text default 'תגובה');
 -- Same behaviour as the live standing-approve trigger: a status flip to hidden is reverted for this author.
 create function public.zvi_stub() returns trigger language plpgsql as $$ begin
   if new.status in ('pending','hidden') and new.author_user_id = '24be4fb3-59f2-4cdf-ad86-47d8a43f274e'::uuid then new.status := 'approved'; end if; return new; end $$;
 create trigger trg_zvi before insert or update of status on public.research_contributions for each row execute function public.zvi_stub();
 
 \i supabase/migrations/20261019130000_community_edit_soft_delete_threads.sql
+\i supabase/migrations/20261019140000_community_restore_report_search_history.sql
 
 -- fixtures
-insert into public.users values
- ('00000000-0000-0000-0000-0000000000a1','user'),('00000000-0000-0000-0000-0000000000a2','user'),
- ('00000000-0000-0000-0000-0000000000ad','admin'),('24be4fb3-59f2-4cdf-ad86-47d8a43f274e','user');
+insert into public.users (id, role, email, display_name) values
+ ('00000000-0000-0000-0000-0000000000a1','user','a1@example.invalid','אילנה'),('00000000-0000-0000-0000-0000000000a2','user','a2@example.invalid','בועז'),
+ ('00000000-0000-0000-0000-0000000000ad','admin','ad@example.invalid','מנהל'),('24be4fb3-59f2-4cdf-ad86-47d8a43f274e','user','z@example.invalid','צבי');
+create trigger trg_rc_notify after insert on public.research_contributions for each row execute function public.notify_on_contribution();
 insert into public.research_contributions (id, author_user_id, origin, status, parent_id, body, created_at) values
  -- tree T1: root r1 (A1) -> c1 (A2) -> g1 (A1);  r1 -> c2 (A2)
  ('10000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-0000000000a1','community_2029','approved',null,'root one', now()-interval '10 min'),
@@ -127,6 +131,108 @@ select pg_temp.assert((select count(*) from research_contributions) = 9, 'no row
 
 -- historical openweb stays intact and visible
 select pg_temp.assert(exists (select 1 from community_feed_page(0,40,'newest') where id='20000000-0000-0000-0000-000000000001' and body='old openweb'), 'historical OpenWeb message intact');
+
+-- ===== second migration: restore, history, context, search, reports, notification link =====
+-- fresh fixtures (fixed ids, outside the first section's tree)
+insert into public.research_contributions (id, author_user_id, origin, status, parent_id, body, created_at) values
+ ('40000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-0000000000a1','community_2029','approved',null,'חיפוש מילת-מפתח אחת', now()-interval '30 min'),
+ ('40000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-0000000000a2','community_2029','approved','40000000-0000-0000-0000-000000000001','תגובה 100% עם _קו_ תחתון', now()-interval '29 min'),
+ ('40000000-0000-0000-0000-000000000003','00000000-0000-0000-0000-0000000000a1','community_2029','approved','40000000-0000-0000-0000-000000000002','תגובה מקוננת', now()-interval '28 min');
+
+-- notification link for a community reply (insert as the replier; the parent author is notified)
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+insert into public.research_contributions (id, author_user_id, author_name, origin, status, parent_id, body)
+values ('40000000-0000-0000-0000-000000000009','00000000-0000-0000-0000-0000000000a2','בועז','community_2029','approved','40000000-0000-0000-0000-000000000001','עוד תגובה');
+select pg_temp.assert((select link from user_notifications where user_id='00000000-0000-0000-0000-0000000000a1' order by id desc limit 1) = '/community/chat?message=40000000-0000-0000-0000-000000000009', 'reply notification opens the community message');
+insert into public.research_contributions (id, author_user_id, author_name, origin, status, parent_id, body)
+values ('40000000-0000-0000-0000-00000000000a','00000000-0000-0000-0000-0000000000a2','בועז','forum','approved','40000000-0000-0000-0000-000000000001','תגובת פורום');
+select pg_temp.assert((select link from user_notifications where user_id='00000000-0000-0000-0000-0000000000a1' order by id desc limit 1) like '/forum/%', 'non-community replies keep the forum link');
+
+-- edit history (admin only) and preserved previous body
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select community_edit_message('40000000-0000-0000-0000-000000000001','חיפוש מילת-מפתח אחת — מתוקן');
+select community_edit_message('40000000-0000-0000-0000-000000000001','חיפוש מילת-מפתח אחת — מתוקן שוב');
+select pg_temp.expect_error($$select * from community_edit_history('40000000-0000-0000-0000-000000000001')$$, 'not authorized');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select pg_temp.assert((select count(*) from community_edit_history('40000000-0000-0000-0000-000000000001')) = 2 and (select body from community_edit_history('40000000-0000-0000-0000-000000000001') offset 1 limit 1) = 'חיפוש מילת-מפתח אחת', 'admin sees both previous bodies, newest first');
+
+-- context for deep links: root first, target last; invisible target gives nothing
+select pg_temp.as_user(null);
+select pg_temp.assert((select array_agg(id order by ord) from (select id, row_number() over () ord from community_message_context('40000000-0000-0000-0000-000000000003')) t) = array['40000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000003']::uuid[], 'context returns root to target');
+select pg_temp.assert((select count(*) from community_message_context('20000000-0000-0000-0000-000000000002')) = 0, 'context of an imported-hidden message is empty');
+select pg_temp.assert((select count(*) from community_message_context('20000000-0000-0000-0000-000000000003')) = 0, 'context of a reply under a hidden parent is empty');
+
+-- search: matches live text, escapes wildcards, skips deleted/hidden text, short queries return nothing
+select pg_temp.assert((select count(*) from community_search('מילת-מפתח',0,20)) = 1, 'search finds live message');
+select pg_temp.assert((select total_count from community_search('מילת-מפתח',0,20) limit 1) = 1, 'search first page carries total');
+select pg_temp.assert((select count(*) from community_search('100%',0,20)) = 1 and (select count(*) from community_search('%',0,20)) = 0, 'search escapes LIKE wildcards');
+select pg_temp.assert((select count(*) from community_search('_קו_',0,20)) = 1 and (select count(*) from community_search('__',0,20)) = 0, 'search escapes underscores');
+select pg_temp.assert((select count(*) from community_search('a',0,20)) = 0, 'one-character query returns nothing');
+select pg_temp.assert((select count(*) from community_search('reply to imported hidden',0,20)) = 0, 'search skips replies whose parent was hidden by moderation');
+select pg_temp.assert((select count(*) from community_search('imported hidden',0,20)) = 0 and (select count(*) from community_search('child two',0,20)) = 0, 'search never returns hidden or deleted text');
+
+-- reports: guest refused, own message refused, duplicates idempotent, admin queue, resolve actions
+select pg_temp.expect_error($$select community_report_message('40000000-0000-0000-0000-000000000002','spam')$$, 'auth required');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select pg_temp.expect_error($$select community_report_message('40000000-0000-0000-0000-000000000001','spam')$$, 'own message');
+select pg_temp.expect_error($$select community_report_message('40000000-0000-0000-0000-000000000002','nonsense')$$, 'bad reason');
+select pg_temp.expect_error($$select community_report_message('20000000-0000-0000-0000-000000000002','spam')$$, 'not found');
+select pg_temp.assert(community_report_message('40000000-0000-0000-0000-000000000002','abuse','פוגעני') = 'reported', 'user reports a live message');
+select pg_temp.assert(community_report_message('40000000-0000-0000-0000-000000000002','abuse') = 'already_reported', 'duplicate report is idempotent');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+select pg_temp.expect_error($$select * from community_admin_reports()$$, 'not authorized');
+select pg_temp.expect_error($$select community_resolve_report((select id from community_reports limit 1),'dismiss')$$, 'not authorized');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select pg_temp.assert((select count(*) from community_admin_reports()) = 1 and (select body from community_admin_reports()) like 'תגובה 100%%', 'admin queue lists the open report with text');
+select pg_temp.assert(community_resolve_report((select id from community_reports limit 1),'delete') = 'delete', 'admin resolves by soft delete');
+select pg_temp.assert((select count(*) from community_admin_reports()) = 0, 'resolved report leaves the queue');
+select pg_temp.assert((select deleted_at is not null from research_contributions where id='40000000-0000-0000-0000-000000000002'), 'reported message soft-deleted');
+select pg_temp.assert((select count(*) from community_replies_page('40000000-0000-0000-0000-000000000002',0,20)) = 1, 'its nested reply is still readable');
+
+-- admin removed list, then restore (admin) of the deleted message
+select pg_temp.assert((select count(*) from community_admin_removed(50) where kind='deleted' and id='40000000-0000-0000-0000-000000000002' and body like 'תגובה 100%%') = 1, 'admin removed list shows the deleted message with its private text');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+select pg_temp.expect_error($$select * from community_admin_removed(5)$$, 'not authorized');
+select pg_temp.expect_error($$select community_restore('40000000-0000-0000-0000-000000000002')$$, 'not authorized');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select pg_temp.assert(community_restore('40000000-0000-0000-0000-000000000002') = 'restored', 'admin restores a deleted message');
+select pg_temp.assert((select body = 'תגובה 100% עם _קו_ תחתון' and deleted_at is null and status = 'approved' from research_contributions where id='40000000-0000-0000-0000-000000000002'), 'restored text, status and marker are back');
+select pg_temp.assert(not exists (select 1 from research_contribution_deletions where contribution_id='40000000-0000-0000-0000-000000000002'), 'archive row consumed by restore');
+
+-- author undo window: own delete restorable within 5 minutes, not after; other users never
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+select community_delete_message('40000000-0000-0000-0000-000000000002');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select pg_temp.expect_error($$select community_restore('40000000-0000-0000-0000-000000000002')$$, 'not authorized');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a2');
+select pg_temp.assert(community_restore('40000000-0000-0000-0000-000000000002') = 'restored', 'author undoes own delete inside the window');
+select community_delete_message('40000000-0000-0000-0000-000000000002');
+update research_contributions set deleted_at = now() - interval '6 minutes' where id='40000000-0000-0000-0000-000000000002';
+select pg_temp.expect_error($$select community_restore('40000000-0000-0000-0000-000000000002')$$, 'not authorized');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select community_restore('40000000-0000-0000-0000-000000000002');
+
+-- thread hide and restore; restore brings back exactly what the hide changed
+select community_hide_thread('40000000-0000-0000-0000-000000000001');
+select pg_temp.assert((select count(*) from community_admin_removed(50) where kind='thread' and id='40000000-0000-0000-0000-000000000001') = 1, 'hidden thread listed once, at its top');
+select pg_temp.as_user(null);
+select pg_temp.assert(not exists (select 1 from community_feed_page(0,40,'newest') where id='40000000-0000-0000-0000-000000000001'), 'hidden thread is out of the feed');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select pg_temp.assert(community_restore('40000000-0000-0000-0000-000000000001') = 'thread_restored', 'admin restores the thread');
+select pg_temp.as_user(null);
+select pg_temp.assert(exists (select 1 from community_feed_page(0,40,'newest') where id='40000000-0000-0000-0000-000000000001') and (select count(*) from community_replies_page('40000000-0000-0000-0000-000000000001',0,20)) = 2, 'restored thread and all its replies are readable again');
+select pg_temp.assert((select status from research_contributions where id='20000000-0000-0000-0000-000000000002') = 'hidden', 'imported hidden rows still untouched');
+
+-- grants for the new functions
+set role anon;
+select pg_temp.assert((select count(*) from community_search('מילת',0,20)) >= 1, 'anon can search');
+select pg_temp.expect_error($$select community_restore('40000000-0000-0000-0000-000000000002')$$, 'permission denied');
+select pg_temp.expect_error($$select * from community_admin_removed(5)$$, 'permission denied');
+select pg_temp.expect_error($$select * from community_admin_reports(5)$$, 'permission denied');
+select pg_temp.expect_error($$select community_report_message('40000000-0000-0000-0000-000000000002','spam')$$, 'permission denied');
+select pg_temp.expect_error($$select * from community_reports$$, 'permission denied');
+select pg_temp.expect_error($$select * from research_contribution_edits$$, 'permission denied');
+reset role;
 
 -- role grants: anon can read through the definer functions but cannot call any write function or the private helper
 set role anon;

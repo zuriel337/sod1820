@@ -28,6 +28,7 @@ create table if not exists public.research_contribution_deletions (
   title text,
   image_url text,
   media jsonb,
+  status text,
   deleted_by uuid,
   deleted_at timestamptz not null default now()
 );
@@ -267,8 +268,8 @@ begin
   if v_row.thread_hidden_at is not null or v_row.status not in ('approved','pending') then
     raise exception 'not deletable';
   end if;
-  insert into public.research_contribution_deletions (contribution_id, body, title, image_url, media, deleted_by, deleted_at)
-  values (v_row.id, v_row.body, v_row.title, v_row.image_url, v_row.media, v_uid, v_now);
+  insert into public.research_contribution_deletions (contribution_id, body, title, image_url, media, status, deleted_by, deleted_at)
+  values (v_row.id, v_row.body, v_row.title, v_row.image_url, v_row.media, v_row.status, v_uid, v_now);
   update public.research_contributions
      set body = null, title = null, image_url = null, media = '[]'::jsonb,
          status = 'hidden', deleted_at = v_now, deleted_by = v_uid, updated_at = v_now
