@@ -65,6 +65,9 @@ const Kingdom2029Page = kingdomPreviewEnabled
 const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
 const IntegratedPreview2029Page = integratedPreviewEnabled
   ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
+// Review-only route for a single source-unit pilot; never registered in ordinary builds.
+const Alon5119OneTreePilot2029Page = integratedPreviewEnabled
+  ? lazy(() => import("./pages/Alon5119OneTreePilot2029Page.jsx")) : null;
 
 function Loading2029({ quiet = false }) {
   const palette = use2029Palette();
@@ -219,6 +222,7 @@ export default function App2029() {
               <Route path="/" element={<HomeEntry2029 />} />
               <Route path="/2029/*" element={<HomeAddressAlias2029 />} />
               {integratedPreviewEnabled && <Route path="/preview" element={<IntegratedPreview2029Page />} />}
+              {integratedPreviewEnabled && <Route path="/preview/units/alon-5119" element={<Alon5119OneTreePilot2029Page />} />}
               <Route path="/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
