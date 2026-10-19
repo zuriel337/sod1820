@@ -23,10 +23,10 @@ let n = 0; const t = async (name, fn) => { await fn(); n++; console.log("ok", na
 
 await t("flagged reader detects active writer + file overlap", async () => {
   const { s, body } = await call(A1, { scope_terms: ["App2029.jsx"] });
-  assert.equal(s, 200); assert.equal(body.verdict, "ACTIVE_WRITER_OVERLAP"); assert.equal(body.rows[0].task_key, "T_ACTIVE_APP");
+  assert.equal(s, 200); assert.equal(body.verdict, "ACTIVE_WRITER_TERM_MATCH"); assert.equal(body.rows[0].task_key, "T_ACTIVE_APP");
 });
-await t("independent scope -> NO_ACTIVE_OVERLAP_FOUND (only the overlapping scope is blocked)", async () => {
-  assert.equal((await call(A1, { scope_terms: ["community/chat"] })).body.verdict, "NO_ACTIVE_OVERLAP_FOUND");
+await t("independent scope -> NO_TERM_MATCH_IN_ACTIVE_ROWS (only the overlapping scope is blocked)", async () => {
+  assert.equal((await call(A1, { scope_terms: ["community/chat"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
 });
 await t("80-row scope is INCOMPLETE, not 'no overlap'", async () => {
   const { r, body } = await call(A1, { scope_terms: ["bulkzone"], limit: 50 });

@@ -14,3 +14,8 @@ insert into public.work_log_current(task_key, status, assignment_scope, topic, s
 -- 80 unrelated active rows to exercise truncation (all match term "bulkzone")
 insert into public.work_log_current(task_key, status, assignment_scope, topic)
  select 'T_BULK_' || g, 'BEFORE_BRANCH_ONLY_PASSIVE_ACTIVE_WRITER', 'bulkzone/file' || g, 'bulk' from generate_series(1, 80) g;
+
+-- null task_key + ACTIVE_WRITER-only status branch; long scope for truncation
+insert into public.work_log_current(task_key, status, assignment_scope, topic) values
+ (null, 'PASSIVE_ACTIVE_WRITER_NOTE', 'nullkeyzone/file', 'nullkey'),
+ ('T_LONG', 'BEFORE_X', 'longzone/' || repeat('x', 2000), 'long');

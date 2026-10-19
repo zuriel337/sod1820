@@ -36,6 +36,8 @@ declare
   v_limit integer := greatest(1, least(coalesce(p_limit, 25), 50));
   v_total bigint;
   v_rows  jsonb;
+  v_act_total bigint;
+  v_act   jsonb;
 begin
   if auth.uid() is null
      or coalesce(auth.role(), '') <> 'authenticated'
@@ -46,6 +48,10 @@ begin
             and (u.banned_until is null or u.banned_until <= now())
             and coalesce(u.raw_app_meta_data ->> 'sod1820_coordination_reader', '') = 'true') then
     raise exception 'coordination reader not authorized' using errcode = '42501';
+  end if;
+
+  if length(coalesce(p_task_key, '')) > 200 or length(coalesce(p_exclude_task_key, '')) > 200 then
+    raise exception 'task key too long (max 200)' using errcode = '22023';
   end if;
 
   if p_scope_terms is not null then
@@ -73,6 +79,7 @@ begin
            or w.status ~* '^(BEFORE|EXPLICIT_RELEASE)'
            or w.status ~* 'ACTIVE_WRITER')
       and (v_terms is null
+           or btrim(coalesce(w.assignment_scope, '')) = ''   -- no declared scope: fail toward overlap
            or exists (
                 select 1 from unnest(v_terms) t
                 where position(t in lower(coalesce(w.assignment_scope, ''))) > 0
@@ -87,13 +94,30 @@ begin
                          from m order by created_at desc, id limit v_limit) r), '[]'::jsonb)
   into v_total, v_rows;
 
+  -- All active writers' declared scopes (not term-filtered) so the caller can compare directory/glob
+  -- scopes that a substring match cannot see. Capped at 50; active_truncated says if more exist.
+  select count(*),
+         coalesce(jsonb_agg(jsonb_build_object('task_key', a.task_key, 'status', a.status,
+                  'assignment_scope', left(a.assignment_scope, 300)) order by a.created_at desc, a.id)
+                  filter (where a.rn <= 50), '[]'::jsonb)
+  into v_act_total, v_act
+  from (select w.id, w.created_at, w.task_key, w.status, w.assignment_scope,
+               row_number() over (order by w.created_at desc, w.id) rn
+        from public.work_log_current w
+        where coalesce(w.archived, false) = false and w.superseded_by_id is null
+          and (w.status ~* '^(BEFORE|EXPLICIT_RELEASE)' or w.status ~* 'ACTIVE_WRITER')
+          and (p_exclude_task_key is null or w.task_key is distinct from p_exclude_task_key)) a;
+
   return jsonb_build_object(
     'checked_at',    now(),
     'total_matches', v_total,
     'returned',      jsonb_array_length(v_rows),
     'limit',         v_limit,
     'truncated',     jsonb_array_length(v_rows) < v_total,
-    'rows',          v_rows);
+    'rows',          v_rows,
+    'active_total',  v_act_total,
+    'active_scopes', v_act,
+    'active_truncated', jsonb_array_length(v_act) < v_act_total);
 end;
 $$;
 

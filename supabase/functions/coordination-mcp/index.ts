@@ -18,8 +18,9 @@ Deno.serve(async (req) => {
   if (url.pathname.endsWith("/.well-known/oauth-protected-resource"))
     return Response.json({ resource: meta, authorization_servers: [`${URL_}/auth/v1`], bearer_methods_supported: ["header"] });
   if (req.method !== "POST") return new Response("method not allowed", { status: 405 });
+  if (Number(req.headers.get("content-length") || 0) > 16384) return new Response("payload too large", { status: 413 });
   let body;
-  try { body = await req.json(); } catch { return Response.json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } }, { status: 400 }); }
+  try { const raw = await req.text(); if (raw.length > 16384) return new Response("payload too large", { status: 413 }); body = JSON.parse(raw); } catch { return Response.json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "parse error" } }, { status: 400 }); }
   const [status, payload] = await handleMcp(body, bearerOf(req), { rpc });
   const headers: Record<string, string> = { "cache-control": "no-store" };
   if (status === 401) headers["www-authenticate"] = `Bearer resource_metadata="${meta}/.well-known/oauth-protected-resource"`;

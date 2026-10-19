@@ -36,6 +36,27 @@ do $$ declare r jsonb; begin
   assert r->'rows'->0->>'task_key' = 'T_RELEASE_AUTH';
 end $$;
 
+-- 2b. task_key filter, null task_key, long text, config, term/key bounds
+do $$ declare r jsonb; begin
+  r := public.coordination_read_current(p_task_key => 'T_ACTIVE_NUM', p_active_only => false);
+  assert (r->>'total_matches')::int = 1 and r->'rows'->0->>'task_key' = 'T_ACTIVE_NUM', 'task_key filter';
+  r := public.coordination_read_current(p_task_key => 'T_RELEASED', p_active_only => false);
+  assert (r->>'total_matches')::int = 1, 'history by key';
+  r := public.coordination_read_current(p_scope_terms => array['nullkeyzone'], p_exclude_task_key => 'T_ACTIVE_APP');
+  assert (r->>'total_matches')::int = 1 and r->'rows'->0->'task_key' = 'null'::jsonb, 'null task_key row must survive exclude / ACTIVE_WRITER branch';
+  r := public.coordination_read_current(p_scope_terms => array['longzone']);
+  assert length(r->'rows'->0->>'assignment_scope') = 800, 'scope not truncated to 800';
+  assert jsonb_array_length(r->'active_scopes') >= 1 and length(r->'active_scopes'->0->>'assignment_scope') <= 300, 'active_scopes shape';
+  r := public.coordination_read_current(p_scope_terms => array['community/chat']);
+  assert (r->>'active_total')::int >= 80 and r ? 'active_truncated', 'active list missing';
+  assert (select prosecdef from pg_proc where oid='public.coordination_read_current(text,text[],boolean,integer,text)'::regprocedure), 'not security definer';
+  assert (select proconfig from pg_proc where oid='public.coordination_read_current(text,text[],boolean,integer,text)'::regprocedure) @> array['search_path=pg_catalog, public, pg_temp'], 'search_path not pinned';
+  begin perform public.coordination_read_current(p_scope_terms => array[repeat('a',121)]); raise exception 'FAIL 121'; exception when invalid_parameter_value then null; end;
+  perform public.coordination_read_current(p_scope_terms => array[repeat('a',120)]);
+  begin perform public.coordination_read_current(p_task_key => repeat('k',201)); raise exception 'FAIL key len'; exception when invalid_parameter_value then null; end;
+  begin perform public.coordination_read_current(p_exclude_task_key => repeat('k',201)); raise exception 'FAIL excl len'; exception when invalid_parameter_value then null; end;
+end $$;
+
 -- 3. truncation is explicit (80 bulk rows > 50 cap): never looks like "no overlap"
 do $$ declare r jsonb; begin
   r := public.coordination_read_current(p_scope_terms => array['bulkzone'], p_limit => 100000);
@@ -94,5 +115,15 @@ update auth.users set deleted_at = now() where id = '00000000-0000-0000-0000-000
 set role authenticated; select pg_temp.expect_denied($q$select public.coordination_read_current()$q$); reset role;
 
 -- 8. the function performs no writes (stable) and left data untouched
-do $$ begin assert (select count(*) from public.work_log_current) = 86, 'row count changed'; end $$;
+do $$ begin assert (select count(*) from public.work_log_current) = 88, 'row count changed'; end $$;
+
+-- 9. active row with empty declared scope fails toward overlap (superuser inserts, then removes)
+insert into public.work_log_current(task_key, status, assignment_scope, topic) values ('T_EMPTYSCOPE', 'BEFORE_X', '   ', 'empty');
+select pg_temp.claims('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+do $$ declare r jsonb; begin
+  r := public.coordination_read_current(p_scope_terms => array['community/chat']);
+  assert (r->>'total_matches')::int = 1 and r->'rows'->0->>'task_key' = 'T_EMPTYSCOPE', 'empty scope must match any term';
+end $$;
+reset role;
+delete from public.work_log_current where task_key = 'T_EMPTYSCOPE';
 select 'SQL_PASS' as result;
