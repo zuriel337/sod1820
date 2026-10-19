@@ -1,0 +1,68 @@
+{
+  "taskKey": "GPT_COMMUNITY_UNIFIED_PREVIEW_INTEGRATION_20261019",
+  "base": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+  "communitySource": "ca9b75e4b8b04e13fe86efa11d6de2751ae21ea1",
+  "communityPr": 1129,
+  "integrationBranch": "gpt/2029-community-preview-integration-20261019",
+  "testedCodeSha": "2af46373ac67013a097dfa130832cb5d32148165",
+  "includedPriorHandoffSource": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+  "state": "TESTED_READ_ONLY_PREVIEW_INTEGRATION_READY_NOT_PRODUCTION",
+  "tests": {
+    "legacyAnd2029Build": "PASS",
+    "bundleBudget": "5/5 PASS, unchanged reported entry/Home/World/Post/Number graphs",
+    "communityBrowser": "26/26 PASS, built app and in-memory backend; includes six read-only personas/marker cases",
+    "communityUnit": "19/19 PASS",
+    "workerPolicy": "3/3 PASS",
+    "localHybrid": "8/8 PASS, zero skips",
+    "hostedHybrid": "5/5 PASS, zero skips, 424 sealed artifacts and real Chromium worker attestation",
+    "systemFrame": "PASS",
+    "publicLanguage": "3/3 PASS"
+  },
+  "readOnlyPreview": {
+    "allowedCommunityRpc": [
+      "community_feed_page",
+      "community_replies_page",
+      "community_reply_counts"
+    ],
+    "writeRpcAdmitted": false,
+    "autoClaimSuppressed": true,
+    "missingAdvancedRpcCalledOnEntry": false,
+    "mutationsInReadOnlyBrowserCases": 0,
+    "fullFunctionalityTestedOnlyAgainstStandIn": true
+  },
+  "liveReadOnlyCatalog": {
+    "basicCommunityFunctions": "present and STABLE",
+    "community_search": "absent",
+    "community_restore": "absent",
+    "community_message_context": "absent",
+    "contributors_claim_legacy_by_email": "absent",
+    "notify_on_contribution_definition_md5": "d9e068d87124a28b7205ef7e6ea8bb03"
+  },
+  "migrations": [
+    {
+      "path": "supabase/migrations/20261019130000_community_edit_soft_delete_threads.sql",
+      "sha256": "87ced66e3a48b91de6e5e34d770dfe86ac1c4647c0f2dcac771ba3d38c026a3d",
+      "appliedByThisIntegration": false
+    },
+    {
+      "path": "supabase/migrations/20261019140000_community_restore_report_search_history.sql",
+      "sha256": "c1ba45e13bc50795f53297595bf6acf740ca6118aabdb3c2dd939ccab91997cd",
+      "appliedByThisIntegration": false
+    },
+    {
+      "path": "supabase/migrations/20261019145000_community_reply_notification_link.sql",
+      "sha256": "89e2129f4e22c4d6333b4c8a8d3f5cd0f40f0ab0604cf673698ef85575d7c4bf",
+      "appliedByThisIntegration": false
+    },
+    {
+      "path": "supabase/migrations/20261019150000_community_auto_claim_legacy_by_email.sql",
+      "sha256": "b683dc32a0a857b48c194bd53e221c0e22d7751fd711199fbabb56b595da99fe",
+      "appliedByThisIntegration": false
+    }
+  ],
+  "liveWritesPerformed": false,
+  "dispatchSent": false,
+  "productionAuthorization": false,
+  "remoteCi": "No overall PASS claimed; original Community source has failed runs; new integration commits request CI skip to avoid unsafe legacy workflows",
+  "sqlFixture": "Claude reports 78 local PostgreSQL checks on unchanged migrations; not rerun in this environment (PostgreSQL unavailable)"
+}
