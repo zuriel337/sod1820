@@ -10,6 +10,10 @@ import { createHybridPreviewServer } from "../scripts/serve-hybrid-preview.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "hybrid-preview-dist");
 const built = existsSync(resolve(output, "hybrid-preview-build.json"));
+const buildReceipt = built
+  ? JSON.parse(await readFile(resolve(output, "hybrid-preview-build.json"), "utf8"))
+  : null;
+const localBuilt = built && buildReceipt.hostedPreviewReady === false;
 let server;
 after(() => server?.close());
 const require = createRequire(import.meta.url);
@@ -22,23 +26,28 @@ try {
 const chromiumPath = existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : chromium?.executablePath?.();
 
 test("dual build contains isolated Legacy and 2029 documents with read-only/noindex markers", { skip: !built }, async () => {
-  const [legacy, index, next, receipt] = await Promise.all([
+  const [legacy, index, next] = await Promise.all([
     readFile(resolve(output, "legacy.html"), "utf8"),
     readFile(resolve(output, "index.html"), "utf8"),
     readFile(resolve(output, "2029.html"), "utf8"),
-    readFile(resolve(output, "hybrid-preview-build.json"), "utf8").then(JSON.parse),
   ]);
   assert.match(legacy, /name="sod-hybrid-runtime" content="legacy"/);
   assert.match(index, /name="sod-hybrid-runtime" content="legacy"/);
   assert.match(next, /name="sod-hybrid-runtime" content="2029"/);
   for (const html of [legacy, index, next]) {
     assert.match(html, /noindex,nofollow,noarchive/);
-    assert.match(html, /sod-hybrid-local-readonly/);
+    if (localBuilt) {
+      assert.match(html, /sod-hybrid-local-readonly/);
+      assert.doesNotMatch(html, /sod-preview-readonly-bootstrap/);
+    } else {
+      assert.match(html, /sod-preview-readonly-bootstrap/);
+      assert.doesNotMatch(html, /sod-hybrid-local-readonly/);
+    }
   }
-  assert.equal(receipt.defaultRuntime, "legacy");
-  assert.equal(receipt.hostedPreviewReady, false);
-  assert.equal(receipt.sources.legacySha, "0f3443a9a4dcb78e935d74f2a937c47dbf35d18c");
-  assert.equal(receipt.sources.candidateSha, "e994cb67120fa0f735ab3859aa5acba67e24adba");
+  assert.equal(buildReceipt.defaultRuntime, "legacy");
+  assert.equal(typeof buildReceipt.hostedPreviewReady, "boolean");
+  assert.equal(buildReceipt.sources.legacySha, "0f3443a9a4dcb78e935d74f2a937c47dbf35d18c");
+  assert.equal(buildReceipt.sources.candidateSha, "e994cb67120fa0f735ab3859aa5acba67e24adba");
 });
 
 test("local server routes candidate paths to 2029 and unknown paths to Legacy", { skip: !built }, async () => {
@@ -59,7 +68,7 @@ test("local server routes candidate paths to 2029 and unknown paths to Legacy", 
 });
 
 test("the early local guard blocks fetch, XHR and beacon writes before either runtime starts", {
-  skip: !built || !chromium || !chromiumPath ? "Chromium is unavailable" : false,
+  skip: !localBuilt || !chromium || !chromiumPath ? "local Hybrid artifact and Chromium are required" : false,
 }, async () => {
   const local = await createHybridPreviewServer({ output });
   const localServer = local.server;

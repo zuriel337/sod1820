@@ -9,7 +9,6 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const REQUIRED_BRANCH = "gpt/perf-unified-wave4-preview-20261018";
-const GUARD_DEADLINE_MS = 8_000;
 const GIT_BOUND_VITE_INPUTS = Object.freeze([
   "public",
   "src",
@@ -77,11 +76,13 @@ const [
   { build },
   { NUMBER_REVIEW_PREVIEW_BRANCH_2029, isNumberReviewPreviewBuild2029 },
   { renderPreviewReadonlyWorker, PREVIEW_GUARD_PROTOCOL },
+  { renderPreviewReadonlyBootstrap, PREVIEW_GUARD_DEADLINE_MS },
   { createPreviewArtifactInventory },
 ] = await Promise.all([
   import("vite"),
   import("../src/lib/numberReviewPreview2029.js"),
   import("./preview-readonly-worker.mjs"),
+  import("./preview-readonly-bootstrap.mjs"),
   import("./preview-artifact-inventory.mjs"),
 ]);
 if (NUMBER_REVIEW_PREVIEW_BRANCH_2029 !== REQUIRED_BRANCH || !isNumberReviewPreviewBuild2029(process.env)) {
@@ -110,104 +111,18 @@ await writeFile(resolve(output, "preview-readonly-sw.js"), workerBytes);
 // A push opt-in must never replace the Preview guard with the production push worker.
 await writeFile(resolve(output, "sw.js"), workerBytes);
 
-const bootstrap = `<script type="module">
-const expectedHost=${JSON.stringify(previewHost)};
-const workerScript=${JSON.stringify(workerScript)};
-const expectedIdentity=Object.freeze(${JSON.stringify(expectedWorkerIdentity)});
-const guardDeadlineMs=${GUARD_DEADLINE_MS};
-const blocked=()=>new Response(JSON.stringify({error:'preview_guard_pending'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
-let released=false,closed=false,timer=0;
-document.documentElement.dataset.sodPreviewGuard='checking';
-const nativeFetch=globalThis.fetch.bind(globalThis);
-globalThis.fetch=(input,init)=>{
- const request=input instanceof Request?input:new Request(input,init);
- return !released&&!['GET','HEAD','OPTIONS'].includes(request.method)?Promise.resolve(blocked()):nativeFetch(input,init);
-};
-const xhrOpen=globalThis.XMLHttpRequest?.prototype.open;
-const xhrSend=globalThis.XMLHttpRequest?.prototype.send;
-if(xhrOpen&&xhrSend){
- globalThis.XMLHttpRequest.prototype.open=function(method,...args){this.__sodPreviewMethod=String(method||'GET').toUpperCase();return xhrOpen.call(this,method,...args);};
- globalThis.XMLHttpRequest.prototype.send=function(...args){if(!released&&!['GET','HEAD','OPTIONS'].includes(this.__sodPreviewMethod||'GET'))throw new DOMException('Preview guard pending','SecurityError');return xhrSend.apply(this,args);};
-}
-const nativeBeacon=typeof navigator.sendBeacon==='function'?navigator.sendBeacon.bind(navigator):null;
-if(nativeBeacon){try{navigator.sendBeacon=(...args)=>released?nativeBeacon(...args):false;}catch{}}
-const blockForm=event=>{if(!released&&String(event.target?.method||'get').toUpperCase()==='POST'){event.preventDefault();event.stopImmediatePropagation();}};
-document.addEventListener('submit',blockForm,true);
-const releaseTransportGuard=()=>{
- released=true;
- globalThis.fetch=nativeFetch;
- if(xhrOpen&&xhrSend){globalThis.XMLHttpRequest.prototype.open=xhrOpen;globalThis.XMLHttpRequest.prototype.send=xhrSend;}
- if(nativeBeacon){try{navigator.sendBeacon=nativeBeacon;}catch{}}
- document.removeEventListener('submit',blockForm,true);
-};
-const fail=()=>{
- closed=true;
- document.documentElement.dataset.sodPreviewGuard='blocked';
- const render=()=>{
-  const body=document.body||document.documentElement.appendChild(document.createElement('body'));
-  body.textContent='לא ניתן לאמת את מצב הקריאה בלבד של הפריוויו. יש לרענן את הדף.';
- };
- document.body?render():document.addEventListener('DOMContentLoaded',render,{once:true});
-};
-const sameIdentity=value=>{
- if(!value||typeof value!=='object')return false;
- const keys=Object.keys(expectedIdentity);
- return keys.length===Object.keys(value).length&&keys.every(key=>JSON.stringify(value[key])===JSON.stringify(expectedIdentity[key]));
-};
-const attest=worker=>new Promise((resolve,reject)=>{
- const channel=new MessageChannel();
- const nonce=crypto.randomUUID?crypto.randomUUID():String(Math.random());
- channel.port1.onmessage=event=>{
-  const data=event.data;
-  if(data?.type==='SOD_PREVIEW_GUARD_ATTESTATION'&&data.nonce===nonce&&sameIdentity(data.identity))resolve(data.identity);
-  else reject(new Error('preview_guard_attestation_mismatch'));
- };
- try{worker.postMessage({type:'SOD_PREVIEW_GUARD_CHALLENGE',nonce},[channel.port2]);}catch(error){reject(error);}
+const bootstrap = (entry) => renderPreviewReadonlyBootstrap({
+  host: previewHost,
+  workerScript,
+  expectedIdentity: expectedWorkerIdentity,
+  entry,
+  guardDeadlineMs: PREVIEW_GUARD_DEADLINE_MS,
 });
-const waitForVerifiedController=registration=>new Promise(resolve=>{
- const attempted=new WeakSet();
- const bound=new WeakSet();
- const bind=worker=>{
-  if(!worker||bound.has(worker))return;
-  bound.add(worker);
-  worker.addEventListener('statechange',check);
- };
- const check=()=>{
-  if(closed)return;
-  bind(registration.installing);bind(registration.waiting);bind(registration.active);
-  const worker=navigator.serviceWorker.controller;
-  const exact=worker?.scriptURL===new URL(workerScript,location.href).href&&worker.state==='activated'&&registration.active?.scriptURL===worker.scriptURL;
-  if(!exact||attempted.has(worker))return;
-  attempted.add(worker);
-  attest(worker).then(identity=>{
-   if(!closed&&navigator.serviceWorker.controller===worker&&registration.active?.scriptURL===worker.scriptURL)resolve({worker,identity});
-  }).catch(()=>{});
- };
- navigator.serviceWorker.addEventListener('controllerchange',check);
- registration.addEventListener('updatefound',check);
- check();
-});
-const verify=async()=>{
- if(!('serviceWorker'in navigator)||location.hostname.toLowerCase()!==expectedHost)throw new Error('preview_guard_host_mismatch');
- const registration=await navigator.serviceWorker.register(workerScript,{scope:'/',updateViaCache:'none'});
- try{await registration.update();}catch(error){if(!registration.installing)throw error;}
- return waitForVerifiedController(registration);
-};
-try{
- const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{closed=true;reject(new Error('preview_guard_deadline'));},guardDeadlineMs);});
- await Promise.race([verify(),deadline]);
- if(closed)throw new Error('preview_guard_closed');
- clearTimeout(timer);
- releaseTransportGuard();
- document.documentElement.dataset.sodPreviewGuard=expectedIdentity.guardIdentitySha256;
- await import('__ENTRY__');
-}catch{clearTimeout(timer);fail();}
-</script>`;
 
 let html = await readFile(resolve(output, "2029.html"), "utf8");
 const entry = html.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/);
 if (!entry) throw new Error("missing2029Entry");
-html = html.replace(entry[0], bootstrap.replace("__ENTRY__", entry[1]));
+html = html.replace(entry[0], bootstrap(entry[1]));
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
 
@@ -231,7 +146,7 @@ const { receipt, inventory } = await createPreviewArtifactInventory(output, {
   workerContentSha256,
   guardProtocol: PREVIEW_GUARD_PROTOCOL,
   guardIdentitySha256: rendered.guardIdentitySha256,
-  guardDeadlineMs: GUARD_DEADLINE_MS,
+  guardDeadlineMs: PREVIEW_GUARD_DEADLINE_MS,
   manifestSha256: sha256(manifestBytes),
   htmlSha256: sha256(htmlBytes),
   indexHtmlSha256: sha256(indexBytes),
