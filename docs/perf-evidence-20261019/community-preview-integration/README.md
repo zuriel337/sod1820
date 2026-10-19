@@ -54,3 +54,13 @@ Original source CI contains failed runs, so no overall remote PASS is claimed. T
 - User product decision: interaction of standing-approval with thread hiding. This integration does not change that policy.
 
 `verification.json` records source hashes and exact verification scope. This file is evidence under existing owners, not another product contract or owner map. The current actor used the general Supabase connector with bounded SELECT only; no work_log row, dispatch or ACK was fabricated. Scope is released on delivery.
+
+## Hosted result
+
+PR1132 merged into the existing Preview branch at `a4a30c97ca588deb0036797cacada0d9f01b3145`. Deployment `dpl_9yv6MKv7HwsMggNUP6NADSnTgbAw` is READY at https://sod1820-b4pq1mbj6-sod1820-s-projects.vercel.app. The previous base and complete Community source are ancestors; the merged product is byte-identical to the tested product code outside documentation.
+
+Authorized protected HTTP checks returned 200, the exact merge SHA, read-only bootstrap and noindex for Community and the existing Home/Posts/Post/World/Number/Code/ELS routes. Runtime ownership is unchanged: Community and the main surfaces use 2029; Code/ELS retain Legacy. The deployed worker matches the checked-in renderer byte for byte. The Community document hash, receipt identity and inventory identity also match; the inventory lists 424 artifacts. This is not a claim that all artifacts were independently downloaded or that a hosted user completed the flow. See `deployment.json` and `hosted-verification.json`.
+
+GitHub automatically marked source PR1129 merged by ancestry after PR1132 included its full head. There was no separate source merge or manual closure. Main and the last observed Production SHA remain `6ef3ec2d6c139cd06af628b20ac2d5c3fb776a70`. No migration, notification trigger or ownership backfill was executed.
+
+Remote annotated archive tag `archive/2029-unified-community-20261019-a4a30c97` peels to the new merge. The current session handoff is updated on the separate documentation branch `gpt/2029-community-unified-handoff-20261019`; it retains the previous freeze as history. Temporary access capabilities are excluded from repository evidence.

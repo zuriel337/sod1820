@@ -1,0 +1,17 @@
+{
+  "commit": "a4a30c97ca588deb0036797cacada0d9f01b3145",
+  "host": "sod1820-b4pq1mbj6-sod1820-s-projects.vercel.app",
+  "artifactCount": 424,
+  "receiptIdentity": "baf6a39f88a19ab114285dc3c2c5ebbe3519c8f0f34b0fcd32796d30b3ce50db",
+  "workerSha256": "a66053f31ec0fdf89c33cc388f745235abca387ba07833abb2c9e5c7232e9a4f",
+  "htmlSha256": "fe075d3cdb5fe4205c56558cff759138792549db3279b147db6c62ed908ef691",
+  "inventoryIdentity": "4187b15f4884669d1d78f2b2be36f44c4886be17e800d697b9ebf21f4add4dd2",
+  "verified": [
+    "receipt SHA, Preview host and clean source",
+    "deployed worker exactly matches checked-in renderer",
+    "deployed Community document hash matches receipt",
+    "receipt and inventory identities match",
+    "three Community read RPCs included; no new write RPC admitted"
+  ],
+  "limitation": "HTTP/artifact provenance; not hosted browser or physical phone acceptance"
+}
