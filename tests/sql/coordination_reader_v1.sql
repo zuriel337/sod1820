@@ -1,59 +1,98 @@
--- Run against a Supabase BRANCH / isolated copy only, never production. Wrap in a transaction; rolls back.
-begin;
--- helper: simulate a caller
-create or replace function pg_temp.as_caller(p_uid uuid, p_flag text) returns void language plpgsql as $$
+-- Runs under: psql -v ON_ERROR_STOP=1 -f this file, on the LOCAL minimal harness (tests/sql/local-harness/*)
+-- or on an isolated Supabase branch. NEVER production. Any failed assertion aborts non-zero.
+\set ON_ERROR_STOP 1
+create or replace function pg_temp.claims(p_uid text, p_role text default 'authenticated') returns void language sql as $$
+  select set_config('request.jwt.claims', json_build_object('sub', p_uid, 'role', p_role,
+     'app_metadata', json_build_object('sod1820_coordination_reader', true))::text, false) $$;  -- claim present but NOT trusted
+create or replace function pg_temp.expect_denied(p_sql text) returns void language plpgsql as $$
 begin
-  perform set_config('request.jwt.claims', json_build_object('sub', p_uid, 'role', 'authenticated',
-    'app_metadata', case when p_flag is null then '{}'::json else json_build_object('sod1820_coordination_reader', p_flag) end)::text, true);
-end $$;
+  begin execute p_sql; raise exception 'FAIL: expected denial: %', p_sql;
+  exception when insufficient_privilege then null; end; end $$;
 
--- 1. ACL: anon and PUBLIC cannot execute; authenticated can (guard is inside the function).
+-- 1. ACL
 do $$ begin
-  assert not has_function_privilege('anon','public.coordination_read_current(text,text[],boolean,integer)','execute'), 'anon must not execute';
-  assert has_function_privilege('authenticated','public.coordination_read_current(text,text[],boolean,integer)','execute'), 'authenticated grant missing';
+  assert not has_function_privilege('anon','public.coordination_read_current(text,text[],boolean,integer,text)','execute'), 'anon can execute';
+  assert has_function_privilege('authenticated','public.coordination_read_current(text,text[],boolean,integer,text)','execute');
+  assert not has_table_privilege('authenticated','public.work_log_current','select'), 'authenticated can read view directly';
 end $$;
 
-set local role authenticated;
+-- 2. valid reader: finds active writer + file overlap
+select pg_temp.claims('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
+do $$ declare r jsonb; begin
+  r := public.coordination_read_current(p_scope_terms => array['App2029.jsx']);
+  assert (r->>'total_matches')::int = 1 and r->'rows'->0->>'task_key' = 'T_ACTIVE_APP', 'active writer / file overlap not found: ' || r::text;
+  assert (r->>'truncated')::boolean = false;
+  assert r::text not like '%SECRET-BODY%' and r::text not like '%secret%' and r::text not like '%what_we_did%' and r::text not like '%dispatch_%', 'forbidden data exposed';
+  -- released / archived / superseded rows never count as active
+  assert not (r::text like '%T_RELEASED%' or r::text like '%T_ARCHIVED%' or r::text like '%T_SUPERSEDED%'), 'stale rows leaked';
+  -- own task excluded
+  r := public.coordination_read_current(p_scope_terms => array['App2029.jsx'], p_exclude_task_key => 'T_ACTIVE_APP');
+  assert (r->>'total_matches')::int = 0 and jsonb_typeof(r->'rows') = 'array', 'exclude failed';
+  -- no overlap in an unrelated scope
+  r := public.coordination_read_current(p_scope_terms => array['community/chat']);
+  assert (r->>'total_matches')::int = 0 and (r->>'truncated')::boolean = false;
+  -- case-insensitive term, two active writers on different scopes
+  r := public.coordination_read_current(p_scope_terms => array['SYSTEMFRAME2029']);
+  assert r->'rows'->0->>'task_key' = 'T_RELEASE_AUTH';
+end $$;
 
--- 2. Unflagged authenticated user -> 42501 (fail closed)
-select pg_temp.as_caller(gen_random_uuid(), null);
+-- 3. truncation is explicit (80 bulk rows > 50 cap): never looks like "no overlap"
+do $$ declare r jsonb; begin
+  r := public.coordination_read_current(p_scope_terms => array['bulkzone'], p_limit => 100000);
+  assert (r->>'total_matches')::int = 80 and (r->>'returned')::int = 50 and (r->>'truncated')::boolean = true, 'truncation not reported: ' || (r - 'rows')::text;
+  r := public.coordination_read_current(p_limit => -5, p_scope_terms => array['bulkzone']);
+  assert (r->>'returned')::int = 1 and (r->>'truncated')::boolean = true, 'negative limit';
+end $$;
+
+-- 4. input validation (fail closed, no partial answer)
 do $$ begin
-  begin perform * from public.coordination_read_current(); raise exception 'FAIL: unflagged user read data';
-  exception when insufficient_privilege then null; end;
+  begin perform public.coordination_read_current(p_active_only => false); raise exception 'FAIL history'; exception when invalid_parameter_value then null; end;
+  begin perform public.coordination_read_current(p_scope_terms => array_fill('abcd'::text, array[11])); raise exception 'FAIL cap'; exception when invalid_parameter_value then null; end;
+  begin perform public.coordination_read_current(p_scope_terms => array['ab']); raise exception 'FAIL short'; exception when invalid_parameter_value then null; end;
+  begin perform public.coordination_read_current(p_scope_terms => array[null]::text[]); raise exception 'FAIL null'; exception when invalid_parameter_value then null; end;
 end $$;
 
--- 3. Flag set to something other than 'true' -> denied
-select pg_temp.as_caller(gen_random_uuid(), 'false');
+-- 5. no write / direct-read path for the reader
 do $$ begin
-  begin perform * from public.coordination_read_current(); raise exception 'FAIL: flag=false read data';
-  exception when insufficient_privilege then null; end;
+  perform pg_temp.expect_denied($q$insert into public.work_log_current(task_key) values ('x')$q$);
+  perform pg_temp.expect_denied($q$select * from public.work_log_current$q$);
+  perform pg_temp.expect_denied($q$update public.work_log_current set status='x'$q$);
+  perform pg_temp.expect_denied($q$select * from auth.users$q$);
 end $$;
+reset role;
 
--- 4. Flagged reader: succeeds, row cap holds, no forbidden columns, filters enforced
-select pg_temp.as_caller(gen_random_uuid(), 'true');
-do $$ declare n int; begin
-  select count(*) into n from public.coordination_read_current(p_limit => 100000); assert n <= 50, 'row cap broken';
-  select count(*) into n from public.coordination_read_current(p_limit => -5); assert n <= 1, 'negative limit not clamped';
-  begin perform * from public.coordination_read_current(p_active_only => false); raise exception 'FAIL: unfiltered history';
-  exception when invalid_parameter_value then null; end;
-  begin perform * from public.coordination_read_current(p_scope_terms => array_fill('abcd'::text, array[11])); raise exception 'FAIL: term cap';
-  exception when invalid_parameter_value then null; end;
-  assert not exists (select 1 from information_schema.routine_columns
-    where routine_name='coordination_read_current' and column_name in ('what_we_did','dispatch_context','dispatch_session_url')), 'forbidden column exposed';
-end $$;
+-- 6. missing authorization
+select pg_temp.claims('00000000-0000-0000-0000-0000000000a2'); set role authenticated;
+select pg_temp.expect_denied($q$select public.coordination_read_current()$q$);   -- unflagged (claim says true, DB says no)
+reset role;
+select pg_temp.claims('00000000-0000-0000-0000-0000000000a3'); set role authenticated;
+select pg_temp.expect_denied($q$select public.coordination_read_current()$q$);   -- flag != true
+reset role;
+select pg_temp.claims('00000000-0000-0000-0000-0000000000ff'); set role authenticated;
+select pg_temp.expect_denied($q$select public.coordination_read_current()$q$);   -- unknown user
+reset role;
+select set_config('request.jwt.claims', '{}', false); set role anon;
+select pg_temp.expect_denied($q$select public.coordination_read_current()$q$);   -- anon: no execute / no uid
+reset role;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"service_role"}', false); set role authenticated;
+select pg_temp.expect_denied($q$select public.coordination_read_current()$q$);   -- role claim not authenticated
+reset role;
 
--- 5. No write path: reader role cannot touch the tables or call the dispatcher
-do $$ begin
-  begin insert into public.work_log(topic) values ('x'); raise exception 'FAIL: insert allowed';
-  exception when insufficient_privilege then null; end;
-  begin perform * from public.work_log_current limit 1; raise exception 'FAIL: direct view read allowed';
-  exception when insufficient_privilege then null; end;
-end $$;
+-- 7. IMMEDIATE revocation with an OLD, still-"valid" token (same claims object throughout)
+select pg_temp.claims('00000000-0000-0000-0000-0000000000a4'); set role authenticated;
+do $$ begin assert (public.coordination_read_current()->>'total_matches')::int >= 1, 'a4 should read'; end $$;
+reset role;
+update auth.users set raw_app_meta_data = '{}' where id = '00000000-0000-0000-0000-0000000000a4';       -- flag removed
+set role authenticated; select pg_temp.expect_denied($q$select public.coordination_read_current()$q$); reset role;
+update auth.users set raw_app_meta_data = '{"sod1820_coordination_reader": true}' where id = '00000000-0000-0000-0000-0000000000a4';
+set role authenticated; do $$ begin perform public.coordination_read_current(); end $$; reset role;       -- re-grant restores
+update auth.users set banned_until = now() + interval '1 hour' where id = '00000000-0000-0000-0000-0000000000a4';  -- banned
+set role authenticated; select pg_temp.expect_denied($q$select public.coordination_read_current()$q$); reset role;
+update auth.users set banned_until = now() - interval '1 second' where id = '00000000-0000-0000-0000-0000000000a4'; -- ban expired -> restored
+set role authenticated; do $$ begin perform public.coordination_read_current(); end $$; reset role;
+update auth.users set deleted_at = now() where id = '00000000-0000-0000-0000-0000000000a4';             -- deleted
+set role authenticated; select pg_temp.expect_denied($q$select public.coordination_read_current()$q$); reset role;
 
--- 6. Anonymous (no uid) -> denied
-set local role anon;
-do $$ begin
-  begin perform * from public.coordination_read_current(); raise exception 'FAIL: anon executed';
-  exception when insufficient_privilege then null; end;
-end $$;
-rollback;
+-- 8. the function performs no writes (stable) and left data untouched
+do $$ begin assert (select count(*) from public.work_log_current) = 86, 'row count changed'; end $$;
+select 'SQL_PASS' as result;

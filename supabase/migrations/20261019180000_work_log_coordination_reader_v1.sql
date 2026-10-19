@@ -6,33 +6,26 @@
 --
 -- Identity model (no shared secret, no service_role, no custom DB login):
 --   * The agent signs in through Supabase Auth as a dedicated Auth user (OAuth 2.1 / MCP flow).
---   * An administrator sets app_metadata.sod1820_coordination_reader = true on that user.
---     app_metadata is server-side only: a user cannot edit it. Removing the flag or banning the
---     user revokes access; the access token expires on its own (default 1h).
---   * This function re-checks the flag on every call and FAILS CLOSED (42501) otherwise.
+--   * An administrator sets raw_app_meta_data.sod1820_coordination_reader = true on that user
+--     (server-side only; a user cannot edit it).
+--   * Authorization is read LIVE from auth.users on every call, never from the JWT claim, so
+--     removing the flag, banning or deleting the user revokes access immediately even while an
+--     old access token is still unexpired.
+--   * Anything else fails closed (42501).
+--
+-- Completeness: the function returns ONE jsonb document with total_matches / returned / truncated
+-- so a caller can never mistake a capped page for "no overlap".
 --
 -- NOT APPLIED to production by this file's commit; apply only after explicit ZURIEL approval.
 
 create or replace function public.coordination_read_current(
-  p_task_key    text    default null,
-  p_scope_terms text[]  default null,
-  p_active_only boolean default true,
-  p_limit       integer default 25
+  p_task_key         text    default null,
+  p_scope_terms      text[]  default null,
+  p_active_only      boolean default true,
+  p_limit            integer default 25,
+  p_exclude_task_key text    default null
 )
-returns table (
-  id uuid,
-  created_at timestamptz,
-  task_key text,
-  from_actor text,
-  to_actor text,
-  assignment_mode text,
-  status text,
-  primary_owner text,
-  release_authorization_state text,
-  assignment_scope text,
-  topic text,
-  open_threads text
-)
+returns jsonb
 language plpgsql
 stable
 security definer
@@ -40,9 +33,18 @@ set search_path = pg_catalog, public, pg_temp
 as $$
 declare
   v_terms text[];
+  v_limit integer := greatest(1, least(coalesce(p_limit, 25), 50));
+  v_total bigint;
+  v_rows  jsonb;
 begin
   if auth.uid() is null
-     or coalesce(auth.jwt() -> 'app_metadata' ->> 'sod1820_coordination_reader', '') <> 'true' then
+     or coalesce(auth.role(), '') <> 'authenticated'
+     or not exists (
+          select 1 from auth.users u
+          where u.id = auth.uid()
+            and u.deleted_at is null
+            and (u.banned_until is null or u.banned_until <= now())
+            and coalesce(u.raw_app_meta_data ->> 'sod1820_coordination_reader', '') = 'true') then
     raise exception 'coordination reader not authorized' using errcode = '42501';
   end if;
 
@@ -50,51 +52,63 @@ begin
     if cardinality(p_scope_terms) > 10 then
       raise exception 'too many scope terms (max 10)' using errcode = '22023';
     end if;
-    select array_agg(lower(t)) into v_terms
-    from unnest(p_scope_terms) t
-    where t is not null and length(t) between 3 and 120;
+    if exists (select 1 from unnest(p_scope_terms) t where t is null or length(t) not between 3 and 120) then
+      raise exception 'scope terms must be 3..120 chars' using errcode = '22023';
+    end if;
+    select array_agg(lower(t)) into v_terms from unnest(p_scope_terms) t;
   end if;
 
-  -- Unfiltered history reads are refused: a task key or scope terms are required
-  -- unless the caller asks for the active-writer view only.
   if not coalesce(p_active_only, true) and p_task_key is null and v_terms is null then
     raise exception 'filter required when p_active_only is false' using errcode = '22023';
   end if;
 
-  return query
-  select w.id, w.created_at, w.task_key, w.from_actor, w.to_actor, w.assignment_mode,
-         w.status, w.primary_owner, w.release_authorization_state,
-         left(w.assignment_scope, 800), left(w.topic, 240), left(w.open_threads, 500)
-  from public.work_log_current w
-  where coalesce(w.archived, false) = false
-    and w.superseded_by_id is null
-    and (p_task_key is null or w.task_key = p_task_key)
-    and (not coalesce(p_active_only, true)
-         or w.status ~* '^(BEFORE|EXPLICIT_RELEASE)'
-         or w.status ~* 'ACTIVE_WRITER')
-    and (v_terms is null
-         or exists (
-              select 1 from unnest(v_terms) t
-              where position(t in lower(coalesce(w.assignment_scope, ''))) > 0
-                 or position(t in lower(coalesce(w.task_key, ''))) > 0
-                 or position(t in lower(coalesce(w.topic, ''))) > 0))
-  order by w.created_at desc, w.id
-  limit greatest(1, least(coalesce(p_limit, 25), 50));
+  with m as (
+    select w.*
+    from public.work_log_current w
+    where coalesce(w.archived, false) = false
+      and w.superseded_by_id is null
+      and (p_task_key is null or w.task_key = p_task_key)
+      and (p_exclude_task_key is null or w.task_key is distinct from p_exclude_task_key)
+      and (not coalesce(p_active_only, true)
+           or w.status ~* '^(BEFORE|EXPLICIT_RELEASE)'
+           or w.status ~* 'ACTIVE_WRITER')
+      and (v_terms is null
+           or exists (
+                select 1 from unnest(v_terms) t
+                where position(t in lower(coalesce(w.assignment_scope, ''))) > 0
+                   or position(t in lower(coalesce(w.task_key, ''))) > 0
+                   or position(t in lower(coalesce(w.topic, ''))) > 0)))
+  select (select count(*) from m),
+         coalesce((select jsonb_agg(to_jsonb(r) order by r.created_at desc, r.id)
+                   from (select id, created_at, task_key, from_actor, to_actor, assignment_mode, status,
+                                primary_owner, release_authorization_state,
+                                left(assignment_scope, 800) as assignment_scope,
+                                left(topic, 240) as topic, left(open_threads, 500) as open_threads
+                         from m order by created_at desc, id limit v_limit) r), '[]'::jsonb)
+  into v_total, v_rows;
+
+  return jsonb_build_object(
+    'checked_at',    now(),
+    'total_matches', v_total,
+    'returned',      jsonb_array_length(v_rows),
+    'limit',         v_limit,
+    'truncated',     jsonb_array_length(v_rows) < v_total,
+    'rows',          v_rows);
 end;
 $$;
 
-comment on function public.coordination_read_current(text, text[], boolean, integer) is
-  'Read-only, column-limited, row-capped (<=50) view of public.work_log_current for v17 overlap checks. Requires Auth user with app_metadata.sod1820_coordination_reader=true; fails closed. Excludes what_we_did and all dispatch_* internals. No writes.';
+comment on function public.coordination_read_current(text, text[], boolean, integer, text) is
+  'Read-only, column-limited coordination check over work_log_current for v17. Live-authorizes against auth.users (flag sod1820_coordination_reader), fails closed. Returns jsonb {total_matches, returned, truncated, rows<=50}; truncated=true must be treated as INCOMPLETE. Excludes what_we_did and dispatch_* internals. No writes.';
 
-revoke all on function public.coordination_read_current(text, text[], boolean, integer) from public, anon;
-grant execute on function public.coordination_read_current(text, text[], boolean, integer) to authenticated;
+revoke all on function public.coordination_read_current(text, text[], boolean, integer, text) from public, anon;
+grant execute on function public.coordination_read_current(text, text[], boolean, integer, text) to authenticated;
 
 -- Post-apply ACL self-test: aborts the migration transaction if anon/PUBLIC could execute.
 do $$
 begin
-  if has_function_privilege('anon', 'public.coordination_read_current(text,text[],boolean,integer)', 'execute')
+  if has_function_privilege('anon', 'public.coordination_read_current(text,text[],boolean,integer,text)', 'execute')
      or exists (select 1 from pg_proc p, aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
-                where p.oid = 'public.coordination_read_current(text,text[],boolean,integer)'::regprocedure
+                where p.oid = 'public.coordination_read_current(text,text[],boolean,integer,text)'::regprocedure
                   and a.grantee = 0) then
     raise exception 'ACL leak: anon/PUBLIC can execute coordination_read_current';
   end if;

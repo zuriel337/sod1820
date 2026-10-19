@@ -14,6 +14,7 @@ export const TOOL = {
       scope_terms: { type: "array", maxItems: 10, items: { type: "string", minLength: 3, maxLength: 120 } },
       active_only: { type: "boolean", default: true },
       limit: { type: "integer", minimum: 1, maximum: 50, default: 25 },
+      exclude_task_key: { type: "string", maxLength: 200 },
     },
   },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
@@ -47,20 +48,72 @@ export async function handleMcp(body, token, deps) {
     (a.task_key !== undefined && (typeof a.task_key !== "string" || a.task_key.length > 200)) ||
     (terms !== undefined && (!Array.isArray(terms) || terms.length > 10 || terms.some((t) => typeof t !== "string" || t.length < 3 || t.length > 120))) ||
     (a.active_only !== undefined && typeof a.active_only !== "boolean") ||
-    (a.limit !== undefined && (!Number.isInteger(a.limit) || a.limit < 1 || a.limit > 50))
+    (a.limit !== undefined && (!Number.isInteger(a.limit) || a.limit < 1 || a.limit > 50)) ||
+    (a.exclude_task_key !== undefined && (typeof a.exclude_task_key !== "string" || a.exclude_task_key.length > 200))
   ) return [200, rpcError(id, -32602, "invalid arguments")];
 
-  const { data, error } = await deps.rpc(token, {
-    p_task_key: a.task_key ?? null,
-    p_scope_terms: terms ?? null,
-    p_active_only: a.active_only ?? true,
-    p_limit: a.limit ?? 25,
-  });
+  let res;
+  try {
+    res = await withTimeout(deps.rpc(token, {
+      p_task_key: a.task_key ?? null,
+      p_scope_terms: terms ?? null,
+      p_active_only: a.active_only ?? true,
+      p_limit: a.limit ?? 25,
+      p_exclude_task_key: a.exclude_task_key ?? null,
+    }), deps.timeoutMs ?? 8000);
+  } catch {
+    return failClosed(id, 502, "reader unavailable");
+  }
+  const { data, error } = res ?? {};
   if (error) {
     const denied = error.code === "42501" || /JWT|expired|not authorized/i.test(error.message || "");
-    // Fail closed: never return partial data and never leak the DB message.
-    return [denied ? 403 : 502, ok(id, { isError: true, content: [{ type: "text", text: denied ? "COORDINATION_UNVERIFIED: access denied or token expired" : "COORDINATION_UNVERIFIED: reader unavailable" }] })];
+    return failClosed(id, denied ? 403 : 502, denied ? "access denied or token expired" : "reader unavailable");
   }
-  const rows = Array.isArray(data) ? data : [];
-  return [200, ok(id, { content: [{ type: "text", text: JSON.stringify({ checked_at: new Date().toISOString(), count: rows.length, rows }) }] })];
+  const bad = validatePayload(data, a.limit ?? 25, deps.now?.() ?? Date.now());
+  if (bad) return failClosed(id, 502, "invalid reader response: " + bad);
+
+  // Completeness: a capped page is NEVER reported as "no overlap".
+  if (data.truncated) {
+    return [200, ok(id, { isError: true, content: [{ type: "text", text: JSON.stringify({
+      verdict: "COORDINATION_INCOMPLETE", reason: "result truncated; narrow scope_terms and retry",
+      total_matches: data.total_matches, returned: data.returned }) }] })];
+  }
+  const activeOnly = a.active_only ?? true;
+  const scoped = Array.isArray(terms) && terms.length > 0;
+  const verdict = !activeOnly ? "HISTORY_READ_NO_OVERLAP_CLAIM"
+    : data.total_matches > 0 ? "ACTIVE_WRITER_OVERLAP"
+    : scoped ? "NO_ACTIVE_OVERLAP_FOUND" : "NO_ACTIVE_WRITERS_LISTED";
+  return [200, ok(id, { content: [{ type: "text", text: JSON.stringify({
+    verdict, checked_at: data.checked_at, total_matches: data.total_matches, rows: data.rows }) }] })];
+}
+
+const FORBIDDEN_KEYS = /^(what_we_did|dispatch_.*)$/;
+const ROW_KEYS = ["id", "created_at", "task_key", "status"];
+function validatePayload(d, reqLimit, nowMs) {
+  if (!d || typeof d !== "object" || Array.isArray(d)) return "not an object";
+  if (!Number.isInteger(d.total_matches) || d.total_matches < 0) return "total_matches";
+  if (!Number.isInteger(d.returned) || d.returned < 0) return "returned";
+  if (!Number.isInteger(d.limit) || d.limit < 1 || d.limit > 50) return "limit";
+  if (typeof d.truncated !== "boolean") return "truncated";
+  if (!Array.isArray(d.rows) || d.rows.length !== d.returned || d.rows.length > 50 || d.rows.length > d.limit) return "rows";
+  if (d.limit > Math.max(1, Math.min(reqLimit, 50))) return "limit exceeds request";
+  if (d.truncated !== (d.returned < d.total_matches)) return "truncated inconsistent";
+  if (d.returned > d.total_matches) return "returned > total";
+  const t = Date.parse(d.checked_at);
+  if (!Number.isFinite(t) || Math.abs(nowMs - t) > 60_000) return "stale or missing checked_at";
+  for (const r of d.rows) {
+    if (!r || typeof r !== "object") return "row";
+    for (const k of ROW_KEYS) if (typeof r[k] !== "string") return "row." + k;
+    if (Object.keys(r).some((k) => FORBIDDEN_KEYS.test(k))) return "forbidden column";
+  }
+  return null;
+}
+
+function failClosed(id, status, why) {
+  return [status, ok(id, { isError: true, content: [{ type: "text", text: JSON.stringify({ verdict: "COORDINATION_UNVERIFIED", reason: why }) }] })];
+}
+
+function withTimeout(p, ms) {
+  let t;
+  return Promise.race([Promise.resolve(p), new Promise((_, rej) => { t = setTimeout(() => rej(new Error("timeout")), ms); })]).finally(() => clearTimeout(t));
 }
