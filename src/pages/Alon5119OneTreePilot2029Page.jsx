@@ -31,7 +31,7 @@ export default function Alon5119OneTreePilot2029Page() {
             .select("source_type,source_id,asset_key,video_kind,media_url,poster_url,speaker,series_keys,needs_review")
             .eq("source_type", "post").eq("source_id", "5119").limit(1),
           supabase.from("posts")
-            .select("id,title,slug,tags,home_hidden")
+            .select("id,title,slug,tags,home_hidden,source")
             .in("id", SHAUL_DAVID_REVIEW_IDS).limit(SHAUL_DAVID_REVIEW_IDS.length),
           supabase.from("gematria_words")
             .select("phrase,ragil,is_verified,is_published")
