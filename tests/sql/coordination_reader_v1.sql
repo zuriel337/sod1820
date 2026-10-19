@@ -164,7 +164,10 @@ do $$ begin
   perform pg_temp.expect_denied($q$delete from public.work_log$q$);
   perform pg_temp.expect_denied($q$select * from auth.users$q$);
   perform pg_temp.expect_denied($q$select public.coordination_status_class('BEFORE', null)$q$);
-  assert (select count(*) from public.work_log) = 0, 'RLS must hide the ledger from the reader role';
+  -- RLS policy (admin-only) hides the ledger; in production the policy subquery is even denied (no SELECT on public.users)
+  begin
+    assert (select count(*) from public.work_log) = 0, 'RLS must hide the ledger from the reader role';
+  exception when insufficient_privilege then null; end;
 end $$;
 reset role;
 
