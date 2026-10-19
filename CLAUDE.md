@@ -127,6 +127,7 @@ git rev-list --left-right --count HEAD...origin/main
 At session start and before becoming idle after meaningful work, scan recent **current** `work_log` for assignments addressed to CLAUDE and relevant active scopes.
 
 Before WRITE, rescan for overlapping active writers.
+When the `sod1820-coordination` connector (`coordination_check`, read-only) is available, use it for that rescan; see `docs/coordination-reader-gateway-v1.md`. Unavailable/denied = report `COORDINATION_UNVERIFIED`, no WRITE.
 
 **ONE SCOPE — ONE ACTIVE WRITER.** READ_ONLY challenge/cross-verification may run in parallel.
 
