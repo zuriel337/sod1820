@@ -5,13 +5,14 @@ import "./contextDepthMeter2029.css";
 const methodList = (results) => results.map((r) => `${r.phrase} · ${r.method} ${r.value}`);
 const groupLabel = (ref) => String(ref).replace(/^post:/, "פוסט ");
 const direct = (n) => (n === 1 ? "קשר ישיר אחד" : `${n} קשרים ישירים`);
-const SOURCE_KIND = Object.freeze({ post_body: "גוף הפוסט", tag: "תגית", plan_doc: "מסמך תכנון" });
+const SOURCE_KIND = Object.freeze({ post_body: "גוף הפוסט", tag: "תגית", plan_doc: "מסמך תכנון", post_link: "קישור במאגר" });
 
 function factLine(dim) {
   const f = dim.facts;
   if (dim.key === "calculations") return f.map((x) => <li key={x.value}><b dir="ltr">{x.value}</b> — {methodList(x.results).join(" ; ")}</li>);
   if (dim.key === "links") return [
-    ...f.map((x) => <li key={x.value}><b dir="ltr">{x.value}</b> — {direct(x.direct)}{x.viaTagsOnly ? " (מתגית בלבד)" : ""}{x.media ? ` · ועוד ${x.media} תמונות` : ""}</li>),
+    ...f.map((x) => <li key={x.value}><b dir="ltr">{x.value}</b> — {direct(x.direct)}
+      {x.tagDerived ? ` (מתוכם ${x.tagDerived} מתגית)` : ""}{x.viaTagsOnly ? " · תגית בלבד, אינה מחזקת" : ""}{x.media ? ` · ועוד ${x.media} תמונות` : ""}</li>),
     ...(dim.unread || []).map((v) => <li key={`u${v}`}><b dir="ltr">{v}</b> — {NOT_MEASURED}</li>)];
   if (dim.key === "convergence") return [
     ...f.map((x) => <li key={x.value}><b dir="ltr">{x.value}</b> — {x.cards.length ? `${x.cards.length} כרטיסי התכנסות` : "אין כרטיס התכנסות"}</li>),
@@ -22,15 +23,27 @@ function factLine(dim) {
   return null;
 }
 
+function YearHint({ hint, compact = false }) {
+  const live = hint.state === "active" || hint.state === "candidate";
+  return <span className="sod29-year-hint" data-state={hint.state} data-year-hint={hint.id}>
+    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+      <rect x="3" y="4.5" width="14" height="12" rx="2" /><path d="M3 8.5h14M7 3v3M13 3v3" /></svg>
+    <b>{hint.label}</b>
+    {compact ? null : <small>{hint.valueLabel} · {hint.yearLabel}</small>}
+    {!compact && !live ? <small>הרמז, המקור והחישוב נשמרים; הסימון אינו מוצג כעכשווי.</small> : null}
+  </span>;
+}
+
 /** Three distinct layers for one expression: where it is written, whether the engine reproduced it, how it is framed. */
-function ExpressionLayers({ expr }) {
+function ExpressionLayers({ expr, onOpenLocator, value }) {
   const c = expr.calculation;
   return <article className="sod29-depth-expr" data-expression={expr.phrase}>
     <h5 dir="auto">״{expr.phrase}״</h5>
     <ol className="sod29-depth-layers">
       <li data-layer="source">
         <b>1 · מקור הביטוי</b>
-        <ul>{expr.source.items.map((s, i) => <li key={i}><em>{SOURCE_KIND[s.kind] || s.kind}</em> · {s.locator ? `${s.locator}: ` : ""}<q dir="auto">{s.quote}</q></li>)}</ul>
+        <ul>{expr.source.items.map((s, i) => <li key={i}><em>{SOURCE_KIND[s.kind] || s.kind}</em> · {s.locator ? `${s.locator}: ` : ""}<q dir="auto">{s.quote}</q>
+          {s.locatorId && s.href && onOpenLocator ? <> <button type="button" className="sod29-depth-open" data-open-locator={s.locatorId} onClick={() => onOpenLocator(s, value)}>פתח במקור</button></> : null}</li>)}</ul>
         <small>{expr.source.groups.length ? `קבוצות מקור: ${expr.source.groups.length} (${expr.source.groups.map(groupLabel).join(", ")}). תגית וגוף הפוסט נספרים כקבוצה אחת.` : "לא זוהה מקור."}</small>
       </li>
       <li data-layer="calculation">
@@ -38,7 +51,7 @@ function ExpressionLayers({ expr }) {
         {c ? <>
           <p>{flagLabel(c.reproducesClaim, "המנוע הקנוני שחזר את הערך הנטען", "המנוע לא שחזר את הערך הנטען")}: <b dir="ltr">{measured(c.value)}</b> · {c.method}</p>
           <small>רשומת מאגר: {flagLabel(c.rowVerified, "מאומתת", "לא מאומתת")} · {flagLabel(c.rowPublished, "מפורסמת", "לא מפורסמת")}</small>
-        </> : <p>{NOT_MEASURED}</p>}
+        </> : <p>{expr.withheld ? "אין אימות חישוב להצגה." : NOT_MEASURED}</p>}
       </li>
       <li data-layer="interpretation">
         <b>3 · הקשר פרשני</b>
@@ -48,27 +61,43 @@ function ExpressionLayers({ expr }) {
   </article>;
 }
 
+function Paths({ paths, onOpenLocator }) {
+  return paths.map((path) => <section key={path.id} className="sod29-depth-path" aria-label={`מסלול ${path.label}`} data-path={path.id}>
+    <b>מסלול · {path.label}</b>
+    <ol>{path.stations.map((st, i) => <li key={i} data-pending={st.pending || undefined} data-basis={st.basis}>
+      <span>{st.label}</span> <em>{st.basisLabel}</em>
+      {st.locatorId && st.href && onOpenLocator ? <> <button type="button" className="sod29-depth-open" data-open-locator={st.locatorId} onClick={() => onOpenLocator(st, null)}>פתח במקור</button></> : null}
+    </li>)}</ol>
+    <small>תחנה בתגית היא רקע ואינה מחזקת. תחנה שממתינה לחיבור נשארת מחוץ למסלול הציבורי עד בחירה עריכתית.</small>
+  </section>);
+}
+
 /**
  * One display component, two instances. `compact` is a button with six dimension strips that shows coverage
  * only, from an already-derived `depth` (never computed here, never a score); `full` labels and explains every
  * dimension separately. Without derived data it renders nothing, so a list card never triggers a read or
  * invents a state.
  */
-export default function ContextDepthMeter2029({ depth, variant = "full", expanded = false, onToggle, panelId = null, selectedValue = null, onSelectValue, children }) {
+export default function ContextDepthMeter2029({ depth, variant = "full", expanded = false, onToggle, panelId = null, selectedValue = null, onSelectValue, onOpenLocator, children }) {
   const autoId = useId();
   const id = panelId || autoId;
   if (!depth) return null;
   const summary = depth.dimensions.map((d) => `${d.label}: ${d.coverageLabel}`).join(", ");
+  const shownHints = depth.yearHints.filter((h) => h.state === "active" || h.state === "candidate");
   if (variant === "compact") {
-    return <button type="button" className="sod29-depth-compact" aria-expanded={expanded} aria-controls={id}
-      aria-label={`עומק ההקשר. ${summary}`} onClick={onToggle} data-context-depth-compact>
-      <span className="sod29-depth-compact-title">עומק</span>
-      <span className="sod29-depth-pips" aria-hidden="true">
-        {depth.dimensions.map((d) => <i key={d.key} data-coverage={d.coverage} title={`${d.label}: ${d.coverageLabel}`} />)}
-      </span>
-    </button>;
+    return <span className="sod29-depth-compact-wrap">
+      <button type="button" className="sod29-depth-compact" aria-expanded={expanded} aria-controls={id}
+        aria-label={`עומק ההקשר. ${summary}`} onClick={onToggle} data-context-depth-compact>
+        <span className="sod29-depth-compact-title">עומק</span>
+        <span className="sod29-depth-pips" aria-hidden="true">
+          {depth.dimensions.map((d) => <i key={d.key} data-coverage={d.coverage} title={`${d.label}: ${d.coverageLabel}`} />)}
+        </span>
+      </button>
+      {shownHints.map((h) => <YearHint key={h.id} hint={h} compact />)}
+    </span>;
   }
   const active = depth.numbers.find((n) => n.value === selectedValue) || null;
+  const hintsOf = (value) => depth.yearHints.filter((h) => h.value === value);
   return <section className="sod29-depth" id={panelId ? undefined : `${id}-panel`} aria-label="עומק ההקשר" data-context-depth-full data-audience={depth.audience}>
     <header>
       <small>עומק ההקשר · ללא ציון</small>
@@ -87,14 +116,16 @@ export default function ContextDepthMeter2029({ depth, variant = "full", expande
       {depth.dependencies.map((d) => `״${d.phrase}״ מופיע ב־${d.hits.map((h) => `${h.value} (${h.method})`).join(" וב־")}`).join("; ")}.
       אלה שיטות שונות על אותו ביטוי, כלומר משפחת חישוב אחת תלויה ולא שני עדים עצמאיים.
     </p> : null}
+    {depth.paths.length ? <Paths paths={depth.paths} onOpenLocator={onOpenLocator} /> : null}
     <nav className="sod29-depth-numbers" aria-label="המספרים בפוסט">
       {depth.numbers.map((n) => <button key={n.value} type="button" aria-pressed={n.value === selectedValue} onClick={() => onSelectValue?.(n.value === selectedValue ? null : n.value)}>
         <b dir="ltr">{n.value}</b><small>{n.source?.kind || ""}</small></button>)}
     </nav>
     {active ? <div className="sod29-depth-number" data-number={active.value}>
       <h4 dir="ltr">{active.value}</h4>
+      {hintsOf(active.value).map((h) => <YearHint key={h.id} hint={h} />)}
       {active.source ? <p>{active.source.note}</p> : null}
-      {active.expressions.length ? active.expressions.map((e) => <ExpressionLayers key={e.phrase} expr={e} />)
+      {active.expressions.length ? active.expressions.map((e) => <ExpressionLayers key={e.phrase} expr={e} onOpenLocator={onOpenLocator} value={active.value} />)
         : <p>{active.verified.length ? `חישוב מאומת: ${methodList(active.verified).join(" ; ")}` : "אין חישוב מאומת הקשור לפוסט."}</p>}
       {active.openQuestions.map((q) => <p key={q.text} className="sod29-depth-dependency" role="note">שאלה פתוחה: {q.text}</p>)}
       <p>{active.meterRead ? `שכבות התכנסות פעילות במאגר: ${active.layers.filter((l) => l.ok).map((l) => l.name).join(" · ") || "אין"}. אלה התכנסויות של מילים אחרות לאותו מספר ואינן מהפוסט.` : `שכבות ההתכנסות: ${NOT_MEASURED}`}</p>

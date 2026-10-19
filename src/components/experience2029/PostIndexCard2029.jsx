@@ -25,19 +25,20 @@ const isGoldenPost = (post) => Array.isArray(post?.tags)
  * the card link and a click opens the full explanation in place. `mapReaders` are the existing owners'
  * readers, used only after the reader picks a number.
  */
-export default function PostIndexCard({ post, index, depth = null, mapReaders = null, onMapOpen = null }) {
+export default function PostIndexCard({ post, index, depth = null, mapReaders = null, onMapOpen = null, onLocatorOpen = null, restore = null }) {
   const title = humanContentTitle(post?.title, { max: 92 });
   const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
   const numbers = numericSignals(post?.tags);
   const image = post?.thumb_url || post?.image_url || null;
   const categories = (Array.isArray(post?.categories) ? post.categories : []).slice(0, 3);
   const golden = isGoldenPost(post);
-  const [open, setOpen] = useState(false);
-  const [picked, setPicked] = useState(null);
+  // Exact return: a card the reader left from (source region or map neighbour) reopens with the same number.
+  const [open, setOpen] = useState(Boolean(restore));
+  const [picked, setPicked] = useState(restore?.number ?? null);
   const panelId = useId();
 
   return <article
-    className={"sod29-post-index-card" + (golden ? " is-golden" : "") + (depth ? " has-depth" : "") + (depth && open ? " is-depth-open" : "")}
+    className={"sod29-post-index-card" + (golden ? " is-golden" : "") + (depth || /תיעוד אירועים/.test((post?.categories || []).join(" ")) ? " has-depth" : "") + (depth && open ? " is-depth-open" : "")}
     id={post?.id != null ? `post-card-${post.id}` : undefined}
     data-experience-capability="post-index-card"
     data-post-golden={golden ? "true" : "false"}
@@ -69,11 +70,14 @@ export default function PostIndexCard({ post, index, depth = null, mapReaders = 
         <span className="sod29-post-index-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
       </div>
     </Link>
+    {!depth && /תיעוד אירועים/.test((post?.categories || []).join(" ")) ? <div className="sod29-post-index-depth">
+      <span className="sod29-depth-unmapped" data-context-depth-unmapped>עומק · טרם מופה</span>
+    </div> : null}
     {depth ? <div className="sod29-post-index-depth">
       <ContextDepthMeter2029 depth={depth} variant="compact" expanded={open} onToggle={() => setOpen((value) => !value)} panelId={panelId} />
     </div> : null}
     {depth && open ? <div className="sod29-post-index-depth-panel" id={panelId}>
-      <ContextDepthMeter2029 depth={depth} variant="full" selectedValue={picked} onSelectValue={setPicked}>
+      <ContextDepthMeter2029 depth={depth} variant="full" selectedValue={picked} onSelectValue={setPicked} onOpenLocator={(source, number) => onLocatorOpen?.(post, source, number ?? picked)}>
         {picked != null && mapReaders ? <Suspense fallback={<p role="status">פותח את מפת ההקשר…</p>}>
           <ContextMapPanel2029 key={picked} defaultOpen focus={{ type: "number", id: String(picked), label: String(picked) }}
             audience={depth.audience} readers={mapReaders} onOpen={(item) => onMapOpen?.(post, item)} />

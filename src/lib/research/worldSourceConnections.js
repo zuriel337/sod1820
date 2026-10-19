@@ -7,7 +7,7 @@ import { applyMomentClockLaw } from './momentClockSystemMethod.js';
 import { supabase } from '../supabase.js';
 import { fetchGematriaMethodTrace } from './gematriaTrace.js';
 import { numberExpressionFocusHref } from './numberExpressionFocus.js';
-import { INDIA_CAPTAIN_SOURCE, buildPublicPostImageContext } from './topicSourceContext.js';
+import { INDIA_CAPTAIN_SOURCE, buildPublicPostImageContext, htmlBlocks, locatePostBlock, sourceLocatorHash } from './topicSourceContext.js';
 
 export const WORLD_SOURCE_DIRECTIONS = Object.freeze([
   { id: 'october', label: 'הקשר ל־7 באוקטובר', why: 'שני נוסחי תאריך בפוסט, אותו ערך, ומעבר מפורש לשביעי באוקטובר.' },
@@ -185,6 +185,25 @@ export function witnessSource(spec, { gallery, india, post, topic } = {}) {
   if (!post || !Array.isArray(post.tags) || post.tags.some((tag) => ['טיוטה', 'פורום'].includes(tag))
     || ['gpt-draft', 'web'].includes(post.source) || post.home_hidden === true) return null;
   if (spec.postId && post.id !== spec.postId) return null;
+  // Reviewed region without any marker: the adjacent block of paragraphs that carries the authored guards.
+  if (spec.postBlock) {
+    const found = locatePostBlock(post.content, { ...spec.postBlock, guards: spec.guards });
+    if (!found) return null;
+    return { text: found.text, sourceRef: `posts:${post.id}#block:${spec.id}`, href: `/post/${encodeURIComponent(post.slug)}${sourceLocatorHash(spec.id)}`,
+      topicHref: null, topicSlug: null, postTitle: post.title, author: post.author, block: { count: found.count },
+      routePrecision: 'post_region_resolved_in_rendered_html' };
+  }
+  // Image-only locator: no marker, paragraph or heading is required; the guard text must sit next to this image.
+  if (spec.postImageUrl && !spec.postMarker && !spec.postParagraph && !spec.postHeading) {
+    const item = buildPublicPostImageContext(post, { postId: spec.postId, imageUrl: spec.postImageUrl, attachmentId: spec.attachmentId,
+      near: spec.imageNear, guards: spec.guards, label: spec.title, regionId: spec.id });
+    if (!item) return null;
+    const blocks = htmlBlocks(post.content);
+    const adj = item.postPlacement.adjacency;
+    const text = adj ? blocks.slice(Math.min(...adj.guardBlocks, adj.imageBlock), Math.max(...adj.guardBlocks, adj.imageBlock) + 1).map((b) => b.text).filter(Boolean).join(' ') : '';
+    return { item, text, sourceRef: item.sourceRef, href: item.reopen.postHref, postTitle: post.title, author: post.author,
+      topicHref: null, topicSlug: null, routePrecision: item.reopen.postRoutePrecision };
+  }
   let text;
   if (spec.postParagraph || spec.postHeading) {
     text = (String(post.content || '').match(spec.postHeading ? /<h[1-6]\b[^>]*>[\s\S]*?<\/h[1-6]>/gi : /<p\b[^>]*>[\s\S]*?<\/p>/gi) || []).map(compact)
@@ -249,6 +268,28 @@ export async function projectWorldSourceWitness(spec, source, { traceReader = fe
 export function isPublicWorldMethod(row) {
   return row?.active === true && row.in_engine === true && row.required_entitlement === 'public' && row.version != null;
 }
+
+// Reviewed Post regions that are located by authored text (no marker, no content edit). They are NOT World directions,
+// so the World reading is unchanged; the Post reader, the depth meter and tests resolve them by `id`.
+// `yearHint` is evaluated against the live Hebrew year by the existing time context (timeFlow); `editorialSelection`
+// stays null until the editor explicitly selects the connection, and a pending hint is never shown to the public.
+export const REVIEWED_POST_LOCATORS = Object.freeze([
+  { id: 'plane-787-year-joy', postId: 5112, relationKind: 'author_comparison',
+    title: '787 · תשפ״ז, שמחת החג וההודיה',
+    postBlock: { startGuard: 'רמזי תשפ״ז · שמחה והודיה', endGuard: 'לחזור מתוך הודיה', maxBlocks: 8 },
+    guards: ['תשפ״ז = 787', 'ושמחת בחגך = 787', 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה = 787'],
+    yearHint: { hebrewYear: 5787, value: 787, expression: 'תשפז', link: 'explicit_documented', editorialSelection: null } },
+  { id: 'kotel-233-date-image', postId: 233, relationKind: 'author_comparison', attachmentId: 30691,
+    title: 'כב בתשרי תשפד · התמונה והטקסט 1202 מסתתר',
+    postImageUrl: 'https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/10/90ccb82734b67b81.jpg',
+    imageNear: { guards: ['1202 מסתתר'], radius: 2 }, guards: ['1202 מסתתר'] },
+]);
+export const postLocatorSpec = (id) => REVIEWED_POST_LOCATORS.find((spec) => spec.id === id) || null;
+// Rendered-DOM form of a reviewed spec (same guards the HTML locator uses).
+export const renderedLocatorOf = (spec) => spec.postBlock
+  ? { kind: 'block', ...spec.postBlock, guards: spec.guards }
+  : { kind: 'image', imageUrl: spec.postImageUrl, near: spec.imageNear };
+
 export async function fetchWorldSourceConnections(direction, { india, postId = INDIA_CAPTAIN_SOURCE.postId } = {}) {
   const specs = REVIEWED_SOURCE_WITNESSES.filter((spec) => spec.direction === direction);
   if (!specs.length) return [];

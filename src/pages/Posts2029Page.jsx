@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { contextMapReaders } from "../lib/research/contextMapReaders2029.js";
+import { cardReturnTo, cardRestoreFor } from "../lib/research/journeySourceReturn.js";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
@@ -41,15 +42,24 @@ export default function Posts2029Page() {
   }, [page]);
 
   // Exact return: leaving a card's context map writes this list position as returnTo in the existing Context.
-  const openFromContextMap = (post, item) => {
-    if (!item?.href) return;
-    const origin = `${window.location.pathname}${window.location.search}#post-card-${post.id}`;
+  const leaveCard = (post, target, number) => {
     research.updateResearchContext?.({
-      subject: { id: item.id, type: item.type, label: item.label, href: item.href },
-      returnTo: { href: origin, label: post.title, subject: { id: String(post.id), type: "post", label: post.title, href: origin } },
+      subject: { id: target.id ?? String(post.id), type: target.type ?? "post", label: target.label, href: target.href },
+      returnTo: cardReturnTo({ post, number, listHref: `${window.location.pathname}${window.location.search}` }),
     });
-    navigate(item.href);
+    navigate(target.href);
   };
+  const openFromContextMap = (post, item) => { if (item?.href) leaveCard(post, item, item.type === "number" ? Number(item.label) : null); };
+  // A reviewed source region (the 787 block, image 30691): the target opens the post and lands on the region.
+  const openSourceRegion = (post, source, number) => { if (source?.href) leaveCard(post, { id: source.locatorId, type: "source", label: source.quote || source.label, href: source.href }, number); };
+  // Returning to a card lands on it (hash from the exact-return snapshot).
+  useEffect(() => {
+    const id = window.location.hash.match(/^#(post-card-\d+)$/)?.[1];
+    if (!id || state.loading) return;
+    const card = document.getElementById(id);
+    card?.scrollIntoView?.({ block: "center", behavior: "instant" });
+    card?.querySelector?.("a,button")?.focus?.({ preventScroll: true });
+  }, [state.posts, state.loading]);
   const pages = Math.max(1, Math.ceil(state.total / 24));
   const posts = state.page === page ? state.posts : [];
   const loading = state.loading || state.page !== page;
@@ -99,7 +109,7 @@ export default function Posts2029Page() {
           <small>עמוד {page} מתוך {pages} · לפי עדכון הפוסט</small>
         </div>
         <div className="sod29-posts-index-grid">
-          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} mapReaders={contextMapReaders} onMapOpen={openFromContextMap} />)}
+          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} mapReaders={contextMapReaders} onMapOpen={openFromContextMap} onLocatorOpen={openSourceRegion} restore={cardRestoreFor(research.context, post.id)} />)}
         </div>
       </section> : null}
       {!loading && !error && posts.length ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">

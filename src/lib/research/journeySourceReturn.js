@@ -66,3 +66,23 @@ export async function resolveJourneySourceReturn(context, readSourceContext) {
     return { ok: true, href: item.reopen.topicHref, source };
   } catch { return { ok: false, error: "source_unavailable" }; }
 }
+
+// ── Exact return to a post index card and its open context-depth map (existing Research Context only) ──────────
+// Leaving a card (to a reviewed source region or a map neighbour) records where it was: the card anchor and, when a
+// number was open, that number. `buildExactReturnPatch` restores `selection` on return and the card reopens from it.
+export const cardDepthSourceRef = (postId) => `posts:${postId}#depth-card`;
+export function cardReturnTo({ post, number = null, listHref }) {
+  const origin = `${String(listHref || "/posts").split("#")[0]}#post-card-${post.id}`;
+  return {
+    href: origin, label: post.title,
+    subject: { id: String(post.id), type: "post", label: post.title, href: origin },
+    selection: { entityId: number != null ? String(number) : String(post.id), entityType: number != null ? "number" : "post",
+      sourceRef: cardDepthSourceRef(post.id), locator: `#post-card-${post.id}` },
+  };
+}
+export function cardRestoreFor(context, postId) {
+  const selection = normalizeResearchContext(context)?.selection;
+  if (!selection || selection.sourceRef !== cardDepthSourceRef(postId) || selection.locator !== `#post-card-${postId}`) return null;
+  const number = selection.entityType === "number" ? Number(selection.entityId) : null;
+  return { number: Number.isSafeInteger(number) ? number : null };
+}

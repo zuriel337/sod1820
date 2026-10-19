@@ -134,6 +134,116 @@ export function topicSourceLinks(context, relatedTopics = []) {
   return { topics, posts };
 }
 
+// ── Reviewed HTML region locators (no content edit, no marker, no new store) ──────────────────────────
+// A reviewed region is found by the AUTHORED text it contains, never by an anchor written into the post.
+// Both locators are pure over the post's HTML string, and `resolveRenderedLocator` applies the same rule to the
+// rendered DOM so the Post reader can land on the region without touching source content.
+const BLOCK_TAGS = /<(p|h[1-6]|blockquote|figure|li)\b[^>]*>[\s\S]*?<\/\1>/gi;
+const STOP_BETWEEN = /<(section|figure|video|iframe|img|table|ul|ol|h[1-6]|blockquote)\b/i;
+const plain = (html) => String(html || "").replace(/<[^>]*>/g, " ").replace(/&quot;/g, '"').replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+// Quote marks differ between data-gem (&quot;) and display (״); compare without them.
+export const guardKey = (value) => plain(value).replace(/["״“”'׳]/g, "");
+
+export function htmlBlocks(html) {
+  const text = String(html || "");
+  const blocks = [];
+  for (const match of text.matchAll(BLOCK_TAGS)) {
+    blocks.push({ tag: match[1].toLowerCase(), start: match.index, end: match.index + match[0].length, html: match[0], text: plain(match[0]),
+      images: [...match[0].matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi)].map((m) => m[1]) });
+  }
+  return blocks;
+}
+
+/** A run of ADJACENT paragraphs from the block holding `startGuard` to the block holding `endGuard`. */
+export function locatePostBlock(html, { startGuard, endGuard, guards = [], maxBlocks = 8 } = {}) {
+  const source = String(html || "");
+  const blocks = htmlBlocks(source);
+  const first = blocks.findIndex((b) => guardKey(b.text).includes(guardKey(startGuard)));
+  if (first < 0) return null;
+  const last = blocks.findIndex((b, i) => i >= first && guardKey(b.text).includes(guardKey(endGuard)));
+  if (last < 0 || last - first + 1 > maxBlocks) return null;
+  const run = blocks.slice(first, last + 1);
+  // A reviewed run is plain paragraphs only: a figure, quote or heading inside it means the region is not what was reviewed.
+  if (run.some((b) => b.tag !== "p")) return null;
+  // Adjacent means nothing structural (section, figure, media, heading…) sits between two blocks of the run.
+  for (let i = 1; i < run.length; i++) if (STOP_BETWEEN.test(source.slice(run[i - 1].end, run[i].start))) return null;
+  const text = run.map((b) => b.text).join(" ");
+  if (!guards.every((g) => guardKey(text).includes(guardKey(g)))) return null;
+  return { text, count: run.length, firstBlock: first, lastBlock: last, start: run[0].start, end: run.at(-1).end };
+}
+
+/** The exact image, with its guard text within `radius` blocks before or one block after it (not merely anywhere in the post). */
+export function locateImageNearGuards(html, { imageUrl, guards = [], radius = 2 } = {}) {
+  const blocks = htmlBlocks(html);
+  const at = blocks.findIndex((b) => b.images.includes(imageUrl));
+  if (at < 0) return null;
+  const from = Math.max(0, at - radius), to = Math.min(blocks.length - 1, at + 1);
+  const window = blocks.slice(from, to + 1);
+  const found = guards.map((g) => window.findIndex((b) => guardKey(b.text).includes(guardKey(g))));
+  if (found.some((i) => i < 0)) return null;
+  return { imageBlock: at, guardBlocks: found.map((i) => from + i), distance: Math.max(...found.map((i) => Math.abs(from + i - at))) };
+}
+
+const LOCATOR_HASH = /^#source-locator-([a-z0-9-]+)$/;
+export const sourceLocatorHash = (id) => `#source-locator-${id}`;
+export function locatorIdFromHash(hash = "") {
+  let value = "";
+  try { value = decodeURIComponent(String(hash || "")); } catch { return null; }
+  return value.match(LOCATOR_HASH)?.[1] || null;
+}
+
+/** Same rule over a rendered root (display only): returns the element to land on, or null when the region is not there. */
+export function resolveRenderedLocator(root, locator) {
+  if (!root?.querySelectorAll || !locator) return null;
+  const nodes = [...root.querySelectorAll("p,h1,h2,h3,h4,h5,h6,blockquote,figure,li")]
+    .filter((node) => !node.parentElement?.closest?.("p,h1,h2,h3,h4,h5,h6,blockquote,figure,li"));
+  const key = (node) => guardKey(node.textContent);
+  if (locator.kind === "block") {
+    const first = nodes.findIndex((n) => key(n).includes(guardKey(locator.startGuard)));
+    const last = nodes.findIndex((n, i) => i >= first && first >= 0 && key(n).includes(guardKey(locator.endGuard)));
+    if (first < 0 || last < 0 || last - first + 1 > (locator.maxBlocks || 8)) return null;
+    const run = nodes.slice(first, last + 1);
+    if (run.some((n) => String(n.tagName || n.tag || "").toLowerCase() !== "p")) return null;
+    const text = run.map(key).join(" ");
+    return (locator.guards || []).every((g) => text.includes(guardKey(g))) ? { element: nodes[first], elements: nodes.slice(first, last + 1) } : null;
+  }
+  if (locator.kind === "image") {
+    const at = nodes.findIndex((n) => [...n.querySelectorAll("img")].some((img) => img.getAttribute("src") === locator.imageUrl));
+    if (at < 0) return null;
+    const radius = locator.near?.radius ?? 2, from = Math.max(0, at - radius), to = Math.min(nodes.length - 1, at + 1);
+    const text = nodes.slice(from, to + 1).map(key).join(" ");
+    if (!(locator.near?.guards || []).every((g) => text.includes(guardKey(g)))) return null;
+    return { element: nodes[at].querySelector("img") || nodes[at], elements: [nodes[at]] };
+  }
+  return null;
+}
+
+/**
+ * Land on a reviewed region of a RENDERED post: scroll, focus, display-only emphasis, re-aligned while the layout
+ * settles and released on the first reader gesture. Returns { found, release }. Source content is never touched.
+ */
+export function landOnRenderedLocator(root, locator, { reveal = () => {}, win = typeof window === "undefined" ? null : window } = {}) {
+  const found = resolveRenderedLocator(root, locator);
+  if (!found || !win) return { found: null, release: () => {} };
+  let released = false, frame = null;
+  const land = () => { if (released) return; reveal(found.element); found.element.scrollIntoView?.({ behavior: "instant", block: "center" }); };
+  land();
+  found.element.setAttribute?.("tabindex", "-1");
+  found.element.focus?.({ preventScroll: true });
+  found.elements.forEach((node) => node.classList?.add("sod29-source-locator-active"));
+  const observer = typeof win.ResizeObserver === "undefined" ? null : new win.ResizeObserver(() => { if (frame != null) win.cancelAnimationFrame(frame); frame = win.requestAnimationFrame(land); });
+  observer?.observe(root);
+  const names = ["wheel", "touchstart", "pointerdown", "keydown"];
+  const stop = () => { released = true; observer?.disconnect(); };
+  for (const name of names) win.addEventListener(name, stop, { passive: true, once: true });
+  const release = () => {
+    stop(); if (frame != null) win.cancelAnimationFrame(frame);
+    for (const name of names) win.removeEventListener(name, stop);
+    found.elements.forEach((node) => node.classList?.remove("sod29-source-locator-active"));
+  };
+  return { found, release };
+}
+
 // Reviewed HTML image locator over a freshly admitted public Post. It remains a Post
 // occurrence (no invented gallery row, membership or source date). Reuses the same exact
 // storage-object identity and media envelope consumed by Gallery/Topic/Lightbox.
@@ -143,9 +253,13 @@ export function buildPublicPostImageContext(post, locator) {
     || ["gpt-draft", "web"].includes(post.source) || post.home_hidden === true) return null;
   const html = String(post.content || "");
   const images = html.match(/<img\b[^>]*>/gi) || [];
-  const image = images.find((tag) => tag.match(/\bsrc=["']([^"']+)["']/i)?.[1] === locator.imageUrl);
+  const image = images.find((tag) => tag.match(/\bsrc=["']([^"']+)["']/i)?.[1] === locator.imageUrl
+    // An authored media id, when the reviewer supplies it, must sit on the very same <img> as the URL.
+    && (!locator.attachmentId || tag.includes(`data-attachment-id="${locator.attachmentId}"`)));
   const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-  if (!image || !(locator.guards || []).every((quote) => text.includes(quote))) return null;
+  // `near` demands the guard text next to THIS image; without it the older whole-post guard rule applies unchanged.
+  const near = locator.near ? locateImageNearGuards(html, { imageUrl: locator.imageUrl, guards: locator.near.guards, radius: locator.near.radius }) : null;
+  if (!image || (locator.near ? !near : !(locator.guards || []).every((quote) => text.includes(quote)))) return null;
   const mediaId = `media:post:${post.id}:image:${locator.imageUrl}`;
   const sourceRef = `posts:${post.id}#image:${locator.imageUrl}`;
   const figure = (html.match(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi) || []).find((part) => part.includes(image));
@@ -163,11 +277,12 @@ export function buildPublicPostImageContext(post, locator) {
       originalAlt: image.match(/\balt=["']([^"']*)["']/i)?.[1] ?? null,
       originalCredit: { author: post.author ?? null, authors: post.authors ?? null },
       publishedAt: post.date || null, dateBasis: "posts.date_publication_not_event_date",
-      regionId: null, imageUrl: locator.imageUrl },
+      regionId: locator.regionId || null, imageUrl: locator.imageUrl, adjacency: near },
   }], { bySourceObject: true })[0];
   const routed = attachReopen(item, { slug: "" });
   return { ...routed, reopen: { ...routed.reopen, topicHref: null,
-    postHref: `/post/${encodeURIComponent(post.slug)}`, postRoutePrecision: "post_only_exact_image_in_source_html" } };
+    postHref: `/post/${encodeURIComponent(post.slug)}${locator.regionId ? sourceLocatorHash(locator.regionId) : ""}`,
+    postRoutePrecision: locator.regionId ? "post_region_resolved_in_rendered_html" : "post_only_exact_image_in_source_html" } };
 }
 
 function attachReopen(item, topic) {

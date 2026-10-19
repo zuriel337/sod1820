@@ -264,6 +264,27 @@ function PostReadingBody() {
   }, [state.projection, location.hash]);
 
   useEffect(() => {
+    // A reviewed region named by #source-locator-<id> (a source opened from a card/map): the region is found by its
+    // authored text in the rendered HTML and landed on without editing the post. Unknown ids, other posts and
+    // regions that no longer match simply leave the page where it is.
+    const post = state.projection?.post;
+    const root = sourceRef.current;
+    if (!post || !root || !/^#source-locator-/.test(location.hash)) return undefined;
+    let alive = true;
+    let cleanup = () => {};
+    (async () => {
+      const [{ postLocatorSpec, renderedLocatorOf }, { locatorIdFromHash, landOnRenderedLocator }] = await Promise.all([
+        import("../lib/research/worldSourceConnections.js"), import("../lib/research/topicSourceContext.js")]);
+      const spec = postLocatorSpec(locatorIdFromHash(location.hash));
+      if (!alive || !spec || Number(spec.postId) !== Number(post.id)) return;
+      const landed = landOnRenderedLocator(root, renderedLocatorOf(spec), { reveal: revealReadingAnchor });
+      cleanup = landed.release;
+      if (!alive) cleanup();
+    })();
+    return () => { alive = false; cleanup(); };
+  }, [state.projection, location.hash]);
+
+  useEffect(() => {
     // The hero owns the page h1. An authored h1 inside the source stays in the
     // DOM and text is untouched; it is exposed as a level-2 heading, and when it
     // only repeats the hero title it is visually collapsed (still readable by AT).

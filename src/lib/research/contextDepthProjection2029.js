@@ -44,6 +44,8 @@ export function sourceGroups(sources = []) {
   return [...groups];
 }
 
+// Edges that are not derived from post tags (unknown tag count is treated as all-tag: never inflate coverage).
+const nonTag = (r) => (r.direct == null ? 0 : Math.max(0, r.direct - (r.tagDerived ?? r.direct)));
 const coverageOf = (have, total) => (total === 0 || have === 0 ? COVERAGE.NONE : have >= total ? COVERAGE.FULL : COVERAGE.PARTIAL);
 
 /**
@@ -67,13 +69,17 @@ export function convergenceMeterFacts(raw) {
  *   calculation    — did the canonical engine reproduce the claimed value; row flags kept separate
  *   interpretation — the framing around it, with who attested it
  */
-export function buildExpressionLayers(expr) {
+export function buildExpressionLayers(expr, { audience = "public" } = {}) {
   const sources = Array.isArray(expr?.sources) ? expr.sources : [];
   const calc = expr?.calculation || null;
+  // Engine reproduction is not publication: for the public, a calculation whose database row is not published is
+  // neither shown nor counted. The phrase stays visible only as the post itself shows it (source layer).
+  const withheld = audience !== "admin" && Boolean(calc) && calc.rowPublished !== true;
   return {
     phrase: expr?.phrase ?? null,
+    withheld,
     source: { items: sources, groups: sourceGroups(sources) },
-    calculation: calc && {
+    calculation: withheld ? null : calc && {
       method: calc.method ?? null, value: Number.isFinite(calc.value) ? calc.value : null,
       claimedValue: Number.isFinite(calc.claimedValue) ? calc.claimedValue : null,
       reproducesClaim: calc.reproducesClaim === true ? true : calc.reproducesClaim === false ? false : null,
@@ -91,10 +97,10 @@ export function buildExpressionLayers(expr) {
  *   convergence:ReturnType<typeof convergenceMeterFacts>|null}>} input.numbers
  * @param {"public"|"admin"} [input.audience]
  */
-export function buildContextDepth({ subject, numbers = [], audience = "public" } = {}) {
+export function buildContextDepth({ subject, numbers = [], audience = "public", temporal = null, yearHints = [], paths = [] } = {}) {
   if (!subject?.id || !numbers.length) return null;
   const rows = numbers.map((n) => {
-    const expressions = (n.expressions || []).map(buildExpressionLayers);
+    const expressions = (n.expressions || []).map((e) => buildExpressionLayers(e, { audience }));
     // Engine parity on an authored expression counts as a verified calculation; the row flags stay separate facts.
     const verified = (n.calculations || []).filter((c) => c.verified === true);
     for (const e of expressions) {
@@ -106,8 +112,8 @@ export function buildContextDepth({ subject, numbers = [], audience = "public" }
     return {
       value: n.value, source: n.source || null,
       verified, expressions,
-      direct: Number.isFinite(n.graph?.direct) ? n.graph.direct : null, media: Number.isFinite(n.graph?.media) ? n.graph.media : null,
-      viaTagsOnly: Boolean(n.graph?.viaTagsOnly), openQuestions: n.openQuestions || [],
+      direct: Number.isFinite(n.graph?.direct) ? n.graph.direct : null, tagDerived: Number.isFinite(n.graph?.tagDerived) ? n.graph.tagDerived : null, media: Number.isFinite(n.graph?.media) ? n.graph.media : null,
+      openQuestions: n.openQuestions || [],
       cards: n.convergence?.cards || [], layers: n.convergence?.layers || [], tiers: n.convergence?.tiers || { gold: 0, silver: 0 },
       existingMeter: n.convergence?.existingMeter ?? null, meterRead: Boolean(n.convergence),
     };
@@ -129,9 +135,10 @@ export function buildContextDepth({ subject, numbers = [], audience = "public" }
   const dims = {
     calculations: { coverage: coverageOf(rows.filter((r) => r.verified.length).length, total),
       facts: rows.filter((r) => r.verified.length).map((r) => ({ value: r.value, results: r.verified })) },
-    links: { coverage: rows.some((r) => r.direct > 0) ? COVERAGE.PARTIAL : COVERAGE.NONE,
+    // Tag-derived relations are located and listed, but they never strengthen coverage: only a non-tag edge does.
+    links: { coverage: rows.some((r) => nonTag(r) > 0) ? COVERAGE.PARTIAL : COVERAGE.NONE,
       // Only hop 1 is read on open; hop 2 / 3+ are opened on request (§21), so full coverage is never claimed here.
-      facts: rows.filter((r) => r.direct != null).map((r) => ({ value: r.value, direct: r.direct, media: r.media, viaTagsOnly: r.viaTagsOnly })),
+      facts: rows.filter((r) => r.direct != null).map((r) => ({ value: r.value, direct: r.direct, tagDerived: r.tagDerived ?? 0, nonTag: nonTag(r), media: r.media, viaTagsOnly: r.direct > 0 && nonTag(r) === 0 })),
       unread: rows.filter((r) => r.direct == null).map((r) => r.value) },
     convergence: { coverage: coverageOf(rows.filter((r) => r.cards.length).length, total),
       facts: rows.filter((r) => r.meterRead).map((r) => ({ value: r.value, cards: r.cards, layers: r.layers, existingMeter: r.existingMeter })),
@@ -146,7 +153,47 @@ export function buildContextDepth({ subject, numbers = [], audience = "public" }
   };
 
   return {
-    subject, audience, numbers: rows, dependencies, sourceCount: { groups, statements: allSources.length },
+    subject, audience, numbers: rows, dependencies, yearHints: buildYearHints(yearHints, temporal, audience), paths: buildPaths(paths, audience), sourceCount: { groups, statements: allSources.length },
     dimensions: DIMENSIONS.map((d) => ({ ...d, ...dims[d.key], coverageLabel: COVERAGE_LABEL[dims[d.key].coverage] })),
   };
+}
+
+/**
+ * "Year hint" (DEC-TIME-004) over the existing time context (`timeFlow.getCurrentTemporalContext`), never a new engine.
+ * Numeric equality alone is not enough: the link must be explicit and documented AND selected by the editor. The
+ * value (787, gematria of the year letters) and the calendar year (5787) stay two separate labelled numbers.
+ * Nothing is stored or deleted: the same hint shows as the year hint this year and as a year group afterwards.
+ */
+export function buildYearHints(hints = [], temporal = null, audience = "public") {
+  const hebrew = temporal?.hebrew;
+  if (!hebrew?.year || !hebrew?.year_value) return [];
+  const admin = audience === "admin";
+  return hints.flatMap((hint) => {
+    if (hint?.link !== "explicit_documented") return [];
+    const selected = hint.editorialSelection === true;
+    const base = { id: hint.id, value: hint.value, hebrewYear: hint.hebrewYear, valueLabel: `ערך גימטרי ${hint.value}`,
+      yearLabel: `שנה ${hint.hebrewYear} (${hint.yearLabel})`, locatorId: hint.locatorId ?? null };
+    const current = hebrew.year === hint.hebrewYear && hebrew.year_value === hint.value;
+    if (current && selected) return [{ ...base, state: "active", label: `רמז השנה · ${hebrew.year_label}` }];
+    if (current) return admin ? [{ ...base, state: "candidate", label: "מועמד לרמז השנה · ממתין לבחירה עריכתית" }] : [];
+    if (!selected && !admin) return [];
+    return [{ ...base, state: hebrew.year > hint.hebrewYear ? "archived" : "upcoming", label: `קבוצת שנה · ${hint.yearLabel}` }];
+  });
+}
+
+const STATION_BASIS = Object.freeze({ tag: "תגית (רקע)", verified_calculation: "חישוב מאומת", source_region: "מקטע מקור", suggested: "ממתין לחיבור" });
+/** A route through intermediate stations. A pending station (suggested link) ends the public route until the editor selects it. */
+export function buildPaths(paths = [], audience = "public") {
+  const admin = audience === "admin";
+  return paths.map((path) => {
+    const out = [];
+    for (const station of path.stations || []) {
+      const pending = station.pending === true && station.editorialSelection !== true;
+      if (pending && !admin) break;
+      out.push({ ...station, pending, basisLabel: pending ? STATION_BASIS.suggested : STATION_BASIS[station.basis] || null,
+        // A tag station is background: it can be part of the route but never strengthens anything.
+        strengthens: !pending && station.basis !== "tag" });
+    }
+    return { id: path.id, label: path.label, stations: out };
+  }).filter((path) => path.stations.length);
 }

@@ -3,9 +3,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildContextDepth, convergenceMeterFacts, COVERAGE, DIMENSIONS, measured, flagLabel, sourceGroups, NOT_MEASURED } from "../src/lib/research/contextDepthProjection2029.js";
-import { POST_5112, NUMBERS_5112 } from "./fixtures/context-map-harness/depthFixture.js";
+import { buildYearHints, buildPaths } from "../src/lib/research/contextDepthProjection2029.js";
+import { getCurrentTemporalContext } from "../src/lib/timeFlow.js";
+import { cardReturnTo, cardRestoreFor } from "../src/lib/research/journeySourceReturn.js";
+import { buildExactReturnPatch } from "../src/lib/research/researchContext.js";
+import { POST_5112, NUMBERS_5112, YEAR_HINTS_5112, PATHS_5112 } from "./fixtures/context-map-harness/depthFixture.js";
+import fs from "node:fs";
 
-const depth = (audience = "public") => buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience });
+const at = (iso) => getCurrentTemporalContext(new Date(iso));
+const NOW = at("2026-10-20T12:00:00+03:00");
+
+const depth = (audience = "public", extra = {}) => buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience, temporal: NOW, yearHints: YEAR_HINTS_5112, paths: PATHS_5112, ...extra });
 const dim = (d, key) => d.dimensions.find((x) => x.key === key);
 
 test("six separate dimensions, each with a coverage state, and no score anywhere", () => {
@@ -21,6 +29,9 @@ test("calculations: engine-verified results only; 1073 (flight number) stays wit
   const calc = dim(depth(), "calculations");
   assert.equal(calc.coverage, COVERAGE.PARTIAL);
   assert.deepEqual(calc.facts.map((f) => f.value), [787, 1718, 1202, 363]);
+  // public: only the published row (תשפז) counts for 787; the two unpublished rows add nothing
+  assert.deepEqual(calc.facts.find((f) => f.value === 787).results.map((r) => r.phrase), ["תשפז"]);
+  assert.deepEqual(dim(depth("admin"), "calculations").facts.find((f) => f.value === 787).results.map((r) => r.phrase).sort(), ["ושמחת בחגך", "מי שגמלך כל טוב הוא יגמלך כל טוב סלה", "תשפז"].sort());
 });
 
 test("links: only hop 1 is read on open, so coverage is never full; tag-only numbers are marked", () => {
@@ -28,6 +39,7 @@ test("links: only hop 1 is read on open, so coverage is never full; tag-only num
   assert.equal(links.coverage, COVERAGE.PARTIAL);
   assert.equal(links.facts.find((f) => f.value === 787).viaTagsOnly, true);
   assert.equal(links.facts.find((f) => f.value === 1202).viaTagsOnly, false);
+  assert.equal(links.facts.find((f) => f.value === 1202).nonTag, 26);
 });
 
 test("independence and approval are reported as unmapped, never invented", () => {
@@ -69,10 +81,10 @@ test("convergence_meter adapter keeps layers, cards and tiers from the existing 
   assert.equal(convergenceMeterFacts(null), null);
 });
 
-const n787 = () => depth().numbers.find((n) => n.value === 787);
+const n787 = (audience = "admin") => depth(audience).numbers.find((n) => n.value === 787);
 
 test("787 in post 5112: three expressions, each split into three distinct layers", () => {
-  const exprs = n787().expressions;
+  const exprs = n787("admin").expressions;
   assert.deepEqual(exprs.map((e) => e.phrase), ["תשפז", "ושמחת בחגך", "מי שגמלך כל טוב הוא יגמלך כל טוב סלה"]);
   for (const e of exprs) {
     assert.ok(e.source.items.length > 0, "source layer");
@@ -84,19 +96,19 @@ test("787 in post 5112: three expressions, each split into three distinct layers
 });
 
 test("engine reproduction and row flags are separate facts; flags can differ from the reproduction", () => {
-  const [tashpaz, vesamachta, gomel] = n787().expressions.map((e) => e.calculation);
+  const [tashpaz, vesamachta, gomel] = n787("admin").expressions.map((e) => e.calculation);
   assert.deepEqual([tashpaz.rowVerified, tashpaz.rowPublished], [true, true]);
   assert.deepEqual([vesamachta.rowVerified, vesamachta.rowPublished], [true, false]);
   assert.deepEqual([gomel.reproducesClaim, gomel.rowVerified, gomel.rowPublished], [true, false, false]);
 });
 
 test("the plan document is documentation, not a source; the post body and tags are one source group", () => {
-  const tashpaz = n787().expressions[0];
+  const tashpaz = n787("admin").expressions[0];
   assert.ok(tashpaz.source.items.some((s) => s.kind === "plan_doc"));
   assert.deepEqual(tashpaz.source.groups, ["post:5112"]);
   assert.deepEqual(sourceGroups([{ kind: "tag", ref: "post:5112" }, { kind: "tag", ref: "post:5112" }, { kind: "post_body", ref: "post:5112" }]), ["post:5112"]);
   assert.deepEqual(sourceGroups([{ kind: "plan_doc", ref: "docs/x.md:1" }, { kind: "engine", ref: "gematria_api" }]), []);
-  assert.deepEqual(depth().sourceCount.groups, ["post:5112"]);
+  assert.deepEqual(depth("admin").sourceCount.groups, ["post:5112", "post:233"]);
 });
 
 test("post_tags never make a post more independent: 28 tag edges stay one source", () => {
@@ -119,4 +131,96 @@ test("null is never shown as a measured zero", () => {
   assert.equal(d.numbers[0].direct, null);
   assert.equal(d.numbers[1].existingMeter, null);
   assert.equal(d.dimensions.find((x) => x.key === "convergence").unread[0], 5);
+});
+
+test("publication stays separate from calculation: the public never gets a calculation for an unpublished row", () => {
+  const [tashpaz, vesamachta, gomel] = n787("public").expressions;
+  assert.equal(tashpaz.withheld, false); assert.equal(tashpaz.calculation.reproducesClaim, true);
+  for (const e of [vesamachta, gomel]) {
+    assert.equal(e.withheld, true); assert.equal(e.calculation, null);
+    assert.ok(e.source.items.length > 0, "the source layer still shows the phrase as the post itself shows it");
+  }
+  assert.ok(!JSON.stringify(depth("public")).includes('"rowPublished":false'), "no unpublished-row flag reaches the public projection");
+});
+
+test("tag-derived relations never strengthen the meter", () => {
+  const only = (graph) => buildContextDepth({ subject: POST_5112, numbers: [{ value: 5, graph, calculations: [], convergence: null }] }).dimensions.find((d) => d.key === "links");
+  assert.equal(only({ direct: 28, tagDerived: 28 }).coverage, COVERAGE.NONE);
+  assert.equal(only({ direct: 28 }).coverage, COVERAGE.NONE, "unknown tag count is treated as all-tag");
+  assert.equal(only({ direct: 29, tagDerived: 28 }).coverage, COVERAGE.PARTIAL);
+  const base = depth().dimensions.map((d) => d.coverage);
+  const more = depth("public", { numbers: NUMBERS_5112.map((n) => ({ ...n, graph: { ...n.graph, direct: n.graph.direct + 20, tagDerived: n.graph.tagDerived + 20 } })) }).dimensions.map((d) => d.coverage);
+  assert.deepEqual(more, base);
+});
+
+test("year hint: explicit, documented AND selected; the value 787 and the year 5787 stay two numbers", () => {
+  assert.deepEqual(buildYearHints(YEAR_HINTS_5112, NOW, "public"), [], "pending selection: nothing for the public");
+  const [candidate] = buildYearHints(YEAR_HINTS_5112, NOW, "admin");
+  assert.equal(candidate.state, "candidate");
+  const selected = YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true }));
+  const [hint] = buildYearHints(selected, NOW, "public");
+  assert.equal(hint.state, "active");
+  assert.equal(hint.label, "רמז השנה · תשפ״ז");
+  assert.equal(hint.value, 787); assert.equal(hint.hebrewYear, 5787);
+  assert.equal(hint.valueLabel, "ערך גימטרי 787"); assert.match(hint.yearLabel, /5787/);
+  assert.notEqual(hint.value, hint.hebrewYear);
+  assert.deepEqual(buildYearHints(selected.map((h) => ({ ...h, link: "numeric_equality" })), NOW, "admin"), [], "numeric equality alone is never a year hint");
+  assert.deepEqual(buildYearHints(selected, null, "public"), []);
+});
+
+test("year rollover updates the marker only: nothing is stored, the hint, source and locator remain", () => {
+  const selected = YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true }));
+  const before = at("2027-10-01T12:00:00+03:00"), after = at("2027-10-02T12:00:00+03:00");
+  assert.equal(buildYearHints(selected, before, "public")[0].state, "active");
+  const [next] = buildYearHints(selected, after, "public");
+  assert.equal(next.state, "archived");
+  assert.equal(next.label, "קבוצת שנה · תשפ״ז");
+  assert.ok(!next.label.includes("רמז השנה"));
+  assert.equal(next.locatorId, "plane-787-year-joy");
+  assert.equal(at("2026-09-11T12:00:00+03:00").hebrew.year_label, "תשפ״ו");
+  assert.equal(buildYearHints(selected, at("2026-09-11T12:00:00+03:00"), "public")[0].state, "upcoming");
+  assert.deepEqual(buildYearHints(YEAR_HINTS_5112, after, "public"), []);
+  // depth calculations, sources and strips are identical before and after the rollover
+  const a = depth("admin", { temporal: before, yearHints: selected }), b = depth("admin", { temporal: after, yearHints: selected });
+  assert.deepEqual(a.dimensions, b.dimensions); assert.deepEqual(a.numbers, b.numbers);
+});
+
+test("a year hint does not change coverage or add a source", () => {
+  const selected = YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true }));
+  const plain = depth("public", { yearHints: [] }), hinted = depth("public", { yearHints: selected });
+  assert.deepEqual(hinted.dimensions, plain.dimensions);
+  assert.deepEqual(hinted.sourceCount, plain.sourceCount);
+});
+
+test("the route 5112 → 1718/1202 → 233 stops before a pending link until the editor selects it", () => {
+  const pub = buildPaths(PATHS_5112, "public")[0].stations;
+  assert.deepEqual(pub.map((s) => s.kind), ["post", "number", "expression", "source_region"]);
+  assert.ok(pub.every((s) => !s.pending));
+  assert.equal(pub.find((s) => s.basis === "tag").strengthens, false);
+  assert.equal(pub.find((s) => s.basis === "verified_calculation").strengthens, true);
+  const admin = buildPaths(PATHS_5112, "admin")[0].stations;
+  assert.equal(admin.length, 5); assert.equal(admin.at(-1).pending, true); assert.equal(admin.at(-1).basisLabel, "ממתין לחיבור"); assert.equal(admin.at(-1).strengthens, false);
+  const chosen = PATHS_5112.map((p) => ({ ...p, stations: p.stations.map((s) => (s.pending ? { ...s, editorialSelection: true } : s)) }));
+  assert.equal(buildPaths(chosen, "public")[0].stations.length, 5);
+});
+
+test("exact return to the card: a number opened from it comes back, other posts and plain contexts do not", () => {
+  const post = { id: 5112, title: "טיסה 1073" };
+  const back = cardReturnTo({ post, number: 787, listHref: "/posts?page=2#old" });
+  assert.equal(back.href, "/posts?page=2#post-card-5112");
+  const context = { subject: { id: "plane-787-year-joy", type: "source", label: "x", href: "/post/p#source-locator-plane-787-year-joy" }, returnTo: back };
+  const patch = buildExactReturnPatch(context);
+  assert.deepEqual(cardRestoreFor({ selection: patch.selection }, 5112), { number: 787 });
+  assert.equal(cardRestoreFor({ selection: patch.selection }, 5113), null);
+  assert.deepEqual(cardRestoreFor({ selection: buildExactReturnPatch({ returnTo: cardReturnTo({ post, listHref: "/posts" }) }).selection }, 5112), { number: null });
+  assert.equal(cardRestoreFor({ selection: { entityId: "787", entityType: "number" } }, 5112), null);
+  assert.equal(cardRestoreFor(null, 5112), null);
+});
+
+test("private research_objects never enter the depth modules or their fixtures", () => {
+  for (const file of ["src/lib/research/contextDepthProjection2029.js", "src/components/experience2029/ContextDepthMeter2029.jsx", "src/components/experience2029/PostIndexCard2029.jsx",
+    "src/lib/research/contextMapProjection2029.js", "src/lib/research/contextMapReaders2029.js", "test/fixtures/context-map-harness/depthFixture.js"]) {
+    const text = fs.readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+    assert.ok(!/research_objects|privacy_scope|channel_updates|fetchResearchObjects/.test(text), file);
+  }
 });
