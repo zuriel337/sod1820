@@ -206,7 +206,7 @@ test("Chromium attests before Legacy and 2029, while their writes never reach th
   });
   const page = await context.newPage();
   for (const [path, runtime] of [["/unmapped-legacy-surface", "legacy"], ["/world", "2029"]]) {
-    await page.goto(`${origin}${path}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}${path}`, { waitUntil: "commit" });
     try {
       await page.waitForFunction((identity) => document.documentElement.dataset.sodPreviewGuard === identity,
         receipt.guardIdentitySha256, { timeout: 20_000 });
