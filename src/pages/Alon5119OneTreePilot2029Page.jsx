@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPostBySlug, supabase } from "../lib/supabase.js";
+import { applySeo } from "../lib/seo.js";
 import {
   ALON_5119_SLUG, SHAUL_DAVID_REVIEW_IDS,
   buildAlon5119OneTreePilot,
@@ -15,6 +16,7 @@ export default function Alon5119OneTreePilot2029Page() {
   const [state, setState] = useState({ loading: true, model: null, error: null });
   const [activeId, setActiveId] = useState("goliath-georgia");
   useEffect(() => {
+    applySeo({ title: "מה קורה הבורא · יחידות תוכן · Preview", description: "פיילוט מיפוי מקורות — לא לפרסום", path: "/preview/units/alon-5119", noindex: true });
     let live = true;
     (async () => {
       try {
