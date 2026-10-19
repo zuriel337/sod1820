@@ -23,13 +23,21 @@ const server = http.createServer((req, res) => {
 const base = `http://127.0.0.1:${server.address().port}/`;
 const browser = await chromium.launch({ executablePath: process.env.PERF_CHROME || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
 const shots = [];
-const plan = [["compare", ""], ["expanded", "&view=expanded"], ["number1718", "&view=expanded&number=1718&select=e67caa39"], ["number1202", "&view=expanded&number=1202"], ["admin", "&view=expanded&number=1718&select=3fd27516&audience=admin"]];
+// Interactions are real clicks on the production card: open the meter, pick a number, pick a map point.
+const plan = [
+  ["compare", "&view=compare", []],
+  ["opened", "", ["[data-context-depth-compact]"]],
+  ["n787", "", ["[data-context-depth-compact]", "button[aria-pressed]:has(b:text-is('787'))"]],
+  ["n1718map", "", ["[data-context-depth-compact]", "button[aria-pressed]:has(b:text-is('1718'))", ".sod29-ctxmap-node >> nth=0"]],
+  ["admin1718", "&audience=admin", ["[data-context-depth-compact]", "button[aria-pressed]:has(b:text-is('1718'))", ".sod29-ctxmap-node >> nth=2"]],
+];
 for (const [device, viewport] of [["desktop", { width: 1280, height: 900 }], ["mobile", { width: 390, height: 900 }]]) {
   for (const theme of ["light", "parchment", "dark"]) {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 2 });
-    for (const [tag, query] of plan) {
-      await page.goto(`${base}?theme=${theme}${query}`); await page.waitForSelector(".demo-card");
-      const file = join(out, `depth-${device}-${theme}-${tag}.png`); await page.screenshot({ path: file, fullPage: true }); shots.push(file);
+    for (const [tag, query, clicks] of plan) {
+      await page.goto(`${base}?theme=${theme}${query}`); await page.waitForSelector(".sod29-post-index-card"); await page.waitForTimeout(250);
+      for (const sel of clicks) { await page.locator(sel).first().click(); await page.waitForTimeout(250); }
+      const file = join(out, `card-${device}-${theme}-${tag}.png`); await page.screenshot({ path: file, fullPage: true }); shots.push(file);
     }
     await page.close();
   }

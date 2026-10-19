@@ -2,7 +2,7 @@
 // Coverage states only: no total, no 0–100, no ranking (DEC-METER-002 is OPEN).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildContextDepth, convergenceMeterFacts, COVERAGE, DIMENSIONS } from "../src/lib/research/contextDepthProjection2029.js";
+import { buildContextDepth, convergenceMeterFacts, COVERAGE, DIMENSIONS, measured, flagLabel, sourceGroups, NOT_MEASURED } from "../src/lib/research/contextDepthProjection2029.js";
 import { POST_5112, NUMBERS_5112 } from "./fixtures/context-map-harness/depthFixture.js";
 
 const depth = (audience = "public") => buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience });
@@ -17,10 +17,10 @@ test("six separate dimensions, each with a coverage state, and no score anywhere
   assert.ok(!("covered" in d) && !("dimensionCount" in d));
 });
 
-test("calculations: only engine-verified results; 787 and 1073 stay without a calculation", () => {
+test("calculations: engine-verified results only; 1073 (flight number) stays without a calculation", () => {
   const calc = dim(depth(), "calculations");
   assert.equal(calc.coverage, COVERAGE.PARTIAL);
-  assert.deepEqual(calc.facts.map((f) => f.value), [1718, 1202, 363]);
+  assert.deepEqual(calc.facts.map((f) => f.value), [787, 1718, 1202, 363]);
 });
 
 test("links: only hop 1 is read on open, so coverage is never full; tag-only numbers are marked", () => {
@@ -67,4 +67,56 @@ test("convergence_meter adapter keeps layers, cards and tiers from the existing 
   assert.equal(f.layers.filter((l) => l.ok).length, 1);
   assert.equal(f.existingMeter, 33);
   assert.equal(convergenceMeterFacts(null), null);
+});
+
+const n787 = () => depth().numbers.find((n) => n.value === 787);
+
+test("787 in post 5112: three expressions, each split into three distinct layers", () => {
+  const exprs = n787().expressions;
+  assert.deepEqual(exprs.map((e) => e.phrase), ["תשפז", "ושמחת בחגך", "מי שגמלך כל טוב הוא יגמלך כל טוב סלה"]);
+  for (const e of exprs) {
+    assert.ok(e.source.items.length > 0, "source layer");
+    assert.equal(e.calculation.reproducesClaim, true, "calculation layer");
+    assert.ok(e.interpretation?.text && e.interpretation.attestedBy, "interpretation layer");
+    // a layer never leaks into another one
+    assert.ok(!("interpretation" in e.source) && !("text" in e.calculation) && !("sources" in e.interpretation));
+  }
+});
+
+test("engine reproduction and row flags are separate facts; flags can differ from the reproduction", () => {
+  const [tashpaz, vesamachta, gomel] = n787().expressions.map((e) => e.calculation);
+  assert.deepEqual([tashpaz.rowVerified, tashpaz.rowPublished], [true, true]);
+  assert.deepEqual([vesamachta.rowVerified, vesamachta.rowPublished], [true, false]);
+  assert.deepEqual([gomel.reproducesClaim, gomel.rowVerified, gomel.rowPublished], [true, false, false]);
+});
+
+test("the plan document is documentation, not a source; the post body and tags are one source group", () => {
+  const tashpaz = n787().expressions[0];
+  assert.ok(tashpaz.source.items.some((s) => s.kind === "plan_doc"));
+  assert.deepEqual(tashpaz.source.groups, ["post:5112"]);
+  assert.deepEqual(sourceGroups([{ kind: "tag", ref: "post:5112" }, { kind: "tag", ref: "post:5112" }, { kind: "post_body", ref: "post:5112" }]), ["post:5112"]);
+  assert.deepEqual(sourceGroups([{ kind: "plan_doc", ref: "docs/x.md:1" }, { kind: "engine", ref: "gematria_api" }]), []);
+  assert.deepEqual(depth().sourceCount.groups, ["post:5112"]);
+});
+
+test("post_tags never make a post more independent: 28 tag edges stay one source", () => {
+  const tags = Array.from({ length: 28 }, () => ({ kind: "tag", ref: "post:5112" }));
+  assert.equal(sourceGroups(tags).length, 1);
+  assert.equal(dim(depth(), "independence").coverage, COVERAGE.UNMAPPED);
+});
+
+test("null is never shown as a measured zero", () => {
+  assert.equal(measured(null), NOT_MEASURED);
+  assert.equal(measured(undefined), NOT_MEASURED);
+  assert.equal(measured(Number.NaN), NOT_MEASURED);
+  assert.equal(measured(0), "0");
+  assert.equal(flagLabel(null, "כן", "לא"), "לא נבדק");
+  assert.equal(flagLabel(false, "כן", "לא"), "לא");
+  const d = buildContextDepth({ subject: POST_5112, numbers: [{ value: 5, graph: { direct: null }, calculations: [], convergence: null }, { value: 6, graph: { direct: 0, media: 0 }, calculations: [], convergence: { layers: [], cards: [{ slug: "x", quality: null }], tiers: { gold: 0, silver: 0 }, existingMeter: null } }] });
+  const links = d.dimensions.find((x) => x.key === "links");
+  assert.deepEqual(links.unread, [5]);
+  assert.equal(links.facts.find((f) => f.value === 6).direct, 0);
+  assert.equal(d.numbers[0].direct, null);
+  assert.equal(d.numbers[1].existingMeter, null);
+  assert.equal(d.dimensions.find((x) => x.key === "convergence").unread[0], 5);
 });

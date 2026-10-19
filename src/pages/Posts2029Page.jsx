@@ -1,68 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { contextMapReaders } from "../lib/research/contextMapReaders2029.js";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
-import { stripHtml } from "../lib/format.js";
-import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
-import { humanContentTitle } from "../lib/presentation/contentTitle.js";
+import PostIndexCard from "../components/experience2029/PostIndexCard2029.jsx";
 import "./posts2029.css";
-
-const numericSignals = (tags = []) => [...new Set(
-  (Array.isArray(tags) ? tags : [])
-    .map((tag) => String(tag || "").trim())
-    .filter((tag) => /^\d{1,6}$/.test(tag))
-)].slice(0, 4);
-
-const isGoldenPost = (post) => Array.isArray(post?.tags)
-  && post.tags.some((tag) => String(tag).includes("2029-golden"));
-
-function PostIndexCard({ post, index }) {
-  const title = humanContentTitle(post?.title, { max: 92 });
-  const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
-  const numbers = numericSignals(post?.tags);
-  const image = post?.thumb_url || post?.image_url || null;
-  const categories = (Array.isArray(post?.categories) ? post.categories : []).slice(0, 3);
-  const golden = isGoldenPost(post);
-
-  return <article
-    className={"sod29-post-index-card" + (golden ? " is-golden" : "")}
-    data-experience-capability="post-index-card"
-    data-post-golden={golden ? "true" : "false"}
-    style={{ "--post-order": index }}
-  >
-    <Link className="sod29-post-index-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
-      <div
-        className={"sod29-post-index-visual" + (image ? " has-image" : "")}
-        aria-hidden="true"
-      >
-        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading={index < 2 ? "eager" : "lazy"} decoding="async" width="640" height="360" /> : null}
-        {!image ? <div className="sod29-post-index-number-field">
-          {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
-        </div> : null}
-        <div className="sod29-post-index-visual-wash" />
-      </div>
-
-      <div className="sod29-post-index-copy">
-        <div className="sod29-post-index-meta">
-          {post.author ? <span>{post.author}</span> : null}
-          <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
-          <PostCategories2029 categories={categories} max={3} nested />
-        </div>
-        <h2>{title || "פוסט"}</h2>
-        {excerpt ? <p>{excerpt}</p> : null}
-        {numbers.length ? <div className="sod29-post-index-signals" aria-label="מספרים מרכזיים">
-          {numbers.map((value) => <b key={value}>{value}</b>)}
-        </div> : null}
-        <span className="sod29-post-index-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
-      </div>
-    </Link>
-  </article>;
-}
 
 export default function Posts2029Page() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const research = useResearch();
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
   const [state, setState] = useState({ page, loading: true, posts: [], total: 0, error: null });
@@ -91,6 +40,16 @@ export default function Posts2029Page() {
     return () => { live = false; };
   }, [page]);
 
+  // Exact return: leaving a card's context map writes this list position as returnTo in the existing Context.
+  const openFromContextMap = (post, item) => {
+    if (!item?.href) return;
+    const origin = `${window.location.pathname}${window.location.search}#post-card-${post.id}`;
+    research.updateResearchContext?.({
+      subject: { id: item.id, type: item.type, label: item.label, href: item.href },
+      returnTo: { href: origin, label: post.title, subject: { id: String(post.id), type: "post", label: post.title, href: origin } },
+    });
+    navigate(item.href);
+  };
   const pages = Math.max(1, Math.ceil(state.total / 24));
   const posts = state.page === page ? state.posts : [];
   const loading = state.loading || state.page !== page;
@@ -140,7 +99,7 @@ export default function Posts2029Page() {
           <small>עמוד {page} מתוך {pages} · לפי עדכון הפוסט</small>
         </div>
         <div className="sod29-posts-index-grid">
-          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
+          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} mapReaders={contextMapReaders} onMapOpen={openFromContextMap} />)}
         </div>
       </section> : null}
       {!loading && !error && posts.length ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">

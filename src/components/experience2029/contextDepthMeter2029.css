@@ -10,9 +10,6 @@
 .sod29-depth-pips i[data-coverage="partial"]{background:linear-gradient(to top,var(--s29-accent) 50%,transparent 50%)}
 .sod29-depth-pips i[data-coverage="none"]{border-style:solid;border-color:var(--s29-line-strong);opacity:.7}
 .sod29-depth-pips i[data-coverage="unmapped"]{border-style:dashed;border-color:var(--s29-muted);opacity:.85}
-.sod29-depth-compact[data-look="chips"] .sod29-depth-pips{flex-wrap:wrap;max-width:230px}
-.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i{width:auto;height:auto;padding:1px 6px;border-radius:999px;font-size:10px;line-height:1.4;color:var(--s29-ink)}
-.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i[data-coverage="full"]{color:var(--s29-on-accent,#fff)}
 .sod29-depth{display:grid;gap:10px;border:1px solid var(--s29-line-strong);border-radius:17px;padding:14px;background:var(--s29-panel-grad);color:var(--s29-ink)}
 .sod29-depth>header{display:grid;gap:3px}.sod29-depth>header small{color:var(--s29-muted);font-weight:800;font-size:var(--s29-type-micro);letter-spacing:.06em}
 .sod29-depth>header strong{font-size:var(--s29-type-lead,18px);line-height:1.25}.sod29-depth>header p{margin:2px 0 0;color:var(--s29-muted);font-size:var(--s29-type-small);line-height:1.5}
@@ -34,3 +31,18 @@
 .sod29-depth-number{display:grid;gap:3px;border:1px solid var(--s29-line);border-radius:13px;padding:10px 12px;background:var(--s29-panel)}
 .sod29-depth-number h4{margin:0;font-size:22px}.sod29-depth-number p{margin:0;font-size:var(--s29-type-small);line-height:1.5}
 @media(max-width:520px){.sod29-depth-dims{grid-template-columns:1fr}}
+.sod29-depth-expr{display:grid;gap:6px;border-top:1px solid var(--s29-line);padding-top:10px;margin-top:6px}
+.sod29-depth-expr h5{margin:0;font-size:16px}
+.sod29-depth-layers{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.sod29-depth-layers>li{border:1px solid var(--s29-line);border-radius:12px;padding:9px 11px;background:var(--s29-panel-soft);display:grid;gap:4px;align-content:start;font-size:var(--s29-type-small);line-height:1.5}
+.sod29-depth-layers>li[data-layer="calculation"]{border-color:var(--s29-line-strong)}
+.sod29-depth-layers>li[data-layer="interpretation"]{border-style:dashed}
+.sod29-depth-layers ul{margin:0;padding:0;list-style:none;display:grid;gap:3px}
+.sod29-depth-layers em{font-style:normal;font-weight:800;color:var(--s29-accent-text)}
+.sod29-depth-layers q{quotes:"״" "״"}.sod29-depth-layers p{margin:0}.sod29-depth-layers small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+/* Real post index card: the compact meter sits under the card link; opening spans the grid row. */
+.sod29-post-index-card.has-depth{display:flex;flex-direction:column}
+.sod29-post-index-card.has-depth>.sod29-post-index-card-link{height:auto;flex:1 1 auto}
+.sod29-post-index-depth{padding:10px 14px 12px}
+.sod29-posts-index-grid .sod29-post-index-card.is-depth-open{grid-column:1/-1}
+.sod29-post-index-depth-panel{padding:0 14px 14px}

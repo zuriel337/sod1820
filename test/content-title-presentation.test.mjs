@@ -30,7 +30,9 @@ test("humanContentTitle unwraps stored escaped quotes and bounds long card label
 test("2029 post-title surfaces use the shared presentation sanitizer and bounded typography", () => {
   const number = readFileSync(new URL("../src/components/number2029/NumberLivingWorld2029.jsx", import.meta.url), "utf8");
   const world = readFileSync(new URL("../src/pages/World2029Page.jsx", import.meta.url), "utf8");
-  const posts = readFileSync(new URL("../src/pages/Posts2029Page.jsx", import.meta.url), "utf8");
+  // The index card now lives in its own module (PostIndexCard2029) so the real card can be previewed; the surface is page + card.
+  const posts = readFileSync(new URL("../src/pages/Posts2029Page.jsx", import.meta.url), "utf8")
+    + readFileSync(new URL("../src/components/experience2029/PostIndexCard2029.jsx", import.meta.url), "utf8");
   const numberCss = readFileSync(new URL("../src/components/number2029/numberLivingWorld2029.css", import.meta.url), "utf8");
   const worldCss = readFileSync(new URL("../src/pages/world2029-human.css", import.meta.url), "utf8");
   const postsCss = readFileSync(new URL("../src/pages/posts2029.css", import.meta.url), "utf8");
