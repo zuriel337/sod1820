@@ -26,20 +26,23 @@ export const PREVIEW_READ_RPC_ALLOWLIST = Object.freeze([
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
-export function createPreviewGuardDescriptor({ commit, branch, host }) {
+export function createPreviewGuardDescriptor({ commit, branch, host, buildTarget = "2029" }) {
+  if (!new Set(["2029", "hybrid"]).has(buildTarget)) {
+    throw new Error(`Unsupported Preview guard build target: ${buildTarget}`);
+  }
   return Object.freeze({
     protocol: PREVIEW_GUARD_PROTOCOL,
     commit,
     branch,
     host,
-    buildTarget: "2029",
+    buildTarget,
     vercelEnv: "preview",
     readRpcAllowlist: [...PREVIEW_READ_RPC_ALLOWLIST],
   });
 }
 
-export function renderPreviewReadonlyWorker({ commit, branch, host }) {
-  const descriptor = createPreviewGuardDescriptor({ commit, branch, host });
+export function renderPreviewReadonlyWorker({ commit, branch, host, buildTarget = "2029" }) {
+  const descriptor = createPreviewGuardDescriptor({ commit, branch, host, buildTarget });
   const guardIdentitySha256 = sha256(JSON.stringify(descriptor));
   const previewIdentity = Object.freeze({ ...descriptor, guardIdentitySha256 });
   const worker = `const previewIdentity=Object.freeze(${JSON.stringify(previewIdentity)});
