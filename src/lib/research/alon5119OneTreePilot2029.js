@@ -121,7 +121,7 @@ export function buildAlon5119OneTreePilot(post, {
     .filter((row) => SHAUL_DAVID_REVIEW_IDS.includes(row?.id)
       && typeof row.slug === "string" && row.slug.length
       && Array.isArray(row.tags) && !row.tags.some((tag) => ["טיוטה", "פורום"].includes(tag))
-      && !row.home_hidden).map((row) => [row.id, row]));
+      && !row.home_hidden && !["gpt-draft", "web"].includes(row.source)).map((row) => [row.id, row]));
   const archiveCandidates = SHAUL_DAVID_REVIEW_IDS.flatMap((id) => {
     const row = archive.get(id);
     return row ? [Object.freeze({
