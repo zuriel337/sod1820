@@ -147,7 +147,7 @@ async function sealHostedDocument(name, runtime) {
 
 const [legacy, index, candidate2029] = await Promise.all([
   sealHostedDocument("legacy.html", "legacy"),
-  sealHostedDocument("index.html", "legacy"),
+  sealHostedDocument("index.html", "2029"),
   sealHostedDocument("2029.html", "2029"),
 ]);
 const manifestBytes = await readFile(resolve(output, ".vite/manifest.json"));

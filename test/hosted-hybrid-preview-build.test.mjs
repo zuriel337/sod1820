@@ -126,7 +126,7 @@ test("Vercel enables only the exact Hybrid integration branch and mirrors the ro
   assert.equal(vercel.git.deploymentEnabled["claude/*"], false);
   const documentRewrites = vercel.rewrites.filter((rule) => !rule.has && ["/2029.html", "/index.html", "/legacy.html"].includes(rule.destination));
   assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/2029.html").map((rule) => rule.source)), new Set(policy.candidate2029Routes));
-  assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/index.html").map((rule) => rule.source)), new Set(policy.explicitLegacyRoutes));
+  assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/legacy.html" && rule.source !== "/(.*)").map((rule) => rule.source)), new Set(policy.explicitLegacyRoutes));
   assert.deepEqual(documentRewrites.at(-1), { source: "/(.*)", destination: "/legacy.html" });
 });
 
@@ -152,7 +152,8 @@ test("hosted artifact seals both runtimes, exact guard identity and complete inv
   assert.equal(hybrid.guardIdentitySha256, receipt.guardIdentitySha256);
   assert.equal(hybrid.routePolicySha256, receipt.routePolicySha256);
   assert.equal(receipt.artifactCount, verified.inventory.artifacts.length);
-  for (const [html, runtime] of [[legacy, "legacy"], [index, "legacy"], [candidate, "2029"]]) {
+  assert.equal(index, candidate, "the hosted physical root document must be the exact 2029 entry");
+  for (const [html, runtime] of [[legacy, "legacy"], [index, "2029"], [candidate, "2029"]]) {
     assert.match(html, /name="robots" content="noindex,nofollow,noarchive"/);
     assert.match(html, new RegExp(`name="sod-hybrid-runtime" content="${runtime}"`));
     assert.match(html, /id="sod-preview-readonly-bootstrap"/);
