@@ -55,8 +55,8 @@ export function semantics(rows) {
     },
     hide(uid, { p_root }) {
       if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
-      const stack = [p_root]; let n = 0;
-      while (stack.length) { const cur = stack.pop(); const r = rows.find((x) => x.id === cur); if (r && !r.thread_hidden_at && (r.status === "approved" || r.deleted_at)) { r.thread_hidden_at = new Date().toISOString(); if (r.status === "approved") r.status = "hidden"; n++; } kids(cur).forEach((k) => stack.push(k.id)); }
+      const stack = [p_root]; const hiddenAt = new Date().toISOString(); let n = 0;
+      while (stack.length) { const cur = stack.pop(); const r = rows.find((x) => x.id === cur); if (r && !r.thread_hidden_at && (r.status === "approved" || r.deleted_at)) { r.thread_hidden_at = hiddenAt; if (r.status === "approved") r.status = "hidden"; n++; } kids(cur).forEach((k) => stack.push(k.id)); }
       return n;
     },
     claimByEmail(uid) {
@@ -144,6 +144,11 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
     const json = (data, status = 200, headers = {}) => route.fulfill({ status, contentType: "application/json", headers, body: JSON.stringify(data) });
     const path = url.pathname;
     if (path === "/auth/v1/user") return json(sessionFor(uid || A).user);
+    if (path === "/auth/v1/token" && url.searchParams.get("grant_type") === "password") {
+      const body = req.postDataJSON() || {};
+      if (log.authCalls) log.authCalls.push({ method: "password", email: body.email || null, passwordPresent: Boolean(body.password) });
+      return json(sessionFor(A).session);
+    }
     if (path === "/rest/v1/users") { const ids = (url.searchParams.get("id") || "").replace(/^in\.\(|\)$/g, "").split(","); const hit = (uid && profiles[uid] ? [profiles[uid]] : []).concat(ids.filter((x) => profiles[x] && x !== uid).map((x) => profiles[x])); return json(hit); }
     if (path === "/rest/v1/site_flags") return json([]);
     if (path.startsWith("/rest/v1/rpc/community_")) {

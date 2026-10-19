@@ -37,7 +37,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 async function open({ as = null, rpc = "on", failDelete = false, viewport = { width: 1280, height: 900 }, theme = null, path = "/community/chat", selector = ".sod29-community-thread", shared = null } = {}) {
   const context = await browser.newContext({ viewport, locale: "he-IL", permissions: ["clipboard-read", "clipboard-write"] });
   const rows = shared?.rows || makeStore(); const sem = shared?.sem || semantics(rows);
-  const log = { launcher: 0, tableReads: 0, rpcCalls: [], writes: [], errors: [] };
+  const log = { launcher: 0, tableReads: 0, rpcCalls: [], writes: [], authCalls: [], errors: [] };
   if (as) { const { session } = sessionFor(as); await context.addInitScript((v) => localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token", JSON.stringify(v)), session); }
   if (theme) await context.addInitScript((t) => { try { localStorage.setItem("sod29-theme-preset", t); localStorage.setItem("theme-preset", t); } catch {} }, theme);
   await installFakeBackend(context, { base: BASE, rows, sem, log, rpc, failDelete });
@@ -70,6 +70,28 @@ await scenario("workspace nav item no longer shares the community icon", async (
   const community = icons.find(([t]) => t.startsWith("קהילה")); const personal = icons.find(([t]) => t.startsWith("אזור משתמשים"));
   assert.equal(community?.[1], "community"); if (personal) assert.equal(personal[1], "personal");
   await context.close();
+});
+
+await scenario("sign-in: natural copy, Google, email/password and email-code choices", async () => {
+  const { page, context, log } = await open();
+  const signIn = page.getByRole("region", { name: "התחברות לקהילה" });
+  await signIn.getByRole("heading", { name: "התחברות", exact: true }).waitFor();
+  assert.equal(await signIn.getByText(/לתת לייקים בשם שלכם/).count(), 0);
+  await signIn.getByRole("button", { name: "המשך עם Google" }).waitFor();
+  await signIn.getByLabel("אימייל").fill("member@example.com");
+  await signIn.getByLabel("סיסמה").fill("correct-horse-battery-staple");
+  await signIn.getByRole("button", { name: "התחברות", exact: true }).click();
+  await page.getByRole("region", { name: "חשבון הקהילה" }).getByText(/מחובר\/ת כ־אילנה/).waitFor();
+  assert.deepEqual(log.authCalls, [{ method: "password", email: "member@example.com", passwordPresent: true }]);
+  await context.close();
+
+  const code = await open();
+  const codeSignIn = code.page.getByRole("region", { name: "התחברות לקהילה" });
+  await codeSignIn.getByRole("button", { name: "אין לכם סיסמה? קבלת קוד למייל" }).click();
+  await codeSignIn.getByRole("button", { name: "שליחת קוד" }).waitFor();
+  await codeSignIn.getByRole("button", { name: "כניסה עם סיסמה" }).click();
+  await codeSignIn.getByLabel("סיסמה").waitFor();
+  await code.context.close();
 });
 
 await scenario("page order: new community on top, ״הצ׳אט הוותיק״ at the bottom; single h1; OpenWeb loads only near the bottom", async () => {
@@ -243,6 +265,14 @@ await scenario("delete failure from the server keeps the message and shows an er
 
 await scenario("admin: can delete others, hide a whole thread after explicit confirmation; regular user cannot", async () => {
   const { page, context, rows } = await open({ as: ADMIN });
+  const account = page.getByRole("region", { name: "חשבון הקהילה" });
+  await account.getByText("מצב מנהל", { exact: true }).waitFor();
+  await account.getByText(/למחוק הודעות, להסתיר ולשחזר שרשורים ולטפל בדיווחים/).waitFor();
+  const manager = page.locator(".sod29-community-admin");
+  await manager.waitFor();
+  const managerTop = await manager.evaluate((node) => node.getBoundingClientRect().top + scrollY);
+  const composerTop = await page.locator(".sod29-community-composer").evaluate((node) => node.getBoundingClientRect().top + scrollY);
+  assert.ok(managerTop < composerTop, "admin tools should be visible before the composer and feed");
   const rowsBefore = rows.length;
   const g1 = group(page, "הודעת מקור של אילנה");
   const root = msg(page, "הודעת מקור של אילנה");
