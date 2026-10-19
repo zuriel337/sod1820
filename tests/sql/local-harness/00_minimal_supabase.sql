@@ -21,7 +21,7 @@ grant usage on schema public to anon, authenticated, service_role;
 -- (copied from production pg_get_viewdef on 2026-10-19): 100 newest rows + latest "active-pattern" row per scope.
 create table public.work_log (
   id uuid primary key default gen_random_uuid(), session_date date default current_date, topic text, numbers integer[],
-  what_we_did text, status text, open_threads text, created_at timestamptz not null default now(),
+  what_we_did text, status text, open_threads text, created_at timestamptz default now(),
   archived boolean not null default false, superseded_by_id uuid, task_key text, from_actor text, to_actor text,
   assignment_mode text, assignment_scope text, primary_owner text, release_authorization_state text,
   parent_assignment_id uuid, dispatch_kind text, dispatch_state text, dispatch_context jsonb, dispatch_attempts integer,

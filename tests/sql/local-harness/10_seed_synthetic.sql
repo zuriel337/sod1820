@@ -5,10 +5,10 @@ insert into auth.users(id, raw_app_meta_data) values
  ('00000000-0000-0000-0000-0000000000a4', '{"sod1820_coordination_reader": true}'),   -- ban/delete/revoke (SQL test)
  ('00000000-0000-0000-0000-0000000000a5', '{"sod1820_coordination_reader": true}');   -- revoke (e2e test)
 
-create or replace function pg_temp.w(p_key text, p_status text, p_mode text, p_scope text, p_age interval, p_topic text default 'synthetic')
+create or replace function pg_temp.w(p_key text, p_status text, p_mode text, p_scope text, p_age interval, p_topic text default 'synthetic', p_from text default 'GPT')
 returns void language sql as $$
   insert into public.work_log(task_key, status, assignment_mode, assignment_scope, topic, from_actor, to_actor, what_we_did, dispatch_session_url, created_at)
-  values (p_key, p_status, p_mode, p_scope, p_topic, 'GPT', 'ZURIEL', 'SECRET-BODY', 'https://x/secret', now() - p_age) $$;
+  values (p_key, p_status, p_mode, p_scope, p_topic, p_from, 'ZURIEL', 'SECRET-BODY', 'https://x/secret', now() - p_age) $$;
 
 -- ACTIVE writers (latest lifecycle row is OPEN)
 select pg_temp.w('T_ACTIVE_APP', 'BEFORE_BRANCH_ONLY_PASSIVE_ACTIVE_WRITER', 'WRITE', 'Exclusive: src/App2029.jsx; src/components/MaintenanceLock.jsx', interval '1 hour');
@@ -28,6 +28,31 @@ insert into public.work_log(task_key, status, assignment_scope, topic, created_a
 insert into public.work_log(task_key, status, assignment_scope, topic, created_at) values
  ('T_TIE', 'BEFORE_X', 'tiezone', 'tie', now() - interval '6 hours'),
  ('T_TIE', 'AFTER_X', 'tiezone', 'tie', now() - interval '6 hours');
+
+-- shared task_key: a READ_ONLY reviewer's AFTER must NOT release GPT's write claim; ZURIEL's closure and the claimant's own AFTER do
+select pg_temp.w('T_SHARED', 'BEFORE_BRANCH_ONLY_PASSIVE', 'WRITE', 'sharedzone/file', interval '3 hours');
+select pg_temp.w('T_SHARED', 'AFTER_REVIEW_ONLY_PASSIVE', 'READ_ONLY', 'sharedzone/file', interval '2 hours', 'synthetic', 'CLAUDE');
+select pg_temp.w('T_SHARED_ZCLOSE', 'BEFORE_X', 'WRITE', 'sharedzclosezone', interval '3 hours');
+select pg_temp.w('T_SHARED_ZCLOSE', 'CLOSED_MANUAL_CLAIM_BY_ZURIEL_20261017', 'WRITE', 'sharedzclosezone', interval '2 hours', 'synthetic', 'ZURIEL');
+select pg_temp.w('T_TWOACTORS', 'BEFORE_X', 'WRITE', 'twoactorszone', interval '3 hours', 'synthetic', 'GPT');
+select pg_temp.w('T_TWOACTORS', 'AFTER_X', 'WRITE', 'twoactorszone', interval '2 hours', 'synthetic', 'CLAUDE');
+-- directory / glob scope; blocked-mid-task writer; trailing-terminal; negated statuses
+select pg_temp.w('T_DIR', 'BEFORE_BRANCH_ONLY_PASSIVE', 'WRITE', 'Exclusive: src/pages/community/ and tools/els/** and dirdocs/*', interval '1 hour');
+select pg_temp.w('T_BLOCKEDMID', 'BEFORE_X', 'WRITE', 'blockedmidzone', interval '5 hours');
+select pg_temp.w('T_BLOCKEDMID', 'BLOCKED_NEEDS_MORE_CONTEXT', 'WRITE', 'blockedmidzone', interval '4 hours');
+select pg_temp.w('T_TRAIL', 'BEFORE_X', 'WRITE', 'trailzone', interval '5 hours');
+select pg_temp.w('T_TRAIL', 'CLAIMED_WRITE_COMPLETE', 'WRITE', 'trailzone', interval '4 hours');
+select pg_temp.w('T_NOWRITER', 'NO_ACTIVE_WRITER', null, 'nowriterzone', interval '1 hour');
+select pg_temp.w('T_ACKREL', 'ACK_EXPLICIT_RELEASE_AUTHORIZED', 'WRITE', 'ackrelzone', interval '1 hour');
+insert into public.work_log(task_key, status, assignment_scope, topic, from_actor, created_at) values (null, 'BEFORE_X', 'longkeyzone', repeat('L', 500), 'GPT', now() - interval '1 hour');
+
+-- actor-less rows (prod from_actor is nullable): either side null closes; created_at is nullable in prod -> treated as "now"
+insert into public.work_log(task_key, status, assignment_scope, topic, from_actor, created_at) values
+ ('T_NULLCLOSE_A', 'BEFORE_X', 'nullclosezone-a', 'x', 'GPT',  now() - interval '3 hours'),
+ ('T_NULLCLOSE_A', 'AFTER_X',  'nullclosezone-a', 'x', null,   now() - interval '2 hours'),
+ ('T_NULLCLOSE_B', 'BEFORE_X', 'nullclosezone-b', 'x', null,   now() - interval '3 hours'),
+ ('T_NULLCLOSE_B', 'AFTER_X',  'nullclosezone-b', 'x', 'GPT',  now() - interval '2 hours'),
+ ('T_NULLTS',      'BEFORE_X', 'nulltszone',      'x', 'GPT',  null);
 
 -- RELEASED / closed (must NOT block)
 select pg_temp.w('T_RELEASED', 'BEFORE_BRANCH_ONLY_ACTIVE_WRITER_PASSIVE', 'WRITE', 'src/App2029.jsx; releasedzone', interval '5 hours');

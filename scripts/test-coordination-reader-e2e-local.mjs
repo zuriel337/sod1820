@@ -26,11 +26,16 @@ await t("flagged reader detects active writer + file overlap", async () => {
   assert.equal(s, 200); assert.equal(body.verdict, "ACTIVE_WRITER_TERM_MATCH"); assert.equal(body.rows[0].task_key, "T_ACTIVE_APP");
 });
 await t("BEFORE->AFTER released scope does not block; shared-frame ACK_CLAIMED_WRITE does", async () => {
-  assert.equal((await call(A1, { scope_terms: ["releasedzone"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+  assert.equal((await call(A1, { scope_terms: ["releasedzone"] })).body.verdict, "NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES");
   const ack = await call(A1, { scope_terms: ["SystemFrame2029.jsx"] });
   assert.equal(ack.body.verdict, "ACTIVE_WRITER_TERM_MATCH"); assert.equal(ack.body.rows[0].task_key, "T_ACK");
-  assert.equal((await call(A1, { scope_terms: ["cyclezone/first"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+  assert.equal((await call(A1, { scope_terms: ["cyclezone/first"] })).body.verdict, "NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES");
   assert.equal((await call(A1, { scope_terms: ["cyclezone/second"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
+});
+await t("reviewer's READ_ONLY AFTER on a shared key does not release the writer; dir claim covers files beneath", async () => {
+  assert.equal((await call(A1, { scope_terms: ["sharedzone"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
+  assert.equal((await call(A1, { scope_terms: ["src/pages/community/CommunityChat.jsx"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
+  assert.equal((await call(A1, { scope_terms: ["src/pages/other/File.jsx"] })).body.verdict, "NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES");
 });
 await t("old still-open BEFORE is detected (the view-window drop is asserted in the SQL tests)", async () => {
   assert.equal((await call(A1, { scope_terms: ["oldopenzone"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
@@ -49,7 +54,7 @@ await t("70 matching writers (50-row page) is INCOMPLETE", async () => {
 });
 await t("after the crowd clears, an independent scope is a complete NO_TERM_MATCH and a hit still blocks only its own scope", async () => {
   psql(`delete from public.work_log where task_key like 'T_BULK_%'`);
-  assert.equal((await call(A1, { scope_terms: ["community/chat"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+  assert.equal((await call(A1, { scope_terms: ["community/chat"] })).body.verdict, "NO_TERM_MATCH_COMPARE_ACTIVE_SCOPES");
   assert.equal((await call(A1, { scope_terms: ["App2029.jsx"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
 });
 await t("unflagged user -> 403 COORDINATION_UNVERIFIED", async () => {

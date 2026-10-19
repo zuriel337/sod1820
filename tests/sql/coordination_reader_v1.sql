@@ -41,7 +41,7 @@ do $$ declare r record; begin
     ('AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_MEASURED_PUSHED_SCOPE_RELEASED_PASSIVE','WRITE','CLOSE'), ('AFTER_BLOCKED_RELEASED','WRITE','CLOSE'),
     ('AFTER_PREVIEW_VERIFIED_RELEASE_BLOCKED',null,'CLOSE'), ('CANCELLED_BY_ZURIEL','WRITE','CLOSE'), ('CANCELED',null,'CLOSE'),
     ('CLOSED_MANUAL_CLAIM_BY_ZURIEL_20261017','WRITE','CLOSE'), ('RELEASED','WRITE','CLOSE'), ('DECLINED_STALE',null,'CLOSE'),
-    ('MERGED_DEPLOYED_LIVE_VERIFIED','WRITE','CLOSE'), ('BLOCKED_NEEDS_MORE_CONTEXT','READ_ONLY','CLOSE'),
+    ('MERGED_DEPLOYED_LIVE_VERIFIED','WRITE','CLOSE'), ('BLOCKED_NEEDS_MORE_CONTEXT','READ_ONLY','NEUTRAL'), ('BLOCKED_NEEDS_MORE_CONTEXT','WRITE','NEUTRAL'), ('NO_ACTIVE_WRITER',null,'NEUTRAL'), ('ACTIVE_WRITER_NONE',null,'NEUTRAL'), ('ACK_EXPLICIT_RELEASE_AUTHORIZED','WRITE','NEUTRAL'), ('ACK_RELEASED','WRITE','CLOSE'), ('ACK_COMPLETE','WRITE','CLOSE'), ('CLAIMED_WRITE_COMPLETE','WRITE','CLOSE'), ('ACTIVE_WRITER_COMPLETE','WRITE','CLOSE'), ('ACK_NOT_WRITER',null,'NEUTRAL'), ('MERGED_PENDING_DEPLOY','WRITE','CLOSE'), ('WRITE_SCOPE_OPEN_UNTIL_RELEASED',null,'OPEN'), ('ACTIVE_WRITER_NOT_RELEASED',null,'OPEN'),
     ('SUPERSEDED_BY_NEW_HEAD','READ_ONLY','CLOSE'), ('FROZEN_BRANCH_ONLY_SUPERSEDED_BY_CURRENT_MAIN_RECOVERY_NO_ACTIVE_WRITE','WRITE','CLOSE'),
     ('COMPLETED_PREVIEW_ONLY',null,'CLOSE'), ('IMPLEMENTED_BRANCH_ONLY_NOT_MERGED_NOT_DEPLOYED',null,'CLOSE')
   ) v(s, m, expect) loop
@@ -60,20 +60,37 @@ do $$ declare r jsonb; rec record; begin
   -- shared-frame ACK_CLAIMED_WRITE and a release-AUTHORIZATION row on the same area: only the claim is a writer
   r := public.coordination_read_current(p_scope_terms => array['SystemFrame2029']);
   assert (r->>'total_matches')::int = 1 and r->'rows'->0->>'task_key' = 'T_ACK', 'ACK_CLAIMED_WRITE / EXPLICIT_RELEASE handling: ' || (r->'rows')::text;
-  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['tiezone','docs/claimedzone','assignedzone','legacyzone','nullkeyzone','oldopenzone','cyclezone/second']) z loop
+  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['nulltszone','sharedzone','twoactorszone','blockedmidzone','longkeyzone','src/pages/community/CommunityChat.jsx','tools/els/build.py','dirdocs/readme.md','tiezone','docs/claimedzone','assignedzone','legacyzone','nullkeyzone','oldopenzone','cyclezone/second']) z loop
     assert (rec.x->>'total_matches')::int = 1, 'active writer missed: ' || rec.z || ' ' || (rec.x->'rows')::text;
   end loop;
-  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['releasedzone','cancelledzone','released2zone','closedzone','topickeyzone','cyclezone/first','readonlyzone','relauthzone','blockedzone','passzone','archzone','supzone','ancientzone','community/chat']) z loop
+  for rec in select z, public.coordination_read_current(p_scope_terms => array[z]) x from unnest(array['nullclosezone-a','nullclosezone-b','sharedzclosezone','trailzone','nowriterzone','ackrelzone','releasedzone','cancelledzone','released2zone','closedzone','topickeyzone','cyclezone/first','readonlyzone','relauthzone','blockedzone','passzone','archzone','supzone','ancientzone','community/chat']) z loop
     assert (rec.x->>'total_matches')::int = 0 and (rec.x->>'truncated')::boolean = false, 'released/non-writer blocks: ' || rec.z || ' ' || (rec.x->'rows')::text;
   end loop;
   assert not exists (select 1 from jsonb_array_elements(public.coordination_read_current(p_scope_terms => array['App2029.jsx'])->'active_scopes') e where e->>'scope_key' in ('T_RELEASED','T_CANCELLED','T_RELEASED2','T_CLOSED','T_TOPIC','T_READONLY','T_RELAUTH','T_BLOCKED')), 'released/non-writer task in active_scopes';
+end $$;
+
+-- 2c. misc contract: window info, config, scope_key cap, blank terms
+do $$ declare r jsonb; f oid := 'public.coordination_read_current(text,text[],boolean,integer,text)'::regprocedure; begin
+  r := public.coordination_read_current(p_scope_terms => array['longkeyzone']);
+  assert length(r->'rows'->0->>'scope_key') = 200, 'scope_key not capped in rows';
+  assert (select max(length(e->>'scope_key')) from jsonb_array_elements(r->'active_scopes') e) <= 200, 'scope_key not capped in active_scopes';
+  assert (r->>'window_days')::int = 30 and (r->>'older_open_claims')::int = 1, 'older_open_claims (T_ANCIENT): ' || (r - 'rows' - 'active_scopes')::text;
+  assert (select proconfig from pg_proc where oid = f) @> array['statement_timeout=3s'], 'statement_timeout not set';
+  begin perform public.coordination_read_current(p_scope_terms => array['     ']); raise exception 'FAIL blank'; exception when invalid_parameter_value then null; end;
+  begin perform public.coordination_read_current(p_scope_terms => array['  a  ']); raise exception 'FAIL blank2'; exception when invalid_parameter_value then null; end;
+  -- READ_ONLY reviewer's AFTER under a shared key does not release the write claim
+  r := public.coordination_read_current(p_scope_terms => array['sharedzone']);
+  assert (r->>'total_matches')::int = 1 and r->'rows'->0->>'from_actor' = 'GPT', 'shared-key reviewer AFTER closed the writer';
+  -- a directory claim covers files beneath it, not siblings
+  r := public.coordination_read_current(p_scope_terms => array['src/pages/other/File.jsx']);
+  assert (r->>'total_matches')::int = 0, 'directory claim over-matches siblings';
 end $$;
 
 -- 3. >50 writers: truncation explicit at both levels, never an all-clear
 do $$ declare r jsonb; begin
   r := public.coordination_read_current(p_scope_terms => array['bulkzone'], p_limit => 100000);
   assert (r->>'total_matches')::int = 70 and (r->>'returned')::int = 50 and (r->>'truncated')::boolean, 'match truncation: ' || (r - 'rows' - 'active_scopes')::text;
-  assert (r->>'active_total')::int = 80 and jsonb_array_length(r->'active_scopes') = 50 and (r->>'active_truncated')::boolean, 'active truncation: ' || (r - 'rows' - 'active_scopes')::text;
+  assert (r->>'active_total')::int = 86 and jsonb_array_length(r->'active_scopes') = 50 and (r->>'active_truncated')::boolean, 'active truncation: ' || (r - 'rows' - 'active_scopes')::text;
   r := public.coordination_read_current(p_limit => -5, p_scope_terms => array['bulkzone']);
   assert (r->>'returned')::int = 1 and (r->>'truncated')::boolean, 'negative limit';
   -- even a clean scope reports active_truncated while >50 writers exist (caller cannot compare globs)
@@ -169,7 +186,7 @@ delete from public.work_log where task_key like 'T_BULK_%' or topic like 'teleme
 select pg_temp.claims('00000000-0000-0000-0000-0000000000a1'); set role authenticated;
 do $$ declare r jsonb; begin
   r := public.coordination_read_current(p_scope_terms => array['community/chat']);
-  assert (r->>'total_matches')::int = 0 and not (r->>'truncated')::boolean and not (r->>'active_truncated')::boolean and (r->>'active_total')::int = 10, 'small world all-clear: ' || (r - 'rows' - 'active_scopes')::text;
+  assert (r->>'total_matches')::int = 0 and not (r->>'truncated')::boolean and not (r->>'active_truncated')::boolean and (r->>'active_total')::int = 16, 'small world all-clear: ' || (r - 'rows' - 'active_scopes')::text;
 end $$;
 reset role;
 
