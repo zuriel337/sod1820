@@ -165,7 +165,7 @@ test("merge: repeated pack values become references; other existing connections 
 
 test("wiring: same Post surfaceFindings path; governed owners + live deps injected in the projection; no DB write", () => {
   const post = fs.readFileSync("src/pages/Post2029Page.jsx", "utf8");
-  assert.match(post, /goldenPublicSurfaceFindings\(\{\s*rows: mergeContextPackWithConnections\(/);
+  assert.match(post, /projectorModule\.goldenPublicSurfaceFindings\(\{\s*rows: packModule\.mergeContextPackWithConnections\(/);
   // Bennett mapping is preserved verbatim; ordinary posts get [].
   assert.match(post, /post\.slug === "bennett-melach-631-78"/);
   assert.match(post, /\.filter\(\(connection\) => connection\.id !== "bennett-631"\)/);

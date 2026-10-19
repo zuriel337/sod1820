@@ -55,6 +55,8 @@ test("the native post mounts the archive behind its public projection and uses t
   assert.match(component, /<details>/);
   assert.match(component, /<p dir="auto">\{comment\.text\}<\/p>/);
   assert.doesNotMatch(component, /dangerouslySetInnerHTML|legacy\.jsx|Discourse|useOpenWeb/);
+  assert.match(page, /const PostComments2029 = lazy\(\(\) => import\("\.\.\/components\/experience2029\/PostComments2029\.jsx"\)\)/);
   assert.match(page, /publicPostCommentArchiveId\(state\.projection\)/);
-  assert.match(page, /commentArchiveId != null \? <PostComments2029/);
+  assert.match(page, /commentArchiveId != null && !state\.extensionsLoading \? <Suspense fallback=\{null\}>/);
+  assert.match(page, /<PostComments2029 key=\{String\(commentArchiveId\)\} postWpId=\{commentArchiveId\}/);
 });

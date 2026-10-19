@@ -3,6 +3,9 @@ import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPos
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
+import { buildPost2029PrimaryProjection } from "./post2029PrimaryProjection.js";
+
+export { buildPost2029PrimaryProjection, resolvePostReadingRegion } from "./post2029PrimaryProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -197,20 +200,6 @@ function markFz1073RegionHeadings(content = "") {
   return html;
 }
 
-// Resolve only regions of the currently loaded Post. This reads the existing Context;
-// it creates no history, source identity or access grant.
-export function resolvePostReadingRegion(projection, context, hash = "") {
-  const regions = projection?.regions || [];
-  const byLocator = (locator) => regions.find((region) => locator === `#source-region-${region.id}`)?.id || null;
-  const fromHash = byLocator(hash);
-  if (fromHash) return fromHash;
-  const post = projection?.post;
-  const samePost = post && context?.subject?.type === "post"
-    && String(context.subject.id) === String(post.id)
-    && (!context.subject.href || context.subject.href.split("#")[0] === `/post/${post.slug}`);
-  if (!samePost) return null;
-  return byLocator(context.selection?.locator);
-}
 function buildFz1073Experience(post, topic363 = null) {
   const href = "/" + "post/" + FZ1073_SLUG;
   const videoSrc = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/video/2026/10/plane-14000-14-75/final-20261001-v4.mp4";
@@ -774,96 +763,99 @@ export async function fetchGoldenContextPackBySlug(slug) {
   return post ? fetchGoldenContextPack(post) : null;
 }
 
-export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
-  const publicPost = await getPostBySlug(slug);
-  const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
-  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG
-    ? (await import("./post2029PreviewSnapshot.js")).POST2029_PREVIEW_SNAPSHOT : null;
-  const post = publicPost || privateStage || previewSnapshot;
-  if (!post) return null;
+function postProjectionKinds(post) {
+  return {
+    isGolden: post?.slug === GOLDEN_SLUG,
+    isFz1073Pilot: post?.slug === FZ1073_SLUG,
+    isBennettSaltPilot: post?.slug === BENNETT_SALT_SLUG,
+    isElectionsChain: post?.slug === ELECTIONS_SLUG,
+  };
+}
 
-  // Source-first delivery is opt-in. Only the real public reader can produce it;
-  // private stages and preview snapshots never become an early public source.
-  // No verification/context-pack result is fabricated while enrichment runs.
-  if (publicPost && typeof onPrimary === 'function') {
-    try {
-      onPrimary({
-        post: publicPost,
-        identity: { type: 'post', id: String(publicPost.id), slug: publicPost.slug, href: `/post/${publicPost.slug}` },
-        experience: { media: projectPost2029Experience(publicPost).media, timeline: [] },
-        draft: Array.isArray(publicPost.tags) && publicPost.tags.includes('טיוטה'),
-        privateStage: false, previewSnapshot: false, extensionsPending: true,
-      });
-    } catch { /* An optional early consumer cannot prevent the normal full reader. */ }
+function buildPresentationPost(post, kinds, {
+  topic363 = null,
+  electionsVerification = null,
+  bennettStoryClaims = new Set(),
+} = {}) {
+  if (kinds.isFz1073Pilot) {
+    return {
+      ...post,
+      content: markFz1073RegionHeadings(post.content),
+      _experience: buildFz1073Experience(post, topic363),
+    };
   }
+  if (kinds.isElectionsChain) {
+    return {
+      ...post,
+      content: markElectionsChain(post.content, electionsVerification),
+      _experience: buildElectionsExperience(post),
+    };
+  }
+  if (kinds.isBennettSaltPilot) {
+    return {
+      ...post,
+      content: markBennettStory(post.content, bennettStoryClaims),
+      _experience: buildBennettSaltExperience(post),
+    };
+  }
+  return { ...post, content: markLegacyEqualityLines(post.content) };
+}
 
-  const isGolden = post.slug === GOLDEN_SLUG;
-  const isFz1073Pilot = post.slug === FZ1073_SLUG;
-  const isBennettSaltPilot = post.slug === BENNETT_SALT_SLUG;
-  const isElectionsChain = post.slug === ELECTIONS_SLUG;
-  const electionsVerification = isElectionsChain ? await verifyElectionsEqualities() : null;
-  const yearVerification = isGolden ? await verifyTashpaz() : null;
-  const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
-  const bennettStoryClaims = isBennettSaltPilot ? await verifyBennettStoryClaims(post.content) : new Set();
-  const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
-  const presentationPost = isFz1073Pilot
-    ? {
-        ...post,
-        content: markFz1073RegionHeadings(post.content),
-        _experience: buildFz1073Experience(post, topic363),
-      }
-    : isElectionsChain
-      ? {
-          ...post,
-          content: markElectionsChain(post.content, electionsVerification),
-          _experience: buildElectionsExperience(post),
-        }
-    : isBennettSaltPilot
-      ? {
-          ...post,
-          content: markBennettStory(post.content, bennettStoryClaims),
-          _experience: buildBennettSaltExperience(post),
-        }
-      : { ...post, content: markLegacyEqualityLines(post.content) };
-  const regions = (isGolden
+function buildProjectionRegions(presentationPost, kinds, {
+  yearVerification = null,
+  bennettSaltVerification = null,
+} = {}) {
+  const rows = kinds.isGolden
     ? GOLDEN_REGIONS
-    : isFz1073Pilot
+    : kinds.isFz1073Pilot
       ? FZ1073_REGIONS
-      : isBennettSaltPilot
+      : kinds.isBennettSaltPilot
         ? BENNETT_SALT_REGIONS
-        : isElectionsChain
+        : kinds.isElectionsChain
           ? ELECTIONS_REGIONS
-          : defaultRegionsFromSource(presentationPost.content)).map((region) => ({
-        ...region,
-        verification: region.number === 787 && isGolden
-          ? yearVerification
-          : isBennettSaltPilot && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
-            ? bennettSaltVerification
-            : null,
-        contextualNumberFocus: isBennettSaltPilot
-          && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
-          && bennettSaltVerification?.verified === true
-          ? BENNETT_CONTEXTUAL_NUMBER_FOCUS
-          : null,
-      }));
+          : defaultRegionsFromSource(presentationPost.content);
+  return rows.map((region) => ({
+    ...region,
+    verification: region.number === 787 && kinds.isGolden
+      ? yearVerification
+      : kinds.isBennettSaltPilot && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
+        ? bennettSaltVerification
+        : null,
+    contextualNumberFocus: kinds.isBennettSaltPilot
+      && region.id === BENNETT_CONTEXTUAL_NUMBER_FOCUS.regionId
+      && bennettSaltVerification?.verified === true
+      ? BENNETT_CONTEXTUAL_NUMBER_FOCUS
+      : null,
+  }));
+}
 
+function baseProjectionExperience(presentationPost, kinds) {
   const projectedExperience = projectPost2029Experience(presentationPost);
-  const baseExperience = isGolden
+  return kinds.isGolden
     && !projectedExperience.media
     && projectedExperience.connections.length === 0
     && projectedExperience.timeline.length === 0
     && projectedExperience.trail.length === 0
       ? buildPost2029ArchitectureWireframe()
       : projectedExperience;
-  const [experience, contextPack] = await Promise.all([
-    resolvePostExperienceConnections(baseExperience),
-    fetchGoldenContextPack(post),
-  ]);
-  const sourceRegions = regions.length ? regions : [{ id: "post-story", heading: post.title, label: "הסיפור", primary: post.title, signals: [] }];
-  const readingRegions = experience.connections.some((connection) => connection.href)
+}
+
+function composePostReadingProjection({
+  post,
+  presentationPost,
+  kinds,
+  regions,
+  experience,
+  contextPack = null,
+  extensionsPending = false,
+}) {
+  const sourceRegions = regions.length
+    ? regions
+    : [{ id: "post-story", heading: post.title, label: "הסיפור", primary: post.title, signals: [] }];
+  const readingRegions = (experience?.connections || []).some((connection) => connection.href)
     ? [...sourceRegions, { id: "post-connections", heading: "הסיפור ממשיך מכאן", label: "חיבורים מתוך הפוסט", primary: "הסיפור ממשיך מכאן", signals: [] }]
     : sourceRegions;
-
+  const { isGolden, isFz1073Pilot, isBennettSaltPilot, isElectionsChain } = kinds;
   return {
     version: "post-2029-reading-v1",
     post: presentationPost,
@@ -879,10 +871,16 @@ export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
         ? "תיעוד אירוע · Flydubai FZ1073"
         : isElectionsChain
           ? "הבחירות לכנסת ה־26 · תחילת הרמזים"
+          : isBennettSaltPilot
+            ? "תיעוד אירוע · בני ברק · 24.09.2026"
+            : clean(post.author) || "מקור הפוסט",
+    sourceLabel: isFz1073Pilot
+      ? "FZ1073 · תיעוד אירוע"
+      : isElectionsChain
+        ? "הבחירות · ציר 631"
         : isBennettSaltPilot
-          ? "תיעוד אירוע · בני ברק · 24.09.2026"
+          ? "בנט · ציר 631"
           : clean(post.author) || "מקור הפוסט",
-    sourceLabel: isFz1073Pilot ? "FZ1073 · תיעוד אירוע" : isElectionsChain ? "הבחירות · ציר 631" : isBennettSaltPilot ? "בנט · ציר 631" : clean(post.author) || "מקור הפוסט",
     excerpt: clean(post.excerpt) || stripTags(post.content).slice(0, 220),
     regions: readingRegions,
     defaultRegionId: readingRegions[0]?.id || null,
@@ -896,18 +894,72 @@ export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
         ? "הפוסט הוא מקור הסיפור. החיבורים בשוליים הם שכבת הקשר נפרדת; רמת רמז אינה ציון אמת."
         : isElectionsChain
           ? "המספרים והחישובים מוצגים כפי שהם. החיבורים בשוליים הם שכבת קריאה נפרדת; המשך הציר חי בפוסט נפרד."
-        : isBennettSaltPilot
-          ? "האירוע המתועד, החישובים והפרשנות נשמרים כשכבות נפרדות. אין כאן טענת סיבתיות או עמדה פוליטית."
-          : "שכבת ההקשר אינה חלק מדברי המקור.",
+          : isBennettSaltPilot
+            ? "האירוע המתועד, החישובים והפרשנות נשמרים כשכבות נפרדות. אין כאן טענת סיבתיות או עמדה פוליטית."
+            : "שכבת ההקשר אינה חלק מדברי המקור.",
     experience,
     contextPack,
+    extensionsPending,
   };
+}
+
+export async function enrichPost2029ReadingProjection(post) {
+  if (!post) return null;
+  const kinds = postProjectionKinds(post);
+  const { isGolden, isFz1073Pilot, isBennettSaltPilot, isElectionsChain } = kinds;
+  const electionsVerification = isElectionsChain ? await verifyElectionsEqualities() : null;
+  const yearVerification = isGolden ? await verifyTashpaz() : null;
+  const bennettSaltVerification = isBennettSaltPilot ? await verifyBennettSaltFocus() : null;
+  const bennettStoryClaims = isBennettSaltPilot ? await verifyBennettStoryClaims(post.content) : new Set();
+  const topic363 = isFz1073Pilot ? await fetchFz1073Topic363() : null;
+  const presentationPost = buildPresentationPost(post, kinds, {
+    topic363,
+    electionsVerification,
+    bennettStoryClaims,
+  });
+  const regions = buildProjectionRegions(presentationPost, kinds, {
+    yearVerification,
+    bennettSaltVerification,
+  });
+  const baseExperience = baseProjectionExperience(presentationPost, kinds);
+  const [experience, contextPack] = await Promise.all([
+    resolvePostExperienceConnections(baseExperience),
+    fetchGoldenContextPack(post),
+  ]);
+  return composePostReadingProjection({
+    post,
+    presentationPost,
+    kinds,
+    regions,
+    experience,
+    contextPack,
+    extensionsPending: false,
+  });
+}
+
+export async function fetchPost2029ReadingProjection(slug, { onPrimary } = {}) {
+  const publicPost = await getPostBySlug(slug);
+  const privateStage = publicPost ? null : await fetchPrivateGoldenStage(slug);
+  const previewSnapshot = !publicPost && !privateStage && slug === GOLDEN_SLUG
+    ? (await import("./post2029PreviewSnapshot.js")).POST2029_PREVIEW_SNAPSHOT : null;
+  const post = publicPost || privateStage || previewSnapshot;
+  if (!post) return null;
+
+  // Source-first delivery is opt-in. Only the real public reader can produce it;
+  // private stages and preview snapshots never become an early public source.
+  // No verification/context-pack result is fabricated while enrichment runs.
+  if (publicPost && typeof onPrimary === "function") {
+    try { onPrimary(buildPost2029PrimaryProjection(publicPost)); }
+    catch { /* An optional early consumer cannot prevent the normal full reader. */ }
+  }
+  return enrichPost2029ReadingProjection(post);
 }
 
 export const post2029ReadingInternals = {
   markLegacyEqualityLines,
   stripTags,
   defaultRegionsFromSource,
+  buildPost2029PrimaryProjection,
   BENNETT_CONTEXTUAL_NUMBER_FOCUS,
   markBennettContextualNumberFocus,
   GOLDEN_REGIONS,
