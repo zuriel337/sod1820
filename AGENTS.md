@@ -13,6 +13,8 @@ missing, stale or failed evidence means NO_GO. Record test gaps honestly.
 > This file is a **runtime routing adapter**, not a new system, contract, owner map, memory store, queue or source of project truth.
 > The current authoritative pointers are `CLAUDE.md`, `SOD1820_MASTER_OWNER_INDEX.md`, the canonical Supabase project `linswmnnkjxvweumprav`, and live `origin/main`.
 
+> **PENDING (DRAFT, NOT ACTIVE): `inter_agent_coordination_law` v18 — FAST EXECUTION** — see `docs/coordination-drafts/inter-agent-coordination-law-v18-draft.md`. Until ZURIEL explicitly activates it, v17 and the text of this file apply unchanged. Do not treat the draft as permission to skip the coordination check, merge, deploy, change grants/OAuth, or touch Production.
+
 ## Every session startup — preserving existing main behavior
 
 At the start of every SOD1820 session, verify access to the canonical

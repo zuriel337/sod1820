@@ -5,6 +5,8 @@
 > Canonical routing index: `SOD1820_MASTER_OWNER_INDEX.md` on current `origin/main`.
 > Canonical Supabase project: `linswmnnkjxvweumprav`.
 
+> **PENDING (DRAFT, NOT ACTIVE): `inter_agent_coordination_law` v18 — FAST EXECUTION** — see `docs/coordination-drafts/inter-agent-coordination-law-v18-draft.md`. Until ZURIEL explicitly activates it, v17 and the text of this file apply unchanged; the draft grants no permission to merge, deploy, change grants/OAuth or touch Production.
+
 ## 1. Task start — pointers, not a rule dump
 
 For every substantial task:

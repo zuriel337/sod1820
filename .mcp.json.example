@@ -1,0 +1,9 @@
+{
+  "_comment": "TEMPLATE ONLY. Copy to .mcp.json AFTER ZURIEL approves deploying coordination-mcp and the agent Auth user exists (docs/coordination-reader-gateway-v1.md). OAuth is performed by the MCP client; never put tokens or keys in this file.",
+  "mcpServers": {
+    "sod1820-coordination": {
+      "type": "http",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/functions/v1/coordination-mcp"
+    }
+  }
+}
