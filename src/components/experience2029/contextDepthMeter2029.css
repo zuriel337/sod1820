@@ -1,0 +1,36 @@
+/* Context Depth meter — presentation only. System Frame --s29-* roles (day / parchment / night), no palette of its own.
+   Coverage is drawn as fill + pattern + text, never colour alone, and never summed into a score. */
+.sod29-depth-compact{display:inline-flex;justify-self:start;width:fit-content;max-width:100%;align-items:center;gap:8px;min-height:36px;padding:3px 10px;border:1px solid var(--s29-line-strong);border-radius:999px;background:var(--s29-panel-soft);color:var(--s29-ink);cursor:pointer;font-size:var(--s29-type-micro)}
+.sod29-depth-compact:hover,.sod29-depth-compact[aria-expanded="true"]{border-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel-soft))}
+.sod29-depth-compact:focus-visible,.sod29-depth-numbers button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:3px}
+.sod29-depth-compact-title{font-weight:850}
+.sod29-depth-pips{display:inline-flex;gap:3px;align-items:center}
+.sod29-depth-pips i{display:block;width:10px;height:14px;border-radius:3px;border:1.5px solid var(--s29-accent);background:transparent;font-style:normal}
+.sod29-depth-pips i[data-coverage="full"]{background:var(--s29-accent)}
+.sod29-depth-pips i[data-coverage="partial"]{background:linear-gradient(to top,var(--s29-accent) 50%,transparent 50%)}
+.sod29-depth-pips i[data-coverage="none"]{border-style:solid;border-color:var(--s29-line-strong);opacity:.7}
+.sod29-depth-pips i[data-coverage="unmapped"]{border-style:dashed;border-color:var(--s29-muted);opacity:.85}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips{flex-wrap:wrap;max-width:230px}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i{width:auto;height:auto;padding:1px 6px;border-radius:999px;font-size:10px;line-height:1.4;color:var(--s29-ink)}
+.sod29-depth-compact[data-look="chips"] .sod29-depth-pips i[data-coverage="full"]{color:var(--s29-on-accent,#fff)}
+.sod29-depth{display:grid;gap:10px;border:1px solid var(--s29-line-strong);border-radius:17px;padding:14px;background:var(--s29-panel-grad);color:var(--s29-ink)}
+.sod29-depth>header{display:grid;gap:3px}.sod29-depth>header small{color:var(--s29-muted);font-weight:800;font-size:var(--s29-type-micro);letter-spacing:.06em}
+.sod29-depth>header strong{font-size:var(--s29-type-lead,18px);line-height:1.25}.sod29-depth>header p{margin:2px 0 0;color:var(--s29-muted);font-size:var(--s29-type-small);line-height:1.5}
+.sod29-depth-dims{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.sod29-depth-dims>li{border:1px solid var(--s29-line);border-radius:13px;padding:10px 12px;background:var(--s29-panel);display:grid;gap:4px;align-content:start}
+.sod29-depth-dims>li[data-coverage="unmapped"]{border-style:dashed}
+.sod29-depth-dim-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sod29-depth-dims small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+.sod29-depth-chip{border:1px solid var(--s29-line-strong);border-radius:999px;padding:0 8px;font-size:var(--s29-type-micro);font-weight:800;white-space:nowrap}
+.sod29-depth-chip[data-coverage="full"]{border-color:var(--s29-accent);color:var(--s29-accent-text)}
+.sod29-depth-chip[data-coverage="unmapped"]{border-style:dashed;color:var(--s29-muted)}
+.sod29-depth-facts{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:2px;font-size:var(--s29-type-small);line-height:1.45}
+.sod29-depth-note,.sod29-depth-dependency{margin:0;font-size:var(--s29-type-small);line-height:1.55;color:var(--s29-muted)}
+.sod29-depth-dependency{border-inline-start:3px solid var(--s29-warm-accent);padding-inline-start:9px}
+.sod29-depth-numbers{display:flex;flex-wrap:wrap;gap:6px}
+.sod29-depth-numbers button{min-height:44px;min-width:64px;display:grid;place-items:center;padding:4px 12px;border:1px solid var(--s29-line-strong);border-radius:13px;background:var(--s29-panel);color:var(--s29-ink);cursor:pointer}
+.sod29-depth-numbers button[aria-pressed="true"]{border-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel))}
+.sod29-depth-numbers small{color:var(--s29-muted);font-size:10px}
+.sod29-depth-number{display:grid;gap:3px;border:1px solid var(--s29-line);border-radius:13px;padding:10px 12px;background:var(--s29-panel)}
+.sod29-depth-number h4{margin:0;font-size:22px}.sod29-depth-number p{margin:0;font-size:var(--s29-type-small);line-height:1.5}
+@media(max-width:520px){.sod29-depth-dims{grid-template-columns:1fr}}
