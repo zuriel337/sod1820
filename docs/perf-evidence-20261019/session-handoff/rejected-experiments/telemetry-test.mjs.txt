@@ -1,0 +1,33 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const app = readFileSync(new URL("../src/App2029.jsx", import.meta.url), "utf8");
+const runtime = readFileSync(new URL("../src/lib/telemetryRuntime2029.js", import.meta.url), "utf8");
+
+test("2029 keeps telemetry owners behind the existing analytics switch", () => {
+  assert.match(app, /useRuntimeSwitch\("fx_analytics"\)/);
+  assert.match(app, /import\("\.\/lib\/telemetryRuntime2029\.js"\)/);
+  assert.doesNotMatch(app, /^import .*from "\.\/lib\/(?:analytics|marketing|visits|engagement|identity|webVitals2029)\.js";/m);
+
+  for (const owner of [
+    "initGA",
+    "trackPageview",
+    "initMarketing",
+    "trackMarketingPageview",
+    "trackVisit",
+    "startPageEngagement",
+    "ensureIdentity",
+    "startWebVitals2029",
+  ]) {
+    assert.match(runtime, new RegExp(`\\b${owner}\\b`));
+    assert.match(app, new RegExp(`\\b${owner}\\b`));
+  }
+});
+
+test("route cleanup cancels late telemetry work without turning a failed observer into a product failure", () => {
+  assert.match(app, /let active = true;[\s\S]*loadTelemetryRuntime2029\(\)\.then/);
+  assert.match(app, /active = false;[\s\S]*stopWebVitals\?\.\(\)/);
+  assert.match(app, /if \(timer != null\) clearTimeout\(timer\)/);
+  assert.equal((app.match(/\.catch\(\(\) => \{\}\)/g) || []).length >= 2, true);
+});

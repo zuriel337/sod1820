@@ -123,7 +123,7 @@ const HOME_NAV = [
   { to: "/heichal", label: "היכל", icon: "◇" },
   { to: "/posts", label: "פוסטים", icon: "↟" },
   { label: "מסעות", icon: "↝", status: "בקרוב" },
-  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+  { label: "אזור משתמשים", icon: "◎", iconName: "personal", action: "workspace" },
 ];
 
 const DIRECT_NAV = [
@@ -135,11 +135,11 @@ const DIRECT_NAV = [
 const CORE_HOME_NAV = [
   { to: "/", label: "בית", icon: "⌂", exact: true },
   { to: "/posts", label: "פוסטים", icon: "↟" },
-  { to: "/community/chat", label: "צ׳אט", icon: "◉" },
+  { to: "/community/chat", label: "קהילה", icon: "◎", iconName: "community" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
   HOME_NAV[4],
-  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+  { label: "אזור משתמשים", icon: "◎", iconName: "personal", action: "workspace" },
 ];
 
 const CORE_DIRECT_NAV = [
@@ -331,7 +331,7 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
       <div className="sod29-nav-group-title">{title}</div>
       {items.map((item) => item.locked ? (
         <button className="sod29-nav-link is-gated" key={item.label} type="button" disabled aria-label={`${item.label} · נעול`} title={`${item.label} · נעול`}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.iconName} glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label} · נעול</span>
         </button>
       ) : item.to ? (
@@ -345,17 +345,17 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
           state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.iconName} glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
       ) : item.action ? (
         <button className="sod29-nav-link" key={item.label} aria-label={item.label} title={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.iconName} glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </button>
       ) : (
         <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled aria-label={`${item.label} · ${item.status}`} title={`${item.label} · ${item.status}`}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.iconName} glyph={item.icon} label={item.label} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
           <span className="sod29-nav-status">{item.status}</span>
         </button>

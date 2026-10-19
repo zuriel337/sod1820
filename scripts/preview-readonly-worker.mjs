@@ -22,6 +22,11 @@ export const PREVIEW_READ_RPC_ALLOWLIST = Object.freeze([
   "convergence_meter",
   "get_category_videos",
   "notification_prefs_guest_get_v1",
+  // Verified STABLE readers installed by the Community soft-delete migration.
+  // Search/history/restore/claims are not installed or admitted here.
+  "community_feed_page",
+  "community_replies_page",
+  "community_reply_counts",
 ]);
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
