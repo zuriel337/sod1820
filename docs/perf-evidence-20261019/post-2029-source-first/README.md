@@ -61,4 +61,8 @@ The first remote run on PR #1123 exposed one stale Golden wiring assertion; it w
 - G4 launches all 23 browser cases without the now-required CI isolation wrapper, so every case stops before navigation;
 - the performance replay corpus does not map two Home Post reads already made by the exact base SHA. A local isolated replay of `aa0b2750` reproduces those same two misses, while a Post-only replay of this branch passes with zero forbidden I/O.
 
+## Hosted Preview status
+
+Vercel deployment `dpl_Bqz3fHf1vMzowECWs5tHjnsXYzMs` was created as a Preview from the exact branch head and failed closed before building. The integrated builder accepts only the older integration branch `gpt/perf-unified-wave4-preview-20261018`. The Hybrid artifact cannot be substituted: its sealed receipt explicitly reports `hostedPreviewReady: false` because hosted service-worker attestation and Vercel routing have not been enabled. No branch guard was bypassed, no integration branch moved, and no deployable Preview is claimed for this patch.
+
 Raw measurements are in `measurements.json`.
