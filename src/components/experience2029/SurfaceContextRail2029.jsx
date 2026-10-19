@@ -1,7 +1,12 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../lib/AuthContext.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
+import { contextMapReaders } from "../../lib/research/contextMapReaders2029.js";
+// Opened on demand: the map module and its reads load only when the reader asks for the context map.
+const ContextMapPanel2029 = lazy(() => import("./ContextMap2029.jsx"));
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
@@ -69,6 +74,9 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAdmin } = useAuth();
   const findings = Array.isArray(context?.dimensions?.surfaceFindings) ? context.dimensions.surfaceFindings : [];
   const focusedFinding = subject?.type === "finding";
   const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
@@ -84,6 +92,23 @@ export default function SurfaceContextRail2029({
     reason: finding.reason,
     href: finding.href,
     sourceLabel: finding.sourceLabel || finding.kind,
+  });
+  // Exact return: the origin (this Context, anchored at the map) is written as returnTo before leaving.
+  const openFromContextMap = (item) => {
+    if (item.type === "number" && onOpenNumber) { onOpenNumber({ id: String(item.label), type: "number", label: String(item.label), href: `/number/${item.label}` }); return; }
+    if (!item.href) return;
+    const origin = `${location.pathname}${location.search}#sod29-context-map`;
+    research.updateResearchContext?.({
+      subject: { id: item.id, type: item.type, label: item.label, href: item.href },
+      returnTo: { href: origin, label: title, subject: { ...(context?.subject || { id: String(number), type: "number", label: title }), href: origin },
+        selection: context?.selection || null, lens: context?.lens || null, dimensions: context?.dimensions, journey: context?.journey || null },
+    });
+    onNavigate?.();
+    navigate(item.href);
+  };
+  const refocusFromContextMap = (item) => setSurfaceFocus({
+    id: item.id, type: "finding", sectionLabel: "מפת הקשר", label: item.label, primary: item.label,
+    number: /^\d+$/.test(item.label) ? Number(item.label) : undefined, reason: item.why, href: item.href || undefined, sourceLabel: item.basisLabel,
   });
   const restFromFinding = () => {
     const reading = context?.dimensions?.readingFocus || {};
@@ -253,6 +278,10 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
+      {hasNumber && !restMode ? <div id="sod29-context-map"><Suspense fallback={null}>
+        <ContextMapPanel2029 focus={{ type: "number", id: String(number), label: String(number) }} audience={isAdmin ? "admin" : "public"}
+          readers={contextMapReaders} onRefocus={refocusFromContextMap} onOpen={openFromContextMap} />
+      </Suspense></div> : null}
       {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
       {surface === "post" ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}
