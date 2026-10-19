@@ -5,7 +5,7 @@
 // community_* functions that mirrors tests/sql/community_edit_delete_threads.sql. No live service is reached.
 // Usage: PLAYWRIGHT_MODULE=/path/to/playwright node scripts/test-community-edit-delete-ui.mjs
 import { createServer } from "node:http";
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, statSync, readFileSync } from "node:fs";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
@@ -34,13 +34,19 @@ async function scenario(name, fn) {
 
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" });
 
-async function open({ as = null, rpc = "on", failDelete = false, viewport = { width: 1280, height: 900 }, theme = null, path = "/community/chat", selector = ".sod29-community-thread", shared = null } = {}) {
+async function open({ as = null, rpc = "on", failDelete = false, viewport = { width: 1280, height: 900 }, theme = null, path = "/community/chat", selector = ".sod29-community-thread", shared = null, readOnlyPreview = null } = {}) {
   const context = await browser.newContext({ viewport, locale: "he-IL", permissions: ["clipboard-read", "clipboard-write"] });
   const rows = shared?.rows || makeStore(); const sem = shared?.sem || semantics(rows);
   const log = { launcher: 0, tableReads: 0, rpcCalls: [], writes: [], errors: [] };
   if (as) { const { session } = sessionFor(as); await context.addInitScript((v) => localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token", JSON.stringify(v)), session); }
   if (theme) await context.addInitScript((t) => { try { localStorage.setItem("sod29-theme-preset", t); localStorage.setItem("theme-preset", t); } catch {} }, theme);
   await installFakeBackend(context, { base: BASE, rows, sem, log, rpc, failDelete });
+  if (readOnlyPreview) await context.route((url) => url.origin === BASE, async (route) => {
+    if (route.request().resourceType() !== "document") return route.fallback();
+    const marker = readOnlyPreview === "hosted" ? "sod-preview-readonly-bootstrap" : "sod-hybrid-local-readonly";
+    const html = readFileSync(resolve(root, "2029.html"), "utf8");
+    return route.fulfill({ status: 200, contentType: "text/html", body: html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}<script id="${marker}" type="application/json">{}</script>`) });
+  });
   const page = await context.newPage();
   page.on("pageerror", (error) => log.errors.push(error.message));
   await page.goto(`${BASE}${path}`);
@@ -50,6 +56,25 @@ async function open({ as = null, rpc = "on", failDelete = false, viewport = { wi
 const shareStore = () => { const rows = makeStore(); return { rows, sem: semantics(rows) }; };
 const msg = (page, text) => page.locator(".sod29-community-thread", { hasText: text }).first();
 const group = (page, text) => page.locator(".sod29-community-thread-group", { has: page.locator(".sod29-community-thread", { hasText: text }) }).first();
+
+await scenario("read-only Preview: real messages and threads remain usable without writes, claims or unavailable actions", async () => {
+  for (const mode of ["local", "hosted"]) for (const as of [null, A, ADMIN]) {
+    const { page, context, log } = await open({ as, readOnlyPreview: mode, viewport: { width: as === ADMIN ? 1440 : 390, height: 844 } });
+    await page.getByText("תצוגה לקריאה בלבד. שליחה ושינוי הודעות אינם פעילים בפריוויו הזה.", { exact: true }).waitFor();
+    assert.equal(await page.locator("#community-live-draft").isDisabled(), true);
+    assert.equal(await page.getByRole("button", { name: "פרסום", exact: true }).isDisabled(), true);
+    for (const name of ["עריכה", "מחיקה", "דיווח", "הסתרת השרשור", "מצא את החשבון הישן שלי"]) {
+      assert.equal(await page.getByRole("button", { name, exact: true }).count(), 0, name);
+    }
+    const thread = group(page, "הודעת מקור של אילנה");
+    await thread.getByRole("button", { name: "פתח עוד — 2 תגובות", exact: true }).click();
+    await thread.getByText("תגובה של בועז", { exact: true }).waitFor();
+    assert.equal(log.writes.length, 0, "a writable in-memory backend received no mutations");
+    assert.equal(log.rpcCalls.some((name) => /claim/i.test(String(name))), false, "sign-in must not auto-link an account in Preview");
+    assert.deepEqual(log.errors, []);
+    await context.close();
+  }
+});
 
 await scenario("menu: entry is ״קהילה״, keeps /community/chat, no ״צ׳אט״ — desktop and mobile", async () => {
   for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 800 }]) {

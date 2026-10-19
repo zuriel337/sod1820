@@ -15,6 +15,7 @@ import LegacyClaimCard from "./LegacyClaimCard.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
 import { claimLegacyByEmail, isLegacyContributorId } from "../../lib/community/legacyClaim.js";
+import { isCommunityReadOnlyPreview } from "../../lib/community/communityPreviewReadOnly.js";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
 
@@ -36,11 +37,12 @@ function LiveAuthor({ row, accountProfiles }) {
   </Link>;
 }
 
-function LiveLike({ row }) {
+function LiveLike({ row, readOnlyPreview = false }) {
   const reactions = row.reactions || {};
   const dislikes = Number(reactions.dislikes) || 0;
   return <div className="sod29-community-reactions">
-    <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" />
+    {readOnlyPreview ? <span className="sod29-community-like">אהבתי · {legacyLikeCount(reactions).toLocaleString("he-IL")}</span>
+      : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" />}
     {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
@@ -55,7 +57,7 @@ async function copyMessageLink(id) {
 const CommunityActionsContext = createContext({ actionsAvailable: false, user: null, isAdmin: false, patches: {}, onMessageChanged: () => {} });
 
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, hasReplies = false }) {
-  const { actionsAvailable, user, isAdmin, patches, onMessageChanged } = useContext(CommunityActionsContext);
+  const { actionsAvailable, user, isAdmin, patches, onMessageChanged, readOnlyPreview } = useContext(CommunityActionsContext);
   const [mode, setMode] = useState(null);
   const [linkNote, setLinkNote] = useState("");
   const row = patches[sourceRow.id] ? { ...sourceRow, ...patches[sourceRow.id] } : sourceRow;
@@ -67,7 +69,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   </article>;
   const can = communityMessagePermissions({ row, user, isAdmin, actionsAvailable });
   const edited = row.editedAt ? describeEdited(row.editedAt) : null;
-  const canReply = row.origin === "openweb" || row.origin === "community_2029";
+  const canReply = !readOnlyPreview && (row.origin === "openweb" || row.origin === "community_2029");
   const target = row.targetType === "number" && row.targetId ? `/number/${encodeURIComponent(row.targetId)}`
     : row.targetType === "els" && row.targetId ? `/codes/${encodeURIComponent(row.targetId)}`
     : row.targetType === "topic" && row.targetId ? `/topic/${encodeURIComponent(row.targetId)}` : null;
@@ -79,7 +81,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
       : row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
     <div className="sod29-community-thread-actions">
       {canReply ? <button type="button" className="sod29-community-reply-action" onClick={() => onReply(row)}>השב</button> : null}
-      <LiveLike row={row} />
+      <LiveLike row={row} readOnlyPreview={readOnlyPreview} />
       {can.edit && mode !== "edit" ? <button type="button" ref={manageRef} className="sod29-community-manage-action" onClick={() => setMode("edit")}>עריכה</button> : null}
       {can.remove && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => setMode("delete")}>מחיקה</button> : null}
       {can.history && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => setMode("history")}>היסטוריית עריכות</button> : null}
@@ -154,6 +156,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
 
 export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/?preview=community&data=live" }) {
   const palette = use2029Palette();
+  const readOnlyPreview = isCommunityReadOnlyPreview();
   const { user, profile, isAdmin } = useAuth();
   const [params, setParams] = useSearchParams();
   const claimId = params.get("claim") || "";
@@ -221,7 +224,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       setRows((current) => replace ? page.rows : [...current, ...page.rows.filter((item) => !current.some((existing) => existing.id === item.id))]);
       setNextOffset(page.nextOffset);
       if (page.count != null) { setTotal(page.count); setTotalVerified(true); }
-      setActionsAvailable(Boolean(page.actions));
+      setActionsAvailable(!readOnlyPreview && Boolean(page.actions));
     } catch {
       if (request !== streamRequestRef.current) return;
       setError("לא הצלחנו לטעון את השיחות כרגע.");
@@ -229,7 +232,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       if (feedReadRef.current === read) feedReadRef.current = null;
       if (request === streamRequestRef.current) { setLoading(false); setFeedSettled(true); }
     }
-  }, [sort]);
+  }, [sort, readOnlyPreview]);
 
   useEffect(() => { loadPage(0, true); return () => { streamRequestRef.current++; }; }, [loadPage]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(feedAnchorRef.current); feedAnchorRef.current = null; }, [rows]);
@@ -360,12 +363,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       refreshAfterRestore();
     } catch (err) { setNotice(describeCommunityActionError(err)); }
   };
-  const actionsContext = useMemo(() => ({ actionsAvailable, user, isAdmin: Boolean(isAdmin), patches, onMessageChanged }), [actionsAvailable, user, isAdmin, patches, onMessageChanged]);
+  const actionsContext = useMemo(() => ({ actionsAvailable, user, isAdmin: Boolean(isAdmin), patches, onMessageChanged, readOnlyPreview }), [actionsAvailable, user, isAdmin, patches, onMessageChanged, readOnlyPreview]);
 
   // A signed-in account whose confirmed email matches an old chat author is linked by the server. It runs once per tab
   // session on its own, and again whenever the reader presses the button on the legacy card.
   const checkLegacy = useCallback(async ({ manual = false } = {}) => {
-    if (!user?.id) return;
+    if (readOnlyPreview || !user?.id) return;
     if (manual) setLegacy({ status: "checking", messages: 0 });
     try {
       const result = await claimLegacyByEmail();
@@ -377,18 +380,19 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         loadPage(0, true);
       } else if (manual) setLegacy({ status: result.reason === "account_has_contributor" ? "has_contributor" : result.reason === "email_not_confirmed" ? "email_not_confirmed" : "no_match", messages: 0 });
     } catch { if (manual) setLegacy({ status: "error", messages: 0 }); }
-  }, [user?.id, loadPage]);
+  }, [user?.id, loadPage, readOnlyPreview]);
   useEffect(() => {
-    if (!user?.id) return;
+    if (readOnlyPreview || !user?.id) return;
     try { if (sessionStorage.getItem(`sod-legacy-auto-claim:${user.id}`)) return; } catch { /* storage unavailable: try once per mount */ }
     checkLegacy();
-  }, [user?.id, checkLegacy]);
+  }, [user?.id, checkLegacy, readOnlyPreview]);
   const focusSignIn = () => { const field = document.getElementById("community-sign-in-email"); field?.scrollIntoView({ block: "center" }); field?.focus(); };
 
   const messageParam = params.get("message") || "";
   useEffect(() => {
     setFocus(null);
     if (!messageParam || memberId || claimId || cardId) return undefined;
+    if (readOnlyPreview) { setNotice("קישור להודעה בודדת עדיין אינו זמין בפריוויו הזה."); return undefined; }
     let active = true;
     fetchCommunityMessageContext(messageParam).then((rows) => {
       if (!active) return;
@@ -397,7 +401,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       else { setFocus(rows); requestAnimationFrame(() => focusRef.current?.scrollIntoView({ block: "start" })); }
     }).catch(() => { if (active) setNotice("לא הצלחנו לפתוח את ההודעה שקיבלת אליה קישור."); });
     return () => { active = false; };
-  }, [messageParam, memberId, claimId, cardId]);
+  }, [messageParam, memberId, claimId, cardId, readOnlyPreview]);
   const openMessage = (id) => setParams((current) => { const next = new URLSearchParams(current); next.set("message", id); return next; });
   const closeFocus = () => setParams((current) => { const next = new URLSearchParams(current); next.delete("message"); return next; });
   const runArchiveSearch = async (offset = 0) => {
@@ -427,6 +431,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     } catch (err) { setAttachmentError(err.message); }
   };
   const submit = async () => {
+    if (readOnlyPreview) return;
     const body = draft.trim();
     if ((!body && !attachments.length) || sending) return;
     setSending(true); setNotice(""); setAttachmentError("");
@@ -456,8 +461,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     <CommunityActionsContext.Provider value={actionsContext}>
     {leadingContent}
     <main id="community-new-chat" className="sod29-community" data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
-      {claimId ? <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
+      {claimId ? readOnlyPreview ? <p className="sod29-community-status" role="status">חיבור חשבון אינו פעיל בפריוויו לקריאה בלבד.</p> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
       {!memberId && !claimId ? <header className="sod29-community-intro"><div><h1>הקהילה</h1><p>השיחות שלנו, במקום אחד.</p></div></header> : null}
+      {readOnlyPreview ? <p className="sod29-community-status" role="status">תצוגה לקריאה בלבד. שליחה ושינוי הודעות אינם פעילים בפריוויו הזה.</p> : null}
       {claimId ? null : memberId ? <section className="sod29-community-profile" aria-label={`הפרופיל של ${memberName}`}>
         <button type="button" className="sod29-community-text-action" onClick={closeProfile}>→ חזרה לשיחות</button>
         <header className="sod29-community-profile-hero"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{baseline?.name && baseline.name !== memberName ? <p>הודעות עבר בשם {baseline.name}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
@@ -468,16 +474,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         {profileError ? <p role="alert">{profileError}</p> : null}<div className="sod29-community-feed">{profileRows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={accountProfiles} showSource onReply={(item) => { closeProfile(); startReply(item); }} />)}</div>{profileLoading ? <p className="sod29-community-end">טוען פוסטים…</p> : null}{!profileRows.length && !profileLoading && !profileError ? <p className="sod29-community-end">אין פוסטים ציבוריים בסינון הזה.</p> : null}{profileNextOffset < profileCount ? <button className="sod29-community-load" type="button" disabled={profileLoading} onClick={async () => { setProfileLoading(true); try { const page = await fetchPublicAuthorActivityPage(memberId, { offset: profileNextOffset, filter: profileFilter, sort: profileSort }); setProfileRows((current) => [...current, ...page.rows]); setProfileNextOffset(page.nextOffset); } catch { setProfileError("טעינת פוסטים נוספים נכשלה."); } finally { setProfileLoading(false); } }}>עוד פוסטים</button> : null}
       </section> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunitySignIn />
-        <LegacyClaimCard user={user} legacy={legacy} onCheck={() => checkLegacy({ manual: true })} onSignInFocus={focusSignIn} />
+        {!readOnlyPreview ? <LegacyClaimCard user={user} legacy={legacy} onCheck={() => checkLegacy({ manual: true })} onSignInFocus={focusSignIn} /> : null}
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
           <label htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
-          <textarea ref={composerRef} id="community-live-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="הוסף תגובה…" />
+          <textarea ref={composerRef} id="community-live-draft" rows={2} maxLength={1500} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="הוסף תגובה…" disabled={readOnlyPreview} />
           <CommunityMessageContent text={draft} previewsOnly />
-          <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}>📎 צירוף תמונה, GIF או קובץ</button><input ref={attachmentRef} type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt,.docx" onChange={pickAttachments} hidden /><small>עד 3 קבצים · עד 8MB לקובץ · PDF, TXT, DOCX ותמונות · הקבצים גלויים לציבור</small></div>
+          <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={readOnlyPreview || sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}>📎 צירוף תמונה, GIF או קובץ</button><input ref={attachmentRef} type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.txt,.docx" onChange={pickAttachments} hidden disabled={readOnlyPreview} /><small>עד 3 קבצים · עד 8MB לקובץ · PDF, TXT, DOCX ותמונות · הקבצים גלויים לציבור</small></div>
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <li key={`${item.file.name}-${index}`}><span>{item.name}</span><button type="button" disabled={sending} onClick={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`הסרת ${item.name}`}>×</button></li>)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div>
+          <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={readOnlyPreview || (!draft.trim() && !attachments.length) || sending} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div>
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
           {undo ? <button type="button" className="sod29-community-text-action" onClick={undoLast}>{undo.kind === "hide-thread" ? "ביטול הסתרה" : "ביטול מחיקה"}</button> : null}
         </section>
