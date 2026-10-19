@@ -77,6 +77,7 @@ export function buildExpressionLayers(expr, { audience = "public" } = {}) {
   const withheld = audience !== "admin" && Boolean(calc) && calc.rowPublished !== true;
   return {
     phrase: expr?.phrase ?? null,
+    theme: expr?.theme ?? null,
     withheld,
     source: { items: sources, groups: sourceGroups(sources) },
     calculation: withheld ? null : calc && {
@@ -84,6 +85,8 @@ export function buildExpressionLayers(expr, { audience = "public" } = {}) {
       claimedValue: Number.isFinite(calc.claimedValue) ? calc.claimedValue : null,
       reproducesClaim: calc.reproducesClaim === true ? true : calc.reproducesClaim === false ? false : null,
       rowVerified: calc.rowVerified ?? null, rowPublished: calc.rowPublished ?? null,
+      // Attribution of the database row is its own fact (neither calculation nor publication) and is admin-only.
+      rowAttribution: audience === "admin" ? calc.rowAttribution ?? null : null,
     },
     interpretation: expr?.interpretation || null,
   };
@@ -97,7 +100,7 @@ export function buildExpressionLayers(expr, { audience = "public" } = {}) {
  *   convergence:ReturnType<typeof convergenceMeterFacts>|null}>} input.numbers
  * @param {"public"|"admin"} [input.audience]
  */
-export function buildContextDepth({ subject, numbers = [], audience = "public", temporal = null, yearHints = [], paths = [] } = {}) {
+export function buildContextDepth({ subject, numbers = [], audience = "public", temporal = null, yearHints = [], approvals = {}, paths = [] } = {}) {
   if (!subject?.id || !numbers.length) return null;
   const rows = numbers.map((n) => {
     const expressions = (n.expressions || []).map((e) => buildExpressionLayers(e, { audience }));
@@ -153,31 +156,37 @@ export function buildContextDepth({ subject, numbers = [], audience = "public", 
   };
 
   return {
-    subject, audience, numbers: rows, dependencies, yearHints: buildYearHints(yearHints, temporal, audience), paths: buildPaths(paths, audience), sourceCount: { groups, statements: allSources.length },
+    subject, audience, numbers: rows, dependencies, yearHints: buildYearHints(yearHints, temporal, audience, approvals), paths: buildPaths(paths, audience), sourceCount: { groups, statements: allSources.length },
     dimensions: DIMENSIONS.map((d) => ({ ...d, ...dims[d.key], coverageLabel: COVERAGE_LABEL[dims[d.key].coverage] })),
   };
 }
 
 /**
- * "Year hint" (DEC-TIME-004) over the existing time context (`timeFlow.getCurrentTemporalContext`), never a new engine.
- * Numeric equality alone is not enough: the link must be explicit and documented AND selected by the editor. The
- * value (787, gematria of the year letters) and the calendar year (5787) stay two separate labelled numbers.
- * Nothing is stored or deleted: the same hint shows as the year hint this year and as a year group afterwards.
+ * "Year hint" (DEC-TIME-004) over the existing time context (`timeFlow.getCurrentTemporalContext`), never a new engine and
+ * never a numeric-equality test. A hint belongs to a reviewed UNIT (a source region of a container), carries its own year
+ * binding, and needs an explicit documented link plus an editorial approval read from the existing research_objects owner
+ * (`approvals[hint.id]`, see unitApproval2029). The value (787, gematria of the year letters) and the calendar year (5787)
+ * stay two separately labelled numbers. Nothing is stored or deleted: the same hint is the live year hint this year and a
+ * year group afterwards, with its source and calculation untouched.
+ *   public : only a PUBLISHED approval shows (live this year, "year group" afterwards)
+ *   admin  : also approved-but-unpublished and candidate, each with its own state
  */
-export function buildYearHints(hints = [], temporal = null, audience = "public") {
+export function buildYearHints(hints = [], temporal = null, audience = "public", approvals = {}) {
   const hebrew = temporal?.hebrew;
   if (!hebrew?.year || !hebrew?.year_value) return [];
   const admin = audience === "admin";
   return hints.flatMap((hint) => {
-    if (hint?.link !== "explicit_documented") return [];
-    const selected = hint.editorialSelection === true;
-    const base = { id: hint.id, value: hint.value, hebrewYear: hint.hebrewYear, valueLabel: `ערך גימטרי ${hint.value}`,
-      yearLabel: `שנה ${hint.hebrewYear} (${hint.yearLabel})`, locatorId: hint.locatorId ?? null };
+    if (hint?.link !== "explicit_documented" || !hint.unit) return [];
+    const approval = approvals?.[hint.id]?.state || "none";
+    const published = approval === "published";
+    if (!published && !admin) return [];
+    const base = { id: hint.id, unit: hint.unit, value: hint.value, hebrewYear: hint.hebrewYear, valueLabel: `ערך גימטרי ${hint.value}`,
+      yearLabel: `שנה ${hint.hebrewYear} (${hint.yearLabel})`, layers: hint.layers || [], approval, locatorId: hint.unit.locatorId ?? null };
     const current = hebrew.year === hint.hebrewYear && hebrew.year_value === hint.value;
-    if (current && selected) return [{ ...base, state: "active", label: `רמז השנה · ${hebrew.year_label}` }];
-    if (current) return admin ? [{ ...base, state: "candidate", label: "מועמד לרמז השנה · ממתין לבחירה עריכתית" }] : [];
-    if (!selected && !admin) return [];
-    return [{ ...base, state: hebrew.year > hint.hebrewYear ? "archived" : "upcoming", label: `קבוצת שנה · ${hint.yearLabel}` }];
+    if (!current) return [{ ...base, state: hebrew.year > hint.hebrewYear ? "archived" : "upcoming", label: `קבוצת שנה · ${hint.yearLabel}` }];
+    if (published) return [{ ...base, state: "active", label: `רמז השנה · ${hebrew.year_label}` }];
+    if (approval === "approved_unpublished") return [{ ...base, state: "approved_unpublished", label: `רמז השנה · ${hebrew.year_label} · מאושר עריכתית, טרם פורסם` }];
+    return [{ ...base, state: "candidate", label: "מועמד לרמז השנה · ללא אישור קנוני שניתן לאמת" }];
   });
 }
 

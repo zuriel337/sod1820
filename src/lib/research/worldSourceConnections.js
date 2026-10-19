@@ -278,12 +278,22 @@ export const REVIEWED_POST_LOCATORS = Object.freeze([
     title: '787 · תשפ״ז, שמחת החג וההודיה',
     postBlock: { startGuard: 'רמזי תשפ״ז · שמחה והודיה', endGuard: 'לחזור מתוך הודיה', maxBlocks: 8 },
     guards: ['תשפ״ז = 787', 'ושמחת בחגך = 787', 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה = 787'],
-    yearHint: { hebrewYear: 5787, value: 787, expression: 'תשפז', link: 'explicit_documented', editorialSelection: null } },
+    // Year hint (DEC-TIME-004) for this reviewed unit. Generic on purpose: the unit is a source region of a container
+    // (`post:5112` today; an image, video or research unit tomorrow), so nothing depends on WordPress structure.
+    // Approval is NOT stored here: it is read from the existing research_objects owner (see unitApproval2029).
+    yearHint: { unit: { kind: 'source_region', containerRef: 'post:5112' }, link: 'explicit_documented',
+      binding: { hebrewYear: 5787, yearLabel: 'תשפ״ז', value: 787, expression: 'תשפז' },
+      layers: [{ key: 'year', label: 'שנה', expression: 'תשפז' }, { key: 'holiday', label: 'שמחת החג', expression: 'ושמחת בחגך' },
+        { key: 'gratitude', label: 'הודיה', expression: 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה' }],
+      approvalTerms: ['787', 'תשפ"ז', 'ושמחת בחגך'] } },
   { id: 'kotel-233-date-image', postId: 233, relationKind: 'author_comparison', attachmentId: 30691,
     title: 'כב בתשרי תשפד · התמונה והטקסט 1202 מסתתר',
     postImageUrl: 'https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/10/90ccb82734b67b81.jpg',
     imageNear: { guards: ['1202 מסתתר'], radius: 2 }, guards: ['1202 מסתתר'] },
 ]);
+// Year-hint descriptor of a reviewed unit, keyed by the unit's source_ref (never by a number or a WordPress id).
+export const yearHintOf = (spec) => spec?.yearHint ? { id: spec.id, link: spec.yearHint.link, unit: { ...spec.yearHint.unit, sourceRef: `posts:${spec.postId}#block:${spec.id}`, locatorId: spec.id },
+  ...spec.yearHint.binding, layers: spec.yearHint.layers, approvalTerms: spec.yearHint.approvalTerms } : null;
 export const postLocatorSpec = (id) => REVIEWED_POST_LOCATORS.find((spec) => spec.id === id) || null;
 // Rendered-DOM form of a reviewed spec (same guards the HTML locator uses).
 export const renderedLocatorOf = (spec) => spec.postBlock

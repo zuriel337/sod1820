@@ -86,3 +86,10 @@ export function cardRestoreFor(context, postId) {
   const number = selection.entityType === "number" ? Number(selection.entityId) : null;
   return { number: Number.isSafeInteger(number) ? number : null };
 }
+
+// The focus a reviewed source region carries into the existing Research Context when it is opened from a card.
+// The year-hint label travels as a label only (display lens, not a selection and not an approval).
+export function sourceRegionFocus({ source, hintLabel = null }) {
+  return { surfaceFocus: { id: source.locatorId, type: "source", label: source.quote || source.label || source.locatorId, reference: source.sourceRef || null,
+    locator: `#source-locator-${source.locatorId}`, href: source.href, sourceLabel: hintLabel || undefined } };
+}

@@ -13,7 +13,8 @@ import { cardReturnTo, cardRestoreFor } from "../../../src/lib/research/journeyS
 import { buildExactReturnPatch } from "../../../src/lib/research/researchContext.js";
 import { getCurrentTemporalContext } from "../../../src/lib/timeFlow.js";
 import { DESIGN_V2_PALETTES } from "../../../src/lib/palette.js";
-import { POST_5112, NUMBERS_5112, POST_ROW_5112, POST_ROW_5113, GRAPH_BY_NUMBER, NODE_BY_NUMBER, ENGINE_BY_LABEL, YEAR_HINTS_5112, PATHS_5112 } from "./depthFixture.js";
+import { matchUnitApproval } from "../../../src/lib/research/unitApproval2029.js";
+import { POST_5112, NUMBERS_5112, POST_ROW_5112, POST_ROW_5113, GRAPH_BY_NUMBER, NODE_BY_NUMBER, ENGINE_BY_LABEL, YEAR_HINTS_5112, PATHS_5112, APPROVAL_ROW_5112 } from "./depthFixture.js";
 import fixture from "../post-locators-5112-233.json";
 import "../../../src/pages/posts2029.css";
 import "../../../src/pages/post2029-reading.css";
@@ -28,9 +29,12 @@ const vars = { "--s29-page": p.pageBg, "--s29-panel": p.card, "--s29-panel-soft"
   "--s29-type-micro": "12px", "--s29-type-small": "14px", "--s29-type-ui": "15px", "--s29-type-body": "16px", "--s29-type-lead": "18px", "--s29-motion": "160ms" };
 
 const NOW = getCurrentTemporalContext(new Date(q.get("date") || "2026-10-20T12:00:00+03:00"));
-const hints = q.get("selected") === "1" ? YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true })) : YEAR_HINTS_5112;
 const paths = q.get("selected") === "1" ? PATHS_5112.map((x) => ({ ...x, stations: x.stations.map((s) => (s.pending ? { ...s, editorialSelection: true } : s)) })) : PATHS_5112;
-const depth = buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience, temporal: NOW, yearHints: hints, paths });
+// approval=real (default): the real research_object, editorially approved and NOT published. published = the same row with
+// scope "public" (a SIMULATION of publication, used only to show the live marker); none = no approval row at all.
+const approvalRows = { real: [APPROVAL_ROW_5112], published: [{ ...APPROVAL_ROW_5112, privacy_scope: "public" }], none: [] }[q.get("approval") || "real"];
+const approvals = Object.fromEntries(YEAR_HINTS_5112.map((h) => [h.id, matchUnitApproval(approvalRows, h)]));
+const depth = buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience, temporal: NOW, yearHints: YEAR_HINTS_5112, approvals, paths });
 const byId = Object.fromEntries(Object.values(NODE_BY_NUMBER).map((n) => [n.id, n]));
 const strip = (l) => l.replace(/[״"]/g, "");
 const mapReaders = {

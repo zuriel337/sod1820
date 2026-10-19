@@ -61,3 +61,7 @@
 .sod29-depth-path em{font-style:normal;font-weight:800;color:var(--s29-accent-text);font-size:var(--s29-type-micro)}
 .sod29-depth-path small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
 .sod-depth-unmapped,.sod29-depth-unmapped{color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:800}
+.sod29-year-hint[data-state="approved_unpublished"]{border-style:dashed;border-color:var(--s29-accent);color:var(--s29-accent-text)}
+.sod29-year-hint-layers{display:inline-flex;flex-wrap:wrap;gap:4px}
+.sod29-year-hint-layers i,.sod29-depth-theme{font-style:normal;border:1px solid var(--s29-line-strong);border-radius:999px;padding:0 8px;font-size:var(--s29-type-micro);font-weight:800;color:var(--s29-accent-text)}
+.sod29-depth-expr h5 .sod29-depth-theme{margin-inline-end:6px}

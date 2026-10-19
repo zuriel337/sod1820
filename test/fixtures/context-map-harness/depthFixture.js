@@ -1,3 +1,4 @@
+import { postLocatorSpec, yearHintOf } from "../../../src/lib/research/worldSourceConnections.js";
 // Evidence for post 5112, read read-only from canonical Supabase (linswmnnkjxvweumprav) on 19.10.2026:
 // - edges of the post node f42e2a16…: 28, all `documents` via post_tags (numbers 787, 1073, 1202, 1718, 363, …)
 // - convergence_meter(787|1073|1718|1202|363): layers, cards, tiers (existing function, formula untouched)
@@ -12,23 +13,23 @@ export const POST_5112 = { id: "5112", type: "post", label: "טיסה 1073 — 1
 export const NUMBERS_5112 = [
   { value: 787, source: { kind: "גוף + תגיות", note: "787 נקרא בגוף הפוסט, בתגית 787 ובתגית תשפ״ז (שמקושרת לצומת 5787, מספר אחר)." },
     expressions: [
-      { phrase: "תשפז",
-        sources: [{ kind: "post_body", ref: "post:5112", locator: "בלוק ״רמזי תשפז · שמחה והודיה״", quote: "תשפז = 787", locatorId: "plane-787-year-joy", href: "/post/flydubai-fz1073-363-14000-remzei-geula#source-locator-plane-787-year-joy" },
+      { phrase: "תשפז", theme: "year",
+        sources: [{ kind: "post_body", ref: "post:5112", locator: "בלוק ״רמזי תשפז · שמחה והודיה״", quote: "תשפז = 787", sourceRef: "posts:5112#block:plane-787-year-joy", locatorId: "plane-787-year-joy", href: "/post/flydubai-fz1073-363-14000-remzei-geula#source-locator-plane-787-year-joy" },
           { kind: "post_body", ref: "post:5112", locator: "רמז לשוני לפני הבלוק", quote: "FZ → פז → תשפז" },
           { kind: "tag", ref: "post:5112", quote: "התגיות 787 ו־תשפ״ז" },
           { kind: "plan_doc", ref: "docs/2029-eight-visual-review-handoff.md:447", quote: "787 = תשפ״ז" }],
-        calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: true, rowPublished: true },
+        calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: true, rowPublished: true, rowAttribution: "ZURIEL Human Gate · 2026-09-18" },
         interpretation: { text: "רמז לשוני באותיות הטיסה: FZ → פז → תשפז, השנה העברית. הפוסט עצמו מציין שזה רמז ולא פירוש רשמי של קוד חברת התעופה.", attestedBy: "פרשנות מחבר הפוסט" } },
-      { phrase: "ושמחת בחגך",
-        sources: [{ kind: "post_body", ref: "post:5112", locator: "בלוק ״רמזי תשפז · שמחה והודיה״", quote: "ושמחת בחגך = 787", locatorId: "plane-787-year-joy", href: "/post/flydubai-fz1073-363-14000-remzei-geula#source-locator-plane-787-year-joy" },
+      { phrase: "ושמחת בחגך", theme: "holiday",
+        sources: [{ kind: "post_body", ref: "post:5112", locator: "בלוק ״רמזי תשפז · שמחה והודיה״", quote: "ושמחת בחגך = 787", sourceRef: "posts:5112#block:plane-787-year-joy", locatorId: "plane-787-year-joy", href: "/post/flydubai-fz1073-363-14000-remzei-geula#source-locator-plane-787-year-joy" },
           { kind: "tag", ref: "post:5112", quote: "התגית ושמחת בחגך" },
           { kind: "plan_doc", ref: "docs/2029-eight-visual-review-handoff.md:447", quote: "״ושמחת בחגך״ = 787" }],
-        calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: true, rowPublished: false },
+        calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: true, rowPublished: false, rowAttribution: "contribution:אבני רונן" },
         interpretation: { text: "ביום של טיסה, החיבור הזה מקבל את השפה שלו: לטוס מתוך שמחה. לחזור מתוך הודיה.", attestedBy: "פרשנות מחבר הפוסט" } },
-      { phrase: "מי שגמלך כל טוב הוא יגמלך כל טוב סלה",
-        sources: [{ kind: "post_body", ref: "post:5112", locator: "אותו בלוק", quote: "מי שגמלך כל טוב הוא יגמלך כל טוב סלה = 787", locatorId: "plane-787-year-joy", href: "/post/flydubai-fz1073-363-14000-remzei-geula#source-locator-plane-787-year-joy" },
+      { phrase: "מי שגמלך כל טוב הוא יגמלך כל טוב סלה", theme: "gratitude",
+        sources: [{ kind: "post_body", ref: "post:5112", locator: "אותו בלוק", quote: "מי שגמלך כל טוב הוא יגמלך כל טוב סלה = 787", sourceRef: "posts:5112#block:plane-787-year-joy", locatorId: "plane-787-year-joy", href: "/post/flydubai-fz1073-363-14000-remzei-geula#source-locator-plane-787-year-joy" },
           { kind: "tag", ref: "post:5112", quote: "התגית ברכת הגומל" }],
-        calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: false, rowPublished: false },
+        calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: false, rowPublished: false, rowAttribution: "ZURIEL Human Gate · 2026-09-30" },
         interpretation: { text: "מוצג בפוסט בתוך מסגרת השמחה וההודיה; ברכת הגומל מופיעה בתגיות.", attestedBy: "מסגור מחבר הפוסט" } },
     ],
     openQuestions: [{ text: "האם הקשר לזמן הוא שנה עברית בלבד (787 = תשפ״ז), או גם חגים ותאריכי אירוע. ההגדרה פתוחה בסקירה החזותית.", ref: "docs/2029-eight-visual-review-handoff.md:430" }], graph: { direct: 1, tagDerived: 1, media: 0 }, calculations: [],
@@ -37,14 +38,14 @@ export const NUMBERS_5112 = [
     convergence: { layers: [L("ישות מסומנת", "1 כסף")], cards: [], tiers: { gold: 0, silver: 1 }, existingMeter: 11 } },
   { value: 1718, source: { kind: "תגית", note: "תגית בפוסט; הביטוי כב בתשרי תשפד נקרא בפוסט 233, ליד תמונה 30691." }, graph: { direct: 3, tagDerived: 1, media: 0 },
     expressions: [{ phrase: "כב בתשרי תשפד",
-      sources: [{ kind: "post_body", ref: "post:233", locator: "תמונה 30691 עם הטקסט ״1202 מסתתר״ שלפניה", quote: "כב בתשרי תשפד", locatorId: "kotel-233-date-image", href: HREF_233 },
+      sources: [{ kind: "post_body", ref: "post:233", locator: "תמונה 30691 עם הטקסט ״1202 מסתתר״ שלפניה", quote: "כב בתשרי תשפד", sourceRef: "posts:233#image:kotel-233-date-image", locatorId: "kotel-233-date-image", href: HREF_233 },
         { kind: "tag", ref: "post:5112", quote: "התגית 1718 בפוסט 5112" }],
       calculation: { method: "רגיל", value: 1718, claimedValue: 1718, reproducesClaim: true, rowVerified: true, rowPublished: true },
       interpretation: { text: "תאריך שמחת תורה, כ״ב בתשרי תשפ״ד, מוצג בפוסט 233 כחלק מרמזי המלחמה.", attestedBy: "פרשנות מחבר הפוסט" } }],
     convergence: { layers: [L("התכנסות מילים", "2 ישויות"), L("אקטואליה (חדשות)", "1"), L("כרטיס התכנסות", "קיים")], cards: [{ slug: "gapfill-718", title: "718 — שביעי באוקטובר", quality: 8 }], tiers: { gold: 0, silver: 0 }, existingMeter: 33 } },
   { value: 1202, source: { kind: "תגית", note: "תגית בפוסט; אותו ערך מתקבל מאותו ביטוי בשיטה אחרת (מסתתר)." }, graph: { direct: 27, tagDerived: 1, media: 22 },
     expressions: [
-      { phrase: "כב בתשרי תשפד", sources: [{ kind: "post_body", ref: "post:233", locator: "הטקסט ״1202 מסתתר״ ליד תמונה 30691", quote: "1202 מסתתר", locatorId: "kotel-233-date-image", href: HREF_233 }],
+      { phrase: "כב בתשרי תשפד", sources: [{ kind: "post_body", ref: "post:233", locator: "הטקסט ״1202 מסתתר״ ליד תמונה 30691", quote: "1202 מסתתר", sourceRef: "posts:233#image:kotel-233-date-image", locatorId: "kotel-233-date-image", href: HREF_233 }],
         calculation: { method: "מסתתר", value: 1202, claimedValue: 1202, reproducesClaim: true, rowVerified: true, rowPublished: true },
         interpretation: { text: "אותו ביטוי כמו ב־1718, בשיטה אחרת.", attestedBy: "פרשנות מחבר הפוסט" } },
       { phrase: "חרבות ברזל", sources: [{ kind: "post_link", ref: "post:233", quote: "הביטוי מקושר לפוסט 233 במאגר" }],
@@ -87,13 +88,18 @@ export const ENGINE_BY_LABEL = { "כב בתשרי תשפד": { value: 1718, meth
 
 // Year hint (DEC-TIME-004), reviewed locator and route for the 5112 → 1718 / 1202 → 233 branch. `editorialSelection: null`
 // = the editor has not selected the connection yet, so the public sees no year badge and no pending station.
-export const YEAR_HINTS_5112 = [{ id: "plane-787-year-joy", value: 787, hebrewYear: 5787, yearLabel: "תשפ״ז", expression: "תשפז",
-  link: "explicit_documented", editorialSelection: null, locatorId: "plane-787-year-joy" }];
+export const YEAR_HINTS_5112 = [yearHintOf(postLocatorSpec("plane-787-year-joy"))];
+// The existing approval owner (research_objects): the REAL approved relation naming the 787 axis of תשפ״ז / ושמחת בחגך /
+// the gomel answer (id db28c232…, read 20.10.2026). Only the fields the matcher needs; its privacy_scope is public_candidate,
+// i.e. editorially approved and NOT published. No free text or author of the record is copied here.
+export const APPROVAL_ROW_5112 = { id: "db28c232-c35c-4aa6-84a8-a37cce875c2c", kind: "relation", status: "approved", privacy_scope: "public_candidate",
+  relates: ["research_object:c00fc2e0-4f87-4285-b6af-b9174c1d0b0a", "research_object:a94e47c3-0ca1-43c0-96f4-fbc2ddfe1189", "post:5112", "code:7500"],
+  terms: ["75", "750", "7500", "776", "787", "599", "בטחון", "ביאת המשיח", "תשפ\"ז", "ושמחת בחגך", "אלופו של עולם", "אסתר"] };
 export const PATHS_5112 = [{ id: "5112-1718-233", label: "5112 ← 1718 / 1202 ← 233", stations: [
   { kind: "post", label: "פוסט 5112 · טיסה 1073" },
   { kind: "number", label: "המספרים 1718 ו־1202 (תגיות)", basis: "tag" },
   { kind: "expression", label: "הביטוי כב בתשרי תשפד: 1718 ברגיל, 1202 במסתתר", basis: "verified_calculation" },
-  { kind: "source_region", label: "תמונה 30691 בפוסט 233, ליד הטקסט ״1202 מסתתר״", basis: "source_region", locatorId: "kotel-233-date-image", href: HREF_233 },
+  { kind: "source_region", label: "תמונה 30691 בפוסט 233, ליד הטקסט ״1202 מסתתר״", basis: "source_region", sourceRef: "posts:233#image:kotel-233-date-image", locatorId: "kotel-233-date-image", href: HREF_233 },
   { kind: "post", label: "פוסט 233 (אזכור אוטומטי של 1718)", basis: "suggested", pending: true, editorialSelection: null },
 ] }];
 

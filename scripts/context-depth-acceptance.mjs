@@ -41,7 +41,7 @@ for (const [device, vp] of [["desktop", D], ["mobile", M]]) for (const theme of 
   assert.equal(await page.locator("[data-context-depth-unmapped]").count(), 2, "the plain 5112 card and 5113 have no data yet");
   assert.equal(await page.locator("[data-context-depth-unmapped]").first().evaluate((n) => n.closest(".sod29-post-index-card").querySelectorAll(".sod29-depth-pips i").length), 0);
   assert.equal(await page.locator("[data-context-depth-compact] .sod29-depth-pips i").count(), 6);
-  assert.equal(await page.locator(".sod29-year-hint").count(), 0, "public + no editorial selection: no year badge");
+  assert.equal(await page.locator(".sod29-year-hint").count(), 0, "public + unpublished approval: no year badge");
   if (device === "desktop" || theme === "dark") await shot(page, `${tag}-1-cards`);
   ok(`${tag}: cards (strips for mapped, "not mapped" without strips, no year badge)`);
 
@@ -58,33 +58,40 @@ for (const [device, vp] of [["desktop", D], ["mobile", M]]) for (const theme of 
 
 for (const [device, vp] of [["desktop", D], ["mobile", M]]) {
   const tag = `${device}-dark`;
-  // 3. admin: candidate year hint, three layers with row flags, route including the pending station
+  // 3. admin: the real approval (approved, not published) is shown as such; row flags, attribution and the pending station
   await open(page, "&audience=admin", vp, "dark"); await click(page, "[data-context-depth-compact]");
-  assert.equal(await page.locator("[data-year-hint][data-state='candidate']").count() >= 1, true);
+  assert.equal(await page.locator("[data-year-hint][data-state='approved_unpublished']").count() >= 1, true);
+  assert.match(await page.locator("[data-year-hint]").first().innerText(), /מאושר עריכתית, טרם פורסם/);
   await click(page, number(787));
   assert.equal(await page.locator("[data-number='787'] [data-layer='calculation']:has-text('לא מפורסמת')").count(), 2);
+  assert.equal(await page.locator("[data-number='787'] .sod29-year-hint-layers i").count(), 3, "year, holiday joy and gratitude in one branch");
+  assert.match(await page.locator("[data-number='787']").innerText(), /ייחוס הרשומה \(נפרד מהפרסום\): contribution:אבני רונן/);
   assert.equal(await page.locator(".sod29-depth-path li[data-pending]").count(), 1);
-  await shot(page, `${tag}-3-787-admin`);
-  ok(`${tag}: admin (candidate hint, row flags, pending station)`);
+  await shot(page, `${tag}-3-787-admin-approved-unpublished`);
+  await open(page, "&audience=admin&approval=none", vp, "dark");
+  assert.equal(await page.locator("[data-year-hint][data-state='candidate']").count() >= 1, true, "no approval row: candidate only");
+  ok(`${tag}: admin (approved-unpublished marker, candidate without approval, 3 layers, attribution apart from publication, pending station)`);
 
-  // 4. public route stops before the pending link; selected (simulated editorial choice) shows the active hint
+  // 4. the public never sees the unpublished approval; a (simulated) published approval shows the live marker and archives after the rollover
   await open(page, "", vp, "dark"); await click(page, "[data-context-depth-compact]");
+  assert.equal(await page.locator(".sod29-year-hint").count(), 0, "unpublished approval: nothing for the public");
   assert.equal(await page.locator(".sod29-depth-path li").count(), 4);
   assert.equal(await page.locator(".sod29-depth-path li[data-pending]").count(), 0);
   await shot(page, `${tag}-4-route-public`);
-  await open(page, "&selected=1", vp, "dark");
+  await open(page, "&approval=published", vp, "dark");
   assert.match(await page.locator("[data-context-depth-compact]").first().evaluate((n) => n.parentElement.innerText), /רמז השנה · תשפ״ז/);
+  assert.equal(await page.locator("[data-context-depth-compact] .sod29-depth-pips i").count(), 6, "the marker is separate from the six strips");
   await click(page, "[data-context-depth-compact]"); await click(page, number(787));
   assert.match(await page.locator("[data-number='787'] .sod29-year-hint").first().innerText(), /ערך גימטרי 787/);
   assert.match(await page.locator("[data-number='787'] .sod29-year-hint").first().innerText(), /5787/);
-  await shot(page, `${tag}-5-year-hint-selected-simulated`);
-  await open(page, "&selected=1&date=2027-10-05T12:00:00%2B03:00", vp, "dark");
+  await shot(page, `${tag}-5-year-hint-published-simulated`);
+  await open(page, "&approval=published&date=2027-10-05T12:00:00%2B03:00", vp, "dark");
   assert.equal(await page.locator("[data-context-depth-compact]").first().evaluate((n) => n.parentElement.querySelectorAll(".sod29-year-hint").length), 0, "after the rollover the card shows no year hint");
   await click(page, "[data-context-depth-compact]"); await click(page, number(787));
   assert.equal(await page.locator("[data-number='787'] [data-layer='source']").count(), 3, "sources survive the rollover");
   assert.match(await page.locator("[data-number='787'] .sod29-year-hint").first().innerText(), /קבוצת שנה · תשפ״ז/);
   await shot(page, `${tag}-6-after-rollover`);
-  ok(`${tag}: route stops before pending; year hint active, then archived after the rollover with sources intact`);
+  ok(`${tag}: public sees no marker for an unpublished approval; published approval shows the live marker, then the year group after the rollover with sources intact`);
 }
 
 // 5. open the exact 787 block, then return to the same card with the same number open

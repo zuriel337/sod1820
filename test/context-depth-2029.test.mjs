@@ -5,15 +5,18 @@ import assert from "node:assert/strict";
 import { buildContextDepth, convergenceMeterFacts, COVERAGE, DIMENSIONS, measured, flagLabel, sourceGroups, NOT_MEASURED } from "../src/lib/research/contextDepthProjection2029.js";
 import { buildYearHints, buildPaths } from "../src/lib/research/contextDepthProjection2029.js";
 import { getCurrentTemporalContext } from "../src/lib/timeFlow.js";
-import { cardReturnTo, cardRestoreFor } from "../src/lib/research/journeySourceReturn.js";
-import { buildExactReturnPatch } from "../src/lib/research/researchContext.js";
-import { POST_5112, NUMBERS_5112, YEAR_HINTS_5112, PATHS_5112 } from "./fixtures/context-map-harness/depthFixture.js";
+import { cardReturnTo, cardRestoreFor, sourceRegionFocus } from "../src/lib/research/journeySourceReturn.js";
+import { buildExactReturnPatch, normalizeResearchContext } from "../src/lib/research/researchContext.js";
+import { matchUnitApproval, APPROVAL } from "../src/lib/research/unitApproval2029.js";
+import { POST_5112, NUMBERS_5112, YEAR_HINTS_5112, PATHS_5112, APPROVAL_ROW_5112 } from "./fixtures/context-map-harness/depthFixture.js";
 import fs from "node:fs";
 
 const at = (iso) => getCurrentTemporalContext(new Date(iso));
 const NOW = at("2026-10-20T12:00:00+03:00");
 
-const depth = (audience = "public", extra = {}) => buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience, temporal: NOW, yearHints: YEAR_HINTS_5112, paths: PATHS_5112, ...extra });
+const approvalOf = (row) => ({ [YEAR_HINTS_5112[0].id]: matchUnitApproval(row ? [row] : [], YEAR_HINTS_5112[0]) });
+const PUBLISHED = { ...APPROVAL_ROW_5112, privacy_scope: "public" };
+const depth = (audience = "public", extra = {}) => buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience, temporal: NOW, yearHints: YEAR_HINTS_5112, approvals: approvalOf(APPROVAL_ROW_5112), paths: PATHS_5112, ...extra });
 const dim = (d, key) => d.dimensions.find((x) => x.key === key);
 
 test("six separate dimensions, each with a coverage state, and no score anywhere", () => {
@@ -153,45 +156,6 @@ test("tag-derived relations never strengthen the meter", () => {
   assert.deepEqual(more, base);
 });
 
-test("year hint: explicit, documented AND selected; the value 787 and the year 5787 stay two numbers", () => {
-  assert.deepEqual(buildYearHints(YEAR_HINTS_5112, NOW, "public"), [], "pending selection: nothing for the public");
-  const [candidate] = buildYearHints(YEAR_HINTS_5112, NOW, "admin");
-  assert.equal(candidate.state, "candidate");
-  const selected = YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true }));
-  const [hint] = buildYearHints(selected, NOW, "public");
-  assert.equal(hint.state, "active");
-  assert.equal(hint.label, "רמז השנה · תשפ״ז");
-  assert.equal(hint.value, 787); assert.equal(hint.hebrewYear, 5787);
-  assert.equal(hint.valueLabel, "ערך גימטרי 787"); assert.match(hint.yearLabel, /5787/);
-  assert.notEqual(hint.value, hint.hebrewYear);
-  assert.deepEqual(buildYearHints(selected.map((h) => ({ ...h, link: "numeric_equality" })), NOW, "admin"), [], "numeric equality alone is never a year hint");
-  assert.deepEqual(buildYearHints(selected, null, "public"), []);
-});
-
-test("year rollover updates the marker only: nothing is stored, the hint, source and locator remain", () => {
-  const selected = YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true }));
-  const before = at("2027-10-01T12:00:00+03:00"), after = at("2027-10-02T12:00:00+03:00");
-  assert.equal(buildYearHints(selected, before, "public")[0].state, "active");
-  const [next] = buildYearHints(selected, after, "public");
-  assert.equal(next.state, "archived");
-  assert.equal(next.label, "קבוצת שנה · תשפ״ז");
-  assert.ok(!next.label.includes("רמז השנה"));
-  assert.equal(next.locatorId, "plane-787-year-joy");
-  assert.equal(at("2026-09-11T12:00:00+03:00").hebrew.year_label, "תשפ״ו");
-  assert.equal(buildYearHints(selected, at("2026-09-11T12:00:00+03:00"), "public")[0].state, "upcoming");
-  assert.deepEqual(buildYearHints(YEAR_HINTS_5112, after, "public"), []);
-  // depth calculations, sources and strips are identical before and after the rollover
-  const a = depth("admin", { temporal: before, yearHints: selected }), b = depth("admin", { temporal: after, yearHints: selected });
-  assert.deepEqual(a.dimensions, b.dimensions); assert.deepEqual(a.numbers, b.numbers);
-});
-
-test("a year hint does not change coverage or add a source", () => {
-  const selected = YEAR_HINTS_5112.map((h) => ({ ...h, editorialSelection: true }));
-  const plain = depth("public", { yearHints: [] }), hinted = depth("public", { yearHints: selected });
-  assert.deepEqual(hinted.dimensions, plain.dimensions);
-  assert.deepEqual(hinted.sourceCount, plain.sourceCount);
-});
-
 test("the route 5112 → 1718/1202 → 233 stops before a pending link until the editor selects it", () => {
   const pub = buildPaths(PATHS_5112, "public")[0].stations;
   assert.deepEqual(pub.map((s) => s.kind), ["post", "number", "expression", "source_region"]);
@@ -217,10 +181,98 @@ test("exact return to the card: a number opened from it comes back, other posts 
   assert.equal(cardRestoreFor(null, 5112), null);
 });
 
-test("private research_objects never enter the depth modules or their fixtures", () => {
-  for (const file of ["src/lib/research/contextDepthProjection2029.js", "src/components/experience2029/ContextDepthMeter2029.jsx", "src/components/experience2029/PostIndexCard2029.jsx",
-    "src/lib/research/contextMapProjection2029.js", "src/lib/research/contextMapReaders2029.js", "test/fixtures/context-map-harness/depthFixture.js"]) {
-    const text = fs.readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
-    assert.ok(!/research_objects|privacy_scope|channel_updates|fetchResearchObjects/.test(text), file);
+test("approval comes from the existing research_objects owner: only an approved relation that names the unit's layers counts", () => {
+  const hint = YEAR_HINTS_5112[0];
+  assert.deepEqual(matchUnitApproval([APPROVAL_ROW_5112], hint), { state: APPROVAL.APPROVED_UNPUBLISHED, rowId: APPROVAL_ROW_5112.id });
+  assert.deepEqual(matchUnitApproval([PUBLISHED], hint), { state: APPROVAL.PUBLISHED, rowId: APPROVAL_ROW_5112.id });
+  for (const patch of [{ privacy_scope: "private" }, { privacy_scope: "family_shared" }, { status: "candidate" }, { status: "rejected" }, { kind: "observation" },
+    { relates: ["post:5113"] }, { relates: [] }, { terms: ["787"] }, { terms: ["787", "תשפ\"ז"] }, { terms: APPROVAL_ROW_5112.terms.filter((t) => t !== "ושמחת בחגך") }]) {
+    assert.equal(matchUnitApproval([{ ...APPROVAL_ROW_5112, ...patch }], hint).state, APPROVAL.NONE, JSON.stringify(patch));
   }
+  assert.equal(matchUnitApproval([], hint).state, APPROVAL.NONE);
+  assert.equal(matchUnitApproval(null, hint).state, APPROVAL.NONE);
+  assert.deepEqual(Object.keys(matchUnitApproval([PUBLISHED], hint)).sort(), ["rowId", "state"], "nothing about the row leaks");
+  assert.equal(matchUnitApproval([{ ...APPROVAL_ROW_5112, terms: APPROVAL_ROW_5112.terms.map((t) => t.replace('"', "״")) }], hint).state, APPROVAL.APPROVED_UNPUBLISHED, "quote marks do not matter");
+});
+
+test("year hint states: the public sees only a PUBLISHED approval; the admin preview sees approved-unpublished and candidate", () => {
+  const hint = YEAR_HINTS_5112;
+  const states = (audience, row) => buildYearHints(hint, NOW, audience, approvalOf(row)).map((h) => h.state);
+  assert.deepEqual(states("public", null), []); assert.deepEqual(states("admin", null), ["candidate"]);
+  assert.deepEqual(states("public", APPROVAL_ROW_5112), []);
+  assert.deepEqual(states("admin", APPROVAL_ROW_5112), ["approved_unpublished"]);
+  assert.match(buildYearHints(hint, NOW, "admin", approvalOf(APPROVAL_ROW_5112))[0].label, /מאושר עריכתית, טרם פורסם/);
+  assert.match(buildYearHints(hint, NOW, "admin", approvalOf(null))[0].label, /ללא אישור קנוני שניתן לאמת/);
+  const [active] = buildYearHints(hint, NOW, "public", approvalOf(PUBLISHED));
+  assert.equal(active.state, "active"); assert.equal(active.label, "רמז השנה · תשפ״ז");
+  assert.equal(active.value, 787); assert.equal(active.hebrewYear, 5787); assert.notEqual(active.value, active.hebrewYear);
+  assert.equal(active.valueLabel, "ערך גימטרי 787"); assert.match(active.yearLabel, /5787/);
+  assert.deepEqual(active.layers.map((l) => l.key), ["year", "holiday", "gratitude"]);
+  assert.equal(active.unit.sourceRef, "posts:5112#block:plane-787-year-joy"); assert.equal(active.unit.containerRef, "post:5112");
+  assert.deepEqual(buildYearHints(hint, null, "public", approvalOf(PUBLISHED)), []);
+});
+
+test("year rollover תשפ״ו → תשפ״ז → תשפ״ח moves the marker, nothing is stored or deleted", () => {
+  const approvals = approvalOf(PUBLISHED), hint = YEAR_HINTS_5112;
+  const at786 = at("2026-09-11T12:00:00+03:00"), at787 = at("2026-09-12T12:00:00+03:00"), lastDay = at("2027-10-01T12:00:00+03:00"), at788 = at("2027-10-02T12:00:00+03:00");
+  assert.deepEqual([at786, at787, lastDay, at788].map((c) => c.hebrew.year_label), ["תשפ״ו", "תשפ״ז", "תשפ״ז", "תשפ״ח"]);
+  assert.deepEqual([at786, at787, lastDay, at788].map((c) => c.hebrew.year_value), [786, 787, 787, 788]);
+  const state = (ctx, audience = "public") => buildYearHints(hint, ctx, audience, approvals)[0].state;
+  assert.deepEqual([at786, at787, lastDay, at788].map((c) => state(c)), ["upcoming", "active", "active", "archived"]);
+  const next = buildYearHints(hint, at788, "public", approvals)[0];
+  assert.equal(next.label, "קבוצת שנה · תשפ״ז"); assert.ok(!next.label.includes("רמז השנה")); assert.equal(next.locatorId, "plane-787-year-joy");
+  const a = depth("admin", { temporal: lastDay, approvals }), b = depth("admin", { temporal: at788, approvals });
+  assert.deepEqual(a.dimensions, b.dimensions); assert.deepEqual(a.numbers, b.numbers); assert.deepEqual(a.sourceCount, b.sourceCount);
+  assert.deepEqual(buildYearHints(hint, at788, "public", approvalOf(APPROVAL_ROW_5112)), [], "an unpublished approval never becomes visible through the rollover");
+});
+
+test("787 is not a year hint by number: other expressions of value 787 and numeric-only links are never marked", () => {
+  const extra = { value: 787, source: { kind: "מאגר", note: "ביטוי אחר בערך 787" }, graph: null, calculations: [], convergence: null,
+    expressions: [{ phrase: "אשם גזלות", theme: null, sources: [{ kind: "post_link", ref: "post:9", quote: "ביטוי אחר" }],
+      calculation: { method: "רגיל", value: 787, claimedValue: 787, reproducesClaim: true, rowVerified: true, rowPublished: true }, interpretation: null }] };
+  const d = buildContextDepth({ subject: POST_5112, numbers: [...NUMBERS_5112, extra], audience: "admin", temporal: NOW, yearHints: YEAR_HINTS_5112, approvals: approvalOf(PUBLISHED) });
+  assert.equal(d.yearHints.length, 1); assert.equal(d.yearHints[0].unit.sourceRef, "posts:5112#block:plane-787-year-joy");
+  const guilt = d.numbers.at(-1).expressions[0];
+  assert.ok(!("yearHint" in guilt) && !guilt.layers, "no marker on the expression");
+  const numeric = YEAR_HINTS_5112.map((h) => ({ ...h, link: "numeric_equality" }));
+  assert.deepEqual(buildYearHints(numeric, NOW, "admin", approvalOf(PUBLISHED)), []);
+  assert.deepEqual(buildYearHints(YEAR_HINTS_5112, NOW, "public", { other: { state: "published" } }), [], "an approval of another unit does not count");
+});
+
+test("the year hint is independent of WordPress and of posts: an image or video unit works the same way", () => {
+  const unitHint = (kind, containerRef) => ({ id: `${kind}-1`, link: "explicit_documented", unit: { kind, containerRef, sourceRef: `${containerRef}#unit`, locatorId: `${kind}-1` },
+    hebrewYear: 5787, yearLabel: "תשפ״ז", value: 787, expression: "תשפז", layers: [], approvalTerms: ["787", "תשפ\"ז"] });
+  for (const [kind, ref] of [["image", "gallery_image:abc"], ["video", "video:def"], ["research_unit", "research_object:ghi"]]) {
+    const hint = unitHint(kind, ref);
+    const row = { id: "r1", kind: "relation", status: "approved", privacy_scope: "public", relates: [ref], terms: ["787", "תשפ\"ז"] };
+    const [out] = buildYearHints([hint], NOW, "public", { [hint.id]: matchUnitApproval([row], hint) });
+    assert.equal(out.state, "active", kind); assert.equal(out.unit.kind, kind);
+    assert.ok(!JSON.stringify(out).match(/wp_id|wordpress|post_tags/i));
+  }
+});
+
+test("a year hint is a separate marker: it changes no coverage, adds no source and reads nothing", () => {
+  const hinted = depth("public", { approvals: approvalOf(PUBLISHED) }), plain = depth("public", { yearHints: [] });
+  assert.equal(hinted.yearHints.length, 1);
+  assert.deepEqual(hinted.dimensions, plain.dimensions); assert.deepEqual(hinted.sourceCount, plain.sourceCount); assert.deepEqual(hinted.numbers, plain.numbers);
+  assert.equal(buildYearHints(YEAR_HINTS_5112, NOW, "public", approvalOf(PUBLISHED)) instanceof Promise, false, "pure projection: no search per card");
+});
+
+test("private research_objects and their text never enter the depth modules or fixtures", () => {
+  for (const file of ["src/lib/research/contextDepthProjection2029.js", "src/components/experience2029/ContextDepthMeter2029.jsx", "src/components/experience2029/PostIndexCard2029.jsx",
+    "src/lib/research/contextMapProjection2029.js", "src/lib/research/contextMapReaders2029.js", "test/fixtures/context-map-harness/depthFixture.js", "src/lib/research/unitApproval2029.js"]) {
+    const text = fs.readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+    assert.ok(!/channel_updates|fetchResearchObjectsForEntity|\.statement\b|"statement"|contributor/.test(text), file);
+  }
+  const fixture = fs.readFileSync(new URL("./fixtures/context-map-harness/depthFixture.js", import.meta.url), "utf8");
+  assert.ok(!/statement|הפוסט FZ1073 מחבר מחדש/.test(fixture), "the approval row is copied without its statement");
+});
+
+test("opening a reviewed region puts its focus (and the year-hint label, as a label only) into the existing Research Context", () => {
+  const source = { locatorId: "plane-787-year-joy", sourceRef: "posts:5112#block:plane-787-year-joy", quote: "תשפז = 787", href: "/post/p#source-locator-plane-787-year-joy" };
+  const context = normalizeResearchContext({ dimensions: sourceRegionFocus({ source, hintLabel: "רמז השנה · תשפ״ז" }) });
+  const focus = context.dimensions.surfaceFocus;
+  assert.equal(focus.reference, source.sourceRef); assert.equal(focus.locator, "#source-locator-plane-787-year-joy"); assert.equal(focus.sourceLabel, "רמז השנה · תשפ״ז");
+  assert.equal(focus.type, "source");
+  assert.equal(normalizeResearchContext({ dimensions: sourceRegionFocus({ source }) }).dimensions.surfaceFocus.sourceLabel, undefined);
 });

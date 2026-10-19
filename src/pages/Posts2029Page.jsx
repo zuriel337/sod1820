@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { contextMapReaders } from "../lib/research/contextMapReaders2029.js";
-import { cardReturnTo, cardRestoreFor } from "../lib/research/journeySourceReturn.js";
+import { cardReturnTo, cardRestoreFor, sourceRegionFocus } from "../lib/research/journeySourceReturn.js";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { getPostsFromSupabase } from "../lib/supabase.js";
 import { applySeo } from "../lib/seo.js";
@@ -42,16 +42,19 @@ export default function Posts2029Page() {
   }, [page]);
 
   // Exact return: leaving a card's context map writes this list position as returnTo in the existing Context.
-  const leaveCard = (post, target, number) => {
+  const leaveCard = (post, target, number, dimensions = undefined) => {
     research.updateResearchContext?.({
       subject: { id: target.id ?? String(post.id), type: target.type ?? "post", label: target.label, href: target.href },
+      ...(dimensions ? { dimensions } : {}),
       returnTo: cardReturnTo({ post, number, listHref: `${window.location.pathname}${window.location.search}` }),
     });
     navigate(target.href);
   };
   const openFromContextMap = (post, item) => { if (item?.href) leaveCard(post, item, item.type === "number" ? Number(item.label) : null); };
   // A reviewed source region (the 787 block, image 30691): the target opens the post and lands on the region.
-  const openSourceRegion = (post, source, number) => { if (source?.href) leaveCard(post, { id: source.locatorId, type: "source", label: source.quote || source.label, href: source.href }, number); };
+  const openSourceRegion = (post, source, number, hintLabel = null) => {
+    if (source?.href) leaveCard(post, { id: source.locatorId, type: "source", label: source.quote || source.label, href: source.href }, number, sourceRegionFocus({ source, hintLabel }));
+  };
   // Returning to a card lands on it (hash from the exact-return snapshot).
   useEffect(() => {
     const id = window.location.hash.match(/^#(post-card-\d+)$/)?.[1];

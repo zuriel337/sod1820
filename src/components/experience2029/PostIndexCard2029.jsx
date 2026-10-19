@@ -77,7 +77,8 @@ export default function PostIndexCard({ post, index, depth = null, mapReaders = 
       <ContextDepthMeter2029 depth={depth} variant="compact" expanded={open} onToggle={() => setOpen((value) => !value)} panelId={panelId} />
     </div> : null}
     {depth && open ? <div className="sod29-post-index-depth-panel" id={panelId}>
-      <ContextDepthMeter2029 depth={depth} variant="full" selectedValue={picked} onSelectValue={setPicked} onOpenLocator={(source, number) => onLocatorOpen?.(post, source, number ?? picked)}>
+      <ContextDepthMeter2029 depth={depth} variant="full" selectedValue={picked} onSelectValue={setPicked} onOpenLocator={(source, number) => onLocatorOpen?.(post, source, number ?? picked,
+          depth.yearHints.find((h) => h.locatorId === source.locatorId && ["active", "approved_unpublished"].includes(h.state))?.label || null)}>
         {picked != null && mapReaders ? <Suspense fallback={<p role="status">פותח את מפת ההקשר…</p>}>
           <ContextMapPanel2029 key={picked} defaultOpen focus={{ type: "number", id: String(picked), label: String(picked) }}
             audience={depth.audience} readers={mapReaders} onOpen={(item) => onMapOpen?.(post, item)} />

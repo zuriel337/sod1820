@@ -23,14 +23,24 @@ function factLine(dim) {
   return null;
 }
 
+const THEME_LABEL = Object.freeze({ year: "שנה", holiday: "שמחת החג", gratitude: "הודיה" });
+const HINT_NOTE = Object.freeze({
+  active: "סימון זמני לשנה הנוכחית בלבד. הרמז, המקור והחישוב נשמרים.",
+  approved_unpublished: "קיים אישור עריכתי לקישור, אך הוא טרם פורסם: הציבור אינו רואה את הסימון.",
+  candidate: "לא נמצא אישור קנוני שניתן לאמת: מוצג בתצוגת מנהל בלבד.",
+  archived: "השנה התחלפה: הסימון אינו מוצג כעכשווי. הרמז, המקור והחישוב נשמרים בקבוצת השנה.",
+  upcoming: "השנה טרם הגיעה: הסימון אינו מוצג כעכשווי.",
+});
 function YearHint({ hint, compact = false }) {
-  const live = hint.state === "active" || hint.state === "candidate";
-  return <span className="sod29-year-hint" data-state={hint.state} data-year-hint={hint.id}>
+  return <span className="sod29-year-hint" data-state={hint.state} data-year-hint={hint.id} data-unit-kind={hint.unit?.kind}>
     <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
       <rect x="3" y="4.5" width="14" height="12" rx="2" /><path d="M3 8.5h14M7 3v3M13 3v3" /></svg>
     <b>{hint.label}</b>
-    {compact ? null : <small>{hint.valueLabel} · {hint.yearLabel}</small>}
-    {!compact && !live ? <small>הרמז, המקור והחישוב נשמרים; הסימון אינו מוצג כעכשווי.</small> : null}
+    {compact ? null : <>
+      <small>{hint.valueLabel} · {hint.yearLabel}</small>
+      {hint.layers?.length ? <span className="sod29-year-hint-layers">{hint.layers.map((l) => <i key={l.key} data-layer={l.key}>{l.label}</i>)}</span> : null}
+      <small>{HINT_NOTE[hint.state]}</small>
+    </>}
   </span>;
 }
 
@@ -38,7 +48,7 @@ function YearHint({ hint, compact = false }) {
 function ExpressionLayers({ expr, onOpenLocator, value }) {
   const c = expr.calculation;
   return <article className="sod29-depth-expr" data-expression={expr.phrase}>
-    <h5 dir="auto">״{expr.phrase}״</h5>
+    <h5 dir="auto">{expr.theme ? <i className="sod29-depth-theme" data-theme={expr.theme}>{THEME_LABEL[expr.theme]}</i> : null} ״{expr.phrase}״</h5>
     <ol className="sod29-depth-layers">
       <li data-layer="source">
         <b>1 · מקור הביטוי</b>
@@ -51,6 +61,7 @@ function ExpressionLayers({ expr, onOpenLocator, value }) {
         {c ? <>
           <p>{flagLabel(c.reproducesClaim, "המנוע הקנוני שחזר את הערך הנטען", "המנוע לא שחזר את הערך הנטען")}: <b dir="ltr">{measured(c.value)}</b> · {c.method}</p>
           <small>רשומת מאגר: {flagLabel(c.rowVerified, "מאומתת", "לא מאומתת")} · {flagLabel(c.rowPublished, "מפורסמת", "לא מפורסמת")}</small>
+          {c.rowAttribution ? <small>ייחוס הרשומה (נפרד מהפרסום): {c.rowAttribution}</small> : null}
         </> : <p>{expr.withheld ? "אין אימות חישוב להצגה." : NOT_MEASURED}</p>}
       </li>
       <li data-layer="interpretation">
@@ -83,7 +94,7 @@ export default function ContextDepthMeter2029({ depth, variant = "full", expande
   const id = panelId || autoId;
   if (!depth) return null;
   const summary = depth.dimensions.map((d) => `${d.label}: ${d.coverageLabel}`).join(", ");
-  const shownHints = depth.yearHints.filter((h) => h.state === "active" || h.state === "candidate");
+  const shownHints = depth.yearHints.filter((h) => ["active", "approved_unpublished", "candidate"].includes(h.state));
   if (variant === "compact") {
     return <span className="sod29-depth-compact-wrap">
       <button type="button" className="sod29-depth-compact" aria-expanded={expanded} aria-controls={id}
