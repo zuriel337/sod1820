@@ -213,3 +213,9 @@
 .sod29-community-admin-list small{color:var(--s29-muted);font-size:13px}
 .sod29-community-admin-list p{margin:4px 0 8px;font-size:15px;line-height:1.6}
 .sod29-community-admin-note{color:var(--s29-muted)}
+.sod29-community-legacy-card{margin:0 0 18px;padding:16px 18px;border:1px solid var(--s29-line-strong);border-inline-start:3px solid var(--s29-accent);border-radius:12px;background:var(--s29-panel-soft);scroll-margin-top:96px}
+.sod29-community-legacy-card h2{margin:0 0 4px;font-size:18px}
+.sod29-community-legacy-card p{margin:0 0 12px;color:var(--s29-ink);font-size:15px;line-height:1.6}
+.sod29-community-legacy-card a{color:var(--s29-accent-text)}
+.sod29-community-legacy-card .sod29-community-editor-actions button{min-height:44px}
+@media(prefers-reduced-motion:no-preference){.sod29-community-legacy-card:not(.is-done){animation:sod29-legacy-card-glow 1.6s ease-in-out 2}@keyframes sod29-legacy-card-glow{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--s29-accent) 35%,transparent)}}}

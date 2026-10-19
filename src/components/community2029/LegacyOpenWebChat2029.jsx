@@ -36,6 +36,7 @@ export default function LegacyOpenWebChat2029() {
   return <section id="legacy-chat" className="sod29-legacy-chat" aria-labelledby="legacy-chat-title" data-community-chat="legacy" data-openweb-loaded={active ? "true" : "false"}>
     <header className="sod29-legacy-chat-header">
       <h2 id="legacy-chat-title">הצ׳אט הוותיק</h2>
+      <a className="sod29-legacy-chat-claim" href="#legacy-claim">כתבת כאן בעבר? קח את החשבון שלך ↑</a>
     </header>
     <div ref={hostRef} className="sod29-legacy-chat-conversation">
       {active ? <OpenWebConversation /> : <p className="sod29-legacy-chat-pending" role="status">היסטוריית הצ׳אט נטענת כשמגיעים לכאן.</p>}

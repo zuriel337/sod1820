@@ -61,7 +61,7 @@ export function semantics(rows) {
     },
     claimByEmail(uid) {
       if (!uid) throw new Error("not_authenticated");
-      const hit = legacy.get(uid); if (!hit) return { claimed: 0, messages: 0, reason: "account_has_contributor" };
+      const hit = legacy.get(uid); if (!hit) return { claimed: 0, messages: 0, reason: uid === A ? "account_has_contributor" : "no_match" };
       legacy.delete(uid); return { claimed: 1, messages: hit.messages, reason: null };
     },
     restore(uid, { p_id }) {

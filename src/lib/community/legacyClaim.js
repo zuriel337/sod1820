@@ -13,12 +13,12 @@ export async function claimLegacyContributor(contributorId) {
 }
 
 // Automatic link by confirmed email. The server decides; "nothing to do" is a normal result, and a missing
-// function (migration not applied) is silent. Returns { claimed, messages } or null.
+// function (migration not applied) is silent. Returns { claimed, messages, reason } or null.
 export async function claimLegacyByEmail() {
   const { data, error } = await supabase.rpc("contributors_claim_legacy_by_email");
   if (error) {
     if (error.code === "PGRST202" || error.code === "42883" || /could not find the function|does not exist/i.test(error.message || "")) return null;
     throw error;
   }
-  return { claimed: Number(data?.claimed) || 0, messages: Number(data?.messages) || 0 };
+  return { claimed: Number(data?.claimed) || 0, messages: Number(data?.messages) || 0, reason: data?.reason || null };
 }

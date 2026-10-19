@@ -11,6 +11,7 @@ import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import { EditHistory, MessageConfirm, MessageEditor, MessageReport, communityMessagePermissions, describeEdited } from "./CommunityMessageManage.jsx";
 import CommunityAdminPanel from "./CommunityAdminPanel.jsx";
+import LegacyClaimCard from "./LegacyClaimCard.jsx";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
 import { claimLegacyByEmail, isLegacyContributorId } from "../../lib/community/legacyClaim.js";
@@ -169,6 +170,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [feedSettled, setFeedSettled] = useState(false);
   const [undo, setUndo] = useState(null);
   const [archive, setArchive] = useState(null);
+  const [legacy, setLegacy] = useState({ status: "idle", messages: 0 });
   const [focus, setFocus] = useState(null);
   const focusRef = useRef(null);
   const [patches, setPatches] = useState({});
@@ -360,21 +362,28 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   };
   const actionsContext = useMemo(() => ({ actionsAvailable, user, isAdmin: Boolean(isAdmin), patches, onMessageChanged }), [actionsAvailable, user, isAdmin, patches, onMessageChanged]);
 
-  // A signed-in account whose confirmed email matches an old chat author is linked automatically, once per tab session.
-  useEffect(() => {
-    if (!user?.id) return undefined;
-    const key = `sod-legacy-auto-claim:${user.id}`;
-    try { if (sessionStorage.getItem(key)) return undefined; } catch { /* storage unavailable: try once per mount */ }
-    let active = true;
-    claimLegacyByEmail().then((result) => {
-      try { sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
-      if (!active || !result?.claimed) return;
-      setNotice(result.messages > 0 ? `מצאנו את החשבון שלך בצ׳אט הוותיק וקישרנו אליו ${result.messages.toLocaleString("he-IL")} הודעות.` : "מצאנו את החשבון שלך בצ׳אט הוותיק וקישרנו אותו.");
-      fetchLinkedAccountProfiles([user.id]).then((accounts) => setAccountProfiles((current) => ({ ...current, ...accounts }))).catch(() => {});
-      loadPage(0, true);
-    }).catch(() => { /* a failed attempt is retried on the next visit */ });
-    return () => { active = false; };
+  // A signed-in account whose confirmed email matches an old chat author is linked by the server. It runs once per tab
+  // session on its own, and again whenever the reader presses the button on the legacy card.
+  const checkLegacy = useCallback(async ({ manual = false } = {}) => {
+    if (!user?.id) return;
+    if (manual) setLegacy({ status: "checking", messages: 0 });
+    try {
+      const result = await claimLegacyByEmail();
+      try { sessionStorage.setItem(`sod-legacy-auto-claim:${user.id}`, "1"); } catch { /* ignore */ }
+      if (!result) { if (manual) setLegacy({ status: "unavailable", messages: 0 }); return; }
+      if (result.claimed) {
+        setLegacy({ status: "claimed", messages: result.messages });
+        fetchLinkedAccountProfiles([user.id]).then((accounts) => setAccountProfiles((current) => ({ ...current, ...accounts }))).catch(() => {});
+        loadPage(0, true);
+      } else if (manual) setLegacy({ status: result.reason === "account_has_contributor" ? "has_contributor" : result.reason === "email_not_confirmed" ? "email_not_confirmed" : "no_match", messages: 0 });
+    } catch { if (manual) setLegacy({ status: "error", messages: 0 }); }
   }, [user?.id, loadPage]);
+  useEffect(() => {
+    if (!user?.id) return;
+    try { if (sessionStorage.getItem(`sod-legacy-auto-claim:${user.id}`)) return; } catch { /* storage unavailable: try once per mount */ }
+    checkLegacy();
+  }, [user?.id, checkLegacy]);
+  const focusSignIn = () => { const field = document.getElementById("community-sign-in-email"); field?.scrollIntoView({ block: "center" }); field?.focus(); };
 
   const messageParam = params.get("message") || "";
   useEffect(() => {
@@ -459,6 +468,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         {profileError ? <p role="alert">{profileError}</p> : null}<div className="sod29-community-feed">{profileRows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={accountProfiles} showSource onReply={(item) => { closeProfile(); startReply(item); }} />)}</div>{profileLoading ? <p className="sod29-community-end">טוען פוסטים…</p> : null}{!profileRows.length && !profileLoading && !profileError ? <p className="sod29-community-end">אין פוסטים ציבוריים בסינון הזה.</p> : null}{profileNextOffset < profileCount ? <button className="sod29-community-load" type="button" disabled={profileLoading} onClick={async () => { setProfileLoading(true); try { const page = await fetchPublicAuthorActivityPage(memberId, { offset: profileNextOffset, filter: profileFilter, sort: profileSort }); setProfileRows((current) => [...current, ...page.rows]); setProfileNextOffset(page.nextOffset); } catch { setProfileError("טעינת פוסטים נוספים נכשלה."); } finally { setProfileLoading(false); } }}>עוד פוסטים</button> : null}
       </section> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunitySignIn />
+        <LegacyClaimCard user={user} legacy={legacy} onCheck={() => checkLegacy({ manual: true })} onSignInFocus={focusSignIn} />
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
           <label htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}

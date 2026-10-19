@@ -420,7 +420,7 @@ await scenario("report and admin panel: report as a reader; admin deletes from t
 await scenario("auto link: a signed-in account matching an old author is linked once, with a notice; guests and the missing migration stay silent", async () => {
   const shared = shareStore();
   const first = await open({ as: B, shared });
-  await first.page.getByText("מצאנו את החשבון שלך בצ׳אט הוותיק וקישרנו אליו 3 הודעות.").waitFor();
+  await first.page.locator("#legacy-claim").getByText(/קישרנו אליו 3 הודעות/).waitFor();
   await first.page.reload(); await first.page.waitForSelector(".sod29-community-thread");
   await first.page.waitForTimeout(500);
   assert.equal(await first.page.getByText(/מצאנו את החשבון שלך/).count(), 0, "attempted once per tab session");
@@ -438,6 +438,50 @@ await scenario("auto link: a signed-in account matching an old author is linked 
   await old.page.waitForTimeout(500);
   assert.equal(await old.page.getByText(/מצאנו את החשבון שלך/).count(), 0);
   assert.deepEqual(old.log.errors, []);
+  await old.context.close();
+});
+
+await scenario("legacy claim card: guest sees it and is sent to the sign-in; dismiss persists; link from the old chat reopens it; signed-in results", async () => {
+  const guest = await open();
+  const card = guest.page.locator("#legacy-claim");
+  await card.getByRole("heading", { name: "היית בצ׳אט הוותיק?" }).waitFor();
+  await card.getByRole("button", { name: "מצא את החשבון הישן שלי" }).click();
+  await guest.page.waitForFunction(() => document.activeElement?.id === "community-sign-in-email");
+  assert.equal(guest.log.rpcCalls.filter((c) => c === "claim_by_email").length, 0, "guest never calls the server");
+  await card.getByRole("button", { name: "לא רלוונטי" }).click();
+  await card.waitFor({ state: "detached" });
+  await guest.page.reload(); await guest.page.waitForSelector(".sod29-community-thread");
+  assert.equal(await guest.page.locator("#legacy-claim").count(), 0, "dismissal persists");
+  await guest.page.locator("#legacy-chat").scrollIntoViewIfNeeded();
+  await guest.page.getByRole("link", { name: /קח את החשבון שלך/ }).click();
+  await guest.page.locator("#legacy-claim").waitFor();
+  await guest.context.close();
+
+  const shared = shareStore();
+  const linked = await open({ as: B, shared });
+  await linked.page.locator("#legacy-claim[data-legacy-claim='claimed']").waitFor();
+  await linked.page.locator("#legacy-claim").getByText(/קישרנו אליו 3 הודעות/).waitFor();
+  await linked.context.close();
+
+  const owner = await open({ as: A, shared });
+  await owner.page.waitForTimeout(500);
+  assert.equal(await owner.page.locator("#legacy-claim").count(), 0, "signed-in reader with nothing to show sees no card");
+  await owner.page.goto(`${BASE}/community/chat#legacy-claim`); await owner.page.waitForSelector("#legacy-claim");
+  await owner.page.locator("#legacy-claim").getByRole("button", { name: "מצא את החשבון הישן שלי" }).click();
+  await owner.page.locator("#legacy-claim[data-legacy-claim='has_contributor']").waitFor();
+  await owner.context.close();
+
+  const none = await open({ as: ADMIN, shared });
+  await none.page.goto(`${BASE}/community/chat#legacy-claim`); await none.page.waitForSelector("#legacy-claim");
+  await none.page.locator("#legacy-claim").getByRole("button", { name: "מצא את החשבון הישן שלי" }).click();
+  await none.page.locator("#legacy-claim[data-legacy-claim='no_match']").getByText(/לא מצאנו חשבון ישן/).waitFor();
+  assert.ok(await none.page.locator("#legacy-claim a[href^='mailto:']").count() >= 1, "support route offered");
+  await none.context.close();
+
+  const old = await open({ as: B, rpc: "missing", shared: shareStore() });
+  await old.page.goto(`${BASE}/community/chat#legacy-claim`); await old.page.waitForSelector("#legacy-claim");
+  await old.page.locator("#legacy-claim").getByRole("button", { name: "מצא את החשבון הישן שלי" }).click();
+  await old.page.locator("#legacy-claim[data-legacy-claim='unavailable']").waitFor();
   await old.context.close();
 });
 
