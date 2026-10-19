@@ -8,19 +8,23 @@ Status: **BRANCH-ONLY · LOCALLY TESTED · NOT APPLIED · NOT DEPLOYED · NOT VE
 |---|---|
 | RPC `coordination_read_current` — SECURITY DEFINER, live-authorizes against `auth.users`, returns one jsonb `{checked_at,total_matches,returned,limit,truncated,rows}`, fails closed `42501` | `supabase/migrations/20261019180000_work_log_coordination_reader_v1.sql` |
 | MCP façade — one read-only tool `coordination_check`, caller JWT forwarded, anon key only, strict response validation | `supabase/functions/coordination-mcp/` |
-| Node gateway tests (21) | `scripts/test-coordination-reader-gateway.mjs` |
+| Node gateway tests (23) | `scripts/test-coordination-reader-gateway.mjs` |
 | SQL permission/revocation/truncation tests + minimal local harness (no site migrations) | `tests/sql/coordination_reader_v1.sql`, `tests/sql/local-harness/` |
 | Local e2e handler → real Postgres function | `scripts/test-coordination-reader-e2e-local.mjs` |
 
+## Active-writer definition (task lifecycle, not a status string)
+Rows are grouped by task scope (`task_key`, else `task=<key>` in topic, else topic prefix — same derivation as `work_log_current._task_scope`). Each status is classified by `coordination_status_class`: **OPEN** (BEFORE, ACK_* claims, CLAIMED_WRITE, ASSIGNED_WRITE, WRITE_SCOPE_OPEN, WRITE_WINDOW_OPEN, `*ACTIVE_WRITER*`, legacy CLAIMED + mode WRITE), **CLOSE** (AFTER, CLOSED, CANCELLED, RELEASED, SCOPE_RELEASED, DECLINED, SUPERSEDED, FROZEN, MERGED, COMPLETE(D), DONE, DEPLOYED, IMPLEMENTED, BLOCKED …) or **NEUTRAL** (everything else: progress notes, PLANNED, HANDOFF_READY, `EXPLICIT_RELEASE_AUTHORIZED`/`RELEASE_AUTHORIZED` — a release *authorization* is not a writer, READ_ONLY claims, telemetry). A scope is an **active writer iff its latest OPEN/CLOSE row is OPEN** (BEFORE→AFTER = released; BEFORE→AFTER→BEFORE = active again; exact timestamp tie resolves toward active). READ_ONLY mode/status never opens a scope.
+The RPC reads the `work_log` ledger (non-archived, non-superseded, last 30 days) **instead of `work_log_current`**, because that view keeps only the 100 newest rows plus the latest rows matching a status pattern that does not include BEFORE — an old, still-open BEFORE can fall out of it (reproduced in `tests/sql/coordination_reader_v1.sql` §0). This is a deliberate, reviewable deviation: same ledger and filters, no new store. Unclassified (NEUTRAL) statuses cannot close a scope, so an unknown status never hides a writer; the cost is that an unknown *terminal* wording can leave a finished scope looking active (safe direction) until a recognised AFTER/CLOSED row appears. Each active row carries `age_hours` so stale claims are visible; unclosed claims older than 30 days are outside the window.
+
 ## Guarantees implemented (and tested)
 - **Immediate revocation:** authorization is read live from `auth.users` (flag, `banned_until`, `deleted_at`) on every call; the JWT claim is *not* trusted, so an old unexpired token stops working the moment the flag is removed.
-- **Never "clear" from a capped page:** response carries `total_matches` + `truncated`; gateway returns `COORDINATION_INCOMPLETE` (error, rows withheld) if truncated; `NO_TERM_MATCH_IN_ACTIVE_ROWS` (never "no overlap") only for a complete, scoped, active-only result, always with a `caveat` and the full list of active writers' declared scopes (`active_scopes`, ≤50, `active_truncated`) so directory/glob scopes can be compared manually. An active row with an empty declared scope matches every term (fail toward overlap).
+- **Never "clear" from a capped page:** response carries `total_matches` + `truncated`; gateway returns `COORDINATION_INCOMPLETE` (error, rows withheld) if truncated; `NO_TERM_MATCH_IN_ACTIVE_ROWS` (never "no overlap") only for a complete, scoped, active-only result, always with a `caveat` and the full list of active writers' declared scopes (`active_scopes`, ≤50, `active_truncated`; `active_truncated=true` ⇒ `COORDINATION_INCOMPLETE` regardless of matches) so directory/glob scopes can be compared manually. An active row with an empty declared scope matches every term (fail toward overlap).
 - **Fail closed:** missing token → 401; denied/expired → 403; DB error, timeout, thrown error, null/empty/non-object data, inconsistent counts, stale `checked_at`, oversize rows, forbidden columns (`what_we_did`, `dispatch_*`) → 502 `COORDINATION_UNVERIFIED`. No empty-means-OK path.
 - **Read-only:** no write path; reader cannot select `work_log_current`/`auth.users` directly; ≤50 rows; ≤10 scope terms (3–120 chars); columns limited; free text truncated.
 - **Only the overlapping scope is blocked:** verdict is per `scope_terms`; independent scopes return `NO_ACTIVE_OVERLAP_FOUND`.
 
 ## Test evidence (local, harness only)
-SQL_PASS · NODE_PASS 21 · E2E_PASS 6 · 13 deliberate mutants of the migration all killed by the SQL tests.
+SQL_PASS (classifier truth table, lifecycle scenarios, >50 writers, view-window drop, revocation) · NODE_PASS 23 · E2E_PASS 9 · ~35 deliberate mutants of the migration killed by the SQL tests.
 
 ## Known limits (documented, not hidden)
 - Overlap = case-insensitive substring match of terms against `assignment_scope`/`task_key`/`topic`. Agents must pass file basenames **and** area names; a claim written with unrelated wording can be missed. This is a check, not a lock.

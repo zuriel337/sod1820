@@ -25,12 +25,32 @@ await t("flagged reader detects active writer + file overlap", async () => {
   const { s, body } = await call(A1, { scope_terms: ["App2029.jsx"] });
   assert.equal(s, 200); assert.equal(body.verdict, "ACTIVE_WRITER_TERM_MATCH"); assert.equal(body.rows[0].task_key, "T_ACTIVE_APP");
 });
-await t("independent scope -> NO_TERM_MATCH_IN_ACTIVE_ROWS (only the overlapping scope is blocked)", async () => {
-  assert.equal((await call(A1, { scope_terms: ["community/chat"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+await t("BEFORE->AFTER released scope does not block; shared-frame ACK_CLAIMED_WRITE does", async () => {
+  assert.equal((await call(A1, { scope_terms: ["releasedzone"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+  const ack = await call(A1, { scope_terms: ["SystemFrame2029.jsx"] });
+  assert.equal(ack.body.verdict, "ACTIVE_WRITER_TERM_MATCH"); assert.equal(ack.body.rows[0].task_key, "T_ACK");
+  assert.equal((await call(A1, { scope_terms: ["cyclezone/first"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+  assert.equal((await call(A1, { scope_terms: ["cyclezone/second"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
 });
-await t("80-row scope is INCOMPLETE, not 'no overlap'", async () => {
+await t("old still-open BEFORE is detected (the view-window drop is asserted in the SQL tests)", async () => {
+  assert.equal((await call(A1, { scope_terms: ["oldopenzone"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
+});
+psql(`insert into public.work_log(task_key, status, assignment_scope, topic, created_at)
+  select 'T_BULK_' || g, 'BEFORE_BRANCH_ONLY_PASSIVE_ACTIVE_WRITER', 'bulkzone/file' || g, 'bulk', now() - interval '20 minutes' from generate_series(1, 80) g;
+  insert into public.work_log(task_key, status, assignment_scope, topic, created_at)
+  select 'T_BULK_' || g, 'AFTER_BRANCH_ONLY_SCOPE_RELEASED_PASSIVE', 'bulkzone/file' || g, 'bulk', now() - interval '10 minutes' from generate_series(1, 10) g;`);
+await t(">50 active writers: even a clean scope is INCOMPLETE (list truncated), never an all-clear", async () => {
+  const { r, body } = await call(A1, { scope_terms: ["community/chat"] });
+  assert.equal(body.verdict, "COORDINATION_INCOMPLETE"); assert.equal(r.result.isError, true);
+});
+await t("70 matching writers (50-row page) is INCOMPLETE", async () => {
   const { r, body } = await call(A1, { scope_terms: ["bulkzone"], limit: 50 });
   assert.equal(body.verdict, "COORDINATION_INCOMPLETE"); assert.equal(r.result.isError, true);
+});
+await t("after the crowd clears, an independent scope is a complete NO_TERM_MATCH and a hit still blocks only its own scope", async () => {
+  psql(`delete from public.work_log where task_key like 'T_BULK_%'`);
+  assert.equal((await call(A1, { scope_terms: ["community/chat"] })).body.verdict, "NO_TERM_MATCH_IN_ACTIVE_ROWS");
+  assert.equal((await call(A1, { scope_terms: ["App2029.jsx"] })).body.verdict, "ACTIVE_WRITER_TERM_MATCH");
 });
 await t("unflagged user -> 403 COORDINATION_UNVERIFIED", async () => {
   const { s, body } = await call(A2, {}); assert.equal(s, 403); assert.equal(body.verdict, "COORDINATION_UNVERIFIED");

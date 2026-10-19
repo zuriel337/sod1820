@@ -77,11 +77,13 @@ export async function handleMcp(body, token, deps) {
   const bad = validatePayload(data, a.limit ?? 25, deps.now?.() ?? Date.now());
   if (bad) return failClosed(id, 502, "invalid reader response: " + bad);
 
-  // Completeness: a capped page is NEVER reported as "no overlap".
-  if (data.truncated) {
+  // Completeness: a capped page is NEVER reported as "no overlap". Truncated matches OR a truncated
+  // active-writer list (cannot be compared against directory/glob scopes) both require a narrower retry.
+  if (data.truncated || (data.active_truncated && (a.active_only ?? true))) {
     return [200, ok(id, { isError: true, content: [{ type: "text", text: JSON.stringify({
-      verdict: "COORDINATION_INCOMPLETE", reason: "result truncated; narrow scope_terms and retry",
-      total_matches: data.total_matches, returned: data.returned }) }] })];
+      verdict: "COORDINATION_INCOMPLETE",
+      reason: data.truncated ? "matches truncated; narrow scope_terms and retry" : "active-writer list truncated (>50 active writers); full manual review of work_log required before any write",
+      total_matches: data.total_matches, returned: data.returned, active_total: data.active_total }) }] })];
   }
   const activeOnly = a.active_only ?? true;
   const scoped = Array.isArray(terms) && terms.length > 0;
@@ -101,9 +103,9 @@ export async function handleMcp(body, token, deps) {
 }
 
 const clean = (v) => (typeof v === "string" ? v.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/g, " ") : v ?? null);
-const ROW_OUT = ["id", "created_at", "task_key", "from_actor", "to_actor", "assignment_mode", "status", "primary_owner", "release_authorization_state", "assignment_scope", "topic", "open_threads"];
+const ROW_OUT = ["id", "created_at", "task_key", "scope_key", "age_hours", "from_actor", "to_actor", "assignment_mode", "status", "primary_owner", "release_authorization_state", "assignment_scope", "topic", "open_threads"];
 const projectRow = (r) => Object.fromEntries(ROW_OUT.map((k) => [k, clean(r[k])]));
-const projectActive = (r) => ({ task_key: clean(r.task_key), status: clean(r.status), assignment_scope: clean(r.assignment_scope) });
+const projectActive = (r) => ({ task_key: clean(r.task_key), scope_key: clean(r.scope_key), status: clean(r.status), age_hours: r.age_hours ?? null, assignment_scope: clean(r.assignment_scope) });
 
 const FORBIDDEN_KEYS = /^(what_we_did|dispatch_.*)$/;
 const ROW_KEYS = ["id", "created_at", "status"];

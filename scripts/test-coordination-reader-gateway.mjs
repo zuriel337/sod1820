@@ -34,6 +34,15 @@ await t("truncated (50 of 80) -> INCOMPLETE error, rows withheld, never 'no over
   const [s, r] = await run({ scope_terms: ["bulkzone"], limit: 50 }, ok(payload({ total_matches: 80, returned: 50, limit: 50, truncated: true, rows })));
   assert.equal(s, 200); assert.equal(r.result.isError, true); assert.equal(text(r).verdict, "COORDINATION_INCOMPLETE"); assert.equal(text(r).rows, undefined);
 });
+await t("active_truncated (>50 active writers) -> INCOMPLETE even when matches are empty", async () => {
+  const [s, r] = await run({ scope_terms: ["community/chat"] }, ok(payload({ total_matches: 0, returned: 0, rows: [], active_total: 80, active_truncated: true,
+    active_scopes: Array.from({ length: 50 }, (_, i) => ({ task_key: "T" + i, status: "BEFORE_X", assignment_scope: "x" + i })) })));
+  assert.equal(s, 200); assert.equal(r.result.isError, true); assert.equal(text(r).verdict, "COORDINATION_INCOMPLETE"); assert.equal(text(r).rows, undefined);
+});
+await t("active_truncated with active_only=false does not claim anything and is not misread", async () => {
+  const [, r] = await run({ task_key: "T1", active_only: false }, ok(payload({ active_total: 80, active_truncated: true, active_scopes: Array.from({ length: 50 }, () => ({ status: "BEFORE_X" })) })));
+  assert.equal(text(r).verdict, "HISTORY_READ_NO_OVERLAP_CLAIM");
+});
 await t("no token -> 401, rpc never called", async () => {
   let called = false; const [s] = await run({}, async () => { called = true; }, null);
   assert.equal(s, 401); assert.equal(called, false);
