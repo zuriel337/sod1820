@@ -32,8 +32,9 @@ test("dual build contains isolated Legacy and 2029 documents with read-only/noin
     readFile(resolve(output, "2029.html"), "utf8"),
   ]);
   assert.match(legacy, /name="sod-hybrid-runtime" content="legacy"/);
-  assert.match(index, /name="sod-hybrid-runtime" content="legacy"/);
+  assert.match(index, /name="sod-hybrid-runtime" content="2029"/);
   assert.match(next, /name="sod-hybrid-runtime" content="2029"/);
+  assert.equal(index, next, "the physical root document must be the exact 2029 entry");
   for (const html of [legacy, index, next]) {
     assert.match(html, /noindex,nofollow,noarchive/);
     if (localBuilt) {
@@ -55,6 +56,7 @@ test("local server routes candidate paths to 2029 and unknown paths to Legacy", 
   await new Promise((resolveListen) => server.listen(0, "127.0.0.1", resolveListen));
   const base = `http://127.0.0.1:${server.address().port}`;
   for (const [path, runtime, marker] of [
+    ["/", "2029", 'content="2029"'],
     ["/world", "2029", 'content="2029"'],
     ["/post/example", "2029", 'content="2029"'],
     ["/code", "legacy", 'content="legacy"'],

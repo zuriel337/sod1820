@@ -53,6 +53,10 @@ const runBuild = (script) => execFileSync(npm, ["run", script, "--", "--outDir",
 runBuild("build:legacy");
 await copyFile(resolve(output, "index.html"), resolve(output, "legacy.html"));
 runBuild("build:2029");
+// Vercel serves a physical index.html for `/` before applying rewrites. Keep
+// the default artifact aligned with the route policy while preserving the
+// isolated Legacy document for the fallback and explicit Legacy routes.
+await copyFile(resolve(output, "2029.html"), resolve(output, "index.html"));
 
 const readOnlyBootstrap = `<script id="sod-hybrid-local-readonly">
 (()=>{const safe=new Set(['GET','HEAD','OPTIONS']);const reads=new Set(['gematria_api','fn_method_value','fn_method_profile','gematria_method_trace','fn_zero_scale','posts_by_number_strict','fn_number_lookup','fn_number_opening_projection_2029','fn_number_dossier','fn_number_journey','fn_verses_by_gematria','lang_links_list','number_neighbors','fn_all_methods','world_group_source_arrivals_v3','world_group_source_arrivals_v2','convergence_meter','get_category_videos','notification_prefs_guest_get_v1']);const allowed=(method,raw)=>{const url=new URL(raw,location.href);const rpc=url.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];return safe.has(String(method||'GET').toUpperCase())||(url.hostname==='linswmnnkjxvweumprav.supabase.co'&&String(method).toUpperCase()==='POST'&&reads.has(rpc));};const nativeFetch=globalThis.fetch.bind(globalThis);globalThis.fetch=(input,init)=>{const request=input instanceof Request?input:new Request(input,init);if(allowed(request.method,request.url))return nativeFetch(input,init);return Promise.resolve(new Response(JSON.stringify({error:'hybrid_local_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Hybrid-Write-Blocked':'true'}}));};const xhrOpen=globalThis.XMLHttpRequest?.prototype.open;const xhrSend=globalThis.XMLHttpRequest?.prototype.send;if(xhrOpen&&xhrSend){globalThis.XMLHttpRequest.prototype.open=function(method,url,...rest){this.__sodHybridAllowed=allowed(method,url);return xhrOpen.call(this,method,url,...rest);};globalThis.XMLHttpRequest.prototype.send=function(...args){if(!this.__sodHybridAllowed)throw new DOMException('Hybrid Preview is read-only','SecurityError');return xhrSend.apply(this,args);};}if(typeof navigator.sendBeacon==='function'){try{navigator.sendBeacon=()=>false;}catch{}}document.addEventListener('submit',event=>{if(String(event.target?.method||'get').toUpperCase()==='POST'){event.preventDefault();event.stopImmediatePropagation();}},true);document.documentElement.dataset.sodHybridGuard='local-read-only';})();
@@ -68,7 +72,7 @@ async function sealDocument(name, runtime) {
 }
 
 const legacy = await sealDocument("legacy.html", "legacy");
-const index = await sealDocument("index.html", "legacy");
+const index = await sealDocument("index.html", "2029");
 const candidate2029 = await sealDocument("2029.html", "2029");
 const policyBytes = await readFile(resolve(root, "config/hybrid-preview-routes.json"));
 const receipt = {
