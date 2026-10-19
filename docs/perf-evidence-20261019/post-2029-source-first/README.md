@@ -1,8 +1,21 @@
 # POST 2029 source-first acceptance
 
-Date: 2026-10-19  
-Candidate base: `gpt/2029-hybrid-stage-preview-20261018` at `aa0b27500457bb89f96f36ecf0a73b7a80488c50`  
+Date: 2026-10-19
+Original measurement base: `gpt/2029-hybrid-stage-preview-20261018` at `aa0b27500457bb89f96f36ecf0a73b7a80488c50`
 Acceptance branch: `gpt/post-2029-surface-acceptance-20261019`
+
+## Reconciliation on the hosted Hybrid base
+
+The original five commits were replayed without conflict on the hosted Hybrid
+integration head `580ede725c0fc52a3f20746e9b23bf227216e6c1` in
+`gpt/post-2029-source-first-reconcile-20261019`. The measurements below remain
+the original controlled comparison against `aa0b2750`; they were not relabeled
+as measurements of the newer integration head.
+
+On the reconciled tree, 40 focused Post tests, the 2029 production build, all
+5 bundle-budget checks and all 8 Hybrid routing/build checks passed. Hosted
+acceptance still requires the exact merged integration SHA because feature
+branches are intentionally not deployed by the project.
 
 ## Finding
 
