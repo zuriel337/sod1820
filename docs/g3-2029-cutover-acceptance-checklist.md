@@ -187,6 +187,33 @@ This section describes state and requirements only. It changes no routing.
 
 None of these may create a new SEO registry or route owner. They read the existing owners.
 
+### 4.1 Ordered engineering remediation queue — 2026-10-20
+
+**Status:** PLANNED only. This queue records the next engineering work; it does not change routing, Production, data, permissions, RLS, feature flags, release authority or any existing owner/law. The repository baseline inspected for this queue is `origin/main` at `d6150a82bb275129dca33908aa7313e4e1f3528e`. Repository state is not proof of the currently deployed SHA, so live state must be read and recorded before any acceptance claim.
+
+Each item is an isolated work unit under one-active-writer coordination. It closes only with an exact head SHA, focused tests and a short evidence record. An updated assertion must preserve the owned behavior; deleting or weakening a test is not completion.
+
+1. **Reconcile current route truth with the cutover record.** `vercel.json` on the inspected baseline redirects `/` to `/2029`, `/post` to `/2029/posts` and `/forum` to `/community/chat`, while §3.1 intentionally describes the older `3dc2ff04` baseline. Read the current deployed SHA and effective redirects, then add a current family-state table that distinguishes **Legacy / Wired / Accepted / Cutover-complete**. Do not infer deployment from `main`, and do not change a route in this task.
+
+2. **Establish the official audit runner and prerequisites.** Define one bounded runner/manifest for the official gate groups instead of treating `node --test test/*.test.mjs` as a release gate. It must install locked dependencies, declare the required Playwright browser/runtime setup, separate `ENVIRONMENT` failures from `PRODUCT` failures, retain skipped-test reasons and emit exact-SHA results. Completion requires a clean-environment replay; no assertion weakening and no broad “all tests” pass claim.
+
+3. **Build the missing Legacy↔2029 URL parity scanner.** Implement all six pieces already required by §4: family URL inventory, dual-render acquisition, normalized per-URL diff, family-record `APPROVED_CHANGE` format, manual/dispatch CI wiring and an `audits/` report with a bounded work-log pointer. Reuse existing route/SEO owners and gates. The scanner is complete only when a representative family can produce deterministic `MATCH / APPROVED_CHANGE / REGRESSION` output without a new route or SEO registry.
+
+4. **Repair the 2029 date-display defect and its guard.** `SourceRepeatInfo2029.jsx` formats a record time directly with `toLocaleString`, and the current Home/World allow-list omits `ZviGroupTimeline2029.jsx` even though that World component correctly uses `relativeTimeLabel`. Replace the direct formatter with the owned Home/World relative-time helper where applicable, keep true event/reference dates explicitly classified, and refresh `date-display-rule-2029.test.mjs` so it guards semantics rather than a stale file list.
+
+5. **Refresh stale 2029 contract assertions without changing behavior.** Reconcile the focused tests with the current equivalent contracts: Heichal's `researchProjection`, the frame's derived `companionHasContext`, the `CORE_PUBLIC_LAUNCH_2029` public-title branch, and Research Viewer admin inspection using `includeInactive: true`. Where equivalence is not proved, treat it as a product defect instead of rewriting the assertion. Run each owning focused suite before the combined 2029 gate group.
+
+6. **Make the spatial lazy-loading contract graph-aware.** Replace the assertion that only `MistaterScene3D2029.jsx` may import Three.js with a contract that permits named heavy leaf modules only behind proved lazy boundaries. It must cover `GlyphVolume2029.jsx` through `SpatialGlyphScene2029.jsx` and the preview-gated `Kingdom2029Page.jsx`, while continuing to prove that the default/core entry graph does not load Three.js or WebGL code.
+
+7. **Consolidate the WhatsApp intake tests on the registry-driven contract.** Retire the obsolete `HEAVY_CHANNELS` expectation in `wa-channel-world-2029-contract.test.mjs`; keep `channel_ingest_sources` as the canonical routing source, and test trusted/admin-author behavior through the shared `_shared/waWriterIdentity.js` helper where it is implemented. Preserve fail-closed identity and privacy behavior. This is a test/contract reconciliation task, not permission to change live channel rows, functions, schema or RLS.
+
+**Required close-out after items 1–7 (not an eighth implementation task):**
+
+1. Re-run the official build, 2029 isolation, route-legitimacy, System Frame, Legacy containment, public-core, built-graph, cheap-hardening and server SEO/AI gates on one exact head.
+2. Record remaining failures by owner as `PRODUCT`, `ENVIRONMENT` or explicitly accepted skip; zero unexplained failures may be hidden in an aggregate count.
+3. After separate explicit authorization for a hosted Preview, run the parity scanner per route family against the recorded Legacy reference and that exact Preview SHA. Record every difference and require **0 REGRESSION**.
+4. Prepare the family acceptance packet with rollback target, canary plan, measurement evidence and remaining bounded debt for ZURIEL's Human Gate. This packet is not merge, Preview, Production or cutover authorization.
+
 ---
 
 ## Follow-up note (not part of this gate)
