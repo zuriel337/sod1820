@@ -13,8 +13,10 @@ export function makeStore() {
   const add = (n, parent, author, body, origin = "community_2029") => rows.push({ id: id(n), parent_id: parent ? id(parent) : null, author_user_id: author, author_contributor_id: null, author_name: author ? profiles[author].display_name : "חבר ותיק", title: null, body, reactions: {}, origin, status: "approved", created_at: new Date(T0 + 60000 * ++tick + 1000000000).toISOString(), edited_at: null, deleted_at: null, thread_hidden_at: null, image_url: null });
   for (let i = 0; i < 45; i++) add(200 + i, null, null, `הודעה ותיקה ${i + 1}`, "openweb"); // older than everything below, so the tested messages sit on page one
   add(1, null, A, "הודעת מקור של אילנה https://example.org/page");
+  rows.at(-1).reactions = { likes: 3, "👍": [A] };
   add(2, 1, B, "תגובה של בועז"); add(3, 2, A, "תגובה מקוננת של אילנה"); add(4, 1, B, "תגובה שנייה של בועז");
   add(5, null, B, "הודעה בלי תגובות של בועז");
+  rows.at(-1).image_url = "https://example.invalid/clue.pdf";
   add(6, null, null, "הודעה היסטורית מ-OpenWeb", "openweb");
   for (let i = 0; i < 25; i++) add(100 + i, 6, null, `תגובה ותיקה ${i + 1}`, "openweb");
   return rows;
@@ -31,8 +33,36 @@ export function semantics(rows) {
     const sorted = list.sort((x, y) => (asc ? 1 : -1) * (x.r.created_at.localeCompare(y.r.created_at) || x.r.id.localeCompare(y.r.id)));
     return sorted.slice(offset, offset + limit).map(({ r, kind }) => shape(r, kind, offset === 0 || always ? sorted.length : null));
   };
+  const likeCount = (r) => (Number(r.reactions?.likes) || 0) + (Array.isArray(r.reactions?.["👍"]) ? r.reactions["👍"].length : 0);
+  const feedV2 = (uid, { p_offset = 0, p_limit = 40, p_sort = "newest", p_filter = "all", p_window = "month" }) => {
+    const now = Math.max(...rows.map((r) => Date.parse(r.created_at)));
+    const since = p_window === "week" ? now - 7 * 864e5 : p_window === "month" ? now - 30 * 864e5 : null;
+    let list = rows.filter((r) => !r.parent_id).map((r) => ({ r, kind: visible(r) })).filter((x) => x.kind).map((x) => {
+      const direct = kids(x.r.id).filter(visible);
+      return { ...x, replyCount: direct.length, lastActivity: direct.reduce((latest, r) => r.created_at > latest ? r.created_at : latest, x.r.created_at), likes: likeCount(x.r) };
+    });
+    if (["discussed", "liked"].includes(p_sort) && since != null) list = list.filter(({ r }) => Date.parse(r.created_at) >= since);
+    list = list.filter(({ r, kind, replyCount }) => {
+      if (p_filter === "unanswered") return replyCount === 0;
+      if (p_filter === "media") return kind !== "tomb" && Boolean(r.image_url || (Array.isArray(r.media) ? r.media.length : r.media && Object.keys(r.media).length) || /https?:\/\/\S+\.(?:jpg|jpeg|png|webp|gif|pdf|txt|docx)(?:[?#]\S*)?$/i.test(r.body || ""));
+      if (p_filter === "mine") return Boolean(uid) && r.author_user_id === uid;
+      if (p_filter === "community") return r.origin === "community_2029";
+      if (p_filter === "legacy") return r.origin === "openweb";
+      return true;
+    });
+    const compare = (a, b) => {
+      if (p_sort === "oldest") return a.r.created_at.localeCompare(b.r.created_at) || a.r.id.localeCompare(b.r.id);
+      if (p_sort === "active") return b.lastActivity.localeCompare(a.lastActivity) || b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+      if (p_sort === "discussed") return b.replyCount - a.replyCount || b.lastActivity.localeCompare(a.lastActivity) || b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+      if (p_sort === "liked") return b.likes - a.likes || b.replyCount - a.replyCount || b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+      return b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+    };
+    list.sort(compare);
+    return list.slice(p_offset, p_offset + p_limit).map(({ r, kind }) => shape(r, kind, p_offset === 0 ? list.length : null));
+  };
   return {
     feed: ({ p_offset = 0, p_limit = 40, p_sort }) => page(rows.filter((r) => !r.parent_id).map((r) => ({ r, kind: visible(r) })).filter((x) => x.kind), p_offset, p_limit, p_sort === "oldest", false),
+    feedV2,
     replies: ({ p_parent, p_offset = 0, p_limit = 20 }) => page(kids(p_parent).map((r) => ({ r, kind: visible(r) })).filter((x) => x.kind), p_offset, p_limit, true, true),
     counts: ({ p_ids }) => p_ids.map((pid) => ({ parent_id: pid, reply_count: kids(pid).filter(visible).length })).filter((x) => x.reply_count),
     edit(uid, { p_id, p_body }) {
@@ -161,6 +191,7 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
       log.rpcCalls.push(fn);
       if (rpc === "missing") return json({ code: "PGRST202", message: "Could not find the function public." + fn, details: null, hint: null }, 404);
       try {
+        if (fn === "community_feed_page_v2") return json(sem.feedV2(uid, args));
         if (fn === "community_feed_page") return json(sem.feed(args));
         if (fn === "community_replies_page") return json(sem.replies(args));
         if (fn === "community_reply_counts") return json(sem.counts(args));

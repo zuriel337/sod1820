@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, legacyLikeCount, normalizeCommunityRow, resetCommunityRpcProbe } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -38,7 +38,7 @@ test("normalizes an archive message without exposing identity fields", () => {
   assert.equal(row.authorKey, "c1");
   assert.equal(row.parentId, "p1");
   assert.equal(row.body, decodeCommunityText("שלום &#34;עולם&#34;"));
-  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
+  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "editedAt", "id", "isDeleted", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
   assert.equal(row.authorUserId, null);
   assert.equal(row.linkedUserId, null);
 });
@@ -76,6 +76,7 @@ test("the chat pages roots and fetches approved direct replies in reading order"
   globalThis.fetch = async (input) => {
     const url = new URL(input.url || input);
     requests.push(url);
+    if (url.pathname.includes("/rpc/")) return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function" }), { status: 404, headers: { "content-type": "application/json" } });
     const isRoot = url.searchParams.get("parent_id") === "is.null";
     const isReply = url.searchParams.get("parent_id") === `eq.${parentId}`;
     const isCount = url.searchParams.get("parent_id")?.startsWith("in.");
@@ -85,6 +86,7 @@ test("the chat pages roots and fetches approved direct replies in reading order"
     return new Response(JSON.stringify(rows), { status: 200, headers: { "content-type": "application/json", "content-range": `0-${rows.length - 1}/${rows.length}` } });
   };
   try {
+    resetCommunityRpcProbe();
     const roots = await fetchCommunityArchivePage({ limit: 5 });
     const replies = await fetchCommunityReplies(parentId, { limit: 5 });
     const counts = await fetchCommunityReplyCounts([parentId]);
@@ -94,8 +96,10 @@ test("the chat pages roots and fetches approved direct replies in reading order"
     assert.equal(replies.rows[0].parentId, parentId);
     assert.equal(replies.count, 1);
     assert.equal(counts[parentId], 1);
-    assert.match(requests[1].searchParams.get("order"), /created_at\.asc,id\.asc/);
-    assert.ok(requests[1].searchParams.getAll("body").includes("neq."));
-    assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+    const tableRequests = requests.filter((url) => url.pathname.endsWith("/research_contributions"));
+    const replyRequest = tableRequests.find((url) => url.searchParams.get("parent_id") === `eq.${parentId}`);
+    assert.match(replyRequest.searchParams.get("order"), /created_at\.asc,id\.asc/);
+    assert.ok(replyRequest.searchParams.getAll("body").includes("neq."));
+    assert.ok(tableRequests.every((url) => url.searchParams.get("status") === "eq.approved"));
   } finally { globalThis.fetch = previousFetch; }
 });

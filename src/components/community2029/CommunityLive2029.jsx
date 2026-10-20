@@ -180,6 +180,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("newest");
+  const [feedFilter, setFeedFilter] = useState("all");
+  const [sortWindow, setSortWindow] = useState("month");
+  const [feedFiltersAvailable, setFeedFiltersAvailable] = useState(null);
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [attachmentError, setAttachmentError] = useState("");
@@ -218,7 +221,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     const read = (async () => {
       if (previousRead) await previousRead.catch(() => {});
       if (request !== streamRequestRef.current) return null;
-      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort });
+      return fetchCommunityArchivePage({ offset, limit: COMMUNITY_PAGE_SIZE, sort, filter: feedFilter, window: sortWindow });
     })();
     feedReadRef.current = read;
     try {
@@ -228,6 +231,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       setNextOffset(page.nextOffset);
       if (page.count != null) { setTotal(page.count); setTotalVerified(true); }
       setActionsAvailable(Boolean(page.actions));
+      setFeedFiltersAvailable(Boolean(page.filtersAvailable));
     } catch {
       if (request !== streamRequestRef.current) return;
       setError("לא הצלחנו לטעון את השיחות כרגע.");
@@ -235,7 +239,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       if (feedReadRef.current === read) feedReadRef.current = null;
       if (request === streamRequestRef.current) { setLoading(false); setFeedSettled(true); }
     }
-  }, [sort]);
+  }, [sort, feedFilter, sortWindow]);
 
   useEffect(() => { loadPage(0, true); return () => { streamRequestRef.current++; }; }, [loadPage]);
   useEffect(() => { refreshMessageTotal(); }, [refreshMessageTotal]);
@@ -247,12 +251,15 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       const current = feedStateRef.current;
       if (current.loading || current.sending || !current.rows.length || feedReadRef.current) return;
       const request = streamRequestRef.current;
-      const read = fetchCommunityArchivePage({ limit: COMMUNITY_PAGE_SIZE, sort });
+      const read = fetchCommunityArchivePage({ limit: Math.min(100, Math.max(COMMUNITY_PAGE_SIZE, current.rows.length)), sort, filter: feedFilter, window: sortWindow });
       feedReadRef.current = read;
       try {
         const page = await read;
         if (!active || document.hidden || request !== streamRequestRef.current) return;
-        const merged = mergeCommunityRefreshRows(feedStateRef.current.rows, page.rows, sort, { complete: page.count != null && page.nextOffset >= page.count });
+        const simpleOrder = feedFilter === "all" && (sort === "newest" || sort === "oldest");
+        const merged = simpleOrder
+          ? mergeCommunityRefreshRows(feedStateRef.current.rows, page.rows, sort, { complete: page.count != null && page.nextOffset >= page.count })
+          : page.rows;
         if (merged !== feedStateRef.current.rows) {
           feedAnchorRef.current = captureCommunityScrollAnchor(document.getElementById("community-new-chat"));
           setRows(merged);
@@ -268,7 +275,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
     }});
     return () => { active = false; stop(); };
-  }, [sort, memberId, claimId, cardId]);
+  }, [sort, feedFilter, sortWindow, memberId, claimId, cardId]);
+  useEffect(() => {
+    if (feedFiltersAvailable !== false) return;
+    if (!["newest", "oldest"].includes(sort)) setSort("newest");
+    if (feedFilter !== "all") setFeedFilter("all");
+  }, [feedFiltersAvailable, sort, feedFilter]);
+  useEffect(() => { if (!user?.id && feedFilter === "mine") setFeedFilter("all"); }, [user?.id, feedFilter]);
   useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
@@ -504,7 +517,15 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {focus.slice(0, -1).map((item) => <div key={item.id} className="sod29-community-focus-ancestor"><LiveMessage row={item} onReply={startReply} accountProfiles={accountProfiles} /></div>)}
           <div className="sod29-community-focus-target"><LiveThread key={focus[focus.length - 1].id} row={focus[focus.length - 1]} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} ancestors={focus.slice(0, -1).map((item) => item.id)} /></div>
         </section> : null}
-        <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option></select></label>
+        {archive ? null : <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות">
+          <div className="sod29-community-feed-controls-top">
+            <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">החדש ביותר</option>{feedFiltersAvailable ? <><option value="active">פעיל לאחרונה</option><option value="discussed">הכי מדובר</option><option value="liked">הכי אהוב</option></> : null}<option value="oldest">הישן ביותר</option></select></label>
+            {feedFiltersAvailable && (sort === "discussed" || sort === "liked") ? <label className="sod29-community-sort sod29-community-period">תקופה <select value={sortWindow} onChange={(event) => setSortWindow(event.target.value)}><option value="week">השבוע</option><option value="month">החודש</option><option value="all">כל הזמן</option></select></label> : null}
+          </div>
+          {feedFiltersAvailable ? <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות">{[
+            ["all", "הכול"], ["unanswered", "ללא מענה"], ["media", "עם קבצים"], ...(user?.id ? [["mine", "ההודעות שלי"]] : []), ["community", "מהקהילה החדשה"], ["legacy", "מהצ׳אט הוותיק"],
+          ].map(([value, label]) => <button key={value} type="button" aria-pressed={feedFilter === value} onClick={() => setFeedFilter(value)}>{label}</button>)}</div> : null}
+        </section>}
         {archive ? <section className="sod29-community-archive-results" aria-label="תוצאות חיפוש בארכיון">
           <div className="sod29-community-filter-chip"><span>{archive.loading && !archive.rows.length ? "מחפש…" : `${archive.count.toLocaleString("he-IL")} תוצאות ל״${archive.q}״`}</span><button type="button" onClick={() => setArchive(null)}>חזרה לשיחות</button></div>
           {archive.error ? <p role="alert">{archive.error} <button type="button" onClick={() => runArchiveSearch(archive.nextOffset)}>ניסיון נוסף</button></p> : null}

@@ -124,6 +124,35 @@ await scenario("community orientation: verified message total and a distinct mod
   await context.close();
 });
 
+await scenario("feed controls: archive-wide ranking, periods and useful filters", async () => {
+  const { page, context, log } = await open({ as: A });
+  const controls = page.getByRole("region", { name: "סידור וסינון השיחות" });
+  const order = controls.getByLabel("סדר לפי");
+  await order.waitFor();
+  assert.deepEqual(await order.locator("option").allTextContents(), ["החדש ביותר", "פעיל לאחרונה", "הכי מדובר", "הכי אהוב", "הישן ביותר"]);
+  await order.selectOption("discussed");
+  await controls.getByLabel("תקופה").selectOption("all");
+  await page.locator(".sod29-community-feed > .sod29-community-thread-group").first().getByText("הודעה היסטורית מ-OpenWeb").waitFor();
+
+  await controls.getByRole("button", { name: "ללא מענה" }).click();
+  await page.locator(".sod29-community-feed > .sod29-community-thread-group").first().getByText("הודעה בלי תגובות של בועז").waitFor();
+  assert.equal(await page.getByText("הודעה היסטורית מ-OpenWeb", { exact: true }).count(), 0);
+
+  await controls.getByRole("button", { name: "עם קבצים" }).click();
+  await page.getByText("הודעה בלי תגובות של בועז", { exact: true }).waitFor();
+  assert.equal(await page.locator(".sod29-community-feed > .sod29-community-thread-group").count(), 1);
+
+  await controls.getByRole("button", { name: "ההודעות שלי" }).click();
+  await page.getByText("הודעת מקור של אילנה", { exact: false }).waitFor();
+  assert.equal(await page.locator(".sod29-community-feed > .sod29-community-thread-group").count(), 1);
+
+  await controls.getByRole("button", { name: "מהצ׳אט הוותיק" }).click();
+  await page.getByText("הודעה היסטורית מ-OpenWeb", { exact: true }).waitFor();
+  assert.equal(await page.getByText("הודעה בלי תגובות של בועז", { exact: true }).count(), 0);
+  assert.ok(log.rpcCalls.includes("community_feed_page_v2"));
+  await context.close();
+});
+
 await scenario("page order: new community on top, ״הצ׳אט הוותיק״ at the bottom; single h1; OpenWeb loads only near the bottom", async () => {
   const { page, context, log } = await open();
   assert.equal(log.launcher, 0, "OpenWeb launcher must not load on entry");
@@ -323,6 +352,9 @@ await scenario("before the migration is applied: reads fall back to the table, a
   await page.getByText("הודעת מקור של אילנה").waitFor();
   assert.ok(log.tableReads > 0, "legacy reads used");
   assert.equal(await page.getByRole("button", { name: /עריכה|מחיקה|הסתרת השרשור/ }).count(), 0);
+  const controls = page.getByRole("region", { name: "סידור וסינון השיחות" });
+  assert.deepEqual(await controls.getByLabel("סדר לפי").locator("option").allTextContents(), ["החדש ביותר", "הישן ביותר"]);
+  assert.equal(await controls.getByRole("group", { name: "סינון שיחות" }).count(), 0);
   await page.getByRole("button", { name: /פתח עוד — 2 תגובות/ }).first().click();
   await page.getByText("תגובה של בועז").waitFor();
   await context.close();
