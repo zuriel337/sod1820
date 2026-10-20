@@ -10,6 +10,7 @@ import { getVisitorId } from "../lib/visitorId.js";
 import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
+import HeichalGuidedFirstStep from "../components/heichal/HeichalGuidedFirstStep.jsx";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
 
 const ACTIONS = [
@@ -325,6 +326,14 @@ function ActiveResearchEnvironment() {
       </div>
       <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
     </section>
+
+    <HeichalGuidedFirstStep
+      key={key}
+      subject={subject}
+      projection={data}
+      loading={state.loading}
+      onRunNumber={openRazielFromServerGatedResult}
+    />
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2><div className="sod29-muted">זהו המוקד: עובדות, ממצאים, מקורות וקשרים נאספים סביב אותו Root, עם Evidence Inspector לצדם.</div></div></div>
