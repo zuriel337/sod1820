@@ -36,7 +36,7 @@ const occurrence = (phrase, number, id) => ({
  * row is not engine parity, an authored equality is not an approved research link.
  * Several methods on the same name are not several independent event witnesses.
  */
-export function projectElections631Context({ post, gematriaRows = [] } = {}) {
+export function projectElections631Context({ post, gematriaRows = [], verifyCalculation = null } = {}) {
   if (!isElectionsPublicSource(post)) return { available: false, reason: "source_not_public_or_mismatched" };
   const html = String(post.content || "");
   if (!hasEquality(html, "הבחירות", 631) || !hasEquality(html, "מלך ישראל", 631)) {
@@ -50,6 +50,7 @@ export function projectElections631Context({ post, gematriaRows = [] } = {}) {
       evidenceKind: "published_corpus_value_and_authored_source",
       source: occurrence(phrase, 631, "elections-631"),
     }));
+  const traced = publicMatches.filter((row) => verifyCalculation?.(row.phrase, "רגיל", 631) === true);
   const winterSourceClaim = hasEquality(html, "עופר וינטר", 631) ? {
     phrase: "עופר וינטר", method: "רגיל", value: 631,
     evidenceKind: "authored_source_only_not_published_corpus",
@@ -69,11 +70,13 @@ export function projectElections631Context({ post, gematriaRows = [] } = {}) {
       {
         value: 631,
         source: { kind: "הקשר הבחירות", note: "631 הוא המוקד משום שהביטוי ״הבחירות״ מופיע בערך הזה בפוסט. שוויון גימטרי אינו אישור לקשר אירועים." },
-        calculations: [], graph: null, convergence: null,
+        calculations: traced.map((row) => ({ phrase: row.phrase, method: "רגיל", value: 631, verified: true })),
+        graph: null, convergence: null,
         expressions: publicMatches.map((row) => ({
           phrase: row.phrase, sources: [row.source],
           calculation: { method: "רגיל", value: 631, claimedValue: 631,
-            reproducesClaim: null, rowVerified: true, rowPublished: true },
+            reproducesClaim: traced.some((t) => t.phrase === row.phrase) ? true : null,
+            rowVerified: true, rowPublished: true },
           interpretation: null,
         })),
       }, {
