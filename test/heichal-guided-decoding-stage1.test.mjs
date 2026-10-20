@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { resolveContextTools, CONTEXT_ACTION_KIND } from "../src/lib/research/contextualCapabilities.js";
 import {
   HEICHAL_DECODING_DIRECTIONS,
+  projectHeichalEntryInput,
   projectHeichalFirstDecoding,
 } from "../src/lib/research/heichalFirstDecodingPlan.js";
 
@@ -96,3 +97,70 @@ test("exact Number href is reused only as a 2029 Number owner route, never a gen
   assert.doesNotMatch(page, /new URLSearchParams\(\{[^}]*number/);
   assert.doesNotMatch(page, /\/community\/chat\?/);
 });
+
+
+test("free-language entry preserves the exact source/question and does not select Gematria by default", () => {
+  const query = projectHeichalEntryInput("  איפה כתוב פה אל פה במקרא?  ");
+  assert.equal(query.ready, true);
+  assert.equal(query.inputKind, "unresolved_text");
+  assert.equal(query.input, "איפה כתוב פה אל פה במקרא?");
+  assert.equal(query.candidateSubject.type, "phrase");
+  assert.equal(query.candidateSubject.label, query.input);
+  assert.equal(query.autoCalculate, false);
+  assert.equal(query.canResolveExpression, false);
+  assert.equal(query.sourceTextIsExactExpression, false);
+  assert.equal(query.reason, "intent_first");
+  const plain = projectHeichalEntryInput("פה אל פה");
+  assert.equal(plain.canResolveExpression, false);
+});
+
+test("Gematria may be considered only after explicit user choice AND selection of an exact expression", () => {
+  const raw = "מה זה הביטוי פה אל פה?";
+  const optInOnly = projectHeichalEntryInput(raw, { explicitlyChoseGematria: true });
+  assert.equal(optInOnly.canResolveExpression, false);
+  assert.equal(optInOnly.reason, "exact_expression_required");
+  const exact = projectHeichalEntryInput("אהבה", {
+    explicitlyChoseGematria: true,
+    exactExpressionSelected: true,
+  });
+  assert.equal(exact.canResolveExpression, true);
+  assert.equal(exact.autoCalculate, false);
+  assert.equal(exact.reason, "exact_expression_selected");
+  const noChoice = projectHeichalEntryInput("אהבה", { exactExpressionSelected: true });
+  assert.equal(noChoice.canResolveExpression, false);
+  const direct = projectHeichalEntryInput("00363");
+  assert.equal(direct.inputKind, "number_literal");
+  assert.equal(direct.candidateSubject.id, "363");
+  assert.equal(direct.canResolveExpression, false);
+  assert.equal(projectHeichalEntryInput("9007199254740993").reason, "invalid_number");
+  assert.equal(projectHeichalEntryInput(" ").ready, false);
+});
+
+test("relation intent cannot dispatch the numeric-only research-run transport", () => {
+  const relations = projectHeichalFirstDecoding({
+    subject: { type: "number", id: "363", label: "363" },
+    direction: "relations",
+  });
+  assert.ok(relations.steps.some((step) => step.key === "numeric_relations"));
+  assert.equal(relations.canRunBoundedNumber, false);
+  assert.ok(relations.steps.filter((x) => x.key === "numeric" || x.key === "numeric_operators")
+    .every((x) => /אינו מבצע בדיקת קשרים|אין כאן ריצת קשרים/.test(x.explanation)));
+});
+
+test("scripture search with no loaded sources is not an empty search result", () => {
+  const subject = { type: "phrase", id: "פה אל פה", label: "פה אל פה" };
+  const missing = projectHeichalFirstDecoding({ subject, direction: "sources" });
+  const sources = missing.steps.find((step) => step.key === "sources");
+  assert.match(sources.explanation, /אינם זמינים/);
+  assert.match(sources.explanation, /רב־מילים/);
+  const projected = projectHeichalFirstDecoding({
+    subject, direction: "sources", projection: { sources: [{ ref: "תנך:במדבר:12:8" }] },
+  });
+  const description = projected.steps.find((step) => step.key === "sources").explanation;
+  assert.match(description, /לא תוצאות חיפוש/);
+  assert.match(description, /רב־מילים/);
+});
+
+// The separate Claude visual lane must wire projectHeichalEntryInput into NoContextEntry
+// before calling resolveExpressionFocus. Until that happens, the full UX is NOT accepted.
+test.todo("Visual owner: enforce intent-first gate in Heichal NoContextEntry and replay Hebrew/RTL Golden");
