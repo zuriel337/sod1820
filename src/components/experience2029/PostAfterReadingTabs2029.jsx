@@ -69,6 +69,7 @@ export default function PostAfterReadingTabs2029({ postId, connections, meeting,
         aria-selected={active === tab.id} aria-controls="post-discovery-panel"
         tabIndex={active === tab.id ? 0 : -1} onClick={() => select(tab.id)}>
         <span id={"post-discovery-" + tab.id}>{tab.label}</span>
+        {tab.id === "connections" ? <span id="post-connections" className="sod29-post-discovery-jump-anchor" aria-hidden="true" /> : null}
       </button>)}
     </div>
     <div id="post-discovery-panel" role="tabpanel" tabIndex={0}
