@@ -1,0 +1,43 @@
+/* Preview-only content INSIDE existing SurfaceContextRail2029 (no independent rail). */
+.sod29-elections-context-review{min-width:0;max-width:100%;direction:rtl;display:grid;gap:12px;margin:12px 0;padding:0;color:var(--s29-ink)}
+.sod29-elections-context-review *{box-sizing:border-box}
+.sod29-elections-context-review a{color:var(--s29-accent-text);text-underline-offset:3px}
+.sod29-elections-context-review a:focus-visible,.sod29-elections-context-review summary:focus-visible,.sod29-elections-context-review button:focus-visible{outline:3px solid var(--s29-accent);outline-offset:3px}
+.sod29-631-status{font-size:12px;color:var(--s29-muted)}
+.sod29-elections-priority-head{padding:14px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel);display:grid;gap:5px}
+.sod29-elections-priority-head small{font-weight:850;font-size:11px;color:var(--s29-accent-text)}
+.sod29-elections-priority-head strong{font-size:clamp(32px,3.2vw,42px);line-height:1.1;font-weight:900}
+.sod29-elections-priority-head p{margin:0;font-size:12px;color:var(--s29-muted);line-height:1.75}
+.sod29-elections-priority-results{padding:0;margin:0;list-style:none;display:grid;gap:7px}
+.sod29-elections-priority-results li{border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.sod29-elections-priority-results li span{font-size:13px;min-width:0;font-weight:750}
+.sod29-elections-priority-results li span small{font-size:10px;color:var(--s29-muted);display:block;font-weight:550}
+.sod29-elections-priority-results li a{font-size:11px;flex-shrink:0}
+.sod29-elections-source-claim{display:grid;gap:2px;padding:10px 12px;border:1px dashed var(--s29-line);border-radius:11px;font-size:12px}
+.sod29-elections-source-claim small{font-size:11px;color:var(--s29-muted)}
+.sod29-elections-source-claim a{font-size:11px}
+.sod29-elections-1820{display:grid;gap:7px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel));border-radius:14px;padding:12px}
+.sod29-elections-1820 div{display:grid;gap:2px}
+.sod29-elections-1820 small{font-size:11px;color:var(--s29-muted);font-weight:780}
+.sod29-elections-1820 strong{font-weight:880;font-size:27px}
+.sod29-elections-1820 p{font-size:12px;line-height:1.65;margin:0}
+.sod29-elections-1820 a{font-size:11px}
+.sod29-elections-priority-why{display:grid;gap:4px;border-top:1px solid var(--s29-line);padding:12px 2px 0}
+.sod29-elections-priority-why b{font-size:13px}
+.sod29-elections-priority-why p{margin:0;font-size:12px}
+.sod29-elections-priority-why small{color:var(--s29-muted);font-size:11px}
+.sod29-elections-depth-details{min-width:0;border:1px solid var(--s29-line);border-radius:11px}
+.sod29-elections-depth-details summary{cursor:pointer;font-weight:770;font-size:12px;padding:11px 12px;min-height:44px;list-style-position:inside}
+.sod29-elections-depth-details .sod29-depth{min-width:0;max-width:100%;width:100%;overflow-wrap:anywhere;padding:9px}
+.sod29-elections-depth-details .sod29-depth *{max-width:100%}
+.sod29-elections-source-status{font-size:11px;color:var(--s29-muted);margin:0;line-height:1.65}
+@media(prefers-reduced-motion:reduce){.sod29-elections-context-review *{scroll-behavior:auto}}
+
+
+/* The slot itself belongs to the existing Context rail; no fourth tab or global bar. */
+.sod29-631-context-slot{margin-block:10px}
+.sod29-elections-review-toggle{display:block;width:100%;min-height:44px;padding:10px 12px;cursor:pointer;
+  text-align:start;font:inherit;font-size:12px;font-weight:820;color:var(--s29-accent-text);
+  border:1px solid var(--s29-line);border-radius:13px;background:var(--s29-panel)}
+.sod29-elections-review-toggle:hover{border-color:var(--s29-accent)}
+.sod29-elections-review-toggle:focus-visible{outline:3px solid var(--s29-accent);outline-offset:3px}

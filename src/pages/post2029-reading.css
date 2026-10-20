@@ -1480,3 +1480,7 @@ html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-
 /* Relation colours win over the neutral reading ink above. */
 .sod29-reading-post .sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
 .sod29-reading-post .sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}
+
+/* A reviewed source region opened from a card/map: display-only emphasis, removed on leave; the authored HTML is untouched. */
+.sod29-source-locator-active{outline:2px solid var(--s29-focus-ring);outline-offset:2px;border-radius:6px;background:color-mix(in srgb,var(--s29-focus-ring) 9%,transparent)}
+@media(prefers-reduced-motion:no-preference){.sod29-source-locator-active{transition:outline-color var(--s29-motion,160ms)}}
