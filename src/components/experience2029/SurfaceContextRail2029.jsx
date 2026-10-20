@@ -81,7 +81,7 @@ export default function SurfaceContextRail2029({
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
   const coverages = context?.dimensions?.elections631Coverage;
-  const electionsPostActive = surface === "post" && (
+  const electionsPostActive = Boolean(ContextDepthCups2029) && surface === "post" && (
     (context?.subject?.type === "post" && String(context.subject.id) === "5107")
     || String(context?.dimensions?.readingFocus?.postId || "") === "5107"
   );
@@ -257,7 +257,14 @@ export default function SurfaceContextRail2029({
         {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
         <button className="is-raziel" type="button" onClick={onAskRaziel} disabled={!onAskRaziel}>{onAskRaziel ? "✦ שאל את רזיאל" : "✦ רזיאל · נעול"}</button>
       </div>}
-      footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
+      footer={electionsPostActive
+        ? <button className="sod29-surface-context-deepen" type="button"
+            onClick={() => {
+              if (sheet) onNavigate?.();
+              navigate({ pathname: "/post/sharshar-elections-redemption-hints-draft",
+                hash: "#post-discovery-connections" });
+            }}>קשרים ומקורות אחרי הפוסט <span aria-hidden="true">←</span></button>
+        : <button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
       {sections.length ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>
@@ -290,7 +297,7 @@ export default function SurfaceContextRail2029({
       </LearnMark2029> : null}
       {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
       {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
-      {findings.length ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
+      {findings.length && !electionsPostActive ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
         {focusedFinding ? <button type="button" className="sod29-surface-context-findings-back" onClick={restFromFinding}>← כל החיבורים</button> : <>
           <div className="sod29-context-inspector-kicker">חיבורים נוספים</div>
           <ul>{findings.map((finding) => <li key={finding.id}><button type="button" onClick={() => focusFinding(finding)}>
@@ -298,7 +305,7 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
-      {hasNumber && !restMode ? <div id="sod29-context-map"><Suspense fallback={null}>
+      {hasNumber && !restMode && !electionsPostActive ? <div id="sod29-context-map"><Suspense fallback={null}>
         <ContextMapPanel2029 focus={{ type: "number", id: String(number), label: String(number) }} audience={isAdmin ? "admin" : "public"}
           readers={contextMapReaders} onRefocus={refocusFromContextMap} onOpen={openFromContextMap} />
       </Suspense></div> : null}
