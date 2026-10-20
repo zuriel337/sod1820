@@ -1,4 +1,5 @@
-export const HOSTED_HYBRID_BRANCH = "gpt/2029-hybrid-stage-preview-20261018";
+// Isolated 5107 shell review only: all other identity, host, commit and read-only gates remain unchanged.
+export const HOSTED_HYBRID_BRANCH = "gpt/2029-shell5107-hosted-review-20261020";
 
 export function approvedHybridPreviewHost(raw) {
   if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";
