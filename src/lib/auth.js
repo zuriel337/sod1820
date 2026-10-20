@@ -33,6 +33,19 @@ export async function signInWithPassword(email, password) {
   return data;
 }
 
+export async function signUpWithPassword(email, password, { displayName = '' } = {}) {
+  let attribution = {};
+  try { attribution = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { attribution = {}; }
+  const fullName = String(displayName || '').trim();
+  const { data, error } = await supabase.auth.signUp({
+    email: (email || '').trim(),
+    password: password || '',
+    options: { data: { ...attribution, ...(fullName ? { full_name: fullName } : {}) } },
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function fetchProfile(userId) {
   if (!userId) return null;
   const { data } = await supabase

@@ -37,7 +37,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 async function open({ as = null, rpc = "on", failDelete = false, viewport = { width: 1280, height: 900 }, theme = null, path = "/community/chat", selector = ".sod29-community-thread", shared = null, readOnlyPreview = null } = {}) {
   const context = await browser.newContext({ viewport, locale: "he-IL", permissions: ["clipboard-read", "clipboard-write"] });
   const rows = shared?.rows || makeStore(); const sem = shared?.sem || semantics(rows);
-  const log = { launcher: 0, tableReads: 0, rpcCalls: [], writes: [], errors: [] };
+  const log = { launcher: 0, tableReads: 0, rpcCalls: [], writes: [], authCalls: [], errors: [] };
   if (as) { const { session } = sessionFor(as); await context.addInitScript((v) => localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token", JSON.stringify(v)), session); }
   if (theme) await context.addInitScript((t) => { try { localStorage.setItem("sod29-theme-preset", t); localStorage.setItem("theme-preset", t); } catch {} }, theme);
   await installFakeBackend(context, { base: BASE, rows, sem, log, rpc, failDelete });
@@ -94,6 +94,87 @@ await scenario("workspace nav item no longer shares the community icon", async (
   const icons = await page.locator(".sod29-nav-link").evaluateAll((els) => els.map((e) => [e.textContent.trim(), e.querySelector("svg")?.getAttribute("data-icon-name")]));
   const community = icons.find(([t]) => t.startsWith("קהילה")); const personal = icons.find(([t]) => t.startsWith("אזור משתמשים"));
   assert.equal(community?.[1], "community"); if (personal) assert.equal(personal[1], "personal");
+  await context.close();
+});
+
+await scenario("sign-in: compact launcher opens Google, login, registration and email-code choices", async () => {
+  const { page, context, log } = await open();
+  const signIn = page.getByRole("region", { name: "התחברות לקהילה" });
+  await signIn.getByRole("heading", { name: "רוצים להשתתף?", exact: true }).waitFor();
+  assert.equal(await signIn.getByText(/לתת לייקים בשם שלכם/).count(), 0);
+  await signIn.getByRole("button", { name: "התחברות / הרשמה" }).click();
+  const dialog = page.getByRole("dialog", { name: "התחברות או הרשמה" });
+  await dialog.getByRole("button", { name: "המשך עם Google" }).waitFor();
+  await dialog.getByLabel("אימייל").fill("member@example.com");
+  await dialog.getByLabel("סיסמה", { exact: true }).fill("correct-horse-battery-staple");
+  await dialog.getByRole("button", { name: "התחברות", exact: true }).click();
+  await page.getByRole("region", { name: "חשבון הקהילה" }).getByText(/מחובר\/ת כ־אילנה/).waitFor();
+  assert.deepEqual(log.authCalls, [{ method: "password", email: "member@example.com", passwordPresent: true }]);
+  await context.close();
+
+  const code = await open();
+  const codeSignIn = code.page.getByRole("region", { name: "התחברות לקהילה" });
+  await codeSignIn.getByRole("button", { name: "התחברות / הרשמה" }).click();
+  const codeDialog = code.page.getByRole("dialog", { name: "התחברות או הרשמה" });
+  await codeDialog.getByRole("button", { name: "כניסה או הרשמה עם קוד למייל" }).click();
+  await codeDialog.getByRole("button", { name: "שליחת קוד" }).waitFor();
+  await codeDialog.getByRole("button", { name: "חזרה לאימייל וסיסמה" }).click();
+  await codeDialog.getByLabel("סיסמה", { exact: true }).waitFor();
+  await code.context.close();
+
+  const signup = await open();
+  await signup.page.getByRole("button", { name: "התחברות / הרשמה" }).click();
+  const signupDialog = signup.page.getByRole("dialog", { name: "התחברות או הרשמה" });
+  await signupDialog.getByRole("tab", { name: "הרשמה" }).click();
+  await signupDialog.getByLabel("השם שיופיע בקהילה").fill("חוקר חדש");
+  await signupDialog.getByLabel("אימייל").fill("new@example.com");
+  await signupDialog.getByLabel("סיסמה", { exact: true }).fill("new-password-1820");
+  await signupDialog.getByLabel("אימות סיסמה").fill("new-password-1820");
+  await signupDialog.getByRole("button", { name: "יצירת חשבון" }).click();
+  await signupDialog.getByRole("status").filter({ hasText: "שלחנו למייל" }).waitFor();
+  assert.deepEqual(signup.log.authCalls, [{ method: "signup", email: "new@example.com", passwordPresent: true, displayName: "חוקר חדש" }]);
+  await signup.context.close();
+});
+
+await scenario("community orientation: verified message total and a distinct moderated hint path", async () => {
+  const { page, context } = await open();
+  await page.getByText("76 הודעות", { exact: true }).waitFor();
+  const hint = page.getByRole("button", { name: /הוספת רמז לעץ/ }).first();
+  await hint.waitFor();
+  await hint.click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByText(/דיווח רמז/).waitFor();
+  await dialog.getByText(/הדיווח עובר בדיקה לפני פרסום/).waitFor();
+  await dialog.getByRole("button", { name: "סגור" }).click();
+  await context.close();
+});
+
+await scenario("feed controls: archive-wide ranking, periods and useful filters", async () => {
+  const { page, context, log } = await open({ as: A });
+  const controls = page.getByRole("region", { name: "סידור וסינון השיחות" });
+  const order = controls.getByLabel("סדר לפי");
+  await order.waitFor();
+  assert.deepEqual(await order.locator("option").allTextContents(), ["החדש ביותר", "פעיל לאחרונה", "הכי מדובר", "הכי אהוב", "הישן ביותר"]);
+  await order.selectOption("discussed");
+  await controls.getByLabel("תקופה").selectOption("all");
+  await page.locator(".sod29-community-feed > .sod29-community-thread-group").first().getByText("הודעה היסטורית מ-OpenWeb").waitFor();
+
+  await controls.getByRole("button", { name: "ללא מענה" }).click();
+  await page.locator(".sod29-community-feed > .sod29-community-thread-group").first().getByText("הודעה בלי תגובות של בועז").waitFor();
+  assert.equal(await page.getByText("הודעה היסטורית מ-OpenWeb", { exact: true }).count(), 0);
+
+  await controls.getByRole("button", { name: "עם קבצים" }).click();
+  await page.getByText("הודעה בלי תגובות של בועז", { exact: true }).waitFor();
+  assert.equal(await page.locator(".sod29-community-feed > .sod29-community-thread-group").count(), 1);
+
+  await controls.getByRole("button", { name: "ההודעות שלי" }).click();
+  await page.getByText("הודעת מקור של אילנה", { exact: false }).waitFor();
+  assert.equal(await page.locator(".sod29-community-feed > .sod29-community-thread-group").count(), 1);
+
+  await controls.getByRole("button", { name: "מהצ׳אט הוותיק" }).click();
+  await page.getByText("הודעה היסטורית מ-OpenWeb", { exact: true }).waitFor();
+  assert.equal(await page.getByText("הודעה בלי תגובות של בועז", { exact: true }).count(), 0);
+  assert.ok(log.rpcCalls.includes("community_feed_page_v2"));
   await context.close();
 });
 
@@ -268,6 +349,14 @@ await scenario("delete failure from the server keeps the message and shows an er
 
 await scenario("admin: can delete others, hide a whole thread after explicit confirmation; regular user cannot", async () => {
   const { page, context, rows } = await open({ as: ADMIN });
+  const account = page.getByRole("region", { name: "חשבון הקהילה" });
+  await account.getByText("מצב מנהל", { exact: true }).waitFor();
+  await account.getByText(/למחוק הודעות, להסתיר ולשחזר שרשורים ולטפל בדיווחים/).waitFor();
+  const manager = page.locator(".sod29-community-admin");
+  await manager.waitFor();
+  const managerTop = await manager.evaluate((node) => node.getBoundingClientRect().top + scrollY);
+  const composerTop = await page.locator(".sod29-community-composer").evaluate((node) => node.getBoundingClientRect().top + scrollY);
+  assert.ok(managerTop < composerTop, "admin tools should be visible before the composer and feed");
   const rowsBefore = rows.length;
   const g1 = group(page, "הודעת מקור של אילנה");
   const root = msg(page, "הודעת מקור של אילנה");
@@ -288,6 +377,9 @@ await scenario("before the migration is applied: reads fall back to the table, a
   await page.getByText("הודעת מקור של אילנה").waitFor();
   assert.ok(log.tableReads > 0, "legacy reads used");
   assert.equal(await page.getByRole("button", { name: /עריכה|מחיקה|הסתרת השרשור/ }).count(), 0);
+  const controls = page.getByRole("region", { name: "סידור וסינון השיחות" });
+  assert.deepEqual(await controls.getByLabel("סדר לפי").locator("option").allTextContents(), ["החדש ביותר", "הישן ביותר"]);
+  assert.equal(await controls.getByRole("group", { name: "סינון שיחות" }).count(), 0);
   await page.getByRole("button", { name: /פתח עוד — 2 תגובות/ }).first().click();
   await page.getByText("תגובה של בועז").waitFor();
   await context.close();
@@ -473,6 +565,7 @@ await scenario("legacy claim card: guest sees it and is sent to the sign-in; dis
   await card.getByRole("button", { name: "מצא את החשבון הישן שלי" }).click();
   await guest.page.waitForFunction(() => document.activeElement?.id === "community-sign-in-email");
   assert.equal(guest.log.rpcCalls.filter((c) => c === "claim_by_email").length, 0, "guest never calls the server");
+  await guest.page.getByRole("button", { name: "סגירת חלון ההתחברות" }).click();
   await card.getByRole("button", { name: "לא רלוונטי" }).click();
   await card.waitFor({ state: "detached" });
   await guest.page.reload(); await guest.page.waitForSelector(".sod29-community-thread");

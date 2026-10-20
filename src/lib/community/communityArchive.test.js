@@ -82,6 +82,7 @@ test("without Community RPCs, the chat keeps filtered table paging and direct-re
       return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function" }), { status: 404, headers: { "content-type": "application/json" } });
     }
     requests.push(url);
+    if (url.pathname.includes("/rpc/")) return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function" }), { status: 404, headers: { "content-type": "application/json" } });
     const isRoot = url.searchParams.get("parent_id") === "is.null";
     const isReply = url.searchParams.get("parent_id") === `eq.${parentId}`;
     const isCount = url.searchParams.get("parent_id")?.startsWith("in.");
@@ -91,6 +92,7 @@ test("without Community RPCs, the chat keeps filtered table paging and direct-re
     return new Response(JSON.stringify(rows), { status: 200, headers: { "content-type": "application/json", "content-range": `0-${rows.length - 1}/${rows.length}` } });
   };
   try {
+    resetCommunityRpcProbe();
     const roots = await fetchCommunityArchivePage({ limit: 5 });
     const replies = await fetchCommunityReplies(parentId, { limit: 5 });
     const counts = await fetchCommunityReplyCounts([parentId]);
@@ -100,9 +102,11 @@ test("without Community RPCs, the chat keeps filtered table paging and direct-re
     assert.equal(replies.rows[0].parentId, parentId);
     assert.equal(replies.count, 1);
     assert.equal(counts[parentId], 1);
-    assert.equal(probes, 1, "the missing RPC is checked once before the unchanged table fallback");
-    assert.match(requests[1].searchParams.get("order"), /created_at\.asc,id\.asc/);
-    assert.ok(requests[1].searchParams.getAll("body").includes("neq."));
-    assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+    assert.equal(probes, 2, "each missing feed RPC version is checked once before the unchanged table fallback");
+    const tableRequests = requests.filter((url) => url.pathname.endsWith("/research_contributions"));
+    const replyRequest = tableRequests.find((url) => url.searchParams.get("parent_id") === `eq.${parentId}`);
+    assert.match(replyRequest.searchParams.get("order"), /created_at\.asc,id\.asc/);
+    assert.ok(replyRequest.searchParams.getAll("body").includes("neq."));
+    assert.ok(tableRequests.every((url) => url.searchParams.get("status") === "eq.approved"));
   } finally { globalThis.fetch = previousFetch; resetCommunityRpcProbe(); }
 });
