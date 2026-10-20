@@ -14,7 +14,7 @@ import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProj
 import HeichalGuidedFirstStep from "../components/heichal/HeichalGuidedFirstStep.jsx";
 import HeichalIntentUnderstanding, { HeichalFreeQuestionPlan } from "../components/heichal/HeichalIntentUnderstanding.jsx";
 import { projectHeichalEntryInput } from "../lib/research/heichalFirstDecodingPlan.js";
-import { boundFreeQuestion, buildFreeQuestionContext, isFreeQuestionContext, ENTRY_INTENT_FREE_QUESTION } from "../lib/research/heichalEntryDirections.js";
+import { boundFreeQuestion, buildFreeQuestionContext, buildExactExpressionContext, exactDirectionCapability, isFreeQuestionContext, ENTRY_INTENT_FREE_QUESTION } from "../lib/research/heichalEntryDirections.js";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
 
 const ACTIONS = [
@@ -131,12 +131,21 @@ function useHeichalEntryActions(question) {
   };
 
   const confirmExact = async (expression, directionKey) => {
-    const gate = projectHeichalEntryInput(expression, { explicitlyChoseGematria: true, exactExpressionSelected: true });
+    const gate = projectHeichalEntryInput(expression, { explicitlyChoseGematria: directionKey === "gematria", exactExpressionSelected: true });
     if (!gate.ready) return;
     const dimensions = { entryIntent: ENTRY_INTENT_FREE_QUESTION, entryDirection: directionKey, entryQuestion: question || null, entryExactExpression: true };
     if (gate.inputKind === "number_literal") {
+      // ELS searches letters: a bare number is not an ELS term. Relations/gematria may anchor on the number entity.
+      if (directionKey === "els") { setExact({ busy: false, error: "ELS מחפש אותיות; מספר אינו מונח לחיפוש. הקלד מילים או בחר מילים מהשאלה." }); return; }
       const id = gate.candidateSubject.id;
       research.setResearchContext?.({ subject: { id, type: "number", label: id, href: `/2029/number/${id}` }, selection: { entityId: id, entityType: "number" }, lens: "heichal", locale: "he", dimensions });
+      setExact({ busy: false, error: null });
+      return;
+    }
+    // Relations / ELS stay inside their own capability: the exact expression is kept as a phrase anchor and NO gematria is resolved.
+    if (!exactDirectionCapability(directionKey).resolvesNumber) {
+      research.setResearchContext?.(buildExactExpressionContext(expression, directionKey, question));
+      setExact({ busy: false, error: null });
       return;
     }
     if (!gate.canResolveExpression) return;
@@ -156,7 +165,7 @@ function useHeichalEntryActions(question) {
       }
     } catch { /* honest phrase fallback below */ }
     // The chosen exact expression could not be resolved to a number focus: keep it as a phrase, never invent a value.
-    research.setResearchContext?.({ subject: { id: expression, type: "phrase", label: expression, href: "/heichal" }, selection: { entityId: expression, entityType: "phrase" }, lens: "heichal", locale: "he", dimensions });
+    research.setResearchContext?.(buildExactExpressionContext(expression, directionKey, question));
     setExact({ busy: false, error: "הביטוי נשמר כביטוי; לא נמצא עבורו מוקד מספרי מאומת, ולא חושב ערך." });
   };
 
@@ -246,6 +255,9 @@ function ActiveResearchEnvironment() {
     locator: context?.selection?.locator || null,
   } : null;
   const connectedTools = resolveContextTools({ surface: "heichal", target: focusTarget });
+  // An exact expression chosen for relations / ELS: shown with its own honest status; no gematria was resolved for it.
+  const exactDirection = context?.dimensions?.entryIntent === ENTRY_INTENT_FREE_QUESTION && context?.dimensions?.entryExactExpression === true
+    && ["els", "relations"].includes(context?.dimensions?.entryDirection) && subject?.type === "phrase" ? context.dimensions.entryDirection : null;
   // An already-owned Number href may be used verbatim; never mint an URL for a finding.
   const numberHref = subject?.type === "number" && /^\/2029\/number\/\d+(?:\?|$)/.test(String(subject.href || ""))
     && String(subject.href).split(/[?#]/)[0] === `/2029/number/${subject.id}`
@@ -377,6 +389,16 @@ function ActiveResearchEnvironment() {
       </div>
       <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
     </section>
+
+    {exactDirection ? <section className="sod29-section heichal-intent" data-experience-capability="heichal-exact-direction" data-exact-direction={exactDirection} aria-label="ביטוי מדויק לכיוון שנבחר">
+      <div className="sod29-kicker">{exactDirection === "els" ? "ביטוי מדויק · ELS" : "ביטוי מדויק · בדיקת קשרים"} · לא חושבה גימטריה</div>
+      <blockquote className="heichal-intent-quote" dir="auto">{subject.label}</blockquote>
+      <p className="sod29-muted">{exactDirectionCapability(exactDirection).note}</p>
+      <div className="sod29-actions">
+        {exactDirection === "els" ? <button type="button" className="sod29-action primary" onClick={() => shell.go("/els")}>פתח את מסך ELS עם הביטוי</button> : null}
+        <button type="button" className="sod29-action" onClick={() => research.clearResearchContext?.()}>שנה שאלה</button>
+      </div>
+    </section> : null}
 
     {freeQuestion ? <>
       <HeichalIntentUnderstanding question={context.dimensions.entryQuestion} busy={entryActions.exact.busy} error={entryActions.exact.error}

@@ -11,6 +11,14 @@ import { buildResearchPlanV2 } from "./researchPlanV2.js";
 import { resolveResearchIdentities } from "./researchIdentityResolver.js";
 
 export const FREE_QUESTION_MAX = 200;
+
+// Verified path (Stage 1.1): a free question lives in the Research Context. For a guest it stays in this browser only.
+// For a signed-in person the existing research sync (researchSyncRuntime -> research_state_apply_ops_v1) stores the whole
+// context in the person's PRIVATE research state (public.user_research, RLS own-row). Nothing is shared, public or telemetry.
+export const FREE_QUESTION_PRIVACY = Object.freeze({
+  guest: "השאלה נשארת בדפדפן הזה בלבד. היא אינה בכתובת, בשיתוף, במדידה או בחשבון.",
+  signedIn: "אתה מחובר: השאלה נשמרת במצב המחקר הפרטי של החשבון שלך (סנכרון המחקר הקיים), מוגנת בהרשאות ברמת שורה לחשבונך ואינה ציבורית. היא אינה בכתובת, בשיתוף או במדידה. כדי שלא תישמר, אל תכתוב בה פרטים אישיים.",
+});
 export const ENTRY_INTENT_FREE_QUESTION = "free_question";
 
 // Bounded, single-line copy of what the person typed (meaning preserved; no rewriting).
@@ -49,7 +57,7 @@ const DIRECTIONS = Object.freeze({
   books: { key: "books", label: "עיין בספרים", action: "route", href: "/books", status: "פותח את מסך הספרים הקיים; השאלה לא עוברת אליו אוטומטית." },
   relations: { key: "relations", label: "בדוק קשרים לביטוי מדויק", action: "exact", status: "לשאלה חופשית אין עוגן מזוהה בגרף. בחר ביטוי מדויק לבדיקת קשרים; אין ריצת קשרים כאן." },
   gematria: { key: "gematria", label: "בדוק גימטריה (בחר ביטוי מדויק)", action: "exact", status: EXACT_STATUS },
-  els: { key: "els", label: "בדוק צופן (בחר ביטוי מדויק)", action: "exact", status: "דורש ביטוי מדויק; הכלי הקיים נפתח רק אחרי בחירה." },
+  els: { key: "els", label: "בדוק צופן (בחר ביטוי מדויק)", action: "exact", status: "דורש ביטוי מדויק. הביטוי יועבר כמונח־זרע למסך ELS בלבד; לא יופעל חיפוש ולא ייבחרו דילוג או קורפוס." },
   raziel: { key: "raziel", label: "✦ שאל את רזיאל", action: "raziel", status: "אותו רזיאל ואותו הקשר. השאלה נשמרת מוגבלת בהקשר המחקר ואינה נשלחת בכתובת, בשיתוף או במדידה." },
   clarify: { key: "clarify", label: "ספר לי על המקור", action: "raziel", status: "מקור חזותי נבדק לפי מקום ותאריך לפני כל מספר. קליטת תמונה בהיכל טרם חוברה; רזיאל יברר איתך." },
 });
@@ -90,9 +98,57 @@ export function projectHeichalEntryDirections(raw) {
 }
 
 // Words of the question offered as selectable pieces for the exact-expression choice (nothing is chosen for the user).
+// Each distinct word is offered once; the person COMPOSES a sequence from them, so a repeated word ("פה אל פה") is possible.
 export function questionWordChoices(raw) {
   const words = strip(boundFreeQuestion(raw)).split(" ").filter((w) => w.length > 1);
   return [...new Set(words)].slice(0, 12);
+}
+
+// The composed sequence (repeats allowed, order as chosen) → one exact expression. Bounded; never adds or reorders words.
+export function composeExactExpression(sequence) {
+  const words = (Array.isArray(sequence) ? sequence : []).map((w) => String(w || "").trim()).filter(Boolean).slice(0, 12);
+  return words.join(" ");
+}
+
+// What an exact expression may do per direction. Each direction stays inside its own engine capability:
+//  - gematria: the only direction that resolves a numeric focus (through resolveExpressionFocus, explicitly requested);
+//  - relations: keeps the expression as a phrase anchor for the existing entity reader; no value is calculated;
+//  - els: carries the expression as the ELS term seed (Research Context selection.term, read by the ELS page); no search is run
+//    and no skip/direction/corpus is chosen here.
+export const EXACT_DIRECTION_CAPABILITY = Object.freeze({
+  gematria: Object.freeze({ resolvesNumber: true, note: null }),
+  relations: Object.freeze({
+    resolvesNumber: false,
+    note: "הביטוי נשמר כעוגן לבדיקת קשרים. לא חושב ערך. קשרים יוצגו רק אם קיימת ישות גרף לביטוי; אם לא, ייאמר זאת במפורש ולא יוצג 'אפס קשרים'.",
+  }),
+  els: Object.freeze({
+    resolvesNumber: false,
+    note: "הביטוי הועבר כמונח־זרע למסך ELS הקיים. לא הופעל חיפוש, ולא נבחרו דילוג, כיוון או קורפוס. חיבור הפרמטרים של ELS מההיכל טרם נבנה.",
+  }),
+});
+
+export function exactDirectionCapability(directionKey) {
+  return EXACT_DIRECTION_CAPABILITY[directionKey] || EXACT_DIRECTION_CAPABILITY.gematria;
+}
+
+// Research Context for an explicitly chosen exact expression that must NOT be turned into a number (relations / ELS).
+// Still a phrase anchor: no calculation fields, no graph edge, no URL, the question text stays only as entryQuestion.
+export function buildExactExpressionContext(expression, directionKey, question = null) {
+  const text = boundFreeQuestion(expression);
+  if (!text) return null;
+  const withTerm = directionKey === "els";
+  return {
+    subject: { id: text, type: "phrase", label: text, href: "/heichal" },
+    selection: { entityId: text, entityType: "phrase", ...(withTerm ? { term: text } : {}) },
+    lens: "heichal",
+    locale: "he",
+    dimensions: {
+      entryIntent: ENTRY_INTENT_FREE_QUESTION,
+      entryDirection: DIRECTIONS[directionKey] ? directionKey : null,
+      entryQuestion: question ? boundFreeQuestion(question) : null,
+      entryExactExpression: true,
+    },
+  };
 }
 
 // Temporary Research Context payload for a free question. Not a canonical phrase identity; no calculation fields;

@@ -5,6 +5,7 @@ import { projectHeichalEntryInput, projectHeichalFirstDecoding } from "../src/li
 import {
   FREE_QUESTION_MAX, boundFreeQuestion, detectEntryCue, projectHeichalEntryDirections, projectFreeQuestionPlan,
   buildFreeQuestionContext, isFreeQuestionContext, questionWordChoices,
+  composeExactExpression, exactDirectionCapability, buildExactExpressionContext, FREE_QUESTION_PRIVACY,
 } from "../src/lib/research/heichalEntryDirections.js";
 import { resolveContextTools, CONTEXT_ACTION_KIND } from "../src/lib/research/contextualCapabilities.js";
 
@@ -110,8 +111,10 @@ test("Heichal entry: the whole question is never resolved as an expression; Gema
   assert.match(start, /projectHeichalEntryInput\(query\)/);
   assert.doesNotMatch(start, /resolveExpressionFocus/);
   const confirm = page.slice(page.indexOf("const confirmExact"), page.indexOf("return { choose, confirmExact, exact }"));
-  assert.match(confirm, /projectHeichalEntryInput\(expression, \{ explicitlyChoseGematria: true, exactExpressionSelected: true \}\)/);
+  assert.match(confirm, /projectHeichalEntryInput\(expression, \{ explicitlyChoseGematria: directionKey === "gematria", exactExpressionSelected: true \}\)/);
   assert.ok(confirm.indexOf("canResolveExpression") < confirm.indexOf("resolveExpressionFocus(expression)"));
+  // relations / ELS return BEFORE the single gematria call site.
+  assert.ok(confirm.indexOf("exactDirectionCapability(directionKey).resolvesNumber") < confirm.indexOf("resolveExpressionFocus(expression)"));
   assert.equal((page.match(/resolveExpressionFocus\(/g) || []).length, 1, "single explicit call site");
 });
 
@@ -130,4 +133,50 @@ test("no new engine, route, store, Raziel, share or navigation was added", () =>
   assert.match(helper, /buildResearchPlanV2/); // the canonical planner stays the only planner
   assert.doesNotMatch(page, /<Route|createBrowserRouter|new Raziel|RazielChat/);
   assert.equal((page.match(/shell\.openRaziel\(/g) || []).length >= 1, true);
+});
+
+
+test("Stage 1.1 · relations and ELS never auto-run gematria; each direction stays in its own capability", () => {
+  assert.equal(exactDirectionCapability("gematria").resolvesNumber, true);
+  for (const key of ["relations", "els"]) {
+    const cap = exactDirectionCapability(key);
+    assert.equal(cap.resolvesNumber, false);
+    assert.ok(cap.note.includes("לא")); // honest wording about what was not done
+    const ctx = buildExactExpressionContext("פה אל פה", key, PEH);
+    assert.equal(ctx.subject.type, "phrase");
+    assert.equal(ctx.dimensions.entryExactExpression, true);
+    assert.equal(ctx.dimensions.entryDirection, key);
+    assert.ok(!("resultValue" in ctx.selection) && !("method" in ctx.selection) && !("expression" in ctx.selection));
+    assert.equal(isFreeQuestionContext(ctx), false, "an exact expression is no longer the free question");
+  }
+  assert.equal(buildExactExpressionContext("פה אל פה", "els", PEH).selection.term, "פה אל פה"); // ELS term seed only
+  assert.equal(buildExactExpressionContext("פה אל פה", "relations", PEH).selection.term, undefined);
+  assert.match(exactDirectionCapability("els").note, /לא הופעל חיפוש/);
+  assert.match(exactDirectionCapability("els").note, /טרם נבנה/);
+  // The ELS entry never fabricates a number for a bare number literal.
+  const confirm = page.slice(page.indexOf("const confirmExact"), page.indexOf("return { choose, confirmExact, exact }"));
+  assert.match(confirm, /directionKey === "els"\) \{ setExact/);
+});
+
+test("Stage 1.1 · the picker composes an ordered sequence, so a repeated word (פה אל פה) is possible", () => {
+  assert.deepEqual(composeExactExpression(["פה", "אל", "פה"]), "פה אל פה");
+  assert.equal(composeExactExpression([]), "");
+  assert.equal(composeExactExpression(Array(30).fill("פה")).split(" ").length, 12);
+  assert.deepEqual(questionWordChoices(PEH).filter((w) => w === "פה").length, 1, "each word is offered once, repeated by clicking twice");
+  assert.match(view, /const addWord = /);
+  assert.doesNotMatch(view, /toggleWord|list\.includes\(word\)/);
+  assert.match(view, /composeExactExpression\(picked\)/);
+  assert.match(view, /data-exact-preview="true"/);
+});
+
+test("Stage 1.1 · free_question privacy is stated per the verified path: guest local only, signed-in private research state", () => {
+  assert.match(FREE_QUESTION_PRIVACY.guest, /בדפדפן הזה בלבד/);
+  assert.match(FREE_QUESTION_PRIVACY.signedIn, /מצב המחקר הפרטי/);
+  assert.match(FREE_QUESTION_PRIVACY.signedIn, /אינה ציבורית/);
+  assert.doesNotMatch(FREE_QUESTION_PRIVACY.signedIn, /אינה נשלחת לרשת|לא נשלחת/); // no false network promise
+  assert.match(view, /useAuth\(\)/);
+  assert.match(view, /data-free-question-privacy/);
+  // No second save mechanism: nothing here writes storage or calls the sync RPC itself.
+  const code = (view + helper).replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(code, /research_state_apply_ops|applyCloudResearchOps|localStorage|sessionStorage|\.from\(|rpc\(/);
 });
