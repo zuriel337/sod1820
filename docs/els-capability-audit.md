@@ -529,3 +529,258 @@ None of the above is authorized for implementation by this closure. This section
 No code was changed, no schema was changed, no migration was drafted or applied, no engine/UI/DB behavior changed, `findAtSkips` was not implemented, the Journey branch was not merged, `MatrixStack3D` was not merged, no capability was promoted to `research_objects`, and no capability was retired. This is a documentation/state-reconciliation closure at the Foundation level only.
 
 **Provenance:** `work_log actor=CLAUDE task=ELS_85_CAPABILITY_LIVE_RECONCILIATION` (READ-ONLY pass, 2026-09-01) → `task=ELS_85_CAPABILITY_CANONICAL_CLOSURE` (this closure, docs-only, 2026-09-01). Cross-referenced against `docs/els-capability-workarea-unification.md` (disposition vocabulary, unchanged) and `SOD1820_MASTER_ROADMAP.md` `WS-ELS-CAPABILITY-AUDIT` / `SOD1820_MASTER_STATE.md` §23.24.
+
+## 13. RESEARCH V1 BASELINE RECONCILIATION — 2026-10-20
+
+**Exact code baseline:** `gpt/2029-unified-session-handoff-20261019` at
+`f19f7cfcb5530d9632c99d345c22c8b0124b6292`.
+
+**Live read boundary:** canonical Supabase project `linswmnnkjxvweumprav`, queried through
+`sod1820_supabase_readonly`; no DB, RLS, permission, migration, `research_objects` or
+`decision_ledger` write was made. The active
+`SOD1820_2029_PERF_WAVE4_INTEGRATION_20261018` integration ownership remains a separate hard
+boundary: none of its eight performance commits is part of this baseline.
+
+This section supersedes the §12 status fields only. IDs, definitions and historical evidence in
+§4 remain unchanged. A capability is `LIVE/ABSORBED` when a reachable current path exists;
+`PARTIAL` when current primitives exist but the complete user contract does not; `PARKED` when
+the capability is intentionally absent from the current runtime; and `NEVER` when it remains
+forbidden. Existing data is evidence of current state, not authorization to mutate it.
+
+### 13.1 Current disposition counts (sum = 85)
+
+| Disposition | Count | Change from §12 |
+|---|---:|---|
+| LIVE/ABSORBED | 75 | +2: A17 is reachable in Native Classic; C03 reaches the existing Universal Workspace |
+| PARTIAL | 5 | B19, C02, C04, C05, G02 |
+| BUILDING | 0 | no row is hidden behind an unbounded “building” claim |
+| PARKED | 4 | B12, B13, B14, B18 |
+| SUPERSEDED | 0 | unchanged |
+| NEVER | 1 | B20 |
+| UNKNOWN | 0 | A17 resolved by a current reachable control path |
+| **TOTAL** | **85** | **all stable IDs retained** |
+
+### 13.2 ID-level current disposition
+
+**Family A — Matrix & display (26):** A01–A26 = **LIVE/ABSORBED**. A17 is no longer
+UNKNOWN: the public native findings rail exposes `move-up` / `move-down`, and the canonical
+engine owns the ordered mutation. A20 still means the existing presentation tilt of one matrix;
+it does **not** claim full spatial 3D.
+
+**Family B — Search (20):** B01–B11, B15–B17 = **LIVE/ABSORBED**. B10/B17 consume the
+canonical `FORMS` preview/plan path; B11 remains the existing window-local transform family.
+B12/B13/B14/B18 = **PARKED**. B12/B13 are explicitly outside Research v1; B14 still has no
+single-book execution scope; B18 still has no governed multilingual corpus adapter. B19 =
+**PARTIAL**: source/line inspection is reachable, but the defined raw before/after-letter action
+is not a complete standalone capability. B20 = **NEVER**.
+
+**Family C — Finding actions (5):** C01 and C03 = **LIVE/ABSORBED**. C03 uses the existing
+Universal Finding → Universal Workspace path and exact snapshot reference; it does not require a
+new ELS store. C02 = **PARTIAL** on this exact baseline: `buildJourneyPromotion`,
+`buildJourneyRestore`, engine exact-load/error handling and saved-Finding exact reopen exist, but
+there is no public Finding → primary-axis trigger with an exact return control. C04 = **PARTIAL**:
+bounded 2–4-term comparison returns separately labelled outcomes through the canonical page
+adapter, but there is no side-by-side matrix comparison contract. C05 = **PARTIAL**: deterministic
+seeded controls + FDR utilities and tests exist, but no complete public Challenge action exists.
+
+**Family D — Occurrence & proximity (6):** D01–D06 = **LIVE/ABSORBED**.
+
+**Family E — Ranking, statistics & verification (10):** E01–E10 = **LIVE/ABSORBED as
+capabilities**. E09/E10 remain legacy exploratory Monte-Carlo presentation and are not
+research-grade confirmation authority because their historical randomness is not replayable.
+The newer seeded-control utility does not silently upgrade those labels or activate a public
+Challenge flow.
+
+**Family F — Candidate generators (8):** F01–F08 = **LIVE/ABSORBED**. They remain candidate
+generators only and do not promote Truth, Canonical or Published state.
+
+**Family G — Save/share/research case (10):** G01, G03–G10 = **LIVE/ABSORBED**. G02 =
+**PARTIAL**: the live `save_els_matrix_anon` RPC and legacy anonymous path exist, while the native
+Research private-save path deliberately requires an authenticated owner. This is an access-path
+difference, not permission to change RLS or lifecycle semantics.
+
+### 13.3 Live DB calibration (read-only)
+
+Observed on 2026-10-20:
+
+- `els_records`: **135** total; **24** with `start_index`; **27** with `corpus_id`; **17** with
+  `engine_detail`; **127** with a `positions.findings` envelope.
+- `els_finds`: **1** total / **1** approved; provenance remains parked, not deleted or migrated.
+- existing ELS-linked rows: **1** in `research_items`, **10** in `research_objects`. These counts
+  correct §12's old zero-row observation; Research v1 neither writes nor redesigns either table.
+- live callable boundary includes `els_search_core_v1`, `els_search_page_v1`,
+  `els_verify_batch_v1`, `els_verify_occurrence_v1`, `fn_els_corpus_id`, save/update/moderation RPCs
+  and their internal/core counterparts. Availability does not itself prove every projection is
+  complete.
+
+### 13.4 Research v1 delta after this baseline
+
+The only capability promoted by the next implementation stage is C02: a user-initiated verified
+Finding becomes the primary axis through the existing exact-load path, and an exact return restores
+the previous axis. B12/B13, full 3D, new persistence, `research_objects`, RLS/permissions,
+production migrations and `decision_ledger` remain out of scope. The public profile cutover is an
+Experience projection over the same mounted engine/state: Research defaults light, Classic remains
+available, and profile entry itself performs no search, scan, controls/nulls or AI call.
+
+## 14. RESEARCH V1 BRANCH-ONLY CLOSURE — 2026-10-20
+
+**Candidate status:** `IMPLEMENTED + TESTED + branch-only PR_READY` on
+`gpt/els-research-v1-closure-20261020`. This is review readiness only: no PR was opened, no merge,
+Preview, deployment, feature-flag, live DB or Production action was performed.
+
+### 14.1 Capability delta and invariant closure
+
+- C02 is now **LIVE/ABSORBED** on this branch. A verified, currently displayed Finding occurrence
+  can become the primary axis through the existing `load-matrix` contract. An explicit selected
+  occurrence fails closed if its engine-owned `hitId` is not present in the Finding's shown set.
+- Exact return is declared complete only after the engine has restored the original axis, term,
+  scope, geometry, window profile, view settings, Finding order/colors and exact shown occurrences.
+  The intermediate engine tick in which the axis is ready but Finding verification is still pending
+  is not exposed as a completed return.
+- The post-implementation 85-capability disposition is therefore **76 LIVE/ABSORBED + 4 PARTIAL
+  (B19/C04/C05/G02) + 4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**.
+- Research is the public default as a light 2D profile. Advanced tools start closed and perform no
+  search/verification on entry. Classic is always reachable. The profile switch changes only the
+  projection: the same mounted engine and state object retain axis, Findings, source/geometry,
+  selection, Journey and Research Context; it performs no replay, search or AI call.
+- No engine, state store, graph, Raziel surface, table or persistence tier was added. B12/B13, full
+  3D, `research_objects`, RLS/permission changes, Production migrations and `decision_ledger`
+  remain untouched.
+
+### 14.2 Acceptance and regression evidence
+
+All browser suites below were run serially with executable Chromium so Vite fixtures did not share
+optimizer state:
+
+- full Research v1 chain, in one browser test: canonical search → batch verification → matrix →
+  Finding → source verses → private save → Universal Workspace add → exact reopen from the stored
+  Journey snapshot → C02 promote/exact return → existing Raziel surface; opening Raziel emitted no
+  automatic AI call;
+- `test/els-native-ui-browser.test.mjs`: **36/36 pass**, including the chain above, C02, private-save
+  privacy/race cases, widths 320/390/1440, touch targets and the `light` / `parchment` / `dark`
+  palettes;
+- `test/els-browser-cutover.test.mjs`: **26/26 pass** with the canonical verification oracle;
+- `test/els-advanced-page-browser.test.mjs`: **1/1 pass**; entry produced zero advanced calls,
+  explicit-open worked, and an exact load plus advanced form state survived a Classic round-trip
+  without remounting the engine;
+- `test/els-forms-preview-browser.test.mjs`: **1/1 pass**, with no search emitted by preview;
+- non-browser ELS suite excluding the Wave4-owned artifact tests: **164 pass / 0 fail / 3 skip**;
+  the three skips require a local PostgreSQL executable and are not product-code failures;
+- privacy, Universal Finding, exact-reopen and Raziel boundary slice: **36/36 pass**;
+- both production build targets passed (`legacy`, `2029`), followed by the 2029 bundle budget:
+  **5/5 pass**. The existing unrelated large-chunk warnings remain warnings, not new ELS failures.
+
+Bundle measurement uses the exact frozen base in a detached temporary worktree with the same
+dependency installation:
+
+| ELS 2029 route asset | exact base `f19f7cfc` | Research v1 candidate | delta |
+|---|---:|---:|---:|
+| JavaScript, raw | 167.92 kB | 172.97 kB | +5.05 kB (+3.01%) |
+| JavaScript, gzip | 51.03 kB | 52.59 kB | +1.56 kB (+3.06%) |
+| CSS, raw / gzip | 58.61 / 9.05 kB | 58.61 / 9.05 kB | 0 / 0 kB |
+
+### 14.3 Wave4 ownership gate and test boundary
+
+The final read-only `work_log_current` check still reports
+`SOD1820_2029_PERF_WAVE4_INTEGRATION_20261018` as
+`BEFORE_PASSIVE_ACTIVE_INTEGRATION_WRITER`, with exclusive integration branch/worktree/evidence
+scope. Consequently **none** of the eight commits from
+`gpt/perf-els-verse-payload-hardening-20261018` was integrated or copied. The three tests whose
+source/artifact synchronization belongs to that wave—`els-browser-truth-census`,
+`els-reference-presentation` and `els-verse-payload-defer`—remain outside this branch's admissible
+write/test closure until that ownership is released or transferred. Running the generator would
+rewrite the owned `tools/els`/`public/tzofen*` artifacts, so it was deliberately not used as a
+workaround.
+
+### 14.4 Branch provenance and passive status transfer
+
+- `7895adc7` — 85-capability/live-DB baseline reconciliation;
+- `868faadf` — light public Research, lossless Classic profile and C02 exact Journey;
+- `ef5db7f0` — end-to-end browser acceptance chain plus mobile/theme/privacy coverage reuse.
+
+The available Supabase connector is read-only, so it cannot append an `AFTER` row. The coordinator
+may record this passive handoff as
+`AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_PR_READY_SCOPE_RELEASED_PASSIVE`, explicitly retaining the
+Wave4 exclusion above. This documentation transfer is not a DB mutation or release authorization.
+
+## 15. WAVE4 RELEASE + RESEARCH V1 FINAL BRANCH CLOSURE — 2026-10-20
+
+This section is additive and supersedes only the temporary ownership exclusion in §14.3. The
+historical observation there was correct when it was recorded.
+
+### 15.1 Live release and targeted eight-commit reconciliation
+
+The read-only `work_log_current` recheck observed a newer row for
+`SOD1820_2029_PERF_WAVE4_INTEGRATION_20261018` at `2026-10-20 08:50:05.087397+00`:
+`AFTER_BRANCH_ONLY_SCOPE_RELEASED_BY_ZURIEL_HOLD`, with `RELEASED. No active writer scope retained`.
+Its release authorization remains `NOT_AUTHORIZED`, so this release permitted branch-only scope
+reconciliation but did not authorize a merge, PR, Preview, deployment or Production action.
+
+The exact eight source commits on `gpt/perf-els-verse-payload-hardening-20261018` were already
+present in the frozen Research base as patch-equivalent commits. All mapped commits are ancestors
+of `f19f7cfcb5530d9632c99d345c22c8b0124b6292`; duplicate or empty cherry-picks were therefore not
+created:
+
+| Wave4 source | Equivalent commit in the frozen base | Change |
+|---|---|---|
+| `df10b4aa` | `e54014e0` | defer verse display payload |
+| `4e8dcebb` | `6a664b48` | record payload evidence |
+| `693892c1` | `563e17db` | harden verse payload artifacts |
+| `7c512b11` | `1e8e437d` | record hardening evidence |
+| `2119ad49` | `110efc04` | harden publication boundaries |
+| `ba3bb64e` | `8cb9311f` | record publication evidence |
+| `a3b09f01` | `d303739a` | close publication races |
+| `ee139e63` | `28912385` | record race-safe evidence |
+
+The path-level collision review found one later base commit, `0bf0e634`, that preserved the public
+Legacy route but replaced the hardened Wave4 generator with an older 75-line generator. The first
+deterministic build-sync test correctly failed at that boundary. With explicit user approval,
+`a502efb6` reconciles both contracts: it restores the Wave4 validation, content-addressed payload,
+atomic writes, cross-process lock, no-clobber external output and failure/race behavior, while
+generating `public/tzofen-standalone.html` from the same template, corpus and render under the same
+lock. The Legacy surface remains read-only, disables persistence and uses only the bounded offline
+verification adapter; it does not add a discovery engine, state/store, graph or Raziel surface.
+
+### 15.2 Final acceptance
+
+- deterministic truth/build census: **9/9 pass**, now covering both public artifacts;
+- Wave4 payload/path/failure/concurrency plus executable Chromium: **4/4 pass**;
+- shared source-reference presentation: **2/2 pass**;
+- broad non-browser ELS suite: **164 pass / 0 fail / 3 skip**; all skips are the unchanged local
+  PostgreSQL-unavailable cases and this closure made no DB change;
+- canonical browser cutover: **26/26 pass**;
+- light Research entry + FORMS preview: **2/2 pass**;
+- full native browser acceptance: **36/36 pass**, including search → verify → matrix → Finding →
+  source → private save → Universal Workspace → exact reopen → C02 primary-axis promotion → exact
+  return → existing Raziel; widths 320/390/1440 and light/parchment/dark all passed;
+- privacy and Universal Finding supplemental slice: **23/23 pass**;
+- `npm run build`: both `legacy` and `2029` production targets passed;
+- `npm run test:2029-bundle-budget`: **5/5 pass**, entry graph 9 chunks / 174.1 KB gzip.
+
+### 15.3 Before/after measurements
+
+The original Wave3 → Wave4 hosted saving remains the reviewed performance result: hosted
+`tzofen.html` moved from **2,489,355 B raw / 1,625,009 B gzip** to
+**1,587,178 B raw / 944,225 B gzip**, a reduction of **902,177 B raw / 680,784 B gzip
+(41.89%)**. Reconciliation preserved that artifact byte-for-byte.
+
+| Artifact | Exact base `f19f7cfc` | Final candidate | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,587,178 / 944,225 B | 1,587,178 / 944,225 B | 0 / 0 B |
+| deferred verse asset, stored | 677,655 B | 677,655 B | 0 B |
+| public Legacy standalone, raw / gzip | 2,490,605 / 1,625,901 B | 2,493,497 / 1,627,911 B | +2,892 / +2,010 B |
+| ELS 2029 route JS, raw / gzip | 167.92 / 51.03 kB | 172.97 / 52.59 kB | +5.05 / +1.56 kB |
+| ELS 2029 route CSS, raw / gzip | 58.61 / 9.05 kB | 58.61 / 9.05 kB | 0 / 0 kB |
+
+The route delta is the Research v1 implementation already recorded in §14.2; the Wave4/Legacy
+reconciliation changes no application `src/` file and adds no further route-bundle cost. Current
+SHA-256 identities are `16b44c5b…` for hosted HTML, `13d17191…` for the deferred gzip payload and
+`24ec449e…` for the generated public Legacy artifact.
+
+### 15.4 Final branch-only state
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER = 85**.
+B12/B13, full 3D, `research_objects`, RLS/permissions, Production migrations and
+`decision_ledger` were not implemented or changed. The candidate is
+`IMPLEMENTED + TESTED + branch-only PR_READY`; no merge, PR, Preview, deployment, feature-flag,
+live DB or Production action is part of this closure.

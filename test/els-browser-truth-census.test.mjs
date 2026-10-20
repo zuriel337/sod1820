@@ -134,10 +134,19 @@ test('corpus identity is injected by build.py from the exact tk-letters source',
   assert.doesNotMatch(out, /__CORPUS_ID_|__TORAH_DATA__|__ELS_LOGO__/);
 });
 
-test('deterministic template -> public/tzofen.html build sync', () => {
+test('deterministic template -> hosted and Legacy public artifacts build sync', () => {
   const before = readFileSync(root + 'public/tzofen.html');
+  const legacyBefore = readFileSync(root + 'public/tzofen-standalone.html');
   const r = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   const after = readFileSync(root + 'public/tzofen.html');
+  const legacyAfter = readFileSync(root + 'public/tzofen-standalone.html');
   assert.ok(before.equals(after), 'public/tzofen.html is stale vs tools/els/els-code.template.html - run tools/els/build.py');
+  assert.ok(legacyBefore.equals(legacyAfter), 'public/tzofen-standalone.html is stale vs the canonical hardened generator');
+  const legacy = legacyAfter.toString('utf8');
+  assert.match(legacy, /id="lgBanner"/, 'Legacy surface keeps its public read-only banner');
+  assert.match(legacy, /Storage\.prototype\.setItem=function\(\)\{\}/, 'Legacy surface disables client persistence');
+  assert.match(legacy, /function standaloneVerifyBatch\(payload\)/, 'Legacy surface reuses the bounded verifier adapter');
+  assert.match(legacy, /const isAnon=\(\)=>false;/, 'Legacy search remains available without an account gate');
+  assert.doesNotMatch(legacy, /__[A-Z0-9_]+__/, 'Legacy artifact has no unresolved generator markers');
 });

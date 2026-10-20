@@ -208,8 +208,9 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.match(page, /const \[classicSeed\] = useState\(\(\) => clean\(/);
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
-  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
   assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
+  assert.match(page, /data-els-research-tools="explicit-open-v1" hidden=\{!researchProfile\}/);
+  assert.equal((page.match(/<ElsNativeClassic2029/g) || []).length, 1);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 

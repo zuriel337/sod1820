@@ -15,14 +15,14 @@ test("hybrid policy is pinned to the exact live Legacy and accepted 2029 candida
 });
 
 test("candidate acceptance routes resolve to the isolated 2029 document", () => {
-  for (const path of ["/", "/posts", "/post/example?x=1#top", "/world/", "/topic/123", "/number/1820", "/היכל"]) {
+  for (const path of ["/", "/posts", "/post/example?x=1#top", "/world/", "/topic/123", "/number/1820", "/code", "/els", "/היכל"]) {
     assert.deepEqual(route(path).runtime, "2029", path);
     assert.equal(route(path).document, "2029.html", path);
   }
 });
 
 test("Legacy is the fail-safe for explicit Legacy and every unknown route", () => {
-  for (const path of ["/code", "/els", "/legacy-screen-we-have-not-mapped", "/admin/unknown", "/life-journey-old"]) {
+  for (const path of ["/legacy-screen-we-have-not-mapped", "/admin/unknown", "/life-journey-old"]) {
     assert.equal(route(path).runtime, "legacy", path);
     assert.equal(route(path).document, "legacy.html", path);
   }
@@ -42,7 +42,7 @@ test("committed route inventory covers every declared Legacy and 2029 route with
   assert.deepEqual(committed, expected);
   assert.equal(committed.summary.legacyDeclarations, 129);
   assert.equal(committed.summary.candidate2029Declarations, 28);
-  assert.equal(committed.summary.candidate2029Assignments, 25);
-  assert.equal(committed.summary.explicitLegacyAssignments, 2);
+  assert.equal(committed.summary.candidate2029Assignments, 27);
+  assert.equal(committed.summary.explicitLegacyAssignments, 0);
   assert.ok(committed.summary.legacyDefaultAssignments > 100);
 });

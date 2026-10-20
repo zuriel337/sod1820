@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-goldens.mjs';
 import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
+import { buildJourneyRestore } from '../src/lib/elsJourney.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -99,8 +100,9 @@ if(window.__fixtureFullFrame){
  function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
+  const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
-   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
+   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchLoad}):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
 }else createRoot(document.getElementById('root')).render(React.createElement(Fixture));
@@ -194,7 +196,7 @@ const realHostStubs = {
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
   '../lib/img.js': `export const thumb=(value)=>value;`,
-  '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:()=>{}};export const useUniversalWorkspace=()=>workspace;`,
+  '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:finding=>{(window.__workspaceFindings||=[]).push(structuredClone(finding));}};export const useUniversalWorkspace=()=>workspace;`,
   './SubscribeGate.jsx': `import React from 'react';export default function Gate(){return React.createElement('div',{'data-fixture-subscribe-gate':'true'},'Test registration gate');}`,
   'react-router-dom': `export const useNavigate=()=>()=>{};`,
 };
@@ -202,7 +204,7 @@ const realHostStubs = {
 // Use the actual SystemFrame/Command Island for integration acceptance. Only unrelated
 // domain projections and external reads are isolated; no dock/registration test double.
 const frameStubs = {
- '../../lib/supabase.js': `export const askRaziel=async()=>({});export const getNotificationPrefs=async()=>({});`,
+ '../../lib/supabase.js': `export const askRaziel=async(...args)=>{(window.__razielCalls||=[]).push(args);return {};};export const getNotificationPrefs=async()=>({});`,
  '../../lib/notifications.js': `export const getMyNotifications=async()=>[];export const getUnreadCount=async()=>0;export const markNotificationRead=async()=>{};export const topicLabel=x=>x;`,
  '../../lib/commandCenter.js': `export const getMyProfile=async()=>null;export const watchToggle=async()=>{};`,
  '../../lib/tracking.js': `export const getVisitorId=()=>'frame-fixture';`,
@@ -542,6 +544,91 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
     assert.equal(await page.evaluate(()=>window.__state.axis.hitId),restoredAxis,'late cancelled verification cannot replace the restored axis');
    }
   });
+ });
+
+test('Research v1 C02 promotes the exact Finding occurrence and returns to the exact prior axis',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await openPanel(page);
+   await addSecondary(page,'התורה');
+   const before=await page.evaluate(()=>structuredClone(window.__state));
+   const finding=before.findings.find(item=>item.t==='התורה');
+   const target=finding.hits.find(hit=>hit.shown&&hit.verified&&hit.withinRadius!==false);
+   assert.ok(target?.hitId,'C02 starts only from an engine-verified visible Finding occurrence');
+   await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,target.hitId);
+   const promoted=await page.evaluate(()=>structuredClone(window.__state));
+   assert.equal(promoted.term,'התורה');
+   assert.ok(promoted.findings.some(item=>item.t===before.term),'the previous axis term is carried as a Finding while its exact return anchor remains in the breadcrumb');
+   assert.match(await page.locator('[data-els-c02-journey="v1"]').textContent(),/1 צעדי חזרה שמורים/);
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${before.term}`)}).click();
+   await page.waitForFunction(expected=>window.__state?.status==='ok'
+     &&window.__state?.axis?.hitId===expected.axis
+     &&JSON.stringify(window.__state.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})))===JSON.stringify(expected.findings),{
+       axis:before.axis.hitId,
+       findings:before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),
+     });
+   await page.locator('[data-els-c02-journey="v1"]').waitFor({state:'detached'});
+   const restored=await page.evaluate(()=>structuredClone(window.__state));
+   assert.equal(restored.term,before.term);
+   assert.deepEqual(restored.geometry,before.geometry);
+   assert.deepEqual(restored.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})));
+   assert.equal(await page.locator('[data-els-c02-journey="v1"]').count(),0,'the completed return consumes only its local breadcrumb');
+  },{realHost:true});
+ });
+
+test('Research v1 acceptance: verify → matrix → Finding → source → save → workspace → exact reopen/return → Raziel',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__state?.verification?.state==='MATCH'
+     &&window.__operation?.kind==='search'&&window.__operation?.status==='done');
+   assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0,'verified search projects a matrix');
+
+   await addSecondary(page,'התורה');
+   await selectAxis(page,'התורה');
+   await activate(page,'מקור הממצא הנבחר');
+   await page.waitForFunction(()=>window.__lens?.lens==='verse-context'&&window.__lens?.target?.term==='התורה');
+   assert.ok((await page.evaluate(()=>window.__lens.verses.length))>0,'Finding source is readable before persistence');
+
+   await dock.getByRole('button',{name:'שמירה',exact:true}).click();
+   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('קבלת Research v1 שומרת ציר, ממצא ומקור מאומתים.');
+   await activate(page,'שמור אצלי');
+   await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('נשמר אצלך'));
+   await activate(page,'הוסף למחקר');
+   await page.waitForFunction(()=>window.__workspaceFindings?.length===1);
+   const workspaceFinding=await page.evaluate(()=>structuredClone(window.__workspaceFindings[0]));
+   const snapshot=workspaceFinding.projection?.journeySnapshot;
+   const reopen=buildJourneyRestore(snapshot);
+   assert.equal(reopen.ok,true,'workspace Finding carries an exact reopen snapshot');
+
+   await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();
+   await activate(page,'בחר ציר לסריקה: התורה');
+   if(await button(page,'מופעים וצבע של התורה').getAttribute('aria-expanded')!=='true')await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.waitForFunction(axis=>window.__state?.axis?.hitId!==axis,snapshot.axis.hitId);
+   await page.evaluate(item=>window.__loadResearch(item),reopen.loadItem);
+   await page.waitForFunction(expected=>window.__state?.axis?.hitId===expected.axis
+     &&JSON.stringify(window.__state.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})))===JSON.stringify(expected.findings),{
+       axis:snapshot.axis.hitId,
+       findings:snapshot.findings,
+     });
+
+   await activate(page,'בחר ציר לסריקה: התורה');
+   if(await button(page,'מופעים וצבע של התורה').getAttribute('aria-expanded')!=='true')await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${snapshot.term}`)}).waitFor();
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${snapshot.term}`)}).click();
+   await page.waitForFunction(axis=>window.__state?.axis?.hitId===axis,snapshot.axis.hitId);
+   await page.locator('[data-els-c02-journey="v1"]').waitFor({state:'detached'});
+
+   await dock.locator('.sod29-raziel-orb').click();
+   await page.locator('.sod29-companion-raziel').waitFor({state:'visible'});
+   assert.equal(await page.evaluate(()=>window.__razielCalls?.length||0),0,'opening Raziel is user-visible context only and performs no automatic AI call');
+  },{realHost:true,fullFrame:true});
  });
 
 test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls',
