@@ -8,8 +8,10 @@ const heichal = readFileSync(
 );
 
 test("Heichal projects Scripture discovery from the existing Research/Entity Hub seam", () => {
-  assert.match(heichal, /data\?\.research\?\.scriptureDiscovery/);
-  assert.match(heichal, /data\?\.research\?\.scriptureTermDiscovery/);
+  // The Entity Hub research projection (data?.research) is handed to ScriptureDiscoveryPanel as researchProjection.
+  assert.match(heichal, /researchProjection=\{data\?\.research \|\| null\}/);
+  assert.match(heichal, /researchProjection\?\.scriptureDiscovery/);
+  assert.match(heichal, /researchProjection\?\.scriptureTermDiscovery/);
   assert.match(heichal, /Discovery ≠ Truth/);
   assert.match(heichal, /fetchTanachVerseByOrdinal/);
 });
