@@ -322,3 +322,10 @@
 @media (max-width: 620px) {
   .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-reading-progress { grid-column: 1 / -1; grid-row: 1; justify-self: end; }
 }
+
+/* Share sheet (opened from the island): exact address first, whole page as a quiet second row. */
+.sod29-share-sheet { display: grid; gap: 10px; }
+.sod29-share-whole-label { margin: 6px 0 0; font: 500 12px/1.4 var(--s29-font-ui); color: var(--s29-muted); }
+/* the share row is a scroller by default; in the sheet every channel (incl. copy) must be visible without scrolling */
+.sod29-share-sheet .sod-share-actions { flex-wrap: wrap !important; overflow: visible !important; }
+.sod29-share-sheet .sod-share-actions > * { min-block-size: 44px; }

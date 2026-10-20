@@ -82,6 +82,7 @@ const TRANSIENT = Object.freeze({
   WORKSPACE: "workspace",
   ISSUE: "issue",
   CONTEXT: "context",
+  SHARE: "share",
 });
 
 const ShellContext = createContext({
@@ -651,6 +652,22 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
       {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
   );
+}
+
+// Share sheet: the one canonical ShareActions over the exact address the reader is on (hash = exact section survives the share).
+function ShareProjection({ title, type }) {
+  const { pathname, search, hash } = useLocation();
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const exact = `${origin}${pathname}${search}${hash}`;
+  const whole = `${origin}${pathname}${search}`;
+  const label = title ? `SOD1820 · ${title}` : "SOD1820";
+  return <div className="sod29-share-sheet" data-share-owner="ShareActions">
+    <ShareActions type={type} title={label} url={exact} force />
+    {hash ? <>
+      <p className="sod29-share-whole-label">או את הדף כולו, בלי הקטע הנוכחי</p>
+      <ShareActions type={type} title={label} url={whole} channels={["native", "copy"]} compact force />
+    </> : null}
+  </div>;
 }
 
 function ToolsProjection({ surface, target, go, onCapability }) {
@@ -1676,7 +1693,7 @@ export default function SystemFrame2029({
 
   const openTransient = useCallback((kind, payload = null) => {
     returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
-    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
+    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.SHARE, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
       completeSurfaceEntry(kind === TRANSIENT.CAPABILITY ? (payload?.capability || "capability") : kind);
     }
     setTransient({ kind, payload });
@@ -1733,6 +1750,7 @@ export default function SystemFrame2029({
   }, [openCapability, research, context?.selection]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
+  const openShare = useCallback(() => openTransient(TRANSIENT.SHARE), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
     if (razielLocked) {
       openTransient(TRANSIENT.RAZIEL_LOCKED);
@@ -2041,6 +2059,9 @@ export default function SystemFrame2029({
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
+    if (transientKind === TRANSIENT.SHARE) return <PanelShell {...common} icon="⤴" kicker="שיתוף" title={`שיתוף · ${context?.subject?.label || title || "הדף הנוכחי"}`}>
+      <ShareProjection title={context?.subject?.label || title || ""} type={context?.subject?.type || surface || "page"} />
+    </PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
@@ -2278,6 +2299,7 @@ export default function SystemFrame2029({
                   aria-pressed={transientKind === TRANSIENT.ACTION}
                 ><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
                 <button type="button" title={surface === "heichal" ? "פקודה" : "חיפוש"} onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span><NavigationIcon2029 name="search" /></span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
+                <button type="button" title="שיתוף" onClick={openShare} aria-pressed={transientKind === TRANSIENT.SHARE}><span><NavigationIcon2029 name="share" /></span><small>שיתוף</small></button>
                 {!(showBottomTrail && numberPageRoute) ? <button type="button" title="פעולה" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
                 <button type="button" title="כלים" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
               </div>
