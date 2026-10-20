@@ -21,11 +21,10 @@
 .heichal-entry-examples .sod29-action { min-block-size: 44px; }
 
 .heichal-gates { display: grid; gap: 10px; }
-.heichal-gates-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.heichal-gates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .heichal-gate { display: grid; gap: 4px; align-content: start; min-block-size: 88px; padding: 12px 14px; border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel-soft, transparent); color: var(--s29-ink); text-decoration: none; }
 .heichal-gate:hover { border-color: var(--s29-brand-gold, currentColor); }
 .heichal-gate:focus-visible { outline: 2px solid var(--s29-accent, currentColor); outline-offset: 2px; }
 .heichal-gate small { color: var(--s29-muted); font-size: 12.5px; }
-@media (max-width: 900px) { .heichal-gates-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 420px) { .heichal-gates-grid { grid-template-columns: 1fr; } .heichal-entry-head .sod29-action { inline-size: 100%; } }
+@media (max-width: 420px) { .heichal-gate { min-block-size: 64px; } .heichal-entry-head .sod29-action { inline-size: 100%; } }
 @media (prefers-reduced-motion: reduce) { .heichal-gate, .heichal-entry-example { transition: none; } }
