@@ -377,7 +377,7 @@ function HomeBody() {
 export default function Home2029Page() {
   useEffect(() => {
     applySeo(CORE_PUBLIC_LAUNCH_2029
-      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: "/" }
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וקהילה", description: "פוסטים, חיפוש ELS, מחשבון גימטריה וקהילת SOD1820.", path: "/" }
       : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/" });
   }, []);
   return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;

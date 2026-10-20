@@ -265,12 +265,12 @@ export default function HomeComposition2029({
   const primary = primaryContentState({ loading: data.loading, failed: data.failed, hasHero: Boolean(lead), postCount: visiblePosts.length });
   return <div className="h29" data-experience-capability="home-composition" data-h29-primary={primary}>
     <div className="h29-hero-slot" ref={heroBox.ref} data-h29-hold={heroBox.hold} data-scroll-anchor="home:hero">
-      {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : " is-unavailable"}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p> : null}{!data.loading ? <div className="h29-actions"><button type="button" className="h29-btn" onClick={data.retryPosts}>נסו שוב</button></div> : null}</div></section>}
+      {lead ? <HomeHeroMotion2029 lead={lead} href={postHref(lead.slug)} includeWorld={worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : " is-unavailable"}`} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>{data.loading ? "טוען את מה שחי עכשיו…" : "SOD1820"}</h1>{!data.loading ? <p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לקהילה.</p> : null}{!data.loading ? <div className="h29-actions"><button type="button" className="h29-btn" onClick={data.retryPosts}>נסו שוב</button></div> : null}</div></section>}
     </div>
 
     {corePublic ? <section className="h29-quiet" aria-label="מצב האתר" data-home-launch-notice="gradual-opening" data-scroll-anchor="home:launch-notice">
       <strong>המערכת בבנייה, והחלקים נפתחים בהדרגה.</strong>
-      <span>כבר עכשיו אפשר לקרוא פוסטים{worldOpen ? ", לגלות את העולם" : ""}, לחקור ELS, לחשב גימטריה ולהיכנס לצ׳אט.</span>
+      <span>כבר עכשיו אפשר לקרוא פוסטים{worldOpen ? ", לגלות את העולם" : ""}, לחקור ELS, לחשב גימטריה ולהיכנס לקהילה.</span>
     </section> : null}
 
     <Section title="עדכונים אחרונים" link={<Link to="/posts">כל העדכונים ←</Link>}>
@@ -339,7 +339,7 @@ export default function HomeComposition2029({
       <div className="h29-portions">
         {calculator}
         {corePublic && worldOpen ? <Link className="h29-portion k29-rv" to="/world" data-home-world="open"><span className="h29-portion-h"><NavigationIcon2029 name="cosmos" />העולם</span><small>מקורות, סיפורים וחיבורים במקום אחד</small></Link> : null}
-        {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />צ׳אט</span><small>לשיחות הקהילה</small></a>
+        {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />קהילה</span><small>שיחות, רמזים ואנשים</small></a>
           : <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>}
         {journeyLocked
           ? <div className="h29-portion k29-rv is-locked" aria-disabled="true" data-home-life-journey="locked"><span className="h29-portion-h"><NavigationIcon2029 name="door" />מסע החיים · נעול</span><small>ייפתח לאחר השלמת ההגדרה</small></div>

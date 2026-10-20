@@ -167,7 +167,7 @@ test("negative control: the v2 runner predicate calls the same skeleton-only Hom
 // ---- a failure message is not content either (the area's read failed or came back empty: a message with a retry stands in its place) ----
 const noticeText = "העדכונים האחרונים אינם זמינים כרגע.";
 const notice = (text = noticeText, extra = "") => `<div class="h29-notice" aria-live="polite"><p>${text}</p>${extra}<button type="button" class="h29-btn">נסו שוב</button></div>`;
-const unavailableHero = `<section class="h29-hero is-unavailable" aria-busy="false"><div class="h29-hero-copy"><div class="h29-kicker">עכשיו</div><h1>SOD1820</h1><p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לצ׳אט.</p><div class="h29-actions"><button type="button" class="h29-btn">נסו שוב</button></div></div></section>`;
+const unavailableHero = `<section class="h29-hero is-unavailable" aria-busy="false"><div class="h29-hero-copy"><div class="h29-kicker">עכשיו</div><h1>SOD1820</h1><p>העדכונים אינם זמינים כרגע. אפשר להמשיך לצפנים, למחשבון או לקהילה.</p><div class="h29-actions"><button type="button" class="h29-btn">נסו שוב</button></div></div></section>`;
 
 test("a failure message with its retry never makes Home composed or usable: unavailable hero, updates message, gateway message", { skip }, async () => {
   const everything = await ready(home({ primary: "empty", hero: unavailableHero, updates: notice(), gatewayState: "empty",
