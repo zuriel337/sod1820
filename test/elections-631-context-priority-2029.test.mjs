@@ -57,6 +57,18 @@ test("all six existing dimensions are present, unknown is not zero or a made-up 
   assert.deepEqual(m.depth.sourceCount.groups, ["post:5107"]);
 });
 
+test("canonical method parity can fill the calculations dimension only on the public corpus rows", () => {
+  const verifier = (phrase, method, value) => method === "רגיל" && value === 631 && phrase !== "עופר וינטר";
+  const m = projectElections631Context({ post: post(), gematriaRows: rows, verifyCalculation: verifier });
+  const calculations = m.depth.dimensions.find((d) => d.key === "calculations");
+  assert.equal(calculations.coverage, "partial", "verified 631, unverified 1820");
+  assert.equal(m.depth.numbers.find((n) => n.value === 631).verified.length, 4);
+  assert.equal(m.depth.numbers.find((n) => n.value === 1820).verified.length, 0);
+  assert.equal(m.publicMatches.some((r) => r.phrase === "עופר וינטר"), false, "parity must not publish an unpublished corpus row");
+  const noTrace = projectElections631Context({ post: post(), gematriaRows: rows });
+  assert.equal(noTrace.depth.dimensions.find((d) => d.key === "calculations").coverage, "none");
+});
+
 test("unrelated, hidden and draft sources are rejected without using tags as authority", () => {
   for (const wrong of [post({ id: 5108 }), post({ slug: "wrong" }),
     post({ home_hidden: true }), post({ tags: ["טיוטה"] }), post({ tags: ["פורום"] })]) {
