@@ -39,10 +39,13 @@ function sourceQuestion(type, label, direction) {
   return type === "number" ? "חקור את המספר " + label : "חקור את הביטוי " + label;
 }
 
-function capabilityStatus(key, type, sourceCounts, loading) {
+function capabilityStatus(key, type, sourceCounts, loading, direction) {
   if (key === "numeric" || key === "numeric_operators") {
+    if (type === "number" && direction === "relations") {
+      return "בדיקת קשרים הוצעה, אך research-run הנוכחי מבצע numeric/numeric_operators בלבד; אין כאן ריצת קשרים.";
+    }
     return type === "number"
-      ? "אפשר לבקש בדיקה מפורשת דרך research-run הקיים; עדיין לא הופעלה כאן ריצה."
+      ? "אפשר לבקש בדיקה מספרית מפורשת דרך research-run הקיים; עדיין לא הופעלה כאן ריצה."
       : "המתכנן הציע יכולת; אין חיבור ביצוע מאומת למקור זה.";
   }
   if (key === "graph" || key === "research_objects") {
@@ -52,12 +55,49 @@ function capabilityStatus(key, type, sourceCounts, loading) {
         : "בהקרנה הנוכחית: " + sourceCounts.findings + " ממצאים ו-" + sourceCounts.relations + " קשרים. נוכחות אינה אימות.";
   }
   if (key === "sources") {
-    return loading ? "מקורות ההקרנה עדיין נטענים."
+    const phraseCoverage = type === "phrase"
+      ? " חיפוש ביטוי רב־מילים מחייב מתאם קורפוס מאומת; נוכחות מקורות אינה הוכחת הופעתו."
+      : "";
+    return loading ? "מקורות ההקרנה עדיין נטענים." + phraseCoverage
       : sourceCounts.sources == null
-        ? "נתוני המקורות אינם זמינים; אין כאן תוצאת חיפוש שלילית."
-        : "הקרנת המקור מכילה " + sourceCounts.sources + " הפניות. חיפוש ביטוי רב־מילים דורש חיבור מאומת.";
+        ? "נתוני המקורות אינם זמינים; אין כאן תוצאת חיפוש שלילית." + phraseCoverage
+        : "הקרנת המקור מכילה " + sourceCounts.sources + " הפניות, לא תוצאות חיפוש." + phraseCoverage;
   }
   return "תוכנית בלבד; ביצוע ישיר מתוך ההיכל עדיין לא אומת ליכולת הזו.";
+}
+
+// First-entry preservation gate for the EXISTING Research Strategy owner.
+ // It does not parse an arbitrary question as an exact expression, nor dispatch a tool.
+ // The Heichal visual owner should consume this *before* calling resolveExpressionFocus.
+export function projectHeichalEntryInput(raw, { explicitlyChoseGematria = false } = {}) {
+  const text = typeof raw === "string" ? raw.trim() : "";
+  if (!text) return {
+    ready: false, reason: "empty_input",
+    candidateSubject: null, autoCalculate: false, canResolveExpression: false,
+  };
+  const isDigits = /^\d+$/.test(text);
+  const number = isDigits ? Number(text) : null;
+  if (isDigits && (!Number.isSafeInteger(number) || number < 0)) return {
+    ready: false, reason: "invalid_number",
+    candidateSubject: null, autoCalculate: false, canResolveExpression: false,
+  };
+  if (isDigits) return {
+    ready: true, inputKind: "number_literal", input: text,
+    candidateSubject: { type: "number", id: String(number), label: String(number) },
+    autoCalculate: false, canResolveExpression: false,
+    // A Number subject alone is not a server execution instruction.
+    reason: "known_number_literal",
+  };
+  return {
+    ready: true, inputKind: "unresolved_text", input: text,
+    candidateSubject: { type: "phrase", id: text, label: text },
+    autoCalculate: false,
+    // Only a separate explicit user action may opt into the existing expression resolver.
+    canResolveExpression: explicitlyChoseGematria === true,
+    reason: explicitlyChoseGematria === true ? "user_chose_gematria" : "intent_first",
+    // A natural-language question remains the full original question until owned intake resolves it.
+    sourceTextIsExactExpression: false,
+  };
 }
 
 export function projectHeichalFirstDecoding({
@@ -101,7 +141,7 @@ export function projectHeichalFirstDecoding({
   const steps = (plan.check_order || []).slice(0, 5).map((key) => ({
     key,
     label: CAPABILITY_LABELS[key] || "יכולת מחקר",
-    explanation: capabilityStatus(key, type, counts, loading),
+    explanation: capabilityStatus(key, type, counts, loading, direction),
     status: "proposed",
   }));
 
@@ -111,7 +151,8 @@ export function projectHeichalFirstDecoding({
     steps,
     counts,
     hasProjection: Boolean(projection),
-    canRunBoundedNumber: type === "number" && ["overview", "relations"].includes(direction),
+    // The public server transport is numeric + numeric_operators only, not a relations executor.
+    canRunBoundedNumber: type === "number" && direction === "overview",
     message: steps.length
       ? "זוהי תוכנית מוצעת מן המתכנן הקנוני. ההקרנה הקיימת אינה הוכחת ביצוע השלבים."
       : "עדיין אין למתכנן יכולת מתאימה להפעלה בלי בחירת כיוון. בחר מקורות, גימטריה או צופן.",
