@@ -65,3 +65,6 @@
 .sod29-year-hint-layers{display:inline-flex;flex-wrap:wrap;gap:4px}
 .sod29-year-hint-layers i,.sod29-depth-theme{font-style:normal;border:1px solid var(--s29-line-strong);border-radius:999px;padding:0 8px;font-size:var(--s29-type-micro);font-weight:800;color:var(--s29-accent-text)}
 .sod29-depth-expr h5 .sod29-depth-theme{margin-inline-end:6px}
+.sod29-year-hint-facts{display:grid;gap:3px;width:100%;margin-top:4px;padding-top:6px;border-top:1px dashed var(--s29-line-strong)}
+.sod29-year-hint-facts small{line-height:1.5;overflow-wrap:anywhere}
+.sod29-year-hint-facts b{color:var(--s29-ink)}

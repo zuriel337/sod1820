@@ -26,11 +26,12 @@ function factLine(dim) {
 const THEME_LABEL = Object.freeze({ year: "שנה", holiday: "שמחת החג", gratitude: "הודיה" });
 const HINT_NOTE = Object.freeze({
   active: "סימון זמני לשנה הנוכחית בלבד. הרמז, המקור והחישוב נשמרים.",
-  approved_unpublished: "קיים אישור עריכתי לקישור, אך הוא טרם פורסם: הציבור אינו רואה את הסימון.",
+  approved_unpublished: "קיימת החלטה עריכתית ליחידה, אך הפרסום חסום: הציבור אינו רואה את הסימון.",
   candidate: "אין אישור שמכסה את היחידה הזו (שכבות השנה, החג וההודיה): מוצג בתצוגת מנהל בלבד.",
   archived: "השנה התחלפה: הסימון אינו מוצג כעכשווי. הרמז, המקור והחישוב נשמרים בקבוצת השנה.",
   upcoming: "השנה טרם הגיעה: הסימון אינו מוצג כעכשווי.",
 });
+const CHANNEL_LABEL = Object.freeze({ witness_spec: "החלטה במפרט ה־witness (קוד סקור)", research_objects: "רשומת מחקר מאושרת", public_projection: "הקרנה ציבורית" });
 function YearHint({ hint, compact = false }) {
   return <span className="sod29-year-hint" data-state={hint.state} data-year-hint={hint.id} data-unit-kind={hint.unit?.kind}>
     <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
@@ -40,6 +41,12 @@ function YearHint({ hint, compact = false }) {
       <small>{hint.valueLabel} · {hint.yearLabel}</small>
       {hint.layers?.length ? <span className="sod29-year-hint-layers">{hint.layers.map((l) => <i key={l.key} data-layer={l.key}>{l.label}</i>)}</span> : null}
       <small>{HINT_NOTE[hint.state]}</small>
+      <span className="sod29-year-hint-facts" data-year-hint-facts>
+        <small data-fact="source"><b>מקור:</b> {hint.sourceRef ? <bdi dir="ltr">{hint.sourceRef}</bdi> : "—"}</small>
+        <small data-fact="calculation"><b>חישוב:</b> ערך גימטרי <bdi dir="ltr">{hint.numbers.gematria}</bdi> · שנת לוח <bdi dir="ltr">{hint.numbers.calendarYear}</bdi> (שני מספרים נפרדים, ללא שוויון מספרי)</small>
+        <small data-fact="interpretation"><b>פרשנות:</b> {hint.layers.map((l) => l.label).join(" · ")}</small>
+        <small data-fact="publication"><b>סטטוס פרסום:</b> {hint.publication === "published" ? "מפורסם" : "חסום"}{hint.approvalChannel ? ` · ${CHANNEL_LABEL[hint.approvalChannel] || hint.approvalChannel}` : ""}</small>
+      </span>
     </>}
   </span>;
 }

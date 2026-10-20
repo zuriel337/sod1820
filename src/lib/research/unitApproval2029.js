@@ -17,7 +17,7 @@ import { supabase } from "../supabase.js";
 export const APPROVAL = Object.freeze({ NONE: "none", CONTAINER_LEVEL_ONLY: "container_level_only", APPROVED_UNPUBLISHED: "approved_unpublished", PUBLISHED: "published" });
 export const PUBLIC_YEAR_HINT_PROJECTION = Object.freeze({ available: false, owner: null,
   reason: "no authorised public projection of an approval decision exists (research_objects is not publicly readable and has no live publication path)" });
-export const CHANNEL = Object.freeze({ RESEARCH_OBJECTS: "research_objects", PUBLIC_PROJECTION: "public_projection" });
+export const CHANNEL = Object.freeze({ RESEARCH_OBJECTS: "research_objects", PUBLIC_PROJECTION: "public_projection", WITNESS_SPEC: "witness_spec" });
 const APPROVED_STATUS = new Set(["approved", "canonical"]);
 const COLUMNS = "id,kind,status,privacy_scope,relates,terms,source_ref";   // explicit columns: never `*`, never the row text, author or meta
 
@@ -42,6 +42,29 @@ export function matchUnitApproval(rows, hint, { channel = CHANNEL.RESEARCH_OBJEC
   return best;
 }
 
+/**
+ * Decision recorded on the reviewed unit itself (the existing witness spec). It is an approved-UNPUBLISHED decision for the admin
+ * preview: its channel is never `public_projection`, so it can not publish anything. It must cover the unit: a stable unit
+ * source_ref, a locator id equal to that ref's block, and every layer expression listed among the approval terms.
+ */
+export function witnessSpecApproval(hint) {
+  const none = { state: APPROVAL.NONE, rowId: null, channel: CHANNEL.WITNESS_SPEC };
+  const review = hint?.review, ref = canonicalResearchSourceRef(hint?.unit?.sourceRef);
+  if (review?.status !== "reviewed_in_witness_spec" || review.publication !== "blocked" || !ref || !hint.unit.containerRef) return none;
+  if (!ref.endsWith(`#block:${hint.unit.locatorId}`)) return none;
+  const terms = new Set((hint.approvalTerms || []).map(guardKey));
+  const layers = hint.layers || [];
+  if (!layers.length || !layers.every((l) => terms.has(guardKey(l.expression)))) return none;
+  return { state: APPROVAL.APPROVED_UNPUBLISHED, rowId: null, channel: CHANNEL.WITNESS_SPEC, decidedBy: review.decidedBy };
+}
+
+/** The strongest unit-level answer across the database owner and the reviewed witness spec; neither can publish. */
+export function resolveHintApproval(rows, hint) {
+  const db = matchUnitApproval(rows, hint), spec = witnessSpecApproval(hint);
+  const rank = [APPROVAL.NONE, APPROVAL.CONTAINER_LEVEL_ONLY, APPROVAL.APPROVED_UNPUBLISHED, APPROVAL.PUBLISHED];
+  return rank.indexOf(spec.state) > rank.indexOf(db.state) ? spec : db;
+}
+
 /** Admin session only. Public and signed-in users never query research_objects for this; any error fails closed to no rows. */
 export async function fetchUnitApprovalRows(containerRef, { audience = "public", client = supabase } = {}) {
   if (audience !== "admin" || !containerRef) return [];
@@ -54,6 +77,6 @@ export async function fetchUnitApprovalRows(containerRef, { audience = "public",
 
 export async function resolveUnitApprovals(hints, options = {}) {
   const out = {};
-  for (const hint of hints) out[hint.id] = matchUnitApproval(await fetchUnitApprovalRows(hint.unit?.containerRef, options), hint);
+  for (const hint of hints) out[hint.id] = resolveHintApproval(await fetchUnitApprovalRows(hint.unit?.containerRef, options), hint);
   return out;
 }

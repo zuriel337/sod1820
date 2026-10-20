@@ -60,21 +60,31 @@ for (const [device, vp] of [["desktop", D], ["mobile", M]]) {
   const tag = `${device}-dark`;
   // 3. admin: the REAL approval row is a broad synthesis (container level only), so the unit stays a candidate; a SIMULATED unit-level row shows approved-unpublished
   await open(page, "&audience=admin", vp, "dark"); await click(page, "[data-context-depth-compact]");
-  assert.equal(await page.locator("[data-year-hint][data-state='candidate']").count() >= 1, true);
-  assert.match(await page.locator("[data-year-hint]").first().innerText(), /סינתזה מאושרת ברמת הפוסט, לא ליחידה/);
+  assert.equal(await page.locator("[data-year-hint][data-state='approved_unpublished']").count() >= 1, true, "the unit decision in the witness spec shows in the admin preview");
+  assert.match(await page.locator("[data-year-hint]").first().innerText(), /רמז השנה · תשפ״ז · מאושר עריכתית, טרם פורסם/);
   await click(page, number(787));
+  const facts = await page.locator("[data-number='787'] [data-year-hint-facts]").first().innerText();
+  assert.match(facts, /posts:5112#block:plane-787-year-joy/); assert.match(facts, /787/); assert.match(facts, /5787/); assert.match(facts, /סטטוס פרסום: חסום/);
+  for (const k of ["source", "calculation", "interpretation", "publication"]) assert.equal(await page.locator(`[data-number='787'] [data-fact='${k}']`).count() >= 1, true, k);
   assert.equal(await page.locator("[data-number='787'] [data-layer='calculation']:has-text('לא מפורסמת')").count(), 2);
   assert.equal(await page.locator("[data-number='787'] .sod29-year-hint-layers i").count(), 3, "year, holiday joy and gratitude in one branch");
   assert.match(await page.locator("[data-number='787']").innerText(), /ייחוס הרשומה \(נפרד מהפרסום\): contribution:אבני רונן/);
   assert.equal(await page.locator(".sod29-depth-path li[data-pending]").count(), 1);
-  await shot(page, `${tag}-3-787-admin-real-container-level`);
+  await shot(page, `${tag}-3-787-admin-witness-spec-decision`);
   await open(page, "&audience=admin&approval=unit", vp, "dark");
   assert.equal(await page.locator("[data-year-hint][data-state='approved_unpublished']").count() >= 1, true);
   assert.match(await page.locator("[data-year-hint]").first().innerText(), /מאושר עריכתית, טרם פורסם/);
   await shot(page, `${tag}-3b-787-admin-unit-approved-simulated`);
   await open(page, "&audience=admin&approval=none", vp, "dark");
   assert.equal(await page.locator("[data-year-hint][data-state='candidate']").count() >= 1, true, "no approval row: candidate only");
-  ok(`${tag}: admin (real broad row = candidate, simulated unit row = approved-unpublished, no row = candidate; 3 layers, attribution apart from publication, pending station)`);
+  ok(`${tag}: admin (witness-spec decision = approved-unpublished with the broad row adding nothing, simulated unit row = approved-unpublished, no row = candidate; 3 layers, attribution apart from publication, pending station)`);
+
+  for (const theme of ["light", "parchment"]) {
+    await open(page, "&audience=admin", vp, theme); await click(page, "[data-context-depth-compact]"); await click(page, number(787));
+    assert.equal(await page.locator("[data-year-hint][data-state='approved_unpublished']").count() >= 1, true, `${theme}: admin year hint`);
+    assert.match(await page.locator("[data-number='787'] [data-fact='publication']").first().innerText(), /חסום/);
+    await shot(page, `${device}-${theme}-3-787-admin-witness-spec-decision`);
+  }
 
   // 4. the public never sees the unpublished approval; a (simulated) published approval shows the live marker and archives after the rollover
   await open(page, "", vp, "dark"); await click(page, "[data-context-depth-compact]");

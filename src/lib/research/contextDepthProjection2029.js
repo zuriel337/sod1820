@@ -182,7 +182,11 @@ export function buildYearHints(hints = [], temporal = null, audience = "public",
     const published = approval === "published" && approvals?.[hint.id]?.channel === "public_projection";
     if (!published && !admin) return [];
     const base = { id: hint.id, unit: hint.unit, value: hint.value, hebrewYear: hint.hebrewYear, valueLabel: `ערך גימטרי ${hint.value}`,
-      yearLabel: `שנה ${hint.hebrewYear} (${hint.yearLabel})`, layers: hint.layers || [], approval, locatorId: hint.unit.locatorId ?? null };
+      yearLabel: `שנה ${hint.hebrewYear} (${hint.yearLabel})`, layers: hint.layers || [], approval, locatorId: hint.unit.locatorId ?? null,
+      approvalChannel: approvals?.[hint.id]?.channel ?? null, sourceRef: hint.unit.sourceRef ?? null,
+      // Four separate answers: where it is written, what the engine says about the number, how it is framed, and whether it is published.
+      publication: published ? "published" : "blocked",
+      numbers: { gematria: hint.value, calendarYear: hint.hebrewYear } };
     const current = hebrew.year === hint.hebrewYear && hebrew.year_value === hint.value;
     if (!current) return [{ ...base, state: hebrew.year > hint.hebrewYear ? "archived" : "upcoming", label: `קבוצת שנה · ${hint.yearLabel}` }];
     if (published) return [{ ...base, state: "active", label: `רמז השנה · ${hebrew.year_label}` }];

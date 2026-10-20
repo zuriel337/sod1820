@@ -2,6 +2,7 @@
 // Coverage states only: no total, no 0–100, no ranking (DEC-METER-002 is OPEN).
 import test from "node:test";
 import assert from "node:assert/strict";
+import { witnessSpecApproval, resolveHintApproval } from "../src/lib/research/unitApproval2029.js";
 import { buildContextDepth, convergenceMeterFacts, COVERAGE, DIMENSIONS, measured, flagLabel, sourceGroups, NOT_MEASURED } from "../src/lib/research/contextDepthProjection2029.js";
 import { buildYearHints, buildPaths } from "../src/lib/research/contextDepthProjection2029.js";
 import { getCurrentTemporalContext } from "../src/lib/timeFlow.js";
@@ -224,7 +225,7 @@ test("reads: guests and users never query research_objects; the admin session re
   const failing = { from() { throw new Error("permission denied"); } };
   assert.deepEqual(await fetchUnitApprovalRows("post:5112", { audience: "admin", client: failing }), [], "an error fails closed");
   const denied = { from() { const q = { select: () => q, contains: () => q, eq: () => q, in: () => q, limit: () => Promise.resolve({ data: null, error: { code: "42501" } }) }; return q; } };
-  assert.deepEqual(await resolveUnitApprovals(YEAR_HINTS_5112, { audience: "admin", client: denied }), { [YEAR_HINTS_5112[0].id]: { state: "none", rowId: null, channel: "research_objects" } });
+  assert.deepEqual(await resolveUnitApprovals(YEAR_HINTS_5112, { audience: "admin", client: denied }), { [YEAR_HINTS_5112[0].id]: { state: "approved_unpublished", rowId: null, channel: "witness_spec", decidedBy: "ZURIEL" } });
 });
 
 test("year hint states: the public sees nothing today; the admin preview tells container-level, unit-level and none apart", () => {
@@ -312,4 +313,31 @@ test("opening a reviewed region puts its focus (and the year-hint label, as a la
   assert.equal(focus.reference, source.sourceRef); assert.equal(focus.locator, "#source-locator-plane-787-year-joy"); assert.equal(focus.sourceLabel, "רמז השנה · תשפ״ז");
   assert.equal(focus.type, "source");
   assert.equal(normalizeResearchContext({ dimensions: sourceRegionFocus({ source }) }).dimensions.surfaceFocus.sourceLabel, undefined);
+});
+
+test("unit decision lives in the reviewed witness spec: admin preview only, publication stays blocked, db28c232 gives nothing", () => {
+  const hint = YEAR_HINTS_5112[0];
+  assert.equal(hint.unit.sourceRef, "posts:5112#block:plane-787-year-joy");
+  const spec = witnessSpecApproval(hint);
+  assert.equal(spec.state, "approved_unpublished"); assert.equal(spec.channel, "witness_spec");
+  assert.equal(resolveHintApproval([APPROVAL_ROW_5112], hint).channel, "witness_spec", "the broad row adds nothing to the decision");
+  // not a decision when the spec has no review, a different locator, or a layer the terms do not name
+  assert.equal(witnessSpecApproval({ ...hint, review: null }).state, "none");
+  assert.equal(witnessSpecApproval({ ...hint, unit: { ...hint.unit, sourceRef: "posts:5112#block:other" } }).state, "none");
+  assert.equal(witnessSpecApproval({ ...hint, layers: [...hint.layers, { key: "x", label: "x", expression: "ביטוי חדש" }] }).state, "none");
+  assert.equal(witnessSpecApproval({ ...hint, review: { ...hint.review, publication: "open" } }).state, "none");
+  // admin sees it with its four separate facts; the public sees nothing, whatever the channel
+  const [adminHint] = buildYearHints([hint], NOW, "admin", { [hint.id]: spec });
+  assert.equal(adminHint.state, "approved_unpublished"); assert.equal(adminHint.publication, "blocked");
+  assert.deepEqual(adminHint.numbers, { gematria: 787, calendarYear: 5787 });
+  assert.deepEqual(adminHint.layers.map((l) => l.key), ["year", "holiday", "gratitude"]);
+  assert.deepEqual(buildYearHints([hint], NOW, "public", { [hint.id]: spec }), []);
+  assert.deepEqual(buildYearHints([hint], NOW, "public", { [hint.id]: { ...spec, state: "published" } }), [], "a published state on the spec channel still publishes nothing");
+});
+
+test("the unit decision never moves the six dimensions", () => {
+  const hint = YEAR_HINTS_5112[0];
+  const run = (yearHints, approvals) => buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience: "admin", temporal: NOW, yearHints, approvals, paths: [] });
+  const dims = (d) => JSON.stringify(d.dimensions.map(({ key, coverage }) => [key, coverage]));
+  assert.equal(dims(run([hint], { [hint.id]: witnessSpecApproval(hint) })), dims(run([], {})));
 });

@@ -42,3 +42,9 @@
 2. הרשומה הצרה ברמת היחידה אינה קיימת: `approved_unpublished` מוצג רק בהדמיה.
 3. בדיקת דפדפן מול האפליקציה המלאה (סשן אמיתי: אורח, משתמש, אדמין), לא בהרנס.
 4. אחרי שיוחלט על נתיב פרסום: קבלה שהציבור קורא רק את החלטת היחידה, בלי הסינתזה הרחבה.
+
+## Update 20.10.2026 — option A chosen (unit decision in the reviewed witness spec)
+- `REVIEWED_POST_LOCATORS['plane-787-year-joy']` is the unit `posts:5112#block:plane-787-year-joy` (stable locator + guards, three layers: תשפ״ז / ושמחת בחגך / מי שגמלך כל טוב הוא יגמלך כל טוב סלה) and now carries `yearHint.review` (`reviewed_in_witness_spec`, scope `admin_preview`, `publication: 'blocked'`).
+- `witnessSpecApproval` turns that into `approved_unpublished` on channel `witness_spec` only when the locator matches the unit ref and every layer is named in the terms. It can never publish: the public marker still needs `published` on `public_projection`, which does not exist. The broad row `db28c232…` adds nothing and is neither published nor relied on.
+- Admin preview shows "רמז השנה · תשפ״ז" with four separate facts: source (unit ref + open-in-source), calculation (gematria 787 vs calendar year 5787), interpretation (year / holiday joy / gratitude) and publication status (blocked).
+- Not done (still missing for a public marker): an authorised public projection of the decision; a stable authored `id` on the 787 block (content edit, needs separate approval); an integration test against the real DB with real sessions.

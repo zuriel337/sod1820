@@ -283,6 +283,9 @@ export const REVIEWED_POST_LOCATORS = Object.freeze([
     // Approval is NOT stored here: an admin-session read of the existing research_objects owner (unitApproval2029); the public
     // marker stays blocked until an authorised public projection of the decision exists.
     yearHint: { unit: { kind: 'source_region', containerRef: 'post:5112' }, link: 'explicit_documented',
+      // Editorial decision on THIS unit, recorded in reviewed code (ZURIEL chose option A, 20.10.2026). It covers the admin preview only:
+      // `publication: 'blocked'` keeps the public marker off until an authorised public projection exists; it is not a database approval.
+      review: { status: 'reviewed_in_witness_spec', decidedBy: 'ZURIEL', scope: 'admin_preview', publication: 'blocked' },
       binding: { hebrewYear: 5787, yearLabel: 'תשפ״ז', value: 787, expression: 'תשפז' },
       layers: [{ key: 'year', label: 'שנה', expression: 'תשפז' }, { key: 'holiday', label: 'שמחת החג', expression: 'ושמחת בחגך' },
         { key: 'gratitude', label: 'הודיה', expression: 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה' }],
@@ -294,7 +297,7 @@ export const REVIEWED_POST_LOCATORS = Object.freeze([
 ]);
 // Year-hint descriptor of a reviewed unit, keyed by the unit's source_ref (never by a number or a WordPress id).
 export const yearHintOf = (spec) => spec?.yearHint ? { id: spec.id, link: spec.yearHint.link, unit: { ...spec.yearHint.unit, sourceRef: `posts:${spec.postId}#block:${spec.id}`, locatorId: spec.id },
-  ...spec.yearHint.binding, layers: spec.yearHint.layers, approvalTerms: spec.yearHint.approvalTerms } : null;
+  ...spec.yearHint.binding, layers: spec.yearHint.layers, approvalTerms: spec.yearHint.approvalTerms, review: spec.yearHint.review || null } : null;
 export const postLocatorSpec = (id) => REVIEWED_POST_LOCATORS.find((spec) => spec.id === id) || null;
 // Rendered-DOM form of a reviewed spec (same guards the HTML locator uses).
 export const renderedLocatorOf = (spec) => spec.postBlock
