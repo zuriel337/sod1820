@@ -32,3 +32,12 @@
 .sod29-elections-depth-details .sod29-depth *{max-width:100%}
 .sod29-elections-source-status{font-size:11px;color:var(--s29-muted);margin:0;line-height:1.65}
 @media(prefers-reduced-motion:reduce){.sod29-elections-context-review *{scroll-behavior:auto}}
+
+
+/* The slot itself belongs to the existing Context rail; no fourth tab or global bar. */
+.sod29-631-context-slot{margin-block:10px}
+.sod29-elections-review-toggle{display:block;width:100%;min-height:44px;padding:10px 12px;cursor:pointer;
+  text-align:start;font:inherit;font-size:12px;font-weight:820;color:var(--s29-accent-text);
+  border:1px solid var(--s29-line);border-radius:13px;background:var(--s29-panel)}
+.sod29-elections-review-toggle:hover{border-color:var(--s29-accent)}
+.sod29-elections-review-toggle:focus-visible{outline:3px solid var(--s29-accent);outline-offset:3px}
