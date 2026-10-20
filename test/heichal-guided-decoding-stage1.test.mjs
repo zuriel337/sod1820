@@ -84,8 +84,10 @@ test("Heichal uses the same Number/World/ELS/Books actions as the shared System 
   assert.match(page, /shell\.go\(tool\.href\)/);
   assert.match(page, /shell\.go\(numberHref\)/);
   assert.match(page, /shell\.returnExact\(\)/);
-  assert.match(page, /to: "\/2029\/calculator"/);
-  assert.doesNotMatch(page, /\/research\?tool=gematria/);
+  // Stage 2: the entry "calculate" door moved from the page ACTIONS list into the domain-gate projection; same 2029 owner route.
+  const gates = readFileSync(new URL("../src/lib/research/heichalEntryExamples.js", import.meta.url), "utf8");
+  assert.match(gates, /href: "\/2029\/calculator"/);
+  assert.doesNotMatch(page + gates, /\/research\?tool=gematria/);
   assert.doesNotMatch(page, /<Link className="sod29-action" to="\/els">ELS<\/Link>/);
   assert.doesNotMatch(page, /<Link className="sod29-action" to="\/world">פתח בעולם<\/Link>/);
 });

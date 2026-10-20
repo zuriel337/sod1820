@@ -1,0 +1,38 @@
+/* Heichal compact entry (stage 2) · tokens only, RTL logical properties, 44px targets */
+.heichal-entry-examples { display: grid; gap: 12px; }
+.heichal-entry-examples.is-skipped { padding-block: 10px; }
+.heichal-entry-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.heichal-entry-example-list { display: grid; gap: 12px; }
+.heichal-entry-example { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--s29-line-strong); border-radius: 16px; background: var(--s29-panel-soft, transparent); }
+.heichal-entry-example > header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.heichal-entry-example h2 { margin: 0; font-size: clamp(20px, 3vw, 28px); line-height: 1.25; overflow-wrap: anywhere; }
+.heichal-entry-total { color: var(--s29-brand-gold, currentColor); font-variant-numeric: tabular-nums; }
+.heichal-entry-rows { display: grid; gap: 10px; }
+.heichal-entry-row { display: grid; gap: 6px; }
+.heichal-entry-sum { font-size: 15px; line-height: 1.5; }
+.heichal-entry-sum span { color: var(--s29-muted); font-variant-numeric: tabular-nums; }
+.heichal-entry-letters { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.heichal-entry-letters li { display: grid; place-items: center; min-inline-size: 30px; padding: 3px 5px; border: 1px solid var(--s29-line); border-radius: 8px; line-height: 1.2; }
+.heichal-entry-letters li span { font-weight: 750; }
+.heichal-entry-letters li small { color: var(--s29-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.heichal-entry-interpretation { margin: 0; padding: 10px 14px; border-inline-start: 3px solid var(--s29-accent, currentColor); border-radius: 12px; background: color-mix(in srgb, var(--s29-accent, currentColor) 6%, transparent); display: grid; gap: 6px; }
+.heichal-entry-interpretation blockquote { margin: 0; font-style: italic; line-height: 1.6; overflow-wrap: anywhere; }
+.heichal-entry-note { margin: 0; }
+.heichal-entry-examples .sod29-action { min-block-size: 44px; }
+
+.heichal-gates { display: grid; gap: 10px; }
+.heichal-gates-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.heichal-gate { display: grid; gap: 4px; align-content: start; min-block-size: 88px; padding: 12px 14px; border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel-soft, transparent); color: var(--s29-ink); text-decoration: none; }
+.heichal-gate.is-open:hover { border-color: var(--s29-brand-gold, currentColor); }
+.heichal-gate.is-open:focus-visible { outline: 2px solid var(--s29-accent, currentColor); outline-offset: 2px; }
+.heichal-gate.is-closed { opacity: .78; }
+.heichal-gate small { color: var(--s29-muted); font-size: 12.5px; }
+.heichal-gate .sod29-chip { justify-self: start; }
+@media (max-width: 900px) { .heichal-gates-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .heichal-gates-grid { grid-template-columns: 1fr; } .heichal-entry-head .sod29-action { inline-size: 100%; } }
+@media (prefers-reduced-motion: reduce) { .heichal-gate, .heichal-entry-example { transition: none; } }
+@media (max-width: 420px) {
+  .heichal-gate { grid-template-columns: minmax(0, 1fr) auto; align-items: center; min-block-size: 64px; column-gap: 8px; }
+  .heichal-gate small { grid-column: 1; }
+  .heichal-gate .sod29-chip { grid-column: 2; grid-row: 1 / span 2; justify-self: end; text-align: center; }
+}

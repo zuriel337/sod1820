@@ -13,19 +13,11 @@ import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 import HeichalGuidedFirstStep from "../components/heichal/HeichalGuidedFirstStep.jsx";
 import HeichalIntentUnderstanding, { HeichalFreeQuestionPlan } from "../components/heichal/HeichalIntentUnderstanding.jsx";
+import HeichalEntryExamples from "../components/heichal/HeichalEntryExamples.jsx";
+import HeichalDomainGates from "../components/heichal/HeichalDomainGates.jsx";
 import { projectHeichalEntryInput } from "../lib/research/heichalFirstDecodingPlan.js";
 import { boundFreeQuestion, buildFreeQuestionContext, buildExactExpressionContext, exactDirectionCapability, isFreeQuestionContext, ENTRY_INTENT_FREE_QUESTION } from "../lib/research/heichalEntryDirections.js";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
-
-const ACTIONS = [
-  { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/2029/calculator", live: true },
-  { id: "sources", label: "חפש במקורות", detail: "Books / Sources", to: "/books", live: true },
-  { id: "text", label: "חקור טקסט", detail: "ELS / Biblical Cipher", to: "/els", live: true },
-  { id: "world", label: "פתח בעולם", detail: "Research World", to: "/world", live: true },
-  { id: "compare", label: "השווה", detail: "Compare research mode", live: false },
-  { id: "patterns", label: "חקור דפוס", detail: "Pattern / Sequence workbench", live: false },
-  { id: "person", label: "חקור אדם / חיים", detail: "Life Journey / Person", live: false },
-];
 
 const SCRIPTURE_BASIS_LABEL = Object.freeze({
   seed_numeric_value_to_verse_ragil_value: "פסוק באותו ערך · רגיל",
@@ -133,7 +125,7 @@ function useHeichalEntryActions(question) {
   const confirmExact = async (expression, directionKey) => {
     const gate = projectHeichalEntryInput(expression, { explicitlyChoseGematria: directionKey === "gematria", exactExpressionSelected: true });
     if (!gate.ready) return;
-    const dimensions = { entryIntent: ENTRY_INTENT_FREE_QUESTION, entryDirection: directionKey, entryQuestion: question || null, entryExactExpression: true };
+    const dimensions = { entryIntent: question ? ENTRY_INTENT_FREE_QUESTION : "exact_expression", entryDirection: directionKey, entryQuestion: question || null, entryExactExpression: true };
     if (gate.inputKind === "number_literal") {
       // ELS searches letters: a bare number is not an ELS term. Relations/gematria may anchor on the number entity.
       if (directionKey === "els") { setExact({ busy: false, error: "ELS מחפש אותיות; מספר אינו מונח לחיפוש. הקלד מילים או בחר מילים מהשאלה." }); return; }
@@ -199,38 +191,22 @@ function NoContextEntry() {
   };
 
   return <>
-    <section className="sod29-focus-stage">
-      <div className="sod29-command-shell">
-        <div className="sod29-command-copy">
-          <div className="sod29-kicker">INTENTION FIRST</div>
-          <h2>היכל מתחיל משאלה,<br />לא מקיר של כלים.</h2>
-          <div className="sod29-muted">קבע עוגן או כוונת מחקר. ה־Context Compiler ירכיב סביבם את היכולות המחוברות בלי לפתוח מערכת נפרדת לכל פעולה.</div>
-          <form className="sod29-command-bar" onSubmit={start}>
-            <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או שאלה שממנה נתחיל" aria-label="נושא למחקר בהיכל" />
-            <button className="sod29-action primary" type="submit">קבע עוגן מחקר</button>
-          </form>
-        </div>
-        <div className="sod29-orbit-map" aria-hidden="true">
-          <div className="sod29-orbit-center">כוונה<br />אחת</div>
-          <span className="sod29-orbit-node n1">חשב</span>
-          <span className="sod29-orbit-node n2">מקורות</span>
-          <span className="sod29-orbit-node n3">ELS</span>
-          <span className="sod29-orbit-node n4">רזיאל</span>
-        </div>
-      </div>
+    <section className="sod29-section heichal-entry-command" data-experience-capability="heichal-entry-command">
+      <div className="sod29-kicker">מה נחקור?</div>
+      <form className="sod29-command-bar" onSubmit={start}>
+        <input className="sod29-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="מספר, ביטוי או שאלה" aria-label="נושא למחקר בהיכל" />
+        <button className="sod29-action primary" type="submit">קבע עוגן מחקר</button>
+      </form>
     </section>
 
     {draft ? <HeichalIntentUnderstanding question={draft.question} busy={exact.busy} error={exact.error}
       onChoose={choose} onExact={confirmExact} onReset={() => { setDraft(null); setQuery(""); }} /> : null}
 
-    <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">ACTION FAMILIES</div><h2>או התחל מפעולה</h2><div className="sod29-muted">אלה כוונות כניסה, לא אפליקציות נפרדות. ה־Research Context נשאר אותו Context.</div></div></div>
-      <div className="sod29-constellation">
-        {ACTIONS.map(a => a.live
-          ? <Link className="sod29-card sod29-action-card" to={a.to} key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-actions"><span className="sod29-chip">מחובר</span></div></Link>
-          : <div className="sod29-card sod29-action-card sod29-placeholder" key={a.id}><h3>{a.label}</h3><p>{a.detail}</p><div className="sod29-muted">ה־Foundation קיים; adapter/runtime של המצב הזה עדיין לא מחובר להיכל.</div></div>)}
-        <button className="sod29-card sod29-action-card sod29-card-button" onClick={() => shell.openRaziel()}><h3>✦ שאל את רזיאל</h3><p>אותו רזיאל ואותו Research Context — לא צ׳אט מקביל של ההיכל.</p></button>
-      </div>
+    {!draft ? <HeichalEntryExamples busy={exact.busy} error={exact.error} onExplore={(expression) => confirmExact(expression, "gematria")} /> : null}
+    {!draft ? <HeichalDomainGates /> : null}
+
+    <section className="sod29-section heichal-entry-raziel">
+      <button className="sod29-card sod29-action-card sod29-card-button" onClick={() => shell.openRaziel()}><h3>✦ שאל את רזיאל</h3><p>אותו רזיאל ואותו הקשר מחקר, לא צ׳אט נפרד של ההיכל.</p></button>
     </section>
   </>;
 }
@@ -492,5 +468,5 @@ export default function Heichal2029Page() {
   const research = useResearch();
   useEffect(() => { applySeo({ title: "היכל · SOD1820", description: "סביבת המחקר העמוקה של SOD1820 2029", path: "/heichal" }); }, []);
   const hasContext = Boolean(research.context?.subject);
-  return <Sod2029Shell wide surface="heichal" symbol="◇" eyebrow="DEEP RESEARCH ENVIRONMENT" title="היכל" description="Context-Compiled Research Environment: אותו עוגן, אותו Research OS ואותו רזיאל — עם Canvas, Evidence, Findings ופעולות שמסתגלים למחקר.">{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
+  return <Sod2029Shell wide surface="heichal" symbol="◇" title="היכל" description={hasContext ? "אותו עוגן, אותו רזיאל, משטח מחקר אחד." : "כל גילוי מתחיל בשאלה."}>{hasContext ? <ActiveResearchEnvironment /> : <NoContextEntry />}</Sod2029Shell>;
 }
