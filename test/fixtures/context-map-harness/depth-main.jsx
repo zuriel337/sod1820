@@ -14,7 +14,7 @@ import { buildExactReturnPatch } from "../../../src/lib/research/researchContext
 import { getCurrentTemporalContext } from "../../../src/lib/timeFlow.js";
 import { DESIGN_V2_PALETTES } from "../../../src/lib/palette.js";
 import { matchUnitApproval } from "../../../src/lib/research/unitApproval2029.js";
-import { POST_5112, NUMBERS_5112, POST_ROW_5112, POST_ROW_5113, GRAPH_BY_NUMBER, NODE_BY_NUMBER, ENGINE_BY_LABEL, YEAR_HINTS_5112, PATHS_5112, APPROVAL_ROW_5112 } from "./depthFixture.js";
+import { POST_5112, NUMBERS_5112, POST_ROW_5112, POST_ROW_5113, GRAPH_BY_NUMBER, NODE_BY_NUMBER, ENGINE_BY_LABEL, YEAR_HINTS_5112, PATHS_5112, APPROVAL_ROW_5112, APPROVAL_ROW_UNIT_SIMULATED } from "./depthFixture.js";
 import fixture from "../post-locators-5112-233.json";
 import "../../../src/pages/posts2029.css";
 import "../../../src/pages/post2029-reading.css";
@@ -30,10 +30,12 @@ const vars = { "--s29-page": p.pageBg, "--s29-panel": p.card, "--s29-panel-soft"
 
 const NOW = getCurrentTemporalContext(new Date(q.get("date") || "2026-10-20T12:00:00+03:00"));
 const paths = q.get("selected") === "1" ? PATHS_5112.map((x) => ({ ...x, stations: x.stations.map((s) => (s.pending ? { ...s, editorialSelection: true } : s)) })) : PATHS_5112;
-// approval=real (default): the real research_object, editorially approved and NOT published. published = the same row with
-// scope "public" (a SIMULATION of publication, used only to show the live marker); none = no approval row at all.
-const approvalRows = { real: [APPROVAL_ROW_5112], published: [{ ...APPROVAL_ROW_5112, privacy_scope: "public" }], none: [] }[q.get("approval") || "real"];
-const approvals = Object.fromEntries(YEAR_HINTS_5112.map((h) => [h.id, matchUnitApproval(approvalRows, h)]));
+// approval=real (default): the real broad row db28c232… (container level only). unit = a SIMULATED unit-level approval, not yet published.
+// published = a SIMULATED public projection of the decision (none exists today) used only to show the live marker and the rollover. none = no row.
+const mode = q.get("approval") || "real";
+const approvals = Object.fromEntries(YEAR_HINTS_5112.map((h) => [h.id, mode === "published"
+  ? { state: "published", channel: "public_projection", rowId: "simulated" }
+  : matchUnitApproval({ real: [APPROVAL_ROW_5112], unit: [APPROVAL_ROW_UNIT_SIMULATED], none: [] }[mode] || [], h)]));
 const depth = buildContextDepth({ subject: POST_5112, numbers: NUMBERS_5112, audience, temporal: NOW, yearHints: YEAR_HINTS_5112, approvals, paths });
 const byId = Object.fromEntries(Object.values(NODE_BY_NUMBER).map((n) => [n.id, n]));
 const strip = (l) => l.replace(/[״"]/g, "");

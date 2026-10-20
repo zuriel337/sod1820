@@ -280,12 +280,13 @@ export const REVIEWED_POST_LOCATORS = Object.freeze([
     guards: ['תשפ״ז = 787', 'ושמחת בחגך = 787', 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה = 787'],
     // Year hint (DEC-TIME-004) for this reviewed unit. Generic on purpose: the unit is a source region of a container
     // (`post:5112` today; an image, video or research unit tomorrow), so nothing depends on WordPress structure.
-    // Approval is NOT stored here: it is read from the existing research_objects owner (see unitApproval2029).
+    // Approval is NOT stored here: an admin-session read of the existing research_objects owner (unitApproval2029); the public
+    // marker stays blocked until an authorised public projection of the decision exists.
     yearHint: { unit: { kind: 'source_region', containerRef: 'post:5112' }, link: 'explicit_documented',
       binding: { hebrewYear: 5787, yearLabel: 'תשפ״ז', value: 787, expression: 'תשפז' },
       layers: [{ key: 'year', label: 'שנה', expression: 'תשפז' }, { key: 'holiday', label: 'שמחת החג', expression: 'ושמחת בחגך' },
         { key: 'gratitude', label: 'הודיה', expression: 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה' }],
-      approvalTerms: ['787', 'תשפ"ז', 'ושמחת בחגך'] } },
+      approvalTerms: ['787', 'תשפ"ז', 'ושמחת בחגך', 'מי שגמלך כל טוב הוא יגמלך כל טוב סלה'] } },
   { id: 'kotel-233-date-image', postId: 233, relationKind: 'author_comparison', attachmentId: 30691,
     title: 'כב בתשרי תשפד · התמונה והטקסט 1202 מסתתר',
     postImageUrl: 'https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2023/10/90ccb82734b67b81.jpg',

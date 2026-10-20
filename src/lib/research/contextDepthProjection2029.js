@@ -178,13 +178,15 @@ export function buildYearHints(hints = [], temporal = null, audience = "public",
   return hints.flatMap((hint) => {
     if (hint?.link !== "explicit_documented" || !hint.unit) return [];
     const approval = approvals?.[hint.id]?.state || "none";
-    const published = approval === "published";
+    // Public visibility needs a PUBLIC projection of the approval; a research_objects row (even approved, even scope public) is not one.
+    const published = approval === "published" && approvals?.[hint.id]?.channel === "public_projection";
     if (!published && !admin) return [];
     const base = { id: hint.id, unit: hint.unit, value: hint.value, hebrewYear: hint.hebrewYear, valueLabel: `ערך גימטרי ${hint.value}`,
       yearLabel: `שנה ${hint.hebrewYear} (${hint.yearLabel})`, layers: hint.layers || [], approval, locatorId: hint.unit.locatorId ?? null };
     const current = hebrew.year === hint.hebrewYear && hebrew.year_value === hint.value;
     if (!current) return [{ ...base, state: hebrew.year > hint.hebrewYear ? "archived" : "upcoming", label: `קבוצת שנה · ${hint.yearLabel}` }];
     if (published) return [{ ...base, state: "active", label: `רמז השנה · ${hebrew.year_label}` }];
+    if (approval === "container_level_only") return [{ ...base, state: "candidate", label: "מועמד לרמז השנה · קיימת סינתזה מאושרת ברמת הפוסט, לא ליחידה" }];
     if (approval === "approved_unpublished") return [{ ...base, state: "approved_unpublished", label: `רמז השנה · ${hebrew.year_label} · מאושר עריכתית, טרם פורסם` }];
     return [{ ...base, state: "candidate", label: "מועמד לרמז השנה · ללא אישור קנוני שניתן לאמת" }];
   });

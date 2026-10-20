@@ -89,10 +89,11 @@ export const ENGINE_BY_LABEL = { "כב בתשרי תשפד": { value: 1718, meth
 // Year hint (DEC-TIME-004), reviewed locator and route for the 5112 → 1718 / 1202 → 233 branch. `editorialSelection: null`
 // = the editor has not selected the connection yet, so the public sees no year badge and no pending station.
 export const YEAR_HINTS_5112 = [yearHintOf(postLocatorSpec("plane-787-year-joy"))];
-// The existing approval owner (research_objects): the REAL approved relation naming the 787 axis of תשפ״ז / ושמחת בחגך /
-// the gomel answer (id db28c232…, read 20.10.2026). Only the fields the matcher needs; its privacy_scope is public_candidate,
+// The existing approval owner (research_objects): the REAL approved relation db28c232… (read 20.10.2026). It is a BROAD synthesis of the
+// post (axes 75/750/7500/776/787/599): it relates to the container only, with a slug-level source_ref, so it never covers the unit. Only the fields the matcher needs; its privacy_scope is public_candidate,
 // i.e. editorially approved and NOT published. No free text or author of the record is copied here.
 export const APPROVAL_ROW_5112 = { id: "db28c232-c35c-4aa6-84a8-a37cce875c2c", kind: "relation", status: "approved", privacy_scope: "public_candidate",
+  source_ref: "flydubai-fz1073-363-14000-remzei-geula",
   relates: ["research_object:c00fc2e0-4f87-4285-b6af-b9174c1d0b0a", "research_object:a94e47c3-0ca1-43c0-96f4-fbc2ddfe1189", "post:5112", "code:7500"],
   terms: ["75", "750", "7500", "776", "787", "599", "בטחון", "ביאת המשיח", "תשפ\"ז", "ושמחת בחגך", "אלופו של עולם", "אסתר"] };
 export const PATHS_5112 = [{ id: "5112-1718-233", label: "5112 ← 1718 / 1202 ← 233", stations: [
@@ -107,3 +108,9 @@ export const PATHS_5112 = [{ id: "5112-1718-233", label: "5112 ← 1718 / 1202 �
 export const POST_ROW_5113 = { id: 5113, slug: "bennett-melach-631-78", title: "בנט והמלח — 78, 631 וברית מלח", author: null, date: "2026-09-30T23:57:13.947791+00:00",
   modified: "2026-10-12T14:06:54.127591+00:00", image_url: null, thumb_url: null, categories: ["רמזים חזקים", "בחירות", "גימטריה", "תיעוד אירועים"],
   tags: ["בנט", "נפתלי בנט", "מלח", "631", "78", "133"], excerpt: "אירוע המלחיות בבני ברק פותח שני שערים מרכזיים: מלח=78 ונפתלי בנט=631. משם ממשיכים לפוסט הבחירות, לברית מלח, לים המלח ולמקורות." };
+
+// SIMULATION ONLY (not in the database): what a unit-level approval would look like — the unit's own source_ref and all four
+// terms (value, year, holiday joy, the gomel answer). Used to show the admin "approved, not published" state.
+export const APPROVAL_ROW_UNIT_SIMULATED = { id: "simulated-unit-row", kind: "relation", status: "approved", privacy_scope: "public_candidate",
+  relates: ["post:5112"], source_ref: "posts:5112#block:plane-787-year-joy",
+  terms: ["787", "תשפ\"ז", "ושמחת בחגך", "מי שגמלך כל טוב הוא יגמלך כל טוב סלה"] };

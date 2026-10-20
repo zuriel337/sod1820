@@ -1,44 +1,58 @@
-// Editorial approval of a reviewed unit's year link, read from the EXISTING research_objects owner.
-// An approval is a research_object of kind `relation`, status approved/canonical, that relates to the unit's container
-// (`post:5112`, later `video:…`, `gallery_image:…`, a research unit) AND names the unit's layers in its terms. Numeric
-// equality is not enough. Publication is the existing rule: only privacy_scope === 'public' is published; a
-// `public_candidate` approval is an editorial approval that is NOT yet visible to the public. Private / family rows are
-// ignored altogether. Nothing from the row (its text, terms or author) leaves this module: only a state and an id.
+// Editorial approval of a reviewed unit's year link, read from the EXISTING research_objects owner — admin session only.
+//
+// Live facts (read-only checks 20.10.2026): research_objects has RLS and column-level SELECT only; the sole public policy
+// (`ro_dossier_read`) matches no row today; no publication RPC exists live; no public projection of research_objects exists
+// (the hardening migration 20260923213000 deliberately fails the public reader closed). So the PUBLIC year marker has no
+// authorised publication path yet: `PUBLIC_YEAR_HINT_PROJECTION.available` is false and nothing here can make it true.
+//
+// An approval covers a UNIT only when the row (a) is an approved/canonical `relation`, (b) relates to the unit's container,
+// (c) carries the unit's own `source_ref` (container + locator, e.g. posts:5112#block:plane-787-year-joy) and (d) names
+// EVERY layer of the unit in its terms. A broad synthesis of the container (the real db28c232…) satisfies only (a)+(b): it is
+// reported as `container_level_only`, never as approval of the unit, and it is never published or copied by this module.
 import { isPublishedScope } from "./researchViewMode.js";
 import { guardKey } from "./topicSourceContext.js";
+import { canonicalResearchSourceRef } from "./sourceBundleProjection.js";
 import { supabase } from "../supabase.js";
 
-export const APPROVAL = Object.freeze({ NONE: "none", APPROVED_UNPUBLISHED: "approved_unpublished", PUBLISHED: "published" });
+export const APPROVAL = Object.freeze({ NONE: "none", CONTAINER_LEVEL_ONLY: "container_level_only", APPROVED_UNPUBLISHED: "approved_unpublished", PUBLISHED: "published" });
+export const PUBLIC_YEAR_HINT_PROJECTION = Object.freeze({ available: false, owner: null,
+  reason: "no authorised public projection of an approval decision exists (research_objects is not publicly readable and has no live publication path)" });
+export const CHANNEL = Object.freeze({ RESEARCH_OBJECTS: "research_objects", PUBLIC_PROJECTION: "public_projection" });
 const APPROVED_STATUS = new Set(["approved", "canonical"]);
+const COLUMNS = "id,kind,status,privacy_scope,relates,terms,source_ref";   // explicit columns: never `*`, never the row text, author or meta
 
-export function matchUnitApproval(rows, hint) {
-  const containerRef = hint?.unit?.containerRef;
+export function matchUnitApproval(rows, hint, { channel = CHANNEL.RESEARCH_OBJECTS } = {}) {
+  const containerRef = hint?.unit?.containerRef, unitRef = canonicalResearchSourceRef(hint?.unit?.sourceRef);
   const terms = (hint?.approvalTerms || []).map(guardKey);
-  if (!containerRef || !terms.length) return { state: APPROVAL.NONE, rowId: null };
-  let found = null;
+  const none = { state: APPROVAL.NONE, rowId: null, channel };
+  if (!containerRef || !unitRef || !terms.length) return none;
+  let best = none;
+  const rank = [APPROVAL.NONE, APPROVAL.CONTAINER_LEVEL_ONLY, APPROVAL.APPROVED_UNPUBLISHED, APPROVAL.PUBLISHED];
+  const take = (state, row) => { if (rank.indexOf(state) > rank.indexOf(best.state)) best = { state, rowId: String(row.id), channel }; };
   for (const row of Array.isArray(rows) ? rows : []) {
     if (row?.kind !== "relation" || !APPROVED_STATUS.has(row.status)) continue;
     if (!Array.isArray(row.relates) || !row.relates.includes(containerRef)) continue;
     const have = new Set((Array.isArray(row.terms) ? row.terms : []).map(guardKey));
-    if (!terms.every((t) => have.has(t))) continue;
-    if (isPublishedScope(row.privacy_scope)) return { state: APPROVAL.PUBLISHED, rowId: String(row.id) };
-    if (row.privacy_scope === "public_candidate" && !found) found = { state: APPROVAL.APPROVED_UNPUBLISHED, rowId: String(row.id) };
+    const coversUnit = canonicalResearchSourceRef(row.source_ref) === unitRef && terms.every((t) => have.has(t));
+    if (!coversUnit) { take(APPROVAL.CONTAINER_LEVEL_ONLY, row); continue; }
+    // `public` scope alone is not a public path: only a public projection channel can publish.
+    if (isPublishedScope(row.privacy_scope) && channel === CHANNEL.PUBLIC_PROJECTION && PUBLIC_YEAR_HINT_PROJECTION.available) take(APPROVAL.PUBLISHED, row);
+    else if (row.privacy_scope === "public_candidate" || isPublishedScope(row.privacy_scope)) take(APPROVAL.APPROVED_UNPUBLISHED, row);
   }
-  return found || { state: APPROVAL.NONE, rowId: null };
+  return best;
 }
 
-/** Bounded read through the session's own RLS (admin only sees unpublished candidates); any error fails closed to no approval. */
-export async function fetchUnitApprovalRows(containerRef, { client = supabase } = {}) {
-  if (!containerRef) return [];
+/** Admin session only. Public and signed-in users never query research_objects for this; any error fails closed to no rows. */
+export async function fetchUnitApprovalRows(containerRef, { audience = "public", client = supabase } = {}) {
+  if (audience !== "admin" || !containerRef) return [];
   try {
-    const { data, error } = await client.from("research_objects").select("id,kind,status,privacy_scope,relates,terms")
-      .contains("relates", [containerRef]).eq("kind", "relation").in("status", [...APPROVED_STATUS])
-      .in("privacy_scope", ["public", "public_candidate"]).limit(40);
+    const { data, error } = await client.from("research_objects").select(COLUMNS)
+      .contains("relates", [containerRef]).eq("kind", "relation").in("status", [...APPROVED_STATUS]).limit(60);
     return error ? [] : data || [];
   } catch { return []; }
 }
 
-export async function resolveUnitApprovals(hints, options) {
+export async function resolveUnitApprovals(hints, options = {}) {
   const out = {};
   for (const hint of hints) out[hint.id] = matchUnitApproval(await fetchUnitApprovalRows(hint.unit?.containerRef, options), hint);
   return out;
