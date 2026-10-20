@@ -43,6 +43,17 @@ export default function PostAfterReadingTabs2029({ postId, connections, meeting,
       : (index + (event.key === "ArrowLeft" ? 1 : -1) + POST_DISCOVERY_TABS_2029.length) % POST_DISCOVERY_TABS_2029.length;
     select(POST_DISCOVERY_TABS_2029[next].id, true);
   };
+  // A hash link from the Companion/mobile sheet opens the exact Post panel.
+  // Do not touch unrelated source-region and update hashes.
+  useEffect(() => {
+    const tab = discoveryTabFromHash2029(location.hash);
+    if (!tab) return undefined;
+    let frame = requestAnimationFrame(() => {
+      const anchor = document.getElementById("post-discovery-" + tab);
+      anchor?.scrollIntoView?.({ block: "start", behavior: "auto" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location.hash, active, postId]);
   const selected = POST_DISCOVERY_TABS_2029.find((item) => item.id === active) || POST_DISCOVERY_TABS_2029[0];
   const body = selected.id === "connections" ? connections
     : selected.id === "meeting" ? meeting : sources;
@@ -57,7 +68,7 @@ export default function PostAfterReadingTabs2029({ postId, connections, meeting,
         type="button" role="tab" id={"post-discovery-tab-" + tab.id}
         aria-selected={active === tab.id} aria-controls="post-discovery-panel"
         tabIndex={active === tab.id ? 0 : -1} onClick={() => select(tab.id)}>
-        {tab.label}
+        <span id={"post-discovery-" + tab.id}>{tab.label}</span>
       </button>)}
     </div>
     <div id="post-discovery-panel" role="tabpanel" tabIndex={0}
