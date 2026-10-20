@@ -887,7 +887,7 @@ function PostReadingBody() {
   const postConvergenceContent = !state.extensionsLoading ? <Suspense fallback={null}>
       <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
     </Suspense> : null;
-  const postContinuationsContent = contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
+  const postContinuationsContent = contextualConnections.length ? <section id={POST_631_PREVIEW_2029 && isElectionsMaster ? undefined : "post-connections"} className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
       <header>
         <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
         <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
