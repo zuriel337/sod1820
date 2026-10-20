@@ -75,7 +75,7 @@ test("non-exact target, environment, branch, commit and host fail before Hybrid 
   const cases = [
     ["target", { SOD_BUILD_TARGET: "2029" }, /SOD_BUILD_TARGET=hybrid/],
     ["environment", { VERCEL_ENV: "production" }, /VERCEL_ENV=preview/],
-    ["branch", { VERCEL_GIT_COMMIT_REF: "gpt/other" }, /branch=gpt\/2029-hybrid/],
+    ["branch", { VERCEL_GIT_COMMIT_REF: "gpt/other" }, new RegExp(`branch=${REQUIRED_BRANCH.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`)],
     ["commit", { VERCEL_GIT_COMMIT_SHA: "0".repeat(40) }, /must match the checked-out/],
     ["host", { VERCEL_URL: "sod1820.vercel.app" }, /Approved exact VERCEL_URL/],
   ];
