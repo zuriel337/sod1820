@@ -621,3 +621,84 @@ the previous axis. B12/B13, full 3D, new persistence, `research_objects`, RLS/pe
 production migrations and `decision_ledger` remain out of scope. The public profile cutover is an
 Experience projection over the same mounted engine/state: Research defaults light, Classic remains
 available, and profile entry itself performs no search, scan, controls/nulls or AI call.
+
+## 14. RESEARCH V1 BRANCH-ONLY CLOSURE — 2026-10-20
+
+**Candidate status:** `IMPLEMENTED + TESTED + branch-only PR_READY` on
+`gpt/els-research-v1-closure-20261020`. This is review readiness only: no PR was opened, no merge,
+Preview, deployment, feature-flag, live DB or Production action was performed.
+
+### 14.1 Capability delta and invariant closure
+
+- C02 is now **LIVE/ABSORBED** on this branch. A verified, currently displayed Finding occurrence
+  can become the primary axis through the existing `load-matrix` contract. An explicit selected
+  occurrence fails closed if its engine-owned `hitId` is not present in the Finding's shown set.
+- Exact return is declared complete only after the engine has restored the original axis, term,
+  scope, geometry, window profile, view settings, Finding order/colors and exact shown occurrences.
+  The intermediate engine tick in which the axis is ready but Finding verification is still pending
+  is not exposed as a completed return.
+- The post-implementation 85-capability disposition is therefore **76 LIVE/ABSORBED + 4 PARTIAL
+  (B19/C04/C05/G02) + 4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**.
+- Research is the public default as a light 2D profile. Advanced tools start closed and perform no
+  search/verification on entry. Classic is always reachable. The profile switch changes only the
+  projection: the same mounted engine and state object retain axis, Findings, source/geometry,
+  selection, Journey and Research Context; it performs no replay, search or AI call.
+- No engine, state store, graph, Raziel surface, table or persistence tier was added. B12/B13, full
+  3D, `research_objects`, RLS/permission changes, Production migrations and `decision_ledger`
+  remain untouched.
+
+### 14.2 Acceptance and regression evidence
+
+All browser suites below were run serially with executable Chromium so Vite fixtures did not share
+optimizer state:
+
+- full Research v1 chain, in one browser test: canonical search → batch verification → matrix →
+  Finding → source verses → private save → Universal Workspace add → exact reopen from the stored
+  Journey snapshot → C02 promote/exact return → existing Raziel surface; opening Raziel emitted no
+  automatic AI call;
+- `test/els-native-ui-browser.test.mjs`: **36/36 pass**, including the chain above, C02, private-save
+  privacy/race cases, widths 320/390/1440, touch targets and the `light` / `parchment` / `dark`
+  palettes;
+- `test/els-browser-cutover.test.mjs`: **26/26 pass** with the canonical verification oracle;
+- `test/els-advanced-page-browser.test.mjs`: **1/1 pass**; entry produced zero advanced calls,
+  explicit-open worked, and an exact load plus advanced form state survived a Classic round-trip
+  without remounting the engine;
+- `test/els-forms-preview-browser.test.mjs`: **1/1 pass**, with no search emitted by preview;
+- non-browser ELS suite excluding the Wave4-owned artifact tests: **164 pass / 0 fail / 3 skip**;
+  the three skips require a local PostgreSQL executable and are not product-code failures;
+- privacy, Universal Finding, exact-reopen and Raziel boundary slice: **36/36 pass**;
+- both production build targets passed (`legacy`, `2029`), followed by the 2029 bundle budget:
+  **5/5 pass**. The existing unrelated large-chunk warnings remain warnings, not new ELS failures.
+
+Bundle measurement uses the exact frozen base in a detached temporary worktree with the same
+dependency installation:
+
+| ELS 2029 route asset | exact base `f19f7cfc` | Research v1 candidate | delta |
+|---|---:|---:|---:|
+| JavaScript, raw | 167.92 kB | 172.97 kB | +5.05 kB (+3.01%) |
+| JavaScript, gzip | 51.03 kB | 52.59 kB | +1.56 kB (+3.06%) |
+| CSS, raw / gzip | 58.61 / 9.05 kB | 58.61 / 9.05 kB | 0 / 0 kB |
+
+### 14.3 Wave4 ownership gate and test boundary
+
+The final read-only `work_log_current` check still reports
+`SOD1820_2029_PERF_WAVE4_INTEGRATION_20261018` as
+`BEFORE_PASSIVE_ACTIVE_INTEGRATION_WRITER`, with exclusive integration branch/worktree/evidence
+scope. Consequently **none** of the eight commits from
+`gpt/perf-els-verse-payload-hardening-20261018` was integrated or copied. The three tests whose
+source/artifact synchronization belongs to that wave—`els-browser-truth-census`,
+`els-reference-presentation` and `els-verse-payload-defer`—remain outside this branch's admissible
+write/test closure until that ownership is released or transferred. Running the generator would
+rewrite the owned `tools/els`/`public/tzofen*` artifacts, so it was deliberately not used as a
+workaround.
+
+### 14.4 Branch provenance and passive status transfer
+
+- `7895adc7` — 85-capability/live-DB baseline reconciliation;
+- `868faadf` — light public Research, lossless Classic profile and C02 exact Journey;
+- `ef5db7f0` — end-to-end browser acceptance chain plus mobile/theme/privacy coverage reuse.
+
+The available Supabase connector is read-only, so it cannot append an `AFTER` row. The coordinator
+may record this passive handoff as
+`AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_PR_READY_SCOPE_RELEASED_PASSIVE`, explicitly retaining the
+Wave4 exclusion above. This documentation transfer is not a DB mutation or release authorization.
