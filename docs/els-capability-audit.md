@@ -702,3 +702,85 @@ The available Supabase connector is read-only, so it cannot append an `AFTER` ro
 may record this passive handoff as
 `AFTER_BRANCH_ONLY_IMPLEMENTED_TESTED_PR_READY_SCOPE_RELEASED_PASSIVE`, explicitly retaining the
 Wave4 exclusion above. This documentation transfer is not a DB mutation or release authorization.
+
+## 15. WAVE4 RELEASE + RESEARCH V1 FINAL BRANCH CLOSURE — 2026-10-20
+
+This section is additive and supersedes only the temporary ownership exclusion in §14.3. The
+historical observation there was correct when it was recorded.
+
+### 15.1 Live release and targeted eight-commit reconciliation
+
+The read-only `work_log_current` recheck observed a newer row for
+`SOD1820_2029_PERF_WAVE4_INTEGRATION_20261018` at `2026-10-20 08:50:05.087397+00`:
+`AFTER_BRANCH_ONLY_SCOPE_RELEASED_BY_ZURIEL_HOLD`, with `RELEASED. No active writer scope retained`.
+Its release authorization remains `NOT_AUTHORIZED`, so this release permitted branch-only scope
+reconciliation but did not authorize a merge, PR, Preview, deployment or Production action.
+
+The exact eight source commits on `gpt/perf-els-verse-payload-hardening-20261018` were already
+present in the frozen Research base as patch-equivalent commits. All mapped commits are ancestors
+of `f19f7cfcb5530d9632c99d345c22c8b0124b6292`; duplicate or empty cherry-picks were therefore not
+created:
+
+| Wave4 source | Equivalent commit in the frozen base | Change |
+|---|---|---|
+| `df10b4aa` | `e54014e0` | defer verse display payload |
+| `4e8dcebb` | `6a664b48` | record payload evidence |
+| `693892c1` | `563e17db` | harden verse payload artifacts |
+| `7c512b11` | `1e8e437d` | record hardening evidence |
+| `2119ad49` | `110efc04` | harden publication boundaries |
+| `ba3bb64e` | `8cb9311f` | record publication evidence |
+| `a3b09f01` | `d303739a` | close publication races |
+| `ee139e63` | `28912385` | record race-safe evidence |
+
+The path-level collision review found one later base commit, `0bf0e634`, that preserved the public
+Legacy route but replaced the hardened Wave4 generator with an older 75-line generator. The first
+deterministic build-sync test correctly failed at that boundary. With explicit user approval,
+`a502efb6` reconciles both contracts: it restores the Wave4 validation, content-addressed payload,
+atomic writes, cross-process lock, no-clobber external output and failure/race behavior, while
+generating `public/tzofen-standalone.html` from the same template, corpus and render under the same
+lock. The Legacy surface remains read-only, disables persistence and uses only the bounded offline
+verification adapter; it does not add a discovery engine, state/store, graph or Raziel surface.
+
+### 15.2 Final acceptance
+
+- deterministic truth/build census: **9/9 pass**, now covering both public artifacts;
+- Wave4 payload/path/failure/concurrency plus executable Chromium: **4/4 pass**;
+- shared source-reference presentation: **2/2 pass**;
+- broad non-browser ELS suite: **164 pass / 0 fail / 3 skip**; all skips are the unchanged local
+  PostgreSQL-unavailable cases and this closure made no DB change;
+- canonical browser cutover: **26/26 pass**;
+- light Research entry + FORMS preview: **2/2 pass**;
+- full native browser acceptance: **36/36 pass**, including search → verify → matrix → Finding →
+  source → private save → Universal Workspace → exact reopen → C02 primary-axis promotion → exact
+  return → existing Raziel; widths 320/390/1440 and light/parchment/dark all passed;
+- privacy and Universal Finding supplemental slice: **23/23 pass**;
+- `npm run build`: both `legacy` and `2029` production targets passed;
+- `npm run test:2029-bundle-budget`: **5/5 pass**, entry graph 9 chunks / 174.1 KB gzip.
+
+### 15.3 Before/after measurements
+
+The original Wave3 → Wave4 hosted saving remains the reviewed performance result: hosted
+`tzofen.html` moved from **2,489,355 B raw / 1,625,009 B gzip** to
+**1,587,178 B raw / 944,225 B gzip**, a reduction of **902,177 B raw / 680,784 B gzip
+(41.89%)**. Reconciliation preserved that artifact byte-for-byte.
+
+| Artifact | Exact base `f19f7cfc` | Final candidate | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,587,178 / 944,225 B | 1,587,178 / 944,225 B | 0 / 0 B |
+| deferred verse asset, stored | 677,655 B | 677,655 B | 0 B |
+| public Legacy standalone, raw / gzip | 2,490,605 / 1,625,901 B | 2,493,497 / 1,627,911 B | +2,892 / +2,010 B |
+| ELS 2029 route JS, raw / gzip | 167.92 / 51.03 kB | 172.97 / 52.59 kB | +5.05 / +1.56 kB |
+| ELS 2029 route CSS, raw / gzip | 58.61 / 9.05 kB | 58.61 / 9.05 kB | 0 / 0 kB |
+
+The route delta is the Research v1 implementation already recorded in §14.2; the Wave4/Legacy
+reconciliation changes no application `src/` file and adds no further route-bundle cost. Current
+SHA-256 identities are `16b44c5b…` for hosted HTML, `13d17191…` for the deferred gzip payload and
+`24ec449e…` for the generated public Legacy artifact.
+
+### 15.4 Final branch-only state
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER = 85**.
+B12/B13, full 3D, `research_objects`, RLS/permissions, Production migrations and
+`decision_ledger` were not implemented or changed. The candidate is
+`IMPLEMENTED + TESTED + branch-only PR_READY`; no merge, PR, Preview, deployment, feature-flag,
+live DB or Production action is part of this closure.
