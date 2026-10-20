@@ -28,6 +28,8 @@
     "/books",
     "/books/(.*)",
     "/book/(.*)",
+    "/code",
+    "/els",
     "/heichal",
     "/היכל",
     "/researcher/(.*)",
@@ -39,8 +41,5 @@
     "/preview",
     "/kingdom"
   ],
-  "explicitLegacyRoutes": [
-    "/code",
-    "/els"
-  ]
+  "explicitLegacyRoutes": []
 }

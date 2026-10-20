@@ -935,11 +935,11 @@
     },
     {
       "source": "/code",
-      "destination": "/legacy.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/els",
-      "destination": "/legacy.html"
+      "destination": "/2029.html"
     },
     {
       "source": "/heichal",

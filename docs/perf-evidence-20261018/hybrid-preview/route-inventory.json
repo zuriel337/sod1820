@@ -12,8 +12,8 @@
     "legacyDeclarations": 129,
     "candidate2029Declarations": 28,
     "unionRoutePatterns": 135,
-    "candidate2029Assignments": 25,
-    "explicitLegacyAssignments": 2,
+    "candidate2029Assignments": 27,
+    "explicitLegacyAssignments": 0,
     "legacyDefaultAssignments": 108
   },
   "routes": [
@@ -135,7 +135,7 @@
       "route": "/code",
       "declaredInLegacy": true,
       "declaredIn2029": true,
-      "acceptanceRuntime": "legacy-explicit"
+      "acceptanceRuntime": "2029-candidate"
     },
     {
       "route": "/codes",
@@ -255,7 +255,7 @@
       "route": "/els",
       "declaredInLegacy": true,
       "declaredIn2029": true,
-      "acceptanceRuntime": "legacy-explicit"
+      "acceptanceRuntime": "2029-candidate"
     },
     {
       "route": "/enter",
