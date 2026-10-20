@@ -69,7 +69,7 @@ function capabilityStatus(key, type, sourceCounts, loading, direction) {
 // First-entry preservation gate for the EXISTING Research Strategy owner.
  // It does not parse an arbitrary question as an exact expression, nor dispatch a tool.
  // The Heichal visual owner should consume this *before* calling resolveExpressionFocus.
-export function projectHeichalEntryInput(raw, { explicitlyChoseGematria = false } = {}) {
+export function projectHeichalEntryInput(raw, { explicitlyChoseGematria = false, exactExpressionSelected = false } = {}) {
   const text = typeof raw === "string" ? raw.trim() : "";
   if (!text) return {
     ready: false, reason: "empty_input",
@@ -92,11 +92,14 @@ export function projectHeichalEntryInput(raw, { explicitlyChoseGematria = false 
     ready: true, inputKind: "unresolved_text", input: text,
     candidateSubject: { type: "phrase", id: text, label: text },
     autoCalculate: false,
-    // Only a separate explicit user action may opt into the existing expression resolver.
-    canResolveExpression: explicitlyChoseGematria === true,
-    reason: explicitlyChoseGematria === true ? "user_chose_gematria" : "intent_first",
-    // A natural-language question remains the full original question until owned intake resolves it.
-    sourceTextIsExactExpression: false,
+    // An explicit Gematria choice is necessary but not sufficient: the source owner/user
+    // must also select the EXACT expression, not an entire conversational question.
+    canResolveExpression: explicitlyChoseGematria === true && exactExpressionSelected === true,
+    reason: explicitlyChoseGematria !== true ? "intent_first"
+      : exactExpressionSelected === true ? "exact_expression_selected"
+      : "exact_expression_required",
+    // This is a source/intake guard, not engine verification or semantic identity admission.
+    sourceTextIsExactExpression: exactExpressionSelected === true,
   };
 }
 
