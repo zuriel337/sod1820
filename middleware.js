@@ -165,11 +165,14 @@ export default async function middleware(request, context) {
   const country = String(request.headers.get('x-vercel-ip-country') || 'XX').toUpperCase();
 
   if (country === 'SG') {
-    const policy = await sgPolicy();
     const uaRaw = request.headers.get('user-agent') || '';
     const kind = classify(uaRaw.toLowerCase());
 
-    if (policy?.mode === 'quarantine' && policy.strictLevel >= 3 && kind === 'browser') {
+    // Public goodbot/AI and blocked bots never need the SG browser policy lookup.
+    // Keep the canonical core middleware responsible for their existing treatment.
+    if (kind === 'browser') {
+      const policy = await sgPolicy();
+      if (policy?.mode === 'quarantine' && policy.strictLevel >= 3) {
       let path = '/';
       try { path = new URL(request.url).pathname; } catch { /* ignore */ }
 
@@ -188,6 +191,7 @@ export default async function middleware(request, context) {
           });
         }
       }
+    }
     }
   }
 
