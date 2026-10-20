@@ -13,7 +13,7 @@ import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
 // Post surface only: loaded when a post rail actually renders.
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
 // Integrated-preview-only 631 pilot: explicit click, no extra bar or reader in standard build.
-const Elections631ContextPreview2029 = import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
+const Elections631ContextPreview2029 = import.meta.env.VITE_ELECTIONS_631_PREVIEW === "true"
   ? lazy(() => import("./Elections631ContextPreview2029.jsx")) : null;
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
