@@ -881,6 +881,41 @@ function PostReadingBody() {
     });
   };
 
+
+  // Reuse the existing Post projections exactly once: the pilot moves them
+  // into an in-flow menu; ordinary Posts keep their established order.
+  const postConvergenceContent = !state.extensionsLoading ? <Suspense fallback={null}>
+      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+    </Suspense> : null;
+  const postContinuationsContent = contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
+      <header>
+        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
+        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
+      </header>
+      {[
+        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
+        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
+      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
+      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
+      <div className="sod29-post-continuation-grid">
+        {group.items.map((connection) => <a
+          key={connection.id}
+          href={connection.href}
+          className="sod29-post-continuation"
+          data-post-connection={connection.id}
+          onClick={(event) => openConnection(event, connection.href)}
+        >
+          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
+          <h3>{connection.label}</h3>
+          {connection.reason ? <p>{connection.reason}</p> : null}
+          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
+        </a>)}
+      </div>
+      </div>)}
+    </section> : null;
+  const electionsAfterPostEnabled = POST_631_PREVIEW_2029 && isElectionsMaster
+    && !projection.draft && !projection.privateStage && !projection.previewSnapshot;
+
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
@@ -985,39 +1020,33 @@ function PostReadingBody() {
 
     </div>
 
-    {!state.extensionsLoading ? <Suspense fallback={null}>
-      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
-    </Suspense> : null}
-
-    {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
-      <header>
-        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
-        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
-      </header>
-      {[
-        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
-        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
-      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
-      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
-      <div className="sod29-post-continuation-grid">
-        {group.items.map((connection) => <a
-          key={connection.id}
-          href={connection.href}
-          className="sod29-post-continuation"
-          data-post-connection={connection.id}
-          onClick={(event) => openConnection(event, connection.href)}
-        >
-          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
-          <h3>{connection.label}</h3>
-          {connection.reason ? <p>{connection.reason}</p> : null}
-          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
-        </a>)}
-      </div>
-      </div>)}
-    </section> : null}
-
+    {electionsAfterPostEnabled && PostAfterReadingTabs2029 ? <Suspense fallback={<p role="status">פותח אפשרויות העמקה…</p>}>
+      <PostAfterReadingTabs2029 postId={post.id}
+        connections={postContinuationsContent}
+        meeting={<>
+          {electionsReview.loading ? <p role="status">טוען מקורות למפגש…</p>
+            : electionsReview.model && Elections631ContextPreview2029
+              ? <Suspense fallback={<p role="status">פותח שישה ממדי עומק…</p>}>
+                  <Elections631ContextPreview2029 model={electionsReview.model} view="meeting" />
+                </Suspense>
+              : <p role="status">{electionsReview.error || "אין כרגע תצוגת עומק מאושרת."}</p>}
+          {postConvergenceContent}
+        </>}
+        sources={<>
+          {electionsReview.loading ? <p role="status">מאתר מקורות מדויקים…</p>
+            : electionsReview.model && Elections631ContextPreview2029
+              ? <Suspense fallback={<p role="status">פותח מקורות…</p>}>
+                  <Elections631ContextPreview2029 model={electionsReview.model} view="sources" />
+                </Suspense>
+              : <p role="status">{electionsReview.error || "אין כרגע מקורות נוספים להצגה."}</p>}
+          <p><a href="#post-sources">תאריכי המקור ופרטי הפוסט ↓</a></p>
+        </>}
+      />
+    </Suspense> : <>
+      {postConvergenceContent}
+      {postContinuationsContent}
+    </>}
     <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
-
     <footer id="post-sources" className="sod29-reading-footnote">
       <span>מקור</span>
       <strong>{projection.sourceLine}</strong>
