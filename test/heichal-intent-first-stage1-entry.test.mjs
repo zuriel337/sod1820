@@ -172,6 +172,7 @@ test("Stage 1.1 · the picker composes an ordered sequence, so a repeated word (
 test("Stage 1.1 · free_question privacy is stated per the verified path: guest local only, signed-in private research state", () => {
   assert.match(FREE_QUESTION_PRIVACY.guest, /בדפדפן הזה בלבד/);
   assert.match(FREE_QUESTION_PRIVACY.signedIn, /מצב המחקר הפרטי/);
+  assert.match(FREE_QUESTION_PRIVACY.signedIn, /ברגע שתבחר כיוון/); // nothing is synced while only the understanding card is shown
   assert.match(FREE_QUESTION_PRIVACY.signedIn, /אינה ציבורית/);
   assert.doesNotMatch(FREE_QUESTION_PRIVACY.signedIn, /אינה נשלחת לרשת|לא נשלחת/); // no false network promise
   assert.match(view, /useAuth\(\)/);

@@ -8,26 +8,39 @@ import "./heichalEntry.css";
 
 const kingdomPreview = import.meta.env.VITE_KINGDOM_PREVIEW === "true";
 
+const FLAGS_TIMEOUT_MS = 8000;
+
 // Visual doors into EXISTING surfaces. Availability is the real site_flags state resolved by the existing
-// resolveFeatureState (one flags read for all gates); a closed gate shows the truth and does not link.
+// resolveFeatureState (one flags read for all gates). A failed, timed-out or empty read is "unknown", never "open";
+// a closed or unknown gate shows the truth and does not link.
 export default function HeichalDomainGates() {
   const { user, isAdmin } = useAuth();
-  const [flags, setFlags] = useState({ loading: true, map: {} });
+  const [flags, setFlags] = useState({ status: "loading", map: {} });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
-    getSiteFlags().then((map) => { if (alive) setFlags({ loading: false, map: map || {} }); }).catch(() => { if (alive) setFlags({ loading: false, map: {} }); });
-    return () => { alive = false; };
-  }, []);
+    setFlags({ status: "loading", map: {} });
+    const timer = setTimeout(() => { if (alive) { alive = false; setFlags({ status: "unknown", map: {} }); } }, FLAGS_TIMEOUT_MS);
+    getSiteFlags()
+      .then((map) => { if (alive) { alive = false; clearTimeout(timer); setFlags(map && Object.keys(map).length ? { status: "ready", map } : { status: "unknown", map: {} }); } })
+      .catch(() => { if (alive) { alive = false; clearTimeout(timer); setFlags({ status: "unknown", map: {} }); } });
+    return () => { alive = false; clearTimeout(timer); };
+  }, [attempt]);
 
-  const gates = useMemo(() => HEICHAL_DOMAIN_GATES.map((gate) => projectDomainGate(gate, {
-    loading: flags.loading,
-    kingdomPreview,
-    resolved: gate.flag ? resolveFeatureState(flags.map[gate.flag] || null, { user, isAdmin, requireFlag: gate.requireFlag }) : null,
-  })), [flags, user, isAdmin]);
+  const gates = useMemo(() => HEICHAL_DOMAIN_GATES.map((gate) => {
+    const lock = gate.flag ? flags.map[gate.flag] || null : null;
+    return projectDomainGate(gate, {
+      flagsStatus: flags.status,
+      lock,
+      kingdomPreview,
+      resolved: gate.flag && flags.status === "ready" ? resolveFeatureState(lock, { user, isAdmin, requireFlag: gate.requireFlag }) : null,
+    });
+  }), [flags, user, isAdmin]);
+  const anyUnknown = gates.some((gate) => gate.state === "unknown");
 
   return (
-    <section className="sod29-section heichal-gates" data-experience-capability="heichal-domain-gates" aria-label="שערים לתחומים">
+    <section className="sod29-section heichal-gates" data-experience-capability="heichal-domain-gates" data-flags-status={flags.status} aria-label="שערים לתחומים">
       <div className="sod29-kicker">או התחל מתחום</div>
       <ul className="heichal-gates-grid">
         {gates.map((gate) => {
@@ -45,6 +58,12 @@ export default function HeichalDomainGates() {
           );
         })}
       </ul>
+      {anyUnknown ? (
+        <div className="sod29-state warn" role="status" data-flags-unknown="true">
+          לא התקבל מצב זמינות מהשרת, ולכן לא מוצג "פתוח" עבור תחומים שתלויים בו.
+          <div className="sod29-actions"><button type="button" className="sod29-action" onClick={() => setAttempt((n) => n + 1)}>בדוק שוב</button></div>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -97,22 +97,27 @@ const STATE_LABEL = Object.freeze({
   preview_only: "פריוויו בלבד",
   not_open: "פריוויו בלבד · לא פתוח",
   checking: "בודק זמינות…",
+  unknown: "זמינות לא ידועה",
 });
 
-// resolved = the result of the existing resolveFeatureState for the gate's real flag (null while flags are loading).
-export function projectDomainGate(gate, { resolved = null, loading = false, kingdomPreview = false } = {}) {
+// flagsStatus: "loading" | "ready" | "unknown" (the read failed, timed out or returned no flags at all).
+// lock: the raw site_flags row for the gate's flag (null when the row is missing).
+// resolved: the result of the existing resolveFeatureState(lock, ...) - the canonical availability contract.
+// A state is "open" only when it is KNOWN to be open: either the route carries no site flag, or the expected flag row was
+// read and the canonical contract allows it. A failed/empty read or a missing expected row is "unknown", never "open".
+// (A requireFlag route with a missing row is canonically closed - that is the contract's own answer, not a guess.)
+export function projectDomainGate(gate, { flagsStatus = "ready", lock = null, resolved = null, kingdomPreview = false } = {}) {
   const base = { key: gate.key, label: gate.label, detail: gate.detail, personal: Boolean(gate.personal) };
+  const make = (state, href = null) => ({ ...base, state, stateLabel: STATE_LABEL[state], href });
   if (gate.preview) {
     // Kingdom is a prototype gated by VITE_KINGDOM_PREVIEW: it opens only in a preview build, never in a public one.
-    return kingdomPreview
-      ? { ...base, state: "preview_only", stateLabel: STATE_LABEL.preview_only, href: gate.href }
-      : { ...base, state: "not_open", stateLabel: STATE_LABEL.not_open, href: null };
+    return kingdomPreview ? make("preview_only", gate.href) : make("not_open");
   }
-  if (loading) return { ...base, state: "checking", stateLabel: STATE_LABEL.checking, href: null };
-  if (!resolved) return { ...base, state: "open", stateLabel: STATE_LABEL.open, href: gate.href }; // route has no site flag
-  if (resolved.blocked) {
-    const state = resolved.publicState === "registered_only" ? "registered_only" : "closed";
-    return { ...base, state, stateLabel: STATE_LABEL[state], href: null };
-  }
-  return { ...base, state: "open", stateLabel: STATE_LABEL.open, href: gate.href };
+  if (!gate.flag) return make("open", gate.href); // the route table carries no site flag for this door
+  if (flagsStatus === "loading") return make("checking");
+  if (flagsStatus !== "ready") return make("unknown");
+  if (!lock && !gate.requireFlag) return make("unknown"); // expected flag not returned: do not promise openness
+  if (!resolved) return make("unknown");
+  if (resolved.blocked) return make(resolved.publicState === "registered_only" ? "registered_only" : "closed");
+  return make("open", gate.href);
 }

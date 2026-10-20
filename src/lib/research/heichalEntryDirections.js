@@ -17,7 +17,7 @@ export const FREE_QUESTION_MAX = 200;
 // context in the person's PRIVATE research state (public.user_research, RLS own-row). Nothing is shared, public or telemetry.
 export const FREE_QUESTION_PRIVACY = Object.freeze({
   guest: "השאלה נשארת בדפדפן הזה בלבד. היא אינה בכתובת, בשיתוף, במדידה או בחשבון.",
-  signedIn: "אתה מחובר: השאלה נשמרת במצב המחקר הפרטי של החשבון שלך (סנכרון המחקר הקיים), מוגנת בהרשאות ברמת שורה לחשבונך ואינה ציבורית. היא אינה בכתובת, בשיתוף או במדידה. כדי שלא תישמר, אל תכתוב בה פרטים אישיים.",
+  signedIn: "אתה מחובר: ברגע שתבחר כיוון, השאלה נשמרת במצב המחקר הפרטי של החשבון שלך (סנכרון המחקר הקיים). היא מוגנת בהרשאות ברמת שורה, אינה ציבורית ואינה בכתובת, בשיתוף או במדידה. ״שנה שאלה״ מחליף אותה בהקשר השמור. אל תכתוב בה פרטים אישיים.",
 });
 export const ENTRY_INTENT_FREE_QUESTION = "free_question";
 
