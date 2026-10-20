@@ -93,9 +93,11 @@ export default function HeichalGuidedFirstStep({
             לביצוע ישיר מסומנות במפורש ככאלו.
           </p>
           <p className="sod29-muted">
-            בהרשאות ציבוריות ובהקרנת הנתונים הנוכחית מוצגות {plan.counts.findings} רשומות ממצא,
-            {plan.counts.relations} קשרים ו-{plan.counts.sources} הפניות מקור.
-            אלה ספירות תצוגה, לא ספירת ראיות עצמאיות.
+            {plan.hasProjection
+              ? <>בהקרנה הנוכחית: {plan.counts.findings ?? "לא זמין"} ממצאים,
+                  {plan.counts.relations ?? "לא זמין"} קשרים ו-{plan.counts.sources ?? "לא זמין"} הפניות מקור.
+                  אלו נתוני תצוגה בלבד, לא ספירת ראיות עצמאיות.</>
+              : "נתוני ההקרנה לא נטענו. זה אינו חיפוש שהחזיר אפס ממצאים."}
           </p>
         </div>
       ) : null}
