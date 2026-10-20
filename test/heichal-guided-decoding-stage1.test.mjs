@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { resolveContextTools, CONTEXT_ACTION_KIND } from "../src/lib/research/contextualCapabilities.js";
 import {
   HEICHAL_DECODING_DIRECTIONS,
   projectHeichalFirstDecoding,
@@ -67,4 +68,31 @@ test("unknown identity fails closed; component belongs to the existing Heichal p
   assert.match(page, /<HeichalGuidedFirstStep/);
   assert.match(view, /onRunNumber/);
   assert.doesNotMatch(view, /useEffect|localStorage|supabase\.from|functions\.invoke/);
+});
+
+
+test("Heichal uses the same Number/World/ELS/Books actions as the shared System Frame", () => {
+  const tools = resolveContextTools({ surface: "heichal", target: { type: "number", id: "363", label: "363" } });
+  assert.ok(tools.some((action) => action.kind === CONTEXT_ACTION_KIND.CAPABILITY && action.capability === "number"));
+  assert.ok(tools.some((action) => action.kind === CONTEXT_ACTION_KIND.ROUTE && action.href === "/world"));
+  assert.ok(tools.some((action) => action.kind === CONTEXT_ACTION_KIND.ROUTE && action.href === "/els"));
+  assert.ok(tools.some((action) => action.kind === CONTEXT_ACTION_KIND.ROUTE && action.href === "/books"));
+  const page = readFileSync(new URL("../src/pages/Heichal2029Page.jsx", import.meta.url), "utf8");
+  assert.match(page, /resolveContextTools\(\{ surface: "heichal", target: focusTarget \}\)/);
+  assert.match(page, /shell\.openCapability\(tool\.capability, focusTarget\)/);
+  assert.match(page, /shell\.go\(tool\.href\)/);
+  assert.match(page, /shell\.go\(numberHref\)/);
+  assert.match(page, /shell\.returnExact\(\)/);
+  assert.match(page, /to: "\/2029\/calculator"/);
+  assert.doesNotMatch(page, /\/research\?tool=gematria/);
+  assert.doesNotMatch(page, /<Link className="sod29-action" to="\/els">ELS<\/Link>/);
+  assert.doesNotMatch(page, /<Link className="sod29-action" to="\/world">פתח בעולם<\/Link>/);
+});
+
+test("exact Number href is reused only as a 2029 Number owner route, never a generated graph link", () => {
+  const page = readFileSync(new URL("../src/pages/Heichal2029Page.jsx", import.meta.url), "utf8");
+  assert.match(page, /subject\?\.type === "number"/);
+  assert.match(page, /String\(subject\.href\)\.split\(\/\[\?#\]\/\)\[0\]/);
+  assert.doesNotMatch(page, /new URLSearchParams\(\{[^}]*number/);
+  assert.doesNotMatch(page, /\/community\/chat\?/);
 });
