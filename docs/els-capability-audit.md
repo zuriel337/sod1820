@@ -529,3 +529,95 @@ None of the above is authorized for implementation by this closure. This section
 No code was changed, no schema was changed, no migration was drafted or applied, no engine/UI/DB behavior changed, `findAtSkips` was not implemented, the Journey branch was not merged, `MatrixStack3D` was not merged, no capability was promoted to `research_objects`, and no capability was retired. This is a documentation/state-reconciliation closure at the Foundation level only.
 
 **Provenance:** `work_log actor=CLAUDE task=ELS_85_CAPABILITY_LIVE_RECONCILIATION` (READ-ONLY pass, 2026-09-01) → `task=ELS_85_CAPABILITY_CANONICAL_CLOSURE` (this closure, docs-only, 2026-09-01). Cross-referenced against `docs/els-capability-workarea-unification.md` (disposition vocabulary, unchanged) and `SOD1820_MASTER_ROADMAP.md` `WS-ELS-CAPABILITY-AUDIT` / `SOD1820_MASTER_STATE.md` §23.24.
+
+## 13. RESEARCH V1 BASELINE RECONCILIATION — 2026-10-20
+
+**Exact code baseline:** `gpt/2029-unified-session-handoff-20261019` at
+`f19f7cfcb5530d9632c99d345c22c8b0124b6292`.
+
+**Live read boundary:** canonical Supabase project `linswmnnkjxvweumprav`, queried through
+`sod1820_supabase_readonly`; no DB, RLS, permission, migration, `research_objects` or
+`decision_ledger` write was made. The active
+`SOD1820_2029_PERF_WAVE4_INTEGRATION_20261018` integration ownership remains a separate hard
+boundary: none of its eight performance commits is part of this baseline.
+
+This section supersedes the §12 status fields only. IDs, definitions and historical evidence in
+§4 remain unchanged. A capability is `LIVE/ABSORBED` when a reachable current path exists;
+`PARTIAL` when current primitives exist but the complete user contract does not; `PARKED` when
+the capability is intentionally absent from the current runtime; and `NEVER` when it remains
+forbidden. Existing data is evidence of current state, not authorization to mutate it.
+
+### 13.1 Current disposition counts (sum = 85)
+
+| Disposition | Count | Change from §12 |
+|---|---:|---|
+| LIVE/ABSORBED | 75 | +2: A17 is reachable in Native Classic; C03 reaches the existing Universal Workspace |
+| PARTIAL | 5 | B19, C02, C04, C05, G02 |
+| BUILDING | 0 | no row is hidden behind an unbounded “building” claim |
+| PARKED | 4 | B12, B13, B14, B18 |
+| SUPERSEDED | 0 | unchanged |
+| NEVER | 1 | B20 |
+| UNKNOWN | 0 | A17 resolved by a current reachable control path |
+| **TOTAL** | **85** | **all stable IDs retained** |
+
+### 13.2 ID-level current disposition
+
+**Family A — Matrix & display (26):** A01–A26 = **LIVE/ABSORBED**. A17 is no longer
+UNKNOWN: the public native findings rail exposes `move-up` / `move-down`, and the canonical
+engine owns the ordered mutation. A20 still means the existing presentation tilt of one matrix;
+it does **not** claim full spatial 3D.
+
+**Family B — Search (20):** B01–B11, B15–B17 = **LIVE/ABSORBED**. B10/B17 consume the
+canonical `FORMS` preview/plan path; B11 remains the existing window-local transform family.
+B12/B13/B14/B18 = **PARKED**. B12/B13 are explicitly outside Research v1; B14 still has no
+single-book execution scope; B18 still has no governed multilingual corpus adapter. B19 =
+**PARTIAL**: source/line inspection is reachable, but the defined raw before/after-letter action
+is not a complete standalone capability. B20 = **NEVER**.
+
+**Family C — Finding actions (5):** C01 and C03 = **LIVE/ABSORBED**. C03 uses the existing
+Universal Finding → Universal Workspace path and exact snapshot reference; it does not require a
+new ELS store. C02 = **PARTIAL** on this exact baseline: `buildJourneyPromotion`,
+`buildJourneyRestore`, engine exact-load/error handling and saved-Finding exact reopen exist, but
+there is no public Finding → primary-axis trigger with an exact return control. C04 = **PARTIAL**:
+bounded 2–4-term comparison returns separately labelled outcomes through the canonical page
+adapter, but there is no side-by-side matrix comparison contract. C05 = **PARTIAL**: deterministic
+seeded controls + FDR utilities and tests exist, but no complete public Challenge action exists.
+
+**Family D — Occurrence & proximity (6):** D01–D06 = **LIVE/ABSORBED**.
+
+**Family E — Ranking, statistics & verification (10):** E01–E10 = **LIVE/ABSORBED as
+capabilities**. E09/E10 remain legacy exploratory Monte-Carlo presentation and are not
+research-grade confirmation authority because their historical randomness is not replayable.
+The newer seeded-control utility does not silently upgrade those labels or activate a public
+Challenge flow.
+
+**Family F — Candidate generators (8):** F01–F08 = **LIVE/ABSORBED**. They remain candidate
+generators only and do not promote Truth, Canonical or Published state.
+
+**Family G — Save/share/research case (10):** G01, G03–G10 = **LIVE/ABSORBED**. G02 =
+**PARTIAL**: the live `save_els_matrix_anon` RPC and legacy anonymous path exist, while the native
+Research private-save path deliberately requires an authenticated owner. This is an access-path
+difference, not permission to change RLS or lifecycle semantics.
+
+### 13.3 Live DB calibration (read-only)
+
+Observed on 2026-10-20:
+
+- `els_records`: **135** total; **24** with `start_index`; **27** with `corpus_id`; **17** with
+  `engine_detail`; **127** with a `positions.findings` envelope.
+- `els_finds`: **1** total / **1** approved; provenance remains parked, not deleted or migrated.
+- existing ELS-linked rows: **1** in `research_items`, **10** in `research_objects`. These counts
+  correct §12's old zero-row observation; Research v1 neither writes nor redesigns either table.
+- live callable boundary includes `els_search_core_v1`, `els_search_page_v1`,
+  `els_verify_batch_v1`, `els_verify_occurrence_v1`, `fn_els_corpus_id`, save/update/moderation RPCs
+  and their internal/core counterparts. Availability does not itself prove every projection is
+  complete.
+
+### 13.4 Research v1 delta after this baseline
+
+The only capability promoted by the next implementation stage is C02: a user-initiated verified
+Finding becomes the primary axis through the existing exact-load path, and an exact return restores
+the previous axis. B12/B13, full 3D, new persistence, `research_objects`, RLS/permissions,
+production migrations and `decision_ledger` remain out of scope. The public profile cutover is an
+Experience projection over the same mounted engine/state: Research defaults light, Classic remains
+available, and profile entry itself performs no search, scan, controls/nulls or AI call.
