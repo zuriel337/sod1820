@@ -345,3 +345,17 @@
 @media (max-width: 620px) {
   .sod29-root.native-frame .sod29-command-island.has-context-trail .sod29-reading-progress { grid-column: 1 / -1; grid-row: 1; justify-self: end; }
 }
+
+/* Post-5107 acceptance experiment ONLY: one Now launcher + one Raziel orb + one
+   global action island. Workspace remains available from Header/My Workspace.
+   No newly fixed bar; original controls/handlers remain for all other surfaces. */
+@media(max-width:620px){
+  .sod29-root[data-shell-review="elections631"].native-frame .sod29-now-tab:is(.is-me,.is-rz){display:none}
+  .sod29-root[data-shell-review="elections631"].native-frame .sod29-now-tab.is-world{
+    min-width:44px;width:44px;min-height:44px;height:44px;justify-content:center;
+    padding:0;flex:0 0 44px
+  }
+  .sod29-root[data-shell-review="elections631"].native-frame .sod29-now-tab.is-world .sod29-now-label{display:none}
+  .sod29-root[data-shell-review="elections631"].native-frame .sod29-now{padding:0;gap:0}
+  .sod29-root[data-shell-review="elections631"].native-frame:has(.sod29-glass-locator) .sod29-feed-chip{display:none}
+}
