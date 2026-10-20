@@ -12,6 +12,9 @@ import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 import HeichalGuidedFirstStep from "../components/heichal/HeichalGuidedFirstStep.jsx";
+import HeichalIntentUnderstanding, { HeichalFreeQuestionPlan } from "../components/heichal/HeichalIntentUnderstanding.jsx";
+import { projectHeichalEntryInput } from "../lib/research/heichalFirstDecodingPlan.js";
+import { boundFreeQuestion, buildFreeQuestionContext, isFreeQuestionContext, ENTRY_INTENT_FREE_QUESTION } from "../lib/research/heichalEntryDirections.js";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
 
 const ACTIONS = [
@@ -113,18 +116,67 @@ function ScriptureDiscoveryPanel({ researchProjection, ordinalProjection, subjec
   );
 }
 
+// Entry actions shared by the first screen and the active free-question panel. Intent first: the person's text is kept
+// as asked; an expression is resolved ONLY after an explicit choice of an exact expression (projectHeichalEntryInput).
+function useHeichalEntryActions(question) {
+  const research = useResearch();
+  const shell = use2029Shell();
+  const [exact, setExact] = useState({ busy: false, error: null });
+
+  const choose = (direction) => {
+    if (!question) return;
+    if (direction.action === "route" && direction.href) { shell.go(direction.href); return; }
+    research.setResearchContext?.(buildFreeQuestionContext(question, direction.key));
+    if (direction.action === "raziel") shell.openRaziel();
+  };
+
+  const confirmExact = async (expression, directionKey) => {
+    const gate = projectHeichalEntryInput(expression, { explicitlyChoseGematria: true, exactExpressionSelected: true });
+    if (!gate.ready) return;
+    const dimensions = { entryIntent: ENTRY_INTENT_FREE_QUESTION, entryDirection: directionKey, entryQuestion: question || null, entryExactExpression: true };
+    if (gate.inputKind === "number_literal") {
+      const id = gate.candidateSubject.id;
+      research.setResearchContext?.({ subject: { id, type: "number", label: id, href: `/2029/number/${id}` }, selection: { entityId: id, entityType: "number" }, lens: "heichal", locale: "he", dimensions });
+      return;
+    }
+    if (!gate.canResolveExpression) return;
+    setExact({ busy: true, error: null });
+    try {
+      const focus = await resolveExpressionFocus(expression);
+      if (focus?.href) {
+        research.setResearchContext?.({
+          subject: { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href },
+          selection: { entityId: String(focus.root), entityType: "number", expression: focus.expression, method: focus.method, resultValue: focus.resultValue, focusKind: "expression" },
+          lens: "heichal",
+          locale: "he",
+          dimensions: { ...dimensions, expressionFocusExplicit: true, focusOrigin: "heichal-entry" },
+        });
+        setExact({ busy: false, error: null });
+        return;
+      }
+    } catch { /* honest phrase fallback below */ }
+    // The chosen exact expression could not be resolved to a number focus: keep it as a phrase, never invent a value.
+    research.setResearchContext?.({ subject: { id: expression, type: "phrase", label: expression, href: "/heichal" }, selection: { entityId: expression, entityType: "phrase" }, lens: "heichal", locale: "he", dimensions });
+    setExact({ busy: false, error: "הביטוי נשמר כביטוי; לא נמצא עבורו מוקד מספרי מאומת, ולא חושב ערך." });
+  };
+
+  return { choose, confirmExact, exact };
+}
+
 function NoContextEntry() {
   const research = useResearch();
   const shell = use2029Shell();
   const [query, setQuery] = useState("");
+  const [draft, setDraft] = useState(null); // { question } while the person is choosing a direction
+  const { choose, confirmExact, exact } = useHeichalEntryActions(draft?.question || null);
 
-  const start = async (e) => {
+  const start = (e) => {
     e?.preventDefault?.();
-    const raw = query.trim();
-    if (!raw) return;
-    const numeric = /^\d+$/.test(raw);
-    if (numeric) {
-      const id = String(Number(raw));
+    const entry = projectHeichalEntryInput(query);
+    if (!entry.ready) return;
+    if (entry.inputKind === "number_literal") {
+      const id = entry.candidateSubject.id;
+      setDraft(null);
       research.setResearchContext?.({
         subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
         selection: { entityId: id, entityType: "number" },
@@ -133,34 +185,8 @@ function NoContextEntry() {
       });
       return;
     }
-
-    try {
-      const focus = await resolveExpressionFocus(raw);
-      if (focus?.href) {
-        research.setResearchContext?.({
-          subject: { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href },
-          selection: {
-            entityId: String(focus.root),
-            entityType: "number",
-            expression: focus.expression,
-            method: focus.method,
-            resultValue: focus.resultValue,
-            focusKind: "expression",
-          },
-          lens: "heichal",
-          locale: "he",
-          dimensions: { expressionFocusExplicit: true, focusOrigin: "heichal-entry" },
-        });
-        return;
-      }
-    } catch { /* honest phrase fallback below */ }
-
-    research.setResearchContext?.({
-      subject: { id: raw, type: "phrase", label: raw, href: "/heichal" },
-      selection: { entityId: raw, entityType: "phrase" },
-      lens: "heichal",
-      locale: "he",
-    });
+    // Free text: no expression resolution, no calculation, no tool. The question is shown back and directions are proposed.
+    setDraft({ question: boundFreeQuestion(query) });
   };
 
   return <>
@@ -185,6 +211,9 @@ function NoContextEntry() {
       </div>
     </section>
 
+    {draft ? <HeichalIntentUnderstanding question={draft.question} busy={exact.busy} error={exact.error}
+      onChoose={choose} onExact={confirmExact} onReset={() => { setDraft(null); setQuery(""); }} /> : null}
+
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">ACTION FAMILIES</div><h2>או התחל מפעולה</h2><div className="sod29-muted">אלה כוונות כניסה, לא אפליקציות נפרדות. ה־Research Context נשאר אותו Context.</div></div></div>
       <div className="sod29-constellation">
@@ -202,10 +231,15 @@ function ActiveResearchEnvironment() {
   const shell = use2029Shell();
   const context = research.context || null;
   const subject = context?.subject;
+  // A free question is a temporary Research Context representation, not a canonical phrase/number identity.
+  const freeQuestion = isFreeQuestionContext(context);
+  const entryActions = useHeichalEntryActions(freeQuestion ? context.dimensions.entryQuestion : null);
   // The same semantic actions already used by Number/World/Books/ELS in System Frame.
   // This is a Heichal consumer, not a local tool registry or another navigation rail.
   const focusTarget = subject ? {
     ...subject,
+    // A question is not a number/phrase to calculate: the "123 מספר / גימטריה" capability is not offered for it.
+    ...(freeQuestion ? { type: "question" } : {}),
     expression: context?.selection?.expression || null,
     method: context?.selection?.method || null,
     resultValue: context?.selection?.resultValue ?? null,
@@ -227,6 +261,8 @@ function ActiveResearchEnvironment() {
   useEffect(() => {
     let alive = true;
     if (!subject?.id || !subject?.type) return () => { alive = false; };
+    // A free question is never sent to the entity reader as a key: no graph identity exists for it, and the text stays local.
+    if (freeQuestion) { setState({ loading: false, data: null, error: null }); return () => { alive = false; }; }
     setState({ loading: true, data: null, error: null });
     fetchEntityHubProjection({ type: subject.type, key: subject.id, relationLimit: 100, researchLimit: 60, topicLimit: 12 })
       .then(data => alive && setState({ loading: false, data, error: null }))
@@ -319,7 +355,7 @@ function ActiveResearchEnvironment() {
     }
   };
 
-  const selectionText = [
+  const selectionText = freeQuestion ? "שאלה חופשית · לא ביטוי לחישוב" : [
     context?.selection?.entityType && context?.selection?.entityId ? `${context.selection.entityType}:${context.selection.entityId}` : null,
     context?.selection?.expression ? `ביטוי: ${context.selection.expression}` : null,
     context?.selection?.method ? `שיטה: ${context.selection.method}` : null,
@@ -332,23 +368,27 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
-        <div className="sod29-actions"><button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button><button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
+        <div className="sod29-actions">{freeQuestion ? null : <button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button>}<button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
       </div>
       <div className="sod29-spine" aria-label="Research Spine">
-        <span>שורש · {subject.label || subject.id}</span>
+        <span>{freeQuestion ? "שאלה" : "שורש"} · {subject.label || subject.id}</span>
         {selectionText ? <span>בחירה · {selectionText}</span> : null}
         <span>היכל · Deep Research</span>
       </div>
       <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
     </section>
 
-    <HeichalGuidedFirstStep
+    {freeQuestion ? <>
+      <HeichalIntentUnderstanding question={context.dimensions.entryQuestion} busy={entryActions.exact.busy} error={entryActions.exact.error}
+        onChoose={entryActions.choose} onExact={entryActions.confirmExact} onReset={() => research.clearResearchContext?.()} />
+      {context.dimensions.entryDirection ? <HeichalFreeQuestionPlan question={context.dimensions.entryQuestion} direction={context.dimensions.entryDirection} /> : null}
+    </> : <HeichalGuidedFirstStep
       key={key}
       subject={subject}
       projection={data}
       loading={state.loading}
       onRunNumber={openRazielFromServerGatedResult}
-    />
+    />}
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2><div className="sod29-muted">זהו המוקד: עובדות, ממצאים, מקורות וקשרים נאספים סביב אותו Root, עם Evidence Inspector לצדם.</div></div></div>
@@ -356,7 +396,8 @@ function ActiveResearchEnvironment() {
         <div className="sod29-canvas">
           {state.loading ? <FrameState kind="loading" title="מרכיב את משטח המחקר" progress={{ phase: "מחבר את העוגן לנתוני המחקר", steps: [{ id: "anchor", label: "העוגן הפעיל נשמר", state: "done" }, { id: "projection", label: "קורא את ה־projection: קשרים, ממצאים ומקורות", state: "active" }], engagement: [{ id: "continuity", title: "העוגן לא הולך לאיבוד", detail: "אפשר להמשיך מאותה נקודה גם כשהעומק עוד נטען." }, { id: "truth", title: "אין תוכן מומצא בזמן ההמתנה", detail: "רק חומר שהגיע מה־owners הקנוניים יופיע בתוצאה." }] }}>ה־Context נשמר בזמן שהמערכת מרכיבה את התמונה העמוקה סביבו.</FrameState> : null}
           {state.error ? <div className="sod29-state error">ה־Context נשמר, אבל ה־Entity adapter נכשל: {String(state.error?.message || state.error)}</div> : null}
-          {!state.loading && !state.error && !data ? <div className="sod29-state warn">יש Research Context פעיל, אך אין Graph identity לקריאה דרך ה־Entity adapter. ההיכל לא ממציא ישות. אפשר לעבוד עם Calculator/ELS/Source ולשמור את אותו root.</div> : null}
+          {freeQuestion ? <div className="sod29-state warn">שאלה חופשית: אין לה עוגן זהות בגרף, ולכן לא נטענו ממצאים, קשרים או מקורות. זה אינו חיפוש שהחזיר אפס תוצאות. בחר כיוון או ביטוי מדויק.</div> : null}
+          {!freeQuestion && !state.loading && !state.error && !data ? <div className="sod29-state warn">יש Research Context פעיל, אך אין Graph identity לקריאה דרך ה־Entity adapter. ההיכל לא ממציא ישות. אפשר לעבוד עם Calculator/ELS/Source ולשמור את אותו root.</div> : null}
           {data ? <>
             <div className="sod29-grid">
               <div className="sod29-card"><div className="sod29-stat">{counts.findings}</div><div className="sod29-stat-label">Findings</div></div>
