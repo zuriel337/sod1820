@@ -47,11 +47,15 @@ function capabilityStatus(key, type, sourceCounts, loading) {
   }
   if (key === "graph" || key === "research_objects") {
     return loading ? "הקרנת המחקר עדיין נטענת."
-      : "בהקרנה הנוכחית: " + sourceCounts.findings + " ממצאים ו-" + sourceCounts.relations + " קשרים. נוכחות אינה אימות.";
+      : sourceCounts.findings == null || sourceCounts.relations == null
+        ? "נתוני הממצאים או הקשרים אינם זמינים; אי אפשר להסיק שהתקבלו אפס תוצאות."
+        : "בהקרנה הנוכחית: " + sourceCounts.findings + " ממצאים ו-" + sourceCounts.relations + " קשרים. נוכחות אינה אימות.";
   }
   if (key === "sources") {
     return loading ? "מקורות ההקרנה עדיין נטענים."
-      : "הקרנת המקור מכילה " + sourceCounts.sources + " הפניות. חיפוש ביטוי רב־מילים דורש חיבור מאומת.";
+      : sourceCounts.sources == null
+        ? "נתוני המקורות אינם זמינים; אין כאן תוצאת חיפוש שלילית."
+        : "הקרנת המקור מכילה " + sourceCounts.sources + " הפניות. חיפוש ביטוי רב־מילים דורש חיבור מאומת.";
   }
   return "תוכנית בלבד; ביצוע ישיר מתוך ההיכל עדיין לא אומת ליכולת הזו.";
 }
@@ -65,7 +69,8 @@ export function projectHeichalFirstDecoding({
   const type = String(subject?.type || "").trim();
   const id = String(subject?.id || "").trim();
   const label = String(subject?.label || id).trim().slice(0, 160);
-  if (!id || !["number", "phrase"].includes(type)) {
+  const invalidNumber = type === "number" && (!/^\d+$/.test(id) || !Number.isSafeInteger(Number(id)));
+  if (!id || !["number", "phrase"].includes(type) || invalidNumber) {
     return {
       ready: false, direction, strategy: null, steps: [],
       message: "עדיין אין עוגן מסוג מספר או ביטוי. יש לבחור מקור לפני הצעת תוכנית.",
@@ -88,9 +93,9 @@ export function projectHeichalFirstDecoding({
     surfaceContext: { surface: "heichal", subject: { type, id } },
   });
   const counts = {
-    findings: Array.isArray(projection?.research?.findings) ? projection.research.findings.length : 0,
-    relations: Array.isArray(projection?.graph?.relations) ? projection.graph.relations.length : 0,
-    sources: Array.isArray(projection?.sources) ? projection.sources.length : 0,
+    findings: Array.isArray(projection?.research?.findings) ? projection.research.findings.length : null,
+    relations: Array.isArray(projection?.graph?.relations) ? projection.graph.relations.length : null,
+    sources: Array.isArray(projection?.sources) ? projection.sources.length : null,
   };
 
   const steps = (plan.check_order || []).slice(0, 5).map((key) => ({
@@ -105,6 +110,7 @@ export function projectHeichalFirstDecoding({
     strategy: plan.strategy,
     steps,
     counts,
+    hasProjection: Boolean(projection),
     canRunBoundedNumber: type === "number" && ["overview", "relations"].includes(direction),
     message: steps.length
       ? "זוהי תוכנית מוצעת מן המתכנן הקנוני. ההקרנה הקיימת אינה הוכחת ביצוע השלבים."
