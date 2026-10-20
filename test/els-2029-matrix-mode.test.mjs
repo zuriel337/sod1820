@@ -60,10 +60,14 @@ test("Research progressively enables deeper capabilities without forcing 3D or A
 test("Classic -> Research -> Classic preserves the exact same state object", () => {
   const state = {
     corpusId: "torah-v1",
+    axis: { hitId: "71_1_100" },
     occurrenceId: "els:golden",
     findings: ["a","b"],
+    source: { verse: "בראשית א:א" },
+    geometry: { S: 71, r0: 0, r1: 20, c0: 0, cw: 71 },
     selection: { locator: "x" },
     journey: { id: "j1" },
+    researchContext: { subject: { id: "משיח" }, lens: "els" },
     viewport: { zoom: 1.25, focus: [4,7] },
     researchOnly: { vectorGeometry: { ready: true } },
   };

@@ -544,6 +544,38 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
   });
  });
 
+test('Research v1 C02 promotes the exact Finding occurrence and returns to the exact prior axis',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await openPanel(page);
+   await addSecondary(page,'התורה');
+   const before=await page.evaluate(()=>structuredClone(window.__state));
+   const finding=before.findings.find(item=>item.t==='התורה');
+   const target=finding.hits.find(hit=>hit.shown&&hit.verified&&hit.withinRadius!==false);
+   assert.ok(target?.hitId,'C02 starts only from an engine-verified visible Finding occurrence');
+   await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,target.hitId);
+   const promoted=await page.evaluate(()=>structuredClone(window.__state));
+   assert.equal(promoted.term,'התורה');
+   assert.ok(promoted.findings.some(item=>item.t===before.term),'the previous axis term is carried as a Finding while its exact return anchor remains in the breadcrumb');
+   assert.match(await page.locator('[data-els-c02-journey="v1"]').textContent(),/1 צעדי חזרה שמורים/);
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${before.term}`)}).click();
+   await page.waitForFunction(expected=>window.__state?.status==='ok'
+     &&window.__state?.axis?.hitId===expected.axis
+     &&JSON.stringify(window.__state.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})))===JSON.stringify(expected.findings),{
+       axis:before.axis.hitId,
+       findings:before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),
+     });
+   await page.locator('[data-els-c02-journey="v1"]').waitFor({state:'detached'});
+   const restored=await page.evaluate(()=>structuredClone(window.__state));
+   assert.equal(restored.term,before.term);
+   assert.deepEqual(restored.geometry,before.geometry);
+   assert.deepEqual(restored.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})));
+   assert.equal(await page.locator('[data-els-c02-journey="v1"]').count(),0,'the completed return consumes only its local breadcrumb');
+  },{realHost:true});
+ });
+
 test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:2560,height:1000},async page=>{

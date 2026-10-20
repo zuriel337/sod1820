@@ -1,6 +1,12 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette.js";
-import { parseElsHitKey } from "../../lib/elsJourney.js";
+import {
+  buildJourneyPromotion,
+  buildJourneyRestore,
+  journeyAnchorMatches,
+  journeySnapshotMatches,
+  parseElsHitKey,
+} from "../../lib/elsJourney.js";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -458,7 +464,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, journeyBusy, onPromote }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -545,6 +551,9 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           const displayHit = chosen ? selectedHit : firstHit;
           const displayColor = projectFindingColor(finding.color, palette);
           const hasVerified = (finding.hits || []).some((hit) => hit.verified);
+          const promotionHit = chosen && selectedHit?.verified
+            ? selectedHit
+            : (finding.hits || []).find((hit) => hit.verified && hit.shown && hit.withinRadius !== false);
           return <div className={`els29-native-finding-group${chosen ? " is-selected" : ""}`} style={{ "--els29-mark": displayColor }} key={finding.t}>
             <div className="els29-native-finding">
               <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${finding.t}`} aria-pressed={!!chosen}
@@ -564,6 +573,8 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
             </label> : null}
             <div className="els29-native-finding-extra" id={`els29-finding-extra-${index}`} hidden={expandedFinding !== finding.t}>
               <div className="els29-native-finding-actions">
+                {researchProfile ? <button type="button" disabled={pending || journeyBusy || !promotionHit?.hitId}
+                  onClick={() => onPromote(finding, promotionHit.hitId)}>הפוך לציר ראשי</button> : null}
                 <button type="button" disabled={pending || index === 0} aria-label={`העלה את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-up")}>↑</button>
                 <button type="button" disabled={pending || index === findings.length - 1} aria-label={`הורד את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-down")}>↓</button>
                 <button type="button" disabled={pending} onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`}>מחק</button>
@@ -606,7 +617,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -741,6 +752,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [loadError, setLoadError] = useState(null);
   const [workspaceRequest, setWorkspaceRequest] = useState(null);
   const actionSeqRef = useRef(0);
+  const [journeyLoad, setJourneyLoad] = useState(null);
+  const [journeyPending, setJourneyPending] = useState(null);
+  const journeyPendingRef = useRef(null);
+  const [journeyTrail, setJourneyTrail] = useState([]);
   const [crossOpen, setCrossOpen] = useState(false);
   const [crossTerm, setCrossTerm] = useState("");
   const [crossRadius, setCrossRadius] = useState(18);
@@ -760,7 +775,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const view = matrix.positions?.view || {};
     setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
     setShortSkipView(view.shortSkipView === "columns" ? "columns" : "reading");
+    setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);
   }, [matrix?.id]);
+  useEffect(() => {
+    if (!researchLoad) return;
+    setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);
+  }, [researchLoad]);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
 
@@ -876,6 +896,21 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     }
     engineStateRef.current = next;
     setEngineState(next);
+    const pendingJourney = journeyPendingRef.current;
+    const journeyComplete = pendingJourney?.kind === "return"
+      ? journeySnapshotMatches(next, pendingJourney.snapshot)
+      : journeyAnchorMatches(next, pendingJourney?.target);
+    if (pendingJourney && journeyComplete) {
+      if (pendingJourney.kind === "promote") {
+        setJourneyTrail((current) => [...current, pendingJourney.returnStep]);
+        setNotice(`הממצא ${pendingJourney.targetLabel} הפך לציר הראשי. אפשר לחזור בדיוק לציר הקודם.`);
+      } else {
+        setJourneyTrail(pendingJourney.nextTrail);
+        setNotice(`חזרתם בדיוק לציר ${pendingJourney.targetLabel}.`);
+      }
+      journeyPendingRef.current = null;
+      setJourneyPending(null);
+    }
   };
 
   const requestControl = (action, value) => {
@@ -922,6 +957,70 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSaveResult(null);setSavePending(true);
     setSaveRequest({ ...draft, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
       view: { classicGlyphs, heightExpanded, shortSkipView } });
+  };
+
+  const promoteFinding = (finding, hitId) => {
+    if (!researchProfile || journeyPendingRef.current) return;
+    const current = engineStateRef.current;
+    const promotion = buildJourneyPromotion(current, finding, {
+      hitId,
+      scope: current?.scope,
+      view: { mode: "research" },
+    });
+    if (!promotion.ok) {
+      setNotice("אי אפשר להפוך את הממצא לציר בלי מופע מאומת ומוצג.");
+      return;
+    }
+    const pending = {
+      kind: "promote",
+      target: promotion.target,
+      targetLabel: finding.t,
+      returnStep: {
+        snapshot: promotion.snapshot,
+        label: promotion.snapshot.term,
+        hitId: promotion.snapshot.axis.hitId,
+      },
+    };
+    journeyPendingRef.current = pending;
+    setJourneyPending(pending);
+    setJourneyLoad(promotion.loadItem);
+    setNotice(`פותח את ${finding.t} כציר ראשי ומאמת את המופע המדויק…`);
+  };
+
+  const returnToPreviousAxis = () => {
+    if (journeyPendingRef.current || !journeyTrail.length) return;
+    const returnStep = journeyTrail.at(-1);
+    const restored = buildJourneyRestore(returnStep.snapshot);
+    if (!restored.ok) {
+      setNotice("החזרה המדויקת אינה זמינה לצעד הזה; הציר הנוכחי נשאר ללא שינוי.");
+      return;
+    }
+    const pending = {
+      kind: "return",
+      target: restored.target,
+      targetLabel: returnStep.label,
+      snapshot: returnStep.snapshot,
+      nextTrail: journeyTrail.slice(0, -1),
+    };
+    journeyPendingRef.current = pending;
+    setJourneyPending(pending);
+    setJourneyLoad(restored.loadItem);
+    setNotice(`חוזר לציר ${returnStep.label} ומאמת את העוגן המדויק…`);
+  };
+
+  const handleJourneyLoadError = (error) => {
+    if (journeyPendingRef.current) {
+      journeyPendingRef.current = null;
+      setJourneyPending(null);
+      setLoadError(null);
+      setNotice("המעבר המדויק לא הושלם. הציר והממצאים הקודמים נשארו ללא שינוי.");
+      return;
+    }
+    setLoadError(error);
+    if (researchLoad) onResearchLoadError?.(error);
+    setNotice(researchLoad
+      ? "לא הצלחנו למצוא או לאמת מופע בדילוג שביקשתם. אפשר לשנות דילוג או מונח ולנסות שוב."
+      : "לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור.");
   };
 
   const addLineFinding = (term) => {
@@ -1047,6 +1146,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
+    {researchProfile && (journeyTrail.length || journeyPending) ? <div className="els29-native-notice" data-els-c02-journey="v1">
+      <span>מסלול צירים · {journeyTrail.length} צעדי חזרה שמורים</span>
+      <button type="button" disabled={!!journeyPending || !journeyTrail.length} onClick={returnToPreviousAxis}>
+        {journeyPending?.kind === "return" ? "חוזר לציר הקודם…" : `חזור בדיוק ל־${journeyTrail.at(-1)?.label || "ציר הקודם"}`}
+      </button>
+    </div> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
       <>
@@ -1160,6 +1265,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onAddLineFinding={addLineFinding}
           onFindingControl={requestFindingControl}
           onFindingsChange={requestFindingsChange}
+          researchProfile={researchProfile}
+          journeyBusy={!!journeyPending}
+          onPromote={promoteFinding}
         />
         </ContextualInspector2029>
         </div>
@@ -1169,7 +1277,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
-          journeyLoad={researchLoad}
+          journeyLoad={journeyLoad || researchLoad}
           exactSkipProbe={researchProbe}
           onExactSkipProbeResult={onResearchProbeResult}
           formsPreviewRequest={formsPreviewRequest}
@@ -1193,9 +1301,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           contextRequest={contextRequest}
           saveRequest={saveRequest}
           onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(result.row); }}
-          onLoadError={(error) => { setLoadError(error); if (researchLoad) onResearchLoadError?.(error); setNotice(researchLoad
-            ? "לא הצלחנו למצוא או לאמת מופע בדילוג שביקשתם. אפשר לשנות דילוג או מונח ולנסות שוב."
-            : "לא הצלחנו לשחזר את המיקום השמור. אפשר לנסות חיפוש חדש; הצופן המקורי נשאר שמור."); }}
+          onLoadError={handleJourneyLoadError}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
         />
