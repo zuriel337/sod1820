@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
+import "./contextDepthCupsInRail2029.css";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import { DIMENSIONS, COVERAGE_LABEL } from "../../lib/research/contextDepthProjection2029.js";
