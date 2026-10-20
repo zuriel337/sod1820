@@ -1,4 +1,4 @@
-import coreMiddleware from './middleware-core.js';
+import coreMiddleware, { SUPABASE_ANON_KEY } from './middleware-core.js';
 
 // SG rate-limit wrapper around the audited Smart Quarantine / Adaptive Strict core.
 // Human Gate: 15.9.2026. No country hard-block is introduced here.
@@ -7,7 +7,7 @@ export const config = {
 };
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoibGluc3dtbm5ranh2d2V1bXByYXYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDYyODc2MiwiZXhwIjoyMDk2MjA0NzYyfQ.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = SUPABASE_ANON_KEY;
 const SG_RATE_LIMIT_URL = `${SUPABASE_URL}/functions/v1/sg-rate-limit`;
 
 const SG_POLICY_CACHE_MS = 5 * 60 * 1000;
@@ -165,27 +165,31 @@ export default async function middleware(request, context) {
   const country = String(request.headers.get('x-vercel-ip-country') || 'XX').toUpperCase();
 
   if (country === 'SG') {
-    const policy = await sgPolicy();
     const uaRaw = request.headers.get('user-agent') || '';
     const kind = classify(uaRaw.toLowerCase());
 
-    if (policy?.mode === 'quarantine' && policy.strictLevel >= 3 && kind === 'browser') {
-      let path = '/';
-      try { path = new URL(request.url).pathname; } catch { /* ignore */ }
+    // Public goodbot/AI and blocked bots never need the SG browser policy lookup.
+    // Keep the canonical core middleware responsible for their existing treatment.
+    if (kind === 'browser') {
+      const policy = await sgPolicy();
+      if (policy?.mode === 'quarantine' && policy.strictLevel >= 3) {
+        let path = '/';
+        try { path = new URL(request.url).pathname; } catch { /* ignore */ }
 
-      const risk = quarantineBrowserRisk(request, uaRaw, path);
-      if (hasQuarantineProof(request, risk)) {
-        const rate = await sgBrowserRateLimit(request, risk, path);
-        if (!rate.allowed) {
-          return new Response('Too many requests', {
-            status: 429,
-            headers: {
-              'cache-control': 'no-store',
-              'retry-after': String(rate.windowSeconds),
-              'x-sod-edge-policy': 'sg-rate-limit',
-              'x-sod-edge-risk': risk.band,
-            },
-          });
+        const risk = quarantineBrowserRisk(request, uaRaw, path);
+        if (hasQuarantineProof(request, risk)) {
+          const rate = await sgBrowserRateLimit(request, risk, path);
+          if (!rate.allowed) {
+            return new Response('Too many requests', {
+              status: 429,
+              headers: {
+                'cache-control': 'no-store',
+                'retry-after': String(rate.windowSeconds),
+                'x-sod-edge-policy': 'sg-rate-limit',
+                'x-sod-edge-risk': risk.band,
+              },
+            });
+          }
         }
       }
     }
