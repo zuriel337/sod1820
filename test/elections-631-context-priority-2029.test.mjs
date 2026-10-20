@@ -100,14 +100,57 @@ test("bad rows and numerically equal but unapproved phrases cannot enter publish
   assert.equal(m.depth.sourceCount.groups.length, 1);
 });
 
-test("preview is in the existing rail, behind integrated-preview and explicit click only", () => {
-  const file = readFileSync(new URL("../src/components/experience2029/SurfaceContextRail2029.jsx", import.meta.url), "utf8");
-  const view = readFileSync(new URL("../src/components/experience2029/Elections631ContextPreview2029.jsx", import.meta.url), "utf8");
-  assert.match(file, /VITE_ELECTIONS_631_PREVIEW === "true"/);
-  assert.match(file, /electionsPreviewOpen && Elections631ContextPreview2029/);
-  assert.match(file, /String\(context.subject.id\) === "5107"/);
-  assert.match(view, /getPostBySlug\(ELECTIONS_SOURCE_SLUG\)/);
-  assert.match(view, /eq\("is_published", true\)/);
-  assert.match(view, /ContextDepthMeter2029/);
-  assert.doesNotMatch(view, /research_objects|UPDATE|INSERT|convergence_meter/);
+test("review belongs after the Post; only six compact cups remain in Companion", () => {
+  const rail = readFileSync(new URL("../src/components/experience2029/SurfaceContextRail2029.jsx", import.meta.url), "utf8");
+  const postPage = readFileSync(new URL("../src/pages/Post2029Page.jsx", import.meta.url), "utf8");
+  const review = readFileSync(new URL("../src/components/experience2029/Elections631ContextPreview2029.jsx", import.meta.url), "utf8");
+  const reader = readFileSync(new URL("../src/lib/research/elections631PostReviewReader2029.js", import.meta.url), "utf8");
+  const tabs = readFileSync(new URL("../src/components/experience2029/PostAfterReadingTabs2029.jsx", import.meta.url), "utf8");
+  assert.match(rail, /VITE_ELECTIONS_631_PREVIEW === "true"/);
+  assert.match(rail, /ContextDepthCups2029/);
+  assert.match(rail, /variant="compact"/);
+  assert.match(rail, /post-discovery-meeting/);
+  assert.doesNotMatch(rail, /Elections631ContextPreview2029/);
+  assert.match(postPage, /POST_631_PREVIEW_2029/);
+  assert.match(postPage, /PostAfterReadingTabs2029/);
+  assert.match(postPage, /readElections631PostReview2029\(previewPost\)/);
+  assert.match(postPage, /elections631Coverage/);
+  assert.match(review, /ContextDepthMeter2029/);
+  assert.match(review, /variant="full"/);
+  assert.doesNotMatch(review, /getPostBySlug|\.from\("gematria_words"\)/);
+  assert.match(reader, /\.eq\("is_published", true\)/);
+  assert.match(reader, /projectElections631Context/);
+  assert.match(tabs, /"connections", label: "קשרים"/);
+  assert.match(tabs, /"meeting", label: "מפגש"/);
+  assert.match(tabs, /"sources", label: "מקורות"/);
+  assert.doesNotMatch(postPage, /new ResearchProvider|new.*graph|create.*store/i);
+});
+
+test("one public bounded reader never leaks an unpublished number row", async () => {
+  const { readElections631PostReview2029, summaryForElections631Context2029 } =
+    await import("../src/lib/research/elections631PostReviewReader2029.js");
+  let rowsRequested = 0;
+  const client = {
+    from(table) {
+      assert.equal(table, "gematria_words");
+      rowsRequested += 1;
+      const query = {
+        select(fields) { assert.match(fields, /is_published/); return this; },
+        in(field, phrases) { assert.equal(field, "phrase"); assert.equal(phrases.length, 5); return this; },
+        eq(field, value) { if (field === "is_published") assert.equal(value, true); return this; },
+        async limit(n) { assert.equal(n, 5); return { data: rows.filter((r) => r.is_published), error: null }; },
+      };
+      return query;
+    },
+  };
+  const methods = [{ key: "רגיל", fn: (phrase) => rows.some((r) => r.phrase === phrase) ? 631 : null }];
+  const result = await readElections631PostReview2029(post(), { client, methods });
+  assert.equal(result.available, true);
+  assert.equal(rowsRequested, 1, "single bounded reader, post supplied (not re-fetched)");
+  assert.equal(result.publicMatches.length, 4);
+  assert.equal(result.depth.dimensions.find((d) => d.key === "calculations").coverage, "partial");
+  assert.deepEqual(summaryForElections631Context2029(result), [
+    "post:5107", ...result.depth.dimensions.map((d) => d.coverage),
+  ]);
+  assert.equal(summaryForElections631Context2029({ available: false }), null);
 });
