@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import "./contextDepthCupsInRail2029.css";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
@@ -31,6 +32,11 @@ import {
 } from "../../lib/entryLearn2029.js";
 
 
+// Preview gate only: mounts the locator / cue on the frame root (fixed elements inside the glass Companion would be clipped).
+function ShellPortal({ host, children }) {
+  return host ? createPortal(children, host) : children;
+}
+
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 
 export default function SurfaceContextRail2029({
@@ -47,6 +53,8 @@ export default function SurfaceContextRail2029({
   onNeedHelp,
   compact = false,
   suppressLearn = false,
+  shellReview = false,
+  embedded = false,
 }) {
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
   const number = researchContextNumber(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
@@ -144,6 +152,12 @@ export default function SurfaceContextRail2029({
     setConceptFamiliarity(conceptKey ? getConceptFamiliarity(conceptKey) : null);
   }, [conceptKey]);
 
+  // Unified post shell (preview gate only): the glass locator mounts on the frame root so it sits beside the post column on
+  // desktop as well (a fixed element inside the glass Companion would be clipped by its backdrop-filter).
+  const [shellHost, setShellHost] = useState(null);
+  useEffect(() => {
+    setShellHost(shellReview && typeof document !== "undefined" ? document.querySelector('.sod29-root[data-shell-review="elections631"]') : null);
+  }, [shellReview]);
   if (!subject) return null;
 
   const openLearn = () => {
@@ -266,7 +280,7 @@ export default function SurfaceContextRail2029({
             }}>קשרים ומקורות אחרי הפוסט <span aria-hidden="true">←</span></button>
         : <button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
-      {sections.length ? <div className="sod29-surface-context-progress">
+      {sections.length && !(shellReview && embedded) ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>
         <SurfaceProgressSpine2029
           items={sections}
@@ -276,6 +290,9 @@ export default function SurfaceContextRail2029({
           ariaLabel={mapLabel}
         />
       </div> : null}
+      {shellReview && embedded && !sheet && (onOpenSheet || onOpenContext) ? <button className="sod29-surface-context-here" type="button" onClick={onOpenSheet || onOpenContext} aria-haspopup="dialog">
+        <span aria-hidden="true">✦</span><b>פתח ״כאן״</b><small>{sections.length > 1 && stationIndex >= 0 ? `${stationIndex + 1}/${stations.length}` : "מפת הפוסט"}</small>
+      </button> : null}
       {restMode && activeSection ? <button className="sod29-surface-context-depth-pointer" type="button" onClick={() => { jumpToDepth(); if (sheet) onNavigate?.(activeSection); }}>
         <small>העומק בגוף {surface === "post" ? "הפוסט" : "הציר"}</small>
         <b>{activeSection.label}</b>
@@ -326,7 +343,7 @@ export default function SurfaceContextRail2029({
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>
-    {sheet ? null : useLocator ? <nav
+    <ShellPortal host={shellHost}>{sheet ? null : useLocator ? <nav
       className="sod29-glass-locator"
       aria-label={`${mapLabel} · תחנה ${stationIndex + 1} מתוך ${stations.length}`}
       data-experience-capability="glass-rolling-locator"
@@ -352,6 +369,6 @@ export default function SurfaceContextRail2029({
         <b>{title}</b>
       </span>
       <span className="sod29-surface-context-mobile-cue-value">{hasNumber ? number : "פתח"}</span>
-    </button>}
+    </button>}</ShellPortal>
   </>;
 }

@@ -379,18 +379,31 @@ function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false
   </div>;
 }
 
-function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false }) {
+// Presentation states only: "thinking" mirrors a real in-flight ask (busy); "suggest"/"important" are dormant until an
+// authorized public signal exists (raziel-attention is admin-only). Locked always wins. The gold ring is real reading
+// progress (real source sections only). Color is presence, never truth; every state also carries a non-color mark/label.
+const ORB_STATE_LABEL = Object.freeze({ thinking: "רזיאל חושב", suggest: "יש הצעה מרזיאל", important: "חשוב לשים לב" });
+const ORB_STATE_MARK = Object.freeze({ suggest: "✦", important: "!" });
+function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false, attention = null, progress = null }) {
+  const state = !locked && ORB_STATE_LABEL[attention] ? attention : null;
+  const ring = Number.isFinite(progress) && progress > 0 ? Math.min(1, progress) : null;
+  const stateLabel = state ? ORB_STATE_LABEL[state] : "";
   return (
     <button
       type="button"
       className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={locked ? "רזיאל · בבנייה" : title}
-      title={locked ? "רזיאל בבנייה" : title}
+      aria-label={locked ? "רזיאל · בבנייה" : stateLabel ? `${title} · ${stateLabel}` : title}
+      title={locked ? "רזיאל בבנייה" : stateLabel ? `${title} · ${stateLabel}` : title}
       aria-pressed={active}
+      aria-busy={state === "thinking" ? true : undefined}
       disabled={locked}
+      data-attention={state || undefined}
+      data-orb-ring={ring != null ? "true" : undefined}
+      style={ring != null ? { "--s29-orb-progress": `${Math.round(ring * 100)}%` } : undefined}
     >
       <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
+      {state && ORB_STATE_MARK[state] ? <span className="sod29-raziel-orb-mark" aria-hidden="true">{ORB_STATE_MARK[state]}</span> : null}
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
   );
@@ -707,11 +720,16 @@ const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מה�
 // שיחה מקומית קומפקטית עם רזיאל — אותו transport קיים (askRaziel → ai-analyze persona=raziel).
 // אפס קריאה בפתיחה/רינדור; ברירת-מחדל = מהיר; "העמק" = פעולה מפורשת על אותה שאלה+הקשר (אין הסלמה אוטומטית).
 // מצב-השיחה = state מקומי של הקומפוננטה בלבד (אין store גלובלי).
-function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false }) {
+function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, onBusyChange = null }) {
   const [text, setText] = useState("");
   const [thread, setThread] = useState([]);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
+  // Lets the frame orb mirror a real in-flight ask; no state is stored or sent anywhere.
+  useEffect(() => {
+    onBusyChange?.(busy);
+    return () => { if (busy) onBusyChange?.(false); };
+  }, [busy]); // eslint-disable-line react-hooks/exhaustive-deps
   const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
   // תמלול מקומי חסום — משקף את חסם RazielChat הישן: 2 תורות אחרונים, ~200 תווים לתור, ≤500 סה"כ.
   // רק state הקומפוננטה; בלי store חדש. כל ההקשר ≤600 — חוזה rCtxHint הקיים בשרת (לא מורחב).
@@ -782,7 +800,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   );
 }
 
-function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null }) {
+function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null, onBusyChange = null }) {
   const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
@@ -909,7 +927,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
           title="הפעולה מוכנה בהקשר הזה, אבל עדיין אינה פעילה"
         >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
       </div>
-      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} />
+      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} onBusyChange={onBusyChange} />
     </>
   );
 }
@@ -1504,6 +1522,12 @@ export default function SystemFrame2029({
   const numberFeature = useFeatureState("lock_number", { requireFlag: true });
   const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
   const razielLocked = razielFeature.loading || razielFeature.blocked;
+  const [razielBusy, setRazielBusy] = useState(false);
+  // Only "thinking" has a real producer (an in-flight ask). "suggest"/"important" stay dormant until an authorized public signal exists.
+  const razielAttention = razielBusy ? "thinking" : null;
+  // Preview-only unified post shell (Elections 5107): same condition as the data-shell-review attribute below; every unified-shell presentation is scoped to it.
+  const shellReviewActive = import.meta.env.VITE_ELECTIONS_631_PREVIEW === "true"
+    && surface === "post" && location.pathname === "/post/sharshar-elections-redemption-hints-draft";
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
@@ -2077,6 +2101,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
     if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="ההקשר הפעיל"><SurfaceContextRail2029
       sheet
+      shellReview={shellReviewActive}
       surface={surface}
       context={context}
       focus={surfaceFocus || activeTarget}
@@ -2091,7 +2116,7 @@ export default function SystemFrame2029({
       : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection onBusyChange={setRazielBusy} target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><OnDemandComponent2029 load={loadContactGateway}
       fallback={<FrameState kind="loading" title="פותח את הדיווח…" />}
       renderError={({ retry, reload }) => <FrameState kind="error" title="הדיווח לא נפתח" action={<button type="button" className="sod29-frame-state-retry" onClick={retry || reload}>{retry ? "נסו שוב" : "רענון הדף"}</button>}>{retry ? "לא הצלחנו לטעון את טופס הדיווח. אפשר לנסות שוב או לסגור ולחזור אליו." : "לא הצלחנו לטעון את טופס הדיווח. אפשר לרענן את הדף או לסגור."}</FrameState>}
@@ -2227,6 +2252,7 @@ export default function SystemFrame2029({
               {children}
             </main>
             {showContextRail && !(companionActive && companionHasContext) ? <SurfaceContextRail2029
+              shellReview={shellReviewActive}
               surface={surface}
               context={context}
               focus={surfaceFocus || activeTarget}
@@ -2287,10 +2313,10 @@ export default function SystemFrame2029({
             onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
             onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
             onNeedHelp={openIssueReport}
-            suppressLearn
+            shellReview={shellReviewActive} embedded suppressLearn
           /> : null}
           onOpenHref={(href) => go(href)}
-          razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
+          razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat onBusyChange={setRazielBusy} context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
@@ -2337,7 +2363,7 @@ export default function SystemFrame2029({
               </div>
             </>}
           </div>
-          <RazielOrb compact active={!razielLocked && (transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim"))} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} locked={razielLocked} />
+          <RazielOrb compact active={!razielLocked && (transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim"))} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} locked={razielLocked} attention={shellReviewActive ? razielAttention : null} progress={shellReviewActive && readingProgress ? readingProgress.index / readingProgress.total : null} />
           <div className="sod29-bar-zone is-actions">
             {toolMode ? <>
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
