@@ -57,6 +57,11 @@ test("unknown identity fails closed; component belongs to the existing Heichal p
   const out = projectHeichalFirstDecoding({ subject: { type: "media", id: "unverified-picture" } });
   assert.equal(out.ready, false);
   assert.equal(out.steps.length, 0);
+  const invalidNumber = projectHeichalFirstDecoding({ subject: { type: "number", id: "NaN" } });
+  assert.equal(invalidNumber.ready, false);
+  const unavailable = projectHeichalFirstDecoding({ subject: { type: "number", id: "363" } });
+  assert.deepEqual(unavailable.counts, { findings: null, relations: null, sources: null });
+  assert.ok(unavailable.steps.some((step) => /אינם זמינים/.test(step.explanation)));
   const page = readFileSync(new URL("../src/pages/Heichal2029Page.jsx", import.meta.url), "utf8");
   const view = readFileSync(new URL("../src/components/heichal/HeichalGuidedFirstStep.jsx", import.meta.url), "utf8");
   assert.match(page, /<HeichalGuidedFirstStep/);
