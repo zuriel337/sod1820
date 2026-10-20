@@ -75,7 +75,7 @@ test("non-exact target, environment, branch, commit and host fail before Hybrid 
   const cases = [
     ["target", { SOD_BUILD_TARGET: "2029" }, /SOD_BUILD_TARGET=hybrid/],
     ["environment", { VERCEL_ENV: "production" }, /VERCEL_ENV=preview/],
-    ["branch", { VERCEL_GIT_COMMIT_REF: "gpt/other" }, /branch=gpt\/2029-hybrid/],
+    ["branch", { VERCEL_GIT_COMMIT_REF: "gpt/other" }, /branch=gpt\/2029-shell5107/],
     ["commit", { VERCEL_GIT_COMMIT_SHA: "0".repeat(40) }, /must match the checked-out/],
     ["host", { VERCEL_URL: "sod1820.vercel.app" }, /Approved exact VERCEL_URL/],
   ];
@@ -114,7 +114,7 @@ test("only an exact Vercel Preview identity may compensate for unavailable shall
   }
 });
 
-test("Vercel enables only the exact Hybrid integration branch and mirrors the route contract", async () => {
+test("Vercel enables only explicit approved Hosted Hybrid branches and mirrors the route contract", async () => {
   const [vercel, policy] = await Promise.all([
     readFile(resolve(root, "vercel.json"), "utf8").then(JSON.parse),
     loadHybridRoutePolicy(),
@@ -122,6 +122,7 @@ test("Vercel enables only the exact Hybrid integration branch and mirrors the ro
   assert.equal(vercel.buildCommand, "git checkout -- vercel.json && SOD_BUILD_TARGET=hybrid node scripts/build-hosted-hybrid-preview.mjs");
   assert.equal(vercel.outputDirectory, "hybrid-preview-dist");
   assert.equal(vercel.git.deploymentEnabled[REQUIRED_BRANCH], true);
+  assert.equal(vercel.git.deploymentEnabled["gpt/2029-hybrid-stage-preview-20261018"], true, "prior guarded preview stays approved");
   assert.equal(vercel.git.deploymentEnabled["gpt/*"], false);
   assert.equal(vercel.git.deploymentEnabled["claude/*"], false);
   const documentRewrites = vercel.rewrites.filter((rule) => !rule.has && ["/2029.html", "/index.html", "/legacy.html"].includes(rule.destination));
