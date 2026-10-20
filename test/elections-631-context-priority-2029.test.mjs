@@ -103,7 +103,7 @@ test("bad rows and numerically equal but unapproved phrases cannot enter publish
 test("preview is in the existing rail, behind integrated-preview and explicit click only", () => {
   const file = readFileSync(new URL("../src/components/experience2029/SurfaceContextRail2029.jsx", import.meta.url), "utf8");
   const view = readFileSync(new URL("../src/components/experience2029/Elections631ContextPreview2029.jsx", import.meta.url), "utf8");
-  assert.match(file, /VITE_INTEGRATED_PREVIEW === "true"/);
+  assert.match(file, /VITE_ELECTIONS_631_PREVIEW === "true"/);
   assert.match(file, /electionsPreviewOpen && Elections631ContextPreview2029/);
   assert.match(file, /String\(context.subject.id\) === "5107"/);
   assert.match(view, /getPostBySlug\(ELECTIONS_SOURCE_SLUG\)/);
