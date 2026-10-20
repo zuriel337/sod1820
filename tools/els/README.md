@@ -56,14 +56,21 @@
 ```bash
 cd tools/els
 python3 build.py
-# → כותב public/tzofen.html + public/els-data/tk-vtext.<sha16>.gzdata
+# → כותב אטומית public/tzofen.html + public/tzofen-standalone.html
+#   + public/els-data/tk-vtext.<sha16>.gzdata
 
 python3 build.py --standalone-out /tmp/tzofen-offline.html
 # → יוצר קובץ HTML עצמאי חדש; אינו דורס יעד קיים ואינו משנה את פלט האתר
 ```
 - **לערוך את הכלי:** משנים את `els-code.template.html` (זה המקור — ~190KB, כל ה-HTML/CSS/JS),
-  ואז `python3 build.py`. **לא לערוך את `public/tzofen.html` או את הנכס תחת `public/els-data/`
-  ישירות** — שניהם פלטים דטרמיניסטיים.
+  ואז `python3 build.py`. **לא לערוך את `public/tzofen.html`, את
+  `public/tzofen-standalone.html` או את הנכס תחת `public/els-data/` ישירות** — שלושתם
+  פלטים דטרמיניסטיים.
+- **פלט Legacy ציבורי, לא מנוע נוסף:** `public/tzofen-standalone.html` נוצר מאותה תבנית,
+  מאותו קורפוס ומאותו render מוקשח. הוא מטמיע רק מתאם replay מקומי שבודק את מועמדי אותו
+  מנוע, מציג את כרזת Legacy, מבטל כתיבות אחסון ומסתיר פעולות שמירה/שיתוף. הוא מתפרסם
+  תחת אותה נעילת־תהליך ובכתיבה אטומית כמו הפלט המתארח, ומשמר את `/tools/tzofen/` בלי
+  להחזיר מנוע חיפוש, state או store מקבילים.
 - **ארטיפקט אופליין נתמך:** `--standalone-out` מטמיע את אותם בתים דטרמיניסטיים של gzip
   כ־data URL בתוך HTML יחיד, עם אותו SHA-256 ואורך-מקור. חיפוש ELS רגיל משתמש באותו מנוע
   דפדפן ובמתאם replay מקומי שבודק כל מועמד מול קורפוס-האותיות הקנוני המוטמע; הקשה על אות
@@ -74,7 +81,8 @@ python3 build.py --standalone-out /tmp/tzofen-offline.html
   שנוצר במרוץ. יעד בתוך `public/`, `dist/`, `inputs/` או כל מקום אחר בריפו, רכיב־אב מקושר,
   יעד קיים או תיקיית־אב חסרה נדחים בלי שינוי בפלט האתר. שינוי נתיב האב אחרי הבדיקה אינו
   יכול להסיט את הכתיבה לנתיב החלופי. ליצירה חוזרת משתמשים בשם חיצוני חדש או מסירים במפורש
-  את הארטיפקט הקודם; אין להוסיף עותק כזה לנתיב אתר נוסף.
+  את הארטיפקט הקודם; אין להוסיף עותק כזה לנתיב אתר נוסף מעבר לפלט Legacy הקנוני שמייצר
+  המחולל עצמו.
 - הטעינה המתארחת היא מאותו origin ומתאימה למדיניות `connect-src 'self'`. ארטיפקט standalone
   טוען `data:` מתוך עצמו ולכן מדיניות CSP חיצונית שמוחלת עליו חייבת להתיר `data:` ב־`connect-src`;
   פתיחה ישירה ב־`file://` כפופה גם למדיניות ה־file-origin של הדפדפן או המכשיר.

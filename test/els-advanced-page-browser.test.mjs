@@ -16,7 +16,7 @@ try {
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium";
 const available = Boolean(pw && vite && react && existsSync(executablePath));
 
-test("advanced page verifies a bounded hit before loading the shared matrix; Classic hides the controls", { skip: !available, timeout: 60000 }, async () => {
+test("light Research entry stays idle until advanced tools are opened; exact load survives Classic round-trip", { skip: !available, timeout: 60000 }, async () => {
   const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
   let browser;
   try {
@@ -26,10 +26,12 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
-    await page.getByRole("heading", { name: "הצופן הקלאסי" }).waitFor();
-    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 0);
+    await page.getByRole("heading", { name: "מחקר דילוגי אותיות" }).waitFor();
+    assert.ok(await page.getByRole("button", { name: "מחקר", exact: true }).count() >= 1);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
-    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
+    assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
+    await page.locator('[data-els-research-tools="explicit-open-v1"] > summary').click();
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
     await page.getByLabel("דילוג מינימלי").fill("81");
@@ -45,6 +47,7 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
     assert.equal(await page.evaluate(() => window.__advancedLoad?.hitId), "86_1_1200");
     await page.getByRole("button", { name: /מחקר/ }).first().click();
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").inputValue(), "תורתאמת");
     await page.getByLabel("מילות המשך למחקר").fill("אמת");
     await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();

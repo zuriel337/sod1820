@@ -23,6 +23,7 @@ create trigger trg_zvi before insert or update of status on public.research_cont
 \i supabase/migrations/20261019140000_community_restore_report_search_history.sql
 \i supabase/migrations/20261019145000_community_reply_notification_link.sql
 \i supabase/migrations/20261019150000_community_auto_claim_legacy_by_email.sql
+\i supabase/migrations/20261020020135_community_feed_sort_filters.sql
 
 -- fixtures
 insert into public.users (id, role, email, display_name) values
@@ -57,6 +58,21 @@ select pg_temp.assert((select count(*) from community_feed_page(0,40,'newest')) 
 select pg_temp.assert((select max(total_count) from community_feed_page(0,40,'newest')) = 3, 'first page total_count verified');
 select pg_temp.assert((select total_count from community_feed_page(1,1,'newest') limit 1) is null, 'later pages skip total_count');
 select pg_temp.assert((select reply_count from community_reply_counts(array['10000000-0000-0000-0000-000000000001']::uuid[])) = 2, 'direct reply count of r1 = 2 (not 3 nested)');
+
+-- v2 feed: archive-wide order/filter semantics, with a bounded period for popularity.
+update public.research_contributions set reactions='{"likes":1,"👍":["u1","u2"]}'::jsonb where id='10000000-0000-0000-0000-000000000001';
+update public.research_contributions set reactions='{"likes":9}'::jsonb, created_at=now()-interval '40 days', image_url='https://example.invalid/source.pdf' where id='20000000-0000-0000-0000-000000000001';
+select pg_temp.assert((select id from community_feed_page_v2(0,1,'discussed','all','all')) = '10000000-0000-0000-0000-000000000001', 'most discussed ranks by visible direct replies');
+select pg_temp.assert((select id from community_feed_page_v2(0,1,'active','all','all')) = '30000000-0000-0000-0000-000000000001', 'recently active ranks by latest direct reply');
+select pg_temp.assert((select id from community_feed_page_v2(0,1,'liked','all','all')) = '20000000-0000-0000-0000-000000000001', 'most liked combines imported and canonical likes');
+select pg_temp.assert((select id from community_feed_page_v2(0,1,'liked','all','week')) = '10000000-0000-0000-0000-000000000001', 'popular period excludes roots older than the selected window');
+select pg_temp.assert((select count(*) from community_feed_page_v2(0,40,'newest','unanswered','all')) = 1, 'unanswered filter keeps roots with no visible direct replies');
+select pg_temp.assert((select id from community_feed_page_v2(0,40,'newest','media','all')) = '20000000-0000-0000-0000-000000000001', 'media filter recognizes an attached file link');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+select pg_temp.assert((select count(*) from community_feed_page_v2(0,40,'newest','mine','all')) = 1, 'my messages is bound to auth.uid');
+select pg_temp.as_user(null);
+select pg_temp.assert((select count(*) from community_feed_page_v2(0,40,'newest','community','all')) = 2, 'new Community source filter');
+select pg_temp.assert((select count(*) from community_feed_page_v2(0,40,'newest','legacy','all')) = 1, 'legacy chat source filter');
 
 -- permissions: guest, wrong user, historical openweb, admin-edit-others
 select pg_temp.as_user(null);

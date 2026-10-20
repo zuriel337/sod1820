@@ -13,8 +13,10 @@ export function makeStore() {
   const add = (n, parent, author, body, origin = "community_2029") => rows.push({ id: id(n), parent_id: parent ? id(parent) : null, author_user_id: author, author_contributor_id: null, author_name: author ? profiles[author].display_name : "חבר ותיק", title: null, body, reactions: {}, origin, status: "approved", created_at: new Date(T0 + 60000 * ++tick + 1000000000).toISOString(), edited_at: null, deleted_at: null, thread_hidden_at: null, image_url: null });
   for (let i = 0; i < 45; i++) add(200 + i, null, null, `הודעה ותיקה ${i + 1}`, "openweb"); // older than everything below, so the tested messages sit on page one
   add(1, null, A, "הודעת מקור של אילנה https://example.org/page");
+  rows.at(-1).reactions = { likes: 3, "👍": [A] };
   add(2, 1, B, "תגובה של בועז"); add(3, 2, A, "תגובה מקוננת של אילנה"); add(4, 1, B, "תגובה שנייה של בועז");
   add(5, null, B, "הודעה בלי תגובות של בועז");
+  rows.at(-1).image_url = "https://example.invalid/clue.pdf";
   add(6, null, null, "הודעה היסטורית מ-OpenWeb", "openweb");
   for (let i = 0; i < 25; i++) add(100 + i, 6, null, `תגובה ותיקה ${i + 1}`, "openweb");
   return rows;
@@ -31,8 +33,36 @@ export function semantics(rows) {
     const sorted = list.sort((x, y) => (asc ? 1 : -1) * (x.r.created_at.localeCompare(y.r.created_at) || x.r.id.localeCompare(y.r.id)));
     return sorted.slice(offset, offset + limit).map(({ r, kind }) => shape(r, kind, offset === 0 || always ? sorted.length : null));
   };
+  const likeCount = (r) => (Number(r.reactions?.likes) || 0) + (Array.isArray(r.reactions?.["👍"]) ? r.reactions["👍"].length : 0);
+  const feedV2 = (uid, { p_offset = 0, p_limit = 40, p_sort = "newest", p_filter = "all", p_window = "month" }) => {
+    const now = Math.max(...rows.map((r) => Date.parse(r.created_at)));
+    const since = p_window === "week" ? now - 7 * 864e5 : p_window === "month" ? now - 30 * 864e5 : null;
+    let list = rows.filter((r) => !r.parent_id).map((r) => ({ r, kind: visible(r) })).filter((x) => x.kind).map((x) => {
+      const direct = kids(x.r.id).filter(visible);
+      return { ...x, replyCount: direct.length, lastActivity: direct.reduce((latest, r) => r.created_at > latest ? r.created_at : latest, x.r.created_at), likes: likeCount(x.r) };
+    });
+    if (["discussed", "liked"].includes(p_sort) && since != null) list = list.filter(({ r }) => Date.parse(r.created_at) >= since);
+    list = list.filter(({ r, kind, replyCount }) => {
+      if (p_filter === "unanswered") return replyCount === 0;
+      if (p_filter === "media") return kind !== "tomb" && Boolean(r.image_url || (Array.isArray(r.media) ? r.media.length : r.media && Object.keys(r.media).length) || /https?:\/\/\S+\.(?:jpg|jpeg|png|webp|gif|pdf|txt|docx)(?:[?#]\S*)?$/i.test(r.body || ""));
+      if (p_filter === "mine") return Boolean(uid) && r.author_user_id === uid;
+      if (p_filter === "community") return r.origin === "community_2029";
+      if (p_filter === "legacy") return r.origin === "openweb";
+      return true;
+    });
+    const compare = (a, b) => {
+      if (p_sort === "oldest") return a.r.created_at.localeCompare(b.r.created_at) || a.r.id.localeCompare(b.r.id);
+      if (p_sort === "active") return b.lastActivity.localeCompare(a.lastActivity) || b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+      if (p_sort === "discussed") return b.replyCount - a.replyCount || b.lastActivity.localeCompare(a.lastActivity) || b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+      if (p_sort === "liked") return b.likes - a.likes || b.replyCount - a.replyCount || b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+      return b.r.created_at.localeCompare(a.r.created_at) || b.r.id.localeCompare(a.r.id);
+    };
+    list.sort(compare);
+    return list.slice(p_offset, p_offset + p_limit).map(({ r, kind }) => shape(r, kind, p_offset === 0 ? list.length : null));
+  };
   return {
     feed: ({ p_offset = 0, p_limit = 40, p_sort }) => page(rows.filter((r) => !r.parent_id).map((r) => ({ r, kind: visible(r) })).filter((x) => x.kind), p_offset, p_limit, p_sort === "oldest", false),
+    feedV2,
     replies: ({ p_parent, p_offset = 0, p_limit = 20 }) => page(kids(p_parent).map((r) => ({ r, kind: visible(r) })).filter((x) => x.kind), p_offset, p_limit, true, true),
     counts: ({ p_ids }) => p_ids.map((pid) => ({ parent_id: pid, reply_count: kids(pid).filter(visible).length })).filter((x) => x.reply_count),
     edit(uid, { p_id, p_body }) {
@@ -55,8 +85,8 @@ export function semantics(rows) {
     },
     hide(uid, { p_root }) {
       if (profiles[uid]?.role !== "admin") throw new Error("not authorized");
-      const stack = [p_root]; let n = 0;
-      while (stack.length) { const cur = stack.pop(); const r = rows.find((x) => x.id === cur); if (r && !r.thread_hidden_at && (r.status === "approved" || r.deleted_at)) { r.thread_hidden_at = new Date().toISOString(); if (r.status === "approved") r.status = "hidden"; n++; } kids(cur).forEach((k) => stack.push(k.id)); }
+      const stack = [p_root]; const hiddenAt = new Date().toISOString(); let n = 0;
+      while (stack.length) { const cur = stack.pop(); const r = rows.find((x) => x.id === cur); if (r && !r.thread_hidden_at && (r.status === "approved" || r.deleted_at)) { r.thread_hidden_at = hiddenAt; if (r.status === "approved") r.status = "hidden"; n++; } kids(cur).forEach((k) => stack.push(k.id)); }
       return n;
     },
     claimByEmail(uid) {
@@ -141,9 +171,19 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
     if (url.host === "launcher.spot.im") { log.launcher++; return route.fulfill({ status: 200, contentType: "application/javascript", body: "" }); }
     if (url.host !== "linswmnnkjxvweumprav.supabase.co") return route.abort();
     const req = route.request(); const uid = subOf(req.headers()["authorization"]) || null;
-    const json = (data, status = 200, headers = {}) => route.fulfill({ status, contentType: "application/json", headers, body: JSON.stringify(data) });
+    const json = (data, status = 200, headers = {}) => route.fulfill({ status, contentType: "application/json", headers: { "access-control-expose-headers": "Content-Range", ...headers }, body: JSON.stringify(data) });
     const path = url.pathname;
     if (path === "/auth/v1/user") return json(sessionFor(uid || A).user);
+    if (path === "/auth/v1/token" && url.searchParams.get("grant_type") === "password") {
+      const body = req.postDataJSON() || {};
+      if (log.authCalls) log.authCalls.push({ method: "password", email: body.email || null, passwordPresent: Boolean(body.password) });
+      return json(sessionFor(A).session);
+    }
+    if (path === "/auth/v1/signup") {
+      const body = req.postDataJSON() || {};
+      if (log.authCalls) log.authCalls.push({ method: "signup", email: body.email || null, passwordPresent: Boolean(body.password), displayName: body.data?.full_name || null });
+      return json({ user: sessionFor(A).user, session: null });
+    }
     if (path === "/rest/v1/users") { const ids = (url.searchParams.get("id") || "").replace(/^in\.\(|\)$/g, "").split(","); const hit = (uid && profiles[uid] ? [profiles[uid]] : []).concat(ids.filter((x) => profiles[x] && x !== uid).map((x) => profiles[x])); return json(hit); }
     if (path === "/rest/v1/site_flags") return json([]);
     if (path.startsWith("/rest/v1/rpc/community_")) {
@@ -151,6 +191,7 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
       log.rpcCalls.push(fn);
       if (rpc === "missing") return json({ code: "PGRST202", message: "Could not find the function public." + fn, details: null, hint: null }, 404);
       try {
+        if (fn === "community_feed_page_v2") return json(sem.feedV2(uid, args));
         if (fn === "community_feed_page") return json(sem.feed(args));
         if (fn === "community_replies_page") return json(sem.replies(args));
         if (fn === "community_reply_counts") return json(sem.counts(args));
@@ -170,6 +211,7 @@ export async function installFakeBackend(context, { base, rows, sem, log, rpc = 
     if (path === "/rest/v1/research_contributions") {
       log.tableReads++;
       const parent = url.searchParams.get("parent_id"); const desc = (url.searchParams.get("order") || "").includes("created_at.desc"); const list = rows.filter((r) => r.status === "approved" && r.body && (parent === "is.null" ? !r.parent_id : parent?.startsWith("eq.") ? r.parent_id === parent.slice(3) : parent?.startsWith("in.") ? parent.slice(4, -1).split(",").includes(r.parent_id) : true)).sort((x, y) => (desc ? -1 : 1) * (x.created_at.localeCompare(y.created_at) || x.id.localeCompare(y.id)));
+      if (req.method() === "HEAD") return route.fulfill({ status: 200, headers: { "content-type": "application/json", "content-range": `*/${list.length}`, "access-control-expose-headers": "Content-Range" }, body: "" });
       const range = req.headers()["range"] || "0-39"; const [a, z] = range.split("-").map(Number);
       return json(list.slice(a, z + 1), 200, { "content-range": `${a}-${a + Math.max(0, Math.min(list.length - a, z - a + 1) - 1)}/${list.length}` });
     }

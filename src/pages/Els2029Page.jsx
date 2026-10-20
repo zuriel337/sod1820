@@ -83,7 +83,7 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
   />;
 }
 
-export default function Els2029Page({ previewAdvanced = false }) {
+export default function Els2029Page() {
   const research = useResearch();
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
@@ -140,10 +140,9 @@ export default function Els2029Page({ previewAdvanced = false }) {
     traceId: null,
     error: null,
   });
-  // Public launch opens the fast Classic workspace. Research remains implemented but
-  // has no public mode switch until the advanced flow is explicitly released.
-  const [previewProfile, setPreviewProfile] = useState(previewAdvanced ? ELS_MATRIX_PROFILE.RESEARCH : ELS_MATRIX_PROFILE.CLASSIC);
-  const matrixProfile = previewAdvanced ? previewProfile : ELS_MATRIX_PROFILE.CLASSIC;
+  // Research v1 is the public default, but profile selection is presentation only:
+  // the same mounted engine/state remains in place and neither entry nor switching runs a scan.
+  const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
@@ -294,7 +293,10 @@ export default function Els2029Page({ previewAdvanced = false }) {
       </> : null}
     </section> : null}
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
+    <details className="sod29-els-research-details" data-els-research-tools="explicit-open-v1" hidden={!researchProfile}>
+      <summary>כלי מחקר מתקדמים · הפעלה יזומה בלבד</summary>
+      <ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
+    </details>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
@@ -310,11 +312,10 @@ export default function Els2029Page({ previewAdvanced = false }) {
               : "חיפוש, הצלבות וסימוני צבע על טקסט התורה. הממצאים נשמרים להמשך עבודה."}
           </div>
         </div>
-        {researchProfile ? <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
-        : <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
-          {previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
+        <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+          <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
           <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
-        </div>}
+        </div>
       </div>
 
       <section
@@ -326,7 +327,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchProfile={researchProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);
@@ -344,7 +345,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
         subject={subject}
         locator={locator}
         onLibrary={showLibrary}
-        profileSwitch={previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
+        profileSwitch={<ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
       /> : null}
 
 

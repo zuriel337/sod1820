@@ -96,9 +96,10 @@ export function normalizeCommunityRow(row) {
 // they do not exist, and every reader below falls back to the original table reads.
 // rpcState: null = not probed yet, true = available, false = missing.
 let rpcState = null;
+let feedV2State = null;
 const isMissingRpc = (error) => error && (error.code === "PGRST202" || error.code === "42883" || /could not find the function|function .* does not exist/i.test(error.message || ""));
 export const communityActionsAvailable = () => rpcState === true;
-export function resetCommunityRpcProbe() { rpcState = null; }
+export function resetCommunityRpcProbe() { rpcState = null; feedV2State = null; }
 
 function rpcRow(row) {
   return {
@@ -116,19 +117,37 @@ async function tryRpc(name, args) {
   return data || [];
 }
 
+async function tryFeedV2(args) {
+  if (feedV2State === false) return null;
+  const { data, error } = await supabase.rpc("community_feed_page_v2", args);
+  if (isMissingRpc(error)) { feedV2State = false; return null; }
+  if (error) throw error;
+  feedV2State = true;
+  rpcState = true;
+  return data || [];
+}
+
 export function legacyLikeCount(reactions) {
   const legacy = Number(reactions?.likes);
   const modern = Array.isArray(reactions?.["👍"]) ? reactions["👍"].length : 0;
   return (Number.isFinite(legacy) && legacy > 0 ? legacy : 0) + modern;
 }
 
-export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest" } = {}) {
+export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest", filter = "all", window = "month" } = {}) {
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const safeSort = ["newest", "active", "discussed", "liked", "oldest"].includes(sort) ? sort : "newest";
+  const safeFilter = ["all", "unanswered", "media", "mine", "community", "legacy"].includes(filter) ? filter : "all";
+  const safeWindow = ["week", "month", "all"].includes(window) ? window : "month";
+  const viaV2 = await tryFeedV2({ p_offset: safeOffset, p_limit: safeLimit, p_sort: safeSort, p_filter: safeFilter, p_window: safeWindow });
+  if (viaV2) {
+    const total = viaV2[0]?.total_count;
+    return { rows: viaV2.map((row) => normalizeCommunityRow(rpcRow(row))), count: safeOffset === 0 ? (total == null ? 0 : Number(total)) : null, nextOffset: safeOffset + viaV2.length, actions: true, filtersAvailable: true };
+  }
   const viaRpc = await tryRpc("community_feed_page", { p_offset: safeOffset, p_limit: safeLimit, p_sort: sort === "oldest" ? "oldest" : "newest" });
   if (viaRpc) {
     const total = viaRpc[0]?.total_count;
-    return { rows: viaRpc.map((row) => normalizeCommunityRow(rpcRow(row))), count: safeOffset === 0 ? (total == null ? 0 : Number(total)) : null, nextOffset: safeOffset + viaRpc.length, actions: true };
+    return { rows: viaRpc.map((row) => normalizeCommunityRow(rpcRow(row))), count: safeOffset === 0 ? (total == null ? 0 : Number(total)) : null, nextOffset: safeOffset + viaRpc.length, actions: true, filtersAvailable: false };
   }
   const { data, error, count } = await supabase
     .from("research_contributions")
@@ -140,7 +159,20 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
     .order("id", { ascending: sort === "oldest" })
     .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
-  return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length, actions: false };
+  return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length, actions: false, filtersAvailable: false };
+}
+
+export async function fetchCommunityMessageTotal() {
+  const { count, error } = await supabase
+    .from("research_contributions")
+    .select("id", { count: "exact" })
+    .eq("status", "approved")
+    .in("origin", ["openweb", "community_2029"])
+    .not("body", "is", null)
+    .neq("body", "")
+    .range(0, 0);
+  if (error) throw error;
+  return Number(count || 0);
 }
 
 // The feed pages roots only. Replies are read from the same RLS-protected source
