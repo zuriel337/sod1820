@@ -80,44 +80,22 @@ export function projectEntryExamples() {
   return HEICHAL_ENTRY_EXAMPLES.map(projectEntryExample).filter(Boolean);
 }
 
-// ---- Domain gates (visual doors into EXISTING surfaces; none is a new product) ----
+// ---- Domain gates: visual doors (NAVIGATION) into EXISTING surfaces; none is a new product ----
+// HEICHAL-PREVIEW-ONLY-20261021: in the development preview every surface is open for work and viewing, so the gates only
+// navigate. They carry no open/closed/registered state and read no site flags. Privacy and RLS stay enforced by the
+// destination surfaces themselves (a gate to a personal surface grants nothing).
 export const HEICHAL_DOMAIN_GATES = Object.freeze([
-  Object.freeze({ key: "gematria", label: "גימטריה ומספרים", detail: "מחשבון ודף המספר", href: "/2029/calculator", flag: null, requireFlag: false }),
-  Object.freeze({ key: "els", label: "הצופן התנכי", detail: "ELS ומקורות", href: "/code", flag: "lock_els", requireFlag: false }),
-  Object.freeze({ key: "books", label: "ספרים ומקורות", detail: "עיון במקורות", href: "/books", flag: "lock_books", requireFlag: true }),
-  Object.freeze({ key: "world", label: "עולם", detail: "סיפור, תאריך, מקום ונושא", href: "/world", flag: "lock_world", requireFlag: false }),
-  Object.freeze({ key: "journey", label: "מסע החיים שלי", detail: "אישי ופרטי", href: "/2029/journey", flag: "lock_life_journey", requireFlag: true, personal: true }),
-  Object.freeze({ key: "kingdom", label: "ממלכת המספרים", detail: "משחק", href: "/2029/kingdom", flag: null, requireFlag: false, preview: true }),
+  Object.freeze({ key: "gematria", label: "גימטריה ומספרים", detail: "מחשבון ודף המספר", href: "/2029/calculator" }),
+  Object.freeze({ key: "els", label: "הצופן התנכי", detail: "ELS ומקורות", href: "/code" }),
+  Object.freeze({ key: "books", label: "ספרים ומקורות", detail: "עיון במקורות", href: "/books" }),
+  Object.freeze({ key: "world", label: "עולם", detail: "סיפור, תאריך, מקום ונושא", href: "/world" }),
+  Object.freeze({ key: "journey", label: "מסע החיים שלי", detail: "אישי ופרטי", href: "/2029/journey", personal: true }),
+  // The Kingdom route is registered only in a build with VITE_KINGDOM_PREVIEW; without it there is no destination to navigate to.
+  Object.freeze({ key: "kingdom", label: "ממלכת המספרים", detail: "משחק", href: "/2029/kingdom", requiresKingdomBuild: true }),
 ]);
 
-const STATE_LABEL = Object.freeze({
-  open: "פתוח",
-  registered_only: "למשתמשים רשומים בלבד",
-  closed: "סגור כרגע",
-  preview_only: "פריוויו בלבד",
-  not_open: "פריוויו בלבד · לא פתוח",
-  checking: "בודק זמינות…",
-  unknown: "זמינות לא ידועה",
-});
-
-// flagsStatus: "loading" | "ready" | "unknown" (the read failed, timed out or returned no flags at all).
-// lock: the raw site_flags row for the gate's flag (null when the row is missing).
-// resolved: the result of the existing resolveFeatureState(lock, ...) - the canonical availability contract.
-// A state is "open" only when it is KNOWN to be open: either the route carries no site flag, or the expected flag row was
-// read and the canonical contract allows it. A failed/empty read or a missing expected row is "unknown", never "open".
-// (A requireFlag route with a missing row is canonically closed - that is the contract's own answer, not a guess.)
-export function projectDomainGate(gate, { flagsStatus = "ready", lock = null, resolved = null, kingdomPreview = false } = {}) {
-  const base = { key: gate.key, label: gate.label, detail: gate.detail, personal: Boolean(gate.personal) };
-  const make = (state, href = null) => ({ ...base, state, stateLabel: STATE_LABEL[state], href });
-  if (gate.preview) {
-    // Kingdom is a prototype gated by VITE_KINGDOM_PREVIEW: it opens only in a preview build, never in a public one.
-    return kingdomPreview ? make("preview_only", gate.href) : make("not_open");
-  }
-  if (!gate.flag) return make("open", gate.href); // the route table carries no site flag for this door
-  if (flagsStatus === "loading") return make("checking");
-  if (flagsStatus !== "ready") return make("unknown");
-  if (!lock && !gate.requireFlag) return make("unknown"); // expected flag not returned: do not promise openness
-  if (!resolved) return make("unknown");
-  if (resolved.blocked) return make(resolved.publicState === "registered_only" ? "registered_only" : "closed");
-  return make("open", gate.href);
+export function projectDomainGates({ kingdomBuild = false } = {}) {
+  return HEICHAL_DOMAIN_GATES
+    .filter((gate) => !gate.requiresKingdomBuild || kingdomBuild)
+    .map((gate) => ({ key: gate.key, label: gate.label, detail: gate.detail, href: gate.href, personal: Boolean(gate.personal) }));
 }

@@ -23,16 +23,9 @@
 .heichal-gates { display: grid; gap: 10px; }
 .heichal-gates-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .heichal-gate { display: grid; gap: 4px; align-content: start; min-block-size: 88px; padding: 12px 14px; border: 1px solid var(--s29-line); border-radius: 14px; background: var(--s29-panel-soft, transparent); color: var(--s29-ink); text-decoration: none; }
-.heichal-gate.is-open:hover { border-color: var(--s29-brand-gold, currentColor); }
-.heichal-gate.is-open:focus-visible { outline: 2px solid var(--s29-accent, currentColor); outline-offset: 2px; }
-.heichal-gate.is-closed { opacity: .78; }
+.heichal-gate:hover { border-color: var(--s29-brand-gold, currentColor); }
+.heichal-gate:focus-visible { outline: 2px solid var(--s29-accent, currentColor); outline-offset: 2px; }
 .heichal-gate small { color: var(--s29-muted); font-size: 12.5px; }
-.heichal-gate .sod29-chip { justify-self: start; }
 @media (max-width: 900px) { .heichal-gates-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 420px) { .heichal-gates-grid { grid-template-columns: 1fr; } .heichal-entry-head .sod29-action { inline-size: 100%; } }
 @media (prefers-reduced-motion: reduce) { .heichal-gate, .heichal-entry-example { transition: none; } }
-@media (max-width: 420px) {
-  .heichal-gate { grid-template-columns: minmax(0, 1fr) auto; align-items: center; min-block-size: 64px; column-gap: 8px; }
-  .heichal-gate small { grid-column: 1; }
-  .heichal-gate .sod29-chip { grid-column: 2; grid-row: 1 / span 2; justify-self: end; text-align: center; }
-}

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { calcGem } from "../src/theme.js";
 import {
-  HEICHAL_ENTRY_EXAMPLES, HEICHAL_DOMAIN_GATES, projectEntryExamples, projectEntryExample, projectDomainGate, letterBreakdown, breakdownExpression,
+  HEICHAL_ENTRY_EXAMPLES, HEICHAL_DOMAIN_GATES, projectEntryExamples, projectEntryExample, projectDomainGates, letterBreakdown, breakdownExpression,
 } from "../src/lib/research/heichalEntryExamples.js";
 
 const read = (file) => readFileSync(new URL("../" + file, import.meta.url), "utf8");
@@ -56,53 +56,22 @@ test("exploring an example is an explicit action through the EXISTING exact-expr
   assert.doesNotMatch(examplesView + gatesView + helper, /resolveExpressionFocus|supabase\.(from|rpc|functions)|fetch\(|trackResearch|navigator\.share/);
 });
 
-test("domain gates show real availability from the canonical resolver; closed gates do not link", () => {
+test("HEICHAL-PREVIEW-ONLY-20261021: domain gates are navigation only - no availability state, no flag read, no permission logic", () => {
   assert.deepEqual(HEICHAL_DOMAIN_GATES.map((g) => g.key), ["gematria", "els", "books", "world", "journey", "kingdom"]);
-  const gate = (key) => HEICHAL_DOMAIN_GATES.find((g) => g.key === key);
-  const row = { enabled: false };
-  const open = { blocked: false, publicState: "open" };
-  const closed = { blocked: true, publicState: "closed" };
-  const reg = { blocked: true, publicState: "registered_only" };
-  const p = (key, o) => projectDomainGate(gate(key), o);
-  assert.deepEqual([p("books", { lock: row, resolved: open }).state, p("books", { lock: row, resolved: open }).href], ["open", "/books"]);
-  assert.deepEqual([p("books", { lock: row, resolved: closed }).state, p("books", { lock: row, resolved: closed }).href], ["closed", null]);
-  assert.deepEqual([p("world", { lock: row, resolved: reg }).state, p("world", { lock: row, resolved: reg }).href], ["registered_only", null]);
-  assert.equal(p("els", { flagsStatus: "loading" }).state, "checking");
-  assert.equal(p("gematria", {}).href, "/2029/calculator"); // route carries no site flag
-  assert.equal(gate("books").requireFlag, true); assert.equal(gate("journey").requireFlag, true); // same as the routes in App2029
-  assert.equal(gate("journey").personal, true);
-  assert.equal(p("kingdom", { kingdomPreview: false }).href, null);
-  assert.equal(p("kingdom", { kingdomPreview: false }).state, "not_open");
-  assert.equal(p("kingdom", { kingdomPreview: true }).state, "preview_only");
+  const gates = projectDomainGates({ kingdomBuild: false });
+  assert.deepEqual(gates.map((g) => g.key), ["gematria", "els", "books", "world", "journey"]);
+  for (const gate of gates) { assert.match(gate.href, /^\//); assert.ok(!("state" in gate) && !("stateLabel" in gate)); }
+  assert.deepEqual(projectDomainGates({ kingdomBuild: true }).map((g) => g.key).slice(-1), ["kingdom"]);
+  assert.equal(projectDomainGates({ kingdomBuild: true }).find((g) => g.key === "kingdom").href, "/2029/kingdom");
+  assert.equal(HEICHAL_DOMAIN_GATES.find((g) => g.key === "journey").personal, true); // labelled personal; access stays with the destination
+  const code = (gatesView + helper).replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(code, /getSiteFlags|useSiteFlag|useFeatureState|resolveFeatureState|useAuth|site_flags|lock_|requireFlag|isAdmin/);
+  assert.doesNotMatch(gatesView, /פתוח|סגור|רשומים|נעול|זמינות/);
+  assert.match(gatesView, /<Link className="heichal-gate" to=\{gate\.href\}>/);
   assert.match(gatesView, /VITE_KINGDOM_PREVIEW === "true"/);
-  assert.match(gatesView, /resolveFeatureState\(/);
-  assert.equal((gatesView.match(/getSiteFlags\(/g) || []).length, 1, "one flags read for all gates");
+  // every destination is a route that exists in App2029
   const app = read("src/App2029.jsx");
-  for (const [flag, href] of [["lock_books", "/books"], ["lock_world", "/world"], ["lock_life_journey", "/2029/journey"]]) {
-    assert.match(app, new RegExp(`path="${href}"[^\\n]*flag="${flag}"`));
-  }
-});
-
-test("unknown availability is never shown as open: failed/timed-out/empty read, or an expected flag that was not returned", () => {
-  const gate = (key) => HEICHAL_DOMAIN_GATES.find((g) => g.key === key);
-  for (const key of ["els", "books", "world", "journey"]) {
-    const unknown = projectDomainGate(gate(key), { flagsStatus: "unknown" });
-    assert.equal(unknown.state, "unknown", key); assert.equal(unknown.href, null, key);
-    assert.equal(unknown.stateLabel, "זמינות לא ידועה");
-  }
-  // flags were read, but the expected row for a non-required flag is absent: still not "open"
-  assert.equal(projectDomainGate(gate("els"), { flagsStatus: "ready", lock: null, resolved: { blocked: false, publicState: "open" } }).state, "unknown");
-  assert.equal(projectDomainGate(gate("world"), { flagsStatus: "ready", lock: null, resolved: { blocked: false, publicState: "open" } }).state, "unknown");
-  // canonical contract for a required flag with a missing row is closed (the contract's own answer)
-  assert.equal(projectDomainGate(gate("books"), { flagsStatus: "ready", lock: null, resolved: { blocked: true, publicState: "closed" } }).state, "closed");
-  // defensive: ready but no resolved state -> unknown, never open
-  assert.equal(projectDomainGate(gate("els"), { flagsStatus: "ready", lock: { enabled: false }, resolved: null }).state, "unknown");
-  // component: empty map or rejected read -> unknown, timeout, retry, honest notice
-  assert.match(gatesView, /Object\.keys\(map\)\.length \? \{ status: "ready"/);
-  assert.match(gatesView, /\.catch\(\(\) => \{ if \(alive\)/);
-  assert.match(gatesView, /FLAGS_TIMEOUT_MS/);
-  assert.match(gatesView, /data-flags-unknown="true"/);
-  assert.match(gatesView, /בדוק שוב/);
+  for (const href of ["/2029/calculator", "/code", "/books", "/world", "/2029/journey"]) assert.ok(app.includes(`path="${href}"`), href);
 });
 
 test("compact entry: one intro, no hero/orbit/English eyebrow, same Research Context, one Raziel", () => {
