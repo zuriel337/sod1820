@@ -21,3 +21,6 @@
 .sod29-post-discovery-tabs{gap:4px;padding:4px}.sod29-post-discovery-tabs button{font-size:14px;min-height:44px}
 .sod29-post-discovery-panel{padding-bottom:8px}}
 @media(prefers-reduced-motion:reduce){.sod29-post-discovery *{scroll-behavior:auto}}
+
+.sod29-post-discovery-tabs button span[id^="post-discovery-"]{display:block;scroll-margin-block-start:116px}
+.sod29-post-discovery-panel p a{display:inline-flex;align-items:center;min-height:44px;font-size:14px}
