@@ -108,7 +108,9 @@ function PostReadingBody() {
         if (live) setElectionsReview({ loading: false, model: null, error: "לא ניתן להציג כרגע את ההקשר המאומת." });
       });
     return () => { live = false; };
-  }, [previewPost?.id, previewPost?.slug, previewPost?.modified, previewPost?.content]);
+  // Source version, not Presentation HTML, is the cache-invalidation identity:
+  // the Post's later contextual enrichment must not repeat this public reader.
+  }, [previewPost?.id, previewPost?.slug, previewPost?.modified]);
 
   // Only six categorical coverage states pass through the EXISTING Research
   // Context. The source body/claims, approval status and panel state stay local.
