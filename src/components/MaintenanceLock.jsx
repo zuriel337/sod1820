@@ -9,6 +9,7 @@ import {
   readNumberReviewFlagUncached2029,
 } from "../lib/numberReviewPreview2029.js";
 import { LOGO_URL } from "../theme.js";
+import { isVerifiedReadOnlyHybrid2029, projectHybridPreviewDisplayAccess } from "../lib/hybridPreviewVisualAccess2029.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
 // ONE CAPABILITY → ONE STATE → MANY PROJECTIONS.
@@ -220,15 +221,22 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false, requir
 export function useFeatureState(flag, { requireFlag = false } = {}) {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { loading, lock, canRetry, retrying, retry } = useSiteFlag(flag);
+  // ZURIEL 2026-10-21: every 2029 *surface* is inspectable in the verified
+  // read-only Hybrid Preview. This never changes canonical site_flags, RLS,
+  // authentication, server capability gates, or a Production/Legacy build.
+  const readOnlyPreview = isVerifiedReadOnlyHybrid2029();
   return useMemo(() => ({
     flag,
-    loading: loading || authLoading,
+    loading: authLoading || (!readOnlyPreview && loading),
     lock,
     canRetry,
     retrying,
     retry,
-    ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
-  }), [flag, loading, authLoading, lock, canRetry, retrying, retry, user, isAdmin, requireFlag]);
+    ...projectHybridPreviewDisplayAccess(
+      resolveFeatureState(lock, { user, isAdmin, requireFlag }),
+      readOnlyPreview,
+    ),
+  }), [flag, loading, authLoading, lock, canRetry, retrying, retry, user, isAdmin, requireFlag, readOnlyPreview]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
