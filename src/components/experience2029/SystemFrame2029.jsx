@@ -763,6 +763,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   const session = useOptionalRazielSession2029();
   const [text, setText] = useState("");
   const [savedOpen, setSavedOpen] = useState(false);
+  const [deepOpen, setDeepOpen] = useState(false);
   const threadLength = session?.thread?.length || 0;
   // the newest turn is brought into view when it is added (and when a projection opens over an existing thread)
   const lastTurnRef = useCallback((node) => { node?.scrollIntoView?.({ block: "nearest" }); }, [threadLength]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -806,13 +807,28 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
               {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
-              {m === lastRaziel && lastRaziel.level === "fast" && !closedNote ? <button className="sod29-raziel-deepen" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(lastRaziel.question, "deep", true)}>העמק את התשובה</button> : null}
+              {m === lastRaziel && !sourceNames.length && m.level !== "deterministic" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
+              {m === lastRaziel && lastRaziel.level === "fast" && !closedNote ? <button className="sod29-raziel-deepen" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
+            </div> : null}
+            {m === lastRaziel && lastRaziel.level === "fast" && deepOpen && !closedNote ? <div className="sod29-raziel-deep-offer" data-raziel-deep-offer="true">
+              <b>מה ההעמקה תעשה</b>
+              <ul>
+                <li>אותה שאלה ואותו הקשר, במודל העמוק של רזיאל.</li>
+                <li>{sourceNames.length ? <>תבחן שוב את המקורות שכבר צורפו: <bdi>{sourceNames.join(" · ")}</bdi>.</> : "בתשובה המהירה לא צורפו מקורות מאומתים, וההעמקה לא תמציא מקור."}</li>
+                <li>תחפש זווית נוספת. לא מורצים כלים חדשים ואין חיפוש ברשת.</li>
+                <li>אם אין ראיה לקשר, התשובה תאמר זאת.</li>
+                <li>עשוי לקחת עד דקה, ונספר במכסת ההעמקות.</li>
+              </ul>
+              <div className="sod29-raziel-deep-actions">
+                <button className="sod29-action primary" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => { setDeepOpen(false); send(lastRaziel.question, "deep", true); }}>הפעל העמקה</button>
+                <button className="sod29-raziel-saved-link" type="button" onClick={() => setDeepOpen(false)}>לא עכשיו</button>
+              </div>
             </div> : null}
           </div>
         ))}
       </div>
       {closedNote ? <p className="sod29-raziel-closed" role="status" data-raziel-server-closed="true">{closedNote}</p> : null}
-      <small className="sod29-raziel-status" role="status">{!closedNote && (busy || status === "error") ? announcement : ""}</small>
+      <small className="sod29-raziel-status" role="status">{!closedNote && (busy || status === "error") ? (busy && session.currentTurn?.again ? "רזיאל מעמיק… זה עשוי לקחת עד דקה." : announcement) : ""}</small>
       <div className="sod29-raziel-saved" data-raziel-saved-preview="ResearchProvider">
         <button type="button" className="sod29-raziel-saved-toggle" aria-expanded={savedOpen} onClick={() => setSavedOpen((open) => !open)}>
           <span>המחקר שלי</span><small>{savedCount ? `${savedCount} שמורים` : "אין עדיין שמורים"}</small><i aria-hidden="true">{savedOpen ? "▴" : "▾"}</i>

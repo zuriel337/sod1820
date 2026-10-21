@@ -1216,6 +1216,11 @@
 .sod29-raziel-answer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .sod29-raziel-deepen { min-block-size: 44px; padding-inline: 12px; border: 1px solid var(--s29-line-strong); border-radius: 999px; background: transparent; color: var(--s29-ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 .sod29-raziel-status:empty { display: none; }
+.sod29-raziel-grounding { font-size: 14px; color: var(--s29-muted); font-style: italic; }
+.sod29-raziel-deep-offer { display: grid; gap: 6px; margin-block-start: 6px; padding: 10px 12px; border: 1px dashed var(--s29-line-strong); border-radius: 12px; font-size: 14px; line-height: 1.55; color: var(--s29-ink); }
+.sod29-raziel-deep-offer ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 2px; }
+.sod29-raziel-deep-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sod29-raziel-deep-actions .sod29-action { min-block-size: 44px; }
 .sod29-raziel-closed { margin: 0; padding: 8px 10px; border: 1px solid var(--s29-line-strong); border-radius: 12px; font-size: max(14px, var(--s29-type-small)); line-height: 1.55; color: var(--s29-ink); }
 .sod29-raziel-saved { display: grid; gap: 6px; border-block-start: 1px solid var(--s29-line); padding-block-start: 4px; }
 .sod29-raziel-saved-toggle { display: flex; align-items: center; gap: 8px; min-block-size: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--s29-ink); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-align: start; }

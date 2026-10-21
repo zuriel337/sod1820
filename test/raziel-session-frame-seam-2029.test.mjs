@@ -149,7 +149,7 @@ test("cost: bounded payload per explicit send, deep only by explicit action", ()
   assert.equal(req.intelligenceLevel, "fast");
   assert.ok(JSON.stringify(req).length < 4000, `payload ${JSON.stringify(req).length}`);
   assert.equal((chat.match(/"deep"/g) || []).length, 1);
-  assert.match(chat, /data-raziel-deepen="true" onClick=\{\(\) => send\(lastRaziel\.question, "deep", true\)\}/);
+  assert.match(chat, /data-raziel-deepen="true" onClick=\{\(\) => \{ setDeepOpen\(false\); send\(lastRaziel\.question, "deep", true\); \}\}/);
 });
 
 test("RTL, accessibility and three themes: dir/bdi, live regions, 44px targets, ≥14px text, tokens only", () => {
@@ -214,4 +214,17 @@ test("visible Raziel copy is Hebrew: no English UI words in the pane or the shee
   const latin = visibleText(chat + proj).match(/[A-Za-z]{3,}/g) || [];
   assert.deepEqual(latin.filter((w) => w !== "ELS"), []);
   assert.doesNotMatch(frame, /המשך מה־Micro/);
+});
+
+test("deep is a previewed, explicit action: what it checks, what it will not do, then one opt-in", () => {
+  // opening the preview only toggles local UI; the single deep send sits on the explicit confirm
+  assert.match(chat, /data-raziel-deepen-preview="true" onClick=\{\(\) => setDeepOpen\(\(open\) => !open\)\}/);
+  const offer = chat.slice(chat.indexOf('data-raziel-deep-offer="true"'), chat.indexOf('data-raziel-deepen="true"'));
+  assert.match(offer, /אותה שאלה ואותו הקשר/);
+  assert.match(offer, /לא מורצים כלים חדשים ואין חיפוש ברשת/);
+  assert.match(offer, /אם אין ראיה לקשר, התשובה תאמר זאת/);
+  assert.match(offer, /לא צורפו מקורות מאומתים, וההעמקה לא תמציא מקור/);
+  assert.equal((chat.match(/"deep"/g) || []).length, 1);
+  // an answer without verified sources is labelled as interpretation, never shown as fact
+  assert.match(chat, /data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל/);
 });
