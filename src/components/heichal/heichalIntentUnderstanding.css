@@ -1,0 +1,31 @@
+/* Heichal intent-first entry · tokens only (Design V2: no local palette) */
+.heichal-intent { display: grid; gap: 10px; }
+.heichal-intent-quote {
+  margin: 0; padding: 10px 14px; border-inline-start: 3px solid var(--s29-brand-gold, currentColor);
+  background: var(--s29-panel-soft, transparent); border-radius: 12px;
+  font-size: clamp(16px, 2.2vw, 20px); font-weight: 750; line-height: 1.5; overflow-wrap: anywhere;
+}
+.heichal-intent-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.heichal-intent-reason { margin: 0; }
+.heichal-intent-directions { display: grid; gap: 8px; }
+.heichal-intent-direction {
+  display: grid; gap: 4px; text-align: start; cursor: pointer; font: inherit; color: var(--s29-ink); min-block-size: 44px;
+  padding: 10px 14px; border: 1px solid var(--s29-line-strong); border-radius: 14px; background: var(--s29-panel-soft, transparent);
+}
+.heichal-intent-direction:hover:not(:disabled) { border-color: var(--s29-brand-gold, currentColor); }
+.heichal-intent-direction.is-recommended { border-color: var(--s29-brand-gold, currentColor); background: color-mix(in srgb, var(--s29-brand-gold, currentColor) 10%, transparent); }
+.heichal-intent-direction[aria-pressed="true"] { outline: 2px solid var(--s29-accent, currentColor); outline-offset: 2px; }
+.heichal-intent-direction:focus-visible { outline: 2px solid var(--s29-accent, currentColor); outline-offset: 2px; }
+.heichal-intent-direction:disabled { cursor: default; opacity: .7; }
+.heichal-intent-direction-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.heichal-intent-direction small { color: var(--s29-muted); font-size: 12.5px; line-height: 1.55; }
+.heichal-intent-exact { display: grid; gap: 10px; }
+.heichal-intent .sod29-list { width: 100%; margin: 0; padding: 0; }
+.heichal-intent-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.heichal-intent .sod29-action, .heichal-intent .sod29-input { min-block-size: 44px; }
+@media (max-width: 620px) { .heichal-intent .sod29-actions { display: grid; grid-template-columns: 1fr; } }
+.heichal-intent-step { display: block; color: var(--s29-muted); font-size: 12px; line-height: 1.5; margin-top: 2px; }
+
+.heichal-intent-sequence { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sod29-gap-2, 8px); margin: 10px 0; }
+.heichal-intent-sequence strong { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: var(--sod29-radius-sm, 10px); border: 1px dashed var(--sod29-line, currentColor); overflow-wrap: anywhere; }
+.heichal-intent-privacy, .heichal-intent-capability { margin: 8px 0; }

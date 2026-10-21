@@ -38,7 +38,9 @@ test("command label is gated: public says חיפוש, Heichal keeps פקודה",
   assert.ok(!src.includes("<small>פקודה</small>"));
 });
 
-test("Heichal page copy is untouched", () => {
+test("Heichal entry intro is the approved compact Hebrew intro (HEICHAL-HYBRID-20261019), not the old English one", () => {
   const src = fs.readFileSync("src/pages/Heichal2029Page.jsx", "utf8");
-  assert.ok(src.includes("Context-Compiled Research Environment"));
+  assert.ok(src.includes("כל גילוי מתחיל בשאלה"));
+  assert.ok(!src.includes("Context-Compiled Research Environment"));
+  assert.ok(!src.includes("DEEP RESEARCH ENVIRONMENT"));
 });
