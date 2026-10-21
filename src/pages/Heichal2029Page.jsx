@@ -410,7 +410,7 @@ function ActiveResearchEnvironment() {
           <div className="sod29-kicker">CONTEXT / EVIDENCE INSPECTOR</div>
           <h3 style={{ marginTop: 5 }}>מה ידוע על המצב הנוכחי</h3>
           <div className="sod29-divider" />
-          <div className="sod29-muted">Subject</div><b>{subject.type}:{subject.id}</b>
+          <div className="sod29-muted">Subject</div><b>{freeQuestion ? `שאלה חופשית: ${subject.label || subject.id}` : `${subject.type}:${subject.id}`}</b>
           <div className="sod29-divider" />
           <div className="sod29-muted">Selection</div><b>{selectionText || "אין בחירה ממוקדת"}</b>
           <div className="sod29-divider" />

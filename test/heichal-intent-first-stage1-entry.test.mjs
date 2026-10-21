@@ -181,3 +181,7 @@ test("Stage 1.1 · free_question privacy is stated per the verified path: guest 
   const code = (view + helper).replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(code, /research_state_apply_ops|applyCloudResearchOps|localStorage|sessionStorage|\.from\(|rpc\(/);
 });
+
+test("the Heichal inspector never prints a free question as 'phrase:<question>'", () => {
+  assert.match(page, /\{freeQuestion \? `שאלה חופשית: \$\{subject\.label \|\| subject\.id\}` : `\$\{subject\.type\}:\$\{subject\.id\}`\}/);
+});
