@@ -424,5 +424,4 @@ begin
     'cost', jsonb_build_object('used_llm', false, 'tokens', 0, 'db_calls', 1),
     'generated_at', now());
 end;
-$function$
-
+$function$;
