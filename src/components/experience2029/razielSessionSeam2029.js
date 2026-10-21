@@ -18,6 +18,7 @@ const TYPE_NOUN_HE = Object.freeze({
   world: "העולם", els: "צופן", cipher: "צופן", heichal: "היכל", journey: "מסע", calculator: "מחשבון",
   video: "וידאו", image: "תמונה", researcher: "חוקר", community: "קהילה", finding: "ממצא", verse: "פסוק",
   person: "אדם", entity: "ישות", home: "דף הבית", date: "תאריך", name: "שם",
+  frame: "העמוד הנוכחי", system: "העמוד הנוכחי", research: "מחקר", path: "מסלול",
 });
 
 export function entityTypeNounHe(type) {
@@ -74,4 +75,12 @@ export function razielContextParts(snapshot) {
   const sources = Array.isArray(snapshot.sourceNames) ? snapshot.sourceNames.map((s) => visible(s, 120)).filter(Boolean).slice(0, 2) : [];
   if (sources.length) parts.push({ key: "sources", prefix: "מקורות", label: sources.join(" · ") });
   return parts;
+}
+
+// One short Hebrew state for the compact Raziel header (sheet header and desktop Companion).
+export function razielStatusLabel({ closed = false, busy = false, status = "idle" } = {}) {
+  if (closed) return "נעול כרגע";
+  if (busy) return "חושב…";
+  if (status === "error") return "לא זמין כרגע";
+  return "איתך כאן";
 }

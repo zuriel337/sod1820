@@ -15,6 +15,7 @@ import {
   looksLikeInternalKey,
   razielContextParts,
   razielSavedLabel,
+  razielStatusLabel,
   withRazielSurfaceContext,
 } from "../src/components/experience2029/razielSessionSeam2029.js";
 
@@ -27,7 +28,7 @@ const seam = read("src/components/experience2029/razielSessionSeam2029.js");
 const provider = read("src/lib/research/RazielSessionProvider2029.jsx");
 const css = read("src/components/experience2029/systemFrame2029.css");
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-const razielCss = css.slice(css.indexOf("/* Raziel pane = one shared session"), css.indexOf('[data-panel-kind="raziel"]') + 120);
+const razielCss = css.slice(css.indexOf("/* Raziel pane = one shared session"), css.indexOf('@media (max-width: 980px) { .sod29-frame-panel[data-panel-kind="raziel"]') + 160);
 
 test("one provider: mounted once in App2029 under ResearchProvider and above Routes; Legacy untouched", () => {
   assert.equal((app.match(/<RazielSessionMount2029>/g) || []).length, 1);
@@ -46,7 +47,7 @@ test("one provider: mounted once in App2029 under ResearchProvider and above Rou
 
 test("one conversation, two projections: Companion (desktop) and sheet (mobile) read the same session", () => {
   assert.equal((frame.match(/<RazielNativeChat /g) || []).length, 2);
-  assert.match(frame, /<RazielNativeChat projection="desktop" onOpenMyResearch=\{openMyResearch\}/);
+  assert.match(frame, /<RazielNativeChat projection="desktop" showHeader contextAction=\{razielContextAction\} onOpenMyResearch=\{openMyResearch\}/);
   assert.match(frame, /primary=\{!routeActionValid\} projection="mobile" onOpenMyResearch=\{onOpenMyResearch\}/);
   assert.match(chat, /const session = useOptionalRazielSession2029\(\);/);
   assert.doesNotMatch(chat, /useState\(\[\]\)|setThread/);
@@ -162,7 +163,7 @@ test("RTL, accessibility and three themes: dir/bdi, live regions, 44px targets, 
   const rules = razielCss.replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(rules, /opacity\s*:/);
   assert.doesNotMatch(rules, /#[0-9a-f]{3,8}\b|rgb\(|hsl\(/i);
-  assert.ok((razielCss.match(/min-block-size: 44px/g) || []).length >= 3);
+  assert.ok((razielCss.match(/min-block-size: (44|48)px/g) || []).length >= 6);
   for (const m of razielCss.matchAll(/font-size: (\d+)px/g)) assert.ok(Number(m[1]) >= 14, m[0]);
   assert.match(razielCss, /height: min\(78dvh, 760px\)/);
   assert.match(frame, /data-panel-kind=\{panelKind\}/);
@@ -186,4 +187,31 @@ test("server lock is honest in the preview: closed for this viewer ⇒ the serve
   assert.match(chat, /data-raziel-server-closed="true">\{closedNote\}/);
   assert.match(chat, /disabled=\{busy \|\| Boolean\(closedNote\)\}/);
   assert.equal((frame.match(/closedNote=\{razielClosedNote\}/g) || []).length, 2); // Companion + sheet
+});
+
+test("calm companion layout: one compact header, small strip with one action, deepen on the answer, folded research", () => {
+  const proj = frame.slice(frame.indexOf("function RazielProjection"), frame.indexOf("const RESEARCH_SECTIONS"));
+  assert.doesNotMatch(proj, /sod29-raziel-native-hero|quickInsight|data-reading-focus-card|אין עדיין מוקד/); // no large explanatory cards
+  assert.match(frame, /panelKind="raziel" icon=\{<span className="sod29-raziel-mark" \/>\} kicker=\{razielStateLabel\} title="רזיאל"/);
+  assert.match(chat, /showHeader \? <header className="sod29-raziel-head" aria-label="רזיאל · איתך כאן">/);
+  assert.equal((chat.match(/data-raziel-context-action="true"/g) || []).length, 1);
+  assert.match(frame, /const razielContextAction = /);
+  // deepen lives on the latest fast answer, not in the composer
+  const composer = chat.slice(chat.indexOf('<form className="sod29-raziel-composer"'), chat.indexOf("</form>"));
+  assert.doesNotMatch(composer, /data-raziel-deepen/);
+  assert.match(chat, /m === lastRaziel && lastRaziel\.level === "fast" && !closedNote \? <button className="sod29-raziel-deepen"/);
+  assert.match(chat, /<i aria-hidden="true">\{savedOpen \? "▴" : "▾"\}<\/i>/);
+  assert.match(css, /\.sod29-frame-panel \.sod29-raziel-composer \{ position: sticky; inset-block-end: 0;/);
+  assert.match(frame, /window\.visualViewport/); // pinned above the on-screen keyboard
+  assert.equal(razielStatusLabel({}), "איתך כאן");
+  assert.equal(razielStatusLabel({ busy: true }), "חושב…");
+  assert.equal(razielStatusLabel({ closed: true, busy: true }), "נעול כרגע");
+});
+
+test("visible Raziel copy is Hebrew: no English UI words in the pane or the sheet", () => {
+  const visibleText = (src) => [...src.matchAll(/>([^<>{}]+)</g)].map((m) => m[1]).join(" ") + " " + [...src.matchAll(/(?:label|placeholder|title|aria-label)="([^"]+)"/g)].map((m) => m[1]).join(" ");
+  const proj = frame.slice(frame.indexOf("function RazielProjection"), frame.indexOf("const RESEARCH_SECTIONS"));
+  const latin = visibleText(chat + proj).match(/[A-Za-z]{3,}/g) || [];
+  assert.deepEqual(latin.filter((w) => w !== "ELS"), []);
+  assert.doesNotMatch(frame, /המשך מה־Micro/);
 });
