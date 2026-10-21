@@ -3,6 +3,24 @@
 // Context is NOT a truth store, Finding store, graph, claim, or canonical entity.
 
 export const RESEARCH_CONTEXT_VERSION = 1;
+const MAX_RESEARCH_PATH_OUTCOME_BYTES = 24_000;
+
+const RESEARCH_PATH_OUTCOME_STATUSES = new Set([
+  "executed",
+  "negative_result",
+  "skipped",
+  "context_required",
+  "entitlement_gated",
+  "unverified",
+  "failed",
+  "missing_adapter",
+]);
+const RAW_AUTHORIZATION_KEYS = new Set([
+  "authorization_context",
+  "authorizationContext",
+  "auth_context",
+  "authContext",
+]);
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value || {}, key);
@@ -15,6 +33,46 @@ const cleanInteger = (value) => {
   if (value == null || value === "") return null;
   const n = Number(value);
   return Number.isInteger(n) ? n : null;
+};
+const utf8ByteLength = (value) => {
+  try {
+    if (typeof TextEncoder === "function") return new TextEncoder().encode(String(value)).byteLength;
+  } catch { /* fail closed below */ }
+  return Number.POSITIVE_INFINITY;
+};
+const cleanStringList = (value, max = 200, maxLength = 2_048) => {
+  if (!Array.isArray(value)) return null;
+  const out = [];
+  const seen = new Set();
+  for (const item of value) {
+    if (item == null) continue;
+    if (typeof item !== "string" && typeof item !== "number") return null;
+    const cleaned = cleanString(item);
+    if (!cleaned || seen.has(cleaned)) continue;
+    if (cleaned.length > maxLength || out.length >= max) return null;
+    seen.add(cleaned);
+    out.push(cleaned);
+  }
+  return out;
+};
+const containsRawAuthorizationContext = (value) => {
+  if (!value || typeof value !== "object") return false;
+  if (Array.isArray(value)) return value.some(containsRawAuthorizationContext);
+  return Object.entries(value).some(([key, item]) => (
+    RAW_AUTHORIZATION_KEYS.has(key) || containsRawAuthorizationContext(item)
+  ));
+};
+const cleanJsonObject = (value, maxBytes = 16_000) => {
+  if (!isObject(value)) return null;
+  try {
+    const serialized = JSON.stringify(value);
+    const byteLength = utf8ByteLength(serialized);
+    if (!serialized || byteLength > maxBytes) return null;
+    const parsed = JSON.parse(serialized);
+    return isObject(parsed) && !containsRawAuthorizationContext(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
 };
 
 // Numeric projection is explicit: an absent source value, blank text or boolean
@@ -84,6 +142,36 @@ export function normalizeResearchPathStep(value) {
   });
   if (!subject) return null;
   const context = value.context || value;
+  const hasOutcomeStatus = hasOwn(value, "outcome_status");
+  let outcome = null;
+  if (hasOutcomeStatus) {
+    const status = cleanString(value.outcome_status);
+    const capabilityKey = cleanString(value.capability_key);
+    if (!RESEARCH_PATH_OUTCOME_STATUSES.has(status) || !capabilityKey) return null;
+
+    const findingRefs = hasOwn(value, "finding_refs") ? cleanStringList(value.finding_refs) : [];
+    const sourceRefs = hasOwn(value, "source_refs") ? cleanStringList(value.source_refs) : [];
+    const versionRefs = hasOwn(value, "version_refs") ? cleanStringList(value.version_refs) : [];
+    if (!findingRefs || !sourceRefs || !versionRefs) return null;
+
+    const reason = cleanString(value.reason);
+    const negativeScope = hasOwn(value, "negative_scope")
+      ? cleanJsonObject(value.negative_scope)
+      : null;
+    if (status === "negative_result" && (!reason || !negativeScope || findingRefs.length)) return null;
+    if (status === "missing_adapter" && !reason) return null;
+
+    outcome = {
+      capability_key: capabilityKey,
+      outcome_status: status,
+      finding_refs: findingRefs,
+      source_refs: sourceRefs,
+      version_refs: versionRefs,
+    };
+    if (status === "negative_result") outcome.negative_scope = negativeScope;
+    if (utf8ByteLength(JSON.stringify(outcome)) > MAX_RESEARCH_PATH_OUTCOME_BYTES) return null;
+  }
+
   return {
     step_index: Math.max(0, cleanInteger(value.step_index) || 0),
     entity_type: subject.type,
@@ -95,6 +183,7 @@ export function normalizeResearchPathStep(value) {
     locator: cleanString(value.locator || context.selection?.locator),
     selection: normalizeSelection(value.selection || context.selection),
     reason: cleanString(value.reason),
+    ...(outcome || {}),
     context: {
       subject,
       selection: normalizeSelection(context.selection),

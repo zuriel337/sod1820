@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { useResearch } from "./ResearchProvider.jsx";
-import { universalFindingToResearchEntity, isUniversalFinding } from "./universalFinding.js";
+import { isUniversalFinding } from "./universalFinding.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
+import { commitUniversalFinding, commitUniversalFindings } from "./universalWorkspaceCommit.js";
 
 // Thin adapter over the EXISTING canonical ResearchProvider.
 // No second store/context. Universal Findings live in the same cart/save/pin/history/cloud path
@@ -27,23 +28,14 @@ export function useUniversalWorkspace() {
   );
 
   const upsertFinding = useCallback((finding) => {
-    const entity = universalFindingToResearchEntity(finding);
-    if (!entity) return false;
     // Existing provider dedupes by stable entity.id and logs provenance/history/event telemetry.
-    research.addToResearch?.(entity);
-    return true;
+    return commitUniversalFinding(research.addToResearch, finding);
   }, [research.addToResearch]);
 
-  const upsertFindings = useCallback((items) => {
-    let added = 0;
-    for (const finding of Array.isArray(items) ? items : []) {
-      const entity = universalFindingToResearchEntity(finding);
-      if (!entity) continue;
-      research.addToResearch?.(entity);
-      added += 1;
-    }
-    return added;
-  }, [research.addToResearch]);
+  const upsertFindings = useCallback(
+    (items) => commitUniversalFindings(research.addToResearch, items),
+    [research.addToResearch]
+  );
 
   // Canonical Gematria source route. This calls the live gematria_api RPC, converts only
   // engine-returned method values to Universal Findings, then reuses the SAME Workspace path.
@@ -63,20 +55,15 @@ export function useUniversalWorkspace() {
   }, [research.removeFromResearch]);
 
   const saveFinding = useCallback((finding) => {
-    const entity = universalFindingToResearchEntity(finding);
-    if (!entity) return false;
     // Save is personal Workspace membership only. It does NOT change the Finding envelope,
     // research_objects governance, Graph canonicality or publication/access state.
-    research.saveItem?.(entity);
-    return true;
+    return commitUniversalFinding(research.saveItem, finding);
   }, [research.saveItem]);
 
-  const pinFinding = useCallback((finding) => {
-    const entity = universalFindingToResearchEntity(finding);
-    if (!entity) return false;
-    research.togglePin?.(entity);
-    return true;
-  }, [research.togglePin]);
+  const pinFinding = useCallback(
+    (finding) => commitUniversalFinding(research.togglePin, finding),
+    [research.togglePin]
+  );
 
   const isFindingSaved = useCallback((findingOrId) => {
     const id = typeof findingOrId === "string" ? findingOrId : findingOrId?.id;

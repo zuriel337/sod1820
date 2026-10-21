@@ -16,7 +16,7 @@ import {
   getLatestResearchPath,
   isResearchPathId,
   researchPathOperationKey,
-  researchPathStepKey,
+  researchPathAcknowledgedPrefixLength,
   resumeHrefFromResearchPath,
   saveResearchPathSnapshot,
 } from "./researchPathRuntime.js";
@@ -299,8 +299,11 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
     if (latestContext?.subject && latestContext.journey?.id === current.journey?.id) {
       const captured = current.journey?.pendingSteps || [];
       const pending = latestContext.journey?.pendingSteps || [];
-      const acknowledged = captured.every((step, index) => researchPathStepKey(step) === researchPathStepKey(pending[index]));
-      const remaining = acknowledged ? pending.slice(captured.length) : pending;
+      // The RPC appended every captured step. If only a later pending outcome changed
+      // while it was in flight, discard the already-saved common prefix and retain
+      // the enriched suffix for the next append instead of replaying the prefix.
+      const acknowledgedPrefix = researchPathAcknowledgedPrefixLength(captured, pending);
+      const remaining = pending.slice(acknowledgedPrefix);
       actions.updateResearchContext({
         journey: { ...latestContext.journey, root: current.journey?.root || current.subject,
           id: result.path_id, kind: "research_path", position: position + remaining.length,

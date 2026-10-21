@@ -3,6 +3,59 @@ import { mergeResearchContext, normalizeResearchContext, normalizeResearchPathSt
 import { buildJourney2029ContextPatch, journey2029StateFromContext } from "./journey2029Telemetry.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// Server rejects p_steps above 262,144 bytes. Keep a margin for JSONB text
+// formatting and transport while preventing a deterministic RPC failure.
+export const RESEARCH_PATH_STEPS_CLIENT_MAX_BYTES = 240_000;
+
+function utf8ByteLength(value) {
+  try {
+    if (typeof TextEncoder === "function") return new TextEncoder().encode(String(value)).byteLength;
+  } catch { /* fail closed below */ }
+  return Number.POSITIVE_INFINITY;
+}
+
+function jsonbNumericExpansionBytes(value) {
+  if (typeof value === "number") {
+    const compact = JSON.stringify(value);
+    const match = /^(-?)(\d+)(?:\.(\d+))?[eE]([+-]?\d+)$/.exec(compact || "");
+    if (!match) return 0;
+    const [, sign, integer, fraction = "", rawExponent] = match;
+    const digits = `${integer}${fraction}`;
+    const decimalPosition = integer.length + Number(rawExponent);
+    const expandedLength = decimalPosition <= 0
+      ? sign.length + 2 + Math.abs(decimalPosition) + digits.length
+      : decimalPosition >= digits.length
+        ? sign.length + decimalPosition
+        : sign.length + digits.length + 1;
+    return Math.max(0, expandedLength - compact.length);
+  }
+  if (Array.isArray(value)) {
+    return value.reduce((sum, item) => sum + jsonbNumericExpansionBytes(item), 0);
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value).reduce(
+      (sum, item) => sum + jsonbNumericExpansionBytes(item),
+      0
+    );
+  }
+  return 0;
+}
+
+export function researchPathStepsPayloadWithinLimit(steps) {
+  if (!Array.isArray(steps)) return false;
+  try {
+    const serialized = JSON.stringify(steps);
+    // PostgreSQL measures jsonb::text, which adds a space after structural
+    // commas/colons. Counting every comma/colon (including any inside strings)
+    // deliberately overestimates that representation and therefore fails closed.
+    const jsonbSpacingUpperBound = (serialized.match(/[,:]/g) || []).length;
+    const jsonbNumericExpansion = jsonbNumericExpansionBytes(JSON.parse(serialized));
+    return utf8ByteLength(serialized) + jsonbSpacingUpperBound + jsonbNumericExpansion
+      <= RESEARCH_PATH_STEPS_CLIENT_MAX_BYTES;
+  } catch {
+    return false;
+  }
+}
 
 function cleanText(value, max = 240) {
   if (value == null) return null;
@@ -37,9 +90,25 @@ export function researchContextForPath(context) {
   return safe;
 }
 
-export function buildResearchPathStep(context, { href = null, label = null, surface = null, reason = null } = {}) {
+export function buildResearchPathStep(context, {
+  href = null,
+  label = null,
+  surface = null,
+  reason = null,
+  outcome = null,
+} = {}) {
   const safe = researchContextForPath(context);
   if (!safe?.subject?.id || !safe?.subject?.type) return null;
+  const outcomeFields = outcome && typeof outcome === "object" && !Array.isArray(outcome)
+    ? {
+        capability_key: outcome.capability_key,
+        outcome_status: outcome.outcome_status,
+        finding_refs: outcome.finding_refs,
+        source_refs: outcome.source_refs,
+        version_refs: outcome.version_refs,
+        negative_scope: outcome.negative_scope,
+      }
+    : {};
   return normalizeResearchPathStep({
     step_index: 0, // server owns final ordering/reindexing
     entity_type: safe.subject.type,
@@ -50,7 +119,8 @@ export function buildResearchPathStep(context, { href = null, label = null, surf
     href: cleanHref(href || safe.subject.href),
     surface: cleanText(surface, 80),
     selection: safe.selection || null,
-    reason: cleanText(reason),
+    reason: cleanText(outcome?.reason ?? reason),
+    ...outcomeFields,
     context: safe,
   });
 }
@@ -58,6 +128,42 @@ export function buildResearchPathStep(context, { href = null, label = null, surf
 export function researchPathStepKey(step) {
   const safe = normalizeResearchPathStep(step);
   return safe ? JSON.stringify([safe.entity_type, safe.entity_ref, safe.href, safe.lens, safe.selection]) : null;
+}
+
+// Navigation dedupe intentionally ignores outcome enrichment. Save acknowledgement cannot:
+// if the same navigation step receives a newer Result outcome while an RPC is in flight,
+// acknowledging only the old envelope would otherwise discard the newer pending evidence.
+export function researchPathStepAcknowledgementKey(step) {
+  const safe = normalizeResearchPathStep(step);
+  return safe ? JSON.stringify([
+    researchPathStepKey(safe),
+    safe.capability_key ?? null,
+    safe.outcome_status ?? null,
+    safe.finding_refs ?? [],
+    safe.source_refs ?? [],
+    safe.version_refs ?? [],
+    safe.reason ?? null,
+    safe.negative_scope ?? null,
+  ]) : null;
+}
+
+export function researchPathAcknowledgedPrefixLength(captured, pending) {
+  if (!Array.isArray(captured) || !Array.isArray(pending)) return 0;
+  const length = Math.min(captured.length, pending.length);
+  let acknowledged = 0;
+  while (acknowledged < length) {
+    const step = captured[acknowledged];
+    const capturedKey = researchPathStepAcknowledgementKey(step);
+    if (capturedKey == null
+        || capturedKey !== researchPathStepAcknowledgementKey(pending[acknowledged])) break;
+    acknowledged += 1;
+  }
+  return acknowledged;
+}
+
+export function researchPathPendingStepsAcknowledged(captured, pending) {
+  return Array.isArray(captured) && Array.isArray(pending)
+    && researchPathAcknowledgedPrefixLength(captured, pending) === captured.length;
 }
 
 // A late Number trace enriches the already chosen expression/method. It is
@@ -68,6 +174,40 @@ function isNumberTraceEnrichment(previous, next) {
     || !next.selection?.findingId) return false;
   return researchPathStepKey(previous) === researchPathStepKey({ ...next,
     selection: { ...next.selection, findingId: null } });
+}
+
+function isOutcomeEnrichment(previous, next) {
+  if (!previous || !next?.outcome_status) return false;
+  return researchPathStepKey(previous) === researchPathStepKey(next)
+    && researchPathStepAcknowledgementKey(previous) !== researchPathStepAcknowledgementKey(next);
+}
+
+function mergeEnrichedResearchPathStep(previous, next) {
+  const merged = { ...next, step_index: previous?.step_index ?? next?.step_index ?? 0 };
+  // Adding the first outcome must not erase why the user chose the planned step.
+  // Outcome-to-outcome replacement intentionally does not inherit an old reason
+  // (for example a resolved missing_adapter explanation).
+  if (!previous?.outcome_status && next?.outcome_status
+      && next.reason == null && previous?.reason != null) {
+    merged.reason = previous.reason;
+  }
+  // A late navigation trace (for example Number findingId) is independent of the
+  // already-recorded engine outcome. If the new step does not explicitly carry a
+  // replacement outcome, retain the old envelope instead of erasing evidence.
+  if (!next?.outcome_status && previous?.outcome_status) {
+    for (const key of [
+      "capability_key",
+      "outcome_status",
+      "finding_refs",
+      "source_refs",
+      "version_refs",
+      "negative_scope",
+      "reason",
+    ]) {
+      if (previous[key] !== undefined) merged[key] = previous[key];
+    }
+  }
+  return normalizeResearchPathStep(merged) || next;
 }
 
 // Explicit Start/Continue only. Ordinary page/method selection does not call this.
@@ -84,13 +224,16 @@ export function continueResearchPathContext(context, options = {}) {
     if (origin && researchPathStepKey(origin) !== researchPathStepKey(step)) pending.push(origin);
   }
   const previous = pending.at(-1) || current.journey?.lastSavedStep;
-  const enriched = isNumberTraceEnrichment(previous, step);
-  const changed = researchPathStepKey(previous) !== researchPathStepKey(step) && !enriched;
-  if (enriched && pending.length) pending[pending.length - 1] = { ...step, step_index: previous.step_index };
+  const enriched = isNumberTraceEnrichment(previous, step) || isOutcomeEnrichment(previous, step);
+  const replacesPending = enriched && pending.length > 0;
+  const changed = (researchPathStepKey(previous) !== researchPathStepKey(step) && !enriched)
+    || (enriched && !replacesPending);
+  const enrichedStep = enriched ? mergeEnrichedResearchPathStep(previous, step) : step;
+  if (replacesPending) pending[pending.length - 1] = enrichedStep;
   if (changed && pending.length >= 99) return { ok: false, error: "save_required" };
   if (changed) {
-    step.step_index = (current.journey?.lastSavedStep?.step_index ?? -1) + pending.length + 1;
-    pending.push(step);
+    enrichedStep.step_index = (current.journey?.lastSavedStep?.step_index ?? -1) + pending.length + 1;
+    pending.push(enrichedStep);
   }
   const patch = buildJourney2029ContextPatch({
     kind: options.kind || "general_research", mode: options.mode || "organic", sourceSurface: options.surface,
@@ -115,8 +258,11 @@ export function researchPathStepsForSave(context, options = {}) {
   const step = buildResearchPathStep(safe, options);
   if (!step) return [];
   const previous = pending.at(-1) || safe.journey?.lastSavedStep;
-  if (isNumberTraceEnrichment(previous, step)) {
-    if (pending.length) pending[pending.length - 1] = { ...step, step_index: previous.step_index };
+  const enriched = isNumberTraceEnrichment(previous, step) || isOutcomeEnrichment(previous, step);
+  if (enriched) {
+    const enrichedStep = mergeEnrichedResearchPathStep(previous, step);
+    if (pending.length) pending[pending.length - 1] = enrichedStep;
+    else pending.push(enrichedStep);
   } else if (researchPathStepKey(previous) !== researchPathStepKey(step)) pending.push(step);
   return pending;
 }
@@ -197,6 +343,9 @@ export async function saveResearchPathSnapshot({
   if (pathId != null && !isResearchPathId(pathId)) return { ok: false, error: "invalid_path_id" };
   if (!steps.length && pathId) return getLatestResearchPath(pathId);
   if (!steps.length || steps.length > 100) return { ok: false, error: "save_required" };
+  if (!researchPathStepsPayloadWithinLimit(steps)) {
+    return { ok: false, error: "research_path_payload_too_large" };
+  }
 
   const { data, error } = await supabase.rpc("fn_research_path_append_v1", {
     p_path_id: isResearchPathId(pathId) ? pathId : null,
