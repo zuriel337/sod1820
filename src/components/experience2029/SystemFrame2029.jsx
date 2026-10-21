@@ -24,6 +24,7 @@ import { buildExactReturnPatch, researchContextNumber } from "../../lib/research
 import { numberWindowSourceReturn } from "../../lib/research/numberExpressionFocus.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useFeatureState } from "../MaintenanceLock.jsx";
+import { isFreeQuestionContext, contextSubjectRef } from "../../lib/research/freeQuestionContext.js";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
@@ -192,6 +193,10 @@ function normalizeTarget(input, source = "context") {
 }
 
 function targetFromContext(context) {
+  // A free question is a question, not a phrase/number: it must never reach the number/gematria/save/share actions.
+  if (isFreeQuestionContext(context)) {
+    return { id: "free-question", type: "question", label: String(context.dimensions.entryQuestion), locator: null, href: null, source: "research-context", expression: null, method: null, resultValue: null, number: null, sectionLabel: "שאלה חופשית", sourceLabel: null };
+  }
   const selection = normalizeTarget(context?.selection, "context-selection");
   if (selection) return selection;
   return normalizeTarget(context?.subject, "research-context");
@@ -450,6 +455,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
 function InspectProjection({ target, context, surface = "system", onSetFocus, onSave, onAddResearch, isSaved = false, inResearch = false, onOpenNumber, onNeedHelp }) {
   const [commitState, setCommitState] = useState(null);
   const numericFamily = target?.type === "number" || target?.type === "phrase";
+  const isQuestion = target?.type === "question";
   const hasMethodContext = Boolean(target?.expression && target?.method && Number.isSafeInteger(Number(target?.resultValue)));
   const conceptKey = hasMethodContext ? "method" : numericFamily ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) ? getLearnFragment(conceptKey) : null;
@@ -530,12 +536,16 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
       <section className="sod29-inspect-identity">
         <div className="sod29-kicker">{target.source === "selection" ? "בחירה זמנית" : "מוקד נוכחי"}</div>
         <strong>{target.label}</strong>
-        <span>{target.type}</span>
+        <span>{isQuestion ? "שאלה חופשית" : target.type}</span>
       </section>
 
       {hasMethodContext ? <div className="sod29-surface-context-expression"><span>{target.expression}</span><small>{target.methodLabel || target.method}</small><b>{Number(target.resultValue)}</b></div> : null}
 
-      {numericFamily ? (
+      {isQuestion ? (
+        <FrameState title="שאלה חופשית · לא ביטוי לחישוב">
+          השאלה אינה נחשבת, אינה נשמרת כפריט ואינה מתפרסמת. כדי לחשב או לבדוק קשרים, בחר ביטוי מדויק בהיכל, או שאל את רזיאל.
+        </FrameState>
+      ) : numericFamily ? (
         <FrameState title="מספר / ביטוי · בדיקה מהירה">
           הבדיקה שומרת את המקום וההקשר. אפשר לפתוח את החישוב בלי לצאת למסך אחר ובלי לאבד את הדרך חזרה.
         </FrameState>
@@ -555,16 +565,16 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
         {hasMethodContext ? <p><strong>{target.expression}</strong> מוצג במוקד הפעיל בשיטה <strong>{target.method}</strong> עם תוצאה <strong>{target.resultValue}</strong>. ההסבר אינו מקור חישוב נוסף.</p> : null}
       </LearnMark2029> : null}
 
-      <div className="sod29-panel-actions-grid">
+      {isQuestion ? null : <div className="sod29-panel-actions-grid">
         <button className="sod29-action primary" type="button" onClick={() => onSetFocus(target)}>⌖ התמקד בזה</button>
         <button className="sod29-action" type="button" data-inspect-action="save" aria-pressed={isSaved} onClick={() => setCommitState({ kind: "save", ok: Boolean(onSave?.(target)) })}>{isSaved ? "✓ שמור" : "＋ שמור"}</button>
         <button className="sod29-action" type="button" data-inspect-action="research" aria-pressed={inResearch} onClick={() => setCommitState({ kind: "research", ok: Boolean(onAddResearch?.(target)) })}>{inResearch ? "✓ במחקר" : "◎ למחקר"}</button>
         <button className="sod29-action" type="button" disabled title="המעקב המלא יחובר בהמשך">♢ עקוב</button>
-      </div>
+      </div>}
 
       {commitState && !commitState.ok ? <FrameState kind="error" title="הפעולה לא נשמרה">{commitState.kind === "save" ? "השמירה לא הושלמה" : "ההוספה למחקר לא הושלמה"} — נסה שוב.</FrameState> : null}
 
-      <div className="sod29-canonical-share" data-share-owner="ShareActions">
+      {isQuestion ? null : <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <ShareActions
           type={target.type || "page"}
           title={`SOD1820 · ${target.label}`}
@@ -573,11 +583,11 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
           force
           style={{ marginTop: 10 }}
         />
-      </div>
+      </div>}
 
       <div className="sod29-panel-context-card">
         <b>ההקשר שלך</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? contextSubjectRef(context) : "אין מוקד פעיל"}</span>
         <small>בחירה זמנית אינה הופכת חיבור לעובדה.</small>
       </div>
     </>
@@ -611,13 +621,19 @@ function ActionProjection({
   onRaziel,
   razielLocked,
   go,
+  onReturnExact = null,
 }) {
   const actions = resolveContextActions({ surface, target });
+  // Mobile/tablet: the header return is hidden by the compact header, so the exact return is reachable here (same handler).
+  const returnBlock = onReturnExact && context?.returnTo?.href
+    ? <button type="button" className="sod29-action sod29-panel-return" data-exact-return="panel" onClick={onReturnExact} title={context.returnTo.label || "חזרה מדויקת"}>↩ חזרה מדויקת{context.returnTo.label ? ` · ${context.returnTo.label}` : ""}</button>
+    : null;
   if (!target && !actions.length) {
-    return <FrameState kind="empty" title="אין כרגע משהו לפעול עליו">סמן שורה, ביטוי, מספר או פריט. הפעולות יתאימו את עצמן למה שבחרת או למה שאתה רואה עכשיו.</FrameState>;
+    return <>{returnBlock}<FrameState kind="empty" title="אין כרגע משהו לפעול עליו">סמן שורה, ביטוי, מספר או פריט. הפעולות יתאימו את עצמן למה שבחרת או למה שאתה רואה עכשיו.</FrameState></>;
   }
   return (
     <>
+      {returnBlock}
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">מה אפשר לעשות כאן</div>
         <h3>{target ? "מה אפשר לעשות עם הבחירה הזאת?" : "מה אפשר לעשות במשטח הזה?"}</h3>
@@ -626,12 +642,12 @@ function ActionProjection({
       {target ? <div className="sod29-selection-summary">
         <span>{target.source === "selection" ? "בחירה" : "פוקוס"}</span>
         <strong>{target.label}</strong>
-        <small>{target.type}</small>
+        <small>{target.type === "question" ? "שאלה חופשית" : target.type}</small>
       </div> : null}
       <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} razielLocked={razielLocked} go={go} />
       <div className="sod29-panel-context-card">
         <b>אותו הקשר</b>
-        <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? `Subject · ${contextSubjectRef(context)}` : "אין מוקד פעיל"}</span>
         <small>מה שבחרת נשאר איתך כשנפתח כלי או עולם.</small>
       </div>
     </>
@@ -712,7 +728,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   const [thread, setThread] = useState([]);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
-  const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
+  const subjectRef = context?.subject ? contextSubjectRef(context) : "";
   // תמלול מקומי חסום — משקף את חסם RazielChat הישן: 2 תורות אחרונים, ~200 תווים לתור, ≤500 סה"כ.
   // רק state הקומפוננטה; בלי store חדש. כל ההקשר ≤600 — חוזה rCtxHint הקיים בשרת (לא מורחב).
   const buildTranscript = (turns) => turns.slice(-2)
@@ -896,7 +912,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       </section> : null}
       <div className="sod29-panel-context-card">
         <b>מה רזיאל רואה עכשיו</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? contextSubjectRef(context) : "אין מוקד פעיל"}</span>
         {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
@@ -1465,7 +1481,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
 // Context data and navigation continue to come from the existing ResearchProvider.
 function IntroResearchContext2029({ context }) {
   const strip = <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
+    {context.subject ? <span>{isFreeQuestionContext(context) ? "שאלה" : "מוקד"} · {context.subject.label || context.subject.id}</span> : null}
     {context.lens ? <span>מבט · {context.lens}</span> : null}
     {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
     {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
@@ -1733,11 +1749,13 @@ export default function SystemFrame2029({
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
     const key = String(capability || "").trim();
     if (!key) return;
+    if (normalizeTarget(subject)?.type === "question") return; // never run a capability on a free question
     openTransient(TRANSIENT.CAPABILITY, { ...payload, capability: key, subject: normalizeTarget(subject) });
   }, [openTransient]);
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
   const openNumber = useCallback((subject = null) => {
     const normalized = normalizeTarget(subject);
+    if (normalized?.type === "question") return; // a question is not a number/expression
     let sourceReturn = null;
     if (
       normalized?.expression
@@ -1875,7 +1893,7 @@ export default function SystemFrame2029({
 
   const setResearchFocus = useCallback((target) => {
     const normalized = normalizeTarget(target);
-    if (!normalized) return;
+    if (!normalized || normalized.type === "question") return;
     research.setResearchContext?.({
       subject: {
         id: normalized.id,
@@ -1898,7 +1916,7 @@ export default function SystemFrame2029({
 
   const entityFromTarget = useCallback((target) => {
     const normalized = normalizeTarget(target);
-    if (!normalized) return null;
+    if (!normalized || normalized.type === "question") return null; // a free question is never an item to save or research
     return makeEntity({
       type: normalized.type,
       title: normalized.label,
@@ -2068,7 +2086,7 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} onReturnExact={returnExact} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
       if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><Suspense fallback={<FrameState kind="loading" title="פותח את המספר…" />}><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} sourceReturn={transient?.payload?.sourceReturn} /></Suspense></PanelShell>;
