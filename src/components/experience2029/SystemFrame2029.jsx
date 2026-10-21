@@ -773,7 +773,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true" data-raziel-session="shared" data-raziel-projection={projection} aria-label="שיחה עם רזיאל">
       <b>✦ המשך עם רזיאל</b>
       <p className="sod29-raziel-context" data-raziel-context-strip="true">
-        <span>ההקשר של רזיאל:</span>{" "}
+        <span>מה רזיאל רואה עכשיו:</span>{" "}
         {contextParts.length ? contextParts.map((part, i) => <React.Fragment key={part.key}>{i ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "אין כרגע מוקד מחקר פעיל"}
       </p>
       <div className="sod29-raziel-saved" data-raziel-saved-preview="ResearchProvider">
@@ -893,11 +893,10 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {readingFocus.signals?.length ? <small>{readingFocus.signals.slice(0, 3).join(" · ")}</small> : null}
       </section> : null}
       {elsFocus ? <section className="sod29-panel-context-card" data-raziel-els-context="true">
-        <b>{intentLabel || "ELS · occurrence context"}</b>
-        <span>מופע מאומת · {elsFocus.occurrence.corpusId || "corpus"} · skip {elsFocus.occurrence.skip ?? "—"} · dir {elsFocus.occurrence.dir ?? "—"}</span>
-        <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
-        {elsFocus.occurrence.dependencyRef ? <small>dependency ref · {elsFocus.occurrence.dependencyRef}</small> : null}
-        <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+        <b>{intentLabel || "מופע בצופן"}</b>
+        <span>מופע מאומת · דילוג <bdi>{elsFocus.occurrence.skip ?? "—"}</bdi> · כיוון {elsFocus.occurrence.dir === -1 ? "הפוך" : elsFocus.occurrence.dir === 1 ? "ישר" : "—"}</span>
+        <small>מיקום <bdi>{elsFocus.occurrence.start ?? "—"}</bdi>–<bdi>{elsFocus.occurrence.end ?? "—"}</bdi> · {elsFocus.occurrence.positions?.length ?? 0} אותיות</small>
+        <small>הקשר בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
       </section> : null}
       {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>
         <b>{elsGuide.title}</b>
@@ -907,21 +906,17 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <span>{elsGuide.question}</span>
       </section> : null}
       {numberFocus ? <section className="sod29-panel-context-card">
-        <b>{intentLabel || "Number Core focus"}</b>
+        <b>{intentLabel || "מוקד מספרי"}</b>
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
-        {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
-      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
+        {numberFocus.zeroScaleNext != null ? <small>סולם האפסים · <bdi>{numberFocus.root} → {numberFocus.zeroScaleNext}</bdi></small> : null}
+      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="אין עדיין מוקד">כשתבחר מספר, ביטוי או קטע — רזיאל יתייחס אליו. הוא לא ממציא הקשר או מסלול.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
         <small>{quickInsight.boundary}</small>
       </section> : null}
-      <div className="sod29-panel-context-card">
-        <b>מה רזיאל רואה עכשיו</b>
-        <span>{context?.subject ? contextSubjectRef(context) : "אין מוקד פעיל"}</span>
-        {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
-      </div>
+      {target?.source === "selection" ? <small className="sod29-raziel-selection">בחירה זמנית: <bdi>{target.label}</bdi></small> : null}
       <div className="sod29-panel-actions-grid">
         {routeActionValid ? <button
           className="sod29-action primary"

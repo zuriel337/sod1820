@@ -28,7 +28,7 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.contract === "els_2029_projection_v1"/);
   assert.match(frame, /result\?\.status === "OK"/);
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
-  assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
+  assert.match(frame, /הקשר בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/); // #1142: Hebrew-first, same boundary
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
   // RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1: the single native chat uses the existing askRaziel transport (one call site).
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);

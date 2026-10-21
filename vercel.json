@@ -1143,6 +1143,7 @@
     "deploymentEnabled": {
       "gpt/2029-hybrid-stage-preview-20261018": true,
       "claude/2029-unified-review-5107-heichal-20261021": true,
+      "claude/raziel-session-frame-seam-20261021": true,
       "gpt/els-research-v1-closure-20261020": true,
       "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
       "gpt/*": false,

@@ -1210,7 +1210,7 @@
 .sod29-raziel-chat-raziel { border: 1px solid var(--s29-line); border-inline-start: 3px solid var(--s29-raziel-indigo); background: color-mix(in srgb, var(--s29-raziel-indigo) 6%, transparent); }
 .sod29-raziel-chat-who, .sod29-raziel-chat-raziel small, .sod29-raziel-provenance, .sod29-raziel-status { font-size: 14px; color: var(--s29-muted); }
 .sod29-raziel-chat-who { font-weight: 800; }
-.sod29-raziel-chat span[dir="auto"] { white-space: pre-wrap; overflow-wrap: anywhere; }
+.sod29-raziel-chat span[dir="auto"] { color: var(--s29-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
 .sod29-raziel-status:empty { display: none; }
 .sod29-raziel-chat form { display: flex; flex-wrap: wrap; gap: 6px; }
 .sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; min-block-size: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; font-size: 16px; }

@@ -31,6 +31,10 @@ export const PREVIEW_READ_RPC_ALLOWLIST = Object.freeze([
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
+// ZURIEL Human Gate 2026-10-21 (#1142, option "open only for Raziel"): the ONE Raziel conversation may reach its
+// existing backend from this exact approved preview branch only. Every other branch keeps all model calls blocked.
+export const RAZIEL_CHAT_PREVIEW_BRANCHES = Object.freeze(["claude/raziel-session-frame-seam-20261021"]);
+
 export function createPreviewGuardDescriptor({ commit, branch, host, buildTarget = "2029" }) {
   if (!new Set(["2029", "hybrid"]).has(buildTarget)) {
     throw new Error(`Unsupported Preview guard build target: ${buildTarget}`);
@@ -43,6 +47,7 @@ export function createPreviewGuardDescriptor({ commit, branch, host, buildTarget
     buildTarget,
     vercelEnv: "preview",
     readRpcAllowlist: [...PREVIEW_READ_RPC_ALLOWLIST],
+    razielChat: RAZIEL_CHAT_PREVIEW_BRANCHES.includes(branch),
   });
 }
 
@@ -83,6 +88,11 @@ self.addEventListener('fetch',event=>{
      if(emailOnly&&u.pathname==='/auth/v1/verify'&&body.type==='email'&&typeof body.token==='string')return fetch(req);
     }catch{}
    }
+  }
+  // Raziel conversation only (approved branch, see RAZIEL_CHAT_PREVIEW_BRANCHES): persona=raziel research ask; never Metatron,
+  // advanced mode, a path, an oversized body or any other function. Save/upload endpoints stay blocked.
+  if(previewIdentity.razielChat===true&&req.method==='POST'&&u.hostname==='linswmnnkjxvweumprav.supabase.co'&&u.pathname==='/functions/v1/ai-analyze'){
+   try{const text=await req.clone().text();if(text.length<=8192){const body=JSON.parse(text);if(body&&body.persona==='raziel'&&body.kind==='research'&&body.metatron!==true&&!body.mode&&body.path==null)return fetch(req);}}catch{}
   }
   // Only the existing governed ELS reader is callable. Save/upload/model endpoints stay blocked.
   if(req.method==='POST'&&u.hostname==='linswmnnkjxvweumprav.supabase.co'&&u.pathname==='/functions/v1/els-search-bridge'){
