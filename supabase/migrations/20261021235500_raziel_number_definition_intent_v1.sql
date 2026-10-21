@@ -1,5 +1,4 @@
--- #1142 isolated candidate. Derived exactly from live fn_raziel_plan definition on 2026-10-21.
--- Intended for scratch test only until approval and comparison. Keep RLS unchanged.
+-- #1142 isolated candidate for scratch tests only. Derived from live planner definition. No privilege changes.
 CREATE OR REPLACE FUNCTION public.fn_raziel_plan(p_question text, p_context_type text DEFAULT 'public_user'::text, p_user_ref text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -288,143 +287,7 @@ begin
     v_ncx := '([0-9]+|זה|הוא|ה?מספר הזה|מספר זה)';
     v_nct := '( באתר| בכל האתר)? $';
     v_ncf := null;
-    if v_q ~ '^ (מה זה|מהו|מה הוא|ספר לי על|מה ידוע על) (המספר )?[0-9]{1,6}  (עוד )?((מופיע|נמצא|מוזכר) )?(המספר )?'||v_ncx||'( עוד)? (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת)'||v_nct)
-       or v_q ~ ('^ (איפה|היכן) (עוד )?(המספר )?'||v_ncx||' (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת) עוד'||v_nct)
-       or v_q ~ ('^ מה (מחובר|מחוברת|קשור|קשורה|מקושר|מקושרת) (ל ?|אל )(המספר )?'||v_ncx||v_nct)
-       or v_q ~ ('^ מה יש סביב (המספר )?'||v_ncx||v_nct)
-       or v_q ~ ('^ (איזה|אילו) (פוסטים|טופיקים|נושאים|דפים)( או (פוסטים|טופיקים|נושאים|דפים))? (קשורים|מחוברים|מקושרים) (ל ?|אל )(המספר )?'||v_ncx||v_nct) then
-      v_ncf := 'deterministic';
-    elsif v_q ~ ('^ (מה|איך) (מעניין|המשמעות|משמעות|זה מתחבר|מתחבר|מתחברים) (ב ?|של |ל ?|עם |אל |לגבי )?(המספר )?'||v_ncx||v_nct)
-       or v_q ~ ('^ איך (המספר )?'||v_ncx||' (מתחבר|מתחברת)'||v_nct)
-       or v_q ~ ('^ מה המשמעות של (החיבורים|הקשרים|ההופעות) (של |ל ?)(המספר )?'||v_ncx||v_nct) then
-      v_ncf := 'synthesis';
-    end if;
-    if v_ncf is not null then
-      v_ncn := (regexp_match(v_q, '[0-9]+'))[1];
-      if v_ncn is null then
-        v_nc := jsonb_build_object('contract','number_context_v1','anchor','surface_root','number',null,'mode',v_ncf);
-      elsif length(v_ncn) <= 6 and v_ncn::int >= 1 and (select count(distinct m[1]) from regexp_matches(v_q, '[0-9]+', 'g') m) = 1 then
-        v_nc := jsonb_build_object('contract','number_context_v1','anchor','explicit','number',v_ncn::int,'mode',v_ncf);
-      end if;   -- out-of-range / multiple distinct numerals → no number_context (fail closed)
-    else
-      -- Gematria + context: «<explicit gematria question> ואיפה עוד הוא מופיע באתר» — the gematria leg is the dependency that supplies the anchor.
-      v_nctail := '( ו?(איפה|היכן) עוד (הוא|זה|המספר הזה|הערך הזה) (מופיע|נמצא|מוזכר)( באתר)?| ו?מה מחובר (אליו|לערך הזה|למספר הזה)( באתר)?) $';
-      if v_q ~ v_nctail then
-        v_nchead := btrim(regexp_replace(v_q, v_nctail, ''));
-        if v_nchead !~ '[0-9]' and (v_nchead ~ ' [וב]*(גימטריה|גימטריא|חישוב)( |$)' or v_nchead ~ '^(מה )?(הערך|ערך) של ') then
-          v_nc := jsonb_build_object('contract','number_context_v1','anchor','gematria_dependency','number',null,'mode','synthesis','gematria_head',v_nchead);
-        end if;
-      end if;
-    end if;
-    if v_nc is not null then v_nc := v_nc || jsonb_build_object('owner','reality_graph_law v8','read_only',true); end if;
-  end if;
-  v_cmp := v_q ~ ' (השווה|השוואה|לעומת|מול|compare|comparison|relationship) ' or v_q ~ ' מה הקשר בין ';
-  v_rraw := case when coalesce(v_route->>'intent','') like 'multi_domain%' then 'multi_domain'
-                 when coalesce(v_route->>'intent','') like 'single_domain%' then 'single_domain'
-                 else 'no_clear_match' end;
-  v_rint := case when v_ndom > 1 then 'multi_domain' when v_ndom = 1 then 'single_domain' else 'no_clear_match' end;
-
-  if v_ndom > 1 then
-    v_avail := 'multi_domain_synthesis';
-    v_reason := 'שאלה רב-תחומית ('||(select string_agg(d,', ') from jsonb_array_elements_text(v_dom) d)||') — מנוע בודד אינו עונה על כולה → Raziel synthesis (לא הופעל מומחה)';
-    v_rejected := null; v_expert := null; v_ename := null; v_cand := null; v_pintent := null; v_pfn := null;
-    v_pdet := null; v_ptok := null; v_allow := null; v_escope := null; v_eff := null; v_perm_ok := null;
-  end if;
-
-  -- Phase H override (after every earlier classification): an explicit/anchored number-context question is its OWN capability, never a gematria/ELS/source one.
-  if v_nc is not null then
-    v_avail := 'number_context';
-    v_reason := 'הקשר-מספר (קריאה בלבד): number_map + number_dossier_json → reality_graph_law v8 · עוגן='||(v_nc->>'anchor');
-    v_rejected := null; v_expert := null; v_ename := null; v_cand := null; v_pintent := null; v_pfn := null;
-    v_pdet := null; v_ptok := null; v_allow := null; v_escope := null; v_eff := null; v_perm_ok := null;
-    v_gform := null; v_cmp := false; v_xchk := false;
-    if v_nc->>'anchor' = 'gematria_dependency' then
-      v_dom := '["gematria_engine"]'::jsonb; v_caps := '["gematria"]'::jsonb; v_ndom := 1; v_rint := 'single_domain';
-    else
-      v_dom := '[]'::jsonb; v_caps := '[]'::jsonb; v_ndom := 0; v_rint := 'no_clear_match';
-    end if;
-  end if;
-
-  -- ▼ Phase A bounded capability metadata (semantic, provider-agnostic; levels per raziel_routing_law §3)
-  v_class := case
-    when v_avail = 'number_context' then 'reality_number_context'
-    when v_avail = 'available' and v_pintent = 'gematria' then 'gematria_expression'
-    when v_avail = 'available' and v_pintent = 'els' then 'els_search'
-    when v_avail = 'available' and v_pintent = 'tanakh_source' then 'tanakh_source'
-    when v_avail = 'available' then 'registered_protocol'
-    when v_avail = 'operator_read' then v_op->>'capability_class'
-    when v_avail = 'personal_research_read' then 'personal_research_state'
-    when v_avail in ('no_match','multi_domain_synthesis') then 'general_synthesis'
-    else 'expert_unavailable' end;
-  v_strategy := case
-    when v_avail = 'number_context' and v_nc->>'mode' = 'deterministic' then 'number_context_deterministic'
-    when v_avail = 'number_context' then 'number_context_synthesis'
-    when v_avail = 'operator_read' and v_op->>'answer_mode' = 'deterministic' then 'operator_read_deterministic'
-    when v_avail = 'operator_read' then 'operator_read_synthesis'
-    when v_avail = 'personal_research_read' and v_pers->>'answer_mode' = 'deterministic' then 'personal_research_deterministic'
-    when v_avail = 'personal_research_read' then 'personal_research_synthesis'
-    when v_avail = 'available' and coalesce(v_pdet,true) then 'deterministic_engine'
-    else 'raziel_synthesis' end;
-  v_minint := case when v_strategy in ('deterministic_engine','operator_read_deterministic','number_context_deterministic','personal_research_deterministic') then 'L0_DETERMINISTIC' else 'L2_FAST' end;
-  -- Phase G: a bounded multi-tool acquisition over exactly the registered read-only set {gematria, els, tanakh_source} is L4_TOOL_RESEARCH
-  --   (synthesis target L3_DEEP). Any other multi-domain combination keeps the existing floor and executes nothing.
-  v_toolset := v_avail = 'multi_domain_synthesis' and v_ndom between 2 and 3
-               and not exists (select 1 from jsonb_array_elements_text(v_caps) c where c not in ('gematria','els','tanakh_source'));
-  -- Phase H: gematria → reality dependency is the ONLY number_context form that is L4_TOOL_RESEARCH (explicitly combined with gematria).
-  if v_avail = 'number_context' and v_nc->>'anchor' = 'gematria_dependency' then v_toolset := true; end if;
-  if v_toolset then v_minint := 'L4_TOOL_RESEARCH'; end if;
-
-  return jsonb_build_object(
-    'plan_version', 2,
-    'question', left(coalesce(p_question,''),200),
-    'context_type', p_context_type,
-    'user_context_rank', v_urank,
-    'intent_class', v_route->>'intent',
-    'capability_class', v_class,
-    'strategy', v_strategy,
-    'minimum_intelligence', v_minint,
-    'synthesis_target', case when v_toolset then 'L3_DEEP' else null end,
-    'gematria_form', v_gform,
-    'route_intent', v_rint, 'route_intent_raw', v_rraw,
-    'domains', v_dom, 'capabilities', v_caps,
-    'compare_requested', v_cmp,
-    'cross_check_required', v_xchk,
-    'contradictory', false,
-    'operator', v_op,
-    'number_context', v_nc,
-    'personal', v_pers,
-    'candidate', case when v_expert is null then null else
-        jsonb_build_object('expert',v_expert,'name',v_ename,'reason',coalesce(v_cand->>'reason',v_reason)) end,
-    'availability', v_avail,
-    'reason', v_reason,
-    'protocol', case when v_pintent is null then null else jsonb_build_object(
-        'intent', v_pintent, 'executor','fn_raziel_protocol',
-        'specialist_fn', v_pfn, 'fn_allowlisted', coalesce(v_allow,false),
-        'deterministic', coalesce(v_pdet,true), 'token_cost', coalesce(v_ptok,0)) end,
-    'permission', jsonb_build_object(
-        'expert_scope', v_escope, 'user_context', p_context_type,
-        'effective_scope', v_eff, 'permission_ok', coalesce(v_perm_ok,false),
-        'escalation_possible', false),
-    'execution_plan', jsonb_build_object(
-        'will_execute', false, 'live', false,
-        'would_call', case when v_avail='available' then 'fn_raziel_protocol('||quote_literal(coalesce(p_question,''))||','||quote_literal(coalesce(v_pintent,''))||')' else null end,
-        'note', 'PLAN בלבד — לא הופעל מומחה, לא נקרא מודל, לא ערוץ חי'),
-    'trace', jsonb_build_object(
-        'question', left(coalesce(p_question,''),200), 'intent', v_route->>'intent',
-        'operator', v_op, 'operator_denied', v_op_denied, 'personal', v_pers, 'personal_denied', v_pers_denied, 'number_context', v_nc,
-        'signals', jsonb_build_object('route_intent', v_rint, 'route_intent_raw', v_rraw, 'domains', v_dom, 'capabilities', v_caps,
-            'compare_requested', v_cmp, 'cross_check_required', v_xchk, 'contradictory', false),
-        'candidate_expert', v_expert, 'rejected_candidate', v_rejected, 'reason', v_reason,
-        'permission_scope', v_escope, 'effective_scope', v_eff,
-        'protocol', v_pintent, 'availability', v_avail,
-        'capability_class', v_class, 'strategy', v_strategy, 'minimum_intelligence', v_minint,
-        'synthesis_target', case when v_toolset then 'L3_DEEP' else null end,
-        'execution_plan', case when v_avail='available' then 'ready (not executed)' else v_avail end),
-    'cost', jsonb_build_object('used_llm', false, 'tokens', 0, 'db_calls', 1),
-    'generated_at', now());
-end;
-$function$
- then
+    if v_q ~ '^ (מה זה|מהו|מה הוא|ספר לי על|מה ידוע על) (המספר )?[0-9]{1,6} $' then
       v_ncf := 'synthesis';
     elsif v_q ~ ('^ (איפה|היכן) (עוד )?((מופיע|נמצא|מוזכר) )?(המספר )?'||v_ncx||'( עוד)? (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת)'||v_nct)
        or v_q ~ ('^ (איפה|היכן) (עוד )?(המספר )?'||v_ncx||' (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת) עוד'||v_nct)
@@ -562,4 +425,4 @@ $function$
     'generated_at', now());
 end;
 $function$
-;
+
