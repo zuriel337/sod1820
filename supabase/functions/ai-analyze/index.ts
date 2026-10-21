@@ -31,6 +31,8 @@ const ANTHROPIC_KEY = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const GEMINI_KEY = (Deno.env.get("GEMINI_API_KEY") || "").trim();
 const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const FAST_MODEL = (Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5").trim();
+// Deep Raziel (MODEL) needs room beyond the fast budget so a complete answer fits (#1142 deep P0).
+const RAZIEL_DEEP_MAX_TOKENS = 4000;
 // אם GEMINI_MODEL לא מוגדר/שגוי → ברירת-מחדל בטוחה (מונע דגם לא-תקין בסוד).
 const GEMINI_MODEL_RAW = (Deno.env.get("GEMINI_MODEL") || "").trim();
 const GEMINI_MODEL = GEMINI_MODEL_RAW.startsWith("gemini") ? GEMINI_MODEL_RAW : "gemini-2.5-flash";
@@ -2182,7 +2184,7 @@ Deno.serve(async (req: Request) => {
       // מעטפת-reliability הקנונית (retry/timeout/backoff) — רק לקריאת-המודל של persona=raziel. never_silent:
       //    ה-guardian מחזיר JSON חוקי לפי חוזה-התשובה של רזיאל (לעולם לא null/ריק).
       const rel = await callClaudeReliable({
-        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user, maxTokens: 1600,
+        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user, maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS,
         buildFallback: (reason) => JSON.stringify({
           v: 1, agent: "raziel", context: null, greeting: null,
           answer: reason === "timeout" || reason === "overload"
@@ -2223,7 +2225,7 @@ Deno.serve(async (req: Request) => {
           cost: { certainty: "unknown" },
           replay: {
             ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2"],
-            parametersRef: `raziel:max_tokens:1600;level:${rLevel};mode:${rMode ? "advanced" : "baseline"}`,
+            parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"}`,
             continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
           },
           privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
