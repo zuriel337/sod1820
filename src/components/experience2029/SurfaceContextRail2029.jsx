@@ -28,7 +28,7 @@ import {
 } from "../../lib/entryLearn2029.js";
 
 
-const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
+const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", question: "שאלה חופשית", researcher: "כותב", book: "ספר" });
 
 export default function SurfaceContextRail2029({
   focus,
