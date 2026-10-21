@@ -28,7 +28,7 @@ test("Post 5107 reads and renders original article before any optional post-end 
 });
 
 test("the post-end Links, Meeting and Sources are one accessible in-flow menu", () => {
-  for (const [id, label] of [["connections","קשרים"],["meeting","מפגש"],["sources","מקורות"]]) {
+  for (const [id, label] of [["connections","קשרים"],["meeting","התכנסויות"],["sources","מקורות"]]) {
     assert.ok(tabs.includes('id: "' + id + '", label: "' + label + '"'));
   }
   assert.match(tabs, /role="tablist"/);

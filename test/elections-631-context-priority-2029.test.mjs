@@ -121,7 +121,7 @@ test("review belongs after the Post; only six compact cups remain in Companion",
   assert.match(reader, /\.eq\("is_published", true\)/);
   assert.match(reader, /projectElections631Context/);
   assert.match(tabs, /"connections", label: "קשרים"/);
-  assert.match(tabs, /"meeting", label: "מפגש"/);
+  assert.match(tabs, /"meeting", label: "התכנסויות"/);
   assert.match(tabs, /"sources", label: "מקורות"/);
   assert.doesNotMatch(postPage, /new ResearchProvider|new.*graph|create.*store/i);
 });

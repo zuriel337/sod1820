@@ -884,10 +884,16 @@ function PostReadingBody() {
   };
 
 
+  const electionsAfterPostEnabled = POST_631_PREVIEW_2029 && isElectionsMaster
+    && !projection.draft && !projection.privateStage && !projection.previewSnapshot;
+
   // Reuse the existing Post projections exactly once: the pilot moves them
   // into an in-flow menu; ordinary Posts keep their established order.
   const postConvergenceContent = !state.extensionsLoading ? <Suspense fallback={null}>
-      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers}
+        depth={electionsAfterPostEnabled ? electionsReview.model?.depth || null : null}
+        depthLoading={electionsAfterPostEnabled && electionsReview.loading}
+        discoveryLinks={electionsAfterPostEnabled} />
     </Suspense> : null;
   const postContinuationsContent = contextualConnections.length ? <section id={POST_631_PREVIEW_2029 && isElectionsMaster ? undefined : "post-connections"} className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
       <header>
@@ -915,8 +921,6 @@ function PostReadingBody() {
       </div>
       </div>)}
     </section> : null;
-  const electionsAfterPostEnabled = POST_631_PREVIEW_2029 && isElectionsMaster
-    && !projection.draft && !projection.privateStage && !projection.previewSnapshot;
 
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
@@ -1022,17 +1026,18 @@ function PostReadingBody() {
 
     </div>
 
-    {electionsAfterPostEnabled && PostAfterReadingTabs2029 ? <Suspense fallback={<p role="status">פותח אפשרויות העמקה…</p>}>
+    {electionsAfterPostEnabled && PostAfterReadingTabs2029 ? <>
+    {postConvergenceContent}
+    <Suspense fallback={<p role="status">פותח אפשרויות העמקה…</p>}>
       <PostAfterReadingTabs2029 postId={post.id}
         connections={postContinuationsContent}
         meeting={<>
-          {electionsReview.loading ? <p role="status">טוען מקורות למפגש…</p>
+          {electionsReview.loading ? <p role="status">טוען מקורות להתכנסויות…</p>
             : electionsReview.model && Elections631ContextPreview2029
               ? <Suspense fallback={<p role="status">פותח שישה ממדי עומק…</p>}>
                   <Elections631ContextPreview2029 model={electionsReview.model} view="meeting" />
                 </Suspense>
               : <p role="status">{electionsReview.error || "אין כרגע תצוגת עומק מאושרת."}</p>}
-          {postConvergenceContent}
         </>}
         sources={<>
           {electionsReview.loading ? <p role="status">מאתר מקורות מדויקים…</p>
@@ -1044,7 +1049,7 @@ function PostReadingBody() {
           <p><a href="#post-sources">תאריכי המקור ופרטי הפוסט ↓</a></p>
         </>}
       />
-    </Suspense> : <>
+    </Suspense></> : <>
       {postConvergenceContent}
       {postContinuationsContent}
     </>}

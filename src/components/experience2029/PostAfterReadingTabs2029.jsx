@@ -7,7 +7,7 @@ import "./postAfterReadingTabs2029.css";
 // Do not make these tabs persistent mobile chrome.
 export const POST_DISCOVERY_TABS_2029 = Object.freeze([
   { id: "connections", label: "קשרים", heading: "לאן הסיפור ממשיך" },
-  { id: "meeting", label: "מפגש", heading: "התכנסויות ועומק ההקשר" },
+  { id: "meeting", label: "התכנסויות", heading: "התכנסויות ועומק ההקשר" },
   { id: "sources", label: "מקורות", heading: "לראות את המקור המדויק" },
 ]);
 
@@ -63,7 +63,7 @@ export default function PostAfterReadingTabs2029({ postId, connections, meeting,
       <h2>להמשיך מהסיפור אל העץ</h2>
       <p>אותו מקור, שלוש דרכי התבוננות. בוחרים כיוון ונשארים באותו פוסט.</p>
     </header>
-    <div className="sod29-post-discovery-tabs" role="tablist" aria-label="קשרים, מפגש ומקורות" onKeyDown={onKeyDown}>
+    <div className="sod29-post-discovery-tabs" role="tablist" aria-label="קשרים, התכנסויות ומקורות" onKeyDown={onKeyDown}>
       {POST_DISCOVERY_TABS_2029.map((tab) => <button key={tab.id}
         type="button" role="tab" id={"post-discovery-tab-" + tab.id}
         aria-selected={active === tab.id} aria-controls="post-discovery-panel"
