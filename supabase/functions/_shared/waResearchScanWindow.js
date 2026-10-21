@@ -4,6 +4,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 export const HISTORICAL_DEFAULT_EXCLUDED_CHANNELS = Object.freeze(["or-geula"]);
 
 function boundedInteger(value, fallback, min, max) {
+  if (value == null || String(value).trim() === "") return fallback;
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.max(min, Math.min(Math.trunc(parsed), max));

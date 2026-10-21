@@ -7,11 +7,20 @@ import {
 } from "../supabase/functions/_shared/waResearchScanWindow.js";
 
 test("incremental scan preserves the bounded cron defaults", () => {
+  const defaults = parseResearchScanRequest("https://example.test/?hours=168&limit=4");
+  assert.equal(defaults.ok, true);
+  assert.equal(defaults.mode, "incremental");
+  assert.equal(defaults.hours, 168);
+  assert.equal(defaults.limit, 4);
+  assert.equal(defaults.windowSize, 500);
+  assert.deepEqual(defaults.excludedChannels, []);
+
   const scan = parseResearchScanRequest("https://example.test/?hours=9999&limit=99");
   assert.equal(scan.ok, true);
   assert.equal(scan.mode, "incremental");
   assert.equal(scan.hours, 720);
   assert.equal(scan.limit, 8);
+  assert.equal(scan.windowSize, 500);
   assert.deepEqual(scan.excludedChannels, []);
 });
 
