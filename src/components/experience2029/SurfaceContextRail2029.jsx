@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
+import "./contextDepthCupsInRail2029.css";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
+import { DIMENSIONS, COVERAGE_LABEL } from "../../lib/research/contextDepthProjection2029.js";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -12,9 +14,10 @@ import LearnMark2029 from "./LearnMark2029.jsx";
 import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
 // Post surface only: loaded when a post rail actually renders.
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
-// Integrated-preview-only 631 pilot: explicit click, no extra bar or reader in standard build.
-const Elections631ContextPreview2029 = import.meta.env.VITE_ELECTIONS_631_PREVIEW === "true"
-  ? lazy(() => import("./Elections631ContextPreview2029.jsx")) : null;
+// Same six-dimensional view owner, but ONLY its small six-cup indicator stays
+// in Companion; the full 631/1820 content belongs below the Post source.
+const ContextDepthCups2029 = import.meta.env.VITE_ELECTIONS_631_PREVIEW === "true"
+  ? lazy(() => import("./ContextDepthMeter2029.jsx")) : null;
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
   buildLearnHelpSeed,
@@ -77,12 +80,20 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
-  const [electionsPreviewOpen, setElectionsPreviewOpen] = useState(false);
-  const electionsPreviewAvailable = Boolean(Elections631ContextPreview2029)
-    && surface === "post" && context?.subject?.type === "post"
-    && String(context.subject.id) === "5107"
-    && String(context.subject.href || "").split("#")[0] === "/post/sharshar-elections-redemption-hints-draft";
-  useEffect(() => { setElectionsPreviewOpen(false); }, [context?.subject?.id, surface]);
+  const coverages = context?.dimensions?.elections631Coverage;
+  const electionsPostActive = Boolean(ContextDepthCups2029) && surface === "post" && (
+    (context?.subject?.type === "post" && String(context.subject.id) === "5107")
+    || String(context?.dimensions?.readingFocus?.postId || "") === "5107"
+  );
+  const electionsCompactDepth = ContextDepthCups2029 && electionsPostActive
+    && Array.isArray(coverages) && coverages.length === DIMENSIONS.length + 1
+    && coverages[0] === "post:5107"
+    && coverages.slice(1).every((status) => Object.hasOwn(COVERAGE_LABEL, status))
+      ? { dimensions: DIMENSIONS.map((dim, i) => ({
+          key: dim.key, label: dim.label, coverage: coverages[i + 1],
+          coverageLabel: COVERAGE_LABEL[coverages[i + 1]],
+        })), yearHints: [] }
+      : null;
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin } = useAuth();
@@ -246,7 +257,14 @@ export default function SurfaceContextRail2029({
         {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
         <button className="is-raziel" type="button" onClick={onAskRaziel} disabled={!onAskRaziel}>{onAskRaziel ? "✦ שאל את רזיאל" : "✦ רזיאל · נעול"}</button>
       </div>}
-      footer={<button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
+      footer={electionsPostActive
+        ? <button className="sod29-surface-context-deepen" type="button"
+            onClick={() => {
+              if (sheet) onNavigate?.();
+              navigate({ pathname: "/post/sharshar-elections-redemption-hints-draft",
+                hash: "#post-discovery-connections" });
+            }}>קשרים ומקורות אחרי הפוסט <span aria-hidden="true">←</span></button>
+        : <button className="sod29-surface-context-deepen" type="button" onClick={onOpenContext}>פתח לעומק <span aria-hidden="true">←</span></button>}
     >
       {sections.length ? <div className="sod29-surface-context-progress">
         <div className="sod29-context-inspector-kicker">{mapLabel}</div>
@@ -279,7 +297,7 @@ export default function SurfaceContextRail2029({
       </LearnMark2029> : null}
       {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
       {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
-      {findings.length ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
+      {findings.length && !electionsPostActive ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
         {focusedFinding ? <button type="button" className="sod29-surface-context-findings-back" onClick={restFromFinding}>← כל החיבורים</button> : <>
           <div className="sod29-context-inspector-kicker">חיבורים נוספים</div>
           <ul>{findings.map((finding) => <li key={finding.id}><button type="button" onClick={() => focusFinding(finding)}>
@@ -287,19 +305,21 @@ export default function SurfaceContextRail2029({
           </button></li>)}</ul>
         </>}
       </div> : null}
-      {hasNumber && !restMode ? <div id="sod29-context-map"><Suspense fallback={null}>
+      {hasNumber && !restMode && !electionsPostActive ? <div id="sod29-context-map"><Suspense fallback={null}>
         <ContextMapPanel2029 focus={{ type: "number", id: String(number), label: String(number) }} audience={isAdmin ? "admin" : "public"}
           readers={contextMapReaders} onRefocus={refocusFromContextMap} onOpen={openFromContextMap} />
       </Suspense></div> : null}
       {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
-      {electionsPreviewAvailable ? <section className="sod29-631-context-slot" aria-label="סקירת חיבורים של ציר הבחירות">
-        <button type="button" className="sod29-elections-review-toggle"
-          aria-expanded={electionsPreviewOpen} onClick={() => setElectionsPreviewOpen((v) => !v)}>
-          {electionsPreviewOpen ? "סגור בדיקת 631 / 1820" : "בדוק את קדימות החיבורים · 631 / 1820"}
-        </button>
-        {electionsPreviewOpen && Elections631ContextPreview2029 ? <Suspense fallback={<p role="status">פותח נתוני מקור מאומתים…</p>}>
-          <Elections631ContextPreview2029 />
-        </Suspense> : null}
+      {electionsCompactDepth ? <section className="sod29-631-context-slot" aria-label="ששת ממדי העומק של ציר הבחירות">
+        <Suspense fallback={null}><ContextDepthCups2029
+          depth={electionsCompactDepth} variant="compact" expanded={false}
+          onToggle={() => {
+            if (sheet) onNavigate?.();
+            navigate({ pathname: "/post/sharshar-elections-redemption-hints-draft",
+              hash: "#post-discovery-meeting" });
+          }}
+        /></Suspense>
+        <small className="sod29-context-cups-note">ממדי כיסוי · פרטים ב״מפגש״ אחרי הפוסט</small>
       </section> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
       {surface === "post" ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}

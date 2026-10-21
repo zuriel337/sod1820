@@ -21,6 +21,11 @@ import "./post2029-reading.css";
 
 const PostConvergenceMeasures2029 = lazy(() => import("../components/experience2029/PostConvergenceMeasures2029.jsx"));
 const PostComments2029 = lazy(() => import("../components/experience2029/PostComments2029.jsx"));
+const POST_631_PREVIEW_2029 = import.meta.env.VITE_ELECTIONS_631_PREVIEW === "true";
+const PostAfterReadingTabs2029 = POST_631_PREVIEW_2029
+  ? lazy(() => import("../components/experience2029/PostAfterReadingTabs2029.jsx")) : null;
+const Elections631ContextPreview2029 = POST_631_PREVIEW_2029
+  ? lazy(() => import("../components/experience2029/Elections631ContextPreview2029.jsx")) : null;
 
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
@@ -81,6 +86,44 @@ function PostReadingBody() {
   });
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
+  const [electionsReview, setElectionsReview] = useState({ loading: false, model: null, error: null });
+  const previewPost = state.projection?.post;
+  // One bounded authorized read when the actual Post is opened; no graph
+  // search, Post body re-read, AI call, or added global store.
+  useEffect(() => {
+    if (!POST_631_PREVIEW_2029 || Number(previewPost?.id) !== 5107) {
+      setElectionsReview({ loading: false, model: null, error: null });
+      return undefined;
+    }
+    let live = true;
+    setElectionsReview({ loading: true, model: null, error: null });
+    import("../lib/research/elections631PostReviewReader2029.js")
+      .then((reader) => reader.readElections631PostReview2029(previewPost))
+      .then((model) => {
+        if (!live) return;
+        setElectionsReview({ loading: false, model: model?.available ? model : null,
+          error: model?.available ? null : "המקורות להצגת ההקשר אינם זמינים כרגע." });
+      })
+      .catch(() => {
+        if (live) setElectionsReview({ loading: false, model: null, error: "לא ניתן להציג כרגע את ההקשר המאומת." });
+      });
+    return () => { live = false; };
+  // Source version, not Presentation HTML, is the cache-invalidation identity:
+  // the Post's later contextual enrichment must not repeat this public reader.
+  }, [previewPost?.id, previewPost?.slug, previewPost?.modified]);
+
+  // Only six categorical coverage states pass through the EXISTING Research
+  // Context. The source body/claims, approval status and panel state stay local.
+  useEffect(() => {
+    if (!POST_631_PREVIEW_2029 || !electionsReview.model?.depth
+      || String(research.context?.subject?.id) !== "5107"
+      || research.context?.subject?.type !== "post") return;
+    const statuses = ["post:5107", ...electionsReview.model.depth.dimensions.map((dim) => dim.coverage)];
+    const previous = research.context?.dimensions?.elections631Coverage;
+    if (Array.isArray(previous) && previous.length === statuses.length
+      && previous.every((item, i) => item === statuses[i])) return;
+    research.updateResearchContext?.({ dimensions: { elections631Coverage: statuses } });
+  }, [electionsReview.model, research.context?.subject?.id, research.context?.subject?.type]);
   const preparedPostBody = useMemo(
     () => postReadingBodyHtml2029(state.projection?.post),
     [state.projection?.post?.content],
@@ -840,6 +883,41 @@ function PostReadingBody() {
     });
   };
 
+
+  // Reuse the existing Post projections exactly once: the pilot moves them
+  // into an in-flow menu; ordinary Posts keep their established order.
+  const postConvergenceContent = !state.extensionsLoading ? <Suspense fallback={null}>
+      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
+    </Suspense> : null;
+  const postContinuationsContent = contextualConnections.length ? <section id={POST_631_PREVIEW_2029 && isElectionsMaster ? undefined : "post-connections"} className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
+      <header>
+        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
+        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
+      </header>
+      {[
+        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
+        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
+      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
+      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
+      <div className="sod29-post-continuation-grid">
+        {group.items.map((connection) => <a
+          key={connection.id}
+          href={connection.href}
+          className="sod29-post-continuation"
+          data-post-connection={connection.id}
+          onClick={(event) => openConnection(event, connection.href)}
+        >
+          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
+          <h3>{connection.label}</h3>
+          {connection.reason ? <p>{connection.reason}</p> : null}
+          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
+        </a>)}
+      </div>
+      </div>)}
+    </section> : null;
+  const electionsAfterPostEnabled = POST_631_PREVIEW_2029 && isElectionsMaster
+    && !projection.draft && !projection.privateStage && !projection.previewSnapshot;
+
   return <article
     className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
     data-golden={projection.golden ? "true" : "false"}
@@ -944,39 +1022,33 @@ function PostReadingBody() {
 
     </div>
 
-    {!state.extensionsLoading ? <Suspense fallback={null}>
-      <PostConvergenceMeasures2029 tags={post.tags} fallbackNumbers={heroNumbers} />
-    </Suspense> : null}
-
-    {contextualConnections.length ? <section id="post-connections" className="sod29-post-continuations" aria-labelledby="source-region-post-connections" data-experience-capability="post-connected-continuations">
-      <header>
-        <h2 ref={connectionsHeadingRef} id="source-region-post-connections">הסיפור ממשיך מכאן</h2>
-        <p>חיבורים מתוך הפוסט — כל אחד פותח כיוון נוסף. אפשר לחזור לחיבורים בפוסט בכל שלב.</p>
-      </header>
-      {[
-        { title: null, items: contextualConnections.filter((connection) => !connection.id.startsWith("elections-history-")) },
-        { title: "בחירות לאורך השנים", items: contextualConnections.filter((connection) => connection.id.startsWith("elections-history-")) },
-      ].filter((group) => group.items.length).map((group) => <div key={group.title || "connections"}>
-      {group.title ? <header><h3>{group.title}</h3><p>מתוך החומר שכבר פורסם בישראל ובארה״ב, לפי תאריך הפרסום. בכל חיבור אפשר לראות למה הוא מופיע כאן ולפתוח את המקור.</p></header> : null}
-      <div className="sod29-post-continuation-grid">
-        {group.items.map((connection) => <a
-          key={connection.id}
-          href={connection.href}
-          className="sod29-post-continuation"
-          data-post-connection={connection.id}
-          onClick={(event) => openConnection(event, connection.href)}
-        >
-          <span className="sod29-post-continuation-type">{group.title ? connection.kind : connection.href.startsWith("/post/") ? "סיפור נוסף" : connection.href.startsWith("/topic/") ? "עיון לפי נושא" : "לגלות את המספר"}</span>
-          <h3>{connection.label}</h3>
-          {connection.reason ? <p>{connection.reason}</p> : null}
-          <span className="sod29-post-continuation-open">לפתוח את החיבור <b aria-hidden="true">←</b></span>
-        </a>)}
-      </div>
-      </div>)}
-    </section> : null}
-
+    {electionsAfterPostEnabled && PostAfterReadingTabs2029 ? <Suspense fallback={<p role="status">פותח אפשרויות העמקה…</p>}>
+      <PostAfterReadingTabs2029 postId={post.id}
+        connections={postContinuationsContent}
+        meeting={<>
+          {electionsReview.loading ? <p role="status">טוען מקורות למפגש…</p>
+            : electionsReview.model && Elections631ContextPreview2029
+              ? <Suspense fallback={<p role="status">פותח שישה ממדי עומק…</p>}>
+                  <Elections631ContextPreview2029 model={electionsReview.model} view="meeting" />
+                </Suspense>
+              : <p role="status">{electionsReview.error || "אין כרגע תצוגת עומק מאושרת."}</p>}
+          {postConvergenceContent}
+        </>}
+        sources={<>
+          {electionsReview.loading ? <p role="status">מאתר מקורות מדויקים…</p>
+            : electionsReview.model && Elections631ContextPreview2029
+              ? <Suspense fallback={<p role="status">פותח מקורות…</p>}>
+                  <Elections631ContextPreview2029 model={electionsReview.model} view="sources" />
+                </Suspense>
+              : <p role="status">{electionsReview.error || "אין כרגע מקורות נוספים להצגה."}</p>}
+          <p><a href="#post-sources">תאריכי המקור ופרטי הפוסט ↓</a></p>
+        </>}
+      />
+    </Suspense> : <>
+      {postConvergenceContent}
+      {postContinuationsContent}
+    </>}
     <PostTimeline2029 items={visibleTimeline} currentHref={`/post/${post.slug}`} />
-
     <footer id="post-sources" className="sod29-reading-footnote">
       <span>מקור</span>
       <strong>{projection.sourceLine}</strong>

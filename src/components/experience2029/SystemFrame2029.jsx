@@ -2131,6 +2131,9 @@ export default function SystemFrame2029({
         style={shellStyle}
         data-experience-context={experience.version}
         data-frame-experience-surface={experience.surface}
+        data-shell-review={import.meta.env.VITE_ELECTIONS_631_PREVIEW === "true"
+          && surface === "post" && location.pathname === "/post/sharshar-elections-redemption-hints-draft"
+          ? "elections631" : undefined}
         data-frame-experience-question={experience.experience.question}
         data-frame-experience-environment={experience.experience.environmentRole}
         data-frame-experience-spatial={experience.spatial.effectiveLevel}
