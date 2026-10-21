@@ -3,6 +3,7 @@ import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldC
 import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
 import { clusterWorldResearchRows } from "./worldFindingClusters.js";
+import { scopeWorldPreviewMaterial } from "./worldPreviewMaterialScope.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
@@ -131,7 +132,7 @@ async function fetchConvergenceCandidates() {
   }
 }
 
-async function fetchAllRows(table, fields) {
+async function fetchAllRows(table, fields, refine = (query) => query) {
   const rows = [];
   let total = null;
   let offset = 0;
@@ -143,6 +144,7 @@ async function fetchAllRows(table, fields) {
       .select(fields, offset === 0 ? { count: "exact" } : undefined)
       .order("created_at", { ascending: false })
       .range(offset, end);
+    query = refine(query);
     const { data, error, count } = await query;
     if (error) throw error;
     if (offset === 0 && count != null) total = Number(count);
@@ -323,7 +325,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
 }
 
 export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
-  const researchRows = Array.isArray(familyRows.researchObjects) ? familyRows.researchObjects : [];
+  const scoped = scopeWorldPreviewMaterial(familyRows);
+  const researchRows = scoped.researchObjects;
   const generalResearchRows = researchRows.filter(isGeneralResearchProjectionEligible);
   const excludedPersonOnlyResearch = researchRows.length - generalResearchRows.length;
   const normalizedResearchRows = generalResearchRows
@@ -332,27 +335,27 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   const duplicateProjection = clusterWorldResearchRows(normalizedResearchRows);
   const rows = [
     ...duplicateProjection.rows,
-    ...(familyRows.contributions || []).map((row) => normalizeWorldAllResearchRow(row, "contribution")),
-    ...(familyRows.sourceMessages || []).map((row) => normalizeWorldAllResearchRow(row, "source_message")),
-    ...(familyRows.topics || []).map((row) => normalizeWorldAllResearchRow(row, "topic")),
+    ...scoped.contributions.map((row) => normalizeWorldAllResearchRow(row, "contribution")),
+    ...scoped.sourceMessages.map((row) => normalizeWorldAllResearchRow(row, "source_message")),
+    ...scoped.topics.map((row) => normalizeWorldAllResearchRow(row, "topic")),
   ].filter(Boolean).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
 
   const rawLoaded = normalizedResearchRows.length
-    + (familyRows.contributions || []).length
-    + (familyRows.sourceMessages || []).length
-    + (familyRows.topics || []).length;
+    + scoped.contributions.length
+    + scoped.sourceMessages.length
+    + scoped.topics.length;
 
   const sourceTotals = {
-    research_object: Number(totals.researchObjects ?? familyRows.researchObjects?.length ?? 0),
-    contribution: Number(totals.contributions ?? familyRows.contributions?.length ?? 0),
-    source_message: Number(totals.sourceMessages ?? familyRows.sourceMessages?.length ?? 0),
-    topic: Number(totals.topics ?? familyRows.topics?.length ?? 0),
+    research_object: Number(totals.researchObjects ?? scoped.researchObjects.length),
+    contribution: Number(totals.contributions ?? scoped.contributions.length),
+    source_message: Number(totals.sourceMessages ?? scoped.sourceMessages.length),
+    topic: Number(totals.topics ?? scoped.topics.length),
   };
 
   return {
     rows,
     total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
-    convergenceCandidates: Array.isArray(familyRows.convergenceCandidates) ? familyRows.convergenceCandidates : [],
+    convergenceCandidates: scoped.convergenceCandidates,
     convergenceCandidateError: clean(totals.convergenceCandidateError) || null,
     convergenceCandidateMeta: totals.convergenceCandidateMeta || {},
     loaded: rows.length,
@@ -374,8 +377,9 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
     byStatus: countBy(rows, "status"),
     byVerification: countBy(rows, "verification"),
     byContributor: countByMany(rows, "contributors", "contributor"),
+    excludedMaterial: scoped.excluded,
     excludedPersonOnlyResearch,
-    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
+    truthBoundary: "הפריוויו מציג את חומר האתר בלי ארכיון הצ׳אט הישן ובלי מאגר אור הגאולה. תווית privacy_scope היא מצב עבודה היסטורי ואינה מסנן של הקורא הזה. ההצגה אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
   };
 }
 
@@ -429,6 +433,13 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
 }
 
 export async function fetchWorldAllResearchProjection() {
+  const excludedChannelRows = await fetchAllRows(
+    "channel_updates",
+    "id,created_at",
+    (query) => query.eq("channel", "or-geula"),
+  );
+  const excludedChannelSourceRefs = excludedChannelRows.rows.map((row) => `channel_updates:${row.id}`);
+
   const [research, contributions, sources, topics, candidates] = await Promise.all([
     fetchAllRows(
       "research_objects",
@@ -436,11 +447,13 @@ export async function fetchWorldAllResearchProjection() {
     ),
     fetchAllRows(
       "research_contributions",
-      "id,created_at,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug"
+      "id,created_at,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug",
+      (query) => query.or("origin.is.null,origin.neq.openweb"),
     ),
     fetchAllRows(
       "channel_updates",
-      "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker"
+      "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker",
+      (query) => query.or("channel.is.null,channel.neq.or-geula"),
     ),
     fetchAllRows(
       "topic_cards",
@@ -448,6 +461,10 @@ export async function fetchWorldAllResearchProjection() {
     ),
     fetchConvergenceCandidates(),
   ]);
+  const scopedResearch = scopeWorldPreviewMaterial({
+    researchObjects: research.rows,
+    excludedChannelSourceRefs,
+  });
 
   return buildWorldAllResearchProjection(
     {
@@ -456,9 +473,13 @@ export async function fetchWorldAllResearchProjection() {
       sourceMessages: sources.rows,
       topics: topics.rows,
       convergenceCandidates: candidates.rows,
+      excludedChannelSourceRefs,
     },
     {
-      researchObjects: research.total,
+      researchObjects: Math.max(
+        0,
+        research.total - scopedResearch.excluded.old_chat - scopedResearch.excluded.or_geula,
+      ),
       contributions: contributions.total,
       sourceMessages: sources.total,
       topics: topics.total,

@@ -36,6 +36,7 @@ import {
   filterWorldAllResearchRows,
   normalizeWorldAllResearchRow,
 } from "../src/lib/research/worldAllResearchProjection.js";
+import { scopeWorldPreviewMaterial } from "../src/lib/research/worldPreviewMaterialScope.js";
 import {
   buildWorldConvergenceLensProjection,
   buildZviCoverage,
@@ -314,6 +315,25 @@ assert.equal(allMaterialFixture.byAccess.private, 1, "private remains an access 
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { access: "all" }).length, 4);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { query: "עוד לא נותח" }).length, 1);
 assert.equal(filterWorldAllResearchRows(allMaterialFixture.rows, { family: "research_object" }).length, 1);
+
+const publicPreviewScopeFixture = scopeWorldPreviewMaterial({
+  researchObjects: [{
+    id: "ordinary-private-workflow", source: "channel_updates", source_ref: "channel_updates:public-1",
+    contributor: "צבי (OPOC)", privacy_scope: "private",
+  }, {
+    id: "old-chat-derived", source: "openweb_legacy", source_ref: "openweb_message:legacy-1",
+  }, {
+    id: "or-geula-derived", source: "channel_updates", source_ref: "channel_updates:or-geula-1#finding",
+    contributor: "אור הגאולה",
+  }],
+  contributions: [{ id: "legacy-chat", origin: "openweb" }, { id: "site-contribution", origin: "whatsapp_group" }],
+  sourceMessages: [{ id: "or-geula-1", channel: "or-geula" }, { id: "public-1", channel: "torat-haremez" }],
+  excludedChannelSourceRefs: ["channel_updates:or-geula-1"],
+});
+assert.deepEqual(publicPreviewScopeFixture.researchObjects.map((row) => row.id), ["ordinary-private-workflow"], "legacy private workflow labels do not hide site material");
+assert.deepEqual(publicPreviewScopeFixture.contributions.map((row) => row.id), ["site-contribution"], "the old openweb chat archive is outside the special Preview");
+assert.deepEqual(publicPreviewScopeFixture.sourceMessages.map((row) => row.id), ["public-1"], "Or Geula stays outside the special Preview");
+assert.deepEqual(publicPreviewScopeFixture.excluded, { old_chat: 2, or_geula: 2 });
 
 const personOnlyWorldFixture = buildWorldAllResearchProjection({
   researchObjects: [{
