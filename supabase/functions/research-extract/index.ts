@@ -31,10 +31,12 @@
 // unchanged authorities for research/provenance; presentation never becomes a source witness,
 // governance state, verification state or publication decision. No second AI call is introduced.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { parseResearchJsonArray } from "../_shared/researchJsonArray.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const ANTHROPIC = (Deno.env.get("ANTHROPIC_API_KEY") || "").trim();
 const MODEL = (Deno.env.get("EXTRACT_MODEL") || Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
+const MAX_OUTPUT_TOKENS = 4096;
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
 const SYSTEM =
@@ -53,6 +55,7 @@ const SYSTEM =
 4. לכל אובייקט הוסף title קצר ואנושי + summary של משפט או שניים. אלה שכבת הצגה בלבד: שמור אי-ודאות, אל תשדרג candidate/finding לפרט מאומת, ואל תציג technical keys, UUID, source_ref, adapter/runtime או שמות שדות כ-copy אנושי.
 5. מקור לא-עברי נשאר מקור לא-עברי. title/summary בעברית מסבירים אותו; אל תציג תרגום כאילו הוא ציטוט מקור ואל תעביר ערך גימטרי לביטוי מתורגם.
 6. כל אובייקט: {"kind","statement","title","summary","terms":[],"value":null,"relates":[],"confidence":0-100,"evidence":"קטע קצר מהמקור"}.
+7. החזר לכל היותר 20 אובייקטים; אם יש יותר, בחר את הממצאים המובהקים ביותר.
 פלט: אך ורק JSON array תקין. בלי טקסט לפני/אחרי, בלי Markdown, בלי גדרות-קוד.`;
 
 const KINDS = ["fact", "relation", "observation", "hypothesis", "question"];
@@ -274,7 +277,7 @@ async function extractText(content: string, source: string, source_ref: string |
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST", headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 1900, system: SYSTEM,
+      body: JSON.stringify({ model: MODEL, max_tokens: MAX_OUTPUT_TOKENS, system: SYSTEM,
         messages: [{ role: "user", content: `מקור: ${source}\nשפת מקור מוצהרת/מזוהה: ${witnessLanguage.lang || "לא ידועה"}\n\nהטקסט:\n"""\n${content.slice(0, 6000)}\n"""\n\nהחזר JSON array בלבד לפי השפה.` }] }),
     });
 
@@ -322,6 +325,7 @@ async function extractText(content: string, source: string, source_ref: string |
         model: MODEL,
         routing_reason: "canonical_research_extractor",
         output_use: "used",
+        stop_reason: d?.stop_reason || null,
         resources: {
           input_tokens: d?.usage?.input_tokens ?? null,
           output_tokens: d?.usage?.output_tokens ?? null,
@@ -336,17 +340,10 @@ async function extractText(content: string, source: string, source_ref: string |
     await logResearchTokens(d?.usage, trace, modelSpanId);
 
     const txt = (d?.content || []).filter((c: any) => c.type === "text").map((c: any) => c.text).join("\n").trim();
-    let arr: any;
-    try {
-      const i = txt.indexOf("["), j = txt.lastIndexOf("]");
-      arr = JSON.parse(txt.slice(i, j + 1));
-    } catch {
+    const arr = parseResearchJsonArray(txt);
+    if (!arr) {
       await finishResearchTrace(trace, "failed_with_reason", "parse_error");
       return { inserted: 0, error: "parse", raw: txt.slice(0, 200), trace_id: trace?.traceId || null };
-    }
-    if (!Array.isArray(arr)) {
-      await finishResearchTrace(trace, "success", "empty_or_non_array");
-      return { inserted: 0, objects: [], trace_id: trace?.traceId || null };
     }
 
     const ref: string | null = (typeof source_ref === "string" && source_ref.length > 0) ? source_ref : null;

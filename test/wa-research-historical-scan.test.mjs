@@ -51,6 +51,23 @@ test("historical request rejects ambiguous boundaries and contributor ids", () =
     parseResearchScanRequest("https://example.test/?mode=inventory&after=2026-10-02&before=2026-10-01"),
     { ok: false, error: "invalid_time_window" },
   );
+  assert.deepEqual(
+    parseResearchScanRequest("https://example.test/?mode=backfill&repair=all"),
+    { ok: false, error: "invalid_repair" },
+  );
+  assert.deepEqual(
+    parseResearchScanRequest("https://example.test/?repair=truncated_json_v1"),
+    { ok: false, error: "repair_requires_historical_mode" },
+  );
+});
+
+test("truncated JSON repair is explicit and historical-only", () => {
+  const scan = parseResearchScanRequest(
+    "https://example.test/?mode=inventory&repair=truncated_json_v1&before=2026-10-21T02:08:21.889Z",
+  );
+  assert.equal(scan.ok, true);
+  assert.equal(scan.mode, "inventory");
+  assert.equal(scan.repair, "truncated_json_v1");
 });
 
 test("cursor advances inventory but drains each backfill window before advancing", () => {

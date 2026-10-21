@@ -464,12 +464,13 @@ Deno.serve(async (req) => {
   }
 
   const now = Date.now();
+  const repairTruncatedJson = scan.repair === "truncated_json_v1";
   const eligibilityState = new Map<string, string>();
   const pending = eligible.filter((r: any) => {
     const rows = existing.get(sourceRef(r.id));
     if (!rows?.length) {
       eligibilityState.set(r.id, "pending_new");
-      return true;
+      return !repairTruncatedJson;
     }
 
     let maxAttempts = 0;
@@ -487,6 +488,14 @@ Deno.serve(async (req) => {
       }
       maxAttempts = Math.max(maxAttempts, Number(intake.attempt_count || 1));
       latestFailure = Math.max(latestFailure, Date.parse(String(intake.analyzed_at || "")) || 0);
+    }
+    if (repairTruncatedJson) {
+      if (maxAttempts === 3) {
+        eligibilityState.set(r.id, "retry_exhausted_repair_ready");
+        return true;
+      }
+      eligibilityState.set(r.id, "retry_exhausted");
+      return false;
     }
     if (maxAttempts >= 3) {
       eligibilityState.set(r.id, "retry_exhausted");
@@ -511,6 +520,7 @@ Deno.serve(async (req) => {
   const baseReport = {
     ok: true,
     mode: scan.mode,
+    repair: scan.repair,
     hours: scan.hours,
     source_scope: "channel_updates",
     excluded_channels: scan.excludedChannels,

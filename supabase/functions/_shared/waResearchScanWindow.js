@@ -41,6 +41,9 @@ export function parseResearchScanRequest(input, { now = Date.now() } = {}) {
   const params = url.searchParams;
   const mode = String(params.get("mode") || "incremental").trim().toLowerCase();
   if (!MODES.has(mode)) return { ok: false, error: "invalid_mode" };
+  const repair = String(params.get("repair") || "").trim().toLowerCase() || null;
+  if (repair && repair !== "truncated_json_v1") return { ok: false, error: "invalid_repair" };
+  if (repair && mode === "incremental") return { ok: false, error: "repair_requires_historical_mode" };
 
   const after = isoParam(params, "after");
   if (after.error) return { ok: false, error: after.error };
@@ -68,6 +71,7 @@ export function parseResearchScanRequest(input, { now = Date.now() } = {}) {
     offset: boundedInteger(params.get("offset"), 0, 0, 1_000_000),
     after: after.value,
     through,
+    repair,
     contributorId,
     includedChannels: listParam(params, "channel"),
     excludedChannels,
