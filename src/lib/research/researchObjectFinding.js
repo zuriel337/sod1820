@@ -126,6 +126,8 @@ export function researchObjectFacetDimensions(row, { registryRows = [], sourceOc
   addMethod(detail.claimed_method, "engine_detail.claimed_method");
   addMethod(detail.engine_method_tested, "engine_detail.engine_method_tested");
   addMethod(detail.method, "engine_detail.method");
+  addMethod(detail.verification?.method, "engine_detail.verification.method");
+  addMethod(detail.trace?.method_key, "engine_detail.trace.method_key");
   addMethod(gematria.method_key, "meta.ext.gematria.method_key");
   addMethod(gematria.method, "meta.ext.gematria.method");
   addMethod(compound?.operand?.method, "engine_detail.compound.operand.method");
