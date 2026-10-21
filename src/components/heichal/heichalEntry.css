@@ -28,3 +28,6 @@
 .heichal-gate small { color: var(--s29-muted); font-size: 12.5px; }
 @media (max-width: 420px) { .heichal-gate { min-block-size: 64px; } .heichal-entry-head .sod29-action { inline-size: 100%; } }
 @media (prefers-reduced-motion: reduce) { .heichal-gate, .heichal-entry-example { transition: none; } }
+
+/* Exact return on the Heichal page: only with a stored target, and not beside the desktop header return (one visible control at a time). */
+@media(min-width:981px){.sod29-heichal-return{display:none}}

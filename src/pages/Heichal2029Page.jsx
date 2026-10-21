@@ -356,7 +356,7 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section sod29-resume-panel">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">RESEARCH CONTEXT COMPILED</div><h2>{subject.label || subject.id}</h2><div className="sod29-muted">העוגן נשאר יציב; ה־Canvas והפעולות מתחלפים סביבו. בחירה בכלי אינה פתיחת אפליקציה חדשה.</div></div>
-        <div className="sod29-actions">{freeQuestion ? null : <button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button>}<button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ רזיאל</button><button className="sod29-action primary" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button></div>
+        <div className="sod29-actions">{freeQuestion ? null : <button className="sod29-action" onClick={addSubject}>＋ הוסף למחקר</button>}<button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ רזיאל</button>{context?.returnTo?.href ? <button className="sod29-action primary sod29-heichal-return" data-exact-return="page" onClick={() => shell.returnExact()}>↩ חזרה מדויקת</button> : null}</div>
       </div>
       <div className="sod29-spine" aria-label="Research Spine">
         <span>{freeQuestion ? "שאלה" : "שורש"} · {subject.label || subject.id}</span>
