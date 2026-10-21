@@ -51,12 +51,16 @@ test("Phase B: askRaziel transport is additive — surface_semantic only when pr
 
 test("Phase B: SystemFrame builds the pack from existing context only; no provider call on open; no HTML", () => {
   assert.doesNotMatch(chat, /useEffect/);
-  assert.match(chat, /buildSurfaceSemantic/);
-  assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
-  const b = chat.slice(chat.indexOf("const buildSurfaceSemantic"), chat.indexOf("const send = async"));
+  // #1142: the semantic pack is built by the shared session from the existing Research Context, plus the existing
+  // Phase I descriptor added at the single transport mount; the frame only passes facts/view on an explicit send.
+  const sessionModule = read("./razielSession2029.js");
+  const seamMount = read("../../components/experience2029/RazielSessionMount2029.jsx");
+  assert.match(chat, /session\.submit\(/);
+  assert.match(sessionModule, /surfaceSemantic: snapshotSurfaceSemantic\(contextSnapshot\)/);
+  assert.match(seamMount, /askRaziel\(withRazielSurfaceContext\(request, contextRef\.current\)\)/);
+  const b = sessionModule.slice(sessionModule.indexOf("export function createRazielContextSnapshot"), sessionModule.indexOf("export function buildRazielTranscript"));
   assert.doesNotMatch(b, /innerHTML|outerHTML|document\.|textContent|supabase|fetch\(/);
-  assert.match(b, /cap\(context\.subject\.label, 80\)/);
-  assert.match(b, /\.slice\(0, n\)/);
+  assert.match(b, /cleanInline\(subjectValue\.label \?\? subjectValue\.title, 160\)/);
   assert.match(frame, /elsFocus=\{elsFocus\}/);
 });
 

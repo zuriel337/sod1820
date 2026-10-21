@@ -29,7 +29,7 @@ test("Raziel orb: four presentation states plus locked, real producers only", ()
   assert.match(frame, /aria-busy=\{state === "thinking" \? true : undefined\}/);
   assert.match(frame, /const razielAttention = razielBusy \? "thinking" : null;/); // suggest/important stay dormant
   assert.doesNotMatch(frame, /functions\/raziel-attention|invoke\(["']raziel-attention/); // admin-only helper is not a public signal source
-  assert.match(frame, /onBusyChange\?\.\(busy\)/);
+  assert.match(frame, /const razielBusy = Boolean\(razielSession\?\.busy\);/); // #1142: thinking mirrors the ONE shared session turn
   assert.doesNotMatch(frame, /setRazielAttention|razielAttention = .*suggest/);
   // non-color cue for suggest/important
   assert.match(frame, /ORB_STATE_MARK = Object\.freeze\(\{ suggest: "✦", important: "!" \}\)/);

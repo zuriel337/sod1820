@@ -53,13 +53,19 @@ test("I: never forwards body/html/raw discovery/private workspace keys", () => {
 });
 
 test("I: SystemFrame wires it into existing surface_semantic only; no new read/provider call on open; Number/ELS/transcript intact", () => {
-  assert.match(chat, /buildRazielSurfaceContext\(context\)/);
-  assert.match(chat, /out\.context = surfaceContext/);
+  // #1142: the frame chat is a projection of ONE shared session; Phase I stays in surface_semantic.context via the
+  // single transport mount (same descriptor as before), Number/ELS come from the session snapshot, transcript stays bounded.
+  const seam = read("../../components/experience2029/razielSessionSeam2029.js");
+  const seamMount = read("../../components/experience2029/RazielSessionMount2029.jsx");
+  const sessionModule = read("./razielSession2029.js");
+  assert.match(seam, /const surfaceContext = buildRazielSurfaceContext\(context\)/);
+  assert.match(seam, /context: surfaceContext/);
+  assert.match(seamMount, /withRazielSurfaceContext\(request, contextRef\.current\)/);
   assert.doesNotMatch(chat, /useEffect/);
-  assert.match(chat, /out\.number = /);
-  assert.match(chat, /out\.els = /);
-  assert.match(chat, /turns\.slice\(-2\)/);
-  assert.match(chat, /slice\(0, 600\)/);
+  assert.match(sessionModule, /number: snapshot\.focus\?\.number/);
+  assert.match(sessionModule, /els: snapshot\.focus\?\.els/);
+  assert.match(sessionModule, /return prior\.slice\(-2\)/);
+  assert.match(sessionModule, /context: 600,/);
 });
 
 test("I: edge renders the context block inside the existing capped semantic text; no new route or DB read", () => {

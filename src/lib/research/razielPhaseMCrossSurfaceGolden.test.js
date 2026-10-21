@@ -201,7 +201,8 @@ test("M: global routing stays OFF; model/provider calls only on explicit send, n
   assert.doesNotMatch(razielReq.slice(razielReq.indexOf('persona || "").toLowerCase() === "raziel"')), /fn_raziel_model|routing_enabled/);
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
   assert.doesNotMatch(chat, /useEffect/);                         // no effect ⇒ nothing fires on mount/open
-  assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
+  assert.match(chat, /session\.submit\(/);                    // #1142: one shared session; the only AI boundary is an explicit send
+  assert.match(read("./razielSession2029.js"), /surfaceSemantic: snapshotSurfaceSemantic\(contextSnapshot\)/);
   const mig = (f) => read("../../../supabase/migrations/" + f);
   const lineage = ["20261005050000_raziel_route_token_boundary_match_v1.sql", "20261005130000_raziel_intelligence_core_v1_phase_a_plan_first.sql", "20261005140000_raziel_intelligence_core_v1_phase_c_operator_read.sql",
     "20261005150000_raziel_intelligence_core_v1_phase_d2_plan_signals.sql", "20261005160000_raziel_intelligence_core_v1_phase_e_l4_tool_research.sql", "20261005170000_raziel_intelligence_core_v1_phase_f_sandalphon_source.sql",

@@ -32,7 +32,9 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
   // RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1: the single native chat uses the existing askRaziel transport (one call site).
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);
-  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 1);
+  // #1142: the one call site moved with the shared session to its single mount; the frame itself never calls the transport.
+  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);
+  assert.equal((readFileSync(new URL("../src/components/experience2029/RazielSessionMount2029.jsx", import.meta.url), "utf8").match(/askRaziel\s*\(/g) || []).length, 1);
 });
 
 test("ELS Raziel panel stays context-only; native chat is user-initiated (no call on open) and sends no ELS text", () => {

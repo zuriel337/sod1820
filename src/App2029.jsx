@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useLayoutEffect, useRef } from "react
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigationType, useParams } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+import RazielSessionMount2029 from "./components/experience2029/RazielSessionMount2029.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
@@ -214,6 +215,8 @@ export default function App2029() {
         <LockedRouteCodePreparation2029 />
         <ResearchProvider>
           <RouteEffects2029 />
+          {/* ONE temporary Raziel session (#1142): under ResearchProvider, above Routes; zero calls until an explicit send. */}
+          <RazielSessionMount2029>
           <Suspense fallback={<RouteLoading2029 />}>
             <Routes>
               <Route path="/" element={<HomeEntry2029 />} />
@@ -247,6 +250,7 @@ export default function App2029() {
               <Route path="*" element={<LegacyDocumentHandoff />} />
             </Routes>
           </Suspense>
+          </RazielSessionMount2029>
         </ResearchProvider>
       </BrowserRouter>
     </AuthProvider>

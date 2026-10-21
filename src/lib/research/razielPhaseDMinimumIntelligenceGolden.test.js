@@ -124,7 +124,8 @@ test("Golden: smart routing stays OFF — no fn_raziel_model / routing_enabled /
 test("Golden: no model/tool call on chat open; bounded semantic surface context; model only on send", () => {
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
   assert.doesNotMatch(chat, /useEffect/);
-  assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
+  assert.match(chat, /session\.submit\(/); // #1142: bounded surface_semantic is built by the shared session request
+  assert.match(read("./razielSession2029.js"), /surfaceSemantic: snapshotSurfaceSemantic\(contextSnapshot\)/);
   const fn = edge.slice(edge.indexOf("function razielSemanticSurfaceText"), edge.indexOf("function razielPlanMeta"));
   assert.match(fn, /\.slice\(0, 1000\)/);
   assert.doesNotMatch(fn, /innerHTML|pageText/);

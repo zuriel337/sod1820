@@ -7,6 +7,11 @@ const frame = read("../../components/experience2029/SystemFrame2029.jsx");
 const client = read("../supabase.js");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const rel = read("../../../supabase/functions/_shared/raziel-reliability.ts");
+// #1142: the native chat is a projection of ONE shared temporary session; the bounded request is built there.
+const sessionModule = read("./razielSession2029.js");
+const sessionProvider = read("./RazielSessionProvider2029.jsx");
+const seamModule = read("../../components/experience2029/razielSessionSeam2029.js");
+const seamMount = read("../../components/experience2029/RazielSessionMount2029.jsx");
 const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "raziel"'), edge.indexOf('const isCollection = kind === "research"'));
 
 test("native chat: no provider call on open/render; fast by default; deep only via explicit action", () => {
@@ -55,19 +60,21 @@ test("same persona/metatron/memory path for both tiers; reliability wired, never
 
 test("native chat: user question is the subject; root/method only in facts/context", () => {
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-  assert.match(chat, /subject: q\.slice\(0, 300\)/);
+  assert.match(chat, /session\.submit\(\{ question: q, intelligenceLevel: level, again, facts: buildFacts\(\)/);
+  assert.match(sessionModule, /const subject = cleanInline\(question, LIMITS\.question\)/);
+  assert.match(sessionModule, /question: 300,/);
   assert.doesNotMatch(chat, /\$\{numberFocus\.root\} · \$\{q\}/);
   assert.match(chat, /שורש עמוד: \$\{numberFocus\.root\}/);
 });
 
 test("native chat: bounded local transcript in context, no new store", () => {
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-  assert.match(chat, /turns\.slice\(-2\)/);
-  assert.match(chat, /slice\(0, 200\)/);
-  assert.match(chat, /slice\(0, 500\)/);
-  assert.match(chat, /slice\(0, 600\)/);
-  assert.doesNotMatch(chat, /slice\(0, 1700\)|turns\.slice\(-6\)/);
-  assert.doesNotMatch(chat, /localStorage|sessionStorage/);
+  assert.match(sessionModule, /return prior\.slice\(-2\)/);
+  assert.match(sessionModule, /transcriptTurn: 200,/);
+  assert.match(sessionModule, /transcript: 500,/);
+  assert.match(sessionModule, /context: 600,/);
+  assert.doesNotMatch(sessionModule, /slice\(-6\)|1700/);
+  for (const src of [chat, sessionModule, sessionProvider, seamMount]) assert.doesNotMatch(src, /localStorage|sessionStorage/);
   assert.match(edge, /body\?\.context \|\| ""\)\.slice\(0, 600\)/);
   assert.doesNotMatch(edge, /body\?\.context \|\| ""\)\.slice\(0, 1800\)/);
 });

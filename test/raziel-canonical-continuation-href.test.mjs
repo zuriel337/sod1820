@@ -65,6 +65,8 @@ assert.match(wa, /whatsappContinuationLink\(data, SITE\)/);
 const helperSrc = shared.slice(shared.indexOf("Canonical continuation href"));
 assert.doesNotMatch(helperSrc, /["'`]\/(?:number|topic|post|journey|els|research|heichal|world)\b/);   // no legacy route fallbacks
 assert.doesNotMatch(helperSrc, /https?:\/\/(?!canonical\.invalid)/);
-const sysFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
-assert.match(sysFrame, /buildRazielSurfaceContext\(context\)/);   // hrefs come from current Research Context only
+// #1142: the frame chat is a projection of ONE shared session; the Phase I descriptor is added at its single transport mount.
+const sysFrame = fs.readFileSync("src/components/experience2029/razielSessionSeam2029.js", "utf8");
+assert.match(sysFrame, /buildRazielSurfaceContext\(context\)/);
+assert.match(fs.readFileSync("src/components/experience2029/RazielSessionMount2029.jsx", "utf8"), /withRazielSurfaceContext\(request, contextRef\.current\)/);   // hrefs come from current Research Context only
 console.log("raziel-canonical-continuation-href: OK");
