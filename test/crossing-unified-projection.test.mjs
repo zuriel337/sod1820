@@ -19,3 +19,17 @@ test("pair projection retains both equal-method and cross-method links",()=>{
  assert.equal(r.same.length,1);
  assert.equal(r.cross.length,1);
 });
+
+test("legacy base ordering remains independent of optional rarity",()=>{
+ const rows=projectCrossingResearch({
+  expression:"אב",values:{ragil:3,misratar:10,miluy:30},
+  candidates:[
+   {id:"a",phrase:"משפט ארוך",ragil:3,misratar:10,miluy:30},
+   {id:"b",phrase:"גד",ragil:3,misratar:10,miluy:99}
+  ],
+  columns:["ragil","misratar","miluy"],
+  familySizes:{"רגיל|3":1,"מסתתר|10":1,"מילוי|30":100}
+ });
+ assert.deepEqual(rows.map(x=>x.sourceId),["a","b"]);
+ assert.equal(rows[0].methods[2].label,"מילוי");
+});
