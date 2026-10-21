@@ -5,6 +5,8 @@
 > Canonical routing index: `SOD1820_MASTER_OWNER_INDEX.md` on current `origin/main`.
 > Canonical Supabase project: `linswmnnkjxvweumprav`.
 
+> **PENDING (DRAFT, NOT ACTIVE): `inter_agent_coordination_law` v18 — FAST EXECUTION** — see `docs/coordination-drafts/inter-agent-coordination-law-v18-draft.md`. Until ZURIEL explicitly activates it, v17 and the text of this file apply unchanged; the draft grants no permission to merge, deploy, change grants/OAuth or touch Production.
+
 ## 1. Task start — pointers, not a rule dump
 
 For every substantial task:
@@ -127,6 +129,7 @@ git rev-list --left-right --count HEAD...origin/main
 At session start and before becoming idle after meaningful work, scan recent **current** `work_log` for assignments addressed to CLAUDE and relevant active scopes.
 
 Before WRITE, rescan for overlapping active writers.
+When the `sod1820-coordination` connector (`coordination_check`, read-only) is available, use it for that rescan; see `docs/coordination-reader-gateway-v1.md`. Unavailable/denied = report `COORDINATION_UNVERIFIED`, no WRITE.
 
 **ONE SCOPE — ONE ACTIVE WRITER.** READ_ONLY challenge/cross-verification may run in parallel.
 
