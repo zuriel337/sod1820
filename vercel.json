@@ -1,6 +1,11 @@
 {
   "buildCommand": "git checkout -- vercel.json && SOD_BUILD_TARGET=hybrid node scripts/build-hosted-hybrid-preview.mjs",
   "outputDirectory": "hybrid-preview-dist",
+  "build": {
+    "env": {
+      "VITE_ELECTIONS_631_PREVIEW": "true"
+    }
+  },
   "redirects": [
     {
       "source": "/index.html",

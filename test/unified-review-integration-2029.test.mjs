@@ -78,6 +78,8 @@ test("hosted read-only review preview: one exact new branch approved, earlier ap
   assert.equal(enabled["gpt/*"], false);
   assert.equal(enabled["claude/*"], false);
   assert.equal(vercel.buildCommand, "git checkout -- vercel.json && SOD_BUILD_TARGET=hybrid node scripts/build-hosted-hybrid-preview.mjs");
+  // the only build env of this review branch is the preview-only Elections 5107 gate (fail-closed, path-scoped, public reads only)
+  assert.deepEqual(vercel.build, { env: { VITE_ELECTIONS_631_PREVIEW: "true" } });
   const boundary = read("scripts/hybrid-preview-source-boundary.mjs");
   for (const gate of ["env.VERCEL === \"1\"", "env.SOD_HYBRID_HOSTED_SHALLOW === \"1\"", "env.VERCEL_ENV === \"preview\"", "env.VERCEL_GIT_COMMIT_REF === HOSTED_HYBRID_BRANCH", "env.VERCEL_GIT_COMMIT_SHA === head", "approvedHybridPreviewHost(env.VERCEL_URL || \"\") !== \"\""]) assert.ok(boundary.includes(gate), gate);
 });
