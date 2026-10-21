@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {anagramKey, methodIntersections, legacyCrossCandidates} from "../../src/lib/research/crossingParityCore.js";
+import {anagramKey, methodIntersections, legacyCrossCandidates} from "../src/lib/research/crossingParityCore.js";
 test("same and cross methods remain distinct",()=>{
  const m=methodIntersections({ragil:10,misratar:30},{ragil:30,misratar:10},["ragil","misratar"]);
  assert.equal(m.filter(x=>x.sameMethod).length,0);
@@ -13,7 +13,7 @@ test("legacy candidate overlap, deduplication and anagrams",()=>{
  const rows=[
  {id:"1",phrase:"אב",ragil:3,misratar:10},
  {id:"2",phrase:"גד",ragil:3,misratar:10},
- {id:"3",phrase:"דג",ragil:3,misratar:10},
+ {id:"3",phrase:"גד",ragil:3,misratar:10},
  {id:"4",phrase:"ה",ragil:3,misratar:50},
  ];
  const actual=legacyCrossCandidates({expression:"אב",values:{ragil:3,misratar:10},candidates:rows,columns:["ragil","misratar"]});
