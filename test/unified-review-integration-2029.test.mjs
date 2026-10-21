@@ -71,15 +71,16 @@ test("free question never reaches number / save / share in the frame (guards pre
 });
 
 test("hosted read-only review preview: one exact new branch approved, earlier approved branches and guards untouched", () => {
-  // #1142: the Raziel session preview, stacked on this review line, is now the one exact approved branch (same
+  // #1142: the admin research preview, stacked on this review line, is now the one exact approved branch (same
   // pattern); the unified review branch itself stays approved and keeps its own source and URL.
-  assert.equal(HOSTED_HYBRID_BRANCH, "claude/raziel-session-frame-seam-20261021");
+  assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-crossing-integration-20261022");
   const enabled = vercel.git.deploymentEnabled;
   assert.equal(enabled[HOSTED_HYBRID_BRANCH], true);
   assert.equal(enabled["claude/2029-unified-review-5107-heichal-20261021"], true, "the unified review preview stays approved");
   assert.equal(enabled["gpt/2029-hybrid-stage-preview-20261018"], true, "the earlier guarded preview stays approved");
   assert.equal(enabled["gpt/*"], false);
   assert.equal(enabled["claude/*"], false);
+  assert.equal(enabled["codex/*"], false);
   assert.equal(vercel.buildCommand, "git checkout -- vercel.json && SOD_BUILD_TARGET=hybrid node scripts/build-hosted-hybrid-preview.mjs");
   // the only build env of this review branch is the preview-only Elections 5107 gate (fail-closed, path-scoped, public reads only)
   assert.deepEqual(vercel.build, { env: { VITE_ELECTIONS_631_PREVIEW: "true" } });

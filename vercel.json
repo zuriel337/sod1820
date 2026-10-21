@@ -1146,8 +1146,10 @@
       "claude/raziel-session-frame-seam-20261021": true,
       "gpt/els-research-v1-closure-20261020": true,
       "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
+      "codex/issue-1142-crossing-integration-20261022": true,
       "gpt/*": false,
-      "claude/*": false
+      "claude/*": false,
+      "codex/*": false
     }
   }
 }

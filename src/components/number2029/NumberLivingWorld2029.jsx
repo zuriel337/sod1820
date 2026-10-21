@@ -125,8 +125,26 @@ function findingLabel(item) {
 }
 
 function findingReason(item) {
-  return clean(item?.summary || item?.why || item?.reason || item?.explainWhy?.whyNow)
+  const presentation = item?.view?.rendererHints?.presentation || {};
+  return clean(
+    item?.summary || item?.why || item?.reason || item?.explainWhy?.whyNow
+    || presentation.summary || presentation.contextLine || presentation.sourceLabel
+  )
     || canonicalFindingKindPublicLabel(item?.kind, item?.type);
+}
+
+function findingAxisLabel(item) {
+  const status = clean(item?.status).toLowerCase();
+  const access = clean(item?.access?.tier).toLowerCase();
+  const verification = clean(item?.verification?.verification_state).toLowerCase();
+  const labels = [];
+  if (status === "approved") labels.push("מאושר למחקר");
+  else if (status === "candidate") labels.push("מועמד לבדיקה");
+  if (access === "private") labels.push("פנימי");
+  else if (access === "public_candidate") labels.push("מועמד לציבור");
+  else if (["public", "published"].includes(access)) labels.push("ציבורי");
+  if (verification === "match") labels.push("אומת במנוע");
+  return labels.join(" · ");
 }
 
 function personName(row) {
@@ -207,6 +225,7 @@ export default function NumberLivingWorld2029({
   onLoadMoreVerses,
   worlds = [],
   researchFindings = [],
+  researchCoverage = null,
   timeline = [],
   zeroScale = [],
   mediaItems = [],
@@ -240,7 +259,10 @@ export default function NumberLivingWorld2029({
   );
   const people = useMemo(() => buildPeople(sources, researchFindings), [sources, researchFindings]);
   const prominence = Array.isArray(researchState?.items) ? researchState.items.filter(publicDiscovery) : [];
-  const publicFindings = researchFindings.filter(publicDiscovery);
+  const visibleFindings = useMemo(
+    () => researchFindings.filter(publicDiscovery),
+    [researchFindings],
+  );
   const expressionRows = useMemo(() => {
     const seen = new Set();
     const rows = [];
@@ -258,19 +280,20 @@ export default function NumberLivingWorld2029({
     return rows;
   }, [regularExpressions, families]);
 
-  const directMaterialCount = topics.length + relations.length + sources.length + publicFindings.length + Math.min(expressionRows.length, 6);
+  const directMaterialCount = topics.length + relations.length + sources.length + visibleFindings.length + Math.min(expressionRows.length, 6);
   const sparseMode = directMaterialCount < 7 && zeroScale.some((value) => Number(value) !== root);
-  const primary = prominence[0] || topics[0] || publicFindings[0] || null;
+  const primary = prominence[0] || topics[0] || visibleFindings[0] || null;
   const summits = prominence.slice(primary ? 1 : 0, 5);
   const selectedWorld = worldCards[Math.min(activeWorld, Math.max(0, worldCards.length - 1))] || null;
 
   const scrubRows = useMemo(() => {
     if (scrubMode === "findings") {
-      return (prominence.length ? prominence : publicFindings).slice(0, 12).map((item, index) => ({
+      const items = visibleFindings.length ? visibleFindings : prominence;
+      return items.map((item, index) => ({
         key: item?.id || `finding-${index}`,
         title: findingLabel(item),
-        subtitle: findingReason(item) || "ממצא מחקר",
-        kind: "ממצא",
+        subtitle: [findingReason(item), findingAxisLabel(item)].filter(Boolean).join(" · ") || "ממצא מחקר",
+        kind: clean(item?.view?.rendererHints?.presentation?.typeLabel) || "ממצא",
         raw: item,
       }));
     }
@@ -285,7 +308,7 @@ export default function NumberLivingWorld2029({
       value: row.value,
       raw: row,
     }));
-  }, [scrubMode, prominence, researchFindings, relatedNumbers]);
+  }, [scrubMode, prominence, visibleFindings, relatedNumbers]);
 
   useEffect(() => {
     setScrubIndex(0);
@@ -425,7 +448,7 @@ export default function NumberLivingWorld2029({
         <small>נקודות המשך מתוך המחקר הקיים</small>
       </div>
       <div className="sod29-lw-summits" aria-label="קשרים בולטים סביב המספר">
-        {(summits.length ? summits : [topics[0], publicFindings[0], sources[0], relatedNumbers[0]].filter(Boolean)).slice(0, 4).map((item, index) => (
+        {(summits.length ? summits : [topics[0], visibleFindings[0], sources[0], relatedNumbers[0]].filter(Boolean)).slice(0, 4).map((item, index) => (
           <article key={item?.id || item?.slug || item?.value || index}>
             <span>קשר {index + 1}</span>
             <strong>{item?.value != null ? item.value : findingLabel(item)}</strong>
@@ -505,12 +528,23 @@ export default function NumberLivingWorld2029({
         <DepthButton onClick={() => onOpenNumber?.(math.prime_context.index)}>פתח את מספר {math.prime_context.index}</DepthButton>
       </div> : null}
 
-      <div className="sod29-lw-scrubber">
+      <div
+        className="sod29-lw-scrubber"
+        data-research-coverage-state={researchCoverage?.status || "unknown"}
+        data-research-returned-count={researchCoverage?.returnedCount ?? visibleFindings.length}
+        data-research-truncated={researchCoverage?.truncated === true ? "true" : "false"}
+      >
         <div className="sod29-lw-scrub-tabs">
           <button type="button" className={scrubMode === "numbers" ? "is-active" : ""} onClick={() => setScrubMode("numbers")}>מספרים קשורים</button>
-          <button type="button" className={scrubMode === "findings" ? "is-active" : ""} onClick={() => setScrubMode("findings")}>ממצאים</button>
+          <button type="button" className={scrubMode === "findings" ? "is-active" : ""} onClick={() => setScrubMode("findings")}>{`ממצאים · ${visibleFindings.length}`}</button>
           <button type="button" className={scrubMode === "sequences" ? "is-active" : ""} onClick={() => setScrubMode("sequences")}>רצפים</button>
         </div>
+        {scrubMode === "findings" && researchCoverage?.status === "complete" ? <div className="sod29-lw-empty" role="status">
+          כל {visibleFindings.length} הממצאים הזמינים לתצוגה נטענו{researchCoverage.excludedPersonOnly > 0 ? " · מחקר אישי הופרד מהתצוגה הכללית" : ""}.
+        </div> : null}
+        {scrubMode === "findings" && researchCoverage?.status === "truncated" ? <div className="sod29-lw-empty" role="status">
+          מוצגים {visibleFindings.length} ממצאים זמינים מתוך חלון של {researchCoverage.queryLimit}. ייתכנו ממצאים נוספים.
+        </div> : null}
         {fibRail ? <div className="sod29-lw-fib" data-experience-capability="fibonacci-glass-rail">
           <div className="sod29-lw-fib-state" data-fib-state={fibRail.state}>
             <span>Fibonacci</span>

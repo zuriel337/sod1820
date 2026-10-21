@@ -1698,6 +1698,7 @@ function NumberPageBody() {
       onLoadMoreVerses={loadMoreVerseGematria}
       worlds={worlds}
       researchFindings={researchFindings}
+      researchCoverage={data?.research?.coverage || null}
       timeline={timeline}
       zeroScale={zeroScale}
       mediaItems={mediaItems}

@@ -124,6 +124,7 @@ test("Vercel enables only the exact Hybrid integration branch and mirrors the ro
   assert.equal(vercel.git.deploymentEnabled[REQUIRED_BRANCH], true);
   assert.equal(vercel.git.deploymentEnabled["gpt/*"], false);
   assert.equal(vercel.git.deploymentEnabled["claude/*"], false);
+  assert.equal(vercel.git.deploymentEnabled["codex/*"], false);
   const documentRewrites = vercel.rewrites.filter((rule) => !rule.has && ["/2029.html", "/index.html", "/legacy.html"].includes(rule.destination));
   assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/2029.html").map((rule) => rule.source)), new Set(policy.candidate2029Routes));
   assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/legacy.html" && rule.source !== "/(.*)").map((rule) => rule.source)), new Set(policy.explicitLegacyRoutes));

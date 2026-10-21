@@ -7,6 +7,7 @@ import { HOSTED_HYBRID_BRANCH } from "../scripts/hybrid-preview-source-boundary.
 
 const HOST = "sod1820-abc123-sod1820-s-projects.vercel.app";
 const API = "https://linswmnnkjxvweumprav.supabase.co";
+const RAZIEL_CHAT_BRANCH = "claude/raziel-session-frame-seam-20261021";
 
 function loadWorker(branch) {
   const { worker, descriptor } = renderPreviewReadonlyWorker({ commit: "a".repeat(40), branch, host: HOST, buildTarget: "hybrid" });
@@ -27,13 +28,14 @@ function loadWorker(branch) {
 
 const ask = { kind: "research", persona: "raziel", subject: "מה זה 776?", facts: "", context: null, again: false, metatron: false, path: null, intelligence_level: "fast" };
 
-test("the approved preview branch is the hosted branch and the only Raziel-chat branch", () => {
-  assert.equal(HOSTED_HYBRID_BRANCH, "claude/raziel-session-frame-seam-20261021");
-  assert.deepEqual([...RAZIEL_CHAT_PREVIEW_BRANCHES], [HOSTED_HYBRID_BRANCH]);
+test("the admin research preview stays separate from the only Raziel-chat branch", () => {
+  assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-crossing-integration-20261022");
+  assert.deepEqual([...RAZIEL_CHAT_PREVIEW_BRANCHES], [RAZIEL_CHAT_BRANCH]);
+  assert.equal(RAZIEL_CHAT_PREVIEW_BRANCHES.includes(HOSTED_HYBRID_BRANCH), false);
 });
 
 test("approved branch: a plain Raziel research ask reaches ai-analyze; everything else stays blocked", async () => {
-  const w = loadWorker(HOSTED_HYBRID_BRANCH);
+  const w = loadWorker(RAZIEL_CHAT_BRANCH);
   assert.equal(w.descriptor.razielChat, true);
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: ask }), "forwarded");
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: { ...ask, persona: "christina" } }), "blocked-403");
@@ -51,7 +53,7 @@ test("approved branch: a plain Raziel research ask reaches ai-analyze; everythin
 });
 
 test("any other branch keeps every model call blocked", async () => {
-  const w = loadWorker("claude/2029-unified-review-5107-heichal-20261021");
+  const w = loadWorker(HOSTED_HYBRID_BRANCH);
   assert.equal(w.descriptor.razielChat, false);
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: ask }), "blocked-403");
   assert.equal(w.forwarded.length, 0);

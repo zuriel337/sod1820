@@ -66,6 +66,20 @@ test("Number World shows only live material", () => {
   assert.ok(src.includes("worldCards.length ? <section"));
 });
 
+test("Number research scrubber uses every authorized finding and exposes honest coverage", () => {
+  const component = read("../../components/number2029/NumberLivingWorld2029.jsx");
+  const page = read("../../pages/Number2029Page.jsx");
+
+  assert.ok(component.includes("const items = visibleFindings.length ? visibleFindings : prominence"));
+  assert.ok(!component.includes("prominence.length ? prominence : publicFindings"));
+  assert.ok(!component.includes(".slice(0, 12).map((item, index)"));
+  assert.ok(component.includes("data-research-coverage-state"));
+  assert.ok(component.includes("data-research-returned-count"));
+  assert.ok(component.includes("כל {visibleFindings.length} הממצאים הזמינים לתצוגה נטענו"));
+  assert.ok(component.includes("מחקר אישי הופרד מהתצוגה הכללית"));
+  assert.ok(page.includes("researchCoverage={data?.research?.coverage || null}"));
+});
+
 test("graph relation projects /post/:slug only for post nodes with stored slug", () => {
   const nodes = new Map([
     ["1", { id: "1", type: "number", label: "631" }],

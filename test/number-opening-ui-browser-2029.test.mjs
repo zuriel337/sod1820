@@ -159,7 +159,7 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
       { width: 320, height: 700, trigger: "wheel", path: "/number/1820" },
       { width: 390, height: 844, trigger: "keyboard", path: "/number/1820", expressionClick: true },
       { width: 1440, height: 1000, trigger: "touch", path: "/number/001820", hasTouch: true },
-      { width: 390, height: 844, trigger: "action", path: "/number/1820", programmaticCases: false },
+      { width: 390, height: 844, trigger: "action", path: "/number/1820", programmaticCases: false, researchFixture: 30 },
       { width: 390, height: 844, trigger: "module-retry", path: "/number/1820", programmaticCases: false, failDepthChunkOnce: true },
     ]) {
       const context = await browser.newContext({
@@ -229,6 +229,34 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
             created_at: "2026-10-18T00:00:00.000Z",
             updated_at: null,
           }) });
+        }
+        if (table === "research_objects" && scenario.researchFixture) {
+          const rows = Array.from({ length: scenario.researchFixture }, (_, index) => ({
+            id: `40000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+            created_at: `2026-10-${String(Math.min(28, index + 1)).padStart(2, "0")}T00:00:00.000Z`,
+            kind: index % 3 === 0 ? "fact" : index % 3 === 1 ? "observation" : "relation",
+            statement: `ממצא מחקר ${index + 1} סביב המספר 1820`,
+            terms: ["1820"],
+            value: 1820,
+            relates: ["1820"],
+            source: "research_triage",
+            source_ref: `research-cue:fixture-${index + 1}`,
+            contributor: "GPT",
+            confidence: 0.8,
+            engine_verified: false,
+            engine_detail: {},
+            status: index % 2 === 0 ? "approved" : "candidate",
+            privacy_scope: "private",
+            promoted_node_id: null,
+            meta: {},
+          }));
+          rows.push({
+            ...rows[0],
+            id: "4fffffff-0000-4000-8000-000000000001",
+            statement: "מחקר אישי שאסור להקרין במפת המחקר הכללית",
+            meta: { ext: { personal_scope: { scope: "person_only" } } },
+          });
+          return route.fulfill({ status: 200, headers: jsonHeaders, body: JSON.stringify(rows) });
         }
         if (rpc === "fn_number_opening_projection_2029") {
           const payload = openingPayload(Number(body?.p_value));
@@ -477,6 +505,24 @@ test("loopback opening rejects programmatic navigation/scroll and admits explici
       assert.ok(depthRead.at >= firstUsableAt, `${scenario.width}: first usable compact marker precedes full lookup`);
       assert.ok(depthRead.at >= depthIntentAt, `${scenario.width}: full lookup begins only after scroll/action intent`);
       assert.equal(depthReadCount(), 1, `${scenario.width}/${scenario.trigger}: one intent starts exactly one canonical depth lookup`);
+      if (scenario.researchFixture) {
+        const livingWorld = page.locator('[data-experience-capability="number-living-world"]');
+        await livingWorld.waitFor({ timeout: 15_000 });
+        const findingsButton = livingWorld.getByRole("button", { name: `ממצאים · ${scenario.researchFixture}` });
+        await findingsButton.click();
+        const scrubber = livingWorld.locator(".sod29-lw-scrubber");
+        await scrubber.locator(".sod29-lw-stations button").last().waitFor();
+        assert.equal(await scrubber.getAttribute("data-research-coverage-state"), "complete");
+        assert.equal(await scrubber.getAttribute("data-research-returned-count"), String(scenario.researchFixture));
+        assert.equal(await scrubber.getAttribute("data-research-truncated"), "false");
+        assert.equal(await scrubber.locator(".sod29-lw-stations button").count(), scenario.researchFixture);
+        assert.equal(await scrubber.locator('input[type="range"]').getAttribute("max"), String(scenario.researchFixture - 1));
+        await scrubber.locator(".sod29-lw-stations button").last().click();
+        assert.equal(await scrubber.locator(".sod29-lw-stations button.is-active").count(), 1);
+        assert.match(await scrubber.textContent(), /כל 30 הממצאים הזמינים לתצוגה נטענו/);
+        assert.match(await scrubber.textContent(), /מחקר אישי הופרד מהתצוגה הכללית/);
+        assert.equal(reads.some((read) => /ai-analyze/i.test(read.path)), false, "loading and browsing research never calls AI");
+      }
       assert.deepEqual(errors, [], `${scenario.width}: no browser runtime errors`);
 
       receipt.push({

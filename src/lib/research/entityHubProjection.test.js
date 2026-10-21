@@ -13,7 +13,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildMethodResultBridge, buildPhraseEntityLinks, buildEntityListQuery, resolveExplorerListParams } from "./entityHubProjection.js";
+import {
+  buildMethodResultBridge,
+  buildPhraseEntityLinks,
+  buildEntityListQuery,
+  projectResearchQueryResults,
+  resolveExplorerListParams,
+} from "./entityHubProjection.js";
 import { gematriaApiResultToFindings } from "./canonicalGematria.js";
 import { isUniversalFinding } from "./universalFinding.js";
 
@@ -25,6 +31,68 @@ const REGISTRY = [
 ];
 const GW = { id: "11111111-1111-4111-8111-111111111111", phrase: "ביטוי-סינתטי", is_verified: true, is_published: true, aaa: 100, bbb: 999, ccc: null };
 const NUMBER_NODES = [{ id: "n-100", type: "number", label: "100" }, { id: "n-300", type: "number", label: "300" }];
+
+function researchRow(id, createdAt, extra = {}) {
+  return {
+    id,
+    created_at: createdAt,
+    meta: {},
+    ...extra,
+  };
+}
+
+test("research coverage dedupes overlapping query legs and excludes explicit person-only rows", () => {
+  const shared = researchRow("10000000-0000-4000-8000-000000000001", "2026-10-03T00:00:00Z");
+  const older = researchRow("10000000-0000-4000-8000-000000000002", "2026-10-02T00:00:00Z");
+  const personOnly = researchRow("10000000-0000-4000-8000-000000000003", "2026-10-04T00:00:00Z", {
+    meta: { ext: { personal_scope: { scope: "person_only" } } },
+  });
+  const result = projectResearchQueryResults([
+    [shared, older, personOnly],
+    [shared],
+  ], { limit: 8 });
+
+  assert.deepEqual(result.rows.map((row) => row.id), [shared.id, older.id]);
+  assert.deepEqual(result.coverage, {
+    status: "complete",
+    queryLimit: 8,
+    queryCount: 2,
+    authorizedCount: 2,
+    returnedCount: 2,
+    excludedPersonOnly: 1,
+    complete: true,
+    truncated: false,
+  });
+});
+
+test("research coverage uses the overflow probe without projecting it", () => {
+  const rows = [
+    researchRow("20000000-0000-4000-8000-000000000001", "2026-10-03T00:00:00Z"),
+    researchRow("20000000-0000-4000-8000-000000000002", "2026-10-02T00:00:00Z"),
+    researchRow("20000000-0000-4000-8000-000000000003", "2026-10-01T00:00:00Z"),
+  ];
+  const result = projectResearchQueryResults([rows], { limit: 2 });
+
+  assert.deepEqual(result.rows.map((row) => row.id), rows.slice(0, 2).map((row) => row.id));
+  assert.equal(result.coverage.status, "truncated");
+  assert.equal(result.coverage.returnedCount, 2);
+  assert.equal(result.coverage.complete, false);
+  assert.equal(result.coverage.truncated, true);
+});
+
+test("research coverage reports a truncated union even when no individual query overflows", () => {
+  const rows = [
+    researchRow("30000000-0000-4000-8000-000000000001", "2026-10-03T00:00:00Z"),
+    researchRow("30000000-0000-4000-8000-000000000002", "2026-10-02T00:00:00Z"),
+    researchRow("30000000-0000-4000-8000-000000000003", "2026-10-01T00:00:00Z"),
+  ];
+  const result = projectResearchQueryResults([[rows[0], rows[1]], [rows[2]]], { limit: 2 });
+
+  assert.equal(result.coverage.authorizedCount, 3);
+  assert.equal(result.coverage.returnedCount, 2);
+  assert.equal(result.coverage.status, "truncated");
+  assert.equal(result.coverage.truncated, true);
+});
 
 test("bridge rows come from the engine output only; registry joined on db_column; sorted by registry order", () => {
   const rows = buildMethodResultBridge({ subjectLabel: "ביטוי-סינתטי", subjectNodeId: "node-1", gwRow: GW, engineFindings: ENGINE, registryRows: REGISTRY, numberNodes: NUMBER_NODES });

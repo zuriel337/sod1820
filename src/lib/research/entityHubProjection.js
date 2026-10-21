@@ -1,6 +1,10 @@
 import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
-import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
+import {
+  isGeneralResearchProjectionEligible,
+  researchObjectFacetDimensions,
+  researchObjectsToUniversalFindings,
+} from "./researchObjectFinding.js";
 import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
 import { createNumberLookupTransport } from "./numberLookupTransport2029.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
@@ -61,6 +65,45 @@ function dedupeRows(rows) {
   return [...byId.values()].sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
 }
 
+/**
+ * Preserve the existing bounded union while making its coverage explicit.
+ *
+ * Every query is allowed one overflow-probe row. The probe is never projected;
+ * it only proves that the corresponding query hit its cap. Explicit person-only
+ * research is removed before the generic Entity Hub projection, matching the
+ * existing World/Golden general-research boundary. RLS remains the authority on
+ * which rows the current session may read in the first place.
+ */
+export function projectResearchQueryResults(queryResults, { limit = 40 } = {}) {
+  const cap = safeLimit(limit, 40, 120);
+  const groups = (Array.isArray(queryResults) ? queryResults : [])
+    .map((rows) => Array.isArray(rows) ? rows : []);
+  const truncatedByQuery = groups.some((rows) => rows.length > cap);
+  const boundedRows = groups.flatMap((rows) => rows.slice(0, cap));
+  const excludedPersonOnly = dedupeRows(
+    boundedRows.filter((row) => !isGeneralResearchProjectionEligible(row)),
+  ).length;
+  const authorizedRows = dedupeRows(
+    boundedRows.filter(isGeneralResearchProjectionEligible),
+  );
+  const truncated = truncatedByQuery || authorizedRows.length > cap;
+  const rows = authorizedRows.slice(0, cap);
+
+  return {
+    rows,
+    coverage: {
+      status: truncated ? "truncated" : "complete",
+      queryLimit: cap,
+      queryCount: groups.length,
+      authorizedCount: authorizedRows.length,
+      returnedCount: rows.length,
+      excludedPersonOnly,
+      complete: !truncated,
+      truncated,
+    },
+  };
+}
+
 export async function fetchEntityTypeDefinition(type) {
   const key = clean(type);
   if (!key) return null;
@@ -111,7 +154,21 @@ async function fetchResearchFacetRegistry(rows = []) {
 }
 
 export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
-  if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
+  if (!node?.id) return {
+    rows: [],
+    findings: [],
+    coverage: {
+      status: "complete",
+      queryLimit: safeLimit(limit, 40, 120),
+      queryCount: 0,
+      authorizedCount: 0,
+      returnedCount: 0,
+      excludedPersonOnly: 0,
+      complete: true,
+      truncated: false,
+    },
+    access: { available: true, reason: null },
+  };
   const cap = safeLimit(limit, 40, 120);
   const label = clean(node.label);
   const identityKey = clean(node.identity_key);
@@ -120,23 +177,39 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
 
   if (node.type === "number" && Number.isSafeInteger(Number(label))) {
     const value = Number(label);
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).eq("value", value), cap));
+    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).eq("value", value), cap + 1));
     if (!terms.includes(String(value))) terms.push(String(value));
   }
 
   for (const term of terms) {
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [term]), cap));
-    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap));
+    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [term]), cap + 1));
+    queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap + 1));
   }
 
-  if (!queries.length) return { rows: [], findings: [], access: { available: true, reason: null } };
+  if (!queries.length) return {
+    rows: [],
+    findings: [],
+    coverage: {
+      status: "complete",
+      queryLimit: cap,
+      queryCount: 0,
+      authorizedCount: 0,
+      returnedCount: 0,
+      excludedPersonOnly: 0,
+      complete: true,
+      truncated: false,
+    },
+    access: { available: true, reason: null },
+  };
 
   try {
-    const rows = dedupeRows(await Promise.all(queries)).slice(0, cap);
+    const projected = projectResearchQueryResults(await Promise.all(queries), { limit: cap });
+    const rows = projected.rows;
     const methodRegistry = await fetchResearchFacetRegistry(rows);
     return {
       rows,
       findings: researchObjectsToUniversalFindings(rows, { locale, methodRegistry: methodRegistry.rows }),
+      coverage: projected.coverage,
       methodRegistryRows: methodRegistry.rows,
       methodRegistryAccess: { available: methodRegistry.available },
       access: { available: true, reason: null },
@@ -146,6 +219,16 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
       return {
         rows: [],
         findings: [],
+        coverage: {
+          status: "unavailable",
+          queryLimit: cap,
+          queryCount: queries.length,
+          authorizedCount: null,
+          returnedCount: 0,
+          excludedPersonOnly: null,
+          complete: false,
+          truncated: false,
+        },
         access: { available: false, reason: "research_objects_not_readable_for_current_session" },
       };
     }
@@ -1184,6 +1267,7 @@ export async function fetchEntityHubProjection({
     research: {
       rows: research.rows,
       findings: research.findings,
+      coverage: research.coverage,
       scriptureDiscovery,
       scriptureTermDiscovery,
       humanGate: humanGateSummary(research.rows),
