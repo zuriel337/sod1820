@@ -59,6 +59,7 @@ const HomePage = React.lazy(() => import("./pages/HomePage.jsx"));
 const AuthPage = React.lazy(() => import("./pages/AuthPage.jsx"));
 const ProfilePage = React.lazy(() => import("./pages/ProfilePage.jsx"));
 const CreditsBuyPage = React.lazy(() => import("./pages/CreditsBuyPage.jsx"));
+const CardcomOneShekelTest = React.lazy(() => import("./pages/CardcomOneShekelTest.jsx"));
 const StartHerePage = React.lazy(() => import("./pages/StartHerePage.jsx"));
 const PrivacyPage = React.lazy(() => import("./pages/PrivacyPage.jsx"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage.jsx"));
@@ -401,6 +402,7 @@ export default function App() {
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/credits" element={<CreditsBuyPage />} />
+          <Route path="/cardcom-test-1ils" element={<CardcomOneShekelTest />} />
           <Route path="/buy" element={<CreditsBuyPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/dev/torah-occurrence-scene" element={<TorahOccurrenceScenePage />} />
