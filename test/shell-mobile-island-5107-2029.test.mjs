@@ -25,6 +25,9 @@ const between = (text, start, end) => {
   return text.slice(a, b);
 };
 const islandJsx = between(frame, "className={`sod29-command-island is-unified-bar", "{renderTransient()}");
+// The Action projection may later gain an optional exact-return prop (frame-preview-fixes line); accept it, never accept anything else.
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const jsxPattern = (jsx) => new RegExp(escapeRegExp(jsx).replace(" go=\\{go\\} />", " go=\\{go\\}( onReturnExact=\\{returnExact\\})? />"));
 
 // ---------------------------------------------------------------------------------------------------------------------
 // PILOT: new behavior
@@ -81,7 +84,9 @@ test("Action is hidden from the phone island in the pilot and stays reachable in
 test("merged Tools + Actions sheet: pilot only, same projections and handlers, accessible tabs", () => {
   const merged = between(frame, "if (shellReviewActive && (transientKind === TRANSIENT.ACTION || transientKind === TRANSIENT.TOOLS)) {", "if (transientKind === TRANSIENT.ACTION) return");
   // both original projections with their original props: nothing dropped, nothing new
-  assert.ok(merged.includes("<ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} />"));
+  assert.match(merged, jsxPattern("<ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} />"));
+  // if the Action projection can render an exact-return block, the merged Actions tab must pass the same handler
+  if (frame.includes("onReturnExact = null")) assert.ok(merged.includes("onReturnExact={returnExact}"));
   assert.ok(merged.includes("<ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} />"));
   // tabs semantics
   assert.match(merged, /role="tablist"/);
@@ -199,7 +204,7 @@ test("other surfaces: Search, Action and Tools island buttons are still rendered
 });
 
 test("other surfaces: the original Action and Tools sheets are untouched and reached whenever the pilot gate is off", () => {
-  assert.ok(frame.includes('if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;'));
+  assert.match(frame, jsxPattern('if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;'));
   assert.ok(frame.includes('if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;'));
   // the merged branch is strictly before them and strictly gated
   assert.ok(frame.indexOf("shellReviewActive && (transientKind === TRANSIENT.ACTION") < frame.indexOf('if (transientKind === TRANSIENT.ACTION) return <PanelShell'));
