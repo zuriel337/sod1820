@@ -1,0 +1,17 @@
+/* Shared six-dimension cup projection INSIDE the existing contextual rail.
+   These are coverage statuses only: no second meter, no score, no floating bar. */
+.sod29-631-context-slot{display:flex;align-items:flex-start;flex-wrap:wrap;gap:5px 9px;
+  padding:10px 0;border-top:1px solid var(--s29-line);margin-block:8px 4px;min-width:0}
+.sod29-631-context-slot .sod29-depth-compact{min-height:44px;font-size:12px;
+  white-space:normal;flex-wrap:wrap;padding:5px 10px;border-color:var(--s29-line-strong)}
+.sod29-631-context-slot .sod29-depth-pips{flex:none;gap:3px}
+.sod29-631-context-slot .sod29-depth-pips i{width:9px;height:15px;flex:none}
+.sod29-context-cups-note{display:block;flex:1 1 140px;align-self:center;min-width:0;
+  font-size:11px;line-height:1.55;color:var(--s29-muted)}
+@media(max-width:390px){
+ .sod29-631-context-slot{gap:5px;padding-block:8px}
+ .sod29-631-context-slot .sod29-depth-compact{width:auto;max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ .sod29-631-context-slot .sod29-depth-compact{transition:none}
+}

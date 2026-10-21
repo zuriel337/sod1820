@@ -1,95 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getPostBySlug, supabase } from "../../lib/supabase.js";
-import { projectElections631Context, ELECTIONS_REVIEWED_PHRASES, ELECTIONS_SOURCE_SLUG } from "../../lib/research/contextualAxisPriority2029.js";
 import ContextDepthMeter2029 from "./ContextDepthMeter2029.jsx";
-import { METHODS } from "../../lib/gematria.js";
+import { ELECTIONS_SOURCE_SLUG } from "../../lib/research/contextualAxisPriority2029.js";
 import "./elections631ContextPreview2029.css";
 
-/**
- * Loaded only by explicit user action inside the EXISTING Companion/Context rail
- * and only on the already gated VITE_INTEGRATED_PREVIEW build.
- * No new store, per-card search, or second viewer identity.
- */
-export default function Elections631ContextPreview2029() {
+// The Post owner passes a single already-authorized model to the in-flow
+// after-reading menu. This is PRESENTATION ONLY: no second source fetch,
+// graph read, scoring or Raziel request from inside the panel.
+export default function Elections631ContextPreview2029({ model, view = "meeting" }) {
   const navigate = useNavigate();
-  const [state, setState] = useState({ loading: true, model: null, error: null });
   const [selectedValue, setSelectedValue] = useState(631);
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        if (!supabase) throw new Error("no_public_reader");
-        const post = await getPostBySlug(ELECTIONS_SOURCE_SLUG);
-        if (!post) throw new Error("post_unavailable");
-        const { data, error } = await supabase.from("gematria_words")
-          .select("phrase,ragil,is_verified,is_published")
-          .in("phrase", ELECTIONS_REVIEWED_PHRASES)
-          .eq("ragil", 631).eq("is_verified", true).eq("is_published", true)
-          .limit(ELECTIONS_REVIEWED_PHRASES.length);
-        if (error) throw error;
-        const methods = new Map(METHODS.map((m) => [m.key, m.fn]));
-        const verifyCalculation = (phrase, method, value) => {
-          try { const calc = methods.get(method); return typeof calc === "function" && calc(phrase) === value; }
-          catch { return false; }
-        };
-        const model = projectElections631Context({ post, gematriaRows: data || [], verifyCalculation });
-        if (live) setState({
-          loading: false, model: model.available ? model : null,
-          error: model.available ? null : "העוגן או הרשאות המקור אינם זמינים. לא ננחש קשרים.",
-        });
-      } catch {
-        if (live) setState({ loading: false, model: null, error: "לא ניתן לקרוא כעת את המקורות המורשים. אין חישובים משוערים." });
-      }
-    })();
-    return () => { live = false; };
-  }, []);
-
-  if (state.loading) return <p role="status" className="sod29-631-status">בודק מקור וביטויים מפורסמים…</p>;
-  if (state.error || !state.model) return <p role="status" className="sod29-631-status">{state.error}</p>;
-  const result = state.model;
+  if (!model?.available || !model.depth) return <p role="status" className="sod29-631-status">הקשר זה עדיין לא זמין להצגה.</p>;
   const safeOpen = (item) => {
     if (typeof item?.href !== "string" || !item.href.startsWith("/post/" + ELECTIONS_SOURCE_SLUG + "#source-region-")) return;
     navigate(item.href);
   };
 
-  return <section className="sod29-elections-context-review" aria-label="התכנסות מספרית בהקשר הבחירות" data-contextual-priority="context_first">
-    <div className="sod29-elections-priority-head">
-      <small>קדימות במוקד · רמזי הבחירות</small>
-      <strong dir="ltr">631</strong>
-      <p>״הבחירות״ ו״מלך ישראל״ — אותו ערך בגימטריה רגילה. הביטויים אינם דירוג או הערכה של אדם.</p>
-    </div>
-    <ul className="sod29-elections-priority-results" aria-label="ביטויים המאומתים ומפורסמים במאגר">
-      {result.publicMatches.map((claim) => <li key={claim.phrase}>
-        <span>{claim.phrase}<small>631 · רגיל · רשומה מאומתת ומפורסמת</small></span>
+  if (view === "sources") return <section className="sod29-elections-context-review"
+    aria-label="המקורות המדויקים של ציר הבחירות" data-contextual-priority="source_provenance">
+    <p className="sod29-elections-source-status">מקטעי המקור המוצגים כאן שייכים לפוסט 5107. אימות חישוב, פרסום במאגר ופרשנות אינם אותו מעמד.</p>
+    <ul className="sod29-elections-priority-results" aria-label="ביטויים מאומתים ומפורסמים במאגר">
+      {model.publicMatches.map((claim) => <li key={claim.phrase}>
+        <span>{claim.phrase}<small>רגיל = 631 · רשומה מאומתת ומפורסמת</small></span>
         <Link to={claim.source.href} aria-label={"פתח את המקטע המקורי של " + claim.phrase}>למקור</Link>
       </li>)}
     </ul>
-    {result.authoredClaim ? <div className="sod29-elections-source-claim">
+    {model.authoredClaim ? <div className="sod29-elections-source-claim">
       <span>״עופר וינטר = 631״ מופיע בגוף הפוסט.</span>
-      <small>טענת מקור · אינה נספרת כאן כרשומת מאגר שפורסמה</small>
-      <Link to={result.authoredClaim.source.href}>פתח במקור</Link>
+      <small>תוכן מקור · רשומת הביטוי במאגר אינה מפורסמת</small>
+      <Link to={model.authoredClaim.source.href}>פתח במקור</Link>
     </div> : null}
-    {result.crossMethodAnchor ? <div className="sod29-elections-1820">
+    {model.crossMethodAnchor ? <div className="sod29-elections-source-claim">
+      <span>״עופר וינטר · מילוי = 1820״</span>
+      <small>מקטע 1820 בגוף הפוסט · מקור אחד, שיטה אחרת</small>
+      <Link to={model.crossMethodAnchor.href}>פתח במקור</Link>
+    </div> : null}
+    <p className="sod29-elections-source-status">ריבוי הופעות או שיטות מתוך אותו פוסט אינו יוצר מקורות עצמאיים נוספים.</p>
+  </section>;
+
+  return <section className="sod29-elections-context-review" aria-label="התכנסות מספרית בהקשר הבחירות" data-contextual-priority="context_first">
+    <div className="sod29-elections-priority-head">
+      <small>מוקד ההתכנסות · רמזי הבחירות</small>
+      <strong dir="ltr">631</strong>
+      <p>״הבחירות״ ו״מלך ישראל״ חולקים ערך בגימטריה רגילה. זו התאמה חישובית בהקשר הסיפור, לא דירוג או הערכה של אדם.</p>
+    </div>
+    {model.crossMethodAnchor ? <div className="sod29-elections-1820">
       <div><small>עוגן נוסף · אותו מקור, שיטה אחרת</small><strong dir="ltr">1820</strong></div>
-      <p>הפוסט מציג ״עופר וינטר״ גם במילוי. זו שכבת חיבור באותו מקור, לא אישוש עצמאי או ציון חדש.</p>
-      <Link to={result.crossMethodAnchor.href}>פתח את יחידת המקור</Link>
+      <p>בפוסט מתואר אותו שם גם בשיטת המילוי. החיבור מוסיף עומק מספרי, אך אינו מקור עצמאי נוסף.</p>
+      <Link to={model.crossMethodAnchor.href}>למקטע המקור של 1820</Link>
     </div> : null}
     <div className="sod29-elections-priority-why">
-      <b>למה 631 מופיע ראשון כאן?</b>
-      <p>זהו הערך של ביטוי המוקד ״הבחירות״. סביבו נמצאו {result.publicMatches.length} ביטויים בעלי רשומה מאומתת ומפורסמת, ולצדם עוגן 1820 מתוך אותו פוסט. זהו סדר הצגה בהקשר הבחירות בלבד.</p>
-      <small>חישובים נבדקים בשיטות המנוע הקנוני הקיימות. מספר שיטות ≠ מספר מקורות עצמאיים. תגית אינה אישור לקשר מחקרי.</small>
+      <b>למה ציר 631 מופיע ראשון במפגש הזה?</b>
+      <p>״הבחירות״ עצמו מופיע בפוסט עם הערך 631, ו־{model.publicMatches.length} ביטויים במאגר נושאים אותו בחישוב מאומת ומפורסם. לצד זאת נפתח קשר בשיטה אחרת לעוגן 1820 — במסגרת אותו סיפור.</p>
+      <small>זו קדימות תצוגה של קשרי מקור בלבד. אין ניקוד כולל חדש ואין דירוג של מועמדים.</small>
     </div>
-    <details className="sod29-elections-depth-details">
-      <summary>בדוק שישה ממדי עומק · ללא ציון כולל</summary>
-      <ContextDepthMeter2029
-        depth={result.depth}
-        variant="full"
-        selectedValue={selectedValue}
-        onSelectValue={setSelectedValue}
-        onOpenLocator={safeOpen}
-      />
-    </details>
-    <p className="sod29-elections-source-status">הכיסוי של עצמאות המקורות והאישור לקשרים עדיין לא מופה. המסלול לפוסט המשך שאינו משוחרר אינו נפתח אוטומטית.</p>
+    <ContextDepthMeter2029
+      depth={model.depth} variant="full" selectedValue={selectedValue}
+      onSelectValue={setSelectedValue} onOpenLocator={safeOpen}
+    />
+    <p className="sod29-elections-source-status">אישור קשרים ועצמאות מקורות שטרם הוכחו יישארו ״טרם מופה״; הצעות לא ייחשבו כראיות.</p>
   </section>;
 }
