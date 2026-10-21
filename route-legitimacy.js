@@ -20,6 +20,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/community-shadow-preview-2029",
   "/contact",
   "/credits",
+  "/cardcom-test-1ils",
   "/cross",
   "/early-access",
   "/editor",
