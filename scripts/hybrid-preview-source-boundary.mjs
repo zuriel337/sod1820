@@ -1,4 +1,6 @@
-export const HOSTED_HYBRID_BRANCH = "gpt/2029-hybrid-stage-preview-20261018";
+// Isolated unified review (Post 5107 + Heichal) only: every other identity, host, commit and read-only gate is unchanged;
+// the earlier guarded preview branch stays approved in vercel.json and keeps its own source and URL.
+export const HOSTED_HYBRID_BRANCH = "claude/2029-unified-review-5107-heichal-20261021";
 
 export function approvedHybridPreviewHost(raw) {
   if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";
