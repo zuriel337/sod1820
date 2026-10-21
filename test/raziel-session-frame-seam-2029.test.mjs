@@ -175,3 +175,15 @@ test("canonical orb and Now are preserved: one compact orb in the island, three 
   assert.match(frame, /role="group" aria-label="עכשיו"/);
   assert.doesNotMatch(chat, /RazielOrb/); // the pane adds no second orb
 });
+
+test("server lock is honest in the preview: closed for this viewer ⇒ the server's message, no send", () => {
+  // root cause 21.10: lock_raziel_site (mode all) makes ai-analyze answer HTTP 200 {error:"availability"} for non-admins;
+  // the preview only projects the pane open, so the frame mirrors the canonical lock instead of a call that must fail.
+  assert.match(frame, /resolveFeatureState\(razielFeature\.lock, \{ user, isAdmin, requireFlag: true \}\)\.blocked/);
+  assert.match(frame, /const razielServerClosed = Boolean\(razielFeature\.readOnlyPreview && razielFeature\.lock/);
+  const send = chat.slice(chat.indexOf("const send = async"), chat.indexOf("const contextParts"));
+  assert.ok(send.indexOf("if (closedNote) return;") < send.indexOf("session.submit("));
+  assert.match(chat, /data-raziel-server-closed="true">\{closedNote\}/);
+  assert.match(chat, /disabled=\{busy \|\| Boolean\(closedNote\)\}/);
+  assert.equal((frame.match(/closedNote=\{razielClosedNote\}/g) || []).length, 2); // Companion + sheet
+});

@@ -1212,6 +1212,7 @@
 .sod29-raziel-chat-who { font-weight: 800; }
 .sod29-raziel-chat span[dir="auto"] { color: var(--s29-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
 .sod29-raziel-status:empty { display: none; }
+.sod29-raziel-closed { margin: 0; padding: 8px 10px; border: 1px solid var(--s29-line-strong); border-radius: 12px; font-size: max(14px, var(--s29-type-small)); line-height: 1.55; color: var(--s29-ink); }
 .sod29-raziel-chat form { display: flex; flex-wrap: wrap; gap: 6px; }
 .sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; min-block-size: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; font-size: 16px; }
 .sod29-raziel-chat form .sod29-action { min-block-size: 44px; }
