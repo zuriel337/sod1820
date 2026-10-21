@@ -336,7 +336,7 @@ export default function SurfaceContextRail2029({
               hash: "#post-discovery-meeting" });
           }}
         /></Suspense>
-        <small className="sod29-context-cups-note">ממדי כיסוי · פרטים ב״מפגש״ אחרי הפוסט</small>
+        <small className="sod29-context-cups-note">ממדי כיסוי · פרטים ב״התכנסויות״ אחרי הפוסט</small>
       </section> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
       {surface === "post" ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}

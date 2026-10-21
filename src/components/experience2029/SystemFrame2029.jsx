@@ -366,16 +366,20 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
 
 // Typed "Now": what is happening in the world, for me, and what Raziel can continue.
 // Each tab opens an existing frame surface; no data is invented here.
-function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false }) {
+function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false, newCount = 0 }) {
   const tabs = [
     { id: "world", label: "בעולם", hint: "מה חדש בעולם", on: onWorld, pressed: activeKind === TRANSIENT.ATTENTION },
     { id: "me", label: "בשבילי", hint: "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
     { id: "rz", label: razielLocked ? "רזיאל · נעול" : "רזיאל מציע", hint: razielLocked ? "רזיאל נעול זמנית" : "המשך עם רזיאל", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL, disabled: razielLocked },
   ];
   return <div className="sod29-now" role="group" aria-label="עכשיו">
-    {tabs.map((tab) => <button key={tab.id} type="button" className={`sod29-now-tab is-${tab.id}`} aria-pressed={tab.pressed} aria-label={`עכשיו · ${tab.label}`} title={tab.hint} onClick={tab.on} disabled={tab.disabled}>
-      <span className="sod29-now-dot" aria-hidden="true" /><span className="sod29-now-label">{tab.label}</span>
-    </button>)}
+    {tabs.map((tab) => {
+      const unread = tab.id === "world" && newCount > 0 ? newCount : 0;
+      return <button key={tab.id} type="button" className={`sod29-now-tab is-${tab.id}`} aria-pressed={tab.pressed} aria-label={unread ? `עכשיו · ${tab.label} · ${unread} חדשים` : `עכשיו · ${tab.label}`} title={tab.hint} onClick={tab.on} disabled={tab.disabled}>
+        <span className="sod29-now-dot" aria-hidden="true" /><span className="sod29-now-label">{tab.label}</span>
+        {unread ? <b className="sod29-now-badge" aria-hidden="true">{unread > 9 ? "9+" : unread}</b> : null}
+      </button>;
+    })}
   </div>;
 }
 
@@ -2022,7 +2026,7 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
-  const nowTabs = <NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />;
+  const nowTabs = <NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} newCount={shellReviewActive ? feed.newCount : 0} />;
   useEffect(() => {
     if (razielLocked && transientKind === TRANSIENT.RAZIEL) setTransient(null);
   }, [razielLocked, transientKind]);
@@ -2060,6 +2064,19 @@ export default function SystemFrame2029({
   const readingProgress = showBottomTrail && progressSections.length >= 2 && progressIndex >= 0
     ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
     : null;
+  // Preview shell only: a brief position peek inside the island when the REAL active section changes (never on first position, never without real sections).
+  const hereId = readingProgress ? readingProgress.ids[readingProgress.index - 1] : null;
+  const lastHereIdRef = useRef(null);
+  const [positionPeek, setPositionPeek] = useState(null);
+  useEffect(() => {
+    if (!shellReviewActive || !hereId) { lastHereIdRef.current = null; setPositionPeek(null); return undefined; }
+    const previous = lastHereIdRef.current;
+    lastHereIdRef.current = hereId;
+    if (previous === null || previous === hereId) return undefined;
+    setPositionPeek({ id: hereId, index: readingProgress.index, total: readingProgress.total, label: readingProgress.label });
+    const timer = setTimeout(() => setPositionPeek(null), 2000);
+    return () => clearTimeout(timer);
+  }, [shellReviewActive, hereId]); // eslint-disable-line react-hooks/exhaustive-deps
   // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
   const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
     && Boolean(activeTarget || context?.subject);
@@ -2092,6 +2109,32 @@ export default function SystemFrame2029({
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (shellReviewActive && (transientKind === TRANSIENT.ACTION || transientKind === TRANSIENT.TOOLS)) {
+      const onActions = transientKind === TRANSIENT.ACTION;
+      const switchTab = (toActions) => {
+        if (toActions === onActions) return;
+        // same sheet, other tab: keep the opener for focus return (openTransient would record the tab button)
+        setTransient(toActions ? { kind: TRANSIENT.ACTION, payload: { subject: normalizeTarget(activeTarget) } } : { kind: TRANSIENT.TOOLS, payload: null });
+      };
+      const tabKey = (event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === "Home" ? true : event.key === "End" ? false : !onActions;
+        switchTab(next);
+        requestAnimationFrame(() => document.getElementById(next ? "sod29-merged-tab-actions" : "sod29-merged-tab-tools")?.focus?.());
+      };
+      return <PanelShell {...common} icon="◇" kicker="כלים ופעולות" title="כלים ופעולות">
+        <div className="sod29-merged-tabs" role="tablist" aria-label="כלים ופעולות" onKeyDown={tabKey}>
+          <button type="button" role="tab" id="sod29-merged-tab-actions" aria-selected={onActions} aria-controls="sod29-merged-panel" tabIndex={onActions ? 0 : -1} onClick={() => switchTab(true)}>פעולות</button>
+          <button type="button" role="tab" id="sod29-merged-tab-tools" aria-selected={!onActions} aria-controls="sod29-merged-panel" tabIndex={onActions ? -1 : 0} onClick={() => switchTab(false)}>כלים</button>
+        </div>
+        <div role="tabpanel" id="sod29-merged-panel" aria-labelledby={onActions ? "sod29-merged-tab-actions" : "sod29-merged-tab-tools"}>
+          {onActions
+            ? <ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} />
+            : <ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} />}
+        </div>
+      </PanelShell>;
+    }
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
@@ -2322,6 +2365,7 @@ export default function SystemFrame2029({
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && (bottomTrail.length || reserveTrail) ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
+          {shellReviewActive && positionPeek && !transientKind ? <div className="sod29-island-peek" aria-hidden="true" data-peek-section={positionPeek.id}><span>{positionPeek.label}</span><b>{positionPeek.index}/{positionPeek.total}</b></div> : null}
           <div className="sod29-bar-zone is-context">
             {toolMode ? <SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /> : <>
               {reserveTrail ? <nav className="sod29-command-trail is-reserved" aria-hidden="true"><span className="sod29-command-trail-item">&nbsp;</span></nav> : null}
@@ -2358,8 +2402,8 @@ export default function SystemFrame2029({
                   aria-pressed={transientKind === TRANSIENT.ACTION}
                 ><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
                 <button type="button" title={surface === "heichal" ? "פקודה" : "חיפוש"} onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span><NavigationIcon2029 name="search" /></span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
-                {!(showBottomTrail && numberPageRoute) ? <button type="button" title="פעולה" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
-                <button type="button" title="כלים" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
+                {!(showBottomTrail && numberPageRoute) ? <button type="button" className="sod29-island-action" title="פעולה" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
+                <button type="button" title="כלים" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS || (shellReviewActive && transientKind === TRANSIENT.ACTION)}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
               </div>
             </>}
           </div>
@@ -2369,6 +2413,11 @@ export default function SystemFrame2029({
               <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
               <button type="button" onClick={() => { setTransient(null); setSystemDockMode(true); }} aria-label="פעולות המערכת"><NavigationIcon2029 name="tools" /><small>מערכת</small></button>
             </> : <>
+              {shellReviewActive ? <button type="button" className="sod29-island-here" title="כאן" onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-haspopup="dialog" aria-pressed={transientKind === TRANSIENT.CONTEXT}
+                aria-label={readingProgress ? `כאן: חלק ${readingProgress.index} מתוך ${readingProgress.total}, ${readingProgress.label}. פתח את המיקום המלא` : "כאן: פתח את ההקשר"}
+                style={readingProgress ? { "--s29-here-progress": `${Math.round((readingProgress.index / readingProgress.total) * 100)}%` } : undefined}>
+                {readingProgress ? <b aria-hidden="true">{readingProgress.index}/{readingProgress.total}</b> : <span aria-hidden="true">⌖</span>}
+              </button> : null}
               {nowTabs}
               {activeToolDock ? <button type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }} aria-label="חזור לכלי הצופן"><NavigationIcon2029 name="els" /><small>צופן</small></button> : null}
             </>}
