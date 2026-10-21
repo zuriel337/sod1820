@@ -3,6 +3,16 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 
 export const HISTORICAL_DEFAULT_EXCLUDED_CHANNELS = Object.freeze(["or-geula"]);
 
+// String#slice indexes UTF-16 code units and can leave a lone surrogate when the
+// boundary lands inside an emoji or another non-BMP character. Such a string
+// cannot be persisted through PostgREST JSON. Keep bounded evidence valid by
+// truncating on Unicode code-point boundaries instead.
+export function truncateUnicode(value, maxCodePoints) {
+  const text = String(value || "");
+  const limit = Math.max(0, Math.trunc(Number(maxCodePoints) || 0));
+  return Array.from(text).slice(0, limit).join("");
+}
+
 function boundedInteger(value, fallback, min, max) {
   if (value == null || String(value).trim() === "") return fallback;
   const parsed = Number(value);

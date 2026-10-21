@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   buildResearchScanCursor,
   parseResearchScanRequest,
+  truncateUnicode,
 } from "../supabase/functions/_shared/waResearchScanWindow.js";
 
 test("incremental scan preserves the bounded cron defaults", () => {
@@ -62,6 +63,16 @@ test("cursor advances inventory but drains each backfill window before advancing
   assert.deepEqual(buildResearchScanCursor({
     mode: "backfill", offset: 500, rawCount: 214, windowSize: 500, remainingPending: 0,
   }), { complete: true, offset: null, reason: "source_exhausted" });
+});
+
+test("fallback evidence truncation never splits a Unicode surrogate pair", () => {
+  const source = `${"א".repeat(599)}😀suffix`;
+  const truncated = truncateUnicode(source, 600);
+
+  assert.equal(Array.from(truncated).length, 600);
+  assert.equal(truncated.endsWith("😀"), true);
+  assert.equal(JSON.parse(JSON.stringify({ evidence: truncated })).evidence, truncated);
+  assert.equal(/[\uD800-\uDBFF]$/.test(truncated), false);
 });
 
 test("edge adapter exposes inventory before the processing loop", () => {

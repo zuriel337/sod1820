@@ -5,7 +5,11 @@
 // Every resulting Research Object stays candidate/private by default.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { isTrustedAuthor } from "../_shared/waWriterIdentity.js";
-import { buildResearchScanCursor, parseResearchScanRequest } from "../_shared/waResearchScanWindow.js";
+import {
+  buildResearchScanCursor,
+  parseResearchScanRequest,
+  truncateUnicode,
+} from "../_shared/waResearchScanWindow.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
@@ -205,7 +209,10 @@ async function fallbackObservation(
     media_ocr_pending: mediaKind === "image" && !ocrUsed,
     ocr_used: ocrUsed,
   };
-  const statement = (content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא").slice(0, 500);
+  const statement = truncateUnicode(
+    content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא",
+    500,
+  );
   const { error } = await sb.from("research_objects").insert({
     kind: "observation",
     statement,
@@ -214,7 +221,7 @@ async function fallbackObservation(
     contributor: row.credit || null,
     engine_verified: false,
     engine_detail: null,
-    evidence: (content || "").slice(0, 600) || null,
+    evidence: truncateUnicode(content, 600) || null,
     status: "candidate",
     privacy_scope: "private",
     meta: { ext: { wa_channel_intake: intake } },
