@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 import Page from "../../src/pages/BeitMidrash2029Page.jsx";
 
 const palettes = {
@@ -31,8 +32,12 @@ function Fixture() {
     "--s29-brand-sapphire": palette.sapphire,
     "--s29-on-accent": palette.onAccent,
     "--s29-focus-ring": palette.discovery,
-    "--s29-font-numeric": "monospace",
-    fontFamily: "Arial,sans-serif",
+    "--s29-font-ui": TYPEFACE.ui,
+    "--s29-font-body": TYPEFACE.body,
+    "--s29-font-display": TYPEFACE.display,
+    "--s29-font-numeric": TYPEFACE.numeric,
+    ...Object.fromEntries(Object.entries(TYPE_SCALE_V2).map(([name, scale]) => [`--s29-type-${name}`, `${scale.fontSize}px`])),
+    fontFamily: TYPEFACE.body,
   };
   return <div data-fixture-theme={theme} data-frame-theme-preset={{ day: "light", card: "parchment", night: "dark" }[theme]} style={style}>
     <BrowserRouter><Routes>

@@ -72,3 +72,17 @@ test("CSS uses semantic roles, covers phone/desktop, targets, focus and reduced 
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
+
+test("typography consumes only the 2029 type contract", () => {
+  assert.doesNotMatch(css, /--bm-serif|Georgia|Times New Roman|\bserif\b/i);
+  assert.doesNotMatch(css, /Rubik|Noto Sans|IBM Plex|Roboto|Arial|Helvetica|system-ui|monospace/i);
+  const families = [...css.matchAll(/font-family:\s*([^;}]+)/g)].map((match) => match[1].trim());
+  assert.ok(families.length > 8);
+  for (const family of families) {
+    assert.match(family, /^var\(--s29-font-(?:body|display|ui|numeric)\)$/, `local font-family: ${family}`);
+  }
+  assert.doesNotMatch(css, /(?:^|[;{\s])font:\s*(?!inherit)/m, "no font shorthand that could bypass the tokens");
+  assert.match(css, /\.sod29-midrash\{[^}]*font-family:var\(--s29-font-body\)/);
+  assert.match(css, /var\(--s29-type-display\)/);
+  assert.doesNotMatch(css, /font-size:\d+px/);
+});

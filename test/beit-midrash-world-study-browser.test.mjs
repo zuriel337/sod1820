@@ -196,6 +196,14 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
             background: getComputedStyle(document.querySelector("[data-fixture-theme]")).backgroundColor,
             heroBorder: getComputedStyle(document.querySelector(".bm-hero-frame")).borderTopColor,
             small,
+            fonts: {
+              body: getComputedStyle(document.querySelector(".sod29-midrash")).fontFamily,
+              h1: getComputedStyle(document.querySelector(".bm-hero h1")).fontFamily,
+              button: getComputedStyle(document.querySelector(".bm-example-card .bm-button")).fontFamily,
+              statement: getComputedStyle(document.querySelector(".bm-statement")).fontFamily,
+              locator: getComputedStyle(document.querySelector(".bm-source code")).fontFamily,
+              section: getComputedStyle(document.querySelector(".bm-section-head h3")).fontFamily,
+            },
           };
         });
         assert.ok(layout.scrollWidth <= layout.viewport + 1, `${theme} ${width}px must not overflow horizontally`);
@@ -203,6 +211,14 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
         assert.notEqual(layout.background, "rgba(0, 0, 0, 0)");
         assert.notEqual(layout.heroBorder, "rgba(0, 0, 0, 0)", "thin gold frame is drawn");
         assert.deepEqual(layout.small, [], `${theme} ${width}px touch targets`);
+        const first = (family) => family.split(",")[0].replace(/["']/g, "").trim();
+        assert.equal(first(layout.fonts.body), "Noto Sans Hebrew", "body");
+        assert.equal(first(layout.fonts.statement), "Noto Sans Hebrew", "reading text");
+        assert.equal(first(layout.fonts.h1), "Rubik", "main title");
+        assert.equal(first(layout.fonts.section), "Rubik", "section title");
+        assert.equal(first(layout.fonts.button), "Rubik", "button");
+        assert.equal(first(layout.fonts.locator), "IBM Plex Mono", "locator/code");
+        for (const family of Object.values(layout.fonts)) assert.doesNotMatch(family, /Georgia|Times/, "no legacy serif");
         if (shots) {
           await page.evaluate(() => window.scrollTo(0, 0));
           await page.waitForTimeout(350); // let theme transitions settle before the capture
@@ -244,6 +260,12 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     // Exact method deep link selects exactly that method; unknown method is an error, never a redirect.
     await page.goto(`${origin}/beit-midrash/standard`);
     await page.waitForSelector('.bm-lesson[data-method-key="standard"]');
+    const lessonFonts = await page.evaluate(() => ({
+      title: getComputedStyle(document.querySelector(".bm-lesson h4")).fontFamily,
+      result: getComputedStyle(document.querySelector(".bm-example-line b")).fontFamily,
+    }));
+    assert.match(lessonFonts.title, /^"?Rubik/, "lesson title");
+    assert.match(lessonFonts.result, /^"?IBM Plex Mono|^'?IBM Plex Mono/, "numeric result");
     if (shots) await page.locator("#methods").screenshot({ path: `${shots}/night-390-method.png` });
     await page.goto(`${origin}/beit-midrash/nope`);
     await page.waitForSelector('[data-frame-state="error"]');
