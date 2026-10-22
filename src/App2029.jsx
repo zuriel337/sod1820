@@ -58,6 +58,8 @@ const IntegratedPreview2029Page = integratedPreviewEnabled
 const bookPublicationReviewPreviewEnabled = import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW === "true";
 const BookPublicationReview2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/BookPublicationReview2029Page.jsx")) : null;
+const BentovFindingsProduct2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/BentovFindingsProduct2029Page.jsx")) : null;
 
 function Loading2029() {
   const palette = use2029Palette();
@@ -128,7 +130,11 @@ function ControlEntry2029() {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const reviewRequested = params.get("surface") === "books-publication-review";
+  const findingsProductRequested = params.get("surface") === "bentov-findings-product";
   const slug = params.get("book") || "";
+  if (bookPublicationReviewPreviewEnabled && findingsProductRequested && BentovFindingsProduct2029Page) {
+    return <BentovFindingsProduct2029Page />;
+  }
   if (bookPublicationReviewPreviewEnabled && reviewRequested && BookPublicationReview2029Page) {
     return <BookPublicationReview2029Page key={slug} slug={slug} />;
   }
