@@ -32,7 +32,11 @@ const appRoutes = [...productionApp.matchAll(/<Route\s+path="([^"]+)"/g)]
 const previewRoutes = ["/2029/kingdom", "/2029/preview"];
 assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
 assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
-const publicAppRoutes = appRoutes.filter((route) => !previewRoutes.includes(route));
+// During the Legacy Production lock these two canonical URLs intentionally
+// enter index.html. They remain usable through client-side navigation inside a
+// 2029 Preview, but a direct request/refresh must return to Legacy.
+const legacyLockedRoutes = ["/code", "/community/chat"];
+const publicAppRoutes = appRoutes.filter((route) => !previewRoutes.includes(route) && !legacyLockedRoutes.includes(route));
 
 const documentRoutes = (vercel.rewrites || [])
   .filter((row) => row.destination === "/2029.html")
@@ -46,6 +50,7 @@ assert.deepEqual(
 );
 assert.ok(publicAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
 for (const route of previewRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay outside the public document rewrites`);
+for (const route of legacyLockedRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay in Legacy while the Production lock is active`);
 
 // Legacy Journey telemetry: direct table reads are not a browser capability.
 assert.match(migration, /drop policy if exists journey_saves_public_read on public\.journey_saves/i);
