@@ -199,7 +199,7 @@ test("guided DTO teaches the example without leaking governance or score fields"
   assert.equal(example.sourceRef, "channel_updates:safe#a1");
   assert.equal(example.sourceHref, null);
   assert.equal(example.occurrences.length, 2);
-  assert.equal(example.canonicalFindingHref, "/world?admin=1&finding=safe#finding-safe");
+  assert.equal(Object.hasOwn(example, "canonicalFindingHref"), false);
   assert.equal(example.returnHref, "/beit-midrash?section=guided&kind=crossing&finding=safe#finding-safe");
   for (const internal of [
     "verification",

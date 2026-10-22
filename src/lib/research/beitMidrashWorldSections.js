@@ -110,7 +110,9 @@ function projectFinding(row, { admin }) {
       ? { ...row.linkedTopicRating }
       : null,
     occurrences: cloneArray(row?.occurrences),
-    canonicalFindingHref: canonicalWorldFindingHref(sourceId),
+    // The canonical finding route is an authorized admin review surface. A
+    // public teaching DTO must never advertise it as a public destination.
+    canonicalFindingHref: admin ? canonicalWorldFindingHref(sourceId) : null,
   };
 
   if (admin) {

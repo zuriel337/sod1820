@@ -560,7 +560,6 @@ function guidedExample(row, concept) {
     contributor: row.contributor,
     createdAt: row.createdAt,
     occurrences: Object.freeze((row.occurrences || []).map(freezeOccurrence)),
-    canonicalFindingHref: row.canonicalFindingHref,
     returnHref: beitMidrashLearningHref(BEIT_MIDRASH_LEARNING_SECTION.GUIDED, {
       guidedKind: concept,
       findingId: row.sourceId,
