@@ -91,6 +91,12 @@ test("review workbench models all 33 decisions without exposing canonical record
     assert.match(page, new RegExp(count));
   }
   assert.match(page, /אינם נשמרים ואינם משנים סטטוס אמת/);
+  assert.match(page, /הכרעת איתור מקומית/);
+  assert.match(page, /מאשר חלון PDF/);
+  assert.match(page, /מחזיר לבדיקה נוספת/);
+  assert.match(page, /משאיר פתוח/);
+  assert.match(page, /locatorDecisions/);
+  assert.match(page, /אינה מתקנת את האיתור הקנוני ואינה נשלחת למסד/);
   assert.match(page, /אינה קובעת `fidelity_status`/);
   assert.doesNotMatch(page, /finding_key|artifact_id|candidate_id|source_provenance_reconstructed_sections/i);
 });
@@ -129,6 +135,7 @@ test("Bentov typography consumes the Design V2 scale and keeps Hebrew out of the
   assert.match(css, /--b29-type-meta:var\(--s29-type-micro,14px\)/);
   assert.match(css, /--b29-type-ui:var\(--s29-type-ui,16px\)/);
   assert.match(css, /--b29-type-body:var\(--s29-type-body,18px\)/);
+  assert.match(css, /@media\(min-width:1024px\)\{\.bentov29\{--b29-type-meta:var\(--s29-type-small,16px\)\}\}/);
 
   const literalFontSizes = [...css.matchAll(/font-size:(\d+(?:\.\d+)?)px/g)]
     .map(match => Number(match[1]))
