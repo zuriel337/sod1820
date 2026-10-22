@@ -22,6 +22,16 @@ export function buildRazielSurfaceContext(context) {
   // validate before use. subject.href = current-subject link; returnTo.href (below) = exact-return target — distinct.
   if (isObj(context.subject)) { const h = cap(context.subject.href, 300); if (h) out.subjectHref = h; }
   const dims = isObj(context.dimensions) ? context.dimensions : {};
+  // Same source-selection identity as the shared Frame, explicitly selected.
+  // No source body, private revisions, audience or inferred recommendation.
+  const sequence = isObj(dims.sourceSequence) ? dims.sourceSequence : null;
+  if (sequence) {
+    const s = {};
+    for (const [k, n] of [['kind', 40], ['rootId', 80], ['rootHref', 300], ['occurrenceKey', 512], ['sourceRef', 80], ['revisionId', 80], ['targetHref', 300]]) {
+      const value = cap(sequence[k], n); if (value) s[k] = value;
+    }
+    if (s.rootId && s.occurrenceKey && s.sourceRef) out.sourceSequence = s;
+  }
   const f = isObj(dims.surfaceFocus) ? dims.surfaceFocus : null;
   if (f) {
     const focus = {};
@@ -64,3 +74,4 @@ export function buildRazielSurfaceContext(context) {
   if (findings.length) out.findings = findings;
   return Object.keys(out).length ? out : null;
 }
+

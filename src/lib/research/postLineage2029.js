@@ -18,6 +18,18 @@ const POSTS = Object.freeze({
 });
 
 const childrenOf = (postId) => Object.entries(POSTS).filter(([, post]) => post.parent === Number(postId)).map(([id]) => Number(id));
+
+// Same authored declaration as the existing contextual tree. This exports a
+// source-lineage projection, NOT admitted Event nodes or a second registry.
+// Public consumers must intersect this declaration with readable published
+// posts before exposing either an identity, a relation or an update.
+export function declaredPostSequenceEntries() {
+  return Object.entries(POSTS).map(([id, post]) => ({
+    id: `posts:${id}`, postId: Number(id), label: post.label,
+    parentId: post.parent ? `posts:${post.parent}` : null,
+    sourceSlug: post.slug, href: `/post/${encodeURIComponent(post.slug)}`,
+  }));
+}
 const time = (iso) => Date.parse(iso) || 0;
 
 function ownUnits(postId, presentIds) {
@@ -79,3 +91,4 @@ export function buildPostTree(postId, presentIds = null) {
   const hasMore = root.children.length || root.origins.length || JSON.stringify(root).includes('"origins":[{');
   return hasMore ? { root, hereId: here } : null;
 }
+
