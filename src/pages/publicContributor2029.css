@@ -1,0 +1,37 @@
+.public-contributor-2029{color:var(--pc-ink);font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);font-size:var(--s29-type-ui,16px);line-height:1.6;max-width:960px;margin-inline:auto;min-width:0;overflow-wrap:anywhere;padding:clamp(12px,3vw,28px)}
+.public-contributor-2029 *{box-sizing:border-box;min-width:0}
+.public-contributor-2029 h1,.public-contributor-2029 h2,.public-contributor-2029 h3,.public-contributor-2029 p{margin:0}
+.public-contributor-2029 h1{font-size:var(--s29-type-title,28px);line-height:1.28}
+.public-contributor-2029 h2{font-size:var(--s29-type-lead,21px)}
+.public-contributor-2029 h3{font-size:var(--s29-type-lead,21px);line-height:1.5;font-weight:600}
+.public-contributor-2029 button,.public-contributor-2029 select,.public-contributor-2029 input{font:inherit;color:var(--pc-ink);border:1px solid var(--pc-border);background:var(--pc-card);border-radius:8px;min-height:44px;min-width:44px;padding:8px 12px;max-width:100%;cursor:pointer}
+.public-contributor-2029 a{color:var(--pc-accent);text-underline-offset:4px}
+.public-contributor-2029 :is(a,button,select,input,summary):focus-visible{outline:2px solid var(--pc-focus);outline-offset:3px}
+.public-contributor-2029 a.pc-return,.public-contributor-2029 .pc-open{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.pc-profile{display:flex;align-items:flex-start;gap:16px;padding-block:18px 24px;border-bottom:1px solid var(--pc-border)}
+.pc-profile-copy{display:grid;gap:8px;flex:1}
+.public-contributor-2029 .pc-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;flex:none;max-width:25%}
+.pc-eyebrow{color:var(--pc-accent);font-size:var(--s29-type-small,16px)}
+.pc-role,.pc-boundary,.pc-reason,.pc-source-state{color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+.pc-bio,.pc-body{font-family:var(--s29-font-body,'Noto Sans Hebrew','Rubik',Arial,sans-serif);font-size:var(--s29-type-body,18px);white-space:pre-wrap}
+.pc-filters{display:flex;flex-wrap:wrap;gap:8px;margin-block:20px}
+.public-contributor-2029 .pc-filters button[aria-pressed=true]{border-color:var(--pc-accent);color:var(--pc-accent);background:var(--pc-soft);font-weight:700}
+.pc-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-block:18px}
+.pc-list-heading label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pc-items{display:grid;gap:12px}
+.pc-item{border:1px solid var(--pc-border);border-radius:12px;background:var(--pc-card);padding:16px;display:grid;gap:10px;scroll-margin-block:90px}
+.pc-item-meta{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+.pc-item-meta>span:first-child{color:var(--pc-accent)}
+.pc-metrics{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:var(--s29-type-small,16px)}
+.pc-number{font-family:var(--s29-font-numeric,'IBM Plex Mono',monospace)}
+.public-contributor-2029 .pc-disclose{justify-self:start;background:var(--pc-soft);display:flex;gap:16px;align-items:center}
+.pc-detail{display:grid;gap:16px;border-top:1px solid var(--pc-border);padding-top:16px;max-width:100%}
+/* Adapt the existing source lens to this surface's readable UI scale, without changing it globally. */
+.pc-detail [data-experience-surface="contributor-findings-lens"] :is(div,p,span,button,select,input,summary){font-size:var(--s29-type-small,16px)!important}
+.pc-detail [data-experience-capability="contributor-source-fidelity"]>div:last-child{font-size:var(--s29-type-body,18px)!important}
+.pc-detail summary{min-height:44px;align-content:center}
+.public-contributor-2029 .pc-notice{margin-block:16px;border-inline-start:3px solid var(--pc-accent);padding:12px 16px;background:var(--pc-soft);font-size:var(--s29-type-small,16px)}
+.public-contributor-2029 .pc-more{display:block;margin:20px auto}
+.public-contributor-2029 :is(img,video){max-width:100%;height:auto}
+@media(max-width:480px){.pc-profile{gap:12px}.public-contributor-2029 .pc-avatar{width:48px;height:48px}.pc-item{padding:12px}.pc-list-heading{align-items:flex-start}.pc-filters{gap:6px}.public-contributor-2029 h1{font-size:var(--s29-type-title,28px)}}
+@media(prefers-reduced-motion:reduce){.public-contributor-2029 *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
