@@ -2165,6 +2165,12 @@ Deno.serve(async (req: Request) => {
       // Phase C: identity is resolved ONCE, BEFORE planning, from the validated JWT (never a client flag). The same result
       // feeds the quota check below (no duplicate lookup). context_type/user_ref passed to the plan are derived from it.
       const rTrusted = await resolveTrustedChannel(req, body);   // null unless an internal service-role request carries trusted_channel (never client-spoofable)
+      // The explicit 2029 Research Contract is privacy-before-composition: its current-session context
+      // arrives in body.context and its personal ResearchProvider continuity is read explicitly in Phase L
+      // with the caller JWT. It must not silently inherit or append to the legacy service-role memory.
+      // Requests without the contract (including Legacy and the existing WhatsApp adapter) stay unchanged.
+      const rCanonicalResearchOptIn = !rTrusted && razielCanonicalBundleOptedIn(body);
+      const rLegacyPersistentMemoryAllowed = !rCanonicalResearchOptIn;
       const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
       // Website launch availability applies to every site Raziel path, including
       // deterministic answers and advanced mode. The verified WhatsApp adapter
@@ -2390,7 +2396,7 @@ Deno.serve(async (req: Request) => {
       // signed-in users. Trusted internal/WhatsApp traffic is intentionally excluded from this site seam.
       const canonicalNumbers = rNcPairDesc?.numbers
         ?? (rNcDesc?.mode === "synthesis" ? [rNcDesc.number] : []);
-      if (!rTrusted && razielCanonicalBundleOptedIn(body) && canonicalNumbers.length) {
+      if (rCanonicalResearchOptIn && canonicalNumbers.length) {
         rCanonicalBundleReads = await Promise.all(canonicalNumbers.map((number) => runRazielCanonicalNumberBundle({
           number,
           question: rSubject,
@@ -2476,7 +2482,9 @@ Deno.serve(async (req: Request) => {
 
       const [persona, ctx] = await Promise.all([
         fetchRazielPersona(rTrusted ? "wa" : "site"),
-        userRef ? fetchRazielContext(userRef, rTrusted ? "wa" : "site") : Promise.resolve(null),
+        userRef && rLegacyPersistentMemoryAllowed
+          ? fetchRazielContext(userRef, rTrusted ? "wa" : "site")
+          : Promise.resolve(null),
       ]);
       // Source focus: an attached source is answered from the source + current ask only; personal memory joins only on an explicit continuity cue.
       const ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx);
@@ -2692,7 +2700,7 @@ Deno.serve(async (req: Request) => {
       if (responseDegraded) await finishOperationalTrace(activeTrace, finalOutcome,
         finalRel.degraded ? (finalRel.reason || "degraded") : "numeric_truth_guard_untrusted_literal");
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
-      if (userRef && rSubject && !rTrusted) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
+      if (userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
 
       const contract = parseContract(out.text || "");
       if (contract) {

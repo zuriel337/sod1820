@@ -45,7 +45,7 @@ export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
   modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
-  researchRunFailure = null,
+  researchRunFailure = null, legacyContext = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -96,9 +96,9 @@ export async function runAiAnalyze({
           case "op_trace_finish_v1":
           case "op_trace_link_ai_cost_v1": return response({ ok: true });
           case "fn_raziel_persona":
-          case "fn_raziel_context":
           case "fn_raziel_remember":
           case "metatron_context": return response(null);
+          case "fn_raziel_context": return response(legacyContext);
         }
       }
     }

@@ -11,6 +11,7 @@ import {
 
 const CONTRACT = "public-number-research-run-v1";
 const PRIVATE = "RAW-PRIVATE-BUNDLE-SENTINEL";
+const LEGACY_MEMORY = "LEGACY-PERSISTENT-MEMORY-SENTINEL";
 
 function numberBundle(number, sourceName = "ספר יצירה") {
   const finding = makeUniversalFinding({
@@ -172,6 +173,55 @@ test("authenticated and guest 2029 users receive the same evidence quality; only
   }
   assert.equal(guest.calls.find((call) => call.name === "research-run").headers.authorization, "Bearer synthetic-anon-key");
   assert.equal(user.calls.find((call) => call.name === "research-run").headers.authorization, `Bearer ${USER_JWT}`);
+});
+
+test("2029 canonical contract composes without legacy persistent memory read or automatic write", async () => {
+  const run = await runAiAnalyze({
+    answer: numberContextAnswer(1820),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    legacyContext: { user_context: { summary: LEGACY_MEMORY } },
+    body: {
+      subject: "מה זה 1820?",
+      context: "המשך השיחה הנוכחית בלבד",
+      visitor_id: "vprivacygate2029",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: conversation([1820]),
+    },
+    researchBundleByNumber: { 1820: numberBundle(1820) },
+  });
+
+  assert.equal(run.calls.filter((call) => call.name === "fn_raziel_context").length, 0);
+  assert.equal(run.calls.filter((call) => call.name === "fn_raziel_remember").length, 0);
+  assert.equal(run.models.length, 1);
+  assert.match(run.models[0].user, /המשך השיחה הנוכחית בלבד/);
+  assert.doesNotMatch(run.models[0].user, new RegExp(LEGACY_MEMORY));
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
+});
+
+test("Legacy authenticated request preserves its existing persistent-memory read and write", async () => {
+  const run = await runAiAnalyze({
+    answer: numberContextAnswer(776),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    legacyContext: { user_context: { summary: LEGACY_MEMORY } },
+    body: {
+      subject: "מה זה 776?",
+      visitor_id: "vlegacymemoryparity",
+      intelligence_level: "fast",
+      conversation_resolution: conversation([776]),
+    },
+    numberContextByNumber: numberContext(776),
+  });
+
+  assert.equal(run.calls.filter((call) => call.name === "fn_raziel_context").length, 1);
+  assert.equal(run.calls.filter((call) => call.name === "fn_raziel_remember").length, 1);
+  assert.equal(run.models.length, 1);
+  assert.match(run.models[0].user, new RegExp(LEGACY_MEMORY));
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
 });
 
 test("two-number 2029 research consumes two bounded Bundles without the legacy pair reads", async () => {
