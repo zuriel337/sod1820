@@ -13,7 +13,6 @@ import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { savedMatrixReplayProfile } from "../../lib/elsSavedMatrix.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -241,6 +240,23 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
       })}
     </div>
   </div>;
+}
+
+function SavedMatrixLoadProgress({ matrix, state }) {
+  const phase = state?.status === "ready"
+    ? "מאתר את הציר השמור במקור…"
+    : state?.verification?.state && state.verification.state !== "MATCH"
+      ? "מאמת את המופע והעוגנים…"
+      : "משחזר את הציר, הממצאים והמקור…";
+  return <section className="els29-native-saved-loading" role="status" aria-live="polite" aria-busy="true" data-els-saved-loading="true">
+    <div>
+      <span aria-hidden="true">✦</span>
+      <strong>פותח את {matrix?.title || matrix?.search_term || "הצופן השמור"}</strong>
+      <small>{phase}</small>
+      <progress aria-label="טעינת הצופן השמור" />
+      <small>אין צורך לחפש מחדש. המסך ייפתח אוטומטית על המטריצה שנשמרה.</small>
+    </div>
+  </section>;
 }
 
 function MatrixControls({ state, onControl, onContext, busy }) {
@@ -793,8 +809,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   }, [researchLoad]);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
-  const savedReplay = useMemo(() => savedMatrixReplayProfile(matrix), [matrix]);
-
   const resetReadContext = () => {
     ++lensSeqRef.current;
     setLensRequest(null);
@@ -1060,6 +1074,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
+  const savedMatrixReady = Boolean(matrix?.id && matrixActive && engineState?.provenance?.editId === matrix.id);
+  const savedLoadPending = Boolean(matrix?.id && !savedMatrixReady && !loadError);
   // On phones, one contextual research workspace belongs directly below a verified matrix.
   // Findings are its default view; Results and Save replace its content in the same page region.
   const mobileInlineWorkspace = compactMobile && matrixActive && !classicOpen;
@@ -1071,6 +1087,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const frame = requestAnimationFrame(() => panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
     return () => cancelAnimationFrame(frame);
   }, [compactMobile, classicOpen, visibleTool, operations.search?.status]);
+  const presentedSavedMatrixRef = useRef(null);
+  useLayoutEffect(() => {
+    if (!compactMobile || !savedMatrixReady || presentedSavedMatrixRef.current === matrix?.id) return;
+    presentedSavedMatrixRef.current = matrix.id;
+    const frame = requestAnimationFrame(() => cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
+    return () => cancelAnimationFrame(frame);
+  }, [compactMobile, savedMatrixReady, matrix?.id]);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
@@ -1103,9 +1126,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
 
-  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
+  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4" aria-busy={savedLoadPending || searchPending}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <form id="els29-query" className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
+    {savedLoadPending ? <SavedMatrixLoadProgress matrix={matrix} state={engineState} /> : null}
+    <form id="els29-query" className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={savedLoadPending}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <button type="button" aria-pressed={!crossOpen} onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
         <button className="els29-native-cross-toggle" type="button" aria-pressed={crossOpen} aria-expanded={crossOpen}
@@ -1177,20 +1201,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </div>
     </form>
 
-    <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
-    {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
-    {researchProfile && (journeyTrail.length || journeyPending) ? <div className="els29-native-notice" data-els-c02-journey="v1">
+    {!savedLoadPending ? <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} /> : null}
+    {!savedLoadPending && notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
+    {!savedLoadPending && researchProfile && (journeyTrail.length || journeyPending) ? <div className="els29-native-notice" data-els-c02-journey="v1">
       <span>מסלול צירים · {journeyTrail.length} צעדי חזרה שמורים</span>
       <button type="button" disabled={!!journeyPending || !journeyTrail.length} onClick={returnToPreviousAxis}>
         {journeyPending?.kind === "return" ? "חוזר לציר הקודם…" : `חזור בדיוק ל־${journeyTrail.at(-1)?.label || "ציר הקודם"}`}
       </button>
     </div> : null}
-    {matrix ? <section className="els29-native-saved-manager" aria-label="ניהול הצופן השמור">
-      <div>
-        <strong>עובדים על צופן שמור</strong>
-        <span>אפשר לשנות את המטריצה והממצאים בחופשיות. הרשומה משתנה רק כשלוחצים שמירה.</span>
-        {savedReplay.legacyScopeRecovered ? <small role="status">ברשומה הוותיקה נמצאו ממצאים שחוצים את גבול התורה. כדי לשחזר את מה שנשמר, היא נפתחה בכל התנ״ך; הרשומה המקורית לא שונתה.</small> : null}
-      </div>
+    {matrix?.id && !savedLoadPending ? <section className="els29-native-saved-manager is-actions-only" aria-label="ניהול הצופן השמור">
       <div className="els29-native-saved-actions">
         <button type="button" className="sod29-action primary" aria-label="פתח שמירת שינויים" onClick={(event) => openTool("research", event.currentTarget)}>
           שמור שינויים
@@ -1207,8 +1226,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
-        <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen}>
-        <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
+        <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen || savedLoadPending}>
+        <main className="els29-native-stage" hidden={classicOpen || savedLoadPending} aria-busy={searchPending}>
           <div className="els29-native-stage-head">
             <div>
               <small className="els29-native-matrix-status" role="status">{matrixStatus}</small>
@@ -1278,7 +1297,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
         </div>
-        {!compactMobile ? <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
+        {!compactMobile ? <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || savedLoadPending} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
@@ -1288,7 +1307,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <div ref={panelRef} className="els29-native-panel-wrap"
           data-mobile-inline-workspace={mobileInlineWorkspace ? "true" : undefined}
           data-mobile-inline-findings={inlineFindings ? "true" : undefined}
-          hidden={classicOpen || !visibleTool}>
+          hidden={classicOpen || savedLoadPending || !visibleTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
             <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>

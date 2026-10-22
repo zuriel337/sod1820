@@ -8,6 +8,7 @@
   position:relative;
 }
 .els29-native-classic.is-height-expanded{--els29-stage-height:calc(var(--els29-stage-height-base) * 1.5)}
+.els29-native-classic>[hidden]{display:none!important}
 [data-els-2029-surface="v1"].sod29-focus-stage{padding-inline:6px}
 [data-els-2029-surface="v1"].sod29-focus-stage::after{display:none}
 [data-els-classic-2029="native-v1"].sod29-section{padding:6px}
@@ -110,7 +111,24 @@
   color:var(--s29-muted);
   font-size:var(--s29-type-small);
 }
+.els29-native-saved-loading{
+  min-height:min(560px,calc(100dvh - var(--s29-header-height,68px) - 72px));
+  display:grid;
+  place-items:center;
+  padding:clamp(18px,5vw,42px);
+  border:1px solid color-mix(in srgb,var(--s29-accent) 40%,var(--s29-line));
+  border-radius:22px;
+  background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--s29-accent) 14%,transparent),transparent 45%),var(--s29-panel-soft);
+  color:var(--s29-ink);
+  scroll-margin-block-start:calc(var(--s29-header-height,68px) + 12px);
+}
+.els29-native-saved-loading>div{width:min(100%,520px);display:grid;justify-items:center;gap:11px;text-align:center}
+.els29-native-saved-loading span{font-size:clamp(30px,8vw,56px);color:var(--s29-accent-text)}
+.els29-native-saved-loading strong{font-family:var(--s29-font-display);font-size:var(--s29-type-title);overflow-wrap:anywhere}
+.els29-native-saved-loading small{color:var(--s29-muted);font-size:var(--s29-type-small);line-height:1.55}
+.els29-native-saved-loading progress{width:min(100%,420px);height:12px;accent-color:var(--s29-accent)}
 .els29-native-saved-manager{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--s29-accent) 35%,var(--s29-line));border-radius:14px;background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel-soft))}
+.els29-native-saved-manager.is-actions-only{justify-content:flex-end;padding:7px 9px;background:transparent}
 .els29-native-saved-manager>div:first-child{display:grid;gap:3px;flex:1 1 280px}
 .els29-native-saved-manager span,.els29-native-saved-manager small{color:var(--s29-muted);line-height:1.5}
 .els29-native-saved-actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px}

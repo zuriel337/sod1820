@@ -95,7 +95,7 @@ export default function Els2029Page() {
   useEffect(() => { if (!library) setWorkspaceVisited(true); }, [library]);
   const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
   const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
-  const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
+  const openCipher = row => { setWorkspaceVisited(true);setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
   const deleteSavedCipher = async row => {
     if (!isAdmin || !row?.id) throw new Error("delete_not_allowed");
     await deleteMatrix(row.id);
@@ -105,6 +105,7 @@ export default function Els2029Page() {
   };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
+  const directSavedOpen = Boolean(cipherSlug || recordId);
   const findingId = params.get("finding") || "";
   const { journeyLoad: findingJourneyLoad, status: findingStatus } = useElsJourneyReopen(findingId);
   const [findingNotice, setFindingNotice] = useState("");
@@ -276,7 +277,7 @@ export default function Els2029Page() {
   }
 
   return <Sod2029Shell
-    introVariant={library ? "none" : "compact"}
+    introVariant={library || directSavedOpen ? "none" : "compact"}
     wide
     surface="els"
     symbol="✦"
@@ -286,22 +287,12 @@ export default function Els2029Page() {
   >
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
       onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} /> : null}
-    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
+    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="פותח את הצופן השמור" progress={{ phase: "טוען את הממצא, העוגנים והמטריצה", compact: true }}>המטריצה תיפתח כאן מיד כשהשחזור הקנוני יושלם.</FrameState>
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
-    {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
-    {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
-      <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
-      {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
-      {savedMatrixReplayProfile(savedRecord.row).legacyScopeRecovered ? <p role="status">השחזור נפתח בכל התנ״ך מפני שממצאים שנשמרו ברשומה חוצים את גבול התורה. נתוני המקור לא שונו.</p> : null}
-      {!hasExactSavedMatrix(savedRecord.row) ? <>
-        <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
-        {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
-      </> : null}
-    </section> : null}
-    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <details className="sod29-els-research-details" data-els-research-tools="explicit-open-v1" hidden={!researchProfile}>
+    {!directSavedOpen ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
+    <details className="sod29-els-research-details" data-els-research-tools="explicit-open-v1" hidden={!researchProfile || directSavedOpen}>
       <summary>כלי מחקר מתקדמים · הפעלה יזומה בלבד</summary>
       <ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
     </details>
@@ -309,11 +300,13 @@ export default function Els2029Page() {
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
-          <h2>{researchProfile
+          <h2>{savedRecord.row?.title || (researchProfile
             ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
-            : "הצופן הקלאסי"}</h2>
+            : "הצופן הקלאסי")}</h2>
           <div className="sod29-muted">
-            {researchProfile
+            {savedRecord.row
+              ? "משחזר את הציר, הממצאים והמקור מאותה רשומה שמורה."
+              : researchProfile
               ? (subject
                 ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
                 : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
@@ -322,6 +315,7 @@ export default function Els2029Page() {
         </div>
         <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
           <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
+          {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
           <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
         </div>
       </div>
@@ -342,6 +336,17 @@ export default function Els2029Page() {
             if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
           }} onDeleteSaved={deleteSavedCipher} />
       </section>
+
+      {savedRecord.row ? <details className="els29-saved-record" aria-label="פרטי הצופן השמור">
+        <summary>פרטי הצופן השמור</summary>
+        <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
+        {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
+        {savedMatrixReplayProfile(savedRecord.row).legacyScopeRecovered ? <p role="status">השחזור נפתח בכל התנ״ך מפני שממצאים שנשמרו ברשומה חוצים את גבול התורה. נתוני המקור לא שונו.</p> : null}
+        {!hasExactSavedMatrix(savedRecord.row) ? <>
+          <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
+          {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
+        </> : null}
+      </details> : null}
 
       {researchProfile ? <ElsResearchBarConnected
         researchContext={context}

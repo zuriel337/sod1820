@@ -23,6 +23,21 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
   assert.match(nativeClassic, /<FindingsRail/);
 });
 
+test("saved ciphers open directly through an on-screen canonical replay state", () => {
+  assert.match(page, /const directSavedOpen = Boolean\(cipherSlug \|\| recordId\)/);
+  assert.match(page, /introVariant=\{library \|\| directSavedOpen \? "none" : "compact"\}/);
+  assert.match(page, /!directSavedOpen \? <ElsRecentCiphers2029/);
+  assert.match(page, /data-els-research-tools="explicit-open-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
+  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf('className="els29-saved-record"'), "saved metadata follows the matrix workspace");
+  assert.doesNotMatch(nativeClassic, /עובדים על צופן שמור/);
+  assert.match(nativeClassic, /data-els-saved-loading="true"/);
+  assert.match(nativeClassic, /<progress aria-label="טעינת הצופן השמור"/);
+  assert.match(nativeClassic, /savedLoadPending \? <SavedMatrixLoadProgress/);
+  assert.match(nativeClassic, /hidden=\{classicOpen \|\| savedLoadPending\}/);
+  assert.match(nativeClassic, /provenance\?\.editId === matrix\.id/);
+  assert.match(css, /\.els29-native-saved-loading\{/);
+});
+
 test("Native Classic is projection-only and keeps one canonical Tzofen engine instance as parity fallback", () => {
   assert.match(nativeClassic, /import TzofenEmbed from "..\/TzofenEmbed.jsx"/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
@@ -209,7 +224,7 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
   assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
-  assert.match(page, /data-els-research-tools="explicit-open-v1" hidden=\{!researchProfile\}/);
+  assert.match(page, /data-els-research-tools="explicit-open-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
   assert.equal((page.match(/<ElsNativeClassic2029/g) || []).length, 1);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });

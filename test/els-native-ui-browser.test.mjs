@@ -1367,12 +1367,22 @@ test('a historical Torah-labelled record replays cross-boundary findings in Tana
  await withNative({width:390,height:844},async page=>{
   const row={id:'legacy-hint',slug:'legacy-hint',title:'תורת הרמז',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:null,
     owner_user_id:'fixture-owner',visibility:'public',status:'published',self_published:true,description:'רשומת עבר',positions:{findings:[{t:'נשמהללוט',color:'#FF5D6C',sh:['21941_1_196825']}]}};
-  await page.evaluate(value=>{window.__savedRows=[structuredClone(value)];window.__openSavedMatrix(value);},row);
+  await page.evaluate(value=>{window.__fixtureHoldVerification=true;window.__savedRows=[structuredClone(value)];window.__openSavedMatrix(value);},row);
+  await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
+  const savedLoader=page.locator('[data-els-saved-loading="true"]');
+  assert.equal(await savedLoader.isVisible(),true,'the saved-cipher loader stays on screen while canonical replay is pending');
+  assert.equal(await savedLoader.getByRole('progressbar',{name:'טעינת הצופן השמור'}).isVisible(),true);
+  assert.equal(await page.getByText('אין כרגע מופע מאומת להצגה',{exact:true}).count(),0,'loading is never presented as an empty verified result');
+  assert.equal(await page.getByRole('form',{name:'חיפוש ELS'}).isVisible(),false,'the search form does not push loading below the mobile fold');
+  assert.equal((await page.locator('body').textContent()).includes('עובדים על צופן שמור'),false);
+  await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
   await page.waitForFunction(()=>window.__state?.term==='תורתהרמז'&&window.__state?.scope==='tanakh'&&window.__state?.verification?.state==='MATCH',{timeout:60000});
   await page.waitForFunction(()=>window.__state?.findings?.find(item=>item.t==='נשמהללוט')?.shown?.length>0,{timeout:60000});
-  assert.match(await page.getByRole('region',{name:'ניהול הצופן השמור'}).textContent(),/נפתחה בכל התנ״ך/);
+  await savedLoader.waitFor({state:'detached'});
+  assert.equal(await page.locator('.els29-native-matrix').isVisible(),true);
   assert.equal(await button(page,'פתח שמירת שינויים').count(),1);
   await activate(page,'פתח שמירת שינויים');
+  assert.match(await page.locator('.els29-native-save').textContent(),/תשלים את נתוני הצופן הוותיק/);
   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('עדכון הממצא הוותיק באותה רשומה שמורה.');
   await activate(page,'שמור שינויים');
   await page.waitForFunction(()=>window.__updateCalls?.at(-1)?.name==='reanchor_els_matrix_v1');
@@ -1574,9 +1584,10 @@ test('native library: paginated existing records, legacy disclosure and account 
     await page.waitForFunction(()=>window.__libraryMatrix?.id==='legacy');
     assert.match(await page.locator('.els29-saved-record').textContent(),/אינה שחזור מדויק/);
     assert.equal(await page.evaluate(()=>window.__libraryMatrix.start_index),null,'old anchors are never synthesized by the library');
-    await page.getByText('התמונה המקורית שנשמרה',{exact:true}).click();
+    await page.locator('.els29-saved-record').evaluate(node=>node.open=true);
+    await page.getByText('התמונה המקורית שנשמרה',{exact:true}).evaluate(node=>node.parentElement.open=true);
     assert.equal(await page.locator('.els29-saved-record img').isVisible(),true);
-    await button(page,'לכל הצפנים').click();
+    await page.evaluate(()=>{history.pushState({},'',location.pathname+'?library=mine');dispatchEvent(new PopStateEvent('popstate'));});
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===24);
     await page.locator('.els29-library-card a').first().click();
     await page.waitForFunction(()=>window.__libraryMatrix?.id==='mine-0');
