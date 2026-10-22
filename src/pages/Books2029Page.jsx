@@ -14,6 +14,10 @@ import {
   parseSourceRefLocator,
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
+import {
+  fetchBookMaterialMap,
+  isBookMaterialPreview,
+} from "../lib/research/bookMaterialMap2029.js";
 import { applySeo } from "../lib/seo.js";
 
 const COVERAGE_LABELS = {
@@ -117,6 +121,73 @@ function ResearchFamily({ group, book, research, defaultOpen = false }) {
   </details>;
 }
 
+function MaterialMap({ material }) {
+  if (!material?.available) return null;
+  const source = material.source || {};
+  const mappedUnits = material.findings.length;
+  const openCount = material.openQuestions.length;
+
+  return <section className="sod29-section" id="book-material-map">
+    <div className="sod29-section-head">
+      <div>
+        <div className="sod29-kicker">PREVIEW · MATERIAL MAP</div>
+        <h2>מפת החומר</h2>
+        <div className="sod29-muted">מה באמת קיים בספר: מקור, מבנה, ממצאים, שיטות, קשרים ושאלות פתוחות. זו תצוגה של חבילת חומר ציבורית ומתועדת.</div>
+      </div>
+      <div className="sod29-actions">
+        <span className="sod29-chip">פיילוט Preview</span>
+        {source.pdfUrl ? <a className="sod29-action" href={source.pdfUrl} target="_blank" rel="noreferrer"><NavigationIcon2029 name="expand" /> פתח את המקור</a> : null}
+      </div>
+    </div>
+
+    <div className="sod29-grid">
+      <div className="sod29-card wide"><h3>המקור</h3><p>{source.subtitle || "חבילת המקור מחוברת לספר."}</p>{source.promise ? <p>{source.promise}</p> : null}</div>
+      <div className="sod29-card"><h3>זהות החבילה</h3><p>{source.identity || material.slug}</p><p>{source.generatedAt ? `צילום מצב: ${source.generatedAt}` : "צילום מצב מתועד"}</p></div>
+    </div>
+
+    {material.inventory.length ? <div className="sod29-actions" aria-label="מלאי החומר המתועד">
+      {material.inventory.map(item => <span className="sod29-chip" key={item.key}>{item.value} {item.label}</span>)}
+    </div> : null}
+
+    <div className="sod29-book-families">
+      <details className="sod29-book-family" open>
+        <summary><span><strong>מבנה וכיסוי</strong><small>היקף החומר ומצב הכיסוי נשמרים כמדדים נפרדים.</small></span><span className="sod29-chip">{material.metrics.length + material.coverage.length}</span></summary>
+        <div className="sod29-book-family-body">
+          {material.metrics.length ? <div className="sod29-book-overview-grid">{material.metrics.map(metric => <div className="sod29-book-overview-card" key={metric.id}><strong>{metric.value}</strong><span>{metric.label}{metric.note ? ` · ${metric.note}` : ""}</span></div>)}</div> : null}
+          {material.coverage.length ? <div className="sod29-list">{material.coverage.map(item => <div className="sod29-row" key={item.id}><div><strong>{item.label} · {item.value}</strong>{item.note ? <small>{item.note}</small> : null}</div></div>)}</div> : null}
+        </div>
+      </details>
+
+      <details className="sod29-book-family" open>
+        <summary><span><strong>ממצאים ומאגרי נתונים</strong><small>יחידות חומר מזוהות עם מראה־מקום, מצב והערת מחקר.</small></span><span className="sod29-chip">{mappedUnits}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-list">{material.findings.map(item => <div className="sod29-row" key={item.id}><div><strong>{item.id} · {item.title}</strong><small>{[item.locus, item.status].filter(Boolean).join(" · ")}</small>{item.note ? <p className="sod29-muted">{item.note}</p> : null}</div></div>)}</div></div>
+      </details>
+
+      <details className="sod29-book-family" open>
+        <summary><span><strong>שיטות, משפחות ומספרים</strong><small>הדפוסים והפרוצדורות שהחומר כבר מאפשר לזהות.</small></span><span className="sod29-chip">{material.methods.length}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-grid">{material.methods.map(item => <div className="sod29-card" key={item.id}><h3>{item.title}</h3><p>{item.text}</p></div>)}</div></div>
+      </details>
+
+      <details className="sod29-book-family">
+        <summary><span><strong>קשרים ונקודות כניסה</strong><small>קשרים מתועדים בתוך הספר, או נקודות הכניסה המרכזיות כשאין עדיין טבלת קשרים מלאה.</small></span><span className="sod29-chip">{material.connections.length}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-list">{material.connections.map(item => <div className="sod29-row" key={item.id}><div><strong>{item.title}</strong>{item.meta ? <small>{item.meta}</small> : null}{item.text ? <p className="sod29-muted">{item.text}</p> : null}</div></div>)}</div></div>
+      </details>
+
+      <details className="sod29-book-family" open>
+        <summary><span><strong>שאלות פתוחות</strong><small>מה עדיין דורש אימות, סגירה או קריאה מדויקת יותר.</small></span><span className="sod29-chip">{openCount}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-list">{material.openQuestions.map((item, index) => <div className="sod29-row" key={item.id}><div><strong>{index + 1}</strong><small>{item.text}</small></div></div>)}</div></div>
+      </details>
+    </div>
+
+    <div className="sod29-section-head"><div><div className="sod29-kicker">השלבים</div><h2>איפה אנחנו ומה הבא</h2></div></div>
+    <div className="sod29-grid">
+      <div className="sod29-card"><h3>1 · החומר נמצא</h3><p>חבילת המקור הציבורית מחוברת, מזוהה וניתנת לפתיחה.</p></div>
+      <div className="sod29-card"><h3>2 · המפה פעילה</h3><p>{mappedUnits} יחידות חומר ו־{material.methods.length} משפחות/שיטות מסודרות לתצוגה אחת.</p></div>
+      <div className="sod29-card"><h3>3 · השלב הבא</h3><p>לסגור תחילה {openCount} שאלות מתועדות מול העדות ומראי־המקום; אחר כך להרחיב קשרים בין ספרים.</p></div>
+    </div>
+  </section>;
+}
+
 function BookCard({ book }) {
   const slug = book?.metadata?.slug;
   const coverage = { ...(book?.metadata?.coverage || {}), ...(book?.metadata?.coverage_2029 || {}) };
@@ -128,6 +199,7 @@ function BookCard({ book }) {
     <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${String(primary.value)}` : "ספר חי במערכת המחקר"}</p>
     <div className="sod29-actions">
       <span className="sod29-chip">{book.is_active ? "פעיל" : "לא פעיל"}</span>
+      {isBookMaterialPreview(slug) ? <span className="sod29-chip">מפת חומר · Preview</span> : null}
       {coverage.unresolved_total != null ? <span className="sod29-chip">{coverage.unresolved_total} נקודות פתוחות</span> : null}
     </div>
   </Link>;
@@ -187,21 +259,26 @@ function BookDetail({ slug }) {
   const shell = use2029Shell();
   const [searchParams] = useSearchParams();
   const focusResearchId = searchParams.get("research") || null;
-  const [state, setState] = useState({ loading: true, book: null, research: null, error: null });
+  const [state, setState] = useState({ loading: true, book: null, research: null, material: null, researchError: null, error: null });
   const currentContext = research.context || null;
 
   useEffect(() => {
     let alive = true;
-    setState({ loading: true, book: null, research: null, error: null });
+    setState({ loading: true, book: null, research: null, material: null, researchError: null, error: null });
     fetchBookEntityBySlug(slug)
       .then(async book => {
-        if (!book) return { book: null, pack: null };
-        const pack = await fetchPublicBookResearch(book, { limit: 80, focusId: focusResearchId });
-        return { book, pack };
+        if (!book) return { book: null, pack: null, material: null, researchError: null };
+        const [material, researchResult] = await Promise.all([
+          fetchBookMaterialMap(slug),
+          fetchPublicBookResearch(book, { limit: 80, focusId: focusResearchId })
+            .then(pack => ({ pack, error: null }))
+            .catch(error => ({ pack: null, error })),
+        ]);
+        return { book, pack: researchResult.pack, material, researchError: researchResult.error };
       })
-      .then(({ book, pack }) => {
+      .then(({ book, pack, material, researchError }) => {
         if (!alive) return;
-        setState({ loading: false, book, research: pack, error: null });
+        setState({ loading: false, book, research: pack, material, researchError, error: null });
         if (book) {
           const patch = bookContextPatch({ book, slug, hasRoot: Boolean(currentContext?.subject), focusSelection: null });
           if (patch) research.updateResearchContext?.(patch);
@@ -213,6 +290,7 @@ function BookDetail({ slug }) {
 
   const book = state.book;
   const pack = state.research;
+  const material = state.material;
   const tiers = book?.metadata?.identity_tiers || {};
   const coverage = useMemo(() => ({
     ...(book?.metadata?.coverage || {}),
@@ -226,6 +304,7 @@ function BookDetail({ slug }) {
     .slice(0, 8), [coverage]);
   const residuals = Array.isArray(coverage.residuals) ? coverage.residuals : [];
   const unresolvedTotal = Number(coverage.unresolved_total || 0) || 0;
+  const mappedMaterialTotal = material?.available ? material.findings.length : 0;
 
   if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספר ואת המחקר המקושר אליו…</div></section>;
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
@@ -249,12 +328,16 @@ function BookDetail({ slug }) {
     <section className="sod29-section sod29-book-overview">
       <div className="sod29-section-head"><div><div className="sod29-kicker">העיקר</div><h2>מצב הספר עכשיו</h2><div className="sod29-muted">תמונת פתיחה אחת לפני שנכנסים לפרטים, למטריצות או לכלי עומק.</div></div></div>
       <div className="sod29-book-overview-grid">
-        <div className="sod29-book-overview-card"><strong>{presentation.total}</strong><span>ממצאי מחקר קריאים</span></div>
+        <div className="sod29-book-overview-card"><strong>{Math.max(presentation.total, mappedMaterialTotal)}</strong><span>יחידות חומר ממופות</span></div>
         <div className="sod29-book-overview-card"><strong>{primary ? String(primary.value) : "—"}</strong><span>{primary ? coverageLabel(primary.key) : "כיסוי מבני"}</span></div>
         <div className="sod29-book-overview-card"><strong>{witnessLabel(tiers)}</strong><span>מקור / עדות</span></div>
         <div className="sod29-book-overview-card"><strong>{String(coverage.exact_witness_close_read || coverage.exact_witness || coverage.historical_witness_collation || "—")}</strong><span>מצב העדות המדויקת</span></div>
       </div>
     </section>
+
+    <MaterialMap material={material} />
+
+    {isBookMaterialPreview(slug) && !material?.available ? <section className="sod29-section"><div className="sod29-state warn">מפת החומר הציבורית של הפיילוט אינה זמינה כרגע. הספר עצמו נשאר קריא.</div></section> : null}
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">המקור</div><h2>מאיפה החומר מגיע</h2><div className="sod29-muted">הספר, המהדורה, העדות ומראה־המקום נשארים זהויות נפרדות; כאן מציגים אותם בשפה קריאה.</div></div></div>
@@ -272,6 +355,7 @@ function BookDetail({ slug }) {
 
     <section className="sod29-section" id="book-research-summary">
       <div className="sod29-section-head"><div><div className="sod29-kicker">מה כבר נחקר</div><h2>מחקר סביב הספר</h2><div className="sod29-muted">אותו Research OS, מסודר כאן לפי צורת החומר: מנגנונים, מבנים וממצאים. סטטוס ואימות נשמרים כפי שהם במקור.</div></div><span className="sod29-chip">{presentation.total} ממצאים</span></div>
+      {state.researchError ? <div className="sod29-state warn">שכבת המחקר הציבורית הנוספת אינה זמינה כרגע. מפת החומר שמעליה נשארת עצמאית וקריאה.</div> : null}
       {pack?.restricted ? <div className="sod29-state warn">חלק משכבת המחקר מוגן עבור הסשן הנוכחי. לא מרחיבים הרשאות כדי למלא את המסך.</div> : null}
       {pack?.truncated ? <div className="sod29-state">מוצגת קריאה bounded של שכבת המחקר; חומר נוסף נשאר במאגר ולא נחתך סמנטית.</div> : null}
       {presentation.groups.length ? <div className="sod29-book-families">{presentation.groups.map((group, index) => <ResearchFamily key={group.id} group={group} book={book} research={research} defaultOpen={index === 0} />)}</div> : <div className="sod29-state">אין כרגע Research Objects קריאים לסשן הזה. עדיין אפשר לראות את מצב המקור והכיסוי בלי להמציא ממצאים.</div>}
