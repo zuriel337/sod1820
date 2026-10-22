@@ -27,7 +27,7 @@ const SNAPSHOTS = {
       ["99", "עמודי PDF", "Digital Object"], ["15", "עמודים ברישום block רציף", "documented snapshot"],
       ["70", "blocks שמורים", "documented snapshot"], ["8", "טבלאות", "documented snapshot"],
       ["13", "datasets במפה", "documented snapshot"], ["18", "methods/procedures", "documented snapshot"],
-      ["10", "סתירות", "preserved"], ["8", "קריאות לא פתורות", "preserved"],
+      ["12", "סתירות", "preserved"], ["7", "קריאות לא פתורות", "preserved"],
     ],
     // 🔴 Coverage-axis verdicts kept separate per Intake §9 — this is the whole-book RECONCILIATION
     // gate result (work_log a39cb97a, AHAVAT_TORAH_WHOLE_BOOK_RECONCILIATION_20260905), quoted
@@ -50,7 +50,7 @@ const SNAPSHOTS = {
       ["DS-01", "שם ה׳ · 1820", "p6", "CLOSED", "165+398+311+396+550=1820; arithmetic verified"],
       ["DS-02", "22 אותיות × פרשה/ספר", "pp35–41", "PARTIAL", "187+ rows; Aleph/Bet/Zayin anomalies preserved"],
       ["DS-03", "תיבות לפי פרשה/ספר", "p41", "CLOSED", "54 פרשות וחמש נקודות ביקורת מצטברות תואמות לקורפוס הנקי; סך הכול 79,976"],
-      ["DS-04", "סך אותיות", "p43±", "PARTIAL", "~304,812 historical source reading; final digit/reading unresolved"],
+      ["DS-04", "סך אותיות", "pp41–42", "CLOSED · Δ+7", "54 שורות המקור נסגרות ל־304,812; הקורפוס הקנוני נסגר ל־304,805; 11 פערים בני אות אחת נשמרים"],
       ["DS-05", "אוריין תליתאי / attribution", "pp25–31", "OPEN", "person/group × parasha; פעמים ≠ תיבות"],
       ["DS-06", "משה", "p70", "PARTIAL", "647 closes at book/Torah level (sublayers CLOSED); parasha-row level remains open — corrected 5.9.2026, was previously mislabeled CLOSED/ANOMALY here"],
       ["DS-07", "שרשרת סנהדרין", "locator unconfirmed", "OPEN", "37 generations/links; the pp.71-80 exact-pass did NOT locate the previously-estimated p78 chain — page pending re-confirmation, not asserted here"],
@@ -65,9 +65,10 @@ const SNAPSHOTS = {
       { title: "משפחת 1820", text: "מספר מופיע במספר populations/procedures נפרדים: שם ה׳, דיבור יעקב/רחל/לאה, הגדה, עלינו, ספירות, ערכין, תקיעות, עשרון ועוד. Same result ≠ same dataset." },
       { title: "משפחת 1830", text: "נשמרת כמשפחה נפרדת: 1833−3, 1816+14, וסכום משולש 1..60. אין למזג ל־1820." },
       { title: "79,976", text: "כל 54 שורות הפרשות וחמש נקודות הביקורת המצטברות תואמות למקור ולקורפוס הנקי; גבול ה־79,977 היחיד מתועד בדברים לב:ו." },
+      { title: "304,812 ↔ 304,805", text: "סכום שורות המקור מול הקורפוס הקנוני; הפער +7 ממוקם ב־11 שורות ואינו קריאת OCR פתוחה." },
       { title: "18,200", text: "טבלת named-speaker ב־pp13–14 מגיעה ל־18,200; population/checksum/cohort semantics עדיין פתוחים." },
     ],
-    open: ["5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)", "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה", "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת", "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר", "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)", "Exact-witness adjudication אינו שווה למיפוי מבני", "Gematria claims אינם Engine Verified בלי המנוע הקנוני", "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"],
+    open: ["5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)", "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת", "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר", "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)", "Exact-witness adjudication אינו שווה למיפוי מבני", "Gematria claims אינם Engine Verified בלי המנוע הקנוני", "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"],
     seeds: [
       { key: "1820", label: "משפחת 1820", page: 6, family: "number-family", status: "documented" },
       { key: "1830", label: "משפחת 1830", page: 13, family: "number-family", status: "documented" },

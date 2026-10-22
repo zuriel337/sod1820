@@ -17,7 +17,7 @@
 | 25–31 | 20–26 | אוריין תליתאי | Entity/attribution table (פעמים+תיבות dual metric) for named persons/groups across the Torah | 5 pp. VISUALLY_VERIFIED, 2 pp. (27–29) SOURCE_LOCATED (OCR-era reading, not re-rendered) |
 | 30–35 | 25–30 | שרשים בתורה (+ **D-03 boundary, RESOLVED**) | Root-word list (1,820 roots); p.35 confirmed (Session 5) as the **true start** of the detailed letter table, not p.30 or p.36 | VISUALLY_VERIFIED (structure); root-list content UNCERTAIN |
 | 35–41 | 30–36 | אותיות התורה (detailed, per-letter) | 22-paragraph letter×parasha occurrence table — **DS-02** | See §B — PARTIAL |
-| 41–42 | 36–37 | Summary tables | "תיבות התורה" (words/parasha, total 79,976) + 2nd "אותיות התורה" (all-letters/parasha, total ~304,812) — **DS-03/DS-04** | VISUALLY_VERIFIED (Torah-totals); UNCERTAIN (per-cell) |
+| 41–42 | 36–37 | Summary tables | "תיבות התורה" (54 word rows, 79,976) + 2nd "אותיות התורה" (54 letter rows, source 304,812 / canonical 304,805) — **DS-03/DS-04** | CLOSED; DS-04 source/corpus delta +7 preserved |
 | 42–43 | 37–38 | אותיות/תיבות חמש מגילות | Letter+word counts for the 5 Megillot — **DS-09/DS-10** | VISUALLY_VERIFIED (existence); UNCERTAIN (values) |
 | 44–45 | — | Part boundary | חלק ב׳ title page + blank leaf | VISUALLY_VERIFIED |
 | 46–92 | 1–47 | חלק ב׳, parasha-ordered chiddushim | Full running commentary, Bereshit→Vezot HaBeracha; contains DS-05 (entity table cross-reference), DS-06 (Moshe-occurrence, p.70), DS-07 (Sanhedrin chain, p.78), DS-08 (Tochecha, p.90), CR-01–CR-08 thematic recurrences | VISUALLY_VERIFIED throughout (declared **low-resolution**: page-level rows exist, but comment-level decomposition of pp.46–92 — and pp.6–18 — is a first pass, not exhaustive) |
@@ -62,7 +62,7 @@
 - The "עשה" root's true count (after resolving a compositor dispute) is exactly **248** — matched to the 248 positive commandments (p.70, tail of a not-yet-extracted table, candidate DS-13).
 - The name "משה" appears **647** times in the Torah, correcting two earlier authorities' counts of 795 and 642 (p.70, DS-06 — **this dossier's own re-verification confirms 647 via an independent, exact prefix-form decomposition**, Session 6).
 - Total Torah word count: **79,976** (pp.25–31 and pp.41–42, independently worded, digit-for-digit agreeing — CR-09).
-- Total Torah letter count (all 22 letters combined): **~304,812** (pp.41–42, last digit uncertain).
+- Total Torah letter count (all 22 letters combined): **source 304,812; canonical corpus 304,805; Δ +7** (pp.41–42, fully localized).
 - 1,820 roots exist in the Torah's vocabulary (pp.31–35, DS-11, full list not transcribed).
 
 ---
@@ -74,7 +74,7 @@
 | DS-01 | 6 | Tetragrammaton occurrences per parasha/book | Occurrence counting | 165+398+311+396+550=**1,820** (book subtotals only; per-parasha cells SOURCE_LOCATED, not re-verified) | **CLOSED** — arithmetic exact (CALC-01), cross-referenced nowhere contradicted |
 | DS-02 | 35–41 | Occurrences of each of 22 letters, per parasha/book | Letter-occurrence counting | 187 rows (Session 2) + p.35's א/ב/ג/opening-ד rows (Session 5). Gimel/Bereshit closes almost exactly (Δ+7/577). Aleph/Bet show order-of-magnitude gaps (numeral-scale hypothesis, unresolved). ט–נ interval partially resolved (Tet re-ID'd; ל/מ/נ boundary open). ה checksum substantially resolved (Δ+44 residual); ז checksum unresolved (Δ+117, glyph ambiguity). | **PARTIAL** — structure fully mapped p.35→41; most per-cell values UNCERTAIN or UNRESOLVED at arithmetic level |
 | DS-03 | 25–31, 41–42 | Total word count per parasha/book | Word-occurrence counting | Torah total **79,976**, independently cross-validated at 2 separately-worded locations (CR-09) | **CLOSED** (Torah-total level); per-parasha cells UNCERTAIN |
-| DS-04 | 41–42 | Total letter count (all 22 combined) per parasha/book | Letter-occurrence counting | Torah total **~304,812**, last digit uncertain, cross-validated against LEDGER's independent citation (CR-10) | **PARTIAL** (Torah-total near-closed; per-parasha cells UNCERTAIN) |
+| DS-04 | 41–42 | Total letter count (all 22 combined) per parasha/book | Letter-occurrence counting | 54 source rows total **304,812**; canonical corpus **304,805**; 11 one-letter row deltas, net +7 | **CLOSED WITH SOURCE/CORPUS MISMATCH** |
 | DS-05 | 25–31 | Attributed speech/mentions per named entity, per parasha (dual metric: פעמים + תיבות) | Entity-attribution counting | Structure confirmed (Yaakov, Lavan, Rachel, Leah, Moshe, Aharon, Miriam, Caleb, Bnot Tzlofchad rows); per-cell values not re-verified. **Confirmed distinct from DS-06** (Session 6 §7 — single-metric name-occurrence vs. this dataset's dual-metric attributed-speech) | **OPEN** — structure only, no cell-level closure attempted |
 | DS-06 | 70 (corrected from Session 3's [70,71]) | Occurrences of the name משה, per parasha/book/Torah | Name-occurrence counting | Grand total **647**, VISUALLY_VERIFIED at 2 zoom passes. Prefix-form breakdown CLOSED exactly (614+13+13+4+2+1=647, Session 6). Book-subtotal→Torah-total aggregation CLOSED exactly (290+86+233+38=647, Session 6). **Parasha-row→book-subtotal aggregation remains OPEN in all 4 books** (unforced gaps +22/+112/+47/+94-ish). Recurring "50" pattern (5 instances) confirmed literal (not artifact), significance undetermined. | **PARTIAL** — 2 of 3 aggregation levels CLOSED; row-level OPEN |
 | DS-07 | 78 | Masoretic transmission-chain generation count (Para Aduma witnesses) | Transmission-chain counting | **37** rows/generations (single figure, existence VISUALLY_VERIFIED; exact scope of what's counted UNCERTAIN) | **OPEN** |
@@ -136,7 +136,7 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 | אוריין תליתאי entity table exists, dual-metric | 25–31 | — | VISUALLY_VERIFIED (structure) | None found (per-cell not verified) |
 | Detailed letter table spans pp.35–41, not 36–41 | 35 | — | **RESOLVED** (D-03, Session 5, 6× zoom) | Previously open (2 competing readings); now closed |
 | Total Torah words = 79,976 | 25–31 & 41–42 | — | VISUALLY_VERIFIED (2 independently-worded locations agree exactly) — CR-09 | None found |
-| Total Torah letters ≈ 304,812 | 41–42 | — | VISUALLY_VERIFIED (cross-cited by LEDGER independently) — CR-10; last digit UNCERTAIN | Minor digit-level uncertainty only |
+| Total Torah letters: source 304,812 / canonical 304,805 | 41–42 | — | VISUALLY_VERIFIED + COMPUTATIONALLY_REPRODUCED — CR-10 | +7 localized to 11 one-letter row deltas |
 | 1,820 roots exist in the Torah | 31–35 | — | AUTHOR_COUNT (SOURCE_LOCATED) | Full list not transcribed — can't independently check |
 | "עשה"-root count resolves to 248 (=248 mitzvot) | ~69–70 | — | SOURCE_LOCATED (conclusion only) | **Full row data not extracted — candidate DS-13, UNKNOWN** |
 | Name משה = 647 occurrences in the Torah | 70 | 614+13+13+4+2+1=647 (Session 6) | **CLOSED** — exact arithmetic closure at 2 levels (prefix-form; book-subtotal→Torah) | Parasha-row level does not close against its own book subtotal (4 unresolved gaps) |
@@ -199,7 +199,7 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 - Full 99/99-page structural map (visual), all parts/chapters identified.
 - 13 datasets catalogued (12 original + 1 new candidate this pass).
 - 18 distinct methods identified and separated from their findings.
-- Tetragrammaton=1,820 (exact), word-total=79,976 (cross-validated), letter-total≈304,812 (cross-validated) — all CLOSED at the Torah-total level.
+- Tetragrammaton=1,820 (exact), word-total=79,976 (source/corpus match), letter-total=304,812 source versus 304,805 canonical corpus (localized +7) — all CLOSED at the table level.
 - Letter-table's true start (p.35, not p.30/p.36) — RESOLVED.
 - DS-06's counting contract (population, prefix-form treatment, Torah-level aggregation) — CLOSED.
 - Two self-corrected drifts (D-01, D-02) and the GPT `v5`/`v5b` pointer question — RESOLVED.

@@ -40,12 +40,12 @@
     "documented snapshot"
    ],
    [
-    "11",
+    "12",
     "סתירות",
     "preserved"
    ],
    [
-    "8",
+    "7",
     "קריאות לא פתורות",
     "current material map"
    ]
@@ -103,8 +103,8 @@
     "DS-04",
     "סך אותיות",
     "p42",
-    "PARTIAL",
-    "grand total reads 304,812 or 304,830; final glyph unresolved"
+    "CLOSED · SOURCE/CORPUS Δ+7",
+    "54 source rows close arithmetically to 304,812; the exact canonical corpus gives 304,805; 11 one-letter row deltas are preserved; 304,830 is withdrawn"
    ],
    [
     "DS-05",
@@ -186,6 +186,10 @@
    {
     "title": "18,200",
     "text": "טבלת named-speaker ב־pp13–14 מגיעה ל־18,200; population/checksum/cohort semantics עדיין פתוחים."
+   },
+   {
+    "title": "304,812 ↔ 304,805",
+    "text": "טבלת המקור נסגרת ל־304,812; אותו תחום פסוקים בקורפוס הקנוני נסגר ל־304,805. הפער +7 ממוקם ב־11 שורות של סטייה בת אות אחת ואינו שגיאת OCR שנותרה פתוחה."
    }
   ],
   "witness_closures": [
@@ -232,7 +236,6 @@
   ],
   "open": [
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
-   "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה",
    "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
    "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
@@ -402,20 +405,20 @@
    ],
    "metric": "letter count",
    "scope": "whole Torah",
-   "rows_description": "one row per parasha, cumulative book subtotals",
-   "subtotals": "not independently extracted this pass",
-   "total": "~304,812 (candidate, last digit uncertain)",
+   "rows_description": "54 source rows, with source and canonical-corpus values kept separately",
+   "subtotals": "source book totals 78,068 / 63,528 / 44,790 / 63,531 / 54,895; canonical book totals 78,064 / 63,529 / 44,790 / 63,530 / 54,892",
+   "total": "source 304,812; canonical corpus 304,805; delta +7",
    "ordering_rule": "book order",
-   "inclusion_rule": "any of the 22 letters",
-   "exclusion_rule": "not stated",
-   "exceptions": "none found",
-   "checksum": "CROSS-VALIDATED against LEDGER §3.7's independently-cited 304,812 figure to within a single plausible glyph misread",
+   "inclusion_rule": "source: printed all-letter totals; corpus: ketiv-only Hebrew letters in the identical 304,805-letter stream",
+   "exclusion_rule": "exclude punctuation, cantillation, vowel points, qere and editorial material; final forms count one-for-one",
+   "exceptions": "11 one-letter row deltas: 9 at +1 and 2 at -1, net +7; the source rows nevertheless sum exactly to every printed checkpoint",
+   "checksum": "SOURCE-ARITHMETIC-CLOSED at 304,812; CANONICAL-CORPUS-CLOSED at 304,805 with SHA-256 9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4",
    "pdf_pages": [
     41,
     42
    ],
-   "confidence": "SOURCE_LOCATED/VISUALLY_VERIFIED for the Torah-total anchor; UNCERTAIN for per-parasha cells",
-   "status": "PARTIAL"
+   "confidence": "VISUALLY_VERIFIED for 54 rows and five checkpoints; COMPUTATIONALLY_REPRODUCED for 304,805 and all row deltas",
+   "status": "CLOSED_WITH_SOURCE_CORPUS_MISMATCH"
   },
   {
    "dataset_id": "DS-05",
@@ -882,6 +885,32 @@
    ],
    "truth_class": "SOURCE_VISUALLY_VERIFIED_AND_COMPUTATIONALLY_REPRODUCED",
    "confidence": "CLOSED 2026-10-22"
+  },
+  {
+   "calculation_id": "CALC-10/DS-04-LETTER-CLOSURE",
+   "inputs": [
+    "54 printed parasha values on PDF pp.41-42",
+    "five Koren-aligned MAM book files",
+    "local canonical 304,805-letter Torah stream"
+   ],
+   "operations": [
+    "count Hebrew letters inside each traditional parasha boundary",
+    "compare each printed row with the canonical row",
+    "sum both projections through five cumulative checkpoints"
+   ],
+   "intermediate_values": [
+    "source cumulative = 78,068 / 141,596 / 186,386 / 249,917 / 304,812",
+    "canonical cumulative = 78,064 / 141,593 / 186,383 / 249,913 / 304,805",
+    "11 differing rows: nine +1 and two -1"
+   ],
+   "output": "source 304,812; canonical 304,805; localized delta +7",
+   "why_exclusion_or_operation_performed": "Closes the final-glyph ambiguity and preserves the source/corpus difference without changing either projection.",
+   "pdf_pages": [
+    41,
+    42
+   ],
+   "truth_class": "SOURCE_ARITHMETIC_CLOSED; CANONICAL_CORPUS_CLOSED; MISMATCH_PRESERVED",
+   "confidence": "CLOSED 2026-10-22"
   }
  ],
  "exceptions": [
@@ -1120,14 +1149,14 @@
   },
   {
    "relation_id": "CR-10",
-   "kind": "CANDIDATE_RELATION",
-   "description": "The Torah-wide letter-total ~304,812 (second 'אותיות התורה' summary table, pp.41-42) is the SAME figure LEDGER §3.7 already cited generically for the book -- this task's Task-2 work specifically LOCATES that citation's source page for the first time.",
+   "kind": "SOURCE_CORPUS_MISMATCH_LOCALIZED",
+   "description": "The p.42 total reads exactly 304,812 (תתי״ב); the prior 304,830 candidate is withdrawn. All 54 source rows sum to 304,812, while the exact canonical corpus sums to 304,805. Eleven one-letter row deltas explain the net +7.",
    "pdf_pages": [
     41,
     42
    ],
    "adjudicated_by_source_itself": false,
-   "confidence": "VISUALLY_VERIFIED"
+   "confidence": "VISUALLY_VERIFIED + COMPUTATIONALLY_REPRODUCED"
   },
   {
    "relation_id": "D-01",
@@ -4415,57 +4444,6 @@
      "ocr_confidence": "medium",
      "exception_or_note": "",
      "arithmetic_checksum_state": "not_applicable"
-    },
-    {
-     "table": "אותיות התורה — second table (summary: total LETTERS per parasha, all letters combined)",
-     "pdf_page": "41",
-     "printed_page": "36",
-     "printed_page_display": "36",
-     "letter": "",
-     "column": "",
-     "parasha": "בראשית (opening value)",
-     "source_value": "ז' אלף רל״ה (candidate)",
-     "normalized_integer": "7235",
-     "book": "בראשית",
-     "source_anchor": "",
-     "verification_state": "UNCERTAIN",
-     "ocr_confidence": "low",
-     "exception_or_note": "First parasha of this second, summary-level letters-table. NOTE this is a DIFFERENT number from any single-letter total in the detailed table above -- it is the sum of all 22 letters occurring in Bereshit alone.",
-     "arithmetic_checksum_state": "not_applicable"
-    },
-    {
-     "table": "אותיות התורה — second table (summary: total LETTERS per parasha, all letters combined)",
-     "pdf_page": "42",
-     "printed_page": "37",
-     "printed_page_display": "37",
-     "letter": "",
-     "column": "",
-     "parasha": "TORAH TOTAL (final, colon-terminated, p.42 left column)",
-     "source_value": "ש״ד אלף תת(י״כ or ב) -- candidate ~304,812-304,830",
-     "normalized_integer": "304812",
-     "book": "כל התורה",
-     "source_anchor": "",
-     "verification_state": "SOURCE_VERIFIED",
-     "ocr_confidence": "high",
-     "exception_or_note": "STRONG CROSS-VALIDATION: candidate reading decodes to approximately 304,812-304,830. This matches, to within a single-glyph margin of error, the Ledger's independently-recorded LEDGER §3.7 figure of 304,812 total Torah letters (\"סופר ומונה אותיות התורה\"). The residual ~18-unit gap between my best raw read (304,830) and the Ledger's 304,812 is consistent with a single confused final glyph (כ/20 misread for ב/2 in the closing word תתי״ב/תתי״כ) rather than a genuine source discrepancy -- flagged as an OCR/glyph-confusion candidate, not asserted as resolved. Reported here as SOURCE_VERIFIED for the MAGNITUDE and the CROSS-SECTION MATCH (independently corroborated by a separately-authored ledger citation), while the LAST DIGIT of the figure remains UNCERTAIN.",
-     "arithmetic_checksum_state": "CROSS_SECTION_MATCH_confirmed_last_digit_uncertain"
-    },
-    {
-     "table": "אותיות התורה — second table (summary: total LETTERS per parasha, all letters combined)",
-     "pdf_page": "42",
-     "printed_page": "37",
-     "printed_page_display": "37",
-     "letter": "",
-     "column": "",
-     "parasha": "(section boundary)",
-     "source_value": "",
-     "normalized_integer": "",
-     "book": "-",
-     "source_anchor": "",
-     "verification_state": "SOURCE_VERIFIED",
-     "ocr_confidence": "high",
-     "exception_or_note": "Immediately after this total (same line, after the colon) a horizontal rule and a NEW section title \"אותיות חמש מגילות\" (Letters of the Five Megillot) begins, followed by an א/ב/ג/ד/ה/ו/ז/ח/ט/י-numbered list of Esther/Song of Songs/Ruth/Eicha/Kohelet verse-count data. This section starts on p.42 (in scope) but its content body continues onto p.43, which is explicitly out of scope for this task (DO-NOT-TOUCH) and was NOT read or transcribed beyond confirming that the boundary exists.",
-     "arithmetic_checksum_state": "not_applicable"
     }
    ],
    "status": "PARTIAL"
@@ -5668,6 +5646,759 @@
      "arithmetic_checksum_state": "MATCH"
     }
    ]
+  },
+  {
+   "table_id": "DS-04-LETTERS-BY-PARASHA",
+   "title": "אותיות התורה — מספר אותיות בכל פרשה",
+   "description": "All 54 source rows from pp.41–42, kept beside the exact canonical-corpus reconstruction. Eleven rows differ by one letter; signed total delta +7.",
+   "pdf_pages": [
+    41,
+    42
+   ],
+   "source_anchor": "book:hebrewbooks:5635#p41-p42:letters_of_torah_table",
+   "verification_state": "CLOSED_WITH_SOURCE_CORPUS_MISMATCH",
+   "counting_contract": "ketiv-only Hebrew letters; punctuation and marks removed; final forms normalized one-for-one",
+   "cumulative_checkpoints": [
+    {
+     "book": "בראשית",
+     "source_value": "ע״ח אלף ס״ח",
+     "source_cumulative": 78068,
+     "canonical_cumulative": 78064,
+     "delta": 4
+    },
+    {
+     "book": "שמות",
+     "source_value": "קמ״א אלף תקצ״ו",
+     "source_cumulative": 141596,
+     "canonical_cumulative": 141593,
+     "delta": 3
+    },
+    {
+     "book": "ויקרא",
+     "source_value": "קפ״ו אלף שפ״ו",
+     "source_cumulative": 186386,
+     "canonical_cumulative": 186383,
+     "delta": 3
+    },
+    {
+     "book": "במדבר",
+     "source_value": "רמ״ט אלף תתקי״ז",
+     "source_cumulative": 249917,
+     "canonical_cumulative": 249913,
+     "delta": 4
+    },
+    {
+     "book": "דברים",
+     "source_value": "ש״ד אלף תתי״ב",
+     "source_cumulative": 304812,
+     "canonical_cumulative": 304805,
+     "delta": 7
+    }
+   ],
+   "rows": [
+    {
+     "id": "DS-04-P01",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 41,
+     "parasha": "בראשית",
+     "book": "בראשית",
+     "source_integer": 7235,
+     "canonical_integer": 7235,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p41:letters_of_torah:01",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P02",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 41,
+     "parasha": "נח",
+     "book": "בראשית",
+     "source_integer": 6908,
+     "canonical_integer": 6907,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p41:letters_of_torah:02",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P03",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 41,
+     "parasha": "לך לך",
+     "book": "בראשית",
+     "source_integer": 6337,
+     "canonical_integer": 6336,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p41:letters_of_torah:03",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P04",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 41,
+     "parasha": "וירא",
+     "book": "בראשית",
+     "source_integer": 7862,
+     "canonical_integer": 7862,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p41:letters_of_torah:04",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P05",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 41,
+     "parasha": "חיי שרה",
+     "book": "בראשית",
+     "source_integer": 5314,
+     "canonical_integer": 5314,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p41:letters_of_torah:05",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P06",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 41,
+     "parasha": "תולדות",
+     "book": "בראשית",
+     "source_integer": 5426,
+     "canonical_integer": 5426,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p41:letters_of_torah:06",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P07",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ויצא",
+     "book": "בראשית",
+     "source_integer": 7512,
+     "canonical_integer": 7512,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:07",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P08",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "וישלח",
+     "book": "בראשית",
+     "source_integer": 7459,
+     "canonical_integer": 7458,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:08",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P09",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "וישב",
+     "book": "בראשית",
+     "source_integer": 5972,
+     "canonical_integer": 5972,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:09",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P10",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "מקץ",
+     "book": "בראשית",
+     "source_integer": 7915,
+     "canonical_integer": 7914,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:10",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P11",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ויגש",
+     "book": "בראשית",
+     "source_integer": 5680,
+     "canonical_integer": 5680,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:11",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P12",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ויחי",
+     "book": "בראשית",
+     "source_integer": 4448,
+     "canonical_integer": 4448,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:12",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P13",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "שמות",
+     "book": "שמות",
+     "source_integer": 6762,
+     "canonical_integer": 6762,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:13",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P14",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "וארא",
+     "book": "שמות",
+     "source_integer": 6701,
+     "canonical_integer": 6701,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:14",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P15",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "בא",
+     "book": "שמות",
+     "source_integer": 6149,
+     "canonical_integer": 6149,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:15",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P16",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "בשלח",
+     "book": "שמות",
+     "source_integer": 6422,
+     "canonical_integer": 6423,
+     "delta": -1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:16",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P17",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "יתרו",
+     "book": "שמות",
+     "source_integer": 4022,
+     "canonical_integer": 4022,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:17",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P18",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "משפטים",
+     "book": "שמות",
+     "source_integer": 5313,
+     "canonical_integer": 5313,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:18",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P19",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "תרומה",
+     "book": "שמות",
+     "source_integer": 4692,
+     "canonical_integer": 4692,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:19",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P20",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "תצוה",
+     "book": "שמות",
+     "source_integer": 5430,
+     "canonical_integer": 5430,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:20",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P21",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "כי תשא",
+     "book": "שמות",
+     "source_integer": 7424,
+     "canonical_integer": 7424,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:21",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P22",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ויקהל",
+     "book": "שמות",
+     "source_integer": 6181,
+     "canonical_integer": 6181,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:22",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P23",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "פקודי",
+     "book": "שמות",
+     "source_integer": 4432,
+     "canonical_integer": 4432,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:23",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P24",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ויקרא",
+     "book": "ויקרא",
+     "source_integer": 6222,
+     "canonical_integer": 6222,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:24",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P25",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "צו",
+     "book": "ויקרא",
+     "source_integer": 5096,
+     "canonical_integer": 5096,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:25",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P26",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "שמיני",
+     "book": "ויקרא",
+     "source_integer": 4670,
+     "canonical_integer": 4670,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:26",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P27",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "תזריע",
+     "book": "ויקרא",
+     "source_integer": 3667,
+     "canonical_integer": 3667,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:27",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P28",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "מצורע",
+     "book": "ויקרא",
+     "source_integer": 4697,
+     "canonical_integer": 4697,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:28",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P29",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "אחרי מות",
+     "book": "ויקרא",
+     "source_integer": 4294,
+     "canonical_integer": 4294,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:29",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P30",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "קדושים",
+     "book": "ויקרא",
+     "source_integer": 3229,
+     "canonical_integer": 3229,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:30",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P31",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "אמור",
+     "book": "ויקרא",
+     "source_integer": 6106,
+     "canonical_integer": 6106,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:31",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P32",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "בהר",
+     "book": "ויקרא",
+     "source_integer": 2817,
+     "canonical_integer": 2817,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:32",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P33",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "בחוקותי",
+     "book": "ויקרא",
+     "source_integer": 3992,
+     "canonical_integer": 3992,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:33",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P34",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "במדבר",
+     "book": "במדבר",
+     "source_integer": 7393,
+     "canonical_integer": 7393,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:34",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P35",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "נשא",
+     "book": "במדבר",
+     "source_integer": 8632,
+     "canonical_integer": 8632,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:35",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P36",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "בהעלותך",
+     "book": "במדבר",
+     "source_integer": 7055,
+     "canonical_integer": 7055,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:36",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P37",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "שלח",
+     "book": "במדבר",
+     "source_integer": 5819,
+     "canonical_integer": 5820,
+     "delta": -1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:37",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P38",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "קרח",
+     "book": "במדבר",
+     "source_integer": 5325,
+     "canonical_integer": 5325,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:38",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P39",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "חקת",
+     "book": "במדבר",
+     "source_integer": 4670,
+     "canonical_integer": 4670,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:39",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P40",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "בלק",
+     "book": "במדבר",
+     "source_integer": 5358,
+     "canonical_integer": 5357,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:40",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P41",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "פינחס",
+     "book": "במדבר",
+     "source_integer": 7854,
+     "canonical_integer": 7853,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:41",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P42",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "מטות",
+     "book": "במדבר",
+     "source_integer": 5652,
+     "canonical_integer": 5652,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:42",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P43",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "מסעי",
+     "book": "במדבר",
+     "source_integer": 5773,
+     "canonical_integer": 5773,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:43",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P44",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "דברים",
+     "book": "דברים",
+     "source_integer": 5973,
+     "canonical_integer": 5972,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:44",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P45",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ואתחנן",
+     "book": "דברים",
+     "source_integer": 7343,
+     "canonical_integer": 7343,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:45",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P46",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "עקב",
+     "book": "דברים",
+     "source_integer": 6865,
+     "canonical_integer": 6865,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:46",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P47",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "ראה",
+     "book": "דברים",
+     "source_integer": 7443,
+     "canonical_integer": 7442,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:47",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P48",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "שופטים",
+     "book": "דברים",
+     "source_integer": 5591,
+     "canonical_integer": 5590,
+     "delta": 1,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:48",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P49",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "כי תצא",
+     "book": "דברים",
+     "source_integer": 5856,
+     "canonical_integer": 5856,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:49",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P50",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "כי תבא",
+     "book": "דברים",
+     "source_integer": 6811,
+     "canonical_integer": 6811,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:50",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P51",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "נצבים",
+     "book": "דברים",
+     "source_integer": 2575,
+     "canonical_integer": 2575,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:51",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P52",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "וילך",
+     "book": "דברים",
+     "source_integer": 2123,
+     "canonical_integer": 2123,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:52",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P53",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "האזינו",
+     "book": "דברים",
+     "source_integer": 2326,
+     "canonical_integer": 2326,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:53",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    },
+    {
+     "id": "DS-04-P54",
+     "table": "אותיות התורה — סיכום כל האותיות",
+     "pdf_page": 42,
+     "parasha": "וזאת הברכה",
+     "book": "דברים",
+     "source_integer": 1989,
+     "canonical_integer": 1989,
+     "delta": 0,
+     "source_anchor": "book:hebrewbooks:5635#p42:letters_of_torah:54",
+     "verification_state": "SOURCE_VISUALLY_VERIFIED_AND_CORPUS_REPRODUCED",
+     "arithmetic_checksum_state": "MATCH_SOURCE_CHECKPOINT"
+    }
+   ]
   }
  ],
  "page_register": [
@@ -6563,6 +7294,16 @@
    "status": "CORPUS_RECONSTRUCTED · COUNTING_CONTRACT_UNRESOLVED",
    "pdf_pages": [
     71
+   ]
+  },
+  {
+   "id": "DS-04-SOURCE-CORPUS",
+   "conflict": "אותיות התורה: סכום שורות המקור 304,812 מול הקורפוס הקנוני 304,805",
+   "delta": "+7 (9×+1, 2×−1 across 11 parashot)",
+   "status": "CLOSED AS SOURCE/CORPUS MISMATCH; NOT SILENTLY CORRECTED",
+   "pdf_pages": [
+    41,
+    42
    ]
   }
  ]
