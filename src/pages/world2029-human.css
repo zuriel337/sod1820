@@ -1505,7 +1505,7 @@
 .sod29-world-all-research .sod29-section-head p{margin:7px 0 0;max-width:900px;line-height:1.7}
 .sod29-world-all-research-summary{
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
   gap:8px;
   margin:14px 0;
 }
