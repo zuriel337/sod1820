@@ -69,13 +69,21 @@ assert.match(vite, /2029\.html/);
 assert.match(vite, /index\.html/);
 assert.match(pkg.scripts.build, /SOD_BUILD_TARGET=legacy vite build\s*&&\s*SOD_BUILD_TARGET=2029 vite build/);
 
-// Production routing: social bot OG handling stays first; humans on every current 2029 route receive 2029.html.
+// Preview routing: explicit 2029 surfaces remain isolated, while canonical Legacy
+// entries stay in index.html under the emergency Production lock.
 const rewrites = vercel.rewrites || [];
-const expected = ["/2029", "/community/chat", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/code", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
+const expected = ["/2029", "/melech-hamisparim/718", "/2029/number/(.*)", "/world", "/books", "/books/(.*)", "/book/(.*)", "/els", "/heichal", "/היכל", "/researcher/(.*)"];
 for (const source of expected) {
   const item = rewrites.find((r) => r.source === source && !Array.isArray(r.has));
   assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
   assert.equal(item.destination, "/2029.html", `human 2029 rewrite must target isolated document: ${source}`);
+}
+for (const source of ["/", "/post", "/community/chat", "/code"]) {
+  assert.equal(
+    rewrites.some((r) => r.source === source && r.destination === "/2029.html" && !Array.isArray(r.has)),
+    false,
+    `Legacy Production lock forbids ${source} from entering the 2029 document`,
+  );
 }
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
@@ -92,9 +100,17 @@ for (const route of ["/heichal", "/היכל"]) {
 }
 assert.match(legacyApp, /function Product2029DocumentHandoff\(\{ to = null \}\)/, "Legacy SPA must cross the document boundary for 2029 routes");
 assert.match(legacyApp, /window\.location\.replace\(href\)/, "canonical document handoffs must not leave a redirecting alias in back history");
-for (const route of ["/code", "/els"]) {
+for (const route of ["/els"]) {
   assert.ok(legacyApp.includes(`path="${route}" element={<Product2029DocumentHandoff />}`), `${route} must cross into isolated 2029 runtime`);
 }
+assert.ok(
+  legacyApp.includes('path="/code" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <CodePage />}'),
+  "canonical /code must retain its Legacy renderer while the Production lock is active",
+);
+assert.ok(
+  legacyApp.includes('path="/community/chat" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <SpotimChatRoute />}'),
+  "canonical Community chat must retain its Legacy renderer while the Production lock is active",
+);
 assert.ok(app2029.includes('path="/code" element={<Els2029Page />}' ), "canonical cipher tool must render natively at /code");
 assert.ok(app2029.includes('path="/els" element={<ElsAddressAlias2029 />}' ), "old /els address must preserve its alias");
 assert.match(app2029, /\/code\$\{location\.search \|\| ""\}\$\{location\.hash \|\| ""\}/, "ELS alias must preserve query and fragment");

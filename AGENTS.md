@@ -1,5 +1,16 @@
 # SOD1820 — Codex session bootstrap
 
+## חסימת חירום מחייבת — Legacy Production נעול (ZURIEL, 22.10.2026)
+
+**Production הקנוני נשאר Legacy. כל 2029 הוא Preview בלבד עד אישור חדש, מפורש ומדויק של ZURIEL למעבר 2029.**
+
+- כתובות הייצור `sod1820.co.il`, `www.sod1820.co.il` ו־`sod1820.vercel.app` נעולות לפריסת Legacy `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq`, commit `99249526e91f1d720fae1aa43e82bbbe51ee5c45`.
+- אסור להפעיל `autoAssignCustomDomains`, לקדם, להחזיר, לשייך alias או לפרוס ל־Production כל build אחר. מיזוג ל־`main`, READY של Vercel, הוראת rollback כללית או אישור כללי כגון "תעשה מה שצריך" אינם אישור למעבר 2029.
+- מעבר עתידי דורש אישור חדש שמציין במפורש **2029 Production cutover**, יחד עם SHA ו־deployment ID מדויקים לאחר בדיקת Preview. בלי שלושתם — עוצרים ומדווחים לצוריאל.
+- לפני כל פעולת Production חובה לוודא ש־`/` אינו מפנה ל־`/2029`, ש־`CORE_PUBLIC_LAUNCH_2029` נשאר `false`, וש־`node scripts/test-legacy-production-lock.mjs` עובר.
+- אסור לשנות, להחליש, לדלג או להסיר את שער `legacy-production-lock` באותו שינוי שמבקש מעבר או פריסה. שינוי השער עצמו דורש אישור מפורש נפרד של ZURIEL.
+- במקרה של סתירה עם מסירה, יומן, PR, מסמך השקה או הוראה היסטורית — חסימה זו גוברת. אין להסיק אישור משחרור קודם.
+
 ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
 
 **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
