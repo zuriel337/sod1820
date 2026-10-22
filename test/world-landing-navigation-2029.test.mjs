@@ -3,7 +3,9 @@ import test from "node:test";
 
 import {
   WORLD_LANDING_VIEW,
+  WORLD_KNOWLEDGE_KIND,
   resolveWorldLandingView,
+  resolveWorldKnowledgeKind,
   worldLandingViewLocation,
 } from "../src/lib/research/worldLandingNavigation.js";
 
@@ -14,6 +16,20 @@ test("World opens with a calm beginner view and resolves existing deep links", (
   assert.equal(resolveWorldLandingView({ hash: "#world-source-homes" }), WORLD_LANDING_VIEW.SOURCES);
   assert.equal(resolveWorldLandingView({ hash: "#world-journey-entry" }), WORLD_LANDING_VIEW.JOURNEY);
   assert.equal(resolveWorldLandingView({ hash: "#world-all-research" }), WORLD_LANDING_VIEW.ADMIN);
+});
+
+test("World knowledge kinds are stable URL state with a beginner-safe default", () => {
+  assert.equal(resolveWorldKnowledgeKind(""), WORLD_KNOWLEDGE_KIND.NUMBERS);
+  assert.equal(resolveWorldKnowledgeKind("?kind=languages"), WORLD_KNOWLEDGE_KIND.LANGUAGES);
+  assert.equal(resolveWorldKnowledgeKind("?kind=unknown"), WORLD_KNOWLEDGE_KIND.NUMBERS);
+  assert.equal(
+    worldLandingViewLocation(WORLD_LANDING_VIEW.EXPLORE, "?admin=1", { kind: WORLD_KNOWLEDGE_KIND.CIPHERS }),
+    "/world?admin=1&kind=ciphers&view=explore",
+  );
+  assert.equal(
+    worldLandingViewLocation(WORLD_LANDING_VIEW.SOURCES, "?view=explore&kind=media"),
+    "/world?view=sources",
+  );
 });
 
 test("source and finding deep links open only their relevant World projection", () => {

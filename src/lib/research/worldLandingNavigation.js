@@ -3,11 +3,22 @@ export const WORLD_LANDING_VIEW = Object.freeze({
   LIVE: "live",
   CONNECTIONS: "connections",
   SOURCES: "sources",
+  EXPLORE: "explore",
   JOURNEY: "journey",
   ADMIN: "admin",
 });
 
+export const WORLD_KNOWLEDGE_KIND = Object.freeze({
+  NUMBERS: "numbers",
+  LANGUAGES: "languages",
+  CIPHERS: "ciphers",
+  MEDIA: "media",
+  TIME: "time",
+  BOOKS: "books",
+});
+
 const VALID_VIEWS = new Set(Object.values(WORLD_LANDING_VIEW));
+const VALID_KINDS = new Set(Object.values(WORLD_KNOWLEDGE_KIND));
 
 function clean(value) {
   return String(value || "").trim();
@@ -35,7 +46,12 @@ export function resolveWorldLandingView({ search = "", hash = "" } = {}) {
   return WORLD_LANDING_VIEW.START;
 }
 
-export function worldLandingViewLocation(view, currentSearch = "") {
+export function resolveWorldKnowledgeKind(search = "") {
+  const requested = clean(new URLSearchParams(search).get("kind"));
+  return VALID_KINDS.has(requested) ? requested : WORLD_KNOWLEDGE_KIND.NUMBERS;
+}
+
+export function worldLandingViewLocation(view, currentSearch = "", { kind = null } = {}) {
   const safeView = VALID_VIEWS.has(view) ? view : WORLD_LANDING_VIEW.START;
   const params = new URLSearchParams(currentSearch);
   if (safeView !== WORLD_LANDING_VIEW.SOURCES) {
@@ -43,6 +59,11 @@ export function worldLandingViewLocation(view, currentSearch = "") {
     params.delete("subjectSource");
   }
   if (safeView !== WORLD_LANDING_VIEW.ADMIN) params.delete("finding");
+  if (safeView === WORLD_LANDING_VIEW.EXPLORE) {
+    const safeKind = VALID_KINDS.has(kind) ? kind : resolveWorldKnowledgeKind(currentSearch);
+    if (safeKind === WORLD_KNOWLEDGE_KIND.NUMBERS) params.delete("kind");
+    else params.set("kind", safeKind);
+  } else params.delete("kind");
   if (safeView === WORLD_LANDING_VIEW.START) params.delete("view");
   else params.set("view", safeView);
   const query = params.toString();

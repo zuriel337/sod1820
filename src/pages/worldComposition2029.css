@@ -90,19 +90,95 @@
   flex-wrap: wrap;
   gap: 6px;
 }
-.sod29-root.surface-world .sod29-world-start-facets span {
+.sod29-root.surface-world .sod29-world-start-facets button {
   padding: 5px 9px;
   border: 1px solid var(--s29-line);
   border-radius: 999px;
+  background: transparent;
   color: var(--s29-muted);
   font: 500 12px/1.3 var(--s29-font-ui);
+  cursor: pointer;
 }
+.sod29-root.surface-world .sod29-world-start-facets button:hover { border-color: var(--s29-line-strong); color: var(--s29-ink); }
+.sod29-root.surface-world .sod29-world-start-facets button:focus-visible { outline: 2px solid var(--s29-focus-ring); outline-offset: 2px; }
 .sod29-root.surface-world .sod29-world-featured-connections {
   margin-block: var(--w29-gap) 0;
   padding: 0;
   border: 0;
   background: none;
 }
+
+/* One World, browsed by source type. Each tab mounts only its canonical reader. */
+.sod29-root.surface-world .sod29-world-knowledge-types { padding: 0; border: 0; background: none; }
+.sod29-root.surface-world .sod29-world-kind-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  max-width: none;
+  margin: 0 0 18px;
+}
+.sod29-root.surface-world .sod29-world-kind-tabs button {
+  min-width: 0;
+  min-height: 72px;
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--s29-line);
+  border-radius: 13px;
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  text-align: start;
+  cursor: pointer;
+}
+.sod29-root.surface-world .sod29-world-kind-tabs button:hover { border-color: var(--s29-line-strong); }
+.sod29-root.surface-world .sod29-world-kind-tabs button:focus-visible { outline: 2px solid var(--s29-focus-ring); outline-offset: 2px; }
+.sod29-root.surface-world .sod29-world-kind-tabs button.is-active {
+  border-color: var(--s29-accent);
+  background: color-mix(in srgb, var(--s29-panel) 90%, var(--s29-accent) 10%);
+}
+.sod29-root.surface-world .sod29-world-kind-tabs strong { font: 600 14px/1.35 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-tabs small { color: var(--s29-muted); font: 400 12px/1.45 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-heading { margin: 0 0 12px; }
+.sod29-root.surface-world .sod29-world-kind-heading h3 { margin: 0; font: 600 20px/1.35 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-heading p { margin: 3px 0 0; color: var(--s29-muted); font: 400 14px/1.55 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-section { margin: 0 0 20px; }
+.sod29-root.surface-world .sod29-world-kind-section > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  margin: 0 0 9px;
+}
+.sod29-root.surface-world .sod29-world-kind-section > header h3 { margin: 0; font: 600 17px/1.35 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-section > header p { margin: 3px 0 0; color: var(--s29-muted); font: 400 13px/1.5 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-section > header > span { flex: none; color: var(--s29-muted); font: 500 12px var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.sod29-root.surface-world .sod29-world-kind-card {
+  min-width: 0;
+  min-height: 132px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid var(--s29-line);
+  border-radius: 13px;
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  text-decoration: none;
+}
+.sod29-root.surface-world .sod29-world-kind-card:hover { border-color: var(--s29-line-strong); }
+.sod29-root.surface-world .sod29-world-kind-card small { color: var(--s29-discovery); font: 500 12px var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-card strong { font: 600 15px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-kind-card p { margin: 0; color: var(--s29-muted); font: 400 13px/1.5 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sod29-root.surface-world .sod29-world-kind-card > span { margin-top: auto; color: var(--s29-accent-text); font: 500 12px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-media-shelf { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.sod29-root.surface-world .sod29-world-media-shelf article { min-width: 0; overflow: hidden; border: 1px solid var(--s29-line); border-radius: 13px; background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-media-shelf .sod29-canonical-media-figure { width: 100%; height: 164px; padding: 7px; }
+.sod29-root.surface-world .sod29-world-media-shelf article > div { display: grid; gap: 4px; padding: 10px 12px; }
+.sod29-root.surface-world .sod29-world-media-shelf strong { font: 600 14px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-media-shelf small { color: var(--s29-muted); font: 400 11px/1.4 var(--s29-font-numeric); overflow-wrap: anywhere; }
 
 /* Kickers: the discovery tone used by Home */
 .sod29-root.surface-world :is(.sod29-world-overview, .sod29-flight-story, .sod29-source-arrivals, .sod29-world-source-homes, .sod29-world-discovery-doors, .sod29-world-all-convergences, .sod29-world-journey-doors) .sod29-kicker {
@@ -210,11 +286,13 @@
   .sod29-root.surface-world .sod29-world-catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sod29-root.surface-world .sod29-world-overview { flex-direction: column; align-items: flex-start; }
   .sod29-root.surface-world .sod29-world-overview nav { justify-content: flex-start; }
+  .sod29-root.surface-world .sod29-world-kind-card-grid,
+  .sod29-root.surface-world .sod29-world-media-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
   .sod29-root.surface-world .sod29-world-entry { padding-top: 8px; gap: 18px; }
-  .sod29-root.surface-world .sod29-world-entry-grid { grid-template-columns: minmax(0, 1fr); }
-  .sod29-root.surface-world .sod29-world-entry-card { min-height: 66px; }
+  .sod29-root.surface-world .sod29-world-entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sod29-root.surface-world .sod29-world-entry-card { min-height: 70px; padding: 10px; }
   .sod29-root.surface-world .sod29-world-start-guide { grid-template-columns: minmax(0, 1fr); padding: 14px; }
   .sod29-root.surface-world .sod29-world-start-facets { grid-column: auto; }
   .sod29-root.surface-world .sod29-flight-story.is-world .sod29-flight-feature { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; }
@@ -226,6 +304,15 @@
   .sod29-root.surface-world .sod29-world-discovery-door-missing { height: 120px; }
   .sod29-root.surface-world .sod29-world-catalog-grid { grid-template-columns: minmax(0, 1fr); }
   .sod29-root.surface-world .sod29-world-source-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sod29-root.surface-world .sod29-world-kind-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sod29-root.surface-world .sod29-world-kind-card-grid { grid-template-columns: minmax(0, 1fr); }
+  .sod29-root.surface-world .sod29-world-media-shelf .sod29-canonical-media-figure { height: 128px; }
+}
+@media (max-width: 350px) {
+  .sod29-root.surface-world .sod29-world-entry-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  .sod29-root.surface-world .sod29-world-entry-card { min-height: 58px; padding: 8px 6px; }
+  .sod29-root.surface-world .sod29-world-entry-card strong { font-size: 12px; text-align: center; }
+  .sod29-root.surface-world .sod29-world-entry-card small { display: none; }
 }
 
 /* ───────── Stage 2: the world around a point (AnchoredWorld) in the same composition ───────── */

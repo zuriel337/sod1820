@@ -5,7 +5,7 @@ import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
@@ -70,12 +70,15 @@ import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import {
+  WORLD_KNOWLEDGE_KIND,
   WORLD_LANDING_VIEW,
   resolveWorldLandingView,
+  resolveWorldKnowledgeKind,
   worldLandingViewLocation,
 } from "../lib/research/worldLandingNavigation.js";
 
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
+const WorldKnowledgeTypes2029 = React.lazy(() => import("../components/research/WorldKnowledgeTypes2029.jsx"));
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -91,6 +94,7 @@ const WORLD_LANDING_ENTRIES = Object.freeze([
   { key: WORLD_LANDING_VIEW.LIVE, label: "מה חדש", description: "העדכונים האחרונים לפי זמן" },
   { key: WORLD_LANDING_VIEW.CONNECTIONS, label: "נושאים וחיבורים", description: "לראות מה נפגש סביב רעיון" },
   { key: WORLD_LANDING_VIEW.SOURCES, label: "אנשים ומקורות", description: "לפתוח חומר לפי מי ומאיפה" },
+  { key: WORLD_LANDING_VIEW.EXPLORE, label: "לפי סוג", description: "שפות, צפנים, מדיה, זמן וספרים" },
   { key: WORLD_LANDING_VIEW.JOURNEY, label: "מסעות", description: "להמשיך בדרך מחקר שמורה" },
 ]);
 
@@ -576,8 +580,11 @@ function LiveWorldLanding({ research, shell, context }) {
   const palette = usePalette();
   const { isAdmin, loading: authLoading } = useAuth();
   const [activeView, setActiveView] = useState(() => resolveWorldLandingView(location));
+  const [knowledgeKind, setKnowledgeKind] = useState(() => resolveWorldKnowledgeKind(location.search));
   const [landing, setLanding] = useState({
-    loading: true,
+    contributorLoading: false,
+    discoveryLoading: false,
+    journeyLoading: false,
     contributors: null,
     discovery: null,
     journey: null,
@@ -585,6 +592,7 @@ function LiveWorldLanding({ research, shell, context }) {
     discoveryError: null,
     journeyError: null,
   });
+  const landingRequests = useRef({ contributors: null, discovery: null, journey: null });
   const [writerFilter, setWriterFilter] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
   const openAnchoredContext = (nextContext) => {
@@ -594,6 +602,12 @@ function LiveWorldLanding({ research, shell, context }) {
   const openLandingView = (view) => {
     setActiveView(view);
     navigate(worldLandingViewLocation(view, location.search));
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  };
+  const openKnowledgeKind = (kind) => {
+    setKnowledgeKind(kind);
+    setActiveView(WORLD_LANDING_VIEW.EXPLORE);
+    navigate(worldLandingViewLocation(WORLD_LANDING_VIEW.EXPLORE, location.search, { kind }));
     window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
   const [catalogExpanded, setCatalogExpanded] = useState(false);
@@ -608,6 +622,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => {
     setActiveView(resolveWorldLandingView(location));
+    setKnowledgeKind(resolveWorldKnowledgeKind(location.search));
   }, [location.hash, location.search]);
 
   // Deep links from the shared Companion use existing World source readers.
@@ -621,7 +636,7 @@ function LiveWorldLanding({ research, shell, context }) {
   }, [location.search]);
 
   useEffect(() => {
-    if (landing.loading || activeView !== WORLD_LANDING_VIEW.SOURCES) return;
+    if (landing.contributorLoading || activeView !== WORLD_LANDING_VIEW.SOURCES) return;
     const params = new URLSearchParams(location.search);
     const source = params.get("source");
     const subjectSource = params.get("subjectSource");
@@ -632,45 +647,73 @@ function LiveWorldLanding({ research, shell, context }) {
     if (!target) return;
     const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
     return () => window.cancelAnimationFrame(frame);
-  }, [activeView, landing.loading, location.search, writerFilter, corpusKey]);
+  }, [activeView, landing.contributorLoading, location.search, writerFilter, corpusKey]);
 
-  const load = async () => {
-    setLanding((prev) => ({
-      ...prev,
-      loading: true,
-      contributorError: null,
-      discoveryError: null,
-      journeyError: null,
-    }));
-
-    const contributorPromise = fetchWorldLandingContributorProjection();
-    const extras = await Promise.allSettled([
-      contributorPromise,
-      contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
-      fetchGoldenWorldJourney878(),
-    ]);
-
-    setLanding({
-      loading: false,
-      contributors: extras[0]?.status === "fulfilled" ? extras[0].value : null,
-      discovery: extras[1]?.status === "fulfilled" ? extras[1].value : null,
-      journey: extras[2]?.status === "fulfilled" ? extras[2].value : null,
-      contributorError: extras[0]?.status === "rejected" ? extras[0].reason : null,
-      discoveryError: extras[1]?.status === "rejected" ? extras[1].reason : null,
-      journeyError: extras[2]?.status === "rejected" ? extras[2].reason : null,
-    });
+  const contributorPromise = () => {
+    if (!landingRequests.current.contributors) {
+      landingRequests.current.contributors = fetchWorldLandingContributorProjection();
+    }
+    return landingRequests.current.contributors;
   };
 
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.LIVE, WORLD_LANDING_VIEW.SOURCES, WORLD_LANDING_VIEW.CONNECTIONS].includes(activeView)) return;
+    let alive = true;
+    setLanding((prev) => prev.contributors || prev.contributorLoading
+      ? prev : { ...prev, contributorLoading: true, contributorError: null });
+    contributorPromise()
+      .then((contributors) => { if (alive) setLanding((prev) => ({ ...prev, contributorLoading: false, contributors, contributorError: null })); })
+      .catch((contributorError) => {
+        landingRequests.current.contributors = null;
+        if (alive) setLanding((prev) => ({ ...prev, contributorLoading: false, contributors: null, contributorError }));
+      });
+    return () => { alive = false; };
+  }, [activeView]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (landing.loading || ![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.LIVE].includes(activeView)) return;
+    if (![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.LIVE].includes(activeView)) return;
+    let alive = true;
+    setLanding((prev) => prev.discovery || prev.discoveryLoading
+      ? prev : { ...prev, discoveryLoading: true, discoveryError: null });
+    if (!landingRequests.current.discovery) {
+      landingRequests.current.discovery = contributorPromise().then((projection) => fetchWorldDiscoveryStream({
+        limit: 24,
+        publicPeople: projection?.people || [],
+        includeResearch: true,
+      }));
+    }
+    landingRequests.current.discovery
+      .then((discovery) => { if (alive) setLanding((prev) => ({ ...prev, discoveryLoading: false, discovery, discoveryError: null })); })
+      .catch((discoveryError) => {
+        landingRequests.current.discovery = null;
+        if (alive) setLanding((prev) => ({ ...prev, discoveryLoading: false, discovery: null, discoveryError }));
+      });
+    return () => { alive = false; };
+  }, [activeView]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (activeView !== WORLD_LANDING_VIEW.JOURNEY) return;
+    let alive = true;
+    setLanding((prev) => prev.journey || prev.journeyLoading
+      ? prev : { ...prev, journeyLoading: true, journeyError: null });
+    if (!landingRequests.current.journey) landingRequests.current.journey = fetchGoldenWorldJourney878();
+    landingRequests.current.journey
+      .then((journey) => { if (alive) setLanding((prev) => ({ ...prev, journeyLoading: false, journey, journeyError: null })); })
+      .catch((journeyError) => {
+        landingRequests.current.journey = null;
+        if (alive) setLanding((prev) => ({ ...prev, journeyLoading: false, journey: null, journeyError }));
+      });
+    return () => { alive = false; };
+  }, [activeView]);
+
+  useEffect(() => {
+    if (landing.discoveryLoading || !landing.discovery || ![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.LIVE].includes(activeView)) return;
     return watchWorldDiscoveryStream({
       limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
       onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
       onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
     });
-  }, [activeView, landing.loading, landing.contributors]);
+  }, [activeView, landing.discoveryLoading, landing.discovery, landing.contributors]);
 
 
 
@@ -969,7 +1012,7 @@ function LiveWorldLanding({ research, shell, context }) {
           <p className="sod29-muted">המסע אינו פתוח לכניסה כרגע. המספר, המקורות, התמונות והגימטריות נשארים ציבוריים.</p>
         </div></div>
       </section>
-    : (!landing.loading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
+    : (!landing.journeyLoading && (landing.journey || lastJourney || landing.journeyError) ? <section className="sod29-section sod29-world-journey-section" aria-label="מסעות בעולם">
       <div className="sod29-section-head">
         <div>
           <div className="sod29-kicker">המסע הראשון של 2029</div>
@@ -1022,9 +1065,17 @@ function LiveWorldLanding({ research, shell, context }) {
       <section className="sod29-world-start-guide" aria-label="מה אפשר למצוא בעולם">
         <div><div className="sod29-kicker">נקודה אחת · הרבה דרכים</div><h2>לא צריך להכיר את המאגר כדי להתחיל.</h2></div>
         <p>אפשר לפתוח עדכון חדש, לעבור לנושא שבו כמה מסלולים נפגשים, או להיכנס דרך אדם ומקור. כל מסך מחזיר למקור המדויק.</p>
-        <div className="sod29-world-start-facets" aria-label="סוגי ידע בעולם"><span>מספרים ומילים</span><span>נושאים וחיבורים</span><span>אנשים ומקורות</span><span>תמונות ומדיה</span><span>שפות וצפנים</span><span>אירועים וזמן</span></div>
+        <div className="sod29-world-start-facets" aria-label="סוגי ידע בעולם">
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.NUMBERS)}>מספרים ומילים</button>
+          <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}>נושאים וחיבורים</button>
+          <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.SOURCES)}>אנשים ומקורות</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.MEDIA)}>תמונות ומדיה</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.LANGUAGES)}>שפות וגשרים</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.CIPHERS)}>צפנים</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.TIME)}>אירועים וזמן</button>
+        </div>
       </section>
-      <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={5}
+      <SourceArrivalList2029 loading={landing.discoveryLoading} items={landing.discovery?.arrivals || discoveryItems} limit={5}
         availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
       {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">אפשר להמשיך לנושאים, למקורות או לחיפוש.</FrameState> : null}
       <section className="sod29-section sod29-world-featured-connections" aria-label="חיבורים נבחרים">
@@ -1037,7 +1088,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.LIVE ? <>
-      <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
+      <SourceArrivalList2029 loading={landing.discoveryLoading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
         availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
       <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
       {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
@@ -1059,7 +1110,7 @@ function LiveWorldLanding({ research, shell, context }) {
             <span>{person.role || "חוקר וכותב"}</span><strong>{person.displayName}</strong><small>לגלות את החומר והחיבורים שלו ←</small>
           </button>)}
         </div>
-        {landing.loading ? <p role="status">פותח את הכותבים והמקורות…</p> : null}
+        {landing.contributorLoading ? <p role="status">פותח את הכותבים והמקורות…</p> : null}
         {landing.contributorError ? <p role="status">הכותבים אינם זמינים להצגה כרגע.</p> : null}
       </section>
       {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus key={spec.key} spec={spec}
@@ -1107,7 +1158,12 @@ function LiveWorldLanding({ research, shell, context }) {
       </section>
     </> : null}
 
+    {activeView === WORLD_LANDING_VIEW.EXPLORE ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את סוגי הידע">טוען רק את הסוג שבחרת.</FrameState></NativeStateSection>}>
+      <WorldKnowledgeTypes2029 kind={knowledgeKind} onKindChange={openKnowledgeKind} />
+    </React.Suspense> : null}
+
     {activeView === WORLD_LANDING_VIEW.JOURNEY ? <>
+      {landing.journeyLoading ? <NativeStateSection><FrameState kind="loading" title="פותח את המסע">טוען את דרך המחקר השמורה.</FrameState></NativeStateSection> : null}
       {goldenJourneySection}
       <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
         <div className="sod29-kicker">מסע מחקר</div><h2>לשמור דרך ולחזור אליה.</h2>
