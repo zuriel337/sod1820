@@ -1,5 +1,9 @@
 import { supabase } from "../supabase.js";
-import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
+import {
+  classifyWorldVerificationStrength,
+  normalizeWorldNumber,
+  resolveExplicitVerificationState,
+} from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
 import { clusterWorldResearchRows } from "./worldFindingClusters.js";
@@ -7,7 +11,7 @@ import { scopeWorldPreviewMaterial } from "./worldPreviewMaterialScope.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
-const MAX_ROWS_PER_SOURCE = 10000;
+const MAX_ROWS_PER_SOURCE = 20000;
 
 const finite = normalizeWorldNumber;
 
@@ -112,6 +116,167 @@ function countByMany(rows, key, fallbackKey) {
     }
   }
   return out;
+}
+
+function normalizeTreeMatches(row) {
+  const matches = row?.meta?.ext?.wa_channel_intake?.tree_matches;
+  if (!Array.isArray(matches)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const match of matches) {
+    if (!match || typeof match !== "object" || Array.isArray(match)) continue;
+    const type = clean(match.type).toLowerCase();
+    const key = clean(match.key);
+    if (!type || !key) continue;
+    const identity = `${type}:${key}`;
+    if (seen.has(identity)) continue;
+    seen.add(identity);
+    out.push({
+      type,
+      key,
+      label: clean(match.label) || null,
+      match: clean(match.match) || null,
+    });
+  }
+  return out;
+}
+
+function topicRating(row) {
+  if (!row?.id) return null;
+  const slug = clean(row.slug);
+  const numbers = (Array.isArray(row.numbers) ? row.numbers : [])
+    .map(Number).filter(Number.isFinite);
+  const highlightNumbers = (Array.isArray(row.highlight_numbers) ? row.highlight_numbers : [])
+    .map(Number).filter(Number.isFinite);
+  return {
+    topicId: String(row.id),
+    nodeId: clean(row.node_id) || null,
+    slug: slug || null,
+    title: clean(row.title) || slug || "נושא",
+    status: clean(row.status) || "לא צוין",
+    quality: finite(row.quality),
+    meterScore: finite(row.meter_score),
+    numbers,
+    highlightNumbers,
+    href: slug ? `/topic/${encodeURIComponent(slug)}` : null,
+  };
+}
+
+function topicRatingIndex(topicRows = []) {
+  const byKey = new Map();
+  for (const row of Array.isArray(topicRows) ? topicRows : []) {
+    const rating = topicRating(row);
+    if (!rating) continue;
+    for (const key of [
+      rating.slug ? `topic:${rating.slug}` : null,
+      `topic_id:${rating.topicId}`,
+      rating.nodeId ? `node:${rating.nodeId}` : null,
+    ].filter(Boolean)) {
+      if (!byKey.has(key)) byKey.set(key, rating);
+    }
+  }
+  return byKey;
+}
+
+function compareNullableDesc(left, right) {
+  const a = finite(left);
+  const b = finite(right);
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return b - a;
+}
+
+function compareTopicRatings(left, right) {
+  return compareNullableDesc(left?.meterScore, right?.meterScore)
+    || compareNullableDesc(left?.quality, right?.quality)
+    || clean(left?.slug || left?.topicId).localeCompare(clean(right?.slug || right?.topicId));
+}
+
+function attachLinkedTopicRatings(rows, topicRows) {
+  const index = topicRatingIndex(topicRows);
+  return rows.map((row) => {
+    if (row.family !== "research_object") return row;
+    const ratings = [];
+    const seen = new Set();
+    const add = (rating) => {
+      if (!rating || seen.has(rating.topicId)) return;
+      seen.add(rating.topicId);
+      ratings.push(rating);
+    };
+    for (const match of row.treeMatches || []) {
+      if (match.type === "topic") add(index.get(`topic:${match.key}`) || index.get(`topic_id:${match.key}`));
+      if (match.type === "entity" || match.type === "number") add(index.get(`node:${match.key}`));
+    }
+    if (row.promotedNodeId) add(index.get(`node:${row.promotedNodeId}`));
+    ratings.sort(compareTopicRatings);
+    return {
+      ...row,
+      linkedTopicRatings: ratings,
+      linkedTopicRating: ratings[0] || null,
+    };
+  });
+}
+
+function researchStrengthPresentation(row) {
+  const verification = clean(row?.verification).toLowerCase() || "not_tested";
+  const explicitMatch = verification === "match";
+  const treeMatched = Array.isArray(row?.treeMatches) && row.treeMatches.length > 0;
+  const rating = row?.linkedTopicRating || null;
+  const reasons = [];
+  if (explicitMatch) reasons.push("אימות מנוע מפורש תואם");
+  else reasons.push("אין עדיין אימות מנוע מפורש תואם");
+  if (treeMatched) reasons.push(`${row.treeMatches.length} יעדים קיימים בעץ`);
+  else reasons.push("עדיין אין חיבור מתועד ליעד קיים בעץ");
+  if (rating?.meterScore != null) reasons.push(`מד ההתכנסות של היעד: ${rating.meterScore}`);
+  else reasons.push("ליעד אין עדיין מד התכנסות זמין");
+  return {
+    explicitMatch,
+    treeMatched,
+    hasLinkedMeter: rating?.meterScore != null,
+    label: explicitMatch && treeMatched
+      ? "מאומת · מחובר לעץ"
+      : explicitMatch
+        ? "מאומת · טרם חובר לעץ"
+        : treeMatched
+          ? "מחובר לעץ · דורש אימות"
+          : "דורש סקירה",
+    reasons,
+  };
+}
+
+/**
+ * Review ordering only. It keeps the existing truth axes separate: explicit verification
+ * first, then an exact stored tree match, then the linked Topic's existing meter/quality.
+ * It never writes a score, changes access/status, or treats the Topic meter as proof.
+ */
+export function compareWorldResearchStrength(left, right) {
+  const verification = classifyWorldVerificationStrength(left?.verification)
+    - classifyWorldVerificationStrength(right?.verification);
+  if (verification) return verification;
+  const tree = (left?.treeMatches?.length ? 0 : 1) - (right?.treeMatches?.length ? 0 : 1);
+  if (tree) return tree;
+  const meter = compareNullableDesc(left?.linkedTopicRating?.meterScore, right?.linkedTopicRating?.meterScore);
+  if (meter) return meter;
+  const quality = compareNullableDesc(left?.linkedTopicRating?.quality, right?.linkedTopicRating?.quality);
+  if (quality) return quality;
+  return clean(left?.id).localeCompare(clean(right?.id));
+}
+
+export function orderWorldAllResearchRows(rows = []) {
+  const familyRank = { research_object: 0, topic: 1, contribution: 2, source_message: 3 };
+  return [...(Array.isArray(rows) ? rows : [])].sort((left, right) => {
+    const family = (familyRank[left?.family] ?? 9) - (familyRank[right?.family] ?? 9);
+    if (family) return family;
+    if (left?.family === "research_object") return compareWorldResearchStrength(left, right);
+    if (left?.family === "topic") {
+      return compareNullableDesc(left?.meterScore, right?.meterScore)
+        || compareNullableDesc(left?.quality, right?.quality)
+        || clean(left?.id).localeCompare(clean(right?.id));
+    }
+    return clean(right?.createdAt).localeCompare(clean(left?.createdAt))
+      || clean(left?.id).localeCompare(clean(right?.id));
+  });
 }
 
 async function fetchConvergenceCandidates() {
@@ -283,6 +448,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     || row?.engine_detail?.result_state
     || row?.engine_detail?.outcome
   ) || null;
+  const treeMatches = normalizeTreeMatches(row);
   return {
     id: "research:" + row.id,
     sourceId: String(row.id),
@@ -308,6 +474,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
+    promotedNodeId: clean(row.promoted_node_id) || null,
     parentId: clean(row.parent_id) || null,
     batchKey: clean(row?.meta?.batch_key) || null,
     operationalState,
@@ -320,6 +487,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
     mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
     spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
+    treeMatches,
+    treeMatchState: clean(row?.meta?.ext?.wa_channel_intake?.tree_match_state) || null,
     href: value != null ? "/2029/number/" + value : null,
   };
 }
@@ -332,13 +501,17 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   const normalizedResearchRows = generalResearchRows
     .map((row) => normalizeWorldAllResearchRow(row, "research_object"))
     .filter(Boolean);
+  const ratedResearchOccurrences = attachLinkedTopicRatings(normalizedResearchRows, scoped.topics);
   const duplicateProjection = clusterWorldResearchRows(normalizedResearchRows);
+  const ratedResearchRows = attachLinkedTopicRatings(duplicateProjection.rows, scoped.topics)
+    .map((row) => ({ ...row, researchStrength: researchStrengthPresentation(row) }));
   const rows = [
-    ...duplicateProjection.rows,
+    ...ratedResearchRows,
     ...scoped.contributions.map((row) => normalizeWorldAllResearchRow(row, "contribution")),
     ...scoped.sourceMessages.map((row) => normalizeWorldAllResearchRow(row, "source_message")),
     ...scoped.topics.map((row) => normalizeWorldAllResearchRow(row, "topic")),
-  ].filter(Boolean).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
+  ].filter(Boolean);
+  const orderedRows = orderWorldAllResearchRows(rows);
 
   const rawLoaded = normalizedResearchRows.length
     + scoped.contributions.length
@@ -353,12 +526,12 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   };
 
   return {
-    rows,
+    rows: orderedRows,
     total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
     convergenceCandidates: scoped.convergenceCandidates,
     convergenceCandidateError: clean(totals.convergenceCandidateError) || null,
     convergenceCandidateMeta: totals.convergenceCandidateMeta || {},
-    loaded: rows.length,
+    loaded: orderedRows.length,
     rawLoaded,
     truncated: Boolean(totals.truncated),
     sourceTotals,
@@ -371,12 +544,16 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
       clusteredResearchRows: duplicateProjection.clusteredCount,
       canonicalSelection: "longest_original_statement",
     },
-    byFamily: countBy(rows, "family"),
-    byKind: countBy(rows, "kind"),
-    byAccess: countBy(rows.filter((row) => row.family === "research_object"), "access"),
-    byStatus: countBy(rows, "status"),
-    byVerification: countBy(rows, "verification"),
-    byContributor: countByMany(rows, "contributors", "contributor"),
+    byFamily: countBy(orderedRows, "family"),
+    byKind: countBy(orderedRows, "kind"),
+    byAccess: countBy(orderedRows.filter((row) => row.family === "research_object"), "access"),
+    byStatus: countBy(orderedRows, "status"),
+    byVerification: countBy(orderedRows, "verification"),
+    byContributor: countByMany(orderedRows, "contributors", "contributor"),
+    treeMatchedResearch: ratedResearchRows.filter((row) => row.treeMatches?.length).length,
+    meteredResearch: ratedResearchRows.filter((row) => row.linkedTopicRating?.meterScore != null).length,
+    treeMatchedResearchOccurrences: ratedResearchOccurrences.filter((row) => row.treeMatches?.length).length,
+    meteredResearchOccurrences: ratedResearchOccurrences.filter((row) => row.linkedTopicRating?.meterScore != null).length,
     excludedMaterial: scoped.excluded,
     excludedPersonOnlyResearch,
     truthBoundary: "הפריוויו מציג את חומר האתר בלי ארכיון הצ׳אט הישן ובלי מאגר אור הגאולה. תווית privacy_scope היא מצב עבודה היסטורי ואינה מסנן של הקורא הזה. ההצגה אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
@@ -391,6 +568,8 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
   const status = clean(filters.status) || "all";
   const verification = clean(filters.verification) || "all";
   const contributor = clean(filters.contributor) || "all";
+  const tree = clean(filters.tree) || "all";
+  const meter = clean(filters.meter) || "all";
 
   return (Array.isArray(rows) ? rows : []).filter((row) => {
     if (family !== "all" && row.family !== family) return false;
@@ -398,6 +577,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
     if (access !== "all" && row.access !== access) return false;
     if (status !== "all" && row.status !== status) return false;
     if (verification !== "all" && row.verification !== verification) return false;
+    if (tree === "matched" && !(row.family === "research_object" && row.treeMatches?.length)) return false;
+    if (tree === "unmatched" && !(row.family === "research_object" && !row.treeMatches?.length)) return false;
+    if (meter === "metered" && !(row.family === "research_object" && row.linkedTopicRating?.meterScore != null)) return false;
+    if (meter === "unmetered" && !(row.family === "research_object" && row.linkedTopicRating?.meterScore == null)) return false;
     const contributors = Array.isArray(row.contributors) && row.contributors.length
       ? row.contributors
       : [row.contributor || "לא צוין"];
@@ -425,6 +608,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       row.access,
       row.mediaClass,
       row.spatialCluster,
+      row.linkedTopicRating?.title,
+      row.linkedTopicRating?.slug,
+      row.linkedTopicRating?.meterScore,
+      ...(row.treeMatches || []).flatMap((match) => [match.type, match.key, match.label]),
       ...(row.terms || []),
       ...(row.relates || []),
     ].filter((value) => value != null).join(" ").toLowerCase();
@@ -457,7 +644,7 @@ export async function fetchWorldAllResearchProjection() {
     ),
     fetchAllRows(
       "topic_cards",
-      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by"
+      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id"
     ),
     fetchConvergenceCandidates(),
   ]);
@@ -487,5 +674,55 @@ export async function fetchWorldAllResearchProjection() {
       convergenceCandidateMeta: candidates.meta,
       truncated: research.truncated || contributions.truncated || sources.truncated || topics.truncated,
     }
+  );
+}
+
+/**
+ * Bounded owner review reader for the World findings queue. Unlike the broader archive view,
+ * it fetches only research findings and their exact Topic targets, so opening the review queue
+ * does not also transfer every source message and contribution to the browser. Current-session
+ * RLS remains the access authority; this helper does not widen visibility.
+ */
+export async function fetchWorldFindingReviewProjection() {
+  const [excludedChannelRows, research, topics] = await Promise.all([
+    fetchAllRows(
+      "channel_updates",
+      "id,created_at",
+      (query) => query.eq("channel", "or-geula"),
+    ),
+    fetchAllRows(
+      "research_objects",
+      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,promoted_node_id,parent_id,meta",
+    ),
+    fetchAllRows(
+      "topic_cards",
+      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id",
+    ),
+  ]);
+  const excludedChannelSourceRefs = excludedChannelRows.rows.map((row) => `channel_updates:${row.id}`);
+  const scopedResearch = scopeWorldPreviewMaterial({
+    researchObjects: research.rows,
+    excludedChannelSourceRefs,
+  });
+
+  return buildWorldAllResearchProjection(
+    {
+      researchObjects: research.rows,
+      contributions: [],
+      sourceMessages: [],
+      topics: topics.rows,
+      convergenceCandidates: [],
+      excludedChannelSourceRefs,
+    },
+    {
+      researchObjects: Math.max(
+        0,
+        research.total - scopedResearch.excluded.old_chat - scopedResearch.excluded.or_geula,
+      ),
+      contributions: 0,
+      sourceMessages: 0,
+      topics: topics.total,
+      truncated: research.truncated || topics.truncated,
+    },
   );
 }

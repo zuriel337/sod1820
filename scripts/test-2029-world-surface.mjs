@@ -105,7 +105,8 @@ assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false);
 assert.match(world, /status="עולם · גילוי"/);
 
-// The composed public World is the only landing. The legacy control/admin landing is retired.
+// The composed public World is the only landing. The legacy control/admin landing is retired;
+// an authenticated owner gets one bounded findings-review section inside that same World.
 assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\} \/>/);
 assert.match(world, /<SourceArrivalList2029/);
 assert.match(world, /<WorldSourceStory research=\{research\} shell=\{shell\} compact \/>/);
@@ -113,8 +114,12 @@ assert.match(world, /<WorldDiscoveryDoors \/>/);
 assert.match(world, /קולות ומקורות בעולם/);
 assert.equal(world.includes("world-auth-identity-bridge"), false, "the public World must not be hidden behind an account/admin bridge");
 assert.equal(world.includes("התחברות / מנהל"), false, "the public World must not present the retired admin entrance");
-assert.equal(world.includes("world-admin-tools"), false, "the retired admin table must be disconnected from World");
+assert.equal(world.includes("world-admin-tools"), false, "the retired separate admin-tools wrapper must stay removed");
 assert.equal(world.includes("fetchWorldAllResearchProjection"), false, "World must not load the admin all-material payload");
+assert.match(world, /fetchWorldFindingReviewProjection/, "owner review must use the bounded findings-only reader");
+assert.match(world, /isAdmin \? <React\.Suspense/, "private findings review must render only after AuthContext proves admin identity");
+assert.match(world, /React\.lazy\(\(\) => import\("\.\.\/components\/research\/WorldAllResearchTable\.jsx"\)\)/,
+  "the heavy review component must stay out of the ordinary public World bundle");
 assert.match(world, /const \[writerFilter, setWriterFilter\] = useState\("tzvi-opoc"\)/, "Zvi's public corpus opens by default");
 assert.match(authPage, /safeOAuthReturnPath/, "canonical login must validate local return targets");
 assert.match(authPage, /navigate\(returnTo, \{ replace: true \}\)/, "canonical login must return to the requested local surface");
@@ -529,7 +534,11 @@ assert.equal(zviCoverageFixture.exactDuplicateOccurrences, 1, "only same text + 
 assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct media artifacts remain two attention items");
 
 assert.equal(world.includes("WorldConvergenceLens"), false, "the retired convergence admin lens is not mounted in World");
-assert.equal(world.includes("WorldAllResearchTable"), false, "the retired all-research admin table is not mounted in World");
+assert.match(world, /WorldAllResearchTable/, "the existing findings table is reused inside the owner-only World review section");
+assert.match(worldAllResearchComponent, /החזקים תחילה/, "the owner review makes the strength-first ordering explicit");
+assert.match(worldAllResearchComponent, /ConvergenceRatings2029/, "the existing quality\/convergence meter is reused for findings");
+assert.match(worldAllResearchComponent, /const \[tree, setTree\] = useState\("all"\)/,
+  "all authorized findings must be visible by default so the owner can decide what belongs in the tree");
 assert.equal(world.includes("adminToolsOpen"), false, "World has no admin-tools presentation state");
 assert.match(world, /const explicitContext = new URLSearchParams\(location\.search\)\.get\("focus"\) === "context"/,
   "plain World navigation must ignore stale cross-surface Research Context");
@@ -565,7 +574,8 @@ assert.match(worldAllResearchSource, /"\/2029\/number\/" \+ value/);
 assert.match(worldConvergenceLensSource, /"\/2029\/number\/" \+ value/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
-assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
+assert.match(worldAllResearchComponent, /החזקים תחילה/);
+assert.match(worldAllResearchComponent, /מד יעד העץ/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /פרטי · גלוי לך/);
 assert.match(worldAllResearchComponent, /נמצא ב־\{occurrences\.length\} הופעות/);

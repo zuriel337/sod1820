@@ -11,6 +11,18 @@ function unique(values) {
   return [...new Set(values.filter((value) => value != null && value !== ""))];
 }
 
+function uniqueObjects(values) {
+  const seen = new Set();
+  const out = [];
+  for (const value of values.filter(Boolean)) {
+    const key = JSON.stringify(value);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+  return out;
+}
+
 function normalizedDimension(value) {
   return clean(value).toLowerCase();
 }
@@ -96,6 +108,7 @@ function occurrenceOf(row) {
     originalStatement: row.originalStatement || null,
     characterCount: canonicalTextLength(row),
     confidence: row.confidence ?? null,
+    treeMatches: Array.isArray(row.treeMatches) ? [...row.treeMatches] : [],
   };
 }
 
@@ -109,6 +122,7 @@ function mergeExactDuplicateGroup(partitionKey, members) {
   const contributors = unique(ranked.map((row) => row.contributor));
   const sourceLabels = unique(ranked.map((row) => row.sourceLabel));
   const sources = unique(ranked.map((row) => row.source));
+  const treeMatches = uniqueObjects(ranked.flatMap((row) => row.treeMatches || []));
   const created = ranked.map((row) => clean(row.createdAt)).filter(Boolean).sort();
 
   return {
@@ -117,6 +131,7 @@ function mergeExactDuplicateGroup(partitionKey, members) {
     contributors,
     sourceLabels,
     sources,
+    treeMatches,
     occurrenceCount: members.length,
     duplicateOccurrenceCount: members.length - 1,
     duplicateClusterKey: partitionKey,

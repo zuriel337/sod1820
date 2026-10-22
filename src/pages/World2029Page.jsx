@@ -70,6 +70,8 @@ import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 
+const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
+
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
   locale: "he",
@@ -559,6 +561,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
   const navigate = useNavigate();
   const palette = usePalette();
+  const { isAdmin, loading: authLoading } = useAuth();
   const [landing, setLanding] = useState({
     loading: true,
     contributors: null,
@@ -583,6 +586,7 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
+  const [findingReviewState, setFindingReviewState] = useState({ enabled: false, loading: false, projection: null, error: null });
 
   // Deep links from the shared Companion use existing World source readers.
   // Query params only choose a PUBLIC display focus; they never grant read access.
@@ -673,6 +677,27 @@ function LiveWorldLanding({ research, shell, context }) {
       .catch(() => { if (alive) setAllCreatorOptions([]); });
     return () => { alive = false; };
   }, []);
+
+  // Owner review is part of the same World, not a second admin interface. It opens
+  // automatically only after AuthContext proves the current account is an administrator;
+  // the reader itself remains bounded by current-session RLS and never publishes anything.
+  useEffect(() => {
+    let alive = true;
+    if (authLoading || !isAdmin) {
+      setFindingReviewState({ enabled: false, loading: false, projection: null, error: null });
+      return () => { alive = false; };
+    }
+    setFindingReviewState({ enabled: true, loading: true, projection: null, error: null });
+    import("../lib/research/worldAllResearchProjection.js")
+      .then(({ fetchWorldFindingReviewProjection }) => fetchWorldFindingReviewProjection())
+      .then((projection) => {
+        if (alive) setFindingReviewState({ enabled: true, loading: false, projection, error: null });
+      })
+      .catch((error) => {
+        if (alive) setFindingReviewState({ enabled: true, loading: false, projection: null, error });
+      });
+    return () => { alive = false; };
+  }, [authLoading, isAdmin]);
 
   useEffect(() => {
     let alive = true;
@@ -959,7 +984,7 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
-      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a><a href="#world-all-convergences">עיון לפי נושאים</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
+      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a>{isAdmin ? <a href="#world-all-research">ממצאים לבדיקה</a> : null}<a href="#world-all-convergences">עיון לפי נושאים</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
     </section>
     <WorldFlightStory2029 research={research} shell={shell} />
     <WorldSourceStory research={research} shell={shell} compact />
@@ -998,6 +1023,10 @@ function LiveWorldLanding({ research, shell, context }) {
       {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
         <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
     </section> : null}
+
+    {isAdmin ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את הממצאים">טוען את כלי הסקירה בעולם.</FrameState></NativeStateSection>}>
+      <WorldAllResearchTable state={findingReviewState} />
+    </React.Suspense> : null}
 
     <WorldDiscoveryDoors />
     <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושאים">
