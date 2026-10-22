@@ -1,4 +1,4 @@
-// Raziel grounded-source composer V1.
+// Raziel grounded-source composer V2.
 //
 // A pure presentation projection over the existing authorized Result-Bundle consumer. It does
 // not search, calculate, rank, authorize, persist or call a model. Its only jobs are to preserve
@@ -6,12 +6,13 @@
 // honest deterministic fallback, and expose canonical number-page navigation without inventing a
 // source URL.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 1;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 2;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
 const MAX_SOURCES = 12;
 const MAX_FALLBACK_FINDINGS = 6;
+const MAX_SOURCE_TERMS = 48;
 
 const list = (value) => Array.isArray(value) ? value : [];
 
@@ -96,6 +97,68 @@ function evidenceLanes(findings) {
     if (id) lanes[target[razielFindingEvidenceLane(finding)]].push(id);
   }
   return lanes;
+}
+
+function appendSourceTerm(target, seen, value) {
+  const term = cleanText(value, 160);
+  if (!term || term.length < 2 || seen.has(term) || target.length >= MAX_SOURCE_TERMS) return;
+  seen.add(term);
+  target.push(term);
+}
+
+function sourceTerms(findings) {
+  const terms = [];
+  const seen = new Set();
+  for (const finding of findings) {
+    appendSourceTerm(terms, seen, finding?.subject?.label);
+    appendSourceTerm(terms, seen, finding?.verification?.claimed_expression);
+    for (const fact of list(finding?.evidence?.facts)) {
+      if (!fact || typeof fact !== "object") continue;
+      appendSourceTerm(terms, seen, fact.label);
+      appendSourceTerm(terms, seen, fact.text);
+      appendSourceTerm(terms, seen, fact.expression);
+      appendSourceTerm(terms, seen, fact.partner);
+      for (const expression of list(fact.expressions)) appendSourceTerm(terms, seen, expression);
+    }
+  }
+  return terms;
+}
+
+function hasExplicitRarityEvidence(findings) {
+  return findings.some((finding) => list(finding?.evidence_relations).some((relation) => (
+    relation?.base_rate != null
+    && relation.base_rate !== ""
+    && Number.isFinite(Number(relation.base_rate))
+  )));
+}
+
+function responseMode(entries) {
+  if (entries.length === 2 && entries.every((entry) => entry.subject?.type === "number")) {
+    return "number_comparison";
+  }
+  if (entries.some((entry) => entry.findings.some((finding) => finding?.kind === "gematria-crossing"))) {
+    return "expression_crossing";
+  }
+  return "single_subject_research";
+}
+
+function responseGuidance(entries) {
+  const findings = entries.flatMap((entry) => entry.findings);
+  const rarityAllowed = hasExplicitRarityEvidence(findings);
+  const mode = responseMode(entries);
+  return [
+    "נאמנות לניסוח המקור: כשאתה נותן שם לממצא, מושג או ביטוי מן המקור, השתמש בנוסח שהופיע בחבילה בדיוק. אל תמציא לו שם חלופי ואל תציג ניסוח מחדש כאילו הוא מונח מן המקור.",
+    "מותר להסביר במילים טבעיות, אך הסבר שלא כתוב במקור חייב להיפתח במפורש כ׳פרשנות אפשרית׳ ולא כעובדה או כמונח מקור.",
+    rarityAllowed
+      ? "מותר לתאר נדירות רק בצמוד למדד הנדירות או לשיעור הבסיס המפורש שסופק בחבילה."
+      : "לא סופק מדד נדירות מפורש: אל תשתמש במילים ׳נדיר׳, ׳נדירה׳ או ׳נדירות׳.",
+    mode === "number_comparison"
+      ? "בהשוואת שני מספרים: בדוק וסכם לפי הסדר התאמה באותה שיטה, התאמה חוצת־שיטות, תלות בין שיטות, ורק אחר כך קשרי נושא. אם לא סופקה התאמה ישירה — אמור זאת; אל תחליף אותה במטפורה."
+      : null,
+    mode === "expression_crossing"
+      ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי שהוא פרשנות בלבד."
+      : null,
+  ].filter(Boolean).join("\n");
 }
 
 function methodDetails(finding) {
@@ -209,11 +272,15 @@ export function buildRazielGroundedSourceComposer(input = []) {
     subject: entry.subject,
     subject_navigation: subjectNavigation(entry.subject),
     evidence_lanes: evidenceLanes(entry.findings),
+    source_wording: sourceTerms(entry.findings),
+    rarity_claim_allowed: hasExplicitRarityEvidence(entry.findings),
     result: entry.projection.model_input,
   }));
+  const mode = responseMode(entries);
   const promptObject = {
     contract: "raziel-canonical-result-bundle-input-v1",
     composer_contract: `raziel-grounded-source-composer-v${RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION}`,
+    response_mode: mode,
     bundles,
     presentation_contract: {
       order_authority: "result_bundle_presentation_order",
@@ -224,12 +291,18 @@ export function buildRazielGroundedSourceComposer(input = []) {
       use_source_names_in_original_language: true,
       never_expose_internal_ids_or_json: true,
       never_invent_missing_capability_or_source_link: true,
+      source_terms_must_remain_verbatim_when_attributed: true,
+      never_coin_a_source_term: true,
+      free_synthesis_requires_explicit_interpretation_label: true,
+      rarity_claim_requires_explicit_metric: true,
+      comparison_must_state_missing_direct_evidence: true,
     },
   };
   const fallback = entries.map(fallbackSection).join("\n\n").slice(0, 3600);
   const result = {
     contract_version: RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION,
     prompt: bundles.length ? JSON.stringify(promptObject) : "",
+    guidance: bundles.length ? responseGuidance(entries) : "",
     fallback,
     sources: sourceList(entries),
     navigation: navigationList(entries),
@@ -242,6 +315,9 @@ export function buildRazielGroundedSourceComposer(input = []) {
       no_access_decision: true,
       no_persistence: true,
       no_source_url_inference: true,
+      source_wording_integrity: true,
+      no_unmeasured_rarity_claim: true,
+      no_extra_model_call: true,
     },
   };
   return deepFreeze(result);

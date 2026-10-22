@@ -48,13 +48,19 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v1");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v2");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
   assert.match(out.fallback, /טענת המאגר: מחשבת יהוה/);
   assert.match(out.fallback, /חישוב מאומת: ביאת המשיח/);
   assert.ok(out.fallback.indexOf("מחשבת יהוה") < out.fallback.indexOf("ביאת המשיח"));
+  assert.deepEqual(prompt.bundles[0].source_wording, ["מחשבת יהוה", "ביאת המשיח"]);
+  assert.equal(prompt.bundles[0].rarity_claim_allowed, false);
+  assert.match(out.guidance, /אל תמציא לו שם חלופי/);
+  assert.match(out.guidance, /לא סופק מדד נדירות מפורש/);
+  assert.equal(out.guards.source_wording_integrity, true);
+  assert.equal(out.guards.no_extra_model_call, true);
 });
 
 test("emits only canonical number navigation and never fabricates a source URL", () => {
@@ -99,6 +105,58 @@ test("engine convergence is not promoted to verified or independent evidence", (
   assert.match(out.fallback, /ממצא מנוע: משיח ↔ שלום/);
   assert.match(out.fallback, /אתבש=112/);
   assert.match(out.fallback, /עצמאות בין משפחות החישוב לא נטענה/);
+  assert.match(out.guidance, /קשר סמנטי שהוא פרשנות בלבד/);
+});
+
+test("preserves source terminology without hard-coding a subject-specific correction", () => {
+  const finding = {
+    ...sourceClaim,
+    evidence: {
+      facts: [
+        { type: "source-language", text: "נקודה אמצעית" },
+        { type: "source-language", label: "פריעת חוב" },
+      ],
+    },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "number", value: 776 },
+    projection: projection([finding]),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.deepEqual(prompt.bundles[0].source_wording, ["מחשבת יהוה", "נקודה אמצעית", "פריעת חוב"]);
+  assert.equal(prompt.presentation_contract.source_terms_must_remain_verbatim_when_attributed, true);
+  assert.equal(prompt.presentation_contract.never_coin_a_source_term, true);
+  assert.doesNotMatch(out.prompt + out.guidance, /הטליה המעגלית/);
+});
+
+test("number comparison requires a structured evidence comparison before interpretation", () => {
+  const out = buildRazielGroundedSourceComposer([
+    { subject: { type: "number", value: 776 }, projection: projection([sourceClaim]) },
+    { subject: { type: "number", value: 1820 }, projection: projection([verified]) },
+  ]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.equal(prompt.response_mode, "number_comparison");
+  assert.equal(prompt.presentation_contract.comparison_must_state_missing_direct_evidence, true);
+  assert.match(out.guidance, /התאמה באותה שיטה/);
+  assert.match(out.guidance, /אל תחליף אותה במטפורה/);
+});
+
+test("allows rarity language only when the bundle carries an explicit rarity basis", () => {
+  const withRarity = {
+    ...verified,
+    evidence_relations: [{ base_rate: 0.01, expectedness: "low_base_rate" }],
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "number", value: 776 },
+    projection: projection([withRarity]),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.equal(prompt.bundles[0].rarity_claim_allowed, true);
+  assert.match(out.guidance, /מותר לתאר נדירות רק בצמוד למדד/);
+  assert.doesNotMatch(out.guidance, /לא סופק מדד נדירות/);
 });
 
 test("fails closed for a projection that did not come from the canonical consumer", () => {
@@ -108,6 +166,7 @@ test("fails closed for a projection that did not come from the canonical consume
   }]);
 
   assert.equal(out.prompt, "");
+  assert.equal(out.guidance, "");
   assert.equal(out.fallback, "");
   assert.deepEqual(out.sources, []);
   assert.deepEqual(out.navigation, []);

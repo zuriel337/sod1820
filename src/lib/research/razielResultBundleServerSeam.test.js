@@ -298,7 +298,9 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v1/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v2/);
+  assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
+  assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
   assert.match(run.models[0].user, /uf:number:776/);
   assert.match(run.models[0].user, /Sefer Yetzirah/);
@@ -433,6 +435,9 @@ test("natural two-number crossing bypasses semantic classification and consumes 
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.plan_meta.canonical_result_bundle.numbers, [1820, 776]);
   assert.deepEqual(run.result.raziel.sources.map((source) => source.original_name).sort(), ["מקור 1820", "מקור 776"].sort());
+  assert.match(run.models[0].user, /התאמה באותה שיטה/);
+  assert.match(run.models[0].user, /אל תחליף אותה במטפורה/);
+  assert.equal(run.models.length, 1, "wording integrity must not add a second model call");
 });
 
 test("2029 canonical contract composes without legacy persistent memory read or automatic write", async () => {

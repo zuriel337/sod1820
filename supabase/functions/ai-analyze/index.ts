@@ -2624,6 +2624,7 @@ Deno.serve(async (req: Request) => {
       let rNcPack = "";
       let rNcFallback = "";
       let rCanonicalBundlePack = "";
+      let rCanonicalBundleGuidance = "";
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
       let rCanonicalBundleNavigation: { kind: string; label: string; href: string }[] = [];
@@ -2659,6 +2660,7 @@ Deno.serve(async (req: Request) => {
         if (expressionRead.ok && expressionRead.projection) {
           const composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
           rCanonicalBundlePack = composition.prompt;
+          rCanonicalBundleGuidance = composition.guidance;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -2697,6 +2699,7 @@ Deno.serve(async (req: Request) => {
         if (canonicalReady) {
           const composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
           rCanonicalBundlePack = composition.prompt;
+          rCanonicalBundleGuidance = composition.guidance;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -2808,7 +2811,7 @@ Deno.serve(async (req: Request) => {
       const toolText = (rToolRes ? rToolRes.text : "") + (rNcPack
         ? "\n\nהקשר-מספר באתר (קריאה-בלבד מ-number_map + number_dossier_json; נוכחות קשת = ראיית-קשר ולא פירוש; השתמש רק בפריטים כאן, אל תמציא פוסטים/טופיקים/מספרים, אל תחשב; ללא גוף-פוסט):\n" + rNcPack
         : rCanonicalBundlePack
-        ? "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundlePack
+        ? "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundleGuidance + "\n" + rCanonicalBundlePack
         : "") + (rCcPack === "UNAVAILABLE"
         ? "\n\nתוכן הדף הנוכחי אינו זמין כרגע (אין זהות-משטח מדויקת או שהקריאה נכשלה) — אל תמציא ואל תנחש תוכן; אמור זאת בקצרה וענה כרגיל."
         : rCcPack
