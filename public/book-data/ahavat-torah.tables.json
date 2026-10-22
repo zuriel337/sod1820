@@ -138,15 +138,15 @@
     "DS-09",
     "חמש מגילות · אותיות",
     "pp42–43",
-    "PARTIAL",
-    "row meaning resolved: 22 Hebrew letters × 5 Megillot; clean-corpus matrix reproduced; final source-cell transcription remains"
+    "CLOSED · SOURCE/CORPUS PRESERVED",
+    "27 printed glyph rows × 5 Megillot; 135 source cells transcribed; 11 cell deltas across 8 rows preserved"
    ],
    [
     "DS-10",
     "חמש מגילות · תיבות",
     "p43",
-    "PARTIAL · ONE BOUNDARY",
-    "source values 3,045 / 1,250 / 1,294 / 1,541 / 2,987; prior 50,045 anomaly withdrawn; Eicha corpus gives 1,542"
+    "CLOSED · ONE LOCALIZED BOUNDARY",
+    "source values 3,045 / 1,250 / 1,294 / 1,541 / 2,987; Eicha delta is the unique מן־בת ketiv / מִבַּת qere 2→1 boundary"
    ],
    [
     "DS-11",
@@ -238,7 +238,7 @@
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
    "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
-   "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
+   "DS-02/06/07/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
    "Exact-witness adjudication אינו שווה למיפוי מבני",
    "טענות גימטריה אחרות אינן Engine Verified בלי המנוע הקנוני; מילות-הקצה של ברכת כהנים אומתו בנפרד",
    "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"
@@ -526,20 +526,20 @@
    ],
    "metric": "letter count",
    "scope": "Esther, Shir HaShirim, Ruth, Eicha, Kohelet",
-   "rows_description": "22 rows, one per Hebrew letter; five Megillot columns",
-   "subtotals": "Esther 12,110; Song of Songs 5,141; Ruth 4,949; Lamentations 5,974; Ecclesiastes 10,968",
-   "total": "49,142 letters across the five clean corpus projections",
-   "ordering_rule": "letters א-ת; columns Esther / Song of Songs / Ruth / Lamentations / Ecclesiastes",
-   "inclusion_rule": "ketiv-only Hebrew letters, final forms normalized to their base letters",
+   "rows_description": "27 rows, one per printed Hebrew glyph including ךםןףץ; five Megillot columns",
+   "subtotals": "source 12,108 / 5,142 / 4,945 / 5,974 / 10,968; corpus 12,110 / 5,141 / 4,949 / 5,974 / 10,968",
+   "total": "source 49,137; clean corpus 49,142; delta -5",
+   "ordering_rule": "glyphs א-ת with final forms after their medial form; columns Esther / Song of Songs / Ruth / Lamentations / Ecclesiastes",
+   "inclusion_rule": "ketiv-only Hebrew glyphs; final forms counted separately exactly as printed",
    "exclusion_rule": "not stated",
-   "exceptions": "none in the five printed letter totals; final pixel-by-pixel transcription of all 110 source cells remains",
-   "checksum": "each of the five 22-letter corpus columns sums to its visually verified printed total",
+   "exceptions": "11 non-zero source/corpus cell deltas across the rows ב/ה/ו/י/כ/ך/נ/ע; no value forced",
+   "checksum": "all 135 source cells sum exactly to the five printed source totals; all 135 corpus cells sum to the five corpus totals",
    "pdf_pages": [
     42,
     43
    ],
-   "confidence": "SOURCE VERIFIED for structure/totals; COMPUTATIONALLY REPRODUCED for the 22x5 corpus matrix",
-   "status": "PARTIAL (row meaning and totals closed; 110-cell source transcription open)"
+   "confidence": "VISUALLY VERIFIED for 135 source cells; COMPUTATIONALLY REPRODUCED for the 27x5 corpus matrix",
+   "status": "CLOSED_WITH_SOURCE_CORPUS_MISMATCH"
   },
   {
    "dataset_id": "DS-10",
@@ -555,13 +555,13 @@
    "ordering_rule": "Esther / Song of Songs / Ruth / Lamentations / Ecclesiastes",
    "inclusion_rule": "source word boundaries; clean comparison uses maqaf-split ketiv",
    "exclusion_rule": "not stated",
-   "exceptions": "Lamentations source 1,541 versus maqaf-split corpus 1,542; single boundary not yet independently localized",
-   "checksum": "four exact source/corpus matches; one -1 source delta in Lamentations",
+   "exceptions": "Lamentations source 1,541 versus maqaf-split corpus 1,542; independently localized at Lam 1:6 מן־בת ketiv (two elements) / מִבַּת qere (one word)",
+   "checksum": "four exact source/corpus matches; the one -1 source delta is the unique MorphHB/WLC two-ketiv-to-one-qere variant",
    "pdf_pages": [
     43
    ],
-   "confidence": "VISUALLY_VERIFIED source totals + COMPUTATIONALLY_REPRODUCED corpus totals",
-   "status": "PARTIAL (one Lamentations boundary open)"
+   "confidence": "VISUALLY_VERIFIED source totals + COMPUTATIONALLY REPRODUCED corpus totals + INDEPENDENT WITNESS LOCALIZATION",
+   "status": "CLOSED_WITH_LOCALIZED_BOUNDARY"
   },
   {
    "dataset_id": "DS-11",
@@ -921,22 +921,25 @@
     "five Koren-aligned MAM JSON files"
    ],
    "operations": [
-    "interpret א-ת as counted letters",
-    "build 22×5 letter-frequency matrix",
-    "compare printed and corpus word totals"
+    "interpret the rows as 27 counted glyphs including final forms",
+    "transcribe and compare all 135 source/corpus letter cells",
+    "compare printed and corpus word totals",
+    "localize the Eicha delta against MorphHB/WLC"
    ],
    "intermediate_values": [
-    "letter totals = 12,110 / 5,141 / 4,949 / 5,974 / 10,968",
+    "source letter totals = 12,108 / 5,142 / 4,945 / 5,974 / 10,968",
+    "corpus letter totals = 12,110 / 5,141 / 4,949 / 5,974 / 10,968",
+    "11 differing cells across 8 glyph rows",
     "source words = 3,045 / 1,250 / 1,294 / 1,541 / 2,987",
     "corpus words = 3,045 / 1,250 / 1,294 / 1,542 / 2,987"
    ],
-   "output": "DS-09 row meaning resolved; DS-10 prior Esther anomaly withdrawn; one Eicha boundary remains",
+   "output": "DS-09 27×5 source/corpus matrix closed; DS-10 prior Esther anomaly withdrawn; Eicha boundary localized to מן־בת / מִבַּת at 1:6",
    "pdf_pages": [
     42,
     43
    ],
-   "truth_class": "STRUCTURE_RESOLVED; CORPUS_REPRODUCED; ONE_BOUNDARY_OPEN",
-   "confidence": "PARTIAL 2026-10-22"
+   "truth_class": "SOURCE_TRANSCRIBED; CORPUS_REPRODUCED; BOUNDARY_LOCALIZED; CLOSED",
+   "confidence": "CLOSED 2026-10-22"
   }
  ],
  "exceptions": [
@@ -6426,308 +6429,742 @@
     }
    ]
   },
-  {
-   "table_id": "DS-09-MEGILLOT-LETTER-MATRIX",
-   "title": "אותיות חמש מגילות — מטריצת קורפוס 22×5",
-   "description": "Computed clean-corpus matrix. The source row meaning and five column totals are verified; individual source cells await the final visual transcription pass.",
-   "pdf_pages": [
-    42,
-    43
-   ],
-   "source_anchor": "book:hebrewbooks:5635#p42-p43:five_megillot_letters",
-   "verification_state": "COMPUTATIONALLY_REPRODUCED_SOURCE_TOTALS_VERIFIED",
-   "rows": [
-    {
-     "id": "DS-09-L01",
-     "letter": "א",
-     "values": {
-      "אסתר": 811,
-      "שיר השירים": 281,
-      "רות": 430,
-      "איכה": 362,
-      "קהלת": 816
-     }
+ {
+  "table_id": "DS-09-MEGILLOT-LETTER-MATRIX",
+  "title": "אותיות חמש מגילות — מטריצת מקור/קורפוס 27×5",
+  "description": "Direct transcription of all 135 printed glyph cells beside the clean ketiv corpus; final forms ךםןףץ remain separate.",
+  "pdf_pages": [
+   42,
+   43
+  ],
+  "source_anchor": "book:hebrewbooks:5635#p42-p43:five_megillot_letters",
+  "verification_state": "SOURCE_TRANSCRIBED_AND_CORPUS_REPRODUCED_CLOSED",
+  "rows": [
+   {
+    "id": "DS-09-L01",
+    "letter": "א",
+    "source_values": {
+     "אסתר": 811,
+     "שיר השירים": 281,
+     "רות": 430,
+     "איכה": 362,
+     "קהלת": 816
     },
-    {
-     "id": "DS-09-L02",
-     "letter": "ב",
-     "values": {
-      "אסתר": 616,
-      "שיר השירים": 260,
-      "רות": 238,
-      "איכה": 366,
-      "קהלת": 582
-     }
+    "corpus_values": {
+     "אסתר": 811,
+     "שיר השירים": 281,
+     "רות": 430,
+     "איכה": 362,
+     "קהלת": 816
     },
-    {
-     "id": "DS-09-L03",
-     "letter": "ג",
-     "values": {
-      "אסתר": 106,
-      "שיר השירים": 65,
-      "רות": 60,
-      "איכה": 76,
-      "קהלת": 113
-     }
-    },
-    {
-     "id": "DS-09-L04",
-     "letter": "ד",
-     "values": {
-      "אסתר": 427,
-      "שיר השירים": 188,
-      "רות": 115,
-      "איכה": 163,
-      "קהלת": 268
-     }
-    },
-    {
-     "id": "DS-09-L05",
-     "letter": "ה",
-     "values": {
-      "אסתר": 1116,
-      "שיר השירים": 366,
-      "רות": 434,
-      "איכה": 404,
-      "קהלת": 980
-     }
-    },
-    {
-     "id": "DS-09-L06",
-     "letter": "ו",
-     "values": {
-      "אסתר": 1276,
-      "שיר השירים": 476,
-      "רות": 495,
-      "איכה": 637,
-      "קהלת": 985
-     }
-    },
-    {
-     "id": "DS-09-L07",
-     "letter": "ז",
-     "values": {
-      "אסתר": 62,
-      "שיר השירים": 38,
-      "רות": 43,
-      "איכה": 45,
-      "קהלת": 80
-     }
-    },
-    {
-     "id": "DS-09-L08",
-     "letter": "ח",
-     "values": {
-      "אסתר": 210,
-      "שיר השירים": 132,
-      "רות": 88,
-      "איכה": 170,
-      "קהלת": 330
-     }
-    },
-    {
-     "id": "DS-09-L09",
-     "letter": "ט",
-     "values": {
-      "אסתר": 53,
-      "שיר השירים": 32,
-      "רות": 29,
-      "איכה": 41,
-      "קהלת": 102
-     }
-    },
-    {
-     "id": "DS-09-L10",
-     "letter": "י",
-     "values": {
-      "אסתר": 1178,
-      "שיר השירים": 663,
-      "רות": 566,
-      "איכה": 777,
-      "קהלת": 1179
-     }
-    },
-    {
-     "id": "DS-09-L11",
-     "letter": "כ",
-     "values": {
-      "אסתר": 610,
-      "שיר השירים": 247,
-      "רות": 198,
-      "איכה": 245,
-      "קהלת": 523
-     }
-    },
-    {
-     "id": "DS-09-L12",
-     "letter": "ל",
-     "values": {
-      "אסתר": 954,
-      "שיר השירים": 319,
-      "רות": 386,
-      "איכה": 424,
-      "קהלת": 926
-     }
-    },
-    {
-     "id": "DS-09-L13",
-     "letter": "מ",
-     "values": {
-      "אסתר": 1145,
-      "שיר השירים": 444,
-      "רות": 383,
-      "איכה": 457,
-      "קהלת": 1008
-     }
-    },
-    {
-     "id": "DS-09-L14",
-     "letter": "נ",
-     "values": {
-      "אסתר": 484,
-      "שיר השירים": 320,
-      "רות": 215,
-      "איכה": 364,
-      "קהלת": 416
-     }
-    },
-    {
-     "id": "DS-09-L15",
-     "letter": "ס",
-     "values": {
-      "אסתר": 144,
-      "שיר השירים": 36,
-      "רות": 9,
-      "איכה": 37,
-      "קהלת": 98
-     }
-    },
-    {
-     "id": "DS-09-L16",
-     "letter": "ע",
-     "values": {
-      "אסתר": 397,
-      "שיר השירים": 184,
-      "רות": 199,
-      "איכה": 219,
-      "קהלת": 461
-     }
-    },
-    {
-     "id": "DS-09-L17",
-     "letter": "פ",
-     "values": {
-      "אסתר": 161,
-      "שיר השירים": 117,
-      "רות": 40,
-      "איכה": 126,
-      "קהלת": 125
-     }
-    },
-    {
-     "id": "DS-09-L18",
-     "letter": "צ",
-     "values": {
-      "אסתר": 89,
-      "שיר השירים": 68,
-      "רות": 43,
-      "איכה": 102,
-      "קהלת": 93
-     }
-    },
-    {
-     "id": "DS-09-L19",
-     "letter": "ק",
-     "values": {
-      "אסתר": 105,
-      "שיר השירים": 62,
-      "רות": 81,
-      "איכה": 82,
-      "קהלת": 133
-     }
-    },
-    {
-     "id": "DS-09-L20",
-     "letter": "ר",
-     "values": {
-      "אסתר": 750,
-      "שיר השירים": 288,
-      "רות": 267,
-      "איכה": 335,
-      "קהלת": 578
-     }
-    },
-    {
-     "id": "DS-09-L21",
-     "letter": "ש",
-     "values": {
-      "אסתר": 712,
-      "שיר השירים": 249,
-      "רות": 254,
-      "איכה": 251,
-      "קהלת": 599
-     }
-    },
-    {
-     "id": "DS-09-L22",
-     "letter": "ת",
-     "values": {
-      "אסתר": 704,
-      "שיר השירים": 306,
-      "רות": 376,
-      "איכה": 291,
-      "קהלת": 573
-     }
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
     }
-   ]
-  },
-  {
-   "table_id": "DS-10-MEGILLOT-WORDS",
-   "title": "תיבות חמש מגילות",
-   "description": "Printed word totals beside the maqaf-split clean corpus.",
-   "pdf_pages": [
-    43
-   ],
-   "source_anchor": "book:hebrewbooks:5635#p43:five_megillot_words",
-   "verification_state": "PARTIAL_ONE_BOUNDARY",
-   "rows": [
-    {
-     "id": "DS-10-M1",
-     "megillah": "אסתר",
-     "source_integer": 3045,
-     "corpus_integer": 3045,
-     "delta": 0
+   },
+   {
+    "id": "DS-09-L02",
+    "letter": "ב",
+    "source_values": {
+     "אסתר": 616,
+     "שיר השירים": 260,
+     "רות": 238,
+     "איכה": 366,
+     "קהלת": 581
     },
-    {
-     "id": "DS-10-M2",
-     "megillah": "שיר השירים",
-     "source_integer": 1250,
-     "corpus_integer": 1250,
-     "delta": 0
+    "corpus_values": {
+     "אסתר": 616,
+     "שיר השירים": 260,
+     "רות": 238,
+     "איכה": 366,
+     "קהלת": 582
     },
-    {
-     "id": "DS-10-M3",
-     "megillah": "רות",
-     "source_integer": 1294,
-     "corpus_integer": 1294,
-     "delta": 0
-    },
-    {
-     "id": "DS-10-M4",
-     "megillah": "איכה",
-     "source_integer": 1541,
-     "corpus_integer": 1542,
-     "delta": -1
-    },
-    {
-     "id": "DS-10-M5",
-     "megillah": "קהלת",
-     "source_integer": 2987,
-     "corpus_integer": 2987,
-     "delta": 0
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": -1
     }
-   ]
-  }
+   },
+   {
+    "id": "DS-09-L03",
+    "letter": "ג",
+    "source_values": {
+     "אסתר": 106,
+     "שיר השירים": 65,
+     "רות": 60,
+     "איכה": 76,
+     "קהלת": 113
+    },
+    "corpus_values": {
+     "אסתר": 106,
+     "שיר השירים": 65,
+     "רות": 60,
+     "איכה": 76,
+     "קהלת": 113
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L04",
+    "letter": "ד",
+    "source_values": {
+     "אסתר": 427,
+     "שיר השירים": 188,
+     "רות": 115,
+     "איכה": 163,
+     "קהלת": 268
+    },
+    "corpus_values": {
+     "אסתר": 427,
+     "שיר השירים": 188,
+     "רות": 115,
+     "איכה": 163,
+     "קהלת": 268
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L05",
+    "letter": "ה",
+    "source_values": {
+     "אסתר": 1116,
+     "שיר השירים": 366,
+     "רות": 434,
+     "איכה": 404,
+     "קהלת": 981
+    },
+    "corpus_values": {
+     "אסתר": 1116,
+     "שיר השירים": 366,
+     "רות": 434,
+     "איכה": 404,
+     "קהלת": 980
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 1
+    }
+   },
+   {
+    "id": "DS-09-L06",
+    "letter": "ו",
+    "source_values": {
+     "אסתר": 1276,
+     "שיר השירים": 477,
+     "רות": 493,
+     "איכה": 638,
+     "קהלת": 985
+    },
+    "corpus_values": {
+     "אסתר": 1276,
+     "שיר השירים": 476,
+     "רות": 495,
+     "איכה": 637,
+     "קהלת": 985
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 1,
+     "רות": -2,
+     "איכה": 1,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L07",
+    "letter": "ז",
+    "source_values": {
+     "אסתר": 62,
+     "שיר השירים": 38,
+     "רות": 43,
+     "איכה": 45,
+     "קהלת": 80
+    },
+    "corpus_values": {
+     "אסתר": 62,
+     "שיר השירים": 38,
+     "רות": 43,
+     "איכה": 45,
+     "קהלת": 80
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L08",
+    "letter": "ח",
+    "source_values": {
+     "אסתר": 210,
+     "שיר השירים": 132,
+     "רות": 88,
+     "איכה": 170,
+     "קהלת": 330
+    },
+    "corpus_values": {
+     "אסתר": 210,
+     "שיר השירים": 132,
+     "רות": 88,
+     "איכה": 170,
+     "קהלת": 330
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L09",
+    "letter": "ט",
+    "source_values": {
+     "אסתר": 53,
+     "שיר השירים": 32,
+     "רות": 29,
+     "איכה": 41,
+     "קהלת": 102
+    },
+    "corpus_values": {
+     "אסתר": 53,
+     "שיר השירים": 32,
+     "רות": 29,
+     "איכה": 41,
+     "קהלת": 102
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L10",
+    "letter": "י",
+    "source_values": {
+     "אסתר": 1176,
+     "שיר השירים": 663,
+     "רות": 566,
+     "איכה": 777,
+     "קהלת": 1178
+    },
+    "corpus_values": {
+     "אסתר": 1178,
+     "שיר השירים": 663,
+     "רות": 566,
+     "איכה": 777,
+     "קהלת": 1179
+    },
+    "deltas": {
+     "אסתר": -2,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": -1
+    }
+   },
+   {
+    "id": "DS-09-L11",
+    "letter": "כ",
+    "source_values": {
+     "אסתר": 380,
+     "שיר השירים": 143,
+     "רות": 128,
+     "איכה": 188,
+     "קהלת": 420
+    },
+    "corpus_values": {
+     "אסתר": 380,
+     "שיר השירים": 143,
+     "רות": 128,
+     "איכה": 188,
+     "קהלת": 419
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 1
+    }
+   },
+   {
+    "id": "DS-09-L12",
+    "letter": "ך",
+    "source_values": {
+     "אסתר": 230,
+     "שיר השירים": 104,
+     "רות": 70,
+     "איכה": 56,
+     "קהלת": 104
+    },
+    "corpus_values": {
+     "אסתר": 230,
+     "שיר השירים": 104,
+     "רות": 70,
+     "איכה": 57,
+     "קהלת": 104
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": -1,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L13",
+    "letter": "ל",
+    "source_values": {
+     "אסתר": 954,
+     "שיר השירים": 319,
+     "רות": 386,
+     "איכה": 424,
+     "קהלת": 926
+    },
+    "corpus_values": {
+     "אסתר": 954,
+     "שיר השירים": 319,
+     "רות": 386,
+     "איכה": 424,
+     "קהלת": 926
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L14",
+    "letter": "מ",
+    "source_values": {
+     "אסתר": 786,
+     "שיר השירים": 273,
+     "רות": 249,
+     "איכה": 267,
+     "קהלת": 556
+    },
+    "corpus_values": {
+     "אסתר": 786,
+     "שיר השירים": 273,
+     "רות": 249,
+     "איכה": 267,
+     "קהלת": 556
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L15",
+    "letter": "ם",
+    "source_values": {
+     "אסתר": 359,
+     "שיר השירים": 171,
+     "רות": 134,
+     "איכה": 190,
+     "קהלת": 452
+    },
+    "corpus_values": {
+     "אסתר": 359,
+     "שיר השירים": 171,
+     "רות": 134,
+     "איכה": 190,
+     "קהלת": 452
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L16",
+    "letter": "נ",
+    "source_values": {
+     "אסתר": 304,
+     "שיר השירים": 252,
+     "רות": 154,
+     "איכה": 305,
+     "קהלת": 285
+    },
+    "corpus_values": {
+     "אסתר": 304,
+     "שיר השירים": 252,
+     "רות": 155,
+     "איכה": 305,
+     "קהלת": 285
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": -1,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L17",
+    "letter": "ן",
+    "source_values": {
+     "אסתר": 180,
+     "שיר השירים": 68,
+     "רות": 60,
+     "איכה": 59,
+     "קהלת": 131
+    },
+    "corpus_values": {
+     "אסתר": 180,
+     "שיר השירים": 68,
+     "רות": 60,
+     "איכה": 59,
+     "קהלת": 131
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L18",
+    "letter": "ס",
+    "source_values": {
+     "אסתר": 144,
+     "שיר השירים": 36,
+     "רות": 9,
+     "איכה": 37,
+     "קהלת": 98
+    },
+    "corpus_values": {
+     "אסתר": 144,
+     "שיר השירים": 36,
+     "רות": 9,
+     "איכה": 37,
+     "קהלת": 98
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L19",
+    "letter": "ע",
+    "source_values": {
+     "אסתר": 397,
+     "שיר השירים": 184,
+     "רות": 198,
+     "איכה": 219,
+     "קהלת": 461
+    },
+    "corpus_values": {
+     "אסתר": 397,
+     "שיר השירים": 184,
+     "רות": 199,
+     "איכה": 219,
+     "קהלת": 461
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": -1,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L20",
+    "letter": "פ",
+    "source_values": {
+     "אסתר": 143,
+     "שיר השירים": 106,
+     "רות": 37,
+     "איכה": 114,
+     "קהלת": 101
+    },
+    "corpus_values": {
+     "אסתר": 143,
+     "שיר השירים": 106,
+     "רות": 37,
+     "איכה": 114,
+     "קהלת": 101
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L21",
+    "letter": "ף",
+    "source_values": {
+     "אסתר": 18,
+     "שיר השירים": 11,
+     "רות": 3,
+     "איכה": 12,
+     "קהלת": 24
+    },
+    "corpus_values": {
+     "אסתר": 18,
+     "שיר השירים": 11,
+     "רות": 3,
+     "איכה": 12,
+     "קהלת": 24
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L22",
+    "letter": "צ",
+    "source_values": {
+     "אסתר": 66,
+     "שיר השירים": 60,
+     "רות": 35,
+     "איכה": 84,
+     "קהלת": 58
+    },
+    "corpus_values": {
+     "אסתר": 66,
+     "שיר השירים": 60,
+     "רות": 35,
+     "איכה": 84,
+     "קהלת": 58
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L23",
+    "letter": "ץ",
+    "source_values": {
+     "אסתר": 23,
+     "שיר השירים": 8,
+     "רות": 8,
+     "איכה": 18,
+     "קהלת": 35
+    },
+    "corpus_values": {
+     "אסתר": 23,
+     "שיר השירים": 8,
+     "רות": 8,
+     "איכה": 18,
+     "קהלת": 35
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L24",
+    "letter": "ק",
+    "source_values": {
+     "אסתר": 105,
+     "שיר השירים": 62,
+     "רות": 81,
+     "איכה": 82,
+     "קהלת": 133
+    },
+    "corpus_values": {
+     "אסתר": 105,
+     "שיר השירים": 62,
+     "רות": 81,
+     "איכה": 82,
+     "קהלת": 133
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L25",
+    "letter": "ר",
+    "source_values": {
+     "אסתר": 750,
+     "שיר השירים": 288,
+     "רות": 267,
+     "איכה": 335,
+     "קהלת": 578
+    },
+    "corpus_values": {
+     "אסתר": 750,
+     "שיר השירים": 288,
+     "רות": 267,
+     "איכה": 335,
+     "קהלת": 578
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L26",
+    "letter": "ש",
+    "source_values": {
+     "אסתר": 712,
+     "שיר השירים": 249,
+     "רות": 254,
+     "איכה": 251,
+     "קהלת": 599
+    },
+    "corpus_values": {
+     "אסתר": 712,
+     "שיר השירים": 249,
+     "רות": 254,
+     "איכה": 251,
+     "קהלת": 599
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   },
+   {
+    "id": "DS-09-L27",
+    "letter": "ת",
+    "source_values": {
+     "אסתר": 704,
+     "שיר השירים": 306,
+     "רות": 376,
+     "איכה": 291,
+     "קהלת": 573
+    },
+    "corpus_values": {
+     "אסתר": 704,
+     "שיר השירים": 306,
+     "רות": 376,
+     "איכה": 291,
+     "קהלת": 573
+    },
+    "deltas": {
+     "אסתר": 0,
+     "שיר השירים": 0,
+     "רות": 0,
+     "איכה": 0,
+     "קהלת": 0
+    }
+   }
+  ]
+ },
+ {
+  "table_id": "DS-10-MEGILLOT-WORDS",
+  "title": "תיבות חמש מגילות",
+  "description": "Printed word totals beside the maqaf-split clean corpus; the sole Eicha delta is localized by an independent MorphHB/WLC witness.",
+  "pdf_pages": [
+   43
+  ],
+  "source_anchor": "book:hebrewbooks:5635#p43:five_megillot_words",
+  "verification_state": "SOURCE_CORPUS_COMPARISON_CLOSED",
+  "rows": [
+   {
+    "id": "DS-10-M1",
+    "megillah": "אסתר",
+    "source_integer": 3045,
+    "corpus_integer": 3045,
+    "delta": 0
+   },
+   {
+    "id": "DS-10-M2",
+    "megillah": "שיר השירים",
+    "source_integer": 1250,
+    "corpus_integer": 1250,
+    "delta": 0
+   },
+   {
+    "id": "DS-10-M3",
+    "megillah": "רות",
+    "source_integer": 1294,
+    "corpus_integer": 1294,
+    "delta": 0
+   },
+   {
+    "id": "DS-10-M4",
+    "megillah": "איכה",
+    "source_integer": 1541,
+    "corpus_integer": 1542,
+    "delta": -1,
+    "boundary_witness": "איכה א:ו — מן־בת (שני רכיבי כתיב) / מִבַּת (תיבת קרי אחת); הווריאנט היחיד 2→1 ב-MorphHB/WLC"
+   },
+   {
+    "id": "DS-10-M5",
+    "megillah": "קהלת",
+    "source_integer": 2987,
+    "corpus_integer": 2987,
+    "delta": 0
+   }
+  ]
+ }
  ],
  "page_register": [
   {
