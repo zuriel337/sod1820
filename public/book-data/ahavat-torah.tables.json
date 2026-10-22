@@ -30,9 +30,9 @@
     "documented snapshot"
    ],
    [
-    "13",
-    "datasets במפה",
-    "documented snapshot"
+    "11+2",
+    "datasets פעילים + withdrawn",
+    "source-adjudicated snapshot"
    ],
    [
     "18",
@@ -122,17 +122,17 @@
    ],
    [
     "DS-07",
-    "שרשרת סנהדרין",
-    "locator unconfirmed",
-    "OPEN",
-    "37 generations/links; the pp.71-80 exact-pass did NOT locate the previously-estimated p78 chain — page pending re-confirmation, not asserted here"
+    "סנהדרין ל״ז · קריאה מתוקנת",
+    "p78",
+    "WITHDRAWN",
+    "ל״ז is daf 37 and the source says three student rows; no 37-generation chain exists"
    ],
    [
     "DS-08",
-    "תוכחה",
-    "pp88–91",
-    "OPEN",
-    "existence/estimate challenged; exact figures not fully extracted"
+    "תוכחה · קריאה מתוקנת",
+    "pp89–90,98",
+    "WITHDRAWN",
+    "three exact passes found discursive commentary only; no blessing/curse count table exists"
    ],
    [
     "DS-09",
@@ -236,9 +236,8 @@
   ],
   "open": [
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
-   "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
-   "DS-02/06/07/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
+   "DS-02/06/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
    "Exact-witness adjudication אינו שווה למיפוי מבני",
    "טענות גימטריה אחרות אינן Engine Verified בלי המנוע הקנוני; מילות-הקצה של ברכת כהנים אומתו בנפרד",
    "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"
@@ -288,17 +287,17 @@
    },
    {
     "key": "ds07",
-    "label": "DS-07 · סנהדרין",
-    "page": null,
+    "label": "DS-07 · withdrawn misread",
+    "page": 78,
     "family": "dataset",
-    "status": "open"
+    "status": "withdrawn"
    },
    {
     "key": "ds08",
-    "label": "DS-08 · תוכחה",
+    "label": "DS-08 · withdrawn misread",
     "page": 90,
     "family": "dataset",
-    "status": "open"
+    "status": "withdrawn"
    },
    {
     "key": "ds11",
@@ -475,47 +474,47 @@
   },
   {
    "dataset_id": "DS-07",
-   "population": "Masoretic-purity transmission-chain count (Para Aduma witnesses, 'ל\"ז שורות')",
+   "population": "WITHDRAWN: alleged 37-generation transmission chain",
    "dimensions": [
     "generation_row"
    ],
-   "metric": "count of generations/'rows' of tradition-bearers",
-   "scope": "post-Sinai transmission chain (Sanhedrin-cited)",
-   "rows_description": "37 rows total (single figure, not decomposed further in the observed passage)",
+   "metric": "none; low-resolution extraction error",
+   "scope": "p.78 commentary",
+   "rows_description": "The source cites Sanhedrin daf 37 and says שלשת שורות, three rows of students.",
    "subtotals": "none observed",
-   "total": "37",
+   "total": "no dataset total; 37 is a daf number, 3 is the cited row count",
    "ordering_rule": "not applicable (single count)",
    "inclusion_rule": "not established",
    "exclusion_rule": "not established",
-   "exceptions": "none found",
-   "checksum": "not applicable (single figure, no internal components to sum)",
+   "exceptions": "The earlier map converted a citation into a population count.",
+   "checksum": "not applicable; asserted dataset does not exist",
    "pdf_pages": [
     78
    ],
-   "confidence": "VISUALLY_VERIFIED (existence); UNCERTAIN (exact scope of what is counted)",
-   "status": "OPEN"
+   "confidence": "DIRECT_SOURCE_CORRECTION",
+   "status": "WITHDRAWN_LOW_RESOLUTION_MISREAD"
   },
   {
    "dataset_id": "DS-08",
-   "population": "Tochecha (blessings/curses) word-count comparison",
+   "population": "WITHDRAWN: alleged Tochecha blessing/curse count",
    "dimensions": [
     "blessing_vs_curse"
    ],
-   "metric": "word count",
-   "scope": "Parashat Ki Tavo tochecha passage",
-   "rows_description": "at least 2 rows (blessings total, curses total)",
-   "subtotals": "not fully captured this pass",
-   "total": "not fully captured this pass",
+   "metric": "none; low-resolution extraction error",
+   "scope": "discursive Ki Tavo commentary at pp.89–90 and addendum at p.98",
+   "rows_description": "No rows: direct passes through pp.81–99 found prose only.",
+   "subtotals": "none",
+   "total": "none",
    "ordering_rule": "not established",
    "inclusion_rule": "not established",
    "exclusion_rule": "not established",
-   "exceptions": "none found",
-   "checksum": "not computed",
+   "exceptions": "p.86 is the separate Har Eival twelve-curses passage; p.98 uses תוכחה but contains no count.",
+   "checksum": "not applicable; asserted dataset does not exist",
    "pdf_pages": [
     90
    ],
-   "confidence": "VISUALLY_VERIFIED (existence); UNKNOWN (exact figures)",
-   "status": "OPEN"
+   "confidence": "DIRECT_SOURCE_CORRECTION_AFTER_THREE_PASSES",
+   "status": "WITHDRAWN_LOW_RESOLUTION_MISREAD"
   },
   {
    "dataset_id": "DS-09",
@@ -1396,14 +1395,14 @@
    "confidence": "VISUALLY_VERIFIED"
   },
   {
-   "source_as_printed": "מסנהררין / פרק כהן גרול",
-   "normalized_candidate": "Talmud Bavli, Sanhedrin (perek Kohen Gadol)",
+   "source_as_printed": "ומצינו בסנהדרין ל״ז שלשת שורות של תלמידי חכמים",
+   "normalized_candidate": "Mishnah Sanhedrin 4:3 / Bavli Sanhedrin 37a: three rows of students",
    "pdf_pages": [
     78
    ],
-   "citation_context": "Para Aduma purity-transmission chain (37 generations)",
-   "what_claim_it_supports": "Transmission-chain count (DS-07)",
-   "quotation_or_paraphrase": "paraphrase, named tractate",
+   "citation_context": "Learning from every person; three rows of students",
+   "what_claim_it_supports": "Withdrawal of the former DS-07 37-generation misread",
+   "quotation_or_paraphrase": "direct phrase",
    "confidence": "VISUALLY_VERIFIED"
   },
   {
