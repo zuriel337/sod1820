@@ -105,6 +105,15 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /data-fidelity-decision-effect="local-only"/);
   assert.match(page, /התאמת מנוע וסטטוס פרסום נשארים צירים נפרדים/);
   assert.match(page, /FINDINGS\.map\(finding => \[finding\.id, "needs_evidence"\]\)/);
+  assert.match(page, /const EVIDENCE_REQUIREMENTS/);
+  for (const key of ["witness_window", "locator_reconciliation", "surrounding_context", "claim_scope", "structured_trace", "applicability_rationale"]) {
+    assert.match(page, new RegExp(key));
+  }
+  assert.match(page, /data-evidence-effect="local-only"/);
+  assert.match(page, /נוסח המקור, ציטוטים ומזהי מסד אינם נכנסים לחבילת הפריוויו/);
+  assert.match(page, /disabled=\{key !== "needs_evidence" && !evidenceComplete\}/);
+  assert.match(page, /if \(decision !== "needs_evidence" && !evidenceComplete\) return/);
+  assert.match(page, /setFidelityDecisions\(decisions => \(\{ \.\.\.decisions, \[findingId\]: "needs_evidence" \}\)\)/);
   assert.match(page, /window\.location\.hash === "#bentov29-review-title"/);
   assert.match(page, /scrollIntoView\(\{ block: "start" \}\)/);
   assert.match(page, /אינה מתקנת את האיתור הקנוני ואינה נשלחת למסד/);
@@ -131,6 +140,8 @@ test("interactive controls are accessible and local-only", () => {
   assert.match(page, /role="group" aria-label="סינון תיקי העבודה"/);
   assert.match(page, /aria-pressed=/);
   assert.match(page, /הסימון זמני במכשיר ואינו נשמר, מאשר או מפרסם דבר/);
+  assert.match(css, /\.bentov29-evidence-list button/);
+  assert.match(css, /\.bentov29-fidelity-decision button:disabled/);
   assert.match(css, /min-height:44px/);
   assert.match(css, /@media\(max-width:390px\)/);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);

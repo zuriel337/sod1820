@@ -131,6 +131,21 @@ const FIDELITY_VERDICT_META = Object.freeze({
   needs_evidence: Object.freeze({ label: "חסרות ראיות", description: "אין עדיין בסיס מספיק להכרעה; הממצא נשאר פתוח." }),
 });
 
+const EVIDENCE_REQUIREMENTS = Object.freeze({
+  shared: Object.freeze([
+    Object.freeze({ key: "witness_window", label: "חלון עד המקור", description: "העמודים שנבדקו כוללים את הקטע הרלוונטי במלואו." }),
+    Object.freeze({ key: "locator_reconciliation", label: "יישוב האיתור", description: "הפער בין האיתור השמור לחלון ה־PDF תועד והוכרע." }),
+    Object.freeze({ key: "surrounding_context", label: "הקשר מסביב", description: "נבדקו ההקשר שלפני הקטע וההקשר שאחריו." }),
+    Object.freeze({ key: "claim_scope", label: "גבולות הממצא", description: "ברור מה המקור תומך בו ומה אינו טוען." }),
+  ]),
+  complex: Object.freeze({ key: "structured_trace", label: "עקבה מבנית", description: "האופרנדים, השלבים וההפניות הושוו לעד המקור." }),
+  applicability: Object.freeze({ key: "applicability_rationale", label: "נימוק תחולה", description: "תועד אם שער הנאמנות המובנית חל על סוג הממצא." }),
+});
+
+function evidenceRequirementsFor(finding) {
+  return [...EVIDENCE_REQUIREMENTS.shared, EVIDENCE_REQUIREMENTS[finding.reviewLane]];
+}
+
 const FINDING_SOURCE_INDEXES = Object.freeze(SOURCE_WINDOWS.flatMap((source, sourceIndex) => (
   Array(source.findings).fill(sourceIndex)
 )));
@@ -330,7 +345,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
   </section>;
 }
 
-function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDecisions, fidelityDecisions, onLocatorDecision, onFidelityDecision, onApproveAllLocators, onResetAllLocators, onToggleCheck, onReset }) {
+function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDecisions, fidelityDecisions, evidenceProgress, onLocatorDecision, onFidelityDecision, onToggleEvidence, onApproveAllLocators, onResetAllLocators, onToggleCheck, onReset }) {
   const [queueFilter, setQueueFilter] = useState("all");
   const selected = findings.find(item => item.id === selectedId) || findings[0];
   const completed = progress[selected.id] || new Set();
@@ -345,6 +360,13 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   const resolvedLocators = findings.filter(item => locatorDecisions[item.id] && locatorDecisions[item.id] !== "pending").length;
   const locatorDecision = locatorDecisions[selected.id] || "pending";
   const fidelityDecision = fidelityDecisions[selected.id] || "needs_evidence";
+  const evidenceRequirements = evidenceRequirementsFor(selected);
+  const selectedEvidence = evidenceProgress[selected.id] || new Set();
+  const evidenceComplete = evidenceRequirements.every(requirement => selectedEvidence.has(requirement.key));
+  const readyEvidencePackets = findings.filter(item => {
+    const recorded = evidenceProgress[item.id] || new Set();
+    return evidenceRequirementsFor(item).every(requirement => recorded.has(requirement.key));
+  }).length;
   const fidelityTotals = Object.fromEntries(Object.keys(FIDELITY_VERDICT_META).map(key => [
     key,
     findings.filter(item => (fidelityDecisions[item.id] || "needs_evidence") === key).length,
@@ -370,6 +392,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
         <strong>{resolvedLocators} / 33</strong>
         <span>הכרעות איתור מקומיות</span>
         <small>{decidedFidelity} / 33 הכרעות נאמנות מקומיות</small>
+        <small>{readyEvidencePackets} / 33 חבילות ראיות מוכנות מקומית</small>
         <small>{locallyCompleted} תיקים סומנו כהשלמת מסלול ההדגמה</small>
         <small>אינם נשמרים ואינם משנים סטטוס אמת</small>
         <div className="bentov29-review-local-actions">
@@ -453,6 +476,35 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
             >משאיר פתוח</button>
           </div>
         </fieldset>
+        <fieldset className="bentov29-evidence-packet" data-evidence-effect="local-only">
+          <legend>חבילת ראיות פרטית · {selectedEvidence.size}/{evidenceRequirements.length}</legend>
+          <p>הסימונים מאשרים רק שהראיה נבדקה בסביבה הפרטית. נוסח המקור, ציטוטים ומזהי מסד אינם נכנסים לחבילת הפריוויו.</p>
+          <div className="bentov29-evidence-target">
+            <span>יעד הבדיקה</span>
+            <strong>עמ׳ {selected.verifiedPages}</strong>
+            <small>{selected.reviewLane === "complex" ? "נדרש גם תיעוד מבני" : "נדרש נימוק תחולה"}</small>
+          </div>
+          <div className="bentov29-evidence-list" role="group" aria-label={`חבילת ראיות לתיק B-${String(selected.number).padStart(2, "0")}`}>
+            {evidenceRequirements.map((requirement, index) => {
+              const checked = selectedEvidence.has(requirement.key);
+              return <button
+                type="button"
+                key={requirement.key}
+                className={checked ? "is-complete" : ""}
+                onClick={() => onToggleEvidence(selected.id, requirement.key)}
+                aria-pressed={checked}
+              >
+                <span>{checked ? "✓" : String(index + 1).padStart(2, "0")}</span>
+                <strong>{requirement.label}</strong>
+                <small>{requirement.description}</small>
+              </button>;
+            })}
+          </div>
+          <div className={`bentov29-evidence-gate${evidenceComplete ? " is-ready" : ""}`} role="status">
+            <strong>{evidenceComplete ? "חבילת הראיות מוכנה להכרעה מקומית" : `${evidenceRequirements.length - selectedEvidence.size} ראיות עדיין חסרות`}</strong>
+            <small>{evidenceComplete ? "עדיין לא נשמר דבר ולא נפתח שער ממשל." : "עד להשלמה ניתן להשאיר רק ‘חסרות ראיות’."}</small>
+          </div>
+        </fieldset>
         <fieldset className="bentov29-fidelity-decision" data-fidelity-decision-effect="local-only">
           <legend>הכרעת נאמנות מקומית</legend>
           <p>סימון שלב בדיקה אינו הכרעת נאמנות. בחר תוצאה רק לפי עד המקור; התאמת מנוע וסטטוס פרסום נשארים צירים נפרדים.</p>
@@ -463,6 +515,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
               className={`${fidelityDecision === key ? "is-selected" : ""} is-${key}`}
               onClick={() => onFidelityDecision(selected.id, key)}
               aria-pressed={fidelityDecision === key}
+              disabled={key !== "needs_evidence" && !evidenceComplete}
             >
               <strong>{meta.label}</strong>
               <small>{meta.description}</small>
@@ -555,6 +608,7 @@ export default function BentovFindingsProduct2029Page() {
   const [fidelityDecisions, setFidelityDecisions] = useState(() => Object.fromEntries(
     FINDINGS.map(finding => [finding.id, "needs_evidence"]),
   ));
+  const [evidenceProgress, setEvidenceProgress] = useState({});
 
   useEffect(() => {
     applySeo({
@@ -620,6 +674,7 @@ export default function BentovFindingsProduct2029Page() {
     setReviewProgress(current => ({ ...current, [findingId]: new Set() }));
     setLocatorDecisions(current => ({ ...current, [findingId]: "pending" }));
     setFidelityDecisions(current => ({ ...current, [findingId]: "needs_evidence" }));
+    setEvidenceProgress(current => ({ ...current, [findingId]: new Set() }));
   };
 
   const setLocatorDecision = (findingId, decision) => {
@@ -628,7 +683,22 @@ export default function BentovFindingsProduct2029Page() {
 
   const setFidelityDecision = (findingId, decision) => {
     if (!FIDELITY_VERDICT_META[decision]) return;
+    const finding = FINDINGS.find(item => item.id === findingId);
+    const recorded = evidenceProgress[findingId] || new Set();
+    const evidenceComplete = finding && evidenceRequirementsFor(finding).every(requirement => recorded.has(requirement.key));
+    if (decision !== "needs_evidence" && !evidenceComplete) return;
     setFidelityDecisions(current => ({ ...current, [findingId]: decision }));
+  };
+
+  const toggleEvidence = (findingId, requirementKey) => {
+    const finding = FINDINGS.find(item => item.id === findingId);
+    if (!finding || !evidenceRequirementsFor(finding).some(requirement => requirement.key === requirementKey)) return;
+    const next = new Set(evidenceProgress[findingId] || []);
+    if (next.has(requirementKey)) next.delete(requirementKey);
+    else next.add(requirementKey);
+    setEvidenceProgress(current => ({ ...current, [findingId]: next }));
+    const remainsComplete = evidenceRequirementsFor(finding).every(requirement => next.has(requirement.key));
+    if (!remainsComplete) setFidelityDecisions(decisions => ({ ...decisions, [findingId]: "needs_evidence" }));
   };
 
   const approveAllLocators = () => {
@@ -641,6 +711,7 @@ export default function BentovFindingsProduct2029Page() {
   const resetAllLocators = () => {
     setLocatorDecisions({});
     setFidelityDecisions({});
+    setEvidenceProgress({});
     setReviewProgress({});
   };
 
@@ -746,8 +817,10 @@ export default function BentovFindingsProduct2029Page() {
         progress={reviewProgress}
         locatorDecisions={locatorDecisions}
         fidelityDecisions={fidelityDecisions}
+        evidenceProgress={evidenceProgress}
         onLocatorDecision={setLocatorDecision}
         onFidelityDecision={setFidelityDecision}
+        onToggleEvidence={toggleEvidence}
         onApproveAllLocators={approveAllLocators}
         onResetAllLocators={resetAllLocators}
         onToggleCheck={toggleReviewCheck}
