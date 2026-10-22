@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
+import BeitMidrashLessonFlow from "./BeitMidrashLessonFlow.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import { FrameState, use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
@@ -29,7 +30,14 @@ function MethodChooser({ methods, selectedKey, sampleExpression }) {
     return [...map.entries()];
   }, [methods]);
 
-  return <nav className="bm-method-nav" aria-label="שיטות הגימטריה">
+  const nav = useRef(null);
+  // Keep the chosen method visible in the rail without moving the page.
+  useEffect(() => {
+    const link = nav.current?.querySelector('[aria-current="page"]');
+    link?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "auto" });
+  }, [selectedKey]);
+
+  return <nav ref={nav} className={`bm-method-nav${selectedKey ? " is-rail" : ""}`} aria-label="שיטות הגימטריה">
     {groups.map(([category, rows]) => <div key={category} className="bm-method-group">
       <h4>{CATEGORY_LABELS[category] || "שיטות נוספות"}</h4>
       <div>
@@ -97,6 +105,7 @@ function MethodLesson({ method, methods, blocks, sampleExpression, traceState, o
       <span className="bm-eyebrow">שיעור שיטה</span>
       <h4 id="bm-lesson-title">{method.displayLabel}</h4>
       {method.displayLabel !== method.methodKey ? <code dir="ltr">{method.methodKey}</code> : null}
+      <BeitMidrashLessonFlow expression={sampleExpression} methodLabel={method.displayLabel} result={method.computedValue} />
     </header>
 
     <div className="bm-lesson-grid">
@@ -169,6 +178,8 @@ export default function BeitMidrashMethods({
   requestedMethod, selectedMethod, blocks, sampleExpression, traceState, onLoadTrace,
 }) {
   return <BeitMidrashSection id="methods" icon="tools" title={section.title} description={section.description} focused={focused}>
+    {/* While the registry loads, reserve the lesson's footprint so the page below does not jump. */}
+    <div className="bm-methods-body" data-pending={state.loading ? (requestedMethod ? "lesson" : "list") : "false"}>
     {state.loading ? <FrameState kind="loading" title="פותח את דרכי החישוב">
       קורא את השיטות והדוגמה מן המקורות הקנוניים.
     </FrameState> : null}
@@ -185,7 +196,7 @@ export default function BeitMidrashMethods({
       אפשר לבחור שיטה מן הרשימה. הכתובת לא הוסבה לעמוד אחר.
     </FrameState> : null}
 
-    {activeMethods.length ? <div className="bm-methods-layout">
+    {activeMethods.length ? <div className="bm-methods-layout" data-has-lesson={selectedMethod ? "true" : "false"}>
       <MethodChooser methods={activeMethods} selectedKey={selectedMethod?.methodKey || ""} sampleExpression={sampleExpression} />
       {selectedMethod ? <MethodLesson
         method={selectedMethod}
@@ -196,6 +207,8 @@ export default function BeitMidrashMethods({
         onLoadTrace={onLoadTrace}
       /> : <p className="bm-note bm-pick">בחרו שיטה כדי לפתוח שיעור: מה היא עושה, איך היא בנויה, דוגמה מודרכת והזהרות.</p>}
     </div> : null}
+
+    </div>
 
     {unavailableMethods.length ? <details className="bm-unavailable">
       <summary>שיטות שאינן זמינות כרגע · {unavailableMethods.length}</summary>

@@ -131,3 +131,23 @@ test("typography consumes only the 2029 type contract", () => {
   assert.match(css, /var\(--s29-type-display\)/);
   assert.doesNotMatch(css, /font-size:\d+px/);
 });
+
+test("lesson visual pass: centred rail, flat structure and calm motion", () => {
+  const flow = parts["BeitMidrashLessonFlow.jsx"].replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(flow, /fetch|useEffect|reduce\(|parseInt|Number\(|gematria|\bcalc/i, "illustration only lays out values the lesson already has");
+  assert.match(css, /\.bm-methods-layout\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(css, /\.bm-method-nav\.is-rail\{/);
+  assert.doesNotMatch(css, /grid-template-columns:minmax\(2\d\dpx,\s*\d+px\) minmax\(0,1fr\)/, "no fixed side column for methods or number topics");
+  assert.match(css, /\.bm-lesson\{[^}]*margin-inline:auto/);
+  assert.match(css, /\.bm-lesson\{[^}]*box-sizing:border-box/);
+  // Every keyframe animation lives under no-preference and moves only opacity / transform / stroke.
+  const motion = css.slice(css.indexOf("Lesson illustration"));
+  assert.match(motion, /@media\(prefers-reduced-motion:no-preference\)\{[^@]*animation:/);
+  for (const frames of css.matchAll(/@keyframes[^{]+\{((?:[^{}]|\{[^}]*\})*)\}/g)) {
+    assert.doesNotMatch(frames[1], /width|height|margin|padding|top|left|inset|font/, "keyframes must not change layout");
+  }
+  assert.match(css, /--s29-warm-accent/);
+  assert.doesNotMatch(css, /animation:[^;}]*infinite/, "no endless motion");
+  assert.match(parts["BeitMidrashSection.jsx"], /"נקודות מפגש"/);
+  assert.match(parts["BeitMidrashSection.jsx"], /"מתרגלים ומשתתפים"/);
+});
