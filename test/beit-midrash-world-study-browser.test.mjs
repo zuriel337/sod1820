@@ -93,7 +93,7 @@ const projection = {
 function fixturePlugin() {
   const modules = new Map([
     ["virtual:bm-auth.jsx", `export const useAuth=()=>({isAdmin:new URLSearchParams(window.location.search).get("fixtureAdmin")==="1",loading:false});`],
-    ["virtual:bm-shell.jsx", `import React from "react";export function FrameState({kind,title,children,action}){return React.createElement("section",{"data-frame-state":kind},React.createElement("h3",null,title),children,action)}export default function Shell({children,title}){return React.createElement("div",{className:"sod29-root surface-beit-midrash"},React.createElement("header",{hidden:true},title),children)}`],
+    ["virtual:bm-shell.jsx", `import React from "react";export function FrameState({kind,title,children,action}){return React.createElement("section",{"data-frame-state":kind},React.createElement("h3",null,title),children,action)}export const use2029Shell=()=>({openIssueReport:()=>{window.__issueReportOpened=true;}});export default function Shell({children,title}){return React.createElement("div",{className:"sod29-root surface-beit-midrash"},React.createElement("header",{hidden:true},title),children)}`],
     ["virtual:bm-icon.jsx", `import React from "react";export default function Icon(){return React.createElement("span",{"aria-hidden":true},"◇")}`],
     ["virtual:bm-ratings.jsx", `import React from "react";export default function Ratings({quality,meterScore}){return React.createElement("div",{className:"k29-rate","data-quality":quality??"missing","data-meter":meterScore??"missing"},"איכות ",quality??"לא דורג"," · חוזק ",meterScore??"אין נתון")}`],
     ["virtual:bm-trace-component.jsx", `export default function Trace(){return null}`],
@@ -279,6 +279,20 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     await page.goto(`${origin}/beit-midrash?tab=verified`);
     await page.waitForSelector("#sources");
     assert.equal(await page.getByText("מאומתים").count(), 0);
+
+    // Number lessons and paths resume at the exact teaching step without creating progress state.
+    await page.goto(`${origin}/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci`);
+    await page.waitForSelector('#number-concept-fibonacci.is-focused');
+    assert.match(await page.locator('#number-concept-fibonacci').innerText(), /F1=1, F2=1/);
+    await page.goto(`${origin}/beit-midrash?section=paths&path=sod1820#path-sod1820`);
+    await page.waitForSelector('#path-sod1820.is-focused');
+    assert.equal(await page.locator('#path-sod1820 .bm-path-steps>li').count(), 6);
+    assert.equal(await page.locator('#path-sod1820 a[href="/2029/number/1820"]').count(), 1);
+
+    // Contribution uses the existing shell gateway; the game stays visibly gated without its Preview flag.
+    await page.getByRole("button", { name: "לשתף רמז" }).click();
+    assert.equal(await page.evaluate(() => window.__issueReportOpened), true);
+    assert.equal(await page.locator('[data-destination-status="preview_only"][aria-disabled="true"]').count(), 1);
 
     // Keyboard: first link reachable and focus ring visible.
     await page.keyboard.press("Tab");

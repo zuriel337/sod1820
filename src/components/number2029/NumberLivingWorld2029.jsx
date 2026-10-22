@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Timeline2029 from "../experience2029/Timeline2029.jsx";
 import { numberTimelineToRows, timelineVisibleCount, TIMELINE_PAGE_SIZE } from "../../lib/research/timeline2029.js";
 import {
@@ -489,6 +490,9 @@ export default function NumberLivingWorld2029({
         text="הפרופיל המתמטי, הרצפים והמעברים חיים באותו מרחב. החישוב דטרמיניסטי; המשמעות המחקרית נשארת שכבה נפרדת."
         aside={<span className="sod29-lw-count">{math?.families?.length || 0}</span>}
       />
+      <div className="sod29-lw-actions">
+        <Link className="sod29-action" to="/beit-midrash?section=numbers">איך קוראים את הנתונים האלה?</Link>
+      </div>
       <div className="sod29-lw-math-hero">
         <div>
           <span>מספר במתמטיקה</span>
@@ -511,7 +515,7 @@ export default function NumberLivingWorld2029({
           <button type="button" className={scrubMode === "findings" ? "is-active" : ""} onClick={() => setScrubMode("findings")}>ממצאים</button>
           <button type="button" className={scrubMode === "sequences" ? "is-active" : ""} onClick={() => setScrubMode("sequences")}>רצפים</button>
         </div>
-        {fibRail ? <div className="sod29-lw-fib" data-experience-capability="fibonacci-glass-rail">
+        {fibRail ? <div className="sod29-lw-fib" id="number-fibonacci" data-experience-capability="fibonacci-glass-rail">
           <div className="sod29-lw-fib-state" data-fib-state={fibRail.state}>
             <span>Fibonacci</span>
             <strong>{fibRail.state === "exact"
@@ -531,7 +535,10 @@ export default function NumberLivingWorld2029({
               </button>;
             })}
           </div>
-          {onOpenHeichal ? <div className="sod29-lw-actions"><DepthButton primary onClick={() => onOpenHeichal({ kind: "sequence_fibonacci", root })}>חקור Fibonacci בהיכל</DepthButton></div> : null}
+          <div className="sod29-lw-actions">
+            <Link className="sod29-action" to="/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci">מהו פיבונאצ׳י ופירוק זקנדורף?</Link>
+            {onOpenHeichal ? <DepthButton primary onClick={() => onOpenHeichal({ kind: "sequence_fibonacci", root })}>חקור Fibonacci בהיכל</DepthButton> : null}
+          </div>
         </div> : null}
         {scrubRows.length ? <>
           {scrubRows.length > 1 ? <input type="range" min="0" max={Math.max(0, scrubRows.length - 1)} value={Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))} onChange={(event) => setScrubIndex(Number(event.target.value))} aria-label="מד ניווט חי" /> : null}

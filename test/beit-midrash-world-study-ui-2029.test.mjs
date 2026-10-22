@@ -7,6 +7,7 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "
 const page = read("src/pages/BeitMidrash2029Page.jsx");
 const css = read("src/pages/beitMidrash2029.css");
 const app = read("src/App2029.jsx");
+const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
 const dir = new URL("../src/components/beitMidrash2029/", import.meta.url);
 const parts = Object.fromEntries(fs.readdirSync(dir).map((name) => [name, fs.readFileSync(new URL(name, dir), "utf8")]));
 const ui = [page, ...Object.values(parts)].join("\n");
@@ -62,6 +63,17 @@ test("learn, discover, participate hierarchy with one map CTA and gated destinat
   assert.match(parts["BeitMidrashParticipate.jsx"], /aria-disabled="true"/);
   assert.doesNotMatch(parts["BeitMidrashParticipate.jsx"], /<form|<input|<textarea/);
   assert.doesNotMatch(ui, /lni-|LegacyNewsletterInvite|role="dialog"|aria-modal/);
+  assert.match(parts["BeitMidrashParticipate.jsx"], /openIssueReport/);
+  assert.match(parts["BeitMidrashParticipate.jsx"], /VITE_KINGDOM_PREVIEW/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /numberGuideConcepts/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /path\.steps\.map/);
+});
+
+test("Number page points to lessons without copying its calculation adapters", () => {
+  assert.match(numberLivingWorld, /to="\/beit-midrash\?section=numbers"/);
+  assert.match(numberLivingWorld, /concept=fibonacci#number-concept-fibonacci/);
+  assert.match(numberLivingWorld, /id="number-fibonacci"/);
+  assert.equal((numberLivingWorld.match(/fibonacciRailModel\(/g) || []).length, 1);
 });
 
 test("shared App2029 owns both canonical Beit Midrash routes without redirecting them to World", () => {

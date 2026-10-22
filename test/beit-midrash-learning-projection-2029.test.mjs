@@ -52,13 +52,16 @@ test("learning manifest establishes one home with learn, discover and participat
   );
   assert.deepEqual(
     BEIT_MIDRASH_LEARNING_MANIFEST.sections.map((section) => section.id),
-    ["start", "methods", "ciphers", "sources", "paths", "guided", "practice", "participate"],
+    ["start", "methods", "ciphers", "sources", "numbers", "paths", "guided", "practice", "participate"],
   );
   assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.beginnerConcepts.length, 4);
+  assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.numberGuideConcepts.some((concept) => concept.id === "fibonacci"));
   assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.learningPaths.some((path) => path.id === "sod1820"));
-  assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.destinations.calculator.href, "/2029/calculator");
+  assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.learningPaths.every((path) => path.href && path.steps.length >= 3));
+  assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.destinations.calculator.href, "/2029/gematria");
   assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.destinations.world.href, "/world#world-connections");
   assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.destinations.contribution.href, null);
+  assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.destinations.contribution.action, "openIssueReport");
 });
 
 test("public learning copy uses discovery language while keeping canonical terms secondary", () => {
@@ -126,6 +129,26 @@ test("method and finding deep links retain exact Beit Midrash identity", () => {
   assert.equal(
     beitMidrashLearningHref("guided", { guidedKind: "crossing", findingId: "abc/12" }),
     "/beit-midrash?section=guided&kind=crossing&finding=abc%2F12#finding-abc%2F12",
+  );
+});
+
+test("number lessons and learning paths keep exact resumable links", () => {
+  const numberLesson = resolveBeitMidrashLearningLocation({
+    search: "?section=numbers&concept=fibonacci",
+  });
+  assert.equal(numberLesson.section, BEIT_MIDRASH_LEARNING_SECTION.NUMBERS);
+  assert.equal(numberLesson.conceptId, "fibonacci");
+  assert.equal(
+    numberLesson.canonicalHref,
+    "/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci",
+  );
+  assert.equal(
+    beitMidrashLearningHref("paths", { pathId: "sod1820" }),
+    "/beit-midrash?section=paths&path=sod1820#path-sod1820",
+  );
+  assert.equal(
+    resolveBeitMidrashLearningLocation({ search: "?section=numbers&concept=not-a-lesson" }).conceptId,
+    null,
   );
 });
 
