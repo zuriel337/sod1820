@@ -76,7 +76,7 @@
 | DS-03 | 25–31, 41–42 | Total word count per parasha/book | Word-occurrence counting | Torah total **79,976**, independently cross-validated at 2 separately-worded locations (CR-09) | **CLOSED** (Torah-total level); per-parasha cells UNCERTAIN |
 | DS-04 | 41–42 | Total letter count (all 22 combined) per parasha/book | Letter-occurrence counting | 54 source rows total **304,812**; canonical corpus **304,805**; 11 one-letter row deltas, net +7 | **CLOSED WITH SOURCE/CORPUS MISMATCH** |
 | DS-05 | 25–31 | Attributed speech/mentions per named entity, per parasha (dual metric: פעמים + תיבות) | Entity-attribution counting | Structure confirmed (Yaakov, Lavan, Rachel, Leah, Moshe, Aharon, Miriam, Caleb, Bnot Tzlofchad rows); per-cell values not re-verified. **Confirmed distinct from DS-06** (Session 6 §7 — single-metric name-occurrence vs. this dataset's dual-metric attributed-speech) | **OPEN** — structure only, no cell-level closure attempted |
-| DS-06 | 70 (corrected from Session 3's [70,71]) | Occurrences of the name משה, per parasha/book/Torah | Name-occurrence counting | Grand total **647**, VISUALLY_VERIFIED at 2 zoom passes. Prefix-form breakdown CLOSED exactly (614+13+13+4+2+1=647, Session 6). Book-subtotal→Torah-total aggregation CLOSED exactly (290+86+233+38=647, Session 6). **Parasha-row→book-subtotal aggregation remains OPEN in all 4 books** (unforced gaps +22/+112/+47/+94-ish). Recurring "50" pattern (5 instances) confirmed literal (not artifact), significance undetermined. | **PARTIAL** — 2 of 3 aggregation levels CLOSED; row-level OPEN |
+| DS-06 | 70 | Occurrences of the proper name משה, per parasha/book/Torah | Name-occurrence counting | All 39 rows reproduce 290/86/233/38; six forms give 614+13+13+4+2+1=647; Ex 12:4 and Deut 15:2 same-consonant non-name homographs excluded | **CLOSED** |
 | DS-07 | 78 | Withdrawn alleged transmission chain | Corrected source reading | `ל״ז` is Sanhedrin daf 37; `שלשת שורות` is three student rows. No generation chain exists. | **WITHDRAWN — LOW-RESOLUTION MISREAD** |
 | DS-08 | 89–90, 98 | Withdrawn alleged Tochecha count | Corrected source reading | Three exact passes found discursive commentary only; no blessing/curse count table exists. | **WITHDRAWN — LOW-RESOLUTION MISREAD** |
 | DS-09 | 42–43 | 27 printed glyphs × 5 Megillot | Letter-occurrence counting | 135 source cells and corpus cells closed separately; source totals 12,108/5,142/4,945/5,974/10,968, corpus totals 12,110/5,141/4,949/5,974/10,968 | **CLOSED WITH SOURCE/CORPUS MISMATCH** |
@@ -139,7 +139,7 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 | Total Torah letters: source 304,812 / canonical 304,805 | 41–42 | — | VISUALLY_VERIFIED + COMPUTATIONALLY_REPRODUCED — CR-10 | +7 localized to 11 one-letter row deltas |
 | 1,820 roots exist in the Torah | 31–35 | — | AUTHOR_COUNT (SOURCE_LOCATED) | Full list not transcribed — can't independently check |
 | "עשה"-root count resolves to 248 (=248 mitzvot) | 69–70 | 268−14=254; 62+48+24+84+36=254; 254−6=248 | **CLOSED — SOURCE + CORPUS REPRODUCED** | No residual |
-| Name משה = 647 occurrences in the Torah | 70 | 614+13+13+4+2+1=647 (Session 6) | **CLOSED** — exact arithmetic closure at 2 levels (prefix-form; book-subtotal→Torah) | Parasha-row level does not close against its own book subtotal (4 unresolved gaps) |
+| Name משה = 647 occurrences in the Torah | 70 | rows→290/86/233/38→647; forms 614+13+13+4+2+1=647 | **CLOSED — SOURCE + CORPUS REPRODUCED** | Two non-name homographs explicitly excluded |
 | Former “Sanhedrin chain = 37 generations” | 78 | — | **WITHDRAWN**: 37 is the daf citation; the source says three rows of students | Low-resolution map error, source fact preserved |
 | Zayin entirely absent from the 42-station Masei list | 82 | — | VISUALLY_VERIFIED (terse pass) | Not independently re-verified this dossier |
 | Former Tochecha word-count comparison | 89–90,98 | — | **WITHDRAWN** after direct source search | The actual material is discursive commentary, not a dataset |
@@ -158,13 +158,13 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 | A-01/E-08 | Letter Heh, Bereshit: transcribed Σ vs. printed cumulative | was +244, now **+44** after a found transcription-decode error (Session 5) | SUBSTANTIALLY RESOLVED, small residual |
 | A-02/E-09 | Letter Zayin, Torah-total: transcribed Σ vs. printed final | +117 (orig); re-verification attempt did not improve it | UNRESOLVED (glyph ambiguity, thousands-prefix) |
 | New (Session 5) | Letter Aleph/Bet, all 4 books each: per-parasha Σ vs. printed book subtotal | grows from ~−1,471 to ~−43,952 with book size | UNRESOLVED — numeral-scale/thousands-notation hypothesis, not confirmed |
-| New (Session 6) | DS-06, all 4 books: per-parasha Σ vs. printed book subtotal | +22 / +112 / +47 / +94(ish) | UNRESOLVED — root cause undetermined; recurring-50 pattern is a partial but incomplete explanation |
+| Former DS-06 row gaps | low-resolution numerals vs. printed book subtotals | formerly +22/+112/+47/+94 | **RESOLVED** — corrected glyphs reproduce every subtotal; the “50” pattern is withdrawn |
 
 ### E.2 Missing rows / by-design gaps (not contradictions, but must not be mistaken for them)
 
 - **PDF pp.19–24**: zero content in every Claude artifact — deliberate DO-NOT-TOUCH (GPT's declared territory), not a coverage failure.
 - **Unit IDs U-026–U-031**: intentionally absent, same reason.
-- **DS-06's Devarim list**: only 6 of 11 parshiot named in the source itself — confirmed not a transcription skip (Session 6), genuinely partial in the printed table.
+- **DS-06's Devarim list**: only non-zero proper-name parshiot are printed; the omitted rows are zero after the Deut 15:2 non-name homograph is excluded.
 - **ט–נ letter interval (pp.37–38)**: internally inconsistent drop-cap reads in the original pass; partially resolved Session 5 (Tet re-identified); **ל/מ/נ boundary still unresolved** (`ID_p38_LEFT.png` rendered, never examined).
 
 ### E.3 Unclear/duplicate labels
@@ -180,7 +180,7 @@ DS-05 (entity/attribution per-cell values) and DS-11 (full 1,820-root list). DS-
 
 - **CR-04**: Omer 1..49=1,225 appears at both p.13 and p.73 — one passage referenced twice, or two independent treatments? Not adjudicated (interpretation-adjacent).
 - **E-11**: the source's own 1983 editor leaves an explicit unresolved question ("צ״ע") rather than asserting a fix — the book's transmission history preserves acknowledged uncertainty, not just corrections.
-- **Recurring "50" in DS-06**: confirmed literal (not a misread) in all 5 instances, direct-re-checked; whether it is a motif, coincidence, or an unstated approximation convention remains genuinely undetermined.
+- **Former recurring “50” in DS-06**: withdrawn; the cells are small numerals such as ג׳, and the corpus closes every row.
 
 ### E.6 Resolved (no longer open, listed for completeness)
 
@@ -212,10 +212,9 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 
 1. Letter-table (DS-02) per-parasha values for high-frequency letters (Aleph, Bet, and by extension every common letter ה–ת) — numeral-scale hypothesis unconfirmed.
 2. A-02 (letter Zayin checksum) — glyph ambiguity, needs a fresh high-zoom pass on the thousands-prefix digit specifically.
-3. DS-06's parasha-row-level aggregation (why 4/4 books fail to reconcile even though their own subtotals are exact) — root cause undetermined.
-4. E-07 (Levite span 249 vs. 239) — a single, small, well-bounded arithmetic discrepancy, never revisited since Task 3.
-5. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
-6. DS-11 full-list/root-rule reconstruction.
+3. E-07 (Levite span 249 vs. 239) — a single, small, well-bounded arithmetic discrepancy, never revisited since Task 3.
+4. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
+5. DS-11 full-list/root-rule reconstruction.
 
 ### NEXT (recommended single best next step)
 

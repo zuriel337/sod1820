@@ -117,8 +117,8 @@
     "DS-06",
     "משה",
     "p70",
-    "PARTIAL",
-    "647 closes at book/Torah level (sublayers CLOSED); parasha-row level remains open — corrected 5.9.2026, was previously mislabeled CLOSED/ANOMALY here"
+    "CLOSED",
+    "39 parasha rows, 4 books, 6 forms and Torah total reproduce exactly after two non-name homographs are excluded"
    ],
    [
     "DS-07",
@@ -237,7 +237,7 @@
   "open": [
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
-   "DS-02/06/11 דורשים closure ברמות שונות (ר' Datasets למטה)",
+   "DS-02/11 דורשים closure ברמות שונות (ר' Datasets למטה)",
    "Exact-witness adjudication אינו שווה למיפוי מבני",
    "טענות גימטריה אחרות אינן Engine Verified בלי המנוע הקנוני; מילות-הקצה של ברכת כהנים אומתו בנפרד",
    "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"
@@ -451,26 +451,25 @@
   },
   {
    "dataset_id": "DS-06",
-   "population": "Phrase/word occurrence-count table spanning MANY parashiot (Trumah through Haazinu observed)",
+   "population": "Occurrences of the proper name משה in all six printed prefix forms",
    "dimensions": [
     "parasha"
    ],
-   "metric": "occurrence count of a specific recurring word/root (context suggests a construction/service-related verb, e.g. עשה/פעמים)",
-   "scope": "large span of the Torah (Shemot through Devarim at minimum)",
-   "rows_description": "one row per parasha with a numeral",
-   "subtotals": "not established this pass",
-   "total": "not established this pass (table not read to its end)",
-   "ordering_rule": "physical/source order",
-   "inclusion_rule": "not established",
-   "exclusion_rule": "not established",
-   "exceptions": "NEWLY DISCOVERED this pass; NOT in any prior task's inventory",
-   "checksum": "not computed -- table not fully transcribed",
+   "metric": "proper-name occurrence count",
+   "scope": "whole Torah, effectively Exodus through Deuteronomy",
+   "rows_description": "39 parasha rows including explicit or implicit zeroes",
+   "subtotals": "Shemot 290 / Vayikra 86 / Bamidbar 233 / Devarim 38",
+   "total": "647",
+   "ordering_rule": "Torah and parasha order",
+   "inclusion_rule": "משה / למשה / ומשה / במשה / ובמשה / כמשה when the token is the proper name",
+   "exclusion_rule": "exclude same-consonant non-name homographs",
+   "exceptions": "Exodus 12:4 מִשֶּׂה (‘from a lamb’) and Deuteronomy 15:2 מַשֵּׁה (loan/creditor)",
+   "checksum": "parasha rows close to 290/86/233/38; 290+86+233+38=647; 614+13+13+4+2+1=647",
    "pdf_pages": [
-    70,
-    71
+    70
    ],
-   "confidence": "VISUALLY_VERIFIED (existence+partial content); UNCERTAIN (full extent/total)",
-   "status": "PARTIAL"
+   "confidence": "VISUALLY_VERIFIED source + COMPUTATIONALLY_REPRODUCED corpus",
+   "status": "CLOSED"
   },
   {
    "dataset_id": "DS-07",
