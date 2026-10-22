@@ -110,6 +110,10 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
   const axisColor = options.axisColor || DEFAULT_AXIS_COLOR;
   const maxFindings = Math.max(1, Number(options.maxFindings || 12));
   const previousAxis = engineState.termRaw || engineState.term || "";
+  // Promotion changes which occurrence is the primary axis. Always reveal that
+  // new axis so the user can verify the result in the matrix. The snapshot still
+  // retains the previous axis' visibility and exact return restores it.
+  const promotedView = { ...snapshot.view, hideMain: false };
   const carry = [
     previousAxis ? { t: previousAxis, color: axisColor, sh: [engineState.axis.hitId] } : null,
     ...(Array.isArray(engineState.findings) ? engineState.findings : [])
@@ -131,8 +135,8 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
       words: carry,
       scope: options.scope || snapshot.scope,
       searchWindow: snapshot.searchWindow,
-      view: snapshot.view,
-      hideMain: snapshot.view.hideMain,
+      view: promotedView,
+      hideMain: false,
     },
   };
 }

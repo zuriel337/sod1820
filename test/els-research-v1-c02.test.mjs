@@ -54,6 +54,23 @@ test("C02 promotes the explicitly selected verified Finding occurrence through t
   });
 });
 
+test("C02 reveals the promoted primary axis while exact return preserves the prior visibility", () => {
+  const hiddenAxisState = {
+    ...engineState,
+    ui: { ...engineState.ui, hideMain: true },
+  };
+  const promoted = buildJourneyPromotion(hiddenAxisState, hiddenAxisState.findings[0], { hitId: "11_-1_400" });
+
+  assert.equal(promoted.ok, true);
+  assert.equal(promoted.snapshot.view.hideMain, true, "the prior axis keeps its exact return state");
+  assert.equal(promoted.loadItem.hideMain, false, "the newly promoted axis is visible immediately");
+  assert.equal(promoted.loadItem.view.hideMain, false, "the promotion view agrees with the engine load flag");
+
+  const restored = buildJourneyRestore(promoted.snapshot);
+  assert.equal(restored.ok, true);
+  assert.equal(restored.loadItem.hideMain, true, "return restores the prior hidden-axis preference");
+});
+
 test("C02 exact return restores the same axis, findings and geometry envelope without recomputation", () => {
   const snapshot = makeJourneySnapshot(engineState, { mode: "research" });
   const restored = buildJourneyRestore(snapshot);

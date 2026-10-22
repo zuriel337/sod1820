@@ -638,12 +638,17 @@ test('an owned saved cipher replaces its promoted primary axis in the same row a
    await page.evaluate(value=>window.__openSavedMatrix(value),row);
    await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
    const oldAxis=await page.evaluate(()=>({term:window.__state.term,hitId:window.__state.axis.hitId}));
+   await activate(page,'סימון הציר הראשי');
+   await page.waitForFunction(()=>window.__state?.ui?.hideMain===true);
+   assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0,'the fixture starts with the saved old axis hidden');
    await addSecondary(page,'התורה');
    const target=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='התורה').hits.find(hit=>hit.shown&&hit.verified).hitId);
    await activate(page,`פעולות הציר הראשי ${oldAxis.term}`);
    assert.match(await page.locator('#els29-primary-axis-actions').textContent(),new RegExp(`כדי למחוק את „${oldAxis.term}”`));
    await activate(page,`החלף את הציר הראשי ${oldAxis.term} ב־התורה`);
    await page.waitForFunction(hitId=>window.__state?.axis?.hitId===hitId,target);
+   assert.equal(await page.evaluate(()=>window.__state.ui.hideMain),false,'a newly promoted primary axis is never inherited as hidden');
+   assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0,'the replacement axis is visible in the matrix');
    assert.ok((await page.evaluate(term=>window.__state.findings.some(finding=>finding.t===term),oldAxis.term)),'Journey retains the old axis until the replacement is saved');
    await page.getByText('החלפת הציר הראשי',{exact:true}).waitFor();
    assert.equal(await page.getByText('החלפת הציר הראשי',{exact:true}).count(),1);
@@ -662,6 +667,7 @@ test('an owned saved cipher replaces its promoted primary axis in the same row a
    assert.equal(saved.id,'privacy-record');
    assert.equal(saved.title,'בית ירד');
    assert.equal(saved.search_term,'התורה');
+   assert.equal(saved.positions.hideMain,false,'the replacement persists with its primary axis visible');
    assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'axis replacement never creates a copy');
    assert.equal(saved.positions.findings.some(finding=>finding.t===oldAxis.term),false,'old primary is deleted from persisted findings');
    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0,'private replacement does not publish a card image');
