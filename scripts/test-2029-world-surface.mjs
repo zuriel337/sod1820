@@ -542,6 +542,10 @@ assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
 assert.match(worldAllResearchComponent, /כל חומר המחקר על השולחן/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /פרטי · גלוי לך/);
+assert.match(worldAllResearchComponent, /נמצא ב־\{occurrences\.length\} הופעות/);
+assert.match(worldAllResearchComponent, /הנוסח המלא ביותר מוצג למעלה/);
+assert.match(worldAllResearchComponent, /<DuplicateOccurrences row=\{row\}/);
+assert.match(worldCss, /\.sod29-world-all-research-duplicates/);
 for (const table of ["research_objects", "channel_updates", "research_contributions", "topic_cards"]) {
   assert.equal(
     worldAllResearchSource.includes('fetchAllRows(\n      "' + table + '"'),

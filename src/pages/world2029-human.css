@@ -1626,6 +1626,56 @@
   color:var(--s29-muted);
   font-size:10.5px;
 }
+.sod29-world-all-research-duplicates{
+  border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel) 62%,transparent);
+}
+.sod29-world-all-research-duplicates summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 11px;
+  color:var(--s29-ink);
+  cursor:pointer;
+  font-size:10.5px;
+  font-weight:800;
+}
+.sod29-world-all-research-duplicates summary small{
+  color:var(--s29-muted);
+  font-size:9.5px;
+  font-weight:600;
+}
+.sod29-world-all-research-duplicates ol{
+  display:grid;
+  gap:7px;
+  margin:0;
+  padding:0 31px 10px 10px;
+}
+.sod29-world-all-research-duplicates li{
+  padding:8px 9px;
+  border:1px solid var(--s29-line);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);
+}
+.sod29-world-all-research-occurrence-head,
+.sod29-world-all-research-occurrence-meta{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:9px;
+}
+.sod29-world-all-research-occurrence-head strong{color:var(--s29-ink);font-size:10.5px}
+.sod29-world-all-research-occurrence-head span,
+.sod29-world-all-research-occurrence-meta span{color:var(--s29-muted);font-size:9.5px}
+.sod29-world-all-research-duplicates li p{
+  margin:6px 0 0;
+  color:var(--s29-muted);
+  line-height:1.65;
+  font-size:10px;
+  white-space:pre-wrap;
+}
 .sod29-world-all-research-ref{
   display:block;
   max-width:100%;
@@ -1643,6 +1693,9 @@
   .sod29-world-all-research-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-world-all-research-filters{grid-template-columns:1fr}
   .sod29-world-all-research-row-head{display:grid}
+  .sod29-world-all-research-duplicates summary,
+  .sod29-world-all-research-occurrence-head,
+  .sod29-world-all-research-occurrence-meta{align-items:flex-start;flex-direction:column}
 }
 
 

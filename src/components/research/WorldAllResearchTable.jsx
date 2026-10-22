@@ -97,6 +97,44 @@ function VerificationLabel({ row }) {
   return <span className="sod29-world-all-research-muted">{label}</span>;
 }
 
+function occurrenceSourceKey(occurrence) {
+  const ref = clean(occurrence?.sourceRef);
+  return ref ? ref.replace(/#(?:batch|a)\d+$/i, "") : clean(occurrence?.id);
+}
+
+function DuplicateOccurrences({ row }) {
+  const occurrences = Array.isArray(row?.occurrences) ? row.occurrences : [];
+  if (occurrences.length < 2) return null;
+
+  const sourceCount = new Set(occurrences.map(occurrenceSourceKey).filter(Boolean)).size;
+  const canonicalText = clean(row.originalStatement || row.statement);
+
+  return <details className="sod29-world-all-research-duplicates">
+    <summary>
+      <span>נמצא ב־{occurrences.length} הופעות</span>
+      <small>{sourceCount} {sourceCount === 1 ? "מקור" : "מקורות"} · הנוסח המלא ביותר מוצג למעלה</small>
+    </summary>
+    <ol>
+      {occurrences.map((occurrence, index) => {
+        const variant = clean(occurrence.originalStatement || occurrence.statement);
+        return <li key={occurrence.id || `${occurrence.sourceRef || "source"}:${index}`}>
+          <div className="sod29-world-all-research-occurrence-head">
+            <strong>{safeVisibleText(occurrence.sourceLabel, "מקור מחקר")}</strong>
+            {occurrence.createdAt ? <span>{relativeTimeLabel(occurrence.createdAt)}</span> : null}
+          </div>
+          <div className="sod29-world-all-research-occurrence-meta">
+            <span>ייחוס · {contributorLabel(occurrence.contributor)}</span>
+            {occurrence.sourceRef ? <code className="sod29-world-all-research-ref" dir="ltr">{occurrence.sourceRef}</code> : null}
+          </div>
+          {variant && variant !== canonicalText
+            ? <p>{safeVisibleText(variant, "גרסת מקור שמורה")}</p>
+            : null}
+        </li>;
+      })}
+    </ol>
+  </details>;
+}
+
 export default function WorldAllResearchTable({ state }) {
   const projection = state?.projection || null;
   const [query, setQuery] = useState("");
@@ -135,6 +173,7 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.sourceTotals.contribution || 0}</b> תרומות מחקר</span>
         <span><b>{projection.sourceTotals.topic || 0}</b> נושאים</span>
         <span><b>{projection.byAccess.private || 0}</b> פרטי · גלוי לך</span>
+        {projection.duplicateProjection?.groups ? <span><b>{projection.duplicateProjection.groups}</b> אשכולות מאוחדים</span> : null}
       </div>
 
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
@@ -175,6 +214,8 @@ export default function WorldAllResearchTable({ state }) {
             <span>מקור · {safeVisibleText(row.sourceLabel, "מקור מחקר")}</span>
             {row.createdAt ? <span>נוסף למחקר · {relativeTimeLabel(row.createdAt)}</span> : null}
           </div>
+
+          <DuplicateOccurrences row={row} />
 
           {row.attributionLabel ? <div className="sod29-world-all-research-cluster">{safeVisibleText(row.attributionLabel, "ייחוס המקור לא הוכרע")}</div> : null}
           {row.spatialCluster ? <div className="sod29-world-all-research-cluster">קיים אשכול מחקר מרחבי</div> : null}
