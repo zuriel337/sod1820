@@ -1,12 +1,5 @@
 import { supabase } from "../supabase.js";
 import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
-import { resolveResearchObjectPresentation } from "./researchObjectPresentation.js";
-import {
-  presentBookAccessStatus,
-  presentBookResearchKind,
-  presentBookResearchStatus,
-  presentBookVerificationState,
-} from "./bookHebrewPresentation.js";
 
 // Must stay aligned to the existing column-scoped authenticated GRANT from
 // 20260825143000_research_intake_step1b_research_objects_admin_read_grant.sql.
@@ -355,30 +348,13 @@ export function bookResearchStatusLabel(status) {
   return key ? status : "מחקר";
 }
 
-function primaryHebrewResearchTitle(humanPresentation, kindPresentation) {
-  const title = clean(humanPresentation?.title);
-  if (title && !/[A-Za-z]{2,}/.test(title)) return title;
-  return kindPresentation?.labelHe || "פריט מחקר";
-}
-
 export function buildBookResearchPresentation(rows) {
   const list = Array.isArray(rows) ? rows : [];
   const entries = list.map(row => {
     const representation = researchRowToBookRepresentation(row);
-    const explicitVerification = clean(representation.engineVerificationState);
-    const humanPresentation = resolveResearchObjectPresentation(row, { locale: "he" });
-    const kindPresentation = presentBookResearchKind(row?.kind);
     return {
       row,
       representation,
-      humanPresentation,
-      titleHe: primaryHebrewResearchTitle(humanPresentation, kindPresentation),
-      kindPresentation,
-      statusPresentation: presentBookResearchStatus(row?.status),
-      accessPresentation: presentBookAccessStatus(row?.privacy_scope),
-      verificationPresentation: explicitVerification
-        ? presentBookVerificationState(explicitVerification)
-        : null,
       needsReview: bookResearchNeedsReview(row, representation),
       statusLabel: bookResearchStatusLabel(row?.status),
       verificationLabel: bookResearchVerificationLabel(row, representation),
