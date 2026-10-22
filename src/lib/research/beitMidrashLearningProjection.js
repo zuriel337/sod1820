@@ -18,6 +18,7 @@ export const BEIT_MIDRASH_LEARNING_SECTION = Object.freeze({
   METHODS: "methods",
   CIPHERS: "ciphers",
   SOURCES: "sources",
+  NUMBERS: "numbers",
   PATHS: "paths",
   GUIDED: "guided",
   PRACTICE: "practice",
@@ -58,12 +59,164 @@ const BEGINNER_CONCEPTS = freezeItems([
   },
 ]);
 
+const NUMBER_GUIDE_CONCEPTS = freezeItems([
+  {
+    id: "number-page",
+    title: "מה רואים בדף מספר?",
+    body: "דף המספר אוסף ביטויים, דרכי חישוב, תכונות מתמטיות, מקורות וחיבורים סביב מספר אחד. כל שכבה מספרת משהו אחר, ולכן לא מחליפים עובדה בפירוש.",
+    href: "/2029/number/1820",
+  },
+  {
+    id: "expressions-methods",
+    title: "ביטוי, שיטה ותוצאה",
+    body: "הביטוי הוא הטקסט שנבדק; השיטה קובעת כיצד מחשבים; התוצאה היא מה שהתקבל. החלפת שיטה יכולה לשנות את התוצאה, ולכן תמיד מציינים באיזו דרך חושב הערך.",
+    href: "/2029/number/1820#number-now",
+  },
+  {
+    id: "verses",
+    title: "פסוקים בעלי אותו ערך",
+    body: "פסוק שמופיע בדף הגיע לקורא הפסוקים הקיים ונמצא שווה לערך בשיטה המוצגת. השוויון המספרי הוא נקודת פתיחה; את הפסוק קוראים גם במקומו ובהקשרו.",
+    href: "/2029/number/1820#number-verses",
+  },
+  {
+    id: "math-profile",
+    title: "הפרופיל המתמטי",
+    body: "פירוק לגורמים מציג מאילו מספרים ראשוניים המספר בנוי. φ(n) סופר כמה מספרים קטנים ממנו זרים לו. סכום הספרות מחבר את ספרותיו, ושורש ספרות חוזר על החיבור עד שנשארת ספרה אחת.",
+    href: "/2029/number/1820#number-math",
+  },
+  {
+    id: "math-families",
+    title: "משפחות של מספרים",
+    body: "ראשוני, משולשי, ריבועי, מצולע, מעוקב, חזקה של 2, מושלם, שופע או חסר, חצי־ראשוני, פלינדרומי, ספרות חוזרות, הרשד, שמח וארמסטרונג — אלה תיאורים מתמטיים מדויקים, לא פירוש סמלי בפני עצמו.",
+    href: "/2029/number/1820#number-math",
+  },
+  {
+    id: "prime-lens",
+    title: "עדשת הראשוניים",
+    body: "כאשר המספר ראשוני אפשר לראות את מקומו ברשימת הראשוניים, את הראשוני הקודם והבא ואת הפערים ביניהם. מספר שאינו ראשוני נשאר עם פירוק הגורמים שלו.",
+    href: "/2029/number/1820#number-math",
+  },
+  {
+    id: "fibonacci",
+    title: "פיבונאצ׳י ופירוק זקנדורף",
+    body: "ברצף פיבונאצ׳י כל איבר הוא סכום שני קודמיו. בדף אנחנו משתמשים במוסכמה F1=1, F2=1. פירוק זקנדורף מציג כל מספר חיובי כסכום איברי פיבונאצ׳י שאינם סמוכים — דרך תיאור מדויקת, לא הוכחה למשמעות נסתרת.",
+    href: "/2029/number/1820#number-fibonacci",
+  },
+  {
+    id: "sequences",
+    title: "רצפים ומיקום בתוך π",
+    body: "מד הרצפים מציג מיקום וערכים סמוכים כאשר קיימת התאמה מחושבת. ערך נגזר מתאר פעולה נוספת על התוצאה; הוא אינו זהה למספר המקורי ואינו מקבל משמעות בלי מקור והקשר.",
+    href: "/2029/number/1820#number-math",
+  },
+  {
+    id: "relations",
+    title: "מספרים קשורים ושיטת האפס",
+    body: "מספר קשור חייב להגיע עם סיבה גלויה. שיטת האפס יוצרת נגזרת של המספר ומסלול חזרה אליו; נגזרת אינה שוויון, וקשר אינו אומר ששני המספרים זהים.",
+    href: "/2029/number/1820#number-connections-live",
+  },
+  {
+    id: "sources-and-meaning",
+    title: "מקור, חיבור ופירוש",
+    body: "מקור אומר מאין הגיע פרט; חיבור מצביע על יחס שניתן לבדוק; פירוש מציע כיצד להבין אותו. העולם מציג את מפת החיבורים, ובית המדרש מלמד איך לקרוא אותם.",
+    href: "/world",
+  },
+  {
+    id: "worlds-and-discoveries",
+    title: "עולמות וגילויים",
+    body: "עולם הוא הקשר רחב שמאגד אירועים, נושאים וחיבורים. גילוי הוא פריט מסוים בתוך המפה. דף המספר מציג חלון ממוקד; המפה והעמוד הקנוני נשארים בעולם.",
+    href: "/world#world-connections",
+  },
+  {
+    id: "expressions-and-languages",
+    title: "ביטויים ושפות",
+    body: "כמה ביטויים יכולים להגיע לאותו מספר, לעיתים בשיטות שונות או בשפות שונות. התאמה מספרית אינה אומרת שהביטויים זהים; היא מזמינה לבדוק שיטה, תרגום והקשר.",
+    href: "/2029/number/1820#number-expressions",
+  },
+  {
+    id: "people-media-time",
+    title: "אנשים, מדיה וציר הזמן",
+    body: "ייחוס לאדם מסביר מי תרם חומר; מדיה זקוקה לקשר ברור; וציר הזמן מספר מתי פריט נוסף. זמן ההוספה לאתר אינו בהכרח זמן האירוע שמתואר בו.",
+    href: "/2029/number/1820#number-content-live",
+  },
+  {
+    id: "journey-and-heichal",
+    title: "מסע אישי והעמקה בהיכל",
+    body: "המסע שומר רצף אישי ופרטי בין תחנות. ההיכל פותח בדיקה עמוקה, הרצות חדשות ושיחה עם רזיאל. בית המדרש מסביר את השיטות, אך אינו מחזיק את התיק האישי או את עבודת ההיכל.",
+    href: "/2029/number/1820#number-journey-gate",
+  },
+]);
+const NUMBER_GUIDE_CONCEPT_VALUES = new Set(NUMBER_GUIDE_CONCEPTS.map((concept) => concept.id));
+
 const LEARNING_PATHS = freezeItems([
-  { id: "first-steps", title: "צעדים ראשונים", description: "רמז, מקור, חישוב ופירוש — ואיך מבדילים ביניהם." },
-  { id: "gematria", title: "דרכי החישוב", description: "לומדים כל שיטת גימטריה, רואים דוגמה ומנסים בעצמנו." },
-  { id: "sources", title: "קריאת מקורות", description: "חוזרים אל ההקשר, אל הציטוט המדויק ואל מקורות נוספים." },
-  { id: "meetings", title: "הצלבות והתכנסויות", description: "לומדים מהי נקודת מפגש וכיצד כמה חיבורים מצטרפים לתמונה אחת." },
-  { id: "sod1820", title: "מסלול 1820", description: "מסלול מדורג להכרת המספר 1820, המקורות והשיטות שסביבו." },
+  {
+    id: "first-steps",
+    title: "צעדים ראשונים",
+    description: "רמז, מקור, חישוב ופירוש — ואיך מבדילים ביניהם.",
+    href: "/beit-midrash?section=paths&path=first-steps#path-first-steps",
+    steps: Object.freeze([
+      { title: "מכירים את ארבע אבני היסוד", href: "/beit-midrash" },
+      { title: "רואים דרך חישוב אחת", href: "/beit-midrash?section=methods" },
+      { title: "פותחים דוגמה מודרכת", href: "/beit-midrash?section=guided" },
+    ]),
+  },
+  {
+    id: "gematria",
+    title: "דרכי החישוב",
+    description: "לומדים כל שיטת גימטריה, רואים דוגמה ומנסים בעצמנו.",
+    href: "/beit-midrash?section=paths&path=gematria#path-gematria",
+    steps: Object.freeze([
+      { title: "בוחרים שיטה מן הרישום הקנוני", href: "/beit-midrash?section=methods" },
+      { title: "קוראים את שלבי החישוב והזהירות", href: "/beit-midrash?section=methods" },
+      { title: "מנסים בכלי הגימטריה", href: "/2029/gematria" },
+    ]),
+  },
+  {
+    id: "number-page",
+    title: "לקרוא דף מספר",
+    description: "לומדים להבדיל בין תוצאה, תכונה מתמטית, מקור, חיבור ופירוש.",
+    href: "/beit-midrash?section=paths&path=number-page#path-number-page",
+    steps: Object.freeze([
+      { title: "קוראים את מדריך דף המספר", href: "/beit-midrash?section=numbers" },
+      { title: "לומדים פיבונאצ׳י וזקנדורף", href: "/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci" },
+      { title: "מתרגלים על דף 1820", href: "/2029/number/1820" },
+    ]),
+  },
+  {
+    id: "sources",
+    title: "קריאת מקורות",
+    description: "חוזרים אל ההקשר, אל הציטוט המדויק ואל מקורות נוספים.",
+    href: "/beit-midrash?section=paths&path=sources#path-sources",
+    steps: Object.freeze([
+      { title: "מבדילים בין מקור לפירוש", href: "/beit-midrash?section=sources" },
+      { title: "פותחים ספר או מקור קנוני", href: "/books" },
+      { title: "בודקים את מסלול החזרה בדוגמה", href: "/beit-midrash?section=guided" },
+    ]),
+  },
+  {
+    id: "meetings",
+    title: "הצלבות והתכנסויות",
+    description: "לומדים מהי נקודת מפגש וכיצד כמה חיבורים מצטרפים לתמונה אחת.",
+    href: "/beit-midrash?section=paths&path=meetings#path-meetings",
+    steps: Object.freeze([
+      { title: "קוראים נקודת מפגש מודרכת", href: "/beit-midrash?section=guided&kind=crossing" },
+      { title: "רואים כיצד התמונה מתחברת", href: "/beit-midrash?section=guided&kind=convergence" },
+      { title: "ממשיכים למפה המלאה בעולם", href: "/world#world-connections" },
+    ]),
+  },
+  {
+    id: "sod1820",
+    title: "מסלול 1820",
+    description: "מסלול מדורג להכרת המספר 1820, המקורות והשיטות שסביבו.",
+    href: "/beit-midrash?section=paths&path=sod1820#path-sod1820",
+    steps: Object.freeze([
+      { title: "מכירים את שכבות דף המספר", href: "/beit-midrash?section=numbers" },
+      { title: "פותחים את דף 1820", href: "/2029/number/1820" },
+      { title: "לומדים דרך חישוב", href: "/beit-midrash?section=methods" },
+      { title: "קוראים גילוי מודרך", href: "/beit-midrash?section=guided" },
+      { title: "רואים את מפת החיבורים בעולם", href: "/world#world-connections" },
+      { title: "מעמיקים עם רזיאל בהיכל", href: "/heichal" },
+    ]),
+  },
 ]);
 
 const SECTIONS = freezeItems([
@@ -90,6 +243,12 @@ const SECTIONS = freezeItems([
     pillar: BEIT_MIDRASH_LEARNING_PILLAR.LEARN,
     title: "לחזור אל המקור",
     description: "כיצד בודקים ציטוט, הקשר ועצמאות בין מקורות בלי לאבד את הדרך חזרה.",
+  },
+  {
+    id: BEIT_MIDRASH_LEARNING_SECTION.NUMBERS,
+    pillar: BEIT_MIDRASH_LEARNING_PILLAR.LEARN,
+    title: "איך קוראים דף מספר?",
+    description: "מדריך לשכבות שכבר מופיעות בדף המספר — מן החישוב ועד פיבונאצ׳י, מקורות וחיבורים.",
   },
   {
     id: BEIT_MIDRASH_LEARNING_SECTION.PATHS,
@@ -122,7 +281,7 @@ const DESTINATIONS = Object.freeze({
     id: "calculator",
     title: "לתרגול במחשבון",
     description: "המחשבון הקנוני נפתח ככלי נפרד; בית המדרש אינו מחזיק עותק שלו.",
-    href: "/2029/calculator",
+    href: "/2029/gematria",
     status: "ready",
   }),
   ciphers: Object.freeze({
@@ -156,16 +315,17 @@ const DESTINATIONS = Object.freeze({
   contribution: Object.freeze({
     id: "contribution",
     title: "לשתף רמז",
-    description: "החיבור ייקבע בידי בעל זרימת התרומה; בית המדרש לא יוצר טופס או מאגר משלו.",
+    description: "הרמז נשלח דרך שער הקשר הקנוני של האתר; בית המדרש אינו יוצר טופס או מאגר משלו.",
     href: null,
-    status: "owner_handoff_required",
+    action: "openIssueReport",
+    status: "ready",
   }),
   game: Object.freeze({
     id: "game",
     title: "למשחק",
-    description: "החיבור יתווסף כאשר בעל המשחק ימסור נתיב קנוני.",
-    href: null,
-    status: "owner_handoff_required",
+    description: "המשחק זמין רק ב־Preview שבו ממלכת המספרים הופעלה. הניקוד בו הוא משחקי ואינו דירוג של גילוי.",
+    href: "/2029/kingdom",
+    status: "preview_only",
   }),
 });
 
@@ -183,6 +343,7 @@ export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   ]),
   sections: SECTIONS,
   beginnerConcepts: BEGINNER_CONCEPTS,
+  numberGuideConcepts: NUMBER_GUIDE_CONCEPTS,
   learningPaths: LEARNING_PATHS,
   destinations: DESTINATIONS,
   methodLesson: Object.freeze({
@@ -242,6 +403,7 @@ export function beitMidrashLearningHref(section, {
   guidedKind = null,
   findingId = null,
   pathId = null,
+  conceptId = null,
   destinationId = null,
 } = {}) {
   const resolvedSection = safeSection(section) || BEIT_MIDRASH_LEARNING_SECTION.START;
@@ -254,10 +416,21 @@ export function beitMidrashLearningHref(section, {
   if (resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.GUIDED && kind) params.set("kind", kind);
   if (clean(findingId)) params.set("finding", clean(findingId));
   if (clean(pathId)) params.set("path", clean(pathId));
+  const concept = clean(conceptId);
+  const numberConcept = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
+    && NUMBER_GUIDE_CONCEPT_VALUES.has(concept);
+  if (numberConcept) {
+    params.set("concept", concept);
+  }
   if (clean(destinationId)) params.set("to", clean(destinationId));
   const query = params.toString();
   const finding = clean(findingId);
-  return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${finding ? `#finding-${encodeURIComponent(finding)}` : ""}`;
+  const anchor = finding
+    ? `finding-${encodeURIComponent(finding)}`
+    : numberConcept
+      ? `number-concept-${encodeURIComponent(concept)}`
+      : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
+  return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${anchor ? `#${anchor}` : ""}`;
 }
 
 /**
@@ -283,6 +456,11 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     : null;
   const findingId = clean(params.get("finding")) || null;
   const pathId = clean(params.get("path")) || legacy?.pathId || null;
+  const requestedConcept = clean(params.get("concept"));
+  const conceptId = section === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
+    && NUMBER_GUIDE_CONCEPT_VALUES.has(requestedConcept)
+    ? requestedConcept
+    : null;
   const destinationId = clean(params.get("to")) || legacy?.destinationId || null;
   const toolCompatibility = clean(params.get("tool")).toLowerCase() === "midrash";
 
@@ -292,6 +470,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     methodKey: requestedMethod,
     findingId,
     pathId,
+    conceptId,
     destinationId,
     adminOnly: legacy?.adminOnly === true,
     compatibilitySource: legacyAtlas
@@ -306,6 +485,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       guidedKind,
       findingId,
       pathId,
+      conceptId,
       destinationId,
     }),
     shouldRedirect: false,

@@ -129,6 +129,8 @@ export default function BeitMidrash2029Page() {
     ? "bm-lesson-title"
     : place.findingId && !world.loading ? `guided-${place.guidedKind === "convergence" ? "convergence" : "crossing"}-${place.findingId}`
       : place.guidedKind ? `guided-${place.guidedKind}`
+        : place.conceptId ? `number-concept-${place.conceptId}`
+          : place.pathId ? `path-${place.pathId}`
         : place.section !== "start" ? place.section : "";
   useEffect(() => {
     const id = target || decodeMethod((hash || "").replace(/^#/, ""));
@@ -168,7 +170,12 @@ export default function BeitMidrash2029Page() {
     <main className="sod29-midrash" data-experience-surface="beit-midrash" data-canonical-route={manifest.identity.canonicalRoute}>
       <BeitMidrashHero identity={manifest.identity} pillars={pillars} />
 
-      <BeitMidrashLearn manifest={manifest} focusedSection={place.section} focusedPath={place.pathId}>
+      <BeitMidrashLearn
+        manifest={manifest}
+        focusedSection={place.section}
+        focusedPath={place.pathId}
+        focusedConcept={place.conceptId}
+      >
         <BeitMidrashMethods
           section={sectionOf("methods")}
           focused={place.section === "methods"}
