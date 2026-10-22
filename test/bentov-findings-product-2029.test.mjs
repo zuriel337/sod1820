@@ -124,3 +124,23 @@ test("visual layer uses the project semantic tokens and a local illustration", (
   assert.match(css, /var\(--s29-/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
 });
+
+test("Bentov typography consumes the Design V2 scale and keeps Hebrew out of the numeric face", () => {
+  assert.match(css, /--b29-type-meta:var\(--s29-type-micro,14px\)/);
+  assert.match(css, /--b29-type-ui:var\(--s29-type-ui,16px\)/);
+  assert.match(css, /--b29-type-body:var\(--s29-type-body,18px\)/);
+
+  const literalFontSizes = [...css.matchAll(/font-size:(\d+(?:\.\d+)?)px/g)]
+    .map(match => Number(match[1]))
+    .filter(size => size < 14);
+  const literalShorthandSizes = [...css.matchAll(/font:\d+\s+(\d+(?:\.\d+)?)px\//g)]
+    .map(match => Number(match[1]))
+    .filter(size => size < 14);
+  assert.deepEqual(literalFontSizes, []);
+  assert.deepEqual(literalShorthandSizes, []);
+
+  assert.match(page, /className="bentov29-numeric-value">0<\/span><span className="bentov29-value-label">ציבוריים/);
+  assert.match(css, /\.bentov29-verification-chain \.bentov29-numeric-value\{font-family:var\(--s29-font-numeric\);font-size:inherit;line-height:1\}/);
+  assert.match(css, /\.bentov29-verification-chain \.bentov29-value-label\{font-family:var\(--s29-font-ui\);font-size:var\(--b29-type-ui\);letter-spacing:0\}/);
+  assert.match(css, /\.bentov29 \.bentov29-node\{width:44px;height:44px\}/);
+});

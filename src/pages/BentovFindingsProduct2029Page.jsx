@@ -615,7 +615,7 @@ export default function BentovFindingsProduct2029Page() {
           <article className="is-complete"><span>01</span><strong>קליטת חומר</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה ואיתור שמור במאגר המוגן.</small></article>
           <article className="is-complete"><span>02</span><strong>ביקורת איתור PDF</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 מדויקים, 8 דורשים הרחבת טווח ו־22 דורשים תיקון.</small></article>
           <article className="is-current"><span>03</span><strong>נאמנות חילוץ</strong><b>0 / 33</b><small>לא נרשם סטטוס; תיקוני האיתור קודמים להכרעת מלא או חלקי.</small></article>
-          <article className="is-closed"><span>04</span><strong>ביקורת ופרסום</strong><b>0 ציבוריים</b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
+          <article className="is-closed"><span>04</span><strong>ביקורת ופרסום</strong><b><span className="bentov29-numeric-value">0</span><span className="bentov29-value-label">ציבוריים</span></b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
         </div>
         <div className="bentov29-audit-summary" aria-label="סיכום ביקורת איתורי המקור">
           <span className="is-confirmed"><b>{LOCATOR_AUDIT_TOTALS.confirmed}</b><small>איתורים מדויקים</small></span>
