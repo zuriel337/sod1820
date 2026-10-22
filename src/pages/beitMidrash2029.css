@@ -109,6 +109,21 @@
 [data-frame-theme-preset="dark"] .bm-hero h1,
 [data-frame-theme-preset="dark"] .bm-logotype{color:var(--s29-hero,var(--s29-accent-text))}
 
+[data-frame-theme-preset="dark"] .bm-section{
+  border-color:color-mix(in srgb,var(--bm-gold) 24%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bm-sapphire) 16%,var(--s29-page)),var(--s29-page));
+}
+[data-frame-theme-preset="dark"] .bm-lesson,
+[data-frame-theme-preset="dark"] .bm-example-card{
+  background:color-mix(in srgb,var(--bm-sapphire) 12%,var(--s29-page));
+}
+[data-frame-theme-preset="dark"] .bm-pillars a{
+  background:color-mix(in srgb,var(--bm-sapphire) 22%,var(--s29-page));
+}
+[data-frame-theme-preset="dark"] .bm-paths li,
+[data-frame-theme-preset="dark"] .bm-unavailable,
+[data-frame-theme-preset="dark"] .bm-map-cta{background:color-mix(in srgb,var(--bm-sapphire) 10%,transparent)}
+
 /* ——— Pillars and sections ——— */
 .bm-pillar{margin-top:clamp(36px,6vw,72px)}
 .bm-pillar-title{
@@ -209,10 +224,9 @@
 }
 .bm-concepts li{
   min-width:0;
-  padding:16px;
-  border:1px solid var(--s29-line);
-  border-radius:14px;
-  background:var(--s29-panel-soft);
+  padding:14px 4px 0;
+  border:0;
+  border-top:1px solid var(--bm-frame);
 }
 .bm-concept-no{
   display:inline-grid;place-items:center;
@@ -272,8 +286,9 @@
 }
 .bm-method-group a:hover{background:var(--s29-panel-soft)}
 .bm-method-group a.is-selected{
-  border-color:var(--bm-gold);
-  background:color-mix(in srgb,var(--bm-gold) 9%,var(--s29-panel));
+  border-color:var(--bm-frame);
+  border-inline-start:3px solid var(--bm-gold);
+  background:color-mix(in srgb,var(--bm-sapphire) 14%,var(--s29-panel));
 }
 .bm-method-group a span{font-size:16px;font-weight:800}
 .bm-method-group a small{color:var(--s29-muted);font-size:14px}
@@ -298,8 +313,8 @@
 .bm-lesson-grid>section,
 .bm-example,
 .bm-caution,
-.bm-try{padding:16px;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel)}
-.bm-example,.bm-caution,.bm-try{margin-top:12px}
+.bm-try{padding:16px 2px 0;border:0;border-top:1px solid color-mix(in srgb,var(--bm-gold) 30%,var(--s29-line));background:none}
+.bm-example,.bm-caution,.bm-try{margin-top:20px}
 .bm-aside{margin-top:10px!important;font-size:15px!important}
 .bm-aside small{display:block;margin-top:4px;color:var(--s29-muted)}
 .bm-example-line{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:6px}

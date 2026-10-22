@@ -231,6 +231,14 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
       await page.evaluate(() => window.__setTheme("night"));
       await page.waitForTimeout(350);
       await page.locator("#guided").screenshot({ path: `${shots}/night-390-guided.png` });
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(`${origin}/beit-midrash/standard`);
+      await page.waitForSelector(".bm-lesson");
+      await page.evaluate(() => window.__setTheme("night"));
+      await page.waitForTimeout(350);
+      await page.screenshot({ path: `${shots}/night-1280-full.png`, fullPage: true });
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.goto(`${origin}/beit-midrash`);
     }
 
     // Exact method deep link selects exactly that method; unknown method is an error, never a redirect.
