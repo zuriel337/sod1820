@@ -1,0 +1,52 @@
+/* SOD1820 Design V2 hybrid calibration; preview branch, one System Frame.
+   Tokens are supplied by palette.js and Frame, not a second theme. */
+.sod29-root.native-frame :is(.sod29-section,.sod29-card,.sod29-nav-link,.sod29-header-search,.sod29-workspace-card,.sod29-sidebar-workspace,.sod29-action){
+ border-width:1px; border-radius:12px; box-shadow:none;
+}
+.sod29-root.native-frame .sod29-action.primary{
+ background:var(--s29-accent-btn); color:var(--s29-on-accent); box-shadow:none;
+}
+.sod29-root.native-frame .sod29-ambient-field i{opacity:.35}
+/* The existing dock remains the only dock; Raziel is smaller but still alive. */
+.sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact{
+ min-width:52px; width:52px; height:52px; margin-block:0; box-shadow:none;
+}
+.sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact .sod29-raziel-orb-core{
+ width:32px; height:32px; box-shadow:0 0 12px color-mix(in srgb,var(--s29-raziel-glow) 60%,transparent);
+}
+/* Semantic discovery and reading links; ordinary actions stay royal blue,
+   while gold remains a distinct Brand / authored-number role. */
+.sod29-root.native-frame[data-frame-theme-preset="dark"] :is(.sod29-kicker,.sod29-eyebrow){
+ color:var(--s29-discovery);
+}
+.sod29-root.native-frame[data-frame-theme-preset="dark"] .sod29-content :is(p,li)>a[href]:not([class]):not([data-gem]){
+ color:var(--s29-discovery);
+}
+/* Scoped Night Number in both full page and contextual inspector, not Lab-wide. */
+.sod29-root.native-frame[data-frame-theme-preset="dark"] :is(.sod29-number-page,.sod29-number-drawer2029){
+ --s29-panel:var(--s29-number-panel);
+ --s29-panel-soft:var(--s29-number-panel-soft);
+ --s29-panel-grad:var(--s29-number-panel-grad);
+ --s29-line:var(--s29-number-line);
+ --s29-line-strong:var(--s29-number-line-strong);
+ --s29-ink:var(--s29-number-ink);
+ --s29-muted:var(--s29-number-muted);
+ --s29-accent:var(--s29-number-accent);
+ --s29-accent-text:var(--s29-number-accent-text);
+ --s29-on-accent:var(--s29-number-on-accent);
+ --s29-hero:var(--s29-number-hero);
+ --s29-focus-ring:var(--s29-number-focus);
+ --s29-glow:var(--s29-number-glow);
+ background:var(--s29-number-page); color:var(--s29-number-ink);
+ border:1px solid var(--s29-number-line); border-radius:12px;
+}
+.sod29-root.native-frame[data-frame-theme-preset="dark"] .sod29-number-page{padding:clamp(8px,1.4vw,16px)}
+.sod29-root.native-frame[data-frame-theme-preset="dark"] .sod29-number-drawer2029{padding:12px}
+.sod29-root.native-frame[data-frame-theme-preset="dark"] :is(.sod29-number-page .sod29-number-hero,.sod29-number-drawer2029 .sod29-number-core2029,.sod29-number-page .sod29-number-core2029){
+ border-width:1px; border-radius:12px; box-shadow:none;
+}
+.sod29-root.native-frame :is(.sod29-action,.sod29-header-search,.sod29-nav-link):focus-visible{
+ outline:2px solid var(--s29-focus-ring); outline-offset:2px;
+}
+@media(prefers-reduced-motion:reduce){.sod29-root.native-frame :is(.sod29-action,.sod29-header-search,.sod29-nav-link){transition:none}}
+.sod29-root.native-frame[data-frame-reduced-motion="true"] :is(.sod29-action,.sod29-header-search,.sod29-nav-link){transition:none}
