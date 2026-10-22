@@ -2,6 +2,7 @@ import { supabase } from "../supabase.js";
 import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
+import { clusterWorldResearchRows } from "./worldFindingClusters.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
@@ -95,6 +96,19 @@ function countBy(rows, key) {
   for (const row of rows) {
     const value = clean(row?.[key]) || "לא צוין";
     out[value] = (out[value] || 0) + 1;
+  }
+  return out;
+}
+
+function countByMany(rows, key, fallbackKey) {
+  const out = {};
+  for (const row of rows) {
+    const values = Array.isArray(row?.[key]) && row[key].length
+      ? row[key]
+      : [row?.[fallbackKey]];
+    for (const value of new Set(values.map((item) => clean(item) || "לא צוין"))) {
+      out[value] = (out[value] || 0) + 1;
+    }
   }
   return out;
 }
@@ -312,12 +326,21 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
   const researchRows = Array.isArray(familyRows.researchObjects) ? familyRows.researchObjects : [];
   const generalResearchRows = researchRows.filter(isGeneralResearchProjectionEligible);
   const excludedPersonOnlyResearch = researchRows.length - generalResearchRows.length;
+  const normalizedResearchRows = generalResearchRows
+    .map((row) => normalizeWorldAllResearchRow(row, "research_object"))
+    .filter(Boolean);
+  const duplicateProjection = clusterWorldResearchRows(normalizedResearchRows);
   const rows = [
-    ...generalResearchRows.map((row) => normalizeWorldAllResearchRow(row, "research_object")),
+    ...duplicateProjection.rows,
     ...(familyRows.contributions || []).map((row) => normalizeWorldAllResearchRow(row, "contribution")),
     ...(familyRows.sourceMessages || []).map((row) => normalizeWorldAllResearchRow(row, "source_message")),
     ...(familyRows.topics || []).map((row) => normalizeWorldAllResearchRow(row, "topic")),
   ].filter(Boolean).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
+
+  const rawLoaded = normalizedResearchRows.length
+    + (familyRows.contributions || []).length
+    + (familyRows.sourceMessages || []).length
+    + (familyRows.topics || []).length;
 
   const sourceTotals = {
     research_object: Number(totals.researchObjects ?? familyRows.researchObjects?.length ?? 0),
@@ -333,16 +356,26 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
     convergenceCandidateError: clean(totals.convergenceCandidateError) || null,
     convergenceCandidateMeta: totals.convergenceCandidateMeta || {},
     loaded: rows.length,
+    rawLoaded,
     truncated: Boolean(totals.truncated),
     sourceTotals,
+    duplicateProjection: {
+      mode: duplicateProjection.mode,
+      nonDestructive: duplicateProjection.nonDestructive,
+      groups: duplicateProjection.duplicateGroups,
+      occurrencesCombined: duplicateProjection.duplicateOccurrences,
+      rawResearchRows: duplicateProjection.rawCount,
+      clusteredResearchRows: duplicateProjection.clusteredCount,
+      canonicalSelection: "longest_original_statement",
+    },
     byFamily: countBy(rows, "family"),
     byKind: countBy(rows, "kind"),
     byAccess: countBy(rows.filter((row) => row.family === "research_object"), "access"),
     byStatus: countBy(rows, "status"),
     byVerification: countBy(rows, "verification"),
-    byContributor: countBy(rows, "contributor"),
+    byContributor: countByMany(rows, "contributors", "contributor"),
     excludedPersonOnlyResearch,
-    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
+    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
   };
 }
 
@@ -361,7 +394,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
     if (access !== "all" && row.access !== access) return false;
     if (status !== "all" && row.status !== status) return false;
     if (verification !== "all" && row.verification !== verification) return false;
-    if (contributor !== "all" && (row.contributor || "לא צוין") !== contributor) return false;
+    const contributors = Array.isArray(row.contributors) && row.contributors.length
+      ? row.contributors
+      : [row.contributor || "לא צוין"];
+    if (contributor !== "all" && !contributors.includes(contributor)) return false;
     if (!query) return true;
     const haystack = [
       row.family,
@@ -374,6 +410,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       row.contributor,
       row.source,
       row.sourceRef,
+      ...(row.sourceRefs || []),
+      ...(row.sourceLabels || []),
+      ...(row.sources || []),
+      ...(row.contributors || []),
       row.value,
       ...(row.values || []),
       row.kind,
