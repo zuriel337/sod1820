@@ -85,3 +85,17 @@ test("visual contract uses semantic tokens and covers narrow mobile and reduced 
   assert.match(page, /aria-label="חבילת ראיות להכרעת נאמנות"/);
   assert.doesNotMatch(page, /<dialog|showModal/);
 });
+
+test("spatial evidence room is interactive, accessible and remains safe behind the gate", () => {
+  assert.match(page, /function SpatialResearchRoom/);
+  assert.match(page, /היכל הראיות · תצוגה מרחבית/);
+  assert.match(page, /בחירה בנקודה משנה את המיקוד החזותי בלבד ואינה משנה את החומר/);
+  assert.match(page, /<SpatialResearchRoom locked \/>/);
+  assert.match(page, /אין חשיפת נתונים בשער הזה/);
+  assert.match(page, /aria-pressed=\{activeKey === lane\.key\}/);
+  assert.match(page, /aria-label="מפת מסלולי הראיות"/);
+  assert.match(css, /perspective:900px/);
+  assert.match(css, /transform-style:preserve-3d/);
+  assert.match(css, /@keyframes book-review29-orbit/);
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i, "spatial layer must keep semantic colors");
+});

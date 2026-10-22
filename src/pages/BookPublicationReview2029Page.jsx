@@ -57,6 +57,122 @@ function safeCount(value) {
   return Number(value || 0).toLocaleString("he-IL");
 }
 
+const SPATIAL_LANE_COPY = Object.freeze({
+  ready: {
+    label: "מוכנות להכרעה",
+    detail: "חבילות שכל דרישות הראיות שלהן הושלמו וממתינות להכרעה אנושית.",
+  },
+  evidence: {
+    label: "השלמת ראיות",
+    detail: "חבילות שעוד דורשות מקור, הקשר או תיעוד לפני שניתן לדון בנאמנות.",
+  },
+  complex: {
+    label: "מסלול מורכב",
+    detail: "ממצאים שההכרעה בהם תלויה בקריאה משולבת של מקור, מיקום והקשר.",
+  },
+  applicability: {
+    label: "הכרעת תחולה",
+    detail: "ממצאים שממתינים לקביעה אנושית אם שער הנאמנות חל עליהם.",
+  },
+});
+
+const SPATIAL_NODE_POSITIONS = Object.freeze([
+  { x: "13%", y: "24%", z: "54px", delay: "-1.2s" },
+  { x: "72%", y: "17%", z: "88px", delay: "-3.6s" },
+  { x: "77%", y: "67%", z: "30px", delay: "-2.4s" },
+  { x: "17%", y: "72%", z: "72px", delay: "-4.8s" },
+]);
+
+function SpatialResearchRoom({ bookLabel = "", evidenceSummary = null, locked = false }) {
+  const [activeKey, setActiveKey] = useState("ready");
+  const laneValues = {
+    ready: evidenceSummary?.readyForFidelityVerdict,
+    evidence: evidenceSummary?.needsEvidence,
+    complex: evidenceSummary?.complex,
+    applicability: evidenceSummary?.applicability,
+  };
+  const lanes = Object.entries(SPATIAL_LANE_COPY).map(([key, copy], index) => ({
+    key,
+    ...copy,
+    value: locked ? null : Number(laneValues[key] || 0),
+    position: SPATIAL_NODE_POSITIONS[index],
+  }));
+  const activeLane = lanes.find(lane => lane.key === activeKey) || lanes[0];
+  const total = locked ? null : Number(evidenceSummary?.totalPackets || 0);
+
+  return <section
+    className="sod29-section book-review29-spatial"
+    aria-labelledby="book-review-spatial-title"
+    data-spatial-state={locked ? "locked" : "available"}
+  >
+    <div className="sod29-section-head book-review29-spatial-head">
+      <div>
+        <div className="sod29-kicker">היכל הראיות · תצוגה מרחבית</div>
+        <h2 id="book-review-spatial-title">{locked ? "המחקר נשמר מאחורי השער" : `מפת החומר של ${bookLabel}`}</h2>
+        <p className="sod29-muted">
+          {locked
+            ? "המבנה המרחבי זמין לצפייה, אבל החומר והספירות נשארים סגורים עד לאימות המנהל והקורא המורשה."
+            : "כל נקודה היא מסלול עבודה נפרד. בחירה בנקודה משנה את המיקוד החזותי בלבד ואינה משנה את החומר."}
+        </p>
+      </div>
+      <span className="sod29-chip">מרחב קריאה · ללא פעולת כתיבה</span>
+    </div>
+
+    <div className="book-review29-spatial-layout">
+      <div className="book-review29-spatial-stage" role="group" aria-label="מפת מסלולי הראיות">
+        <div className="book-review29-spatial-grid" aria-hidden="true" />
+        <div className="book-review29-spatial-orbit orbit-outer" aria-hidden="true" />
+        <div className="book-review29-spatial-orbit orbit-middle" aria-hidden="true" />
+        <div className="book-review29-spatial-orbit orbit-inner" aria-hidden="true" />
+        <div className="book-review29-spatial-core" aria-live="polite">
+          <span>{locked ? "גישה מוגנת" : "חבילות במרחב"}</span>
+          <strong>{locked ? "—" : safeCount(total)}</strong>
+          <small>{locked ? "החומר לא נטען" : "מפת מצב, לא ציון אמת"}</small>
+        </div>
+        {lanes.map(lane => <button
+          key={lane.key}
+          type="button"
+          className="book-review29-spatial-node"
+          style={{
+            "--node-x": lane.position.x,
+            "--node-y": lane.position.y,
+            "--node-z": lane.position.z,
+            "--node-delay": lane.position.delay,
+          }}
+          data-lane={lane.key}
+          aria-pressed={activeKey === lane.key}
+          onClick={() => setActiveKey(lane.key)}
+        >
+          <span>{lane.label}</span>
+          <strong>{lane.value == null ? "—" : safeCount(lane.value)}</strong>
+        </button>)}
+        <div className="book-review29-spatial-horizon" aria-hidden="true" />
+      </div>
+
+      <aside className="book-review29-spatial-focus" aria-live="polite">
+        <span>המוקד הנבחר</span>
+        <strong>{activeLane.label}</strong>
+        <p>{locked ? "המסלול נשאר אטום עד השלמת שני שערי ההרשאה." : activeLane.detail}</p>
+        <div className="book-review29-spatial-meter" aria-hidden="true">
+          <i style={{ "--meter-value": total ? `${Math.min(100, (activeLane.value / total) * 100)}%` : "0%" }} />
+        </div>
+        <small>{locked ? "אין חשיפת נתונים בשער הזה" : `${safeCount(activeLane.value)} מתוך ${safeCount(total)} חבילות`}</small>
+        <div className="book-review29-spatial-legend" aria-label="מסלולי המרחב">
+          {lanes.map(lane => <button
+            key={lane.key}
+            type="button"
+            aria-pressed={activeKey === lane.key}
+            onClick={() => setActiveKey(lane.key)}
+          >
+            <i data-lane={lane.key} aria-hidden="true" />
+            <span>{lane.label}</span>
+          </button>)}
+        </div>
+      </aside>
+    </div>
+  </section>;
+}
+
 function StatusAxis({ label, value, code, tone = "neutral" }) {
   return <div className={`book-review29-axis tone-${tone}`}>
     <span>{label}</span>
@@ -249,6 +365,8 @@ function ReviewScreen({ book, packet, evidencePresentation, partial, offset, onO
   return <>
     <ReviewBoundary />
 
+    <SpatialResearchRoom bookLabel={book.label} evidenceSummary={evidenceSummary} />
+
     <section className="sod29-section book-review29-evidence-overview" aria-labelledby="book-review-evidence-title">
       <div className="sod29-section-head">
         <div>
@@ -373,6 +491,7 @@ export default function BookPublicationReview2029Page({ slug = "" }) {
   </Sod2029Shell>;
 
   if (state.phase === "restricted") return <Sod2029Shell {...shellProps}>
+    <SpatialResearchRoom locked />
     <FrameState kind="gated" title={state.restriction === "reader" ? "הקורא המורשה חסום" : "נדרשת הרשאת מנהל מאומתת"}>
       {state.restriction === "reader"
         ? "אימות המנהל הצליח, אך שכבת המחקר אינה קריאה בהרשאה הנוכחית. אין fallback, נתוני דמה או הרחבת הרשאות; המסך נכשל סגור."

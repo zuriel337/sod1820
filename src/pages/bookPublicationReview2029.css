@@ -12,6 +12,51 @@
 .book-review29-boundary-separator{align-self:center;display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-accent-text);font-size:var(--s29-type-title);font-weight:800}
 .book-review29-readiness-note{display:grid;gap:5px;margin-block-start:14px}
 .book-review29-readiness-note>span{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.65}
+.book-review29-spatial{position:relative;isolation:isolate;overflow:hidden;border-color:var(--s29-line-strong);background:linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 82%,transparent),color-mix(in srgb,var(--s29-panel-soft) 68%,transparent))}
+.book-review29-spatial::before{content:"";position:absolute;inset:-30% 48% 38% -12%;z-index:-1;border-radius:999px;background:radial-gradient(circle,color-mix(in srgb,var(--s29-accent) 24%,transparent),transparent 68%);filter:blur(22px);pointer-events:none}
+.book-review29-spatial::after{content:"";position:absolute;inset:42% -14% -48% 48%;z-index:-1;border-radius:999px;background:radial-gradient(circle,color-mix(in srgb,var(--s29-discovery) 18%,transparent),transparent 70%);filter:blur(30px);pointer-events:none}
+.book-review29-spatial-head{position:relative;z-index:3}
+.book-review29-spatial-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.72fr);gap:clamp(16px,2.8vw,34px);align-items:stretch}
+.book-review29-spatial-stage{position:relative;min-width:0;min-height:clamp(410px,48vw,620px);overflow:hidden;border:1px solid var(--s29-line);border-radius:28px;background:radial-gradient(circle at 50% 46%,color-mix(in srgb,var(--s29-panel-soft) 58%,transparent),color-mix(in srgb,var(--s29-bg) 76%,transparent) 66%);perspective:900px;transform-style:preserve-3d}
+.book-review29-spatial-grid{position:absolute;inset:52% -22% -42%;background-image:linear-gradient(color-mix(in srgb,var(--s29-line) 72%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--s29-line) 72%,transparent) 1px,transparent 1px);background-size:46px 46px;transform:rotateX(68deg) translateZ(-70px);transform-origin:center top;mask-image:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--s29-bg) 88%,transparent) 34%,transparent 96%);opacity:.62}
+.book-review29-spatial-orbit{position:absolute;inset:50% auto auto 50%;border:1px solid color-mix(in srgb,var(--s29-line-strong) 74%,transparent);border-radius:50%;transform-style:preserve-3d;pointer-events:none}
+.book-review29-spatial-orbit::after{content:"";position:absolute;inset:-4px;border-block-start:2px solid color-mix(in srgb,var(--s29-accent) 58%,transparent);border-radius:inherit;animation:book-review29-orbit 12s linear infinite}
+.book-review29-spatial-orbit.orbit-outer{width:min(76%,650px);aspect-ratio:1.8;transform:translate(-50%,-50%) rotateX(62deg) rotateZ(-8deg)}
+.book-review29-spatial-orbit.orbit-middle{width:min(58%,470px);aspect-ratio:1.5;transform:translate(-50%,-50%) rotateX(68deg) rotateZ(17deg)}
+.book-review29-spatial-orbit.orbit-inner{width:min(38%,300px);aspect-ratio:1.25;transform:translate(-50%,-50%) rotateX(72deg) rotateZ(-28deg)}
+.book-review29-spatial-orbit.orbit-middle::after{animation-direction:reverse;animation-duration:9s;border-block-start-color:color-mix(in srgb,var(--s29-discovery) 58%,transparent)}
+.book-review29-spatial-orbit.orbit-inner::after{animation-duration:7s;border-block-start-color:color-mix(in srgb,var(--s29-warm-accent) 56%,transparent)}
+.book-review29-spatial-core{position:absolute;inset:50% auto auto 50%;z-index:2;width:clamp(142px,20vw,210px);aspect-ratio:1;transform:translate(-50%,-50%) translateZ(104px);display:grid;place-content:center;justify-items:center;gap:4px;border:1px solid var(--s29-line-strong);border-radius:50%;text-align:center;background:radial-gradient(circle at 40% 32%,color-mix(in srgb,var(--s29-hero) 22%,var(--s29-panel-soft)),color-mix(in srgb,var(--s29-panel) 94%,transparent) 64%);box-shadow:0 22px 70px color-mix(in srgb,var(--s29-bg) 72%,transparent),inset 0 0 34px color-mix(in srgb,var(--s29-accent) 18%,transparent);animation:book-review29-core 6s ease-in-out infinite}
+.book-review29-spatial-core>span,.book-review29-spatial-core>small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+.book-review29-spatial-core>strong{font-family:var(--s29-font-numeric);font-size:clamp(38px,6vw,68px);line-height:1;color:var(--s29-hero)}
+.book-review29-spatial-node{--node-tone:var(--s29-accent);position:absolute;inset:var(--node-y) auto auto var(--node-x);z-index:4;min-width:118px;min-height:66px;display:grid;justify-items:start;gap:2px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--node-tone) 64%,var(--s29-line));border-radius:16px;color:var(--s29-text);text-align:start;background:color-mix(in srgb,var(--s29-panel) 88%,transparent);box-shadow:0 14px 34px color-mix(in srgb,var(--s29-bg) 64%,transparent);backdrop-filter:blur(12px);transform:translateZ(var(--node-z));animation:book-review29-node 6s var(--node-delay) ease-in-out infinite;cursor:pointer}
+.book-review29-spatial-node[data-lane="evidence"]{--node-tone:var(--s29-warm-accent)}
+.book-review29-spatial-node[data-lane="complex"]{--node-tone:var(--s29-accent-secondary)}
+.book-review29-spatial-node[data-lane="applicability"]{--node-tone:var(--s29-discovery)}
+.book-review29-spatial-node>span{font-size:var(--s29-type-micro);color:var(--s29-muted)}
+.book-review29-spatial-node>strong{font-family:var(--s29-font-numeric);font-size:var(--s29-type-title);color:var(--node-tone)}
+.book-review29-spatial-node:hover,.book-review29-spatial-node:focus-visible,.book-review29-spatial-node[aria-pressed="true"]{border-color:var(--node-tone);background:color-mix(in srgb,var(--s29-panel-soft) 94%,transparent);box-shadow:0 18px 52px color-mix(in srgb,var(--node-tone) 18%,transparent);outline:none}
+.book-review29-spatial-node:focus-visible{outline:2px solid var(--s29-hero);outline-offset:3px}
+.book-review29-spatial-horizon{position:absolute;inset:auto 7% 8%;height:1px;background:linear-gradient(90deg,transparent,var(--s29-line-strong),transparent);box-shadow:0 0 28px color-mix(in srgb,var(--s29-accent) 32%,transparent)}
+.book-review29-spatial-focus{min-width:0;border:1px solid var(--s29-line);border-radius:24px;padding:clamp(18px,2.5vw,28px);background:color-mix(in srgb,var(--s29-panel-soft) 78%,transparent);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.book-review29-spatial-focus>span,.book-review29-spatial-focus>small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+.book-review29-spatial-focus>strong{font-size:clamp(var(--s29-type-title),3vw,38px);line-height:1.15;color:var(--s29-hero)}
+.book-review29-spatial-focus>p{margin:0;color:var(--s29-muted);font-size:var(--s29-type-body);line-height:1.7}
+.book-review29-spatial-meter{width:100%;height:7px;margin-block-start:8px;border:1px solid var(--s29-line);border-radius:999px;overflow:hidden;background:color-mix(in srgb,var(--s29-panel) 76%,transparent)}
+.book-review29-spatial-meter>i{display:block;width:var(--meter-value);height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--s29-accent),var(--s29-discovery));transition:width .45s ease}
+.book-review29-spatial-legend{width:100%;margin-block-start:auto;padding-block-start:18px;border-block-start:1px solid var(--s29-line);display:grid;gap:7px}
+.book-review29-spatial-legend>button{min-height:44px;display:flex;align-items:center;gap:9px;width:100%;border:0;border-radius:12px;padding:8px 10px;color:var(--s29-muted);background:transparent;text-align:start;cursor:pointer}
+.book-review29-spatial-legend>button:hover,.book-review29-spatial-legend>button:focus-visible,.book-review29-spatial-legend>button[aria-pressed="true"]{color:var(--s29-text);background:color-mix(in srgb,var(--s29-panel) 74%,transparent);outline:none}
+.book-review29-spatial-legend>button:focus-visible{outline:2px solid var(--s29-hero);outline-offset:2px}
+.book-review29-spatial-legend i{width:10px;height:10px;flex:0 0 auto;border-radius:999px;background:var(--s29-accent)}
+.book-review29-spatial-legend i[data-lane="evidence"]{background:var(--s29-warm-accent)}
+.book-review29-spatial-legend i[data-lane="complex"]{background:var(--s29-accent-secondary)}
+.book-review29-spatial-legend i[data-lane="applicability"]{background:var(--s29-discovery)}
+.book-review29-spatial[data-spatial-state="locked"] .book-review29-spatial-stage{filter:saturate(.72)}
+.book-review29-spatial[data-spatial-state="locked"] .book-review29-spatial-node{border-style:dashed}
+@keyframes book-review29-orbit{to{transform:rotate(360deg)}}
+@keyframes book-review29-core{0%,100%{transform:translate(-50%,-50%) translateZ(104px) scale(1)}50%{transform:translate(-50%,-50%) translateZ(118px) scale(1.025)}}
+@keyframes book-review29-node{0%,100%{translate:0 0}50%{translate:0 -8px}}
 .book-review29-summary-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-block:4px 16px}
 .book-review29-summary-grid>div{min-width:0;border:1px solid var(--s29-line);border-radius:16px;padding:16px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);display:grid;gap:5px}
 .book-review29-summary-grid strong{font-family:var(--s29-font-numeric);font-size:clamp(26px,3vw,38px);color:var(--s29-hero)}
@@ -87,6 +132,9 @@
 .book-review29-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-block-start:18px}
 .book-review29-pagination>span{color:var(--s29-muted);font-size:var(--s29-type-micro);text-align:center}
 @media(max-width:760px){
+  .book-review29-spatial-layout{grid-template-columns:minmax(0,1fr)}
+  .book-review29-spatial-stage{min-height:440px}
+  .book-review29-spatial-focus{min-height:280px}
   .book-review29-boundary-grid{grid-template-columns:minmax(0,1fr)}
   .book-review29-boundary-separator{justify-self:center}
   .book-review29-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -104,6 +152,14 @@
   .book-review29-axes{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:390px){
+  .book-review29-spatial-stage{min-height:500px;border-radius:20px}
+  .book-review29-spatial-node{min-width:104px;max-width:124px;padding:9px}
+  .book-review29-spatial-node[data-lane="ready"]{inset:22% auto auto 8%}
+  .book-review29-spatial-node[data-lane="evidence"]{inset:12% auto auto 57%}
+  .book-review29-spatial-node[data-lane="complex"]{inset:67% auto auto 57%}
+  .book-review29-spatial-node[data-lane="applicability"]{inset:72% auto auto 12%}
+  .book-review29-spatial-node>span{font-size:clamp(11px,3.2vw,var(--s29-type-micro))}
+  .book-review29-spatial-core{width:132px}
   .book-review29-summary-grid{grid-template-columns:minmax(0,1fr)}
   .book-review29-evidence-summary-grid,.book-review29-evidence-grid{grid-template-columns:minmax(0,1fr)}
   .book-review29-pagination{align-items:stretch;flex-direction:column}
