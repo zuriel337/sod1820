@@ -16,6 +16,8 @@ test("System Frame recognizes Beit Midrash as an independent 2029 learning surfa
   assert.equal(experience.surface, "beit-midrash");
   assert.equal(experience.experience.question, "איך לומדים ומבינים את השיטה?");
   assert.equal(experience.experience.truthSafe, true);
+  assert.match(page, /<Sod2029Shell[\s\S]*?introVariant="none"/);
+  assert.equal((page.match(/<BeitMidrashHero\b/g) || []).length, 1);
 });
 
 test("guided examples come from one World load handed to the learning contract", () => {

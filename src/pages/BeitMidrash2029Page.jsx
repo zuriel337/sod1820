@@ -159,7 +159,7 @@ export default function BeitMidrash2029Page() {
   const pillars = manifest.pillars;
   return <Sod2029Shell
     surface="beit-midrash"
-    introVariant="compact"
+    introVariant="none"
     symbol={<NavigationIcon2029 name="books" />}
     eyebrow={manifest.identity.eyebrow}
     title={manifest.identity.title}
