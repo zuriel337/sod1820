@@ -45,9 +45,16 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
   for (const [path, options] of [
     ['/rest/v1/users?id=eq.A', { method: 'PATCH', body: { display_name: 'changed' } }],
     ['/rest/v1/rpc/research_state_apply_v1', {}], ['/rest/v1/rpc/claim_daily_credit', {}],
+    ['/rest/v1/rpc/admin_research_review', {}], ['/rest/v1/rpc/admin_research_set_publication_v1', {}],
     ['/storage/v1/object/public/example', {}], ['/functions/v1/ask-raziel', {}],
     ['/functions/v1/els-search-bridge', { body: { op: 'save' } }],
   ]) assert.equal((await request(path, options)).status, 403, path);
   assert.equal((await request('/rest/v1/rpc/fn_method_value')).status, 200);
+  assert.equal((await request('/rest/v1/rpc/rd_is_admin')).status, 200);
   assert.equal((await request('/functions/v1/els-search-bridge', { body: { op: 'page' } })).forwarded, 1);
+});
+
+test('Books publication review is preview-only and has no write RPC in the guard', () => {
+  assert.match(builder, /VITE_BOOK_PUBLICATION_REVIEW_PREVIEW/);
+  assert.doesNotMatch(builder, /admin_research_review|admin_research_set_publication_v1/);
 });
