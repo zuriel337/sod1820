@@ -73,6 +73,23 @@ function checklist(row, exactClaimCounts) {
   };
 }
 
+// Extraction fidelity is deliberately independent from engine verification and
+// governance readiness. Historical/simple rows may legitimately have no recorded
+// extraction_integrity object, so absence is reported as "not_recorded" rather
+// than silently interpreted as either complete or partial.
+function extractionFidelity(row) {
+  const integrity = row?.meta?.ext?.extraction_integrity;
+  const value = clean(integrity?.fidelity_status);
+  const recorded = value === "complete" || value === "partial";
+  const state = recorded ? value : "not_recorded";
+  return {
+    state,
+    recorded,
+    canonicalizationBlocked: state === "partial",
+    requiresApplicabilityReview: state === "not_recorded",
+  };
+}
+
 function reviewItem(row, exactClaimCounts) {
   const sourceRef = clean(row?.source_ref);
   return {
@@ -86,6 +103,7 @@ function reviewItem(row, exactClaimCounts) {
     sourceLocator: parseSourceRefLocator(sourceRef),
     confidence: nullable(row?.confidence),
     status: describeBookMaterialStatus(row),
+    extractionFidelity: extractionFidelity(row),
     review: checklist(row, exactClaimCounts),
     humanGateRequired: true,
     decision: null,
@@ -140,6 +158,7 @@ export function projectBookPublicationReview(rows, options = {}) {
       needsRepair: allItems.length - readyCount,
       byKind: countBy(allItems, item => item.kind),
       byVerificationState: countBy(allItems, item => item.status.verification.state),
+      byExtractionFidelity: countBy(allItems, item => item.extractionFidelity.state),
       distinctSourceRefs: new Set(allItems.map(item => item.sourceRef)).size,
     },
     page: {

@@ -22,6 +22,33 @@ const THEMES = Object.freeze([
   "תצפית פנימית ומדידה",
 ]);
 
+// Read-only aggregate inventory from the canonical candidate set (2026-10-22).
+// It intentionally contains no statements, quotations, record ids or private metadata.
+const SOURCE_WINDOWS = Object.freeze([
+  { page: 7, findings: 1 },
+  { page: 32, findings: 2 },
+  { page: 37, findings: 1 },
+  { page: 39, findings: 1 },
+  { page: 50, findings: 1 },
+  { page: 58, findings: 1 },
+  { page: 64, findings: 3 },
+  { page: 65, findings: 2 },
+  { page: 66, findings: 5 },
+  { page: 67, findings: 4 },
+  { page: 70, findings: 2 },
+  { page: 77, findings: 1 },
+  { page: 79, findings: 4 },
+  { page: 87, findings: 1 },
+  { page: 92, findings: 1 },
+  { page: 98, findings: 1 },
+  { page: 99, findings: 1 },
+  { page: 109, findings: 1 },
+]);
+
+const FINDING_SOURCE_INDEXES = Object.freeze(SOURCE_WINDOWS.flatMap((source, sourceIndex) => (
+  Array(source.findings).fill(sourceIndex)
+)));
+
 const DEMO_STATEMENTS = Object.freeze([
   "מפת מושגים המחברת בין תנודה, תפיסה וחוויית זמן.",
   "רכיב הדגמה לבחינת היחס בין תנועה מחזורית לבין תחושת רצף.",
@@ -39,7 +66,8 @@ const KIND_SEQUENCE = Object.freeze([
 ]);
 
 const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
-  const sourceNumber = (index % 18) + 1;
+  const sourceIndex = FINDING_SOURCE_INDEXES[index];
+  const sourceWindow = SOURCE_WINDOWS[sourceIndex];
   const angle = (index / TOTAL_FINDINGS) * Math.PI * 2 - Math.PI / 2;
   const radius = index % 3 === 0 ? 42 : index % 3 === 1 ? 35 : 28;
   return Object.freeze({
@@ -48,8 +76,9 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
     kind,
     theme: THEMES[index % THEMES.length],
     statement: DEMO_STATEMENTS[index % DEMO_STATEMENTS.length],
-    source: `מקור ${sourceNumber} מתוך 18`,
-    page: 18 + index * 3,
+    sourceId: `source-${sourceIndex + 1}`,
+    source: `חלון מקור ${sourceIndex + 1} מתוך 18`,
+    page: sourceWindow.page,
     match: index < 5 ? "match" : "not_applicable",
     verification: "לא הוצהר",
     governance: "מועמד לביקורת",
@@ -59,11 +88,11 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
   });
 }));
 
-const SOURCES = Object.freeze(Array.from({ length: 18 }, (_, index) => ({
+const SOURCES = Object.freeze(SOURCE_WINDOWS.map((source, index) => ({
   id: `source-${index + 1}`,
-  label: `מקור ${index + 1}`,
-  page: 18 + index * 6,
-  findings: FINDINGS.filter(item => ((item.number - 1) % 18) === index).length,
+  label: `עמוד ${source.page}`,
+  page: source.page,
+  findings: source.findings,
 })));
 
 function FindingMap({ findings, selectedId, onSelect }) {
@@ -105,9 +134,9 @@ function FindingDetail({ finding, marked, onToggleMark }) {
     <p className="bentov29-statement">{finding.statement}</p>
 
     <div className="bentov29-source-card">
-      <span>מראה מקום להמחשה</span>
+      <span>חלון מקור מן המלאי האמיתי</span>
       <strong>{finding.source} · עמ׳ {finding.page}</strong>
-      <small>המיקום והנוסח בדף זה הם נתוני תצוגה, לא ציטוט מאומת מן הספר.</small>
+      <small>מספר העמוד משקף את מפת המקורות; הנוסח והשיוך לנקודת ההדגמה אינם ציטוט או הכרעה מאומתת.</small>
     </div>
 
     <dl className="bentov29-axes">
@@ -130,7 +159,7 @@ function SourceRail({ selectedSource, onSelect }) {
   return <section className="bentov29-sources" aria-labelledby="bentov29-sources-title">
     <div className="bentov29-section-label">מסלול המקורות</div>
     <h2 id="bentov29-sources-title">18 נקודות עיגון</h2>
-    <p>מראות מקום עתידיים לצד מפת הממצאים. כאן הם מוצגים כמבנה מוצר בלבד.</p>
+    <p>עמודי המקור והספירות משקפים את המלאי הקיים. תוכן המועמדים נשאר מחוץ לחבילת ההדגמה.</p>
     <div className="bentov29-source-list">
       {SOURCES.map((source, index) => <button
         type="button"
@@ -169,8 +198,7 @@ export default function BentovFindingsProduct2029Page() {
 
   const selectSource = sourceId => {
     setSelectedSource(sourceId);
-    const sourceIndex = SOURCES.findIndex(source => source.id === sourceId);
-    const matching = FINDINGS.find(item => ((item.number - 1) % 18) === sourceIndex);
+    const matching = FINDINGS.find(item => item.sourceId === sourceId);
     if (matching) setSelectedId(matching.id);
   };
 
@@ -178,7 +206,7 @@ export default function BentovFindingsProduct2029Page() {
     const finding = FINDINGS.find(item => item.id === findingId);
     if (!finding) return;
     setSelectedId(findingId);
-    setSelectedSource(SOURCES[(finding.number - 1) % 18].id);
+    setSelectedSource(finding.sourceId);
   };
 
   const selectFilter = nextFilter => {
@@ -215,7 +243,7 @@ export default function BentovFindingsProduct2029Page() {
           <p>אב־טיפוס פעיל שממחיש איך הספר יהפוך ממסמך סגור למרחב שניתן לראות, לסנן, לפתוח ולחקור בעברית.</p>
           <div className="bentov29-notice" role="note">
             <strong>הדמיית מוצר — לא חומר שפורסם.</strong>
-            <span>המספרים המצטברים משקפים את תמונת העבודה; הנוסחים ומראות המקום במסך נועדו להמחשת הממשק בלבד.</span>
+            <span>המספרים, עמודי המקור והספירות משקפים את תמונת העבודה; נוסחי הממצאים והקשרים במפה הם הדגמת ממשק בלבד.</span>
           </div>
         </div>
         <img className="bentov29-hero-image" src="/2029/books/bentov/bentov-consciousness-map.webp" alt="המחשה אמנותית של דמות אנושית בתוך שדות גליים ומעגלי תודעה" fetchPriority="high" />
@@ -226,6 +254,7 @@ export default function BentovFindingsProduct2029Page() {
         <article><strong>5</strong><span>התאמות לבדיקה</span><small>match</small></article>
         <article><strong>28</strong><span>לא רלוונטיים להתאמה</span><small>not_applicable</small></article>
         <article><strong>18</strong><span>הפניות מקור</span><small>source references</small></article>
+        <article className="is-attention"><strong>33</strong><span>נאמנות לא נרשמה</span><small>נדרשת בדיקת תחולה, לא כשל אוטומטי</small></article>
         <article className="is-locked"><strong>0</strong><span>ציבוריים</span><small>שער הפרסום נשאר סגור</small></article>
       </section>
 
@@ -258,14 +287,33 @@ export default function BentovFindingsProduct2029Page() {
         <FindingDetail finding={selected} marked={marked} onToggleMark={toggleMarked} />
       </section>
 
+      <section className="bentov29-verification" aria-labelledby="bentov29-verification-title" data-live-inventory="aggregate-only">
+        <header>
+          <div>
+            <div className="bentov29-section-label">מפת אימות · נתוני מצאי בלבד</div>
+            <h2 id="bentov29-verification-title">מה כבר קיים ומה עדיין חוסם התקדמות</h2>
+          </div>
+          <span>אין כאן נוסחי ממצאים או ציטוטים</span>
+        </header>
+        <div className="bentov29-verification-chain">
+          <article className="is-complete"><span>01</span><strong>קליטה ומראי מקום</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה והפניית עמוד במאגר המוגן.</small></article>
+          <article className="is-complete"><span>02</span><strong>מצב בדיקת מנוע</strong><b>33 / 33</b><small>5 התאמות ו־28 שאינם רלוונטיים למסלול חישובי.</small></article>
+          <article className="is-current"><span>03</span><strong>בדיקת נאמנות חילוץ</strong><b>0 / 33</b><small>לא נרשם סטטוס; צריך להכריע תחולה ואז מלא או חלקי.</small></article>
+          <article className="is-closed"><span>04</span><strong>ביקורת ופרסום</strong><b>0 ציבוריים</b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
+        </div>
+        <div className="bentov29-page-map" aria-label="פיזור הממצאים לפי עמוד מקור">
+          {SOURCES.map(source => <span key={source.id}><b>עמ׳ {source.page}</b><small>{source.findings} {source.findings === 1 ? "ממצא" : "ממצאים"}</small></span>)}
+        </div>
+      </section>
+
       <section className="bentov29-next" aria-labelledby="bentov29-next-title">
         <div>
           <div className="bentov29-section-label">השרשרת מכאן</div>
           <h2 id="bentov29-next-title">כך ההדמיה הופכת למוצר אמיתי</h2>
         </div>
         <ol>
-          <li><span>01</span><strong>אימות מקורות</strong><small>חיבור 18 ההפניות לעמודים ולציטוטים מדויקים</small></li>
-          <li><span>02</span><strong>השלמת נאמנות</strong><small>קביעת fidelity_status לכל 33 המועמדים</small></li>
+          <li><span>01</span><strong>בדיקת תחולת נאמנות</strong><small>להחליט לכל מועמד אם שער החילוץ המורכב חל עליו</small></li>
+          <li><span>02</span><strong>השלמת נאמנות</strong><small>לרשום complete או partial רק לפי ראיות המקור</small></li>
           <li><span>03</span><strong>ביקורת אנושית</strong><small>הכרעה נפרדת לכל ממצא, בלי פרסום אוטומטי</small></li>
           <li><span>04</span><strong>שער פרסום קנוני</strong><small>רק לאחר חוזה, הרשאה ו־RLS מאושרים</small></li>
         </ol>

@@ -54,6 +54,27 @@ test("a technically complete candidate is ready for human review, never auto-app
   assert.equal(item.decision, null);
   assert.equal(item.status.candidacy.publication, true);
   assert.equal(item.status.publicationAccess.isPublic, false);
+  assert.deepEqual(item.extractionFidelity, {
+    state: "not_recorded",
+    recorded: false,
+    canonicalizationBlocked: false,
+    requiresApplicabilityReview: true,
+  });
+});
+
+test("extraction fidelity stays a separate axis and partial alone blocks canonicalization", () => {
+  const result = projectBookPublicationReview([
+    row("1", { meta: { ext: { extraction_integrity: { fidelity_status: "complete" } } } }),
+    row("2", { meta: { ext: { extraction_integrity: { fidelity_status: "partial" } } } }),
+    row("3", { meta: {} }),
+  ], { book: BOOK });
+
+  assert.deepEqual(result.items.map(item => item.extractionFidelity.state), ["complete", "partial", "not_recorded"]);
+  assert.equal(result.items[0].extractionFidelity.canonicalizationBlocked, false);
+  assert.equal(result.items[1].extractionFidelity.canonicalizationBlocked, true);
+  assert.equal(result.items[2].extractionFidelity.requiresApplicabilityReview, true);
+  assert.deepEqual(result.summary.byExtractionFidelity, { complete: 1, partial: 1, not_recorded: 1 });
+  assert.equal(result.summary.readyForHumanReview, 3, "fidelity does not rewrite the existing human-review checklist");
 });
 
 test("engine match and canonical governance still do not publish a candidate", () => {
@@ -102,7 +123,7 @@ test("review output uses a fixed field set and excludes raw metadata", () => {
   const item = projectBookPublicationReview([row("1")], { book: BOOK }).items[0];
   assert.deepEqual(Object.keys(item), [
     "id", "createdAt", "kind", "statement", "terms", "value", "sourceRef",
-    "sourceLocator", "confidence", "status", "review", "humanGateRequired", "decision",
+    "sourceLocator", "confidence", "status", "extractionFidelity", "review", "humanGateRequired", "decision",
   ]);
   assert.equal("meta" in item, false);
   assert.equal("contributor" in item, false);
@@ -123,6 +144,7 @@ test("summary preserves truth-axis distribution and distinct source count", () =
     needsRepair: 0,
     byKind: { fact: 1, observation: 2 },
     byVerificationState: { match: 1, not_applicable: 2 },
+    byExtractionFidelity: { not_recorded: 3 },
     distinctSourceRefs: 3,
   });
 });

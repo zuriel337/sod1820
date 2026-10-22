@@ -21,7 +21,7 @@ test("product data is visibly a synthetic display model and cannot publish", () 
   assert.match(page, /data-preview-data="synthetic"/);
   assert.match(page, /data-publication-effect="none"/);
   assert.match(page, /הדמיית מוצר — לא חומר שפורסם/);
-  assert.match(page, /הנוסחים ומראות המקום במסך נועדו להמחשת הממשק בלבד/);
+  assert.match(page, /נוסחי הממצאים והקשרים במפה הם הדגמת ממשק בלבד/);
   assert.match(page, />0<\/strong><span>ציבוריים/);
   assert.doesNotMatch(page, /supabase|\.rpc\(|\.from\(["']|fetch\(|axios|admin_research_review|set_publication/i);
 });
@@ -34,6 +34,14 @@ test("status axes and actual inventory totals remain separate", () => {
   assert.match(page, /\.\.\.Array\(5\)\.fill\("relation"\)/);
   for (const label of ["קליטה", "התאמה", "אימות", "ממשל", "גישה"]) assert.match(page, new RegExp(label));
   for (const total of ["33", "5", "28", "18"]) assert.match(page, new RegExp(`<strong>${total}</strong>`));
+  assert.match(page, /data-live-inventory="aggregate-only"/);
+  assert.match(page, /0 \/ 33/);
+  assert.match(page, /נדרשת בדיקת תחולה, לא כשל אוטומטי/);
+  assert.match(page, /עמודי המקור והספירות משקפים את המלאי הקיים/);
+  assert.match(page, /\{ page: 109, findings: 1 \}/);
+  const sourceWindows = [...page.matchAll(/\{ page: (\d+), findings: (\d+) \}/g)];
+  assert.equal(sourceWindows.length, 18);
+  assert.equal(sourceWindows.reduce((total, match) => total + Number(match[2]), 0), 33);
 });
 
 test("interactive controls are accessible and local-only", () => {

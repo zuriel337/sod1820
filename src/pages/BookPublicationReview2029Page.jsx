@@ -36,6 +36,12 @@ const JUDGMENT_LABELS = Object.freeze({
   canonicalize: "קביעה כקנוני",
 });
 
+const FIDELITY_LABELS = Object.freeze({
+  complete: "חילוץ מלא נרשם",
+  partial: "חילוץ חלקי נרשם",
+  not_recorded: "לא נרשם — נדרשת בדיקת תחולה",
+});
+
 function clean(value) {
   return value == null ? "" : String(value).trim();
 }
@@ -90,7 +96,7 @@ function ReviewBoundary() {
     </div>
     <div className="sod29-state book-review29-readiness-note" role="note">
       <strong>״מוכן לביקורת אנושית״ אינו ״מוכן לפרסום״.</strong>
-      <span>המסך אינו מחשב מוכנות לפרסום ואינו קובע שלמות חילוץ. אם הקורא אינו מספק נתון כזה, הוא לא מוצג כחסר או כנכשל.</span>
+      <span>המסך אינו מחשב מוכנות לפרסום ואינו קובע שלמות חילוץ. הוא מציג רק ערך נאמנות שנרשם במקור; היעדר ערך מוצג כ״לא נרשם״ ולא מוצג כחסר או כנכשל.</span>
     </div>
   </section>;
 }
@@ -113,6 +119,8 @@ function ReviewItem({ item }) {
   const governance = presentBookResearchStatus(item.status?.governance?.state);
   const access = presentBookAccessStatus(item.status?.publicationAccess?.state);
   const verification = presentBookVerificationState(item.status?.verification?.state);
+  const fidelityState = item.extractionFidelity?.state || "not_recorded";
+  const fidelityLabel = FIDELITY_LABELS[fidelityState] || FIDELITY_LABELS.not_recorded;
   const ready = item.review?.readiness === "ready_for_human_review";
   const judgments = ready ? availableBookReviewJudgments(item) : [];
   const terms = Array.isArray(item.terms) ? item.terms.filter(Boolean).slice(0, 5) : [];
@@ -132,7 +140,15 @@ function ReviewItem({ item }) {
       <StatusAxis label="גישה" value={access.labelHe} code={item.status?.publicationAccess?.state} tone="candidate" />
       <StatusAxis label="ממשל מחקרי" value={governance.labelHe} code={item.status?.governance?.state} tone="governance" />
       <StatusAxis label="בדיקת מנוע" value={verification.labelHe} code={item.status?.verification?.state} tone="verification" />
+      <StatusAxis label="נאמנות חילוץ" value={fidelityLabel} code={fidelityState} tone="fidelity" />
     </div>
+
+    {fidelityState === "partial" ? <div className="sod29-state warn book-review29-fidelity-note">
+      חילוץ חלקי חוסם קנוניזציה ללא הכרה אנושית מפורשת. המסך הזה אינו מאפשר לעקוף את השער.
+    </div> : null}
+    {fidelityState === "not_recorded" ? <div className="sod29-state book-review29-fidelity-note">
+      תחולת שער הנאמנות טרם הוכרעה לרשומה זו. היעדר ערך אינו מוכיח חילוץ מלא ואינו מוכיח כשל.
+    </div> : null}
 
     {terms.length ? <div className="book-review29-terms" aria-label="מונחים">
       {terms.map((term, index) => <span className="sod29-chip" key={`${term}:${index}`}>{term}</span>)}
@@ -184,6 +200,7 @@ function ReviewItem({ item }) {
 function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
   const summary = packet.summary || {};
   const page = packet.page || {};
+  const fidelity = summary.byExtractionFidelity || {};
   return <>
     <ReviewBoundary />
 
@@ -203,6 +220,9 @@ function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
         <div><strong>{safeCount(summary.readyForHumanReview)}</strong><span>מוכנים לביקורת אנושית</span></div>
         <div><strong>{safeCount(summary.needsRepair)}</strong><span>דורשים תיקון</span></div>
         <div><strong>{safeCount(summary.distinctSourceRefs)}</strong><span>הפניות מקור שונות</span></div>
+        <div><strong>{safeCount(fidelity.complete)}</strong><span>חילוץ מלא שנרשם</span></div>
+        <div><strong>{safeCount(fidelity.partial)}</strong><span>חילוץ חלקי שנרשם</span></div>
+        <div><strong>{safeCount(fidelity.not_recorded)}</strong><span>נאמנות שלא נרשמה</span></div>
       </div>
       {packet.partial ? <div className="sod29-state warn">הקורא המורשה החזיר חלון חלקי. הסיכום אינו מוצג כמיצוי מלא ואין סריקה עוקפת.</div> : null}
     </section>

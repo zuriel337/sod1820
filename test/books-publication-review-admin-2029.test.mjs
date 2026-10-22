@@ -47,6 +47,9 @@ test("governance, access and publication remain visibly separate", () => {
   assert.match(page, /״מוכן לביקורת אנושית״ אינו ״מוכן לפרסום״/);
   assert.match(page, /אינו מחשב מוכנות לפרסום ואינו קובע שלמות חילוץ/);
   assert.match(page, /לא מוצג כחסר או כנכשל/);
+  assert.match(page, /נאמנות חילוץ/);
+  assert.match(page, /not_recorded/);
+  assert.match(page, /היעדר ערך אינו מוכיח חילוץ מלא ואינו מוכיח כשל/);
   assert.match(page, /data-publication-effect="none"/);
   assert.match(page, /presentBookAccessStatus/);
   assert.match(page, /presentBookResearchStatus/);

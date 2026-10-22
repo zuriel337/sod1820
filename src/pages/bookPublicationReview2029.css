@@ -12,7 +12,7 @@
 .book-review29-boundary-separator{align-self:center;display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-accent-text);font-size:var(--s29-type-title);font-weight:800}
 .book-review29-readiness-note{display:grid;gap:5px;margin-block-start:14px}
 .book-review29-readiness-note>span{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.65}
-.book-review29-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-block:4px 16px}
+.book-review29-summary-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-block:4px 16px}
 .book-review29-summary-grid>div{min-width:0;border:1px solid var(--s29-line);border-radius:16px;padding:16px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);display:grid;gap:5px}
 .book-review29-summary-grid strong{font-family:var(--s29-font-numeric);font-size:clamp(26px,3vw,38px);color:var(--s29-hero)}
 .book-review29-summary-grid span{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.4}
@@ -25,13 +25,15 @@
 .book-review29-readiness{flex:0 0 auto;display:inline-flex;align-items:center;min-height:32px;border:1px solid var(--s29-line);border-radius:999px;padding:5px 10px;font-size:var(--s29-type-micro)}
 .book-review29-readiness.is-ready{border-color:var(--s29-line-strong);color:var(--s29-accent-text)}
 .book-review29-readiness.needs-repair{border-style:dashed;color:var(--s29-muted)}
-.book-review29-axes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.book-review29-axes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
 .book-review29-axis{min-width:0;border:1px solid var(--s29-line);border-radius:14px;padding:12px;background:color-mix(in srgb,var(--s29-panel) 72%,transparent);display:grid;gap:4px}
 .book-review29-axis>span{color:var(--s29-muted);font-size:var(--s29-type-micro)}
 .book-review29-axis>strong{font-size:var(--s29-type-ui);overflow-wrap:anywhere}
 .book-review29-axis.tone-candidate{border-inline-start:3px solid color-mix(in srgb,var(--s29-accent) 70%,transparent)}
 .book-review29-axis.tone-governance{border-inline-start:3px solid color-mix(in srgb,var(--s29-accent-secondary) 70%,transparent)}
 .book-review29-axis.tone-verification{border-inline-start:3px solid color-mix(in srgb,var(--s29-discovery) 70%,transparent)}
+.book-review29-axis.tone-fidelity{border-inline-start:3px solid color-mix(in srgb,var(--s29-warm-accent) 70%,transparent)}
+.book-review29-fidelity-note{font-size:var(--s29-type-micro);line-height:1.65}
 .book-review29-terms{display:flex;flex-wrap:wrap;gap:7px}
 .book-review29-details{border-block-start:1px solid var(--s29-line);padding-block-start:13px}
 .book-review29-details>summary{min-height:44px;display:flex;align-items:center;color:var(--s29-accent-text);cursor:pointer;font-weight:700}
@@ -61,6 +63,10 @@
   .book-review29-readiness{align-self:flex-start}
   .book-review29-axes{grid-template-columns:minmax(0,1fr)}
   .book-review29-details-grid,.book-review29-checklist{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:1180px) and (min-width:761px){
+  .book-review29-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .book-review29-axes{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:390px){
   .book-review29-summary-grid{grid-template-columns:minmax(0,1fr)}
