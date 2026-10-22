@@ -10,6 +10,10 @@ const PAGE = 500;
 const MAX = 5000;
 const RESEARCH_PAGE = 1000;
 export const MAX_CONTRIBUTOR_RESEARCH = 10000;
+export const CONTRIBUTOR_LOAD_PROFILE = Object.freeze({
+  FULL: "full",
+  SOURCE_LIBRARY: "source_library",
+});
 const MAX_EXPLICIT_MEDIA_GAP_MS = 10 * 60 * 1000;
 const MAX_STRUCTURED_MEDIA_GAP_MS = 5 * 60 * 1000;
 const SOURCE_IMAGE_REFERENCE_RE = /\[Image\s+\d+\.(?:jpe?g|png|webp)\]/iu;
@@ -762,6 +766,7 @@ export async function fetchContributorFindingsProjection(slug, {
   sessionClient = supabase,
   topicsReader = fetchContributorTopics,
   sourceRef = null,
+  loadProfile = CONTRIBUTOR_LOAD_PROFILE.FULL,
 } = {}) {
   const client = mode === PROJECTOR_MODE.ADMIN_ALL ? sessionClient : publicClient();
   const contributor = await fetchContributor(client, slug);
@@ -769,10 +774,17 @@ export async function fetchContributorFindingsProjection(slug, {
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
   const focusedOccurrenceId = channelUpdateOccurrenceId(sourceRef);
   const focusedSourceRef = focusedOccurrenceId ? `channel_updates:${focusedOccurrenceId}` : null;
+  // The source library is a reading surface, not the all-research review table. Loading thousands
+  // of research rows before showing source texts made large contributors appear stuck. The library
+  // therefore opens from the complete RLS-filtered source corpus first. An exact occurrence link
+  // still loads the small research slice belonging to that occurrence.
+  const deferResearch = loadProfile === CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY && !focusedSourceRef;
 
   const settled = {};
   const [research, sources, contributions, topics] = await Promise.allSettled([
-    fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef),
+    deferResearch
+      ? Promise.resolve({ rows: [], total: null, truncated: false, deferred: true })
+      : fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef),
     fetchSourceMessages(client, contributor, aliases, focusedSourceRef),
     focusedSourceRef ? Promise.resolve({ rows: [], total: 0, truncated: false }) : fetchContributorContributions(client, contributor.id),
     focusedSourceRef ? Promise.resolve([]) : topicsReader(aliases),
@@ -800,15 +812,21 @@ export async function fetchContributorFindingsProjection(slug, {
     topics: topicRows,
     lexicalRows,
   });
+  const availability = deriveAvailability(settled);
 
   return {
     ...projection,
     mode,
+    loadProfile,
     focus: focusedSourceRef ? { sourceRef: focusedSourceRef, exactOccurrence: true } : null,
-    availability: deriveAvailability(settled),
+    availability: {
+      ...availability,
+      research: deferResearch ? "deferred" : availability.research,
+    },
     loadState: {
-      researchObjectsTotal: researchValue.total,
+      researchObjectsTotal: deferResearch ? null : researchValue.total,
       researchObjectsTruncated: researchValue.truncated,
+      researchObjectsDeferred: deferResearch,
       contributionsTotal: contributionValue.total,
       contributionsTruncated: contributionValue.truncated,
       sourceMessagesLoaded: sourceValue.rows.length,

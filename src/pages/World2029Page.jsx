@@ -60,7 +60,7 @@ import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethod
 import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
-import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
+import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
@@ -736,6 +736,7 @@ function LiveWorldLanding({ research, shell, context }) {
     fetchContributorFindingsProjection(slug, {
       mode: contributorReadMode,
       sourceRef: focusedContributorSourceRef,
+      loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
     })
       .then((projection) => {
         if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection, error: null });

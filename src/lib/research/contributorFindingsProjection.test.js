@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchContributorFindingsProjection, buildContributorFindingsProjection, deduplicateContributorSourceGroups, MAX_CONTRIBUTOR_RESEARCH } from "./contributorFindingsProjection.js";
+import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection, buildContributorFindingsProjection, deduplicateContributorSourceGroups, MAX_CONTRIBUTOR_RESEARCH } from "./contributorFindingsProjection.js";
 import { PROJECTOR_MODE } from "./researchViewMode.js";
 
 const CONTRIBUTOR = { id: "c1", slug: "yaniv", display_name: "יניב", wa_names: [], role: "researcher" };
@@ -248,6 +248,54 @@ test("an exact public source link reads only that Zvi occurrence and its researc
   assert.ok(calls.find((call) => call.table === "channel_updates")?.filters.some((item) => item[0] === "eq" && item[1] === "id" && item[2] === occurrenceId));
   assert.ok(calls.find((call) => call.table === "world_contributor_research_v1")?.filters.some((item) => item[0] === "like" && item[2] === `channel_updates:${occurrenceId}%`));
   assert.equal(calls.some((call) => call.table === "research_contributions"), false);
+});
+
+test("the public source library opens every readable source without loading the full research corpus", async () => {
+  const calls = [];
+  const anon = fakeClient("anon", {
+    contributors: { data: CONTRIBUTOR },
+    research_objects: { data: [RESEARCH_ROW], count: 1 },
+    channel_updates: { data: [SOURCE, { ...SOURCE, id: 12, text: "כתב ציבורי נוסף" }], count: 2 },
+    research_contributions: { data: [], count: 0 },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("yaniv", {
+    publicClient: () => anon,
+    topicsReader: noTopics,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
+  });
+
+  assert.equal(projection.sourceGroups.length, 2);
+  assert.equal(projection.counts.sourceRecords, 2);
+  assert.equal(projection.counts.researchObjects, 0);
+  assert.equal(projection.availability.research, "deferred");
+  assert.equal(projection.loadState.researchObjectsTotal, null);
+  assert.equal(projection.loadState.researchObjectsDeferred, true);
+  assert.equal(calls.some((call) => call.table === "world_contributor_research_v1"), false);
+  assert.equal(calls.some((call) => call.table === "rpc:world_gematria_lexical_lookup_v1"), false);
+});
+
+test("an exact occurrence overrides source-first deferral and loads only its research slice", async () => {
+  const calls = [];
+  const occurrenceId = "a6805e30-21e0-4315-8f35-70b1bfdb0d14";
+  const contributor = { ...CONTRIBUTOR, id: "zvi", slug: "tzvi-opoc", display_name: "צבי (OPOC)", wa_names: ["צבי"] };
+  const anon = fakeClient("anon", {
+    contributors: { data: contributor },
+    research_objects: { data: [{ ...RESEARCH_ROW, source_ref: `channel_updates:${occurrenceId}#finding` }], count: 1 },
+    channel_updates: { data: [{ ...SOURCE, id: occurrenceId, contributor_id: "zvi" }], count: 1 },
+    gematria_words: { data: [] },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("tzvi-opoc", {
+    publicClient: () => anon,
+    topicsReader: noTopics,
+    sourceRef: `channel_updates:${occurrenceId}`,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
+  });
+
+  assert.equal(projection.loadState.researchObjectsDeferred, false);
+  assert.equal(projection.counts.researchObjects, 1);
+  assert.ok(calls.some((call) => call.table === "world_contributor_research_v1"));
 });
 
 test("source attribution uses stable contributor identity and only unbound registered aliases", async () => {
