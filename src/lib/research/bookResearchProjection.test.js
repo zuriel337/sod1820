@@ -304,8 +304,29 @@ test("buildBookResearchPresentation: groups shapes into human Book families with
     ["findings", 1],
   ]);
   assert.equal(presentation.groups[0].items[0].statusLabel, "מועמד מחקר");
+  assert.equal(presentation.groups[0].items[0].statusPresentation.labelHe, "מועמד למחקר");
+  assert.equal(presentation.groups[0].items[0].kindPresentation.labelHe, "פריט מחקר");
+  assert.match(presentation.groups[0].items[0].humanPresentation.title, /ממצא מחקר/);
+  assert.match(presentation.groups[0].items[0].titleHe, /ממצא מחקר/);
+  assert.equal(presentation.groups[0].items[0].verificationPresentation.labelHe, "עדות המקור אומתה");
+  assert.equal(presentation.groups[0].items[0].accessPresentation.isKnown, false);
   assert.equal(presentation.groups[1].items[0].statusLabel, "מאושר");
   assert.equal(presentation.groups[2].items[0].statusLabel, "קנוני");
+});
+
+test("Book presentation never promotes mixed technical fallback text into the Hebrew primary title", () => {
+  const presentation = buildBookResearchPresentation([{
+    id: "30000000-0000-0000-0000-000000000004",
+    kind: "hypothesis",
+    statement: "השערה עם INTERNAL_ENGINE_TRACE שאינו מיועד לכותרת",
+    source_ref: "book:synthetic#p4:q",
+    status: "candidate",
+  }]);
+  const entry = presentation.groups[0].items[0];
+  assert.equal(entry.titleHe, "השערת מחקר");
+  assert.doesNotMatch(entry.titleHe, /INTERNAL|ENGINE|TRACE/);
+  assert.equal(entry.humanPresentation.originalText.includes("INTERNAL_ENGINE_TRACE"), true,
+    "the original remains preserved for an explicit inspection layer");
 });
 
 test("review projection only flags explicit unresolved/pending/mismatch-style verification signals", () => {

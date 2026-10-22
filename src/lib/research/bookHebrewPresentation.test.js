@@ -54,7 +54,7 @@ test("all live coverage keys have Hebrew presentations", () => {
   assertEveryKnown(presentBookCoverageKey, [
     "structural", "structural_digital_object", "structural_sections", "research_map",
     "content_scan", "close_read", "exact_witness", "exact_witness_close_read",
-    "source_exhaustion", "corpus_exhaustion", "deep_research", "active_blocks",
+    "source_exhaustion", "corpus_exhaustion", "deep_research", "dossier_version", "active_blocks",
     "exact_lexical_census", "historical_witness_collation", "unresolved_total",
     "whole_book_high_value_map",
   ]);
@@ -84,6 +84,7 @@ test("numeric coverage values remain exact while ratios become readable Hebrew",
   assert.equal(presentBookCoverageValue("212").labelHe, "212");
   assert.equal(presentBookCoverageValue(4).labelHe, "4");
   assert.equal(presentBookCoverageValue("115").isKnown, true);
+  assert.equal(presentBookCoverageValue("v9").labelHe, "גרסה 9");
 });
 
 test("all research kinds, governance states and access states stay distinct", () => {

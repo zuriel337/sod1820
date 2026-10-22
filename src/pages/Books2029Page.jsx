@@ -14,28 +14,30 @@ import {
   parseSourceRefLocator,
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
+import {
+  presentBookCoverageKey,
+  presentBookCoverageValue,
+  presentBookEditionStatus,
+  presentBookLocatorKind,
+  presentBookScreenState,
+  presentBookTechnicalTerm,
+} from "../lib/research/bookHebrewPresentation.js";
 import { applySeo } from "../lib/seo.js";
 
-const COVERAGE_LABELS = {
-  structural: "מיפוי מבני",
-  structural_digital_object: "מבנה המקור הדיגיטלי",
-  structural_sections: "חלקים מבניים",
-  research_map: "מפת המחקר",
-  content_scan: "סריקת תוכן",
-  close_read: "קריאה צמודה",
-  exact_witness: "עדות מדויקת",
-  exact_witness_close_read: "קריאת העדות",
-  source_exhaustion: "מיצוי המקור",
-  corpus_exhaustion: "מיצוי הקורפוס",
-  deep_research: "מחקר עומק",
-  active_blocks: "בלוקים פעילים",
-  exact_lexical_census: "מפקד לשוני מדויק",
-  historical_witness_collation: "השוואת עדים היסטוריים",
-  unresolved_total: "נקודות לא פתורות",
-};
-
 function coverageLabel(key) {
-  return COVERAGE_LABELS[key] || String(key || "").replaceAll("_", " ");
+  return presentBookCoverageKey(key).labelHe;
+}
+
+function coverageValueLabel(value) {
+  return presentBookCoverageValue(value).labelHe;
+}
+
+function screenLabel(state) {
+  return presentBookScreenState(state).labelHe;
+}
+
+function technicalLabel(term) {
+  return presentBookTechnicalTerm(term).labelHe;
 }
 
 function shortText(value, max = 220) {
@@ -53,15 +55,13 @@ function witnessLabel(tiers) {
 function editionLabel(tiers) {
   const edition = tiers?.edition || {};
   const bits = [edition.place, edition.gregorian_year || edition.hebrew_year].filter(Boolean);
-  return bits.join(" · ") || edition.status || "פרטי המהדורה עדיין חלקיים";
+  return bits.join(" · ") || presentBookEditionStatus(edition.status).labelHe;
 }
 
 function locatorLabel(tiers) {
   const kind = tiers?.locator?.kind;
   if (!kind) return "מראה־מקום טרם הוגדר";
-  if (kind.includes("section")) return "מראה־מקום לפי חלק/סעיף";
-  if (kind.includes("page")) return "מראה־מקום לפי עמוד ומקטע";
-  return kind.replaceAll("_", " ");
+  return presentBookLocatorKind(kind).labelHe;
 }
 
 function primaryCoverage(coverage) {
@@ -81,7 +81,7 @@ function SaveBookItemAction({ item, research }) {
       onClick={() => { try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
       <NavigationIcon2029 name={failed ? "issue" : saved ? "check" : "save"} />{failed ? "נסה לשמור שוב" : saved ? "נשמר" : "שמור"}
     </button>
-    <span className="sod-action-announcement" role="status">{failed ? "השמירה לא הושלמה. נסה שוב." : saved ? "הפריט שמור בספרייה" : ""}</span>
+    <span className="sod-action-announcement" role="status">{failed ? screenLabel("save_failure") : saved ? screenLabel("save_success") : ""}</span>
   </>;
 }
 
@@ -89,11 +89,13 @@ function ResearchFindingRow({ entry, book, research }) {
   const row = entry.row;
   const loc = entry.representation?.sourceLocator || parseSourceRefLocator(row.source_ref);
   const item = researchRowToWorkspaceItem(row, book);
-  const locus = loc?.page ? `עמוד ${loc.page}` : loc?.zone ? loc.zone.replaceAll("_", " ") : null;
+  const locus = loc?.page ? `עמוד ${loc.page}` : loc?.zone ? "מראה־מקום מפורט" : null;
+  const title = entry.titleHe || entry.kindPresentation?.labelHe || "פריט מחקר";
+  const verification = entry.verificationPresentation?.labelHe || entry.verificationLabel;
   return <div className="sod29-row sod29-book-research-row">
     <div>
-      <strong>{shortText(row.statement || entry.representation?.title || row.kind || "ממצא מחקר", 260)}</strong>
-      <small>{[entry.statusLabel, entry.verificationLabel, locus].filter(Boolean).join(" · ")}</small>
+      <strong>{shortText(title, 260)}</strong>
+      <small>{[entry.kindPresentation?.labelHe, entry.statusPresentation?.labelHe, verification, locus].filter(Boolean).join(" · ")}</small>
     </div>
     <div className="sod29-actions"><SaveBookItemAction item={item} research={research} /></div>
   </div>;
@@ -125,7 +127,7 @@ function BookCard({ book }) {
     <div className="sod29-book-cover" aria-hidden="true">▤</div>
     <div className="sod29-kicker">ספר ומקור</div>
     <h3>{book.label}</h3>
-    <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${String(primary.value)}` : "ספר חי במערכת המחקר"}</p>
+    <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${coverageValueLabel(primary.value)}` : "ספר חי במערכת המחקר"}</p>
     <div className="sod29-actions">
       <span className="sod29-chip">{book.is_active ? "פעיל" : "לא פעיל"}</span>
       {coverage.unresolved_total != null ? <span className="sod29-chip">{coverage.unresolved_total} נקודות פתוחות</span> : null}
@@ -143,8 +145,8 @@ function LibraryView() {
     return () => { alive = false; };
   }, []);
 
-  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספרייה הפעילה…</div></section>;
-  if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לטעון את הספרייה: {String(state.error?.message || state.error)}</div></section>;
+  if (state.loading) return <section className="sod29-section"><div className="sod29-state">{screenLabel("library_loading")}</div></section>;
+  if (state.error) return <section className="sod29-section"><div className="sod29-state error">{screenLabel("network_error")}</div></section>;
 
   return <>
     <section className="sod29-focus-stage">
@@ -167,17 +169,17 @@ function LibraryView() {
 
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">הספרייה</div><h2>הספרייה הפעילה</h2><div className="sod29-muted">פתחו ספר כדי לראות מה כבר מופה, אילו ממצאים קיימים, מאיזה מקור הם מגיעים ומה עדיין פתוח לבדיקה.</div></div></div>
-      {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} />)}</div> : <div className="sod29-state">אין כרגע ספרים פעילים לקריאה ציבורית.</div>}
+      {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} />)}</div> : <div className="sod29-state">{screenLabel("no_authorized_books")}</div>}
     </section>
 
     <section className="sod29-section sod29-placeholder">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">CORPUS PROJECTION</div><h2>תנ״ך · Library Group</h2></div></div>
-      <p className="sod29-muted">ה־Foundation כבר קבע Tanakh כ־corpus projection מעל 24 Book identities, לא כ“ספר 25”. הם נשארים inactive-first עד שה־runtime/projection וה־Human Gate יאשרו הפעלה. לכן הם לא מוצגים כאן כאילו הם כבר ספרייה ציבורית חיה.</p>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">{technicalLabel("CORPUS PROJECTION")}</div><h2>תנ״ך · קבוצת ספרים</h2></div></div>
+      <p className="sod29-muted">תשתית המערכת כבר הגדירה את התנ״ך כקורפוס בן 24 זהויות ספר, ולא כ״ספר 25״. הספרים יישארו סגורים עד שהקורא ואישור ההפעלה יהיו מוכנים; לכן הם אינם מוצגים כאן כאילו הם כבר ספרייה ציבורית חיה.</p>
     </section>
 
     <section className="sod29-section sod29-placeholder">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">PERSONAL SOURCE INTAKE</div><h2>חקור ספר משלך</h2><div className="sod29-muted">הכיוון נעול: Private Source → Light Intake → בחירת מטרת מחקר → Book Research Lab. ה־private storage/RLS runtime עדיין לא מחובר, ולכן הכפתור לא מזייף העלאה.</div></div></div>
-      <button className="sod29-action" disabled>העלאת ספר פרטי · runtime pending</button>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">{technicalLabel("PERSONAL SOURCE INTAKE")}</div><h2>חקור ספר משלך</h2><div className="sod29-muted">המסלול המתוכנן: מקור פרטי, קליטה ראשונית, בחירת מטרת מחקר ומחקר עומק בספר. תשתית האחסון וההרשאות עדיין אינה מחוברת, ולכן הכפתור אינו מדמה העלאה.</div></div></div>
+      <button className="sod29-action" disabled>העלאת ספר פרטי · {screenLabel("action_unavailable")}</button>
     </section>
   </>;
 }
@@ -224,10 +226,14 @@ function BookDetail({ slug }) {
     .slice(0, 8), [coverage]);
   const residuals = Array.isArray(coverage.residuals) ? coverage.residuals : [];
   const unresolvedTotal = Number(coverage.unresolved_total || 0) || 0;
+  const witnessCoverage = coverage.exact_witness_close_read
+    || coverage.exact_witness
+    || coverage.historical_witness_collation
+    || null;
 
-  if (state.loading) return <section className="sod29-section"><div className="sod29-state">טוען את הספר ואת המחקר המקושר אליו…</div></section>;
-  if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
-  if (!book) return <section className="sod29-section"><div className="sod29-state warn">הספר אינו פעיל/נגיש כרגע. לא מציגים snapshot קשיח במקום זהות חיה.</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
+  if (state.loading) return <section className="sod29-section"><div className="sod29-state">{screenLabel("book_loading")}</div></section>;
+  if (state.error) return <section className="sod29-section"><div className="sod29-state error">{screenLabel("network_error")}</div></section>;
+  if (!book) return <section className="sod29-section"><div className="sod29-state warn">{screenLabel("book_unavailable")}</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
 
   const addBook = () => { const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
 
@@ -248,9 +254,9 @@ function BookDetail({ slug }) {
       <div className="sod29-section-head"><div><div className="sod29-kicker">העיקר</div><h2>מצב הספר עכשיו</h2><div className="sod29-muted">תמונת פתיחה אחת לפני שנכנסים לפרטים, למטריצות או לכלי עומק.</div></div></div>
       <div className="sod29-book-overview-grid">
         <div className="sod29-book-overview-card"><strong>{presentation.total}</strong><span>ממצאי מחקר קריאים</span></div>
-        <div className="sod29-book-overview-card"><strong>{primary ? String(primary.value) : "—"}</strong><span>{primary ? coverageLabel(primary.key) : "כיסוי מבני"}</span></div>
+        <div className="sod29-book-overview-card"><strong>{primary ? coverageValueLabel(primary.value) : "—"}</strong><span>{primary ? coverageLabel(primary.key) : "כיסוי מבני"}</span></div>
         <div className="sod29-book-overview-card"><strong>{witnessLabel(tiers)}</strong><span>מקור / עדות</span></div>
-        <div className="sod29-book-overview-card"><strong>{String(coverage.exact_witness_close_read || coverage.exact_witness || coverage.historical_witness_collation || "—")}</strong><span>מצב העדות המדויקת</span></div>
+        <div className="sod29-book-overview-card"><strong>{witnessCoverage ? coverageValueLabel(witnessCoverage) : "—"}</strong><span>מצב העדות המדויקת</span></div>
       </div>
     </section>
 
@@ -265,22 +271,22 @@ function BookDetail({ slug }) {
 
     {coveragePairs.length ? <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">מה כבר מכוסה</div><h2>מפת הכיסוי</h2><div className="sod29-muted">מיפוי מבני, קריאה צמודה, עדות מדויקת ומיצוי מקור הם מצבים שונים — ולא מתאחדים לציון אחד.</div></div></div>
-      <div className="sod29-grid">{coveragePairs.map(([k,v]) => <div className="sod29-card" key={k}><h3>{coverageLabel(k)}</h3><p>{String(v)}</p></div>)}</div>
+      <div className="sod29-grid">{coveragePairs.map(([k,v]) => <div className="sod29-card" key={k}><h3>{coverageLabel(k)}</h3><p>{coverageValueLabel(v)}</p></div>)}</div>
     </section> : null}
 
     <section className="sod29-section" id="book-research-summary">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">מה כבר נחקר</div><h2>מחקר סביב הספר</h2><div className="sod29-muted">אותו Research OS, מסודר כאן לפי צורת החומר: מנגנונים, מבנים וממצאים. סטטוס ואימות נשמרים כפי שהם במקור.</div></div><span className="sod29-chip">{presentation.total} ממצאים</span></div>
-      {pack?.restricted ? <div className="sod29-state warn">חלק משכבת המחקר מוגן עבור הסשן הנוכחי. לא מרחיבים הרשאות כדי למלא את המסך.</div> : null}
-      {pack?.truncated ? <div className="sod29-state">מוצגת קריאה bounded של שכבת המחקר; חומר נוסף נשאר במאגר ולא נחתך סמנטית.</div> : null}
-      {presentation.groups.length ? <div className="sod29-book-families">{presentation.groups.map((group, index) => <ResearchFamily key={group.id} group={group} book={book} research={research} defaultOpen={index === 0} />)}</div> : <div className="sod29-state">אין כרגע Research Objects קריאים לסשן הזה. עדיין אפשר לראות את מצב המקור והכיסוי בלי להמציא ממצאים.</div>}
+      <div className="sod29-section-head"><div><div className="sod29-kicker">מה כבר נחקר</div><h2>המחקר סביב הספר</h2><div className="sod29-muted">חומר המחקר מסודר כאן לפי צורתו: מנגנונים, מבנים וממצאים. מצב המחקר ומצב הבדיקה נשמרים כצירים נפרדים.</div></div><span className="sod29-chip">{presentation.total} ממצאים</span></div>
+      {pack?.restricted ? <div className="sod29-state warn">{screenLabel("restricted")}</div> : null}
+      {pack?.truncated ? <div className="sod29-state">{screenLabel("truncated")}</div> : null}
+      {presentation.groups.length ? <div className="sod29-book-families">{presentation.groups.map((group, index) => <ResearchFamily key={group.id} group={group} book={book} research={research} defaultOpen={index === 0} />)}</div> : <div className="sod29-state">{screenLabel("no_approved_material")}</div>}
     </section>
 
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">מה עדיין פתוח</div><h2>נקודות להמשך בדיקה</h2><div className="sod29-muted">כאן מופיעים רק סימנים מפורשים מהמחקר או מה־coverage — לא ניחושים ולא “ציון אמת”.</div></div></div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">מה עדיין פתוח</div><h2>נקודות להמשך בדיקה</h2><div className="sod29-muted">כאן מופיעים רק סימנים מפורשים מן המחקר או ממפת הכיסוי — לא ניחושים ולא ״ציון אמת״.</div></div></div>
       <div className="sod29-grid">
-        <div className="sod29-card"><h3>ממצאים עם אות בדיקה מפורש</h3><p>{presentation.reviewCount ? `${presentation.reviewCount} ממצאים מסומנים ב־pending / unresolved / mismatch או מצב מקביל.` : "לא נמצאו כרגע אותות בדיקה מפורשים בשורות הקריאות."}</p></div>
-        <div className="sod29-card"><h3>נקודות לא פתורות במיפוי</h3><p>{unresolvedTotal ? `${unresolvedTotal} נקודות רשומות ב־coverage.` : "לא רשום unresolved_total נפרד לספר הזה."}</p></div>
-        <div className="sod29-card"><h3>שאריות מחקר מפורשות</h3><p>{residuals.length ? residuals.map(x => String(x).replaceAll("_", " ")).join(" · ") : "לא רשומה רשימת residuals נפרדת."}</p></div>
+        <div className="sod29-card"><h3>ממצאים עם אות בדיקה מפורש</h3><p>{presentation.reviewCount ? `${presentation.reviewCount} ממצאים מסומנים להמשך בדיקה.` : "לא נמצאו כרגע אותות בדיקה מפורשים בשורות הקריאות."}</p></div>
+        <div className="sod29-card"><h3>נקודות לא פתורות במיפוי</h3><p>{unresolvedTotal ? `${unresolvedTotal} נקודות רשומות במפת הכיסוי.` : "לא רשמה המערכת מספר נפרד של נקודות לא פתורות לספר הזה."}</p></div>
+        <div className="sod29-card"><h3>נקודות המשך מפורשות</h3><p>{residuals.length ? `${residuals.length} נקודות המשך רשומות בפרטי הבדיקה.` : "לא רשמה המערכת רשימת המשך נפרדת."}</p></div>
       </div>
     </section>
   </>;
@@ -289,5 +295,5 @@ function BookDetail({ slug }) {
 export default function Books2029Page() {
   const { slug } = useParams();
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
-  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
+  return <Sod2029Shell surface="books" symbol="▤" eyebrow={technicalLabel("BOOKS · SOURCES · WITNESSES")} title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
 }

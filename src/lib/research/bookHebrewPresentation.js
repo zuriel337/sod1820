@@ -23,6 +23,7 @@ const COVERAGE_KEYS = dictionary([
   ["source_exhaustion", view("מיצוי המקור")],
   ["corpus_exhaustion", view("מיצוי הקורפוס")],
   ["deep_research", view("מחקר עומק")],
+  ["dossier_version", view("גרסת תיק המחקר")],
   ["active_blocks", view("בלוקים פעילים")],
   ["exact_lexical_census", view("מפקד לשוני מדויק")],
   ["historical_witness_collation", view("השוואת עדים היסטוריים")],
@@ -243,6 +244,8 @@ export function presentBookCoverageValue(rawValue) {
 
   const ratio = cleaned.match(/^(\d+)\s*\/\s*(\d+)$/);
   if (ratio) return result(rawValue, view(`${ratio[1]} מתוך ${ratio[2]}`, "metric"), true);
+  const version = cleaned.match(/^v(\d+)$/i);
+  if (version) return result(rawValue, view(`גרסה ${version[1]}`, "metric"), true);
   if (/^\d+$/.test(cleaned)) return result(rawValue, view(cleaned, "metric"), true);
 
   return result(rawValue, view("מצב הכיסוי דורש עיון", "unknown", RAW_DETAIL), false);
