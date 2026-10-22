@@ -1,6 +1,11 @@
 // Temporary, in-memory Raziel conversation state for the 2029 shell.
 // ResearchProvider remains the only owner of saved items, collections, paths and research Context.
 
+import {
+  projectRazielConversationResolution,
+  resolveRazielConversationTurn,
+} from "./razielConversationResolver.js";
+
 export const RAZIEL_SESSION_VERSION = 1;
 
 const LIMITS = Object.freeze({
@@ -177,7 +182,9 @@ export function createRazielContextSnapshot(context = null, view = {}, capturedA
 
 export function buildRazielTranscript(thread = [], again = false) {
   const messages = Array.isArray(thread) ? thread : [];
-  const prior = again ? messages.slice(0, -1) : messages;
+  // A deep/again request is submitted after the fast answer is already in the thread. Keep that
+  // answer so the deep pass can extend it; the reducer prevents a duplicate user message.
+  const prior = messages;
   return prior.slice(-2)
     .map((message) => {
       const role = message?.role === "raziel" ? "רזיאל" : "משתמש";
@@ -212,6 +219,13 @@ export function buildRazielSessionRequest({
 } = {}) {
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
+  const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
+  const resolvedTurn = resolveRazielConversationTurn({
+    question: subject,
+    thread: state?.thread,
+    surfaceSemantic: snapshotSurfaceSemantic(contextSnapshot),
+  });
+  const conversationResolution = projectRazielConversationResolution(resolvedTurn);
   const transcript = buildRazielTranscript(state?.thread, again);
   const block = transcript ? `שיחה אחרונה:\n${transcript}` : "";
   const heading = cleanInline(contextSnapshot?.description, LIMITS.context) || "";
@@ -226,7 +240,8 @@ export function buildRazielSessionRequest({
     context: boundedContext,
     again: Boolean(again),
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
-    surfaceSemantic: snapshotSurfaceSemantic(contextSnapshot),
+    surfaceSemantic,
+    conversationResolution,
   };
 }
 
@@ -390,7 +405,12 @@ export function razielSessionReducer(state, action) {
       const { turn, contextSnapshot } = action;
       const thread = turn.again
         ? state.thread
-        : appendMessage(state.thread, { role: "user", text: turn.question, turnId: turn.id });
+        : appendMessage(state.thread, {
+          role: "user",
+          text: turn.question,
+          turnId: turn.id,
+          ...(turn.identityResolution ? { identity_resolution: turn.identityResolution } : {}),
+        });
       return {
         ...state,
         thread,

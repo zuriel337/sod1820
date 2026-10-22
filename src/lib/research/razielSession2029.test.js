@@ -215,3 +215,87 @@ test("personal pair negative and failed outcomes remain semantically distinct", 
   assert.equal(failed.personalPair.bundle, null);
   assert.match(failed.announcement, /לא הושלמה/);
 });
+
+test("numeric follow-up keeps one bounded referent across desktop and mobile", () => {
+  const snapshot = createRazielContextSnapshot({ subject: { type: "number", id: "776", label: "776" } });
+  let state = createInitialRazielSessionState();
+  const first = buildRazielSessionRequest({ question: "מה זה 776?", state, contextSnapshot: snapshot });
+  assert.deepEqual(first.conversationResolution.identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+
+  state = razielSessionReducer(state, {
+    type: "turn_started",
+    contextSnapshot: snapshot,
+    turn: {
+      id: "n1",
+      question: first.subject,
+      identityResolution: {
+        identities: first.conversationResolution.identities,
+        explicit_text_computation: false,
+      },
+      intelligenceLevel: "fast",
+      again: false,
+      projection: "desktop",
+      startedAt: "t1",
+    },
+  });
+  state = razielSessionReducer(state, {
+    type: "turn_succeeded",
+    completedAt: "t2",
+    response: { answer: "תשובה", intelligenceLevel: "fast", sourceNames: [] },
+    provenance: { turnId: "n1" },
+  });
+
+  const followUp = buildRazielSessionRequest({
+    question: "אתה יכול לבדוק?",
+    state,
+    contextSnapshot: snapshot,
+  });
+  assert.equal(followUp.subject, "אתה יכול לבדוק?");
+  assert.equal(followUp.conversationResolution.referential_follow_up, true);
+  assert.deepEqual(followUp.conversationResolution.identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(followUp.conversationResolution), /access|provenance|metadata|token/i);
+});
+
+test("a new explicit number replaces the prior number instead of inheriting it", () => {
+  const state = {
+    ...createInitialRazielSessionState(),
+    thread: [{
+      role: "user",
+      text: "מה זה 776?",
+      identity_resolution: {
+        identities: [{ type: "number", value: 776, identity_key: "number:776" }],
+      },
+    }],
+  };
+  const request = buildRazielSessionRequest({ question: "מה זה 1820?", state });
+  assert.deepEqual(request.conversationResolution.identities.map((identity) => identity.value), [1820]);
+});
+
+test("explicit deepening includes the immediately preceding fast answer without duplicating the user turn", () => {
+  let state = createInitialRazielSessionState();
+  state = razielSessionReducer(state, {
+    type: "turn_started",
+    contextSnapshot: null,
+    turn: { id: "d1", question: "מה זה 776?", intelligenceLevel: "fast", again: false, projection: "mobile", startedAt: "t1" },
+  });
+  state = razielSessionReducer(state, {
+    type: "turn_succeeded",
+    completedAt: "t2",
+    response: { answer: "התשובה המהירה האחרונה", intelligenceLevel: "fast", sourceNames: [] },
+    provenance: { turnId: "d1" },
+  });
+  const before = state.thread.length;
+  const deep = buildRazielSessionRequest({ question: "מה זה 776?", state, intelligenceLevel: "deep", again: true });
+  assert.match(deep.context, /רזיאל: התשובה המהירה האחרונה/);
+  state = razielSessionReducer(state, {
+    type: "turn_started",
+    contextSnapshot: null,
+    turn: { id: "d2", question: deep.subject, intelligenceLevel: "deep", again: true, projection: "desktop", startedAt: "t3" },
+  });
+  assert.equal(state.thread.length, before);
+  assert.equal(state.thread.filter((message) => message.role === "user").length, 1);
+});

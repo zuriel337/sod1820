@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { resolveRazielConversationTurn } from "./razielConversationResolver.js";
+import {
+  projectRazielConversationResolution,
+  resolveRazielConversationTurn,
+} from "./razielConversationResolver.js";
 
 const ids = (out) => out.identity_resolution.identities.map((identity) => String(identity.value ?? identity.id ?? identity.label));
 
@@ -193,4 +196,42 @@ test("rejects unsafe or out-of-range surface subjects", () => {
     const out = resolveRazielConversationTurn({ question: "תבדוק את זה", surfaceSemantic: { subject } });
     assert.deepEqual(ids(out), []);
   }
+});
+
+test("transport projection is number-only and strips private owner fields", () => {
+  const resolved = resolveRazielConversationTurn({
+    question: "תבדוק את זה מול 1820",
+    thread: [{
+      role: "user",
+      identity_resolution: {
+        identities: [{
+          type: "number",
+          identity_key: "number:776",
+          value: 776,
+          label: "PRIVATE-LABEL",
+          access: { tier: "admin", token: "SECRET" },
+          provenance: { owner: "PRIVATE-OWNER" },
+          metadata: { note: "PRIVATE-NOTE" },
+        }],
+      },
+    }],
+  });
+  const projected = projectRazielConversationResolution(resolved);
+  assert.deepEqual(projected.pair, [776, 1820]);
+  assert.deepEqual(projected.identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+    { type: "number", value: 1820, identity_key: "number:1820" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(projected), /SECRET|PRIVATE|access|provenance|metadata|label/);
+  assert.ok(JSON.stringify(projected).length < 1000);
+});
+
+test("three numeric subjects require clarification instead of silently dropping one", () => {
+  const resolved = resolveRazielConversationTurn({
+    question: "תבדוק את זה מול 358",
+    thread: [{ role: "user", text: "מה ההבדל בין 776 ל 1820" }],
+  });
+  assert.deepEqual(ids(resolved), ["776", "1820", "358"]);
+  assert.equal(resolved.pair, null);
+  assert.equal(projectRazielConversationResolution(resolved), null);
 });

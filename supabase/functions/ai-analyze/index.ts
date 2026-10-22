@@ -1129,6 +1129,39 @@ const RAZIEL_NUMBER_CONTEXT_CALLS = [
 ] as const;
 const RAZIEL_NC_TOP = 6;
 
+type RazielConversationNumberHint = {
+  numbers: [number] | [number, number];
+  requestedAction: "connect" | "research" | "understand" | "continue";
+};
+
+// Client conversation state is never authority. W2 admits only public decimal anchors from an
+// exact resolver version and an explicit bounded anaphoric question. Labels, access, provenance,
+// metadata and every non-number identity are ignored. Phase H then re-reads the owner projections.
+function razielConversationNumberHint(raw: any, originalQuestion: unknown): RazielConversationNumberHint | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  if (raw.version !== "raziel-conversation-resolver-v1" || raw.referential_follow_up !== true) return null;
+  const q = rzClean(originalQuestion, 300).replace(/[־–—-]/g, " ").replace(/[?؟!.]+$/g, "").replace(/\s+/g, " ").trim();
+  const referential = /^(?:(?:אתה יכול|את יכולה|אפשר)?\s*(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?|(?:תבדוק|בדוק|תחקור|חקור|תעמיק|העמק)(?:\s+את\s+זה)?)(?:\s+(?:מול|לבין|עם|ל)\s*\d{1,6})?$/u.test(q)
+    || /^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*\d{1,6}$/u.test(q)
+    || /^(?:מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q);
+  if (!referential) return null;
+  const requestedAction = ["connect", "research", "understand", "continue"].includes(raw.requested_action)
+    ? raw.requested_action as RazielConversationNumberHint["requestedAction"]
+    : null;
+  if (!requestedAction) return null;
+  const identities = Array.isArray(raw.identities) ? raw.identities : [];
+  if (identities.length < 1 || identities.length > 2) return null;
+  const numbers: number[] = [];
+  for (const identity of identities) {
+    if (!identity || typeof identity !== "object" || Array.isArray(identity) || identity.type !== "number") return null;
+    const value = identity.value;
+    if (!Number.isInteger(value) || value < 1 || value > 999999 || identity.identity_key !== `number:${value}`) return null;
+    if (numbers.includes(value)) return null;
+    numbers.push(value);
+  }
+  return { numbers: numbers as [number] | [number, number], requestedAction };
+}
+
 function razielSurfaceNumberRoot(sc: any): number | null {
   if (!sc || typeof sc !== "object" || Array.isArray(sc)) return null;
   const s = sc.subject;
@@ -1958,6 +1991,9 @@ Deno.serve(async (req: Request) => {
       let rCoordDesc: { capability: string; days: number | null } | null = null;   // Phase K
       let rToolRes: RazielToolResearch | null = null;
       let rDet: any = null;   // Phase H: the fn_raziel_answer result (descriptor source for number_context)
+      const rConversationHint = rTrusted
+        ? null
+        : razielConversationNumberHint(body?.conversation_resolution, rSubject);
       // Multimodal source stage FIRST (trusted internal path only). When a source is attached, caption/subject words never fall
       // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.
       let rSource: { ok: boolean; text: string; mime: string | null; reason: string | null } | null = null;
@@ -2131,8 +2167,18 @@ Deno.serve(async (req: Request) => {
       //    L0 (listing/counts) answers straight from the owner projections (no model, no tokens); synthesis gets a bounded pack. Failure ⇒ ordinary synthesis, no claims.
       let rNcPack = "";
       let rNcFallback = "";
-      const rNcPairDesc = razielNumberPairDescriptor(rDet);
-      const rNcDesc = rNcPairDesc ? null : razielNumberContextDescriptor(rDet, body?.surface_semantic);
+      const rConversationFallback = rConversationHint
+        && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
+        && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match")
+        ? rConversationHint
+        : null;
+      const rNcPairDesc = razielNumberPairDescriptor(rDet) ?? (rConversationFallback?.numbers.length === 2
+        ? { numbers: rConversationFallback.numbers as [number, number], anchor: "conversation_resolution", mode: "synthesis", focus: "number_compare" }
+        : null);
+      const rNcDesc = rNcPairDesc ? null : (razielNumberContextDescriptor(rDet, body?.surface_semantic)
+        ?? (rConversationFallback?.numbers.length === 1
+          ? { number: rConversationFallback.numbers[0], anchor: "conversation_resolution", mode: "synthesis" as const, focus: null }
+          : null));
       if (rDet && rDet.availability === "number_context") rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: false };
       if (rNcPairDesc) {
         const [leftNumber, rightNumber] = rNcPairDesc.numbers;

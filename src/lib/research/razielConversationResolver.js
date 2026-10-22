@@ -180,6 +180,15 @@ function numberPair(resolution) {
   return values.every((value) => Number.isInteger(value)) ? Object.freeze(values) : null;
 }
 
+function orderedNumberPair(candidates) {
+  const values = (Array.isArray(candidates) ? candidates : [])
+    .filter((candidate) => candidate?.type === "number")
+    .map((candidate) => Number(candidate.value ?? candidate.id ?? candidate.label))
+    .filter((value) => Number.isInteger(value) && value >= 1 && value <= 999999)
+    .filter((value, index, all) => all.indexOf(value) === index);
+  return values.length === 2 ? Object.freeze(values) : null;
+}
+
 export function resolveRazielConversationTurn({
   question = "",
   thread = [],
@@ -233,7 +242,7 @@ export function resolveRazielConversationTurn({
       currentQuestion,
     )),
     identity_resolution: resolution,
-    pair: numberPair(resolution),
+    pair: orderedNumberPair(candidates) ?? numberPair(resolution),
     guards: Object.freeze({
       semantic_resolution_only: true,
       canonical_identity_resolver: true,
@@ -243,6 +252,35 @@ export function resolveRazielConversationTurn({
       server_must_reauthorize: true,
       no_persistent_memory: true,
     }),
+  });
+}
+
+// Public-number-only projection across the client/server trust boundary. Rich in-memory identities
+// may carry owner access/provenance; those fields deliberately never leave the temporary session.
+export function projectRazielConversationResolution(resolved) {
+  if (!resolved || resolved.version !== RAZIEL_CONVERSATION_RESOLVER_VERSION) return null;
+  const orderedCandidates = Array.isArray(resolved.pair) && resolved.pair.length === 2
+    ? resolved.pair.map((value) => ({ type: "number", value }))
+    : (resolved.identity_resolution?.identities || []);
+  const numbers = orderedCandidates
+    .filter((identity) => identity?.type === "number")
+    .map((identity) => Number(identity.value ?? identity.id ?? identity.label))
+    .filter((value) => Number.isInteger(value) && value >= 1 && value <= 999999)
+    .filter((value, index, values) => values.indexOf(value) === index);
+  // Ambiguous 3+-subject turns require clarification. Never silently discard a research subject.
+  if (numbers.length < 1 || numbers.length > 2) return null;
+  return Object.freeze({
+    version: RAZIEL_CONVERSATION_RESOLVER_VERSION,
+    requested_action: resolved.requested_action,
+    referential_follow_up: resolved.referential_follow_up === true,
+    referent_source: resolved.referent_source,
+    identities: Object.freeze(numbers.map((value) => Object.freeze({
+      type: "number",
+      value,
+      identity_key: `number:${value}`,
+    }))),
+    pair: numbers.length === 2 ? Object.freeze([...numbers]) : null,
+    guards: Object.freeze({ semantic_hint_only: true, server_must_reauthorize: true }),
   });
 }
 

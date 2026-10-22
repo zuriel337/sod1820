@@ -83,6 +83,10 @@ export function RazielSessionProvider2029({
     const turn = {
       id: createTurnId(),
       question: request.subject,
+      identityResolution: request.conversationResolution ? {
+        identities: request.conversationResolution.identities,
+        explicit_text_computation: false,
+      } : null,
       intelligenceLevel: request.intelligenceLevel,
       again: request.again,
       projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
