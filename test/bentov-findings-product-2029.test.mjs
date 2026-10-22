@@ -33,15 +33,34 @@ test("status axes and actual inventory totals remain separate", () => {
   assert.match(page, /\.\.\.Array\(5\)\.fill\("claim"\)/);
   assert.match(page, /\.\.\.Array\(5\)\.fill\("relation"\)/);
   for (const label of ["קליטה", "התאמה", "אימות", "ממשל", "גישה"]) assert.match(page, new RegExp(label));
-  for (const total of ["33", "5", "28", "18"]) assert.match(page, new RegExp(`<strong>${total}</strong>`));
+  for (const total of ["33", "5", "28", "3", "8", "22"]) assert.match(page, new RegExp(`<strong>${total}</strong>`));
   assert.match(page, /data-live-inventory="aggregate-only"/);
   assert.match(page, /0 \/ 33/);
   assert.match(page, /נדרשת בדיקת תחולה, לא כשל אוטומטי/);
-  assert.match(page, /עמודי המקור והספירות משקפים את המלאי הקיים/);
+  assert.match(page, /האיתור השמור מוצג מול חלון ה־PDF שנמצא בביקורת/);
   assert.match(page, /\{ page: 109, findings: 1 \}/);
   const sourceWindows = [...page.matchAll(/\{ page: (\d+), findings: (\d+) \}/g)];
   assert.equal(sourceWindows.length, 18);
   assert.equal(sourceWindows.reduce((total, match) => total + Number(match[2]), 0), 33);
+});
+
+test("locator audit is aggregate-only, complete and keeps stored locators distinct", () => {
+  assert.match(page, /const LOCATOR_AUDIT_BY_STORED_PAGE/);
+  assert.match(page, /reviewed:\s*33/);
+  assert.match(page, /confirmed:\s*3/);
+  assert.match(page, /expanded:\s*8/);
+  assert.match(page, /correction:\s*22/);
+  assert.match(page, /איתור שמור/);
+  assert.match(page, /בדיקת PDF/);
+  assert.match(page, /data-live-inventory="aggregate-only"/);
+  assert.doesNotMatch(page, /finding_key|source_provenance_reconstructed_sections|direct_sequel_first_book/i);
+
+  const audits = [...page.matchAll(/^\s+(\d+): \{ confirmed: (\d+), expanded: (\d+), correction: (\d+), verifiedPages: "([^"]+)" \},$/gm)];
+  assert.equal(audits.length, 18);
+  assert.equal(audits.reduce((total, match) => total + Number(match[2]) + Number(match[3]) + Number(match[4]), 0), 33);
+  assert.equal(audits.reduce((total, match) => total + Number(match[2]), 0), 3);
+  assert.equal(audits.reduce((total, match) => total + Number(match[3]), 0), 8);
+  assert.equal(audits.reduce((total, match) => total + Number(match[4]), 0), 22);
 });
 
 test("interactive controls are accessible and local-only", () => {

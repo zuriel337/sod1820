@@ -45,6 +45,38 @@ const SOURCE_WINDOWS = Object.freeze([
   { page: 109, findings: 1 },
 ]);
 
+// Private witness review, reduced to aggregate locator outcomes. No candidate
+// statement, quote, row id or finding key is embedded in the Preview bundle.
+// `verifiedPages` is the audited PDF window; `page` above remains the locator
+// currently stored in the protected research inventory.
+const LOCATOR_AUDIT_BY_STORED_PAGE = Object.freeze({
+  7: { confirmed: 0, expanded: 0, correction: 1, verifiedPages: "8" },
+  32: { confirmed: 0, expanded: 0, correction: 2, verifiedPages: "33–35" },
+  37: { confirmed: 0, expanded: 0, correction: 1, verifiedPages: "38" },
+  39: { confirmed: 0, expanded: 0, correction: 1, verifiedPages: "40" },
+  50: { confirmed: 1, expanded: 0, correction: 0, verifiedPages: "50" },
+  58: { confirmed: 0, expanded: 1, correction: 0, verifiedPages: "57–58" },
+  64: { confirmed: 0, expanded: 0, correction: 3, verifiedPages: "65" },
+  65: { confirmed: 0, expanded: 0, correction: 2, verifiedPages: "66" },
+  66: { confirmed: 1, expanded: 0, correction: 4, verifiedPages: "66–68" },
+  67: { confirmed: 0, expanded: 0, correction: 4, verifiedPages: "68" },
+  70: { confirmed: 0, expanded: 0, correction: 2, verifiedPages: "71" },
+  77: { confirmed: 0, expanded: 1, correction: 0, verifiedPages: "77–78" },
+  79: { confirmed: 0, expanded: 4, correction: 0, verifiedPages: "38–42, 79–80" },
+  87: { confirmed: 0, expanded: 1, correction: 0, verifiedPages: "87–89" },
+  92: { confirmed: 0, expanded: 1, correction: 0, verifiedPages: "92–93" },
+  98: { confirmed: 0, expanded: 0, correction: 1, verifiedPages: "99" },
+  99: { confirmed: 0, expanded: 0, correction: 1, verifiedPages: "100–101" },
+  109: { confirmed: 1, expanded: 0, correction: 0, verifiedPages: "109" },
+});
+
+const LOCATOR_AUDIT_TOTALS = Object.freeze({
+  reviewed: 33,
+  confirmed: 3,
+  expanded: 8,
+  correction: 22,
+});
+
 const FINDING_SOURCE_INDEXES = Object.freeze(SOURCE_WINDOWS.flatMap((source, sourceIndex) => (
   Array(source.findings).fill(sourceIndex)
 )));
@@ -90,10 +122,19 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
 
 const SOURCES = Object.freeze(SOURCE_WINDOWS.map((source, index) => ({
   id: `source-${index + 1}`,
-  label: `עמוד ${source.page}`,
+  label: `איתור שמור ${source.page}`,
   page: source.page,
   findings: source.findings,
+  audit: LOCATOR_AUDIT_BY_STORED_PAGE[source.page],
 })));
+
+function locatorAuditLabel(audit) {
+  const parts = [];
+  if (audit.confirmed) parts.push(`${audit.confirmed} מדויק`);
+  if (audit.expanded) parts.push(`${audit.expanded} הורחב`);
+  if (audit.correction) parts.push(`${audit.correction} לתיקון`);
+  return parts.join(" · ");
+}
 
 function FindingMap({ findings, selectedId, onSelect }) {
   return <div className="bentov29-map" aria-label="מפה אינטראקטיבית של ממצאי ההדגמה">
@@ -134,9 +175,9 @@ function FindingDetail({ finding, marked, onToggleMark }) {
     <p className="bentov29-statement">{finding.statement}</p>
 
     <div className="bentov29-source-card">
-      <span>חלון מקור מן המלאי האמיתי</span>
-      <strong>{finding.source} · עמ׳ {finding.page}</strong>
-      <small>מספר העמוד משקף את מפת המקורות; הנוסח והשיוך לנקודת ההדגמה אינם ציטוט או הכרעה מאומתת.</small>
+      <span>חלון מקור מן המלאי המוגן</span>
+      <strong>{finding.source} · איתור שמור עמ׳ {finding.page}</strong>
+      <small>האיתור השמור עבר ביקורת PDF נפרדת ומוצג במסלול המקורות. הנוסח והשיוך לנקודת ההדגמה אינם ציטוט או הכרעה מאומתת.</small>
     </div>
 
     <dl className="bentov29-axes">
@@ -159,7 +200,7 @@ function SourceRail({ selectedSource, onSelect }) {
   return <section className="bentov29-sources" aria-labelledby="bentov29-sources-title">
     <div className="bentov29-section-label">מסלול המקורות</div>
     <h2 id="bentov29-sources-title">18 נקודות עיגון</h2>
-    <p>עמודי המקור והספירות משקפים את המלאי הקיים. תוכן המועמדים נשאר מחוץ לחבילת ההדגמה.</p>
+    <p>האיתור השמור מוצג מול חלון ה־PDF שנמצא בביקורת. תוכן המועמדים נשאר מחוץ לחבילת ההדגמה.</p>
     <div className="bentov29-source-list">
       {SOURCES.map((source, index) => <button
         type="button"
@@ -168,7 +209,11 @@ function SourceRail({ selectedSource, onSelect }) {
         onClick={() => onSelect(source.id)}
       >
         <span className="bentov29-source-index">{String(index + 1).padStart(2, "0")}</span>
-        <span><strong>{source.label}</strong><small>עמ׳ {source.page} · {source.findings} ממצאים</small></span>
+        <span>
+          <strong>{source.label}</strong>
+          <small>בדיקת PDF: עמ׳ {source.audit.verifiedPages}</small>
+          <small>{locatorAuditLabel(source.audit)} · {source.findings} {source.findings === 1 ? "ממצא" : "ממצאים"}</small>
+        </span>
       </button>)}
     </div>
   </section>;
@@ -253,7 +298,10 @@ export default function BentovFindingsProduct2029Page() {
         <article><strong>33</strong><span>מועמדים שנקלטו</span><small>חומר עבודה, לא ציבורי</small></article>
         <article><strong>5</strong><span>התאמות לבדיקה</span><small>match</small></article>
         <article><strong>28</strong><span>לא רלוונטיים להתאמה</span><small>not_applicable</small></article>
-        <article><strong>18</strong><span>הפניות מקור</span><small>source references</small></article>
+        <article><strong>33</strong><span>איתורים נבדקו</span><small>מול עד ה־PDF הפרטי</small></article>
+        <article className="is-confirmed"><strong>3</strong><span>מדויקים כפי שנשמרו</span><small>locator confirmed</small></article>
+        <article className="is-expanded"><strong>8</strong><span>דורשים טווח רחב</span><small>locator expanded</small></article>
+        <article className="is-correction"><strong>22</strong><span>דורשים תיקון</span><small>locator correction</small></article>
         <article className="is-attention"><strong>33</strong><span>נאמנות לא נרשמה</span><small>נדרשת בדיקת תחולה, לא כשל אוטומטי</small></article>
         <article className="is-locked"><strong>0</strong><span>ציבוריים</span><small>שער הפרסום נשאר סגור</small></article>
       </section>
@@ -296,13 +344,22 @@ export default function BentovFindingsProduct2029Page() {
           <span>אין כאן נוסחי ממצאים או ציטוטים</span>
         </header>
         <div className="bentov29-verification-chain">
-          <article className="is-complete"><span>01</span><strong>קליטה ומראי מקום</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה והפניית עמוד במאגר המוגן.</small></article>
-          <article className="is-complete"><span>02</span><strong>מצב בדיקת מנוע</strong><b>33 / 33</b><small>5 התאמות ו־28 שאינם רלוונטיים למסלול חישובי.</small></article>
-          <article className="is-current"><span>03</span><strong>בדיקת נאמנות חילוץ</strong><b>0 / 33</b><small>לא נרשם סטטוס; צריך להכריע תחולה ואז מלא או חלקי.</small></article>
+          <article className="is-complete"><span>01</span><strong>קליטת חומר</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה ואיתור שמור במאגר המוגן.</small></article>
+          <article className="is-complete"><span>02</span><strong>ביקורת איתור PDF</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 מדויקים, 8 דורשים הרחבת טווח ו־22 דורשים תיקון.</small></article>
+          <article className="is-current"><span>03</span><strong>נאמנות חילוץ</strong><b>0 / 33</b><small>לא נרשם סטטוס; תיקוני האיתור קודמים להכרעת מלא או חלקי.</small></article>
           <article className="is-closed"><span>04</span><strong>ביקורת ופרסום</strong><b>0 ציבוריים</b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
         </div>
-        <div className="bentov29-page-map" aria-label="פיזור הממצאים לפי עמוד מקור">
-          {SOURCES.map(source => <span key={source.id}><b>עמ׳ {source.page}</b><small>{source.findings} {source.findings === 1 ? "ממצא" : "ממצאים"}</small></span>)}
+        <div className="bentov29-audit-summary" aria-label="סיכום ביקורת איתורי המקור">
+          <span className="is-confirmed"><b>{LOCATOR_AUDIT_TOTALS.confirmed}</b><small>איתורים מדויקים</small></span>
+          <span className="is-expanded"><b>{LOCATOR_AUDIT_TOTALS.expanded}</b><small>איתורים להרחבת טווח</small></span>
+          <span className="is-correction"><b>{LOCATOR_AUDIT_TOTALS.correction}</b><small>איתורים לתיקון</small></span>
+        </div>
+        <div className="bentov29-page-map" aria-label="מפת איתורים שמורים מול בדיקת PDF">
+          {SOURCES.map(source => <span key={source.id} className={source.audit.correction ? "is-correction" : source.audit.expanded ? "is-expanded" : "is-confirmed"}>
+            <b>שמור {source.page}</b>
+            <small>PDF {source.audit.verifiedPages}</small>
+            <em>{locatorAuditLabel(source.audit)}</em>
+          </span>)}
         </div>
       </section>
 
@@ -312,8 +369,8 @@ export default function BentovFindingsProduct2029Page() {
           <h2 id="bentov29-next-title">כך ההדמיה הופכת למוצר אמיתי</h2>
         </div>
         <ol>
-          <li><span>01</span><strong>בדיקת תחולת נאמנות</strong><small>להחליט לכל מועמד אם שער החילוץ המורכב חל עליו</small></li>
-          <li><span>02</span><strong>השלמת נאמנות</strong><small>לרשום complete או partial רק לפי ראיות המקור</small></li>
+          <li><span>01</span><strong>תיקון איתורים</strong><small>22 תיקונים ו־8 הרחבות טווח, רק לאחר אישור שכבת הנתונים</small></li>
+          <li><span>02</span><strong>השלמת נאמנות</strong><small>להכריע תחולה ולרשום complete או partial לפי ראיות המקור</small></li>
           <li><span>03</span><strong>ביקורת אנושית</strong><small>הכרעה נפרדת לכל ממצא, בלי פרסום אוטומטי</small></li>
           <li><span>04</span><strong>שער פרסום קנוני</strong><small>רק לאחר חוזה, הרשאה ו־RLS מאושרים</small></li>
         </ol>
