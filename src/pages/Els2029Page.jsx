@@ -8,9 +8,9 @@ import ElsResearchBar2029 from "../components/experience2029/ElsResearchBar2029.
 import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
 import "../components/experience2029/els2029-research.css";
 import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
-import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
+import { deleteMatrix, getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
+import { hasExactSavedMatrix, savedMatrixReplayProfile, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
@@ -85,7 +85,7 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
 
 export default function Els2029Page() {
   const research = useResearch();
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
@@ -96,6 +96,13 @@ export default function Els2029Page() {
   const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
   const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
   const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
+  const deleteSavedCipher = async row => {
+    if (!isAdmin || !row?.id) throw new Error("delete_not_allowed");
+    await deleteMatrix(row.id);
+    setSavedRevision(value => value + 1);
+    setSavedRecord(current => ({ ...current, row: null }));
+    setParams(new URLSearchParams());
+  };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
   const findingId = params.get("finding") || "";
@@ -287,6 +294,7 @@ export default function Els2029Page() {
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
       {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
+      {savedMatrixReplayProfile(savedRecord.row).legacyScopeRecovered ? <p role="status">השחזור נפתח בכל התנ״ך מפני שממצאים שנשמרו ברשומה חוצים את גבול התורה. נתוני המקור לא שונו.</p> : null}
       {!hasExactSavedMatrix(savedRecord.row) ? <>
         <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
         {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
@@ -332,7 +340,7 @@ export default function Els2029Page() {
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);
             if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
-          }} />
+          }} onDeleteSaved={deleteSavedCipher} />
       </section>
 
       {researchProfile ? <ElsResearchBarConnected

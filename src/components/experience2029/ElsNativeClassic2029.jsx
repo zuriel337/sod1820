@@ -13,6 +13,7 @@ import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { hasExactSavedMatrix, savedMatrixReplayProfile } from "../../lib/elsSavedMatrix.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -641,9 +642,9 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onDeleteSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const compactMobile = useMediaQuery("(max-width:980px)");
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
@@ -754,6 +755,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [saveRequest, setSaveRequest] = useState(null);
   const [savePending, setSavePending] = useState(false);
   const [saveResult, setSaveResult] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [workspaceRequest, setWorkspaceRequest] = useState(null);
   const actionSeqRef = useRef(0);
@@ -777,6 +781,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setQuery(matrix.search_term || "");setClassicOpen(false);setLoadError(null);
     setSearchRequest(null);setFindingsRequest(null);setOperations({ search: null, findings: null });
     setSaveResult(null);
+    setDeleteConfirm(false);setDeletePending(false);setDeleteError(false);
     const view = matrix.positions?.view || {};
     setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
     setShortSkipView(view.shortSkipView === "columns" ? "columns" : "reading");
@@ -788,6 +793,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   }, [researchLoad]);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
+  const savedReplay = useMemo(() => savedMatrixReplayProfile(matrix), [matrix]);
 
   const resetReadContext = () => {
     ++lensSeqRef.current;
@@ -964,6 +970,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSaveResult(null);setSavePending(true);
     setSaveRequest({ ...draft, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
       view: { classicGlyphs, heightExpanded, shortSkipView } });
+  };
+
+  const deleteOpenedMatrix = async () => {
+    if (!matrix?.id || !isAdmin || !onDeleteSaved || deletePending) return;
+    setDeletePending(true);setDeleteError(false);
+    try {
+      await onDeleteSaved(matrix);
+    } catch {
+      setDeletePending(false);setDeleteError(true);
+    }
   };
 
   const promoteFinding = (finding, hitId) => {
@@ -1169,6 +1185,25 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         {journeyPending?.kind === "return" ? "חוזר לציר הקודם…" : `חזור בדיוק ל־${journeyTrail.at(-1)?.label || "ציר הקודם"}`}
       </button>
     </div> : null}
+    {matrix ? <section className="els29-native-saved-manager" aria-label="ניהול הצופן השמור">
+      <div>
+        <strong>עובדים על צופן שמור</strong>
+        <span>אפשר לשנות את המטריצה והממצאים בחופשיות. הרשומה משתנה רק כשלוחצים שמירה.</span>
+        {savedReplay.legacyScopeRecovered ? <small role="status">ברשומה הוותיקה נמצאו ממצאים שחוצים את גבול התורה. כדי לשחזר את מה שנשמר, היא נפתחה בכל התנ״ך; הרשומה המקורית לא שונתה.</small> : null}
+      </div>
+      <div className="els29-native-saved-actions">
+        <button type="button" className="sod29-action primary" onClick={(event) => openTool("research", event.currentTarget)}>
+          {hasExactSavedMatrix(matrix) ? "ערוך ושמור" : "שמור גרסה מתוקנת"}
+        </button>
+        {isAdmin && onDeleteSaved ? !deleteConfirm ? <button type="button" className="sod29-action" onClick={() => { setDeleteConfirm(true);setDeleteError(false); }}>מחק צופן</button>
+          : <span className="els29-native-delete-confirm" role="group" aria-label="אישור מחיקת הצופן">
+            <b>המחיקה קבועה. למחוק?</b>
+            <button type="button" disabled={deletePending} onClick={deleteOpenedMatrix}>{deletePending ? "מוחק…" : "כן, מחק לצמיתות"}</button>
+            <button type="button" disabled={deletePending} onClick={() => setDeleteConfirm(false)}>ביטול</button>
+          </span> : null}
+      </div>
+      {deleteError ? <small role="alert">המחיקה לא הושלמה. הצופן נשאר שמור.</small> : null}
+    </section> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
@@ -1271,7 +1306,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
-        <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user}
+        <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />

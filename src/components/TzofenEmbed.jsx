@@ -250,8 +250,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       // An explicitly opened, owned private record must update its exact id. The
       // native draft upsert remains for a newly created record that has no route id.
       const nativeOpenedEditId = native && matrix?.id && savedMatrixMatchesAxis(matrix, savedState)
-        && matrix.owner_user_id === user?.id && matrix.visibility === "private"
-        && !matrix.self_published && matrix.status !== "published" ? matrix.id : null;
+        && ((matrix.owner_user_id === user?.id && matrix.visibility === "private"
+          && !matrix.self_published && matrix.status !== "published")
+          || (isAdmin && matrix.status === "published")) ? matrix.id : null;
       const editId = native ? nativeOpenedEditId : (d.editId || (isReSave ? contextMatrix.id : null));
       let editMatrix = null;
       if (editId) {
@@ -272,9 +273,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (messageContextRef.current.user?.id !== user?.id
         || lastStateRef.current?.axis?.hitId !== savedState.axis?.hitId
         || lastStateRef.current?.scope !== savedState.scope) throw new Error("save_context_changed");
-      const canUpdateNative = privateNative && contextMatrix?.owner_user_id === user?.id
-        && contextMatrix?.visibility === "private" && !contextMatrix?.self_published
-        && contextMatrix?.status !== "published" && savedMatrixMatchesAxis(contextMatrix, savedState);
+      const canUpdateNative = privateNative && savedMatrixMatchesAxis(contextMatrix, savedState)
+        && ((contextMatrix?.owner_user_id === user?.id && contextMatrix?.visibility === "private"
+          && !contextMatrix?.self_published && contextMatrix?.status !== "published")
+          || (isAdmin && contextMatrix?.status === "published"));
       const shapeUrl = !privateSave && d.shape ? await uploadCipherCard(d.shape) : null;
       const imageUrl = (!privateSave && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
       const positions = { ...(canUpdateNative ? (editMatrix || contextMatrix).positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",

@@ -93,7 +93,9 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,
+      onDeleteSaved:async row=>{(window.__deleteCalls||=[]).push(row.id);if(window.__deleteFails)throw new Error('fixture delete failure');setMatrix(null);},
+      onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -1335,10 +1337,10 @@ test('an opened personal cipher updates its exact saved record after findings ch
   await activate(page,'חפש במטריצה');
   await page.waitForFunction(()=>window.__state?.findings?.some(item=>item.t==='התורה'&&item.shown.length));
   await activate(page,'שמירה');
-  assert.equal(await button(page,'עדכן ממצא').count(),1);
+  assert.equal(await button(page,'עדכן צופן').count(),1);
   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).isDisabled(),true);
   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('הוספתי את התורה כממצא נוסף על הציר השמור.');
-  await activate(page,'עדכן ממצא');
+  await activate(page,'עדכן צופן');
   await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('עודכן'));
   assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
   assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
@@ -1348,12 +1350,35 @@ test('an opened personal cipher updates its exact saved record after findings ch
   await activate(page,'מחק את המילה התורה וכל מופעיה');
   await page.waitForFunction(()=>window.__state?.findings?.length===0);
   await activate(page,'שמירה');
-  await activate(page,'עדכן ממצא');
+  await activate(page,'עדכן צופן');
   await page.waitForFunction(()=>window.__savedRows[0].positions.findings.length===0);
   assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
   assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
   assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
  },{realHost:true,mobile:true});
+});
+
+test('a historical Torah-labelled record replays cross-boundary findings in Tanakh and exposes direct saved-record controls',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const row={id:'legacy-hint',slug:'legacy-hint',title:'תורת הרמז',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:null,
+    owner_user_id:'fixture-owner',visibility:'public',status:'published',self_published:true,description:'רשומת עבר',positions:{findings:[{t:'נשמהללוט',color:'#FF5D6C',sh:['21941_1_196825']}]}};
+  await page.evaluate(value=>window.__openSavedMatrix(value),row);
+  await page.waitForFunction(()=>window.__state?.term==='תורתהרמז'&&window.__state?.scope==='tanakh'&&window.__state?.verification?.state==='MATCH',{timeout:60000});
+  await page.waitForFunction(()=>window.__state?.findings?.find(item=>item.t==='נשמהללוט')?.shown?.length>0,{timeout:60000});
+  assert.match(await page.getByRole('region',{name:'ניהול הצופן השמור'}).textContent(),/נפתחה בכל התנ״ך/);
+  assert.equal(await button(page,'שמור גרסה מתוקנת').count(),1);
+
+  await activate(page,'מחק צופן');
+  assert.deepEqual(await page.evaluate(()=>window.__deleteCalls||[]),[],'delete is not executed before explicit confirmation');
+  assert.equal(await button(page,'כן, מחק לצמיתות').count(),1);
+  await activate(page,'ביטול');
+  assert.equal(await button(page,'כן, מחק לצמיתות').count(),0);
+  await activate(page,'מחק צופן');
+  await activate(page,'כן, מחק לצמיתות');
+  await page.waitForFunction(()=>window.__fixtureMatrix===null);
+  assert.deepEqual(await page.evaluate(()=>window.__deleteCalls),['legacy-hint']);
+ },{realHost:true,mobile:true,loadGolden:false});
 });
 
 test('privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes',
