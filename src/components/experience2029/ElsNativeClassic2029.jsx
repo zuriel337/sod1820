@@ -474,6 +474,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const [draft, setDraft] = useState("");
   const [expandedFinding, setExpandedFinding] = useState(null);
   const railScrollRef = useRef(null);
+  const workspaceRef = useRef(null);
   const inspectionRef = useRef(null);
   const findingPending = ["searching", "verifying"].includes(operation?.status);
   const pending = searchPending || findingPending;
@@ -482,6 +483,9 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const selectedFinding = selected?.term ? findings.find((finding) => finding.t === selected.term) : null;
   const selectedHit = eligible(selectedFinding).find((hit) => hit.hitId === selected?.hitId);
   const selectionValid = selected && selected.scope === state?.scope && selected.axisHitId === state?.axis?.hitId && selectedFinding && (selectedHit || findingPending);
+  const selectedPromotionHit = selectedHit?.verified
+    ? selectedHit
+    : (selectedFinding?.hits || []).find((hit) => hit.verified && hit.shown && hit.withinRadius !== false);
   const target = selectionValid ? { term: selected.term, hitId: selected.hitId, ...(selectedHit?.kind === "source-sequence" ? { kind: "source-sequence" } : {}) } : { hitId: state?.axis?.hitId };
   const targetLabel = selectionValid ? selected.term : state?.termRaw || state?.term || "הציר הראשי";
   const targetReady = verified && !!target.hitId;
@@ -500,6 +504,15 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
     rail.scrollTop = clamp(rail.scrollTop + result.top - box.top - 8, 0, rail.scrollHeight - rail.clientHeight);
   }, [lensResult]);
 
+  useLayoutEffect(() => {
+    if (!selectionValid || !workspaceRef.current) return;
+    if (window.matchMedia("(max-width:980px)").matches) {
+      workspaceRef.current.scrollIntoView({ block: "start", behavior: "instant" });
+      return;
+    }
+    railScrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
+  }, [selectionValid, selected?.term, selected?.hitId]);
+
   const selectTarget = (term, hitId) => {
     onSelectTarget(term ? { term, hitId, scope: state.scope, axisHitId: state.axis.hitId } : null);
   };
@@ -515,26 +528,47 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 
   return <div className="els29-native-unified-rail" hidden={activeTool === "results"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
-      <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש משני במטריצה</label>
-      <div className="els29-native-finding-add">
-        <input id="els29-secondary-term" value={draft} onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addFinding(); } }}
-          disabled={!verified || pending || findings.length >= 12} maxLength={26}
-          placeholder={verified ? "כתבו מילה נוספת…" : "התחילו בחיפוש ראשי"} aria-label="חיפוש משני במטריצה" />
-        <button type="button" aria-label="חפש במטריצה" onClick={addFinding} disabled={!verified || pending || !clean(draft) || findings.length >= 12}>{pending ? "מחפש…" : "חפש"}</button>
-      </div>
-      <SearchProgress operation={operation} onCancel={onCancel} />
-      <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
-        {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע סביב הציר הראשי הנוכחי."}
-      </div>
-      <label className="els29-native-radius">
-        <span>מרחק מרבי מהציר הראשי</span>
-        <select aria-label="מרחק מרבי מהציר הראשי" value={radius === null ? "all" : radius} disabled={!verified || pending}
-          onChange={(event) => onAxisControl("finding-radius", event.target.value === "all" ? null : Number(event.target.value))}>
-          <option value="all">כל המרחקים בחלון</option>
-          {[0, 1, 2, 3, 5, 10, 15, 20, 30, 50, 100].map((value) => <option key={value} value={value}>{value === 0 ? "נוגע בציר · 0 תאים" : `עד ${value} תאים`}</option>)}
-        </select>
-      </label>
+      <section ref={workspaceRef} className="els29-native-finding-workspace" aria-label="סביבת הממצא הנבחר">
+        <header>
+          <span>{selectionValid ? "ממצא נבחר" : "ציר המחקר הנוכחי"}</span>
+          <strong>{targetLabel}</strong>
+          <small>{selectionValid
+            ? "אפשר לסרוק את הרצף המדויק, לפתוח את המקור או לחקור ממנו כציר ראשי."
+            : "החיפוש והסריקה נשענים על הציר הראשי המאומת."}</small>
+        </header>
+        <div className="els29-native-target-actions" role="group" aria-label={`פעולות מחקר על ${targetLabel}`}>
+          <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>
+            {lensPending ? "טוען…" : selectionValid ? "סרוק בתוך הממצא" : "סרוק לאורך הציר"}
+          </button>
+          <button type="button" aria-label="מקור הממצא הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onSource(target)}>מקור ופסוק</button>
+          {researchProfile && selectionValid ? <button type="button" className="is-promote" aria-label="הפוך לציר ראשי"
+            disabled={pending || journeyBusy || !selectedPromotionHit?.hitId}
+            onClick={() => onPromote(selectedFinding, selectedPromotionHit.hitId)}>חקור מתוך הממצא</button> : null}
+        </div>
+        {researchProfile && selectionValid ? <small className="els29-native-exact-return-note">הממצא יהפוך לציר הראשי; החזרה המדויקת לציר הנוכחי תישמר.</small> : null}
+        <div className="els29-native-matrix-search">
+          <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש מילה בכל המטריצה</label>
+          <div className="els29-native-finding-add">
+            <input id="els29-secondary-term" value={draft} onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addFinding(); } }}
+              disabled={!verified || pending || findings.length >= 12} maxLength={26}
+              placeholder={verified ? "כתבו מילה נוספת…" : "התחילו בחיפוש ראשי"} aria-label="חיפוש משני במטריצה" />
+            <button type="button" aria-label="חפש במטריצה" onClick={addFinding} disabled={!verified || pending || !clean(draft) || findings.length >= 12}>{pending ? "מחפש…" : "חפש"}</button>
+          </div>
+          <SearchProgress operation={operation} onCancel={onCancel} />
+          <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
+            {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע במטריצה הנוכחית."}
+          </div>
+          <label className="els29-native-radius">
+            <span>מרחק מרבי מהציר הראשי</span>
+            <select aria-label="מרחק מרבי מהציר הראשי" value={radius === null ? "all" : radius} disabled={!verified || pending}
+              onChange={(event) => onAxisControl("finding-radius", event.target.value === "all" ? null : Number(event.target.value))}>
+              <option value="all">כל המרחקים בחלון</option>
+              {[0, 1, 2, 3, 5, 10, 15, 20, 30, 50, 100].map((value) => <option key={value} value={value}>{value === 0 ? "נוגע בציר · 0 תאים" : `עד ${value} תאים`}</option>)}
+            </select>
+          </label>
+        </div>
+      </section>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
       <div className="els29-native-findings">
         {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} style={{ "--els29-mark": palette.matrix.axis }} data-experience-capability="els-axis-actions">
@@ -551,9 +585,6 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           const displayHit = chosen ? selectedHit : firstHit;
           const displayColor = projectFindingColor(finding.color, palette);
           const hasVerified = (finding.hits || []).some((hit) => hit.verified);
-          const promotionHit = chosen && selectedHit?.verified
-            ? selectedHit
-            : (finding.hits || []).find((hit) => hit.verified && hit.shown && hit.withinRadius !== false);
           return <div className={`els29-native-finding-group${chosen ? " is-selected" : ""}`} style={{ "--els29-mark": displayColor }} key={finding.t}>
             <div className="els29-native-finding">
               <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${finding.t}`} aria-pressed={!!chosen}
@@ -573,8 +604,6 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
             </label> : null}
             <div className="els29-native-finding-extra" id={`els29-finding-extra-${index}`} hidden={expandedFinding !== finding.t}>
               <div className="els29-native-finding-actions">
-                {researchProfile ? <button type="button" disabled={pending || journeyBusy || !promotionHit?.hitId}
-                  onClick={() => onPromote(finding, promotionHit.hitId)}>הפוך לציר ראשי</button> : null}
                 <button type="button" disabled={pending || index === 0} aria-label={`העלה את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-up")}>↑</button>
                 <button type="button" disabled={pending || index === findings.length - 1} aria-label={`הורד את ${finding.t}`} onClick={() => onFindingControl(finding.t, "move-down")}>↓</button>
                 <button type="button" disabled={pending} onClick={() => removeFinding(index)} aria-label={`מחק את המילה ${finding.t} וכל מופעיה`}>מחק</button>
@@ -608,11 +637,6 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
             onChange={(event) => onAxisControl("finding-count", Number(event.target.value))} />
         </label>
       </details>
-    </div>
-    <div className="els29-native-scan-action" hidden={activeTool === "research"}>
-      <small>הציר הנבחר: <b>{targetLabel}</b></small>
-      <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>{lensPending ? "טוען…" : "סרוק לאורך הציר הנבחר"}</button>
-      <button type="button" aria-label="מקור הממצא הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onSource(target)}>מקור ופסוק</button>
     </div>
   </div>;
 }
@@ -684,8 +708,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setClassicOpen(false);
     setActiveTool(tool);
     if (trigger) requestAnimationFrame(() => {
-      if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
-      panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
+      const mobile = window.matchMedia("(max-width:980px)").matches;
+      if (mobile) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      if (!mobile) panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
     });
   };
   const closeTool = () => {
@@ -773,6 +798,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setVerseHighlight(null);setPresentation(null);
   };
   const selectFinding = (selection) => {
+    setActiveTool("findings");
     setSelectedFinding(selection);
     resetReadContext();
   };
@@ -903,6 +929,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (action === "finding-radius" || action === "finding-count") resetReadContext();
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
     if (["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
+      setActiveTool("findings");
       if (window.matchMedia("(max-width:980px)").matches) cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   };
@@ -1017,12 +1044,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
-  // On phones, the canonical findings rail belongs directly below a verified matrix. The
-  // shared dock can still open Results or Save, and closing either returns to this rail.
-  const mobileInlineFindings = compactMobile && matrixActive && !classicOpen;
-  const visibleTool = activeTool || (mobileInlineFindings ? "findings" : null);
-  const inlineFindings = mobileInlineFindings && visibleTool === "findings";
+  // On phones, one contextual research workspace belongs directly below a verified matrix.
+  // Findings are its default view; Results and Save replace its content in the same page region.
+  const mobileInlineWorkspace = compactMobile && matrixActive && !classicOpen;
+  const visibleTool = activeTool || (mobileInlineWorkspace ? "findings" : null);
+  const inlineFindings = mobileInlineWorkspace && visibleTool === "findings";
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
+  useLayoutEffect(() => {
+    if (!compactMobile || classicOpen || visibleTool !== "results" || !["done", "empty", "error", "cancelled"].includes(operations.search?.status)) return;
+    const frame = requestAnimationFrame(() => panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" }));
+    return () => cancelAnimationFrame(frame);
+  }, [compactMobile, classicOpen, visibleTool, operations.search?.status]);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
@@ -1211,22 +1243,30 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
         </div>
-        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
+        {!compactMobile ? <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
           ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
-        </div>
-        <div ref={panelRef} className="els29-native-panel-wrap" data-mobile-inline-findings={inlineFindings ? "true" : undefined} hidden={classicOpen || !visibleTool}>
+        </div> : null}
+        <div ref={panelRef} className="els29-native-panel-wrap"
+          data-mobile-inline-workspace={mobileInlineWorkspace ? "true" : undefined}
+          data-mobile-inline-findings={inlineFindings ? "true" : undefined}
+          hidden={classicOpen || !visibleTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{inlineFindings ? "ממצאים במטריצה" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            {!inlineFindings ? <>
+            <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            {!compactMobile ? <>
               <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
               <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
             </> : null}
           </header>
+          {compactMobile ? <nav className="els29-native-context-nav" aria-label="תצוגות סביבת המחקר">
+            <button type="button" aria-label="סריקה וממצאים" aria-pressed={visibleTool === "findings"} onClick={() => openTool("findings")}>ממצאים</button>
+            <button type="button" aria-label="תוצאות" aria-pressed={visibleTool === "results"} onClick={() => openTool("results")}>תוצאות</button>
+            <button type="button" className="is-action" aria-label="שמירה" aria-pressed={visibleTool === "research"} onClick={() => openTool("research")}>שמור</button>
+          </nav> : null}
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}

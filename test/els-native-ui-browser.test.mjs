@@ -489,7 +489,7 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    await alignedPanel(page,'scrolled rail');
    for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר']){
     const action=await button(page,label).boundingBox(),panel=await page.locator('.els29-native-context-panel').boundingBox();
-    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the persistent footer');
+    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the pinned finding workspace');
    }
    await expectStable(page,secondaryPan,'internal rail scroll');
   });
@@ -559,7 +559,7 @@ test('Research v1 C02 promotes the exact Finding occurrence and returns to the e
    const finding=before.findings.find(item=>item.t==='התורה');
    const target=finding.hits.find(hit=>hit.shown&&hit.verified&&hit.withinRadius!==false);
    assert.ok(target?.hitId,'C02 starts only from an engine-verified visible Finding occurrence');
-   await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'בחר ציר לסריקה: התורה');
    await activate(page,'הפוך לציר ראשי');
    await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,target.hitId);
    const promoted=await page.evaluate(()=>structuredClone(window.__state));
@@ -661,8 +661,9 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
    const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
    const dock=page.locator('.sod29-command-island');
    await panel.waitFor({state:'visible'});
+   assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-workspace'),'true',`${width}: one research workspace follows the verified matrix`);
    assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true',`${width}: verified matrix exposes findings without a menu action`);
-   assert.equal(await panel.locator('header strong').innerText(),'ממצאים במטריצה');
+   assert.equal(await panel.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
    assert.equal(await button(page,'סגור כלי מטריצה').count(),0,'the permanent findings window has no misleading close action');
    const before=await identity(page);
    const inlineLayout=async(label)=>{
@@ -699,39 +700,48 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
    await inlineLayout('after pasted search');
    assert.equal(await panel.getByText('תורה',{exact:true}).count()>0,true,`${width}: every added finding is listed directly below the matrix`);
    assert.equal(await dock.isVisible(),false,'the confusing shared bottom bar stays out of the ELS mobile workspace');
-   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1,'the original local launchers remain available above the matrix');
+   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0,'mobile has no second launcher strip above the matrix');
+   assert.equal(await page.getByRole('navigation',{name:'תצוגות סביבת המחקר',exact:true}).isVisible(),true,'the workspace owns its views directly');
+   const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await activate(page,'בחר ציר לסריקה: תורה');
+   assert.equal(await page.locator('.els29-native-finding-workspace header strong').innerText(),'תורה',`${width}: selecting a finding opens its workspace immediately`);
+   assert.equal(await button(page,'הפוך לציר ראשי').isVisible(),true,`${width}: the selected finding exposes its research continuation without another menu`);
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,`${width}: opening the finding workspace performs no automatic scan`);
    await button(page,'סרוק לאורך הציר הנבחר').tap();
-   await button(page,'סמן את תורה ברצף').waitFor();
+   await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.target?.term==='תורה'&&window.__lens?.scan);
+   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').isVisible(),true,`${width}: selected finding scan opens inline in the same workspace`);
    await inlineLayout('after scan');
    assert.deepEqual((await identity(page)).axis,before.axis,`${width}: tools preserve the axis`);
    await button(page,'תוצאות').tap();
-   assert.equal(await panel.locator('header strong').innerText(),'תוצאות החיפוש');
-   await button(page,'סגור כלי מטריצה').tap();
-   assert.equal(await panel.isVisible(),true,'closing a temporary tool returns to the permanent findings window');
+   assert.equal(await panel.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
+   assert.equal(await button(page,'תוצאות').getAttribute('aria-pressed'),'true','results replace content inside the same workspace');
+   await button(page,'סריקה וממצאים').tap();
+   assert.equal(await panel.isVisible(),true,'findings remain one tap away inside the permanent workspace');
    assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true');
   },{mobile:true});
  });
 
-test('native UI: original local rail owns ELS tools while the shared bottom bar stays out of the workspace',
+test('native UI: desktop local rail and mobile contextual workspace own ELS tools while the shared bottom bar stays out',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
    const dock=page.locator('.sod29-command-island');
    const local=page.getByRole('group',{name:'כלי המטריצה',exact:true});
-   await local.waitFor({state:'visible'});
    const frameState=await page.evaluate(()=>({root:document.querySelector('.sod29-root')?.className,hasNative:!!document.querySelector('.sod29-root:has([data-els-native-classic])'),dockDisplay:getComputedStyle(document.querySelector('.sod29-command-island')).display}));
    assert.equal(await dock.count(),1);assert.equal(await dock.isVisible(),false,`ELS suppresses only the shared bottom bar: ${JSON.stringify(frameState)}`);
-   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1);
+   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),width<981?0:1);
    assert.equal(await dock.getAttribute('data-tool-owner'),null,'ELS no longer registers its tools in the shared bar');
    const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
-   for(const item of await local.locator('button').all()){
+   const owner=width<981?page.getByRole('navigation',{name:'תצוגות סביבת המחקר',exact:true}):local;
+   await owner.waitFor({state:'visible'});
+   for(const item of await owner.locator('button').all()){
     const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,`${width}: dock target ${JSON.stringify(box)}`);
     const label=item.locator('small');if(await label.count())assert.ok(await label.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=14),'dock labels remain readable');
    }
    assert.equal(await page.locator('#els29-query').count(),1,'search remains directly available above the workspace');
    const panel=page.locator('#els29-context-panel');
    for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים',width<981?'ממצאים במטריצה':'סריקה וממצאים']]){
-    await local.getByRole('button',{name:label,exact:true}).click();
-    assert.equal(await panel.locator('header strong').innerText(),title);
+    await owner.getByRole('button',{name:label,exact:true}).click();
+    assert.equal(await panel.locator('.els29-native-panel-head>strong').innerText(),width<981?'סביבת המחקר':title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
     assert.equal(await page.getByRole('dialog').count(),0,'native tool stays in its page region');
    }
@@ -744,7 +754,7 @@ test('native UI: original local rail owns ELS tools while the shared bottom bar 
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
    assert.equal(await page.locator('iframe').count(),1);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   if(process.env.ELS_SCREENSHOT_DIR){const findingsButton=local.getByRole('button',{name:'סריקה וממצאים',exact:true});if(await findingsButton.getAttribute('aria-expanded')!=='true')await findingsButton.click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`local-rail-${width}.png`),fullPage:true});}
+   if(process.env.ELS_SCREENSHOT_DIR){const findingsButton=owner.getByRole('button',{name:'סריקה וממצאים',exact:true});if((await findingsButton.getAttribute(width<981?'aria-pressed':'aria-expanded'))!=='true')await findingsButton.click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`local-rail-${width}.png`),fullPage:true});}
    await page.evaluate(()=>window.__setNativeVisible(false));
    await dock.waitFor({state:'visible'});
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
@@ -1023,6 +1033,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.waitForFunction(setId=>window.__hostLog.some(message=>message.action==='meeting-select'&&message.value?.setId===setId),oldSet);
    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    assert.equal((await page.evaluate(()=>window.__state)).search.zoneIndex,1,'stale result-list selection cannot open a different meeting in the current list');
+   await activate(page,'תוצאות');
    await page.locator('.els29-native-results summary').click();
    await page.getByLabel('מיון מפגשי ההצלבה',{exact:true}).selectOption('skip');
    const skips=await page.locator('.els29-native-result b').allTextContents();
@@ -1032,6 +1043,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    const third=multi.search.results.items.find(item=>item.available&&item.index===sortedIndex);
    assert.ok(third);await activate(page,visibleLabel);await page.waitForFunction(index=>window.__state.search.zoneIndex===index,sortedIndex);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,third.hitId,'sorting retains original exact meeting identity');
+   await activate(page,'תוצאות');
    const panBefore=await capture(page);await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('999999');
    assert.equal(await page.locator('.els29-native-result').count(),0);await expectStable(page,panBefore,'local results filter');
    await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('');
@@ -1647,7 +1659,7 @@ test('native results: regular and crossed searches expose selectable results in 
    const state=await page.evaluate(()=>window.__state),results=state.search.occurrences;
    assert.equal(state.term,'יהוה');assert.equal(state.verification.state,'MATCH');assert.ok(results.total>80);
    assert.equal(results.items.length,80);assert.equal(results.total,state.verification.verified_hits);
-   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות החיפוש');
+   assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
    const bounds=await page.locator('.els29-native-panel-wrap').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
@@ -1669,7 +1681,7 @@ test('native results: regular and crossed searches expose selectable results in 
    const crossed=await reliabilityCross(page,'צוריאל','פולייס');
    assert.equal(crossed.scope,scope);assert.ok(crossed.search.results.items.some(item=>item.available));
    assert.equal(crossed.search.occurrences,null);
-   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות הצלבה');
+   assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
    assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
    const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
    if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
@@ -1882,7 +1894,8 @@ test('design integration: royal controls preserve matrix identity and stable tou
   for(const width of [320,390,1440]) await withNative({width,height:1000},async page=>{
    const baseline=await identity(page);
    const local=page.getByRole('group',{name:'כלי המטריצה',exact:true});
-   await local.waitFor({state:'visible'});
+   const owner=width<981?page.getByRole('navigation',{name:'תצוגות סביבת המחקר',exact:true}):local;
+   await owner.waitFor({state:'visible'});
    assert.equal(await page.locator('.sod29-command-island').isVisible(),false);
    for(const preset of ['light','parchment','dark']){
     await page.evaluate(preset=>window.__setThemePreset(preset),preset);
@@ -1921,9 +1934,10 @@ test('design integration: royal controls preserve matrix identity and stable tou
         return window.__elsOriginalAnimate.call(this,frames,options);
       };
     });
-    await local.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
+    await owner.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
     await page.keyboard.press('Enter');
-    assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
+    if(width<981)assert.equal(await page.evaluate(()=>window.__elsIconPressObserved),0,'mobile contextual tabs add no duplicate decorative launcher');
+    else assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
     await page.evaluate(()=>{Element.prototype.animate=window.__elsOriginalAnimate;});
     await page.locator('#els29-context-panel').waitFor();
     const controls=await page.locator('.els29-native-query button,.els29-native-context-panel button,.els29-native-context-panel select').evaluateAll(els=>els.filter(el=>el.getClientRects().length).map(el=>({name:el.textContent.trim().slice(0,50),width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,font:parseFloat(getComputedStyle(el).fontSize)})));
@@ -1937,12 +1951,12 @@ test('design integration: royal controls preserve matrix identity and stable tou
    for(const setting of ['os','frame']){
     if(setting==='os')await page.emulateMedia({reducedMotion:'reduce'});
     else{await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('.sod29-root').evaluate(el=>el.dataset.frameReducedMotion='true');}
-    const action=local.getByRole('button',{name:'שמירה',exact:true});
+    const action=owner.getByRole('button',{name:'שמירה',exact:true});
     if(await button(page,'סגור כלי מטריצה').count())await activate(page,'סגור כלי מטריצה');
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     await action.press('Enter');
-    await page.waitForFunction(()=>document.querySelector('#els29-context-panel header strong')?.textContent==='שמירה והמשך מחקר');
-    assert.equal(await page.locator('#els29-context-panel header strong').innerText(),'שמירה והמשך מחקר');
+    await page.waitForFunction(mobile=>document.querySelector('#els29-context-panel > .els29-native-panel-head > strong')?.textContent===(mobile?'סביבת המחקר':'שמירה והמשך מחקר'),width<981);
+    assert.equal(await page.locator('#els29-context-panel > .els29-native-panel-head > strong').innerText(),width<981?'סביבת המחקר':'שמירה והמשך מחקר');
     assert.equal(await action.evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.id==='sod29-icon-press').length),0,`${setting}: no decorative pulse`);
    }
   },{fullFrame:true,mobile:width<981});

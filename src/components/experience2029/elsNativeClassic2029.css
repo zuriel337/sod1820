@@ -571,8 +571,20 @@
 .els29-native-unified-rail{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;overflow:hidden}
 .els29-native-context-panel .els29-native-unified-rail{padding:0;gap:0;overflow:hidden}
 .els29-native-rail-scroll{display:flex;flex-direction:column;flex:1;gap:10px;min-width:0;min-height:0;padding:10px;overflow:auto;scrollbar-gutter:stable;overscroll-behavior:contain;overflow-anchor:none}
-.els29-native-rail-scroll>*,.els29-native-scan-action>*{min-width:0;flex-shrink:0}
+.els29-native-rail-scroll>*{min-width:0;flex-shrink:0}
 .els29-native-rail-scroll .els29-native-source-list{max-height:none;overflow:visible;scrollbar-gutter:auto}
+.els29-native-finding-workspace{position:sticky;top:0;z-index:2;display:grid;gap:10px;min-width:0;padding:12px;border:1px solid var(--s29-line-strong);border-radius:16px;background:color-mix(in srgb,var(--s29-accent) 5%,var(--s29-panel));scroll-margin-block-start:calc(var(--s29-header-height,68px) + 12px)}
+.els29-native-finding-workspace>header{display:grid;gap:3px;min-width:0}
+.els29-native-finding-workspace>header span{color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:800}
+.els29-native-finding-workspace>header strong{font-size:var(--s29-type-lead);line-height:1.3;overflow-wrap:anywhere}
+.els29-native-finding-workspace>header small,.els29-native-exact-return-note{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55;overflow-wrap:anywhere}
+.els29-native-target-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;min-width:0}
+.els29-native-target-actions button{min-width:44px;min-height:44px;padding:8px 10px;border:1px solid var(--s29-line-strong);border-radius:11px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-small);font-weight:800;cursor:pointer}
+.els29-native-target-actions button:first-child,.els29-native-target-actions button.is-promote{border-color:color-mix(in srgb,var(--s29-accent) 54%,var(--s29-line));background:var(--s29-accent-btn);color:var(--s29-on-accent)}
+.els29-native-target-actions button.is-promote{grid-column:1/-1}
+.els29-native-target-actions button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-native-target-actions button:disabled{opacity:.4;cursor:not-allowed}
+.els29-native-matrix-search{display:grid;gap:7px;min-width:0;padding-block-start:10px;border-block-start:1px solid var(--s29-line)}
 .els29-native-unified-rail .els29-native-finding-add{grid-template-columns:minmax(0,1fr) auto}
 .els29-native-unified-rail .els29-native-finding-add input,.els29-native-unified-rail .els29-native-finding-add button{min-height:44px}
 .els29-native-secondary-label{color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:800}
@@ -605,14 +617,11 @@
 .els29-native-inline-inspection>summary,.els29-native-findings-options>summary{min-height:44px;min-width:0;padding-block:6px;color:var(--s29-ink);font-size:var(--s29-type-small);font-weight:800;overflow-wrap:anywhere;cursor:pointer}
 .els29-native-inline-inspection[open]>summary,.els29-native-findings-options[open]>summary{margin-block-end:8px;border-block-end:1px solid var(--s29-line)}
 .els29-native-inline-inspection>summary:focus-visible,.els29-native-findings-options>summary:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px;border-radius:6px}
-.els29-native-scan-action{display:grid;grid-template-columns:minmax(0,1fr) auto;flex:none;gap:6px;min-width:0;padding:10px;border-top:1px solid var(--s29-line);background:var(--s29-panel-soft)}
-.els29-native-scan-action>:not(button){grid-column:1/-1}
-.els29-native-scan-action strong{font-size:var(--s29-type-small);overflow-wrap:anywhere}
-.els29-native-scan-action small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5;overflow-wrap:anywhere}
-.els29-native-scan-action button{width:100%;min-width:44px;min-height:44px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--s29-accent) 50%,var(--s29-line));border-radius:12px;background:var(--s29-accent-btn);color:var(--s29-on-accent);font:inherit;font-size:var(--s29-type-small);font-weight:800;cursor:pointer}
-.els29-native-scan-action>button+button{border-color:var(--s29-line-strong);background:var(--s29-panel);color:var(--s29-ink)}
-.els29-native-scan-action button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
-.els29-native-scan-action button:disabled{opacity:.4;cursor:not-allowed}
+.els29-native-context-nav{display:flex;flex:none;gap:6px;min-width:0;padding:8px;border-bottom:1px solid var(--s29-line);background:var(--s29-panel-soft)}
+.els29-native-context-nav button{flex:1;min-width:0;min-height:44px;padding:7px 8px;border:1px solid var(--s29-line);border-radius:11px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-small);font-weight:800;cursor:pointer}
+.els29-native-context-nav button[aria-pressed="true"]{border-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel));color:var(--s29-accent-text)}
+.els29-native-context-nav button.is-action{flex:.8;border-color:color-mix(in srgb,var(--s29-accent) 48%,var(--s29-line))}
+.els29-native-context-nav button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-native-layout.is-panel-pinned{grid-template-columns:minmax(0,1fr) var(--els29-panel-width) 58px}
 .els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:3}
 .els29-native-layout.is-panel-pinned .els29-native-panel-wrap{position:relative;top:auto;grid-column:2;grid-row:1;width:auto;inset-inline-end:auto;z-index:1}
@@ -628,11 +637,9 @@
 @media(max-width:980px){
  .els29-native-classic{--els29-stage-height-base:clamp(500px,77.5dvh,700px)}
  .els29-native-layout,.els29-native-layout.is-panel-pinned{grid-template-columns:minmax(0,1fr)}
- .els29-native-stage-column{grid-row:2}
- .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:1;grid-row:1;display:flex;position:static;justify-content:flex-end}
- .els29-native-toolstrip button{min-width:64px}
+ .els29-native-stage-column{grid-column:1;grid-row:1}
  .els29-native-panel-wrap,.els29-native-layout.is-panel-pinned .els29-native-panel-wrap{
-  position:relative;inset:auto;grid-column:1;grid-row:3;width:auto;z-index:auto;
+  position:relative;inset:auto;grid-column:1;grid-row:2;width:auto;z-index:auto;
  }
  .els29-native-context-panel,.els29-native-layout.is-panel-pinned .els29-native-context-panel{
   height:min(620px,calc(100dvh - var(--s29-island-clearance,104px) - var(--s29-header-height,68px) - 32px - env(safe-area-inset-bottom,0px)));
@@ -641,19 +648,20 @@
  .els29-native-panel-head strong{overflow-wrap:anywhere}
  .els29-native-panel-head button{flex-shrink:0}
  .els29-native-panel-head .els29-native-pin{display:none}
- .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-context-panel{
+ .els29-native-panel-wrap[data-mobile-inline-workspace="true"] .els29-native-context-panel{
   height:auto;max-height:none;overflow:visible;overscroll-behavior:auto;
  }
- .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-panel-head{
+ .els29-native-panel-wrap[data-mobile-inline-workspace="true"] .els29-native-panel-head{
   padding:14px 12px;background:var(--s29-panel-soft);
  }
- .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-panel-head strong{
+ .els29-native-panel-wrap[data-mobile-inline-workspace="true"] .els29-native-panel-head strong{
   font-size:var(--s29-type-lead);text-align:center;
  }
- .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-unified-rail,
- .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-rail-scroll{
+ .els29-native-panel-wrap[data-mobile-inline-workspace="true"] .els29-native-unified-rail,
+ .els29-native-panel-wrap[data-mobile-inline-workspace="true"] .els29-native-rail-scroll{
   flex:none;min-height:0;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto;
  }
+ .els29-native-finding-workspace{position:static;padding:12px 10px}
 }
 
 /* Density stays behind the explicit finding colors and keeps source text legible. */
