@@ -27,8 +27,10 @@ assert.match(page, /`\/beit-midrash\/\$\{encodeURIComponent\(method\.methodKey\)
 assert.match(page, /to="\/2029\/calculator"/, "the page must hand calculation off to the canonical calculator");
 assert.doesNotMatch(page, /\/2029\/beit-midrash/, "Beit Midrash must not be nested under /2029");
 assert.doesNotMatch(page, /\/2029\/world|navigate\(["']\/world|<Navigate/, "the methods slice must not route Beit Midrash into World");
-assert.match(app, /<Route path="\/beit-midrash" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/, "the existing compatibility route must remain intact until central wiring");
-assert.doesNotMatch(app2029, /BeitMidrash2029Page/, "this isolated slice must not change the shared App2029 route seam");
+assert.match(app, /<Route path="\/beit-midrash" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/, "the existing compatibility route must remain intact alongside central wiring");
+assert.match(app2029, /const BeitMidrash2029Page = lazy\(/, "App2029 must lazy-load the native Beit Midrash surface");
+assert.match(app2029, /path="\/beit-midrash"[\s\S]*?<BeitMidrash2029Page \/>/, "App2029 must own the canonical Beit Midrash route");
+assert.match(app2029, /path="\/beit-midrash\/:method"[\s\S]*?<BeitMidrash2029Page \/>/, "App2029 must preserve canonical method deep links");
 
 // Availability is not presented as research approval, and failures remain honest.
 assert.match(page, /אינו אישור מחקרי, פרסום או חותמת אמת/, "active state must not be presented as research approval");

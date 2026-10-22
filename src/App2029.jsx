@@ -17,6 +17,9 @@ import Locked from "./components/MaintenanceLock.jsx";
 
 const Home2029Page = lazy(() => import("./pages/Home2029Page.jsx"));
 const World2029Page = lazy(() => import("./pages/World2029Page.jsx"));
+const BeitMidrash2029Page = lazy(
+  () => import("./pages/BeitMidrash2029Page.jsx")
+);
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
@@ -135,6 +138,14 @@ export default function App2029() {
               <Route path="/2029/gematria" element={<GematriaEntry2029 />} />
               <Route path="/2029/gematria/viral" element={<Calculator2029Page />} />
               <Route path="/2029/calculator" element={<CalculatorPro2029Page />} />
+              <Route
+                path="/beit-midrash"
+                element={<BeitMidrash2029Page />}
+              />
+              <Route
+                path="/beit-midrash/:method"
+                element={<BeitMidrash2029Page />}
+              />
               <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><World2029Page /></Locked>} />
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
