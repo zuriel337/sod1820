@@ -4,6 +4,7 @@ import test from "node:test";
 
 const world = fs.readFileSync("src/pages/World2029Page.jsx", "utf8");
 const types = fs.readFileSync("src/components/research/WorldKnowledgeTypes2029.jsx", "utf8");
+const curation = fs.readFileSync("src/lib/research/curationProjection2029.js", "utf8");
 const entityHub = fs.readFileSync("src/lib/research/entityHubProjection.js", "utf8");
 const matrices = fs.readFileSync("src/lib/elsMatrices.js", "utf8");
 
@@ -18,6 +19,18 @@ test("language and entity shelves reuse the canonical Explorer reader", () => {
   assert.match(types, /language_bridge/);
   assert.match(types, /foreign_word/);
   assert.doesNotMatch(types, /from\(["']nodes["']\)|from\(["']language_links["']\)/);
+});
+
+test("number browsing separates Human-Gate anchors from recently added active numbers", () => {
+  assert.match(types, /fetchCurationCatalog2029/);
+  assert.match(types, /label: "מספרים נבחרים"/);
+  assert.match(types, /label: "נוספו לאחרונה"/);
+  assert.match(types, /curationCatalog\?\.anchors/);
+  assert.match(types, /kind === WORLD_KNOWLEDGE_KIND\.NUMBERS \? fetchCurationCatalog2029\(\)/);
+  assert.match(types, /הבחירה היא אוצרות, לא ציון אמת/);
+  assert.match(curation, /eq\("is_active", true\)/);
+  assert.match(curation, /item\.kind === "gold_anchor" \|\| item\.kind === "crown_anchor"/);
+  assert.doesNotMatch(types, /const\s+(FEATURED|SELECTED)_NUMBERS\s*=/);
 });
 
 test("cipher shelf is public-only and never imports drafts or research-folder rows", () => {

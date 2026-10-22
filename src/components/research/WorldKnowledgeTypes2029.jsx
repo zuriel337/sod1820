@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
+import { fetchCurationCatalog2029 } from "../../lib/research/curationProjection2029.js";
 import { fetchPublicWorldMediaPage } from "../../lib/research/entityHubProjection.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.js";
@@ -18,7 +19,11 @@ export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
 
 const FACETS = Object.freeze({
   [WORLD_KNOWLEDGE_KIND.NUMBERS]: [
-    { key: "number", label: "מספרים" },
+    {
+      key: "number",
+      label: "נוספו לאחרונה",
+      description: "המספרים הפעילים החדשים ביותר בעולם, לפי מועד הוספתם.",
+    },
     { key: "word", label: "מילים" },
     { key: "phrase", label: "ביטויים" },
   ],
@@ -38,6 +43,17 @@ function cardHref(card) {
   return card.facet === "number" ? `/2029/number/${encodeURIComponent(card.refId)}` : card.href;
 }
 
+function selectedNumberCard(item) {
+  return {
+    id: item.id,
+    facet: "number",
+    label: item.label,
+    sub: item.reason,
+    refId: item.value ?? item.label,
+    kicker: item.kind === "crown_anchor" ? "עוגן כתר" : "עוגן זהב",
+  };
+}
+
 async function fetchKind(kind) {
   if (kind === WORLD_KNOWLEDGE_KIND.CIPHERS) {
     const page = await getMatrixLibraryPage({ view: "public", pageSize: 12 });
@@ -48,12 +64,31 @@ async function fetchKind(kind) {
     return { sections: [], ciphers: [], media: page.items || [], hasMore: Boolean(page.hasMore), access: page.access };
   }
   const specs = FACETS[kind] || FACETS[WORLD_KNOWLEDGE_KIND.NUMBERS];
-  const pages = await Promise.all(specs.map(async (spec) => ({
-    ...spec,
-    page: await fetchExplorerFacetPage(spec.key, { limit: 8 }),
-  })));
+  const [pages, curationCatalog] = await Promise.all([
+    Promise.all(specs.map(async (spec) => ({
+      ...spec,
+      page: await fetchExplorerFacetPage(spec.key, { limit: 8 }),
+    }))),
+    kind === WORLD_KNOWLEDGE_KIND.NUMBERS ? fetchCurationCatalog2029() : Promise.resolve(null),
+  ]);
+  const sections = pages.map(({ key, label, description, page }) => ({
+    key,
+    label,
+    description: description || null,
+    cards: page?.cards || [],
+    hasMore: Boolean(page?.hasMore),
+  }));
+  if (kind === WORLD_KNOWLEDGE_KIND.NUMBERS) {
+    sections.unshift({
+      key: "selected-numbers",
+      label: "מספרים נבחרים",
+      description: "עוגני כתר וזהב פעילים שנבחרו בשער האנושי. הבחירה היא אוצרות, לא ציון אמת.",
+      cards: (curationCatalog?.anchors || []).slice(0, 8).map(selectedNumberCard),
+      hasMore: (curationCatalog?.anchors || []).length > 8,
+    });
+  }
   return {
-    sections: pages.map(({ key, label, page }) => ({ key, label, cards: page?.cards || [], hasMore: Boolean(page?.hasMore) })),
+    sections,
     ciphers: [],
     media: [],
     hasMore: pages.some(({ page }) => page?.hasMore),
@@ -72,10 +107,10 @@ function loadKind(kind) {
 
 function EntitySection({ section }) {
   return <section className="sod29-world-kind-section" aria-label={section.label}>
-    <header><h3>{section.label}</h3><span>{section.cards.length} מוצגים{section.hasMore ? " · יש עוד" : ""}</span></header>
+    <header><div><h3>{section.label}</h3>{section.description ? <p>{section.description}</p> : null}</div><span>{section.cards.length} מוצגים{section.hasMore ? " · יש עוד" : ""}</span></header>
     {section.cards.length ? <div className="sod29-world-kind-card-grid">{section.cards.map((card) => <Link
       key={`${section.key}:${card.id}`} className="sod29-world-kind-card" to={cardHref(card)}>
-      <small>{section.label}</small><strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}<span>לפתוח בעולם ←</span>
+      <small>{card.kicker || section.label}</small><strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}<span>לפתוח בעולם ←</span>
     </Link>)}</div> : <p className="sod29-muted">אין כרגע פריטים ציבוריים בסוג הזה.</p>}
   </section>;
 }
