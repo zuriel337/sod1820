@@ -333,6 +333,69 @@ test("authenticated and guest 2029 users receive the same evidence quality; only
   assert.equal(user.calls.find((call) => call.name === "research-run").headers.authorization, `Bearer ${USER_JWT}`);
 });
 
+test("2029 acknowledgement is a zero-AI conversational turn and Legacy remains unchanged", async () => {
+  const canonical = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: "יפה מאוד",
+      visitor_id: "vacknowledgement2029",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+    },
+  });
+
+  assert.equal(canonical.status, 200);
+  assert.equal(canonical.result.engine, "deterministic");
+  assert.equal(canonical.result.model, "none");
+  assert.match(canonical.result.raziel.answer, /אפשר להמשיך מאותה נקודה/);
+  assert.deepEqual(canonical.result.plan_meta.conversation_act.cost, { ai_calls: 0, retry_count: 0 });
+  assert.equal(canonical.models.length, 0);
+  assert.equal(canonical.calls.filter((call) => call.name === "fn_raziel_answer").length, 0);
+  assert.equal(canonical.calls.filter((call) => call.name === "research-run").length, 0);
+
+  const legacy = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    body: { subject: "יפה מאוד", intelligence_level: "fast" },
+  });
+  assert.equal(legacy.models.length, 1, "the 2029 conversation act must not change Legacy behavior");
+});
+
+test("natural two-number crossing bypasses semantic classification and consumes both canonical Bundles", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: "תעשה לי הצלבה בין 1820 ל-776",
+      visitor_id: "vnaturalpair2029",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+    },
+    researchBundleByNumber: {
+      1820: numberBundle(1820, "מקור 1820"),
+      776: numberBundle(776, "מקור 776"),
+    },
+    modelResult: {
+      text: JSON.stringify({ v: 1, agent: "raziel", answer: "השוואה המבוססת על שני הצדדים", facts: [], suggested_paths: [] }),
+      usage: { input_tokens: 21, output_tokens: 11 }, attempts: 1, degraded: false,
+    },
+  });
+
+  assert.equal(run.status, 200);
+  assert.equal(run.models.length, 1, "only final synthesis runs; no semantic classifier call");
+  assert.equal(run.spans.some((span) => span.p_name === "ai-analyze:raziel:semantic-intent"), false);
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.deepEqual(researchCalls.map((call) => call.payload.number), [1820, 776]);
+  assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
+  assert.deepEqual(run.result.raziel.plan_meta.canonical_result_bundle.numbers, [1820, 776]);
+  assert.deepEqual(run.result.raziel.sources.map((source) => source.original_name).sort(), ["מקור 1820", "מקור 776"].sort());
+});
+
 test("2029 canonical contract composes without legacy persistent memory read or automatic write", async () => {
   const run = await runAiAnalyze({
     answer: numberContextAnswer(1820),

@@ -2,7 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  RAZIEL_CONVERSATIONAL_ACT_VERSION,
   RAZIEL_SEMANTIC_INTENT_VERSION,
+  resolveExplicitNumericPairResearchSubject,
+  resolveRazielConversationalAct,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
 import {
@@ -18,6 +21,37 @@ const semantic = (overrides = {}) => ({
   ambiguous: false,
   candidates: [{ type: "number", value: 776, evidence_text: "776", role: "subject" }],
   ...overrides,
+});
+
+test("short whole-turn acknowledgement is deterministic conversation control", () => {
+  for (const text of ["יפה מאוד", "תודה רבה", "מעולה", "הבנתי", "מצוין!"]) {
+    assert.deepEqual(resolveRazielConversationalAct(text), {
+      version: RAZIEL_CONVERSATIONAL_ACT_VERSION,
+      act: "acknowledgement",
+    }, text);
+  }
+  for (const text of ["", "יפה מאוד, עכשיו השווה 776 ל-1820", "תודה על 3 המקורות", "נכון, בדוק שוב"]) {
+    assert.equal(resolveRazielConversationalAct(text), null, text);
+  }
+});
+
+test("natural two-number crossing language resolves structurally without a classifier", () => {
+  for (const [question, numbers, action] of [
+    ["תעשה לי הצלבה בין 1820 ל-776", [1820, 776], "connect"],
+    ["בצעי השוואה בין המספרים 337 מול 533", [337, 533], "connect"],
+    ["מה הקשר בין 776 ל-1820", [776, 1820], "connect"],
+    ["בדוק לי את המספרים 776 עם 1820", [776, 1820], "research"],
+  ]) {
+    const out = resolveExplicitNumericPairResearchSubject(question);
+    assert.deepEqual(out?.numbers, numbers, question);
+    assert.equal(out?.requested_action, action, question);
+  }
+  for (const question of [
+    "מצא 2 הצלבות למספר 776",
+    "בדוק את שנת 1820 מול עמוד 776",
+    "תעשה לי הצלבה בין 1820 ל-1820",
+    "דבר על 776 ואחר כך אולי 1820",
+  ]) assert.equal(resolveExplicitNumericPairResearchSubject(question), null, question);
 });
 
 test("high-confidence Hebrew numeric wording resolves structurally without a model candidate", () => {

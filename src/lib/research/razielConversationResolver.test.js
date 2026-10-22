@@ -21,13 +21,16 @@ test("resolves explicit bounded number research without treating surrounding pro
     ["תבדקי 776 מול 1820", "research"],
     ["מצא קשר בין 776 ל-1820", "connect"],
     ["השווי בין המספרים 776 ל-1820", "connect"],
+    ["תעשה לי הצלבה בין 1820 ל-776", "connect"],
+    ["בצעי השוואה בין המספרים 776 מול 1820", "connect"],
   ]) {
     const out = resolveRazielConversationTurn({ question });
-    assert.deepEqual(out.pair, [776, 1820], question);
+    const expectedPair = question.includes("1820 ל-776") ? [1820, 776] : [776, 1820];
+    assert.deepEqual(out.pair, expectedPair, question);
     assert.equal(out.requested_action, action, question);
     assert.equal(out.referential_follow_up, false, question);
     assert.equal(out.referent_source, "explicit_current_turn", question);
-    assert.deepEqual(projectRazielConversationResolution(out).identities.map((identity) => identity.value), [776, 1820]);
+    assert.deepEqual(projectRazielConversationResolution(out).identities.map((identity) => identity.value), expectedPair);
   }
 });
 

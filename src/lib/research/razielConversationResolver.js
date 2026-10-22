@@ -5,6 +5,7 @@ import {
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
 import {
+  resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
@@ -48,20 +49,10 @@ function explicitNumberCandidates(question) {
   const q = grammarText(question).replace(/[?؟!.]+$/g, "");
   if (/^\d{1,6}$/.test(q)) return [numberCandidate(q)].filter(Boolean);
 
-  // A number pair is accepted only when the numerals occupy the two grammatical subject slots.
-  // Do not scan through arbitrary text: that would turn years, counts or page locators into anchors.
-  const pair = q.match(/^(?:(?:מה (?:ההבדל|הקשר) בין)(?: המספרים)?|(?:השווה|השווי|תשווה)(?: בין)?(?: המספרים)?)\s+(\d{1,6})\s*(?:ו|ל|לבין|מול)\s*(\d{1,6})(?:\s+(?:מצא(?:י)?(?: לי)? (?:קשרים|הצלבות)|בכל השיטות|לעומק))?$/u);
-  if (pair) return [numberCandidate(pair[1]), numberCandidate(pair[2])].filter(Boolean);
-
-  // Explicit 2029 research requests use the same bounded number identities as comparison.
-  // The complete anchored grammar is intentional: numbers mentioned as years, counts, pages or
-  // supporting prose are not promoted to research subjects.
-  const researchPair = q.match(/^(?:(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?: את)?(?: המספרים)?\s+(\d{1,6})\s*(?:מול|לבין|עם|ל)\s*(\d{1,6})|(?:מצא|מצאי|תמצא|תמצאי)(?: לי)?(?: את)? (?:הקשר|קשר|היחס|יחס) בין\s+(\d{1,6})\s*(?:ל|לבין|מול|עם)\s*(\d{1,6}))$/u);
-  if (researchPair) {
-    const left = researchPair[1] ?? researchPair[3];
-    const right = researchPair[2] ?? researchPair[4];
-    return [numberCandidate(left), numberCandidate(right)].filter(Boolean);
-  }
+  // One shared client/server grammar owns explicit pairs. Never scan arbitrary prose for two
+  // numerals: only complete subject slots are admitted as research identities.
+  const pair = resolveExplicitNumericPairResearchSubject(q);
+  if (pair) return pair.numbers.map(numberCandidate).filter(Boolean);
 
   // Keep the number in an exact grammatical subject slot even when a person naturally prefixes
   // the definition with "בדוק לי". This is deliberately not a free numeric scan: counts, years,

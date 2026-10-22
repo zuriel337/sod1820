@@ -12,6 +12,7 @@ import {
 } from "./researchIdentityResolver.js";
 
 export const RAZIEL_SEMANTIC_INTENT_VERSION = "raziel-semantic-intent-v1";
+export const RAZIEL_CONVERSATIONAL_ACT_VERSION = "raziel-conversational-act-v1";
 
 const ACTIONS = new Set(["understand", "research", "connect", "continue"]);
 const TYPES = new Set(["number", "phrase", "word", "name", "topic"]);
@@ -42,6 +43,43 @@ const NUMERIC_CONTEXT_LABELS = [
 
 function escapePattern(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Deterministic conversation control for short, whole-turn acknowledgements. This is intentionally
+// narrower than sentiment/small-talk classification: it never consumes a mixed request and never
+// calls a model. The temporary conversation keeps its prior research identities, while ai-analyze
+// can answer the social turn without inventing evidence or spending an AI call.
+export function resolveRazielConversationalAct(message) {
+  const q = grammarText(message)
+    .replace(/[,،;:]+$/gu, "")
+    .replace(/\s+/gu, " ")
+    .trim();
+  if (!q || q.length > 40) return null;
+  const acknowledgement = /^(?:תודה(?: רבה| לך| רזיאל)?|יפה(?: מאוד| מאד)?|יופי|מעולה|מצוין|מצויין|נהדר|נפלא|אחלה|סבבה|הבנתי)$/u.test(q);
+  return acknowledgement
+    ? Object.freeze({ version: RAZIEL_CONVERSATIONAL_ACT_VERSION, act: "acknowledgement" })
+    : null;
+}
+
+// High-confidence two-number subject grammar shared by the browser resolver and the server
+// re-authorization gate. The numerals must occupy the two complete grammatical subject slots, so
+// years, pages, quantities and incidental numbers in prose are never promoted into research roots.
+export function resolveExplicitNumericPairResearchSubject(question) {
+  const q = grammarText(question);
+  if (!q) return null;
+
+  const research = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?(?:\s+את)?(?:\s+המספרים)?\s+(\d{1,6})\s*(?:מול|לבין|עם|ל)\s*(\d{1,6})$/u.exec(q);
+  const connect = /^(?:(?:השווה|השווי|תשווה)(?:\s+לי)?(?:\s+בין)?(?:\s+המספרים)?|(?:תעשה|תעשי|עשה|עשי|בצע|בצעי)(?:\s+לי)?(?:\s+את)?\s+(?:הצלבה|השוואה)(?:\s+בין)?(?:\s+המספרים)?|(?:הצלב|הצליבי)(?:\s+לי)?(?:\s+בין)?(?:\s+המספרים)?|(?:השוואה|הצלבה)\s+בין(?:\s+המספרים)?|מה\s+(?:הקשר|ההבדל)\s+בין(?:\s+המספרים)?|(?:מצא|מצאי|תמצא|תמצאי)(?:\s+לי)?(?:\s+את)?\s+(?:הקשר|קשר|היחס|יחס)\s+בין(?:\s+המספרים)?)\s+(\d{1,6})\s*(?:ו|ל|לבין|מול|עם)\s*(\d{1,6})(?:\s+(?:מצא(?:י)?(?:\s+לי)?\s+(?:קשרים|הצלבות)|בכל\s+השיטות|לעומק))?$/u.exec(q);
+  const match = research ?? connect;
+  if (!match) return null;
+  const numbers = [Number(match[1]), Number(match[2])];
+  if (!numbers.every((value) => Number.isSafeInteger(value) && value >= 1 && value <= 999999)) return null;
+  if (numbers[0] === numbers[1]) return null;
+  return Object.freeze({
+    type: "number_pair",
+    numbers: Object.freeze(numbers),
+    requested_action: research ? "research" : "connect",
+  });
 }
 
 // High-confidence structural resolver used on both sides of the client/server boundary.

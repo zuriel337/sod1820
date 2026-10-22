@@ -3,7 +3,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntell
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
-import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitNumericResearchSubject, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1241,16 +1241,9 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
     return { numbers: numbers as [number], requestedAction };
   }
   if (numbers.length !== 2) return null;
-  const researchPair = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?: את)?(?: המספרים)?\s+(\d{1,6})\s*(?:מול|לבין|עם|ל)\s*(\d{1,6})$/u.exec(q);
-  const connectionPair = /^(?:(?:השווה|השווי|תשווה)(?: בין)?(?: המספרים)?\s+(\d{1,6})\s*(?:ו|ל|לבין|מול|עם)\s*(\d{1,6})|(?:מצא|מצאי|תמצא|תמצאי)(?: לי)?(?: את)? (?:הקשר|קשר|היחס|יחס) בין\s+(\d{1,6})\s*(?:ל|לבין|מול|עם)\s*(\d{1,6}))$/u.exec(q);
-  const pair = researchPair
-    ? [Number(researchPair[1]), Number(researchPair[2])]
-    : connectionPair
-      ? [Number(connectionPair[1] ?? connectionPair[3]), Number(connectionPair[2] ?? connectionPair[4])]
-      : null;
-  if (!pair || pair[0] !== numbers[0] || pair[1] !== numbers[1]) return null;
-  if (researchPair && requestedAction !== "research") return null;
-  if (connectionPair && requestedAction !== "connect") return null;
+  const pair = resolveExplicitNumericPairResearchSubject(q);
+  if (!pair || pair.numbers[0] !== numbers[0] || pair.numbers[1] !== numbers[1]) return null;
+  if (requestedAction !== pair.requested_action) return null;
   return { numbers: numbers as [number] | [number, number], requestedAction };
 }
 
@@ -2302,6 +2295,39 @@ Deno.serve(async (req: Request) => {
           return rzJson({ analysis: null, error: "availability", message: availability?.availability?.message || "רזיאל באתר נמצא בהכנה." });
         }
       }
+      // A short whole-turn acknowledgement is conversation control, not a new research query.
+      // 2029 only: answer deterministically before planner/quota/model work, keep the temporary
+      // thread intact, and never spend tokens merely because the user said thanks or praised the
+      // preceding result. Mixed requests are deliberately excluded by the bounded shared grammar.
+      const rConversationAct = rCanonicalResearchOptIn
+        ? resolveRazielConversationalAct(rSubject)
+        : null;
+      if (rConversationAct?.act === "acknowledgement") {
+        return rzJson({
+          raziel: {
+            v: 1,
+            agent: "raziel",
+            context: null,
+            greeting: null,
+            answer: "שמח שזה עזר. אפשר להמשיך מאותה נקודה — להעמיק, להשוות או לבדוק מקור נוסף.",
+            facts: [],
+            suggested_paths: [],
+            follow_up_question: null,
+            continue_wa: true,
+            deterministic: true,
+          },
+          engine: "deterministic",
+          model: "none",
+          intelligence_level: "deterministic",
+          plan_meta: {
+            conversation_act: {
+              contract: rConversationAct.version,
+              act: rConversationAct.act,
+              cost: { ai_calls: 0, retry_count: 0 },
+            },
+          },
+        });
+      }
       const rCtxType = razielContextFromTier(tier);
       const rVerifiedRef = identity.startsWith("u:") ? identity.slice(2) : null;
       const rBearer = tier === "admin" && !rTrusted ? (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim() : "";
@@ -2448,8 +2474,23 @@ Deno.serve(async (req: Request) => {
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
       if (rSemanticEligible) {
-        const deterministicSubject = resolveExplicitNumericResearchSubject(rSubject);
-        if (deterministicSubject) {
+        const deterministicPair = resolveExplicitNumericPairResearchSubject(rSubject);
+        const deterministicSubject = deterministicPair ? null : resolveExplicitNumericResearchSubject(rSubject);
+        if (deterministicPair) {
+          rSemanticHint = {
+            numbers: [...deterministicPair.numbers] as [number, number],
+            requestedAction: deterministicPair.requested_action,
+          };
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            semantic_intent: {
+              contract: RAZIEL_SEMANTIC_INTENT_VERSION,
+              status: "deterministic_admitted",
+              executed: false,
+              cost: { ai_calls: 0 },
+            },
+          };
+        } else if (deterministicSubject) {
           rSemanticHint = {
             numbers: [deterministicSubject.value],
             requestedAction: deterministicSubject.requested_action,
