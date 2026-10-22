@@ -1,0 +1,327 @@
+import React, { useEffect, useState } from "react";
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
+import { formatDateHe, formatDateHebrewCal } from "../lib/format.js";
+import { applySeo } from "../lib/seo.js";
+import {
+  presentBookAccessStatus,
+  presentBookResearchKind,
+  presentBookResearchStatus,
+  presentBookVerificationState,
+} from "../lib/research/bookHebrewPresentation.js";
+import {
+  loadBookPublicationReview,
+  verifyBookPublicationReviewAdmin,
+} from "../lib/research/bookPublicationReviewReader.js";
+import {
+  availableBookReviewJudgments,
+} from "../lib/research/bookPublicationReviewJudgment.js";
+import { fetchBookEntityBySlug } from "../lib/research/bookResearchProjection.js";
+import "./bookPublicationReview2029.css";
+
+const PAGE_SIZE = 12;
+
+const CHECK_LABELS = Object.freeze({
+  statementPresent: "נוסח הממצא קיים",
+  sourceRefPresent: "הפניית המקור קיימת",
+  pageLocatorPresent: "מראה־מקום לעמוד קיים",
+  verificationDeclared: "מצב הבדיקה הוצהר",
+  governanceDeclared: "מצב הממשל הוצהר",
+  exactDuplicateAbsent: "לא נמצאה כפילות מדויקת",
+});
+
+const JUDGMENT_LABELS = Object.freeze({
+  approve: "אישור למחקר",
+  reject: "דחייה ממשלית",
+  canonicalize: "קביעה כקנוני",
+});
+
+function clean(value) {
+  return value == null ? "" : String(value).trim();
+}
+
+function formatRecordedDate(value) {
+  if (!value || !Number.isFinite(Date.parse(value))) return "תאריך הרשומה אינו זמין";
+  return `${formatDateHebrewCal(value)} · ${formatDateHe(value)}`;
+}
+
+function locatorLabel(locator) {
+  if (Number.isInteger(locator?.page) && locator.page > 0) return `עמוד ${locator.page}`;
+  if (locator?.zone) return `אזור ${String(locator.zone).replaceAll("_", " ")}`;
+  return "מראה־המקום דורש השלמה";
+}
+
+function safeCount(value) {
+  return Number(value || 0).toLocaleString("he-IL");
+}
+
+function StatusAxis({ label, value, code, tone = "neutral" }) {
+  return <div className={`book-review29-axis tone-${tone}`}>
+    <span>{label}</span>
+    <strong>{value}</strong>
+    {code ? <code dir="ltr">{code}</code> : null}
+  </div>;
+}
+
+function ReviewBoundary() {
+  return <section className="sod29-section book-review29-boundary" aria-labelledby="book-review-boundary-title">
+    <div className="sod29-section-head">
+      <div>
+        <div className="sod29-kicker">גבול הפעולה</div>
+        <h2 id="book-review-boundary-title">בדיקת ממשל אינה פרסום</h2>
+        <p className="sod29-muted">המסך מיועד לקריאה ולבדיקה בלבד. הוא אינו משנה ממשל, גישה או פרטיות ואינו מפרסם חומר.</p>
+      </div>
+      <span className="sod29-chip">השפעת פרסום: אין</span>
+    </div>
+    <div className="book-review29-boundary-grid">
+      <article className="book-review29-boundary-card is-current">
+        <span>החומר שנבדק כאן</span>
+        <strong>מועמד לפרסום ציבורי</strong>
+        <code dir="ltr">public_candidate</code>
+        <p>נגיש רק לקורא המנהל המורשה. אישור או קביעה כקנוני אינם פותחים אותו לציבור.</p>
+      </article>
+      <div className="book-review29-boundary-separator" aria-hidden="true">≠</div>
+      <article className="book-review29-boundary-card is-closed">
+        <span>מצב ציבורי</span>
+        <strong>אינו זמין במסלול הזה</strong>
+        <code dir="ltr">public</code>
+        <p>אין כרגע גבול פרסום מאושר במסך. נדרשים מסלול קנוני נפרד ואישור נוסף לפני כל שינוי גישה.</p>
+      </article>
+    </div>
+    <div className="sod29-state book-review29-readiness-note" role="note">
+      <strong>״מוכן לביקורת אנושית״ אינו ״מוכן לפרסום״.</strong>
+      <span>המסך אינו מחשב מוכנות לפרסום ואינו קובע שלמות חילוץ. אם הקורא אינו מספק נתון כזה, הוא לא מוצג כחסר או כנכשל.</span>
+    </div>
+  </section>;
+}
+
+function ReviewChecklist({ review }) {
+  const checks = review?.checks || {};
+  return <ul className="book-review29-checklist" aria-label="רשימת בדיקות לפני החלטה">
+    {Object.entries(CHECK_LABELS).map(([key, label]) => {
+      const passed = checks[key] === true;
+      return <li key={key} data-check={passed ? "pass" : "repair"}>
+        <span aria-hidden="true">{passed ? "✓" : "!"}</span>
+        <span>{label}</span>
+      </li>;
+    })}
+  </ul>;
+}
+
+function ReviewItem({ item }) {
+  const kind = presentBookResearchKind(item.kind);
+  const governance = presentBookResearchStatus(item.status?.governance?.state);
+  const access = presentBookAccessStatus(item.status?.publicationAccess?.state);
+  const verification = presentBookVerificationState(item.status?.verification?.state);
+  const ready = item.review?.readiness === "ready_for_human_review";
+  const judgments = ready ? availableBookReviewJudgments(item) : [];
+  const terms = Array.isArray(item.terms) ? item.terms.filter(Boolean).slice(0, 5) : [];
+
+  return <article className="book-review29-item" data-readiness={ready ? "ready" : "repair"}>
+    <header className="book-review29-item-head">
+      <div>
+        <div className="sod29-kicker">{locatorLabel(item.sourceLocator)} · {kind.labelHe}</div>
+        <h3>{clean(item.statement) || "נוסח הממצא חסר ודורש תיקון"}</h3>
+      </div>
+      <span className={`book-review29-readiness ${ready ? "is-ready" : "needs-repair"}`}>
+        {ready ? "מוכן לביקורת אנושית" : "דורש תיקון לפני החלטה"}
+      </span>
+    </header>
+
+    <div className="book-review29-axes" aria-label="צירי מצב נפרדים">
+      <StatusAxis label="גישה" value={access.labelHe} code={item.status?.publicationAccess?.state} tone="candidate" />
+      <StatusAxis label="ממשל מחקרי" value={governance.labelHe} code={item.status?.governance?.state} tone="governance" />
+      <StatusAxis label="בדיקת מנוע" value={verification.labelHe} code={item.status?.verification?.state} tone="verification" />
+    </div>
+
+    {terms.length ? <div className="book-review29-terms" aria-label="מונחים">
+      {terms.map((term, index) => <span className="sod29-chip" key={`${term}:${index}`}>{term}</span>)}
+    </div> : null}
+
+    <details className="book-review29-details">
+      <summary>פרטי מקור ובדיקה</summary>
+      <div className="book-review29-details-grid">
+        <div>
+          <span>הפניית מקור</span>
+          <code dir="ltr">{item.sourceRef || "—"}</code>
+        </div>
+        <div>
+          <span>תאריך רשומה</span>
+          <strong>{formatRecordedDate(item.createdAt)}</strong>
+        </div>
+        {item.value != null ? <div>
+          <span>ערך מתועד</span>
+          <strong>{String(item.value)}</strong>
+        </div> : null}
+        {item.confidence != null ? <div>
+          <span>ביטחון מתועד — אינו ציון אמת</span>
+          <strong>{String(item.confidence)}</strong>
+        </div> : null}
+      </div>
+      <ReviewChecklist review={item.review} />
+    </details>
+
+    <footer className="book-review29-item-actions">
+      <div>
+        <strong>תצוגת מוכנות בלבד</strong>
+        <span>מסך זה אינו מבצע החלטות. מצב הממשל והגישה נשארים ללא שינוי.</span>
+      </div>
+      <div className="book-review29-future-judgments" aria-label="החלטות ממשל אפשריות בעתיד">
+        {judgments.map(decision => <span
+          key={decision}
+          className="sod29-chip"
+        >
+          {JUDGMENT_LABELS[decision]} · לא פעיל
+        </span>)}
+        {!judgments.length ? <span className="book-review29-no-action">
+          {ready ? "אין מעבר ממשל נוסף שמוגדר בחוזה הנוכחי." : "יש להשלים את הבדיקות החסרות לפני דיון ממשלי עתידי."}
+        </span> : null}
+      </div>
+    </footer>
+  </article>;
+}
+
+function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
+  const summary = packet.summary || {};
+  const page = packet.page || {};
+  return <>
+    <ReviewBoundary />
+
+    <section className="sod29-section book-review29-summary" aria-labelledby="book-review-summary-title">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">תמונת ביקורת</div>
+          <h2 id="book-review-summary-title">{book.label}</h2>
+          <p className="sod29-muted">קורא מוגבל לספר הזה ולרשומות שמסומנות <code dir="ltr">public_candidate</code>. הרשימה אינה תצוגה ציבורית.</p>
+        </div>
+        <button type="button" className="sod29-action" onClick={onReload}>
+          <NavigationIcon2029 name="rotate" /> רענון מאובטח
+        </button>
+      </div>
+      <div className="book-review29-summary-grid">
+        <div><strong>{safeCount(summary.totalCandidates)}</strong><span>מועמדים בביקורת</span></div>
+        <div><strong>{safeCount(summary.readyForHumanReview)}</strong><span>מוכנים לביקורת אנושית</span></div>
+        <div><strong>{safeCount(summary.needsRepair)}</strong><span>דורשים תיקון</span></div>
+        <div><strong>{safeCount(summary.distinctSourceRefs)}</strong><span>הפניות מקור שונות</span></div>
+      </div>
+      {packet.partial ? <div className="sod29-state warn">הקורא המורשה החזיר חלון חלקי. הסיכום אינו מוצג כמיצוי מלא ואין סריקה עוקפת.</div> : null}
+    </section>
+
+    <section className="sod29-section" aria-labelledby="book-review-items-title">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">פריטי ביקורת</div>
+          <h2 id="book-review-items-title">בדיקה מסודרת של כל מועמד</h2>
+          <p className="sod29-muted">כל ציר מוצג בנפרד: סוג הממצא, בדיקת המנוע, מצב הממשל ומצב הגישה.</p>
+        </div>
+        <span className="sod29-chip">{safeCount(page.total)} בסך הכול</span>
+      </div>
+      {packet.items?.length ? <div className="book-review29-list">
+        {packet.items.map(item => <ReviewItem key={item.id} item={item} />)}
+      </div> : <FrameState title="אין מועמדים בחלון הזה">לא נמצאו רשומות מורשות המסומנות כמועמדות לפרסום עבור הספר הזה.</FrameState>}
+
+      <nav className="book-review29-pagination" aria-label="דפדוף ברשימת הביקורת">
+        <button type="button" className="sod29-action" disabled={offset <= 0} onClick={() => onOffset(Math.max(0, offset - PAGE_SIZE))}>העמוד הקודם</button>
+        <span>מוצגים {page.total ? `${safeCount(offset + 1)}–${safeCount(offset + (packet.items?.length || 0))}` : "0"} מתוך {safeCount(page.total)}</span>
+        <button type="button" className="sod29-action" disabled={!page.hasMore} onClick={() => onOffset(offset + PAGE_SIZE)}>העמוד הבא</button>
+      </nav>
+    </section>
+  </>;
+}
+
+export default function BookPublicationReview2029Page({ slug = "" }) {
+  const [offset, setOffset] = useState(0);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [state, setState] = useState({ phase: "loading", book: null, packet: null, restriction: null });
+
+  useEffect(() => {
+    applySeo({
+      title: "ביקורת מועמדי ספרים",
+      description: "מסך פנימי ומוגבל לביקורת ממשל של מועמדי ספרים.",
+      path: "/2029/control",
+      noindex: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    setState(current => ({ ...current, phase: "loading", restriction: null }));
+    (async () => {
+      try {
+        // First gate: do not even resolve the Book identity until the server-derived
+        // admin predicate succeeds. loadBookPublicationReview verifies it again.
+        const adminVerified = await verifyBookPublicationReviewAdmin();
+        if (!active) return;
+        if (!adminVerified) {
+          setState({ phase: "restricted", book: null, packet: null, restriction: "admin" });
+          return;
+        }
+
+        const book = await fetchBookEntityBySlug(slug);
+        if (!active) return;
+        if (!book) {
+          setState({ phase: "unavailable", book: null, packet: null, restriction: null });
+          return;
+        }
+
+        const packet = await loadBookPublicationReview(book, { limit: PAGE_SIZE, offset });
+        if (!active) return;
+        if (packet.availability !== "available" || packet.source?.adminVerified !== true) {
+          setState({ phase: "restricted", book: null, packet: null, restriction: packet.source?.adminVerified ? "reader" : "admin" });
+          return;
+        }
+        setState({ phase: "ready", book, packet, restriction: null });
+      } catch {
+        if (active) setState({ phase: "error", book: null, packet: null, restriction: null });
+      }
+    })();
+    return () => { active = false; };
+  }, [slug, offset, reloadKey]);
+
+  const shellProps = {
+    title: "ביקורת מועמדי ספרים",
+    eyebrow: "2029 · פנימי · מנהל",
+    description: "מסך מבודד לבדיקת מועמדי ספרים. ממשל מחקרי ופרסום נשארים גבולות נפרדים.",
+    status: "מנהל · קריאה בלבד",
+    // Use the existing Books experience profile; authorization remains the
+    // server-derived admin gate above, not a presentation-only surface name.
+    surface: "books",
+    symbol: <NavigationIcon2029 name="books" />,
+    introVariant: "compact",
+    wide: true,
+  };
+
+  if (state.phase === "loading") return <Sod2029Shell {...shellProps}>
+    <FrameState kind="loading" title="מאמת הרשאת מנהל וקורא חומר מורשה">המסך נשאר סגור עד ששני השערים מסתיימים.</FrameState>
+  </Sod2029Shell>;
+
+  if (state.phase === "restricted") return <Sod2029Shell {...shellProps}>
+    <FrameState kind="gated" title={state.restriction === "reader" ? "הקורא המורשה חסום" : "נדרשת הרשאת מנהל מאומתת"}>
+      {state.restriction === "reader"
+        ? "אימות המנהל הצליח, אך שכבת המחקר אינה קריאה בהרשאה הנוכחית. אין fallback, נתוני דמה או הרחבת הרשאות; המסך נכשל סגור."
+        : "לא הוחזרה הרשאת מנהל מן הבדיקה השרתית. לא נטען ספר ולא נחשף חומר מועמד."}
+    </FrameState>
+  </Sod2029Shell>;
+
+  if (state.phase === "unavailable") return <Sod2029Shell {...shellProps}>
+    <FrameState kind="unavailable" title="הספר אינו זמין לביקורת">לא נמצאה זהות ספר פעילה עבור הכתובת המבוקשת.</FrameState>
+  </Sod2029Shell>;
+
+  if (state.phase === "error") return <Sod2029Shell {...shellProps}>
+    <FrameState kind="error" title="לא ניתן לטעון את מסך הביקורת" action={<button type="button" className="sod29-action" onClick={() => setReloadKey(value => value + 1)}>ניסיון נוסף</button>}>
+      לא מוצגים פרטי ספק, מסד או הרשאה. אפשר לנסות שוב; אין מסלול חלופי לחומר המוגן.
+    </FrameState>
+  </Sod2029Shell>;
+
+  return <Sod2029Shell {...shellProps}>
+    <div className="book-review29" data-access-scope="public_candidate" data-publication-effect="none">
+      <ReviewScreen
+        book={state.book}
+        packet={state.packet}
+        offset={offset}
+        onOffset={setOffset}
+        onReload={() => setReloadKey(value => value + 1)}
+      />
+    </div>
+  </Sod2029Shell>;
+}

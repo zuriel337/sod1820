@@ -52,6 +52,12 @@ const Kingdom2029Page = kingdomPreviewEnabled
 const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
 const IntegratedPreview2029Page = integratedPreviewEnabled
   ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
+// Isolated, unlinked Books governance-review surface. Ordinary builds neither
+// register nor import it; the existing /2029/control document route keeps the
+// preview out of public navigation and avoids creating a production route.
+const bookPublicationReviewPreviewEnabled = import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW === "true";
+const BookPublicationReview2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/BookPublicationReview2029Page.jsx")) : null;
 
 function Loading2029() {
   const palette = use2029Palette();
@@ -118,6 +124,17 @@ function GematriaEntry2029() {
     : <CalculatorPro2029Page />;
 }
 
+function ControlEntry2029() {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const reviewRequested = params.get("surface") === "books-publication-review";
+  const slug = params.get("book") || "";
+  if (bookPublicationReviewPreviewEnabled && reviewRequested && BookPublicationReview2029Page) {
+    return <BookPublicationReview2029Page key={slug} slug={slug} />;
+  }
+  return <ControlPlane2029Page />;
+}
+
 export default function App2029() {
   return (
     <AuthProvider>
@@ -152,7 +169,7 @@ export default function App2029() {
               <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Researcher2029Page /></Locked>} />
               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
-              <Route path="/2029/control" element={<ControlPlane2029Page />} />
+              <Route path="/2029/control" element={<ControlEntry2029 />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
             </Routes>
           </Suspense>
