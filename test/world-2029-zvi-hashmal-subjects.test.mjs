@@ -73,9 +73,13 @@ test("the single public World layout uses one category-free subject reader and k
   const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);
   assert.match(ui, /מקורות סוד החשמל/);
-  assert.match(ui, /נושאים מאושרים/);
+  assert.match(ui, /נושאי צבי מאושרים/);
+  assert.match(ui, /פרסומי סוד החשמל/);
+  assert.match(ui, /ממצאי המחקר של צבי נספרים וממוינים בנפרד/);
   const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
   assert.doesNotMatch(reader, /posts\.categories|\.map\(.*categories|category\s*=/);
   const source = readFileSync(new URL("../src/components/research/ContributorFindingsLens.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(source, /פרסום מקור אינו אימות מחקרי|מקור ללא טקסט שמור/);
+  assert.match(source, /contributor-structured-sort/);
+  assert.match(source, /בלי להסיק קטגוריה מהטקסט/);
 });

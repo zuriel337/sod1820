@@ -191,6 +191,7 @@ export default function ContributorFindingsLens({
   const S = useMemo(() => makeStyles(P), [P]);
   const [mode, setMode] = useState("all");
   const [world, setWorld] = useState("all");
+  const [facet, setFacet] = useState("all");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
 
@@ -199,6 +200,7 @@ export default function ContributorFindingsLens({
     if (mode === "recent") rows = rows.filter((group) => withinDays(group.createdAt, recentDays));
     if (mode === "verified") rows = rows.filter((group) => group.verifiedCount > 0);
     if (world !== "all") rows = rows.filter((group) => (group.lexicalWorlds || []).includes(world));
+    if (facet !== "all") rows = rows.filter((group) => (group.facets || []).includes(facet));
     const q = clean(query).toLowerCase();
     if (q) rows = rows.filter((group) => [
       group.title,
@@ -209,7 +211,7 @@ export default function ContributorFindingsLens({
       ...((group.rows || []).map((row) => row.statement)),
     ].filter(Boolean).join(" ").toLowerCase().includes(q));
     return rows;
-  }, [projection, mode, world, query, recentDays]);
+  }, [projection, mode, world, facet, query, recentDays]);
 
   if (loading) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>טוען את חומרי המקור…</div>;
   if (error) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>המקורות לא נטענו כרגע. נסו שוב מאוחר יותר.</div>;
@@ -270,6 +272,26 @@ export default function ContributorFindingsLens({
           style={{ ...S.action, minHeight: 44, borderColor: P.border, color: world === label ? P.accentText : P.ink }}
         >{label} · {count}</button>)}
       </div> : null}
+
+      <div data-experience-capability="contributor-structured-sort" style={{ display: "grid", gap: SPACE[1] }}>
+        <span style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft }}>
+          מיון לפי נתון קיים — בלי להסיק קטגוריה מהטקסט
+        </span>
+        <div style={{ display: "flex", gap: SPACE[1], flexWrap: "wrap" }}>
+          <button type="button" onClick={() => setFacet("all")}
+            aria-pressed={facet === "all"}
+            style={{ ...S.action, minHeight: 44, color: facet === "all" ? P.accentText : P.ink }}>
+            כל הסוגים
+          </button>
+          {["number", "phrase", "relation", "media", "topic"]
+            .filter((key) => Number(projection.facetCounts?.[key] || 0) > 0)
+            .map((key) => <button key={key} type="button" onClick={() => setFacet(key)}
+              aria-pressed={facet === key}
+              style={{ ...S.action, minHeight: 44, color: facet === key ? P.accentText : P.ink }}>
+              {FACET_LABELS[key]} · {projection.facetCounts[key]} פרסומים
+            </button>)}
+        </div>
+      </div>
 
       <input
         value={query}

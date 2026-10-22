@@ -15,6 +15,9 @@
   font: 500 12px/1.5 var(--s29-font-ui); color: var(--s29-muted);
   border: 1px solid var(--s29-line); border-radius: 999px; padding: 5px 10px;
 }
+.sod29-world-source-subject-inventory-note {
+  margin: 0; color: var(--s29-muted); font: 400 12px/1.5 var(--s29-font-ui);
+}
 .sod29-world-source-subject-filters { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .sod29-world-source-subject-filters button,
 .sod29-world-source-subject-more {
