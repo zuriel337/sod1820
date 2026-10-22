@@ -84,7 +84,7 @@ Desktop width is available to improve reading, hierarchy and scanning; it is not
 - interactive labels and ordinary interface text remain **16px minimum**, and reading/body copy remains **18px minimum**;
 - when content does not fit, components reflow, wrap, widen, paginate or disclose progressively. They do not solve density by shrinking meaningful text below its semantic token.
 
-The canonical 2029 type variables are `--s29-type-micro`, `--s29-type-ui`, `--s29-type-body`, `--s29-type-lead`, `--s29-type-section` and `--s29-type-display`. New and redesigned surfaces consume these variables directly or through aliases that preserve or increase their values. Page-local literal sizes must not create a smaller parallel scale.
+The canonical 2029 type variables are `--s29-type-micro`, `--s29-type-ui`, `--s29-type-small`, `--s29-type-body`, `--s29-type-lead`, `--s29-type-title` and `--s29-type-display`. New and redesigned surfaces consume these variables directly or through aliases that preserve or increase their values. Page-local literal sizes must not create a smaller parallel scale.
 
 This rule governs 2029 infrastructure and its consumers only. It does not restyle, rewrite or inherit from Legacy.
 
