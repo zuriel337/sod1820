@@ -6,10 +6,7 @@ import { researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
 // Do not widen ACL merely for this projection. `meta` is already SELECT-granted;
 // RLS remains the authority for whether a row is readable at all.
 const RESEARCH_FIELDS = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,meta";
-const PUBLIC_BOOK_RESEARCH_FIELDS = "id,book_node_id,created_at,kind,statement,terms,value,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,meta,published_at";
 const BOOK_FIELDS = "id,type,label,description,identity_key,metadata,is_active,created_at";
-
-export const PUBLIC_BOOK_RESEARCH_TABLE = "book_research_public_v1";
 
 // Scale guardrail: Book Hub is a projection, not a client-side research dump.
 // The default view is intentionally bounded; a future explorer can paginate/rank
@@ -119,19 +116,6 @@ export async function fetchBookEntityBySlug(slug) {
   return data || null;
 }
 
-/**
- * Public Books 2029 read boundary. The projection is materialized only by a
- * separately approved Human-Gate release and contains sanitized snapshots;
- * this query never falls back to raw research_objects.
- */
-export function buildPublicBookResearchQuery(book, { limit = DEFAULT_BOOK_RESEARCH_LIMIT } = {}) {
-  return {
-    table: PUBLIC_BOOK_RESEARCH_TABLE,
-    bookId: clean(book?.id) || null,
-    limit: Math.max(1, Math.min(Number(limit) || DEFAULT_BOOK_RESEARCH_LIMIT, MAX_BOOK_RESEARCH_LIMIT)),
-  };
-}
-
 function permissionLike(error) {
   const msg = clean(error?.message).toLowerCase();
   const code = clean(error?.code);
@@ -149,24 +133,6 @@ export async function fetchBookResearchById(id) {
     .from("research_objects")
     .select(RESEARCH_FIELDS)
     .eq("id", safeId)
-    .limit(1)
-    .maybeSingle();
-  if (error) {
-    if (permissionLike(error)) return null;
-    throw error;
-  }
-  return data || null;
-}
-
-export async function fetchPublicBookResearchById(id, bookId) {
-  const safeId = clean(id);
-  const safeBookId = clean(bookId);
-  if (!safeId || !safeBookId) return null;
-  const { data, error } = await supabase
-    .from(PUBLIC_BOOK_RESEARCH_TABLE)
-    .select(PUBLIC_BOOK_RESEARCH_FIELDS)
-    .eq("id", safeId)
-    .eq("book_node_id", safeBookId)
     .limit(1)
     .maybeSingle();
   if (error) {
@@ -195,25 +161,6 @@ export function applyFocusRow(rows, byId, focusId, prefixes, focusRow) {
     return { rows: [focusRow, ...list], focusIncluded: true };
   }
   return { rows: list, focusIncluded: false };
-}
-
-export function applyPublicBookFocusRow(rows, { focusId, bookId, focusRow } = {}) {
-  const list = Array.isArray(rows) ? rows : [];
-  const safeFocusId = clean(focusId);
-  const safeBookId = clean(bookId);
-  if (!safeFocusId || !safeBookId) return { rows: list, focusIncluded: false };
-
-  if (list.some(row => String(row?.id) === safeFocusId)) {
-    return { rows: list, focusIncluded: true };
-  }
-
-  const belongsToBook = focusRow
-    && String(focusRow.id) === safeFocusId
-    && clean(focusRow.book_node_id) === safeBookId
-    && clean(focusRow.privacy_scope) === "public";
-  return belongsToBook
-    ? { rows: [focusRow, ...list], focusIncluded: true }
-    : { rows: list, focusIncluded: false };
 }
 
 export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LIMIT, focusId } = {}) {
@@ -263,50 +210,6 @@ export async function fetchBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LI
     restricted: false,
     truncated,
     focusIncluded,
-    summary: summarizeBookResearch(rows),
-  };
-}
-
-export async function fetchPublicBookResearch(book, { limit = DEFAULT_BOOK_RESEARCH_LIMIT, focusId } = {}) {
-  const built = buildPublicBookResearchQuery(book, { limit });
-  if (!built.bookId) {
-    return { rows: [], findings: [], restricted: false, truncated: false, focusIncluded: false, summary: summarizeBookResearch([]) };
-  }
-
-  const { data, error } = await supabase
-    .from(built.table)
-    .select(PUBLIC_BOOK_RESEARCH_FIELDS)
-    .eq("book_node_id", built.bookId)
-    .order("created_at", { ascending: false })
-    .limit(built.limit);
-
-  if (error) {
-    if (permissionLike(error)) {
-      return { rows: [], findings: [], restricted: true, truncated: false, focusIncluded: false, summary: summarizeBookResearch([]) };
-    }
-    throw error;
-  }
-
-  const batchRows = Array.isArray(data) ? data : [];
-  const truncated = batchRows.length >= built.limit;
-  const safeFocusId = clean(focusId);
-  const focusInBatch = safeFocusId && batchRows.some(row => String(row.id) === safeFocusId);
-  const focusRow = safeFocusId && !focusInBatch
-    ? await fetchPublicBookResearchById(safeFocusId, built.bookId)
-    : null;
-  const folded = applyPublicBookFocusRow(batchRows, {
-    focusId: safeFocusId,
-    bookId: built.bookId,
-    focusRow,
-  });
-  const rows = folded.rows;
-
-  return {
-    rows,
-    findings: researchObjectsToUniversalFindings(rows),
-    restricted: false,
-    truncated,
-    focusIncluded: folded.focusIncluded,
     summary: summarizeBookResearch(rows),
   };
 }
