@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const read = (path) => fs.readFileSync(path, "utf8");
-const page = read("src/pages/BeitMidrash2029Page.jsx");
+import path from "node:path";
+const pageOnly = read("src/pages/BeitMidrash2029Page.jsx");
+const partsDir = "src/components/beitMidrash2029";
+const page = [pageOnly, ...fs.readdirSync(partsDir).map((name) => read(path.join(partsDir, name)))].join("\n");
 const css = read("src/pages/beitMidrash2029.css");
 const app = read("src/App.jsx");
 const app2029 = read("src/App2029.jsx");
@@ -22,9 +25,10 @@ assert.doesNotMatch(page, /from ["']\.\.\/lib\/supabase\.js["']/, "the page must
 assert.doesNotMatch(page, /METHOD_INFO|DEPTH_METHODS|calcGem|GEM\[/, "the page must not define or execute local Gematria authority");
 
 // Identity stays canonical and independent of /2029; the calculator remains a separate tool.
-assert.match(page, /data-canonical-route="\/beit-midrash"/, "the canonical Beit Midrash route must remain explicit");
-assert.match(page, /`\/beit-midrash\/\$\{encodeURIComponent\(method\.methodKey\)\}`/, "method links must keep their canonical deep-link identity");
-assert.match(page, /to="\/2029\/calculator"/, "the page must hand calculation off to the canonical calculator");
+assert.match(pageOnly, /data-canonical-route=\{manifest\.identity\.canonicalRoute\}/, "the canonical Beit Midrash route comes from the learning manifest");
+assert.match(page, /`\/beit-midrash\/\$\{encodeURIComponent\(key\)\}`/, "method links must keep their canonical deep-link identity");
+assert.match(page, /destinations/, "the calculator hand-off comes from the manifest destinations");
+assert.match(page, /\/2029\/calculator\?q=/, "method lessons must hand practice to the canonical calculator");
 assert.doesNotMatch(page, /\/2029\/beit-midrash/, "Beit Midrash must not be nested under /2029");
 assert.doesNotMatch(page, /\/2029\/world|navigate\(["']\/world|<Navigate/, "the methods slice must not route Beit Midrash into World");
 assert.match(app, /<Route path="\/beit-midrash" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/, "the existing compatibility route must remain intact until central wiring");

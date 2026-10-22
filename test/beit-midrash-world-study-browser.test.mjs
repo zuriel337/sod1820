@@ -93,7 +93,7 @@ const projection = {
 function fixturePlugin() {
   const modules = new Map([
     ["virtual:bm-auth.jsx", `export const useAuth=()=>({isAdmin:new URLSearchParams(window.location.search).get("fixtureAdmin")==="1",loading:false});`],
-    ["virtual:bm-shell.jsx", `import React from "react";export function FrameState({kind,title,children}){return React.createElement("section",{"data-frame-state":kind},React.createElement("h3",null,title),children)}export default function Shell({children,title}){return React.createElement("div",{className:"sod29-root surface-beit-midrash"},React.createElement("header",{hidden:true},title),children)}`],
+    ["virtual:bm-shell.jsx", `import React from "react";export function FrameState({kind,title,children,action}){return React.createElement("section",{"data-frame-state":kind},React.createElement("h3",null,title),children,action)}export default function Shell({children,title}){return React.createElement("div",{className:"sod29-root surface-beit-midrash"},React.createElement("header",{hidden:true},title),children)}`],
     ["virtual:bm-icon.jsx", `import React from "react";export default function Icon(){return React.createElement("span",{"aria-hidden":true},"◇")}`],
     ["virtual:bm-ratings.jsx", `import React from "react";export default function Ratings({quality,meterScore}){return React.createElement("div",{className:"k29-rate","data-quality":quality??"missing","data-meter":meterScore??"missing"},"איכות ",quality??"לא דורג"," · חוזק ",meterScore??"אין נתון")}`],
     ["virtual:bm-trace-component.jsx", `export default function Trace(){return null}`],
@@ -146,7 +146,7 @@ function fixturePlugin() {
   };
 }
 
-test("Beit Midrash findings surface fits 320/390/desktop in day, card and night", { skip: !available, timeout: 60_000 }, async () => {
+test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !available, timeout: 90_000 }, async () => {
   const server = await vite.createServer({
     root,
     configFile: false,
@@ -163,54 +163,98 @@ test("Beit Midrash findings surface fits 320/390/desktop in day, card and night"
     const browserErrors = [];
     page.on("pageerror", (error) => browserErrors.push(error.message));
     page.on("console", (message) => {
-      if (message.type() === "error") browserErrors.push(message.text());
+      // Failed resources are checked per response below so the headless favicon probe is the only exemption.
+      if (message.type() === "error" && !/Failed to load resource/.test(message.text())) browserErrors.push(message.text());
     });
+    page.on("response", (response) => {
+      if (response.status() >= 400 && !/\/favicon\.ico$/.test(response.url())) browserErrors.push(`${response.status()} ${response.url()}`);
+    });
+    const shots = process.env.BM_SHOTS_DIR;
 
     for (const theme of ["day", "card", "night"]) {
       for (const width of [320, 390, 1280]) {
         await page.setViewportSize({ width, height: 900 });
-        await page.goto(`${origin}/beit-midrash?tab=crosses&finding=f-public#finding-f-public`);
+        await page.goto(`${origin}/beit-midrash?section=guided&kind=crossing&finding=f-public`);
         try {
           await page.waitForSelector('[data-finding-id="f-public"]', { timeout: 8_000 });
         } catch {
           const body = (await page.locator("body").innerText()).slice(0, 600);
-          assert.fail(`finding did not render; browser errors=${browserErrors.join(" | ")}; body=${body}`);
+          assert.fail(`example did not render; browser errors=${browserErrors.join(" | ")}; body=${body}`);
         }
         await page.evaluate((nextTheme) => window.__setTheme(nextTheme), theme);
         await page.waitForFunction((nextTheme) => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === nextTheme, theme);
 
         const layout = await page.evaluate(() => {
-          const tabs = document.querySelector(".sod29-midrash-finding-tabs");
+          const pillars = document.querySelector(".bm-pillars");
+          const small = [...document.querySelectorAll(".sod29-midrash a, .sod29-midrash button")]
+            .filter((el) => el.getBoundingClientRect().width && el.getBoundingClientRect().height < 40)
+            .map((el) => el.textContent.trim().slice(0, 30));
           return {
             viewport: window.innerWidth,
             scrollWidth: document.documentElement.scrollWidth,
-            tabColumns: getComputedStyle(tabs).gridTemplateColumns.split(" ").filter(Boolean).length,
+            pillarColumns: getComputedStyle(pillars).gridTemplateColumns.split(" ").filter(Boolean).length,
             background: getComputedStyle(document.querySelector("[data-fixture-theme]")).backgroundColor,
+            heroBorder: getComputedStyle(document.querySelector(".bm-hero-frame")).borderTopColor,
+            small,
           };
         });
         assert.ok(layout.scrollWidth <= layout.viewport + 1, `${theme} ${width}px must not overflow horizontally`);
-        assert.equal(layout.tabColumns, width <= 620 ? 1 : 3, `${theme} ${width}px tab layout`);
+        assert.equal(layout.pillarColumns, width <= 620 ? 1 : 3, `${theme} ${width}px pillar layout`);
         assert.notEqual(layout.background, "rgba(0, 0, 0, 0)");
+        assert.notEqual(layout.heroBorder, "rgba(0, 0, 0, 0)", "thin gold frame is drawn");
+        assert.deepEqual(layout.small, [], `${theme} ${width}px touch targets`);
+        if (shots) {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.waitForTimeout(350); // let theme transitions settle before the capture
+          await page.screenshot({ path: `${shots}/${theme}-${width}-top.png` });
+        }
       }
     }
 
-    assert.equal(await page.locator("text=חומר פרטי שאסור שיופיע").count(), 0);
-    assert.equal(await page.locator('[data-finding-id="f-public"] .sod29-midrash-occurrences').count(), 1);
-    assert.equal(await page.locator('[data-finding-id="f-public"] a[href="/world?admin=1&finding=f-public#finding-f-public"]').count(), 1);
+    assert.deepEqual(browserErrors, [], "no browser errors");
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto(`${origin}/beit-midrash`);
+    await page.waitForSelector('[data-finding-id="f-public"]');
+    // Public only: private/candidate rows never render; no admin mode, scores or search terms.
+    const text = await page.locator("body").innerText();
+    for (const hidden of ["חומר פרטי שאסור שיופיע", "תצוגת מנהל", "איכות ראיות", "מצב אימות", "ביטחון", "סקירת מנהל"]) {
+      assert.ok(!text.includes(hidden), `public page must not show ${hidden}`);
+    }
+    assert.equal(await page.locator('[data-finding-id="f-private"]').count(), 0);
+    assert.equal(await page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"] .bm-occurrences').count(), 1);
+    assert.equal(await page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"] a[href="/world?admin=1&finding=f-public#finding-f-public"]').count(), 1);
+    assert.equal(await page.getByText("כשהתמונה מתחברת").count() > 0, true);
+    assert.equal(await page.getByRole("link", { name: "למפת הידע בעולם" }).getAttribute("href"), "/world#world-connections");
+    assert.equal(await page.locator('.bm-pillars a').count(), 3);
 
-    await page.getByRole("link", { name: /אטלס/ }).click();
-    await page.waitForURL(/tab=atlas/);
-    await page.waitForSelector('[data-finding-id="f-unmatched"]', {
-      state: "detached",
-    });
-    assert.equal(await page.locator(".sod29-midrash-finding").count(), 1);
-    assert.equal(await page.locator('[data-finding-id="f-unmatched"]').count(), 0);
+    if (shots) {
+      await page.evaluate(() => window.__setTheme("night"));
+      await page.waitForTimeout(350);
+      await page.locator("#guided").screenshot({ path: `${shots}/night-390-guided.png` });
+    }
 
-    await page.goto(`${origin}/beit-midrash?tab=crosses&fixtureAdmin=1`);
-    await page.waitForSelector('[data-finding-id="f-private"]');
-    assert.equal(await page.getByText("תצוגת מנהל").count(), 1);
-    assert.equal(await page.locator('[data-finding-id="f-private"] .sod29-midrash-triage').count(), 1);
-    assert.equal(await page.getByText("חומר פרטי שאסור שיופיע").count(), 1);
+    // Exact method deep link selects exactly that method; unknown method is an error, never a redirect.
+    await page.goto(`${origin}/beit-midrash/standard`);
+    await page.waitForSelector('.bm-lesson[data-method-key="standard"]');
+    if (shots) await page.locator("#methods").screenshot({ path: `${shots}/night-390-method.png` });
+    await page.goto(`${origin}/beit-midrash/nope`);
+    await page.waitForSelector('[data-frame-state="error"]');
+    assert.match(page.url(), /\/beit-midrash\/nope$/);
+
+    // tab=searches stays a quiet admin-only compatibility signal: no catalogue, no search terms.
+    await page.goto(`${origin}/beit-midrash?tab=searches`);
+    await page.waitForSelector("#start");
+    assert.equal(await page.locator("body").innerText().then((t) => /מונחי חיפוש/.test(t)), false);
+    // tab=verified teaches source reading and shows no feed.
+    await page.goto(`${origin}/beit-midrash?tab=verified`);
+    await page.waitForSelector("#sources");
+    assert.equal(await page.getByText("מאומתים").count(), 0);
+
+    // Keyboard: first link reachable and focus ring visible.
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    const focusOutline = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
+    assert.equal(focusOutline, "solid");
   } finally {
     await browser?.close();
     await server.close();

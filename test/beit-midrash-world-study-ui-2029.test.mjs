@@ -2,52 +2,73 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-const page = fs.readFileSync(new URL("../src/pages/BeitMidrash2029Page.jsx", import.meta.url), "utf8");
-const css = fs.readFileSync(new URL("../src/pages/beitMidrash2029.css", import.meta.url), "utf8");
-const app = fs.readFileSync(new URL("../src/App2029.jsx", import.meta.url), "utf8");
+const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const page = read("src/pages/BeitMidrash2029Page.jsx");
+const css = read("src/pages/beitMidrash2029.css");
+const app = read("src/App2029.jsx");
+const dir = new URL("../src/components/beitMidrash2029/", import.meta.url);
+const parts = Object.fromEntries(fs.readdirSync(dir).map((name) => [name, fs.readFileSync(new URL(name, dir), "utf8")]));
+const ui = [page, ...Object.values(parts)].join("\n");
 
-test("World findings are three learning lenses, not three readers or stores", () => {
-  assert.match(page, /BEIT_MIDRASH_WORLD_SECTION\.CROSSES/);
-  assert.match(page, /BEIT_MIDRASH_WORLD_SECTION\.ATLAS/);
-  assert.match(page, /BEIT_MIDRASH_WORLD_SECTION\.CONVERGENCE/);
+test("guided examples come from one World load handed to the learning contract", () => {
   assert.equal((page.match(/fetchWorldAllResearchProjection\(\)/g) || []).length, 1);
-  assert.equal((page.match(/fetchWorldFindingReviewPage\(/g) || []).length, 1);
-  assert.match(page, /const reader = admin\s*\? fetchWorldFindingReviewPage[\s\S]*: fetchWorldAllResearchProjection\(\)/);
-  assert.doesNotMatch(page, /\.from\s*\(|\.rpc\s*\(|WorldAllResearchTable|createContext|createStore/);
+  assert.match(page, /buildBeitMidrashLearningProjection\(\{\s*worldProjection: world\.projection/);
+  assert.match(page, /guidedExamples/);
+  assert.doesNotMatch(ui, /fetchWorldFindingReviewPage|worldFindingReviewClient|useAuth|isAdmin/);
+  assert.doesNotMatch(ui, /\.from\s*\(|\.rpc\s*\(|WorldAllResearchTable|createContext|createStore/);
+  assert.doesNotMatch(ui, /buildBeitMidrashWorldSections|filterWorldAllResearchRows|clusterWorldResearchRows|compareWorldResearchStrength/);
+  assert.doesNotMatch(ui, /\.sort\s*\(|\.dedup|new Set\(|localStorage|sessionStorage/);
 });
 
-test("public and admin presentation keep truth axes and private review separate", () => {
-  assert.match(page, /BEIT_MIDRASH_WORLD_AUDIENCE\.ADMIN/);
-  assert.match(page, /BEIT_MIDRASH_WORLD_AUDIENCE\.PUBLIC/);
-  assert.match(page, /admin && finding\.triage/);
-  assert.match(page, /איכות ראיות/);
-  assert.match(page, /מקורות עצמאיים/);
-  assert.match(page, /מצב אימות/);
-  assert.match(page, /לא ציון של הממצא ולא ציון אמת/);
-  assert.match(page, /ערך חסר נשאר ללא נתון ואינו מוצג כאפס/);
-  assert.doesNotMatch(page, /searchTerms|search_terms|מונחי חיפוש/);
+test("public Beit Midrash copy keeps research-room vocabulary out of the page", () => {
+  for (const forbidden of [
+    "ממצא מחקר", "איכות ראיות", "ביטחון", "מצב אימות", "סקירת מנהל", "טריאז", "מאגר ממצאים", "תצוגת מנהל",
+  ]) {
+    assert.ok(!ui.includes(forbidden), `UI contains ${forbidden}`);
+  }
+  // English terms are checked as visible text only (identifiers such as the projection builder are code).
+  assert.doesNotMatch(ui, /[>"'`][^<>"'`{}]*\b(?:Projection|Research|Triage)\b[^<>"'`{}]*[<"'`]/);
+  assert.doesNotMatch(ui, /searchTerms|search_terms|מונחי חיפוש/);
+  assert.doesNotMatch(ui, /triage|evidenceQuality|independentSourceCount|linkedTopicRating|treeMatches/);
 });
 
-test("source fidelity, occurrences and exact return are visible without inventing links", () => {
-  assert.match(page, /finding\.sourceRef \|\| "אין source locator"/);
-  assert.match(page, /finding\.occurrences\.length > 1/);
-  assert.match(page, /finding\.canonicalFindingHref/);
-  assert.match(page, /finding\.sourceHref \?/);
-  assert.match(page, /beitMidrashWorldSectionHref\(section, finding\.sourceId\)/);
-  assert.match(page, /target="_blank"/);
+test("source fidelity: sourceRef, occurrences and verified links only", () => {
+  const guided = parts["BeitMidrashGuided.jsx"];
+  assert.match(guided, /example\.sourceRef/);
+  assert.match(guided, /example\.occurrences\.length > 1/);
+  assert.match(guided, /example\.occurrences\.map/);
+  assert.match(guided, /example\.sourceHref \?/);
+  assert.match(guided, /href=\{example\.canonicalFindingHref\}/);
+  assert.match(guided, /לפתיחת הגילוי המלא/);
+  assert.match(guided, /to=\{example\.returnHref\}/);
+  assert.match(guided, /mapCallout\.href/);
 });
 
-test("isolated slice still leaves shared App2029 routing to the central owner", () => {
+test("learn, discover, participate hierarchy with one map CTA and gated destinations", () => {
+  assert.match(page, /id="bm-discover"/);
+  assert.match(page, /id="bm-participate"/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /id="bm-learn"/);
+  assert.match(parts["BeitMidrashParticipate.jsx"], /destination\.href/);
+  assert.match(parts["BeitMidrashParticipate.jsx"], /aria-disabled="true"/);
+  assert.doesNotMatch(parts["BeitMidrashParticipate.jsx"], /<form|<input|<textarea/);
+  assert.doesNotMatch(ui, /lni-|LegacyNewsletterInvite|role="dialog"|aria-modal/);
+});
+
+test("App2029 route seam stays with the central owner", () => {
   assert.doesNotMatch(app, /BeitMidrash2029Page/);
   assert.doesNotMatch(app, /path="\/beit-midrash/);
 });
 
-test("responsive and theme-safe CSS has explicit phone and desktop layouts", () => {
-  assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+test("CSS uses semantic roles, covers phone/desktop, targets, focus and reduced motion", () => {
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/iu);
+  assert.doesNotMatch(css, /rgba?\(/u);
+  assert.match(css, /var\(--s29-page\)/);
+  assert.match(css, /var\(--s29-brand-gold/);
+  assert.match(css, /data-frame-theme-preset="dark"/);
   assert.match(css, /@media\(max-width:900px\)/);
   assert.match(css, /@media\(max-width:620px\)/);
-  assert.match(css, /\.sod29-midrash-finding-tabs\{grid-template-columns:1fr\}/);
-  assert.match(css, /\.sod29-midrash-finding-measures\{grid-template-columns:1fr\}/);
-  assert.match(css, /var\(--s29-page\)|var\(--s29-panel\)|var\(--s29-ink\)/);
-  assert.doesNotMatch(css, /\.sod29-midrash-(?:discoveries|finding|target-meter)[^}]*#[0-9a-f]{3,8}/i);
+  assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css, /min-height:44px/);
+  assert.match(css, /:focus-visible/);
+  assert.match(css, /prefers-reduced-motion:reduce/);
 });
