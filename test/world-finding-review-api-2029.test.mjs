@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import handler from "../api/world-finding-review.js";
+import handler, {
+  enrichWorldFindingReviewRow,
+  filterWorldFindingReviewRows,
+  sortWorldFindingReviewRows,
+} from "../api/world-finding-review.js";
 
 function jsonResponse(body, { status = 200, contentRange = null } = {}) {
   const headers = new Headers({ "content-type": "application/json" });
@@ -103,6 +107,7 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
     assert.equal(response.body.projection.rows[0].linkedTopicRating.meterScore, 91);
     assert.equal(response.body.projection.rows.every((row) => row.family === "research_object"), true);
     assert.equal(response.headers.get("cache-control"), "private, no-store, max-age=0");
+    assert.equal(response.body.projection.triageSnapshot.totalCards, 10709);
 
     const secondPageResponse = mockResponse();
     await handler({
@@ -123,7 +128,79 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
     }, memberResponse);
     assert.equal(memberResponse.statusCode, 403);
     assert.deepEqual(memberResponse.body, { error: "admin_required" });
+
+    const guestResponse = mockResponse();
+    await handler({ method: "GET", headers: {}, query: {} }, guestResponse);
+    assert.equal(guestResponse.statusCode, 401);
+    assert.deepEqual(guestResponse.body, { error: "authentication_required" });
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+function reviewRow(sourceId, extra = {}) {
+  return enrichWorldFindingReviewRow({
+    id: `research:${sourceId}`,
+    sourceId,
+    family: "research_object",
+    createdAt: "2026-10-22T10:00:00Z",
+    kind: "observation",
+    statement: "ממצא בדיקה",
+    secondary: null,
+    originalStatement: "ממצא בדיקה",
+    value: 204,
+    values: [204],
+    source: "wa_channel_research",
+    sourceLabel: "הודעות מקור",
+    sourceRef: "channel_updates:same-source#batch1",
+    sourceRefs: ["channel_updates:same-source#batch1", "channel_updates:same-source#batch2"],
+    occurrences: [
+      { id: "a", sourceRef: "channel_updates:same-source#batch1" },
+      { id: "b", sourceRef: "channel_updates:same-source#batch2" },
+    ],
+    contributor: "חוקר א",
+    contributors: ["חוקר א"],
+    confidence: 80,
+    status: "candidate",
+    access: "private",
+    verification: "match",
+    treeMatches: [{ type: "topic", key: "topic-a", label: "נושא א" }],
+    linkedTopicRating: null,
+    ...extra,
+  });
+}
+
+test("report strength is default, quality/newest ties are deterministic, and missing scores stay unknown", () => {
+  const first = reviewRow("01ab7adc-92f0-4c76-92fb-3ee43411d32e");
+  const second = reviewRow("01fe92d4-7747-4a57-94bd-e9cbc2f16f81");
+  const unranked = reviewRow("00000000-0000-4000-8000-999999999999", { confidence: null });
+
+  assert.deepEqual(sortWorldFindingReviewRows([unranked, second, first]).map((row) => row.sourceId), [
+    first.sourceId,
+    second.sourceId,
+    unranked.sourceId,
+  ]);
+  assert.deepEqual(sortWorldFindingReviewRows([second, first], "quality").map((row) => row.sourceId), [first.sourceId, second.sourceId]);
+  assert.equal(unranked.evidenceQuality.score, null);
+  assert.equal(unranked.evidenceQuality.label, "אין נתון");
+  assert.equal(unranked.triage, null);
+});
+
+test("strength, evidence quality and publication remain separate filterable axes", () => {
+  const row = reviewRow("01ab7adc-92f0-4c76-92fb-3ee43411d32e");
+  assert.equal(row.triage.strength, "חזק");
+  assert.equal(row.evidenceQuality.score, 80);
+  assert.equal(row.status, "candidate");
+  assert.equal(row.access, "private");
+  assert.equal(row.independentSourceCount, 1, "repeat fragments of one source are not independent evidence");
+  assert.equal(row.sourceRefs.length, 2, "dedup display must not delete source references");
+
+  assert.deepEqual(filterWorldFindingReviewRows([row], {
+    recommendation: "מתאים לעץ",
+    quality: "high",
+    topic: "topic-a",
+    source: "channel_updates",
+    query: row.sourceId,
+  }), [row]);
+  assert.deepEqual(filterWorldFindingReviewRows([row], { status: "published" }), []);
 });

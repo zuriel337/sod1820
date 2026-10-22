@@ -61,6 +61,20 @@ const MEDIA_LABELS = Object.freeze({
   video: "וידאו",
 });
 
+const QUALITY_LABELS = Object.freeze({
+  rated: "יש נתון איכות",
+  high: "איכות גבוהה · 70 ומעלה",
+  medium: "איכות בינונית · 40–69",
+  low: "איכות נמוכה · מתחת ל־40",
+  unrated: "אין נתון איכות",
+});
+
+const SORT_LABELS = Object.freeze({
+  strength: "החזקים תחילה",
+  quality: "איכות הראיות",
+  newest: "החדשים ביותר",
+});
+
 function humanLabel(map, value, fallback = "אחר") {
   return map[clean(value)] || fallback;
 }
@@ -100,7 +114,24 @@ function VerificationLabel({ row }) {
 
 function occurrenceSourceKey(occurrence) {
   const ref = clean(occurrence?.sourceRef);
-  return ref ? ref.replace(/#(?:batch|a)\d+$/i, "") : clean(occurrence?.id);
+  return ref ? ref.replace(/#.*$/u, "") : clean(occurrence?.id);
+}
+
+function initialFindingId() {
+  if (typeof window === "undefined") return "";
+  return clean(new URLSearchParams(window.location.search).get("finding"));
+}
+
+function triageClass(value) {
+  if (value === "מתאים לעץ") return "is-ready";
+  if (value === "לא מתאים") return "is-blocked";
+  if (value === "כפילות") return "is-duplicate";
+  return "is-review";
+}
+
+function treeTargetLabel(match) {
+  const type = match?.type === "number" ? "מספר" : match?.type === "topic" ? "נושא" : match?.type === "book" ? "ספר" : "יעד";
+  return `${type} · ${clean(match?.label || match?.key)}`;
 }
 
 function DuplicateOccurrences({ row }) {
@@ -137,7 +168,9 @@ function DuplicateOccurrences({ row }) {
 }
 
 export default function WorldAllResearchTable({ state }) {
-  const [query, setQuery] = useState("");
+  const directFinding = useMemo(initialFindingId, []);
+  const [query, setQuery] = useState(directFinding);
+  const [finding, setFinding] = useState(directFinding);
   const [kind, setKind] = useState("all");
   const [access, setAccess] = useState("all");
   const [status, setStatus] = useState("all");
@@ -145,13 +178,38 @@ export default function WorldAllResearchTable({ state }) {
   const [contributor, setContributor] = useState("all");
   const [tree, setTree] = useState("all");
   const [meter, setMeter] = useState("all");
+  const [sort, setSort] = useState("strength");
+  const [strength, setStrength] = useState("all");
+  const [recommendation, setRecommendation] = useState("all");
+  const [quality, setQuality] = useState("all");
+  const [topic, setTopic] = useState("all");
+  const [source, setSource] = useState("all");
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
-    query, kind, access, status, verification, contributor, tree, meter,
-  }), [query, kind, access, status, verification, contributor, tree, meter]);
+    query, finding, kind, access, status, verification, contributor, tree, meter,
+    sort, strength, recommendation, quality, topic, source,
+  }), [query, finding, kind, access, status, verification, contributor, tree, meter, sort, strength, recommendation, quality, topic, source]);
+
+  const resetFilters = () => {
+    setQuery("");
+    setFinding("");
+    setKind("all");
+    setAccess("all");
+    setStatus("all");
+    setVerification("all");
+    setContributor("all");
+    setTree("all");
+    setMeter("all");
+    setSort("strength");
+    setStrength("all");
+    setRecommendation("all");
+    setQuality("all");
+    setTopic("all");
+    setSource("all");
+  };
 
   useEffect(() => {
     if (!state?.enabled) return undefined;
@@ -215,7 +273,7 @@ export default function WorldAllResearchTable({ state }) {
       <div>
         <div className="sod29-kicker">שער אנושי · ממצאים לבדיקה</div>
         <h2>הממצאים המובילים</h2>
-        <p className="sod29-muted">הממצאים מסודרים לפי חוזק החיבור והאיכות שלהם. ליד כל ממצא מופיע המד הקיים, כדי שתוכל להחליט מה ראוי לקדם לעץ.</p>
+        <p className="sod29-muted">ברירת המחדל היא סדר דוח המיון: החזקים תחילה. חוזק החיבור, איכות הראיות, עצמאות המקורות, האימות והפרסום מוצגים בנפרד ואינם ציון אמת.</p>
       </div>
       {projection && review.page ? <span className="sod29-chip">{rows.length} מתוך {review.page.totalFiltered}</span> : null}
     </div>
@@ -225,49 +283,75 @@ export default function WorldAllResearchTable({ state }) {
 
     {projection ? <>
       <div className="sod29-world-all-research-summary">
-        <span><b>{projection.sourceTotals.research_object || 0}</b> ממצאי מחקר</span>
-        <span><b>{projection.byAccess.private || 0}</b> פרטי · גלוי לך</span>
+        <span><b>{projection.triageSnapshot?.matchedCards || 0}</b> כרטיסים מדוח המיון</span>
+        <span><b>{projection.triageSnapshot?.recommendationCounts?.["מתאים לעץ"] || 0}</b> מומלצים לעץ</span>
+        <span><b>{projection.triageSnapshot?.strengthCounts?.["חזק"] || 0}</b> ממצאים חזקים</span>
         <span><b>{projection.treeMatchedResearchOccurrences || 0}</b> רשומות מחוברות ליעד קיים בעץ</span>
         <span><b>{projection.meteredResearchOccurrences || 0}</b> רשומות עם מד יעד זמין</span>
         {projection.duplicateProjection?.groups ? <span><b>{projection.duplicateProjection.groups}</b> אשכולות מאוחדים</span> : null}
+        <span><b>{projection.triageSnapshot?.untriagedLiveCards || 0}</b> חדשים שטרם מוינו בדוח</span>
       </div>
 
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
+      <div className="sod29-world-all-research-state">דוח המיון מ־22.10.2026 מוצמד לקריאה החיה לפי מזהה ממצא. הטקסט, ההרשאות, מצב הפרסום, המקורות והיעדים נקראים עכשיו מהמערכת; הדוח אינו משנה אותם.</div>
 
       <div className="sod29-world-all-research-filters">
-        <label className="is-wide"><span>חיפוש בממצאים</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="טקסט, חוקר, מספר או מקור…" /></label>
+        <label className="is-wide"><span>חיפוש בממצאים</span><input value={query} onChange={(e) => { setQuery(e.target.value); setFinding(""); }} placeholder="טקסט, מזהה, חוקר, מספר או מקור…" /></label>
+        <label><span>סדר</span><select value={sort} onChange={(e) => setSort(e.target.value)}>{Object.entries(SORT_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+        <label><span>חוזק</span><select value={strength} onChange={(e) => setStrength(e.target.value)}><option value="all">כל רמות החוזק</option>{Object.entries(projection.byTriageStrength || {}).map(([value, count]) => <option value={value} key={value}>{value} · {count}</option>)}</select></label>
+        <label><span>המלצת מיון</span><select value={recommendation} onChange={(e) => setRecommendation(e.target.value)}><option value="all">כל ההמלצות</option>{Object.entries(projection.byTriageRecommendation || {}).map(([value, count]) => <option value={value} key={value}>{value} · {count}</option>)}</select></label>
+        <label><span>איכות ראיות</span><select value={quality} onChange={(e) => setQuality(e.target.value)}><option value="all">עם ובלי נתון</option>{Object.entries(QUALITY_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+        <label><span>נושא בעץ</span><select value={topic} onChange={(e) => setTopic(e.target.value)}><option value="all">כל הנושאים</option>{(projection.topicOptions || []).map((option) => <option value={option.value} key={option.value}>{option.label} · {option.count}</option>)}</select></label>
+        <label><span>מקור</span><select value={source} onChange={(e) => setSource(e.target.value)}><option value="all">כל המקורות</option>{(projection.sourceOptions || []).map((option) => <option value={option.value} key={option.value}>{option.label} · {option.count}</option>)}</select></label>
         <label><span>סוג</span><select value={kind} onChange={(e) => setKind(e.target.value)}><option value="all">כל הסוגים</option>{Object.keys(projection.byKind).sort().map((v) => <option value={v} key={v}>{humanLabel(KIND_LABELS, v, "סוג מחקר נוסף")} · {projection.byKind[v]}</option>)}</select></label>
-        <label><span>גישה</span><select value={access} onChange={(e) => setAccess(e.target.value)}><option value="all">הכול · בלי הסתרה</option>{Object.keys(projection.byAccess).sort().map((v) => <option value={v} key={v}>{humanLabel(ACCESS_LABELS, v, "היקף גישה נוסף")} · {projection.byAccess[v]}</option>)}</select></label>
-        <label><span>מצב</span><select value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{humanLabel(STATUS_LABELS, v, "מצב פנימי")} · {projection.byStatus[v]}</option>)}</select></label>
+        <label><span>גישה · מנהל</span><select value={access} onChange={(e) => setAccess(e.target.value)}><option value="all">הכול · בלי הסתרה בתוך הרשאת החשבון</option>{Object.keys(projection.byAccess).sort().map((v) => <option value={v} key={v}>{humanLabel(ACCESS_LABELS, v, "היקף גישה נוסף")} · {projection.byAccess[v]}</option>)}</select></label>
+        <label><span>מצב פרסום / ממשל</span><select value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{humanLabel(STATUS_LABELS, v, "מצב פנימי")} · {projection.byStatus[v]}</option>)}</select></label>
         <label><span>אימות</span><select value={verification} onChange={(e) => setVerification(e.target.value)}><option value="all">כל מצבי האימות</option>{Object.keys(projection.byVerification).sort().map((v) => <option value={v} key={v}>{humanLabel(VERIFICATION_LABELS, v, "מצב אימות נוסף")} · {projection.byVerification[v]}</option>)}</select></label>
         <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
-        <label><span>חיבור לעץ</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
-          <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">עדיין ללא יעד</option>
+        <label><span>חיבור לעץ · מנהל</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
+          <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">ממתין לשיוך · מנהל בלבד</option>
         </select></label>
         <label><span>מד יעד</span><select value={meter} onChange={(e) => setMeter(e.target.value)}>
           <option value="all">עם ובלי מד</option><option value="metered">יש מד זמין</option><option value="unmetered">עדיין אין מד</option>
         </select></label>
+        <button className="sod29-action sod29-world-all-research-reset" type="button" onClick={resetFilters}>אפס מסננים</button>
       </div>
 
       <div className="sod29-world-all-research-count">מוצגים {rows.length} מתוך {review.page?.totalFiltered || 0} במסנן הנוכחי.</div>
 
       <div className="sod29-world-all-research-list">
-        {rows.map((row, index) => {
+        {rows.map((row) => {
           const rating = row.linkedTopicRating || null;
           const ratingNumbers = rating?.numbers?.length ? rating.numbers : row.values;
           const highlightNumbers = rating?.highlightNumbers?.length ? rating.highlightNumbers : row.values;
-          return <article className="sod29-world-all-research-row" key={row.id}>
+          const triage = row.triage || null;
+          const treeTargets = Array.isArray(row.treeMatches) ? row.treeMatches : [];
+          const keepHref = triage?.recommendedKeepId
+            ? `/world?admin=1&finding=${encodeURIComponent(triage.recommendedKeepId)}#finding-${encodeURIComponent(triage.recommendedKeepId)}`
+            : null;
+          return <article className="sod29-world-all-research-row" id={`finding-${row.sourceId}`} key={row.id}>
           <div className="sod29-world-all-research-row-head">
             <div className="sod29-world-all-research-tags">
-              {row.family === "research_object" ? <span>סדר חוזק · #{index + 1}</span> : null}
+              <span>{triage?.rank ? `סדר דוח · #${triage.rank}` : "טרם דורג בדוח"}</span>
               <span>{humanLabel(FAMILY_LABELS, row.family, "שכבת מחקר")}</span>
               <span>{row.typeLabel || humanLabel(KIND_LABELS, row.kind, "ממצא מחקר")}</span>
               {row.access ? <AccessLabel value={row.access} /> : null}
-              <span>{humanLabel(STATUS_LABELS, row.status, "מצב פנימי")}</span>
               {row.mediaClass ? <span>{humanLabel(MEDIA_LABELS, row.mediaClass, "מדיה")}</span> : null}
-              {row.researchStrength?.label ? <span>{row.researchStrength.label}</span> : null}
             </div>
             <VerificationLabel row={row} />
+          </div>
+
+          <div className="sod29-world-finding-measures" aria-label="מדדי ממצא נפרדים">
+            <div><small>חוזק החיבור</small><strong>{triage?.strength || "טרם דורג"}</strong></div>
+            <div><small>איכות הראיות</small><strong>{row.evidenceQuality?.label || "אין נתון"}</strong></div>
+            <div><small>מקורות עצמאיים</small><strong>{row.independentSourceCount || "אין נתון"}</strong></div>
+            <div><small>מצב בדיקה</small><strong>{humanLabel(VERIFICATION_LABELS, row.verification, "מצב נוסף")}</strong></div>
+            <div><small>מצב פרסום / ממשל</small><strong>{humanLabel(STATUS_LABELS, row.status, "לא צוין")}</strong></div>
+          </div>
+
+          <div className={`sod29-world-triage-recommendation ${triageClass(triage?.recommendation)}`}>
+            <small>המלצת המיון</small>
+            <strong>{triage?.recommendation || "טרם מוין בדוח"}</strong>
           </div>
 
           {row.mediaUrl ? <img className="sod29-world-all-research-media" src={row.mediaUrl} loading="lazy" alt="" /> : null}
@@ -282,16 +366,32 @@ export default function WorldAllResearchTable({ state }) {
             {row.createdAt ? <span>נוסף למחקר · {bilingualDateLabel(row.createdAt)}</span> : null}
           </div>
 
+          <details className="sod29-world-all-research-duplicates sod29-world-ranking-why">
+            <summary>למה הממצא נמצא במקום הזה?</summary>
+            <div>
+              <p>{triage?.evidenceReason || "הממצא נוסף אחרי נקודת החיתוך של הדוח ולכן טרם קיבל הכרעת מיון."}</p>
+              {row.researchStrength?.reasons?.length ? <ul>{row.researchStrength.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul> : null}
+              <small>חוזק, איכות ראיות, מספר מקורות, אימות ופרסום נשארים צירים נפרדים. אף אחד מהם אינו ציון אמת.</small>
+            </div>
+          </details>
+
           <DuplicateOccurrences row={row} />
+
+          {keepHref ? <div className="sod29-world-semantic-duplicate">
+            <strong>כפילות סמנטית שסומנה בדוח</strong>
+            <p>הרשומה נשמרת. הגרסה הארוכה/המלאה יותר שמומלץ לשמור כנציגה היא <code dir="ltr">{triage.recommendedKeepId}</code>.</p>
+            {triage.duplicateIds?.length ? <small>מזהים קשורים: {triage.duplicateIds.join(" · ")}</small> : null}
+            <a className="sod29-action" href={keepHref}>פתח את הגרסה המומלצת ←</a>
+          </div> : null}
 
           {row.attributionLabel ? <div className="sod29-world-all-research-cluster">{safeVisibleText(row.attributionLabel, "ייחוס המקור לא הוכרע")}</div> : null}
           {row.spatialCluster ? <div className="sod29-world-all-research-cluster">קיים אשכול מחקר מרחבי</div> : null}
 
           {row.family === "research_object" ? <div className="sod29-world-all-research-cluster">
-            <strong>{rating ? `מד החיבור לעץ · ${rating.title}` : "מד החיבור לעץ · עדיין אין יעד עם מד"}</strong>
+            <strong>{rating ? `מד החיבור לעץ · יעד מדויק · ${rating.title}` : "מד החיבור לעץ · אין נתון"}</strong>
             <p>{rating
-              ? "זהו המד של הנושא בעץ שאליו הממצא מחובר. הוא עוזר בהשוואה, אך אינו מחליט מה נכון או מה יפורסם."
-              : "לממצא הזה עדיין אין מד זמין. הוא נשאר בתור לבדיקה ולא מקבל ציון אפס."}</p>
+              ? "זהו המד של הנושא המדויק בעץ, לא מד של הממצא ולא ציון אמת. איכות היעד המוצגת כאן נפרדת מאיכות הראיות של הממצא."
+              : "אין לממצא מד יעד זמין. הוא נשאר ללא נתון ואינו מקבל ציון אפס מומצא."}</p>
             <ConvergenceRatings2029
               quality={rating?.quality ?? null}
               meterScore={rating?.meterScore ?? null}
@@ -300,15 +400,23 @@ export default function WorldAllResearchTable({ state }) {
               popover
             />
             {rating?.href ? <Link className="sod29-action" to={rating.href}>פתח את יעד העץ ←</Link> : null}
-            {row.researchStrength?.reasons?.length ? <details className="sod29-world-all-research-duplicates">
-              <summary>למה הממצא נמצא במיקום הזה?</summary>
-              <ul>{row.researchStrength.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
-            </details> : null}
+            {triage?.proposedTreeTarget ? <p>יעד שהומלץ בדוח: <code dir="ltr">{triage.proposedTreeTarget}</code></p> : null}
+            {treeTargets.length ? <details className="sod29-world-all-research-duplicates">
+              <summary>כל החיבורים המתועדים לעץ · {treeTargets.length}</summary>
+              <ul>{treeTargets.map((match, targetIndex) => <li key={`${match.type}:${match.key}:${targetIndex}`}>{treeTargetLabel(match)}</li>)}</ul>
+            </details> : <p>ממתין לשיוך · מידע למנהל בלבד.</p>}
           </div> : null}
 
-          {row.href ? <div className="sod29-actions">
-            {row.href.startsWith("/") ? <Link className="sod29-action" to={row.href}>פתח ←</Link> : <a className="sod29-action" href={row.href} target="_blank" rel="noreferrer">פתח מקור ↗</a>}
-          </div> : null}
+          <div className="sod29-world-source-locator">
+            <strong>מקור וכתובת מדויקת</strong>
+            <code dir="ltr">{row.sourceRef || "אין source locator"}</code>
+            <div className="sod29-actions">
+              <a className="sod29-action" href={row.canonicalFindingHref}>קישור ישיר לממצא</a>
+              {row.sourceHref ? <a className="sod29-action" href={row.sourceHref} target="_blank" rel="noreferrer">פתח מקור ↗</a> : null}
+              {row.href ? row.href.startsWith("/") ? <Link className="sod29-action" to={row.href}>פתח יעד מספר ←</Link> : <a className="sod29-action" href={row.href} target="_blank" rel="noreferrer">פתח יעד ↗</a> : null}
+            </div>
+            {!row.sourceHref ? <small>למקור הזה אין כתובת Web מאומתת; המזהה המדויק נשמר בלי להמציא קישור.</small> : null}
+          </div>
         </article>;
         })}
       </div>

@@ -16,6 +16,13 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
     contributor: clean(filters.contributor) || "all",
     tree: clean(filters.tree) || "all",
     meter: clean(filters.meter) || "all",
+    sort: clean(filters.sort) || "strength",
+    strength: clean(filters.strength) || "all",
+    recommendation: clean(filters.recommendation) || "all",
+    quality: clean(filters.quality) || "all",
+    topic: clean(filters.topic) || "all",
+    source: clean(filters.source) || "all",
+    finding: clean(filters.finding),
   });
   const response = await fetch(`/api/world-finding-review?${params}`, {
     method: "GET",

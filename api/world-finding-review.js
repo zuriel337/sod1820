@@ -10,6 +10,10 @@ import {
   filterWorldAllResearchRows,
 } from "../src/lib/research/worldAllResearchProjection.js";
 import { scopeWorldPreviewMaterial } from "../src/lib/research/worldPreviewMaterialScope.js";
+import {
+  WORLD_FINDING_TRIAGE_META,
+  getWorldFindingTriageSnapshot,
+} from "./world-finding-triage-snapshot.js";
 
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
@@ -18,6 +22,167 @@ const MAX_SOURCE_ROWS = 20000;
 const REVIEW_PAGE = 40;
 
 export const config = { maxDuration: 60 };
+
+function clean(value) {
+  return value == null ? "" : String(value).trim();
+}
+
+function finite(value) {
+  if (value == null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function baseSourceRef(value) {
+  return clean(value).replace(/#.*$/u, "");
+}
+
+function reviewSourceKey(row) {
+  const ref = baseSourceRef(row?.sourceRef);
+  if (ref.includes(":")) return ref.split(":", 1)[0].toLowerCase();
+  return clean(row?.source).toLowerCase() || "לא צוין";
+}
+
+function reviewSourceHref(row) {
+  const candidates = [row?.sourceRef, ...(row?.sourceRefs || []), row?.source];
+  return candidates.map(clean).find((value) => /^https?:\/\//i.test(value)) || null;
+}
+
+function independentSourceCount(row) {
+  const refs = [
+    row?.sourceRef,
+    ...(row?.sourceRefs || []),
+    ...(row?.occurrences || []).flatMap((occurrence) => [occurrence?.sourceRef, ...(occurrence?.sourceRefs || [])]),
+  ].map(baseSourceRef).filter(Boolean);
+  if (refs.length) return new Set(refs).size;
+  return clean(row?.source) ? 1 : 0;
+}
+
+function evidenceQuality(row) {
+  const score = finite(row?.confidence);
+  if (score == null) return Object.freeze({ score: null, band: "unrated", label: "אין נתון" });
+  const band = score >= 70 ? "high" : score >= 40 ? "medium" : "low";
+  return Object.freeze({ score, band, label: `${score}/100` });
+}
+
+function directFindingHref(sourceId) {
+  const id = encodeURIComponent(clean(sourceId));
+  return `/world?admin=1&finding=${id}#finding-${id}`;
+}
+
+export function enrichWorldFindingReviewRow(row) {
+  const triage = getWorldFindingTriageSnapshot(row?.sourceId || row?.id);
+  const quality = evidenceQuality(row);
+  return {
+    ...row,
+    triage,
+    evidenceQuality: quality,
+    independentSourceCount: independentSourceCount(row),
+    sourceFilterKey: reviewSourceKey(row),
+    sourceHref: reviewSourceHref(row),
+    canonicalFindingHref: directFindingHref(row?.sourceId || row?.id),
+  };
+}
+
+function deterministicReviewTie(left, right) {
+  const leftRank = finite(left?.triage?.rank);
+  const rightRank = finite(right?.triage?.rank);
+  if (leftRank != null || rightRank != null) {
+    if (leftRank == null) return 1;
+    if (rightRank == null) return -1;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+  }
+  return clean(left?.sourceId || left?.id).localeCompare(clean(right?.sourceId || right?.id));
+}
+
+export function sortWorldFindingReviewRows(rows = [], sort = "strength") {
+  const mode = ["strength", "quality", "newest"].includes(clean(sort)) ? clean(sort) : "strength";
+  return [...(Array.isArray(rows) ? rows : [])].sort((left, right) => {
+    if (mode === "quality") {
+      const byQuality = (right?.evidenceQuality?.score ?? -Infinity) - (left?.evidenceQuality?.score ?? -Infinity);
+      if (byQuality) return byQuality;
+    }
+    if (mode === "newest") {
+      const byDate = clean(right?.createdAt).localeCompare(clean(left?.createdAt));
+      if (byDate) return byDate;
+    }
+    return deterministicReviewTie(left, right);
+  });
+}
+
+function rowTopicKeys(row) {
+  const keys = [];
+  for (const match of row?.treeMatches || []) {
+    if (match?.type === "topic" && clean(match.key)) keys.push(clean(match.key));
+  }
+  if (clean(row?.linkedTopicRating?.slug)) keys.push(clean(row.linkedTopicRating.slug));
+  if (clean(row?.linkedTopicRating?.topicId)) keys.push(clean(row.linkedTopicRating.topicId));
+  return [...new Set(keys)];
+}
+
+function reviewSearchHaystack(row) {
+  return [
+    row?.id,
+    row?.sourceId,
+    row?.statement,
+    row?.secondary,
+    row?.originalStatement,
+    row?.sourceLabel,
+    row?.source,
+    row?.sourceRef,
+    ...(row?.sourceRefs || []),
+    row?.contributor,
+    ...(row?.contributors || []),
+    row?.value,
+    ...(row?.values || []),
+    ...(row?.terms || []),
+    row?.triage?.strength,
+    row?.triage?.recommendation,
+    row?.triage?.evidenceReason,
+    row?.triage?.proposedTreeTarget,
+    row?.triage?.recommendedKeepId,
+    ...(row?.treeMatches || []).flatMap((match) => [match?.key, match?.label, match?.type]),
+  ].filter((value) => value != null).join(" ").toLowerCase();
+}
+
+export function filterWorldFindingReviewRows(rows = [], filters = {}) {
+  const base = filterWorldAllResearchRows(rows, { ...filters, query: "" });
+  const query = clean(filters.query).toLowerCase();
+  const finding = clean(filters.finding).replace(/^research:/, "");
+  const strength = clean(filters.strength) || "all";
+  const recommendation = clean(filters.recommendation) || "all";
+  const quality = clean(filters.quality) || "all";
+  const topic = clean(filters.topic) || "all";
+  const source = clean(filters.source) || "all";
+  return base.filter((row) => {
+    if (finding && clean(row.sourceId) !== finding) return false;
+    if (strength !== "all" && row?.triage?.strength !== strength) return false;
+    if (recommendation !== "all" && row?.triage?.recommendation !== recommendation) return false;
+    if (quality !== "all" && row?.evidenceQuality?.band !== quality) {
+      if (!(quality === "rated" && row?.evidenceQuality?.score != null)) return false;
+    }
+    if (topic !== "all" && !rowTopicKeys(row).includes(topic)) return false;
+    if (source !== "all" && row?.sourceFilterKey !== source) return false;
+    return !query || reviewSearchHaystack(row).includes(query);
+  });
+}
+
+function reviewOptions(rows, valuesForRow, labelForValue) {
+  const counts = new Map();
+  for (const row of rows) {
+    for (const value of new Set(valuesForRow(row).filter(Boolean))) {
+      const previous = counts.get(value) || { value, label: labelForValue(value, row), count: 0 };
+      previous.count += 1;
+      counts.set(value, previous);
+    }
+  }
+  return [...counts.values()].sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+}
+
+function topicLabel(value, row) {
+  const match = (row?.treeMatches || []).find((entry) => entry?.type === "topic" && clean(entry.key) === value);
+  return clean(match?.label || row?.linkedTopicRating?.title) || value;
+}
 
 function bearerToken(req) {
   const value = String(req.headers?.authorization || "");
@@ -187,19 +352,43 @@ async function buildAuthorizedProjection(token) {
   });
   // This endpoint is a findings queue. Topic rows are lookup material for meters,
   // not a second family in the response.
-  const findings = projection.rows.filter((row) => row.family === "research_object");
+  const findings = projection.rows
+    .filter((row) => row.family === "research_object")
+    .map(enrichWorldFindingReviewRow);
+  const orderedFindings = sortWorldFindingReviewRows(findings, "strength");
+  const matchedSnapshotCards = orderedFindings.filter((row) => row.triage).length;
   return {
     ...projection,
-    rows: findings,
+    rows: orderedFindings,
     total: scoped.researchObjects.length,
-    loaded: findings.length,
+    loaded: orderedFindings.length,
     sourceTotals: { research_object: scoped.researchObjects.length },
-    byFamily: { research_object: findings.length },
-    byKind: countBy(findings, "kind"),
-    byAccess: countBy(findings, "access"),
-    byStatus: countBy(findings, "status"),
-    byVerification: countBy(findings, "verification"),
-    byContributor: countContributors(findings),
+    byFamily: { research_object: orderedFindings.length },
+    byKind: countBy(orderedFindings, "kind"),
+    byAccess: countBy(orderedFindings, "access"),
+    byStatus: countBy(orderedFindings, "status"),
+    byVerification: countBy(orderedFindings, "verification"),
+    byContributor: countContributors(orderedFindings),
+    byTriageStrength: countBy(
+      orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
+      "strength",
+    ),
+    byTriageRecommendation: WORLD_FINDING_TRIAGE_META.recommendationCounts,
+    byEvidenceQuality: countBy(
+      orderedFindings.map((row) => ({ evidenceQualityBand: row.evidenceQuality?.band || "unrated" })),
+      "evidenceQualityBand",
+    ),
+    topicOptions: reviewOptions(orderedFindings, rowTopicKeys, topicLabel),
+    sourceOptions: reviewOptions(
+      orderedFindings,
+      (row) => [row.sourceFilterKey],
+      (_value, row) => clean(row.sourceLabel) || clean(row.sourceFilterKey) || "מקור מחקר",
+    ),
+    triageSnapshot: {
+      ...WORLD_FINDING_TRIAGE_META,
+      matchedCards: matchedSnapshotCards,
+      untriagedLiveCards: orderedFindings.length - matchedSnapshotCards,
+    },
   };
 }
 
@@ -212,6 +401,7 @@ function pageResponse(projection, req) {
   const offset = Math.max(0, Math.min(Number(req.query?.offset) || 0, MAX_SOURCE_ROWS));
   const filters = {
     query: queryValue(req, "query", ""),
+    finding: queryValue(req, "finding", ""),
     family: "research_object",
     kind: queryValue(req, "kind"),
     access: queryValue(req, "access"),
@@ -220,9 +410,15 @@ function pageResponse(projection, req) {
     contributor: queryValue(req, "contributor"),
     tree: queryValue(req, "tree"),
     meter: queryValue(req, "meter"),
+    strength: queryValue(req, "strength"),
+    recommendation: queryValue(req, "recommendation"),
+    quality: queryValue(req, "quality"),
+    topic: queryValue(req, "topic"),
+    source: queryValue(req, "source"),
   };
-  const filtered = filterWorldAllResearchRows(projection.rows, filters);
-  const rows = filtered.slice(offset, offset + REVIEW_PAGE);
+  const filtered = filterWorldFindingReviewRows(projection.rows, filters);
+  const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));
+  const rows = ordered.slice(offset, offset + REVIEW_PAGE);
   const { rows: _allRows, convergenceCandidates: _candidates, ...summary } = projection;
   return {
     projection: { ...summary, rows },
@@ -230,8 +426,8 @@ function pageResponse(projection, req) {
       offset,
       limit: REVIEW_PAGE,
       returned: rows.length,
-      totalFiltered: filtered.length,
-      hasMore: offset + rows.length < filtered.length,
+      totalFiltered: ordered.length,
+      hasMore: offset + rows.length < ordered.length,
       nextOffset: offset + rows.length,
     },
   };
