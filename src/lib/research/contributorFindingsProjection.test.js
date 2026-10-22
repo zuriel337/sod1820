@@ -11,10 +11,15 @@ const RESEARCH_ROW = { id: "r1", created_at: "2026-10-02T10:00:00Z", kind: "equa
 function fakeClient(label, tables, calls) {
   return {
     from(table) {
-      calls.push({ label, table });
+      const call = { label, table, filters: [] };
+      calls.push(call);
       const result = tables[table] ?? { data: [] };
       const b = {
-        select: () => b, in: () => b, eq: () => b, order: () => b, contains: () => b,
+        select: () => b,
+        in: (column, value) => { call.filters.push(["in", column, value]); return b; },
+        eq: (column, value) => { call.filters.push(["eq", column, value]); return b; },
+        is: (column, value) => { call.filters.push(["is", column, value]); return b; },
+        order: () => b, contains: () => b,
         range: () => Promise.resolve(result),
         maybeSingle: () => Promise.resolve(result),
         then: (res, rej) => Promise.resolve(result).then(res, rej),
@@ -36,6 +41,52 @@ test("source with zero Findings renders as a source group (no dummy Finding)", (
   assert.equal(p.counts.sourceOnlyGroups, 1);
   assert.equal(p.counts.sourceGroupsWithFindings, 0);
   assert.equal(p.topics.length, 0); // no Topic minted
+});
+
+test("an explicit image reference links the adjacent image and full message without deleting either source", () => {
+  const image = {
+    id: "image-1", created_at: "2026-10-01T10:00:00Z", text: "📷 עדכון",
+    image_url: "https://example.com/source.jpg", credit: "יניב", channel: "wa", status: "approved",
+  };
+  const message = {
+    id: "text-1", created_at: "2026-10-01T10:02:00Z", text: "הסבר מלא [Image 17.jpg]",
+    credit: "יניב", channel: "wa", status: "approved",
+  };
+  const p = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [message, image] });
+  assert.equal(p.counts.sourceRecords, 2);
+  assert.equal(p.counts.sourceGroups, 1);
+  assert.equal(p.counts.linkedImageMessages, 1);
+  assert.equal(p.sourceGroups[0].source.id, "text-1");
+  assert.equal(p.sourceGroups[0].mediaSource.id, "image-1");
+  assert.deepEqual(p.sourceGroups[0].linkedSourceRefs, ["channel_updates:image-1", "channel_updates:text-1"]);
+  assert.equal(p.sourceGroups[0].mediaPair.basis, "explicit_image_reference");
+});
+
+test("bounded structured overlap links a media message, while time proximity alone does not", () => {
+  const image = { id: "image-2", created_at: "2026-10-01T10:00:00Z", text: "📷 עדכון", image_url: "https://example.com/2.jpg", credit: "יניב", channel: "wa", status: "approved" };
+  const related = { id: "text-2", created_at: "2026-10-01T10:02:00Z", text: "הסבר ללא שם קובץ", credit: "יניב", channel: "wa", status: "approved" };
+  const researchObjects = [
+    { ...RESEARCH_ROW, id: "image-finding", source_ref: "channel_updates:image-2", terms: ["אור", "חיים"], value: 207 },
+    { ...RESEARCH_ROW, id: "text-finding", source_ref: "channel_updates:text-2", terms: ["אור", "חיים", "ברכה"], value: 207 },
+  ];
+  const linked = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [image, related], researchObjects });
+  assert.equal(linked.counts.linkedImageMessages, 1);
+  assert.equal(linked.sourceGroups[0].mediaPair.basis, "structured_source_overlap");
+  assert.equal(linked.sourceGroups[0].findingCount, 2);
+
+  const unrelated = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [
+    image,
+    { ...related, id: "text-3", text: "הודעה אחרת" },
+  ] });
+  assert.equal(unrelated.counts.linkedImageMessages, 0);
+  assert.equal(unrelated.counts.sourceGroups, 2);
+
+  const mixedAccess = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [
+    image,
+    { ...related, id: "text-4", text: "הסבר [Image 4.jpg]", status: "private" },
+  ] });
+  assert.equal(mixedAccess.counts.linkedImageMessages, 0);
+  assert.equal(mixedAccess.counts.sourceGroups, 2);
 });
 
 test("a research permission failure does not erase readable sources; availability is separate from zero", async () => {
@@ -80,6 +131,25 @@ test("PUBLIC mode never touches the session client; ADMIN mode uses it", async (
   const admin = await fetchContributorFindingsProjection("yaniv", { mode: PROJECTOR_MODE.ADMIN_ALL, publicClient: () => anon, sessionClient: session, topicsReader: noTopics });
   assert.ok(calls.length && calls.every((c) => c.label === "session"));
   assert.equal(admin.counts.researchObjects, 1);
+});
+
+test("source attribution uses stable contributor identity and only unbound registered aliases", async () => {
+  const calls = [];
+  const contributor = { ...CONTRIBUTOR, wa_names: ["יניב הרשום"] };
+  const anon = fakeClient("anon", {
+    contributors: { data: contributor },
+    research_objects: { data: [], count: 0 },
+    channel_updates: { data: [], count: 0 },
+    research_contributions: { data: [], count: 0 },
+  }, calls);
+  await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, topicsReader: noTopics });
+  const sourceCalls = calls.filter((call) => call.table === "channel_updates");
+  assert.equal(sourceCalls.length, 3);
+  assert.deepEqual(sourceCalls[0].filters, [["eq", "contributor_id", "c1"]]);
+  for (const call of sourceCalls.slice(1)) {
+    assert.ok(call.filters.some(([op, column]) => op === "in" && ["credit", "speaker"].includes(column)));
+    assert.ok(call.filters.some(([op, column, value]) => op === "is" && column === "contributor_id" && value === null));
+  }
 });
 
 test("personal/person_only research is never requested by owner_slug", async () => {

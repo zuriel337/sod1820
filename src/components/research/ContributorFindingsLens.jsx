@@ -63,6 +63,7 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
   const [expanded, setExpanded] = useState(false);
   const findings = group.universalFindings || [];
   const shown = expanded ? findings : findings.slice(0, 6);
+  const mediaSource = group.mediaSource || group.source;
 
   return <article
     data-experience-capability="contributor-source-finding-group"
@@ -108,10 +109,15 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
       <div style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, fontWeight: 900, color: P.accentText, marginBottom: SPACE[1] }}>מתוך המקור</div>
       <div style={{ ...TYPE_SCALE.body, fontFamily: F.body, whiteSpace: "pre-wrap", color: P.ink }}>{group.source.text}</div>
     </section> : null}
-    {(safeHttps(group.source?.thumbUrl) || safeHttps(group.source?.imageUrl)) ? <div className="sod29-contributor-public-media">
-      {videoMedia(group.source?.imageUrl)
-        ? <video controls preload="none" poster={safeHttps(group.source?.thumbUrl) || undefined} src={safeHttps(group.source?.imageUrl) || undefined} aria-label="סרטון המקור" />
-        : <img src={safeHttps(group.source?.thumbUrl) || galThumb(safeHttps(group.source?.imageUrl), 320)}
+    {group.mediaPair ? <div data-experience-capability="contributor-source-media-pair" style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>
+      {group.mediaPair.basis === "explicit_image_reference"
+        ? "התמונה וההודעה מוצגות יחד לפי הפניית התמונה שבמקור."
+        : "התמונה וההודעה מוצגות יחד לפי רצף מקור סמוך וחפיפת מספרים וביטויים."}
+    </div> : null}
+    {(safeHttps(mediaSource?.thumbUrl) || safeHttps(mediaSource?.imageUrl)) ? <div className="sod29-contributor-public-media">
+      {videoMedia(mediaSource?.imageUrl)
+        ? <video controls preload="none" poster={safeHttps(mediaSource?.thumbUrl) || undefined} src={safeHttps(mediaSource?.imageUrl) || undefined} aria-label="סרטון המקור" />
+        : <img src={safeHttps(mediaSource?.thumbUrl) || galThumb(safeHttps(mediaSource?.imageUrl), 320)}
             width="220" height="145" loading="lazy" alt={group.title} />}
     </div> : !group.source?.text ? <p style={{ ...TYPE_SCALE.small, fontFamily: F.body, color: P.inkSoft }}>אין תיאור זמין לעדכון הזה.</p> : null}
 
@@ -206,7 +212,9 @@ export default function ContributorFindingsLens({
     <header style={{ ...S.box, padding: SPACE[4] }}>
       <h2 style={{ margin: 0, ...TYPE_SCALE.title, fontFamily: F.ui }}>המקורות של {projection.contributor.displayName}</h2>
       <p style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: 0 }}>
-        {countOrUnknown("sources", projection.counts.sourceGroups)} מקורות זמינים · לקריאה מתוך הפרסומים המקוריים.
+        {countOrUnknown("sources", projection.counts.sourceRecords ?? projection.counts.sourceGroups)} רשומות מקור זמינות
+        {projection.counts.linkedImageMessages ? ` · ${projection.counts.linkedImageMessages} תמונות קושרו להודעה שלהן` : ""}
+        {` · ${projection.counts.sourceGroups} פרסומים לקריאה.`}
       </p>
     </header>
 

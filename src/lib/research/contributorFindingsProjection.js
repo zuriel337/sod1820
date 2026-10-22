@@ -7,9 +7,13 @@ import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
 const PAGE = 500;
 const MAX = 5000;
 const TERM_CHUNK = 75;
+const MAX_EXPLICIT_MEDIA_GAP_MS = 10 * 60 * 1000;
+const MAX_STRUCTURED_MEDIA_GAP_MS = 5 * 60 * 1000;
+const SOURCE_IMAGE_REFERENCE_RE = /\[Image\s+\d+\.(?:jpe?g|png|webp)\]/iu;
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const uniq = (values) => [...new Set((Array.isArray(values) ? values : []).map(clean).filter(Boolean))];
+const placeholderSourceCopy = (value) => ["📷 עדכון", "עדכון", "מקור ללא טקסט"].includes(clean(value));
 
 function safeDate(value) {
   const ms = Date.parse(value || "");
@@ -108,6 +112,108 @@ function topicKey(topic) {
   return clean(topic?.slug) || clean(topic?.id);
 }
 
+function sourceRefForMessage(row) {
+  return row?.id ? `channel_updates:${row.id}` : null;
+}
+
+function sharedCount(left = [], right = []) {
+  const leftSet = new Set((left || []).map((value) => clean(value)).filter(Boolean));
+  const rightSet = new Set((right || []).map((value) => clean(value)).filter(Boolean));
+  return [...leftSet].filter((value) => rightSet.has(value)).length;
+}
+
+function mergeCountMaps(left = {}, right = {}) {
+  const merged = { ...left };
+  for (const [key, value] of Object.entries(right || {})) merged[key] = (merged[key] || 0) + Number(value || 0);
+  return merged;
+}
+
+function mergeSourceGroups(textGroup, imageGroup, mediaPair) {
+  const rows = [...(textGroup.rows || []), ...(imageGroup.rows || [])]
+    .filter((row, index, all) => row?.id && all.findIndex((candidate) => candidate?.id === row.id) === index);
+  const universalFindings = [...(textGroup.universalFindings || []), ...(imageGroup.universalFindings || [])]
+    .filter((finding, index, all) => finding?.id && all.findIndex((candidate) => candidate?.id === finding.id) === index);
+  const sourceOccurrences = [imageGroup.source, textGroup.source].filter(Boolean);
+  return {
+    ...textGroup,
+    rows,
+    universalFindings,
+    byKind: mergeCountMaps(textGroup.byKind, imageGroup.byKind),
+    findingCount: rows.length,
+    verifiedCount: rows.filter((row) => row?.engine_verified === true).length,
+    terms: uniq([...(textGroup.terms || []), ...(imageGroup.terms || [])]),
+    values: [...new Set([...(textGroup.values || []), ...(imageGroup.values || [])])].sort((a, b) => a - b),
+    relates: uniq([...(textGroup.relates || []), ...(imageGroup.relates || [])]),
+    mediaRefs: uniq([...(textGroup.mediaRefs || []), ...(imageGroup.mediaRefs || [])]),
+    facets: uniq([...(textGroup.facets || []), ...(imageGroup.facets || []), "media"]),
+    lexicalWorlds: uniq([...(textGroup.lexicalWorlds || []), ...(imageGroup.lexicalWorlds || [])]),
+    lexicalTags: uniq([...(textGroup.lexicalTags || []), ...(imageGroup.lexicalTags || [])]),
+    topicLinks: [...(textGroup.topicLinks || []), ...(imageGroup.topicLinks || [])]
+      .filter((topic, index, all) => topic?.id && all.findIndex((candidate) => candidate?.id === topic.id) === index),
+    mediaSource: imageGroup.source,
+    sourceOccurrences,
+    sourceRecordCount: sourceOccurrences.length,
+    linkedSourceRefs: sourceOccurrences.map((source) => source.sourceRef).filter(Boolean),
+    mediaPair,
+  };
+}
+
+/**
+ * Projection-only source binding. It never rewrites/deletes either source record and never links by
+ * filename or contributor-name guessing. A pair must be consecutive in the same channel/access state
+ * and carry either an explicit [Image N.ext] witness or bounded structured overlap already extracted
+ * into the two source groups.
+ */
+export function linkAdjacentSourceMediaGroups(sourceGroups = [], sourceMessages = []) {
+  const byRef = new Map((sourceGroups || []).map((group) => [group.sourceRef, group]));
+  const ordered = [...(sourceMessages || [])]
+    .filter((row) => row?.id && Number.isFinite(Date.parse(row.created_at || "")))
+    .sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at) || String(a.id).localeCompare(String(b.id)));
+  const linkedImages = new Set();
+  const mergedByText = new Map();
+
+  for (let index = 0; index < ordered.length - 1; index += 1) {
+    const imageMessage = ordered[index];
+    const textMessage = ordered[index + 1];
+    const imageRef = sourceRefForMessage(imageMessage);
+    const textRef = sourceRefForMessage(textMessage);
+    const imageGroup = byRef.get(imageRef);
+    const textGroup = byRef.get(textRef);
+    if (!imageGroup || !textGroup || mergedByText.has(textRef)) continue;
+    if (!clean(imageMessage.image_url) && !clean(imageMessage.thumb_url)) continue;
+    if (clean(textMessage.image_url) || clean(textMessage.thumb_url)) continue;
+    if (!clean(textMessage.text) || (!placeholderSourceCopy(imageMessage.text) && clean(imageMessage.text))) continue;
+    if (clean(imageMessage.channel) !== clean(textMessage.channel)) continue;
+    if (clean(imageMessage.status) !== clean(textMessage.status)) continue;
+
+    const gapMs = Date.parse(textMessage.created_at) - Date.parse(imageMessage.created_at);
+    if (!Number.isFinite(gapMs) || gapMs < 0 || gapMs > MAX_EXPLICIT_MEDIA_GAP_MS) continue;
+    const explicitImageReference = SOURCE_IMAGE_REFERENCE_RE.test(clean(textMessage.text));
+    const sharedValues = sharedCount(imageGroup.values, textGroup.values);
+    const sharedTerms = sharedCount(imageGroup.terms, textGroup.terms);
+    const structuredOverlap = gapMs <= MAX_STRUCTURED_MEDIA_GAP_MS && sharedValues >= 1 && sharedTerms >= 2;
+    if (!explicitImageReference && !structuredOverlap) continue;
+
+    const mediaPair = Object.freeze({
+      state: "linked_source_sequence",
+      basis: explicitImageReference ? "explicit_image_reference" : "structured_source_overlap",
+      imageSourceRef: imageRef,
+      textSourceRef: textRef,
+      gapSeconds: Math.round(gapMs / 1000),
+      sharedValues,
+      sharedTerms,
+    });
+    linkedImages.add(imageRef);
+    mergedByText.set(textRef, mergeSourceGroups(textGroup, imageGroup, mediaPair));
+  }
+
+  const groups = (sourceGroups || [])
+    .filter((group) => !linkedImages.has(group.sourceRef))
+    .map((group) => mergedByText.get(group.sourceRef) || group)
+    .sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
+  return Object.freeze({ groups, linkedPairCount: linkedImages.size });
+}
+
 export function buildContributorFindingsProjection({
   contributor,
   researchObjects = [],
@@ -165,7 +271,7 @@ export function buildContributorFindingsProjection({
     void source;
   }
 
-  const sourceGroups = [...groups.values()].map((group) => {
+  const unlinkedSourceGroups = [...groups.values()].map((group) => {
     group.rows.sort((a, b) => clean(a.created_at).localeCompare(clean(b.created_at)));
     const source = sourceIndex[group.sourceRef] || null;
     const terms = uniq(group.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
@@ -214,6 +320,9 @@ export function buildContributorFindingsProjection({
     return model;
   }).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
 
+  const linkedSources = linkAdjacentSourceMediaGroups(unlinkedSourceGroups, sourceMessages);
+  const sourceGroups = linkedSources.groups;
+
   const worldCounts = {};
   const tagCounts = {};
   const facetCounts = {};
@@ -242,7 +351,9 @@ export function buildContributorFindingsProjection({
     linkedTopicSlugs: [...exactTopicSlugs],
     counts: {
       researchObjects: researchObjects.length,
+      sourceRecords: sourceMessages.length,
       sourceGroups: sourceGroups.length,
+      linkedImageMessages: linkedSources.linkedPairCount,
       sourceGroupsWithFindings: sourceGroups.filter((group) => group.findingCount > 0).length,
       sourceOnlyGroups: sourceGroups.filter((group) => group.findingCount === 0).length,
       engineVerified: sourceGroups.reduce((sum, group) => sum + group.verifiedCount, 0),
@@ -304,14 +415,28 @@ async function fetchContributorContributions(client, contributorId) {
   );
 }
 
-async function fetchSourceMessages(client, aliases) {
+async function fetchSourceMessages(client, contributor, aliases) {
   const byId = new Map();
   let truncated = false;
+
+  // Stable identity is authoritative. Registered aliases are a legacy fallback only when the row
+  // has not yet been bound to any contributor; an alias can never override another stable identity.
+  const canonical = await paged((start, end, first) => client
+    .from("channel_updates")
+    .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id", first ? { count: "exact" } : undefined)
+    .eq("contributor_id", contributor.id)
+    .order("created_at", { ascending: false })
+    .range(start, end)
+  );
+  truncated = canonical.truncated;
+  for (const row of canonical.rows) byId.set(String(row.id), row);
+
   for (const column of ["credit", "speaker"]) {
     const result = await paged((start, end, first) => client
       .from("channel_updates")
-      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker", first ? { count: "exact" } : undefined)
+      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id", first ? { count: "exact" } : undefined)
       .in(column, aliases)
+      .is("contributor_id", null)
       .order("created_at", { ascending: false })
       .range(start, end)
     );
@@ -382,7 +507,7 @@ export async function fetchContributorFindingsProjection(slug, { mode = PROJECTO
   const settled = {};
   const [research, sources, contributions, topics] = await Promise.allSettled([
     fetchResearchObjects(client, aliases),
-    fetchSourceMessages(client, aliases),
+    fetchSourceMessages(client, contributor, aliases),
     fetchContributorContributions(client, contributor.id),
     topicsReader(aliases),
   ]);
