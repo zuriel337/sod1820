@@ -4,6 +4,7 @@ import { fetchTopicCardList } from "./topicConvergence.js";
 import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
 import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
 import { clusterWorldResearchRows } from "./worldFindingClusters.js";
+import { channelUpdateOccurrenceId } from "./worldContributorSourceLocator.js";
 
 const PAGE = 500;
 const MAX = 5000;
@@ -628,18 +629,26 @@ async function fetchContributor(client, slug) {
 // remain separate provenance axes in the view; source ownership never rewrites research authorship.
 // Which rows come back is decided by RLS for the client in use (anon in PUBLIC mode, the viewer's
 // session in ADMIN mode), so person-only/private material is never broadened by this projection.
-async function fetchResearchObjects(client, contributorId, aliases) {
+async function fetchResearchObjects(client, contributorId, aliases, sourceRef = null) {
   const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope";
   const contributorFilter = [
     `source_contributor_id.eq.${clean(contributorId)}`,
     `contributor.in.(${aliases.map(postgrestQuoted).join(",")})`,
   ].join(",");
-  const result = await paged((start, end, first) => client
-    .from("world_contributor_research_v1")
-    .select(fields, first ? { count: "exact" } : undefined)
-    .or(contributorFilter)
-    .order("created_at", { ascending: false })
-    .range(start, end), { pageSize: RESEARCH_PAGE, max: MAX_CONTRIBUTOR_RESEARCH, concurrency: 4 });
+  const occurrenceId = channelUpdateOccurrenceId(sourceRef);
+  const exactSourceRef = occurrenceId ? `channel_updates:${occurrenceId}` : null;
+  const result = await paged((start, end, first) => {
+    let query = client
+      .from("world_contributor_research_v1")
+      .select(fields, first ? { count: "exact" } : undefined)
+      .or(contributorFilter);
+    if (exactSourceRef) query = query.like("source_ref", `${exactSourceRef}%`);
+    return query.order("created_at", { ascending: false }).range(start, end);
+  }, {
+    pageSize: exactSourceRef ? 100 : RESEARCH_PAGE,
+    max: exactSourceRef ? 100 : MAX_CONTRIBUTOR_RESEARCH,
+    concurrency: exactSourceRef ? 1 : 4,
+  });
   return { rows: result.rows, total: result.total, truncated: result.truncated };
 }
 
@@ -656,15 +665,30 @@ async function fetchContributorContributions(client, contributorId) {
   );
 }
 
-async function fetchSourceMessages(client, contributor, aliases) {
+async function fetchSourceMessages(client, contributor, aliases, sourceRef = null) {
   const byId = new Map();
   let truncated = false;
+  const fields = "id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id";
+  const occurrenceId = channelUpdateOccurrenceId(sourceRef);
+
+  if (occurrenceId) {
+    const { data, error } = await client
+      .from("channel_updates")
+      .select(fields)
+      .eq("id", occurrenceId);
+    if (error) throw error;
+    const rows = (Array.isArray(data) ? data : []).filter((row) => (
+      clean(row?.contributor_id) === clean(contributor.id)
+      || (!clean(row?.contributor_id) && aliases.some((alias) => [clean(row?.credit), clean(row?.speaker)].includes(alias)))
+    ));
+    return { rows, total: rows.length, truncated: false };
+  }
 
   // Stable identity is authoritative. Registered aliases are a legacy fallback only when the row
   // has not yet been bound to any contributor; an alias can never override another stable identity.
   const canonical = await paged((start, end, first) => client
     .from("channel_updates")
-    .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id", first ? { count: "exact" } : undefined)
+    .select(fields, first ? { count: "exact" } : undefined)
     .eq("contributor_id", contributor.id)
     .order("created_at", { ascending: false })
     .range(start, end), { concurrency: 3 });
@@ -674,7 +698,7 @@ async function fetchSourceMessages(client, contributor, aliases) {
   for (const column of ["credit", "speaker"]) {
     const result = await paged((start, end, first) => client
       .from("channel_updates")
-      .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id", first ? { count: "exact" } : undefined)
+      .select(fields, first ? { count: "exact" } : undefined)
       .in(column, aliases)
       .is("contributor_id", null)
       .order("created_at", { ascending: false })
@@ -732,18 +756,26 @@ export function deriveAvailability(settled) {
  * ADMIN mode: the viewer's session; additionally lists research the admin is authorized to see.
  * A failed research read never erases readable source messages, contributions or Topics.
  */
-export async function fetchContributorFindingsProjection(slug, { mode = PROJECTOR_MODE.PUBLIC_VIEW, publicClient = getPublicResearchClient, sessionClient = supabase, topicsReader = fetchContributorTopics } = {}) {
+export async function fetchContributorFindingsProjection(slug, {
+  mode = PROJECTOR_MODE.PUBLIC_VIEW,
+  publicClient = getPublicResearchClient,
+  sessionClient = supabase,
+  topicsReader = fetchContributorTopics,
+  sourceRef = null,
+} = {}) {
   const client = mode === PROJECTOR_MODE.ADMIN_ALL ? sessionClient : publicClient();
   const contributor = await fetchContributor(client, slug);
   if (!contributor) return null;
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
+  const focusedOccurrenceId = channelUpdateOccurrenceId(sourceRef);
+  const focusedSourceRef = focusedOccurrenceId ? `channel_updates:${focusedOccurrenceId}` : null;
 
   const settled = {};
   const [research, sources, contributions, topics] = await Promise.allSettled([
-    fetchResearchObjects(client, contributor.id, aliases),
-    fetchSourceMessages(client, contributor, aliases),
-    fetchContributorContributions(client, contributor.id),
-    topicsReader(aliases),
+    fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef),
+    fetchSourceMessages(client, contributor, aliases, focusedSourceRef),
+    focusedSourceRef ? Promise.resolve({ rows: [], total: 0, truncated: false }) : fetchContributorContributions(client, contributor.id),
+    focusedSourceRef ? Promise.resolve([]) : topicsReader(aliases),
   ]);
   Object.assign(settled, { research, sources, contributions, topics });
   const value = (result, fallback) => (result.status === "fulfilled" ? result.value : fallback);
@@ -772,6 +804,7 @@ export async function fetchContributorFindingsProjection(slug, { mode = PROJECTO
   return {
     ...projection,
     mode,
+    focus: focusedSourceRef ? { sourceRef: focusedSourceRef, exactOccurrence: true } : null,
     availability: deriveAvailability(settled),
     loadState: {
       researchObjectsTotal: researchValue.total,

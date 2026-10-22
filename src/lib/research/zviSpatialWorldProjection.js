@@ -1,13 +1,12 @@
 import { SPATIAL_MODELS } from "../spatialModels.js";
+import { getPublicResearchClient } from "./researchViewMode.js";
+import {
+  contributorSourceLibraryHref,
+  contributorSourceLocator,
+} from "./worldContributorSourceLocator.js";
 
-const ZVI_SOURCE_HREF = "/world?view=sources&source=tzvi-opoc#world-contributor-material";
-
-function sourceLocator(ref) {
-  const match = /^channel_updates:([0-9a-f-]{36})$/i.exec(ref);
-  if (!match) return { ref, exact: false, href: ZVI_SOURCE_HREF };
-  const params = new URLSearchParams({ view: "sources", source: "tzvi-opoc", sourceRef: ref });
-  return { ref, exact: true, href: `/world?${params.toString()}#source-occurrence-${match[1]}` };
-}
+const ZVI_SOURCE_SLUG = "tzvi-opoc";
+const ZVI_SOURCE_HREF = contributorSourceLibraryHref(ZVI_SOURCE_SLUG);
 
 function cleanSourceRefs(model) {
   const refs = Array.isArray(model?.spatial?.provenance?.refs)
@@ -44,7 +43,7 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
       source: {
         contributor: model.spatial?.provenance?.contributor || "צבי",
         refs: sourceRefs,
-        locators: sourceRefs.map(sourceLocator),
+        locators: sourceRefs.map((ref) => contributorSourceLocator(ref, { slug: ZVI_SOURCE_SLUG })),
         occurrenceCount: sourceRefs.length,
         independentSourceCount: null,
         href: ZVI_SOURCE_HREF,
@@ -80,3 +79,46 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
 }
 
 export const ZVI_SPATIAL_WORLD = buildZviSpatialWorldProjection();
+
+function publicSourceImage(row) {
+  const thumb = String(row?.thumb_url || "").trim();
+  const image = String(row?.image_url || "").trim();
+  if (/^https:\/\//i.test(thumb)) return thumb;
+  if (/^https:\/\//i.test(image) && !/\.(?:mp4|mov|webm|m4v)(?:[?#]|$)/i.test(image)) return image;
+  return null;
+}
+
+export async function fetchZviSpatialWorldProjection({ publicClient = getPublicResearchClient } = {}) {
+  const base = buildZviSpatialWorldProjection();
+  const ids = [...new Set(base.cards.flatMap((card) => card.source.locators)
+    .filter((locator) => locator.exact)
+    .map((locator) => locator.occurrenceId))];
+  if (!ids.length) return { ...base, access: { sourceMedia: "not_applicable" } };
+
+  try {
+    const client = publicClient();
+    const { data, error } = await client
+      .from("channel_updates")
+      .select("id,image_url,thumb_url")
+      .in("id", ids);
+    if (error) throw error;
+    const byRef = new Map((data || []).map((row) => [`channel_updates:${row.id}`, row]));
+    const cards = base.cards.map((card) => {
+      const sourceRow = card.source.refs.map((ref) => byRef.get(ref)).find((row) => publicSourceImage(row));
+      const sourceImage = publicSourceImage(sourceRow);
+      return {
+        ...card,
+        image: card.image || sourceImage,
+        imageProvenance: card.image ? "curated_spatial_asset" : sourceImage ? "public_source_occurrence" : null,
+      };
+    });
+    return {
+      ...base,
+      cards,
+      counts: { ...base.counts, withImage: cards.filter((card) => card.image).length },
+      access: { sourceMedia: "public_reader" },
+    };
+  } catch (_) {
+    return { ...base, access: { sourceMedia: "unavailable" } };
+  }
+}

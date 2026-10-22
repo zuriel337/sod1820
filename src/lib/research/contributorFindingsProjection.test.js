@@ -25,6 +25,7 @@ function fakeClient(label, tables, calls) {
         in: (column, value) => { call.filters.push(["in", column, value]); return b; },
         or: (value) => { call.filters.push(["or", value]); return b; },
         eq: (column, value) => { call.filters.push(["eq", column, value]); return b; },
+        like: (column, value) => { call.filters.push(["like", column, value]); return b; },
         is: (column, value) => { call.filters.push(["is", column, value]); return b; },
         order: () => b, contains: () => b,
         range: () => Promise.resolve(result),
@@ -219,6 +220,34 @@ test("PUBLIC mode never touches the session client; ADMIN mode uses it", async (
   const admin = await fetchContributorFindingsProjection("yaniv", { mode: PROJECTOR_MODE.ADMIN_ALL, publicClient: () => anon, sessionClient: session, topicsReader: noTopics });
   assert.ok(calls.length && calls.every((c) => c.label === "session"));
   assert.equal(admin.counts.researchObjects, 1);
+});
+
+test("an exact public source link reads only that Zvi occurrence and its research rows", async () => {
+  const calls = [];
+  const occurrenceId = "a6805e30-21e0-4315-8f35-70b1bfdb0d14";
+  const contributor = { ...CONTRIBUTOR, id: "zvi", slug: "tzvi-opoc", display_name: "צבי (OPOC)", wa_names: ["צבי"] };
+  const source = { ...SOURCE, id: occurrenceId, contributor_id: "zvi", credit: "צבי (OPOC)" };
+  const research = { ...RESEARCH_ROW, source_ref: `channel_updates:${occurrenceId}#finding` };
+  const anon = fakeClient("anon", {
+    contributors: { data: contributor },
+    research_objects: { data: [research], count: 1 },
+    channel_updates: { data: [source], count: 1 },
+    gematria_words: { data: [] },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("tzvi-opoc", {
+    publicClient: () => anon,
+    topicsReader: async () => { throw new Error("focused source must not load topics"); },
+    sourceRef: `channel_updates:${occurrenceId}`,
+  });
+
+  assert.deepEqual(projection.focus, { sourceRef: `channel_updates:${occurrenceId}`, exactOccurrence: true });
+  assert.equal(projection.sourceGroups.length, 1);
+  assert.equal(projection.sourceGroups[0].sourceRef, `channel_updates:${occurrenceId}`);
+  assert.equal(calls.filter((call) => call.table === "channel_updates").length, 1);
+  assert.ok(calls.find((call) => call.table === "channel_updates")?.filters.some((item) => item[0] === "eq" && item[1] === "id" && item[2] === occurrenceId));
+  assert.ok(calls.find((call) => call.table === "world_contributor_research_v1")?.filters.some((item) => item[0] === "like" && item[2] === `channel_updates:${occurrenceId}%`));
+  assert.equal(calls.some((call) => call.table === "research_contributions"), false);
 });
 
 test("source attribution uses stable contributor identity and only unbound registered aliases", async () => {

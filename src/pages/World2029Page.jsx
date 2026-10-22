@@ -619,6 +619,10 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
+  const focusedContributorSourceRef = useMemo(
+    () => new URLSearchParams(location.search).get("sourceRef"),
+    [location.search],
+  );
 
   useEffect(() => {
     setActiveView(resolveWorldLandingView(location));
@@ -729,7 +733,10 @@ function LiveWorldLanding({ research, shell, context }) {
     }
 
     setContributorFindingsState({ slug, mode: contributorReadMode, loading: true, projection: null, error: null });
-    fetchContributorFindingsProjection(slug, { mode: contributorReadMode })
+    fetchContributorFindingsProjection(slug, {
+      mode: contributorReadMode,
+      sourceRef: focusedContributorSourceRef,
+    })
       .then((projection) => {
         if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection, error: null });
       })
@@ -737,7 +744,7 @@ function LiveWorldLanding({ research, shell, context }) {
         if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection: null, error });
       });
     return () => { alive = false; };
-  }, [activeView, contributorReadMode, writerFilter]);
+  }, [activeView, contributorReadMode, focusedContributorSourceRef, writerFilter]);
 
   useEffect(() => {
     let alive = true;
@@ -1122,7 +1129,7 @@ function LiveWorldLanding({ research, shell, context }) {
           loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
           error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null}
           canReview={isAdmin}
-          focusSourceRef={new URLSearchParams(location.search).get("sourceRef")}
+          focusSourceRef={focusedContributorSourceRef}
           timeMode="bilingual" />
         {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
           <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}

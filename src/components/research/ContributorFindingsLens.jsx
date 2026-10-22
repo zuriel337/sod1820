@@ -5,15 +5,12 @@ import { use2029Palette } from "../../lib/palette.js";
 import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } from "../../lib/designTokens.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { galThumb } from "../../lib/img.js";
+import { sourceOccurrenceElementId } from "../../lib/research/worldContributorSourceLocator.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const genericSourceLabel = (text) => ["📷 עדכון", "🎬 עדכון וידאו", "עדכון"].includes(clean(text));
 const safeHttps = (value) => /^https:\/\/[^\s]+$/i.test(clean(value)) ? clean(value) : null;
 const videoMedia = (url) => /\.(mp4|mov|webm|m4v)([?#]|$)/i.test(url || "");
-const sourceOccurrenceId = (sourceRef) => {
-  const id = clean(sourceRef).split(":").at(-1)?.split("#")[0] || "";
-  return /^[0-9a-f-]{36}$/i.test(id) ? `source-occurrence-${id}` : null;
-};
 const groupHasSource = (group, sourceRef) => {
   const wanted = clean(sourceRef).split("#")[0];
   if (!wanted) return false;
@@ -94,7 +91,7 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode, showDuplicate
   const focused = groupHasSource(group, focusSourceRef);
 
   return <article
-    id={focused ? sourceOccurrenceId(focusSourceRef) : undefined}
+    id={focused ? sourceOccurrenceElementId(focusSourceRef) : undefined}
     data-experience-capability="contributor-source-finding-group"
     data-source-focused={focused ? "true" : undefined}
     style={{ ...S.box, padding: SPACE[4], display: "grid", gap: SPACE[3], outline: focused ? `2px solid ${P.accent}` : undefined, outlineOffset: focused ? 3 : undefined }}
@@ -245,7 +242,7 @@ export default function ContributorFindingsLens({
   }, [projection, mode, world, facet, query, recentDays, focusSourceRef]);
 
   useEffect(() => {
-    const id = sourceOccurrenceId(focusSourceRef);
+    const id = sourceOccurrenceElementId(focusSourceRef);
     const focusedGroup = groups.find((group) => groupHasSource(group, focusSourceRef));
     if (!id || !focusedGroup) return undefined;
     if (selectedId !== focusedGroup.id) setSelectedId(focusedGroup.id);
@@ -281,6 +278,10 @@ export default function ContributorFindingsLens({
         {projection.counts.duplicateFindingsHidden ? ` · ${projection.counts.duplicateFindingsHidden} כפילויות אוחדו והוסתרו` : ""}
         {` · ${projection.counts.sourceGroups} פרסומים לקריאה.`}
       </p>
+      {focusSourceRef ? <p data-experience-capability="contributor-exact-source-focus"
+        style={{ ...TYPE_SCALE.small, fontFamily: F.body, color: P.accentText, marginBottom: 0 }}>
+        נפתחה הופעת המקור המדויקת בספרייה הציבורית. הופעה נוספת של אותו חומר אינה נספרת כמקור עצמאי.
+      </p> : null}
       {canReview ? <div data-experience-capability="contributor-admin-triage-links"
         style={{ display: "flex", gap: SPACE[2], flexWrap: "wrap", marginTop: SPACE[3] }}>
         <Link to={contributorReviewHref(projection.contributor)} style={{ ...S.action, textDecoration: "none" }}>
