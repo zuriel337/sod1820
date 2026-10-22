@@ -97,7 +97,7 @@
     "תיבות לפי פרשה/ספר",
     "p41",
     "PARTIAL",
-    "source total 79,976 is visually verified in five passages; the prior 110,976 reading is withdrawn, while per-parasha and clean-corpus closure remain incomplete"
+    "source total 79,976 is visually verified in five passages and reproduced on a clean 304,805-letter corpus; the prior 110,976 reading is withdrawn; the sole 79,977/79,976 boundary is ה | ליהוה versus הליהוה at Deuteronomy 32:6; per-parasha closure remains incomplete"
    ],
    [
     "DS-04",
@@ -232,7 +232,7 @@
   ],
   "open": [
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
-   "DS-03: סך-המקור 79,976 סגור בחמש עדויות; אימות קורפוס נקי נשאר פתוח — tk-vtext נותן 80,179 תחת חוזה רווחים אך כולל חומר עריכתי/גרסאות",
+   "DS-03: סך-המקור 79,976 סגור בחמש עדויות ובשחזור קורפוס נקי; ההפרש היחיד מול 79,977 הוא ה | ליהוה לעומת הליהוה בדברים לב:ו; שורות הפרשות נשארו פתוחות",
    "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה",
    "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
@@ -380,10 +380,10 @@
    "subtotals": "per-book and per-parasha cells remain partial; no subtotal is promoted by this correction pass",
    "total": "79,976",
    "ordering_rule": "book order",
-   "inclusion_rule": "not stated precisely enough to reproduce edition-specific word boundaries",
-   "exclusion_rule": "not stated",
-   "exceptions": "the repository's tk-vtext display projection is unsuitable for canonical word-total verification: 80,179 whitespace words and 305,599 Hebrew letters versus the 304,805-letter canonical stream",
-   "checksum": "SOURCE-CLOSED: 79,976 appears in five visually verified passages (pp.12, 25, 30, 41, 51). The prior p.41 reading 110,976 is withdrawn as a ט/final-ם transcription error. Local display-projection audit remains diagnostic only (+203 words; +794 letters).",
+   "inclusion_rule": "Koren/Rips word spaces over the ketiv-only 304,805-letter stream; at Deuteronomy 32:6 count הליהוה as one word",
+   "exclusion_rule": "exclude qere, editorial notes, Masoretic punctuation-only tokens and section markers; do not split the Deuteronomy 32:6 interrogative-he construction",
+   "exceptions": "a maqaf-split projection of the identical letter stream gives 79,977 by counting ה | ליהוה as two words; tk-vtext remains unsuitable (80,179 display words and 305,599 Hebrew letters)",
+   "checksum": "CLEAN-CORPUS-CLOSED: local canonical Torah, Koren-aligned MAM and Rips/Koren all normalize to 304,805 letters with SHA-256 9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4. Boundary-set delta: exactly one at letter 300,674, Deuteronomy 32:6 (ה | ליהוה versus הליהוה).",
    "pdf_pages": [
     12,
     25,
@@ -391,8 +391,8 @@
     41,
     51
    ],
-   "confidence": "VISUALLY_VERIFIED for five Torah-total anchors; REPRODUCIBLE_DIAGNOSTIC for tk-vtext; UNCERTAIN for individual parasha cells",
-   "status": "PARTIAL (source total closed; per-row and clean-corpus contract open)"
+   "confidence": "VISUALLY_VERIFIED for five Torah-total anchors; COMPUTATIONALLY_REPRODUCED for clean-corpus total/boundary; UNCERTAIN for individual parasha cells",
+   "status": "PARTIAL (source total closed; clean-corpus contract closed; per-row closure open)"
   },
   {
    "dataset_id": "DS-04",
@@ -828,8 +828,37 @@
     41,
     51
    ],
-   "truth_class": "REPRODUCIBLE_DIAGNOSTIC; source total VISUALLY_VERIFIED; clean word-boundary reproduction OPEN",
+   "truth_class": "REPRODUCIBLE_DIAGNOSTIC; source total VISUALLY_VERIFIED; clean word-boundary reproduction CLOSED separately by CALC-09B",
    "confidence": "COMPUTED 2026-10-22"
+  },
+  {
+   "calculation_id": "CALC-09B/DS-03-CLEAN-CORPUS",
+   "inputs": [
+    "Koren-aligned MAM static Torah JSON: 79,977 maqaf-split ketiv words",
+    "Rips/Koren Michigan-Claremont five-book files: 79,976 words",
+    "local canonical Torah prefix: 304,805 letters"
+   ],
+   "operations": [
+    "normalize final letters and remove all non-Hebrew characters",
+    "verify both external letter streams equal the local canonical Torah stream",
+    "compare every cumulative word-boundary position"
+   ],
+   "intermediate_values": [
+    "all three streams SHA-256 = 9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4",
+    "book deltas = 0, 0, 0, 0, +1",
+    "one MAM-only boundary; zero Koren/Rips-only boundaries"
+   ],
+   "output": "79,976 reproduced; sole delta from 79,977 is Deuteronomy 32:6: ה | ליהוה versus הליהוה at canonical letter boundary 300,674",
+   "why_exclusion_or_operation_performed": "This closes the edition-specific word-boundary question without using the contaminated tk-vtext display projection.",
+   "pdf_pages": [
+    12,
+    25,
+    30,
+    41,
+    51
+   ],
+   "truth_class": "COMPUTATIONALLY_REPRODUCED; exact 304,805-letter identity; exact one-boundary isolation",
+   "confidence": "CLOSED 2026-10-22"
   }
  ],
  "exceptions": [
@@ -1055,7 +1084,7 @@
   {
    "relation_id": "CR-09",
    "kind": "SOURCE_REPETITION_CONFIRMED",
-   "description": "The Torah-wide author total 79,976 is stated in five visually verified passages (pp.12, 25, 30, 41, 51). On p.41 the closing abbreviation is ע״ט, not ע״ם; the prior 110,976 transcription is withdrawn. This closes the source total but not the clean edition-specific corpus contract.",
+   "description": "The Torah-wide author total 79,976 is stated in five visually verified passages (pp.12, 25, 30, 41, 51). On p.41 the closing abbreviation is ע״ט, not ע״ם; the prior 110,976 transcription is withdrawn. A clean-corpus comparison also reproduces 79,976 and isolates the sole boundary delta from 79,977 at Deuteronomy 32:6: ה | ליהוה versus הליהוה.",
    "pdf_pages": [
     12,
     25,
@@ -1064,7 +1093,7 @@
     51
    ],
    "adjudicated_by_source_itself": true,
-   "confidence": "VISUALLY_VERIFIED (five direct anchors)"
+   "confidence": "VISUALLY_VERIFIED (five direct anchors) + COMPUTATIONALLY_REPRODUCED (clean corpus)"
   },
   {
    "relation_id": "CR-10",
@@ -4565,7 +4594,7 @@
      "source_anchor": "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW",
      "verification_state": "VISUALLY_VERIFIED_CORRECTED",
      "ocr_confidence": "high",
-     "exception_or_note": "CORRECTION 2026-10-22: direct 600dpi inspection reads ע״ט (79), not a closed final Mem. The earlier 110,976 reading is withdrawn. Four additional direct witnesses on pp.12, 25, 30 and 51 repeat 79,976. Source total closed; clean corpus word-boundary verification remains open.",
+     "exception_or_note": "CORRECTION 2026-10-22: direct 600dpi inspection reads ע״ט (79), not a closed final Mem. The earlier 110,976 reading is withdrawn. Four additional direct witnesses on pp.12, 25, 30 and 51 repeat 79,976. Source total closed; clean-corpus verification now reproduces 79,976 and isolates the sole 79,977 delta at Deuteronomy 32:6 (ה | ליהוה versus הליהוה).",
      "arithmetic_checksum_state": "FIVE_SOURCE_WITNESSES_MATCH"
     },
     {

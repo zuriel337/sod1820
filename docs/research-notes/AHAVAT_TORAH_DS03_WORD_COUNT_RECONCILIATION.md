@@ -14,9 +14,9 @@ The disputed glyph is **ט**, not final **ם**. The normalized author count is
 therefore **79,976**. The earlier `110,976` reading is withdrawn as a visual
 transcription error; it is not preserved as a competing source value.
 
-This does **not** close the whole DS-03 dataset. The Torah-total source witness is
-closed, while the per-parasha rows and an edition-specific clean word-boundary
-reproduction remain partial.
+This does **not** close the whole DS-03 dataset. The Torah-total source witness and
+the edition-specific clean word-boundary reproduction are closed; the per-parasha
+rows remain partial.
 
 ## Direct source witnesses
 
@@ -57,12 +57,63 @@ and the file visibly contains edition/variant annotations such as
 `בספרי ספרד ואשכנז`. Its 794-letter surplus independently proves that it is not the
 same population as the canonical 304,805-letter Torah stream.
 
-For context only, an independently published Koren-based counter reports 79,977
-words and explicitly attributes its one-word difference from the common 79,976
-reference to a borderline word-division case. This is corroboration, not a local
-canonical verification:
-`https://codigos.elevalma.com/en/blog/numeros-tanaj-versiculos-palabras-letras`
-(read 2026-10-22).
+## Clean-corpus closure: 79,977 versus 79,976
+
+`scripts/research/ahavat-torah-clean-word-corpus.mjs` compares two external word
+projections without vendoring either source:
+
+1. the five Koren-aligned static MAM JSON files served by ElevAlma; and
+2. the five Michigan-Claremont Koren files published by TorahBibleCodes from the
+   Rips text.
+
+Both projections flatten to **exactly the same 304,805-letter sequence** as the
+repository's canonical Torah prefix. All three normalized sequences have SHA-256:
+
+`9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4`
+
+The resulting counts are:
+
+| Book | maqaf-split ketiv | Koren/Rips spaces | Delta |
+|---|---:|---:|---:|
+| Genesis | 20,612 | 20,612 | 0 |
+| Exodus | 16,713 | 16,713 | 0 |
+| Leviticus | 11,950 | 11,950 | 0 |
+| Numbers | 16,408 | 16,408 | 0 |
+| Deuteronomy | 14,294 | 14,293 | +1 |
+| **Torah** | **79,977** | **79,976** | **+1** |
+
+The complete boundary-set comparison has exactly one MAM-only boundary and zero
+Koren/Rips-only boundaries. It is at canonical letter boundary **300,674**, in
+Deuteronomy 32:6:
+
+- maqaf-split ketiv: `ה | ליהוה` from `הֲ־לַיהוָה` — two words;
+- Koren/Rips space contract: `הליהוה` — one word.
+
+Thus the author's **79,976** is computationally reproduced by treating this
+interrogative-he construction as one word. The independently published 79,977
+count uses the otherwise identical letter stream and differs only because it
+splits the Hebrew maqaf at this locus. `אשדת` in Deuteronomy 33:2 is ketiv-only
+and remains one word in this audit; it is not the source of the delta.
+
+Reproduction command (paths point to locally downloaded source files):
+
+```sh
+node scripts/research/ahavat-torah-clean-word-corpus.mjs \
+  --mam-dir /path/to/elev-alma-corpus \
+  --koren-dir /path/to/TorahBibleCodes_Go/texts
+```
+
+Provenance pinned on 2026-10-22:
+
+- ElevAlma corpus URL pattern:
+  `https://codigos.elevalma.com/data/corpus/{Genesis,Exodus,Leviticus,Numbers,Deuteronomy}.json`
+- ElevAlma methodology:
+  `https://codigos.elevalma.com/en/blog/numeros-tanaj-versiculos-palabras-letras`
+- TorahBibleCodes source:
+  `https://github.com/TorahBibleCodes/TorahBibleCodes_Go`, commit
+  `5000c8924df26f48683b8baa3fc71249c77731c4`
+- The TorahBibleCodes files declare all rights reserved. They were used as a
+  read-only comparison source and are deliberately not copied into this repository.
 
 ## Truth-state split
 
@@ -71,12 +122,12 @@ canonical verification:
 - **LOCAL DISPLAY-PROJECTION AUDIT:** REPRODUCIBLE — 80,179 under the declared
   whitespace contract, but unsuitable for canonical word-total verification.
 - **PER-PARASHA TABLE:** PARTIAL — dense cells and subtotals are not fully closed.
-- **CLEAN EDITION-SPECIFIC WORD-BOUNDARY REPRODUCTION:** OPEN — requires a clean
-  ketiv-only text with an explicit maqaf/qere/word-division contract.
+- **CLEAN EDITION-SPECIFIC WORD-BOUNDARY REPRODUCTION:** CLOSED — both word
+  projections equal the local 304,805-letter stream; the only boundary delta is
+  `ה | ליהוה` versus `הליהוה` at Deuteronomy 32:6.
 
 ## Next action
 
-Build or import one clean ketiv-only Koren-aligned word corpus whose 304,805-letter
-stream hashes to the existing canonical Torah letters, preserve explicit word
-boundaries, and isolate the single 79,977/79,976 boundary decision. Do not use
-`tk-vtext.txt` as the canonical word-count source.
+Continue with the per-parasha cells and subtotals of DS-03. Use the closed 79,976
+Koren/Rips contract for the total and preserve the Deuteronomy 32:6 boundary rule
+explicitly. Do not use `tk-vtext.txt` as the canonical word-count source.

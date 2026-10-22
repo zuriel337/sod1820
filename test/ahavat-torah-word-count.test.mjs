@@ -55,4 +55,7 @@ test("the public Preview bundle withdraws 110,976 and exposes the corrected DS-0
   assert.equal(occurrence.normalized_integer, "79976");
   assert.equal(occurrence.verification_state, "VISUALLY_VERIFIED_CORRECTED");
   assert.equal(occurrence.source_anchor, "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW");
+  assert.match(dataset.status, /clean-corpus contract closed/i);
+  assert.match(dataset.checksum, /9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4/);
+  assert.match(dataset.exceptions, /ה \| ליהוה/);
 });
