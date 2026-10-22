@@ -1,0 +1,316 @@
+/* NUMBER_WIDE_LAYOUT_PREVIEW_V1
+   Wide-screen layouts for the Number page, selected by ?wide=a (default) | c | 0.
+   Everything keys off the hero's own inline size (container query), never the viewport,
+   so opening or collapsing the global rail / research sidecar re-flows the page live.
+   Presentation only: no data, route, engine or permission change. */
+
+.sod29-number-v10-anchor{display:contents}
+
+/* Life orbit: one arc per evidence channel (convergences, sources, worlds, activity).
+   Arc length follows that channel's real count (square-root scale); an empty channel stays a bare
+   track and a pending load shows "…", never a zero. Replaces the conic-gradient life seal. */
+.sod29-number-v10-life-seal.sod29-number-v10-life-orbit{
+  width:96px;height:96px;min-width:96px;
+  display:grid;place-items:center;align-content:center;gap:0;
+  border:0;border-radius:50%;background:none;box-shadow:none;
+  position:relative;
+}
+.sod29-number-v10-life-orbit svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sod29-number-v10-life-orbit circle{fill:none}
+.sod29-number-v10-life-orbit .orbit-halo{
+  fill:color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel));
+  stroke:color-mix(in srgb,var(--s29-accent) 22%,var(--s29-line));stroke-width:.6;
+}
+.sod29-number-v10-life-orbit .orbit-track{
+  stroke:color-mix(in srgb,var(--s29-line) 85%,transparent);stroke-width:3.6;stroke-linecap:round;
+}
+.sod29-number-v10-life-orbit .orbit-arc{stroke:var(--s29-accent);stroke-width:4.6;stroke-linecap:round}
+.sod29-number-v10-life-orbit .orbit-sources{stroke:var(--s29-accent-text,var(--s29-accent))}
+.sod29-number-v10-life-orbit .orbit-worlds{stroke:var(--s29-hero,var(--s29-accent))}
+.sod29-number-v10-life-orbit .orbit-activity{stroke:color-mix(in srgb,var(--s29-accent) 60%,var(--s29-ink))}
+.sod29-number-v10-life-orbit.is-live .orbit-arc{filter:drop-shadow(0 0 2.2px color-mix(in srgb,var(--s29-glow) 70%,transparent))}
+.sod29-number-v10-life-orbit.is-pending .orbit-track{stroke-dasharray:2 3.2;opacity:.7}
+.sod29-number-v10-life-orbit .orbit-spark{transform-origin:50px 50px}
+.sod29-number-v10-life-orbit .orbit-spark circle{fill:var(--s29-hero,var(--s29-accent));filter:drop-shadow(0 0 3px var(--s29-glow))}
+.sod29-number-v10-life-orbit:not(.is-live) .orbit-spark{display:none}
+.sod29-number-v10-life-orbit.is-live .orbit-spark{animation:sod29-orbit-spin 14s linear infinite}
+@keyframes sod29-orbit-spin{to{transform:rotate(360deg)}}
+.sod29-number-v10-life-orbit strong{
+  position:relative;z-index:1;color:var(--s29-ink);font-size:24px;line-height:1;font-variant-numeric:tabular-nums;
+}
+.sod29-number-v10-life-seal.sod29-number-v10-life-orbit>small{
+  position:relative;z-index:1;color:var(--s29-muted);font-size:var(--s29-type-micro,14px);line-height:1.2;font-weight:800;
+}
+.sod29-number-v10-life-orbit:hover .orbit-halo{fill:color-mix(in srgb,var(--s29-accent) 16%,var(--s29-panel))}
+.sod29-number-v10-life-orbit:focus-visible{outline:2px solid var(--s29-accent);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.sod29-number-v10-life-orbit .orbit-spark{animation:none!important}}
+
+.sod29-number-page[data-wide-layout="a"] .sod29-number-hero,
+.sod29-number-page[data-wide-layout="c"] .sod29-number-hero{
+  container:sod-number-hero/inline-size;
+  overflow:clip; /* clip, not hidden: keeps position:sticky working inside the hero */
+}
+
+/* ---------- A: sticky identity column + content stream (hero >= 1000px) ---------- */
+@container sod-number-hero (min-width:940px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page{
+    max-width:1680px;
+    grid-template-columns:minmax(408px,420px) minmax(0,1fr);
+    column-gap:18px;
+    row-gap:12px;
+    align-items:start;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page>*{grid-column:2;min-width:0}
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page>.sod29-number-v10-anchor{
+    grid-column:1;
+    grid-row:1/span 6;
+    position:sticky;
+    top:92px;
+    display:grid;
+    gap:12px;
+    align-content:start;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-identity{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"root" "expr" "seal";
+    justify-items:center;
+    text-align:center;
+    gap:10px;
+    padding:20px 14px 16px;
+  }
+  /* Ring stays in A: the identity column is wide enough for the 1:1 380px stage (408px column minus 2x14px card padding). */
+  .sod29-number-page[data-wide-layout="a"] .sod29-method-ring{display:grid}
+    .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-root b{
+    font-size:clamp(48px,20cqi,68px);
+    line-height:1;
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-expression>strong{
+    font-size:clamp(20px,8cqi,28px);
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-search{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-method-grid{
+    grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  }
+  /* The crossing lead only splits in two when the content column really is wide. */
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page .sod29-number-v10-research-grid:has(.sod29-number-v10-crossing-lead){
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+@container sod-number-hero (min-width:1360px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-core2029.is-page .sod29-number-v10-research-grid:has(.sod29-number-v10-crossing-lead){
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+/* ---------- C: airy centred stage, wide bands (hero >= 1100px) ---------- */
+@container sod-number-hero (min-width:900px){
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-core2029.is-page{
+    max-width:1560px;
+    row-gap:22px;
+    padding:28px clamp(18px,3cqw,48px) 32px;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor{
+    display:grid;
+    justify-items:center;
+    gap:14px;
+    padding-block:10px 4px;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-identity{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"root" "expr" "seal";
+    justify-items:center;
+    text-align:center;
+    gap:8px;
+    width:min(100%,640px);
+    border-color:transparent;
+    background:transparent;
+  }
+    .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-root b{
+    font-size:clamp(96px,22cqi,168px);
+    line-height:.95;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-expression>strong{
+    font-size:clamp(24px,5cqi,36px);
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-search{
+    width:min(100%,560px);
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-method-grid{
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+  }
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-method-card{min-height:72px}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-stage{padding:20px;gap:16px}
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-core2029.is-page .sod29-number-v10-research-grid:has(.sod29-number-v10-crossing-lead){
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  }
+}
+
+/* The shell caps Number content at 1180px. Lift the cap for the wide layouts only;
+   it still never exceeds the space left between the two rails. */
+.sod29-root.number-page-route .sod29-main-stage.has-context-rail>.sod29-content:has(.sod29-number-page[data-wide-layout="a"]),
+.sod29-root.number-page-route .sod29-main-stage.has-context-rail>.sod29-content:has(.sod29-number-page[data-wide-layout="c"]){
+  width:min(1720px,100%);
+}
+
+/* Smart expression rail preview (?rail=smart): stepping preview + computed crossing signal. */
+.sod29-number-v11-regular-item.is-preview{outline:1.5px dashed color-mix(in srgb,var(--s29-accent) 70%,transparent);outline-offset:2px;border-radius:14px}
+.sod29-number-v11-regular-signal{font-style:normal;color:var(--s29-accent-text,var(--s29-accent));font-weight:800}
+
+/* Smart rail compare (?rail=smart): pin one expression, slide another. */
+.sod29-number-v12-pin{
+  min-height:32px;padding:0 12px;border:1px solid color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line));
+  border-radius:999px;background:transparent;color:var(--s29-accent-text,var(--s29-accent));font:inherit;font-size:var(--s29-type-micro,14px);font-weight:800;cursor:pointer;
+}
+.sod29-number-v12-pin[aria-pressed="true"]{background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent)}
+.sod29-number-v12-compare{
+  display:grid;gap:6px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--s29-accent) 35%,var(--s29-line));
+  border-radius:14px;background:color-mix(in srgb,var(--s29-accent) 6%,var(--s29-panel));min-height:92px;
+}
+.sod29-number-v12-compare p{margin:0;font-size:var(--s29-type-micro,14px);line-height:1.5}
+.sod29-number-v12-compare em{font-style:normal;color:var(--s29-accent-text,var(--s29-accent));margin-inline:4px}
+.sod29-number-v12-compare .is-yes{color:var(--s29-accent-text,var(--s29-accent));font-weight:800}
+.sod29-number-v12-compare .is-no{color:var(--s29-muted)}
+.sod29-number-v12-compare small{color:var(--s29-muted);font-size:var(--s29-type-micro,14px)}
+.sod29-number-v12-compare-methods{display:flex;flex-wrap:wrap;gap:6px}
+.sod29-number-v12-compare-methods span{border:1px solid var(--s29-line);border-radius:999px;padding:3px 10px;font-size:var(--s29-type-micro,14px);font-variant-numeric:tabular-nums}
+
+
+/* NUMBER_IDENTITY_CARD_V1: the identity card sizes itself from its own width (container units), never the viewport.
+   Narrow card: number and orbit share one row, the expression gets the full width below.
+   Wide card: expression | number | orbit on one row. */
+.sod29-number-page .sod29-number-v10-identity{
+  container:n-identity/inline-size;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"root seal" "expr expr";
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:14px;
+  row-gap:10px;
+  padding:16px 16px 14px;
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-root{grid-area:root;min-width:0;text-align:start}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression{grid-area:expr;min-width:0}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-seal,
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-raziel-orb{grid-area:seal}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-value{
+  display:block;
+  max-width:100%;
+  margin:0;
+  font-size:clamp(36px,14cqi,76px);
+  line-height:1;
+  letter-spacing:.02em;
+  text-shadow:0 0 26px color-mix(in srgb,var(--s29-glow) 34%,transparent);
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-root>small{
+  display:block;margin-bottom:2px;font-size:var(--s29-type-micro,14px);font-weight:800;letter-spacing:.06em;color:var(--s29-muted);
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression>span{font-size:var(--s29-type-micro,14px);letter-spacing:.06em}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression>strong{
+  font-size:clamp(18px,5.6cqi,32px);
+  line-height:1.25;
+  text-wrap:balance;
+  font-weight:800;
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-expression>small{
+  font-size:var(--s29-type-micro,14px);line-height:1.5;color:var(--s29-muted);
+}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-seal.sod29-number-v10-life-orbit{width:76px;height:76px;min-width:76px}
+.sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-orbit strong{font-size:20px}
+@container n-identity (min-width:620px){
+  .sod29-number-page .sod29-number-v10-identity{
+    grid-template-areas:"expr root seal";
+    grid-template-columns:minmax(0,1fr) auto auto;
+    column-gap:20px;
+  }
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-value{font-size:clamp(52px,8cqi,80px)}
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-v10-root{text-align:center}
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-seal.sod29-number-v10-life-orbit{width:96px;height:96px;min-width:96px}
+  .sod29-number-page .sod29-number-v10-identity .sod29-number-v10-life-orbit strong{font-size:24px}
+}
+@container sod-number-hero (min-width:940px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-number-v10-anchor .sod29-number-v10-identity .sod29-number-v10-root{text-align:center;justify-self:center}
+}
+@container sod-number-hero (min-width:900px){
+  .sod29-number-page[data-wide-layout="c"] .sod29-number-v10-anchor .sod29-number-v10-identity .sod29-number-v10-root{text-align:center;justify-self:center}
+}
+
+/* METHOD_RING_V1 (?rail=smart): six primary methods around the active result; shown only where the identity column exists. */
+.sod29-method-ring{display:none;margin:0;justify-items:center}
+/* Effective-size rule: the SVG is drawn 1:1 (380px wide = viewBox 380), so a 14 user-unit label renders at exactly 14px.
+   Layout a shows the ring inside its widened identity column (hero >= 940px, see the A block above); layout c shows it
+   in the centred stage. Where neither exists (single column / narrow hero) the existing method grid stays and the ring
+   is hidden rather than clipped or shrunk. */
+@container sod-number-hero (min-width:900px){
+  .sod29-number-page[data-wide-layout="c"] .sod29-method-ring{display:grid}
+}
+.sod29-method-ring svg{width:380px;height:auto;display:block;overflow:visible}
+.sod29-method-ring text{font-family:inherit}
+.sod29-method-ring .ring-halo{fill:color-mix(in srgb,var(--s29-accent) 5%,var(--s29-panel));stroke:color-mix(in srgb,var(--s29-accent) 18%,var(--s29-line));stroke-width:.8}
+.sod29-method-ring .ring-orbit{fill:none;stroke:color-mix(in srgb,var(--s29-line) 90%,transparent);stroke-width:1;stroke-dasharray:2 5}
+.sod29-method-ring .ring-spoke{stroke:color-mix(in srgb,var(--s29-line) 80%,transparent);stroke-width:1}
+.sod29-method-ring .ring-spoke.is-active{stroke:var(--s29-hero,var(--s29-accent));stroke-width:1.6;stroke-dasharray:4 4}
+.sod29-method-ring .ring-core circle{fill:color-mix(in srgb,var(--s29-hero,var(--s29-accent)) 8%,var(--s29-panel));stroke:color-mix(in srgb,var(--s29-hero,var(--s29-accent)) 45%,var(--s29-line));stroke-width:1.2}
+.sod29-method-ring .ring-core-label{fill:var(--s29-muted);font-size:14px;font-weight:800;letter-spacing:.04em}
+.sod29-method-ring .ring-core-value{fill:var(--s29-hero,var(--s29-ink));font-size:30px;font-weight:900;font-variant-numeric:tabular-nums}
+.sod29-method-ring .ring-core-caption{fill:var(--s29-muted);font-size:14px}
+.sod29-method-ring .ring-node{cursor:pointer;outline:none}
+.sod29-method-ring .ring-node circle{fill:var(--s29-panel);stroke:var(--s29-line);stroke-width:1.2;transition:stroke .15s,fill .15s}
+.sod29-method-ring .ring-node:hover circle,.sod29-method-ring .ring-node:focus-visible circle{stroke:var(--s29-accent)}
+.sod29-method-ring .ring-node:focus-visible circle{stroke-width:2.4}
+.sod29-method-ring .ring-node.is-active circle{stroke:var(--s29-hero,var(--s29-accent));stroke-width:2.2;fill:color-mix(in srgb,var(--s29-hero,var(--s29-accent)) 12%,var(--s29-panel))}
+.sod29-method-ring .ring-node-label{fill:var(--s29-muted);font-size:14px;font-weight:700}
+.sod29-method-ring .ring-node-value{fill:var(--s29-ink);font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.sod29-method-ring .ring-node.is-placeholder circle{stroke-dasharray:3 4;fill:none}
+.sod29-method-ring.is-loading .ring-node{cursor:progress}
+
+/* NUMBER_WIDE_LANES_V1 (wide layouts a/c): below the hero, related sections sit side by side instead of one long column.
+   Pairs: verses | math+sequences, connections | expressions, sources | timeline. Context (essential + worlds), people,
+   about, journey and the deep gate keep the full row.
+   Presentation only: same sections, same data, no new reader. A pair collapses to full width when its partner is absent. */
+.sod29-number-page[data-wide-layout="a"],
+.sod29-number-page[data-wide-layout="c"]{container:n-page/inline-size}
+@container n-page (min-width:880px){
+  .sod29-number-page[data-wide-layout="a"] .sod29-lw,
+  .sod29-number-page[data-wide-layout="c"] .sod29-lw{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+    gap:20px;
+  }
+  .sod29-number-page[data-wide-layout] .sod29-lw>*{grid-column:1/-1;min-width:0}
+  .sod29-number-page[data-wide-layout] .sod29-lw>.sod29-lw-context{order:1}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-verses{grid-column:auto;order:2}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-math{grid-column:auto;order:3}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-connections-live{grid-column:auto;order:4}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-expressions{grid-column:auto;order:5}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-content-live{grid-column:auto;order:6}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-timeline-live{grid-column:auto;order:7}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-people{order:8}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-about{order:9}
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-journey-gate{order:10}
+  /* The deep-research gate has no id; without an explicit order it defaulted to 0 and rendered before every ordered section. */
+  .sod29-number-page[data-wide-layout] .sod29-lw>.sod29-lw-deep-gate{order:11}
+  /* A section whose partner is missing takes the full row. */
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-verses))>#number-math,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-math))>#number-verses,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-expressions))>#number-connections-live,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-connections-live))>#number-expressions,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-timeline-live))>#number-content-live,
+  .sod29-number-page[data-wide-layout] .sod29-lw:not(:has(>#number-content-live))>#number-timeline-live{grid-column:1/-1}
+  /* Half-width verses: two cards per row instead of three. */
+  .sod29-number-page[data-wide-layout] .sod29-lw>#number-verses .sod29-lw-verse-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Expression grid follows its own panel width, so a half-width split panel never keeps five narrow columns. */
+.sod29-number-page[data-wide-layout] .sod29-lw>#number-expressions{container:n-expr/inline-size}
+.sod29-number-page[data-wide-layout] .sod29-lw-expression-grid span,
+.sod29-number-page[data-wide-layout] .sod29-lw-expression-grid small{font-size:14px}
+@container n-expr (max-width:760px){
+  .sod29-lw-expression-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@container n-expr (max-width:480px){
+  .sod29-lw-expression-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

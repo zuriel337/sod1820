@@ -199,3 +199,28 @@
 .sod29-number-v11-regular-item.is-active>.sod29-number-v11-regular-select strong{
   color:var(--s29-hero);
 }
+
+/* Regular rail: one expression card, the curation badge inset in its corner (not a sibling tile).
+   The broad `.regular-track button` card rules would otherwise stretch the badge button into an empty tile;
+   this selector outranks them. Select and badge both keep a 44px hit target. */
+.sod29-number-v11-regular-item{position:relative}
+.sod29-number-v11-regular-item>.sod29-number-v11-regular-select{flex:1 1 auto}
+.sod29-number-v11-regular-item.has-curation>.sod29-number-v11-regular-select{padding-inline-end:44px}
+.sod29-number-v11-regular-rail .sod29-number-v11-regular-track .sod29-number-v11-regular-item.has-curation>button.sod29-curation-mark{
+  position:absolute;
+  inset-block-start:0;
+  inset-inline-end:0;
+  width:44px;
+  min-width:44px;
+  max-width:44px;
+  height:44px;
+  min-height:44px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  border-radius:12px;
+  background:transparent;
+  box-shadow:none;
+}

@@ -232,11 +232,54 @@ const RESEARCH_LAB_V2 = Object.freeze({
   }),
 });
 
-export function resolve2029Palette(preset = "dark", environmentRole = null) {
+// Design V2 §6.1 — Night Number research-blue projection. Scope is the Number
+// content surface / Number inspector ONLY (explicit `scope: "number"`), never an
+// environment role: research_lab (Books/Heichal/ELS) stays warm. Day and
+// Parchment keep their approved identities (no entry here by design).
+const NUMBER_SCOPE_V2 = Object.freeze({
+  dark: Object.freeze({
+    pageBg: "#071229",
+    card: "#0D1B3A",
+    cardSoft: "#12254B",
+    cardRaised: "#16295A",
+    cardGrad: "linear-gradient(145deg,#15294F,#0D1B3A)",
+    border: "rgba(130,170,255,0.20)",
+    borderStrong: "rgba(150,185,255,0.40)",
+    ink: "#EEF3FF",
+    inkSoft: "#B9C8E8",
+    accentDim: "#A3B4DA",
+    glow: "rgba(70,125,255,0.22)",
+    focusRing: "#A8C6FF",
+  }),
+});
+
+export const NUMBER_SCOPE_ID = "number";
+
+export function resolve2029Palette(preset = "dark", environmentRole = null, scope = null) {
   const key = DESIGN_V2_PALETTES[preset] ? preset : "dark";
   const base = DESIGN_V2_PALETTES[key];
-  if (environmentRole !== "research_lab") return base;
-  return Object.freeze({ ...base, ...RESEARCH_LAB_V2[key], environmentRole: "research_lab" });
+  let out = base;
+  if (environmentRole === "research_lab") out = Object.freeze({ ...out, ...RESEARCH_LAB_V2[key], environmentRole: "research_lab" });
+  if (scope === NUMBER_SCOPE_ID && NUMBER_SCOPE_V2[key]) out = Object.freeze({ ...out, ...NUMBER_SCOPE_V2[key], scope: NUMBER_SCOPE_ID });
+  return out;
+}
+
+// The same roles as the System Frame's --s29-* variables, so Number content and the
+// contextual Number drawer re-scope the canvas without touching host chrome.
+export function number2029ScopeStyle(palette) {
+  if (!palette || palette.scope !== NUMBER_SCOPE_ID) return undefined;
+  return Object.freeze({
+    "--s29-page": palette.pageBg,
+    "--s29-panel": palette.card,
+    "--s29-panel-soft": palette.cardSoft,
+    "--s29-panel-grad": palette.cardGrad,
+    "--s29-line": palette.border,
+    "--s29-line-strong": palette.borderStrong,
+    "--s29-focus-ring": palette.focusRing,
+    "--s29-ink": palette.ink,
+    "--s29-muted": palette.inkSoft,
+    "--s29-glow": palette.glow,
+  });
 }
 
 // 🎨 override-context: עוטף תת-עץ בפלטה ספציפית (למשל דף-המספר המוטמע בהיכל → «lab»),
@@ -257,9 +300,21 @@ export function usePalette() {
 }
 
 
-export function use2029Palette(environmentRole = null) {
+export function use2029Palette(environmentRole = null, scope = null) {
   const override = useContext(PaletteCtx);
   const preset = useThemePreset();
   const resolved = resolve2029Palette(preset, environmentRole);
-  return override ? { ...resolved, ...override, preset: resolved.preset } : resolved;
+  const merged = override ? { ...resolved, ...override, preset: resolved.preset } : resolved;
+  if (scope !== NUMBER_SCOPE_ID) return merged;
+  // Scope merges AFTER the host override, so a host PaletteProvider cannot flatten it.
+  return { ...merged, ...(NUMBER_SCOPE_V2[resolved.preset] || {}), ...(NUMBER_SCOPE_V2[resolved.preset] ? { scope: NUMBER_SCOPE_ID } : {}) };
+}
+
+// Wiring for Number content roots (page and contextual drawer):
+//   const { style, scopeAttr } = useNumber2029Scope();
+//   <div style={style} data-number-scope={scopeAttr}>…</div>
+export function useNumber2029Scope() {
+  const palette = use2029Palette(null, NUMBER_SCOPE_ID);
+  const style = number2029ScopeStyle(palette);
+  return { palette, style, scopeAttr: style ? "night" : undefined };
 }

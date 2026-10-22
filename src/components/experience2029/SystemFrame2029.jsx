@@ -18,6 +18,7 @@ import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";
+import { numberWindowSourceReturn } from "../../lib/research/numberExpressionFocus.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
@@ -1697,40 +1698,46 @@ export default function SystemFrame2029({
   const openInspect = useCallback((subject = null) => openTransient(TRANSIENT.INSPECT, { subject: normalizeTarget(subject) }), [openTransient]);
   const openNumber = useCallback((subject = null) => {
     const normalized = normalizeTarget(subject);
+    let sourceReturn = null;
     if (
       normalized?.expression
       && normalized?.method
       && Number.isSafeInteger(normalized?.resultValue)
     ) {
       const resultValue = normalized.resultValue;
-      const currentSelection = context?.selection || null;
-      const sameSelection = Boolean(
-        currentSelection?.entityId
-        && String(currentSelection?.expression || "").trim() === normalized.expression
-        && String(currentSelection?.method || "").trim() === normalized.method
-        && Number(currentSelection?.resultValue) === resultValue
-        && (!normalized.locator || currentSelection?.locator === normalized.locator)
-      );
-      research.updateResearchContext?.({
-        subject: {
-          id: String(resultValue),
-          type: "number",
-          label: String(resultValue),
-          href: `/2029/number/${resultValue}`,
-        },
-        selection: {
-          entityId: sameSelection ? currentSelection.entityId : normalized.id,
-          entityType: sameSelection ? (currentSelection.entityType || "gematria_expression") : "gematria_expression",
-          locator: normalized.locator || currentSelection?.locator || null,
-          expression: normalized.expression,
-          method: normalized.method,
-          resultValue,
-        },
-        lens: "gematria",
+      research.updateResearchContext?.((current) => {
+        const currentSelection = current?.selection || null;
+        sourceReturn = numberWindowSourceReturn(current, {
+          href: currentHref, locator: normalized.locator || currentSelection?.locator,
+        });
+        const sameSelection = Boolean(
+          currentSelection?.entityId
+          && String(currentSelection?.expression || "").trim() === normalized.expression
+          && String(currentSelection?.method || "").trim() === normalized.method
+          && Number(currentSelection?.resultValue) === resultValue
+          && (!normalized.locator || currentSelection?.locator === normalized.locator)
+        );
+        return {
+          subject: {
+            id: String(resultValue),
+            type: "number",
+            label: String(resultValue),
+            href: `/2029/number/${resultValue}`,
+          },
+          selection: {
+            entityId: sameSelection ? currentSelection.entityId : normalized.id,
+            entityType: sameSelection ? (currentSelection.entityType || "gematria_expression") : "gematria_expression",
+            locator: normalized.locator || currentSelection?.locator || null,
+            expression: normalized.expression,
+            method: normalized.method,
+            resultValue,
+          },
+          lens: "gematria",
+        };
       });
     }
-    openCapability("number", normalized || subject);
-  }, [openCapability, research, context?.selection]);
+    openCapability("number", normalized || subject, { sourceReturn });
+  }, [openCapability, research, currentHref]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
   const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
@@ -2022,7 +2029,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
-      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
+      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} sourceReturn={transient?.payload?.sourceReturn} /></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
     if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
