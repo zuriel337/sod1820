@@ -68,6 +68,9 @@ export function emit(surface, eventType, opts = {}) {
     const country = vcCountry();
     const ex = expCtx();
     let props = opts.props ?? null;
+    // Compile-time runtime identity: shared /world, /post and /els URLs must not
+    // mix Legacy and 2029 telemetry. Forward only; no historical relabeling.
+    if (import.meta.env?.VITE_RUNTIME_TARGET === "2029") props = { ...(props || {}), runtime_target: "2029" };
     if (country) props = { ...(props || {}), country };
     // לא לדרוס אירוע-ניסוי מפורש (surface='post_exp' כבר נושא experiment/variant בעצמו).
     // ⚠️ מפתח מיושר ל-'experiment' (לא 'exp') — לפני התיקון (CLEAN_AB_MEASUREMENT_V1) שני
