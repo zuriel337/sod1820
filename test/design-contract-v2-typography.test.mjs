@@ -11,6 +11,9 @@ test("Design V2 makes desktop readability an infrastructure rule", () => {
   assert.match(contract, /interactive labels[\s\S]*16px minimum/);
   assert.match(contract, /reading\/body copy remains \*\*18px minimum\*\*/);
   assert.match(contract, /--s29-type-micro/);
+  assert.match(contract, /--s29-type-small/);
+  assert.match(contract, /--s29-type-title/);
+  assert.doesNotMatch(contract, /--s29-type-section/);
   assert.match(contract, /Page-local literal sizes must not create a smaller parallel scale/);
   assert.match(contract, /does not restyle, rewrite or inherit from Legacy/);
 });
