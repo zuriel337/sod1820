@@ -14,7 +14,6 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
-import { useSystemToolDock2029 } from "./SystemToolDock2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
 
@@ -679,9 +678,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [shortSkipView, setShortSkipView] = useState("reading");
   const toolRailRef = useRef(null);
   const panelRef = useRef(null);
-  const queryRef = useRef(null);
   const panelTriggerRef = useRef(null);
-  const toolActionsRef = useRef(null);
   const openTool = (tool, trigger) => {
     if (trigger) panelTriggerRef.current = trigger;
     setClassicOpen(false);
@@ -695,25 +692,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setActiveTool(null);
     panelTriggerRef.current?.focus({ preventScroll: true });
   };
-  toolActionsRef.current = {
-    search: () => {
-      setClassicOpen(false);
-      queryRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
-      queryRef.current?.querySelector("input")?.focus({ preventScroll: true });
-    },
-    select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
-  };
-  const dockProjection = useMemo(() => ({
-    surface: "els",
-    actions: [
-      { id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() },
-      ...[["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]].map(([id, label, shortLabel, icon]) => ({
-        id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
-        controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
-      })),
-    ],
-  }), [activeTool, classicOpen]);
-  const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
     if (!active || !activeTool || classicOpen) return;
     const onKey = (event) => {
@@ -1079,7 +1057,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
+    <form id="els29-query" className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <button type="button" aria-pressed={!crossOpen} onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
         <button className="els29-native-cross-toggle" type="button" aria-pressed={crossOpen} aria-expanded={crossOpen}
@@ -1160,7 +1138,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </button>
     </div> : null}
 
-    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
+    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
       <>
         <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen}>
         <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
@@ -1233,7 +1211,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
         </div>
-        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || hasSystemDock} role="group" aria-label="כלי המטריצה">
+        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"

@@ -585,7 +585,6 @@ test('Research v1 C02 promotes the exact Finding occurrence and returns to the e
 test('Research v1 acceptance: verify → matrix → Finding → source → save → workspace → exact reopen/return → Raziel',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');
    await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__state?.verification?.state==='MATCH'
@@ -598,7 +597,7 @@ test('Research v1 acceptance: verify → matrix → Finding → source → save 
    await page.waitForFunction(()=>window.__lens?.lens==='verse-context'&&window.__lens?.target?.term==='התורה');
    assert.ok((await page.evaluate(()=>window.__lens.verses.length))>0,'Finding source is readable before persistence');
 
-   await dock.getByRole('button',{name:'שמירה',exact:true}).click();
+   await activate(page,'שמירה');
    await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('קבלת Research v1 שומרת ציר, ממצא ומקור מאומתים.');
    await activate(page,'שמור אצלי');
    await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('נשמר אצלך'));
@@ -609,7 +608,7 @@ test('Research v1 acceptance: verify → matrix → Finding → source → save 
    const reopen=buildJourneyRestore(snapshot);
    assert.equal(reopen.ok,true,'workspace Finding carries an exact reopen snapshot');
 
-   await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();
+   await activate(page,'סריקה וממצאים');
    await activate(page,'בחר ציר לסריקה: התורה');
    if(await button(page,'מופעים וצבע של התורה').getAttribute('aria-expanded')!=='true')await activate(page,'מופעים וצבע של התורה');
    await activate(page,'הפוך לציר ראשי');
@@ -629,9 +628,7 @@ test('Research v1 acceptance: verify → matrix → Finding → source → save 
    await page.waitForFunction(axis=>window.__state?.axis?.hitId===axis,snapshot.axis.hitId);
    await page.locator('[data-els-c02-journey="v1"]').waitFor({state:'detached'});
 
-   await dock.locator('.sod29-raziel-orb').click();
-   await page.locator('.sod29-companion-raziel').waitFor({state:'visible'});
-   assert.equal(await page.evaluate(()=>window.__razielCalls?.length||0),0,'opening Raziel is user-visible context only and performs no automatic AI call');
+   assert.equal(await page.evaluate(()=>window.__razielCalls?.length||0),0,'matrix actions perform no automatic AI call; the page-level Raziel entry remains the explicit handoff');
   },{realHost:true,fullFrame:true});
  });
 
@@ -662,7 +659,7 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,360,390])await withNative({width,height:844},async page=>{
    const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
-   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
+   const dock=page.locator('.sod29-command-island');
    await panel.waitFor({state:'visible'});
    assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true',`${width}: verified matrix exposes findings without a menu action`);
    assert.equal(await panel.locator('header strong').innerText(),'ממצאים במטריצה');
@@ -701,9 +698,8 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
    await panel.evaluate(el=>el.scrollIntoView({block:'start'}));
    await inlineLayout('after pasted search');
    assert.equal(await panel.getByText('תורה',{exact:true}).count()>0,true,`${width}: every added finding is listed directly below the matrix`);
-   await dock.getByRole('button',{name:'רזיאל',exact:true}).tap();
-   assert.equal(await page.evaluate(()=>window.__dockAction),'רזיאל');
-   assert.equal(await panel.isVisible(),true,'an inline region does not compete with the global dock');
+   assert.equal(await dock.isVisible(),false,'the confusing shared bottom bar stays out of the ELS mobile workspace');
+   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1,'the original local launchers remain available above the matrix');
    await button(page,'סרוק לאורך הציר הנבחר').tap();
    await button(page,'סמן את תורה ברצף').waitFor();
    await inlineLayout('after scan');
@@ -716,25 +712,25 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
   },{mobile:true});
  });
 
-test('native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup',
+test('native UI: original local rail owns ELS tools while the shared bottom bar stays out of the workspace',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
-   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
-   await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
-   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0);
+   const dock=page.locator('.sod29-command-island');
+   const local=page.getByRole('group',{name:'כלי המטריצה',exact:true});
+   await local.waitFor({state:'visible'});
+   const frameState=await page.evaluate(()=>({root:document.querySelector('.sod29-root')?.className,hasNative:!!document.querySelector('.sod29-root:has([data-els-native-classic])'),dockDisplay:getComputedStyle(document.querySelector('.sod29-command-island')).display}));
+   assert.equal(await dock.count(),1);assert.equal(await dock.isVisible(),false,`ELS suppresses only the shared bottom bar: ${JSON.stringify(frameState)}`);
+   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1);
+   assert.equal(await dock.getAttribute('data-tool-owner'),null,'ELS no longer registers its tools in the shared bar');
    const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
-   const orb=()=>dock.locator('.sod29-raziel-orb');
-   const orbX=(await orb().boundingBox()).x;
-   for(const item of await dock.locator('button').all()){
+   for(const item of await local.locator('button').all()){
     const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,`${width}: dock target ${JSON.stringify(box)}`);
     const label=item.locator('small');if(await label.count())assert.ok(await label.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=14),'dock labels remain readable');
    }
-   await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
-   assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
-   assert.equal(await page.locator('#els29-query input').first().evaluate(el=>el===document.activeElement),true);
+   assert.equal(await page.locator('#els29-query').count(),1,'search remains directly available above the workspace');
    const panel=page.locator('#els29-context-panel');
    for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים',width<981?'ממצאים במטריצה':'סריקה וממצאים']]){
-    await dock.getByRole('button',{name:label,exact:true}).click();
+    await local.getByRole('button',{name:label,exact:true}).click();
     assert.equal(await panel.locator('header strong').innerText(),title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
     assert.equal(await page.getByRole('dialog').count(),0,'native tool stays in its page region');
@@ -744,34 +740,13 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
     const layout=await page.evaluate(()=>({matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,overflow:document.documentElement.scrollWidth>innerWidth}));
     assert.ok(layout.panelStart>=layout.matrixEnd,'inline findings follow the matrix in page flow');assert.equal(layout.overflow,false);
    }
-   await orb().click();
-   if(width<981){
-    await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
-    assert.equal(await page.getByRole('dialog').count(),1);
-   }else{
-    const raziel=page.locator('.sod29-companion-raziel');
-    await raziel.waitFor({state:'visible'});
-    await page.waitForFunction(()=>document.querySelector('.sod29-companion-raziel input')===document.activeElement);
-    assert.equal(await page.getByRole('dialog').count(),0,'desktop Raziel uses the existing companion without a second dialog');
-   }
-   assert.ok(await dock.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),'Raziel keeps the dock reachable');
-   await dock.getByRole('button',{name:'שמירה',exact:true}).click();
-   assert.equal(await page.getByRole('dialog').count(),0,'a native action dismisses the shared transient');
-   await dock.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
-   assert.equal(await dock.getAttribute('data-command-mode'),'global');
-   assert.ok(Math.abs((await orb().boundingBox()).x-orbX)<1,'Raziel keeps its stable slot');
-   await dock.getByRole('button',{name:/חיפוש/}).click();
-   await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
-   await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
-   await dock.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
-   assert.equal(await dock.getAttribute('data-command-mode'),'tool');
    assert.deepEqual((await identity(page)).axis,before.axis);
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
    assert.equal(await page.locator('iframe').count(),1);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
+   if(process.env.ELS_SCREENSHOT_DIR){const findingsButton=local.getByRole('button',{name:'סריקה וממצאים',exact:true});if(await findingsButton.getAttribute('aria-expanded')!=='true')await findingsButton.click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`local-rail-${width}.png`),fullPage:true});}
    await page.evaluate(()=>window.__setNativeVisible(false));
-   await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
+   await dock.waitFor({state:'visible'});
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
    assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
    assert.equal(await dock.getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
@@ -1906,11 +1881,11 @@ test('design integration: royal controls preserve matrix identity and stable tou
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
   for(const width of [320,390,1440]) await withNative({width,height:1000},async page=>{
    const baseline=await identity(page);
-   const dock=page.locator('.sod29-command-island');
-   await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
+   const local=page.getByRole('group',{name:'כלי המטריצה',exact:true});
+   await local.waitFor({state:'visible'});
+   assert.equal(await page.locator('.sod29-command-island').isVisible(),false);
    for(const preset of ['light','parchment','dark']){
     await page.evaluate(preset=>window.__setThemePreset(preset),preset);
-    await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
     const submit=page.locator('.els29-native-search');
     const primary=await submit.evaluate(el=>({background:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color,font:getComputedStyle(el).fontFamily}));
     // Dark returns to the approved black/gold/brown palette. Light and
@@ -1946,7 +1921,7 @@ test('design integration: royal controls preserve matrix identity and stable tou
         return window.__elsOriginalAnimate.call(this,frames,options);
       };
     });
-    await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
+    await local.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
     await page.keyboard.press('Enter');
     assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
     await page.evaluate(()=>{Element.prototype.animate=window.__elsOriginalAnimate;});
@@ -1962,7 +1937,7 @@ test('design integration: royal controls preserve matrix identity and stable tou
    for(const setting of ['os','frame']){
     if(setting==='os')await page.emulateMedia({reducedMotion:'reduce'});
     else{await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('.sod29-root').evaluate(el=>el.dataset.frameReducedMotion='true');}
-    const action=dock.getByRole('button',{name:'שמירה',exact:true});
+    const action=local.getByRole('button',{name:'שמירה',exact:true});
     if(await button(page,'סגור כלי מטריצה').count())await activate(page,'סגור כלי מטריצה');
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     await action.press('Enter');

@@ -620,14 +620,14 @@
 @media(min-width:981px) and (max-width:1180px){
  .els29-native-classic{--els29-panel-width:320px}
 }
-/* The dock replaces the local launcher strip when the shared frame is present. */
-.els29-native-layout.has-system-dock{grid-template-columns:minmax(0,1fr)}
-.els29-native-layout.has-system-dock.is-panel-pinned{grid-template-columns:minmax(0,1fr) var(--els29-panel-width)}
-.els29-native-layout.has-system-dock .els29-native-panel-wrap{inset-inline-end:0}
+/* ELS keeps its original local tool rail. Its shared bottom command bar is suppressed
+   only on this surface so matrix actions have one predictable home. */
+.sod29-root:has([data-els-native-classic]){--s29-bar-height:0px!important;--s29-island-clearance:24px!important}
+.sod29-root:has([data-els-native-classic]) .sod29-command-island{display:none!important}
 .els29-native-query,.els29-native-panel-wrap{scroll-margin-block-start:calc(var(--s29-header-height,68px) + 16px);scroll-margin-block-end:calc(var(--s29-island-clearance,104px) + env(safe-area-inset-bottom,0px))}
 @media(max-width:980px){
  .els29-native-classic{--els29-stage-height-base:clamp(500px,77.5dvh,700px)}
- .els29-native-layout,.els29-native-layout.is-panel-pinned,.els29-native-layout.has-system-dock.is-panel-pinned{grid-template-columns:minmax(0,1fr)}
+ .els29-native-layout,.els29-native-layout.is-panel-pinned{grid-template-columns:minmax(0,1fr)}
  .els29-native-stage-column{grid-row:2}
  .els29-native-toolstrip,.els29-native-layout.is-panel-pinned .els29-native-toolstrip{grid-column:1;grid-row:1;display:flex;position:static;justify-content:flex-end}
  .els29-native-toolstrip button{min-width:64px}
