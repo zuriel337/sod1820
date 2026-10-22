@@ -66,9 +66,9 @@ test("media-only source does not show empty technical title", () => {
   assert.equal(readableSourceTitle(null), "עדכון מהמקור");
 });
 
-test("both World layouts use one category-free subject reader and keep sources separate", () => {
+test("the single public World layout uses one category-free subject reader and keeps sources separate", () => {
   const world = readFileSync(new URL("../src/pages/World2029Page.jsx", import.meta.url), "utf8");
-  assert.equal((world.match(/<WorldPublicSourceSubjects2029 \/>/g) || []).length, 2);
+  assert.equal((world.match(/<WorldPublicSourceSubjects2029 \/>/g) || []).length, 1);
   assert.doesNotMatch(world, /<WorldSourceDepth|sourceDepthOpen/);
   const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);

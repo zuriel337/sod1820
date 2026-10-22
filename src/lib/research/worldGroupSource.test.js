@@ -137,5 +137,5 @@ test("group timeline is accessible without mandatory topical classification or r
   assert.match(component, /עוד הודעות ישנות יותר/);
   assert.match(component, /סיווג|שיוך לנושא אינו תנאי/);
   assert.doesNotMatch(component, /\.from\("research_objects"\)|fetchResearchObjects|\.from\("channel_updates"\)/);
-  assert.equal((world.match(/<ZviGroupTimeline2029 /g) || []).length, 2);
+  assert.equal((world.match(/<ZviGroupTimeline2029 /g) || []).length, 1);
 });

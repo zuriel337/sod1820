@@ -94,7 +94,7 @@ assert.equal(world.includes('TransitionAnnouncement context="beit"'), false, "Wo
 assert.match(world, /FrameState/);
 assert.match(world, /use2029Shell/);
 assert.match(world, /shell\.openCommand\(\)/);
-assert.match(world, /shell\.openAttention\(\)/);
+assert.equal(world.includes("shell.openAttention()"), false, "the retired control landing does not keep its local Now button");
 assert.equal(world.includes("shell.openRaziel()"), false);
 assert.equal(world.includes('to="/heichal"'), false);
 assert.equal(world.includes("shareOrCopy"), false);
@@ -104,55 +104,43 @@ assert.equal(world.includes("UserCenter"), false);
 assert.equal(world.includes('status="LIVE"'), false);
 assert.match(world, /status="עולם · גילוי"/);
 
-// Landing World Core replaces the decorative orbit with real, accessible navigation over
-// the already-loaded landing facets. It owns no new taxonomy/data and keeps motion optional.
-assert.match(world, /function WorldCoreMap/);
-assert.match(world, /aria-label="לב העולם"/);
-assert.match(world, /aria-label="פתח חיפוש בעולם"/);
-assert.match(world, /onSearch=\{\(\) => shell\.openCommand\(\)\}/);
-assert.match(world, /aria-controls=\{landingSectionId\(facet\.key\)\}/);
-assert.match(world, /section\.scrollIntoView/);
-assert.match(world, /בחר שער כדי לקפוץ ישר אליו/);
-assert.match(world, /כותבים ומקורות/);
-assert.match(world, /world-auth-identity-bridge/, "World must expose account/admin identity state");
-assert.ok(world.indexOf("world-auth-identity-bridge") < world.indexOf("כותבים ומקורות"), "World auth/admin identity must be visible before the lower researcher section");
-assert.match(world, /התחברות \/ מנהל/, "World guests need a visible bridge to the canonical login");
-assert.match(world, /const adminReviewHref = "\/world\?admin=1"/, "World must offer a stable explicit admin-review deep link");
-assert.match(world, /adminLoginHref/, "World login bridge must preserve the requested admin review");
-assert.match(world, /if \(isAdmin && adminReviewRequested\) setAdminToolsOpen\(true\)/, "admin review may open only after the authenticated admin check");
-assert.match(world, /const controlMode = isAdmin && adminToolsOpen/, "admin reader remains fail-closed after deep-link handling");
+// The composed public World is the only landing. The legacy control/admin landing is retired.
+assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\} \/>/);
+assert.match(world, /<SourceArrivalList2029/);
+assert.match(world, /<WorldSourceStory research=\{research\} shell=\{shell\} compact \/>/);
+assert.match(world, /<WorldDiscoveryDoors \/>/);
+assert.match(world, /קולות ומקורות בעולם/);
+assert.equal(world.includes("world-auth-identity-bridge"), false, "the public World must not be hidden behind an account/admin bridge");
+assert.equal(world.includes("התחברות / מנהל"), false, "the public World must not present the retired admin entrance");
+assert.equal(world.includes("world-admin-tools"), false, "the retired admin table must be disconnected from World");
+assert.equal(world.includes("fetchWorldAllResearchProjection"), false, "World must not load the admin all-material payload");
+assert.match(world, /const \[writerFilter, setWriterFilter\] = useState\("tzvi-opoc"\)/, "Zvi's public corpus opens by default");
 assert.match(authPage, /safeOAuthReturnPath/, "canonical login must validate local return targets");
 assert.match(authPage, /navigate\(returnTo, \{ replace: true \}\)/, "canonical login must return to the requested local surface");
 assert.match(authPage, /requestEmailOtp\(email, \{ shouldCreateUser: !preview \}\)/, "preview login must not create a new account");
 assert.match(authPage, /OAUTH_PREVIEW_UNVERIFIED/, "preview Google login must fail with a visible explanation");
-assert.match(world, /isAdmin \? "מנהל" : "מחובר"/, "World must visibly distinguish an admin session from a regular signed-in session");
 assert.match(world, /ContributorFindingsLens/, "World must reuse the canonical contributor findings lens");
 assert.match(world, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
 assert.match(world, /world-contributor-findings-projection/, "selected researcher material must be projected inside World");
 // Public site-writer sources are distinct from private personal research and admin tools.
 assert.match(world, /\{selectedWriter \? <section/, "selected writer sources are available to every viewer");
 assert.equal(world.includes("selectedWriter && isAdmin"), false, "public writer sources are not admin-only");
-assert.match(world, /controlMode \? PROJECTOR_MODE\.ADMIN_ALL : PROJECTOR_MODE\.PUBLIC_VIEW/, "admin reader requires authorized control mode");
-assert.match(world, /const controlMode = isAdmin && adminToolsOpen/, "admin reader requires admin AND open tools");
-assert.equal((world.match(/PROJECTOR_MODE\.ADMIN_ALL/g) || []).length, 1, "no second unguarded admin reader");
+assert.match(world, /const contributorReadMode = PROJECTOR_MODE\.PUBLIC_VIEW/, "World always uses the anonymous public contributor reader");
+assert.equal(world.includes("PROJECTOR_MODE.ADMIN_ALL"), false, "World never requests an admin/private contributor payload");
 assert.doesNotMatch(contributorFindingsSource, /owner_slug|personal_scope/, "site contributor lens must not import personal research by owner");
 assert.match(contributorFindingsSource, /mode === PROJECTOR_MODE\.ADMIN_ALL \? sessionClient : publicClient\(\)/, "public reads use anonymous client even for signed-in admins");
 assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
 assert.match(attributionAttentionMigration, /פער ייחוס למחקר אישי/, "Attribution gap must be visible in Hebrew");
 assert.match(world, /מסע 878/);
-assert.match(world, /כאן מופיעים חיבורים מתועדים בין ביטויים/);
+assert.match(world, /כל חיבור פותח עוד עולם/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /בחירת כותב/);
-assert.match(world, /לקריאת המקורות והחיבורים שלו/);
+assert.match(world, /המקורות והכותבים בעולם/);
+assert.match(world, /לגלות את החומר והחיבורים שלו/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
-assert.match(worldCss, /sod29-world-core-map/);
-assert.match(worldCss, /sod29-world-core-ring/);
-assert.match(worldCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*sod29-world-core-ring\{animation:none!important\}/);
-assert.match(world, /מה חדש בעולם\?/);
-assert.match(world, /sod29-world-live-stream/);
-assert.match(world, /sod29-world-spatial-gateway/);
-assert.match(worldCss, /sod29-world-discovery-entrance/);
-assert.match(worldCss, /sod29-world-stream-list/);
+assert.match(world, /סיפור חדש\. עומק של שנים/);
+assert.match(world, /sod29-world-overview/);
+assert.match(world, /sod29-world-source-homes/);
+assert.equal(world.includes("sod29-world-spatial-gateway"), false, "the retired legacy control landing is removed");
 assert.match(world, /sod29-world-all-convergences/);
 assert.match(world, /כל ההתכנסויות/);
 assert.match(world, /ALL_CONVERGENCES_PAGE_SIZE = 24/);
@@ -520,11 +508,9 @@ assert.equal(zviCoverageFixture.uniqueUnlinked, 2, "same placeholder text with d
 assert.equal(zviCoverageFixture.exactDuplicateOccurrences, 1, "only same text + same media is an exact compound repeat");
 assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct media artifacts remain two attention items");
 
-assert.match(world, /<WorldConvergenceLens state=\{allResearchState\}/);
-assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
-assert.match(world, /fetchWorldAllResearchProjection/);
-assert.match(world, /const \[adminToolsOpen, setAdminToolsOpen\] = useState\(false\)/);
-assert.match(world, /const controlMode = isAdmin && adminToolsOpen/);
+assert.equal(world.includes("WorldConvergenceLens"), false, "the retired convergence admin lens is not mounted in World");
+assert.equal(world.includes("WorldAllResearchTable"), false, "the retired all-research admin table is not mounted in World");
+assert.equal(world.includes("adminToolsOpen"), false, "World has no admin-tools presentation state");
 assert.match(world, /const explicitContext = new URLSearchParams\(location\.search\)\.get\("focus"\) === "context"/,
   "plain World navigation must ignore stale cross-surface Research Context");
 assert.match(world, /if \(!explicitContext \|\|/,
@@ -541,23 +527,15 @@ assert.match(researcher2029Page, /shell\.go\("\/world\?focus=context"/,
   "Researcher token actions must declare their World context intent");
 assert.match(systemFrame2029, /\{ to: "\/world", label: "העולם"/,
   "global World navigation must remain a neutral destination without context intent");
-assert.match(world, /aria-controls="world-admin-tools"/);
-assert.match(world, /adminToolsOpen \? "סגור כלי מנהל" : "כלי מנהל"/);
-assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: false/);
 assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
-assert.match(world, /בחרו כותב כדי לקרוא את דבריו/);
+assert.match(world, /לגלות את החומר והחיבורים שלו/);
 assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
-assert.ok(
-  world.indexOf('aria-label="כותבים ומקורות"') < world.indexOf('id="world-admin-tools"'),
-  "researcher/content discovery must appear before internal admin tooling",
-);
-assert.match(world, /controlMode \? <section id="world-admin-tools"/);
 assert.match(world, /כל ההתכנסויות/, "public World catalog must keep the reader-facing convergence heading");
 assert.equal(world.includes("CONVERGENCE INDEX · PUBLIC PROJECTION"), false, "public World must not expose internal projection vocabulary");
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
-assert.match(world, /topicFacet && selectedWriter/);
+assert.match(world, /selectedWriter \? <section className="sod29-section sod29-world-contributor-findings-section"/);
 assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
 assert.match(worldAnchorMapSource, /עוגנים נבחרים/);
 assert.match(worldAnchorMapSource, /אינה רשימת כל העוגנים בעולם/);
@@ -1096,20 +1074,20 @@ for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים", "אין fallback שקט ל־Legacy", "World הוא projection",
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
-assert.match(world, /מה חדש בעולם\?/);
+assert.match(world, /סיפור חדש\. עומק של שנים/);
 assert.equal(world.includes("DISCOVERY WORLD"), false, "public World must not expose the old internal English surface label");
 assert.match(world, /עולם · גילוי/, "public World keeps the clean reader-facing status");
 
 // No silent substitute: explicit native states exist for loading/error/empty/unavailable.
 for (const kind of ["loading", "error", "empty", "unavailable"]) assert.match(world, new RegExp(`kind="${kind}"`));
-assert.match(world, /חומר שלא נטען אינו מוחלף במידע אחר/);
+assert.match(world, /חלק מהנושאים לא נטענו כרגע\. מה שכבר נפתח נשאר זמין/);
 assert.match(app, /path="\/world"/);
 
 // Every World -> Books transition goes through the shared Frame so return_exact is snapshotted.
 assert.equal(world.includes('to="/books"'), false);
 assert.match(world, /import \{ Link \} from "react-router-dom"/, "canonical Topic identities should be crawlable real links");
 const shellBookTransitions = [...world.matchAll(/shell\.go\((?:`|")\/books/g)].length;
-assert.equal(shellBookTransitions, 3);
+assert.equal(shellBookTransitions, 2);
 assert.match(world, /fetchEntityHubProjection\(\{ nodeId: targetNodeId/);
 assert.match(world, /shell\.openInspect\(/);
 assert.match(world, /returnTo:\s*\{[\s\S]*href: "\/world"/);

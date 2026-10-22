@@ -10,9 +10,6 @@ import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import WorldAllResearchTable from "../components/research/WorldAllResearchTable.jsx";
-import WorldConvergenceLens from "../components/research/WorldConvergenceLens.jsx";
-import WorldAnchorMap from "../components/research/WorldAnchorMap.jsx";
 import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
 import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
 
@@ -62,8 +59,6 @@ import {
 import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
 import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
-import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
-import { fetchWorldAnchorProjection } from "../lib/research/worldAnchorProjection.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
@@ -83,24 +78,6 @@ const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
 const WORLD_878_JOURNEY_LOCKED = GOLDEN_WORLD_JOURNEY_878.locked === true;
-
-const WORLD_FACETS = [
-  { key: "topic", title: CONVERGENCES_LABEL, kicker: "מה מתכנס כאן", limit: 8 },
-  { key: "number", title: "מספרים בעולם", kicker: "מספרים", limit: 10 },
-  { key: "book", title: "ספרים ומקורות", kicker: "מקורות", limit: 6 },
-  { key: "event", title: "אירועים", kicker: "זמן ומציאות", limit: 6 },
-  { key: "phrase", title: "ביטויים", kicker: "שפה וביטוי", limit: 6 },
-];
-
-const WORLD_CORE_FACETS = Object.freeze({
-  topic: { label: CONVERGENCES_LABEL, symbol: "✦" },
-  number: { label: "מספרים", symbol: "123" },
-  book: { label: "מקורות", symbol: "▤" },
-  event: { label: "אירועים", symbol: "◷" },
-  phrase: { label: "ביטויים", symbol: "א" },
-});
-
-const landingSectionId = (key) => `world-facet-${key}`;
 
 const FACET_LABELS = {
   topic: CONVERGENCE_LABEL,
@@ -497,37 +474,6 @@ function WorldDiscoveryDoors() {
   </section>;
 }
 
-function WorldCoreMap({ sections, loading, onSearch, onOpenFacet }) {
-  const activeFacets = WORLD_FACETS.filter((facet) => (sections?.[facet.key] || []).length > 0).slice(0, 5);
-  return (
-    <div className="sod29-world-core-map" aria-label="לב העולם">
-      <span className="sod29-world-core-ring ring-a" aria-hidden="true" />
-      <span className="sod29-world-core-ring ring-b" aria-hidden="true" />
-      <button className="sod29-world-core-center" type="button" onClick={onSearch} aria-label="פתח חיפוש בעולם">
-        <span>לב העולם</span>
-        <strong>{WORLD_EXPERIENCE.brand.canonicalLatinIdentity}</strong>
-        <small>{loading ? "מחבר שערים…" : activeFacets.length ? `${activeFacets.length} שערים פתוחים` : "פתח חיפוש"}</small>
-      </button>
-      {activeFacets.map((facet, index) => {
-        const meta = WORLD_CORE_FACETS[facet.key] || { label: facet.title, symbol: "•" };
-        const shown = sections?.[facet.key]?.length || 0;
-        return <button
-          key={facet.key}
-          className={`sod29-world-core-node p${index + 1}`}
-          type="button"
-          aria-controls={landingSectionId(facet.key)}
-          onClick={() => onOpenFacet(facet)}
-        >
-          <span className="sod29-world-core-symbol" aria-hidden="true">{meta.symbol}</span>
-          <strong>{meta.label}</strong>
-          <small>{shown} מוצגים</small>
-        </button>;
-      })}
-      <div className="sod29-world-core-hint">בחר שער כדי לקפוץ ישר אליו</div>
-    </div>
-  );
-}
-
 function WorldSourceStory({ research, shell, compact = false }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -614,25 +560,16 @@ function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
   const navigate = useNavigate();
   const palette = usePalette();
-  const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
-  const [adminToolsOpen, setAdminToolsOpen] = useState(false);
-  const controlMode = isAdmin && adminToolsOpen;
-  const adminReviewRequested = new URLSearchParams(location.search).get("admin") === "1";
-  const adminReviewHref = "/world?admin=1";
-  const adminLoginHref = `/login?returnTo=${encodeURIComponent(adminReviewHref)}`;
   const [landing, setLanding] = useState({
     loading: true,
-    sections: {},
     contributors: null,
     discovery: null,
     journey: null,
-    error: null,
     contributorError: null,
     discoveryError: null,
     journeyError: null,
   });
-  const [writerFilter, setWriterFilter] = useState("all");
-  const [discoveryCreator, setDiscoveryCreator] = useState("all");
+  const [writerFilter, setWriterFilter] = useState("tzvi-opoc");
   const [corpusKey, setCorpusKey] = useState(null);
   const openAnchoredContext = (nextContext) => {
     research.setResearchContext?.(nextContext);
@@ -646,8 +583,6 @@ function LiveWorldLanding({ research, shell, context }) {
     loading: true, loadingMore: false, cards: [], hasMore: false, total: null, error: null,
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
-  const [allResearchState, setAllResearchState] = useState({ enabled: false, loading: false, projection: null, error: null });
-  const [anchorState, setAnchorState] = useState({ loading: true, projection: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
 
   // Deep links from the shared Companion use existing World source readers.
@@ -670,58 +605,27 @@ function LiveWorldLanding({ research, shell, context }) {
     return () => window.cancelAnimationFrame(frame);
   }, [landing.loading, location.search, writerFilter, corpusKey]);
 
-  // An explicit review link may open the tools only after AuthContext proves the
-  // current account is an administrator. The query string never grants access.
-  useEffect(() => {
-    if (isAdmin && adminReviewRequested) setAdminToolsOpen(true);
-  }, [adminReviewRequested, isAdmin]);
-
-  useEffect(() => {
-    if (!controlMode || !adminReviewRequested) return undefined;
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById("world-admin-tools")?.scrollIntoView({ block: "start" });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [adminReviewRequested, controlMode]);
-
-
   const load = async () => {
     setLanding((prev) => ({
       ...prev,
       loading: true,
-      error: null,
       contributorError: null,
       discoveryError: null,
       journeyError: null,
     }));
 
     const contributorPromise = fetchWorldLandingContributorProjection();
-    const [facetResults, extras] = await Promise.all([
-      Promise.allSettled(
-        WORLD_FACETS.map((facet) => fetchExplorerFacetPage(facet.key, { limit: facet.limit, offset: 0 }))
-      ),
-      Promise.allSettled([
-        contributorPromise,
-        contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
-        fetchGoldenWorldJourney878(),
-      ]),
+    const extras = await Promise.allSettled([
+      contributorPromise,
+      contributorPromise.then((projection) => fetchWorldDiscoveryStream({ limit: 24, publicPeople: projection?.people || [], includeResearch: true })),
+      fetchGoldenWorldJourney878(),
     ]);
-
-    const sections = {};
-    let firstError = null;
-    facetResults.forEach((result, index) => {
-      const key = WORLD_FACETS[index].key;
-      if (result.status === "fulfilled") sections[key] = result.value?.cards || [];
-      else if (!firstError) firstError = result.reason;
-    });
 
     setLanding({
       loading: false,
-      sections,
       contributors: extras[0]?.status === "fulfilled" ? extras[0].value : null,
       discovery: extras[1]?.status === "fulfilled" ? extras[1].value : null,
       journey: extras[2]?.status === "fulfilled" ? extras[2].value : null,
-      error: firstError,
       contributorError: extras[0]?.status === "rejected" ? extras[0].reason : null,
       discoveryError: extras[1]?.status === "rejected" ? extras[1].reason : null,
       journeyError: extras[2]?.status === "rejected" ? extras[2].reason : null,
@@ -741,21 +645,9 @@ function LiveWorldLanding({ research, shell, context }) {
 
 
 
-  useEffect(() => {
-    let alive = true;
-    setAnchorState({ loading: true, projection: null, error: null });
-    fetchWorldAnchorProjection()
-      .then((projection) => {
-        if (alive) setAnchorState({ loading: false, projection, error: null });
-      })
-      .catch((error) => {
-        if (alive) setAnchorState({ loading: false, projection: null, error });
-      });
-    return () => { alive = false; };
-  }, []);
-
-  // PUBLIC for everyone (anonymous client, site-writer source material). ADMIN only inside explicit admin tools.
-  const contributorReadMode = controlMode ? PROJECTOR_MODE.ADMIN_ALL : PROJECTOR_MODE.PUBLIC_VIEW;
+  // The composed World is public. Always use the anonymous reader so an admin
+  // session can never turn this surface into a private-data projection.
+  const contributorReadMode = PROJECTOR_MODE.PUBLIC_VIEW;
   useEffect(() => {
     let alive = true;
     const slug = writerFilter === "all" ? null : writerFilter;
@@ -774,23 +666,6 @@ function LiveWorldLanding({ research, shell, context }) {
       });
     return () => { alive = false; };
   }, [contributorReadMode, writerFilter]);
-
-  useEffect(() => {
-    let alive = true;
-    if (!controlMode) {
-      setAllResearchState({ enabled: false, loading: false, projection: null, error: null });
-      return () => { alive = false; };
-    }
-    setAllResearchState({ enabled: true, loading: true, projection: null, error: null });
-    fetchWorldAllResearchProjection()
-      .then((projection) => {
-        if (alive) setAllResearchState({ enabled: true, loading: false, projection, error: null });
-      })
-      .catch((error) => {
-        if (alive) setAllResearchState({ enabled: true, loading: false, projection: null, error });
-      });
-    return () => { alive = false; };
-  }, [controlMode]);
 
   useEffect(() => {
     let alive = true;
@@ -976,23 +851,15 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  const populatedSections = WORLD_FACETS.filter((facet) => (landing.sections[facet.key] || []).length > 0);
   const selectedWriter = writerFilter === "all" ? null : landing.contributors?.bySlug?.[writerFilter] || null;
   const writerMeetings = selectedWriter ? selectedWriter.meetings || [] : landing.contributors?.meetings || [];
-  const topicFacet = WORLD_FACETS.find((facet) => facet.key === "topic");
-  const otherPopulatedSections = populatedSections.filter((facet) => facet.key !== "topic");
   const lastJourney = Array.isArray(research.journeys)
     ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
     : null;
   const publicCreator = (creator) => landing.contributors?.people?.find((person) =>
     person.slug === creator || person.displayName === creatorLabel(creator));
 
-  const discoveryItems = useMemo(() => {
-    const items = Array.isArray(landing.discovery?.items) ? landing.discovery.items : [];
-    if (discoveryCreator === "all") return items;
-    return items.filter((item) => item.creator === discoveryCreator);
-  }, [landing.discovery, discoveryCreator]);
-  const discoveryCreators = Array.isArray(landing.discovery?.creators) ? landing.discovery.creators : [];
+  const discoveryItems = Array.isArray(landing.discovery?.items) ? landing.discovery.items : [];
   useEffect(() => {
     if (!location.hash.startsWith("#group-source-")) return;
     const element = document.getElementById(location.hash.slice(1));
@@ -1056,30 +923,7 @@ function LiveWorldLanding({ research, shell, context }) {
     return value;
   };
 
-  const openLandingFacet = (facet) => {
-    if (!facet?.key || typeof document === "undefined") return;
-    const section = document.getElementById(landingSectionId(facet.key));
-    if (!section) return;
-    section.focus?.({ preventScroll: true });
-    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    section.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  };
-
-
-  const openAnchorValue = (value) => {
-    const numericValue = Number(value);
-    if (!Number.isSafeInteger(numericValue)) return;
-    openAnchoredContext({
-      subject: { id: String(numericValue), type: "number", label: String(numericValue), href: "/world" },
-      selection: { entityId: String(numericValue), entityType: "number" },
-      lens: "world",
-      dimensions: { entrySource: "world-anchor-map" },
-      returnTo: { href: "/world", label: "עוגני המחקר" },
-    });
-  };
-
-  // Same journey owner in public composed World and the legacy admin view.
-  // Preserve the Golden 878 invitation instead of hiding it behind the old layout.
+  // Preserve the Golden 878 invitation inside the single composed public World.
   const goldenJourneySection = WORLD_878_JOURNEY_LOCKED
     ? <section className="sod29-section sod29-world-journey-section is-locked" aria-label="מסע 878 נעול" data-world-journey-locked="878">
         <div className="sod29-section-head"><div><div className="sod29-kicker">מסע · שמור לעריכה</div><h2>מסע 878 · נעול</h2>
@@ -1114,7 +958,7 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
     </section> : null);
 
-  if (!controlMode) return <>
+  return <>
     <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
       <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
         <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
@@ -1147,10 +991,12 @@ function LiveWorldLanding({ research, shell, context }) {
     </section>
     {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus key={spec.key} spec={spec}
       recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? null} />)}
-    {selectedWriter ? <section className="sod29-section" id="world-contributor-material" aria-label={`החומר של ${selectedWriter.displayName}`}>
-      <ContributorFindingsLens projection={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.projection : null}
-        loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.loading}
-        error={contributorFindingsState.slug === selectedWriter.slug ? contributorFindingsState.error : null} />
+    {selectedWriter ? <section className="sod29-section sod29-world-contributor-findings-section" id="world-contributor-material"
+      aria-label={`כל החומר של ${selectedWriter.displayName}`} data-experience-capability="world-contributor-findings-projection">
+      <ContributorFindingsLens
+        projection={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.projection : null}
+        loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
+        error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null} />
       {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
         <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
     </section> : null}
@@ -1191,291 +1037,6 @@ function LiveWorldLanding({ research, shell, context }) {
       </div>
     </section>
 
-    {goldenJourneySection}
-    <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
-      <div className="sod29-kicker">לאן זה מוביל?</div><h2>להיכנס לאותיות. להמשיך לחיבור הבא.</h2>
-      <p>מכל חישוב שנפתח אפשר להמשיך למסע אישי באותה דרך: הביטוי, השיטה והמקור נשארים איתך.</p>
-      <div className="sod29-actions"><Link className="sod29-action primary"
-        to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>878 · לתוך המילוי של משיח</Link>
-        <button className="sod29-action" onClick={() => shell.openCommand()}>לבחור מספר או ביטוי אחר</button></div>
-      <p className="sod29-muted">כאן נפתח דף המספר עם הביטוי והשיטה. התחלת מסע ושמירה הן פעולות לבחירתך; המסע הערוך המלא של 878 עדיין בבנייה.</p>
-    </section>
-  </>;
-
-  return <>
-    {(import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
-    <section
-      className="sod29-focus-stage sod29-world-native-entry sod29-world-discovery-entrance"
-      id="world-entry"
-      data-experience-surface={WORLD_EXPERIENCE.surface}
-      data-experience-question={WORLD_EXPERIENCE.experience.question}
-      data-spatial-default={WORLD_EXPERIENCE.spatial.defaultLevel}
-    >
-      <div className="sod29-world-discovery-sky" aria-hidden="true" />
-      <div className="sod29-world-discovery-head">
-        <div>
-          <div className="sod29-kicker">{WORLD_EXPERIENCE.brand.identity} · גילוי</div>
-          <h2>מה חדש בעולם?</h2>
-          <p>רמזי גאולה, סיפורים ותיעוד שהתחדשו באתר. אפשר לפתוח מקור גם לפני ששויך לנושא, ולבחור לאן להמשיך ממנו.</p>
-        </div>
-        <div className="sod29-actions">
-          <div className="sod29-actions" data-experience-capability="world-auth-identity-bridge" aria-label="מצב חשבון">
-            {authLoading ? <span className="sod29-chip">בודק חשבון…</span> : user ? <>
-              <span className="sod29-chip">
-                {isAdmin ? "מנהל" : "מחובר"} · {profile?.display_name || profile?.username || user.email}
-              </span>
-              {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
-            </> : <a className="sod29-action primary" href={adminLoginHref}>התחברות / מנהל</a>}
-          </div>
-          {isAdmin ? <button
-            className="sod29-action"
-            type="button"
-            aria-expanded={adminToolsOpen}
-            aria-controls="world-admin-tools"
-            onClick={() => setAdminToolsOpen((open) => !open)}
-          >{adminToolsOpen ? "סגור כלי מנהל" : "כלי מנהל"}</button> : null}
-          <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>⌘ חפש בעולם</button>
-          <button className="sod29-action" type="button" onClick={() => shell.openAttention()}>◉ עכשיו</button>
-        </div>
-      </div>
-
-      <div className="sod29-world-discovery-grid">
-        <div className="sod29-world-live-stream">
-          <div className="sod29-world-stream-filters" role="group" aria-label="סינון מה חדש בעולם לפי יוצר">
-            <button type="button" className={`sod29-world-stream-filter${discoveryCreator === "all" ? " is-active" : ""}`} aria-pressed={discoveryCreator === "all"} onClick={() => setDiscoveryCreator("all")}>הכול</button>
-            {discoveryCreators.map((creator) => {
-              const recent = landing.discovery?.recentCounts?.[creator] ?? 0;
-              const corpus = corpusForCreator(creator);
-              return <button
-                type="button"
-                key={creator}
-                className={`sod29-world-stream-filter${discoveryCreator === creator ? " is-active" : ""}`}
-                aria-pressed={discoveryCreator === creator}
-                onClick={() => { setDiscoveryCreator(creator); if (corpus) setCorpusKey(corpus.key); }}
-              >{creator}{recent ? ` · ${recent}` : " · אין בעדכונים האחרונים"}</button>;
-            })}
-            {WORLD_SOURCE_CORPORA.map((spec) => <button
-              type="button"
-              key={`corpus:${spec.key}`}
-              className={`sod29-world-stream-filter${corpusKey === spec.key ? " is-active" : ""}`}
-              aria-pressed={corpusKey === spec.key}
-              data-experience-capability="world-source-corpus-entry"
-              onClick={() => setCorpusKey(corpusKey === spec.key ? null : spec.key)}
-            >{spec.label} · כל המקורות</button>)}
-          </div>
-
-          {landing.discovery?.groupArrivals ? <p role="status" className="sod29-world-stream-truth-note">{landing.discovery.groupArrivals.message}</p> : null}
-          {landing.discoveryError ? <FrameState kind="unavailable" title="הזרם החי לא זמין כרגע">העולם עצמו נשאר פתוח. לא נחליף חידושים חסרים בחומר מומצא.</FrameState> : null}
-          {landing.discovery?.unavailableSources?.includes("posts") ? <div className="sod29-world-stream-truth-note">חלק מעדכוני המקורות אינם זמינים כרגע.</div> : null}
-          {!landing.loading && !landing.discoveryError && !discoveryItems.length ? <FrameState kind="empty" title="אין כרגע חידושים במסנן הזה">אפשר לחזור ל״הכול״ או לפתוח שער אחר בעולם.</FrameState> : null}
-
-          {discoveryItems.length ? <div className="sod29-world-stream-list">
-            {discoveryItems.slice(0, 12).map((item, index) => {
-              const copy = <>
-              <span className="sod29-world-stream-pulse" aria-hidden="true" />
-              <div className="sod29-world-stream-copy">
-                <div className="sod29-world-stream-meta">
-                  <span>{item.kind === "source" ? "חדש מהמקור" : item.kind === "finding" ? "גילוי נוסף" : CONVERGENCE_LABEL}</span>
-                  <span>{item.creator}</span>
-                  <span>{discoveryDate(item.at)}</span>
-                </div>
-                <strong>{item.label}</strong>
-                {item.summary ? <small>{item.summary}</small> : null}
-                {item.stateLabel ? <small>{item.stateLabel}</small> : null}
-                {item.kind === "source" && item.researchCount > 0 ? <small>יש חיבורים נוספים למקור הזה</small> : null}
-              </div>
-              {Number.isFinite(item.value) ? <b>{item.value}</b> : <span className="sod29-world-stream-open">{item.sourceKind === "group_message" ? "קרא ↓" : "פתח ←"}</span>}
-              </>;
-              const itemClass = `sod29-world-stream-item${index === 0 ? " is-lead" : ""}`;
-              if (item.sourceKind === "group_message") return <details key={item.id} className="sod29-world-group-source">
-                <summary className={itemClass}>{copy}</summary>
-                <p className="sod29-world-group-source-body">{item.fullText}</p>
-                <SourceRepeatInfo2029 item={item} onSelect={(event) => {
-                  research.updateResearchContext?.({ subject: null, selection: { entityId: event.sourceRef, entityType: "source", sourceRef: event.sourceRef }, lens: "world" });
-                  shell.go(`/world#group-source-${event.id}`, { preserve: false });
-                }} />
-              </details>;
-              return <button type="button" className={itemClass} key={item.id} onClick={() => openDiscoveryItem(item)}>{copy}</button>;
-            })}
-          </div> : null}
-          <div className="sod29-world-stream-truth-note">העדכונים האחרונים מופיעים כאן, והחומר המלא נשאר בספריית המקורות. בחרו מקור כדי לקרוא ולהמשיך אל החיבורים שלו.</div>
-        </div>
-
-        <div className="sod29-world-spatial-gateway">
-          <div className="sod29-world-spatial-copy">
-            <span className="sod29-kicker">לב העולם</span>
-            <h3>לא רשימה — מרחב.</h3>
-            <p>כל שער פותח צד אחר של אותה מציאות: מספרים, מקורות, אירועים, ספרים וחיבורים.</p>
-          </div>
-          <WorldCoreMap
-            sections={landing.sections}
-            loading={landing.loading}
-            onSearch={() => shell.openCommand()}
-            onOpenFacet={openLandingFacet}
-          />
-        </div>
-      </div>
-    </section>
-
-    <WorldSourceStory research={research} shell={shell} />
-    <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
-
-          {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus
-            key={spec.key}
-            spec={spec}
-            recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? 0}
-          />)}
-
-    <WorldAnchorMap
-      projection={anchorState.projection}
-      loading={anchorState.loading}
-      error={anchorState.error}
-      onOpen={openAnchorValue}
-    />
-
-
-    {landing.loading ? <NativeStateSection><FrameState kind="loading" title="מחבר את העולם">נושאים, מקורות, מסעות וקשרים נטענים עכשיו.</FrameState></NativeStateSection> : null}
-    {landing.error ? <NativeStateSection><FrameState kind="error" title="חלק מהעולם אינו זמין כרגע">מה שהגיע בשלמותו נשאר גלוי; חומר שלא נטען אינו מוחלף במידע אחר.</FrameState></NativeStateSection> : null}
-    {!landing.loading && !populatedSections.length ? <NativeStateSection><FrameState kind="empty" title="אין כרגע חומר זמין להצגה">העולם נשאר שקט כשאין חומר אמיתי. אפשר לנסות שוב או לפתוח נקודה דרך החיפוש.</FrameState></NativeStateSection> : null}
-
-    {!landing.loading ? <section className="sod29-section sod29-world-people-section" id="world-researchers" aria-label="כותבים ומקורות">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">מי מביא את החומר</div>
-          <h2>כותבים ומקורות</h2>
-          <div className="sod29-muted">בחרו כותב כדי לקרוא את דבריו ולגלות לאילו נושאים ומקורות הם מתחברים.</div>
-        </div>
-
-      </div>
-      {landing.contributorError ? <FrameState kind="unavailable" title="רשימת הכותבים אינה זמינה כרגע">העולם נשאר פתוח בלי לנחש זהות או שיוך.</FrameState> : null}
-      {landing.contributors?.people?.length ? <div className="sod29-world-people-strip" role="group" aria-label="בחירת כותב">
-        <button type="button" className={`sod29-world-person-card${writerFilter === "all" ? " is-active" : ""}`} aria-pressed={writerFilter === "all"} onClick={() => setWriterFilter("all")}>
-          <strong>הכול</strong><small>כל הכותבים</small>
-        </button>
-        {landing.contributors.people.map((person) => <button
-          type="button"
-          key={person.slug}
-          className={`sod29-world-person-card${writerFilter === person.slug ? " is-active" : ""}`}
-          aria-pressed={writerFilter === person.slug}
-          onClick={() => setWriterFilter(person.slug)}
-        >
-          <strong>{person.displayName}</strong>
-          <small>{person.role || "כותב"}</small>
-          <span>לקריאת המקורות והחיבורים שלו</span>
-        </button>)}
-      </div> : null}
-    </section> : null}
-
-    {selectedWriter ? <section
-      className="sod29-section sod29-world-contributor-findings-section"
-      aria-label={`כל החומר של ${selectedWriter.displayName}`}
-      data-experience-capability="world-contributor-findings-projection"
-    >
-      {(() => {
-        const own = contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode;
-        return <ContributorFindingsLens
-          projection={own ? contributorFindingsState.projection : null}
-          loading={!own || contributorFindingsState.loading}
-          error={own ? contributorFindingsState.error : null}
-        />;
-      })()}
-    </section> : null}
-
-    {controlMode ? <section id="world-admin-tools" className="sod29-section" aria-label="כלי מנהל">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">כלי מנהל</div>
-          <h2>בקרה פנימית</h2>
-          <div className="sod29-muted">כלי השער האנושי ובקרת מחקר. הם אינם התוכן הראשי של העולם.</div>
-        </div>
-      </div>
-      <WorldConvergenceLens state={allResearchState} />
-      <WorldAllResearchTable state={allResearchState} />
-    </section> : null}
-
-    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="כל ההתכנסויות">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">אינדקס ההתכנסויות</div>
-          <h2>כל ההתכנסויות</h2>
-          <div className="sod29-muted">זהו קטלוג ציבורי של התכנסויות מאושרות, מתוך חומר קיים.</div>
-        </div>
-        <span className="sod29-chip">
-          {allConvergences.total != null ? `${allConvergences.cards.length} מתוך ${allConvergences.total}` : `${allConvergences.cards.length} נטענו`}
-        </span>
-      </div>
-
-      <WorldPublicSourceSubjects2029 />
-      <div className="sod29-world-catalog-controls">
-        <label className="sod29-world-catalog-search">
-          <span>חיפוש</span>
-          <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="חפש בכותרת או בתיאור…" aria-label="חיפוש בכל ההתכנסויות" />
-        </label>
-        <div className="sod29-world-catalog-creators" role="group" aria-label="סינון כל ההתכנסויות לפי יוצר">
-          <button type="button" className={`sod29-world-stream-filter${allCreator === "all" ? " is-active" : ""}`} aria-pressed={allCreator === "all"} onClick={() => setAllCreator("all")}>הכול</button>
-          {allCreatorOptions.map((creator) => <button
-            type="button"
-            key={creator}
-            className={`sod29-world-stream-filter${allCreator === creator ? " is-active" : ""}`}
-            aria-pressed={allCreator === creator}
-            onClick={() => setAllCreator(creator)}
-          >{creatorLabel(creator)}</button>)}
-        </div>
-      </div>
-
-      {allConvergences.loading ? <FrameState kind="loading" title="טוען את כל ההתכנסויות">החיפוש והסינון מתבצעים מול projection ההתכנסויות הציבורי המאושר.</FrameState> : null}
-      {allConvergences.error && !allConvergences.cards.length ? <FrameState kind="error" title="הקטלוג לא נטען כרגע">לא נחליף רשימה חסרה בחומר אחר.</FrameState> : null}
-      {!allConvergences.loading && !allConvergences.cards.length && !allConvergences.error ? <FrameState kind="empty" title="לא נמצאו התכנסויות במסנן הזה">שנה את החיפוש או חזור ל״הכול״.</FrameState> : null}
-
-      {allConvergences.cards.length ? <div className="sod29-world-catalog-grid">
-        {allConvergences.cards.map((card) => <Link className="sod29-world-catalog-card" to={card.href} key={`all:${card.id}`}>
-          <div className="sod29-world-catalog-meta">
-            <span>{CONVERGENCE_LABEL}</span>
-            {card.creator ? <span>{creatorLabel(card.creator)}</span> : null}
-          </div>
-          <strong>{card.label}</strong>
-          {card.sub ? <p>{card.sub}</p> : null}
-          {card.numbers?.length ? <div className="sod29-world-catalog-numbers">{card.numbers.slice(0, 5).map((n) => <span key={n}>{n}</span>)}</div> : null}
-          <small>פתח התכנסות ←</small>
-        </Link>)}
-      </div> : null}
-
-      {allConvergences.hasMore ? <div className="sod29-world-catalog-more">
-        <button className="sod29-action primary" type="button" disabled={allConvergences.loadingMore} onClick={loadMoreConvergences}>
-          {allConvergences.loadingMore ? "טוען עוד…" : "טען עוד התכנסויות"}
-        </button>
-      </div> : null}
-      {allConvergences.error && allConvergences.cards.length ? <div className="sod29-muted sod29-world-catalog-error">טעינת העמוד הבא נכשלה. מה שכבר נטען נשאר גלוי.</div> : null}
-    </section>
-
-    {!landing.loading && topicFacet && selectedWriter ? <section className="sod29-section sod29-world-facet-section sod29-world-meetings-section" id={landingSectionId("topic")} tabIndex={-1}>
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">מה נפגש כאן</div>
-          <h2>{`${CONVERGENCES_LABEL} של ${selectedWriter.displayName}`}</h2>
-          <div className="sod29-muted">כאן מופיעים חיבורים מתועדים בין ביטויים, מספרים ומקורות. אפשר לפתוח כל נושא ולגלות את הקשרים שלו.</div>
-        </div>
-      </div>
-      {writerMeetings.length ? <div className="sod29-book-grid">
-        {writerMeetings.map((meeting) => <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}
-      </div> : <FrameState kind="empty" title={`אין כרגע התכנסות ציבורית מיוחסת ל${selectedWriter.displayName}`}>אפשר להמשיך לקרוא את המקורות של הכותב, גם כשאין עדיין נושא ציבורי מקושר.</FrameState>}
-    </section> : null}
-
-    {goldenJourneySection}
-
-    {!landing.loading && otherPopulatedSections.map((facet) => {
-      const cards = landing.sections[facet.key] || [];
-      return <section className="sod29-section sod29-world-facet-section" id={landingSectionId(facet.key)} tabIndex={-1} key={facet.key}>
-        <div className="sod29-section-head">
-          <div><div className="sod29-kicker">{facet.kicker}</div><h2>{facet.title}</h2></div>
-          {facet.key === "book" ? <button className="sod29-action" type="button" onClick={() => shell.go("/books")}>לכל הספרים</button> : null}
-        </div>
-        <div className="sod29-book-grid">
-          {cards.map((card) => <WorldCard key={`${card.facet}:${card.id}`} card={card} onOpen={openCard} />)}
-        </div>
-      </section>;
-    })}
-
     {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את ההתכנסות">טוען את מה שנמצא סביב ההתכנסות.</FrameState></NativeStateSection> : null}
     {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="ההתכנסות לא נטענה כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
@@ -1491,7 +1052,18 @@ function LiveWorldLanding({ research, shell, context }) {
       </div> : null}
       <TopicConvergenceContent finding={topicDetail.finding} palette={palette} />
     </section> : null}
+
+    {goldenJourneySection}
+    <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
+      <div className="sod29-kicker">לאן זה מוביל?</div><h2>להיכנס לאותיות. להמשיך לחיבור הבא.</h2>
+      <p>מכל חישוב שנפתח אפשר להמשיך למסע אישי באותה דרך: הביטוי, השיטה והמקור נשארים איתך.</p>
+      <div className="sod29-actions"><Link className="sod29-action primary"
+        to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>878 · לתוך המילוי של משיח</Link>
+        <button className="sod29-action" onClick={() => shell.openCommand()}>לבחור מספר או ביטוי אחר</button></div>
+      <p className="sod29-muted">כאן נפתח דף המספר עם הביטוי והשיטה. התחלת מסע ושמירה הן פעולות לבחירתך; המסע הערוך המלא של 878 עדיין בבנייה.</p>
+    </section>
   </>;
+
 }
 
 function AnchoredWorld({ research, shell, subject, context }) {
