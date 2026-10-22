@@ -98,9 +98,10 @@ function fixturePlugin() {
     ["virtual:bm-icon.jsx", `import React from "react";export default function Icon(){return React.createElement("span",{"aria-hidden":true},"◇")}`],
     ["virtual:bm-ratings.jsx", `import React from "react";export default function Ratings({quality,meterScore}){return React.createElement("div",{className:"k29-rate","data-quality":quality??"missing","data-meter":meterScore??"missing"},"איכות ",quality??"לא דורג"," · חוזק ",meterScore??"אין נתון")}`],
     ["virtual:bm-trace-component.jsx", `export default function Trace(){return null}`],
+    ["virtual:bm-spatial-stage.jsx", `import React from "react";export default function Stage({methodKey}){return React.createElement("div",{"data-experience-capability":"spatial-method-stage","data-method-key":methodKey},"המחשת שיטה")}`],
     ["virtual:bm-registry.js", `export const fetchGematriaMethodStates=async()=>[{method_key:"standard",display_label:"רגיל",category:"base",active:true,registered:true,executable:true,engine_verified:true,scannable:true}];`],
     ["virtual:bm-number.js", `export const fetchNumberMethodProfile=async()=>[{methodKey:"standard",displayLabel:"רגיל",category:"base",computedValue:73}];`],
-    ["virtual:bm-trace.js", `export const fetchGematriaMethodTrace=async()=>null;`],
+    ["virtual:bm-trace.js", `export const fetchGematriaMethodTrace=async(method,input)=>({id:"trace-1",projection:{dimensions:{trace:{method_key:method,input,result:73,verification:{status:"verified"},steps:[]}}}});`],
     ["virtual:bm-definition.js", `export const methodMechanicalDefinition=()=>({what:"סוכמת את ערכי האותיות",structure:null,dependencies:[],interpretation:null});`],
     ["virtual:bm-world.js", `
       export const fetchWorldAllResearchProjection=async()=>window.__projection;
@@ -117,6 +118,7 @@ function fixturePlugin() {
     ["NavigationIcon2029.jsx", "virtual:bm-icon.jsx"],
     ["ConvergenceRatings2029.jsx", "virtual:bm-ratings.jsx"],
     ["MethodTraceExplanation2029.jsx", "virtual:bm-trace-component.jsx"],
+    ["SpatialMethodStage2029.jsx", "virtual:bm-spatial-stage.jsx"],
     ["gematriaMethodRegistry.js", "virtual:bm-registry.js"],
     ["numberCoreProjection.js", "virtual:bm-number.js"],
     ["gematriaTrace.js", "virtual:bm-trace.js"],
@@ -277,6 +279,15 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     }));
     assert.match(lessonFonts.title, /^"?Rubik/, "lesson title");
     assert.match(lessonFonts.result, /^"?IBM Plex Mono|^'?IBM Plex Mono/, "numeric result");
+    await page.getByRole("button", { name: "איך הגענו לתוצאה?" }).click();
+    await page.waitForSelector('[data-experience-capability="spatial-method-stage"][data-method-key="standard"]');
+    const numberExample = page.locator('[data-number-example-link="true"]');
+    assert.equal(await numberExample.getAttribute("href"), "/2029/number/73?focus=%D7%97%D7%9B%D7%9E%D7%94&method=standard");
+    await numberExample.click();
+    const numberHandoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    assert.equal(numberHandoff.navigation.href, "/2029/number/73?focus=%D7%97%D7%9B%D7%9E%D7%94&method=standard");
+    assert.equal(numberHandoff.context.returnTo.href, "/beit-midrash/standard");
+    assert.equal(numberHandoff.context.returnTo.lens, "beit-midrash");
     if (shots) await page.locator("#methods").screenshot({ path: `${shots}/night-390-method.png` });
     await page.goto(`${origin}/beit-midrash/nope`);
     await page.waitForSelector('[data-frame-state="error"]');

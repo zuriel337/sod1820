@@ -1,10 +1,13 @@
 import React, { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
-import { FrameState } from "../experience2029/Sod2029Shell.jsx";
+import { FrameState, use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
+import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import { methodMechanicalDefinition } from "../../lib/research/beitMidrashMethodDefinition.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 
 const CATEGORY_LABELS = Object.freeze({
   base: "שיטות יסוד",
@@ -45,6 +48,9 @@ function MethodChooser({ methods, selectedKey, sampleExpression }) {
 }
 
 function MethodLesson({ method, methods, blocks, sampleExpression, traceState, onLoadTrace }) {
+  const location = useLocation();
+  const research = useResearch();
+  const shell = use2029Shell();
   const labels = useMemo(() => new Map(methods.map((item) => [item.methodKey, item.displayLabel])), [methods]);
   const definition = useMemo(
     () => methodMechanicalDefinition(method.registry, method, labels),
@@ -52,7 +58,39 @@ function MethodLesson({ method, methods, blocks, sampleExpression, traceState, o
   );
   const trace = traceState?.finding?.projection?.dimensions?.trace || null;
   const traceRequested = Boolean(traceState?.loading || traceState?.finding || traceState?.error);
+  const resultValue = Number(method.computedValue);
+  const numberHref = method.computedValue != null && Number.isSafeInteger(resultValue)
+    ? numberExpressionFocusHref(resultValue, { expression: sampleExpression, method: method.methodKey })
+    : null;
   const [doesTitle, buildTitle, exampleTitle, cautionTitle, tryTitle] = blocks;
+
+  const rememberAndOpenNumber = (event) => {
+    if (!numberHref) return;
+    const lessonHref = `${location.pathname}${location.search}${location.hash}`;
+    const selection = {
+      entityId: String(resultValue),
+      entityType: "number",
+      expression: sampleExpression,
+      method: method.methodKey,
+      resultValue,
+      focusKind: "expression",
+    };
+    research.updateResearchContext?.({
+      subject: { id: String(resultValue), type: "number", label: String(resultValue), href: numberHref },
+      selection,
+      lens: "number",
+      returnTo: {
+        href: lessonHref,
+        label: `בית המדרש · ${method.displayLabel}`,
+        subject: { id: method.methodKey, type: "method", label: method.displayLabel, href: lessonHref },
+        selection: { entityId: method.methodKey, entityType: "method", method: method.methodKey },
+        lens: "beit-midrash",
+      },
+    });
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    shell.go(numberHref, { preserve: false });
+  };
 
   return <article className="bm-lesson" aria-labelledby="bm-lesson-title" data-method-key={method.methodKey}>
     <header>
@@ -93,6 +131,14 @@ function MethodLesson({ method, methods, blocks, sampleExpression, traceState, o
         הצעדים נטענים רק לאחר בקשה מפורשת.
       </FrameState> : null}
       {traceState?.finding ? <div className="bm-trace">
+        <SpatialMethodStage2029
+          expression={sampleExpression}
+          methodKey={method.methodKey}
+          trace={trace}
+          expectedValue={method.computedValue ?? null}
+          contextRequired={method.executionKind === "context_activated" || method.registry?.execution_kind === "context_activated"}
+          depth="S2"
+        />
         <MethodTraceExplanation2029 method={method} methods={methods} expression={sampleExpression} trace={trace} />
       </div> : null}
     </section>
@@ -110,6 +156,9 @@ function MethodLesson({ method, methods, blocks, sampleExpression, traceState, o
       <Link className="bm-button is-primary" to={`/2029/calculator?q=${encodeURIComponent(sampleExpression)}&m=${encodeURIComponent(method.methodKey)}`}>
         <NavigationIcon2029 name="number" /> נסו במחשבון
       </Link>
+      {numberHref ? <Link className="bm-button" to={numberHref} onClick={rememberAndOpenNumber} data-number-example-link="true">
+        <NavigationIcon2029 name="number" /> ראו את הדוגמה בדף המספר
+      </Link> : null}
       <Link className="bm-link" to={methodHref(method.methodKey)} data-canonical-method-link="true">קישור קבוע לשיעור</Link>
     </section>
   </article>;

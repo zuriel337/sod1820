@@ -1003,6 +1003,42 @@ function NumberPageBody() {
     navigate("/world?focus=context");
   };
 
+  const openMethodLesson = (method) => {
+    const key = clean(method?.methodKey);
+    if (!key) return;
+    const href = `/beit-midrash/${encodeURIComponent(key)}`;
+    const current = research.context || {};
+    const subject = {
+      id: String(root),
+      type: "number",
+      label: String(root),
+      href: currentNumberHref,
+    };
+    const selection = {
+      ...focusSelection(root),
+      method: key,
+      resultValue: method?.computedValue == null ? null : Number(method.computedValue),
+    };
+    research.setResearchContext?.({
+      subject,
+      selection,
+      lens: "beit-midrash",
+      locale: current.locale || "he",
+      dimensions: current.dimensions || {},
+      journey: current.journey || null,
+      returnTo: {
+        href: currentNumberHref,
+        label: `דף המספר · ${root}`,
+        subject,
+        selection,
+        lens: "number",
+        dimensions: current.dimensions || {},
+        journey: current.journey || null,
+      },
+    });
+    shell.go(href, { preserve: false });
+  };
+
   const focusSurfaceContext = (focus) => {
     if (!focus || !Number.isSafeInteger(root)) return;
     const current = research.context || {};
@@ -1236,6 +1272,7 @@ function NumberPageBody() {
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
         onOpenWorld={() => openWorld()}
         onOpenHeichal={() => shell.go("/heichal")}
+        onOpenMethodLesson={openMethodLesson}
         onOpenJourney={continueJourney}
         journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878.rootValue ? "צא למסע 878" : "צא למסע"}
         onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
