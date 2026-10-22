@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import { resolveExperienceContext } from "../src/lib/experienceContext.js";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const page = read("src/pages/BeitMidrash2029Page.jsx");
@@ -9,6 +10,13 @@ const app = read("src/App2029.jsx");
 const dir = new URL("../src/components/beitMidrash2029/", import.meta.url);
 const parts = Object.fromEntries(fs.readdirSync(dir).map((name) => [name, fs.readFileSync(new URL(name, dir), "utf8")]));
 const ui = [page, ...Object.values(parts)].join("\n");
+
+test("System Frame recognizes Beit Midrash as an independent 2029 learning surface", () => {
+  const experience = resolveExperienceContext({ surface: "beit-midrash", locale: "he" });
+  assert.equal(experience.surface, "beit-midrash");
+  assert.equal(experience.experience.question, "איך לומדים ומבינים את השיטה?");
+  assert.equal(experience.experience.truthSafe, true);
+});
 
 test("guided examples come from one World load handed to the learning contract", () => {
   assert.equal((page.match(/fetchWorldAllResearchProjection\(\)/g) || []).length, 1);
