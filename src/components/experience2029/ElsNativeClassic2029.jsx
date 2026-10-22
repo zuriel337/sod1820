@@ -484,7 +484,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, journeyBusy, onPromote }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -509,6 +509,11 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const target = selectionValid ? { term: selected.term, hitId: selected.hitId, ...(selectedHit?.kind === "source-sequence" ? { kind: "source-sequence" } : {}) } : { hitId: state?.axis?.hitId };
   const targetLabel = selectionValid ? selected.term : state?.termRaw || state?.term || "הציר הראשי";
   const targetReady = verified && !!target.hitId;
+  const primaryTerm = state?.termRaw || state?.term || "הציר הראשי";
+  const replacementCandidates = canReplacePrimary ? findings.map((finding) => ({
+    finding,
+    hit: eligible(finding).find((hit) => hit.verified),
+  })).filter((candidate) => candidate.hit) : [];
 
   useEffect(() => {
     if (selected && !selectionValid) {
@@ -585,11 +590,24 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
       <div className="els29-native-findings">
         {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} style={{ "--els29-mark": palette.matrix.axis }} data-experience-capability="els-axis-actions">
-          <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${state.termRaw || state.term}`}
-            aria-pressed={!selectionValid} disabled={searchPending} onClick={() => selectTarget("", state.axis.hitId)}>
-            <i className="els29-native-color-dot" aria-hidden="true" />
-            <span><b>{state.termRaw || state.term}</b><small>ציר ראשי · דילוג {state.axis?.skip}</small><small>מופע {state.search?.occurrences?.selectedOrdinal || (state.occurrence?.index || 0) + 1}/{state.search?.occurrences?.total || state.occurrence?.count || 1}</small></span>
-          </button>
+          <div className="els29-native-finding">
+            <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${primaryTerm}`}
+              aria-pressed={!selectionValid} disabled={searchPending} onClick={() => selectTarget("", state.axis.hitId)}>
+              <i className="els29-native-color-dot" aria-hidden="true" />
+              <span><b>{primaryTerm}</b><small>ציר ראשי · דילוג {state.axis?.skip}</small><small>מופע {state.search?.occurrences?.selectedOrdinal || (state.occurrence?.index || 0) + 1}/{state.search?.occurrences?.total || state.occurrence?.count || 1}</small></span>
+            </button>
+            {canReplacePrimary ? <button type="button" aria-label={`פעולות הציר הראשי ${primaryTerm}`} title="החלפת הציר הראשי"
+              aria-expanded={expandedFinding === "__primary__"} aria-controls="els29-primary-axis-actions"
+              onClick={() => setExpandedFinding((term) => term === "__primary__" ? null : "__primary__")}>⋯</button> : null}
+          </div>
+          {canReplacePrimary ? <div className="els29-native-finding-extra els29-native-axis-replacement" id="els29-primary-axis-actions" hidden={expandedFinding !== "__primary__"}>
+            <strong>החלפת הציר הראשי</strong>
+            <p>כדי למחוק את „{primaryTerm}” צריך לבחור ציר חלופי. לאחר האימות ייפתח חלון השמירה, והציר הישן יוסר מאותו צופן.</p>
+            {replacementCandidates.length ? replacementCandidates.map(({ finding, hit }) => <button type="button" key={finding.t}
+              disabled={pending || journeyBusy} aria-label={`החלף את הציר הראשי ${primaryTerm} ב־${finding.t}`}
+              onClick={() => { setExpandedFinding(null);onPromote(finding, hit.hitId); }}>החלף ב־{finding.t}</button>)
+              : <small>עדיין אין ממצא מאומת שיכול להחליף את הציר. חפשו או בחרו ממצא אחר תחילה.</small>}
+          </div> : null}
         </div> : <p className="els29-native-muted">אחרי החיפוש הראשי יופיעו כאן הציר והממצאים שלו.</p>}
         {findings.map((finding, index) => {
           const hits = eligible(finding);
@@ -920,7 +938,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (pendingJourney && journeyComplete) {
       if (pendingJourney.kind === "promote") {
         setJourneyTrail((current) => [...current, pendingJourney.returnStep]);
-        setNotice(`הממצא ${pendingJourney.targetLabel} הפך לציר הראשי. אפשר לחזור בדיוק לציר הקודם.`);
+        setNotice(pendingJourney.saveAfterPromote
+          ? `הממצא ${pendingJourney.targetLabel} הפך לציר הראשי. שמרו כדי להסיר את ${pendingJourney.returnStep.label} מאותו צופן.`
+          : `הממצא ${pendingJourney.targetLabel} הפך לציר הראשי. אפשר לחזור בדיוק לציר הקודם.`);
+        if (pendingJourney.saveAfterPromote) setActiveTool("research");
       } else {
         setJourneyTrail(pendingJourney.nextTrail);
         setNotice(`חזרתם בדיוק לציר ${pendingJourney.targetLabel}.`);
@@ -999,22 +1020,23 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       setNotice("אי אפשר להפוך את הממצא לציר בלי מופע מאומת ומוצג.");
       return;
     }
-    const pending = {
-      kind: "promote",
-      target: promotion.target,
-      targetLabel: finding.t,
-      returnStep: {
-        snapshot: promotion.snapshot,
-        label: promotion.snapshot.term,
-        hitId: promotion.snapshot.axis.hitId,
-      },
-    };
     const ownsOpenedRecord = matrix?.id && (isAdmin || matrix.owner_user_id === user?.id);
     const replacingOpenedAxis = ownsOpenedRecord && (
       savedMatrixMatchesAxis(matrix, current)
       || savedMatrixCanReanchor(matrix, current)
       || (savedAxisReplacement?.recordId === matrix.id && journeyAnchorMatches(current, savedAxisReplacement.target))
     );
+    const pending = {
+      kind: "promote",
+      target: promotion.target,
+      targetLabel: finding.t,
+      saveAfterPromote: Boolean(replacingOpenedAxis),
+      returnStep: {
+        snapshot: promotion.snapshot,
+        label: promotion.snapshot.term,
+        hitId: promotion.snapshot.axis.hitId,
+      },
+    };
     setSavedAxisReplacement(replacingOpenedAxis ? {
       recordId: matrix.id,
       expected: {
@@ -1088,6 +1110,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
   const activeSavedAxisReplacement = savedAxisReplacement && savedAxisReplacement.recordId === matrix?.id
     && journeyAnchorMatches(engineState, savedAxisReplacement.target) ? savedAxisReplacement : null;
+  const canReplaceSavedPrimary = Boolean(matrix?.id && !activeSavedAxisReplacement
+    && (isAdmin || matrix.owner_user_id === user?.id)
+    && (savedMatrixMatchesAxis(matrix, engineState) || savedMatrixCanReanchor(matrix, engineState)));
   const savedMatrixReady = Boolean(matrix?.id && matrixActive && engineState?.provenance?.editId === matrix.id);
   const [loadedSavedMatrixId, setLoadedSavedMatrixId] = useState(null);
   useEffect(() => { setLoadedSavedMatrixId(null); }, [matrix?.id]);
@@ -1361,6 +1386,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onFindingControl={requestFindingControl}
           onFindingsChange={requestFindingsChange}
           researchProfile={researchProfile}
+          canReplacePrimary={canReplaceSavedPrimary}
           journeyBusy={!!journeyPending}
           onPromote={promoteFinding}
         />

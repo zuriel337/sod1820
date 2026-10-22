@@ -614,12 +614,13 @@ test('an owned saved cipher replaces its promoted primary axis in the same row a
    await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
    const oldAxis=await page.evaluate(()=>({term:window.__state.term,hitId:window.__state.axis.hitId}));
    await addSecondary(page,'התורה');
-   await selectAxis(page,'התורה');
    const target=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='התורה').hits.find(hit=>hit.shown&&hit.verified).hitId);
-   await activate(page,'הפוך לציר ראשי');
+   await activate(page,`פעולות הציר הראשי ${oldAxis.term}`);
+   assert.match(await page.locator('#els29-primary-axis-actions').textContent(),new RegExp(`כדי למחוק את „${oldAxis.term}”`));
+   await activate(page,`החלף את הציר הראשי ${oldAxis.term} ב־התורה`);
    await page.waitForFunction(hitId=>window.__state?.axis?.hitId===hitId,target);
    assert.ok((await page.evaluate(term=>window.__state.findings.some(finding=>finding.t===term),oldAxis.term)),'Journey retains the old axis until the replacement is saved');
-   await activate(page,'שמירה');
+   await page.getByText('החלפת הציר הראשי',{exact:true}).waitFor();
    assert.equal(await page.getByText('החלפת הציר הראשי',{exact:true}).count(),1);
    assert.match(await page.locator('.els29-native-save').textContent(),/שם הצופן „בית ירד” יישאר/);
    assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).inputValue(),'בית ירד');
