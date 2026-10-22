@@ -39,12 +39,13 @@ function fakeClient(label, tables, calls) {
 const noTopics = async () => [];
 
 test("source with zero Findings renders as a source group (no dummy Finding)", () => {
-  const p = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [SOURCE] });
+  const p = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [{ ...SOURCE, topics: ["שפה"] }] });
   assert.equal(p.sourceGroups.length, 1);
   const g = p.sourceGroups[0];
   assert.equal(g.findingCount, 0);
   assert.deepEqual(g.universalFindings, []);
   assert.equal(g.source.text, SOURCE.text); // Hebrew source witness preserved verbatim
+  assert.deepEqual(g.source.topics, ["שפה"]);
   assert.equal(g.title, "שלום עולם — דברי המקור בעברית");
   assert.equal(p.counts.sourceOnlyGroups, 1);
   assert.equal(p.counts.sourceGroupsWithFindings, 0);

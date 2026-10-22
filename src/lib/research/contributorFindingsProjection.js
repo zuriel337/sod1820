@@ -114,6 +114,7 @@ function sourceMeta(row) {
     imageUrl: clean(row.image_url) || null,
     thumbUrl: clean(row.thumb_url) || null,
     linkUrl: clean(row.link_url) || null,
+    topics: uniq(row.topics),
   };
 }
 
@@ -672,7 +673,7 @@ async function fetchContributorContributions(client, contributorId) {
 async function fetchSourceMessages(client, contributor, aliases, sourceRef = null) {
   const byId = new Map();
   let truncated = false;
-  const fields = "id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id";
+  const fields = "id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id,topics";
   const occurrenceId = channelUpdateOccurrenceId(sourceRef);
 
   if (occurrenceId) {
