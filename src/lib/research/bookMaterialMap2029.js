@@ -1,3 +1,5 @@
+import { selectionToWorkspaceItem } from "./bookSelectionAdapter.js";
+
 const PILOT_SLUGS = Object.freeze(["ahavat-torah", "sefer-hapliah"]);
 const PILOT_SLUG_SET = new Set(PILOT_SLUGS);
 
@@ -181,7 +183,15 @@ function normalizeResearchIntake(row) {
   const status = clean(row.status);
   const principle = clean(row.principle);
   if (!steps.length && !status && !principle) return null;
-  return { status: status || null, principle: principle || null, steps };
+  const cleanIds = (value) => Array.isArray(value) ? [...new Set(value.map(clean).filter(Boolean))] : [];
+  return {
+    status: status || null,
+    principle: principle || null,
+    steps,
+    candidateDatasetIds: cleanIds(row.candidate_datasets),
+    evidenceOnlyDatasetIds: cleanIds(row.evidence_only_datasets),
+    withdrawnDatasetIds: cleanIds(row.withdrawn_provenance),
+  };
 }
 
 function compact(items) {
@@ -259,4 +269,104 @@ export async function fetchBookMaterialMap(slug, { fetchImpl = globalThis.fetch 
   } catch {
     return unavailable(safeSlug, "load_failed");
   }
+}
+
+function firstPage(value) {
+  const match = clean(value).match(/\d+/);
+  const page = Number(match?.[0]);
+  return Number.isFinite(page) && page > 0 ? page : null;
+}
+
+function materialSelectionItem(book, material, selection, intake) {
+  const item = selectionToWorkspaceItem(book, selection, {
+    snapshotVersion: `material-v${material.schemaVersion || 1}-${material.source?.generatedAt || "snapshot"}`,
+    tab: "dossier",
+  });
+  if (!item) return null;
+  return {
+    ...item,
+    metadata: {
+      ...item.metadata,
+      intake: {
+        v: 1,
+        disposition: intake.disposition,
+        materialId: intake.materialId,
+        workspaceOnly: true,
+        createsResearchObject: false,
+      },
+    },
+  };
+}
+
+/**
+ * Builds the bounded Workspace pack for a completed public material map.
+ * This is a deterministic client projection only: adding it to ResearchProvider
+ * saves source-linked selections and never writes or promotes research_objects.
+ */
+export function buildBookMaterialWorkspacePack(material, book) {
+  if (!material?.available || !book || material.researchIntake?.status !== "READY_FOR_SELECTIVE_INTAKE") return [];
+
+  const sourceIdentity = clean(material.source?.identity);
+  const bookIdentity = clean(book.identity_key) || (clean(book.id) ? `book:${clean(book.id)}` : "");
+  if (!sourceIdentity || !bookIdentity) return [];
+
+  const bookItem = {
+    id: bookIdentity,
+    type: "book",
+    title: clean(book.label) || material.slug,
+    label: clean(book.label) || material.slug,
+    link: clean(book?.metadata?.route) || `/book/${encodeURIComponent(material.slug)}`,
+    metadata: {
+      nodeId: book.id || null,
+      identityKey: book.identity_key || null,
+      sourceRefPrefixes: book?.metadata?.source_ref_prefixes || [],
+      witness: book?.metadata?.identity_tiers?.witness || null,
+      digitalObject: book?.metadata?.identity_tiers?.digital_object || null,
+      intake: { v: 1, disposition: "source_anchor", workspaceOnly: true, createsResearchObject: false },
+    },
+  };
+
+  const candidateIds = new Set(material.researchIntake.candidateDatasetIds || []);
+  const datasetItems = material.findings.flatMap((finding) => {
+    if (!candidateIds.has(finding.id)) return [];
+    const page = firstPage(finding.locus);
+    if (!page) return [];
+    const sourceRef = `${sourceIdentity}#p${page}:${finding.id.toLowerCase()}`;
+    const item = materialSelectionItem(book, material, {
+      source_ref: sourceRef,
+      title: `${finding.id} · ${finding.title}`,
+      status: "candidate",
+      engine_verified: null,
+      witness_state: finding.status,
+      privacy_scope: "public",
+      publication_state: "documented_public_bundle",
+      truth_class: "source_backed_research_candidate",
+      representation_shape: "dataset",
+    }, { disposition: "candidate_finding", materialId: finding.id });
+    return item ? [item] : [];
+  });
+
+  const witnessItems = material.witnessClosures.flatMap((closure) => {
+    if (!closure.sourceRef) return [];
+    const item = materialSelectionItem(book, material, {
+      source_ref: closure.sourceRef,
+      title: `${closure.id} · ${closure.title}`,
+      status: "candidate",
+      engine_verified: closure.status === "ENGINE_VERIFIED" ? true : null,
+      witness_state: closure.status,
+      privacy_scope: "public",
+      publication_state: "documented_public_bundle",
+      truth_class: "source_witness_observation",
+      representation_shape: "witness_closure",
+    }, { disposition: "witness_observation", materialId: closure.id });
+    return item ? [item] : [];
+  });
+
+  const seen = new Set();
+  return [bookItem, ...datasetItems, ...witnessItems].filter((item) => {
+    const identity = `${item.type}:${item.ref || item.id}`;
+    if (seen.has(identity)) return false;
+    seen.add(identity);
+    return true;
+  });
 }

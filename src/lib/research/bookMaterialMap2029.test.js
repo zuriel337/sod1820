@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
   BOOK_MATERIAL_PREVIEW_SLUGS,
+  buildBookMaterialWorkspacePack,
   buildBookMaterialMap,
   fetchBookMaterialMap,
   isBookMaterialPreview,
@@ -20,7 +21,7 @@ const SYNTHETIC_BUNDLE = {
     metrics: [["12", "עמודים", "synthetic"]],
     coverage: [{ label: "Research Map", value: "PARTIAL", note: "synthetic" }],
     completion: { phase: "MATERIAL_MAP_COMPLETE", label: "מיפוי הושלם", summary: "fixture complete", blocking_open: 0, extraction_backlog: 1, source_native_questions: 1, next_phase: "SELECTIVE_RESEARCH_INTAKE" },
-    research_intake: { status: "READY_FOR_SELECTIVE_INTAKE", principle: "fixture intake", steps: [{ id: "RI-X", title: "שלב סינתטי", target: "research_items", status: "AVAILABLE", note: "fixture only" }] },
+    research_intake: { status: "READY_FOR_SELECTIVE_INTAKE", principle: "fixture intake", steps: [{ id: "RI-X", title: "שלב סינתטי", target: "research_items", status: "AVAILABLE", note: "fixture only" }], candidate_datasets: ["DS-X"], evidence_only_datasets: ["DS-Y"], withdrawn_provenance: ["DS-Z"] },
     datasets: [["DS-X", "ממצא סינתטי", "p1", "OPEN", "fixture only"]],
     sections: [{ id: "SEC-X", title: "חטיבה סינתטית", pages: "pp1–2", material: "fixture material", status: "MAPPED" }],
     families: [{ title: "שיטה סינתטית", text: "fixture only" }],
@@ -70,6 +71,7 @@ test("public bundle is normalized into source, structure, findings, methods, con
   assert.equal(map.completion.phase, "MATERIAL_MAP_COMPLETE");
   assert.equal(map.completion.blockingOpen, 0);
   assert.equal(map.researchIntake.steps[0].id, "RI-X");
+  assert.deepEqual(map.researchIntake.candidateDatasetIds, ["DS-X"]);
   assert.deepEqual(map.inventory.map(item => [item.key, item.value]), [
     ["content_blocks", 1],
     ["datasets", 1],
@@ -146,4 +148,34 @@ test("Ahavat Torah public snapshot exposes the complete material map and preserv
   assert.equal(map.findings.find(item => item.id === "DS-04")?.locus, "p42");
   assert.equal(map.findings.find(item => item.id === "DS-05")?.status, "SOURCE INVENTORIED");
   assert.equal(map.findings.find(item => item.id === "DS-11")?.status, "SOURCE INVENTORIED");
+});
+
+test("selective intake builds one deterministic Workspace pack without bulk-promoting evidence", async () => {
+  const bundle = JSON.parse(await readFile(new URL("../../../public/book-data/ahavat-torah.tables.json", import.meta.url), "utf8"));
+  const material = buildBookMaterialMap(bundle, { expectedSlug: "ahavat-torah" });
+  const book = {
+    id: "book-node",
+    identity_key: "book:ahavat-torah",
+    label: "אהבת תורה",
+    metadata: {
+      route: "/book/ahavat-torah",
+      source_ref_prefixes: ["book:hebrewbooks:5635"],
+      identity_tiers: { witness: { identity: "witness:hebrewbooks:5635" } },
+    },
+  };
+  const first = buildBookMaterialWorkspacePack(material, book);
+  const second = buildBookMaterialWorkspacePack(material, book);
+
+  assert.equal(first.length, 14);
+  assert.deepEqual(first, second);
+  assert.equal(new Set(first.map(item => `${item.type}:${item.ref || item.id}`)).size, first.length);
+  assert.equal(first[0].id, "book:ahavat-torah");
+  assert.equal(first.filter(item => item.metadata?.intake?.disposition === "candidate_finding").length, 8);
+  assert.equal(first.filter(item => item.metadata?.intake?.disposition === "witness_observation").length, 5);
+  assert.equal(first.every(item => item.metadata?.intake?.workspaceOnly === true), true);
+  assert.equal(first.every(item => item.metadata?.intake?.createsResearchObject === false), true);
+  assert.equal(first.some(item => item.metadata?.intake?.materialId === "DS-02"), false);
+  assert.equal(first.some(item => item.metadata?.intake?.materialId === "DS-07"), false);
+  assert.match(first.find(item => item.metadata?.intake?.materialId === "DS-03")?.metadata?.sourceRef || "", /#p41:ds-03$/);
+  assert.deepEqual(buildBookMaterialWorkspacePack(material, {}), []);
 });

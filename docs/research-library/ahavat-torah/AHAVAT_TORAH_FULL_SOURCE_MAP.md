@@ -221,6 +221,8 @@ These are future research units, not missing pages, hidden locks or evidence tha
 
 **Selective Research Intake**, using the existing Research OS. Keep one book/source identity, reference the 303 blocks as evidence, and prepare only the closed source-backed claims as candidate Research Objects. Do not bulk-promote every page, block or table cell. Exact routing and the live-state reconciliation are specified in `AHAVAT_TORAH_RESEARCH_INTAKE_MANIFEST.md`.
 
+The bounded Workspace projection for this phase is now implemented branch-only: one source anchor + eight closed-dataset selections + five witness observations (14 deterministic items). It saves references to the existing Research Workspace and deliberately performs no `research_objects` write or truth promotion.
+
 ### UNKNOWN (cannot currently be determined from available evidence)
 
 - The exact textual corpus/nusach used by Horowitz for every count (not explicitly identified in the mapped source).

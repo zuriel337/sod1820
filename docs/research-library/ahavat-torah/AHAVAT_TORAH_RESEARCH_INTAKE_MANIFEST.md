@@ -1,6 +1,6 @@
 # אהבת תורה — Research Intake Manifest
 
-Status: **PREPARED · BRANCH-ONLY · NO LIVE WRITE**  
+Status: **IMPLEMENTED · TESTED · BRANCH-ONLY · NO LIVE WRITE**
 Snapshot: 2026-10-22  
 Source: `book:hebrewbooks:5635`  
 Book identity: `book:ahavat-torah`
@@ -18,8 +18,11 @@ This manifest does not canonicalize or publish any claim. It records the exact i
 3. Continue through **מבנה וכיסוי**, **ממצאים ומאגרי נתונים**, **שיטות**, **קשרים**, **נסגר מול המקור** and **המשך מחקר — לא חוסם**.
 4. Open the linked PDF whenever an exact page witness is required.
 5. Use **הוסף למחקר** to place the book identity in the existing personal Research Workspace. This save action is not truth promotion.
+6. Use **הוסף חבילת מחקר · 14 פריטים** inside the intake section to add one source anchor, eight closed-dataset candidates and five witness observations. Repeating the action is idempotent; it does not add the extraction backlog, withdrawn readings or source-native open questions as findings.
 
 The tracked source-of-record for the projection is `public/book-data/ahavat-torah.tables.json`; the expanded scholarly map is `AHAVAT_TORAH_FULL_SOURCE_MAP.md`.
+
+The Workspace pack is generated deterministically by `buildBookMaterialWorkspacePack`. Every entry carries `workspaceOnly=true` and `createsResearchObject=false`; the action uses the existing `ResearchProvider` and creates no new storage or promotion path.
 
 ## Live reconciliation observed on 2026-10-22
 

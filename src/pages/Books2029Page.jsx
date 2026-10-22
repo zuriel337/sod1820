@@ -15,6 +15,7 @@ import {
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
 import {
+  buildBookMaterialWorkspacePack,
   fetchBookMaterialMap,
   isBookMaterialPreview,
 } from "../lib/research/bookMaterialMap2029.js";
@@ -121,7 +122,7 @@ function ResearchFamily({ group, book, research, defaultOpen = false }) {
   </details>;
 }
 
-function MaterialMap({ material }) {
+function MaterialMap({ material, book, research }) {
   if (!material?.available) return null;
   const source = material.source || {};
   const mappedUnits = material.findings.length;
@@ -129,6 +130,9 @@ function MaterialMap({ material }) {
   const openCount = material.openQuestions.length;
   const completion = material.completion;
   const intake = material.researchIntake;
+  const workspacePack = buildBookMaterialWorkspacePack(material, book);
+  const packAdded = workspacePack.length > 0 && workspacePack.every(item => research.cart?.some(entry => entry.id === item.id));
+  const addWorkspacePack = () => workspacePack.forEach(item => research.addToResearch?.(item));
 
   return <section className="sod29-section" id="book-material-map">
     <div className="sod29-section-head">
@@ -194,7 +198,15 @@ function MaterialMap({ material }) {
 
       {intake?.steps.length ? <details className="sod29-book-family" open>
         <summary><span><strong>מסלול הכנסה למחקר</strong><small>{intake.principle || "קליטה סלקטיבית אל Research OS הקיים."}</small></span><span className="sod29-chip">{intake.steps.length}</span></summary>
-        <div className="sod29-book-family-body"><div className="sod29-list">{intake.steps.map((item, index) => <div className="sod29-row" key={item.id}><div><strong>{index + 1} · {item.title}</strong><small>{[item.target, item.status].filter(Boolean).join(" · ")}</small>{item.note ? <p className="sod29-muted">{item.note}</p> : null}</div></div>)}</div></div>
+        <div className="sod29-book-family-body">
+          <div className="sod29-list">{intake.steps.map((item, index) => <div className="sod29-row" key={item.id}><div><strong>{index + 1} · {item.title}</strong><small>{[item.target, item.status].filter(Boolean).join(" · ")}</small>{item.note ? <p className="sod29-muted">{item.note}</p> : null}</div></div>)}</div>
+          {workspacePack.length ? <div className="sod29-actions">
+            <button type="button" className="sod29-action" data-action="research" aria-pressed={packAdded} onClick={addWorkspacePack}>
+              <NavigationIcon2029 name={packAdded ? "check" : "add"} /> {packAdded ? "חבילת המחקר נוספה" : `הוסף חבילת מחקר · ${workspacePack.length} פריטים`}
+            </button>
+            <small>נשמר במרחב העבודה בלבד; לא יוצר Research Objects ולא מקדם אמת.</small>
+          </div> : null}
+        </div>
       </details> : null}
     </div>
 
@@ -355,7 +367,7 @@ function BookDetail({ slug }) {
       </div>
     </section>
 
-    <MaterialMap material={material} />
+    <MaterialMap material={material} book={book} research={research} />
 
     {isBookMaterialPreview(slug) && !material?.available ? <section className="sod29-section"><div className="sod29-state warn">מפת החומר הציבורית של הפיילוט אינה זמינה כרגע. הספר עצמו נשאר קריא.</div></section> : null}
 
