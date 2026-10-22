@@ -234,7 +234,6 @@ function Posts2029DocumentHandoff() {
 // ברירת מחדל (אין בחירה) = מלוכה, כך שציבור תמיד מקבל את בית-המלוכה.
 function HomeRoute() {
   const stream = useStream();
-  if (CORE_PUBLIC_LAUNCH_2029) return <Navigate to="/2029" replace />;
   return stream === "reality" ? <HomeReality /> : <HomeNewPage />;
 }
 
