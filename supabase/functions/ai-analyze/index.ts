@@ -3080,7 +3080,9 @@ Deno.serve(async (req: Request) => {
 
     const maxTokens = wantLong ? 3200 : (isCollection ? 650 : 400);
     const model = engine === "gemini" ? GEMINI_MODEL : (body?.fast ? FAST_MODEL : MODEL);
-    // Input-bound provenance guard only: subject/facts may originate at the caller boundary.\n    // This guard prevents NEW numeric literals in model output; it does not certify caller facts as true.\n    const permittedNumericTexts = [subject, facts, mtxFacts];
+    // Input-bound provenance guard only: subject/facts may originate at the caller boundary.
+    // This guard prevents NEW numeric literals in model output; it does not certify caller facts as true.
+    const permittedNumericTexts = [subject, facts, mtxFacts];
     const callSelectedModel = (prompt) => engine === "gemini"
       ? runGemini(prompt, maxTokens, sys)
       : runClaude(model, prompt, maxTokens, sys);

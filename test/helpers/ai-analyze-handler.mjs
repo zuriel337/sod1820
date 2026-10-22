@@ -46,7 +46,7 @@ export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
   modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
-  researchRunFailure = null, legacyContext = null,
+  researchRunFailure = null, legacyContext = null, genericProviderText = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -57,6 +57,12 @@ export async function runAiAnalyze({
     const payload = init.body ? JSON.parse(init.body) : null;
     const call = { name, url: url.href, method: init.method || "GET", headers: Object.fromEntries(new Headers(init.headers)), payload };
     calls.push(call);
+    if (url.origin === "https://api.anthropic.com" && genericProviderText != null) {
+      return response({
+        content: [{ type: "text", text: String(genericProviderText) }],
+        usage: { input_tokens: 9, output_tokens: 3 },
+      });
+    }
     if (url.origin === "https://fixture.invalid") {
       if (url.pathname === "/functions/v1/research-run") {
         if (researchRunFailure) return response({ status: "error", error: researchRunFailure }, 200);
@@ -75,14 +81,24 @@ export async function runAiAnalyze({
         }
         switch (name) {
           case "fn_capability_execution_gate_v1":
-            assert.equal(payload.p_capability, "ai-analyze:raziel:site");
-            assert.equal(payload.p_flag_key, "lock_raziel_site");
+            if (payload.p_capability === "ai-analyze:raziel:site") {
+              assert.equal(payload.p_flag_key, "lock_raziel_site");
+              assert.equal(payload.p_required_entitlement, "public");
+              assert.equal(payload.p_budget_kind, "none");
+              return response({ allowed: siteAllowed, availability: {
+                state: siteAllowed ? "open" : "closed", allowed: siteAllowed,
+                message: siteAllowed ? "" : "Synthetic site availability closure",
+              } });
+            }
+            assert.equal(payload.p_flag_key, null);
             assert.equal(payload.p_required_entitlement, "public");
-            assert.equal(payload.p_budget_kind, "none");
-            return response({ allowed: siteAllowed, availability: {
-              state: siteAllowed ? "open" : "closed", allowed: siteAllowed,
-              message: siteAllowed ? "" : "Synthetic site availability closure",
-            } });
+            assert.equal(payload.p_budget_kind, "ai_quota");
+            return response({
+              allowed,
+              availability: { allowed: true },
+              entitlement: { allowed: true },
+              budget: { allowed, used: allowed ? 0 : 15, limit: 30, tier: payload.p_budget_tier },
+            });
           case "fn_raziel_answer": return response(answer);
           case "fn_raziel_plan": return response(null);
           case "number_map": return response(numberContextByNumber[payload?.n]?.map ?? null,
