@@ -1,32 +1,32 @@
 {
-  "taskKey": "GPT_2029_UNIFIED_SESSION_HANDOFF_20261019",
+  "taskKey": "GPT_COMMUNITY_UNIFIED_PREVIEW_INTEGRATION_20261019",
   "createdAtUtc": "2026-10-19T13:18:57.351872+00:00",
   "productBase": {
     "repository": "zuriel337/sod1820",
     "branch": "gpt/2029-hybrid-stage-preview-20261018",
-    "sha": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
-    "tree": "106e13bccc9dc0d35a3c52713a32665204eeaf2f",
-    "archiveTag": "archive/2029-unified-20261019-5de4d577"
+    "sha": "a4a30c97ca588deb0036797cacada0d9f01b3145",
+    "tree": "2a87ef693fdc616afa86fd8276b0ce361f2dafcd",
+    "archiveTag": "archive/2029-unified-community-20261019-a4a30c97"
   },
-  "documentationBranch": "gpt/2029-unified-session-handoff-20261019",
+  "documentationBranch": "gpt/2029-community-unified-handoff-20261019",
   "mainObservedSha": "6ef3ec2d6c139cd06af628b20ac2d5c3fb776a70",
   "preview": {
-    "deploymentId": "dpl_Bcknscq2iAP6wsWr1wTXWtQytysF",
-    "url": "https://sod1820-fadzvvy7s-sod1820-s-projects.vercel.app",
+    "deploymentId": "dpl_9yv6MKv7HwsMggNUP6NADSnTgbAw",
+    "url": "https://sod1820-b4pq1mbj6-sod1820-s-projects.vercel.app",
     "state": "READY",
-    "sha": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+    "sha": "a4a30c97ca588deb0036797cacada0d9f01b3145",
     "target": "preview",
     "hostedTiming": "NOT_MEASURED_ON_FINAL_MERGE",
-    "hostedAutomatedBrowser": "BLOCKED_BY_APP_BOT_MIDDLEWARE_403",
+    "hostedAutomatedBrowser": "NOT_RUN_ON_COMMUNITY_MERGE_PREVIOUS_APP_BOT_403_BLOCKER_NOT_RETESTED",
     "manualPhoneAuthenticatedAcceptance": "OPEN"
   },
   "sourceVerification": {
     "method": "git rev-parse and git merge-base --is-ancestor for every listed inclusion commit",
     "allListedCommitsPresent": true,
     "semanticAcceptance": "Scope-specific evidence; ancestry is not a global correctness proof",
-    "fixGroups": 34,
-    "integrationCommits": 55,
-    "relativeEvidenceLinksVerified": 23
+    "fixGroups": 35,
+    "integrationCommits": 62,
+    "relativeEvidenceLinksVerified": 20
   },
   "fixes": [
     {
@@ -389,6 +389,22 @@
       "evidence": "docs/perf-evidence-20261019/post-2029-source-first/README.md",
       "codeState": "INCLUDED_IN_PINNED_BASE",
       "acceptanceState": "SEE_SCOPE_SPECIFIC_EVIDENCE_NOT_GLOBAL_RELEASE_GO"
+    },
+    {
+      "id": "F35",
+      "title": "קהילה: פיד תחילה, צ׳אט ותיק לפי דרישה, יכולות ניהול שמורות בקוד ומצב Preview לקריאה בלבד",
+      "includedCommits": [
+        "fed1d18b6e50c4971a5bf0109cea1e27c593dff3",
+        "4c33b64aff8455d7e939f47c894ad3f5d8b91ff5",
+        "d77d64b05df5d986e31e733ce26a4e5f662e0b18",
+        "5932f7e91307a15437dfa8aad860a364a37f52d5",
+        "9f84ed95b0beb075084ef7afc551fee03d9f5c93",
+        "ca9b75e4b8b04e13fe86efa11d6de2751ae21ea1",
+        "2af46373ac67013a097dfa130832cb5d32148165"
+      ],
+      "evidence": "docs/perf-evidence-20261019/community-preview-integration/README.md",
+      "codeState": "INCLUDED_IN_PINNED_BASE",
+      "acceptanceState": "ISOLATED_BROWSER_AND_HOSTED_HTTP_VERIFIED_READONLY_ONLY_FULL_LIVE_ACCEPTANCE_OPEN"
     }
   ],
   "latestBuildBudget": {
@@ -422,7 +438,7 @@
   "coordination": {
     "project": "linswmnnkjxvweumprav",
     "connector": "general Supabase connector, bounded SELECT only",
-    "documentationScope": "docs/perf-unified-candidate-20261017.md and docs/perf-evidence-20261019/session-handoff/**",
+    "documentationScope": "docs/perf-unified-candidate-20261017.md; existing session-handoff receipt; community-preview-integration evidence",
     "scopeState": "released on delivery",
     "workLogWritten": false,
     "dispatchSent": false
@@ -435,6 +451,30 @@
     "historicalHandoffPreservedVerbatim": true,
     "productDiffOutsideDocs": "EMPTY",
     "hostedTimingOnFinalMerge": "NOT_MEASURED",
-    "remoteCiOverall": "NO_PASS_CLAIM"
-  }
+    "remoteCiOverall": "NO_PASS_CLAIM",
+    "testedProductCommit": "2af46373ac67013a097dfa130832cb5d32148165",
+    "mergeCommit": "a4a30c97ca588deb0036797cacada0d9f01b3145",
+    "communityBrowser": "26_PASS_0_FAIL_0_SKIP_ISOLATED_REAL_BUILD",
+    "communityUnits": "19_PASS_0_FAIL_0_SKIP",
+    "communityGuardPolicy": "3_PASS_0_FAIL_0_SKIP",
+    "localHybrid": "8_PASS_0_FAIL_0_SKIP",
+    "hostedHybrid": "5_PASS_0_FAIL_0_SKIP_ISOLATED_PROBE",
+    "hostedProvenanceEvidence": "docs/perf-evidence-20261019/community-preview-integration/deployment.json",
+    "hostedHashVerification": "docs/perf-evidence-20261019/community-preview-integration/hosted-verification.json",
+    "liveCommunityActions": "DISABLED_IN_READONLY_PREVIEW",
+    "databaseWrites": 0
+  },
+  "previousHandoff": {
+    "productBase": {
+      "repository": "zuriel337/sod1820",
+      "branch": "gpt/2029-hybrid-stage-preview-20261018",
+      "sha": "5de4d5772bbf2624d9f6195c00216d49df2d04d1",
+      "tree": "106e13bccc9dc0d35a3c52713a32665204eeaf2f",
+      "archiveTag": "archive/2029-unified-20261019-5de4d577"
+    },
+    "documentationBranch": "gpt/2029-unified-session-handoff-20261019",
+    "documentationCommit": "f19f7cfcb5530d9632c99d345c22c8b0124b6292",
+    "note": "Preserved prior freeze. Current base includes Community and is not a reset to this version."
+  },
+  "updatedAtUtc": "2026-10-19T21:47:11.697713+00:00"
 }

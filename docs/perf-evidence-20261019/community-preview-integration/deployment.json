@@ -1,0 +1,155 @@
+{
+  "taskKey": "GPT_COMMUNITY_UNIFIED_PREVIEW_INTEGRATION_20261019",
+  "verifiedAtUtc": "2026-10-19 21:46:16 UTC",
+  "repository": "zuriel337/sod1820",
+  "branch": "gpt/2029-hybrid-stage-preview-20261018",
+  "sha": "a4a30c97ca588deb0036797cacada0d9f01b3145",
+  "preview": {
+    "deploymentId": "dpl_9yv6MKv7HwsMggNUP6NADSnTgbAw",
+    "url": "https://sod1820-b4pq1mbj6-sod1820-s-projects.vercel.app",
+    "state": "READY",
+    "target": "preview",
+    "temporaryShare": "Created with 86400-second TTL; capability link deliberately excluded from repository"
+  },
+  "integrationPr": 1132,
+  "sourcePr": {
+    "number": 1129,
+    "state": "merged",
+    "note": "GitHub marked original source merged by ancestry after PR1132; no separate merge or manual close"
+  },
+  "readOnly": true,
+  "artifactReceipt": {
+    "commit": "a4a30c97ca588deb0036797cacada0d9f01b3145",
+    "branch": "gpt/2029-hybrid-stage-preview-20261018",
+    "host": "sod1820-b4pq1mbj6-sod1820-s-projects.vercel.app",
+    "buildTarget": "hybrid",
+    "vercelEnv": "preview",
+    "sourceClean": true,
+    "workerScript": "/preview-readonly-sw.js?content=a66053f31ec0fdf89c33cc388f745235abca387ba07833abb2c9e5c7232e9a4f",
+    "workerContentSha256": "a66053f31ec0fdf89c33cc388f745235abca387ba07833abb2c9e5c7232e9a4f",
+    "guardProtocol": "sod1820-preview-readonly-v3",
+    "guardIdentitySha256": "e4d59805858d1c767724430345f3ac8cf7d5b02e1ab9ba2a2ef67fbd7671772d",
+    "guardDeadlineMs": 8000,
+    "manifestSha256": "f32c18688f619f2a7ae06519530683ed61458f9a3a4e3e6447d90173d99b71b6",
+    "htmlSha256": "fe075d3cdb5fe4205c56558cff759138792549db3279b147db6c62ed908ef691",
+    "indexHtmlSha256": "fe075d3cdb5fe4205c56558cff759138792549db3279b147db6c62ed908ef691",
+    "legacyHtmlSha256": "7467f1626d4f665565ad3b8cfbea90bca497f5f799dbba743effba883b8811d2",
+    "workerSha256": "a66053f31ec0fdf89c33cc388f745235abca387ba07833abb2c9e5c7232e9a4f",
+    "fallbackWorkerSha256": "a66053f31ec0fdf89c33cc388f745235abca387ba07833abb2c9e5c7232e9a4f",
+    "hybridBuildReceiptSha256": "86ca95df8b2308ed47eddf9d53d4f97ab95ff428591a03bc6ce65909536c3ba0",
+    "routePolicySha256": "5f66e4b6fe5df4c4983b35ba38d3002f48681ebe173f90740f230a6a8397923b",
+    "defaultRuntime": "legacy",
+    "candidate2029RouteCount": 25,
+    "explicitLegacyRouteCount": 2,
+    "readOnly": true,
+    "artifactInventoryPath": "preview-artifacts.json",
+    "artifactInventorySha256": "4187b15f4884669d1d78f2b2be36f44c4886be17e800d697b9ebf21f4add4dd2",
+    "artifactCount": 424,
+    "inventoryHashConvention": "ordinary files use exact bytes; preview-build.json hashes exact bytes after its artifactInventorySha256 and identitySha256 values are replaced by 64 zeroes; preview-artifacts.json hashes exact bytes after only its own sha256 value is replaced by 64 zeroes",
+    "identitySha256": "baf6a39f88a19ab114285dc3c2c5ebbe3519c8f0f34b0fcd32796d30b3ce50db"
+  },
+  "routes": [
+    {
+      "path": "/community/chat",
+      "status": 200,
+      "runtime": "2029",
+      "noindexHeader": "noindex, nofollow, noarchive",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "runtime": "2029",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/posts",
+      "status": 200,
+      "runtime": "2029",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/post/bennett-melach-631-78",
+      "status": 200,
+      "runtime": "2029",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/world",
+      "status": 200,
+      "runtime": "2029",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/number/1820",
+      "status": 200,
+      "runtime": "2029",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/code",
+      "status": 200,
+      "runtime": "legacy",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    },
+    {
+      "path": "/els",
+      "status": 200,
+      "runtime": "legacy",
+      "noindexHeader": "noindex",
+      "readOnlyBootstrapPresent": true,
+      "exactMergeShaPresent": true
+    }
+  ],
+  "claims": {
+    "httpAndArtifactProvenance": "VERIFIED",
+    "hostedCommunityBrowser": "NOT_TESTED_THIS_INTEGRATION",
+    "phoneAuthenticatedOpenWeb": "OPEN",
+    "hostedPerformance": "NOT_MEASURED",
+    "globalRemoteCi": "NO_OVERALL_PASS",
+    "production": "NOT_MODIFIED",
+    "database": "BOUNDED_SELECT_ONLY_NO_WRITES",
+    "workLogWrites": 0
+  },
+  "productionObserved": {
+    "deploymentId": "dpl_14JbTxVDW3VHHDPLtDCh3cuoVD9Q",
+    "sha": "6ef3ec2d6c139cd06af628b20ac2d5c3fb776a70",
+    "unchangedByThisTask": true
+  },
+  "liveReaderCatalog": {
+    "method": "SELECT pg_proc and has_function_privilege only; no function invocation",
+    "readers": [
+      {
+        "name": "community_feed_page",
+        "volatility": "STABLE",
+        "anonExecute": true,
+        "authenticatedExecute": true
+      },
+      {
+        "name": "community_replies_page",
+        "volatility": "STABLE",
+        "anonExecute": true,
+        "authenticatedExecute": true
+      },
+      {
+        "name": "community_reply_counts",
+        "volatility": "STABLE",
+        "anonExecute": true,
+        "authenticatedExecute": true
+      }
+    ]
+  }
+}
