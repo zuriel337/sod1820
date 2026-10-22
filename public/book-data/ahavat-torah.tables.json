@@ -97,7 +97,7 @@
     "תיבות לפי פרשה/ספר",
     "p41",
     "PARTIAL",
-    "source grand total visually reads 110,976, contradicting the earlier 79,976 frame; per-parasha closure incomplete"
+    "source total 79,976 is visually verified in five passages; the prior 110,976 reading is withdrawn, while per-parasha and clean-corpus closure remain incomplete"
    ],
    [
     "DS-04",
@@ -180,8 +180,8 @@
     "text": "נשמרת כמשפחה נפרדת: 1833−3, 1816+14, וסכום משולש 1..60. אין למזג ל־1820."
    },
    {
-    "title": "79,976 ↔ 110,976",
-    "text": "מסגרת 79,976 מן המחקר הקודם מתנגשת בסך 110,976 שנקרא חזותית ב-p41. שתי הקריאות נשמרות עד reconciliation; אין לכפות הכרעה אריתמטית."
+    "title": "79,976 · חמש עדויות",
+    "text": "הסך ע״ט אלף תתקע״ו נקרא ישירות ב־pp12, 25, 30, 41, 51. קריאת 110,976 ב־p41 תוקנה כשגיאת תעתיק; אימות קורפוס נקי עדיין דורש חוזה גבולות־מילה מפורש."
    },
    {
     "title": "18,200",
@@ -232,7 +232,7 @@
   ],
   "open": [
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
-   "DS-03: סך-מקור נקרא חזותית 110,976 וסותר קריאה קודמת 79,976 — לא-נפתר",
+   "DS-03: סך-המקור 79,976 סגור בחמש עדויות; אימות קורפוס נקי נשאר פתוח — tk-vtext נותן 80,179 תחת חוזה רווחים אך כולל חומר עריכתי/גרסאות",
    "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה",
    "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
@@ -377,26 +377,22 @@
    "metric": "word count",
    "scope": "whole Torah",
    "rows_description": "one row per parasha, cumulative book subtotals",
-   "subtotals": "Exodus book subtotal 16,703 (per Ledger §3.5); other book subtotals not independently re-extracted this pass",
+   "subtotals": "per-book and per-parasha cells remain partial; no subtotal is promoted by this correction pass",
    "total": "79,976",
    "ordering_rule": "book order",
-   "inclusion_rule": "literal word token",
+   "inclusion_rule": "not stated precisely enough to reproduce edition-specific word boundaries",
    "exclusion_rule": "not stated",
-   "exceptions": "none found",
-   "checksum": "CROSS-VALIDATED: identical 79,976 total appears in TWO separately-worded book locations (אוריין תליתאי §3.5/CP4§C at pp.25-31, AND the 'תיבות התורה' summary table at pp.41-42) -- see RELATIONS CR-09",
+   "exceptions": "the repository's tk-vtext display projection is unsuitable for canonical word-total verification: 80,179 whitespace words and 305,599 Hebrew letters versus the 304,805-letter canonical stream",
+   "checksum": "SOURCE-CLOSED: 79,976 appears in five visually verified passages (pp.12, 25, 30, 41, 51). The prior p.41 reading 110,976 is withdrawn as a ט/final-ם transcription error. Local display-projection audit remains diagnostic only (+203 words; +794 letters).",
    "pdf_pages": [
+    12,
     25,
-    26,
-    27,
-    28,
-    29,
     30,
-    31,
     41,
-    42
+    51
    ],
-   "confidence": "SOURCE_LOCATED/VISUALLY_VERIFIED for the two Torah-total anchors; UNCERTAIN for individual parasha cells",
-   "status": "CLOSED (Torah-total)"
+   "confidence": "VISUALLY_VERIFIED for five Torah-total anchors; REPRODUCIBLE_DIAGNOSTIC for tk-vtext; UNCERTAIN for individual parasha cells",
+   "status": "PARTIAL (source total closed; per-row and clean-corpus contract open)"
   },
   {
    "dataset_id": "DS-04",
@@ -805,6 +801,35 @@
    ],
    "truth_class": "ENGINE_VERIFIED (canonical רגיל method); token selection VISUALLY_VERIFIED against source",
    "confidence": "ENGINE_VERIFIED 2026-10-22"
+  },
+  {
+   "calculation_id": "CALC-09/DS-03-DISPLAY-AUDIT",
+   "inputs": [
+    "80,849 whitespace tokens in the Torah slice of tk-vtext.txt",
+    "670 standalone פ/ס section markers",
+    "author total = 79,976"
+   ],
+   "operations": [
+    "exclude standalone section markers only",
+    "compare the display projection with the five-witness author total",
+    "compare display Hebrew letters with the canonical 304,805-letter stream"
+   ],
+   "intermediate_values": [
+    "80,849−670=80,179 display words",
+    "80,179−79,976=203",
+    "305,599−304,805=794 surplus display letters"
+   ],
+   "output": "80,179 display-projection words; NOT a canonical word-total verification",
+   "why_exclusion_or_operation_performed": "The reproducible audit isolates the corpus mismatch: tk-vtext contains editorial/qere/variant display material and must not be treated as a clean ketiv-only word corpus.",
+   "pdf_pages": [
+    12,
+    25,
+    30,
+    41,
+    51
+   ],
+   "truth_class": "REPRODUCIBLE_DIAGNOSTIC; source total VISUALLY_VERIFIED; clean word-boundary reproduction OPEN",
+   "confidence": "COMPUTED 2026-10-22"
   }
  ],
  "exceptions": [
@@ -1029,21 +1054,17 @@
   },
   {
    "relation_id": "CR-09",
-   "kind": "CANDIDATE_RELATION",
-   "description": "The Torah-wide word-total 79,976 is stated in TWO separately-worded locations: the 'אוריין תליתאי' section (pp.25-31, per LEDGER §3.5/Checkpoint_4 §C) and the 'תיבות התורה' summary table (pp.41-42, this task's Task-2 finding). Two independently-worded passages agreeing digit-for-digit is strong (though not corpus-verified) internal corroboration that 79,976 is a stable, repeatedly-invoked AUTHOR_COUNT for Horowitz, not a one-off slip.",
+   "kind": "SOURCE_REPETITION_CONFIRMED",
+   "description": "The Torah-wide author total 79,976 is stated in five visually verified passages (pp.12, 25, 30, 41, 51). On p.41 the closing abbreviation is ע״ט, not ע״ם; the prior 110,976 transcription is withdrawn. This closes the source total but not the clean edition-specific corpus contract.",
    "pdf_pages": [
+    12,
     25,
-    26,
-    27,
-    28,
-    29,
     30,
-    31,
     41,
-    42
+    51
    ],
-   "adjudicated_by_source_itself": false,
-   "confidence": "VISUALLY_VERIFIED (both anchor totals read directly)"
+   "adjudicated_by_source_itself": true,
+   "confidence": "VISUALLY_VERIFIED (five direct anchors)"
   },
   {
    "relation_id": "CR-10",
@@ -4354,7 +4375,7 @@
      "source_value": "",
      "normalized_integer": "1131",
      "book": "בראשית",
-     "source_anchor": "",
+     "source_anchor": "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW",
      "verification_state": "UNCERTAIN",
      "ocr_confidence": "low",
      "exception_or_note": "Read from the p.41 right-column tail of this table (\"אלף...\" per-parasha listing); each value legible as an integer number of thousands plus a 2-3 letter remainder, but exact remainder digits carry real risk of misread at this density -- treat every value in this table as PASS-1 only unless separately re-verified.",
@@ -4532,20 +4553,20 @@
     },
     {
      "table": "תיבות התורה (summary: total WORDS per parasha)",
-     "pdf_page": "42",
-     "printed_page": "37",
-     "printed_page_display": "37",
+     "pdf_page": "41",
+     "printed_page": "36",
+     "printed_page_display": "36",
      "letter": "",
      "column": "",
-     "parasha": "TORAH TOTAL (final, colon-terminated, top of p.42 right/continuing from p.41 left)",
+     "parasha": "TORAH TOTAL (final, colon-terminated, p.41 left column before the אותיות התורה divider)",
      "source_value": "ע״ט אלף תתקע״ו",
      "normalized_integer": "79976",
      "book": "כל התורה",
-     "source_anchor": "",
-     "verification_state": "SOURCE_VERIFIED",
+     "source_anchor": "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW",
+     "verification_state": "VISUALLY_VERIFIED_CORRECTED",
      "ocr_confidence": "high",
-     "exception_or_note": "STRONG CROSS-VALIDATION: this figure matches, digit-for-digit, the 79,976-word Torah total independently documented in the existing AHAVAT_TORAH_RESEARCH_LEDGER.md §3.5 (\"אוריין תליתאי\") and CHECKPOINT_4.md §C, which cite the SAME figure from the earlier, textually distinct \"אוריין תליתאי\" section (PDF pp.25-31) with its own book-subtotal for Exodus (16,703) and Torah-total (79,976). Two independently-worded passages of the same book stating the identical seven-figure total is strong internal corroboration that this specific total (79,976) is genuinely a stable, repeatedly-cited AUTHOR_COUNT -- though it remains AUTHOR_COUNT / NOT CORPUS-VERIFIED, not a canonical-corpus fact.",
-     "arithmetic_checksum_state": "CROSS_SECTION_MATCH_confirmed"
+     "exception_or_note": "CORRECTION 2026-10-22: direct 600dpi inspection reads ע״ט (79), not a closed final Mem. The earlier 110,976 reading is withdrawn. Four additional direct witnesses on pp.12, 25, 30 and 51 repeat 79,976. Source total closed; clean corpus word-boundary verification remains open.",
+     "arithmetic_checksum_state": "FIVE_SOURCE_WITNESSES_MATCH"
     },
     {
      "table": "אותיות התורה — second table (summary: total LETTERS per parasha, all letters combined)",

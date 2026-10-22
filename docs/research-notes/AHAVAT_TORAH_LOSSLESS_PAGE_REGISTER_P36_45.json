@@ -1,6 +1,7 @@
 {
   "source_id": "book:hebrewbooks:5635",
   "register_version": 1,
+  "superseded_reading_notice": "CORRECTION 2026-10-22: every p.41 DS-03 entry in this historical register that normalizes ע\"ם as 110,976 is superseded by AHAVAT_TORAH_DS03_WORD_COUNT_RECONCILIATION.md. Direct 600dpi inspection reads ע\"ט = 79,976, corroborated on pp.12, 25, 30 and 51. Preserve the original rows as provenance only; do not consume 110,976 as current truth.",
   "batch_scope": "PDF pp.36-45 ONLY -- disjoint parallel source batch, per work_log ACK d893618e-528d-4f99-9af5-fc5d5fa8c512 (task AHAVAT_TORAH_P36_45_PARALLEL_SOURCE_BATCH), queued at work_log 48c59fcf-386b-46e1-9d89-70a74d58c3b7 and coordination-partitioned at work_log ac493139-86d8-46eb-bee4-fa7eedf61da5 (AHAVAT_TORAH_P16_57_PARALLELIZATION_20260905). p.35 and p.46 read for boundary context only, NOT re-registered here (p.35 is already covered in depth by AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md; p.46 belongs to the disjoint P46_57 writer per work_log ac493139).",
   "status_dimensions": [
     "STRUCTURALLY_MAPPED",
