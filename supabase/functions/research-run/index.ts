@@ -1,4 +1,4 @@
-// SOD1820 — public-number W2 Research Run transport v1.
+// SOD1820 — bounded W2 Research Run transport v1.
 //
 // Thin server boundary over the canonical W2 Composer + canonical executor tree. No second Research
 // engine/store/router is created here. No model/provider call. No persistence/publication decision.
@@ -11,10 +11,12 @@
 //     RLS/permissions apply exactly as they would from the browser. Service role is never handed to
 //     a canonical executor.
 //
-// Bounded scope: this Golden accepts only an explicit canonical non-negative Number literal and only
-// the deterministic `numeric` / `numeric_operators` capabilities (researchRunRequest.js). Identity
-// inference, private research_objects, graph resolution, ELS, Gematria and any model/provider call
-// are intentionally out of scope of this transport.
+// Bounded contracts:
+//   - public-number-research-run-v1 keeps its exact deterministic numeric/numeric_operators path;
+//   - personal-gematria-pair-run-v1 admits exactly two personal expressions for one canonical
+//     fn_relation_candidate call by an authenticated user.
+// Identity inference, private research_objects, graph/ELS dispatch, persistence and every
+// model/provider call remain out of scope.
 //
 // Fail-closed trace discipline: unlike the fail-OPEN trace pattern used elsewhere (a trace hiccup
 // must never block a Result the caller is otherwise entitled to), this transport treats the
@@ -24,8 +26,9 @@
 // error is returned instead — this function never returns a materially untraced Result.
 
 import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";
-import { createCanonicalW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
-import { normalizePublicNumberResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
+import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
+import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";
+import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
 
 const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") || "").trim();
 const ANON_KEY = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
@@ -136,7 +139,7 @@ Deno.serve(async (req: Request) => {
   catch { return json({ status: "error", error: "invalid_json_body" }, 400); }
 
   let run;
-  try { run = normalizePublicNumberResearchRunRequest(body); }
+  try { run = normalizeResearchRunRequest(body); }
   catch (error) {
     return json({ status: "error", error: "invalid_request", detail: error instanceof Error ? error.message : String(error) }, 400);
   }
@@ -145,6 +148,12 @@ Deno.serve(async (req: Request) => {
   if (!authHeader) return json({ status: "error", error: "authorization_required" }, 401);
 
   const userId = await verifiedUserId(authHeader);
+  const personalPair = run.contract === PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT;
+  // Pair input is personal research. A visitor id is never an authentication substitute and the
+  // rejection happens before trace/gate/relation I/O.
+  if (personalPair && !userId) {
+    return json({ status: "error", error: "authenticated_user_required" }, 401);
+  }
   const visitorId = userId ? null : safeUuid(run.visitor_id);
   if (!userId && !visitorId) {
     return json({ status: "error", error: "visitor_identity_required" }, 400);
@@ -152,6 +161,14 @@ Deno.serve(async (req: Request) => {
 
   const identity = userId ? `u:${userId}` : `v:${visitorId}`;
   const identityClass = userId ? "authenticated_user" : "public_user";
+  const executionCapability = personalPair
+    ? "research-w2:gematria-relations"
+    : "research-w2:public-number";
+  const subjectRef = personalPair ? "expression-pair:ephemeral" : `number:${run.number}`;
+  const routingReason = personalPair
+    ? "explicit_authenticated_personal_gematria_pair_v1"
+    : "explicit_public_number_golden";
+  const replayInputRef = personalPair ? "expression-pair:ephemeral" : `number:${run.number}`;
 
   // ── Operational Trace: root ─────────────────────────────────────────────────────────────
   // Service role only. Fail CLOSED: if the root trace cannot begin, no gate/compose call runs.
@@ -164,12 +181,12 @@ Deno.serve(async (req: Request) => {
     p_root_span_id: rootSpanId,
     p_context: {
       interaction_id: safeUuid(run.interaction_id),
-      capability: "research-w2:public-number",
+      capability: executionCapability,
       surface: run.surface_context.surface,
       channel: "web",
       locale: "he",
       identity_class: identityClass,
-      subject_ref: `number:${run.number}`,
+      subject_ref: subjectRef,
       root_name: "research-run",
       owner_ref: "research_strategy_layer_law v17 + research_workspace_law v5",
     },
@@ -183,7 +200,7 @@ Deno.serve(async (req: Request) => {
   const gateSpanId = crypto.randomUUID();
   const gateStartedAt = new Date().toISOString();
   const gate = await serviceRpc("fn_capability_execution_gate_v1", {
-    p_capability: "research-w2:public-number",
+    p_capability: executionCapability,
     p_flag_key: null,
     p_required_entitlement: "public",
     p_user_ref: userId,
@@ -206,7 +223,7 @@ Deno.serve(async (req: Request) => {
     p_ended_at: gateEndedAt,
     p_outcome: gate ? (gateAllowed ? "success" : "access_filtered") : "failed_with_reason",
     p_detail: {
-      capability: "research-w2:public-number",
+      capability: executionCapability,
       owner_ref: "site_flags_lock_law v3 + platform_tiers_law v4 + ai_quota_law v3",
       output_use: "not_applicable",
       stop_reason: gate ? (gateAllowed ? null : "gate_denied") : "gate_unavailable",
@@ -238,10 +255,24 @@ Deno.serve(async (req: Request) => {
   // Service role is never passed to the canonical executors — caller RLS/permissions apply exactly
   // as they would from a direct browser call.
   const callerRpc = rpcTransport(ANON_KEY, authHeader);
-  const executors = createCanonicalW2Executors({
+  // The public Number Golden remains on the exact base executor tree. The pair transport adds only
+  // the canonical relation adapter it is allowed to execute, avoiding the wider browser/runtime
+  // executor graph and retaining a hard one-RPC budget.
+  const baseExecutors = createPublicNumberW2Executors({
     supabase: callerRpc,
     serverContext: false,
   });
+  const executors = personalPair
+    ? Object.freeze({
+        ...baseExecutors,
+        [PERSONAL_GEMATRIA_PAIR_CAPABILITY]: createGematriaRelationW2Executor({
+          supabase: callerRpc,
+          pairMode: GEMATRIA_RELATION_PAIR_MODE.INTAKE_DIRECT_PAIR,
+          maxRepresentations: 2,
+          maxPairs: 1,
+        }),
+      })
+    : baseExecutors;
 
   const capabilityEvents: any[] = [];
   const composeSpanId = crypto.randomUUID();
@@ -262,7 +293,8 @@ Deno.serve(async (req: Request) => {
       question: run.question,
       intent: run.intent,
       identityCandidates: run.identity_candidates,
-      rawInput: String(run.number),
+      rawInput: personalPair ? null : String(run.number),
+      intake: personalPair ? run.intake : null,
       explicitTextComputation: false,
       authorizationContext,
       contextType: identityClass,
@@ -271,7 +303,7 @@ Deno.serve(async (req: Request) => {
       // No identity/text inference ever widens this transport's execution plan beyond the exact
       // capabilities the validated request asked for — even if `question` free text mentions more.
       capabilityAllowlist: run.requested_capabilities,
-      requestedDepth: "golden_public_number_v1",
+      requestedDepth: personalPair ? "personal_gematria_pair_v1" : "golden_public_number_v1",
       executors,
       // Timestamps/status/counts only — never raw Findings/content cross this boundary.
       executionObserver: (event: any) => capabilityEvents.push(event),
@@ -288,7 +320,9 @@ Deno.serve(async (req: Request) => {
   }
 
   const composeEndedAt = new Date().toISOString();
-  const planRef = `research-plan-v2:number:${run.number}`;
+  const planRef = personalPair
+    ? "research-plan-v2:personal-gematria-pair"
+    : `research-plan-v2:number:${run.number}`;
   const composeTraced = await serviceRpc("op_trace_record_span_v1", {
     p_trace_id: traceId,
     p_span_id: composeSpanId,
@@ -299,17 +333,17 @@ Deno.serve(async (req: Request) => {
     p_ended_at: composeEndedAt,
     p_outcome: bundleOutcome(bundle),
     p_detail: {
-      capability: "research-w2:public-number",
+      capability: executionCapability,
       owner_ref: "research_strategy_layer_law v17",
       plan_ref: planRef,
-      routing_reason: "explicit_public_number_golden",
+      routing_reason: routingReason,
       output_use: "used",
       resources: { capability_count: capabilityEvents.length },
       cost: { certainty: "not_billable" },
       replay: {
-        inputRef: `number:${run.number}`,
+        inputRef: replayInputRef,
         ownerRuleRefs: ["research_strategy_layer_law v17", "research_workspace_law v5"],
-        parametersRef: "public-number-research-run-v1",
+        parametersRef: run.contract,
       },
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     },
@@ -338,7 +372,7 @@ Deno.serve(async (req: Request) => {
           bounded: event.bounded || null,
         },
         cost: { certainty: "not_billable" },
-        replay: { inputRef: `number:${run.number}` },
+        replay: { inputRef: replayInputRef },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       },
     });

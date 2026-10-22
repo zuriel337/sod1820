@@ -11,6 +11,9 @@ export const RESEARCH_CAPABILITY = Object.freeze({
   GRAPH: "graph",
   NUMERIC: "numeric",
   GEMATRIA: "gematria",
+  // Contract-only in V0: this capability is never inferred from question text and is excluded from
+  // the general Quick/Deep/Research profiles. A validated bounded transport must request it.
+  GEMATRIA_RELATIONS: "gematria_relations",
   OPERATORS: "numeric_operators",
   RELATIONS: "numeric_relations",
   FIBONACCI_ZECKENDORF: "sequence:fibonacci:zeckendorf",
@@ -95,6 +98,7 @@ function deriveStrategy({ identityResolution, capabilityHints }) {
   const kinds = identityKinds(identityResolution);
   if (kinds.includes("person")) return capabilityHints.includes(RESEARCH_CAPABILITY.FAMILY) ? "personal_family_research" : "personal_research";
   if (kinds.includes("book")) return kinds.includes("number") ? "cross_identity_research" : "source_research";
+  if (capabilityHints.includes(RESEARCH_CAPABILITY.GEMATRIA_RELATIONS)) return "gematria_relation_research";
   if (capabilityHints.includes(RESEARCH_CAPABILITY.ELS)) return "els_research";
   if (kinds.includes("event") || kinds.includes("topic")) return "reality_research";
   if (kinds.includes("number")) return "number_research";
@@ -115,6 +119,7 @@ function deriveCheckOrder(capabilityHints) {
     RESEARCH_CAPABILITY.RELATIONS,
     RESEARCH_CAPABILITY.FIBONACCI_ZECKENDORF,
     RESEARCH_CAPABILITY.GEMATRIA,
+    RESEARCH_CAPABILITY.GEMATRIA_RELATIONS,
     RESEARCH_CAPABILITY.NAME,
     RESEARCH_CAPABILITY.ELS,
     RESEARCH_CAPABILITY.RESEARCH_OBJECTS,

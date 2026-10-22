@@ -6,9 +6,10 @@ import {stripTypeScriptTypes} from 'node:module';
 import {runInNewContext} from 'node:vm';
 import {randomUUID} from 'node:crypto';
 import {composeResearchW2} from '../../src/lib/research/researchComposerW2.js';
-import {createCanonicalW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
-import {normalizePublicNumberResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+import {createCanonicalW2Executors as createPublicNumberW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
+import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
+import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -18,7 +19,9 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     const body=req.method==='POST'?await req.json():null,name=u.pathname.split('/').at(-1);
     calls.push({name,method:req.method,body,authorization:req.headers.get('authorization')});
     if(u.origin!==origin){unexpected.push(req.url);throw new Error('Unexpected destination');}
-    if(u.pathname==='/auth/v1/user')return response({message:'synthetic guest'},401);
+    if(u.pathname==='/auth/v1/user')return authenticatedUser
+      ? response({id:'22222222-2222-4222-8222-222222222222'})
+      : response({message:'synthetic guest'},401);
     if(req.method!=='POST'||!u.pathname.startsWith('/rest/v1/rpc/')){unexpected.push(req.url);throw new Error('Unexpected request');}
     const fault=faults.find(f=>f.name===name && (!f.span || body.p_name===f.span));
     if(fault){
@@ -50,20 +53,28 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     if(name==='fn_number_journey')return response({value:878,seeds:[{value:1202,status:'ready'}]});
     if(name==='fn_zero_scale')return response({applicable:true,method_id:'zero_scale',version:1,core_root:878,scale_chain:[878]});
     if(name==='number_neighbors')return response([{value:877,weight:1},{value:879,weight:1}]);
+    if(name==='fn_relation_candidate')return response(relationCandidate ?? {
+      status:'candidate',relation_kind:'gematria_convergence',engine_signal:2,
+      engine_evidence:[{method:'רגיל',value:358,group_repr:'regular'}],composite_evidence:[],
+      independent_evidence:{edges:[],topic_cards:[],research_objects:[]},noise_flags:[],
+      engine_signal_components:{effective_independent_group_count:1},
+    });
     unexpected.push(req.url);throw new Error(`Unknown RPC ${name}`);
   };
   const imports=[...source.matchAll(/^import .*;$/gm)].map(([s])=>s);
   assert.deepEqual(imports,[
     'import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";',
-    'import { createCanonicalW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";',
-    'import { normalizePublicNumberResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
+    'import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";',
+    'import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";',
+    'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
   ],'Review new Edge imports before executing them');
   let handler;
   const env={SUPABASE_URL:origin,SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:service};
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm,'')),{
     Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn;}},fetch:transport,
     composeResearchW2:composerFailure?()=>{throw new Error('Isolated composer failure');}:composeResearchW2,
-    createCanonicalW2Executors,normalizePublicNumberResearchRunRequest,
+    createPublicNumberW2Executors,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
+    PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
     Request,Response,Headers,URL,crypto:{randomUUID},
   },{filename:'research-run/index.ts',timeout:5000});
   const fetch=async(input,init)=>{
