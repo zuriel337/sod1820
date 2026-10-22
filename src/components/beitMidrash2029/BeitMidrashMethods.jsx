@@ -17,6 +17,32 @@ const CATEGORY_LABELS = Object.freeze({
   context: "שיטות תלויות הקשר",
 });
 
+const SKELETON_PILLS = Object.freeze([0, 1, 2, 3, 4]);
+const SKELETON_GROUPS = Object.freeze(["base", "composite", "depth", "context"]);
+
+/** Loading placeholder with the same blocks and minimum heights as the real lesson, so nothing below it moves. */
+function MethodsSkeleton({ withLesson }) {
+  const bars = (count) => [...new Array(count).keys()].map((index) => <i key={index} className="bm-sk-line" />);
+  return <div className="bm-methods-layout bm-skeleton" role="status" aria-busy="true" data-has-lesson={withLesson ? "true" : "false"}>
+    <span className="bm-sr">פותח את דרכי החישוב…</span>
+    {withLesson ? <div className="bm-method-nav is-rail" aria-hidden="true">
+      {SKELETON_PILLS.map((index) => <i key={index} className="bm-sk-pill" />)}
+    </div> : <div className="bm-method-nav" aria-hidden="true">
+      {SKELETON_GROUPS.map((group) => <div key={group} className="bm-method-group">
+        <i className="bm-sk-line is-short" />
+        <div>{SKELETON_PILLS.slice(0, 3).map((index) => <i key={index} className="bm-sk-pill" />)}</div>
+      </div>)}
+    </div>}
+    {withLesson ? <article className="bm-lesson" aria-hidden="true">
+      <header><i className="bm-sk-line is-short" /><i className="bm-sk-line is-title" /><i className="bm-sk-line is-short" /></header>
+      <div className="bm-lesson-grid"><section>{bars(2)}</section><section>{bars(2)}</section></div>
+      <section className="bm-example">{bars(3)}</section>
+      <section className="bm-caution">{bars(2)}</section>
+      <section className="bm-try">{bars(1)}</section>
+    </article> : null}
+  </div>;
+}
+
 const methodHref = (key) => `/beit-midrash/${encodeURIComponent(key)}`;
 
 function MethodChooser({ methods, selectedKey, sampleExpression }) {
@@ -178,11 +204,7 @@ export default function BeitMidrashMethods({
   requestedMethod, selectedMethod, blocks, sampleExpression, traceState, onLoadTrace,
 }) {
   return <BeitMidrashSection id="methods" icon="tools" title={section.title} description={section.description} focused={focused}>
-    {/* While the registry loads, reserve the lesson's footprint so the page below does not jump. */}
-    <div className="bm-methods-body" data-pending={state.loading ? (requestedMethod ? "lesson" : "list") : "false"}>
-    {state.loading ? <FrameState kind="loading" title="פותח את דרכי החישוב">
-      קורא את השיטות והדוגמה מן המקורות הקנוניים.
-    </FrameState> : null}
+    {state.loading ? <MethodsSkeleton withLesson={Boolean(requestedMethod)} /> : null}
     {state.error ? <FrameState kind="error" title="דרכי החישוב אינן זמינות כרגע">
       לא מוצגת רשימה מקומית חלופית.
     </FrameState> : null}
@@ -207,8 +229,6 @@ export default function BeitMidrashMethods({
         onLoadTrace={onLoadTrace}
       /> : <p className="bm-note bm-pick">בחרו שיטה כדי לפתוח שיעור: מה היא עושה, איך היא בנויה, דוגמה מודרכת והזהרות.</p>}
     </div> : null}
-
-    </div>
 
     {unavailableMethods.length ? <details className="bm-unavailable">
       <summary>שיטות שאינן זמינות כרגע · {unavailableMethods.length}</summary>

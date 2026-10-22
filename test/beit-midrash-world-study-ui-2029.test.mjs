@@ -151,3 +151,21 @@ test("lesson visual pass: centred rail, flat structure and calm motion", () => {
   assert.match(parts["BeitMidrashSection.jsx"], /"נקודות מפגש"/);
   assert.match(parts["BeitMidrashSection.jsx"], /"מתרגלים ומשתתפים"/);
 });
+
+test("illustrations are presentational: no data, reader or calculation, decorative ones hidden", () => {
+  const illustrations = parts["BeitMidrashIllustrations.jsx"].replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  assert.doesNotMatch(illustrations, /fetch|useEffect|useState|import .*lib\/|Number\(|parseInt|gematria/i);
+  assert.match(illustrations, /data-illustration="fibonacci-spiral"/);
+  assert.match(illustrations, /aria-hidden="true"/);
+  assert.match(illustrations, /<ol className="bm-source-trail"/);
+  assert.match(illustrations, /המחשה בלבד/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /selectedNumberConcept\.id === "fibonacci"/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /<PathTrail steps=\{path\.steps\?\.length\}/);
+  assert.doesNotMatch(parts["BeitMidrashGuided.jsx"].match(/function GuidedCard[\s\S]*?\n\}\n/)[0], /MeetingIllustration/, "never inside an example card");
+});
+test("loading uses a skeleton with the lesson's own minimum heights", () => {
+  assert.match(parts["BeitMidrashMethods.jsx"], /function MethodsSkeleton/);
+  assert.match(parts["BeitMidrashMethods.jsx"], /role="status" aria-busy="true"/);
+  assert.doesNotMatch(css, /data-pending|min-height:1\d{3}px/, "no giant reserved blank");
+  assert.match(css, /\.bm-lesson>header\{min-height:294px/);
+});

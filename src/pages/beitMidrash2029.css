@@ -323,9 +323,6 @@
   margin-top:22px;
   justify-items:center;
 }
-/* Reserve the loading footprint so late content does not shift the sections below. */
-.bm-methods-body[data-pending="lesson"]{min-height:1180px}
-.bm-methods-body[data-pending="list"]{min-height:360px}
 /* Methods are a horizontal rail above the lesson, never a side column. */
 .bm-method-nav{
   display:grid;
@@ -394,7 +391,7 @@
   background:var(--s29-panel-soft);
   scroll-margin-top:84px;
 }
-/* Lesson banner: sapphire depth with a gold hairline, centred title. */
+/* Lesson banner: a clear sapphire wash with a gold hairline, centred title. */
 .bm-lesson>header,
 .bm-number-lesson>header{
   position:relative;
@@ -405,8 +402,9 @@
   padding:clamp(28px,5vw,44px) clamp(18px,3vw,34px) clamp(20px,3vw,28px);
   text-align:center;
   background:
-    radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--bm-sapphire) 12%,transparent),transparent 72%),
-    linear-gradient(180deg,color-mix(in srgb,var(--bm-gold) 6%,transparent),transparent);
+    radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--bm-sapphire) 26%,transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--bm-sapphire) 14%,var(--s29-panel-soft)),var(--s29-panel-soft));
+  box-shadow:inset 0 3px 0 color-mix(in srgb,var(--bm-sapphire) 85%,var(--bm-gold));
   border-bottom:1px solid color-mix(in srgb,var(--bm-gold) 30%,var(--s29-line));
 }
 .bm-lesson>header code{display:block;margin-top:6px;color:var(--s29-muted);font-family:var(--s29-font-numeric);font-size:var(--s29-type-micro)}
@@ -414,7 +412,19 @@
 .bm-lesson h5{margin:0 0 7px;font-family:var(--s29-font-display);font-weight:600;font-size:var(--s29-type-lead);line-height:1.3;color:var(--s29-ink)}
 .bm-lesson p,.bm-lesson li{color:var(--s29-muted);font-size:var(--s29-type-ui);line-height:1.75}
 .bm-lesson p{margin:0}
-.bm-lesson-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:22px}
+.bm-lesson-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:22px;min-height:120px}
+.bm-lesson>header{min-height:294px;align-content:start}
+.bm-example{min-height:178px}
+.bm-caution{min-height:96px}
+.bm-try{min-height:99px}
+.bm-method-nav.is-rail{min-height:74px}
+.bm-lesson>header,
+.bm-lesson-grid,
+.bm-example,
+.bm-caution,
+.bm-try,
+.bm-method-nav,
+.bm-skeleton .bm-method-group{box-sizing:border-box}
 .bm-lesson section{min-width:0}
 .bm-lesson-grid>section,
 .bm-example,
@@ -577,11 +587,78 @@
   .bm-flow-method{animation:bm-rise 520ms cubic-bezier(.2,.7,.2,1) 380ms both}
   .bm-flow-result{animation:bm-rise 560ms cubic-bezier(.2,.7,.2,1) 640ms both}
   .bm-flow-line{stroke-dasharray:4 5;animation:bm-march 1.6s linear 4}
-  .bm-lesson{animation:bm-fade 360ms ease-out both}
 }
 @keyframes bm-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes bm-fade{from{opacity:.001}to{opacity:1}}
 @keyframes bm-march{to{stroke-dashoffset:-18}}
+
+
+/* ——— Loading skeleton: same blocks and minimum heights as the lesson ——— */
+.bm-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bm-skeleton{align-content:start}
+.bm-sk-line{display:block;height:14px;margin-top:10px;border-radius:7px;background:color-mix(in srgb,var(--s29-muted) 22%,transparent)}
+.bm-sk-line.is-title{width:42%;height:30px}
+.bm-sk-line.is-short{width:22%}
+.bm-sk-line:not(.is-title):not(.is-short){width:86%}
+.bm-sk-pill{display:inline-block;width:112px;height:48px;flex:0 0 auto;border-radius:999px;background:color-mix(in srgb,var(--s29-muted) 14%,transparent)}
+.bm-skeleton .bm-method-group{height:86px;align-content:start}
+.bm-skeleton .bm-method-group>div{display:flex;gap:8px}
+@media(prefers-reduced-motion:no-preference){
+  .bm-sk-line,.bm-sk-pill{animation:bm-pulse 1.4s ease-in-out 6 alternate}
+}
+@keyframes bm-pulse{from{opacity:.55}to{opacity:1}}
+
+/* ——— Teaching illustrations: drawings and labels, never evidence, never boxed ——— */
+.bm-illo,.bm-meeting svg{display:block;fill:none;stroke:var(--bm-gold);stroke-linecap:round;stroke-linejoin:round}
+.bm-spiral{width:min(240px,70%);height:auto;aspect-ratio:14.2 / 9.2;margin-top:12px}
+.bm-spiral-grid rect{stroke:color-mix(in srgb,var(--bm-sapphire) 70%,var(--s29-muted));stroke-width:.08;opacity:.7}
+.bm-spiral-path{stroke-width:.16}
+.bm-source-trail{
+  display:flex;
+  justify-content:center;
+  gap:clamp(8px,3vw,36px);
+  margin:22px 0 0;
+  padding:0;
+  list-style:none;
+}
+.bm-source-trail li{position:relative;display:grid;justify-items:center;gap:6px;min-width:64px;font-family:var(--s29-font-ui);color:var(--s29-ink)}
+.bm-source-trail li+li::before{
+  content:"";
+  position:absolute;
+  inset-block-start:21px;
+  inset-inline-end:calc(100% - 12px);
+  width:clamp(8px,3vw,36px);
+  border-top:2px dashed var(--bm-frame);
+}
+.bm-trail-node{
+  width:42px;height:42px;
+  display:grid;place-items:center;
+  border:1px solid var(--bm-gold);
+  border-radius:50%;
+  background:color-mix(in srgb,var(--bm-sapphire) 16%,var(--s29-panel));
+  color:var(--s29-accent-text);
+  font-family:var(--s29-font-numeric);
+  font-size:var(--s29-type-ui);
+}
+.bm-source-trail strong{font-size:var(--s29-type-ui);font-weight:800}
+.bm-path-trail{display:flex;align-items:center;gap:0;width:max-content;max-width:100%;min-height:20px}
+.bm-path-trail i{display:block;width:12px;height:12px;border-radius:50%;background:var(--bm-gold);opacity:.85}
+.bm-path-trail i+i{margin-inline-start:22px;position:relative}
+.bm-path-trail i+i::before{content:"";position:absolute;inset-block-start:5px;inset-inline-end:100%;width:22px;border-top:2px solid var(--bm-frame)}
+.bm-path-trail i:last-child{background:color-mix(in srgb,var(--bm-sapphire) 70%,var(--bm-gold))}
+.bm-group-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px}
+.bm-group-head .bm-group-title{margin:0}
+.bm-meeting{display:grid;justify-items:center;gap:2px;flex:0 0 auto}
+.bm-meeting svg{width:96px;height:auto;aspect-ratio:120 / 64;stroke-width:2}
+.bm-meeting small{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+.bm-meeting-core{fill:var(--bm-gold);stroke:none}
+.bm-meeting-dot{fill:color-mix(in srgb,var(--bm-sapphire) 70%,var(--bm-gold));stroke:none}
+.bm-meeting-ring{stroke-dasharray:3 4;opacity:.8}
+@media(prefers-reduced-motion:no-preference){
+  .bm-spiral-path{stroke-dasharray:1;stroke-dashoffset:1;animation:bm-draw 1800ms ease-out 200ms 1 forwards}
+  .bm-meeting-line{stroke-dasharray:1;stroke-dashoffset:1;animation:bm-draw 900ms ease-out 1 forwards}
+  .bm-source-trail li,.bm-path-trail i{animation:bm-rise 480ms cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--bm-i,0) * 110ms)}
+}
+@keyframes bm-draw{to{stroke-dashoffset:0}}
 
 /* ——— Focus, motion ——— */
 .sod29-midrash a:focus-visible,
@@ -609,6 +686,16 @@
   .bm-pillars{grid-template-columns:1fr}
   .bm-concepts{grid-template-columns:1fr}
   .bm-lesson-grid{grid-template-columns:1fr}
+  .bm-lesson>header{min-height:393px}
+  .bm-lesson-grid{min-height:209px}
+  .bm-example{min-height:170px}
+  .bm-caution{min-height:136px}
+  .bm-try{min-height:207px}
+  .bm-skeleton .bm-method-group{height:104px}
+  .bm-source-trail{gap:6px}
+  .bm-source-trail li{min-width:0}
+  .bm-source-trail li+li::before{inset-inline-end:calc(100% - 8px);width:6px}
+  .bm-group-head{flex-direction:column;align-items:flex-start}
   .bm-flow{flex-direction:column}
   .bm-flow-arrow{transform:rotate(-90deg);margin-block:2px}
   .bm-flow-letters li{width:44px;height:44px}

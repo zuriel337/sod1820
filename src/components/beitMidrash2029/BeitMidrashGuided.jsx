@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
+import { MeetingIllustration } from "./BeitMidrashIllustrations.jsx";
 import { FrameState, use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { publicContributorHref, publicWorldSourceHref } from "../../lib/research/publicContributorIdentity.js";
@@ -84,10 +85,13 @@ function GuidedCard({ example }) {
   </article>;
 }
 
-function Group({ id, copy, rows }) {
+function Group({ id, kind, copy, rows }) {
   if (!rows.length) return null;
   return <div className="bm-guided-group" id={id}>
-    <h4 className="bm-group-title">{copy.title} <span className="bm-tag">{copy.eyebrow}</span></h4>
+    <div className="bm-group-head">
+      <h4 className="bm-group-title">{copy.title} <span className="bm-tag">{copy.eyebrow}</span></h4>
+      <MeetingIllustration kind={kind} />
+    </div>
     <div className="bm-example-list">{rows.map((example) => <GuidedCard key={example.sourceId || example.id} example={example} />)}</div>
   </div>;
 }
@@ -107,8 +111,8 @@ export default function BeitMidrashGuided({ section, focused, world, guided, lan
       דוגמאות חדשות יופיעו כאן כשיהיו זמינות. לא נוסף תוכן חלופי.
     </FrameState> : null}
 
-    <Group id="guided-crossing" copy={language.crossing} rows={guided.crossings} />
-    <Group id="guided-convergence" copy={language.convergence} rows={guided.convergences} />
+    <Group id="guided-crossing" kind="crossing" copy={language.crossing} rows={guided.crossings} />
+    <Group id="guided-convergence" kind="convergence" copy={language.convergence} rows={guided.convergences} />
 
     <div className="bm-map-cta" id="guided-map">
       <p>{mapCallout.description}</p>
