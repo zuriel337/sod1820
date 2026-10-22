@@ -176,6 +176,26 @@ function validateNumericOutput(output, permittedTexts = []) {
   });
 }
 
+// Raziel returns a JSON envelope. Validate only text that can reach the person, never contract/version metadata.
+// Surface navigation history and personal memory are deliberately NOT admissible numeric evidence; a number may be
+// repeated only when it came from the explicit question, a current exact Number identity, or a governed engine pack.
+function validateRazielNumericOutput(output, permittedTexts = []) {
+  const contract = parseContract(String(output || ""));
+  if (!contract) return validateNumericOutput(output, permittedTexts);
+  const facts = Array.isArray(contract.facts)
+    ? contract.facts.flatMap((fact) => [fact?.label, fact?.value])
+    : [];
+  const paths = Array.isArray(contract.suggested_paths)
+    ? contract.suggested_paths.flatMap((path) => [path?.label, path?.hint])
+    : [];
+  return validateNumericOutput([
+    contract.answer,
+    contract.follow_up_question,
+    ...facts,
+    ...paths,
+  ].filter(Boolean).join("\n"), permittedTexts);
+}
+
 function numericTruthRetryInstruction() {
   return "\n\nתיקון חובה: בטיוטה הקודמת הופיעה טענה מספרית שלא הייתה בחומר שסופק. כתוב מחדש בלי להוסיף שום מספר, חישוב, פירוק, סכום או ערך שלא הופיע במפורש בחומר שסופק. פרש בלבד.";
 }
@@ -1120,18 +1140,32 @@ function razielSurfaceNumberRoot(sc: any): number | null {
   return n >= 1 ? n : null;
 }
 
-function razielNumberContextDescriptor(det: any, surfaceSemantic: any): { number: number; anchor: string; mode: "deterministic" | "synthesis" } | null {
+type RazielNumberContextDescriptor = { number: number; anchor: string; mode: "deterministic" | "synthesis"; focus: string | null };
+
+function razielNumberContextDescriptor(det: any, surfaceSemantic: any): RazielNumberContextDescriptor | null {
   if (!det || det.enabled !== true || det.availability !== "number_context") return null;
   const nc = det.number_context;
   if (!nc || nc.contract !== "number_context_v1") return null;
   const anchor = String(nc.anchor || "");
+  if (anchor === "explicit_pair") return null;
   const mode = nc.mode === "deterministic" ? "deterministic" : "synthesis";
+  const focus = typeof nc.focus === "string" ? nc.focus.slice(0, 40) : null;
   let n: number | null = null;
   if (anchor === "explicit") n = num(nc.number);
   else if (anchor === "gematria_dependency") n = det.mode === "tool_research" && nc.dependency?.verified === true ? num(nc.number) : null;
   else if (anchor === "surface_root") n = razielSurfaceNumberRoot(surfaceSemantic);
   if (n === null || !Number.isInteger(n) || n < 1 || n > 999999) return null;   // fail closed: no anchor → no tool
-  return { number: n, anchor, mode };
+  return { number: n, anchor, mode, focus };
+}
+
+function razielNumberPairDescriptor(det: any): { numbers: [number, number]; anchor: "explicit_pair"; mode: "synthesis"; focus: "number_compare" } | null {
+  if (!det || det.enabled !== true || det.availability !== "number_context") return null;
+  const nc = det.number_context;
+  if (!nc || nc.contract !== "number_context_v1" || nc.anchor !== "explicit_pair" || nc.focus !== "number_compare") return null;
+  const values = Array.isArray(nc.numbers) ? nc.numbers : [];
+  if (values.length !== 2 || !values.every((n: unknown) => Number.isInteger(n) && (n as number) >= 1 && (n as number) <= 999999)) return null;
+  if (values[0] === values[1]) return null;
+  return { numbers: [values[0], values[1]], anchor: "explicit_pair", mode: "synthesis", focus: "number_compare" };
 }
 
 type RazielNcItem = { ref?: string; label: string; relation?: string; weight?: number };
@@ -1140,7 +1174,7 @@ type RazielNumberContext = { ok: boolean; number: number; anchor: string; mode: 
 
 const ncText = (v: unknown, n: number): string => (typeof v === "string" ? v.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, n) : "");
 
-function razielNumberContextProject(n: number, map: any, dossier: any): Omit<RazielNumberContext, "ok" | "number" | "anchor" | "mode" | "outcome"> | null {
+function razielNumberContextProject(n: number, map: any, dossier: any, focus: string | null = null): Omit<RazielNumberContext, "ok" | "number" | "anchor" | "mode" | "outcome"> | null {
   const mapOk = !!map && typeof map === "object" && !Array.isArray(map);
   const dosOk = !!dossier && typeof dossier === "object" && !Array.isArray(dossier);
   if (!mapOk && !dosOk) return null;
@@ -1179,6 +1213,17 @@ function razielNumberContextProject(n: number, map: any, dossier: any): Omit<Raz
   const add = (label: string, c: number) => { if (c > 0) parts.push(`${label} ${c}`); };
   add("פוסטים", Math.max(counted.posts_map, counted.posts_dossier)); add("טופיקים", Math.max(counted.topics_map, counted.topics_dossier));
   add("ישויות", counted.entities); add("אירועים", counted.events); add("התכנסויות", counted.convergences); add("מספרים קשורים", counted.numbers);
+  const facts = parts.map((p) => { const i = p.lastIndexOf(" "); return { label: p.slice(0, i), value: p.slice(i + 1) }; });
+  const refs = { post: top.post.length, topic: dTopics.length ? Math.min(dTopics.length, RAZIEL_NC_TOP) : top.topic.length,
+    entity: top.entity.length, event: top.event.length };
+  if (focus === "gematria_phrases") {
+    const phraseLines = dMethods.filter((method: any) => method.phrases.length)
+      .map((method: any) => `${method.method}: ${method.phrases.join(" · ")}`);
+    const answer = phraseLines.length
+      ? [`ביטויי הגימטריה המאומתים בתיק המספר ${n}:`, ...phraseLines].join("\n").slice(0, 1400)
+      : `לא נמצאו ביטויי גימטריה מאומתים למספר ${n} בתיק המספר הקיים (אין זו הוכחה שאין ביטויים במקורות אחרים).`;
+    return { answer, facts, counts: counted as unknown as Record<string, number>, refs, pack: JSON.stringify(bundle).slice(0, 2600) };
+  }
   const lab = (a: RazielNcItem[]) => a.map((x) => x.label).join(" · ");
   const lines = [parts.length ? `המספר ${n} באתר (קשרי גרף ותיק-מספר קיימים): ${parts.join(" · ")}.` : `לא נמצאו קשרים ידועים למספר ${n} בהקרנות הקיימות של האתר (אין זו הוכחה שאינו מופיע במקומות אחרים).`];
   if (top.post.length) lines.push(`פוסטים: ${lab(top.post)}`);
@@ -1187,12 +1232,10 @@ function razielNumberContextProject(n: number, map: any, dossier: any): Omit<Raz
   if (top.entity.length) lines.push(`ישויות (יחס): ${top.entity.map((x) => `${x.label}${x.relation ? ` [${x.relation}]` : ""}`).join(" · ")}`);
   if (top.event.length) lines.push(`אירועים (יחס): ${top.event.map((x) => `${x.label}${x.relation ? ` [${x.relation}]` : ""}`).join(" · ")}`);
   const answer = lines.join("\n").slice(0, 1400);
-  const facts = parts.map((p) => { const i = p.lastIndexOf(" "); return { label: p.slice(0, i), value: p.slice(i + 1) }; });
-  return { answer, facts, counts: counted as unknown as Record<string, number>, refs: { post: top.post.length, topic: dTopics.length ? Math.min(dTopics.length, RAZIEL_NC_TOP) : top.topic.length,
-    entity: top.entity.length, event: top.event.length }, pack: JSON.stringify(bundle).slice(0, 2600) };
+  return { answer, facts, counts: counted as unknown as Record<string, number>, refs, pack: JSON.stringify(bundle).slice(0, 2600) };
 }
 
-async function runRazielNumberContext(desc: { number: number; anchor: string; mode: string }, trace: OperationalTraceHandle | null): Promise<RazielNumberContext> {
+async function runRazielNumberContext(desc: { number: number; anchor: string; mode: string; focus?: string | null }, trace: OperationalTraceHandle | null): Promise<RazielNumberContext> {
   const results: Awaited<ReturnType<typeof razielOperatorRpc>>[] = [];
   const spans: { spanId: string; startedAt: string }[] = [];
   for (const c of RAZIEL_NUMBER_CONTEXT_CALLS) {
@@ -1202,7 +1245,7 @@ async function runRazielNumberContext(desc: { number: number; anchor: string; mo
     spans.push({ spanId: crypto.randomUUID(), startedAt: sAt });
   }
   const anyOk = results.some((r) => r.ok);
-  const proj = anyOk ? razielNumberContextProject(desc.number, results[0].ok ? results[0].data : null, results[1].ok ? results[1].data : null) : null;
+  const proj = anyOk ? razielNumberContextProject(desc.number, results[0].ok ? results[0].data : null, results[1].ok ? results[1].data : null, desc.focus || null) : null;
   const ok = anyOk && !!proj;
   for (let i = 0; i < results.length; i++) {
     const r = results[i], c = RAZIEL_NUMBER_CONTEXT_CALLS[i];
@@ -2087,11 +2130,23 @@ Deno.serve(async (req: Request) => {
       // Phase H — reality_number_context. Anchor comes from the plan (explicit / verified gematria dependency) or the bounded surface root; no anchor ⇒ no tool.
       //    L0 (listing/counts) answers straight from the owner projections (no model, no tokens); synthesis gets a bounded pack. Failure ⇒ ordinary synthesis, no claims.
       let rNcPack = "";
-      const rNcDesc = razielNumberContextDescriptor(rDet, body?.surface_semantic);
+      const rNcPairDesc = razielNumberPairDescriptor(rDet);
+      const rNcDesc = rNcPairDesc ? null : razielNumberContextDescriptor(rDet, body?.surface_semantic);
       if (rDet && rDet.availability === "number_context") rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: false };
-      if (rNcDesc) {
+      if (rNcPairDesc) {
+        const [leftNumber, rightNumber] = rNcPairDesc.numbers;
+        const left = await runRazielNumberContext({ number: leftNumber, anchor: rNcPairDesc.anchor, mode: rNcPairDesc.mode, focus: rNcPairDesc.focus }, activeTrace);
+        const right = await runRazielNumberContext({ number: rightNumber, anchor: rNcPairDesc.anchor, mode: rNcPairDesc.mode, focus: rNcPairDesc.focus }, activeTrace);
+        const pairOk = left.ok && right.ok;
+        rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: pairOk,
+          number_context: { numbers: rNcPairDesc.numbers, anchor: rNcPairDesc.anchor, focus: rNcPairDesc.focus,
+            outcomes: [left.outcome, right.outcome] } };
+        if (pairOk && left.pack && right.pack) {
+          rNcPack = `השוואת שני מספרים מפורשים — צד א (${leftNumber}):\n${left.pack}\n\nצד ב (${rightNumber}):\n${right.pack}`.slice(0, 5400);
+        }
+      } else if (rNcDesc) {
         const nc = await runRazielNumberContext(rNcDesc, activeTrace);
-        rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: nc.ok, number_context: { number: nc.number, anchor: nc.anchor, outcome: nc.outcome } };
+        rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: nc.ok, number_context: { number: nc.number, anchor: nc.anchor, focus: rNcDesc.focus, outcome: nc.outcome } };
         if (nc.ok && rNcDesc.mode === "deterministic" && !rToolRes && nc.answer) {
           await finishOperationalTrace(activeTrace, "success");
           return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: nc.answer, facts: nc.facts || [], suggested_paths: [],
@@ -2193,9 +2248,22 @@ Deno.serve(async (req: Request) => {
           facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
         }),
       });
-      const out = { text: rel.text, usage: rel.usage };
+      const exactSurfaceNumber = razielSurfaceNumberRoot(body?.surface_semantic);
+      const razielTruth = rel.degraded ? { ok: true, invented: [] } : validateRazielNumericOutput(rel.text, [
+        rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rOpPack, rPersPack,
+        rCcPack === "UNAVAILABLE" ? "" : rCcPack,
+        rSource?.ok ? rSource.text : "",
+        exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),
+      ]);
+      const razielTruthRejected = !rel.degraded && !razielTruth.ok;
+      const truthFallback = JSON.stringify({
+        v: 1, agent: "raziel", context: null, greeting: null,
+        answer: "לא קיבלתי מהמנוע נתונים מאומתים שמאפשרים לי לענות בלי לנחש. נסה בקשה מפורשת לחיפוש במאגר או פתח את דף המספר ובקש את הביטויים המאומתים.",
+        facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
+      });
+      const out = { text: razielTruthRejected ? truthFallback : rel.text, usage: rel.usage };
       const razielModelEndedAt = new Date().toISOString();
-      const razielModelOutcome = rel.degraded ? "provider_error" : "success";
+      const razielModelOutcome = rel.degraded ? "provider_error" : razielTruthRejected ? "failed_with_reason" : "success";
       await recordOperationalSpan(activeTrace, {
         spanId: razielModelSpanId,
         kind: "model_call",
@@ -2214,8 +2282,8 @@ Deno.serve(async (req: Request) => {
           plan: rPlanMeta,
           tool_research: rToolRes ? { status: rToolRes.status, tools: rToolRes.tools.map((t) => ({ capability: t.capability, status: t.status })) } : null,
           semantic_surface: !!semText,
-          output_use: rel.degraded ? "fallback_guardian" : "used",
-          stop_reason: rel.degraded ? rel.reason : null,
+          output_use: rel.degraded ? "fallback_guardian" : razielTruthRejected ? "rejected" : "used",
+          stop_reason: rel.degraded ? rel.reason : razielTruthRejected ? "numeric_truth_guard_untrusted_literal" : null,
           resources: {
             input_tokens: out.usage?.input_tokens ?? null,
             output_tokens: out.usage?.output_tokens ?? null,
@@ -2225,13 +2293,14 @@ Deno.serve(async (req: Request) => {
           cost: { certainty: "unknown" },
           replay: {
             ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2"],
-            parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"}`,
+            parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1`,
             continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
           },
           privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
         },
       });
-      if (rel.degraded) await finishOperationalTrace(activeTrace, razielModelOutcome, rel.reason || "degraded");
+      if (rel.degraded || razielTruthRejected) await finishOperationalTrace(activeTrace, razielModelOutcome,
+        rel.degraded ? (rel.reason || "degraded") : "numeric_truth_guard_untrusted_literal");
       // 📊 Telemetry — Advanced Raziel is distinguishable from the baseline "raziel" kind (and from
       // generic AI Analysis, logged under kind="number"/etc. elsewhere) using the existing ai_token_log
       // primitive only — no new analytics table. A path/again request on an advanced call is logged as
@@ -2262,12 +2331,12 @@ Deno.serve(async (req: Request) => {
           contract.plan = rPlan;
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
-        if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        if (!rel.degraded && !razielTruthRejected) await finishOperationalTrace(activeTrace, "success");
+        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: (rel.degraded || razielTruthRejected) || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
-      if (!rel.degraded) await finishOperationalTrace(activeTrace, "success");
-      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: rel.degraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      if (!rel.degraded && !razielTruthRejected) await finishOperationalTrace(activeTrace, "success");
+      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: (rel.degraded || razielTruthRejected) || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

@@ -43,6 +43,7 @@ export const personalSnapshot = () => ({
 export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
+  modelResult = null, numberContextByNumber = {},
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -74,6 +75,10 @@ export async function runAiAnalyze({
             } });
           case "fn_raziel_answer": return response(answer);
           case "fn_raziel_plan": return response(null);
+          case "number_map": return response(numberContextByNumber[payload?.n]?.map ?? null,
+            numberContextByNumber[payload?.n]?.map ? 200 : 404);
+          case "number_dossier_json": return response(numberContextByNumber[payload?.n]?.dossier ?? null,
+            numberContextByNumber[payload?.n]?.dossier ? 200 : 404);
           case "ai_quota_check": return response({ allowed, used: 15, limit: 15, tier: payload.p_tier });
           case "research_state_snapshot_v1": return response(snapshot);
           case "fn_raziel_identity": return response({ linked: !!trustedUid, user_id: trustedUid });
@@ -110,8 +115,9 @@ export async function runAiAnalyze({
     supabaseServiceHeaders,
     callClaudeReliable: async (options) => {
       models.push(options);
+      if (modelResult) return modelResult;
       return { text: JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [] }),
-        usage: { input_tokens: 11, output_tokens: 7 }, degraded: false };
+        usage: { input_tokens: 11, output_tokens: 7 }, attempts: 1, degraded: false };
     },
   }, { filename: "ai-analyze/index.ts", timeout: 5000 });
   assert.equal(typeof handler, "function");

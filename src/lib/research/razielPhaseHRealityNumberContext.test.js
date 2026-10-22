@@ -5,7 +5,7 @@ import { stripTypeScriptTypes } from "node:module";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
-const mig = read("../../../supabase/migrations/20261005190000_raziel_intelligence_core_v1_phase_h_reality_number_context.sql");
+const mig = read("../../../supabase/migrations/20261021235500_raziel_number_definition_intent_v1.sql");
 
 // Load the REAL Phase H adapter block (types stripped by Node itself) with stubbed I/O.
 const block = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase H"), edge.indexOf("Deno.serve(async"));
@@ -13,7 +13,7 @@ const rz = edge.match(/^const rzClean = [^\n]+/m)[0];
 const numFn = edge.match(/^const num = [^\n]+/m)[0];
 function load(rpcImpl, spans = []) {
   const code = stripTypeScriptTypes(`type OperationalTraceHandle = any;\nconst SB_ANON = "anon";\n${rz}\n${numFn}\n${block}\n`) +
-    "\nreturn { razielSurfaceNumberRoot, razielNumberContextDescriptor, razielNumberContextProject, runRazielNumberContext };";
+    "\nreturn { razielSurfaceNumberRoot, razielNumberContextDescriptor, razielNumberPairDescriptor, razielNumberContextProject, runRazielNumberContext };";
   const mod = { exports: new Function("razielOperatorRpc", "recordOperationalSpan", "crypto", code)(rpcImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }) };
   return mod.exports;
 }
@@ -29,7 +29,7 @@ const root = (id, type = "number") => ({ surface: "number", subject: { type, id,
 
 test("H: explicit anchor → descriptor (number from the plan only)", () => {
   const { razielNumberContextDescriptor: d } = load(rpc());
-  assert.deepEqual(d(det({ anchor: "explicit", number: 631 }), null), { number: 631, anchor: "explicit", mode: "deterministic" });
+  assert.deepEqual(d(det({ anchor: "explicit", number: 631 }), null), { number: 631, anchor: "explicit", mode: "deterministic", focus: null });
   assert.equal(d(det({ anchor: "explicit", number: 0 }), null), null);
   assert.equal(d(det({ anchor: "explicit", number: 1234567 }), null), null);
   assert.equal(d(det({ anchor: "explicit", number: "631" }), null), null);       // no coercion of non-integers
@@ -58,10 +58,20 @@ test("H: pronoun form uses ONLY an explicit Number root from surface_semantic; n
 test("H: gematria dependency — only a verified value from the same answer becomes the anchor", () => {
   const { razielNumberContextDescriptor: d } = load(rpc());
   const ok = det({ anchor: "gematria_dependency", mode: "synthesis", number: 358, dependency: { from: "gematria", verified: true } }, { mode: "tool_research" });
-  assert.deepEqual(d(ok, root("631")), { number: 358, anchor: "gematria_dependency", mode: "synthesis" });
+  assert.deepEqual(d(ok, root("631")), { number: 358, anchor: "gematria_dependency", mode: "synthesis", focus: null });
   assert.equal(d(det({ anchor: "gematria_dependency", number: 358, dependency: { verified: true } }, { mode: "fallback" }), null), null);
   assert.equal(d(det({ anchor: "gematria_dependency", number: 358 }, { mode: "tool_research" }), null), null);
   assert.equal(d(det({ anchor: "gematria_dependency", number: null }, { mode: "tool_research" }), null), null);
+});
+
+test("H: an explicit pair is a separate bounded comparison descriptor, never collapsed to one number", () => {
+  const { razielNumberContextDescriptor: one, razielNumberPairDescriptor: pair } = load(rpc());
+  const p = det({ anchor: "explicit_pair", numbers: [787, 1820], mode: "synthesis", focus: "number_compare" });
+  assert.equal(one(p, root("631")), null);
+  assert.deepEqual(pair(p), { numbers: [787, 1820], anchor: "explicit_pair", mode: "synthesis", focus: "number_compare" });
+  for (const numbers of [[787], [787, 787], [0, 1820], [787, 1000000], ["787", 1820], [787, 1820, 358]]) {
+    assert.equal(pair(det({ anchor: "explicit_pair", numbers, mode: "synthesis", focus: "number_compare" })), null);
+  }
 });
 
 test("H: projection is bounded (≤6 per category), labels/refs only, no raw body, tags stripped, definitions count only", () => {
@@ -92,6 +102,15 @@ test("H: empty projection is a scoped negative, not proof of absence; unusable p
   assert.equal(p(7, null, null), null);
   assert.equal(p(7, [], "x"), null);
   assert.ok(p(7, null, { posts: ["a"], topics: [], methods: [], definitions: [] }).answer.includes("a"), "map unavailable but dossier ok → partial, honest");
+});
+
+test("H: a Gematria-list focus is deterministic and uses only the bounded dossier phrases", () => {
+  const { razielNumberContextProject: p } = load(rpc());
+  const r = p(787, mapPayload(0), dossier(), "gematria_phrases");
+  assert.match(r.answer, /ביטויי הגימטריה המאומתים בתיק המספר 787/);
+  assert.match(r.answer, /m0: p0 · p1/);
+  assert.doesNotMatch(r.answer, /m6|p6|SECRET/);
+  assert.ok(r.answer.length <= 1400 && r.pack.length <= 2600);
 });
 
 test("H: runner — exactly one db_rpc span per canonical call, allowlisted rpcs, bounded refs only, no raw payload", async () => {
@@ -130,6 +149,8 @@ test("H: runner — partial and total failure are explicit", async () => {
 test("H: ai-analyze wiring — extends the existing seam, no second router, no raw tables, deterministic L0 returns without a model", () => {
   const code = edge.replace(/\/\/.*$/gm, "");
   assert.match(code, /razielNumberContextDescriptor\(rDet, body\?\.surface_semantic\)/);
+  assert.match(code, /razielNumberPairDescriptor\(rDet\)/);
+  assert.match(code, /const \[leftNumber, rightNumber\] = rNcPairDesc\.numbers/);
   assert.match(code, /rNcDesc\.mode === "deterministic" && !rToolRes/);
   assert.match(code, /number_context_executed/);
   // only the two canonical read adapters; never raw graph/post/topic tables or other REST paths for this capability
@@ -145,9 +166,10 @@ test("H: ai-analyze wiring — extends the existing seam, no second router, no r
   assert.match(edge, /for \(const t of rToolRes\.tools\)/);
 });
 
-test("H: migration — additive, extends fn_raziel_plan/answer only, no store/graph/table, no execution of map/dossier in the DB", () => {
+test("H: pending number-intent migration extends fn_raziel_plan only, no store/graph/table or DB-side execution", () => {
   const code = mig.replace(/--.*$/gm, "");
-  assert.equal((code.match(/create or replace function/g) || []).length, 2);
+  assert.equal((code.match(/create or replace function/gi) || []).length, 1);
+  assert.match(code, /function public\.fn_raziel_plan/i);
   assert.doesNotMatch(code, /create table|alter table|insert into|update public|delete from|routing_enabled|fn_raziel_model|http_|net\./i);
   assert.doesNotMatch(code, /create or replace function public\.(number_map|number_dossier_json|fn_raziel_protocol|fn_raziel_route|fn_raziel_extract_subject)/);
   assert.doesNotMatch(code, /number_map\(|number_dossier_json\(/);      // plan/answer never call the projections; ai-analyze does
@@ -155,8 +177,12 @@ test("H: migration — additive, extends fn_raziel_plan/answer only, no store/gr
   assert.match(code, /'number_context_deterministic'/);
   assert.match(code, /'number_context_synthesis'/);
   assert.match(code, /gematria_dependency/);
-  // dependency: exactly one gematria protocol call in the Phase H branch; value must be a verified integer
-  assert.match(code, /v_gnum !~ '\^\[0-9\]\{1,6\}\$'/);
+  assert.match(code, /explicit_pair/);
+  assert.match(code, /gematria_phrases/);
+  assert.match(code, /surface_followup/);
+  // dependency: the planner never accepts a numeral from the prose head; the verified
+  // integer is supplied later by the executed Gematria result and checked by ai-analyze.
+  assert.match(code, /v_nchead !~ '\[0-9\]'/);
   // no provider/model names in the plan
   assert.doesNotMatch(code, /claude|gpt|gemini|anthropic|openai|sonnet|opus|haiku/i);
 });

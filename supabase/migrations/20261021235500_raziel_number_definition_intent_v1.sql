@@ -21,7 +21,8 @@ declare
   v_ge text; v_grx text; v_gc text; v_gdom jsonb := '[]'::jsonb; v_gcap jsonb := '[]'::jsonb; v_gxc boolean := false; v_toolset boolean := false;
   -- Phase H
   v_pers jsonb := null; v_pers_denied text := null;
-  v_nc jsonb := null; v_ncx text; v_nct text; v_ncf text; v_ncd text; v_ncmode text; v_ncn text; v_nchead text; v_nctail text;
+  v_nc jsonb := null; v_ncx text; v_nct text; v_ncf text; v_ncfocus text; v_ncd text; v_ncmode text; v_ncn text; v_nchead text; v_nctail text;
+  v_ncpair int[];
 begin
   v_urank := case lower(coalesce(p_context_type,'public_user'))
                when 'admin' then 2 when 'authenticated_user' then 1 when 'whatsapp_user' then 1 else 0 end;
@@ -286,28 +287,48 @@ begin
   if v_op is null and v_pers is null then
     v_ncx := '([0-9]+|זה|הוא|ה?מספר הזה|מספר זה)';
     v_nct := '( באתר| בכל האתר)? $';
-    v_ncf := null;
-    if v_q ~ '^ (מה זה|מהו|מה הוא|ספר לי על|מה ידוע על) (המספר )?[0-9]{1,6} $' then
+    v_ncf := null; v_ncfocus := null; v_ncpair := null;
+    -- A bounded pair is a comparison request, not an ambiguous single-number anchor. Both numbers are explicit;
+    -- ai-analyze reads the same canonical projections for each side and synthesizes only over those two packs.
+    if v_q ~ '^ (מה ההבדל|מה הקשר) בין (המספרים )?[0-9]{1,6} (ו|ל |לבין )[0-9]{1,6} $'
+       or v_q ~ '^ (השווה|השווי) (בין )?(המספרים )?[0-9]{1,6} (ו|ל |לבין |מול )[0-9]{1,6} $' then
+      select array_agg((x.m)[1]::int order by x.ord)
+        into v_ncpair
+      from regexp_matches(v_q, '[0-9]+', 'g') with ordinality as x(m, ord);
+      if cardinality(v_ncpair) = 2 and v_ncpair[1] between 1 and 999999 and v_ncpair[2] between 1 and 999999
+         and v_ncpair[1] <> v_ncpair[2] then
+        v_nc := jsonb_build_object('contract','number_context_v1','anchor','explicit_pair','numbers',to_jsonb(v_ncpair),
+          'number',null,'mode','synthesis','focus','number_compare');
+      end if;
+    end if;
+    if v_nc is null and v_q ~ '^ (מה זה|מהו|מה הוא|ספר לי על|מה ידוע על) (המספר )?[0-9]{1,6} $' then
       v_ncf := 'synthesis';
-    elsif v_q ~ ('^ (איפה|היכן) (עוד )?((מופיע|נמצא|מוזכר) )?(המספר )?'||v_ncx||'( עוד)? (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת)'||v_nct)
+    elsif v_nc is null and (
+         v_q ~ '^ (תן|תני|הצג|הציגי|הראה|הראי) לי (את )?(רשימת )?(הגימטריות|גימטריות|הגימטריא|גימטריא|הביטויים|המילים|ביטויים|מילים)( (של|ל) (המספר )?)? ?[0-9]{1,6} $'
+         or v_q ~ '^ (איזה|אילו|מה) (ביטויים|מילים) (שווים|שוות) (ל ?)(המספר )?[0-9]{1,6} $') then
+      v_ncf := 'deterministic'; v_ncfocus := 'gematria_phrases';
+    elsif v_nc is null and v_q ~ '^ (איזה|מה) מידע (מעניין )?יש לך( לתת לי)? $' then
+      -- No number is inferred from prose. The Edge may resolve only an exact Number subject.id from surface_semantic.
+      v_ncf := 'synthesis'; v_ncfocus := 'surface_followup';
+    elsif v_nc is null and (v_q ~ ('^ (איפה|היכן) (עוד )?((מופיע|נמצא|מוזכר) )?(המספר )?'||v_ncx||'( עוד)? (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת)'||v_nct)
        or v_q ~ ('^ (איפה|היכן) (עוד )?(המספר )?'||v_ncx||' (מופיע|מופיעה|נמצא|נמצאת|מוזכר|מוזכרת) עוד'||v_nct)
        or v_q ~ ('^ מה (מחובר|מחוברת|קשור|קשורה|מקושר|מקושרת) (ל ?|אל )(המספר )?'||v_ncx||v_nct)
        or v_q ~ ('^ מה יש סביב (המספר )?'||v_ncx||v_nct)
-       or v_q ~ ('^ (איזה|אילו) (פוסטים|טופיקים|נושאים|דפים)( או (פוסטים|טופיקים|נושאים|דפים))? (קשורים|מחוברים|מקושרים) (ל ?|אל )(המספר )?'||v_ncx||v_nct) then
+       or v_q ~ ('^ (איזה|אילו) (פוסטים|טופיקים|נושאים|דפים)( או (פוסטים|טופיקים|נושאים|דפים))? (קשורים|מחוברים|מקושרים) (ל ?|אל )(המספר )?'||v_ncx||v_nct)) then
       v_ncf := 'deterministic';
-    elsif v_q ~ ('^ (מה|איך) (מעניין|המשמעות|משמעות|זה מתחבר|מתחבר|מתחברים) (ב ?|של |ל ?|עם |אל |לגבי )?(המספר )?'||v_ncx||v_nct)
+    elsif v_nc is null and (v_q ~ ('^ (מה|איך) (מעניין|המשמעות|משמעות|זה מתחבר|מתחבר|מתחברים) (ב ?|של |ל ?|עם |אל |לגבי )?(המספר )?'||v_ncx||v_nct)
        or v_q ~ ('^ איך (המספר )?'||v_ncx||' (מתחבר|מתחברת)'||v_nct)
-       or v_q ~ ('^ מה המשמעות של (החיבורים|הקשרים|ההופעות) (של |ל ?)(המספר )?'||v_ncx||v_nct) then
+       or v_q ~ ('^ מה המשמעות של (החיבורים|הקשרים|ההופעות) (של |ל ?)(המספר )?'||v_ncx||v_nct)) then
       v_ncf := 'synthesis';
     end if;
-    if v_ncf is not null then
+    if v_nc is null and v_ncf is not null then
       v_ncn := (regexp_match(v_q, '[0-9]+'))[1];
       if v_ncn is null then
-        v_nc := jsonb_build_object('contract','number_context_v1','anchor','surface_root','number',null,'mode',v_ncf);
+        v_nc := jsonb_strip_nulls(jsonb_build_object('contract','number_context_v1','anchor','surface_root','number',null,'mode',v_ncf,'focus',v_ncfocus));
       elsif length(v_ncn) <= 6 and v_ncn::int >= 1 and (select count(distinct m[1]) from regexp_matches(v_q, '[0-9]+', 'g') m) = 1 then
-        v_nc := jsonb_build_object('contract','number_context_v1','anchor','explicit','number',v_ncn::int,'mode',v_ncf);
+        v_nc := jsonb_strip_nulls(jsonb_build_object('contract','number_context_v1','anchor','explicit','number',v_ncn::int,'mode',v_ncf,'focus',v_ncfocus));
       end if;   -- out-of-range / multiple distinct numerals → no number_context (fail closed)
-    else
+    elsif v_nc is null then
       -- Gematria + context: «<explicit gematria question> ואיפה עוד הוא מופיע באתר» — the gematria leg is the dependency that supplies the anchor.
       v_nctail := '( ו?(איפה|היכן) עוד (הוא|זה|המספר הזה|הערך הזה) (מופיע|נמצא|מוזכר)( באתר)?| ו?מה מחובר (אליו|לערך הזה|למספר הזה)( באתר)?) $';
       if v_q ~ v_nctail then
