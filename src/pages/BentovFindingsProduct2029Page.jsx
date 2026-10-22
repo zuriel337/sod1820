@@ -77,6 +77,39 @@ const LOCATOR_AUDIT_TOTALS = Object.freeze({
   correction: 22,
 });
 
+// Read-only structural cohort counts from the protected candidate inventory
+// (2026-10-22). Cohorts intentionally overlap where declared; the union of the
+// 5 engine matches and 12 procedure rows is 15 because 2 rows belong to both.
+const FIDELITY_WORK_QUEUE = Object.freeze({
+  complex: Object.freeze({
+    count: 15,
+    title: "בדיקת נאמנות מורכבת",
+    description: "ממצאים עם חישוב מנוע או מבנה הליכי צריכים בדיקה של האופרנדים, השלבים והקשר המקור — לא רק תוצאה נכונה.",
+    action: "אחרי תיקון האיתור: להשוות את כל המבנה לעד המקור ולתעד החלטה אנושית.",
+    metrics: Object.freeze([
+      { value: 5, label: "התאמות מנוע" },
+      { value: 12, label: "מבני הליך" },
+      { value: 2, label: "חפיפה" },
+    ]),
+  }),
+  applicability: Object.freeze({
+    count: 18,
+    title: "הכרעת תחולת השער",
+    description: "ממצאי פרוזה והשוואת־מקורות ללא התאמת מנוע או מבנה הליכי. היעדר סטטוס אינו כשל ואינו אישור.",
+    action: "לקבוע לכל ממצא אם שער חילוץ מורכב חל; רק אז לבחור לא־חל, מלא או חלקי לפי הראיות.",
+    metrics: Object.freeze([
+      { value: 18, label: "ממצאים להכרעה" },
+      { value: 0, label: "החלטות שמורות" },
+    ]),
+  }),
+});
+
+const FIDELITY_STRUCTURE_TOTALS = Object.freeze({
+  derivations: 0,
+  mediaRefs: 0,
+  recordedIntegrity: 0,
+});
+
 const FINDING_SOURCE_INDEXES = Object.freeze(SOURCE_WINDOWS.flatMap((source, sourceIndex) => (
   Array(source.findings).fill(sourceIndex)
 )));
@@ -219,11 +252,61 @@ function SourceRail({ selectedSource, onSelect }) {
   </section>;
 }
 
+function FidelityWorkQueue({ selectedLane, onSelectLane }) {
+  const selected = FIDELITY_WORK_QUEUE[selectedLane];
+  return <section className="bentov29-fidelity" aria-labelledby="bentov29-fidelity-title" data-fidelity-effect="assessment-only">
+    <header>
+      <div>
+        <div className="bentov29-section-label">תור העבודה הבא · נתוני מבנה בלבד</div>
+        <h2 id="bentov29-fidelity-title">מבדיקת עמודים לבדיקת נאמנות</h2>
+      </div>
+      <span>אין סיווג אוטומטי ל־complete או partial</span>
+    </header>
+
+    <div className="bentov29-fidelity-layout">
+      <div className="bentov29-fidelity-lanes" role="group" aria-label="בחירת קבוצת עבודה לבדיקת נאמנות">
+        {Object.entries(FIDELITY_WORK_QUEUE).map(([key, lane], index) => <button
+          type="button"
+          key={key}
+          className={selectedLane === key ? "is-selected" : ""}
+          onClick={() => onSelectLane(key)}
+          aria-pressed={selectedLane === key}
+        >
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <strong>{lane.count}</strong>
+          <b>{lane.title}</b>
+          <small>{key === "complex" ? "5 מנוע + 12 הליך − 2 חופפים" : "ללא מנוע וללא מבנה הליכי"}</small>
+        </button>)}
+      </div>
+
+      <article className="bentov29-fidelity-detail" aria-live="polite">
+        <div><span>קבוצת עבודה</span><strong>{selected.title}</strong></div>
+        <p>{selected.description}</p>
+        <div className="bentov29-fidelity-metrics">
+          {selected.metrics.map(metric => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}
+        </div>
+        <div className="bentov29-fidelity-action"><span>פעולה נדרשת</span><p>{selected.action}</p></div>
+      </article>
+
+      <aside className="bentov29-structure-gaps" aria-label="פערי מבנה נוכחיים">
+        <div className="bentov29-section-label">פערי תיעוד מבניים</div>
+        <dl>
+          <div><dt>Derivation מובנה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.derivations}</dd></div>
+          <div><dt>עוגני מדיה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.mediaRefs}</dd></div>
+          <div><dt>החלטת נאמנות שמורה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.recordedIntegrity}</dd></div>
+        </dl>
+        <small>אפס אינו אומר שכל שדה נדרש לכל ממצא; הוא אומר שאין בסיס שמור להחלטה אוטומטית.</small>
+      </aside>
+    </div>
+  </section>;
+}
+
 export default function BentovFindingsProduct2029Page() {
   const [filter, setFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(FINDINGS[0].id);
   const [selectedSource, setSelectedSource] = useState(SOURCES[0].id);
   const [markedIds, setMarkedIds] = useState(() => new Set());
+  const [fidelityLane, setFidelityLane] = useState("complex");
 
   useEffect(() => {
     applySeo({
@@ -362,6 +445,8 @@ export default function BentovFindingsProduct2029Page() {
           </span>)}
         </div>
       </section>
+
+      <FidelityWorkQueue selectedLane={fidelityLane} onSelectLane={setFidelityLane} />
 
       <section className="bentov29-next" aria-labelledby="bentov29-next-title">
         <div>

@@ -63,10 +63,26 @@ test("locator audit is aggregate-only, complete and keeps stored locators distin
   assert.equal(audits.reduce((total, match) => total + Number(match[4]), 0), 22);
 });
 
+test("fidelity work queue preserves overlap math and requires human classification", () => {
+  assert.match(page, /const FIDELITY_WORK_QUEUE/);
+  assert.match(page, /count:\s*15/);
+  assert.match(page, /count:\s*18/);
+  assert.match(page, /5 מנוע \+ 12 הליך − 2 חופפים/);
+  assert.equal(5 + 12 - 2, 15);
+  assert.equal(15 + 18, 33);
+  assert.match(page, /derivations:\s*0/);
+  assert.match(page, /mediaRefs:\s*0/);
+  assert.match(page, /recordedIntegrity:\s*0/);
+  assert.match(page, /אין סיווג אוטומטי ל־complete או partial/);
+  assert.match(page, /היעדר סטטוס אינו כשל ואינו אישור/);
+  assert.match(page, /data-fidelity-effect="assessment-only"/);
+});
+
 test("interactive controls are accessible and local-only", () => {
   assert.match(page, /aria-label="מפה אינטראקטיבית/);
   assert.match(page, /aria-pressed=/);
   assert.match(page, /role="group" aria-label="סינון לפי סוג ממצא"/);
+  assert.match(page, /role="group" aria-label="בחירת קבוצת עבודה לבדיקת נאמנות"/);
   assert.match(page, /הסימון זמני במכשיר ואינו נשמר, מאשר או מפרסם דבר/);
   assert.match(css, /min-height:44px/);
   assert.match(css, /@media\(max-width:390px\)/);
