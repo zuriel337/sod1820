@@ -30,7 +30,7 @@ function loadWorker(branch) {
 const ask = { kind: "research", persona: "raziel", subject: "איך מחברים בין המחקרים והמקורות באתר?", facts: "", context: null, again: false, metatron: false, path: null, intelligence_level: "fast" };
 
 test("the current isolated integration Preview is the only Raziel-chat branch", () => {
-  assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-raziel-grounded-continuity-v1-20261022");
+  assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-raziel-conversation-acts-v1-20261022");
   assert.deepEqual([...RAZIEL_CHAT_PREVIEW_BRANCHES], [RAZIEL_CHAT_BRANCH]);
   assert.equal(RAZIEL_CHAT_PREVIEW_BRANCHES.includes(HOSTED_HYBRID_BRANCH), true);
   assert.equal(RAZIEL_CHAT_PREVIEW_BRANCHES.includes(RETIRED_RAZIEL_CHAT_BRANCH), false);
