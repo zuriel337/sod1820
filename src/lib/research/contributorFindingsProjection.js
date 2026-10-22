@@ -3,6 +3,7 @@ import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { researchObjectToUniversalFinding } from "./researchObjectFinding.js";
 import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
+import { clusterWorldResearchRows } from "./worldFindingClusters.js";
 
 const PAGE = 500;
 const MAX = 5000;
@@ -180,6 +181,205 @@ function mergeSourceGroups(textGroup, imageGroup, mediaPair) {
   };
 }
 
+function uniqueSourceOccurrences(groups = []) {
+  const seen = new Set();
+  const occurrences = [];
+  for (const group of groups.filter(Boolean)) {
+    const sources = Array.isArray(group.sourceOccurrences) && group.sourceOccurrences.length
+      ? group.sourceOccurrences
+      : [group.source];
+    for (const source of sources.filter(Boolean)) {
+      const key = clean(source.sourceRef) || clean(source.id);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      occurrences.push(source);
+    }
+  }
+  return occurrences;
+}
+
+function rebuildContributorSourceGroup(group, rows) {
+  const safeRows = Array.isArray(rows) ? rows.filter(Boolean) : [];
+  const byKind = {};
+  for (const row of safeRows) {
+    const key = clean(row.kind) || "unknown";
+    byKind[key] = (byKind[key] || 0) + 1;
+  }
+  const terms = uniq(safeRows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
+  const values = [...new Set(safeRows.map((row) => Number(row.value)).filter(Number.isFinite))].sort((a, b) => a - b);
+  const relates = uniq(safeRows.flatMap((row) => Array.isArray(row.relates) ? row.relates : []));
+  const mediaRefs = uniq(safeRows.map((row) => row?.meta?.ext?.wa_channel_intake?.media_ref));
+  const facets = new Set(["source"]);
+  if (values.length) facets.add("number");
+  if (terms.length) facets.add("phrase");
+  if (safeRows.some((row) => clean(row?.kind) === "relation" || (Array.isArray(row?.relates) && row.relates.some(Boolean)))) facets.add("relation");
+  if (group.mediaSource || group.source?.imageUrl || group.source?.thumbUrl || mediaRefs.length) facets.add("media");
+  if (Array.isArray(group.topicLinks) && group.topicLinks.length) facets.add("topic");
+
+  const rebuilt = {
+    ...group,
+    rows: safeRows,
+    universalFindings: safeRows
+      .map((row) => researchObjectToUniversalFinding(row, { locale: "he" }))
+      .filter(Boolean),
+    byKind,
+    findingCount: safeRows.length,
+    verifiedCount: safeRows.filter((row) => row?.engine_verified === true).length,
+    terms,
+    values,
+    relates,
+    mediaRefs,
+    facets: [...facets],
+  };
+  rebuilt.title = groupTitle(rebuilt);
+  return rebuilt;
+}
+
+/**
+ * Exact duplicate suppression for the contributor/source lens.
+ *
+ * This reuses the canonical World duplicate partition (same claim, kind, value,
+ * access, governance and verification). Durable research/source rows are never
+ * changed. The longest original statement remains visible, every occurrence is
+ * attached for audit, and a source card is hidden only when all its findings
+ * are duplicates of findings represented by one other source card.
+ */
+export function deduplicateContributorSourceGroups(sourceGroups = []) {
+  const groups = Array.isArray(sourceGroups) ? sourceGroups.filter(Boolean) : [];
+  const originalGroupByRef = new Map(groups.map((group) => [group.sourceRef, group]));
+  const groupByFindingId = new Map();
+  const normalizedRows = [];
+
+  for (const group of groups) {
+    for (const row of Array.isArray(group.rows) ? group.rows : []) {
+      if (!row?.id) continue;
+      const id = String(row.id);
+      groupByFindingId.set(id, group);
+      const normalized = normalizeWorldAllResearchRow(row, "research_object");
+      if (normalized) normalizedRows.push(normalized);
+    }
+  }
+
+  const duplicateProjection = clusterWorldResearchRows(normalizedRows);
+  const suppressedIds = new Set();
+  const auditByCanonicalGroup = new Map();
+  const targetGroupsBySuppressedGroup = new Map();
+  const canonicalAuditByFindingId = new Map();
+
+  for (const clustered of duplicateProjection.rows) {
+    const occurrences = Array.isArray(clustered.occurrences) ? clustered.occurrences : [];
+    if (occurrences.length < 2) continue;
+    const canonicalId = clean(clustered.sourceId);
+    const canonicalGroup = groupByFindingId.get(canonicalId);
+    if (!canonicalId || !canonicalGroup) continue;
+
+    const occurrenceAudit = occurrences.map((occurrence) => {
+      const findingId = clean(occurrence.sourceId);
+      const occurrenceGroup = groupByFindingId.get(findingId) || null;
+      return {
+        findingId,
+        sourceRef: clean(occurrence.sourceRef) || null,
+        sourceRefs: uniq(occurrence.sourceRefs || []),
+        sourceGroupRef: occurrenceGroup?.sourceRef || null,
+        source: occurrenceGroup?.source || null,
+        createdAt: occurrence.createdAt || null,
+        statement: occurrence.originalStatement || occurrence.statement || null,
+        characterCount: occurrence.characterCount || 0,
+      };
+    });
+    const audit = Object.freeze({
+      representativeFindingId: canonicalId,
+      canonicalSelection: clustered.canonicalSelection,
+      occurrenceCount: occurrences.length,
+      hiddenOccurrenceCount: occurrences.length - 1,
+      occurrences: occurrenceAudit,
+    });
+    canonicalAuditByFindingId.set(canonicalId, audit);
+    const audits = auditByCanonicalGroup.get(canonicalGroup.sourceRef) || [];
+    audits.push(audit);
+    auditByCanonicalGroup.set(canonicalGroup.sourceRef, audits);
+
+    for (const occurrence of occurrences) {
+      const findingId = clean(occurrence.sourceId);
+      if (!findingId || findingId === canonicalId) continue;
+      suppressedIds.add(findingId);
+      const occurrenceGroup = groupByFindingId.get(findingId);
+      if (!occurrenceGroup) continue;
+      const targets = targetGroupsBySuppressedGroup.get(occurrenceGroup.sourceRef) || new Set();
+      targets.add(canonicalGroup.sourceRef);
+      targetGroupsBySuppressedGroup.set(occurrenceGroup.sourceRef, targets);
+    }
+  }
+
+  const rebuilt = groups.map((group) => {
+    const rows = (group.rows || [])
+      .filter((row) => !suppressedIds.has(String(row?.id)))
+      .map((row) => {
+        const audit = canonicalAuditByFindingId.get(String(row?.id));
+        return audit ? { ...row, duplicateProjection: audit } : row;
+      });
+    return rebuildContributorSourceGroup({
+      ...group,
+      duplicateFindingClusters: auditByCanonicalGroup.get(group.sourceRef) || [],
+    }, rows);
+  });
+
+  const hiddenGroups = [];
+  const visibleGroups = [];
+  for (const group of rebuilt) {
+    const original = originalGroupByRef.get(group.sourceRef);
+    const targets = targetGroupsBySuppressedGroup.get(group.sourceRef) || new Set();
+    const canHide = (original?.rows || []).length > 0
+      && group.rows.length === 0
+      && targets.size === 1
+      && !targets.has(group.sourceRef);
+    if (canHide) hiddenGroups.push({ group, targetRef: [...targets][0] });
+    else visibleGroups.push(group);
+  }
+
+  const hiddenByTarget = new Map();
+  for (const entry of hiddenGroups) {
+    const entries = hiddenByTarget.get(entry.targetRef) || [];
+    entries.push(entry.group);
+    hiddenByTarget.set(entry.targetRef, entries);
+  }
+
+  const finalGroups = visibleGroups.map((group) => {
+    const absorbed = hiddenByTarget.get(group.sourceRef) || [];
+    if (!absorbed.length) return group;
+    const allGroups = [group, ...absorbed];
+    const sourceOccurrences = uniqueSourceOccurrences(allGroups);
+    const mediaSource = group.mediaSource
+      || sourceOccurrences.find((source) => clean(source?.imageUrl) || clean(source?.thumbUrl))
+      || null;
+    return {
+      ...group,
+      mediaSource,
+      sourceOccurrences,
+      sourceRecordCount: sourceOccurrences.length,
+      linkedSourceRefs: uniq(sourceOccurrences.map((source) => source.sourceRef)),
+      absorbedDuplicateSourceGroups: absorbed.map((item) => ({
+        id: item.id,
+        sourceRef: item.sourceRef,
+        source: item.source || null,
+        createdAt: item.createdAt || null,
+      })),
+    };
+  });
+
+  return Object.freeze({
+    groups: finalGroups,
+    duplicateGroups: duplicateProjection.duplicateGroups,
+    duplicateOccurrences: duplicateProjection.duplicateOccurrences,
+    hiddenSourceGroups: hiddenGroups.length,
+    rawFindingCount: normalizedRows.length,
+    visibleFindingCount: normalizedRows.length - duplicateProjection.duplicateOccurrences,
+    mode: duplicateProjection.mode,
+    nonDestructive: true,
+    canonicalSelection: "longest_original_statement",
+  });
+}
+
 /**
  * Projection-only source binding. It never rewrites/deletes either source record and never links by
  * filename or contributor-name guessing. A pair must be consecutive in the same channel/access state
@@ -343,7 +543,8 @@ export function buildContributorFindingsProjection({
   }).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
 
   const linkedSources = linkAdjacentSourceMediaGroups(unlinkedSourceGroups, sourceMessages);
-  const sourceGroups = linkedSources.groups;
+  const deduplicatedSources = deduplicateContributorSourceGroups(linkedSources.groups);
+  const sourceGroups = deduplicatedSources.groups;
 
   const worldCounts = {};
   const tagCounts = {};
@@ -376,6 +577,10 @@ export function buildContributorFindingsProjection({
       sourceRecords: sourceMessages.length,
       sourceGroups: sourceGroups.length,
       linkedImageMessages: linkedSources.linkedPairCount,
+      exactDuplicateGroups: deduplicatedSources.duplicateGroups,
+      duplicateFindingsHidden: deduplicatedSources.duplicateOccurrences,
+      duplicateSourceGroupsHidden: deduplicatedSources.hiddenSourceGroups,
+      visibleResearchObjects: deduplicatedSources.visibleFindingCount,
       sourceGroupsWithFindings: sourceGroups.filter((group) => group.findingCount > 0).length,
       sourceOnlyGroups: sourceGroups.filter((group) => group.findingCount === 0).length,
       engineVerified: sourceGroups.reduce((sum, group) => sum + group.verifiedCount, 0),
@@ -392,6 +597,16 @@ export function buildContributorFindingsProjection({
     allValues,
     latestAt,
     firstAt,
+    duplicateProjection: {
+      mode: deduplicatedSources.mode,
+      nonDestructive: deduplicatedSources.nonDestructive,
+      groups: deduplicatedSources.duplicateGroups,
+      occurrencesCombined: deduplicatedSources.duplicateOccurrences,
+      sourceGroupsHidden: deduplicatedSources.hiddenSourceGroups,
+      rawResearchRows: deduplicatedSources.rawFindingCount,
+      visibleResearchRows: deduplicatedSources.visibleFindingCount,
+      canonicalSelection: deduplicatedSources.canonicalSelection,
+    },
     truthBoundary: "Contributor is provenance/lens only. Source, extracted research object, verification, Topic admission, canonicality and publication remain distinct axes.",
     topicAdmission: "Finding-first. A source message or isolated equality does not become a Topic unless the governed convergence/admission criteria are met.",
   };

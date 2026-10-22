@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchContributorFindingsProjection, buildContributorFindingsProjection, MAX_CONTRIBUTOR_RESEARCH } from "./contributorFindingsProjection.js";
+import { fetchContributorFindingsProjection, buildContributorFindingsProjection, deduplicateContributorSourceGroups, MAX_CONTRIBUTOR_RESEARCH } from "./contributorFindingsProjection.js";
 import { PROJECTOR_MODE } from "./researchViewMode.js";
 
 const CONTRIBUTOR = { id: "c1", slug: "yaniv", display_name: "יניב", wa_names: [], role: "researcher" };
@@ -91,7 +91,9 @@ test("bounded structured overlap links a media message, while time proximity alo
   const linked = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [image, related], researchObjects });
   assert.equal(linked.counts.linkedImageMessages, 1);
   assert.equal(linked.sourceGroups[0].mediaPair.basis, "structured_source_overlap");
-  assert.equal(linked.sourceGroups[0].findingCount, 2);
+  assert.equal(linked.sourceGroups[0].findingCount, 1);
+  assert.equal(linked.counts.duplicateFindingsHidden, 1);
+  assert.equal(linked.sourceGroups[0].mediaSource.id, "image-2");
 
   const unrelated = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [
     image,
@@ -106,6 +108,71 @@ test("bounded structured overlap links a media message, while time proximity alo
   ] });
   assert.equal(mixedAccess.counts.linkedImageMessages, 0);
   assert.equal(mixedAccess.counts.sourceGroups, 2);
+});
+
+test("exact duplicate findings become one visible publication and retain every source occurrence", () => {
+  const sourceOne = { ...SOURCE, id: "source-short", text: "גרסה קצרה", created_at: "2026-10-01T10:00:00Z" };
+  const sourceTwo = { ...SOURCE, id: "source-long", text: "הודעת המקור המלאה", created_at: "2026-10-02T10:00:00Z" };
+  const short = {
+    ...RESEARCH_ROW,
+    id: "short",
+    statement: "אור=207",
+    source_ref: "channel_updates:source-short#batch001:finding",
+  };
+  const long = {
+    ...RESEARCH_ROW,
+    id: "long",
+    statement: "אור = 207",
+    source_ref: "channel_updates:source-long#batch002:finding",
+  };
+
+  const projection = buildContributorFindingsProjection({
+    contributor: CONTRIBUTOR,
+    sourceMessages: [sourceOne, sourceTwo],
+    researchObjects: [short, long],
+  });
+
+  assert.equal(projection.counts.researchObjects, 2);
+  assert.equal(projection.counts.visibleResearchObjects, 1);
+  assert.equal(projection.counts.exactDuplicateGroups, 1);
+  assert.equal(projection.counts.duplicateFindingsHidden, 1);
+  assert.equal(projection.counts.duplicateSourceGroupsHidden, 1);
+  assert.equal(projection.sourceGroups.length, 1);
+  assert.equal(projection.sourceGroups[0].rows[0].id, "long");
+  assert.equal(projection.sourceGroups[0].duplicateFindingClusters[0].canonicalSelection, "longest_original_statement");
+  assert.deepEqual(
+    projection.sourceGroups[0].duplicateFindingClusters[0].occurrences.map((item) => item.findingId).sort(),
+    ["long", "short"],
+  );
+  assert.deepEqual(
+    projection.sourceGroups[0].sourceOccurrences.map((item) => item.sourceRef).sort(),
+    ["channel_updates:source-long", "channel_updates:source-short"],
+  );
+  assert.equal(projection.duplicateProjection.nonDestructive, true);
+});
+
+test("access or governance disagreement is never hidden as a duplicate", () => {
+  const groups = [
+    {
+      id: "channel_updates:a",
+      sourceRef: "channel_updates:a",
+      source: { id: "a", sourceRef: "channel_updates:a", text: "א" },
+      rows: [{ ...RESEARCH_ROW, id: "a", statement: "אור=207", source_ref: "channel_updates:a", status: "candidate" }],
+      topicLinks: [],
+    },
+    {
+      id: "channel_updates:b",
+      sourceRef: "channel_updates:b",
+      source: { id: "b", sourceRef: "channel_updates:b", text: "ב" },
+      rows: [{ ...RESEARCH_ROW, id: "b", statement: "אור=207", source_ref: "channel_updates:b", status: "approved" }],
+      topicLinks: [],
+    },
+  ];
+
+  const result = deduplicateContributorSourceGroups(groups);
+  assert.equal(result.groups.length, 2);
+  assert.equal(result.duplicateOccurrences, 0);
+  assert.equal(result.hiddenSourceGroups, 0);
 });
 
 test("a research permission failure does not erase readable sources; availability is separate from zero", async () => {

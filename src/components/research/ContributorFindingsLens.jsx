@@ -59,11 +59,13 @@ function makeStyles(P) {
   return { box, pill, action };
 }
 
-function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
+function SourceGroup({ group, P, S, researchUnavailable, timeMode, showDuplicateAudit = false }) {
   const [expanded, setExpanded] = useState(false);
   const findings = group.universalFindings || [];
   const shown = expanded ? findings : findings.slice(0, 6);
   const mediaSource = group.mediaSource || group.source;
+  const duplicateClusters = Array.isArray(group.duplicateFindingClusters) ? group.duplicateFindingClusters : [];
+  const duplicateOccurrences = duplicateClusters.reduce((sum, cluster) => sum + Number(cluster.hiddenOccurrenceCount || 0), 0);
 
   return <article
     data-experience-capability="contributor-source-finding-group"
@@ -114,6 +116,26 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode }) {
         ? "התמונה וההודעה מוצגות יחד לפי הפניית התמונה שבמקור."
         : "התמונה וההודעה מוצגות יחד לפי רצף מקור סמוך וחפיפת מספרים וביטויים."}
     </div> : null}
+    {duplicateOccurrences ? <div data-experience-capability="contributor-exact-duplicate-summary" style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>
+      אוחדו {duplicateOccurrences} {duplicateOccurrences === 1 ? "הופעה כפולה" : "הופעות כפולות"}; מוצגת הגרסה הארוכה והמלאה ביותר, בלי למחוק את המקורות.
+    </div> : null}
+    {showDuplicateAudit && duplicateClusters.length ? <details data-experience-capability="contributor-exact-duplicate-audit">
+      <summary style={{ ...TYPE_SCALE.small, fontFamily: F.ui, color: P.ink, cursor: "pointer", fontWeight: 800 }}>
+        ביקורת כפילויות · {duplicateClusters.length} {duplicateClusters.length === 1 ? "אשכול" : "אשכולות"}
+      </summary>
+      {duplicateClusters.map((cluster) => <section key={cluster.representativeFindingId} style={{ marginTop: SPACE[2] }}>
+        <div style={{ ...TYPE_SCALE.micro, fontFamily: F.body, color: P.inkSoft }}>
+          נציג: <code dir="ltr">{cluster.representativeFindingId}</code> · {cluster.occurrenceCount} הופעות שמורות
+        </div>
+        <ol style={{ marginBlock: SPACE[1], paddingInlineStart: SPACE[4] }}>
+          {(cluster.occurrences || []).map((occurrence, index) => <li key={`${occurrence.findingId}:${occurrence.sourceRef || index}`} style={{ ...TYPE_SCALE.micro, fontFamily: F.body, marginBlock: SPACE[1] }}>
+            <code dir="ltr">{occurrence.findingId}</code>
+            {occurrence.sourceRef ? <> · <code dir="ltr">{occurrence.sourceRef}</code></> : null}
+            {safeHttps(occurrence.source?.linkUrl) ? <> · <a href={occurrence.source.linkUrl} target="_blank" rel="noopener noreferrer">פתח מקור</a></> : null}
+          </li>)}
+        </ol>
+      </section>)}
+    </details> : null}
     {(safeHttps(mediaSource?.thumbUrl) || safeHttps(mediaSource?.imageUrl)) ? <div className="sod29-contributor-public-media">
       {videoMedia(mediaSource?.imageUrl)
         ? <video controls preload="none" poster={safeHttps(mediaSource?.thumbUrl) || undefined} src={safeHttps(mediaSource?.imageUrl) || undefined} aria-label="סרטון המקור" />
@@ -214,6 +236,7 @@ export default function ContributorFindingsLens({
       <p style={{ ...TYPE_SCALE.micro, fontFamily: F.ui, color: P.inkSoft, marginBottom: 0 }}>
         {countOrUnknown("sources", projection.counts.sourceRecords ?? projection.counts.sourceGroups)} רשומות מקור זמינות
         {projection.counts.linkedImageMessages ? ` · ${projection.counts.linkedImageMessages} תמונות קושרו להודעה שלהן` : ""}
+        {projection.counts.duplicateFindingsHidden ? ` · ${projection.counts.duplicateFindingsHidden} כפילויות אוחדו והוסתרו` : ""}
         {` · ${projection.counts.sourceGroups} פרסומים לקריאה.`}
       </p>
     </header>
@@ -277,10 +300,15 @@ export default function ContributorFindingsLens({
         <label style={{ ...TYPE_SCALE.small, fontFamily: F.ui }}>בחירת פרסום · {groups.length} תוצאות
           <select aria-label="בחירת מקור לקריאה" value={groups.some((g) => g.id === selectedId) ? selectedId : groups[0].id}
             onChange={(event) => setSelectedId(event.target.value)} style={{ ...S.action, display: "block", width: "100%", maxWidth: "100%", marginTop: SPACE[2] }}>
-            {groups.map((group) => <option key={group.id} value={group.id}>{dt(group.createdAt, timeMode)} · {group.title}</option>)}
+            {groups.map((group) => {
+              const hidden = (group.duplicateFindingClusters || []).reduce((sum, cluster) => sum + Number(cluster.hiddenOccurrenceCount || 0), 0);
+              return <option key={group.id} value={group.id}>
+                {dt(group.createdAt, timeMode)} · {group.title}{hidden ? ` · אוחדו ${hidden}` : ""}
+              </option>;
+            })}
           </select>
         </label>
-        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} timeMode={timeMode} researchUnavailable={availability.research === "unavailable"} />)}
+        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} timeMode={timeMode} researchUnavailable={availability.research === "unavailable"} showDuplicateAudit={projection.mode === "admin_all"} />)}
       </div>
     ) : <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>אין חומר במסנן הזה.</div>}
 
