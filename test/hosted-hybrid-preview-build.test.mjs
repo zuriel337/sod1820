@@ -149,10 +149,12 @@ test("hosted artifact seals both runtimes, exact guard identity and complete inv
   assert.equal(receipt.vercelEnv, "preview");
   assert.equal(receipt.sourceClean, true);
   assert.equal(receipt.readOnly, true);
+  assert.equal(receipt.razielChat, true);
   assert.equal(receipt.personalPairFixture, true);
   assert.equal(receipt.workerContentSha256, sha256(worker));
   assert.equal(receipt.workerSha256, sha256(worker));
   assert.equal(hybrid.hostedPreviewReady, true);
+  assert.equal(hybrid.razielChat, true);
   assert.equal(hybrid.personalPairFixture, true);
   assert.equal(hybrid.hostedPreviewBlocker, null);
   assert.equal(hybrid.guardIdentitySha256, receipt.guardIdentitySha256);

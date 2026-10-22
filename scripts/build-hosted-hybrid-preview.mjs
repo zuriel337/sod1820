@@ -171,6 +171,7 @@ const hostedHybridReceipt = {
   hostedPreviewReady: true,
   hostedPreviewBlocker: null,
   readOnly: true,
+  razielChat: rendered.descriptor.razielChat,
   personalPairFixture: true,
   workerScript,
   workerContentSha256,
@@ -205,6 +206,7 @@ const { receipt, inventory } = await createPreviewArtifactInventory(output, {
   candidate2029RouteCount: policy.candidate2029Routes.length,
   explicitLegacyRouteCount: policy.explicitLegacyRoutes.length,
   readOnly: true,
+  razielChat: rendered.descriptor.razielChat,
   personalPairFixture: true,
 });
 console.log(`Hosted Hybrid Preview built from clean ${receipt.commit}; ${inventory.artifacts.length} artifacts sealed; Legacy and 2029 wait for the exact read-only controller.`);

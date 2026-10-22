@@ -1,4 +1,4 @@
-// #1142 — ZURIEL Human Gate 2026-10-21: in the read-only hosted preview, ONLY the Raziel conversation may reach its
+// #1142 — ZURIEL Human Gate 2026-10-22: in the read-only hosted preview, ONLY the Raziel conversation may reach its
 // existing backend, and only from the one approved branch. Everything else stays blocked exactly as before.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -7,7 +7,8 @@ import { HOSTED_HYBRID_BRANCH } from "../scripts/hybrid-preview-source-boundary.
 
 const HOST = "sod1820-abc123-sod1820-s-projects.vercel.app";
 const API = "https://linswmnnkjxvweumprav.supabase.co";
-const RAZIEL_CHAT_BRANCH = "claude/raziel-session-frame-seam-20261021";
+const RETIRED_RAZIEL_CHAT_BRANCH = "claude/raziel-session-frame-seam-20261021";
+const RAZIEL_CHAT_BRANCH = HOSTED_HYBRID_BRANCH;
 
 function loadWorker(branch) {
   const { worker, descriptor } = renderPreviewReadonlyWorker({ commit: "a".repeat(40), branch, host: HOST, buildTarget: "hybrid" });
@@ -26,18 +27,20 @@ function loadWorker(branch) {
   return { descriptor, send, forwarded };
 }
 
-const ask = { kind: "research", persona: "raziel", subject: "מה זה 776?", facts: "", context: null, again: false, metatron: false, path: null, intelligence_level: "fast" };
+const ask = { kind: "research", persona: "raziel", subject: "איך מחברים בין המחקרים והמקורות באתר?", facts: "", context: null, again: false, metatron: false, path: null, intelligence_level: "fast" };
 
-test("the admin research preview stays separate from the only Raziel-chat branch", () => {
+test("the current isolated integration Preview is the only Raziel-chat branch", () => {
   assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-crossing-integration-20261022");
   assert.deepEqual([...RAZIEL_CHAT_PREVIEW_BRANCHES], [RAZIEL_CHAT_BRANCH]);
-  assert.equal(RAZIEL_CHAT_PREVIEW_BRANCHES.includes(HOSTED_HYBRID_BRANCH), false);
+  assert.equal(RAZIEL_CHAT_PREVIEW_BRANCHES.includes(HOSTED_HYBRID_BRANCH), true);
+  assert.equal(RAZIEL_CHAT_PREVIEW_BRANCHES.includes(RETIRED_RAZIEL_CHAT_BRANCH), false);
 });
 
 test("approved branch: a plain Raziel research ask reaches ai-analyze; everything else stays blocked", async () => {
   const w = loadWorker(RAZIEL_CHAT_BRANCH);
   assert.equal(w.descriptor.razielChat, true);
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: ask }), "forwarded");
+  assert.equal(await w.send("/functions/v1/ai-analyze", { body: { ...ask, intelligence_level: "deep", again: true } }), "forwarded");
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: { ...ask, persona: "christina" } }), "blocked-403");
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: { ...ask, kind: "image" } }), "blocked-403");
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: { ...ask, metatron: true } }), "blocked-403");
@@ -49,11 +52,11 @@ test("approved branch: a plain Raziel research ask reaches ai-analyze; everythin
   assert.equal(await w.send("/rest/v1/rpc/research_state_apply_ops_v1", { body: {} }), "blocked-403");
   assert.equal(await w.send("/functions/v1/els-search-bridge", { body: { op: "save" } }), "blocked-403");
   assert.equal(await w.send("/rest/v1/posts", { method: "GET" }), "passthrough");
-  assert.equal(w.forwarded.length, 1);
+  assert.equal(w.forwarded.length, 2);
 });
 
 test("any other branch keeps every model call blocked", async () => {
-  const w = loadWorker(HOSTED_HYBRID_BRANCH);
+  const w = loadWorker(RETIRED_RAZIEL_CHAT_BRANCH);
   assert.equal(w.descriptor.razielChat, false);
   assert.equal(await w.send("/functions/v1/ai-analyze", { body: ask }), "blocked-403");
   assert.equal(w.forwarded.length, 0);
