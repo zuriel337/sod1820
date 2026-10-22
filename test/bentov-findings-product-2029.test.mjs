@@ -78,11 +78,41 @@ test("fidelity work queue preserves overlap math and requires human classificati
   assert.match(page, /data-fidelity-effect="assessment-only"/);
 });
 
+test("review workbench models all 33 decisions without exposing canonical records", () => {
+  assert.match(page, /function ReviewWorkbench/);
+  assert.match(page, /data-review-effect="local-only"/);
+  assert.match(page, /שולחן הכרעה ל־33 תיקי ממצא/);
+  assert.match(page, /קודי תצוגה בלבד—לא מזהי מסד ולא תוכן מועמד/);
+  assert.match(page, /const REVIEW_CHECKS/);
+  for (const label of ["איתור", "עד מקור", "מבנה", "נאמנות", "שער אנושי"]) {
+    assert.match(page, new RegExp(`label: "${label}"`));
+  }
+  for (const count of ["count: 22", "count: 8", "count: 3", "count: 15", "count: 18"]) {
+    assert.match(page, new RegExp(count));
+  }
+  assert.match(page, /אינם נשמרים ואינם משנים סטטוס אמת/);
+  assert.match(page, /אינה קובעת `fidelity_status`/);
+  assert.doesNotMatch(page, /finding_key|artifact_id|candidate_id|source_provenance_reconstructed_sections/i);
+});
+
+test("publication readiness remains blocked behind canonical and human gates", () => {
+  assert.match(page, /function PublicationReadiness/);
+  assert.match(page, /data-publication-readiness="blocked"/);
+  assert.match(page, /המוצר מוכן לביקורת פרטית—לא לפרסום/);
+  assert.match(page, /שמירה קנונית, שינוי הרשאות ופתיחה לציבור דורשים הוראה נפרדת/);
+  assert.match(page, /איתור מוכן", value: "3 \/ 33"/);
+  assert.match(page, /נאמנות שמורה", value: "0 \/ 33"/);
+  assert.match(page, /גישה ציבורית", value: "0 \/ 33"/);
+  assert.match(page, /data-publication-effect="none"/);
+});
+
 test("interactive controls are accessible and local-only", () => {
   assert.match(page, /aria-label="מפה אינטראקטיבית/);
   assert.match(page, /aria-pressed=/);
   assert.match(page, /role="group" aria-label="סינון לפי סוג ממצא"/);
   assert.match(page, /role="group" aria-label="בחירת קבוצת עבודה לבדיקת נאמנות"/);
+  assert.match(page, /role="group" aria-label="סינון תיקי העבודה"/);
+  assert.match(page, /aria-pressed=/);
   assert.match(page, /הסימון זמני במכשיר ואינו נשמר, מאשר או מפרסם דבר/);
   assert.match(css, /min-height:44px/);
   assert.match(css, /@media\(max-width:390px\)/);

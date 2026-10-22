@@ -110,6 +110,20 @@ const FIDELITY_STRUCTURE_TOTALS = Object.freeze({
   recordedIntegrity: 0,
 });
 
+const LOCATOR_STATUS_META = Object.freeze({
+  confirmed: Object.freeze({ label: "איתור מדויק", short: "מדויק", action: "להשוות את מלוא ההקשר לעד המקור" }),
+  expanded: Object.freeze({ label: "טווח מקור מורחב", short: "הרחבה", action: "לעדכן את טווח העמודים לפני הכרעת נאמנות" }),
+  correction: Object.freeze({ label: "איתור דורש תיקון", short: "תיקון", action: "לתקן את האיתור השמור לפני כל הכרעה" }),
+});
+
+const REVIEW_CHECKS = Object.freeze([
+  Object.freeze({ key: "locator", label: "איתור", description: "האזור המדויק בעד המקור זוהה ונבדק." }),
+  Object.freeze({ key: "witness", label: "עד מקור", description: "הטענה הושוותה להקשר המלא, לא רק לשורה בודדת." }),
+  Object.freeze({ key: "structure", label: "מבנה", description: "אופרנדים, שלבים והפניות נבדקו כאשר הם חלים." }),
+  Object.freeze({ key: "fidelity", label: "נאמנות", description: "התקבלה החלטה אנושית: מלא, חלקי או לא חל." }),
+  Object.freeze({ key: "humanGate", label: "שער אנושי", description: "המלצת הביקורת מוכנה להכרעת צוריאל." }),
+]);
+
 const FINDING_SOURCE_INDEXES = Object.freeze(SOURCE_WINDOWS.flatMap((source, sourceIndex) => (
   Array(source.findings).fill(sourceIndex)
 )));
@@ -133,6 +147,11 @@ const KIND_SEQUENCE = Object.freeze([
 const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
   const sourceIndex = FINDING_SOURCE_INDEXES[index];
   const sourceWindow = SOURCE_WINDOWS[sourceIndex];
+  const sourceOffset = FINDING_SOURCE_INDEXES.slice(0, index).filter(value => value === sourceIndex).length;
+  const sourceAudit = LOCATOR_AUDIT_BY_STORED_PAGE[sourceWindow.page];
+  const locatorStatus = sourceOffset < sourceAudit.confirmed
+    ? "confirmed"
+    : sourceOffset < sourceAudit.confirmed + sourceAudit.expanded ? "expanded" : "correction";
   const angle = (index / TOTAL_FINDINGS) * Math.PI * 2 - Math.PI / 2;
   const radius = index % 3 === 0 ? 42 : index % 3 === 1 ? 35 : 28;
   return Object.freeze({
@@ -144,6 +163,9 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
     sourceId: `source-${sourceIndex + 1}`,
     source: `חלון מקור ${sourceIndex + 1} מתוך 18`,
     page: sourceWindow.page,
+    verifiedPages: sourceAudit.verifiedPages,
+    locatorStatus,
+    reviewLane: index < FIDELITY_WORK_QUEUE.complex.count ? "complex" : "applicability",
     match: index < 5 ? "match" : "not_applicable",
     verification: "לא הוצהר",
     governance: "מועמד לביקורת",
@@ -301,12 +323,162 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
   </section>;
 }
 
+function ReviewWorkbench({ findings, selectedId, onSelect, progress, onToggleCheck, onReset }) {
+  const [queueFilter, setQueueFilter] = useState("all");
+  const selected = findings.find(item => item.id === selectedId) || findings[0];
+  const completed = progress[selected.id] || new Set();
+  const locatorMeta = LOCATOR_STATUS_META[selected.locatorStatus];
+  const lane = FIDELITY_WORK_QUEUE[selected.reviewLane];
+  const filtered = findings.filter(item => {
+    if (queueFilter === "all") return true;
+    if (queueFilter === "complex" || queueFilter === "applicability") return item.reviewLane === queueFilter;
+    return item.locatorStatus === queueFilter;
+  });
+  const locallyCompleted = findings.filter(item => (progress[item.id]?.size || 0) === REVIEW_CHECKS.length).length;
+  const filterOptions = [
+    { key: "all", label: "הכול", count: 33 },
+    { key: "correction", label: "תיקון", count: 22 },
+    { key: "expanded", label: "הרחבה", count: 8 },
+    { key: "confirmed", label: "מדויק", count: 3 },
+    { key: "complex", label: "נאמנות מורכבת", count: 15 },
+    { key: "applicability", label: "הכרעת תחולה", count: 18 },
+  ];
+
+  return <section className="bentov29-review" aria-labelledby="bentov29-review-title" data-review-effect="local-only">
+    <header>
+      <div>
+        <div className="bentov29-section-label">שלבים 03–05 · מעטפת עבודה פרטית</div>
+        <h2 id="bentov29-review-title">שולחן הכרעה ל־33 תיקי ממצא</h2>
+        <p>כך עוברים מאיתור שנבדק להחלטה שניתנת לביקורת. הקודים כאן הם קודי תצוגה בלבד—לא מזהי מסד ולא תוכן מועמד.</p>
+      </div>
+      <div className="bentov29-review-local">
+        <strong>{locallyCompleted}</strong>
+        <span>הושלמו בהדמיה המקומית</span>
+        <small>אינם נשמרים ואינם משנים סטטוס אמת</small>
+      </div>
+    </header>
+
+    <div className="bentov29-review-filters" role="group" aria-label="סינון תיקי העבודה">
+      {filterOptions.map(option => <button
+        type="button"
+        key={option.key}
+        className={queueFilter === option.key ? "is-active" : ""}
+        onClick={() => setQueueFilter(option.key)}
+        aria-pressed={queueFilter === option.key}
+      >{option.label} <b>{option.count}</b></button>)}
+    </div>
+
+    <div className="bentov29-review-layout">
+      <div className="bentov29-review-queue" aria-label={`${filtered.length} תיקי עבודה מוצגים`}>
+        {filtered.map(item => {
+          const itemProgress = progress[item.id]?.size || 0;
+          return <button
+            type="button"
+            key={item.id}
+            className={`${selected.id === item.id ? "is-selected" : ""} status-${item.locatorStatus}`}
+            onClick={() => onSelect(item.id)}
+            aria-pressed={selected.id === item.id}
+          >
+            <span>B-{String(item.number).padStart(2, "0")}</span>
+            <i>{LOCATOR_STATUS_META[item.locatorStatus].short}</i>
+            <b>{itemProgress}/{REVIEW_CHECKS.length}</b>
+          </button>;
+        })}
+      </div>
+
+      <article className="bentov29-review-card" aria-live="polite">
+        <div className="bentov29-review-card-head">
+          <div><span>תיק הדגמה</span><strong>B-{String(selected.number).padStart(2, "0")}</strong></div>
+          <span className={`status-${selected.locatorStatus}`}>{locatorMeta.label}</span>
+        </div>
+        <div className="bentov29-review-context">
+          <div><span>חלון מקור</span><strong>{selected.source}</strong></div>
+          <div><span>איתור שמור</span><strong>עמ׳ {selected.page}</strong></div>
+          <div><span>בדיקת PDF</span><strong>עמ׳ {selected.verifiedPages}</strong></div>
+          <div><span>מסלול</span><strong>{lane.title}</strong></div>
+        </div>
+        <div className={`bentov29-review-instruction status-${selected.locatorStatus}`}>
+          <span>הפעולה הראשונה</span>
+          <p>{locatorMeta.action}</p>
+        </div>
+        <div className="bentov29-review-checks" role="group" aria-label={`מסלול בדיקה לתיק B-${String(selected.number).padStart(2, "0")}`}>
+          {REVIEW_CHECKS.map((check, index) => {
+            const checked = completed.has(check.key);
+            return <button
+              type="button"
+              key={check.key}
+              className={checked ? "is-complete" : ""}
+              onClick={() => onToggleCheck(selected.id, check.key)}
+              aria-pressed={checked}
+            >
+              <span>{checked ? "✓" : String(index + 1).padStart(2, "0")}</span>
+              <strong>{check.label}</strong>
+              <small>{check.description}</small>
+            </button>;
+          })}
+        </div>
+        <div className="bentov29-review-foot">
+          <span>{completed.size === REVIEW_CHECKS.length ? "מוכן בהדמיה למסירת ביקורת" : `${REVIEW_CHECKS.length - completed.size} בדיקות נותרו בהדמיה`}</span>
+          <button type="button" onClick={() => onReset(selected.id)} disabled={!completed.size}>איפוס תיק</button>
+        </div>
+      </article>
+
+      <aside className="bentov29-review-boundary">
+        <div className="bentov29-section-label">גבול האמת</div>
+        <h3>מה ההדמיה אינה עושה</h3>
+        <ul>
+          <li><span>01</span>אינה קוראת נוסח פרטי או ציטוט.</li>
+          <li><span>02</span>אינה שומרת תיקון איתור.</li>
+          <li><span>03</span>אינה קובעת `fidelity_status`.</li>
+          <li><span>04</span>אינה מאשרת ממשל או גישה.</li>
+          <li><span>05</span>אינה מפרסמת ממצא.</li>
+        </ul>
+        <strong>השלב האמיתי הבא</strong>
+        <p>להפיק חבילת הכרעה פרטית מתוך עד המקור, להעביר ביקורת אנושית, ורק אחר כך לתכנן כתיבה קנונית.</p>
+      </aside>
+    </div>
+  </section>;
+}
+
+function PublicationReadiness() {
+  const gates = [
+    { label: "קליטה", value: "33 / 33", detail: "המועמדים קיימים במאגר המוגן", state: "complete" },
+    { label: "ביקורת מקור", value: "33 / 33", detail: "כל האיתורים נבדקו מול ה־PDF", state: "complete" },
+    { label: "איתור מוכן", value: "3 / 33", detail: "30 דורשים תיקון או הרחבת טווח", state: "current" },
+    { label: "נאמנות שמורה", value: "0 / 33", detail: "לא קיימת החלטת complete / partial", state: "closed" },
+    { label: "הכרעה אנושית", value: "0 / 33", detail: "טרם הוצגה חבילת החלטה מלאה", state: "closed" },
+    { label: "גישה ציבורית", value: "0 / 33", detail: "שער הפרסום והתשתית נשארים סגורים", state: "locked" },
+  ];
+  return <section className="bentov29-readiness" aria-labelledby="bentov29-readiness-title" data-publication-readiness="blocked">
+    <header>
+      <div>
+        <div className="bentov29-section-label">תמונת מוכנות · ללא פרסום</div>
+        <h2 id="bentov29-readiness-title">איפה המוצר עומד מול שער ציבורי</h2>
+      </div>
+      <span>BLOCKED · Human Gate</span>
+    </header>
+    <div className="bentov29-readiness-grid">
+      {gates.map((gate, index) => <article key={gate.label} className={`is-${gate.state}`}>
+        <span>{String(index + 1).padStart(2, "0")}</span>
+        <strong>{gate.label}</strong>
+        <b>{gate.value}</b>
+        <small>{gate.detail}</small>
+      </article>)}
+    </div>
+    <div className="bentov29-readiness-verdict">
+      <div><span>מסקנה</span><strong>המוצר מוכן לביקורת פרטית—לא לפרסום.</strong></div>
+      <p>אפשר לבנות את חבילת ההכרעה ולהדגים את תהליך העבודה עכשיו. שמירה קנונית, שינוי הרשאות ופתיחה לציבור דורשים הוראה נפרדת לסשן המרכזי ותשתית מאושרת.</p>
+    </div>
+  </section>;
+}
+
 export default function BentovFindingsProduct2029Page() {
   const [filter, setFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(FINDINGS[0].id);
   const [selectedSource, setSelectedSource] = useState(SOURCES[0].id);
   const [markedIds, setMarkedIds] = useState(() => new Set());
   const [fidelityLane, setFidelityLane] = useState("complex");
+  const [reviewProgress, setReviewProgress] = useState({});
 
   useEffect(() => {
     applySeo({
@@ -351,6 +523,19 @@ export default function BentovFindingsProduct2029Page() {
       else next.add(selected.id);
       return next;
     });
+  };
+
+  const toggleReviewCheck = (findingId, checkKey) => {
+    setReviewProgress(current => {
+      const nextChecks = new Set(current[findingId] || []);
+      if (nextChecks.has(checkKey)) nextChecks.delete(checkKey);
+      else nextChecks.add(checkKey);
+      return { ...current, [findingId]: nextChecks };
+    });
+  };
+
+  const resetReview = findingId => {
+    setReviewProgress(current => ({ ...current, [findingId]: new Set() }));
   };
 
   return <Sod2029Shell
@@ -448,16 +633,27 @@ export default function BentovFindingsProduct2029Page() {
 
       <FidelityWorkQueue selectedLane={fidelityLane} onSelectLane={setFidelityLane} />
 
+      <ReviewWorkbench
+        findings={FINDINGS}
+        selectedId={selectedId}
+        onSelect={selectFinding}
+        progress={reviewProgress}
+        onToggleCheck={toggleReviewCheck}
+        onReset={resetReview}
+      />
+
+      <PublicationReadiness />
+
       <section className="bentov29-next" aria-labelledby="bentov29-next-title">
         <div>
           <div className="bentov29-section-label">השרשרת מכאן</div>
           <h2 id="bentov29-next-title">כך ההדמיה הופכת למוצר אמיתי</h2>
         </div>
         <ol>
-          <li><span>01</span><strong>תיקון איתורים</strong><small>22 תיקונים ו־8 הרחבות טווח, רק לאחר אישור שכבת הנתונים</small></li>
-          <li><span>02</span><strong>השלמת נאמנות</strong><small>להכריע תחולה ולרשום complete או partial לפי ראיות המקור</small></li>
-          <li><span>03</span><strong>ביקורת אנושית</strong><small>הכרעה נפרדת לכל ממצא, בלי פרסום אוטומטי</small></li>
-          <li><span>04</span><strong>שער פרסום קנוני</strong><small>רק לאחר חוזה, הרשאה ו־RLS מאושרים</small></li>
+          <li><span>01</span><strong>חבילת הכרעה פרטית</strong><small>לאגד לכל ממצא עד מקור, הקשר, מבנה והמלצת נאמנות</small></li>
+          <li><span>02</span><strong>אישור תיקוני איתור</strong><small>22 תיקונים ו־8 הרחבות לפני כתיבה קנונית</small></li>
+          <li><span>03</span><strong>הכרעת נאמנות אנושית</strong><small>complete, partial או לא חל—לפי הראיות ולא לפי ברירת מחדל</small></li>
+          <li><span>04</span><strong>תכנון שער פרסום</strong><small>רק אחרי החלטת תוכן, חוזה הרשאה ו־RLS מאושרים</small></li>
         </ol>
       </section>
     </main>
