@@ -48,6 +48,7 @@ function MethodInspector({
   onExpandRaziel,
   onOpenHeichal,
   onMethodLensExpression,
+  onOpenMethodLesson,
   onClose,
 }) {
   const inspectorId = useId();
@@ -128,6 +129,9 @@ function MethodInspector({
 
     {tab === "learn" ? <div role="tabpanel" id={`${inspectorId}-panel`} aria-labelledby={`${inspectorId}-learn`} className="sod29-number-method-inspector-pane sod29-number-method-learn">
       <MethodTraceExplanation2029 method={method} methods={projection.methods} expression={projection.expression} trace={traceDetail} loading={traceState?.loading} />
+      {onOpenMethodLesson ? <div className="sod29-number-method-inspector-actions">
+        <button type="button" onClick={() => onOpenMethodLesson(method)}>למדו את השיטה בבית המדרש</button>
+      </div> : null}
     </div> : null}
 
     {tab === "raziel" ? <div role="tabpanel" id={`${inspectorId}-panel`} aria-labelledby={`${inspectorId}-raziel`} className="sod29-number-method-inspector-pane sod29-number-method-raziel">
@@ -196,6 +200,7 @@ export default function NumberCore2029({
   journeyLabel = null,
   onRazielAction,
   onExpandRaziel,
+  onOpenMethodLesson,
 } = {}) {
   const [inspectorMethodKey, setInspectorMethodKey] = useState(null);
   const [inspectorTab, setInspectorTab] = useState("calc");
@@ -682,6 +687,7 @@ export default function NumberCore2029({
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}
           onMethodLensExpression={(item) => onExpressionSelect?.(item?.phrase)}
+          onOpenMethodLesson={onOpenMethodLesson}
           onClose={() => setShowCalculation(false)}
         /> : null}
 

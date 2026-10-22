@@ -9,6 +9,7 @@ const page = [pageOnly, ...fs.readdirSync(partsDir).map((name) => read(path.join
 const css = read("src/pages/beitMidrash2029.css");
 const app = read("src/App.jsx");
 const app2029 = read("src/App2029.jsx");
+const numberCore = read("src/components/number2029/NumberCore2029.jsx");
 
 // The first 2029 slice is a projection over existing canonical readers, not a new registry or engine.
 for (const reader of [
@@ -20,6 +21,10 @@ for (const reader of [
   assert.match(page, new RegExp(reader), `the methods study slice must consume ${reader}`);
 }
 assert.match(page, /MethodTraceExplanation2029/, "the slice must reuse the existing 2029 method explanation projection");
+assert.match(page, /SpatialMethodStage2029/, "the lesson must reuse the Number page spatial method projection");
+assert.match(page, /numberExpressionFocusHref/, "the lesson must link to the exact canonical Number expression focus");
+assert.match(page, /data-number-example-link="true"/, "the lesson must expose a visible Number-page example handoff");
+assert.match(numberCore, /למדו את השיטה בבית המדרש/, "the Number method inspector must offer the reciprocal lesson handoff");
 assert.doesNotMatch(page, /\.from\(["'`]gematria_methods["'`]\)/, "the page must not query gematria_methods directly");
 assert.doesNotMatch(page, /from ["']\.\.\/lib\/supabase\.js["']/, "the page must not own a Supabase query path");
 assert.doesNotMatch(page, /METHOD_INFO|DEPTH_METHODS|calcGem|GEM\[/, "the page must not define or execute local Gematria authority");
