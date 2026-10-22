@@ -527,9 +527,13 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true);
    const items=await page.evaluate(()=>window.__lens.items);
    assert.ok(items.length>0,'the existing F03 window scan returns candidates');
-   assert.ok(items.every(item=>Object.keys(item).sort().join(',')==='label,term'),'candidate coordinates never leave the canonical engine');
+   assert.ok(items.every(item=>Object.keys(item).sort().join(',')==='distance,label,term'&&Number.isFinite(item.distance)&&item.distance>=0),'only terms and non-coordinate axis distances leave the canonical engine');
+   assert.deepEqual(items.map(item=>item.distance),items.map(item=>item.distance).toSorted((a,b)=>a-b),'all-matrix findings are ordered nearest first');
    assert.equal(await page.locator('[data-experience-capability="els-all-matrix-findings"]').isVisible(),true);
-   assert.match(await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText(),/מועמדת.*אימות קנוני/);
+   assert.match(await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText(),/מהקרוב לרחוק.*אימות קנוני/);
+   const candidateList=page.getByRole('region',{name:'כל המילים שנמצאו במטריצה, מהקרוב לרחוק'});
+   const bounded=await candidateList.evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+   assert.ok(bounded.clientHeight<=360&&bounded.scrollHeight>bounded.clientHeight,'the long scan list is bounded and internally scrollable on mobile');
    const existing=new Set(before.findings.map(finding=>finding.t));
    const candidate=items.find(item=>!existing.has(item.term));
    assert.ok(candidate,'fixture exposes an unsaved candidate');

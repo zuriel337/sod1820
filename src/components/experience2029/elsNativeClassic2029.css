@@ -426,7 +426,8 @@
 }
 .els29-native-finding-add button{padding:0 10px}
 .els29-native-finding-add button:disabled{opacity:.38;cursor:not-allowed}
-.els29-native-findings{display:grid;gap:6px;min-width:0}
+.els29-native-findings{display:grid;gap:6px;min-width:0;max-height:clamp(300px,48dvh,520px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding-inline-end:4px}
+.els29-native-findings:focus-visible,.els29-native-candidate-list:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px;border-radius:10px}
 .els29-native-finding-group{min-width:0;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);overflow:hidden}
 .els29-native-finding{display:grid;grid-template-columns:20px minmax(0,1fr) 44px;align-items:center;gap:8px;min-width:0;padding:6px;background:transparent}
 .els29-native-color-picker{
@@ -569,6 +570,7 @@
 .els29-native-line-cells .is-main{background:color-mix(in srgb,var(--s29-accent) 20%,var(--s29-panel));font-weight:900;border-block-end:3px solid var(--s29-accent)}
 .els29-native-line-cells .is-word{outline:2px solid var(--s29-ink);outline-offset:-2px;background:color-mix(in srgb,var(--s29-accent-secondary) 20%,var(--s29-panel))}
 .els29-native-line-words{display:grid;gap:6px;min-width:0}
+.els29-native-candidate-list{max-height:clamp(240px,42dvh,440px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 2px 2px 4px}
 .els29-native-line-word{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;min-width:0}
 .els29-native-line-word button{min-height:44px;min-width:44px;padding:6px 9px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-line-word button:first-child{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;text-align:start}
@@ -690,6 +692,8 @@
  .els29-native-panel-wrap[data-mobile-inline-workspace="true"] .els29-native-rail-scroll{
   flex:none;min-height:0;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto;
  }
+ .els29-native-findings{max-height:min(46dvh,420px)}
+ .els29-native-candidate-list{max-height:min(40dvh,360px)}
  .els29-native-finding-workspace{position:static;padding:12px 10px}
 }
 

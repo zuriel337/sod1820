@@ -2384,7 +2384,8 @@ __STANDALONE_ENGINE_DISPATCH__
       // F03 is an existing window-local candidate generator. Expose terms only: candidate
       // coordinates never cross the bridge and adding a term still uses the normal canonical
       // verification path before it can become a Finding.
-      const items=scanCandidates().map(candidate=>({term:norm(candidate.term),label:candidate.term}));
+      const items=scanCandidates().sort((a,b)=>a.distance-b.distance||norm(a.term).localeCompare(norm(b.term),"he"))
+        .map(candidate=>({term:norm(candidate.term),label:candidate.term,distance:candidate.distance}));
       postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:"legacy_els_dict",coverage:"displayed-window",items,total:items.length});
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
@@ -3551,18 +3552,21 @@ __STANDALONE_ENGINE_DISPATCH__
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const mainSet=new Set(occ().positions),byChar=new Map();
+    const mainSet=new Set(occ().positions),axisAnchors=occ().positions.map(rc),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
     // Enumerate only visible first/last-letter pairs. This is equivalent to trying every
     // legal skip/direction in the window, but avoids walking a huge numeric skip range when
     // the primary axis itself is wide (for example, skip 21,940).
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]),ends=byChar.get(t[L-1]);if(!starts||!ends)continue;
-      word:for(const s0 of starts)for(const end of ends){const delta=end-s0,span=L-1;if(!delta||delta%span)continue;const step=delta/span,sk=Math.abs(step);let ok=1;const pos=[s0];
+    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]),ends=byChar.get(t[L-1]);if(!starts||!ends)continue;let best=null;
+      for(const s0 of starts)for(const end of ends){const delta=end-s0,span=L-1;if(!delta||delta%span)continue;const step=delta/span,sk=Math.abs(step);let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
-        out.set(t,{term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,gem:gem(raw)});break word;
-      }}
+        const distance=distanceToAnchors(pos,axisAnchors,S);
+        if(!best||distance<best.distance||distance===best.distance&&sk<best.skip)best={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,gem:gem(raw),distance};
+      }
+      if(best)out.set(t,best);
+    }
     return [...out.values()];
   }
   function lensPath(box){

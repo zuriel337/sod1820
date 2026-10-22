@@ -357,15 +357,15 @@ function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onH
   if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
 
   if (lensResult.lens === "matrix-candidates") {
-    const items = Array.isArray(lensResult.items) ? lensResult.items : [];
-    return <div className="els29-native-source-list" data-experience-capability="els-all-matrix-findings">
+    const items = Array.isArray(lensResult.items) ? [...lensResult.items].sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he")) : [];
+    return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
       <strong>כל מה שנמצא במטריצה · {items.length}</strong>
-      <small>מילים מהמאגר הקיים שנמצאו בחלון המוצג. מילה שלא נשמרה עדיין היא מועמדת; הוספה מפעילה אימות קנוני לפני שהיא מוצגת כממצא.</small>
-      <div className="els29-native-line-words" aria-label="כל המילים שנמצאו במטריצה">
+      <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. מילה שלא נשמרה עדיין היא מועמדת; הוספה מפעילה אימות קנוני לפני שהיא מוצגת כממצא.</small>
+      <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="כל המילים שנמצאו במטריצה, מהקרוב לרחוק">
         {items.map((item) => {
           const added = findings.some((finding) => finding.t === item.term);
           return <div key={item.term} className="els29-native-line-word">
-            <div className="els29-native-discovered-term"><b>{item.label || item.term}</b><small>{added ? "ממצא שכבר נמצא ברשימה" : "מועמד נוסף מהמטריצה"}</small></div>
+            <div className="els29-native-discovered-term"><b>{item.label || item.term}</b><small>מרחק {item.distance} תאים · {added ? "כבר ברשימה" : "מועמד נוסף"}</small></div>
             <button type="button" disabled={addingFinding || added || findings.length >= 12} onClick={() => onAddLineFinding(item.term)}
               aria-label={`הוסף את ${item.label || item.term} מהמטריצה לממצאים`}>{added ? "ברשימה" : "אמת והוסף"}</button>
           </div>;
@@ -614,7 +614,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
         </div>
       </section>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
-      <div className="els29-native-findings">
+      <div className="els29-native-findings" role="region" tabIndex={0} aria-label="רשימת הממצאים במטריצה">
         {verified ? <div className={`els29-native-finding-group is-primary${!selectionValid ? " is-selected" : ""}`} style={{ "--els29-mark": palette.matrix.axis }} data-experience-capability="els-axis-actions">
           <div className="els29-native-finding">
             <button type="button" className="els29-native-finding-select" aria-label={`בחר ציר לסריקה: ${primaryTerm}`}
