@@ -125,6 +125,7 @@ function MaterialMap({ material }) {
   if (!material?.available) return null;
   const source = material.source || {};
   const mappedUnits = material.findings.length;
+  const resolvedWitnessCount = material.witnessClosures.length;
   const openCount = material.openQuestions.length;
 
   return <section className="sod29-section" id="book-material-map">
@@ -173,6 +174,11 @@ function MaterialMap({ material }) {
         <div className="sod29-book-family-body"><div className="sod29-list">{material.connections.map(item => <div className="sod29-row" key={item.id}><div><strong>{item.title}</strong>{item.meta ? <small>{item.meta}</small> : null}{item.text ? <p className="sod29-muted">{item.text}</p> : null}</div></div>)}</div></div>
       </details>
 
+      {resolvedWitnessCount ? <details className="sod29-book-family" open>
+        <summary><span><strong>נסגר מול המקור</strong><small>מקומות שהיו חסרים ואותרו ישירות ב־PDF; סגירת עדות אינה בהכרח סגירת החישוב.</small></span><span className="sod29-chip">{resolvedWitnessCount}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-list">{material.witnessClosures.map(item => <div className="sod29-row" key={item.id}><div><strong>{item.title}</strong><small>{[item.locus, item.status].filter(Boolean).join(" · ")}</small>{item.note ? <p className="sod29-muted">{item.note}</p> : null}</div></div>)}</div></div>
+      </details> : null}
+
       <details className="sod29-book-family" open>
         <summary><span><strong>שאלות פתוחות</strong><small>מה עדיין דורש אימות, סגירה או קריאה מדויקת יותר.</small></span><span className="sod29-chip">{openCount}</span></summary>
         <div className="sod29-book-family-body"><div className="sod29-list">{material.openQuestions.map((item, index) => <div className="sod29-row" key={item.id}><div><strong>{index + 1}</strong><small>{item.text}</small></div></div>)}</div></div>
@@ -183,7 +189,7 @@ function MaterialMap({ material }) {
     <div className="sod29-grid">
       <div className="sod29-card"><h3>1 · החומר נמצא</h3><p>חבילת המקור הציבורית מחוברת, מזוהה וניתנת לפתיחה.</p></div>
       <div className="sod29-card"><h3>2 · המפה פעילה</h3><p>{mappedUnits} יחידות חומר ו־{material.methods.length} משפחות/שיטות מסודרות לתצוגה אחת.</p></div>
-      <div className="sod29-card"><h3>3 · השלב הבא</h3><p>לסגור תחילה {openCount} שאלות מתועדות מול העדות ומראי־המקום; אחר כך להרחיב קשרים בין ספרים.</p></div>
+      <div className="sod29-card"><h3>3 · השלב הבא</h3><p>{resolvedWitnessCount ? `${resolvedWitnessCount} פערי־עדות נסגרו. עכשיו נשאר לסגור ${openCount} שאלות חישוב, קורפוס וקריאה מתועדות; אחר כך להרחיב קשרים בין ספרים.` : `לסגור תחילה ${openCount} שאלות מתועדות מול העדות ומראי־המקום; אחר כך להרחיב קשרים בין ספרים.`}</p></div>
     </div>
   </section>;
 }

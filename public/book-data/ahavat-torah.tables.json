@@ -1,7 +1,7 @@
 {
  "book_slug": "ahavat-torah",
  "source_identity": "book:hebrewbooks:5635",
- "generated_at": "2026-09-05",
+ "generated_at": "2026-10-22",
  "schema_version": 1,
  "hero": {
   "eyebrow": "AHAVAT TORAH · HEBREWBOOKS 5635",
@@ -45,9 +45,9 @@
     "preserved"
    ],
    [
-    "9",
+    "8",
     "קריאות לא פתורות",
-    "preserved"
+    "current material map"
    ]
   ],
   "coverage": [
@@ -64,7 +64,7 @@
    {
     "label": "Exact-Witness Coverage",
     "value": "PARTIAL",
-    "note": "VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS נשמרים בנפרד; חלק מהעמודים בלבד עברו אדג'ודיקציית-עדות מדויקת."
+    "note": "חמשת פערי-העדות של Checkpoint 5 אותרו ואומתו חזותית; VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS בשאר החומר נשמרים בנפרד."
    },
    {
     "label": "Source Exhaustion",
@@ -74,7 +74,7 @@
    {
     "label": "Known-Corpus Exhaustion",
     "value": "PARTIAL",
-    "note": "batch reconstruction (pp.16-99, כל הענפים) הושלמה; פערי-עדות/סתירות ספציפיים עדיין פתוחים (ר' Datasets למטה)."
+    "note": "batch reconstruction (pp.16-99, כל הענפים) הושלמה; חמשת פערי-העדות של Checkpoint 5 נסגרו, אך סתירות ושחזורי-חישוב ספציפיים עדיין פתוחים (ר' Datasets למטה)."
    }
   ],
   "datasets": [
@@ -95,16 +95,16 @@
    [
     "DS-03",
     "תיבות לפי פרשה/ספר",
-    "pp41–43",
+    "p41",
     "PARTIAL",
-    "Torah total 79,976 supported; per-parasha closure incomplete"
+    "source grand total visually reads 110,976, contradicting the earlier 79,976 frame; per-parasha closure incomplete"
    ],
    [
     "DS-04",
     "סך אותיות",
-    "p43±",
+    "p42",
     "PARTIAL",
-    "~304,812 historical source reading; final digit/reading unresolved"
+    "grand total reads 304,812 or 304,830; final glyph unresolved"
    ],
    [
     "DS-05",
@@ -180,16 +180,57 @@
     "text": "נשמרת כמשפחה נפרדת: 1833−3, 1816+14, וסכום משולש 1..60. אין למזג ל־1820."
    },
    {
-    "title": "79,976",
-    "text": "סך תיבות התורה נתמך ביותר ממסלול אחד; גבול attribution/counting האוניברסלי עדיין דורש דיוק."
+    "title": "79,976 ↔ 110,976",
+    "text": "מסגרת 79,976 מן המחקר הקודם מתנגשת בסך 110,976 שנקרא חזותית ב-p41. שתי הקריאות נשמרות עד reconciliation; אין לכפות הכרעה אריתמטית."
    },
    {
     "title": "18,200",
     "text": "טבלת named-speaker ב־pp13–14 מגיעה ל־18,200; population/checksum/cohort semantics עדיין פתוחים."
    }
   ],
+  "witness_closures": [
+   {
+    "id": "CP5-WG-01",
+    "title": "כל תיבה שצריכה למ״ד בתחילתה — ה״א בסופה",
+    "locus": "PDF p22",
+    "status": "VISUALLY_VERIFIED",
+    "source_ref": "book:hebrewbooks:5635#p22:lamed-prefix-he-suffix",
+    "note": "הכלל הלשוני אותר בעמוד עצמו; זו סגירת מראה-המקום, לא אימות כל היישומים."
+   },
+   {
+    "id": "CP5-WG-02",
+    "title": "תת-הקורפוס של תיבות כפולות ו־דרש דרש באמצע",
+    "locus": "PDF p71",
+    "status": "VISUALLY_VERIFIED",
+    "source_ref": "book:hebrewbooks:5635#p71:repeated-word-subcorpus",
+    "note": "המחבר מונה פ״ט תיבות כפולות, מחריג לך לך ושם שם כשורשים נפרדים, ומציב את דרש דרש באמצע; ספירת הקורפוס טרם שוחזרה עצמאית."
+   },
+   {
+    "id": "CP5-WG-03",
+    "title": "חמש שנים × שס״ד ימים, בהחרגת יום הכיפורים",
+    "locus": "PDF p14",
+    "status": "VISUALLY_VERIFIED · CORRECTED",
+    "source_ref": "book:hebrewbooks:5635#p14:five-years-yom-kippur-exclusion",
+    "note": "המקור אומר 364 ימים לשנה, לא 365: 5×364=1,820, מפני שיום הכיפורים אינו בחשבון הימים."
+   },
+   {
+    "id": "CP5-WG-04",
+    "title": "כ״ח עתים בקהלת → י״ד תקופות × חמש שנים",
+    "locus": "PDF p14",
+    "status": "VISUALLY_VERIFIED",
+    "source_ref": "book:hebrewbooks:5635#p14:kohelet-time-categories",
+    "note": "המחבר מקבץ את 28 העתים ל־14 זוגות/תקופות של חמש שנים, כנגד שבעים שנות החיים."
+   },
+   {
+    "id": "CP5-WG-05",
+    "title": "מילות הקצה של ברכת כהנים",
+    "locus": "PDF p14",
+    "status": "VISUALLY_VERIFIED",
+    "source_ref": "book:hebrewbooks:5635#p14:birkat-kohanim-edge-tokens",
+    "note": "האסימונים המפורשים הם יברכך/וישמרך, יאר/ויחנך, ישא/שלום; המחבר טוען שסכומם 1,820."
+   }
+  ],
   "open": [
-   "5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)",
    "DS-03: סך-מקור נקרא חזותית 110,976 וסותר קריאה קודמת 79,976 — לא-נפתר",
    "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה",
    "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",

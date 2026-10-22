@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   BOOK_MATERIAL_PREVIEW_SLUGS,
   buildBookMaterialMap,
@@ -20,6 +21,7 @@ const SYNTHETIC_BUNDLE = {
     coverage: [{ label: "Research Map", value: "PARTIAL", note: "synthetic" }],
     datasets: [["DS-X", "ממצא סינתטי", "p1", "OPEN", "fixture only"]],
     families: [{ title: "שיטה סינתטית", text: "fixture only" }],
+    witness_closures: [{ id: "WG-X", title: "עדות סינתטית", locus: "p2", status: "VISUALLY_VERIFIED", note: "fixture only", source_ref: "book:synthetic:1#p2:witness" }],
     open: ["שאלה סינתטית פתוחה"],
     seeds: [{ key: "seed-x", label: "נקודת כניסה", family: "synthetic", status: "open", page: 1 }],
   },
@@ -36,7 +38,7 @@ test("material preview is explicitly bounded to the two pilot books", () => {
   assert.equal(isBookMaterialPreview("other-book"), false);
 });
 
-test("public bundle is normalized into source, structure, findings, methods, connections and open questions", () => {
+test("public bundle is normalized into source, structure, findings, methods, connections, closures and open questions", () => {
   const map = buildBookMaterialMap(SYNTHETIC_BUNDLE, { expectedSlug: "ahavat-torah" });
   assert.equal(map.available, true);
   assert.equal(map.source.identity, "book:synthetic:1");
@@ -46,6 +48,14 @@ test("public bundle is normalized into source, structure, findings, methods, con
   assert.equal(map.findings[0].id, "DS-X");
   assert.equal(map.methods[0].title, "שיטה סינתטית");
   assert.equal(map.connections[0].id, "CR-X");
+  assert.deepEqual(map.witnessClosures[0], {
+    id: "WG-X",
+    title: "עדות סינתטית",
+    locus: "p2",
+    status: "VISUALLY_VERIFIED",
+    note: "fixture only",
+    sourceRef: "book:synthetic:1#p2:witness",
+  });
   assert.equal(map.openQuestions[0].text, "שאלה סינתטית פתוחה");
   assert.deepEqual(map.inventory.map(item => [item.key, item.value]), [
     ["content_blocks", 1],
@@ -90,4 +100,16 @@ test("non-https source links are withheld from the presentation", () => {
   const map = buildBookMaterialMap(bundle, { expectedSlug: "ahavat-torah" });
   assert.equal(map.available, true);
   assert.equal(map.source.pdfUrl, null);
+});
+
+test("Ahavat Torah public snapshot exposes five closed witness gaps and eight remaining questions", async () => {
+  const bundle = JSON.parse(await readFile(new URL("../../../public/book-data/ahavat-torah.tables.json", import.meta.url), "utf8"));
+  const map = buildBookMaterialMap(bundle, { expectedSlug: "ahavat-torah" });
+  assert.equal(map.available, true);
+  assert.equal(map.witnessClosures.length, 5);
+  assert.equal(map.openQuestions.length, 8);
+  assert.equal(map.witnessClosures[2].locus, "PDF p14");
+  assert.match(map.witnessClosures[2].note, /364/);
+  assert.equal(map.findings.find(item => item.id === "DS-03")?.locus, "p41");
+  assert.equal(map.findings.find(item => item.id === "DS-04")?.locus, "p42");
 });

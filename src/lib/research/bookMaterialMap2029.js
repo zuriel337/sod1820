@@ -40,6 +40,7 @@ function unavailable(slug, reason) {
     findings: [],
     methods: [],
     connections: [],
+    witnessClosures: [],
     openQuestions: [],
     inventory: [],
   };
@@ -113,6 +114,20 @@ function normalizeOpenQuestion(value, index) {
   return text ? { id: `open-${index + 1}`, text } : null;
 }
 
+function normalizeWitnessClosure(row, index) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+  const title = clean(row.title);
+  if (!title) return null;
+  return {
+    id: clean(row.id) || `witness-closure-${index + 1}`,
+    title,
+    locus: clean(row.locus) || null,
+    status: clean(row.status) || null,
+    note: clean(row.note) || null,
+    sourceRef: clean(row.source_ref) || null,
+  };
+}
+
 function compact(items) {
   return items.filter(Boolean);
 }
@@ -164,6 +179,7 @@ export function buildBookMaterialMap(bundle, { expectedSlug } = {}) {
     findings: compact((Array.isArray(hero.datasets) ? hero.datasets : []).map(normalizeFinding)),
     methods: compact((Array.isArray(hero.families) ? hero.families : []).map(normalizeMethod)),
     connections: relations.length ? relations : seeds,
+    witnessClosures: compact((Array.isArray(hero.witness_closures) ? hero.witness_closures : []).map(normalizeWitnessClosure)),
     openQuestions: compact((Array.isArray(hero.open) ? hero.open : []).map(normalizeOpenQuestion)),
     inventory,
   };
