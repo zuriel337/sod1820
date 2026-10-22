@@ -8,6 +8,7 @@ import {
   resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
+  isRazielCurrentSurfaceQuestion,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
 
@@ -157,6 +158,27 @@ function latestPriorContext(thread) {
 }
 
 function surfaceCandidate(surfaceSemantic) {
+  // On the calculator the expression is the research subject and the selected numeric result is
+  // its current lens. Prefer that exact expression for a "what am I seeing here" turn so Raziel
+  // receives the complete canonical method profile instead of researching only one active tile.
+  const surface = clean(surfaceSemantic?.surface, 40).toLowerCase();
+  const calculationExpression = clean(surfaceSemantic?.number?.expression, 120);
+  const calculationResult = surfaceSemantic?.number?.result;
+  const calculatorSurface = ["gematria", "calculator", "calculator-pro-2029", "calculator-2029"].includes(surface);
+  if (calculatorSurface) {
+    if (!(calculationExpression
+    && clean(surfaceSemantic?.number?.method, 60)
+    && Number.isSafeInteger(calculationResult)
+    && calculationResult >= 1
+    && calculationResult <= 999999999999)) return null;
+    const expression = phraseCandidate(calculationExpression);
+    if (expression) return {
+      ...expression,
+      source: RESEARCH_IDENTITY_SOURCE.SURFACE_CONTEXT,
+      confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    };
+    return null;
+  }
   const subject = surfaceSemantic?.subject;
   const type = clean(subject?.type, 30).toLowerCase();
   if (!subject || !SURFACE_SUBJECT_TYPES.has(type)) return null;
@@ -176,6 +198,7 @@ function surfaceCandidate(surfaceSemantic) {
 
 function isReferentialFollowUp(question) {
   const q = grammarText(question).replace(/[?؟!.]+$/g, "");
+  if (isRazielCurrentSurfaceQuestion(q)) return true;
   if (/^(?:מה זה|מה זאת|מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q)) return true;
   if (/(?:^|\s)(?:אותם|אותן|ביניהם|ביניהן|עליו|עליה|עליהם|בהם|בהן|שלו|שלה|שלהם|שלהן)(?:\s|$)/u.test(q)) return true;
   if (/(?:את|עם|מול|על)\s+(?:זה|זאת)(?:\s|$)/u.test(q)) return true;
@@ -224,6 +247,7 @@ export function resolveRazielConversationTurn({
   const explicitPhrases = explicitNumbers.length ? [] : explicitPhraseCandidates(currentQuestion);
   const deterministicCandidates = [...explicitNumbers, ...explicitPhrases];
   const referential = isReferentialFollowUp(currentQuestion);
+  const currentSurfaceQuestion = isRazielCurrentSurfaceQuestion(currentQuestion);
   // Semantic fallback is considered only after deterministic/current-turn and referential grammar
   // had no answer. The gate itself is pure and exact-evidence-bound; it never calls a model.
   const semantic = !deterministicCandidates.length && !referential
@@ -231,7 +255,11 @@ export function resolveRazielConversationTurn({
     : null;
   const semanticCandidates = semantic?.status === "resolved" ? semantic.candidates : [];
   const explicitCandidates = deterministicCandidates.length ? deterministicCandidates : semanticCandidates;
-  const previous = referential ? latestPriorContext(thread) : { candidates: [], explicitTextComputation: false };
+  // "כאן" names the visible surface, not an older turn. Other anaphors keep their existing
+  // most-recent-user-turn precedence.
+  const previous = referential && !currentSurfaceQuestion
+    ? latestPriorContext(thread)
+    : { candidates: [], explicitTextComputation: false };
   const surface = referential && !previous.candidates.length ? surfaceCandidate(surfaceSemantic) : null;
 
   let candidates = explicitCandidates;
@@ -246,7 +274,8 @@ export function resolveRazielConversationTurn({
 
   const explicitTextComputation = explicitPhrases.length > 0
     || semantic?.text_computation_requested === true
-    || (referential && previous.explicitTextComputation === true);
+    || (referential && previous.explicitTextComputation === true)
+    || (referential && ["phrase", "word"].includes(surface?.type));
   const resolution = resolveResearchIdentities({
     candidates,
     rawInput: currentQuestion || null,
@@ -320,9 +349,14 @@ export function projectRazielConversationResolution(resolved) {
   const textIdentities = (resolved.identity_resolution?.identities || [])
     .filter((identity) => identity?.type === "phrase" || identity?.type === "word");
   if (!numbers.length && textIdentities.length === 1
-    && resolved.requested_action === "connect"
-    && resolved.referential_follow_up === false
-    && resolved.referent_source === "explicit_current_turn") {
+    && (
+      (resolved.requested_action === "connect"
+        && resolved.referential_follow_up === false
+        && resolved.referent_source === "explicit_current_turn")
+      || (["understand", "research"].includes(resolved.requested_action)
+        && resolved.referential_follow_up === true
+        && resolved.referent_source === "surface_subject")
+    )) {
     const identity = textIdentities[0];
     const label = clean(identity?.label ?? identity?.value, 120);
     const expectedKey = `phrase:${label}`;
@@ -330,9 +364,9 @@ export function projectRazielConversationResolution(resolved) {
     if (identity.identity_key !== expectedKey && identity.key !== expectedKey) return null;
     return Object.freeze({
       version: RAZIEL_CONVERSATION_RESOLVER_VERSION,
-      requested_action: "connect",
-      referential_follow_up: false,
-      referent_source: "explicit_current_turn",
+      requested_action: resolved.requested_action,
+      referential_follow_up: resolved.referential_follow_up === true,
+      referent_source: resolved.referent_source,
       identities: Object.freeze([Object.freeze({
         type: "phrase",
         label,

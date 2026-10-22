@@ -159,6 +159,61 @@ test("uses the exact surface subject only for an explicit referential follow-up"
   assert.equal(out.requested_action, "research");
 });
 
+test("what am I seeing here binds the visible Number root and ignores an older conversation subject", () => {
+  const out = resolveRazielConversationTurn({
+    question: "מה אני רואה כאן?",
+    thread: [{ role: "user", text: "מה זה 1820?" }],
+    surfaceSemantic: { surface: "number", subject: { type: "number", id: "776", label: "776" } },
+  });
+  assert.deepEqual(ids(out), ["776"]);
+  assert.equal(out.referential_follow_up, true);
+  assert.equal(out.referent_source, "surface_subject");
+  assert.equal(out.requested_action, "understand");
+  assert.deepEqual(projectRazielConversationResolution(out).identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+});
+
+test("what am I seeing here on the calculator binds the whole expression, not one active result tile", () => {
+  const out = resolveRazielConversationTurn({
+    question: "מה אני רואה כאן?",
+    thread: [{ role: "user", text: "מה זה 776?" }],
+    surfaceSemantic: {
+      surface: "gematria",
+      subject: { type: "number", id: "365", label: "חכמה" },
+      number: { expression: "חכמה", method: "משולש מילה + משולש הפוך", result: 365 },
+    },
+  });
+  assert.deepEqual(ids(out), ["חכמה"]);
+  assert.equal(out.identity_resolution.explicit_text_computation, true);
+  assert.equal(out.referent_source, "surface_subject");
+  assert.equal(out.requested_action, "understand");
+  assert.deepEqual(projectRazielConversationResolution(out), {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "understand",
+    referential_follow_up: true,
+    referent_source: "surface_subject",
+    identities: [{ type: "phrase", label: "חכמה", identity_key: "phrase:חכמה" }],
+    pair: null,
+    guards: { semantic_hint_only: true, server_must_reauthorize: true },
+  });
+});
+
+test("calculator surface expression is not projected from an absent or string-coerced result", () => {
+  for (const result of [null, "365", 0, -1]) {
+    const out = resolveRazielConversationTurn({
+      question: "מה אני רואה כאן?",
+      surfaceSemantic: {
+        surface: "gematria",
+        subject: { type: "number", id: String(result), label: "חכמה" },
+        number: { expression: "חכמה", method: "רגיל", result },
+      },
+    });
+    assert.equal(out.referent_source, "none");
+    assert.equal(projectRazielConversationResolution(out), null);
+  }
+});
+
 test("does not carry a surface subject into an unrelated new conversation turn", () => {
   const out = resolveRazielConversationTurn({
     question: "שלום רזיאל",

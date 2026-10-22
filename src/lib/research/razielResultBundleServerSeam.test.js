@@ -85,7 +85,7 @@ function expressionCrossingBundle(expression, partner = "שלום") {
   const regularValue = expression === "צוריאל" ? 337 : 358;
   const calculation = makeUniversalFinding({
     id: `uf:gematria:${expression}:ragil`,
-    kind: "gematria",
+    kind: "gematria-method-value",
     subject: { type: "phrase", key: expression, label: expression, value: regularValue, lang: "he" },
     source: {
       engine: "gematria",
@@ -100,7 +100,16 @@ function expressionCrossingBundle(expression, partner = "שלום") {
       engine_result: regularValue,
       verification_state: "not_tested",
     },
-    evidence: { refs: [], facts: [{ type: "gematria-method-value", methodKey: "ragil", value: regularValue }] },
+    evidence: { refs: [], facts: [{
+      type: "gematria-method-profile-value",
+      method: "ragil",
+      label: "רגיל",
+      value: regularValue,
+      category: "יסוד",
+      mathematical_family: "regular",
+      atomic_or_composite: "atomic",
+      method_version: 6,
+    }] },
     access: { tier: "public" },
     provenance: { createdBy: "ENGINE:gematria", inputRef: "expression:fixture" },
   });
@@ -212,6 +221,24 @@ function expressionConversation(expression) {
   };
 }
 
+function calculatorSurfaceConversation(expression) {
+  return {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "understand",
+    referential_follow_up: true,
+    referent_source: "surface_subject",
+    identities: [{ type: "phrase", label: expression, identity_key: `phrase:${expression}` }],
+  };
+}
+
+function calculatorSurface(expression, method = "משולש מילה + משולש הפוך", result = 365) {
+  return {
+    surface: "gematria",
+    subject: { type: "number", id: String(result), label: expression },
+    number: { expression, method, result },
+  };
+}
+
 test("2029 exact expression crossing consumes the same canonical Bundle without a second engine", async () => {
   const expression = "משיח";
   const run = await runAiAnalyze({
@@ -270,6 +297,55 @@ test("combined Gematria and crossing wording resolves any explicit Hebrew expres
   assert.match(run.models[0].user, /337/);
   assert.match(run.models[0].user, /צוריאל ↔ שלום/);
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
+});
+
+test("calculator current-surface question researches the whole expression through one canonical Bundle", async () => {
+  const expression = "חכמה";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה אני רואה כאן?",
+      visitor_id: "vcalculatorsurface123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: calculatorSurfaceConversation(expression),
+      surface_semantic: calculatorSurface(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(researchCalls.length, 1);
+  assert.equal(researchCalls[0].payload.contract, EXPRESSION_CONTRACT);
+  assert.equal(researchCalls[0].payload.expression, expression);
+  assert.deepEqual(researchCalls[0].payload.requested_capabilities, ["gematria", "crossings"]);
+  assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
+  assert.equal(run.models.length, 1);
+  assert.match(run.models[0].user, /אל תצמצם את הניתוח לאריח הפעיל בלבד/);
+  assert.match(run.models[0].user, /calculation_profile/);
+  assert.match(run.models[0].user, /תפקיד רוחני, ביוגרפי, היסטורי או תיאולוגי/);
+  assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.subject_type, "expression");
+});
+
+test("calculator surface expression is re-authorized against the visible method result", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה אני רואה כאן?",
+      visitor_id: "vcalculatorsurfaceguard123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: calculatorSurfaceConversation("צוריאל"),
+      surface_semantic: calculatorSurface("חכמה"),
+    },
+  });
+
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
+  assert.equal(run.result.engine, "conversation_resolution_guard");
 });
 
 test("missing name and open capability question are deterministic and spend no AI calls", async () => {
@@ -384,7 +460,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v2/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v3/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
@@ -395,6 +471,33 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "Sefer Yetzirah", source_ref: "number-source:776", lang: "he" }]);
   assert.deepEqual(run.result.raziel.navigation, [{ kind: "number", label: "פתח את דף המספר 776", href: "/number/776" }]);
+});
+
+test("number-page current-surface question consumes the visible canonical Number Bundle", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה אני רואה כאן?",
+      visitor_id: "vnumbersurface123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: {
+        ...conversation([776], "understand"),
+        referential_follow_up: true,
+        referent_source: "surface_subject",
+      },
+      surface_semantic: { surface: "number", subject: { type: "number", id: "776", label: "776" } },
+    },
+    researchBundleByNumber: { 776: numberBundle(776, "ספר יצירה") },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(researchCalls.length, 1);
+  assert.equal(researchCalls[0].payload.number, 776);
+  assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
+  assert.match(run.models[0].user, /בניתוח מספר יחיד/);
 });
 
 test("authenticated and guest 2029 users receive the same evidence quality; only caller authority differs", async () => {

@@ -4,7 +4,7 @@ import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_sha
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer } from "../../../src/lib/research/razielGroundedSourceComposer.js";
-import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1181,7 +1181,7 @@ type RazielConversationNumberHint = {
 
 type RazielConversationExpressionHint = {
   expression: string;
-  requestedAction: "connect";
+  requestedAction: "connect" | "research" | "understand";
 };
 
 // Client conversation state is never authority. W2 admits public decimal anchors from an exact
@@ -1190,7 +1190,7 @@ type RazielConversationExpressionHint = {
 // textual subject slots exactly match the projected identities. Labels, access, provenance,
 // metadata and every non-number identity are ignored.
 // Phase H then re-reads the owner projections; the hint itself never supplies research facts.
-function razielConversationNumberHint(raw: any, originalQuestion: unknown): RazielConversationNumberHint | null {
+function razielConversationNumberHint(raw: any, originalQuestion: unknown, surfaceSemantic: unknown = null): RazielConversationNumberHint | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   if (raw.version !== "raziel-conversation-resolver-v1") return null;
   const q = rzClean(originalQuestion, 300).replace(/[־–—-]/g, " ").replace(/[?؟!.]+$/g, "").replace(/\s+/g, " ").trim();
@@ -1210,6 +1210,12 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
   }
 
   if (raw.referential_follow_up === true) {
+    if (isRazielCurrentSurfaceQuestion(originalQuestion)) {
+      const surfaceNumber = razielSurfaceNumberRoot(surfaceSemantic);
+      if (raw.referent_source !== "surface_subject" || requestedAction !== "understand"
+        || numbers.length !== 1 || surfaceNumber == null || numbers[0] !== surfaceNumber) return null;
+      return { numbers: numbers as [number], requestedAction };
+    }
     const referential = /^(?:(?:אתה יכול|את יכולה|אפשר)?\s*(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?|(?:תבדוק|בדוק|תחקור|חקור|תעמיק|העמק)(?:\s+את\s+זה)?)(?:\s+(?:מול|לבין|עם|ל)\s*\d{1,6})?$/u.test(q)
       || /^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*\d{1,6}$/u.test(q)
       || /^(?:מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q)
@@ -1251,10 +1257,13 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
 // The phrase envelope is a hint, never execution authority. It is admitted only when the current
 // question has one exact crossing-target slot and the projected phrase repeats that slot exactly.
 // Carried text, pairs, arbitrary prose and non-Hebrew inputs fail closed.
-function razielConversationExpressionHint(raw: any, originalQuestion: unknown): RazielConversationExpressionHint | null {
+function razielConversationExpressionHint(raw: any, originalQuestion: unknown, surfaceSemantic: unknown = null): RazielConversationExpressionHint | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  if (raw.version !== "raziel-conversation-resolver-v1" || raw.requested_action !== "connect") return null;
-  if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
+  if (raw.version !== "raziel-conversation-resolver-v1") return null;
+  const requestedAction = ["connect", "research", "understand"].includes(raw.requested_action)
+    ? raw.requested_action as RazielConversationExpressionHint["requestedAction"]
+    : null;
+  if (!requestedAction) return null;
   const identities = Array.isArray(raw.identities) ? raw.identities : [];
   if (identities.length !== 1) return null;
   const identity = identities[0];
@@ -1262,6 +1271,15 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown): 
   const label = rzClean(identity.label, 120);
   if (!label || !/[\u0590-\u05ff]/u.test(label) || identity.identity_key !== `phrase:${label}`) return null;
 
+  if (raw.referential_follow_up === true) {
+    const surfaceExpression = razielSurfaceExpressionFocus(surfaceSemantic);
+    if (!isRazielCurrentSurfaceQuestion(originalQuestion)
+      || raw.referent_source !== "surface_subject"
+      || requestedAction !== "understand"
+      || surfaceExpression !== label) return null;
+    return { expression: label, requestedAction };
+  }
+  if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn" || requestedAction !== "connect") return null;
   const structural = resolveExplicitHebrewExpressionResearchSubject(originalQuestion);
   if (!structural || structural.requested_action !== "connect" || structural.label !== label) return null;
   return { expression: label, requestedAction: "connect" };
@@ -1276,6 +1294,26 @@ function razielSurfaceNumberRoot(sc: any): number | null {
   if (!/^[0-9]{1,6}$/.test(id)) return null;   // raw id must already be a pure decimal — never label/expression/result, no tag-stripped salvage
   const n = Number(id);
   return n >= 1 ? n : null;
+}
+
+function razielSurfaceExpressionFocus(sc: any): string | null {
+  if (!sc || typeof sc !== "object" || Array.isArray(sc)) return null;
+  const surface = rzClean(sc.surface, 40).toLowerCase();
+  if (!["gematria", "calculator", "calculator-pro-2029", "calculator-2029"].includes(surface)) return null;
+  const number = sc.number;
+  const subject = sc.subject;
+  if (!number || typeof number !== "object" || Array.isArray(number)
+    || !subject || typeof subject !== "object" || Array.isArray(subject)) return null;
+  const expression = typeof number.expression === "string" ? number.expression.trim() : "";
+  const method = typeof number.method === "string" ? number.method.trim() : "";
+  const result = number.result;
+  const subjectId = typeof subject.id === "string" ? subject.id.trim() : "";
+  if (!expression || [...expression].length > 120 || !/[\u0590-\u05ff]/u.test(expression)
+    || /[\u0000-\u001f\u007f-\u009f]/u.test(expression) || !method
+    || !Number.isSafeInteger(result) || result < 1 || result > 999999999999
+    || rzClean(subject.type, 30).toLowerCase() !== "number"
+    || subjectId !== String(result)) return null;
+  return expression;
 }
 
 type RazielNumberContextDescriptor = { number: number; anchor: string; mode: "deterministic" | "synthesis"; focus: string | null };
@@ -2314,10 +2352,10 @@ Deno.serve(async (req: Request) => {
       let rDet: any = null;   // Phase H: the fn_raziel_answer result (descriptor source for number_context)
       const rConversationHint = rTrusted
         ? null
-        : razielConversationNumberHint(body?.conversation_resolution, rSubject);
+        : razielConversationNumberHint(body?.conversation_resolution, rSubject, body?.surface_semantic);
       const rExpressionCrossingHint = rTrusted
         ? null
-        : razielConversationExpressionHint(body?.conversation_resolution, rSubject);
+        : razielConversationExpressionHint(body?.conversation_resolution, rSubject, body?.surface_semantic);
       let rSemanticHint: RazielConversationNumberHint | null = null;
       // Multimodal source stage FIRST (trusted internal path only). When a source is attached, caption/subject words never fall
       // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.

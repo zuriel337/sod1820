@@ -14,6 +14,7 @@ export const RAZIEL_RESULT_BUNDLE_LIMITS = Object.freeze({
   refs: 12,
   factsPerFinding: 8,
   actions: 6,
+  methodProfile: 32,
   arrayItems: 12,
   objectKeys: 24,
   detailDepth: 3,
@@ -336,6 +337,35 @@ function findingsInPresentationOrder(findings, rankById) {
   }).map((entry) => entry.finding);
 }
 
+function compactCalculationProfile(findings) {
+  const entries = [];
+  const seen = new Set();
+  for (const finding of list(findings)) {
+    if (finding?.kind !== "gematria-method-value") continue;
+    const methodKey = cleanText(
+      finding?.verification?.engine_method_tested ?? finding?.source?.method,
+      80,
+    );
+    const rawValue = finding?.verification?.engine_result ?? finding?.subject?.value;
+    const value = finiteNumber(rawValue);
+    if (!methodKey || value == null || seen.has(methodKey)) continue;
+    const fact = list(finding?.evidence?.facts).find((item) => item?.type === "gematria-method-profile-value") || {};
+    entries.push({
+      finding_id: cleanText(finding?.id, 200),
+      method_key: methodKey,
+      method_label: cleanText(fact.label, 100) || methodKey,
+      value,
+      category: cleanText(fact.category, 60),
+      mathematical_family: cleanText(fact.mathematical_family, 80),
+      atomic_or_composite: cleanText(fact.atomic_or_composite, 60),
+      method_version: finiteNumber(fact.method_version),
+    });
+    seen.add(methodKey);
+    if (entries.length >= RAZIEL_RESULT_BUNDLE_LIMITS.methodProfile) break;
+  }
+  return entries;
+}
+
 export function buildRazielResultBundleConsumer(bundle) {
   if (!bundle || typeof bundle !== "object" || Array.isArray(bundle)) {
     throw new TypeError("razielResultBundleConsumer: canonical Result Bundle object is required");
@@ -346,7 +376,16 @@ export function buildRazielResultBundleConsumer(bundle) {
 
   const rankById = new Map(list(bundle.ranking).map((entry) => [cleanText(entry?.finding_id, 200), entry]));
   const orderedFindings = findingsInPresentationOrder(bundle.findings, rankById);
-  const candidateIds = new Set(orderedFindings.slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
+  const calculationProfile = compactCalculationProfile(orderedFindings);
+  // The compact profile carries every bounded method value. Reserve the ordinary Finding window
+  // for crossings/source evidence first, then retain a few individual method Findings for replay.
+  const presentationFindings = calculationProfile.length
+    ? [
+        ...orderedFindings.filter((finding) => finding?.kind !== "gematria-method-value"),
+        ...orderedFindings.filter((finding) => finding?.kind === "gematria-method-value"),
+      ]
+    : orderedFindings;
+  const candidateIds = new Set(presentationFindings.slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
     .map((finding) => cleanText(finding?.id, 200)).filter(Boolean));
   const projectedOutcomes = list(bundle.finding_outcomes)
     .map((outcome) => projectOutcome(outcome, candidateIds))
@@ -357,7 +396,7 @@ export function buildRazielResultBundleConsumer(bundle) {
     current.push(outcome);
     outcomesById.set(outcome.finding_id, current);
   }
-  const findings = orderedFindings.slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
+  const findings = presentationFindings.slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
     .map((finding) => projectFinding(finding, rankById, outcomesById))
     .filter(Boolean);
   const findingIds = new Set(findings.map((finding) => finding.id));
@@ -406,6 +445,7 @@ export function buildRazielResultBundleConsumer(bundle) {
 
   const modelInput = {
     query,
+    calculation_profile: calculationProfile,
     findings,
     finding_outcomes: projectedOutcomes,
     capabilities,
@@ -422,6 +462,7 @@ export function buildRazielResultBundleConsumer(bundle) {
     constraints: {
       claims_must_reference_finding_ids: true,
       facts_must_come_from_projected_findings: true,
+      calculation_values_must_come_from_calculation_profile: true,
       derivation_is_not_independent_evidence: true,
       convergence_is_not_automatically_independent: true,
       access_filtered_is_not_negative_evidence: true,
@@ -433,6 +474,7 @@ export function buildRazielResultBundleConsumer(bundle) {
 
   const humanView = {
     subjects: identities,
+    calculation_profile: calculationProfile,
     cards: findings.map((finding) => ({
       finding_id: finding.id,
       label: finding.subject.label,

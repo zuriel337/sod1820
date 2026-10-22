@@ -37,16 +37,16 @@ test('public expression research performs canonical calculation and crossing RPC
   assert.equal(out.response.status, 200);
   assert.equal(out.data.status, 'ok');
   assert.equal(out.data.contract, CONTRACT);
-  const calculationCalls = runtime.calls.filter(call => call.name === 'gematria_api');
+  const calculationCalls = runtime.calls.filter(call => call.name === 'fn_method_profile');
   const crossingCalls = runtime.calls.filter(call => call.name === 'strongest_crossings');
   assert.equal(calculationCalls.length, 1);
-  assert.deepEqual(calculationCalls[0].body, { p_text: EXPRESSION });
+  assert.deepEqual(calculationCalls[0].body, { p_phrase: EXPRESSION, p_depth: 'value' });
   assert.equal(calculationCalls[0].authorization, `Bearer ${runtime.anon}`);
   assert.equal(crossingCalls.length, 1);
   assert.deepEqual(crossingCalls[0].body, { p_self: EXPRESSION, p_min: 2, p_limit: 8 });
   assert.equal(crossingCalls[0].authorization, `Bearer ${runtime.anon}`);
   assert.equal(runtime.calls.filter(call => call.name === 'gematria_words').length, 0);
-  assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria').length, 3);
+  assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-method-value').length, 3);
   assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-crossing').length, 2);
 
   const calculation = out.data.bundle.capability_trace.find(item => item.key === 'gematria');
@@ -73,14 +73,14 @@ test('empty completed corpus query is an explicit negative result', async () => 
   const out = await invoke(runtime);
 
   assert.equal(out.data.status, 'ok');
-  assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria').length, 3);
+  assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-method-value').length, 3);
   assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-crossing').length, 0);
   assert.equal(out.data.bundle.coverage.negative_result, 1);
   const capability = out.data.bundle.capability_trace.find(item => item.key === 'crossings');
   assert.equal(capability.status, 'negative_result');
   assert.equal(capability.negative_result.scope.operation, 'strongest_crossings');
   assert.equal(runtime.calls.filter(call => call.name === 'strongest_crossings').length, 1);
-  assert.equal(runtime.calls.filter(call => call.name === 'gematria_api').length, 1);
+  assert.equal(runtime.calls.filter(call => call.name === 'fn_method_profile').length, 1);
 });
 
 test('crossing RPC failure is not retried or mislabeled as a negative result', async () => {
@@ -89,7 +89,7 @@ test('crossing RPC failure is not retried or mislabeled as a negative result', a
 
   assert.equal(out.data.status, 'ok');
   assert.equal(runtime.calls.filter(call => call.name === 'strongest_crossings').length, 1);
-  assert.equal(runtime.calls.filter(call => call.name === 'gematria_api').length, 1);
+  assert.equal(runtime.calls.filter(call => call.name === 'fn_method_profile').length, 1);
   const capability = out.data.bundle.capability_trace.find(item => item.key === 'crossings');
   assert.equal(capability.status, 'failed');
   assert.equal(capability.negative_result, null);
@@ -105,5 +105,5 @@ test('invalid expression is rejected before trace, gate or research RPC', async 
   assert.equal(runtime.calls.some(call => call.name === 'op_trace_begin_v1'), false);
   assert.equal(runtime.calls.some(call => call.name === 'fn_capability_execution_gate_v1'), false);
   assert.equal(runtime.calls.some(call => call.name === 'strongest_crossings'), false);
-  assert.equal(runtime.calls.some(call => call.name === 'gematria_api'), false);
+  assert.equal(runtime.calls.some(call => call.name === 'fn_method_profile'), false);
 });

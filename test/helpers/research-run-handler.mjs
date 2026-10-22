@@ -7,7 +7,7 @@ import {runInNewContext} from 'node:vm';
 import {randomUUID} from 'node:crypto';
 import {composeResearchW2} from '../../src/lib/research/researchComposerW2.js';
 import {createCanonicalW2Executors as createPublicNumberW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
-import {createGematriaW2Executor} from '../../src/lib/research/gematriaW2Executor.js';
+import {createGematriaMethodProfileW2Executor} from '../../src/lib/research/gematriaMethodProfileW2Executor.js';
 import {createGematriaCorpusCrossingW2Executor} from '../../src/lib/research/gematriaCorpusCrossingW2Executor.js';
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
 import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
@@ -77,6 +77,11 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       input:body.p_text,normalized:body.p_text,
       methods:{ragil:358,siduri:52,atbash:112},
     });
+    if(name==='fn_method_profile')return response([
+      {method_key:'ragil',display_label:'רגיל',computed_value:358,category:'יסוד',mathematical_family:'regular',atomic_or_composite:'atomic',definition_version:1},
+      {method_key:'siduri',display_label:'סידורי',computed_value:52,category:'יסוד',mathematical_family:'ordinal',atomic_or_composite:'atomic',definition_version:1},
+      {method_key:'atbash',display_label:'אתבש',computed_value:112,category:'חילוף',mathematical_family:'substitution',atomic_or_composite:'atomic',definition_version:1},
+    ]);
     if(name==='strongest_crossings')return response(crossingRows);
     unexpected.push(req.url);throw new Error(`Unknown RPC ${name}`);
   };
@@ -84,7 +89,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
   assert.deepEqual(imports,[
     'import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";',
     'import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";',
-    'import { createGematriaW2Executor } from "../../../src/lib/research/gematriaW2Executor.js";',
+    'import { createGematriaMethodProfileW2Executor } from "../../../src/lib/research/gematriaMethodProfileW2Executor.js";',
     'import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/research/gematriaCorpusCrossingW2Executor.js";',
     'import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";',
     'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
@@ -95,7 +100,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm,'')),{
     Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn;}},fetch:transport,
     composeResearchW2:composerFailure?()=>{throw new Error('Isolated composer failure');}:composeResearchW2,
-    createPublicNumberW2Executors,createGematriaW2Executor,createGematriaCorpusCrossingW2Executor,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
+    createPublicNumberW2Executors,createGematriaMethodProfileW2Executor,createGematriaCorpusCrossingW2Executor,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
     PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
     mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT,
     Request,Response,Headers,URL,crypto:{randomUUID},

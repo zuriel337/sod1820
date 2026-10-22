@@ -14,7 +14,8 @@
 // Bounded contracts:
 //   - public-number-research-run-v1 keeps its exact deterministic numeric/numeric_operators path;
 //   - public-expression-crossing-run-v1 admits one bounded Hebrew expression for one canonical
-//     gematria_api calculation and one existing strongest_crossings public-corpus call;
+//     fn_method_profile calculation (the same canonical profile used by Calculator 2029) and one
+//     existing strongest_crossings public-corpus call;
 //   - personal-gematria-pair-run-v1 admits exactly two personal expressions for one canonical
 //     fn_relation_candidate call by an authenticated user.
 // Identity inference, private research_objects, graph/ELS dispatch, persistence and every
@@ -29,7 +30,7 @@
 
 import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";
 import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
-import { createGematriaW2Executor } from "../../../src/lib/research/gematriaW2Executor.js";
+import { createGematriaMethodProfileW2Executor } from "../../../src/lib/research/gematriaMethodProfileW2Executor.js";
 import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/research/gematriaCorpusCrossingW2Executor.js";
 import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";
 import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
@@ -385,10 +386,8 @@ Deno.serve(async (req: Request) => {
       })
     : expressionCrossing
       ? Object.freeze({
-          gematria: createGematriaW2Executor({
+          gematria: createGematriaMethodProfileW2Executor({
             supabase: callerRpc,
-            maxRepresentations: 1,
-            controls: false,
           }),
           [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]: createGematriaCorpusCrossingW2Executor({
             supabase: callerRpc,

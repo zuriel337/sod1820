@@ -36,6 +36,14 @@ const grammarText = (value) => clean(value, 500)
   .replace(/\s+/gu, " ")
   .trim();
 
+// Exact current-surface language shared by the browser resolver and the server admission gate.
+// This is intentionally a whole-turn grammar, not a keyword scan: it may bind only an identity
+// that is already present in the bounded surface descriptor and never invents a subject.
+export function isRazielCurrentSurfaceQuestion(question) {
+  const q = grammarText(question);
+  return /^(?:מה\s+(?:אני\s+)?רואה\s+כאן|מה\s+רואים\s+כאן|מה\s+מוצג\s+כאן|(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+מה\s+(?:אני\s+)?רואה\s+כאן)$/u.test(q);
+}
+
 const NUMERIC_CONTEXT_LABELS = [
   "שנת", "שנה", "עמוד", "דף", "פרק", "פסוק", "מקור", "מקורות",
   "שאלה", "שאלות", "תוצאה", "תוצאות", "קשר", "קשרים", "הצלבה", "הצלבות",

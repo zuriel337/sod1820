@@ -64,6 +64,32 @@ function publicBundle({ findings = [], capabilities = null, outcomes = [], query
   });
 }
 
+function methodProfileFinding(index) {
+  const method = index === 0 ? "ragil" : `method_${index + 1}`;
+  const label = index === 0 ? "רגיל" : `שיטה ${index + 1}`;
+  const value = index === 0 ? 73 : 100 + index;
+  return makeUniversalFinding({
+    id: `uf:method-profile:${method}`,
+    kind: "gematria-method-value",
+    subject: { type: "phrase", key: "חכמה", label: "חכמה", lang: "he", value },
+    source: { engine: "gematria", adapter: "fn-method-profile-w2-v1", method, lang: "he" },
+    identity: { sourceIdentity: { method, expression: "חכמה", value } },
+    verification: { engine_method_tested: method, engine_result: value, verification_state: "not_tested" },
+    evidence: { facts: [{
+      type: "gematria-method-profile-value",
+      method,
+      label,
+      value,
+      category: index < 5 ? "יסוד" : "מורחב",
+      mathematical_family: index === 0 ? "regular" : `family_${index + 1}`,
+      atomic_or_composite: index % 2 ? "composite" : "atomic",
+      method_version: 6,
+    }] },
+    access: { tier: "public" },
+    provenance: { createdBy: "ENGINE:fn_method_profile" },
+  });
+}
+
 test("776 Golden projects one canonical Bundle without calculation, AI or raw payload", () => {
   const f = finding({ id: "uf:776", label: "776", value: 776 });
   const out = buildRazielResultBundleConsumer(publicBundle({ findings: [f] }));
@@ -280,4 +306,35 @@ test("invalid ranking IDs and null ranks never reorder canonical source findings
   });
   const out = buildRazielResultBundleConsumer(bundle);
   assert.deepEqual(out.model_input.findings.map((item) => item.id), [first.id, second.id]);
+});
+
+test("calculator expression keeps every method value in a compact profile without crowding out crossings", () => {
+  const methods = Array.from({ length: 15 }, (_, index) => methodProfileFinding(index));
+  const crossing = finding({
+    id: "uf:crossing:wisdom:partner",
+    label: "חכמה ↔ ביטוי מאומת",
+    value: 365,
+    kind: "gematria-crossing",
+  });
+  const out = buildRazielResultBundleConsumer(publicBundle({
+    query: { question: "מה אני רואה כאן?", intent: "understand", identities: [{ type: "phrase", label: "חכמה" }] },
+    findings: [...methods, crossing],
+  }));
+
+  assert.equal(out.model_input.calculation_profile.length, 15);
+  assert.deepEqual(out.model_input.calculation_profile[0], {
+    finding_id: "uf:method-profile:ragil",
+    method_key: "ragil",
+    method_label: "רגיל",
+    value: 73,
+    category: "יסוד",
+    mathematical_family: "regular",
+    atomic_or_composite: "atomic",
+    method_version: 6,
+  });
+  assert.equal(out.model_input.findings[0].id, crossing.id);
+  assert.equal(out.model_input.findings.length, 12);
+  assert.equal(out.model_input.output_bounds.consumer_truncated, true);
+  assert.equal(out.model_input.constraints.calculation_values_must_come_from_calculation_profile, true);
+  assert.deepEqual(out.human_view.calculation_profile, out.model_input.calculation_profile);
 });

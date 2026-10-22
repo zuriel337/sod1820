@@ -10,6 +10,7 @@ import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielRe
 import { buildRazielGroundedSourceComposer } from "../../src/lib/research/razielGroundedSourceComposer.js";
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
+  isRazielCurrentSurfaceQuestion,
   resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
@@ -148,6 +149,7 @@ export async function runAiAnalyze({
   assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
   assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer }'));
   assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
+  assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
   assert.ok(imports[6].includes('resolveExplicitHebrewExpressionResearchSubject'));
   assert.ok(imports[6].includes('resolveExplicitNumericPairResearchSubject'));
   assert.ok(imports[6].includes('resolveExplicitNumericResearchSubject'));
@@ -164,6 +166,7 @@ export async function runAiAnalyze({
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     RAZIEL_SEMANTIC_INTENT_VERSION,
+    isRazielCurrentSurfaceQuestion,
     resolveExplicitHebrewExpressionResearchSubject,
     resolveExplicitNumericPairResearchSubject,
     resolveExplicitNumericResearchSubject,

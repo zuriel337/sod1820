@@ -48,7 +48,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v2");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v3");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -157,6 +157,31 @@ test("allows rarity language only when the bundle carries an explicit rarity bas
   assert.equal(prompt.bundles[0].rarity_claim_allowed, true);
   assert.match(out.guidance, /מותר לתאר נדירות רק בצמוד למדד/);
   assert.doesNotMatch(out.guidance, /לא סופק מדד נדירות/);
+});
+
+test("calculator analysis starts from the full method profile and exposes bounded number-page continuations", () => {
+  const calculationProfile = [
+    { finding_id: "uf:m:ragil", method_key: "ragil", method_label: "רגיל", value: 73, mathematical_family: "regular" },
+    { finding_id: "uf:m:gadol", method_key: "gadol", method_label: "גדול", value: 73, mathematical_family: "regular" },
+    { finding_id: "uf:m:triangle", method_key: "triangle", method_label: "משולש מילה + משולש הפוך", value: 365, mathematical_family: "triangular" },
+  ];
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "חכמה" },
+    projection: projection([verified], null, { calculation_profile: calculationProfile }),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.deepEqual(prompt.bundles[0].result.calculation_profile, calculationProfile);
+  assert.match(out.guidance, /מפת החישוב הקנונית המלאה/);
+  assert.match(out.guidance, /אל תצמצם את הניתוח לאריח הפעיל בלבד/);
+  assert.match(out.fallback, /רגיל=73/);
+  assert.match(out.fallback, /משולש מילה \+ משולש הפוך=365/);
+  assert.deepEqual(out.navigation, [
+    { kind: "number", label: "פתח את דף המספר 73", href: "/number/73" },
+    { kind: "number", label: "פתח את דף המספר 365", href: "/number/365" },
+  ]);
+  assert.equal(prompt.presentation_contract.calculation_profile_is_complete_bounded_method_map, true);
+  assert.equal(prompt.presentation_contract.subject_definition_requires_explicit_source_claim, true);
 });
 
 test("fails closed for a projection that did not come from the canonical consumer", () => {
