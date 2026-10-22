@@ -37,15 +37,17 @@ test.beforeEach(async ({ context }) => {
   }));
 });
 
-test('public Home keeps the adopted page and exposes the opening paths', async ({ page }) => {
+test('2029 Preview Home keeps the adopted page without claiming a public opening', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-capability="home-composition"]')).toBeVisible();
-  await expect(page.locator('[data-home-launch-notice="gradual-opening"]')).toBeVisible();
+  await expect(page.locator('[data-home-launch-notice="gradual-opening"]')).toHaveCount(0);
   await expect(page.locator('[data-home-user-area="open"]')).toBeVisible();
-  await expect(page.locator('[data-home-world="open"]')).toBeVisible();
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toBeVisible();
-  await expect(page.locator('a[href="/els"]').first()).toBeVisible();
+  await expect(page.locator('[data-home-world="open"]')).toHaveCount(0);
+  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first()).toBeVisible();
+  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toHaveCount(0);
+  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/archive"]').first()).toBeVisible();
+  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/els"]').first()).toBeVisible();
   await page.locator('[data-home-user-area="open"]').click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
   await expect(page.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled', 'true');
@@ -196,7 +198,7 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   }));
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
   const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'));
-  await page.locator('[data-home-world="open"]').click();
+  await page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first().click();
   await expect(page).toHaveURL(`${BASE}/world`);
   await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
