@@ -1147,6 +1147,7 @@
       "gpt/els-research-v1-closure-20261020": true,
       "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
       "codex/issue-1142-crossing-integration-20261022": true,
+      "codex/issue-1142-raziel-grounded-continuity-v1-20261022": true,
       "gpt/*": false,
       "claude/*": false,
       "codex/*": false

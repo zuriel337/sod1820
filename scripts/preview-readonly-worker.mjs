@@ -33,7 +33,7 @@ const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
 // ZURIEL Human Gate 2026-10-22 (#1142): the complete Fast/Deep Raziel conversation may reach its
 // existing backend from the current isolated integration Preview only. Every other branch keeps all model calls blocked.
-export const RAZIEL_CHAT_PREVIEW_BRANCHES = Object.freeze(["codex/issue-1142-crossing-integration-20261022"]);
+export const RAZIEL_CHAT_PREVIEW_BRANCHES = Object.freeze(["codex/issue-1142-raziel-grounded-continuity-v1-20261022"]);
 
 export function createPreviewGuardDescriptor({ commit, branch, host, buildTarget = "2029" }) {
   if (!new Set(["2029", "hybrid"]).has(buildTarget)) {
