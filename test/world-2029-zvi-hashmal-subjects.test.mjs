@@ -21,7 +21,7 @@ test("only approved Topic identities are subjects; Hashmal post is a source work
   assert.equal(filterPublicSourceSubjects(cards, { query: "1234" }).length, 1);
 });
 
-test("the 78 approved Topic and 131 public source rows are paged completely", async () => {
+test("the 78 approved Topic and 132 public source rows are paged completely", async () => {
   const calls = [];
   const out = await fetchPublicSourceSubjectIndex({
     topicReader: async ({ offset, limit, creator }) => {
@@ -35,14 +35,14 @@ test("the 78 approved Topic and 131 public source rows are paged completely", as
     },
     corpusReader: async (spec, page) => {
       calls.push(["source", page, spec.key]);
-      const n = page < 5 ? 24 : 11;
+      const n = page < 5 ? 24 : 12;
       return { items: Array.from({ length: n }, (_, i) => ({
         id: `p-${page}-${i}`, slug: `p-${page}-${i}`, title: "פרסום מקור",
-      })), total: 131, hasMore: page < 5 };
+      })), total: 132, hasMore: page < 5 };
     },
   });
-  assert.equal(out.cards.length, 209);
-  assert.deepEqual(out.totals, { zvi: 78, hashmal: 131 });
+  assert.equal(out.cards.length, 210);
+  assert.deepEqual(out.totals, { zvi: 78, hashmal: 132 });
   assert.deepEqual(out.available, { zvi: true, hashmal: true });
   assert.equal(out.incomplete, false);
   assert.equal(calls.filter(([type]) => type === "topic").length, 2);
@@ -82,4 +82,7 @@ test("the single public World layout uses one category-free subject reader and k
   assert.doesNotMatch(source, /פרסום מקור אינו אימות מחקרי|מקור ללא טקסט שמור/);
   assert.match(source, /contributor-structured-sort/);
   assert.match(source, /בלי להסיק קטגוריה מהטקסט/);
+  assert.match(source, /contributor-admin-triage-links/);
+  assert.match(source, /החזקים שמומלצים לעץ/);
+  assert.match(world, /canReview=\{isAdmin\}/);
 });

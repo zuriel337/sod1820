@@ -30,6 +30,20 @@ function withinDays(value, days) {
   return Date.now() - time <= Math.max(1, Number(days) || 7) * 86400000;
 }
 
+function contributorReviewHref(contributor, { strongest = false } = {}) {
+  const params = new URLSearchParams({
+    view: "admin",
+    contributorId: clean(contributor?.id),
+    contributorLabel: clean(contributor?.displayName),
+    sort: "strength",
+  });
+  if (strongest) {
+    params.set("strength", "חזק");
+    params.set("recommendation", "מתאים לעץ");
+  }
+  return `/world?${params.toString()}#world-all-research`;
+}
+
 function makeStyles(P) {
   const box = {
     border: `1px solid ${P.border}`,
@@ -185,6 +199,7 @@ export default function ContributorFindingsLens({
   loading = false,
   error = null,
   recentDays = 7,
+  canReview = false,
   timeMode = "bilingual", // Home opts into "relative"; World and every other surface stay Hebrew + Gregorian.
 }) {
   const P = use2029Palette();
@@ -241,6 +256,16 @@ export default function ContributorFindingsLens({
         {projection.counts.duplicateFindingsHidden ? ` · ${projection.counts.duplicateFindingsHidden} כפילויות אוחדו והוסתרו` : ""}
         {` · ${projection.counts.sourceGroups} פרסומים לקריאה.`}
       </p>
+      {canReview ? <div data-experience-capability="contributor-admin-triage-links"
+        style={{ display: "flex", gap: SPACE[2], flexWrap: "wrap", marginTop: SPACE[3] }}>
+        <Link to={contributorReviewHref(projection.contributor)} style={{ ...S.action, textDecoration: "none" }}>
+          מיין את כל הממצאים
+        </Link>
+        <Link to={contributorReviewHref(projection.contributor, { strongest: true })}
+          style={{ ...S.action, textDecoration: "none", color: P.accentText, borderColor: P.borderStrong }}>
+          החזקים שמומלצים לעץ
+        </Link>
+      </div> : null}
     </header>
 
     {unavailable.length ? <div role="status" data-experience-capability="contributor-availability-warning" style={{ ...S.box, padding: SPACE[3], ...TYPE_SCALE.small, fontFamily: F.body }}>

@@ -6,6 +6,8 @@ import handler, {
   sortWorldFindingReviewRows,
 } from "../api/world-finding-review.js";
 
+const ZVI_ID = "c66f0464-0928-490e-be9b-66d8a87e7fc8";
+
 function jsonResponse(body, { status = 200, contentRange = null } = {}) {
   const headers = new Headers({ "content-type": "application/json" });
   if (contentRange) headers.set("content-range", contentRange);
@@ -25,6 +27,7 @@ function researchRow(index) {
     source: "wa_channel_research",
     source_ref: `channel_updates:${index}`,
     contributor: "צבי",
+    source_contributor_id: ZVI_ID,
     confidence: null,
     engine_verified: linked,
     engine_detail: linked ? { verification_state: "match" } : {},
@@ -87,7 +90,10 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
     }
     if (url.pathname === "/rest/v1/channel_updates") return jsonResponse([], { contentRange: "0-0/0" });
     if (url.pathname === "/rest/v1/topic_cards") return jsonResponse([topic], { contentRange: "0-0/1" });
-    if (url.pathname === "/rest/v1/research_objects") return jsonResponse(findings, { contentRange: "0-44/45" });
+    if (url.pathname === "/rest/v1/world_contributor_research_v1") return jsonResponse(findings, { contentRange: "0-44/45" });
+    if (url.pathname === "/rest/v1/contributors") return jsonResponse([{
+      id: ZVI_ID, display_name: "צבי (OPOC)", wa_names: ["צבי"],
+    }], { contentRange: "0-0/1" });
     throw new Error(`unexpected fetch ${url.pathname}`);
   };
 
@@ -119,6 +125,18 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
     assert.equal(secondPageResponse.body.page.returned, 5);
     assert.equal(secondPageResponse.body.page.hasMore, false);
     assert.equal(secondPageResponse.body.page.nextOffset, 45);
+
+    const contributorResponse = mockResponse();
+    await handler({
+      method: "GET",
+      headers: { authorization: "Bearer admin-token" },
+      query: { contributor_id: ZVI_ID, offset: "0", tree: "all", meter: "all" },
+    }, contributorResponse);
+    assert.equal(contributorResponse.statusCode, 200);
+    assert.equal(contributorResponse.body.page.totalFiltered, 45);
+    assert.equal(contributorResponse.body.projection.reviewScope.id, ZVI_ID);
+    assert.equal(contributorResponse.body.projection.reviewScope.label, "צבי (OPOC)");
+    assert.equal(contributorResponse.body.projection.triageSnapshot.totalCards, 45);
 
     const memberResponse = mockResponse();
     await handler({
@@ -203,4 +221,27 @@ test("strength, evidence quality and publication remain separate filterable axes
     query: row.sourceId,
   }), [row]);
   assert.deepEqual(filterWorldFindingReviewRows([row], { status: "published" }), []);
+});
+
+test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {
+  const exact = reviewRow("10000000-0000-4000-8000-000000000001", {
+    sourceContributorId: ZVI_ID,
+    contributor: "שם מקור אחר",
+    contributors: ["שם מקור אחר"],
+  });
+  const registeredAlias = reviewRow("10000000-0000-4000-8000-000000000002", {
+    sourceContributorId: null,
+    contributor: "צבי",
+    contributors: ["צבי"],
+  });
+  const unrelated = reviewRow("10000000-0000-4000-8000-000000000003", {
+    sourceContributorId: null,
+    contributor: "אדם אחר",
+    contributors: ["אדם אחר"],
+  });
+
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, registeredAlias, exact], {
+    contributorId: ZVI_ID,
+    contributorAliases: ["צבי (OPOC)", "צבי"],
+  }), [registeredAlias, exact]);
 });

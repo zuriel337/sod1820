@@ -103,6 +103,7 @@ function occurrenceOf(row) {
     sourceRef: row.sourceRef || null,
     sourceRefs: Array.isArray(row.sourceRefs) ? [...row.sourceRefs] : [],
     contributor: row.contributor || null,
+    sourceContributorId: row.sourceContributorId || null,
     createdAt: row.createdAt || null,
     statement: row.statement || null,
     originalStatement: row.originalStatement || null,
@@ -120,6 +121,7 @@ function mergeExactDuplicateGroup(partitionKey, members) {
     .sort((left, right) => clean(right.createdAt).localeCompare(clean(left.createdAt)));
   const sourceRefs = unique(ranked.flatMap((row) => [row.sourceRef, ...(row.sourceRefs || [])]));
   const contributors = unique(ranked.map((row) => row.contributor));
+  const sourceContributorIds = unique(ranked.map((row) => row.sourceContributorId));
   const sourceLabels = unique(ranked.map((row) => row.sourceLabel));
   const sources = unique(ranked.map((row) => row.source));
   const treeMatches = uniqueObjects(ranked.flatMap((row) => row.treeMatches || []));
@@ -129,6 +131,7 @@ function mergeExactDuplicateGroup(partitionKey, members) {
     ...canonical,
     sourceRefs,
     contributors,
+    sourceContributorIds,
     sourceLabels,
     sources,
     treeMatches,

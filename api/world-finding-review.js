@@ -20,6 +20,7 @@ const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const SOURCE_PAGE = 500;
 const MAX_SOURCE_ROWS = 20000;
 const REVIEW_PAGE = 40;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const config = { maxDuration: 60 };
 
@@ -292,6 +293,28 @@ async function fetchAllAuthorizedRows({ table, select, token, filters = [] }) {
   return { rows, total: first.total, truncated: first.total > rows.length };
 }
 
+async function resolveContributorScope(token, contributorId) {
+  const id = clean(contributorId);
+  if (!id) return null;
+  if (!UUID_RE.test(id)) throw Object.assign(new Error("invalid_contributor_scope"), { code: "invalid_contributor_scope" });
+  const result = await fetchRange({
+    table: "contributors",
+    select: "id,display_name,wa_names",
+    token,
+    filters: [["id", `eq.${id}`]],
+    start: 0,
+    end: 0,
+  });
+  const row = result.rows[0];
+  if (!row?.id) throw Object.assign(new Error("contributor_scope_not_found"), { code: "contributor_scope_not_found" });
+  return Object.freeze({
+    id: String(row.id),
+    label: clean(row.display_name) || "תורם נבחר",
+    aliases: [...new Set([row.display_name, ...(Array.isArray(row.wa_names) ? row.wa_names : [])]
+      .map(clean).filter(Boolean))],
+  });
+}
+
 function countBy(rows, field) {
   const result = {};
   for (const row of rows) {
@@ -321,8 +344,8 @@ async function buildAuthorizedProjection(token) {
       filters: [["channel", "eq.or-geula"]],
     }),
     fetchAllAuthorizedRows({
-      table: "research_objects",
-      select: "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,promoted_node_id,parent_id,meta",
+      table: "world_contributor_research_v1",
+      select: "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,promoted_node_id,parent_id,meta,source_contributor_id",
       token,
     }),
     fetchAllAuthorizedRows({
@@ -397,7 +420,7 @@ function queryValue(req, name, fallback = "all") {
   return String(value == null ? fallback : value).slice(0, name === "query" ? 200 : 80);
 }
 
-function pageResponse(projection, req) {
+function pageResponse(projection, req, contributorScope = null) {
   const offset = Math.max(0, Math.min(Number(req.query?.offset) || 0, MAX_SOURCE_ROWS));
   const filters = {
     query: queryValue(req, "query", ""),
@@ -408,6 +431,8 @@ function pageResponse(projection, req) {
     status: queryValue(req, "status"),
     verification: queryValue(req, "verification"),
     contributor: queryValue(req, "contributor"),
+    contributorId: contributorScope?.id || "all",
+    contributorAliases: contributorScope?.aliases || [],
     tree: queryValue(req, "tree"),
     meter: queryValue(req, "meter"),
     strength: queryValue(req, "strength"),
@@ -420,6 +445,32 @@ function pageResponse(projection, req) {
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));
   const rows = ordered.slice(offset, offset + REVIEW_PAGE);
   const { rows: _allRows, convergenceCandidates: _candidates, ...summary } = projection;
+  if (contributorScope) {
+    const triaged = filtered.filter((row) => row.triage);
+    summary.corpusTriageSnapshot = summary.triageSnapshot;
+    summary.triageSnapshot = {
+      snapshotDate: WORLD_FINDING_TRIAGE_META.snapshotDate,
+      cutoff: WORLD_FINDING_TRIAGE_META.cutoff,
+      totalCards: filtered.length,
+      matchedCards: triaged.length,
+      untriagedLiveCards: filtered.length - triaged.length,
+      strengthCounts: countBy(triaged.map((row) => ({ strength: row.triage.strength })), "strength"),
+      recommendationCounts: countBy(triaged.map((row) => ({ recommendation: row.triage.recommendation })), "recommendation"),
+    };
+    summary.treeMatchedResearchOccurrences = filtered
+      .filter((row) => row.treeMatches?.length)
+      .reduce((sum, row) => sum + Number(row.occurrenceCount || 1), 0);
+    summary.meteredResearchOccurrences = filtered
+      .filter((row) => row.linkedTopicRating?.meterScore != null)
+      .reduce((sum, row) => sum + Number(row.occurrenceCount || 1), 0);
+    summary.duplicateProjection = {
+      ...summary.duplicateProjection,
+      groups: filtered.filter((row) => Number(row.duplicateOccurrenceCount || 0) > 0).length,
+      occurrencesCombined: filtered.reduce((sum, row) => sum + Number(row.duplicateOccurrenceCount || 0), 0),
+      clusteredResearchRows: filtered.length,
+    };
+    summary.reviewScope = contributorScope;
+  }
   return {
     projection: { ...summary, rows },
     page: {
@@ -445,8 +496,10 @@ export default async function handler(req, res) {
   try {
     const user = await verifyAdmin(token);
     if (!user) return res.status(403).json({ error: "admin_required" });
+    const contributorId = queryValue(req, "contributor_id", "");
+    const contributorScope = contributorId ? await resolveContributorScope(token, contributorId) : null;
     const projection = await buildAuthorizedProjection(token);
-    return res.status(200).json(pageResponse(projection, req));
+    return res.status(200).json(pageResponse(projection, req, contributorScope));
   } catch (error) {
     console.error("world_finding_review_failed", error?.code || error?.name || "unknown");
     return res.status(503).json({ error: "review_temporarily_unavailable" });

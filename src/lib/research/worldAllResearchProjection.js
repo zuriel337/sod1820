@@ -471,6 +471,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     sourceRef,
     sourceRefs: [...new Set([sourceRef, ...metaSourceRefs].filter(Boolean))],
     contributor: clean(row.contributor) || null,
+    sourceContributorId: clean(row.source_contributor_id) || null,
     confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
@@ -568,6 +569,9 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
   const status = clean(filters.status) || "all";
   const verification = clean(filters.verification) || "all";
   const contributor = clean(filters.contributor) || "all";
+  const contributorId = clean(filters.contributorId) || "all";
+  const contributorAliases = new Set((Array.isArray(filters.contributorAliases) ? filters.contributorAliases : [])
+    .map(clean).filter(Boolean));
   const tree = clean(filters.tree) || "all";
   const meter = clean(filters.meter) || "all";
 
@@ -585,6 +589,14 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       ? row.contributors
       : [row.contributor || "לא צוין"];
     if (contributor !== "all" && !contributors.includes(contributor)) return false;
+    if (contributorId !== "all") {
+      const contributorIds = Array.isArray(row.sourceContributorIds) && row.sourceContributorIds.length
+        ? row.sourceContributorIds
+        : [row.sourceContributorId].filter(Boolean);
+      const exactIdentity = contributorIds.includes(contributorId);
+      const registeredAlias = contributors.some((value) => contributorAliases.has(clean(value)));
+      if (!exactIdentity && !registeredAlias) return false;
+    }
     if (!query) return true;
     const haystack = [
       row.family,

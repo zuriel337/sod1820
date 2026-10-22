@@ -51,6 +51,7 @@ test("exact duplicates become one non-destructive cluster and the longest source
     originalStatement: "רחל מבכה ↔ ארחמנו—305",
     sourceRef: "channel_updates:short#batch0",
     sourceRefs: ["channel_updates:short#batch0"],
+    sourceContributorId: "10000000-0000-4000-8000-000000000001",
   });
   const longer = finding({
     id: "research:long",
@@ -60,6 +61,7 @@ test("exact duplicates become one non-destructive cluster and the longest source
     sourceRefs: ["channel_updates:long#batch0", "archive:long"],
     contributor: "חוקר ב",
     createdAt: "2026-10-02T00:00:00.000Z",
+    sourceContributorId: "20000000-0000-4000-8000-000000000002",
   });
 
   const result = clusterWorldResearchRows([shorter, longer]);
@@ -78,6 +80,14 @@ test("exact duplicates become one non-destructive cluster and the longest source
     "channel_updates:short#batch0",
   ]);
   assert.deepEqual(result.rows[0].contributors.sort(), ["חוקר א", "חוקר ב"]);
+  assert.deepEqual(result.rows[0].sourceContributorIds.sort(), [
+    "10000000-0000-4000-8000-000000000001",
+    "20000000-0000-4000-8000-000000000002",
+  ]);
+  assert.deepEqual(result.rows[0].occurrences.map((row) => row.sourceContributorId).sort(), [
+    "10000000-0000-4000-8000-000000000001",
+    "20000000-0000-4000-8000-000000000002",
+  ]);
   assert.deepEqual(result.rows[0].occurrences.map((row) => row.id).sort(), ["research:long", "research:short"]);
 });
 

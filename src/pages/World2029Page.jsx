@@ -1121,6 +1121,7 @@ function LiveWorldLanding({ research, shell, context }) {
           projection={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.projection : null}
           loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
           error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null}
+          canReview={isAdmin}
           timeMode="bilingual" />
         {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
           <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
