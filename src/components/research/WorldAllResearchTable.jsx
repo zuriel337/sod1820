@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { filterWorldAllResearchRows } from "../../lib/research/worldAllResearchProjection.js";
+import { fetchWorldFindingReviewPage } from "../../lib/research/worldFindingReviewClient.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "../experience2029/ConvergenceRatings2029.jsx";
 
@@ -137,9 +137,7 @@ function DuplicateOccurrences({ row }) {
 }
 
 export default function WorldAllResearchTable({ state }) {
-  const projection = state?.projection || null;
   const [query, setQuery] = useState("");
-  const [family, setFamily] = useState("research_object");
   const [kind, setKind] = useState("all");
   const [access, setAccess] = useState("all");
   const [status, setStatus] = useState("all");
@@ -147,11 +145,68 @@ export default function WorldAllResearchTable({ state }) {
   const [contributor, setContributor] = useState("all");
   const [tree, setTree] = useState("all");
   const [meter, setMeter] = useState("all");
-  const [shown, setShown] = useState(PAGE);
+  const [retryKey, setRetryKey] = useState(0);
+  const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
+  const requestRef = useRef(0);
 
-  const rows = useMemo(() => filterWorldAllResearchRows(projection?.rows || [], {
-    query, family, kind, access, status, verification, contributor, tree, meter,
-  }), [projection, query, family, kind, access, status, verification, contributor, tree, meter]);
+  const filters = useMemo(() => ({
+    query, kind, access, status, verification, contributor, tree, meter,
+  }), [query, kind, access, status, verification, contributor, tree, meter]);
+
+  useEffect(() => {
+    if (!state?.enabled) return undefined;
+    const requestId = ++requestRef.current;
+    const controller = new AbortController();
+    setReview((current) => ({
+      ...current,
+      loading: true,
+      loadingMore: false,
+      error: null,
+      page: null,
+      projection: current.projection ? { ...current.projection, rows: [] } : null,
+    }));
+    const timer = setTimeout(() => {
+      fetchWorldFindingReviewPage({ filters, offset: 0, signal: controller.signal })
+        .then((result) => {
+          if (requestRef.current !== requestId) return;
+          setReview({ loading: false, loadingMore: false, error: null, projection: result.projection, page: result.page });
+        })
+        .catch((error) => {
+          if (error?.name === "AbortError" || requestRef.current !== requestId) return;
+          setReview((current) => ({ ...current, loading: false, loadingMore: false, error }));
+        });
+    }, query ? 250 : 0);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [state?.enabled, filters, retryKey]);
+
+  const loadMore = async () => {
+    if (!review.page?.hasMore || review.loading || review.loadingMore) return;
+    const requestId = ++requestRef.current;
+    setReview((current) => ({ ...current, loadingMore: true, error: null }));
+    try {
+      const result = await fetchWorldFindingReviewPage({ filters, offset: review.page.nextOffset });
+      if (requestRef.current !== requestId) return;
+      setReview((current) => ({
+        loading: false,
+        loadingMore: false,
+        error: null,
+        projection: {
+          ...result.projection,
+          rows: [...(current.projection?.rows || []), ...(result.projection?.rows || [])],
+        },
+        page: result.page,
+      }));
+    } catch (error) {
+      if (requestRef.current !== requestId) return;
+      setReview((current) => ({ ...current, loadingMore: false, error }));
+    }
+  };
+
+  const projection = review.projection;
+  const rows = projection?.rows || [];
 
   if (!state?.enabled) return null;
 
@@ -159,22 +214,18 @@ export default function WorldAllResearchTable({ state }) {
     <div className="sod29-section-head">
       <div>
         <div className="sod29-kicker">שער אנושי · ממצאים לבדיקה</div>
-        <h2>החזקים תחילה</h2>
-        <p className="sod29-muted">כל הממצאים המורשים לחשבון שלך מוצגים מהחזקים לחלשים: תחילה אימות מפורש, אחריו חיבור מדויק לעץ, ואז מד ההתכנסות והאיכות הקיימים של יעד ה־Topic. המד עוזר לסקור; הוא אינו ציון אמת ואינו מכניס ממצא לעץ.</p>
+        <h2>הממצאים המובילים</h2>
+        <p className="sod29-muted">הממצאים מסודרים לפי חוזק החיבור והאיכות שלהם. ליד כל ממצא מופיע המד הקיים, כדי שתוכל להחליט מה ראוי לקדם לעץ.</p>
       </div>
-      {projection ? <span className="sod29-chip">{projection.loaded} נטענו{projection.total !== projection.loaded ? " / " + projection.total : ""}</span> : null}
+      {projection && review.page ? <span className="sod29-chip">{rows.length} מתוך {review.page.totalFiltered}</span> : null}
     </div>
 
-    {state.loading ? <div className="sod29-world-all-research-state">טוען את כל חומר המחקר המורשה לחשבון שלך…</div> : null}
-    {state.error ? <div className="sod29-world-all-research-state">לא הצלחנו לקרוא את חומר המחקר. לא נחליף אותו ברשימה ציבורית מצומצמת.</div> : null}
+    {review.loading ? <div className="sod29-world-all-research-state">טוען את 40 הממצאים הראשונים…</div> : null}
+    {review.error ? <div className="sod29-world-all-research-state">הממצאים לא נטענו כרגע. <button className="sod29-action" type="button" onClick={() => setRetryKey((value) => value + 1)}>נסה שוב</button></div> : null}
 
     {projection ? <>
       <div className="sod29-world-all-research-summary">
-        <span><b>{projection.total}</b> כל השכבות</span>
         <span><b>{projection.sourceTotals.research_object || 0}</b> ממצאי מחקר</span>
-        <span><b>{projection.sourceTotals.source_message || 0}</b> מקורות / הודעות</span>
-        <span><b>{projection.sourceTotals.contribution || 0}</b> תרומות מחקר</span>
-        <span><b>{projection.sourceTotals.topic || 0}</b> נושאים</span>
         <span><b>{projection.byAccess.private || 0}</b> פרטי · גלוי לך</span>
         <span><b>{projection.treeMatchedResearchOccurrences || 0}</b> רשומות מחוברות ליעד קיים בעץ</span>
         <span><b>{projection.meteredResearchOccurrences || 0}</b> רשומות עם מד יעד זמין</span>
@@ -184,25 +235,24 @@ export default function WorldAllResearchTable({ state }) {
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
 
       <div className="sod29-world-all-research-filters">
-        <label className="is-wide"><span>חיפוש בכל החומר</span><input value={query} onChange={(e) => { setQuery(e.target.value); setShown(PAGE); }} placeholder="טקסט, חוקר, מספר או מקור…" /></label>
-        <label><span>שכבה</span><select value={family} onChange={(e) => { setFamily(e.target.value); setShown(PAGE); }}><option value="all">כל השכבות</option>{Object.keys(projection.byFamily).sort().map((v) => <option value={v} key={v}>{humanLabel(FAMILY_LABELS, v, "שכבה נוספת")} · {projection.byFamily[v]}</option>)}</select></label>
-        <label><span>סוג</span><select value={kind} onChange={(e) => { setKind(e.target.value); setShown(PAGE); }}><option value="all">כל הסוגים</option>{Object.keys(projection.byKind).sort().map((v) => <option value={v} key={v}>{humanLabel(KIND_LABELS, v, "סוג מחקר נוסף")} · {projection.byKind[v]}</option>)}</select></label>
-        <label><span>גישה</span><select value={access} onChange={(e) => { setAccess(e.target.value); setShown(PAGE); }}><option value="all">הכול · בלי הסתרה</option>{Object.keys(projection.byAccess).sort().map((v) => <option value={v} key={v}>{humanLabel(ACCESS_LABELS, v, "היקף גישה נוסף")} · {projection.byAccess[v]}</option>)}</select></label>
-        <label><span>מצב</span><select value={status} onChange={(e) => { setStatus(e.target.value); setShown(PAGE); }}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{humanLabel(STATUS_LABELS, v, "מצב פנימי")} · {projection.byStatus[v]}</option>)}</select></label>
-        <label><span>אימות</span><select value={verification} onChange={(e) => { setVerification(e.target.value); setShown(PAGE); }}><option value="all">כל מצבי האימות</option>{Object.keys(projection.byVerification).sort().map((v) => <option value={v} key={v}>{humanLabel(VERIFICATION_LABELS, v, "מצב אימות נוסף")} · {projection.byVerification[v]}</option>)}</select></label>
-        <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => { setContributor(e.target.value); setShown(PAGE); }}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
-        <label><span>חיבור לעץ</span><select value={tree} onChange={(e) => { setTree(e.target.value); setShown(PAGE); }}>
+        <label className="is-wide"><span>חיפוש בממצאים</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="טקסט, חוקר, מספר או מקור…" /></label>
+        <label><span>סוג</span><select value={kind} onChange={(e) => setKind(e.target.value)}><option value="all">כל הסוגים</option>{Object.keys(projection.byKind).sort().map((v) => <option value={v} key={v}>{humanLabel(KIND_LABELS, v, "סוג מחקר נוסף")} · {projection.byKind[v]}</option>)}</select></label>
+        <label><span>גישה</span><select value={access} onChange={(e) => setAccess(e.target.value)}><option value="all">הכול · בלי הסתרה</option>{Object.keys(projection.byAccess).sort().map((v) => <option value={v} key={v}>{humanLabel(ACCESS_LABELS, v, "היקף גישה נוסף")} · {projection.byAccess[v]}</option>)}</select></label>
+        <label><span>מצב</span><select value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{humanLabel(STATUS_LABELS, v, "מצב פנימי")} · {projection.byStatus[v]}</option>)}</select></label>
+        <label><span>אימות</span><select value={verification} onChange={(e) => setVerification(e.target.value)}><option value="all">כל מצבי האימות</option>{Object.keys(projection.byVerification).sort().map((v) => <option value={v} key={v}>{humanLabel(VERIFICATION_LABELS, v, "מצב אימות נוסף")} · {projection.byVerification[v]}</option>)}</select></label>
+        <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
+        <label><span>חיבור לעץ</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
           <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">עדיין ללא יעד</option>
         </select></label>
-        <label><span>מד יעד</span><select value={meter} onChange={(e) => { setMeter(e.target.value); setShown(PAGE); }}>
+        <label><span>מד יעד</span><select value={meter} onChange={(e) => setMeter(e.target.value)}>
           <option value="all">עם ובלי מד</option><option value="metered">יש מד זמין</option><option value="unmetered">עדיין אין מד</option>
         </select></label>
       </div>
 
-      <div className="sod29-world-all-research-count">מוצגים {Math.min(rows.length, shown)} מתוך {rows.length} במסנן הנוכחי.</div>
+      <div className="sod29-world-all-research-count">מוצגים {rows.length} מתוך {review.page?.totalFiltered || 0} במסנן הנוכחי.</div>
 
       <div className="sod29-world-all-research-list">
-        {rows.slice(0, shown).map((row, index) => {
+        {rows.map((row, index) => {
           const rating = row.linkedTopicRating || null;
           const ratingNumbers = rating?.numbers?.length ? rating.numbers : row.values;
           const highlightNumbers = rating?.highlightNumbers?.length ? rating.highlightNumbers : row.values;
@@ -238,10 +288,10 @@ export default function WorldAllResearchTable({ state }) {
           {row.spatialCluster ? <div className="sod29-world-all-research-cluster">קיים אשכול מחקר מרחבי</div> : null}
 
           {row.family === "research_object" ? <div className="sod29-world-all-research-cluster">
-            <strong>{rating ? `מד יעד העץ · ${rating.title}` : "מד יעד העץ · עדיין אין יעד Topic עם מד"}</strong>
+            <strong>{rating ? `מד החיבור לעץ · ${rating.title}` : "מד החיבור לעץ · עדיין אין יעד עם מד"}</strong>
             <p>{rating
-              ? "האיכות והחוזק שייכים ליעד בעץ שאליו הממצא חובר, ולא לממצא עצמו. גם ממצא פרטי או מועמד נשאר גלוי כאן לפי הרשאת החשבון."
-              : "הממצא נשאר ברשימה ובסדר המחקרי גם בלי מד; חסר מד אינו נחשב לציון אפס."}</p>
+              ? "זהו המד של הנושא בעץ שאליו הממצא מחובר. הוא עוזר בהשוואה, אך אינו מחליט מה נכון או מה יפורסם."
+              : "לממצא הזה עדיין אין מד זמין. הוא נשאר בתור לבדיקה ולא מקבל ציון אפס."}</p>
             <ConvergenceRatings2029
               quality={rating?.quality ?? null}
               meterScore={rating?.meterScore ?? null}
@@ -263,8 +313,8 @@ export default function WorldAllResearchTable({ state }) {
         })}
       </div>
 
-      {!rows.length ? <div className="sod29-world-all-research-state">אין פריטים במסנן הזה. אפס מסננים כדי לחזור לכל החומר.</div> : null}
-      {shown < rows.length ? <div className="sod29-actions"><button className="sod29-action primary" type="button" onClick={() => setShown((n) => n + PAGE)}>הצג עוד {Math.min(PAGE, rows.length - shown)}</button></div> : null}
+      {!review.loading && !review.error && !rows.length ? <div className="sod29-world-all-research-state">אין פריטים במסנן הזה. אפס מסננים כדי לחזור לכל החומר.</div> : null}
+      {review.page?.hasMore ? <div className="sod29-actions"><button className="sod29-action primary" type="button" disabled={review.loadingMore} onClick={loadMore}>{review.loadingMore ? "טוען…" : `הצג עוד ${PAGE}`}</button></div> : null}
 
       <div className="sod29-world-all-research-boundary">{clean(projection.truthBoundary)}</div>
     </> : null}

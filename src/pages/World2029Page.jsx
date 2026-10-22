@@ -586,7 +586,6 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
-  const [findingReviewState, setFindingReviewState] = useState({ enabled: false, loading: false, projection: null, error: null });
 
   // Deep links from the shared Companion use existing World source readers.
   // Query params only choose a PUBLIC display focus; they never grant read access.
@@ -677,27 +676,6 @@ function LiveWorldLanding({ research, shell, context }) {
       .catch(() => { if (alive) setAllCreatorOptions([]); });
     return () => { alive = false; };
   }, []);
-
-  // Owner review is part of the same World, not a second admin interface. It opens
-  // automatically only after AuthContext proves the current account is an administrator;
-  // the reader itself remains bounded by current-session RLS and never publishes anything.
-  useEffect(() => {
-    let alive = true;
-    if (authLoading || !isAdmin) {
-      setFindingReviewState({ enabled: false, loading: false, projection: null, error: null });
-      return () => { alive = false; };
-    }
-    setFindingReviewState({ enabled: true, loading: true, projection: null, error: null });
-    import("../lib/research/worldAllResearchProjection.js")
-      .then(({ fetchWorldFindingReviewProjection }) => fetchWorldFindingReviewProjection())
-      .then((projection) => {
-        if (alive) setFindingReviewState({ enabled: true, loading: false, projection, error: null });
-      })
-      .catch((error) => {
-        if (alive) setFindingReviewState({ enabled: true, loading: false, projection: null, error });
-      });
-    return () => { alive = false; };
-  }, [authLoading, isAdmin]);
 
   useEffect(() => {
     let alive = true;
@@ -1025,7 +1003,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null}
 
     {isAdmin ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את הממצאים">טוען את כלי הסקירה בעולם.</FrameState></NativeStateSection>}>
-      <WorldAllResearchTable state={findingReviewState} />
+      <WorldAllResearchTable state={{ enabled: !authLoading && isAdmin }} />
     </React.Suspense> : null}
 
     <WorldDiscoveryDoors />

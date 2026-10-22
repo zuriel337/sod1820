@@ -71,6 +71,8 @@ const contributorLensSource = read("src/lib/research/worldContributorLens.js");
 const worldJourneySource = read("src/lib/research/worldJourneyProjection.js");
 const worldAllResearchSource = read("src/lib/research/worldAllResearchProjection.js");
 const worldAllResearchComponent = read("src/components/research/WorldAllResearchTable.jsx");
+const worldFindingReviewClient = read("src/lib/research/worldFindingReviewClient.js");
+const worldFindingReviewApi = read("api/world-finding-review.js");
 const worldConvergenceLensSource = read("src/lib/research/worldConvergenceLensProjection.js");
 const worldConvergenceLensComponent = read("src/components/research/WorldConvergenceLens.jsx");
 const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
@@ -116,7 +118,7 @@ assert.equal(world.includes("world-auth-identity-bridge"), false, "the public Wo
 assert.equal(world.includes("התחברות / מנהל"), false, "the public World must not present the retired admin entrance");
 assert.equal(world.includes("world-admin-tools"), false, "the retired separate admin-tools wrapper must stay removed");
 assert.equal(world.includes("fetchWorldAllResearchProjection"), false, "World must not load the admin all-material payload");
-assert.match(world, /fetchWorldFindingReviewProjection/, "owner review must use the bounded findings-only reader");
+assert.equal(world.includes("fetchWorldFindingReviewProjection"), false, "World must not download the full private corpus in the browser");
 assert.match(world, /isAdmin \? <React\.Suspense/, "private findings review must render only after AuthContext proves admin identity");
 assert.match(world, /React\.lazy\(\(\) => import\("\.\.\/components\/research\/WorldAllResearchTable\.jsx"\)\)/,
   "the heavy review component must stay out of the ordinary public World bundle");
@@ -535,10 +537,17 @@ assert.equal(zviCoverageFixture.buckets.MEDIA_LINEAGE_BACKLOG, 2, "two distinct 
 
 assert.equal(world.includes("WorldConvergenceLens"), false, "the retired convergence admin lens is not mounted in World");
 assert.match(world, /WorldAllResearchTable/, "the existing findings table is reused inside the owner-only World review section");
-assert.match(worldAllResearchComponent, /החזקים תחילה/, "the owner review makes the strength-first ordering explicit");
+assert.match(worldAllResearchComponent, /הממצאים המובילים/, "the owner review explains the ranking in reader language");
 assert.match(worldAllResearchComponent, /ConvergenceRatings2029/, "the existing quality\/convergence meter is reused for findings");
 assert.match(worldAllResearchComponent, /const \[tree, setTree\] = useState\("all"\)/,
   "all authorized findings must be visible by default so the owner can decide what belongs in the tree");
+assert.match(worldAllResearchComponent, /fetchWorldFindingReviewPage/, "the owner review must request bounded server-ranked pages");
+assert.match(worldFindingReviewClient, /Authorization: `Bearer \$\{data\.session\.access_token\}`/,
+  "the bounded reader must forward the current session rather than use a privileged browser credential");
+assert.match(worldFindingReviewApi, /const REVIEW_PAGE = 40/);
+assert.match(worldFindingReviewApi, /profile.*role|role.*admin/s, "the server reader must independently require the existing admin role");
+assert.equal(worldFindingReviewApi.includes("service_role"), true, "the source must explicitly document that service_role is not used");
+assert.equal(worldFindingReviewApi.includes("SERVICE_ROLE"), false, "no service-role credential may be wired into the review reader");
 assert.equal(world.includes("adminToolsOpen"), false, "World has no admin-tools presentation state");
 assert.match(world, /const explicitContext = new URLSearchParams\(location\.search\)\.get\("focus"\) === "context"/,
   "plain World navigation must ignore stale cross-surface Research Context");
@@ -574,8 +583,8 @@ assert.match(worldAllResearchSource, /"\/2029\/number\/" \+ value/);
 assert.match(worldConvergenceLensSource, /"\/2029\/number\/" \+ value/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
 assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
-assert.match(worldAllResearchComponent, /החזקים תחילה/);
-assert.match(worldAllResearchComponent, /מד יעד העץ/);
+assert.match(worldAllResearchComponent, /הממצאים המובילים/);
+assert.match(worldAllResearchComponent, /מד החיבור לעץ/);
 assert.match(worldAllResearchComponent, /הכול · בלי הסתרה/);
 assert.match(worldAllResearchComponent, /פרטי · גלוי לך/);
 assert.match(worldAllResearchComponent, /נמצא ב־\{occurrences\.length\} הופעות/);
