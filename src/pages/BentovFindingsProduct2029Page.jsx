@@ -13,6 +13,19 @@ const KIND_META = Object.freeze({
   relation: { label: "קשר", short: "ק", count: 5 },
 });
 
+const ENGINE_STATUS_META = Object.freeze({
+  verified: Object.freeze({
+    label: "עבר בדיקת מנוע",
+    short: "מנוע מאומת",
+    description: "הממצא מתאים לבדיקה חישובית או מבנית והתוצאה הקיימת עברה את המנוע הקנוני.",
+  }),
+  not_applicable: Object.freeze({
+    label: "מנוע לא רלוונטי",
+    short: "לא חל",
+    description: "זהו ממצא טקסטואלי, השוואתי או פרשני; היעדר בדיקת מנוע אינו כשל ואינו חוסר אימות.",
+  }),
+});
+
 const THEMES = Object.freeze([
   "תודעה ותנועה מחזורית",
   "הגוף כמערכת מתנודדת",
@@ -79,7 +92,7 @@ const LOCATOR_AUDIT_TOTALS = Object.freeze({
 
 // Read-only structural cohort counts from the protected candidate inventory
 // (2026-10-22). Cohorts intentionally overlap where declared; the union of the
-// 5 engine matches and 12 procedure rows is 15 because 2 rows belong to both.
+// 5 engine-verified rows and 12 procedure rows is 15 because 2 rows belong to both.
 const FIDELITY_WORK_QUEUE = Object.freeze({
   complex: Object.freeze({
     count: 15,
@@ -87,18 +100,18 @@ const FIDELITY_WORK_QUEUE = Object.freeze({
     description: "ממצאים עם חישוב מנוע או מבנה הליכי צריכים בדיקה של האופרנדים, השלבים והקשר המקור — לא רק תוצאה נכונה.",
     action: "אחרי תיקון האיתור: להשוות את כל המבנה לעד המקור ולתעד החלטה אנושית.",
     metrics: Object.freeze([
-      { value: 5, label: "התאמות מנוע" },
+      { value: 5, label: "עברו מנוע" },
       { value: 12, label: "מבני הליך" },
       { value: 2, label: "חפיפה" },
     ]),
   }),
-  applicability: Object.freeze({
+  textual: Object.freeze({
     count: 18,
-    title: "הכרעת תחולת השער",
-    description: "ממצאי פרוזה והשוואת־מקורות ללא התאמת מנוע או מבנה הליכי. היעדר סטטוס אינו כשל ואינו אישור.",
-    action: "לקבוע לכל ממצא אם שער חילוץ מורכב חל; רק אז לבחור לא־חל, מלא או חלקי לפי הראיות.",
+    title: "בדיקת נאמנות טקסטואלית",
+    description: "ממצאי פרוזה והשוואת־מקורות אינם זקוקים למנוע, אבל עדיין חייבים להיבדק מול הנוסח, ההקשר וגבולות הטענה במקור.",
+    action: "להשוות את ניסוח הממצא לעד המקור ולבחור מלא, חלקי, אי־התאמה או חסרות ראיות.",
     metrics: Object.freeze([
-      { value: 18, label: "ממצאים להכרעה" },
+      { value: 18, label: "בדיקות טקסטואליות" },
       { value: 0, label: "החלטות שמורות" },
     ]),
   }),
@@ -120,14 +133,15 @@ const REVIEW_CHECKS = Object.freeze([
   Object.freeze({ key: "locator", label: "איתור", description: "האזור המדויק בעד המקור זוהה ונבדק." }),
   Object.freeze({ key: "witness", label: "עד מקור", description: "הטענה הושוותה להקשר המלא, לא רק לשורה בודדת." }),
   Object.freeze({ key: "structure", label: "מבנה", description: "אופרנדים, שלבים והפניות נבדקו כאשר הם חלים." }),
-  Object.freeze({ key: "fidelity", label: "נאמנות", description: "התקבלה החלטה אנושית: מלא, חלקי או לא חל." }),
+  Object.freeze({ key: "fidelity", label: "נאמנות", description: "התקבלה החלטה אנושית: מלא, חלקי, אי־התאמה או לא חל." }),
   Object.freeze({ key: "humanGate", label: "שער אנושי", description: "המלצת הביקורת מוכנה להכרעת צוריאל." }),
 ]);
 
 const FIDELITY_VERDICT_META = Object.freeze({
   complete: Object.freeze({ label: "מלא", description: "הנוסח, ההקשר והמבנה נתמכים במלואם בעד המקור." }),
   partial: Object.freeze({ label: "חלקי", description: "חלק מן הממצא נתמך, אך נדרש צמצום או תיקון לפני ממשל." }),
-  not_applicable: Object.freeze({ label: "לא חל", description: "שער הנאמנות המובנית אינו חל על סוג הממצא הזה." }),
+  mismatch: Object.freeze({ label: "אי־התאמה", description: "עד המקור אינו תומך בניסוח הנוכחי של הממצא." }),
+  not_applicable: Object.freeze({ label: "לא חל", description: "אין בממצא טענת מקור שניתן להכריע לגביה; מצב נדיר שאינו קשור לתחולת מנוע." }),
   needs_evidence: Object.freeze({ label: "חסרות ראיות", description: "אין עדיין בסיס מספיק להכרעה; הממצא נשאר פתוח." }),
 });
 
@@ -139,7 +153,7 @@ const EVIDENCE_REQUIREMENTS = Object.freeze({
     Object.freeze({ key: "claim_scope", label: "גבולות הממצא", description: "ברור מה המקור תומך בו ומה אינו טוען." }),
   ]),
   complex: Object.freeze({ key: "structured_trace", label: "עקבה מבנית", description: "האופרנדים, השלבים וההפניות הושוו לעד המקור." }),
-  applicability: Object.freeze({ key: "applicability_rationale", label: "נימוק תחולה", description: "תועד אם שער הנאמנות המובנית חל על סוג הממצא." }),
+  textual: Object.freeze({ key: "source_fidelity_rationale", label: "נימוק נאמנות למקור", description: "תועד כיצד הנוסח וההקשר במקור תומכים בממצא או מגבילים אותו." }),
 });
 
 function evidenceRequirementsFor(finding) {
@@ -187,9 +201,9 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
     page: sourceWindow.page,
     verifiedPages: sourceAudit.verifiedPages,
     locatorStatus,
-    reviewLane: index < FIDELITY_WORK_QUEUE.complex.count ? "complex" : "applicability",
-    match: index < 5 ? "match" : "not_applicable",
-    verification: "לא הוצהר",
+    reviewLane: index < FIDELITY_WORK_QUEUE.complex.count ? "complex" : "textual",
+    engineStatus: index < 5 ? "verified" : "not_applicable",
+    fidelityStatus: "טרם הוכרעה",
     governance: "מועמד לביקורת",
     access: "לא ציבורי",
     x: 50 + Math.cos(angle) * radius,
@@ -242,6 +256,7 @@ function FindingMap({ findings, selectedId, onSelect }) {
 
 function FindingDetail({ finding, marked, onToggleMark }) {
   const meta = KIND_META[finding.kind];
+  const engineMeta = ENGINE_STATUS_META[finding.engineStatus];
   return <aside className="bentov29-detail" aria-live="polite" aria-labelledby="bentov29-detail-title">
     <div className="bentov29-detail-topline">
       <span className={`bentov29-kind kind-${finding.kind}`}>{meta.short}</span>
@@ -259,11 +274,17 @@ function FindingDetail({ finding, marked, onToggleMark }) {
 
     <dl className="bentov29-axes">
       <div><dt>קליטה</dt><dd>נקלט במאגר העבודה</dd></div>
-      <div><dt>התאמה</dt><dd>{finding.match === "match" ? "התאמה לבדיקה" : "לא רלוונטי למסלול ההתאמה"}</dd></div>
-      <div><dt>אימות</dt><dd>{finding.verification}</dd></div>
+      <div data-engine-status={finding.engineStatus}><dt>בדיקת מנוע</dt><dd>{engineMeta.label}</dd></div>
+      <div><dt>נאמנות למקור</dt><dd>{finding.fidelityStatus}</dd></div>
       <div><dt>ממשל</dt><dd>{finding.governance}</dd></div>
       <div><dt>גישה</dt><dd>{finding.access}</dd></div>
     </dl>
+
+    <div className="bentov29-source-card" data-engine-explanation={finding.engineStatus}>
+      <span>למה זה מצב המנוע?</span>
+      <strong>{engineMeta.short}</strong>
+      <small>{engineMeta.description}</small>
+    </div>
 
     <button type="button" className="bentov29-local-action" onClick={onToggleMark} aria-pressed={marked}>
       <NavigationIcon2029 name={marked ? "check" : "spark"} />
@@ -304,7 +325,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
         <div className="bentov29-section-label">תור העבודה הבא · נתוני מבנה בלבד</div>
         <h2 id="bentov29-fidelity-title">מבדיקת עמודים לבדיקת נאמנות</h2>
       </div>
-      <span>אין סיווג אוטומטי ל־complete או partial</span>
+      <span>אין הכרעת נאמנות אוטומטית</span>
     </header>
 
     <div className="bentov29-fidelity-layout">
@@ -319,7 +340,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
           <span>{String(index + 1).padStart(2, "0")}</span>
           <strong>{lane.count}</strong>
           <b>{lane.title}</b>
-          <small>{key === "complex" ? "5 מנוע + 12 הליך − 2 חופפים" : "ללא מנוע וללא מבנה הליכי"}</small>
+          <small>{key === "complex" ? "5 מנוע + 12 הליך − 2 חופפים" : "18 ממצאים שאינם זקוקים למנוע"}</small>
         </button>)}
       </div>
 
@@ -330,6 +351,10 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
           {selected.metrics.map(metric => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}
         </div>
         <div className="bentov29-fidelity-action"><span>פעולה נדרשת</span><p>{selected.action}</p></div>
+        <div className="bentov29-fidelity-action">
+          <span>מהי הכרעת נאמנות?</span>
+          <p>השוואה בין ניסוח הממצא לבין עד המקור: הנוסח, ההקשר, טווח העמודים וגבולות הטענה. זו אינה בדיקת מנוע ואינה החלטת פרסום.</p>
+        </div>
       </article>
 
       <aside className="bentov29-structure-gaps" aria-label="פערי מבנה נוכחיים">
@@ -353,7 +378,9 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   const lane = FIDELITY_WORK_QUEUE[selected.reviewLane];
   const filtered = findings.filter(item => {
     if (queueFilter === "all") return true;
-    if (queueFilter === "complex" || queueFilter === "applicability") return item.reviewLane === queueFilter;
+    if (queueFilter === "complex" || queueFilter === "textual") return item.reviewLane === queueFilter;
+    if (queueFilter === "engine_verified") return item.engineStatus === "verified";
+    if (queueFilter === "engine_not_applicable") return item.engineStatus === "not_applicable";
     return item.locatorStatus === queueFilter;
   });
   const locallyCompleted = findings.filter(item => (progress[item.id]?.size || 0) === REVIEW_CHECKS.length).length;
@@ -377,8 +404,10 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
     { key: "correction", label: "תיקון", count: 22 },
     { key: "expanded", label: "הרחבה", count: 8 },
     { key: "confirmed", label: "מדויק", count: 3 },
+    { key: "engine_verified", label: "עברו מנוע", count: 5 },
+    { key: "engine_not_applicable", label: "מנוע לא חל", count: 28 },
     { key: "complex", label: "נאמנות מורכבת", count: 15 },
-    { key: "applicability", label: "הכרעת תחולה", count: 18 },
+    { key: "textual", label: "נאמנות טקסטואלית", count: 18 },
   ];
 
   return <section className="bentov29-review" aria-labelledby="bentov29-review-title" data-review-effect="local-only" data-locator-approval="preview-test-only">
@@ -446,6 +475,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
           <div><span>חלון מקור</span><strong>{selected.source}</strong></div>
           <div><span>איתור שמור</span><strong>עמ׳ {selected.page}</strong></div>
           <div><span>בדיקת PDF</span><strong>עמ׳ {selected.verifiedPages}</strong></div>
+          <div data-engine-status={selected.engineStatus}><span>בדיקת מנוע</span><strong>{ENGINE_STATUS_META[selected.engineStatus].label}</strong></div>
           <div><span>מסלול</span><strong>{lane.title}</strong></div>
         </div>
         <div className={`bentov29-review-instruction status-${selected.locatorStatus}`}>
@@ -482,7 +512,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
           <div className="bentov29-evidence-target">
             <span>יעד הבדיקה</span>
             <strong>עמ׳ {selected.verifiedPages}</strong>
-            <small>{selected.reviewLane === "complex" ? "נדרש גם תיעוד מבני" : "נדרש נימוק תחולה"}</small>
+            <small>{selected.reviewLane === "complex" ? "נדרש גם תיעוד מבני" : "נדרש נימוק נאמנות למקור"}</small>
           </div>
           <div className="bentov29-evidence-list" role="group" aria-label={`חבילת ראיות לתיק B-${String(selected.number).padStart(2, "0")}`}>
             {evidenceRequirements.map((requirement, index) => {
@@ -507,7 +537,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
         </fieldset>
         <fieldset className="bentov29-fidelity-decision" data-fidelity-decision-effect="local-only">
           <legend>הכרעת נאמנות מקומית</legend>
-          <p>סימון שלב בדיקה אינו הכרעת נאמנות. בחר תוצאה רק לפי עד המקור; התאמת מנוע וסטטוס פרסום נשארים צירים נפרדים.</p>
+          <p>סימון שלב בדיקה אינו הכרעת נאמנות. בחר תוצאה רק לפי עד המקור; בדיקת מנוע, נאמנות למקור וסטטוס פרסום נשארים צירים נפרדים.</p>
           <div role="group" aria-label={`הכרעת נאמנות לתיק B-${String(selected.number).padStart(2, "0")}`}>
             {Object.entries(FIDELITY_VERDICT_META).map(([key, meta]) => <button
               type="button"
@@ -564,9 +594,10 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
 function PublicationReadiness() {
   const gates = [
     { label: "קליטה", value: "33 / 33", detail: "המועמדים קיימים במאגר המוגן", state: "complete" },
+    { label: "בדיקת מנוע", value: "5 / 5", detail: "כל הממצאים המתאימים למנוע עברו; ב־28 האחרים המנוע אינו חל", state: "complete" },
     { label: "ביקורת מקור", value: "33 / 33", detail: "כל האיתורים נבדקו מול ה־PDF", state: "complete" },
     { label: "איתור מוכן", value: "3 / 33", detail: "30 דורשים תיקון או הרחבת טווח", state: "current" },
-    { label: "נאמנות שמורה", value: "0 / 33", detail: "לא קיימת החלטת complete / partial", state: "closed" },
+    { label: "נאמנות שמורה", value: "0 / 33", detail: "לא קיימת הכרעת נאמנות מלאה, חלקית או אי־התאמה", state: "closed" },
     { label: "הכרעה אנושית", value: "0 / 33", detail: "טרם הוצגה חבילת החלטה מלאה", state: "closed" },
     { label: "גישה ציבורית", value: "0 / 33", detail: "שער הפרסום והתשתית נשארים סגורים", state: "locked" },
   ];
@@ -739,15 +770,15 @@ export default function BentovFindingsProduct2029Page() {
         <img className="bentov29-hero-image" src="/2029/books/bentov/bentov-consciousness-map.webp" alt="המחשה אמנותית של דמות אנושית בתוך שדות גליים ומעגלי תודעה" fetchPriority="high" />
       </section>
 
-      <section className="bentov29-metrics" aria-label="תמונת מצב">
+      <section className="bentov29-metrics" aria-label="תמונת מצב" data-engine-fidelity-contract="separate">
         <article><strong>33</strong><span>מועמדים שנקלטו</span><small>חומר עבודה, לא ציבורי</small></article>
-        <article><strong>5</strong><span>התאמות לבדיקה</span><small>match</small></article>
-        <article><strong>28</strong><span>לא רלוונטיים להתאמה</span><small>not_applicable</small></article>
+        <article data-engine-status="verified"><strong>5</strong><span>עברו בדיקת מנוע</span><small>5 מתוך 5 שבהם מנוע רלוונטי</small></article>
+        <article data-engine-status="not_applicable"><strong>28</strong><span>מנוע לא רלוונטי</span><small>לא כשל ולא חוסר אימות</small></article>
         <article><strong>33</strong><span>איתורים נבדקו</span><small>מול עד ה־PDF הפרטי</small></article>
         <article className="is-confirmed"><strong>3</strong><span>מדויקים כפי שנשמרו</span><small>locator confirmed</small></article>
         <article className="is-expanded"><strong>8</strong><span>דורשים טווח רחב</span><small>locator expanded</small></article>
         <article className="is-correction"><strong>22</strong><span>דורשים תיקון</span><small>locator correction</small></article>
-        <article className="is-attention"><strong>33</strong><span>נאמנות לא נרשמה</span><small>נדרשת בדיקת תחולה, לא כשל אוטומטי</small></article>
+        <article className="is-attention"><strong>33</strong><span>נאמנות למקור לא הוכרעה</span><small>נדרשת השוואה לעד המקור, בנפרד מן המנוע</small></article>
         <article className="is-locked"><strong>0</strong><span>ציבוריים</span><small>שער הפרסום נשאר סגור</small></article>
       </section>
 
@@ -789,10 +820,11 @@ export default function BentovFindingsProduct2029Page() {
           <span>אין כאן נוסחי ממצאים או ציטוטים</span>
         </header>
         <div className="bentov29-verification-chain">
-          <article className="is-complete"><span>01</span><strong>קליטת חומר</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה ואיתור שמור במאגר המוגן.</small></article>
-          <article className="is-complete"><span>02</span><strong>ביקורת איתור PDF</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 מדויקים, 8 דורשים הרחבת טווח ו־22 דורשים תיקון.</small></article>
-          <article className="is-current"><span>03</span><strong>נאמנות חילוץ</strong><b>0 / 33</b><small>לא נרשם סטטוס; תיקוני האיתור קודמים להכרעת מלא או חלקי.</small></article>
-          <article className="is-closed"><span>04</span><strong>ביקורת ופרסום</strong><b><span className="bentov29-numeric-value">0</span><span className="bentov29-value-label">ציבוריים</span></b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
+          <article className="is-complete" data-engine-status="summary"><span>01</span><strong>בדיקת מנוע</strong><b>5 / 5</b><small>כל הממצאים המתאימים למנוע עברו. ב־28 האחרים מנוע אינו חל.</small></article>
+          <article className="is-complete"><span>02</span><strong>קליטת חומר</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה ואיתור שמור במאגר המוגן.</small></article>
+          <article className="is-complete"><span>03</span><strong>ביקורת איתור PDF</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 מדויקים, 8 דורשים הרחבת טווח ו־22 דורשים תיקון.</small></article>
+          <article className="is-current"><span>04</span><strong>נאמנות למקור</strong><b>0 / 33</b><small>לא נרשמה הכרעה; תיקוני האיתור קודמים למלא, חלקי או אי־התאמה.</small></article>
+          <article className="is-closed"><span>05</span><strong>ביקורת ופרסום</strong><b><span className="bentov29-numeric-value">0</span><span className="bentov29-value-label">ציבוריים</span></b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
         </div>
         <div className="bentov29-audit-summary" aria-label="סיכום ביקורת איתורי המקור">
           <span className="is-confirmed"><b>{LOCATOR_AUDIT_TOTALS.confirmed}</b><small>איתורים מדויקים</small></span>
@@ -837,7 +869,7 @@ export default function BentovFindingsProduct2029Page() {
         <ol>
           <li><span>01</span><strong>חבילת הכרעה פרטית</strong><small>לאגד לכל ממצא עד מקור, הקשר, מבנה והמלצת נאמנות</small></li>
           <li><span>02</span><strong>אישור תיקוני איתור</strong><small>22 תיקונים ו־8 הרחבות לפני כתיבה קנונית</small></li>
-          <li><span>03</span><strong>הכרעת נאמנות אנושית</strong><small>complete, partial או לא חל—לפי הראיות ולא לפי ברירת מחדל</small></li>
+          <li><span>03</span><strong>הכרעת נאמנות אנושית</strong><small>מלא, חלקי, אי־התאמה או לא חל—לפי עד המקור, לא לפי מצב המנוע</small></li>
           <li><span>04</span><strong>תכנון שער פרסום</strong><small>רק אחרי החלטת תוכן, חוזה הרשאה ו־RLS מאושרים</small></li>
         </ol>
       </section>

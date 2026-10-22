@@ -32,11 +32,11 @@ test("status axes and actual inventory totals remain separate", () => {
   assert.match(page, /\.\.\.Array\(6\)\.fill\("hypothesis"\)/);
   assert.match(page, /\.\.\.Array\(5\)\.fill\("claim"\)/);
   assert.match(page, /\.\.\.Array\(5\)\.fill\("relation"\)/);
-  for (const label of ["קליטה", "התאמה", "אימות", "ממשל", "גישה"]) assert.match(page, new RegExp(label));
+  for (const label of ["קליטה", "בדיקת מנוע", "נאמנות למקור", "ממשל", "גישה"]) assert.match(page, new RegExp(label));
   for (const total of ["33", "5", "28", "3", "8", "22"]) assert.match(page, new RegExp(`<strong>${total}</strong>`));
   assert.match(page, /data-live-inventory="aggregate-only"/);
   assert.match(page, /0 \/ 33/);
-  assert.match(page, /נדרשת בדיקת תחולה, לא כשל אוטומטי/);
+  assert.match(page, /נדרשת השוואה לעד המקור, בנפרד מן המנוע/);
   assert.match(page, /האיתור השמור מוצג מול חלון ה־PDF שנמצא בביקורת/);
   assert.match(page, /\{ page: 109, findings: 1 \}/);
   const sourceWindows = [...page.matchAll(/\{ page: (\d+), findings: (\d+) \}/g)];
@@ -73,9 +73,24 @@ test("fidelity work queue preserves overlap math and requires human classificati
   assert.match(page, /derivations:\s*0/);
   assert.match(page, /mediaRefs:\s*0/);
   assert.match(page, /recordedIntegrity:\s*0/);
-  assert.match(page, /אין סיווג אוטומטי ל־complete או partial/);
-  assert.match(page, /היעדר סטטוס אינו כשל ואינו אישור/);
+  assert.match(page, /אין הכרעת נאמנות אוטומטית/);
+  assert.match(page, /ממצאי פרוזה והשוואת־מקורות אינם זקוקים למנוע/);
+  assert.match(page, /מהי הכרעת נאמנות/);
+  assert.match(page, /זו אינה בדיקת מנוע ואינה החלטת פרסום/);
   assert.match(page, /data-fidelity-effect="assessment-only"/);
+});
+
+test("engine applicability and source fidelity are explicit independent axes", () => {
+  assert.match(page, /const ENGINE_STATUS_META/);
+  assert.match(page, /engineStatus: index < 5 \? "verified" : "not_applicable"/);
+  assert.match(page, /data-engine-fidelity-contract="separate"/);
+  assert.match(page, /<strong>5<\/strong><span>עברו בדיקת מנוע/);
+  assert.match(page, /<strong>28<\/strong><span>מנוע לא רלוונטי/);
+  assert.match(page, /5 מתוך 5 שבהם מנוע רלוונטי/);
+  assert.match(page, /לא כשל ולא חוסר אימות/);
+  assert.match(page, /בדיקת מנוע", value: "5 \/ 5"/);
+  assert.match(page, /ב־28 האחרים המנוע אינו חל/);
+  assert.doesNotMatch(page, /28 ממצאים עדיין אינם מאומתים במנוע/);
 });
 
 test("review workbench models all 33 decisions without exposing canonical records", () => {
@@ -101,12 +116,12 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /אשר את כל 33 בתצוגה/);
   assert.match(page, /data-locator-approval="preview-test-only"/);
   assert.match(page, /const FIDELITY_VERDICT_META/);
-  for (const label of ["מלא", "חלקי", "לא חל", "חסרות ראיות"]) assert.match(page, new RegExp(label));
+  for (const label of ["מלא", "חלקי", "אי־התאמה", "לא חל", "חסרות ראיות"]) assert.match(page, new RegExp(label));
   assert.match(page, /data-fidelity-decision-effect="local-only"/);
-  assert.match(page, /התאמת מנוע וסטטוס פרסום נשארים צירים נפרדים/);
+  assert.match(page, /בדיקת מנוע, נאמנות למקור וסטטוס פרסום נשארים צירים נפרדים/);
   assert.match(page, /FINDINGS\.map\(finding => \[finding\.id, "needs_evidence"\]\)/);
   assert.match(page, /const EVIDENCE_REQUIREMENTS/);
-  for (const key of ["witness_window", "locator_reconciliation", "surrounding_context", "claim_scope", "structured_trace", "applicability_rationale"]) {
+  for (const key of ["witness_window", "locator_reconciliation", "surrounding_context", "claim_scope", "structured_trace", "source_fidelity_rationale"]) {
     assert.match(page, new RegExp(key));
   }
   assert.match(page, /data-evidence-effect="local-only"/);
@@ -127,6 +142,7 @@ test("publication readiness remains blocked behind canonical and human gates", (
   assert.match(page, /המוצר מוכן לביקורת פרטית—לא לפרסום/);
   assert.match(page, /שמירה קנונית, שינוי הרשאות ופתיחה לציבור דורשים הוראה נפרדת/);
   assert.match(page, /איתור מוכן", value: "3 \/ 33"/);
+  assert.match(page, /בדיקת מנוע", value: "5 \/ 5"/);
   assert.match(page, /נאמנות שמורה", value: "0 \/ 33"/);
   assert.match(page, /גישה ציבורית", value: "0 \/ 33"/);
   assert.match(page, /data-publication-effect="none"/);
