@@ -46,7 +46,7 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, isAdmin
     </div> : null}
     <div className="els29-native-hit-actions">
       <a className="sod29-action" href="/els?library=mine">הצפנים שלי</a>
-      <a className="sod29-action" href="/els?library=public">צפנים שפורסמו</a>
+      <a className="sod29-action" href="/els?library=public">כל הממצאים הציבוריים</a>
       <button type="button" disabled={!ready || busy} onClick={onWorkspace}>הוסף למחקר</button>
     </div>
   </div>;

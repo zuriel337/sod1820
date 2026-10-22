@@ -576,6 +576,7 @@
 .els29-native-line-word button[aria-pressed="true"]{outline:2px solid var(--s29-ink);outline-offset:-2px;background:var(--s29-panel-soft)}
 .els29-native-line-word button:disabled{opacity:.5;cursor:not-allowed}
 .els29-native-line-word small{font-size:var(--s29-type-micro);color:var(--s29-muted)}
+.els29-native-discovered-term{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;min-height:44px;min-width:0;padding:6px 9px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink)}
 
 /* One Inspector: desktop column, inline mobile region, launched by the System Frame dock. */
 .els29-native-layout{grid-template-columns:minmax(0,1fr) 58px;align-items:start}
@@ -613,6 +614,9 @@
 .els29-native-unified-rail .els29-native-finding-add input,.els29-native-unified-rail .els29-native-finding-add button{min-height:44px}
 .els29-native-secondary-label{color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:800}
 .els29-native-secondary-status{min-width:0;min-height:22px;margin:0;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5;overflow-wrap:anywhere}
+.els29-native-discover-all{min-height:44px;width:100%;padding:8px 10px;border:1px solid color-mix(in srgb,var(--s29-accent) 48%,var(--s29-line));border-radius:11px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-small);font-weight:800;cursor:pointer}
+.els29-native-discover-all:disabled{opacity:.4;cursor:not-allowed}
+.els29-native-discover-note{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5}
 .els29-native-radius{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;min-width:0;color:var(--s29-muted);font-size:var(--s29-type-micro)}
 .els29-native-radius>span{flex:1;min-width:90px;overflow-wrap:anywhere}
 .els29-native-radius select,.els29-native-selected-occurrence select{min-width:0;max-width:100%;min-height:44px;padding:6px 9px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-size:var(--s29-type-micro)}

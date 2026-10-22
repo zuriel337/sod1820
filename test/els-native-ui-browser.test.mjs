@@ -519,6 +519,27 @@ test('native UI: one unified rail scans exact primary and secondary targets with
   });
  });
 
+test('every viewer can inspect unsaved matrix candidates and verify one without changing the saved record',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const before=await identity(page);
+   await activate(page,'הצג את כל מה שנמצא במטריצה');
+   await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true);
+   const items=await page.evaluate(()=>window.__lens.items);
+   assert.ok(items.length>0,'the existing F03 window scan returns candidates');
+   assert.ok(items.every(item=>Object.keys(item).sort().join(',')==='label,term'),'candidate coordinates never leave the canonical engine');
+   assert.equal(await page.locator('[data-experience-capability="els-all-matrix-findings"]').isVisible(),true);
+   assert.match(await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText(),/מועמדת.*אימות קנוני/);
+   const existing=new Set(before.findings.map(finding=>finding.t));
+   const candidate=items.find(item=>!existing.has(item.term));
+   assert.ok(candidate,'fixture exposes an unsaved candidate');
+   await activate(page,`הוסף את ${candidate.label||candidate.term} מהמטריצה לממצאים`);
+   await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&finding.hits?.some(hit=>hit.verified)),candidate.term);
+   assert.equal((await identity(page)).axis.hitId,before.axis.hitId,'candidate verification keeps the saved primary axis');
+   assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'inspection and verification do not persist or edit the saved row');
+  },{tier:'anon'});
+ });
+
 test('native UI: selected targets are invalidated by radius, hiding, removal and a new main axis',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
@@ -1675,7 +1696,7 @@ test('native library: paginated existing records, legacy disclosure and account 
         row('research','owner-b',{status:'published',visibility:'public',source:'research'}),
       ];
     }, ELS_GOLDEN_CORPUS_ID);
-    await button(page,'צפנים שפורסמו').click();
+    await button(page,'כל הממצאים הציבוריים').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
     assert.match(await page.locator('.els29-library-card').textContent(), /צופן public/);
     await button(page,'הצפנים שלי').click();
@@ -1685,7 +1706,7 @@ test('native library: paginated existing records, legacy disclosure and account 
     assert.deepEqual(await page.evaluate(()=>window.__libraryCalls.filter(c=>c.eq.some(([key])=>key==='owner_user_id')).slice(-2).map(c=>c.range)),[[0,24],[24,48]]);
     assert.equal(await button(page,'טען צפנים נוספים').count(),0);
     assert.equal(await page.locator('.els29-library-card').filter({hasText:'צופן other'}).count(),0);
-    await page.getByLabel('חיפוש בצפנים').fill('legacy');await button(page,'חפש בספרייה').click();
+    await page.getByLabel('חיפוש בצפנים שלי').fill('legacy');await button(page,'חפש בספרייה').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
     await page.locator('.els29-library-card a').click();
     await page.waitForFunction(()=>window.__libraryMatrix?.id==='legacy');
@@ -1703,6 +1724,9 @@ test('native library: paginated existing records, legacy disclosure and account 
     await page.evaluate(()=>window.__switchLibraryUser(null));
     await page.getByRole('heading',{name:'הצופן אינו זמין'}).waitFor();
     assert.equal(await page.locator('[data-fixture-matrix="mine-0"]').count(),0,'sign-out removes the private matrix');
+    await button(page,'כל הממצאים הציבוריים').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
+    assert.match(await page.locator('.els29-library-card').textContent(),/צופן public/,'anonymous visitors see the complete approved public collection');
     await button(page,'הצפנים שלי').click();
     await page.getByText('כדי לראות את הצפנים שלך,',{exact:false}).waitFor();
     await page.evaluate(()=>{window.__libraryHold=true;window.__switchLibraryUser('owner-a');});
@@ -1713,7 +1737,7 @@ test('native library: paginated existing records, legacy disclosure and account 
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     assert.equal(await page.locator('.els29-library-card').filter({hasText:'mine-0'}).count(),0,'late old-account responses are discarded');
     await page.evaluate(()=>window.__libraryFailure=true);
-    await button(page,'צפנים שפורסמו').click();
+    await button(page,'כל הממצאים הציבוריים').click();
     await page.getByRole('alert').waitFor();
     await page.evaluate(()=>window.__libraryFailure=false);await button(page,'נסה שוב').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
@@ -1944,10 +1968,10 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
   await page.waitForFunction(()=>window.__libraryEngineMounts===1);
   const folder=page.getByRole('region',{name:'תיקיית הצפנים'});
-  const toggle=folder.getByRole('button',{name:/תיקיית הצפנים/});
+  const toggle=folder.getByRole('button',{name:/ממצאי ELS ציבוריים/});
   assert.equal(await toggle.getAttribute('aria-expanded'),'false','mobile starts with a compact folder');
   assert.equal(await page.evaluate(()=>window.__libraryCalls.length),0,'collapsed folder does not fetch');
-  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'צופן שמור '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:i?'fwd':null,start_index:5,corpus_id:corpus,status:'draft',visibility:'private',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
+  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'ממצא ציבורי '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:i?'fwd':null,start_index:5,corpus_id:corpus,status:'published',visibility:'public',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
   await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
   assert.equal(await folder.locator('.els29-library-card').count(),4);
   const call=await page.evaluate(()=>window.__libraryCalls.at(-1));assert.deepEqual(call.range,[0,4]);
@@ -1957,7 +1981,7 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   await page.getByLabel('טיוטת חיפוש').fill('צוריאל');
   await button(page,'חיפוש לדוגמה').click();await page.waitForFunction(()=>document.querySelector('.els29-recent-toggle')?.getAttribute('aria-expanded')==='false');
   await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
-  await button(page,'לכל הצפנים').click();
+  await button(page,'לכל הממצאים הציבוריים').click();
   await page.getByRole('region',{name:'ספריית הצפנים'}).locator('.els29-library-card').nth(6).waitFor();
   await button(page,'חזור לחיפוש').click();
   assert.equal(await page.getByLabel('טיוטת חיפוש').inputValue(),'צוריאל');
@@ -1965,8 +1989,8 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   await page.evaluate(()=>window.__libraryRows.unshift({...window.__libraryRows[0],id:'new-save',title:'שמירה חדשה'}));
   await button(page,'שמירה לדוגמה').click();await folder.getByRole('heading',{name:'שמירה חדשה'}).waitFor();
   await page.evaluate(()=>window.__switchLibraryUser(null));
-  await page.waitForFunction(()=>!document.body.textContent.includes('שמירה חדשה'));
-  assert.equal(await folder.locator('.els29-library-card').count(),0,'private recent cards leave immediately on sign-out');
+  await folder.getByRole('heading',{name:'שמירה חדשה'}).waitFor();
+  assert.equal(await folder.locator('.els29-library-card').count(),4,'public recent findings remain visible after sign-out');
   assert.deepEqual(errors,[]);
  }finally{await browser?.close();await server.close();}
 });

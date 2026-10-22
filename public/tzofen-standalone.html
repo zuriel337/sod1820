@@ -2420,6 +2420,15 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       }
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
+    if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
+      const target=d.target||{},hit=hasGov(st.res)?occ():null;
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
+      // F03 is an existing window-local candidate generator. Expose terms only: candidate
+      // coordinates never cross the bridge and adding a term still uses the normal canonical
+      // verification path before it can become a Finding.
+      const items=scanCandidates().map(candidate=>({term:norm(candidate.term),label:candidate.term}));
+      postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:"legacy_els_dict",coverage:"displayed-window",items,total:items.length});
+    }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
       if(searchUncommitted())return;   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
@@ -3587,11 +3596,14 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const mainSet=new Set(occ().positions),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]);if(!starts)continue;const skips=searchSpace(b,L);
-      for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
-        for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
+    // Enumerate only visible first/last-letter pairs. This is equivalent to trying every
+    // legal skip/direction in the window, but avoids walking a huge numeric skip range when
+    // the primary axis itself is wide (for example, skip 21,940).
+    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]),ends=byChar.get(t[L-1]);if(!starts||!ends)continue;
+      word:for(const s0 of starts)for(const end of ends){const delta=end-s0,span=L-1;if(!delta||delta%span)continue;const step=delta/span,sk=Math.abs(step);let ok=1;const pos=[s0];
+        for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
-        if(!out.has(t))out.set(t,{term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,gem:gem(raw)});
+        out.set(t,{term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,gem:gem(raw)});break word;
       }}
     return [...out.values()];
   }

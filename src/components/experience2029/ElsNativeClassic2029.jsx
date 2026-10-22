@@ -354,7 +354,28 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
 
 function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
-  if (lensResult.ok === false) return <p className="els29-native-muted">המקור לא זמין לתא הזה במצב הנוכחי.</p>;
+  if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
+
+  if (lensResult.lens === "matrix-candidates") {
+    const items = Array.isArray(lensResult.items) ? lensResult.items : [];
+    return <div className="els29-native-source-list" data-experience-capability="els-all-matrix-findings">
+      <strong>כל מה שנמצא במטריצה · {items.length}</strong>
+      <small>מילים מהמאגר הקיים שנמצאו בחלון המוצג. מילה שלא נשמרה עדיין היא מועמדת; הוספה מפעילה אימות קנוני לפני שהיא מוצגת כממצא.</small>
+      <div className="els29-native-line-words" aria-label="כל המילים שנמצאו במטריצה">
+        {items.map((item) => {
+          const added = findings.some((finding) => finding.t === item.term);
+          return <div key={item.term} className="els29-native-line-word">
+            <div className="els29-native-discovered-term"><b>{item.label || item.term}</b><small>{added ? "ממצא שכבר נמצא ברשימה" : "מועמד נוסף מהמטריצה"}</small></div>
+            <button type="button" disabled={addingFinding || added || findings.length >= 12} onClick={() => onAddLineFinding(item.term)}
+              aria-label={`הוסף את ${item.label || item.term} מהמטריצה לממצאים`}>{added ? "ברשימה" : "אמת והוסף"}</button>
+          </div>;
+        })}
+      </div>
+      {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה מילים נוספות מהמאגר הקיים. אפשר להגדיל את חלון החיפוש ולסרוק שוב.</p> : null}
+      {findings.length >= 12 && items.some((item) => !findings.some((finding) => finding.t === item.term))
+        ? <small>אפשר לראות את כל הרשימה, אך במטריצה פעילה נשמרים עד 12 ממצאים משניים. הסירו ממצא כדי לאמת ולהוסיף אחר.</small> : null}
+    </div>;
+  }
 
   if (lensResult.lens === "letter-context") {
     return <div className="els29-native-source-card">
@@ -484,7 +505,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -577,6 +598,11 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
             {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע במטריצה הנוכחית."}
           </div>
+          <button type="button" className="els29-native-discover-all" aria-label="הצג את כל מה שנמצא במטריצה"
+            disabled={!verified || pending || lensPending} onClick={() => onDiscover({ hitId: state.axis.hitId })}>
+            {lensPending ? "סורק את המטריצה…" : "הצג את כל מה שנמצא במטריצה"}
+          </button>
+          <small className="els29-native-discover-note">זמין לכל צופה. הסריקה מתחילה רק בלחיצה ואינה משנה את הצופן השמור.</small>
           <label className="els29-native-radius">
             <span>מרחק מרבי מהציר הראשי</span>
             <select aria-label="מרחק מרבי מהציר הראשי" value={radius === null ? "all" : radius} disabled={!verified || pending}
@@ -659,7 +685,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
         })}
       </div>
       {lensPending || lensResult ? <details ref={inspectionRef} key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
-        <summary>{lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
+        <summary>{lensResult?.lens === "matrix-candidates" ? "כל מה שנמצא במטריצה" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
         {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
       </details> : null}
       <details className="els29-native-findings-options"><summary>אפשרויות תצוגת ממצאים</summary>
@@ -1381,6 +1407,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onSelectTarget={selectFinding}
           onScan={(target) => requestLens("line-context", { ...target, scan: true })}
           onSource={(target) => requestLens("verse-context", target)}
+          onDiscover={(target) => requestLens("matrix-candidates", target)}
           onAxisControl={requestControl}
           onAddLineFinding={addLineFinding}
           onFindingControl={requestFindingControl}

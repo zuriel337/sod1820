@@ -87,19 +87,24 @@ export function ElsRecentCiphers2029({ onOpen, onLibrary, collapseSignal = 0, re
       && /^[1-8]$/.test(new URLSearchParams(window.location.search).get("visual") || "");
     return !review && !window.matchMedia("(max-width:600px)").matches;
   });
-  const view = user ? "mine" : "public";
-  const data = useCipherLibrary({ view, pageSize: 4, enabled: enabled && open, revision });
+  // The compact folder is a public discovery surface for every visitor. Personal
+  // saves remain one explicit action away, but signing in must not replace the
+  // public findings with a private-only list.
+  const data = useCipherLibrary({ view: "public", pageSize: 4, enabled: enabled && open, revision });
   useEffect(() => { if (collapseSignal) setOpen(false); }, [collapseSignal]);
   return <section className="els29-recent" aria-label="תיקיית הצפנים">
     <div className="els29-recent-head">
       <button type="button" className="els29-recent-toggle" aria-expanded={open} aria-controls="els29-recent-ciphers" onClick={() => setOpen(value => !value)}>
-        <NavigationIcon2029 name="books" /><span><strong>תיקיית הצפנים</strong><small>{user ? "השמירות האחרונות שלי" : "מהצפנים שפורסמו לאחרונה"}</small></span><span className="els29-recent-chevron" aria-hidden="true">⌄</span>
+        <NavigationIcon2029 name="books" /><span><strong>ממצאי ELS ציבוריים</strong><small>הממצאים שפורסמו לאחרונה · גלויים לכולם</small></span><span className="els29-recent-chevron" aria-hidden="true">⌄</span>
       </button>
-      <button type="button" className="sod29-action" onClick={() => onLibrary(view)}>לכל הצפנים <span aria-hidden="true">←</span></button>
+      <div className="els29-recent-actions">
+        <button type="button" className="sod29-action" onClick={() => onLibrary("public")}>לכל הממצאים הציבוריים <span aria-hidden="true">←</span></button>
+        {user ? <button type="button" className="sod29-action" onClick={() => onLibrary("mine")}>הצפנים שלי</button> : null}
+      </div>
     </div>
     <div id="els29-recent-ciphers" hidden={!open}>
-      <LibraryStatus data={data} personal={!!user} />
-      <div className="els29-recent-grid">{enabled && data.rows.map(row => <CipherCard key={row.id} row={row} personal={!!user} compact onOpen={onOpen} />)}</div>
+      <LibraryStatus data={data} personal={false} />
+      <div className="els29-recent-grid">{enabled && data.rows.map(row => <CipherCard key={row.id} row={row} personal={false} compact onOpen={onOpen} />)}</div>
     </div>
   </section>;
 }
@@ -109,15 +114,22 @@ export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, o
   const [query, setQuery] = useState("");
   const personal = view === "mine";
   const data = useCipherLibrary({ view, query });
+  const changeView = (nextView) => {
+    // A filter from the personal folder must not make the public collection
+    // appear incomplete (and vice versa) when the visitor changes folders.
+    setDraft("");
+    setQuery("");
+    onView(nextView);
+  };
   return <section className="els29-library" aria-label="ספריית הצפנים">
-    <header className="els29-library-head"><div><span className="els29-library-eyebrow"><NavigationIcon2029 name="books" />ספריית הצפנים</span><h2>{personal ? "הצפנים שלי" : "צפנים שפורסמו"}</h2><p>מקום לחזור לממצאים, לפתוח צופן ולהמשיך לחקור.</p></div><button className="sod29-action" type="button" onClick={onClose}>חזור לחיפוש</button></header>
+    <header className="els29-library-head"><div><span className="els29-library-eyebrow"><NavigationIcon2029 name="books" />ספריית הצפנים</span><h2>{personal ? "הצפנים שלי" : "כל ממצאי ה־ELS הציבוריים"}</h2><p>{personal ? "מקום לחזור לממצאים ששמרתם ולהמשיך לחקור." : "כל צופן שאושר ופורסם מוצג כאן לכל אדם, גם ללא חשבון."}</p></div><button className="sod29-action" type="button" onClick={onClose}>חזור לחיפוש</button></header>
     <div className="els29-library-toolbar">
       <div className="els29-library-tabs" role="group" aria-label="סוג ספריית הצפנים">
-        <button type="button" className="sod29-action" aria-pressed={personal} onClick={() => onView("mine")}>הצפנים שלי</button>
-        <button type="button" className="sod29-action" aria-pressed={!personal} onClick={() => onView("public")}>צפנים שפורסמו</button>
+        <button type="button" className="sod29-action" aria-pressed={personal} onClick={() => changeView("mine")}>הצפנים שלי</button>
+        <button type="button" className="sod29-action" aria-pressed={!personal} onClick={() => changeView("public")}>כל הממצאים הציבוריים</button>
       </div>
       {(!personal || data.user) ? <form className="els29-library-search" onSubmit={event => { event.preventDefault();setQuery(draft.trim()); }}>
-        <label>חיפוש בצפנים<input value={draft} onChange={event => setDraft(event.target.value)} maxLength={120} placeholder="מילה או שם הצופן" /></label><button className="sod29-action" type="submit"><NavigationIcon2029 name="search" />חפש בספרייה</button>
+        <label>{personal ? "חיפוש בצפנים שלי" : "חיפוש בממצאים הציבוריים"}<input value={draft} onChange={event => setDraft(event.target.value)} maxLength={120} placeholder="מילה או שם הצופן" /></label><button className="sod29-action" type="submit"><NavigationIcon2029 name="search" />חפש בספרייה</button>
       </form> : null}
     </div>
     <div className="els29-library-order">האחרונים שנשמרו מופיעים ראשונים</div>
