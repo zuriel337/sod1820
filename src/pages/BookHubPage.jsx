@@ -27,7 +27,7 @@ const SNAPSHOTS = {
       ["99", "עמודי PDF", "Digital Object"], ["15", "עמודים ברישום block רציף", "documented snapshot"],
       ["70", "blocks שמורים", "documented snapshot"], ["8", "טבלאות", "documented snapshot"],
       ["13", "datasets במפה", "documented snapshot"], ["18", "methods/procedures", "documented snapshot"],
-      ["10", "סתירות", "preserved"], ["9", "קריאות לא פתורות", "preserved"],
+      ["10", "סתירות", "preserved"], ["8", "קריאות לא פתורות", "preserved"],
     ],
     // 🔴 Coverage-axis verdicts kept separate per Intake §9 — this is the whole-book RECONCILIATION
     // gate result (work_log a39cb97a, AHAVAT_TORAH_WHOLE_BOOK_RECONCILIATION_20260905), quoted
@@ -49,7 +49,7 @@ const SNAPSHOTS = {
     datasets: [
       ["DS-01", "שם ה׳ · 1820", "p6", "CLOSED", "165+398+311+396+550=1820; arithmetic verified"],
       ["DS-02", "22 אותיות × פרשה/ספר", "pp35–41", "PARTIAL", "187+ rows; Aleph/Bet/Zayin anomalies preserved"],
-      ["DS-03", "תיבות לפי פרשה/ספר", "pp41–43", "PARTIAL", "Torah total 79,976 supported; per-parasha closure incomplete"],
+      ["DS-03", "תיבות לפי פרשה/ספר", "p41", "CLOSED", "54 פרשות וחמש נקודות ביקורת מצטברות תואמות לקורפוס הנקי; סך הכול 79,976"],
       ["DS-04", "סך אותיות", "p43±", "PARTIAL", "~304,812 historical source reading; final digit/reading unresolved"],
       ["DS-05", "אוריין תליתאי / attribution", "pp25–31", "OPEN", "person/group × parasha; פעמים ≠ תיבות"],
       ["DS-06", "משה", "p70", "PARTIAL", "647 closes at book/Torah level (sublayers CLOSED); parasha-row level remains open — corrected 5.9.2026, was previously mislabeled CLOSED/ANOMALY here"],
@@ -64,15 +64,15 @@ const SNAPSHOTS = {
     families: [
       { title: "משפחת 1820", text: "מספר מופיע במספר populations/procedures נפרדים: שם ה׳, דיבור יעקב/רחל/לאה, הגדה, עלינו, ספירות, ערכין, תקיעות, עשרון ועוד. Same result ≠ same dataset." },
       { title: "משפחת 1830", text: "נשמרת כמשפחה נפרדת: 1833−3, 1816+14, וסכום משולש 1..60. אין למזג ל־1820." },
-      { title: "79,976", text: "סך תיבות התורה נתמך ביותר ממסלול אחד; גבול attribution/counting האוניברסלי עדיין דורש דיוק." },
+      { title: "79,976", text: "כל 54 שורות הפרשות וחמש נקודות הביקורת המצטברות תואמות למקור ולקורפוס הנקי; גבול ה־79,977 היחיד מתועד בדברים לב:ו." },
       { title: "18,200", text: "טבלת named-speaker ב־pp13–14 מגיעה ל־18,200; population/checksum/cohort semantics עדיין פתוחים." },
     ],
-    open: ["5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)", "DS-03: סך-מקור נקרא חזותית 110,976 וסותר קריאה קודמת 79,976 — לא-נפתר", "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה", "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת", "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר", "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)", "Exact-witness adjudication אינו שווה למיפוי מבני", "Gematria claims אינם Engine Verified בלי המנוע הקנוני", "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"],
+    open: ["5 פערי-עדות סופיים מ-Checkpoint5 (ל/ה, doubled-word subcorpus, 5-שנים/365/יום-כיפור, קטגוריות-זמן קהלת, בחירת-אסימון-סוף ברכת-כהנים)", "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה", "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת", "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר", "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)", "Exact-witness adjudication אינו שווה למיפוי מבני", "Gematria claims אינם Engine Verified בלי המנוע הקנוני", "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"],
     seeds: [
       { key: "1820", label: "משפחת 1820", page: 6, family: "number-family", status: "documented" },
       { key: "1830", label: "משפחת 1830", page: 13, family: "number-family", status: "documented" },
       { key: "ds02", label: "DS-02 · אותיות × פרשה", page: 35, family: "dataset", status: "partial" },
-      { key: "ds03", label: "DS-03 · 79,976", page: 41, family: "dataset", status: "partial" },
+      { key: "ds03", label: "DS-03 · 79,976", page: 41, family: "dataset", status: "closed" },
       { key: "ds05", label: "DS-05 · אוריין תליתאי", page: 25, family: "dataset", status: "open" },
       { key: "ds06", label: "DS-06 · משה 647", page: 70, family: "dataset", status: "partial" },
       { key: "ds07", label: "DS-07 · סנהדרין", page: null, family: "dataset", status: "open" },

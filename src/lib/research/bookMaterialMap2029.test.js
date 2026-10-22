@@ -107,7 +107,7 @@ test("Ahavat Torah public snapshot exposes five witness closures and preserves t
   const map = buildBookMaterialMap(bundle, { expectedSlug: "ahavat-torah" });
   assert.equal(map.available, true);
   assert.equal(map.witnessClosures.length, 5);
-  assert.equal(map.openQuestions.length, 9);
+  assert.equal(map.openQuestions.length, 8);
   assert.equal(map.witnessClosures[1].status, "CORPUS_RECONSTRUCTED · CONTRADICTION_PRESERVED");
   assert.match(map.witnessClosures[1].note, /90.*89.*88/);
   assert.equal(map.witnessClosures[2].locus, "PDF p14");

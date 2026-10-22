@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { auditAhavatTorahWordCount } from "../scripts/research/ahavat-torah-word-count.mjs";
+import { auditAhavatTorahParashaWordCounts } from "../scripts/research/ahavat-torah-parasha-word-count.mjs";
 
 const audit = auditAhavatTorahWordCount();
 
@@ -42,20 +43,57 @@ test("the public Preview bundle withdraws 110,976 and exposes the corrected DS-0
   const relation = bundle.relations.find((row) => row.relation_id === "CR-09");
   const heroDataset = bundle.hero.datasets.find((row) => row[0] === "DS-03");
   const family = bundle.hero.families.find((row) => row.title.startsWith("79,976"));
-  const occurrence = bundle.occurrence_tables
-    .flatMap((table) => table.rows)
-    .find((row) => row.parasha?.startsWith("TORAH TOTAL") && row.table?.includes("תיבות התורה"));
+  const table = bundle.occurrence_tables.find((row) => row.table_id === "DS-03-WORDS-BY-PARASHA");
+  const occurrence = table.cumulative_checkpoints.at(-1);
 
   assert.equal(dataset.total, "79,976");
-  assert.match(dataset.status, /source total closed/i);
+  assert.equal(dataset.status, "CLOSED");
   assert.match(heroDataset[4], /withdrawn/);
   assert.doesNotMatch(family.title, /↔/);
   assert.deepEqual(relation.pdf_pages, [12, 25, 30, 41, 51]);
-  assert.equal(occurrence.pdf_page, "41");
-  assert.equal(occurrence.normalized_integer, "79976");
-  assert.equal(occurrence.verification_state, "VISUALLY_VERIFIED_CORRECTED");
-  assert.equal(occurrence.source_anchor, "book:hebrewbooks:5635#p41:words_of_torah_table_body_RAW");
-  assert.match(dataset.status, /clean-corpus contract closed/i);
+  assert.deepEqual(table.pdf_pages, [41]);
+  assert.equal(occurrence.cumulative_total, 79_976);
+  assert.equal(occurrence.source_value, "ע״ט אלף תתקע״ו");
+  assert.equal(table.verification_state, "CLOSED");
+  assert.equal(table.source_anchor, "book:hebrewbooks:5635#p41:words_of_torah_table");
   assert.match(dataset.checksum, /9692eb34eca2f7a10f6e828d04b3dac50d5b0b688bf1d74d6936a6bd2fb92be4/);
   assert.match(dataset.exceptions, /ה \| ליהוה/);
+});
+
+test("all 54 DS-03 parasha rows reproduce the source and its cumulative checkpoints", () => {
+  const corpusDir = process.env.AHAVAT_TORAH_MAM_CORPUS;
+  if (!corpusDir) return;
+  const result = auditAhavatTorahParashaWordCounts({ mamCorpusDir: corpusDir });
+  assert.equal(result.rows.length, 54);
+  assert.equal(result.total, 79_976);
+  assert.deepEqual(
+    result.checkpoints.map(({ bookTotal, cumulativeTotal }) => [bookTotal, cumulativeTotal]),
+    [
+      [20_612, 20_612],
+      [16_713, 37_325],
+      [11_950, 49_275],
+      [16_408, 65_683],
+      [14_293, 79_976],
+    ],
+  );
+  assert.equal(result.rows.find((row) => row.parasha === "האזינו")?.maqafSplitCount, 615);
+  assert.equal(result.rows.find((row) => row.parasha === "האזינו")?.wordCount, 614);
+});
+
+test("the public bundle exposes the closed DS-03 table without pass-1 OCR rows", () => {
+  const bundle = JSON.parse(fs.readFileSync("public/book-data/ahavat-torah.tables.json", "utf8"));
+  const dataset = bundle.datasets.find((row) => row.dataset_id === "DS-03");
+  const table = bundle.occurrence_tables.find((row) => row.table_id === "DS-03-WORDS-BY-PARASHA");
+  assert.equal(dataset.status, "CLOSED");
+  assert.equal(table.rows.length, 54);
+  assert.equal(table.rows.reduce((sum, row) => sum + row.normalized_integer, 0), 79_976);
+  assert.deepEqual(table.cumulative_checkpoints.map((row) => row.cumulative_total), [
+    20_612, 37_325, 49_275, 65_683, 79_976,
+  ]);
+  assert.equal(table.rows.find((row) => row.parasha === "בראשית")?.normalized_integer, 1_931);
+  assert.equal(table.rows.find((row) => row.parasha === "האזינו")?.normalized_integer, 614);
+  assert.equal(
+    bundle.occurrence_tables.flatMap((row) => row.rows).some((row) => row.normalized_integer === "1131"),
+    false,
+  );
 });
