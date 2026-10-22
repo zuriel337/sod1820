@@ -6,7 +6,7 @@ const legacy = readFileSync(new URL("../src/pages/CodePage.jsx", import.meta.url
 const els2029 = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
 const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 
-test("legacy /code shows the bounded launch countdown and canonical signup instead of The First Verse", () => {
+test("legacy /code keeps the bounded launch notice and canonical signup beside its standalone cipher", () => {
   assert.match(legacy, /ELS_LEGACY_COUNTDOWN_TARGET/);
   assert.match(legacy, /2026-10-12T22:57:00\+03:00/);
   assert.match(legacy, /⌛/);
@@ -14,7 +14,7 @@ test("legacy /code shows the bounded launch countdown and canonical signup inste
   assert.match(legacy, /source="els-2029-early-access"/);
   assert.doesNotMatch(legacy, /thefirstverse\.com/i);
   assert.doesNotMatch(legacy, /The First Verse/i);
-  assert.match(legacy, /return <CodeClosed message=\{elsState\.message\} \/>/);
+  assert.match(legacy, /return <div dir="rtl">[\s\S]*<iframe src=\{src\}[\s\S]*<CodeClosed \/>/);
   assert.doesNotMatch(legacy, /!isAdmin\s*&&\s*elsState\.blocked/);
 });
 

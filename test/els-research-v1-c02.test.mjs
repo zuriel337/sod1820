@@ -71,6 +71,26 @@ test("C02 reveals the promoted primary axis while exact return preserves the pri
   assert.equal(restored.loadItem.hideMain, true, "return restores the prior hidden-axis preference");
 });
 
+test("C02 reprojects carried Findings in the promoted geometry and retains their exact old hits only for return", () => {
+  const state = {
+    ...engineState,
+    findings: [
+      engineState.findings[0],
+      { t: "בקץ", color: "#8b6bb0", shown: ["397_1_800", "421_-1_1200"] },
+    ],
+  };
+  const promoted = buildJourneyPromotion(state, state.findings[0], { hitId: "11_-1_400" });
+
+  assert.equal(promoted.ok, true);
+  assert.deepEqual(promoted.loadItem.words[0].sh, [engineState.axis.hitId], "the former primary keeps its exact anchor as a Finding");
+  const carried = promoted.loadItem.words.find((finding) => finding.t === "בקץ");
+  assert.deepEqual(carried, { t: "בקץ", color: "#8b6bb0" }, "a secondary Finding is recomputed instead of importing stale hit IDs");
+  assert.deepEqual(promoted.snapshot.findings.find((finding) => finding.t === "בקץ").shown, ["397_1_800", "421_-1_1200"]);
+
+  const restored = buildJourneyRestore(promoted.snapshot);
+  assert.deepEqual(restored.loadItem.words.find((finding) => finding.t === "בקץ").sh, ["397_1_800", "421_-1_1200"], "exact return restores the prior visible occurrences");
+});
+
 test("C02 exact return restores the same axis, findings and geometry envelope without recomputation", () => {
   const snapshot = makeJourneySnapshot(engineState, { mode: "research" });
   const restored = buildJourneyRestore(snapshot);

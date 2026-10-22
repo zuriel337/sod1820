@@ -502,9 +502,11 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    assert.equal(await page.locator('.els29-native-line-cells').textContent(),retained);
    assert.equal(await page.locator('.els29-native-line-cells .is-word').count(),4);
    assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').innerText().then(text=>text.includes('לאורך הציר · התורה')),true);
+   const sourceBefore=await capture(page);
    await activate(page,'מקור הממצא הנבחר');
    await page.waitForFunction(id=>window.__lens?.lens==='verse-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה',hit.hitId);
-   await expectStable(page,secondaryPan,'inline source',{ignorePageScroll:true});assert.equal(await input.isVisible(),true);
+   await expectStable(page,sourceBefore,'inline source');assert.equal(await input.isVisible(),true);
+   assert.equal(await page.locator('.els29-native-inline-inspection').evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.els29-native-rail-head'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'source and scan results stay beside the selected workspace, before the findings list');
    assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true);
    // A delayed old primary completion must not replace the selected secondary result.
    await injectToolMessage(page,primary);
@@ -641,14 +643,19 @@ test('an owned saved cipher replaces its promoted primary axis in the same row a
    await activate(page,'סימון הציר הראשי');
    await page.waitForFunction(()=>window.__state?.ui?.hideMain===true);
    assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0,'the fixture starts with the saved old axis hidden');
+   await addSecondary(page,'תורה');
+   const carriedBefore=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='תורה').shown);
+   assert.ok(carriedBefore.length>0,'the saved axis has a visible secondary Finding before replacement');
    await addSecondary(page,'התורה');
    const target=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='התורה').hits.find(hit=>hit.shown&&hit.verified).hitId);
    await activate(page,`פעולות הציר הראשי ${oldAxis.term}`);
    assert.match(await page.locator('#els29-primary-axis-actions').textContent(),new RegExp(`כדי למחוק את „${oldAxis.term}”`));
    await activate(page,`החלף את הציר הראשי ${oldAxis.term} ב־התורה`);
    await page.waitForFunction(hitId=>window.__state?.axis?.hitId===hitId,target);
+   await page.waitForFunction(()=>window.__state?.findings?.find(item=>item.t==='תורה')?.hits?.some(hit=>hit.shown&&hit.verified));
    assert.equal(await page.evaluate(()=>window.__state.ui.hideMain),false,'a newly promoted primary axis is never inherited as hidden');
    assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0,'the replacement axis is visible in the matrix');
+   assert.ok(await page.evaluate(()=>window.__state.findings.find(item=>item.t==='תורה').shown.length>0),'other Findings automatically display their first verified occurrence in the replacement geometry');
    assert.ok((await page.evaluate(term=>window.__state.findings.some(finding=>finding.t===term),oldAxis.term)),'Journey retains the old axis until the replacement is saved');
    await page.getByText('החלפת הציר הראשי',{exact:true}).waitFor();
    assert.equal(await page.getByText('החלפת הציר הראשי',{exact:true}).count(),1);
@@ -670,6 +677,7 @@ test('an owned saved cipher replaces its promoted primary axis in the same row a
    assert.equal(saved.positions.hideMain,false,'the replacement persists with its primary axis visible');
    assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'axis replacement never creates a copy');
    assert.equal(saved.positions.findings.some(finding=>finding.t===oldAxis.term),false,'old primary is deleted from persisted findings');
+   assert.ok(saved.positions.findings.find(finding=>finding.t==='תורה')?.sh?.length>0,'reprojected Findings persist without requiring manual show-first actions');
    assert.equal(await page.evaluate(()=>window.__publicUploads||0),0,'private replacement does not publish a card image');
    assert.equal(await page.locator('[data-els-saved-loading="true"]').count(),0,'same-row readback does not restart the saved-cipher loader');
    assert.equal(await page.locator('.els29-native-matrix').isVisible(),true);
@@ -730,8 +738,10 @@ test('native UI: desktop tools use one natural page-flow column and mobile tools
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:2560,height:1000},async page=>{
    const margins=await page.evaluate(()=>{const frame=document.querySelector('.sod29-main').getBoundingClientRect(),content=document.querySelector('.sod29-content').getBoundingClientRect();return{ratio:content.width/frame.width,left:content.left-frame.left,right:frame.right-content.right}});
-   assert.ok(Math.abs(margins.ratio-.9)<=.001&&Math.abs(margins.left-margins.right)<=1);
+   assert.ok(Math.abs(margins.ratio-.9)<=.001&&margins.right<=1&&margins.left>margins.right,'desktop ELS anchors toward the navigation rail instead of centering its outer wrapper');
    assert.ok((await capture(page)).width>1300);await naturalDesktopInspector(page,'wide findings inspector');
+   const lane=await page.evaluate(()=>{const main=document.querySelector('.sod29-main').getBoundingClientRect(),stage=document.querySelector('.els29-native-stage-column').getBoundingClientRect(),panel=document.querySelector('.els29-native-context-panel').getBoundingClientRect();return{stageCenter:stage.left+stage.width/2,laneCenter:(panel.right+main.right)/2}});
+   assert.ok(Math.abs(lane.stageCenter-lane.laneCenter)<=16,'the matrix is centered between the scan rail and the navigation rail');
    const withInspector=await pan(page);
    for(const tool of ['תוצאות','שמירה','סריקה וממצאים']){
     await activate(page,tool);await naturalDesktopInspector(page,`${tool} inspector`);

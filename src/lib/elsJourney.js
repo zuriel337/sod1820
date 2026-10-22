@@ -118,7 +118,13 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
     previousAxis ? { t: previousAxis, color: axisColor, sh: [engineState.axis.hitId] } : null,
     ...(Array.isArray(engineState.findings) ? engineState.findings : [])
       .filter((f) => f?.t && f.t !== finding.t)
-      .map((f) => ({ t: f.t, color: f.color, sh: Array.isArray(f.shown) ? [...f.shown] : [] })),
+      // Finding hit IDs belong to the current axis geometry. Carrying them into
+      // the promoted geometry makes the canonical engine treat stale IDs as an
+      // explicit visibility selection and can hide every newly computed hit.
+      // Keep the terms/colors, then let the engine project their first verified
+      // occurrences around the new axis. The snapshot above still owns the
+      // exact old hit IDs used by buildJourneyRestore().
+      .map((f) => ({ t: f.t, color: f.color })),
   ].filter(Boolean).slice(0, maxFindings);
 
   return {

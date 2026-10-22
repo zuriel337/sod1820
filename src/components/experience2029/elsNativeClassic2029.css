@@ -16,7 +16,10 @@
 .sod29-root.surface-els .sod29-context-strip{min-height:44px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start}
 .sod29-root.surface-els .sod29-context-strip span{flex-shrink:0;white-space:nowrap}
 @media(min-width:981px){
-  .sod29-root.surface-els .sod29-content.wide{width:90%;max-width:none;margin-inline:auto;padding-inline:8px}
+  /* The ELS inspector is the opposite desktop rail. Anchor the complete work
+     area to the navigation side so the matrix, not the outer wrapper, is
+     centered in the usable lane between both rails. */
+  .sod29-root.surface-els .sod29-content.wide{width:90%;max-width:none;margin-inline-start:0;margin-inline-end:auto;padding-inline:8px}
 }
 .els29-native-query{
   display:grid;

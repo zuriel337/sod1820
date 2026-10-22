@@ -516,7 +516,6 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const [expandedFinding, setExpandedFinding] = useState(null);
   const railScrollRef = useRef(null);
   const workspaceRef = useRef(null);
-  const inspectionRef = useRef(null);
   const findingPending = ["searching", "verifying"].includes(operation?.status);
   const pending = searchPending || findingPending;
   const allHits = (finding) => [...(finding?.hits || []), ...(finding?.sourceHits || [])];
@@ -541,11 +540,6 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
       onSelectTarget(null);
     }
   }, [selected, selectionValid, onSelectTarget]);
-
-  useLayoutEffect(() => {
-    if (!lensResult || !inspectionRef.current) return;
-    inspectionRef.current.scrollIntoView({ block: "nearest", behavior: "instant" });
-  }, [lensResult]);
 
   useLayoutEffect(() => {
     if (!selectionValid || !workspaceRef.current) return;
@@ -612,6 +606,10 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
             </select>
           </label>
         </div>
+        {lensPending || lensResult ? <details key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
+          <summary>{lensResult?.lens === "matrix-candidates" ? "כל מה שנמצא במטריצה" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
+          {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
+        </details> : null}
       </section>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>
       <div className="els29-native-findings" role="region" tabIndex={0} aria-label="רשימת הממצאים במטריצה">
@@ -684,10 +682,6 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           </div>;
         })}
       </div>
-      {lensPending || lensResult ? <details ref={inspectionRef} key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
-        <summary>{lensResult?.lens === "matrix-candidates" ? "כל מה שנמצא במטריצה" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
-        {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
-      </details> : null}
       <details className="els29-native-findings-options"><summary>אפשרויות תצוגת ממצאים</summary>
         <label className="els29-native-proximity"><span>מופעים להצגה לכל מילה <output>{showN}</output></span>
           <input type="range" min="1" max="15" step="1" value={showN} aria-label="מופעים לכל ממצא" disabled={!verified || pending}
