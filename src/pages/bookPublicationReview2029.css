@@ -16,6 +16,11 @@
 .book-review29-summary-grid>div{min-width:0;border:1px solid var(--s29-line);border-radius:16px;padding:16px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);display:grid;gap:5px}
 .book-review29-summary-grid strong{font-family:var(--s29-font-numeric);font-size:clamp(26px,3vw,38px);color:var(--s29-hero)}
 .book-review29-summary-grid span{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.4}
+.book-review29-evidence-overview{border-color:var(--s29-line-strong)}
+.book-review29-evidence-summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.book-review29-evidence-summary-grid>div{min-width:0;border:1px solid var(--s29-line);border-radius:16px;padding:16px;background:color-mix(in srgb,var(--s29-panel-soft) 84%,transparent);display:grid;gap:5px}
+.book-review29-evidence-summary-grid strong{font-family:var(--s29-font-numeric);font-size:clamp(26px,3vw,38px);color:var(--s29-hero)}
+.book-review29-evidence-summary-grid span{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.4}
 .book-review29-list{display:grid;gap:14px}
 .book-review29-item{min-width:0;border:1px solid var(--s29-line);border-radius:20px;padding:clamp(16px,2.4vw,22px);background:linear-gradient(145deg,color-mix(in srgb,var(--s29-panel-soft) 91%,transparent),color-mix(in srgb,var(--s29-panel) 84%,transparent));display:grid;gap:16px}
 .book-review29-item[data-readiness="repair"]{border-style:dashed}
@@ -35,6 +40,32 @@
 .book-review29-axis.tone-fidelity{border-inline-start:3px solid color-mix(in srgb,var(--s29-warm-accent) 70%,transparent)}
 .book-review29-fidelity-note{font-size:var(--s29-type-micro);line-height:1.65}
 .book-review29-terms{display:flex;flex-wrap:wrap;gap:7px}
+.book-review29-evidence-panel{border:1px solid var(--s29-line-strong);border-radius:18px;padding:clamp(14px,2vw,18px);background:color-mix(in srgb,var(--s29-panel) 76%,transparent);display:grid;gap:14px}
+.book-review29-evidence-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.book-review29-evidence-panel>header>div:first-child{display:grid;gap:4px;min-width:0}
+.book-review29-evidence-panel>header>div:first-child>span{color:var(--s29-muted);font-size:var(--s29-type-micro)}
+.book-review29-evidence-panel>header>div:first-child>strong{font-size:var(--s29-type-ui)}
+.book-review29-evidence-panel>header p{margin:0;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
+.book-review29-evidence-score{flex:0 0 auto;display:grid;justify-items:end;gap:4px;text-align:end}
+.book-review29-evidence-score>span{font-family:var(--s29-font-numeric);font-size:var(--s29-type-ui);color:var(--s29-hero)}
+.book-review29-evidence-score>strong{font-size:var(--s29-type-micro);color:var(--s29-accent-text)}
+.book-review29-evidence-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}
+.book-review29-evidence-requirement{min-width:0;border:1px solid var(--s29-line);border-radius:14px;padding:12px;background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);display:grid;align-content:start;gap:8px}
+.book-review29-evidence-requirement>div{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.book-review29-evidence-requirement>div>strong{font-size:var(--s29-type-micro)}
+.book-review29-evidence-requirement>div>span{flex:0 0 auto;border:1px solid var(--s29-line);border-radius:999px;padding:3px 7px;font-size:var(--s29-type-micro)}
+.book-review29-evidence-requirement>p,.book-review29-evidence-requirement>small{margin:0;font-size:var(--s29-type-micro);line-height:1.55}
+.book-review29-evidence-requirement>p{color:var(--s29-muted)}
+.book-review29-evidence-requirement>small{border-block-start:1px solid var(--s29-line);padding-block-start:8px;color:var(--s29-text)}
+.book-review29-evidence-requirement[data-evidence-state="complete"]{border-color:color-mix(in srgb,var(--s29-discovery) 56%,var(--s29-line))}
+.book-review29-evidence-requirement[data-evidence-state="complete"]>div>span{color:var(--s29-discovery)}
+.book-review29-evidence-requirement[data-evidence-state="partial"]{border-inline-start:3px solid color-mix(in srgb,var(--s29-warm-accent) 68%,transparent)}
+.book-review29-evidence-requirement[data-evidence-state="unresolved"],.book-review29-evidence-requirement[data-evidence-state="unknown"]{border-style:dashed}
+.book-review29-evidence-requirement[data-evidence-state="not_applicable"]{opacity:.82}
+.book-review29-evidence-gate{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-block-start:1px solid var(--s29-line);padding-block-start:12px}
+.book-review29-evidence-gate>strong{font-size:var(--s29-type-micro);color:var(--s29-accent-text)}
+.book-review29-evidence-gate>span{max-width:72ch;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
+.book-review29-evidence-missing{font-size:var(--s29-type-micro);line-height:1.55}
 .book-review29-details{border-block-start:1px solid var(--s29-line);padding-block-start:13px}
 .book-review29-details>summary{min-height:44px;display:flex;align-items:center;color:var(--s29-accent-text);cursor:pointer;font-weight:700}
 .book-review29-details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-block:8px 14px}
@@ -59,17 +90,22 @@
   .book-review29-boundary-grid{grid-template-columns:minmax(0,1fr)}
   .book-review29-boundary-separator{justify-self:center}
   .book-review29-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .book-review29-evidence-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .book-review29-item-head,.book-review29-item-actions{align-items:stretch;flex-direction:column}
+  .book-review29-evidence-panel>header,.book-review29-evidence-gate{align-items:stretch;flex-direction:column}
+  .book-review29-evidence-score{justify-items:start;text-align:start}
   .book-review29-readiness{align-self:flex-start}
   .book-review29-axes{grid-template-columns:minmax(0,1fr)}
   .book-review29-details-grid,.book-review29-checklist{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:1180px) and (min-width:761px){
   .book-review29-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .book-review29-evidence-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .book-review29-axes{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:390px){
   .book-review29-summary-grid{grid-template-columns:minmax(0,1fr)}
+  .book-review29-evidence-summary-grid,.book-review29-evidence-grid{grid-template-columns:minmax(0,1fr)}
   .book-review29-pagination{align-items:stretch;flex-direction:column}
   .book-review29-pagination .sod29-action{width:100%}
 }

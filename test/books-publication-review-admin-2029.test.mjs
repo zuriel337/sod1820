@@ -7,6 +7,7 @@ const app = read("src/App2029.jsx");
 const page = read("src/pages/BookPublicationReview2029Page.jsx");
 const css = read("src/pages/bookPublicationReview2029.css");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+const desk = read("src/lib/research/bookPublicationEvidenceReviewDesk.js");
 
 test("Books review surface is unlinked, preview-only and reuses the internal noindex route", () => {
   assert.match(app, /VITE_BOOK_PUBLICATION_REVIEW_PREVIEW/);
@@ -18,17 +19,18 @@ test("Books review surface is unlinked, preview-only and reuses the internal noi
   assert.match(page, /surface:\s*"books"/);
 });
 
-test("server-derived admin verification runs before Book resolution", () => {
-  const firstVerify = page.indexOf("const adminVerified = await verifyBookPublicationReviewAdmin()");
-  const bookRead = page.indexOf("const book = await fetchBookEntityBySlug(slug)");
+test("unified desk keeps server-derived admin verification before Book resolution", () => {
+  const firstVerify = desk.indexOf("const adminVerified = await verifyAdminAccess()");
+  const bookRead = desk.indexOf("const book = await readBookEntity(safeSlug)");
   assert.ok(firstVerify >= 0 && bookRead > firstVerify, "Book identity must not load before rd_is_admin succeeds");
-  assert.equal((page.match(/await verifyBookPublicationReviewAdmin\(\)/g) || []).length, 1);
+  assert.match(page, /loadBookPublicationEvidenceReviewDesk\(slug, \{ limit: PAGE_SIZE, offset \}\)/);
+  assert.doesNotMatch(page, /verifyBookPublicationReviewAdmin|fetchBookEntityBySlug/);
   assert.doesNotMatch(page, /useAuth|\bisAdmin\b/, "a client profile flag must not authorize this screen");
-  assert.match(page, /packet\.source\?\.adminVerified !== true/);
+  assert.match(desk, /if \(!adminVerified\) return restrictedState\("admin", false\)/);
 });
 
-test("UI consumes the bounded reader and inspects the canonical Judgment contract without a write path", () => {
-  assert.match(page, /loadBookPublicationReview\(book, \{ limit: PAGE_SIZE, offset \}\)/);
+test("UI consumes the unified bounded desk and inspects the canonical Judgment contract without a write path", () => {
+  assert.match(page, /loadBookPublicationEvidenceReviewDesk\(slug, \{ limit: PAGE_SIZE, offset \}\)/);
   assert.match(page, /availableBookReviewJudgments/);
   assert.doesNotMatch(page, /executeBookReviewJudgment|admin_research_review|\.rpc\(|\.from\(["']research_objects|\.update\(|\.insert\(|\.upsert\(/);
   assert.doesNotMatch(page, /onRequestJudgment|onConfirm|requestJudgment|executeJudgment/);
@@ -36,6 +38,16 @@ test("UI consumes the bounded reader and inspects the canonical Judgment contrac
   assert.match(page, /החלטות ממשל אפשריות בעתיד/);
   assert.match(page, /לא פעיל/);
   assert.match(page, /status:\s*"מנהל · קריאה בלבד"/);
+});
+
+test("authorized evidence presentation is paired by id and remains human-gated", () => {
+  assert.match(page, /new Map\(\(evidencePresentation\?\.packets \|\| \[\]\)\.map\(item => \[item\.id, item\]\)\)/);
+  assert.match(page, /evidence=\{evidenceById\.get\(item\.id\)\}/);
+  assert.match(page, /מה כבר מוכן ומה דורש השלמה/);
+  assert.match(page, /מוכנות להכרעת נאמנות אנושית בלבד/);
+  assert.match(page, /השער נשאר אנושי/);
+  assert.match(page, /השלמת הראיות אינה קובעת נאמנות ואינה משנה את מצב הפרסום/);
+  assert.doesNotMatch(page, /requirement\.evidence|evidence\.claim|evidence\.source/);
 });
 
 test("governance, access and publication remain visibly separate", () => {
@@ -70,5 +82,6 @@ test("visual contract uses semantic tokens and covers narrow mobile and reduced 
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
   assert.match(css, /min-height:44px/);
   assert.match(page, /aria-label="צירי מצב נפרדים"/);
+  assert.match(page, /aria-label="חבילת ראיות להכרעת נאמנות"/);
   assert.doesNotMatch(page, /<dialog|showModal/);
 });

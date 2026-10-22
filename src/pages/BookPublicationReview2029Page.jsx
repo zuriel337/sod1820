@@ -9,14 +9,10 @@ import {
   presentBookResearchStatus,
   presentBookVerificationState,
 } from "../lib/research/bookHebrewPresentation.js";
-import {
-  loadBookPublicationReview,
-  verifyBookPublicationReviewAdmin,
-} from "../lib/research/bookPublicationReviewReader.js";
+import { loadBookPublicationEvidenceReviewDesk } from "../lib/research/bookPublicationEvidenceReviewDesk.js";
 import {
   availableBookReviewJudgments,
 } from "../lib/research/bookPublicationReviewJudgment.js";
-import { fetchBookEntityBySlug } from "../lib/research/bookResearchProjection.js";
 import "./bookPublicationReview2029.css";
 
 const PAGE_SIZE = 12;
@@ -114,7 +110,52 @@ function ReviewChecklist({ review }) {
   </ul>;
 }
 
-function ReviewItem({ item }) {
+function EvidenceRequirement({ requirement }) {
+  const role = requirement?.state?.semanticRole || "unknown";
+  return <li className="book-review29-evidence-requirement" data-evidence-state={role}>
+    <div>
+      <strong>{requirement?.labelHe || "דרישת ראיות"}</strong>
+      <span>{requirement?.state?.labelHe || "דורש עיון"}</span>
+    </div>
+    <p>{requirement?.state?.detailHe || "מצב הדרישה דורש בדיקה אנושית."}</p>
+    <small>{requirement?.nextActionHe || "יש להשלים בדיקה מתועדת לפני הכרעה."}</small>
+  </li>;
+}
+
+function EvidencePanel({ evidence }) {
+  if (!evidence) return <div className="sod29-state warn book-review29-evidence-missing" role="status">
+    חבילת הראיות אינה זמינה לפריט הזה. הפריט נשאר חסום להכרעת נאמנות.
+  </div>;
+
+  const readiness = evidence.readiness || {};
+  return <section className="book-review29-evidence-panel" aria-label="חבילת ראיות להכרעת נאמנות">
+    <header>
+      <div>
+        <span>מסלול בדיקת הראיות</span>
+        <strong>{evidence.lane?.labelHe || "מסלול בדיקה דורש עיון"}</strong>
+        {evidence.lane?.detailHe ? <p>{evidence.lane.detailHe}</p> : null}
+      </div>
+      <div className="book-review29-evidence-score">
+        <span>{safeCount(readiness.completeCount)} מתוך {safeCount(readiness.requiredCount)}</span>
+        <strong>{readiness.labelHe || "חסרות ראיות להכרעה"}</strong>
+      </div>
+    </header>
+
+    <ul className="book-review29-evidence-grid">
+      {(evidence.requirements || []).map(requirement => <EvidenceRequirement
+        key={requirement.key || requirement.labelHe}
+        requirement={requirement}
+      />)}
+    </ul>
+
+    <div className="book-review29-evidence-gate" role="note">
+      <strong>השער נשאר אנושי</strong>
+      <span>{readiness.detailHe || "השלמת הראיות אינה קובעת נאמנות ואינה משנה את מצב הפרסום."}</span>
+    </div>
+  </section>;
+}
+
+function ReviewItem({ item, evidence }) {
   const kind = presentBookResearchKind(item.kind);
   const governance = presentBookResearchStatus(item.status?.governance?.state);
   const access = presentBookAccessStatus(item.status?.publicationAccess?.state);
@@ -153,6 +194,8 @@ function ReviewItem({ item }) {
     {terms.length ? <div className="book-review29-terms" aria-label="מונחים">
       {terms.map((term, index) => <span className="sod29-chip" key={`${term}:${index}`}>{term}</span>)}
     </div> : null}
+
+    <EvidencePanel evidence={evidence} />
 
     <details className="book-review29-details">
       <summary>פרטי מקור ובדיקה</summary>
@@ -197,12 +240,32 @@ function ReviewItem({ item }) {
   </article>;
 }
 
-function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
+function ReviewScreen({ book, packet, evidencePresentation, partial, offset, onOffset, onReload }) {
   const summary = packet.summary || {};
   const page = packet.page || {};
   const fidelity = summary.byExtractionFidelity || {};
+  const evidenceSummary = evidencePresentation?.summary || {};
+  const evidenceById = new Map((evidencePresentation?.packets || []).map(item => [item.id, item]));
   return <>
     <ReviewBoundary />
+
+    <section className="sod29-section book-review29-evidence-overview" aria-labelledby="book-review-evidence-title">
+      <div className="sod29-section-head">
+        <div>
+          <div className="sod29-kicker">מצב חבילות הראיות</div>
+          <h2 id="book-review-evidence-title">מה כבר מוכן ומה דורש השלמה</h2>
+          <p className="sod29-muted">הסיכום מתאר מוכנות להכרעת נאמנות אנושית בלבד. הוא אינו מאשר ממשל, אינו משנה גישה ואינו מפרסם חומר.</p>
+        </div>
+        <span className="sod29-chip">קורא מורשה · חומר פרטי</span>
+      </div>
+      <div className="book-review29-evidence-summary-grid">
+        <div><strong>{safeCount(evidenceSummary.totalPackets)}</strong><span>חבילות ראיות</span></div>
+        <div><strong>{safeCount(evidenceSummary.readyForFidelityVerdict)}</strong><span>מוכנות להכרעת נאמנות</span></div>
+        <div><strong>{safeCount(evidenceSummary.needsEvidence)}</strong><span>דורשות השלמת ראיות</span></div>
+        <div><strong>{safeCount(evidenceSummary.complex)}</strong><span>בדיקת נאמנות מורכבת</span></div>
+        <div><strong>{safeCount(evidenceSummary.applicability)}</strong><span>ממתינות להכרעת תחולה</span></div>
+      </div>
+    </section>
 
     <section className="sod29-section book-review29-summary" aria-labelledby="book-review-summary-title">
       <div className="sod29-section-head">
@@ -224,7 +287,7 @@ function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
         <div><strong>{safeCount(fidelity.partial)}</strong><span>חילוץ חלקי שנרשם</span></div>
         <div><strong>{safeCount(fidelity.not_recorded)}</strong><span>נאמנות שלא נרשמה</span></div>
       </div>
-      {packet.partial ? <div className="sod29-state warn">הקורא המורשה החזיר חלון חלקי. הסיכום אינו מוצג כמיצוי מלא ואין סריקה עוקפת.</div> : null}
+      {partial ? <div className="sod29-state warn">הקורא המורשה החזיר חלון חלקי. הסיכום אינו מוצג כמיצוי מלא ואין סריקה עוקפת.</div> : null}
     </section>
 
     <section className="sod29-section" aria-labelledby="book-review-items-title">
@@ -237,7 +300,7 @@ function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
         <span className="sod29-chip">{safeCount(page.total)} בסך הכול</span>
       </div>
       {packet.items?.length ? <div className="book-review29-list">
-        {packet.items.map(item => <ReviewItem key={item.id} item={item} />)}
+        {packet.items.map(item => <ReviewItem key={item.id} item={item} evidence={evidenceById.get(item.id)} />)}
       </div> : <FrameState title="אין מועמדים בחלון הזה">לא נמצאו רשומות מורשות המסומנות כמועמדות לפרסום עבור הספר הזה.</FrameState>}
 
       <nav className="book-review29-pagination" aria-label="דפדוף ברשימת הביקורת">
@@ -252,7 +315,14 @@ function ReviewScreen({ book, packet, offset, onOffset, onReload }) {
 export default function BookPublicationReview2029Page({ slug = "" }) {
   const [offset, setOffset] = useState(0);
   const [reloadKey, setReloadKey] = useState(0);
-  const [state, setState] = useState({ phase: "loading", book: null, packet: null, restriction: null });
+  const [state, setState] = useState({
+    phase: "loading",
+    book: null,
+    reviewPacket: null,
+    evidencePresentation: null,
+    restriction: null,
+    partial: false,
+  });
 
   useEffect(() => {
     applySeo({
@@ -268,31 +338,18 @@ export default function BookPublicationReview2029Page({ slug = "" }) {
     setState(current => ({ ...current, phase: "loading", restriction: null }));
     (async () => {
       try {
-        // First gate: do not even resolve the Book identity until the server-derived
-        // admin predicate succeeds. loadBookPublicationReview verifies it again.
-        const adminVerified = await verifyBookPublicationReviewAdmin();
+        const desk = await loadBookPublicationEvidenceReviewDesk(slug, { limit: PAGE_SIZE, offset });
         if (!active) return;
-        if (!adminVerified) {
-          setState({ phase: "restricted", book: null, packet: null, restriction: "admin" });
-          return;
-        }
-
-        const book = await fetchBookEntityBySlug(slug);
-        if (!active) return;
-        if (!book) {
-          setState({ phase: "unavailable", book: null, packet: null, restriction: null });
-          return;
-        }
-
-        const packet = await loadBookPublicationReview(book, { limit: PAGE_SIZE, offset });
-        if (!active) return;
-        if (packet.availability !== "available" || packet.source?.adminVerified !== true) {
-          setState({ phase: "restricted", book: null, packet: null, restriction: packet.source?.adminVerified ? "reader" : "admin" });
-          return;
-        }
-        setState({ phase: "ready", book, packet, restriction: null });
+        setState(desk);
       } catch {
-        if (active) setState({ phase: "error", book: null, packet: null, restriction: null });
+        if (active) setState({
+          phase: "error",
+          book: null,
+          reviewPacket: null,
+          evidencePresentation: null,
+          restriction: null,
+          partial: false,
+        });
       }
     })();
     return () => { active = false; };
@@ -304,7 +361,7 @@ export default function BookPublicationReview2029Page({ slug = "" }) {
     description: "מסך מבודד לבדיקת מועמדי ספרים. ממשל מחקרי ופרסום נשארים גבולות נפרדים.",
     status: "מנהל · קריאה בלבד",
     // Use the existing Books experience profile; authorization remains the
-    // server-derived admin gate above, not a presentation-only surface name.
+    // server-derived admin gate inside the unified desk loader.
     surface: "books",
     symbol: <NavigationIcon2029 name="books" />,
     introVariant: "compact",
@@ -337,7 +394,9 @@ export default function BookPublicationReview2029Page({ slug = "" }) {
     <div className="book-review29" data-access-scope="public_candidate" data-publication-effect="none">
       <ReviewScreen
         book={state.book}
-        packet={state.packet}
+        packet={state.reviewPacket}
+        evidencePresentation={state.evidencePresentation}
+        partial={state.partial}
         offset={offset}
         onOffset={setOffset}
         onReload={() => setReloadKey(value => value + 1)}
