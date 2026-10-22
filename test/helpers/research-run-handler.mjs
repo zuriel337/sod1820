@@ -9,7 +9,8 @@ import {composeResearchW2} from '../../src/lib/research/researchComposerW2.js';
 import {createCanonicalW2Executors as createPublicNumberW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
 import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+import {mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT} from '../../src/lib/research/numberPhrasePresentationOrder.js';
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,leadRows=[],leadReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -22,6 +23,17 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     if(u.pathname==='/auth/v1/user')return authenticatedUser
       ? response({id:'22222222-2222-4222-8222-222222222222'})
       : response({message:'synthetic guest'},401);
+    if(u.pathname==='/rest/v1/gematria_words'){
+      assert.equal(req.method,'GET');
+      assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'lead order must retain caller credential');
+      assert.equal(u.searchParams.get('ragil'),'eq.878');
+      assert.equal(u.searchParams.get('is_verified'),'eq.true');
+      assert.equal(u.searchParams.get('is_published'),'eq.true');
+      assert.equal(u.searchParams.get('or'),'(is_encrypted.eq.false,is_encrypted.is.null)');
+      assert.equal(u.searchParams.get('lead_rank'),'not.is.null');
+      assert.equal(u.searchParams.get('limit'),String(NUMBER_PHRASE_PRESENTATION_LIMIT));
+      return leadReadFailure ? response({message:'synthetic presentation outage'},503) : response(leadRows);
+    }
     if(req.method!=='POST'||!u.pathname.startsWith('/rest/v1/rpc/')){unexpected.push(req.url);throw new Error('Unexpected request');}
     const fault=faults.find(f=>f.name===name && (!f.span || body.p_name===f.span));
     if(fault){
@@ -67,6 +79,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     'import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";',
     'import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";',
     'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
+    'import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";',
   ],'Review new Edge imports before executing them');
   let handler;
   const env={SUPABASE_URL:origin,SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:service};
@@ -75,6 +88,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     composeResearchW2:composerFailure?()=>{throw new Error('Isolated composer failure');}:composeResearchW2,
     createPublicNumberW2Executors,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
     PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
+    mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT,
     Request,Response,Headers,URL,crypto:{randomUUID},
   },{filename:'research-run/index.ts',timeout:5000});
   const fetch=async(input,init)=>{

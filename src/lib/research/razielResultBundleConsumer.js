@@ -31,6 +31,7 @@ const SAFE_DETAIL_KEYS = new Set([
   "certainty", "ai_calls", "rpc_calls", "retry_count", "latency_ms", "trace_ref", "traceRef",
   "span_id", "spanId", "operation_id", "operationId", "interaction_id", "interactionId", "outcome",
   "max_search_depth", "returned_count", "total_count", "truncated", "window", "ordering",
+  "rank", "lead_rank", "authority", "presentation_scope",
 ]);
 
 const FORBIDDEN_KEY = /(?:authorization|auth_context|token|password|secret|private_prompt|raw_payload|raw_private|jwt|cookie|email|phone|user_id|owner_user)/i;
@@ -213,6 +214,7 @@ function projectFinding(finding, rankById, outcomesById) {
     ranking: ranking ? {
       rank: finiteNumber(ranking.rank),
       score: finiteNumber(ranking.score),
+      axes: projectDetail(ranking.axes).value,
       reasons: uniqueText(ranking.reasons, 6),
     } : null,
     evidence_relations: outcomesById.get(id) || [],
@@ -315,6 +317,24 @@ function deepFreeze(value) {
   return value;
 }
 
+// Result Bundle preserves source evidence order; `ranking` is a separate presentation authority.
+// Apply it only at this bounded consumer edge, before the 12-Finding limit. Unranked evidence keeps
+// its exact source-relative order, and ties are stable. This prevents an alphabetically early
+// method family from consuming the whole model window before Human-Gate-ranked Regular phrases.
+function findingsInPresentationOrder(findings, rankById) {
+  return list(findings).map((finding, sourceIndex) => {
+    const id = cleanText(finding?.id, 200);
+    const rank = finiteNumber(rankById.get(id)?.rank);
+    return { finding, sourceIndex, rank };
+  }).sort((a, b) => {
+    const aRanked = a.rank != null;
+    const bRanked = b.rank != null;
+    if (aRanked !== bRanked) return aRanked ? -1 : 1;
+    if (aRanked && a.rank !== b.rank) return a.rank - b.rank;
+    return a.sourceIndex - b.sourceIndex;
+  }).map((entry) => entry.finding);
+}
+
 export function buildRazielResultBundleConsumer(bundle) {
   if (!bundle || typeof bundle !== "object" || Array.isArray(bundle)) {
     throw new TypeError("razielResultBundleConsumer: canonical Result Bundle object is required");
@@ -324,7 +344,8 @@ export function buildRazielResultBundleConsumer(bundle) {
   }
 
   const rankById = new Map(list(bundle.ranking).map((entry) => [cleanText(entry?.finding_id, 200), entry]));
-  const candidateIds = new Set(list(bundle.findings).slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
+  const orderedFindings = findingsInPresentationOrder(bundle.findings, rankById);
+  const candidateIds = new Set(orderedFindings.slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
     .map((finding) => cleanText(finding?.id, 200)).filter(Boolean));
   const projectedOutcomes = list(bundle.finding_outcomes)
     .map((outcome) => projectOutcome(outcome, candidateIds))
@@ -335,7 +356,7 @@ export function buildRazielResultBundleConsumer(bundle) {
     current.push(outcome);
     outcomesById.set(outcome.finding_id, current);
   }
-  const findings = list(bundle.findings).slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
+  const findings = orderedFindings.slice(0, RAZIEL_RESULT_BUNDLE_LIMITS.findings)
     .map((finding) => projectFinding(finding, rankById, outcomesById))
     .filter(Boolean);
   const findingIds = new Set(findings.map((finding) => finding.id));
@@ -425,6 +446,8 @@ export function buildRazielResultBundleConsumer(bundle) {
       evidence_refs: finding.evidence.refs,
       evidence_relations: finding.evidence_relations,
       access_tier: finding.access?.tier || null,
+      presentation_rank: finding.ranking?.rank ?? null,
+      presentation_authority: finding.ranking?.axes?.authority || null,
     })),
     coverage,
     gaps: {

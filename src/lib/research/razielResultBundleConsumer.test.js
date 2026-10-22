@@ -45,7 +45,7 @@ function finding({
   });
 }
 
-function publicBundle({ findings = [], capabilities = null, outcomes = [], query = null } = {}) {
+function publicBundle({ findings = [], capabilities = null, outcomes = [], query = null, ranking = [] } = {}) {
   return composeResearchResultBundle({
     query: query || { question: "מה זה 776?", intent: "number_definition", identities: [{ type: "number", value: 776, label: "776" }] },
     capabilities: capabilities || [capabilityResult({
@@ -60,6 +60,7 @@ function publicBundle({ findings = [], capabilities = null, outcomes = [], query
       cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0, secret: "DROP" },
       trace: { trace_ref: "trace:776", private_prompt: "DROP" },
     })],
+    ranking,
   });
 }
 
@@ -189,4 +190,57 @@ test("consumer rejects arbitrary objects that bypass the canonical Bundle invari
     () => buildRazielResultBundleConsumer({ findings: [{ id: "raw" }] }),
     /universal_finding_only/,
   );
+});
+
+test("explicit Bundle ranking is applied before the 12-Finding bound with stable unranked fallback", () => {
+  const unranked = Array.from({ length: 12 }, (_, index) => finding({
+    id: `uf:source:${index + 1}`,
+    label: `מקור ${index + 1}`,
+    value: 776,
+    method: "אותיות אחרי",
+  }));
+  const second = finding({ id: "uf:lead:2", label: "מחשבת יהוה", value: 776, method: "רגיל" });
+  const first = finding({ id: "uf:lead:1", label: "ביאת המשיח", value: 776, method: "רגיל" });
+  const bundle = publicBundle({
+    findings: [...unranked, second, first],
+    ranking: [
+      {
+        finding_id: second.id,
+        rank: 2,
+        axes: { authority: "public.gematria_words.lead_rank", presentation_scope: "equal_regular_phrase_prominence", lead_rank: 2 },
+        reasons: ["סדר ביטויים ידני קיים בדף המספר"],
+      },
+      {
+        finding_id: first.id,
+        rank: 1,
+        axes: { authority: "public.gematria_words.lead_rank", presentation_scope: "equal_regular_phrase_prominence", lead_rank: 1 },
+        reasons: ["סדר ביטויים ידני קיים בדף המספר"],
+      },
+    ],
+  });
+  const out = buildRazielResultBundleConsumer(bundle);
+
+  assert.deepEqual(out.model_input.findings.slice(0, 4).map((item) => item.subject.label), [
+    "ביאת המשיח", "מחשבת יהוה", "מקור 1", "מקור 2",
+  ]);
+  assert.equal(out.model_input.findings.length, 12);
+  assert.equal(out.model_input.output_bounds.consumer_truncated, true);
+  assert.equal(out.model_input.findings[0].ranking.axes.authority, "public.gematria_words.lead_rank");
+  assert.equal(out.human_view.cards[0].presentation_rank, 1);
+  assert.equal(out.human_view.cards[0].presentation_authority, "public.gematria_words.lead_rank");
+  assert.deepEqual(out.model_input.findings.slice(2).map((item) => item.id), unranked.slice(0, 10).map((item) => item.id));
+});
+
+test("invalid ranking IDs and null ranks never reorder canonical source findings", () => {
+  const first = finding({ id: "uf:first", label: "ראשון", value: 776 });
+  const second = finding({ id: "uf:second", label: "שני", value: 776 });
+  const bundle = publicBundle({
+    findings: [first, second],
+    ranking: [
+      { finding_id: "uf:not-admitted", rank: 1 },
+      { finding_id: second.id, rank: null },
+    ],
+  });
+  const out = buildRazielResultBundleConsumer(bundle);
+  assert.deepEqual(out.model_input.findings.map((item) => item.id), [first.id, second.id]);
 });

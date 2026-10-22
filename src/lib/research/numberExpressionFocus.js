@@ -1,14 +1,9 @@
 import { buildExactReturnPatch, normalizeResearchContext, researchContextNumber } from "./researchContext.js";
+import { isRegularMethodIdentity } from "./methodIdentity.js";
+
+export { isRegularMethodIdentity } from "./methodIdentity.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
-
-function normalizedMethodName(value) {
-  return clean(value).replace(/[\s"'״׳’‘\-_/]/g, "");
-}
-
-export function isRegularMethodIdentity(value) {
-  return normalizedMethodName(value) === "רגיל";
-}
 
 export function regularMethodProfile(rows = []) {
   return (Array.isArray(rows) ? rows : []).find((row) => (

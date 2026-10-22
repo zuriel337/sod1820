@@ -49,6 +49,7 @@ test('authenticated personal pair performs one canonical relation RPC and return
   assert.equal(out.data.contract, CONTRACT);
   const relationCalls = runtime.calls.filter(call => call.name === 'fn_relation_candidate');
   assert.equal(relationCalls.length, 1);
+  assert.equal(runtime.calls.filter(call => call.name === 'gematria_words').length, 0, 'personal pair never reads Number presentation hierarchy');
   assert.deepEqual(relationCalls[0].body, { p_a: EXPRESSIONS[0], p_b: EXPRESSIONS[1] });
   assert.equal(relationCalls[0].authorization, `Bearer ${runtime.anon}`);
   assert.equal(out.data.bundle.findings.length, 1);

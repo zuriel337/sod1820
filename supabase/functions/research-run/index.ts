@@ -29,6 +29,7 @@ import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.
 import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
 import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";
 import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
+import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";
 
 const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") || "").trim();
 const ANON_KEY = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
@@ -84,8 +85,7 @@ async function verifiedUserId(authHeader: string | null): Promise<string | null>
 }
 
 // Minimal { rpc(name, args) -> {data, error} } transport shared by the caller-scoped executor client
-// and the server's own service-role gate/trace calls. It is intentionally the ONLY HTTP surface this
-// function speaks — no second Postgres/PostgREST client is introduced.
+// and the server's own service-role gate/trace calls. No second database client is introduced.
 function rpcTransport(apiKey: string, authorization: string) {
   return {
     async rpc(name: string, args: Record<string, unknown> = {}) {
@@ -110,6 +110,36 @@ function rpcTransport(apiKey: string, authorization: string) {
       }
     },
   };
+}
+
+// One bounded caller-scoped presentation read over the SAME public gematria_words authority already
+// used by Legacy and Number 2029. RLS and grants are evaluated with the original caller credential;
+// service role never reaches this query. Failure is presentation-only and falls back to the canonical
+// numeric order, while the surrounding numeric capability trace still witnesses the attempt.
+async function fetchNumberPhrasePresentationRows(apiKey: string, authorization: string, number: number) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/gematria_words`);
+  url.searchParams.set("select", "id,phrase,ragil,lead_rank,is_verified,is_published,is_encrypted,node_id,created_at");
+  url.searchParams.set("ragil", `eq.${number}`);
+  url.searchParams.set("is_verified", "eq.true");
+  url.searchParams.set("is_published", "eq.true");
+  // Match the existing public RLS boundary exactly: historical null and explicit false are public;
+  // true is excluded even for an admin caller so public answer quality stays role-independent.
+  url.searchParams.set("or", "(is_encrypted.eq.false,is_encrypted.is.null)");
+  url.searchParams.set("lead_rank", "not.is.null");
+  url.searchParams.set("order", "lead_rank.asc.nullslast,created_at.desc.nullslast");
+  url.searchParams.set("limit", String(NUMBER_PHRASE_PRESENTATION_LIMIT));
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { apikey: apiKey, Authorization: authorization },
+    });
+    if (!response.ok) return { rows: [], status: "unavailable", http_status: response.status };
+    const data = await response.json().catch(() => null);
+    if (!Array.isArray(data)) return { rows: [], status: "unavailable", http_status: response.status };
+    return { rows: data, status: "available", http_status: response.status };
+  } catch {
+    return { rows: [], status: "unavailable", http_status: null };
+  }
 }
 
 async function serviceRpc(name: string, args: Record<string, unknown>): Promise<any> {
@@ -271,6 +301,62 @@ Deno.serve(async (req: Request) => {
     supabase: callerRpc,
     serverContext: false,
   });
+  let presentationRanking: any[] = [];
+  const numericExecutor = baseExecutors.numeric;
+  const publicExecutors = !personalPair && typeof numericExecutor === "function"
+    ? Object.freeze({
+        ...baseExecutors,
+        numeric: async (args: any) => {
+          const [numeric, presentationRead] = await Promise.all([
+            numericExecutor(args),
+            fetchNumberPhrasePresentationRows(ANON_KEY, authHeader, run.number),
+          ]);
+          if (numeric?.status !== "executed" || presentationRead.status !== "available") {
+            return {
+              ...numeric,
+              trace: {
+                ...(numeric?.trace || {}),
+                presentation_order: {
+                  authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+                  scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+                  status: presentationRead.status,
+                  row_count: 0,
+                  added_finding_count: 0,
+                  rpc_calls: 1,
+                  ai_calls: 0,
+                  retry_count: 0,
+                },
+              },
+            };
+          }
+          const projected = mergeNumberPhrasePresentationOrder({
+            findings: numeric.findings,
+            rows: presentationRead.rows,
+            number: run.number,
+          });
+          presentationRanking = [...projected.ranking];
+          return {
+            ...numeric,
+            findings: projected.findings,
+            sourceRefs: [...new Set([...(numeric.sourceRefs || []), NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref])],
+            versionRefs: [...new Set([...(numeric.versionRefs || []), `number-phrase-presentation-order:v${NUMBER_PHRASE_PRESENTATION_AUTHORITY.version}`])],
+            trace: {
+              ...(numeric.trace || {}),
+              presentation_order: {
+                authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+                scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+                status: "available",
+                row_count: projected.row_count,
+                added_finding_count: projected.added_count,
+                rpc_calls: 1,
+                ai_calls: 0,
+                retry_count: 0,
+              },
+            },
+          };
+        },
+      })
+    : baseExecutors;
   const executors = personalPair
     ? Object.freeze({
         ...baseExecutors,
@@ -281,7 +367,7 @@ Deno.serve(async (req: Request) => {
           maxPairs: 1,
         }),
       })
-    : baseExecutors;
+    : publicExecutors;
 
   const capabilityEvents: any[] = [];
   const composeSpanId = crypto.randomUUID();
@@ -314,6 +400,7 @@ Deno.serve(async (req: Request) => {
       capabilityAllowlist: run.requested_capabilities,
       requestedDepth: personalPair ? "personal_gematria_pair_v1" : "golden_public_number_v1",
       executors,
+      rankingResolver: personalPair ? null : () => presentationRanking,
       // Timestamps/status/counts only — never raw Findings/content cross this boundary.
       executionObserver: (event: any) => capabilityEvents.push(event),
     });
