@@ -3,6 +3,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntell
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -769,6 +770,48 @@ function razielSurfaceContextText(sc: any): string {
   arr(sc.visible_convergences, "התכנסויות מוצגות כרגע בדף");
   if (!parts.length) return "";
   return ("\n\nהקשר-משטח (מה שהמשתמש רואה עכשיו בדף המספר — רקע-מסך בלבד, לא עובדה קנונית ולא תחליף למטטרון):\n" + parts.join("\n")).slice(0, 900);
+}
+
+// Kept outside the Phase B-M pure-helper extraction region: this is an Edge I/O adapter around
+// the shared pure gate, not part of any deterministic capability owner.
+type RazielSemanticIntentClassifierResult = {
+  intent: ReturnType<typeof validateRazielSemanticIntent>;
+  degraded: boolean;
+  attempts: number;
+  reason: string | null;
+  usage?: { input_tokens?: number; output_tokens?: number };
+};
+
+const RAZIEL_SEMANTIC_INTENT_SYSTEM = `You classify one Hebrew research question for SOD1820 Raziel. Return JSON only.
+Schema: {"version":"${RAZIEL_SEMANTIC_INTENT_VERSION}","status":"resolved|clarify","action":"understand|research|connect|continue","confidence":"high|medium|low","ambiguous":false,"text_computation_requested":false,"candidates":[{"type":"number|phrase|word|name|topic","value":776,"label":"exact text","evidence_text":"exact substring","role":"subject"}],"reason":"short"}.
+Rules: candidates are the research SUBJECTS, never quantities, years, page/source/chapter/verse numbers, requested result counts, dates or method parameters. Evidence must be an exact substring of the question. Max 2 candidates. Never output access, capability, RPC, tool, provider, provenance, metadata, id or ref. Do not calculate or answer. If subject/action is uncertain, status=clarify, ambiguous=true, confidence=low, candidates=[]. Set text_computation_requested=true only for an explicit request to calculate the supplied text itself.`;
+
+async function classifyRazielSemanticIntent(question: string): Promise<RazielSemanticIntentClassifierResult> {
+  const rel = await callClaudeReliable({
+    apiKey: ANTHROPIC_KEY,
+    model: FAST_MODEL,
+    system: RAZIEL_SEMANTIC_INTENT_SYSTEM,
+    user: `שאלת המשתמש:\n${question.slice(0, 300)}`,
+    maxTokens: 240,
+    policy: { retries: 1, timeoutMs: 12000, backoffMs: [] },
+    buildFallback: (reason) => JSON.stringify({
+      version: RAZIEL_SEMANTIC_INTENT_VERSION,
+      status: "clarify",
+      action: "understand",
+      confidence: "low",
+      ambiguous: true,
+      candidates: [],
+      reason,
+    }),
+  });
+  const parsed = parseContract(rel.text);
+  return {
+    intent: validateRazielSemanticIntent(parsed, question),
+    degraded: rel.degraded,
+    attempts: rel.attempts,
+    reason: rel.reason,
+    usage: rel.usage,
+  };
 }
 
 // ── Raziel Intelligence Core v1 Phase B — Projection → Research Plan wiring ──────────────────────────
@@ -2202,6 +2245,7 @@ Deno.serve(async (req: Request) => {
       const rConversationHint = rTrusted
         ? null
         : razielConversationNumberHint(body?.conversation_resolution, rSubject);
+      let rSemanticHint: RazielConversationNumberHint | null = null;
       // Multimodal source stage FIRST (trusted internal path only). When a source is attached, caption/subject words never fall
       // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.
       let rSource: { ok: boolean; text: string; mime: string | null; reason: string | null } | null = null;
@@ -2320,6 +2364,95 @@ Deno.serve(async (req: Request) => {
           message: rFast ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר." : "הגעת למכסת שיחות-רזיאל המעמיקות להיום. המכסה מתחדשת מחר." });
       }
 
+      // 2029 semantic fallback — only after every deterministic/planner/conversation route had its
+      // chance, and only when the client sent NO envelope (a rejected envelope must never be rescued
+      // by a model). The classifier is an intent candidate, not a planner: exact-evidence validation
+      // admits only 1-2 public numeric subjects; Research Plan / research-run still own execution.
+      // One FAST attempt, bounded output, separately traced and costed.
+      const rSemanticEligible = rCanonicalResearchOptIn
+        && !rTrusted && body?.conversation_resolution == null && !rConversationHint
+        && !!rSubject && /\d{1,6}/u.test(rSubject) && !rTrusted?.media
+        && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
+        && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
+      if (rSemanticEligible) {
+        const classifierSpanId = crypto.randomUUID();
+        const classifierStartedAt = new Date().toISOString();
+        const classified = await classifyRazielSemanticIntent(rSubject);
+        const classifierEndedAt = new Date().toISOString();
+        const candidates = classified.intent?.status === "resolved" ? classified.intent.candidates : [];
+        const numeric = candidates.length >= 1 && candidates.length <= 2
+          && candidates.every((candidate: any) => candidate?.type === "number" && Number.isInteger(candidate.value));
+        if (!classified.degraded && numeric) {
+          rSemanticHint = {
+            numbers: candidates.map((candidate: any) => candidate.value) as [number] | [number, number],
+            requestedAction: classified.intent!.action as RazielConversationNumberHint["requestedAction"],
+          };
+        }
+        const classifierOutcome = classified.degraded ? "provider_error" : rSemanticHint ? "success" : "failed_with_reason";
+        await recordOperationalSpan(activeTrace, {
+          spanId: classifierSpanId,
+          kind: "model_call",
+          name: "ai-analyze:raziel:semantic-intent",
+          startedAt: classifierStartedAt,
+          endedAt: classifierEndedAt,
+          outcome: classifierOutcome,
+          detail: {
+            capability: "raziel_semantic_intent_candidate",
+            owner_ref: "research_strategy_layer_law v17 + raziel_routing_law v2",
+            intelligence_level: "fast",
+            provider: "anthropic",
+            model: FAST_MODEL,
+            routing_reason: "canonical_2029_unresolved_intent_only",
+            output_use: rSemanticHint ? "used" : "not_applicable",
+            stop_reason: classified.degraded ? (classified.reason || "degraded") : rSemanticHint ? null : "clarify_or_invalid",
+            resources: {
+              input_tokens: classified.usage?.input_tokens ?? null,
+              output_tokens: classified.usage?.output_tokens ?? null,
+              api_calls: classified.attempts,
+              latency_ms: Math.max(0, Date.parse(classifierEndedAt) - Date.parse(classifierStartedAt)),
+            },
+            cost: { certainty: "unknown" },
+            replay: {
+              ownerRuleRefs: ["research_strategy_layer_law v17", "raziel_routing_law v2"],
+              parametersRef: `contract:${RAZIEL_SEMANTIC_INTENT_VERSION};max_tokens:240;attempts:1`,
+            },
+            privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+          },
+        });
+        const classifierTokenLogId = await logTokens("raziel_intent", FAST_MODEL, classified.usage, identity,
+          { traceId: activeTrace?.traceId, spanId: classifierSpanId });
+        await linkOperationalAiCost(activeTrace, classifierSpanId, classifierTokenLogId);
+        rPlanMeta = {
+          ...(rPlanMeta || {}),
+          semantic_intent: {
+            contract: RAZIEL_SEMANTIC_INTENT_VERSION,
+            status: rSemanticHint ? "admitted" : "clarify_or_invalid",
+            executed: true,
+          },
+        };
+        if (!classified.degraded && classified.intent?.status === "clarify") {
+          await finishOperationalTrace(activeTrace, "success");
+          return rzJson({
+            raziel: {
+              v: 1,
+              agent: "raziel",
+              context: null,
+              greeting: null,
+              answer: "כדי לבדוק נכון, צריך להבהיר למה המספר בשאלה מתייחס — האם הוא נושא המחקר עצמו, או פרט כמו שנה, עמוד או כמות?",
+              facts: [],
+              suggested_paths: [],
+              follow_up_question: null,
+              continue_wa: true,
+            },
+            engine: "semantic_classifier",
+            model: FAST_MODEL,
+            intelligence_level: "fast",
+            plan_meta: rPlanMeta,
+            trace_id: activeTrace?.traceId || null,
+          });
+        }
+      }
+
       // Phase C — operator READ (admin only). L0 questions answer straight from the owner projection (no model, no tokens);
       // broad questions get a bounded owner pack for the existing L2_FAST synthesis. Any failure → no admin data, ordinary synthesis.
       let rOpPack = "";
@@ -2378,10 +2511,10 @@ Deno.serve(async (req: Request) => {
       let rCanonicalBundlePack = "";
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
-      const rConversationFallback = rConversationHint
+      const rConversationFallback = (rConversationHint ?? rSemanticHint)
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match")
-        ? rConversationHint
+        ? (rConversationHint ?? rSemanticHint)
         : null;
       const rNcPairDesc = razielNumberPairDescriptor(rDet) ?? (rConversationFallback?.numbers.length === 2
         ? { numbers: rConversationFallback.numbers as [number, number], anchor: "conversation_resolution", mode: "synthesis", focus: "number_compare" }

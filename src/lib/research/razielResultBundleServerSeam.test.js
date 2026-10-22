@@ -13,6 +13,24 @@ const CONTRACT = "public-number-research-run-v1";
 const PRIVATE = "RAW-PRIVATE-BUNDLE-SENTINEL";
 const LEGACY_MEMORY = "LEGACY-PERSISTENT-MEMORY-SENTINEL";
 
+function classifierResult({ action = "research", candidates = [{ type: "number", value: 776, evidence_text: "776", role: "subject" }], status = "resolved", confidence = "high", ambiguous = false } = {}) {
+  return {
+    text: JSON.stringify({
+      version: "raziel-semantic-intent-v1",
+      status,
+      action,
+      confidence,
+      ambiguous,
+      text_computation_requested: false,
+      candidates,
+      reason: status === "resolved" ? "numeric research subject" : "ambiguous",
+    }),
+    usage: { input_tokens: 41, output_tokens: 29 },
+    attempts: 1,
+    degraded: false,
+  };
+}
+
 function numberBundle(number, sourceName = "ספר יצירה") {
   const finding = makeUniversalFinding({
     id: `uf:number:${number}`,
@@ -199,6 +217,92 @@ test("2029 canonical contract composes without legacy persistent memory read or 
   assert.match(run.models[0].user, /המשך השיחה הנוכחית בלבד/);
   assert.doesNotMatch(run.models[0].user, new RegExp(LEGACY_MEMORY));
   assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
+});
+
+test("unresolved 2029 paraphrase uses one bounded semantic attempt, then the same canonical Bundle", async () => {
+  const question = "תוכל לצלול לתוך 776 ולראות מה מסתתר שם";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: question,
+      visitor_id: "vsemanticfallback2029",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+    },
+    researchBundleByNumber: { 776: numberBundle(776) },
+    modelResults: [
+      classifierResult(),
+      {
+        text: JSON.stringify({ v: 1, agent: "raziel", answer: "ממצאים מאומתים עבור 776", facts: [], suggested_paths: [] }),
+        usage: { input_tokens: 18, output_tokens: 9 }, attempts: 1, degraded: false,
+      },
+    ],
+  });
+
+  assert.equal(run.models.length, 2);
+  assert.equal(run.models[0].model, "claude-haiku-4-5");
+  assert.equal(run.models[0].maxTokens, 240);
+  assert.equal(run.models[0].policy.retries, 1);
+  assert.match(run.models[0].user, new RegExp(question));
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
+  assert.equal(run.calls.find((call) => call.name === "research-run").payload.number, 776);
+  assert.match(run.models[1].user, /raziel-canonical-result-bundle-input-v1/);
+  assert.equal(run.result.raziel.plan_meta.semantic_intent.status, "admitted");
+  const intentSpans = run.spans.filter((span) => span.p_name === "ai-analyze:raziel:semantic-intent");
+  assert.equal(intentSpans.length, 1);
+  assert.equal(intentSpans[0].p_detail.resources.api_calls, 1);
+  assert.equal(intentSpans[0].p_detail.resources.input_tokens, 41);
+  assert.equal(intentSpans[0].p_detail.resources.output_tokens, 29);
+});
+
+test("semantic ambiguity remains honest: one classifier call, no research or synthesis", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: "בדוק אם 2024 כאן הוא שנה או מספר למחקר",
+      visitor_id: "vsemanticclarify2029",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+    },
+    modelResults: [
+      classifierResult({ status: "clarify", confidence: "low", ambiguous: true, candidates: [] }),
+    ],
+  });
+
+  assert.equal(run.models.length, 1);
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
+  assert.equal(run.result.plan_meta.semantic_intent.status, "clarify_or_invalid");
+  assert.match(run.result.raziel.answer, /שנה, עמוד או כמות/);
+  assert.equal(run.result.engine, "semantic_classifier");
+});
+
+test("semantic classifier never runs for Legacy or when a client envelope was rejected", async () => {
+  const legacy = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    body: { subject: "תוכל לצלול לתוך 776 ולראות מה מסתתר שם", intelligence_level: "fast" },
+  });
+  assert.equal(legacy.models.length, 1);
+  assert.equal(legacy.calls.filter((call) => call.name === "research-run").length, 0);
+
+  const rejectedEnvelope = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    body: {
+      subject: "בדוק לי את עמוד 33",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: conversation([33], "research"),
+    },
+  });
+  assert.equal(rejectedEnvelope.models.length, 1);
+  assert.equal(rejectedEnvelope.calls.filter((call) => call.name === "research-run").length, 0);
 });
 
 test("Legacy authenticated request preserves its existing persistent-memory read and write", async () => {

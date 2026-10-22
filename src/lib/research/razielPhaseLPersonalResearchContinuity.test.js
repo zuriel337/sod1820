@@ -167,7 +167,9 @@ test("Phase L: one db_rpc span per owner call; span detail carries no uid / payl
 test("Phase L: call-site answers L0 without a model (deterministic); synthesis gets the pack; runs before the model call; A-K call sites preserved", () => {
   assert.match(callSite, /model: "none", intelligence_level: "deterministic"/);
   assert.match(callSite, /if \(op\.ok && op\.pack\) rPersPack = op\.pack/);
-  assert.ok(edge.indexOf("runRazielPersonal(rPersDesc") < edge.indexOf("callClaudeReliable("));
+  const personalRead = edge.indexOf("runRazielPersonal(rPersDesc");
+  const answerSynthesis = edge.indexOf("const rel = await callClaudeReliable", personalRead);
+  assert.ok(personalRead >= 0 && personalRead < answerSynthesis);
   for (const k of ["runRazielOperator(rOpDesc", "runRazielCoordination(rCoordDesc", "razielNumberContextDescriptor(", "razielCurrentContentDescriptor("]) assert.ok(edge.includes(k), k);
   assert.match(edge, /const planText = razielPlanBlockText\(rPlanMeta\) \+ \(rPersPack/);
 });

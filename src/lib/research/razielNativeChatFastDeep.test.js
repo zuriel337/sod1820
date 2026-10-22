@@ -39,7 +39,8 @@ test("edge raziel: deterministic-first precedes quota and model; explicit tier o
   // Phase D: fast/deep is a user REQUEST fed to the semantic selector, not absolute authority.
   assert.match(razielBlock, /selectRazielIntelligence\(\{ plan: rPlanMeta, requested: body\?\.intelligence_level \}\)/);
   assert.match(razielBlock, /rFast \? FAST_MODEL : MODEL/);
-  assert.doesNotMatch(razielBlock, /fn_raziel_model|routing_enabled|classif/);
+  assert.doesNotMatch(razielBlock, /fn_raziel_model|routing_enabled/);
+  assert.match(razielBlock, /rCanonicalResearchOptIn[\s\S]*body\?\.conversation_resolution == null[\s\S]*classifyRazielSemanticIntent/);
 });
 
 test("edge raziel: fast quota pattern (:f, 30/200) and no stale '2' wording", () => {
@@ -52,7 +53,8 @@ test("same persona/metatron/memory path for both tiers; reliability wired, never
   assert.equal((razielBlock.match(/fetchRazielPersona\(/g) || []).length, 1);
   assert.equal((razielBlock.match(/fetchMetatronContext\(/g) || []).length, 1);
   assert.match(edge, /import \{ callClaudeReliable \} from "\.\.\/_shared\/raziel-reliability\.ts"/);
-  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 2);
+  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 3);
+  assert.match(edge, /maxTokens: 240,[\s\S]*policy: \{ retries: 1, timeoutMs: 12000, backoffMs: \[\] \}/);
   assert.match(razielBlock, /model-truth-retry/);
   assert.match(razielBlock, /policy: \{ retries: 1 \}/);
   assert.match(razielBlock, /buildFallback[\s\S]*agent: "raziel"/);

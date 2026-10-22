@@ -7,6 +7,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/function
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, validateRazielSemanticIntent } from "../../src/lib/research/razielSemanticIntentGate.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -110,12 +111,13 @@ export async function runAiAnalyze({
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 5, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 6, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
   assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
   assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
+  assert.ok(imports[5].includes('import { RAZIEL_SEMANTIC_INTENT_VERSION, validateRazielSemanticIntent }'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -124,6 +126,7 @@ export async function runAiAnalyze({
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
     buildRazielResultBundleConsumer,
+    RAZIEL_SEMANTIC_INTENT_VERSION, validateRazielSemanticIntent,
     callClaudeReliable: async (options) => {
       models.push(options);
       const sequence = Array.isArray(modelResults) ? modelResults : null;
