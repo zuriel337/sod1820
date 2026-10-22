@@ -7,6 +7,7 @@ import { fetchCurationCatalog2029 } from "../../lib/research/curationProjection2
 import { fetchPublicWorldMediaPage } from "../../lib/research/entityHubProjection.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.js";
+import { ZVI_SPATIAL_WORLD } from "../../lib/research/zviSpatialWorldProjection.js";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
@@ -15,6 +16,7 @@ export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.MEDIA, label: "תמונות ומדיה", description: "חומר חזותי ציבורי ומקורו" },
   { key: WORLD_KNOWLEDGE_KIND.TIME, label: "אירועים וזמן", description: "אירועים ושנים כצמתי ידע" },
   { key: WORLD_KNOWLEDGE_KIND.BOOKS, label: "ספרים ומקורות", description: "זהויות ספר ומקורות פעילים" },
+  { key: WORLD_KNOWLEDGE_KIND.SPATIAL, label: "מבנים מרחביים", description: "גימטריה, מבנה וצורה — בשכבות נפרדות" },
 ]);
 
 const FACETS = Object.freeze({
@@ -55,6 +57,9 @@ function selectedNumberCard(item) {
 }
 
 async function fetchKind(kind) {
+  if (kind === WORLD_KNOWLEDGE_KIND.SPATIAL) {
+    return { sections: [], ciphers: [], media: [], spatial: ZVI_SPATIAL_WORLD, hasMore: false };
+  }
   if (kind === WORLD_KNOWLEDGE_KIND.CIPHERS) {
     const page = await getMatrixLibraryPage({ view: "public", pageSize: 12 });
     return { sections: [], ciphers: page.rows || [], media: [], hasMore: Boolean(page.more) };
@@ -93,6 +98,35 @@ async function fetchKind(kind) {
     media: [],
     hasMore: pages.some(({ page }) => page?.hasMore),
   };
+}
+
+function SpatialShelf({ projection }) {
+  return <section className="sod29-world-kind-section sod29-world-spatial-shelf" aria-label="הגימטריה המרחבית של צבי">
+    <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.models} מבנים · {projection.counts.sourceOccurrences} הופעות מקור</span></header>
+    <p className="sod29-world-spatial-rule">הופעות מקור אינן נספרות אוטומטית כמקורות עצמאיים. חוזק החיבור, איכות הראיות ומצב הפרסום מוצגים בנפרד.</p>
+    <div className="sod29-world-spatial-grid">{projection.cards.map((card) => <article key={card.id} id={`spatial-${card.slug}`} className="sod29-world-spatial-card">
+      {card.image ? <img src={card.image} width="640" height="360" loading="lazy" alt={`תרשים מקור: ${card.title}`} /> : <div className="sod29-world-spatial-placeholder" aria-hidden="true"><span>{card.value}</span><small>{card.form}</small></div>}
+      <div className="sod29-world-spatial-body">
+        <header><small>{card.form} · {card.pathCount} {card.pathCount === 1 ? "מסלול חישוב" : "מסלולי חישוב"}</small><h4>{card.title}</h4>{card.subtitle ? <p>{card.subtitle}</p> : null}</header>
+        <div className="sod29-world-spatial-status" aria-label="מצב המודל">
+          <span>חוזק: {card.review.connectionStrength || projection.rules.missingStrengthLabel}</span>
+          <span>ראיות: {card.review.evidenceQuality}</span>
+          <span>פרסום: {card.review.publicationState}</span>
+          <span>עצמאות מקורות: אין נתון</span>
+        </div>
+        <ol className="sod29-world-spatial-layers">
+          <li><strong>מקור</strong><span>{card.text?.ref || "ממצא צבי"}</span></li>
+          <li><strong>גימטריה</strong><span>{card.gematria.map(([label, value]) => `${label} = ${value}`).join(" · ")}</span></li>
+          <li><strong>מבנה</strong><span>{card.operations.map((operation) => operation.expression).join(" · ")}</span></li>
+          <li><strong>צורה</strong><span>{card.form}{card.dimension ? ` · ${card.dimension}` : ""}</span></li>
+        </ol>
+        {card.interpretation ? <details><summary>הפרשנות של המקור</summary><p>{card.interpretation}</p></details> : null}
+        <details><summary>מקורות מדויקים · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח הופעת מקור" : "פתח את ספריית המקור"}</Link> · <code dir="ltr">{item.ref}</code></li>)}</ul></details>
+        <div className="sod29-actions"><Link className="sod29-action primary" to={`/2029/number/${card.value}`}>לערך {card.value}</Link><Link className="sod29-action" to={card.source.href}>למקורות של צבי</Link></div>
+      </div>
+    </article>)}</div>
+    <p className="sod29-muted">התצוגה הראשונית קלה ואינה טוענת מנוע תלת־ממד. פתיחה מרחבית אינטראקטיבית תתווסף כפעולה מפורשת בלבד.</p>
+  </section>;
 }
 
 function loadKind(kind) {
@@ -155,7 +189,7 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
   const data = state.kind === kind ? state.data : null;
   return <section className="sod29-section sod29-world-knowledge-types" aria-label="עיון בעולם לפי סוג ידע">
     <div className="sod29-section-head"><div><div className="sod29-kicker">אותו עולם · כניסות שונות</div><h2>לגלות לפי סוג הידע.</h2>
-      <p className="sod29-muted">כאן לא נוצרים מאגרים חדשים: כל כרטיס מגיע מהקורא הקנוני של המספר, השפה, הצופן, המדיה, הזמן או המקור.</p></div></div>
+      <p className="sod29-muted">כאן לא נוצרים מאגרים חדשים: כל כרטיס מגיע מהקורא או מההקרנה הקנונית של המספר, השפה, הצופן, המדיה, הזמן, המקור או המבנה המרחבי.</p></div></div>
     <nav className="sod29-world-kind-tabs" aria-label="סוגי הידע בעולם">{WORLD_KNOWLEDGE_OPTIONS.map((item) => <button
       type="button" key={item.key} className={item.key === kind ? "is-active" : ""} aria-pressed={item.key === kind}
       onClick={() => onKindChange?.(item.key)}><strong>{item.label}</strong><small>{item.description}</small></button>)}</nav>
@@ -165,6 +199,7 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
     {data?.sections?.map((section) => <EntitySection key={section.key} section={section} />)}
     {kind === WORLD_KNOWLEDGE_KIND.CIPHERS && data ? <CipherShelf rows={data.ciphers} hasMore={data.hasMore} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.MEDIA && data ? <MediaShelf items={data.media} hasMore={data.hasMore} access={data.access} /> : null}
+    {kind === WORLD_KNOWLEDGE_KIND.SPATIAL && data?.spatial ? <SpatialShelf projection={data.spatial} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.TIME && data ? <div className="sod29-actions"><Link className="sod29-action" to="/timeline">לציר הזמן המלא</Link></div> : null}
     {kind === WORLD_KNOWLEDGE_KIND.BOOKS && data ? <div className="sod29-actions"><Link className="sod29-action" to="/books">למרחב הספרים והמקורות</Link></div> : null}
   </section>;

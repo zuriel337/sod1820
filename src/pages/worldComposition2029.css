@@ -179,6 +179,29 @@
 .sod29-root.surface-world .sod29-world-media-shelf article > div { display: grid; gap: 4px; padding: 10px 12px; }
 .sod29-root.surface-world .sod29-world-media-shelf strong { font: 600 14px/1.4 var(--s29-font-ui); }
 .sod29-root.surface-world .sod29-world-media-shelf small { color: var(--s29-muted); font: 400 11px/1.4 var(--s29-font-numeric); overflow-wrap: anywhere; }
+.sod29-root.surface-world .sod29-world-spatial-rule { margin: 0 0 12px; color: var(--s29-muted); font: 400 13px/1.55 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.sod29-root.surface-world .sod29-world-spatial-card { min-width: 0; overflow: hidden; border: 1px solid var(--s29-line); border-radius: 15px; background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-spatial-card > img,
+.sod29-root.surface-world .sod29-world-spatial-placeholder { width: 100%; height: 190px; object-fit: cover; background: var(--s29-panel-soft); border-bottom: 1px solid var(--s29-line); }
+.sod29-root.surface-world .sod29-world-spatial-placeholder { display: grid; place-content: center; gap: 4px; text-align: center; }
+.sod29-root.surface-world .sod29-world-spatial-placeholder span { color: var(--s29-brand-gold); font: 600 38px/1 var(--s29-font-numeric); }
+.sod29-root.surface-world .sod29-world-spatial-placeholder small { color: var(--s29-muted); font: 500 13px var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-body { display: grid; gap: 11px; padding: 14px; }
+.sod29-root.surface-world .sod29-world-spatial-body header small { color: var(--s29-discovery); font: 500 12px var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-body h4 { margin: 3px 0 0; font: 600 18px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-body header p,
+.sod29-root.surface-world .sod29-world-spatial-body details p { margin: 3px 0 0; color: var(--s29-muted); font: 400 13px/1.55 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-status { display: flex; flex-wrap: wrap; gap: 6px; }
+.sod29-root.surface-world .sod29-world-spatial-status span { padding: 4px 8px; border: 1px solid var(--s29-line); border-radius: 999px; color: var(--s29-muted); font: 500 11px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-layers { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sod29-root.surface-world .sod29-world-spatial-layers li { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; align-items: start; }
+.sod29-root.surface-world .sod29-world-spatial-layers strong { font: 600 12px/1.5 var(--s29-font-ui); color: var(--s29-accent-text); }
+.sod29-root.surface-world .sod29-world-spatial-layers span { font: 400 12px/1.5 var(--s29-font-ui); overflow-wrap: anywhere; }
+.sod29-root.surface-world .sod29-world-spatial-body details { border-top: 1px solid var(--s29-line); padding-top: 8px; }
+.sod29-root.surface-world .sod29-world-spatial-body summary { cursor: pointer; color: var(--s29-ink); font: 600 12px/1.5 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-spatial-body details ul { margin: 8px 0 0; padding-inline-start: 20px; }
+.sod29-root.surface-world .sod29-world-spatial-body code { color: var(--s29-muted); font-size: 10px; overflow-wrap: anywhere; }
 
 /* Kickers: the discovery tone used by Home */
 .sod29-root.surface-world :is(.sod29-world-overview, .sod29-flight-story, .sod29-source-arrivals, .sod29-world-source-homes, .sod29-world-discovery-doors, .sod29-world-all-convergences, .sod29-world-journey-doors) .sod29-kicker {
@@ -306,6 +329,7 @@
   .sod29-root.surface-world .sod29-world-source-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sod29-root.surface-world .sod29-world-kind-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sod29-root.surface-world .sod29-world-kind-card-grid { grid-template-columns: minmax(0, 1fr); }
+  .sod29-root.surface-world .sod29-world-spatial-grid { grid-template-columns: minmax(0, 1fr); }
   .sod29-root.surface-world .sod29-world-media-shelf .sod29-canonical-media-figure { height: 128px; }
 }
 @media (max-width: 350px) {

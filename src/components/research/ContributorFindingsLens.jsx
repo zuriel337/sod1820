@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import FindingSurface from "./FindingSurface.jsx";
 import { use2029Palette } from "../../lib/palette.js";
@@ -10,6 +10,17 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const genericSourceLabel = (text) => ["📷 עדכון", "🎬 עדכון וידאו", "עדכון"].includes(clean(text));
 const safeHttps = (value) => /^https:\/\/[^\s]+$/i.test(clean(value)) ? clean(value) : null;
 const videoMedia = (url) => /\.(mp4|mov|webm|m4v)([?#]|$)/i.test(url || "");
+const sourceOccurrenceId = (sourceRef) => {
+  const id = clean(sourceRef).split(":").at(-1)?.split("#")[0] || "";
+  return /^[0-9a-f-]{36}$/i.test(id) ? `source-occurrence-${id}` : null;
+};
+const groupHasSource = (group, sourceRef) => {
+  const wanted = clean(sourceRef).split("#")[0];
+  if (!wanted) return false;
+  return clean(group?.sourceRef).split("#")[0] === wanted
+    || (group?.linkedSourceRefs || []).some((ref) => clean(ref).split("#")[0] === wanted)
+    || (group?.sourceOccurrences || []).some((source) => clean(source?.sourceRef).split("#")[0] === wanted);
+};
 
 const FACET_LABELS = Object.freeze({
   source: "מקור",
@@ -73,17 +84,20 @@ function makeStyles(P) {
   return { box, pill, action };
 }
 
-function SourceGroup({ group, P, S, researchUnavailable, timeMode, showDuplicateAudit = false }) {
+function SourceGroup({ group, P, S, researchUnavailable, timeMode, showDuplicateAudit = false, focusSourceRef = null }) {
   const [expanded, setExpanded] = useState(false);
   const findings = group.universalFindings || [];
   const shown = expanded ? findings : findings.slice(0, 6);
   const mediaSource = group.mediaSource || group.source;
   const duplicateClusters = Array.isArray(group.duplicateFindingClusters) ? group.duplicateFindingClusters : [];
   const duplicateOccurrences = duplicateClusters.reduce((sum, cluster) => sum + Number(cluster.hiddenOccurrenceCount || 0), 0);
+  const focused = groupHasSource(group, focusSourceRef);
 
   return <article
+    id={focused ? sourceOccurrenceId(focusSourceRef) : undefined}
     data-experience-capability="contributor-source-finding-group"
-    style={{ ...S.box, padding: SPACE[4], display: "grid", gap: SPACE[3] }}
+    data-source-focused={focused ? "true" : undefined}
+    style={{ ...S.box, padding: SPACE[4], display: "grid", gap: SPACE[3], outline: focused ? `2px solid ${P.accent}` : undefined, outlineOffset: focused ? 3 : undefined }}
   >
     <header style={{ display: "flex", gap: SPACE[3], alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap" }}>
       <div style={{ minWidth: 0, flex: "1 1 360px" }}>
@@ -200,6 +214,7 @@ export default function ContributorFindingsLens({
   error = null,
   recentDays = 7,
   canReview = false,
+  focusSourceRef = null,
   timeMode = "bilingual", // Home opts into "relative"; World and every other surface stay Hebrew + Gregorian.
 }) {
   const P = use2029Palette();
@@ -225,8 +240,18 @@ export default function ContributorFindingsLens({
       ...(group.lexicalTags || []),
       ...((group.rows || []).map((row) => row.statement)),
     ].filter(Boolean).join(" ").toLowerCase().includes(q));
+    if (focusSourceRef) rows = [...rows].sort((left, right) => Number(groupHasSource(right, focusSourceRef)) - Number(groupHasSource(left, focusSourceRef)));
     return rows;
-  }, [projection, mode, world, facet, query, recentDays]);
+  }, [projection, mode, world, facet, query, recentDays, focusSourceRef]);
+
+  useEffect(() => {
+    const id = sourceOccurrenceId(focusSourceRef);
+    const focusedGroup = groups.find((group) => groupHasSource(group, focusSourceRef));
+    if (!id || !focusedGroup) return undefined;
+    if (selectedId !== focusedGroup.id) setSelectedId(focusedGroup.id);
+    const frame = window.requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [focusSourceRef, groups, selectedId]);
 
   if (loading) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>טוען את חומרי המקור…</div>;
   if (error) return <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>המקורות לא נטענו כרגע. נסו שוב מאוחר יותר.</div>;
@@ -355,7 +380,7 @@ export default function ContributorFindingsLens({
             })}
           </select>
         </label>
-        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} timeMode={timeMode} researchUnavailable={availability.research === "unavailable"} showDuplicateAudit={projection.mode === "admin_all"} />)}
+        {groups.filter((g) => g.id === (groups.some((row) => row.id === selectedId) ? selectedId : groups[0].id)).map((group) => <SourceGroup key={group.id} group={group} P={P} S={S} timeMode={timeMode} researchUnavailable={availability.research === "unavailable"} showDuplicateAudit={projection.mode === "admin_all"} focusSourceRef={focusSourceRef} />)}
       </div>
     ) : <div style={{ ...S.box, padding: SPACE[4], ...TYPE_SCALE.body, fontFamily: F.body }}>אין חומר במסנן הזה.</div>}
 

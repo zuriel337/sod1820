@@ -15,6 +15,7 @@ export const WORLD_KNOWLEDGE_KIND = Object.freeze({
   MEDIA: "media",
   TIME: "time",
   BOOKS: "books",
+  SPATIAL: "spatial",
 });
 
 const VALID_VIEWS = new Set(Object.values(WORLD_LANDING_VIEW));
@@ -57,6 +58,7 @@ export function worldLandingViewLocation(view, currentSearch = "", { kind = null
   if (safeView !== WORLD_LANDING_VIEW.SOURCES) {
     params.delete("source");
     params.delete("subjectSource");
+    params.delete("sourceRef");
   }
   if (safeView !== WORLD_LANDING_VIEW.ADMIN) params.delete("finding");
   if (safeView === WORLD_LANDING_VIEW.EXPLORE) {
