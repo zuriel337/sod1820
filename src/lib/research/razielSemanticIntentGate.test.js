@@ -20,15 +20,15 @@ const semantic = (overrides = {}) => ({
   ...overrides,
 });
 
-test("free Hebrew paraphrase can enter the same canonical plan without adding phrase grammar", () => {
+test("high-confidence Hebrew numeric wording resolves structurally without a model candidate", () => {
   const question = "תוכל לצלול לתוך 776 ולראות מה מסתתר שם";
   const out = resolveRazielConversationTurn({ question, semanticIntent: semantic() });
 
   assert.deepEqual(out.identity_resolution.identities.map((identity) => identity.value), [776]);
   assert.equal(out.requested_action, "research");
   assert.equal(out.research_plan.strategy, "number_research");
-  assert.equal(out.semantic_intent.status, "resolved");
-  assert.equal(out.guards.no_model_inference, false);
+  assert.equal(out.semantic_intent, null);
+  assert.equal(out.guards.no_model_inference, true);
   assert.equal(out.guards.no_model_call_in_resolver, true);
 });
 

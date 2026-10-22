@@ -265,6 +265,27 @@ test("numeric follow-up keeps one bounded referent across desktop and mobile", (
   assert.doesNotMatch(JSON.stringify(followUp.conversationResolution), /access|provenance|metadata|token/i);
 });
 
+test("a method-only turn reuses the pending number without persistent memory", () => {
+  const state = {
+    ...createInitialRazielSessionState(),
+    thread: [{
+      role: "user",
+      text: "תן לי על המספר 776",
+      identity_resolution: {
+        identities: [{ type: "number", value: 776, identity_key: "number:776" }],
+      },
+    }],
+  };
+  const request = buildRazielSessionRequest({ question: "גימטריה", state });
+
+  assert.equal(request.conversationResolution.referential_follow_up, true);
+  assert.deepEqual(request.conversationResolution.identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+  const reset = razielSessionReducer(state, { type: "session_reset" });
+  assert.equal(buildRazielSessionRequest({ question: "גימטריה", state: reset }).conversationResolution, null);
+});
+
 test("a new explicit number replaces the prior number instead of inheriting it", () => {
   const state = {
     ...createInitialRazielSessionState(),

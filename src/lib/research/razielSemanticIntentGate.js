@@ -26,6 +26,66 @@ const clean = (value, limit = 180) => value == null
   ? ""
   : String(value).normalize("NFKC").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, limit);
 
+const grammarText = (value) => clean(value, 500)
+  // A leading list ordinal is presentation, not a second research subject.
+  .replace(/^\d{1,2}[.)]\s+/u, "")
+  .replace(/[־–—-]/gu, " ")
+  .replace(/[?؟!.]+$/gu, "")
+  .replace(/\s+/gu, " ")
+  .trim();
+
+const NUMERIC_CONTEXT_LABELS = [
+  "שנת", "שנה", "עמוד", "דף", "פרק", "פסוק", "מקור", "מקורות",
+  "שאלה", "שאלות", "תוצאה", "תוצאות", "קשר", "קשרים", "הצלבה", "הצלבות",
+  "פעמים", "כמות",
+];
+
+function escapePattern(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// High-confidence structural resolver used on both sides of the client/server boundary.
+// It resolves only one explicit decimal subject and rejects contextual numerals such as years,
+// pages, counts and source quantities. Unknown wording still belongs to the bounded semantic
+// classifier; this function is not a second planner and never supplies research facts.
+export function resolveExplicitNumericResearchSubject(question) {
+  const q = grammarText(question);
+  if (!q) return null;
+  const numericTokens = [...q.matchAll(/(?<!\d)\d{1,6}(?!\d)/gu)].map((match) => match[0]);
+  if (numericTokens.length !== 1) return null;
+  const literal = numericTokens[0];
+  const value = Number(literal);
+  if (!Number.isSafeInteger(value) || value < 1 || value > 999999) return null;
+
+  const escaped = escapePattern(literal);
+  const contextLabels = NUMERIC_CONTEXT_LABELS.join("|");
+  const contextualBefore = new RegExp(`(?:^|\\s)(?:${contextLabels})\\s+(?:מספר\\s+)?${escaped}(?:$|\\s)`, "u");
+  const contextualAfter = new RegExp(`(?:^|\\s)${escaped}\\s+(?:${contextLabels})(?:$|\\s)`, "u");
+  const explicitRoleQuestion = /(?:^|\s)(?:האם|אם)(?:\s|$)/u.test(q)
+    && /(?:^|\s)(?:שנה|עמוד|דף|כמות|מספר)(?:\s|$)/u.test(q);
+  if (contextualBefore.test(q) || contextualAfter.test(q) || explicitRoleQuestion) return null;
+
+  const exactNumber = q === literal;
+  const explicitNumberNoun = new RegExp(`(?:^|\\s)המספר\\s+${escaped}(?:$|\\s)`, "u").test(q);
+  const cuePrefix = q.slice(0, q.indexOf(literal));
+  const researchCue = /(?:^|\s)(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי|צלול|צללי|לצלול|העמק|העמיקי|תעמיק|תעמיקי|להעמיק)(?:\s|$)/u.test(cuePrefix);
+  const connectionCue = /(?:^|\s)(?:קשר|קשרים|הצלבה|הצלבות|השווה|השווי|תשווה|לחבר)(?:\s|$)/u.test(cuePrefix);
+  const explanationCue = /(?:^|\s)(?:מה|מהו|תן|תני|ספר|ספרי|הסבר|הסבירי|הראה|הראי|הצג|הציגי)(?:\s|$)/u.test(cuePrefix);
+  if (!exactNumber && !explicitNumberNoun && !researchCue && !connectionCue && !explanationCue) return null;
+
+  const requestedAction = connectionCue ? "connect" : researchCue ? "research" : "understand";
+  return Object.freeze({
+    type: "number",
+    value,
+    label: literal,
+    evidence_text: literal,
+    identity_key: `number:${value}`,
+    source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL,
+    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    requested_action: requestedAction,
+  });
+}
+
 function hasOnlyKeys(value, allowed) {
   return value && typeof value === "object" && !Array.isArray(value)
     && Object.keys(value).every((key) => allowed.has(key) && !FORBIDDEN_AUTHORITY_KEYS.has(key));

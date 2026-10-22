@@ -4,7 +4,10 @@ import {
   resolveResearchIdentities,
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
-import { validateRazielSemanticIntent } from "./razielSemanticIntentGate.js";
+import {
+  resolveExplicitNumericResearchSubject,
+  validateRazielSemanticIntent,
+} from "./razielSemanticIntentGate.js";
 
 // Bounded conversation continuity for the EXISTING identity resolver and route grammar.
 // This adapter carries canonical identities between turns. It does not define a second identity
@@ -71,6 +74,11 @@ function explicitNumberCandidates(question) {
 
   const list = q.match(/^(?:(?:תן|תני|הצג|הציגי|הראה|הראי) לי .*?(?:גימטריות|ביטויים|מילים)|(?:איזה|אילו|מה) (?:ביטויים|מילים) (?:שווים|שוות) ל)\s*(?:המספר\s+)?(\d{1,6})$/u);
   if (list) return [numberCandidate(list[1])].filter(Boolean);
+
+  // One shared structural resolver covers high-confidence natural formulations without a model.
+  // It is intentionally narrower than numeric scanning and rejects years/pages/counts.
+  const structural = resolveExplicitNumericResearchSubject(q);
+  if (structural) return [numberCandidate(structural.value)].filter(Boolean);
 
   // Mixed anaphor + one new number: "תבדוק את זה מול 1820" / "ומה הקשר ל־776?".
   const mixed = q.match(/(?:זה|זאת|אותו|אותה|אותם|אותן|שלו|שלה|שלהם|שלהן).*?(?:^|\s)(?:מול|לבין|ל)\s*(\d{1,6})$/u)
@@ -180,6 +188,9 @@ function isReferentialFollowUp(question) {
   if (/(?:^|\s)(?:אותם|אותן|ביניהם|ביניהן|עליו|עליה|עליהם|בהם|בהן|שלו|שלה|שלהם|שלהן)(?:\s|$)/u.test(q)) return true;
   if (/(?:את|עם|מול|על)\s+(?:זה|זאת)(?:\s|$)/u.test(q)) return true;
   if (/^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*\d{1,6}$/u.test(q)) return true;
+  // A method-only turn applies to the last explicit subject in this temporary session. Without a
+  // prior/surface subject it remains unresolved; no subject is invented from the method word.
+  if (/^(?:ו?ב?גימטרי[הא]|(?:בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+בגימטרי[הא])$/u.test(q)) return true;
   return /^(?:אתה\s+יכול|את\s+יכולה)?\s*(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?$/u.test(q)
     || /^אפשר\s+(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?$/u.test(q)
     || /^(?:תבדוק|בדוק|תחקור|חקור|תעמיק|העמק)(?:\s+את\s+זה)?$/u.test(q)
@@ -214,6 +225,7 @@ export function resolveRazielConversationTurn({
   semanticIntent = null,
 } = {}) {
   const currentQuestion = clean(question, 500);
+  const structuralNumericSubject = resolveExplicitNumericResearchSubject(currentQuestion);
   const explicitNumbers = explicitNumberCandidates(currentQuestion);
   // Numeric grammar owns a turn once it has matched. This prevents its grammatical scaffolding
   // (for example "המספרים 337" or "את זה") from becoming a second phrase identity.
@@ -257,7 +269,7 @@ export function resolveRazielConversationTurn({
     research: "deep_research",
     connect: "relation",
     continue: "continue",
-  }[semantic?.action] || intent;
+  }[semantic?.action] || structuralNumericSubject?.requested_action || intent;
   const researchPlan = buildResearchPlanV2({
     question: currentQuestion,
     intent: semanticPlanIntent,

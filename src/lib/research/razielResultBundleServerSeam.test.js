@@ -219,8 +219,8 @@ test("2029 canonical contract composes without legacy persistent memory read or 
   assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
 });
 
-test("unresolved 2029 paraphrase uses one bounded semantic attempt, then the same canonical Bundle", async () => {
-  const question = "תוכל לצלול לתוך 776 ולראות מה מסתתר שם";
+test("unresolved 2029 wording uses one bounded semantic attempt, then the same canonical Bundle", async () => {
+  const question = "בוא נביט פנימה אל 776 ונראה מה נמצא";
   const run = await runAiAnalyze({
     answer: noMatchAnswer(),
     allowed: true,
@@ -256,6 +256,58 @@ test("unresolved 2029 paraphrase uses one bounded semantic attempt, then the sam
   assert.equal(intentSpans[0].p_detail.resources.api_calls, 1);
   assert.equal(intentSpans[0].p_detail.resources.input_tokens, 41);
   assert.equal(intentSpans[0].p_detail.resources.output_tokens, 29);
+});
+
+test("an explicit numeric research subject skips classification and reaches the canonical Bundle", async () => {
+  const question = "1. תוכל לצלול לתוך 776 ולראות מה מסתתר שם";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: question,
+      visitor_id: "vdeterministicintent123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+    },
+    researchBundleByNumber: { 776: numberBundle(776) },
+  });
+
+  assert.equal(run.models.length, 1, "only the grounded synthesis uses a model");
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
+  assert.equal(run.calls.find((call) => call.name === "research-run").payload.number, 776);
+  assert.equal(run.spans.filter((span) => span.p_name === "ai-analyze:raziel:semantic-intent").length, 0);
+  assert.equal(run.result.raziel.plan_meta.semantic_intent.status, "deterministic_admitted");
+  assert.deepEqual(run.result.raziel.plan_meta.semantic_intent.cost, { ai_calls: 0 });
+});
+
+test("invalid semantic classifier output fails closed before research or synthesis", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: "בוא נביט פנימה אל 776 ונראה מה נמצא",
+      visitor_id: "vinvalidclassifier123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+    },
+    modelResults: [{
+      text: "{\"version\":\"raziel-semantic-intent-v1\"",
+      usage: { input_tokens: 23, output_tokens: 9 },
+      attempts: 1,
+      degraded: false,
+    }],
+  });
+
+  assert.equal(run.models.length, 1);
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
+  assert.equal(run.result.engine, "semantic_classifier");
+  assert.equal(run.result.degraded, true);
+  assert.match(run.result.raziel.answer, /לא אנסח תשובה בלי נתונים מאומתים/);
+  assert.equal(run.spans.some((span) => span.p_name === "ai-analyze:raziel:model"), false);
 });
 
 test("semantic ambiguity remains honest: one classifier call, no research or synthesis", async () => {
@@ -301,8 +353,10 @@ test("semantic classifier never runs for Legacy or when a client envelope was re
       conversation_resolution: conversation([33], "research"),
     },
   });
-  assert.equal(rejectedEnvelope.models.length, 1);
+  assert.equal(rejectedEnvelope.models.length, 0);
   assert.equal(rejectedEnvelope.calls.filter((call) => call.name === "research-run").length, 0);
+  assert.equal(rejectedEnvelope.result.engine, "conversation_resolution_guard");
+  assert.match(rejectedEnvelope.result.raziel.answer, /לא אנסח תשובה בלי ראיות/);
 });
 
 test("Legacy authenticated request preserves its existing persistent-memory read and write", async () => {
@@ -395,7 +449,9 @@ test("a crafted single-number envelope cannot turn counts, pages or years into r
       researchBundleByNumber: { 776: numberBundle(776) },
     });
     assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0, subject);
-    assert.equal(run.result.raziel.plan_meta.canonical_result_bundle, undefined, subject);
+    assert.equal(run.result.plan_meta?.canonical_result_bundle, undefined, subject);
+    assert.equal(run.models.length, 0, subject);
+    assert.equal(run.result.engine, "conversation_resolution_guard", subject);
   }
 });
 

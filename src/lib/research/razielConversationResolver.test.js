@@ -73,6 +73,27 @@ test("carries the last explicit pair into a bounded follow-up without model infe
   assert.equal(out.guards.no_model_inference, true);
 });
 
+test("method-only follow-up keeps the last numeric subject in the temporary thread", () => {
+  const out = resolveRazielConversationTurn({
+    question: "גימטריה",
+    thread: [{
+      role: "user",
+      text: "תן לי על המספר 776",
+      identity_resolution: {
+        identities: [{ type: "number", value: 776, identity_key: "number:776" }],
+      },
+    }],
+  });
+
+  assert.deepEqual(ids(out), ["776"]);
+  assert.equal(out.referential_follow_up, true);
+  assert.equal(out.referent_source, "prior_user_turn");
+  assert.equal(out.requested_action, "research");
+  assert.deepEqual(projectRazielConversationResolution(out).identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+});
+
 test("carries canonical phrase identities with access and provenance intact", () => {
   const provenance = { owner: "project_codex.gematria_engine", ref: "phrase:messiah" };
   const access = { tier: "public" };

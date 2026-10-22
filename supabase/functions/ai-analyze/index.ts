@@ -3,7 +3,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntell
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
-import { RAZIEL_SEMANTIC_INTENT_VERSION, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitNumericResearchSubject, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1206,7 +1206,8 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
   if (raw.referential_follow_up === true) {
     const referential = /^(?:(?:אתה יכול|את יכולה|אפשר)?\s*(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?|(?:תבדוק|בדוק|תחקור|חקור|תעמיק|העמק)(?:\s+את\s+זה)?)(?:\s+(?:מול|לבין|עם|ל)\s*\d{1,6})?$/u.test(q)
       || /^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*\d{1,6}$/u.test(q)
-      || /^(?:מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q);
+      || /^(?:מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q)
+      || /^(?:ו?ב?גימטרי[הא]|(?:בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+בגימטרי[הא])$/u.test(q);
     if (!referential) return null;
     const textualTail = /(?:^|\s)(?:מול|לבין|עם|ל)\s*(\d{1,6})$/u.exec(q);
     // A mixed follow-up carries one prior identity and adds one explicit identity. Bind the
@@ -1220,6 +1221,11 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
   // seam for planner no_match: exact decimal subject slots, no surrounding prose, and an action
   // whose server-side meaning agrees with the projected action. Legacy callers send no envelope.
   if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
+  const structural = resolveExplicitNumericResearchSubject(q);
+  if (structural) {
+    if (numbers.length !== 1 || numbers[0] !== structural.value || requestedAction !== structural.requested_action) return null;
+    return { numbers: numbers as [number], requestedAction };
+  }
   const definition = /^(?:(בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+)?(?:מה זה|מהו|מה הוא|ספר לי על|מה ידוע על)\s+(?:המספר\s+)?(\d{1,6})$/u.exec(q);
   const singleResearch = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?(?:\s+את)?\s+(?:המספר\s+)?(\d{1,6})$/u.exec(q);
   const singleValue = definition ? Number(definition[2]) : singleResearch ? Number(singleResearch[1]) : null;
@@ -2375,82 +2381,143 @@ Deno.serve(async (req: Request) => {
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
       if (rSemanticEligible) {
-        const classifierSpanId = crypto.randomUUID();
-        const classifierStartedAt = new Date().toISOString();
-        const classified = await classifyRazielSemanticIntent(rSubject);
-        const classifierEndedAt = new Date().toISOString();
-        const candidates = classified.intent?.status === "resolved" ? classified.intent.candidates : [];
-        const numeric = candidates.length >= 1 && candidates.length <= 2
-          && candidates.every((candidate: any) => candidate?.type === "number" && Number.isInteger(candidate.value));
-        if (!classified.degraded && numeric) {
+        const deterministicSubject = resolveExplicitNumericResearchSubject(rSubject);
+        if (deterministicSubject) {
           rSemanticHint = {
-            numbers: candidates.map((candidate: any) => candidate.value) as [number] | [number, number],
-            requestedAction: classified.intent!.action as RazielConversationNumberHint["requestedAction"],
+            numbers: [deterministicSubject.value],
+            requestedAction: deterministicSubject.requested_action,
           };
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            semantic_intent: {
+              contract: RAZIEL_SEMANTIC_INTENT_VERSION,
+              status: "deterministic_admitted",
+              executed: false,
+              cost: { ai_calls: 0 },
+            },
+          };
+        } else {
+          const classifierSpanId = crypto.randomUUID();
+          const classifierStartedAt = new Date().toISOString();
+          const classified = await classifyRazielSemanticIntent(rSubject);
+          const classifierEndedAt = new Date().toISOString();
+          const candidates = classified.intent?.status === "resolved" ? classified.intent.candidates : [];
+          const numeric = candidates.length >= 1 && candidates.length <= 2
+            && candidates.every((candidate: any) => candidate?.type === "number" && Number.isInteger(candidate.value));
+          if (!classified.degraded && numeric) {
+            rSemanticHint = {
+              numbers: candidates.map((candidate: any) => candidate.value) as [number] | [number, number],
+              requestedAction: classified.intent!.action as RazielConversationNumberHint["requestedAction"],
+            };
+          }
+          const classifierOutcome = classified.degraded ? "provider_error" : rSemanticHint ? "success" : "failed_with_reason";
+          await recordOperationalSpan(activeTrace, {
+            spanId: classifierSpanId,
+            kind: "model_call",
+            name: "ai-analyze:raziel:semantic-intent",
+            startedAt: classifierStartedAt,
+            endedAt: classifierEndedAt,
+            outcome: classifierOutcome,
+            detail: {
+              capability: "raziel_semantic_intent_candidate",
+              owner_ref: "research_strategy_layer_law v17 + raziel_routing_law v2",
+              intelligence_level: "fast",
+              provider: "anthropic",
+              model: FAST_MODEL,
+              routing_reason: "canonical_2029_unresolved_intent_only",
+              output_use: rSemanticHint ? "used" : "not_applicable",
+              stop_reason: classified.degraded ? (classified.reason || "degraded") : rSemanticHint ? null : "clarify_or_invalid",
+              resources: {
+                input_tokens: classified.usage?.input_tokens ?? null,
+                output_tokens: classified.usage?.output_tokens ?? null,
+                api_calls: classified.attempts,
+                latency_ms: Math.max(0, Date.parse(classifierEndedAt) - Date.parse(classifierStartedAt)),
+              },
+              cost: { certainty: "unknown" },
+              replay: {
+                ownerRuleRefs: ["research_strategy_layer_law v17", "raziel_routing_law v2"],
+                parametersRef: `contract:${RAZIEL_SEMANTIC_INTENT_VERSION};max_tokens:240;attempts:1`,
+              },
+              privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+            },
+          });
+          const classifierTokenLogId = await logTokens("raziel_intent", FAST_MODEL, classified.usage, identity,
+            { traceId: activeTrace?.traceId, spanId: classifierSpanId });
+          await linkOperationalAiCost(activeTrace, classifierSpanId, classifierTokenLogId);
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            semantic_intent: {
+              contract: RAZIEL_SEMANTIC_INTENT_VERSION,
+              status: rSemanticHint ? "admitted" : "clarify_or_invalid",
+              executed: true,
+            },
+          };
+          if (!rSemanticHint) {
+            const clarified = !classified.degraded && classified.intent?.status === "clarify";
+            await finishOperationalTrace(
+              activeTrace,
+              classified.degraded ? "provider_error" : clarified ? "success" : "failed_with_reason",
+              classified.degraded ? (classified.reason || "semantic_classifier_degraded") : clarified ? null : "semantic_classifier_invalid",
+            );
+            return rzJson({
+              raziel: {
+                v: 1,
+                agent: "raziel",
+                context: null,
+                greeting: null,
+                answer: clarified
+                  ? "כדי לבדוק נכון, צריך להבהיר למה המספר בשאלה מתייחס — האם הוא נושא המחקר עצמו, או פרט כמו שנה, עמוד או כמות?"
+                  : "לא הצלחתי לזהות בבטחה את נושא המחקר, ולכן לא אנסח תשובה בלי נתונים מאומתים. אפשר לציין במפורש את המספר או הביטוי שברצונך לחקור.",
+                facts: [],
+                suggested_paths: [],
+                follow_up_question: null,
+                continue_wa: true,
+                degraded: !clarified,
+              },
+              engine: "semantic_classifier",
+              model: FAST_MODEL,
+              intelligence_level: "fast",
+              degraded: !clarified || undefined,
+              plan_meta: rPlanMeta,
+              trace_id: activeTrace?.traceId || null,
+            });
+          }
         }
-        const classifierOutcome = classified.degraded ? "provider_error" : rSemanticHint ? "success" : "failed_with_reason";
-        await recordOperationalSpan(activeTrace, {
-          spanId: classifierSpanId,
-          kind: "model_call",
-          name: "ai-analyze:raziel:semantic-intent",
-          startedAt: classifierStartedAt,
-          endedAt: classifierEndedAt,
-          outcome: classifierOutcome,
-          detail: {
-            capability: "raziel_semantic_intent_candidate",
-            owner_ref: "research_strategy_layer_law v17 + raziel_routing_law v2",
-            intelligence_level: "fast",
-            provider: "anthropic",
-            model: FAST_MODEL,
-            routing_reason: "canonical_2029_unresolved_intent_only",
-            output_use: rSemanticHint ? "used" : "not_applicable",
-            stop_reason: classified.degraded ? (classified.reason || "degraded") : rSemanticHint ? null : "clarify_or_invalid",
-            resources: {
-              input_tokens: classified.usage?.input_tokens ?? null,
-              output_tokens: classified.usage?.output_tokens ?? null,
-              api_calls: classified.attempts,
-              latency_ms: Math.max(0, Date.parse(classifierEndedAt) - Date.parse(classifierStartedAt)),
-            },
-            cost: { certainty: "unknown" },
-            replay: {
-              ownerRuleRefs: ["research_strategy_layer_law v17", "raziel_routing_law v2"],
-              parametersRef: `contract:${RAZIEL_SEMANTIC_INTENT_VERSION};max_tokens:240;attempts:1`,
-            },
-            privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
-          },
-        });
-        const classifierTokenLogId = await logTokens("raziel_intent", FAST_MODEL, classified.usage, identity,
-          { traceId: activeTrace?.traceId, spanId: classifierSpanId });
-        await linkOperationalAiCost(activeTrace, classifierSpanId, classifierTokenLogId);
+      }
+
+      // A 2029 client envelope is a hint, never authority. If the server rejects it and no owner
+      // route supplied evidence, fail closed instead of letting the generic model improvise around
+      // an untrusted subject. Legacy callers are unchanged because they do not opt into this contract.
+      const rRejectedConversationEnvelope = rCanonicalResearchOptIn
+        && body?.conversation_resolution != null && !rConversationHint
+        && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
+        && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
+      if (rRejectedConversationEnvelope) {
         rPlanMeta = {
           ...(rPlanMeta || {}),
-          semantic_intent: {
-            contract: RAZIEL_SEMANTIC_INTENT_VERSION,
-            status: rSemanticHint ? "admitted" : "clarify_or_invalid",
-            executed: true,
-          },
+          conversation_resolution: { status: "rejected", server_reauthorized: false },
         };
-        if (!classified.degraded && classified.intent?.status === "clarify") {
-          await finishOperationalTrace(activeTrace, "success");
-          return rzJson({
-            raziel: {
-              v: 1,
-              agent: "raziel",
-              context: null,
-              greeting: null,
-              answer: "כדי לבדוק נכון, צריך להבהיר למה המספר בשאלה מתייחס — האם הוא נושא המחקר עצמו, או פרט כמו שנה, עמוד או כמות?",
-              facts: [],
-              suggested_paths: [],
-              follow_up_question: null,
-              continue_wa: true,
-            },
-            engine: "semantic_classifier",
-            model: FAST_MODEL,
-            intelligence_level: "fast",
-            plan_meta: rPlanMeta,
-            trace_id: activeTrace?.traceId || null,
-          });
-        }
+        await finishOperationalTrace(activeTrace, "failed_with_reason", "conversation_resolution_rejected");
+        return rzJson({
+          raziel: {
+            v: 1,
+            agent: "raziel",
+            context: null,
+            greeting: null,
+            answer: "לא הצלחתי לשייך בבטחה את הבקשה לנושא מחקר מאומת, ולכן לא אנסח תשובה בלי ראיות. אפשר לציין במפורש את המספר או הביטוי שברצונך לבדוק.",
+            facts: [],
+            suggested_paths: [],
+            follow_up_question: null,
+            continue_wa: true,
+            degraded: true,
+          },
+          engine: "conversation_resolution_guard",
+          model: "none",
+          intelligence_level: "deterministic",
+          degraded: true,
+          plan_meta: rPlanMeta,
+          trace_id: activeTrace?.traceId || null,
+        });
       }
 
       // Phase C — operator READ (admin only). L0 questions answer straight from the owner projection (no model, no tokens);

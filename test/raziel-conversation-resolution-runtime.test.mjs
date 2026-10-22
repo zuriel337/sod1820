@@ -132,6 +132,63 @@ test("the real 2029 session request and server admission agree on the explicit r
   assert.equal(out.models.length, 1);
 });
 
+test("the real session and server agree on a natural single-number subject", async () => {
+  const request = buildRazielSessionRequest({
+    question: "תן לי על המספר 776",
+    state: { thread: [] },
+    contextSnapshot: null,
+  });
+  assert.equal(request.conversationResolution.requested_action, "understand");
+  assert.deepEqual(request.conversationResolution.identities.map((identity) => identity.value), [776]);
+
+  const out = await runAiAnalyze({
+    answer: { enabled: false },
+    allowed: true,
+    numberContextByNumber: { 776: numberFixture(776) },
+    body: {
+      subject: request.subject,
+      conversation_resolution: request.conversationResolution,
+      intelligence_level: request.intelligenceLevel,
+    },
+  });
+  assert.deepEqual(out.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).map((call) => call.payload.n),
+    [776, 776]);
+  assert.equal(out.models.length, 1);
+});
+
+test("method-only follow-up reuses the temporary numeric subject through the server gate", async () => {
+  const request = buildRazielSessionRequest({
+    question: "גימטריה",
+    state: {
+      thread: [{
+        role: "user",
+        text: "תן לי על המספר 776",
+        identity_resolution: {
+          identities: [{ type: "number", value: 776, identity_key: "number:776" }],
+        },
+      }],
+    },
+    contextSnapshot: null,
+  });
+  assert.equal(request.conversationResolution.requested_action, "research");
+  assert.equal(request.conversationResolution.referential_follow_up, true);
+
+  const out = await runAiAnalyze({
+    answer: { enabled: false },
+    allowed: true,
+    numberContextByNumber: { 776: numberFixture(776) },
+    body: {
+      subject: request.subject,
+      conversation_resolution: request.conversationResolution,
+      intelligence_level: request.intelligenceLevel,
+    },
+  });
+  assert.deepEqual(out.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).map((call) => call.payload.n),
+    [776, 776]);
+  assert.equal(out.models.length, 1);
+  assert.match(out.models[0].user, /Post 776|Dossier 776/);
+});
+
 test("the same explicit pair is grounded before an explicitly requested deep synthesis", async () => {
   const out = await runAiAnalyze({
     answer: { enabled: false },
