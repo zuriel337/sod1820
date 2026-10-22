@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchContributorFindingsProjection, buildContributorFindingsProjection } from "./contributorFindingsProjection.js";
+import { fetchContributorFindingsProjection, buildContributorFindingsProjection, MAX_CONTRIBUTOR_RESEARCH } from "./contributorFindingsProjection.js";
 import { PROJECTOR_MODE } from "./researchViewMode.js";
 
 const CONTRIBUTOR = { id: "c1", slug: "yaniv", display_name: "יניב", wa_names: [], role: "researcher" };
@@ -13,10 +13,13 @@ function fakeClient(label, tables, calls) {
     from(table) {
       const call = { label, table, filters: [] };
       calls.push(call);
-      const result = tables[table] ?? { data: [] };
+      const result = tables[table]
+        ?? (table === "world_contributor_research_v1" ? tables.research_objects : null)
+        ?? { data: [] };
       const b = {
         select: () => b,
         in: (column, value) => { call.filters.push(["in", column, value]); return b; },
+        or: (value) => { call.filters.push(["or", value]); return b; },
         eq: (column, value) => { call.filters.push(["eq", column, value]); return b; },
         is: (column, value) => { call.filters.push(["is", column, value]); return b; },
         order: () => b, contains: () => b,
@@ -60,6 +63,18 @@ test("an explicit image reference links the adjacent image and full message with
   assert.equal(p.sourceGroups[0].mediaSource.id, "image-1");
   assert.deepEqual(p.sourceGroups[0].linkedSourceRefs, ["channel_updates:image-1", "channel_updates:text-1"]);
   assert.equal(p.sourceGroups[0].mediaPair.basis, "explicit_image_reference");
+});
+
+test("anchored research locators stay exact on the row but group under their source message", () => {
+  const p = buildContributorFindingsProjection({
+    contributor: CONTRIBUTOR,
+    sourceMessages: [SOURCE],
+    researchObjects: [{ ...RESEARCH_ROW, source_ref: "channel_updates:11#batch001:finding" }],
+  });
+  assert.equal(p.sourceGroups.length, 1);
+  assert.equal(p.sourceGroups[0].sourceRef, "channel_updates:11");
+  assert.equal(p.sourceGroups[0].findingCount, 1);
+  assert.equal(p.sourceGroups[0].rows[0].source_ref, "channel_updates:11#batch001:finding");
 });
 
 test("bounded structured overlap links a media message, while time proximity alone does not", () => {
@@ -143,6 +158,9 @@ test("source attribution uses stable contributor identity and only unbound regis
     research_contributions: { data: [], count: 0 },
   }, calls);
   await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, topicsReader: noTopics });
+  const researchCalls = calls.filter((call) => call.table === "world_contributor_research_v1");
+  assert.equal(researchCalls.length, 1);
+  assert.ok(researchCalls[0].filters.some(([op, value]) => op === "or" && value.includes("source_contributor_id.eq.c1")));
   const sourceCalls = calls.filter((call) => call.table === "channel_updates");
   assert.equal(sourceCalls.length, 3);
   assert.deepEqual(sourceCalls[0].filters, [["eq", "contributor_id", "c1"]]);
@@ -150,6 +168,10 @@ test("source attribution uses stable contributor identity and only unbound regis
     assert.ok(call.filters.some(([op, column]) => op === "in" && ["credit", "speaker"].includes(column)));
     assert.ok(call.filters.some(([op, column, value]) => op === "is" && column === "contributor_id" && value === null));
   }
+});
+
+test("contributor research read is bounded above the current full corpus", () => {
+  assert.ok(MAX_CONTRIBUTOR_RESEARCH >= 7353);
 });
 
 test("personal/person_only research is never requested by owner_slug", async () => {

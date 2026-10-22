@@ -6,6 +6,7 @@ import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
 
 const PAGE = 500;
 const MAX = 5000;
+export const MAX_CONTRIBUTOR_RESEARCH = 10000;
 const TERM_CHUNK = 75;
 const MAX_EXPLICIT_MEDIA_GAP_MS = 10 * 60 * 1000;
 const MAX_STRUCTURED_MEDIA_GAP_MS = 5 * 60 * 1000;
@@ -14,6 +15,12 @@ const SOURCE_IMAGE_REFERENCE_RE = /\[Image\s+\d+\.(?:jpe?g|png|webp)\]/iu;
 const clean = (value) => value == null ? "" : String(value).trim();
 const uniq = (values) => [...new Set((Array.isArray(values) ? values : []).map(clean).filter(Boolean))];
 const placeholderSourceCopy = (value) => ["📷 עדכון", "עדכון", "מקור ללא טקסט"].includes(clean(value));
+const postgrestQuoted = (value) => `"${clean(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+
+function researchGroupSourceRef(row) {
+  const sourceRef = clean(row?.source_ref) || `research_objects:${row?.id}`;
+  return sourceRef.startsWith("channel_updates:") ? sourceRef.split("#", 1)[0] : sourceRef;
+}
 
 function safeDate(value) {
   const ms = Date.parse(value || "");
@@ -259,7 +266,7 @@ export function buildContributorFindingsProjection({
   const groups = new Map();
   for (const row of Array.isArray(researchObjects) ? researchObjects : []) {
     if (!row?.id) continue;
-    const sourceRef = clean(row.source_ref) || `research_objects:${row.id}`;
+    const sourceRef = researchGroupSourceRef(row);
     if (!groups.has(sourceRef)) groups.set(sourceRef, { sourceRef, rows: [] });
     groups.get(sourceRef).rows.push(row);
   }
@@ -387,18 +394,22 @@ async function fetchContributor(client, slug) {
   return data || null;
 }
 
-// Research objects by exact attributed name only. No personal-scope corpus is ever requested by owner:
-// personal-scope research is not site-writer inventory. Which rows come back is decided by RLS for the
-// client in use (anon in PUBLIC mode, the viewer's session in ADMIN mode).
-async function fetchResearchObjects(client, aliases) {
+// Research objects by exact attribution or the source message's stable contributor identity. These
+// remain separate provenance axes in the view; source ownership never rewrites research authorship.
+// Which rows come back is decided by RLS for the client in use (anon in PUBLIC mode, the viewer's
+// session in ADMIN mode), so person-only/private material is never broadened by this projection.
+async function fetchResearchObjects(client, contributorId, aliases) {
   const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope";
+  const contributorFilter = [
+    `source_contributor_id.eq.${clean(contributorId)}`,
+    `contributor.in.(${aliases.map(postgrestQuoted).join(",")})`,
+  ].join(",");
   const result = await paged((start, end, first) => client
-    .from("research_objects")
+    .from("world_contributor_research_v1")
     .select(fields, first ? { count: "exact" } : undefined)
-    .in("contributor", aliases)
+    .or(contributorFilter)
     .order("created_at", { ascending: false })
-    .range(start, end)
-  );
+    .range(start, end), { max: MAX_CONTRIBUTOR_RESEARCH });
   return { rows: result.rows, total: result.total, truncated: result.truncated };
 }
 
@@ -506,7 +517,7 @@ export async function fetchContributorFindingsProjection(slug, { mode = PROJECTO
 
   const settled = {};
   const [research, sources, contributions, topics] = await Promise.allSettled([
-    fetchResearchObjects(client, aliases),
+    fetchResearchObjects(client, contributor.id, aliases),
     fetchSourceMessages(client, contributor, aliases),
     fetchContributorContributions(client, contributor.id),
     topicsReader(aliases),
