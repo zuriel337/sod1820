@@ -298,12 +298,15 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v1/);
+  assert.match(run.models[0].user, /verified_calculations/);
   assert.match(run.models[0].user, /uf:number:776/);
   assert.match(run.models[0].user, /Sefer Yetzirah/);
   assert.doesNotMatch(run.models[0].user, new RegExp(PRIVATE));
   assert.doesNotMatch(run.models[0].user, /trace_ref/);
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "Sefer Yetzirah", source_ref: "number-source:776", lang: "he" }]);
+  assert.deepEqual(run.result.raziel.navigation, [{ kind: "number", label: "פתח את דף המספר 776", href: "/number/776" }]);
 });
 
 test("authenticated and guest 2029 users receive the same evidence quality; only caller authority differs", async () => {
@@ -331,6 +334,42 @@ test("authenticated and guest 2029 users receive the same evidence quality; only
   }
   assert.equal(guest.calls.find((call) => call.name === "research-run").headers.authorization, "Bearer synthetic-anon-key");
   assert.equal(user.calls.find((call) => call.name === "research-run").headers.authorization, `Bearer ${USER_JWT}`);
+});
+
+test("canonical opt-in strips model-authored provenance and navigation even when the Bundle has no named source", async () => {
+  const run = await runAiAnalyze({
+    answer: numberContextAnswer(776),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    modelResult: {
+      text: JSON.stringify({
+        v: 1,
+        agent: "raziel",
+        answer: "תשובה מן הממצא הקנוני",
+        facts: [],
+        suggested_paths: [],
+        sources: [{ original_name: "מקור שהמודל המציא", source_ref: "private:guess" }],
+        navigation: [{ kind: "post", label: "יעד שהמודל המציא", href: "https://example.invalid" }],
+      }),
+      usage: { input_tokens: 11, output_tokens: 7 },
+      attempts: 1,
+      degraded: false,
+    },
+    body: {
+      subject: "מה זה 776?",
+      visitor_id: "vgroundedprovenance123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: conversation([776]),
+    },
+    researchBundleByNumber: { 776: numberBundle(776, "") },
+  });
+
+  assert.deepEqual(run.result.raziel.sources, []);
+  assert.deepEqual(run.result.raziel.navigation, [
+    { kind: "number", label: "פתח את דף המספר 776", href: "/number/776" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(run.result), /example\.invalid|מקור שהמודל המציא|private:guess/);
 });
 
 test("2029 acknowledgement is a zero-AI conversational turn and Legacy remains unchanged", async () => {

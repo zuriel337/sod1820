@@ -7,6 +7,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/function
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
+import { buildRazielGroundedSourceComposer } from "../../src/lib/research/razielGroundedSourceComposer.js";
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
   resolveExplicitNumericPairResearchSubject,
@@ -137,17 +138,18 @@ export async function runAiAnalyze({
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 6, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 7, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
   assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
   assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
-  assert.ok(imports[5].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
-  assert.ok(imports[5].includes('resolveExplicitNumericPairResearchSubject'));
-  assert.ok(imports[5].includes('resolveExplicitNumericResearchSubject'));
-  assert.ok(imports[5].includes('resolveRazielConversationalAct'));
-  assert.ok(imports[5].includes('validateRazielSemanticIntent'));
+  assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer }'));
+  assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
+  assert.ok(imports[6].includes('resolveExplicitNumericPairResearchSubject'));
+  assert.ok(imports[6].includes('resolveExplicitNumericResearchSubject'));
+  assert.ok(imports[6].includes('resolveRazielConversationalAct'));
+  assert.ok(imports[6].includes('validateRazielSemanticIntent'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -156,6 +158,7 @@ export async function runAiAnalyze({
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
     buildRazielResultBundleConsumer,
+    buildRazielGroundedSourceComposer,
     RAZIEL_SEMANTIC_INTENT_VERSION,
     resolveExplicitNumericPairResearchSubject,
     resolveExplicitNumericResearchSubject,

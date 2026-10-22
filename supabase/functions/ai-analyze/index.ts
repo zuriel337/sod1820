@@ -3,6 +3,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntell
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
+import { buildRazielGroundedSourceComposer } from "../../../src/lib/research/razielGroundedSourceComposer.js";
 import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
@@ -1538,74 +1539,13 @@ async function runRazielCanonicalBundle({
   return out;
 }
 
-function razielCanonicalBundlePrompt(reads: RazielCanonicalBundleRead[]): string {
-  const bundles = reads.filter((read) => read.ok && read.projection).map((read) => ({
+function razielCanonicalBundleComposition(reads: RazielCanonicalBundleRead[]) {
+  return buildRazielGroundedSourceComposer(reads.filter((read) => read.ok && read.projection).map((read) => ({
     subject: read.number != null
       ? { type: "number", value: read.number }
       : { type: "expression", value: read.expression },
-    result: read.projection.model_input,
-  }));
-  if (!bundles.length) return "";
-  return JSON.stringify({
-    contract: "raziel-canonical-result-bundle-input-v1",
-    bundles,
-    presentation_rule: "Answer in natural Hebrew. Never expose JSON, internal field names, trace ids or Finding ids. Separate verified finding, source claim and interpretation.",
-  });
-}
-
-function razielCanonicalBundleFallback(reads: RazielCanonicalBundleRead[]): string {
-  const sections = reads.filter((read) => read.ok && read.projection).map((read) => {
-    const subjectLabel = read.number != null ? String(read.number) : (read.expression || "הביטוי");
-    const findings = Array.isArray(read.projection?.model_input?.findings) ? read.projection.model_input.findings : [];
-    const crossingLines = findings
-      .filter((finding: any) => finding?.kind === "gematria-crossing")
-      .slice(0, 6)
-      .map((finding: any) => {
-        const label = ncText(finding?.subject?.label, 120) || subjectLabel;
-        const methods = Array.isArray(finding?.verification?.engine_result?.methods)
-          ? finding.verification.engine_result.methods.slice(0, 8).map((entry: any) => {
-              const method = ncText(entry?.method, 40);
-              const value = typeof entry?.value === "number" ? String(entry.value) : "";
-              return method && value ? `${method}=${value}` : "";
-            }).filter(Boolean)
-          : [];
-        return `• ${label}${methods.length ? ` · התאמה: ${methods.join(" · ")}` : ""}`;
-      });
-    if (crossingLines.length) {
-      return [`הצלבות קנוניות עבור ${subjectLabel}:`, ...crossingLines,
-        "ההתאמות הן התכנסות בין שיטות; עצמאות בין משפחות החישוב לא נטענה."].join("\n");
-    }
-    const cards = Array.isArray(read.projection?.human_view?.cards) ? read.projection.human_view.cards : [];
-    const lines = cards.slice(0, 6).map((card: any) => {
-      const label = ncText(card?.label, 100) || subjectLabel;
-      const method = ncText(card?.method, 50);
-      const scalar = typeof card?.value === "number" || typeof card?.value === "string" ? ncText(String(card.value), 80) : "";
-      const source = ncText(card?.source_name, 100);
-      return `• ${label}${method ? ` · ${method}` : ""}${scalar ? ` · ${scalar}` : ""}${source ? ` · מקור: ${source}` : ""}`;
-    });
-    if (!lines.length) return `ל־${subjectLabel} לא חזר ממצא חיובי בחיפוש הקנוני התחום. אין זו הוכחה שאין קשרים במקורות אחרים.`;
-    return [`ממצאים קנוניים עבור ${subjectLabel}:`, ...lines].join("\n");
-  });
-  return sections.join("\n\n").slice(0, 3000);
-}
-
-function razielCanonicalBundleSources(reads: RazielCanonicalBundleRead[]) {
-  const seen = new Set<string>();
-  const sources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
-  for (const read of reads) {
-    const cards = Array.isArray(read.projection?.human_view?.cards) ? read.projection.human_view.cards : [];
-    for (const card of cards) {
-      const name = ncText(card?.source_name, 120);
-      const ref = ncText(card?.source_ref, 200) || null;
-      const lang = ncText(card?.source_lang, 20) || null;
-      const key = `${name}|${ref || ""}|${lang || ""}`;
-      if (!name || seen.has(key)) continue;
-      seen.add(key);
-      sources.push({ original_name: name, source_ref: ref, lang });
-      if (sources.length >= 12) return sources;
-    }
-  }
-  return sources;
+    projection: read.projection,
+  })));
 }
 
 // ── Raziel Intelligence Core v1 Phase L — bounded READ-only external live-state verifier (verified admin only) ──────────────────────────────
@@ -2686,6 +2626,7 @@ Deno.serve(async (req: Request) => {
       let rCanonicalBundlePack = "";
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
+      let rCanonicalBundleNavigation: { kind: string; label: string; href: string }[] = [];
       const rConversationFallback = (rConversationHint ?? rSemanticHint)
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match")
@@ -2716,9 +2657,11 @@ Deno.serve(async (req: Request) => {
         });
         rCanonicalBundleReads = [expressionRead];
         if (expressionRead.ok && expressionRead.projection) {
-          rCanonicalBundlePack = razielCanonicalBundlePrompt(rCanonicalBundleReads);
-          rNcFallback = razielCanonicalBundleFallback(rCanonicalBundleReads);
-          rCanonicalBundleSources = razielCanonicalBundleSources(rCanonicalBundleReads);
+          const composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
+          rCanonicalBundlePack = composition.prompt;
+          rNcFallback = composition.fallback;
+          rCanonicalBundleSources = composition.sources;
+          rCanonicalBundleNavigation = composition.navigation;
           rPlanMeta = {
             ...(rPlanMeta || {}),
             canonical_result_bundle: {
@@ -2752,9 +2695,11 @@ Deno.serve(async (req: Request) => {
         const canonicalReady = rCanonicalBundleReads.length === canonicalNumbers.length
           && rCanonicalBundleReads.every((read) => read.ok && read.projection);
         if (canonicalReady) {
-          rCanonicalBundlePack = razielCanonicalBundlePrompt(rCanonicalBundleReads);
-          rNcFallback = razielCanonicalBundleFallback(rCanonicalBundleReads);
-          rCanonicalBundleSources = razielCanonicalBundleSources(rCanonicalBundleReads);
+          const composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
+          rCanonicalBundlePack = composition.prompt;
+          rNcFallback = composition.fallback;
+          rCanonicalBundleSources = composition.sources;
+          rCanonicalBundleNavigation = composition.navigation;
           rPlanMeta = {
             ...(rPlanMeta || {}),
             number_context_executed: true,
@@ -3052,10 +2997,11 @@ Deno.serve(async (req: Request) => {
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
-        if (rCanonicalBundleSources.length) {
+        if (rCanonicalResearchOptIn) {
           // Only the canonical consumer may attest source names for this path. Model-authored source
-          // labels are not evidence and must never be merged into the response provenance surface.
+          // labels and navigation are not evidence and must never enter the response surface.
           contract.sources = rCanonicalBundleSources;
+          contract.navigation = rCanonicalBundleNavigation;
         }
         if (rTrusted?.media) contract.source_stage = { executed: true, ok: !!rSource?.ok, reason: rSource?.reason ?? null, derivative: true, moderation: "pending" };   // additive; numeric routing skipped for attached sources
         contract.intelligence_selection = rSelMeta;      // Phase D — additive: requested/selected/escalation_reason
