@@ -73,7 +73,7 @@ test("free question never reaches number / save / share in the frame (guards pre
 test("hosted read-only review preview: one exact new branch approved, earlier approved branches and guards untouched", () => {
   // #1142: the admin research preview, stacked on this review line, is now the one exact approved branch (same
   // pattern); the unified review branch itself stays approved and keeps its own source and URL.
-  assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-raziel-conversation-acts-v1-20261022");
+  assert.equal(HOSTED_HYBRID_BRANCH, "codex/issue-1142-raziel-grounded-source-composer-preview-v1-20261023");
   const enabled = vercel.git.deploymentEnabled;
   assert.equal(enabled[HOSTED_HYBRID_BRANCH], true);
   assert.equal(enabled["claude/2029-unified-review-5107-heichal-20261021"], true, "the unified review preview stays approved");

@@ -1,6 +1,6 @@
 // Isolated admin research preview (#1142) only: every other identity, host, commit and read-only gate is unchanged;
 // the earlier guarded preview branches stay approved in vercel.json and keep their own source and URL.
-export const HOSTED_HYBRID_BRANCH = "codex/issue-1142-raziel-conversation-acts-v1-20261022";
+export const HOSTED_HYBRID_BRANCH = "codex/issue-1142-raziel-grounded-source-composer-preview-v1-20261023";
 
 export function approvedHybridPreviewHost(raw) {
   if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";
