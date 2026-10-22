@@ -4,12 +4,14 @@ import { readFileSync, mkdtempSync, writeFileSync, existsSync, rmSync, chmodSync
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hasExactSavedMatrix, savedMatrixMatchesAxis, savedMatrixReplayProfile, savedMatrixToItem } from '../src/lib/elsSavedMatrix.js';
+import { hasExactSavedMatrix, savedMatrixCanReanchor, savedMatrixMatchesAxis, savedMatrixReplayProfile, savedMatrixToItem } from '../src/lib/elsSavedMatrix.js';
 
 const root = new URL('..', import.meta.url).pathname;
 const read = (p) => readFileSync(join(root, p), 'utf8');
 const MIG = '20260930123615_g3_els_verify_batch_v1.sql';
 const mig = read(`supabase/migrations/${MIG}`);
+const REANCHOR_MIG = '20261022131735_els_legacy_saved_matrix_in_place_reanchor_v1.sql';
+const reanchorMig = read(`supabase/migrations/${REANCHOR_MIG}`);
 const letters = read('tools/els/data/tk-letters.txt');
 const TORAH_LEN = 304805;
 const TANAKH_ID = '0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b';
@@ -44,6 +46,14 @@ test('static: one set-wise verifier, service-only ACL, caps, corpus binding befo
   assert.match(mig, /'negative_authority',false/);
 });
 
+test('static: legacy in-place re-anchor is atomic, canonically gated and does not change RLS', () => {
+  assert.doesNotMatch(reanchorMig, /create\s+table|alter\s+table|create\s+policy|drop\s+policy/i);
+  assert.match(reanchorMig, /for update/);
+  assert.ok(reanchorMig.indexOf('els_publish_truth_gate_v1') < reanchorMig.indexOf('update public.els_records set'));
+  assert.match(reanchorMig, /status\s*=\s*case when r\.status = 'published' and not v_admin then 'pending'/);
+  assert.match(reanchorMig, /revoke all on function public\.reanchor_els_matrix_v1\([^)]*\) from public, anon;\s*grant execute[^;]*to authenticated;/s);
+});
+
 const PG = ['/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin', '/usr/lib/postgresql/14/bin']
   .find((d) => existsSync(join(d, 'initdb')));
 const canRun = PG && spawnSync('sh', ['-c', 'command -v psql'], { encoding: 'utf8' }).status === 0;
@@ -68,6 +78,8 @@ test('historical saved findings recover the smallest corpus that can contain the
   assert.deepEqual(savedMatrixReplayProfile(historical),{scope:'tanakh',storedScope:'torah',legacyScopeRecovered:true});
   const item=savedMatrixToItem(historical);
   assert.equal(item.scope,'tanakh');assert.equal(item.storedScope,'torah');assert.equal(item.legacyScopeRecovered,true);
+  assert.equal(savedMatrixCanReanchor(historical,{term:'תורתהרמז',scope:'tanakh',verification:{state:'MATCH'},axis:{skip:21940}}),true);
+  assert.equal(savedMatrixCanReanchor(historical,{term:'תורתהרמז',scope:'tanakh',verification:{state:'MATCH'},axis:{skip:21941}}),false);
 
   const withinTorah={...historical,positions:{findings:[{t:'חשמל',sh:['2_-1_87133','not-a-hit'],sourceShown:['1_1_196825']}]}};
   assert.deepEqual(savedMatrixReplayProfile(withinTorah),{scope:'torah',storedScope:'torah',legacyScopeRecovered:false});
@@ -298,6 +310,26 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     // batch verifier ACL still service-role-only after the gate migration
     r = db(`select concat(has_function_privilege('anon','public.els_verify_batch_v1(text,text,text,jsonb,jsonb)','execute'),has_function_privilege('authenticated','public.els_verify_batch_v1(text,text,text,jsonb,jsonb)','execute'))`);
     assert.equal(r.stdout.trim(), 'ff');
+
+    // (i) explicit save of an opened legacy row repairs that same id after a canonical MATCH.
+    db(`insert into public.els_records(id,owner_user_id,search_term,scope,skip_distance,direction,status,visibility,slug,source)
+      values ('33333333-3333-3333-3333-333333333333','${USER}','שדי','torah',2,'down','published','public','legacy-owner','community'),
+             ('44444444-4444-4444-4444-444444444444',null,'שדי','torah',2,'down','published','public','legacy-mismatch','admin')`);
+    r = file(`supabase/migrations/${REANCHOR_MIG}`); assert.equal(r.status, 0, r.stderr);
+    r = as(ADMIN, `select public.reanchor_els_matrix_v1('11111111-1111-1111-1111-111111111111','torah',2,'${dname(good0.dir)}',${good0.start},'{"findings":[]}'::jsonb,null,'same row',null)`);
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(J(`select json_build_array(id::text,scope,direction,start_index,status,description)::text from public.els_records where id='11111111-1111-1111-1111-111111111111'`),
+      ['11111111-1111-1111-1111-111111111111','torah',dname(good0.dir),good0.start,'published','same row']);
+    fails(as(ADMIN, `select public.reanchor_els_matrix_v1('44444444-4444-4444-4444-444444444444','torah',2,'${dname(good0.dir)}',${good0.start + 1},null,null,null,null)`), /els_publish_gate: REPLAY_MISMATCH/);
+    assert.deepEqual(J(`select json_build_array(direction,start_index)::text from public.els_records where id='44444444-4444-4444-4444-444444444444'`), ['down',null], 'failed repair is atomic');
+    const good1 = tk[1];
+    r = as(USER, `select public.reanchor_els_matrix_v1('33333333-3333-3333-3333-333333333333','torah',2,'${dname(good1.dir)}',${good1.start},null,null,'owner edit',null)`);
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(J(`select json_build_array(id::text,status,visibility,start_index)::text from public.els_records where id='33333333-3333-3333-3333-333333333333'`),
+      ['33333333-3333-3333-3333-333333333333','pending','private',good1.start], 'owner keeps the same id and returns published evidence to review');
+    fails(as(USER, `select public.reanchor_els_matrix_v1('44444444-4444-4444-4444-444444444444','torah',2,'${dname(good0.dir)}',${good0.start},null,null,null,null)`), /not authorized/);
+    r = db(`select concat(has_function_privilege('anon','public.reanchor_els_matrix_v1(uuid,text,integer,text,integer,jsonb,text,text,jsonb)','execute'),has_function_privilege('authenticated','public.reanchor_els_matrix_v1(uuid,text,integer,text,integer,jsonb,text,text,jsonb)','execute'))`);
+    assert.equal(r.stdout.trim(), 'ft');
   } finally {
     run(join(PG, 'pg_ctl'), ['-D', data, '-m', 'immediate', 'stop']);
     rmSync(dir, { recursive: true, force: true });

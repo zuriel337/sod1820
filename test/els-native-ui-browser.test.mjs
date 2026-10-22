@@ -190,7 +190,11 @@ const realHostStubs = {
     rpc:async(name,payload)=>{
       (window.__updateCalls||=[]).push({name,...structuredClone(payload)});
       const row=(window.__savedRows||[]).find(row=>row.id===payload.p_id);
-      if(name!=='update_els_matrix'||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published')))return {error:{message:'update denied'}};
+      const reanchor=name==='reanchor_els_matrix_v1';
+      if(!['update_els_matrix','reanchor_els_matrix_v1'].includes(name)||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published'&&!reanchor)))return {error:{message:'update denied'}};
+      if(reanchor){row.scope=payload.p_scope;row.skip_distance=payload.p_skip;row.direction=payload.p_direction;row.start_index=payload.p_start_index;
+        row.corpus_id=payload.p_scope==='tanakh'?'0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b':'${ELS_GOLDEN_CORPUS_ID}';
+        if(window.__fixtureTier!=='admin'&&row.status==='published'){row.status='pending';row.visibility='private';}}
       row.positions=payload.p_positions;if(payload.p_image_url!=null)row.image_url=payload.p_image_url;
       row.description=payload.p_description;row.engine_detail=payload.p_engine_detail;return {error:null};
     },functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
@@ -1337,10 +1341,10 @@ test('an opened personal cipher updates its exact saved record after findings ch
   await activate(page,'חפש במטריצה');
   await page.waitForFunction(()=>window.__state?.findings?.some(item=>item.t==='התורה'&&item.shown.length));
   await activate(page,'שמירה');
-  assert.equal(await button(page,'עדכן צופן').count(),1);
+  assert.equal(await button(page,'שמור שינויים').count(),1);
   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).isDisabled(),true);
   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('הוספתי את התורה כממצא נוסף על הציר השמור.');
-  await activate(page,'עדכן צופן');
+  await activate(page,'שמור שינויים');
   await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('עודכן'));
   assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
   assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
@@ -1350,7 +1354,7 @@ test('an opened personal cipher updates its exact saved record after findings ch
   await activate(page,'מחק את המילה התורה וכל מופעיה');
   await page.waitForFunction(()=>window.__state?.findings?.length===0);
   await activate(page,'שמירה');
-  await activate(page,'עדכן צופן');
+  await activate(page,'שמור שינויים');
   await page.waitForFunction(()=>window.__savedRows[0].positions.findings.length===0);
   assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
   assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
@@ -1363,11 +1367,19 @@ test('a historical Torah-labelled record replays cross-boundary findings in Tana
  await withNative({width:390,height:844},async page=>{
   const row={id:'legacy-hint',slug:'legacy-hint',title:'תורת הרמז',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:null,
     owner_user_id:'fixture-owner',visibility:'public',status:'published',self_published:true,description:'רשומת עבר',positions:{findings:[{t:'נשמהללוט',color:'#FF5D6C',sh:['21941_1_196825']}]}};
-  await page.evaluate(value=>window.__openSavedMatrix(value),row);
+  await page.evaluate(value=>{window.__savedRows=[structuredClone(value)];window.__openSavedMatrix(value);},row);
   await page.waitForFunction(()=>window.__state?.term==='תורתהרמז'&&window.__state?.scope==='tanakh'&&window.__state?.verification?.state==='MATCH',{timeout:60000});
   await page.waitForFunction(()=>window.__state?.findings?.find(item=>item.t==='נשמהללוט')?.shown?.length>0,{timeout:60000});
   assert.match(await page.getByRole('region',{name:'ניהול הצופן השמור'}).textContent(),/נפתחה בכל התנ״ך/);
-  assert.equal(await button(page,'שמור גרסה מתוקנת').count(),1);
+  assert.equal(await button(page,'פתח שמירת שינויים').count(),1);
+  await activate(page,'פתח שמירת שינויים');
+  await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('עדכון הממצא הוותיק באותה רשומה שמורה.');
+  await activate(page,'שמור שינויים');
+  await page.waitForFunction(()=>window.__updateCalls?.at(-1)?.name==='reanchor_els_matrix_v1');
+  assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'legacy-hint');
+  assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'legacy save updates the same row instead of creating a copy');
+  assert.deepEqual(await page.evaluate(()=>{const row=window.__savedRows[0];return [row.scope,row.direction,row.start_index,row.status];}),['tanakh','fwd',43250,'published']);
+  assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
 
   await activate(page,'מחק צופן');
   assert.deepEqual(await page.evaluate(()=>window.__deleteCalls||[]),[],'delete is not executed before explicit confirmation');

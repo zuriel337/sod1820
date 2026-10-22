@@ -13,7 +13,7 @@ import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { hasExactSavedMatrix, savedMatrixReplayProfile } from "../../lib/elsSavedMatrix.js";
+import { savedMatrixReplayProfile } from "../../lib/elsSavedMatrix.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -1192,8 +1192,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         {savedReplay.legacyScopeRecovered ? <small role="status">ברשומה הוותיקה נמצאו ממצאים שחוצים את גבול התורה. כדי לשחזר את מה שנשמר, היא נפתחה בכל התנ״ך; הרשומה המקורית לא שונתה.</small> : null}
       </div>
       <div className="els29-native-saved-actions">
-        <button type="button" className="sod29-action primary" onClick={(event) => openTool("research", event.currentTarget)}>
-          {hasExactSavedMatrix(matrix) ? "ערוך ושמור" : "שמור גרסה מתוקנת"}
+        <button type="button" className="sod29-action primary" aria-label="פתח שמירת שינויים" onClick={(event) => openTool("research", event.currentTarget)}>
+          שמור שינויים
         </button>
         {isAdmin && onDeleteSaved ? !deleteConfirm ? <button type="button" className="sod29-action" onClick={() => { setDeleteConfirm(true);setDeleteError(false); }}>מחק צופן</button>
           : <span className="els29-native-delete-confirm" role="group" aria-label="אישור מחיקת הצופן">

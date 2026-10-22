@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, getMatrixById, moderateMatrix } from "../lib/elsMatrices.js";
-import { savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
+import { savedMatrixCanReanchor, savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
@@ -253,7 +253,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         && ((matrix.owner_user_id === user?.id && matrix.visibility === "private"
           && !matrix.self_published && matrix.status !== "published")
           || (isAdmin && matrix.status === "published")) ? matrix.id : null;
-      const editId = native ? nativeOpenedEditId : (d.editId || (isReSave ? contextMatrix.id : null));
+      const nativeReanchorId = native && matrix?.id && savedMatrixCanReanchor(matrix, savedState)
+        && (isAdmin || matrix.owner_user_id === user?.id) ? matrix.id : null;
+      const editId = native ? nativeOpenedEditId || nativeReanchorId : (d.editId || (isReSave ? contextMatrix.id : null));
       let editMatrix = null;
       if (editId) {
         editMatrix = editId === contextMatrix?.id ? contextMatrix : await getMatrixById(editId);
@@ -273,10 +275,11 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (messageContextRef.current.user?.id !== user?.id
         || lastStateRef.current?.axis?.hitId !== savedState.axis?.hitId
         || lastStateRef.current?.scope !== savedState.scope) throw new Error("save_context_changed");
-      const canUpdateNative = privateNative && savedMatrixMatchesAxis(contextMatrix, savedState)
-        && ((contextMatrix?.owner_user_id === user?.id && contextMatrix?.visibility === "private"
+      const reanchoringNative = Boolean(nativeReanchorId) && editId === nativeReanchorId;
+      const canUpdateNative = privateNative && (savedMatrixMatchesAxis(contextMatrix, savedState) || reanchoringNative)
+        && ((contextMatrix?.owner_user_id === user?.id && (contextMatrix?.visibility === "private" || reanchoringNative)
           && !contextMatrix?.self_published && contextMatrix?.status !== "published")
-          || (isAdmin && contextMatrix?.status === "published"));
+          || reanchoringNative || (isAdmin && contextMatrix?.status === "published"));
       const shapeUrl = !privateSave && d.shape ? await uploadCipherCard(d.shape) : null;
       const imageUrl = (!privateSave && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
       const positions = { ...(canUpdateNative ? (editMatrix || contextMatrix).positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
@@ -286,7 +289,13 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       // updates retain server ownership/publication checks and never downgrade
       // a failed private update into a new public submission.
       if (editId) {
-        const { error } = await supabase.rpc("update_els_matrix", {
+        const reanchoring = editId === nativeReanchorId;
+        const { error } = await supabase.rpc(reanchoring ? "reanchor_els_matrix_v1" : "update_els_matrix", reanchoring ? {
+          p_id: editId, p_scope: d.scope || savedState.scope, p_skip: Math.abs(d.skip),
+          p_direction: d.direction, p_start_index: d.start,
+          p_positions: positions, p_image_url: imageUrl || null,
+          p_description: d.desc || null, p_engine_detail: engineDetail,
+        } : {
           p_id: editId, p_positions: positions,
           p_image_url: imageUrl || null, p_description: d.desc || null,
           p_engine_detail: engineDetail,

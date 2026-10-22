@@ -69,6 +69,16 @@ export function savedMatrixMatchesAxis(row, state) {
     && state.axis?.hitId === `${row.skip_distance}_${row.direction === "back" ? -1 : 1}_${row.start_index}`;
 }
 
+// A legacy row may be completed in place only from the same verified term/skip and
+// the replay scope selected by the compatibility adapter. Authorization remains server-owned.
+export function savedMatrixCanReanchor(row, state) {
+  if (!row || hasExactSavedMatrix(row) || state?.verification?.state !== "MATCH") return false;
+  const term = value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, c => ({ך:"כ",ם:"מ",ן:"נ",ף:"פ",ץ:"צ"}[c]));
+  return term(row.search_term) === term(state.term)
+    && savedMatrixReplayProfile(row).scope === state.scope
+    && Math.abs(Number(row.skip_distance) || 0) === state.axis?.skip;
+}
+
 export function savedMatrixWorkspaceHref(row) {
   return row?.slug ? `/code?cipher=${encodeURIComponent(row.slug)}`
     : row?.id ? `/code?record=${encodeURIComponent(row.id)}` : "/code";
