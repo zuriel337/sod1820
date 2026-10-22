@@ -99,8 +99,8 @@ function fixturePlugin() {
     ["virtual:bm-ratings.jsx", `import React from "react";export default function Ratings({quality,meterScore}){return React.createElement("div",{className:"k29-rate","data-quality":quality??"missing","data-meter":meterScore??"missing"},"איכות ",quality??"לא דורג"," · חוזק ",meterScore??"אין נתון")}`],
     ["virtual:bm-trace-component.jsx", `export default function Trace(){return null}`],
     ["virtual:bm-spatial-stage.jsx", `import React from "react";export default function Stage({methodKey}){return React.createElement("div",{"data-experience-capability":"spatial-method-stage","data-method-key":methodKey},"המחשת שיטה")}`],
-    ["virtual:bm-registry.js", `export const fetchGematriaMethodStates=async()=>[{method_key:"standard",display_label:"רגיל",category:"base",active:true,registered:true,executable:true,engine_verified:true,scannable:true}];`],
-    ["virtual:bm-number.js", `export const fetchNumberMethodProfile=async()=>[{methodKey:"standard",displayLabel:"רגיל",category:"base",computedValue:73}];`],
+    ["virtual:bm-registry.js", `const m=(method_key,display_label,category)=>({method_key,display_label,category,active:true,registered:true,executable:true,engine_verified:true,scannable:true});export const fetchGematriaMethodStates=async()=>[m("standard","רגיל","base"),m("gadol","גדול","base"),m("katan","קטן","base"),m("kolel","כולל","composite"),m("milui","מילוי","depth"),m("atbash","אתב״ש","context")];`],
+    ["virtual:bm-number.js", `export const fetchNumberMethodProfile=async()=>[["standard","רגיל","base",73],["gadol","גדול","base",613],["katan","קטן","base",10],["kolel","כולל","composite",77],["milui","מילוי","depth",613],["atbash","אתב״ש","context",null]].map(([methodKey,displayLabel,category,computedValue])=>({methodKey,displayLabel,category,computedValue}));`],
     ["virtual:bm-trace.js", `export const fetchGematriaMethodTrace=async(method,input)=>({id:"trace-1",projection:{dimensions:{trace:{method_key:method,input,result:73,verification:{status:"verified"},steps:[]}}}});`],
     ["virtual:bm-definition.js", `export const methodMechanicalDefinition=()=>({what:"סוכמת את ערכי האותיות",structure:null,dependencies:[],interpretation:null});`],
     ["virtual:bm-world.js", `
@@ -325,6 +325,127 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     await page.keyboard.press("Tab");
     const focusOutline = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
     assert.equal(focusOutline, "solid");
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("lesson pages are centred, enriched and calm in nine theme/width combinations", { skip: !available, timeout: 120_000 }, async () => {
+  const server = await vite.createServer({
+    root,
+    configFile: false,
+    plugins: [fixturePlugin(), reactPlugin()],
+    server: { host: "127.0.0.1", port: 0 },
+  });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath });
+    const context = await browser.newContext({ reducedMotion: "no-preference" });
+    const page = await context.newPage();
+    const browserErrors = [];
+    page.on("pageerror", (error) => browserErrors.push(error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error" && !/Failed to load resource/.test(message.text())) browserErrors.push(message.text());
+    });
+    await page.addInitScript(() => {
+      window.__cls = 0;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) if (!entry.hadRecentInput) {
+          window.__cls += entry.value;
+          (window.__shifts ||= []).push({ v: entry.value, t: Math.round(entry.startTime), src: entry.sources.map((s) => `${s.node?.nodeName}.${s.node?.className || s.node?.id}`).join("|") });
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    const shots = process.env.BM_SHOTS_DIR;
+
+    for (const theme of ["day", "card", "night"]) {
+      for (const width of [320, 390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`${origin}/beit-midrash/kolel`);
+        await page.waitForSelector('.bm-lesson[data-method-key="kolel"]');
+        await page.evaluate((nextTheme) => window.__setTheme(nextTheme), theme);
+        await page.waitForTimeout(900);
+        const tag = `${theme} ${width}px`;
+        const m = await page.evaluate(() => {
+          const box = (selector) => {
+            const el = document.querySelector(selector);
+            const r = el?.getBoundingClientRect();
+            return r ? { top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left, right: r.right, width: r.width, height: r.height } : null;
+          };
+          const rail = document.querySelector(".bm-method-nav");
+          const chips = [...rail.querySelectorAll("a")].map((a) => a.getBoundingClientRect().height);
+          return {
+            viewport: innerWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            main: box(".sod29-midrash"),
+            lesson: box(".bm-lesson"),
+            rail: box(".bm-method-nav"),
+            flow: box(".bm-flow"),
+            railOverflowX: getComputedStyle(rail).overflowX,
+            chipHeights: chips,
+            tiles: document.querySelectorAll(".bm-flow-letters li").length,
+            result: document.querySelector(".bm-flow-result")?.textContent,
+            cls: window.__cls,
+            sideColumn: getComputedStyle(document.querySelector(".bm-methods-layout")).gridTemplateColumns.split(" ").length,
+          };
+        });
+        assert.ok(m.scrollWidth <= m.viewport + 1, `${tag} overflow`);
+        const mainCenter = (m.main.left + m.main.right) / 2;
+        const lessonCenter = (m.lesson.left + m.lesson.right) / 2;
+        assert.ok(Math.abs(mainCenter - lessonCenter) <= 2, `${tag} lesson centred (${mainCenter} vs ${lessonCenter})`);
+        assert.ok(Math.abs(m.viewport / 2 - lessonCenter) <= 12, `${tag} lesson centred in viewport`);
+        assert.equal(m.sideColumn, 1, `${tag} no side column`);
+        assert.ok(m.rail.bottom <= m.lesson.top + 1, `${tag} methods rail sits above the lesson`);
+        assert.ok(m.rail.width >= m.lesson.width * 0.9, `${tag} rail spans the lesson width`);
+        assert.ok(m.flow.left >= m.lesson.left && m.flow.right <= m.lesson.right, `${tag} illustration inside lesson`);
+        assert.equal(m.tiles, 4, `${tag} four letter tiles`);
+        assert.equal(m.result, "77", `${tag} result comes from the registry value`);
+        assert.ok(m.chipHeights.every((h) => h >= 44), `${tag} rail touch targets`);
+        assert.ok(m.cls < 0.1, `${tag} layout shift ${m.cls} ${JSON.stringify(await page.evaluate(() => window.__shifts))}`);
+        if (shots) {
+          await page.evaluate(() => window.scrollTo(0, document.querySelector("#methods").getBoundingClientRect().top + scrollY - 20));
+          await page.screenshot({ path: `${shots}/lesson-${theme}-${width}.png` });
+        }
+      }
+    }
+
+    // Reduced motion removes every lesson animation; the illustration is still fully visible.
+    const animated = () => page.evaluate(() => [".bm-flow-letters li", ".bm-flow-method", ".bm-flow-result", ".bm-flow-line", ".bm-lesson"]
+      .map((selector) => getComputedStyle(document.querySelector(selector)).animationName));
+    assert.ok((await animated()).some((name) => name !== "none"), "motion is an enhancement when allowed");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    assert.deepEqual([...new Set(await animated())], ["none"], "reduced motion disables lesson animation");
+    assert.equal(await page.locator(".bm-flow-result").evaluate((el) => getComputedStyle(el).opacity), "1");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+
+    // Keyboard and semantics.
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto(`${origin}/beit-midrash/kolel`);
+    await page.waitForSelector(".bm-lesson");
+    const chip = page.locator('.bm-method-nav a:not([aria-current])').first();
+    await chip.focus();
+    const ring = await chip.evaluate((el) => ({ style: getComputedStyle(el).outlineStyle, width: parseFloat(getComputedStyle(el).outlineWidth) }));
+    assert.equal(ring.style, "solid");
+    assert.ok(ring.width >= 2);
+    assert.equal(await page.locator('.bm-method-nav a[aria-current="page"]').count(), 1);
+    assert.equal(await page.getByRole("navigation", { name: "שיטות הגימטריה" }).count(), 1);
+    assert.equal(await page.locator(".bm-flow").getAttribute("aria-label").then((v) => v.includes("כולל")), true);
+
+    // Learning headings use discovery language; research-room vocabulary stays out.
+    await page.goto(`${origin}/beit-midrash`);
+    await page.waitForSelector('[data-finding-id="f-public"]');
+    const headings = await page.locator(".bm-section-head h3").allInnerTexts();
+    for (const title of ["איך מתחילים לגלות?", "שיטות הגימטריה", "לומדים לקרוא מקור", "מסלולי לימוד", "נקודות מפגש", "מתרגלים ומשתתפים"]) {
+      assert.ok(headings.includes(title), `heading ${title}`);
+    }
+    for (const bad of ["הצלבה", "ממצא מחקר", "איכות ראיות", "ביטחון", "מצב אימות", "סקירת מנהל", "מאגר ממצאים"]) {
+      assert.ok(!headings.some((title) => title.includes(bad)), `no public heading ${bad}`);
+    }
+    assert.equal(await page.locator(".bm-tag", { hasText: "הצלבה" }).count() > 0, true, "crossing stays a small tag");
+    assert.deepEqual(browserErrors, []);
   } finally {
     await browser?.close();
     await server.close();
