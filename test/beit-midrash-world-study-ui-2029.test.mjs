@@ -49,8 +49,14 @@ test("source fidelity: sourceRef, occurrences and verified links only", () => {
   assert.match(guided, /example\.occurrences\.length > 1/);
   assert.match(guided, /example\.occurrences\.map/);
   assert.match(guided, /example\.sourceHref \?/);
-  assert.match(guided, /href=\{example\.canonicalFindingHref\}/);
-  assert.match(guided, /לפתיחת הגילוי המלא/);
+  assert.doesNotMatch(guided, /example\.canonicalFindingHref|admin=1/);
+  assert.match(guided, /publicWorldSourceHref\(example\.contributor\)/);
+  assert.match(guided, /לפתיחת הגילוי והמקור בעולם/);
+  assert.match(guided, /updateResearchContext/);
+  assert.match(guided, /returnTo/);
+  assert.match(guided, /findingId: example\.sourceId/);
+  assert.match(guided, /sourceRef: example\.sourceRef/);
+  assert.match(guided, /publicContributorHref\(example\.contributor\)/);
   assert.match(guided, /to=\{example\.returnHref\}/);
   assert.match(guided, /mapCallout\.href/);
 });

@@ -32,7 +32,7 @@ const projection = {
       sourceLabel: "מקור מחקר",
       sourceRef: "channel_updates:source-1#a2",
       sourceRefs: ["channel_updates:source-1#a2", "channel_updates:source-1#a7"],
-      contributor: "חוקר",
+      contributor: "צבי (OPOC)",
       createdAt: "2026-10-22T10:00:00.000Z",
       verification: "match",
       status: "approved",
@@ -93,7 +93,8 @@ const projection = {
 function fixturePlugin() {
   const modules = new Map([
     ["virtual:bm-auth.jsx", `export const useAuth=()=>({isAdmin:new URLSearchParams(window.location.search).get("fixtureAdmin")==="1",loading:false});`],
-    ["virtual:bm-shell.jsx", `import React from "react";export function FrameState({kind,title,children,action}){return React.createElement("section",{"data-frame-state":kind},React.createElement("h3",null,title),children,action)}export const use2029Shell=()=>({openIssueReport:()=>{window.__issueReportOpened=true;}});export default function Shell({children,title}){return React.createElement("div",{className:"sod29-root surface-beit-midrash"},React.createElement("header",{hidden:true},title),children)}`],
+    ["virtual:bm-shell.jsx", `import React from "react";export function FrameState({kind,title,children,action}){return React.createElement("section",{"data-frame-state":kind},React.createElement("h3",null,title),children,action)}export const use2029Shell=()=>({openIssueReport:()=>{window.__issueReportOpened=true;},go:(href,options)=>{window.__shellGo={href,options};}});export default function Shell({children,title}){return React.createElement("div",{className:"sod29-root surface-beit-midrash"},React.createElement("header",{hidden:true},title),children)}`],
+    ["virtual:bm-research.jsx", `export const useResearch=()=>({updateResearchContext:(context)=>{window.__researchContext=context;}});`],
     ["virtual:bm-icon.jsx", `import React from "react";export default function Icon(){return React.createElement("span",{"aria-hidden":true},"◇")}`],
     ["virtual:bm-ratings.jsx", `import React from "react";export default function Ratings({quality,meterScore}){return React.createElement("div",{className:"k29-rate","data-quality":quality??"missing","data-meter":meterScore??"missing"},"איכות ",quality??"לא דורג"," · חוזק ",meterScore??"אין נתון")}`],
     ["virtual:bm-trace-component.jsx", `export default function Trace(){return null}`],
@@ -112,6 +113,7 @@ function fixturePlugin() {
   const aliases = new Map([
     ["AuthContext.jsx", "virtual:bm-auth.jsx"],
     ["Sod2029Shell.jsx", "virtual:bm-shell.jsx"],
+    ["ResearchProvider.jsx", "virtual:bm-research.jsx"],
     ["NavigationIcon2029.jsx", "virtual:bm-icon.jsx"],
     ["ConvergenceRatings2029.jsx", "virtual:bm-ratings.jsx"],
     ["MethodTraceExplanation2029.jsx", "virtual:bm-trace-component.jsx"],
@@ -238,7 +240,16 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     }
     assert.equal(await page.locator('[data-finding-id="f-private"]').count(), 0);
     assert.equal(await page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"] .bm-occurrences').count(), 1);
-    assert.equal(await page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"] a[href="/world?admin=1&finding=f-public#finding-f-public"]').count(), 1);
+    const publicZviHref = "/world?view=sources&source=tzvi-opoc#world-contributor-material";
+    const guidedCard = page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"]');
+    assert.equal(await guidedCard.locator(`a[href="${publicZviHref}"]`).count(), 2, "author and discovery open the same public source home");
+    assert.equal(await guidedCard.locator('a[href*="admin=1"]').count(), 0);
+    await guidedCard.getByRole("link", { name: "לפתיחת הגילוי והמקור בעולם" }).click();
+    const handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    assert.equal(handoff.navigation.href, publicZviHref);
+    assert.equal(handoff.context.selection.findingId, "f-public");
+    assert.equal(handoff.context.selection.sourceRef, "channel_updates:source-1#a2");
+    assert.equal(handoff.context.returnTo.href, "/beit-midrash?section=guided&kind=crossing&finding=f-public#finding-f-public");
     assert.equal(await page.getByText("כשהתמונה מתחברת").count() > 0, true);
     assert.equal(await page.getByRole("link", { name: "למפת הידע בעולם" }).getAttribute("href"), "/world#world-connections");
     assert.equal(await page.locator('.bm-pillars a').count(), 3);

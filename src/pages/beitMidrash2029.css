@@ -423,6 +423,8 @@
 .bm-source dt{color:var(--s29-muted);font-size:var(--s29-type-micro)}
 .bm-source dd{margin:0;min-width:0;overflow-wrap:anywhere;font-size:var(--s29-type-ui)}
 .bm-source code{font-size:var(--s29-type-micro)}
+.bm-contributor-link{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);font-family:var(--s29-font-ui);font-weight:700;text-underline-offset:3px}
+.bm-contributor-link:hover{text-decoration-thickness:2px}
 .bm-occurrences{margin-top:10px}
 .bm-occurrences summary{min-height:44px;display:flex;align-items:center;color:var(--s29-muted);font-weight:800;cursor:pointer}
 .bm-occurrences ul{margin:0;padding-inline-start:22px}

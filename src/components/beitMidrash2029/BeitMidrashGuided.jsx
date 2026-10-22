@@ -1,12 +1,43 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
-import { FrameState } from "../experience2029/Sod2029Shell.jsx";
+import { FrameState, use2029Shell } from "../experience2029/Sod2029Shell.jsx";
+import { useResearch } from "../../lib/research/ResearchProvider.jsx";
+import { publicContributorHref, publicWorldSourceHref } from "../../lib/research/publicContributorIdentity.js";
 
 const primitive = (value) => ["string", "number"].includes(typeof value);
 
 function GuidedCard({ example }) {
+  const research = useResearch();
+  const shell = use2029Shell();
+  const location = useLocation();
   const values = example.values.filter(primitive);
+  const contributorHref = publicContributorHref(example.contributor);
+  const worldHref = publicWorldSourceHref(example.contributor);
+  const rememberAndOpenWorld = (event) => {
+    const selection = {
+      entityId: example.sourceId,
+      entityType: "finding",
+      findingId: example.sourceId,
+      sourceRef: example.sourceRef,
+      locator: example.sourceRef,
+    };
+    research.updateResearchContext?.({
+      subject: null,
+      selection,
+      lens: "world",
+      returnTo: {
+        href: example.returnHref || `${location.pathname}${location.search}${location.hash}`,
+        label: "בית המדרש · נקודת המפגש",
+        subject: null,
+        selection,
+        lens: "beit-midrash",
+      },
+    });
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    shell.go(worldHref, { preserve: false });
+  };
   return <article
     id={`guided-${example.concept}-${example.sourceId}`}
     className="bm-example-card"
@@ -33,7 +64,9 @@ function GuidedCard({ example }) {
         <dt>מקור</dt>
         <dd>{example.sourceLabel ? <span>{example.sourceLabel} · </span> : null}<code dir="ltr">{example.sourceRef || "אין מזהה מקור"}</code></dd>
       </div>
-      {example.contributor ? <div><dt>הובא על ידי</dt><dd>{example.contributor}</dd></div> : null}
+      {example.contributor ? <div><dt>הובא על ידי</dt><dd>{contributorHref
+        ? <Link className="bm-contributor-link" to={contributorHref} onClick={rememberAndOpenWorld}>{example.contributor}</Link>
+        : example.contributor}</dd></div> : null}
     </dl>
 
     {example.occurrences.length > 1 ? <details className="bm-occurrences">
@@ -44,7 +77,7 @@ function GuidedCard({ example }) {
     </details> : null}
 
     <footer>
-      <a className="bm-button is-primary" href={example.canonicalFindingHref} target="_blank" rel="noreferrer">לפתיחת הגילוי המלא ↗</a>
+      <a className="bm-button is-primary" href={worldHref} onClick={rememberAndOpenWorld}>לפתיחת הגילוי והמקור בעולם</a>
       {example.sourceHref ? <a className="bm-button" href={example.sourceHref} target="_blank" rel="noreferrer">לפתיחת המקור ↗</a> : null}
       <Link className="bm-link" to={example.returnHref}>קישור קבוע לדוגמה</Link>
     </footer>

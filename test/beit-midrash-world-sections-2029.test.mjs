@@ -54,6 +54,7 @@ test("public Beit Midrash lenses fail closed for private and candidate findings"
   assert.deepEqual(result.sections.atlas.map((row) => row.sourceId), ["f-1"]);
   assert.deepEqual(result.sections.convergence.map((row) => row.sourceId), ["f-1"]);
   assert.equal(result.sections.crosses[0].triage, undefined);
+  assert.equal(result.sections.crosses[0].canonicalFindingHref, null, "public DTO must not expose the admin review route");
   assert.equal(result.nonDestructiveDedup, true);
 });
 
@@ -82,6 +83,7 @@ test("admin consumes the authorized review DTO without exposing triage to public
   assert.equal(admin.sections.crosses.length, 1);
   assert.equal(admin.sections.crosses[0].triage.rank, 7);
   assert.equal(admin.sections.crosses[0].evidenceQuality.label, "אין נתון");
+  assert.equal(admin.sections.crosses[0].canonicalFindingHref, "/world?admin=1&finding=private-candidate#finding-private-candidate");
 });
 
 test("atlas and convergence are canonical filters over the same rows", () => {
