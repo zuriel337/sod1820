@@ -52,10 +52,13 @@ test("same persona/metatron/memory path for both tiers; reliability wired, never
   assert.equal((razielBlock.match(/fetchRazielPersona\(/g) || []).length, 1);
   assert.equal((razielBlock.match(/fetchMetatronContext\(/g) || []).length, 1);
   assert.match(edge, /import \{ callClaudeReliable \} from "\.\.\/_shared\/raziel-reliability\.ts"/);
-  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 1);
+  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 2);
+  assert.match(razielBlock, /model-truth-retry/);
+  assert.match(razielBlock, /policy: \{ retries: 1 \}/);
   assert.match(razielBlock, /buildFallback[\s\S]*agent: "raziel"/);
   assert.match(rel, /usage\?: \{ input_tokens/);
-  assert.match(razielBlock, /out\.usage/);
+  assert.match(razielBlock, /input_tokens: rel\.usage\?\.input_tokens/);
+  assert.match(razielBlock, /input_tokens: retryRel\.usage\?\.input_tokens/);
 });
 
 test("native chat: user question is the subject; root/method only in facts/context", () => {

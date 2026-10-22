@@ -114,7 +114,8 @@ test("Golden: wiring — selector decides after deterministic path, before quota
 test("Golden: smart routing stays OFF — no fn_raziel_model / routing_enabled / L4-L5 execution in the request path", () => {
   assert.doesNotMatch(razielBlock, /fn_raziel_model|routing_enabled|L4|L5|sandalphon|research_intel/i);
   assert.doesNotMatch(edge, /routing_enabled\s*=\s*true/);
-  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 1);
+  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 2);
+  assert.match(razielBlock, /routing_reason: "numeric_truth_guard_retry"/);
   assert.equal((razielBlock.match(/fetchRazielPersona\(/g) || []).length, 1);
   assert.equal((razielBlock.match(/fetchMetatronContext\(/g) || []).length, 1);
   assert.ok(razielBlock.indexOf("checkQuota(") > 0);

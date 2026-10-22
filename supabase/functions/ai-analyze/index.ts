@@ -2130,6 +2130,7 @@ Deno.serve(async (req: Request) => {
       // Phase H — reality_number_context. Anchor comes from the plan (explicit / verified gematria dependency) or the bounded surface root; no anchor ⇒ no tool.
       //    L0 (listing/counts) answers straight from the owner projections (no model, no tokens); synthesis gets a bounded pack. Failure ⇒ ordinary synthesis, no claims.
       let rNcPack = "";
+      let rNcFallback = "";
       const rNcPairDesc = razielNumberPairDescriptor(rDet);
       const rNcDesc = rNcPairDesc ? null : razielNumberContextDescriptor(rDet, body?.surface_semantic);
       if (rDet && rDet.availability === "number_context") rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: false };
@@ -2143,6 +2144,10 @@ Deno.serve(async (req: Request) => {
             outcomes: [left.outcome, right.outcome] } };
         if (pairOk && left.pack && right.pack) {
           rNcPack = `השוואת שני מספרים מפורשים — צד א (${leftNumber}):\n${left.pack}\n\nצד ב (${rightNumber}):\n${right.pack}`.slice(0, 5400);
+          const groundedSides = [left.answer, right.answer].filter((value): value is string => typeof value === "string" && !!value.trim());
+          if (groundedSides.length) {
+            rNcFallback = `לא הצלחתי לנסח השוואה בטוחה, ולכן הנה הנתונים המאומתים לכל צד:\n\n${groundedSides.join("\n\n")}`.slice(0, 3000);
+          }
         }
       } else if (rNcDesc) {
         const nc = await runRazielNumberContext(rNcDesc, activeTrace);
@@ -2154,7 +2159,10 @@ Deno.serve(async (req: Request) => {
             source_of_truth: "reality_graph_law v8 · number_map + number_dossier_json", number_context: { number: nc.number, anchor: nc.anchor, counts: nc.counts } },
             engine: "deterministic", model: "none", intelligence_level: "deterministic", plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null });
         }
-        if (nc.ok && nc.pack) rNcPack = nc.pack;
+        if (nc.ok && nc.pack) {
+          rNcPack = nc.pack;
+          if (nc.answer) rNcFallback = nc.answer;
+        }
       }
 
       // Phase J — current Post/Topic content READ. Explicit current-surface question + exact slug in surface_semantic only; identity missing/mismatched ⇒ fail closed (no tool).
@@ -2232,7 +2240,7 @@ Deno.serve(async (req: Request) => {
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
         ctxText +
         (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "") +
-        `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. החזר JSON בלבד.`;
+        `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. כל ספרה בתשובה חייבת להופיע במפורש בחומר שסופק; אל תמספר רשימות בספרות. החזר JSON בלבד.`;
 
       const razielModelSpanId = crypto.randomUUID();
       const razielModelStartedAt = new Date().toISOString();
@@ -2249,21 +2257,16 @@ Deno.serve(async (req: Request) => {
         }),
       });
       const exactSurfaceNumber = razielSurfaceNumberRoot(body?.surface_semantic);
-      const razielTruth = rel.degraded ? { ok: true, invented: [] } : validateRazielNumericOutput(rel.text, [
+      const permittedRazielNumericTexts = [
         rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rOpPack, rPersPack,
         rCcPack === "UNAVAILABLE" ? "" : rCcPack,
         rSource?.ok ? rSource.text : "",
         exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),
-      ]);
-      const razielTruthRejected = !rel.degraded && !razielTruth.ok;
-      const truthFallback = JSON.stringify({
-        v: 1, agent: "raziel", context: null, greeting: null,
-        answer: "לא קיבלתי מהמנוע נתונים מאומתים שמאפשרים לי לענות בלי לנחש. נסה בקשה מפורשת לחיפוש במאגר או פתח את דף המספר ובקש את הביטויים המאומתים.",
-        facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
-      });
-      const out = { text: razielTruthRejected ? truthFallback : rel.text, usage: rel.usage };
+      ];
+      const razielTruth = rel.degraded ? { ok: true, invented: [] } : validateRazielNumericOutput(rel.text, permittedRazielNumericTexts);
+      const firstRazielTruthRejected = !rel.degraded && !razielTruth.ok;
       const razielModelEndedAt = new Date().toISOString();
-      const razielModelOutcome = rel.degraded ? "provider_error" : razielTruthRejected ? "failed_with_reason" : "success";
+      const razielModelOutcome = rel.degraded ? "provider_error" : firstRazielTruthRejected ? "failed_with_reason" : "success";
       await recordOperationalSpan(activeTrace, {
         spanId: razielModelSpanId,
         kind: "model_call",
@@ -2282,11 +2285,11 @@ Deno.serve(async (req: Request) => {
           plan: rPlanMeta,
           tool_research: rToolRes ? { status: rToolRes.status, tools: rToolRes.tools.map((t) => ({ capability: t.capability, status: t.status })) } : null,
           semantic_surface: !!semText,
-          output_use: rel.degraded ? "fallback_guardian" : razielTruthRejected ? "rejected" : "used",
-          stop_reason: rel.degraded ? rel.reason : razielTruthRejected ? "numeric_truth_guard_untrusted_literal" : null,
+          output_use: rel.degraded ? "fallback_guardian" : firstRazielTruthRejected ? "rejected" : "used",
+          stop_reason: rel.degraded ? rel.reason : firstRazielTruthRejected ? "numeric_truth_guard_untrusted_literal" : null,
           resources: {
-            input_tokens: out.usage?.input_tokens ?? null,
-            output_tokens: out.usage?.output_tokens ?? null,
+            input_tokens: rel.usage?.input_tokens ?? null,
+            output_tokens: rel.usage?.output_tokens ?? null,
             api_calls: rel.attempts,
             latency_ms: Math.max(0, Date.parse(razielModelEndedAt) - Date.parse(razielModelStartedAt)),
           },
@@ -2299,8 +2302,6 @@ Deno.serve(async (req: Request) => {
           privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
         },
       });
-      if (rel.degraded || razielTruthRejected) await finishOperationalTrace(activeTrace, razielModelOutcome,
-        rel.degraded ? (rel.reason || "degraded") : "numeric_truth_guard_untrusted_literal");
       // 📊 Telemetry — Advanced Raziel is distinguishable from the baseline "raziel" kind (and from
       // generic AI Analysis, logged under kind="number"/etc. elsewhere) using the existing ai_token_log
       // primitive only — no new analytics table. A path/again request on an advanced call is logged as
@@ -2309,11 +2310,91 @@ Deno.serve(async (req: Request) => {
       const razielTokenLogId = await logTokens(
         rzKind,
         rModel,
-        out.usage,
+        rel.usage,
         identity,
         { traceId: activeTrace?.traceId, spanId: razielModelSpanId },
       );
       await linkOperationalAiCost(activeTrace, razielModelSpanId, razielTokenLogId);
+
+      // A numeric draft can contain one unsupported literal even when every engine read succeeded. Keep the guard strict,
+      // but give Raziel one bounded rewrite attempt (the generic ai-analyze path already follows the same pattern).
+      // The rewrite is independently guarded and logged; neither rejected draft can reach the user.
+      let finalRel = rel;
+      let finalTruthRejected = firstRazielTruthRejected;
+      let truthFallbackUsed = false;
+      if (firstRazielTruthRejected) {
+        const retrySpanId = crypto.randomUUID();
+        const retryStartedAt = new Date().toISOString();
+        const retryRel = await callClaudeReliable({
+          apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user: user + numericTruthRetryInstruction(), maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS,
+          policy: { retries: 1 },
+          buildFallback: () => JSON.stringify({
+            v: 1, agent: "raziel", context: null, greeting: null,
+            answer: "לא הצלחתי לנסח את התשובה מחדש בלי להוסיף נתון שלא אומת.",
+            facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
+          }),
+        });
+        const retryTruth = retryRel.degraded ? { ok: false, invented: [] } : validateRazielNumericOutput(retryRel.text, permittedRazielNumericTexts);
+        const retryRejected = !retryRel.degraded && !retryTruth.ok;
+        const retryOutcome = retryRel.degraded ? "provider_error" : retryRejected ? "failed_with_reason" : "success";
+        const retryEndedAt = new Date().toISOString();
+        await recordOperationalSpan(activeTrace, {
+          spanId: retrySpanId,
+          parentSpanId: razielModelSpanId,
+          kind: "model_call",
+          name: "ai-analyze:raziel:model-truth-retry",
+          startedAt: retryStartedAt,
+          endedAt: retryEndedAt,
+          outcome: retryOutcome,
+          detail: {
+            capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
+            owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2 + truth_axes_foundation_law v3",
+            intelligence_level: rLevel,
+            ...rSelMeta,
+            provider: "anthropic",
+            model: rModel,
+            routing_reason: "numeric_truth_guard_retry",
+            escalation_reason: "untrusted_numeric_literal",
+            output_use: retryRel.degraded ? "fallback_guardian" : retryRejected ? "rejected" : "used",
+            stop_reason: retryRel.degraded ? retryRel.reason : retryRejected ? "numeric_truth_guard_untrusted_literal" : null,
+            retry_ordinal: 1,
+            resources: {
+              input_tokens: retryRel.usage?.input_tokens ?? null,
+              output_tokens: retryRel.usage?.output_tokens ?? null,
+              api_calls: retryRel.attempts,
+              latency_ms: Math.max(0, Date.parse(retryEndedAt) - Date.parse(retryStartedAt)),
+            },
+            cost: { certainty: "unknown" },
+            replay: {
+              ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2", "truth_axes_foundation_law v3"],
+              parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1;retry:1`,
+              continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
+            },
+            privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+          },
+        });
+        const retryTokenLogId = await logTokens(
+          rzKind,
+          rModel,
+          retryRel.usage,
+          identity,
+          { traceId: activeTrace?.traceId, spanId: retrySpanId },
+        );
+        await linkOperationalAiCost(activeTrace, retrySpanId, retryTokenLogId);
+        finalRel = retryRel;
+        finalTruthRejected = retryRejected;
+        truthFallbackUsed = retryRel.degraded || retryRejected;
+      }
+      const truthFallback = JSON.stringify({
+        v: 1, agent: "raziel", context: null, greeting: null,
+        answer: rNcFallback || "לא קיבלתי מהמנוע נתונים מאומתים שמאפשרים לי לענות בלי לנחש. נסה בקשה מפורשת לחיפוש במאגר או פתח את דף המספר ובקש את הביטויים המאומתים.",
+        facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
+      });
+      const out = { text: truthFallbackUsed ? truthFallback : finalRel.text };
+      const responseDegraded = finalRel.degraded || truthFallbackUsed;
+      const finalOutcome = finalRel.degraded ? "provider_error" : finalTruthRejected ? "failed_with_reason" : "success";
+      if (responseDegraded) await finishOperationalTrace(activeTrace, finalOutcome,
+        finalRel.degraded ? (finalRel.reason || "degraded") : "numeric_truth_guard_untrusted_literal");
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
       if (userRef && rSubject && !rTrusted) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
 
@@ -2331,12 +2412,12 @@ Deno.serve(async (req: Request) => {
           contract.plan = rPlan;
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
-        if (!rel.degraded && !razielTruthRejected) await finishOperationalTrace(activeTrace, "success");
-        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: (rel.degraded || razielTruthRejected) || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
+        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
-      if (!rel.degraded && !razielTruthRejected) await finishOperationalTrace(activeTrace, "success");
-      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: (rel.degraded || razielTruthRejected) || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
+      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

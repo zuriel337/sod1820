@@ -43,7 +43,7 @@ export const personalSnapshot = () => ({
 export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
-  modelResult = null, numberContextByNumber = {},
+  modelResult = null, modelResults = null, numberContextByNumber = {},
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -115,6 +115,8 @@ export async function runAiAnalyze({
     supabaseServiceHeaders,
     callClaudeReliable: async (options) => {
       models.push(options);
+      const sequence = Array.isArray(modelResults) ? modelResults : null;
+      if (sequence?.length) return sequence[Math.min(models.length - 1, sequence.length - 1)];
       if (modelResult) return modelResult;
       return { text: JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [] }),
         usage: { input_tokens: 11, output_tokens: 7 }, attempts: 1, degraded: false };

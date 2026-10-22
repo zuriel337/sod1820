@@ -51,6 +51,31 @@ test("Raziel numeric truth: screenshot regression rejects decompositions and rel
   assert.equal(span.p_outcome, "failed_with_reason");
   assert.equal(span.p_detail.stop_reason, "numeric_truth_guard_untrusted_literal");
   assert.equal(span.p_detail.output_use, "rejected");
+  assert.equal(r.models.length, 2, "one bounded truth rewrite is attempted before the guarded fallback");
+  const retrySpan = r.spans.find((item) => item.p_name === "ai-analyze:raziel:model-truth-retry");
+  assert.equal(retrySpan.p_outcome, "failed_with_reason");
+  assert.equal(retrySpan.p_detail.retry_ordinal, 1);
+});
+
+test("Raziel numeric truth: a clean guarded rewrite recovers the full answer", async () => {
+  const r = await runAiAnalyze({
+    answer: noMatch,
+    allowed: true,
+    body: { subject: "מה זה 1820?", facts: "" },
+    modelResults: [
+      model("1820 הוא 1000 ועוד 820, ומתחבר גם אל 776."),
+      model("אפשר לפרש את 1820 רק מתוך החומר שסופק כאן."),
+    ],
+  });
+  assert.equal(r.result.degraded, undefined);
+  assert.equal(r.result.raziel.answer, "אפשר לפרש את 1820 רק מתוך החומר שסופק כאן.");
+  assert.equal(r.models.length, 2);
+  assert.match(r.models[0].user, /אל תמספר רשימות בספרות/);
+  assert.match(r.models[1].user, /תיקון חובה/);
+  const retrySpan = r.spans.find((item) => item.p_name === "ai-analyze:raziel:model-truth-retry");
+  assert.equal(retrySpan.p_outcome, "success");
+  assert.equal(retrySpan.p_detail.output_use, "used");
+  assert.equal(r.calls.filter((call) => call.name === "ai_token_log").length, 2, "both billed drafts are logged");
 });
 
 test("Raziel numeric truth: the explicit number may be repeated without admitting navigation-history numbers", async () => {
@@ -121,4 +146,37 @@ test("Raziel number experience: an explicit pair reads both canonical dossiers o
   assert.match(r.models[0].user, /צד ב \(1820\)/);
   assert.deepEqual(r.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).map((call) => `${call.name}:${call.payload.n}`),
     ["number_map:787", "number_dossier_json:787", "number_map:1820", "number_dossier_json:1820"]);
+});
+
+test("Raziel number experience: a twice-rejected synthesis falls back to the grounded number projections", async () => {
+  const r = await runAiAnalyze({
+    answer: numberPlan({ anchor: "explicit", number: 1820, mode: "synthesis" }),
+    allowed: true,
+    numberContextByNumber: { 1820: numberData(1820, "סוד ה׳") },
+    body: { subject: "מה זה 1820?", facts: "" },
+    modelResult: model("1820 הוא 1000 ועוד 820 ומתחבר אל 776."),
+  });
+  assert.equal(r.result.degraded, true);
+  assert.match(r.result.raziel.answer, /המספר 1820 באתר/);
+  assert.match(r.result.raziel.answer, /פוסט 1820/);
+  assert.doesNotMatch(r.result.raziel.answer, /(?<!\d)(?:1000|820|776)(?!\d)/);
+  assert.equal(r.models.length, 2);
+});
+
+test("Raziel numeric truth: a provider failure during the rewrite never exposes the rejected draft", async () => {
+  const r = await runAiAnalyze({
+    answer: noMatch,
+    allowed: true,
+    body: { subject: "מה זה 1820?", facts: "" },
+    modelResults: [
+      model("1820 הוא 1000 ועוד 820."),
+      { text: "guardian", usage: undefined, attempts: 1, degraded: true, reason: "http_503" },
+    ],
+  });
+  assert.equal(r.result.degraded, true);
+  assert.match(r.result.raziel.answer, /לא קיבלתי מהמנוע נתונים מאומתים/);
+  assert.doesNotMatch(r.result.raziel.answer, /(?<!\d)(?:1000|820)(?!\d)/);
+  const retrySpan = r.spans.find((item) => item.p_name === "ai-analyze:raziel:model-truth-retry");
+  assert.equal(retrySpan.p_outcome, "provider_error");
+  assert.equal(retrySpan.p_detail.output_use, "fallback_guardian");
 });
