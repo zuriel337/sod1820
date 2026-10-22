@@ -94,7 +94,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   // conversational request like "מה זה 1820?". Specific intent values are only tie-break hints.
   // "מה הקשר" contains "מה" too; relation language therefore wins over generic explanation.
   if (includesAny(q, [
-    "מה הקשר", "ומה הקשר", "מה ההבדל", "ומה ההבדל", "מה מתחבר", "תחבר", "לחבר", "השווה", "תשווה", "להשוות", "השוואה", "compare", "cross",
+    "מה הקשר", "ומה הקשר", "מה ההבדל", "ומה ההבדל", "מה מתחבר", "תחבר", "לחבר", "השווה", "השווי", "תשווה", "להשוות", "השוואה", "compare", "cross",
     "קשר בין", "קשרים בין", "יחס בין", "הצלבה", "הצלבות", "מצא קשרים", "מצא לי קשרים", "relation",
   ])) return RAZIEL_ROUTE_ACTION.CONNECT;
 
@@ -105,7 +105,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   ])) return RAZIEL_ROUTE_ACTION.CONTINUE;
 
   if (includesAny(q, [
-    "תחקור", "חקור", "לחקור", "תבדוק", "בדוק", "לבדוק", "תעמיק", "העמק", "להעמיק", "לעומק", "בדיקה עמוקה",
+    "תחקור", "תחקירי", "חקור", "חקרי", "לחקור", "תבדוק", "תבדקי", "בדוק", "בדקי", "לבדוק", "תעמיק", "העמק", "להעמיק", "לעומק", "בדיקה עמוקה",
     "חפש מקור", "מקורות", "els", "דילוג", "trace", "research", "deep research",
   ])) return RAZIEL_ROUTE_ACTION.RESEARCH;
 

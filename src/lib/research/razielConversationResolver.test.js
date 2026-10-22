@@ -14,6 +14,23 @@ test("resolves a number pair even when human language continues after the pair",
   assert.equal(out.referent_source, "explicit_current_turn");
 });
 
+test("resolves explicit bounded number research without treating surrounding prose as evidence", () => {
+  for (const [question, action] of [
+    ["חקור את 776 מול 1820", "research"],
+    ["בדוק 776 עם 1820", "research"],
+    ["תבדקי 776 מול 1820", "research"],
+    ["מצא קשר בין 776 ל-1820", "connect"],
+    ["השווי בין המספרים 776 ל-1820", "connect"],
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    assert.deepEqual(out.pair, [776, 1820], question);
+    assert.equal(out.requested_action, action, question);
+    assert.equal(out.referential_follow_up, false, question);
+    assert.equal(out.referent_source, "explicit_current_turn", question);
+    assert.deepEqual(projectRazielConversationResolution(out).identities.map((identity) => identity.value), [776, 1820]);
+  }
+});
+
 test("carries the last explicit pair into a bounded follow-up without model inference", () => {
   const out = resolveRazielConversationTurn({
     question: "אתה יכול לבדוק?",
@@ -105,6 +122,8 @@ test("counts, years and source quantities never become numeric research anchors"
     "מה הקשר בין שנת 2024 למשיח",
     "מה הקשר בין שנת 2024 ל 1820",
     "בדוק עמוד 33 במקור",
+    "חקור את שנת 2024 מול 1820",
+    "בדוק 776 מול 1820 דרך 3 מקורות",
   ]) {
     const out = resolveRazielConversationTurn({ question });
     assert.deepEqual(ids(out), [], question);

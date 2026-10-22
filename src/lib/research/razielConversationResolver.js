@@ -49,6 +49,16 @@ function explicitNumberCandidates(question) {
   const pair = q.match(/^(?:(?:מה (?:ההבדל|הקשר) בין)(?: המספרים)?|(?:השווה|השווי|תשווה)(?: בין)?(?: המספרים)?)\s+(\d{1,6})\s*(?:ו|ל|לבין|מול)\s*(\d{1,6})(?:\s+(?:מצא(?:י)?(?: לי)? (?:קשרים|הצלבות)|בכל השיטות|לעומק))?$/u);
   if (pair) return [numberCandidate(pair[1]), numberCandidate(pair[2])].filter(Boolean);
 
+  // Explicit 2029 research requests use the same bounded number identities as comparison.
+  // The complete anchored grammar is intentional: numbers mentioned as years, counts, pages or
+  // supporting prose are not promoted to research subjects.
+  const researchPair = q.match(/^(?:(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?: את)?(?: המספרים)?\s+(\d{1,6})\s*(?:מול|לבין|עם|ל)\s*(\d{1,6})|(?:מצא|מצאי|תמצא|תמצאי)(?: לי)?(?: את)? (?:הקשר|קשר|היחס|יחס) בין\s+(\d{1,6})\s*(?:ל|לבין|מול|עם)\s*(\d{1,6}))$/u);
+  if (researchPair) {
+    const left = researchPair[1] ?? researchPair[3];
+    const right = researchPair[2] ?? researchPair[4];
+    return [numberCandidate(left), numberCandidate(right)].filter(Boolean);
+  }
+
   const definition = q.match(/^(?:מה זה|מהו|מה הוא|ספר לי על|מה ידוע על)\s+(?:המספר\s+)?(\d{1,6})$/u);
   if (definition) return [numberCandidate(definition[1])].filter(Boolean);
 

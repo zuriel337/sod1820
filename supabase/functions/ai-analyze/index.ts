@@ -1134,17 +1134,15 @@ type RazielConversationNumberHint = {
   requestedAction: "connect" | "research" | "understand" | "continue";
 };
 
-// Client conversation state is never authority. W2 admits only public decimal anchors from an
-// exact resolver version and an explicit bounded anaphoric question. Labels, access, provenance,
-// metadata and every non-number identity are ignored. Phase H then re-reads the owner projections.
+// Client conversation state is never authority. W2 admits public decimal anchors from an exact
+// resolver version and a bounded anaphoric question. W3 also admits an explicit two-number 2029
+// research sentence only when its two textual subject slots exactly match the two projected
+// identities. Labels, access, provenance, metadata and every non-number identity are ignored.
+// Phase H then re-reads the owner projections; the hint itself never supplies research facts.
 function razielConversationNumberHint(raw: any, originalQuestion: unknown): RazielConversationNumberHint | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  if (raw.version !== "raziel-conversation-resolver-v1" || raw.referential_follow_up !== true) return null;
+  if (raw.version !== "raziel-conversation-resolver-v1") return null;
   const q = rzClean(originalQuestion, 300).replace(/[־–—-]/g, " ").replace(/[?؟!.]+$/g, "").replace(/\s+/g, " ").trim();
-  const referential = /^(?:(?:אתה יכול|את יכולה|אפשר)?\s*(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?|(?:תבדוק|בדוק|תחקור|חקור|תעמיק|העמק)(?:\s+את\s+זה)?)(?:\s+(?:מול|לבין|עם|ל)\s*\d{1,6})?$/u.test(q)
-    || /^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*\d{1,6}$/u.test(q)
-    || /^(?:מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q);
-  if (!referential) return null;
   const requestedAction = ["connect", "research", "understand", "continue"].includes(raw.requested_action)
     ? raw.requested_action as RazielConversationNumberHint["requestedAction"]
     : null;
@@ -1159,6 +1157,34 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
     if (numbers.includes(value)) return null;
     numbers.push(value);
   }
+
+  if (raw.referential_follow_up === true) {
+    const referential = /^(?:(?:אתה יכול|את יכולה|אפשר)?\s*(?:לבדוק|לחקור|להעמיק|להשוות)(?:\s+את\s+זה)?|(?:תבדוק|בדוק|תחקור|חקור|תעמיק|העמק)(?:\s+את\s+זה)?)(?:\s+(?:מול|לבין|עם|ל)\s*\d{1,6})?$/u.test(q)
+      || /^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*\d{1,6}$/u.test(q)
+      || /^(?:מה איתם|מה איתן|ומה איתם|ומה איתן|מה הלאה)$/u.test(q);
+    if (!referential) return null;
+    const textualTail = /(?:^|\s)(?:מול|לבין|עם|ל)\s*(\d{1,6})$/u.exec(q);
+    // A mixed follow-up carries one prior identity and adds one explicit identity. Bind the
+    // textual number to the second projected slot so a stale or crafted envelope cannot silently
+    // research a different pair. A numeric suffix without a prior identity is not a valid pair.
+    if (textualTail && (numbers.length !== 2 || numbers[1] !== Number(textualTail[1]))) return null;
+    return { numbers: numbers as [number] | [number, number], requestedAction };
+  }
+
+  // This is deliberately narrower than the general planner grammar. It is a 2029-only recovery
+  // seam for planner no_match: exactly two decimal subjects, no surrounding prose, and an action
+  // whose server-side meaning agrees with the projected action. Legacy callers send no envelope.
+  if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn" || numbers.length !== 2) return null;
+  const researchPair = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?: את)?(?: המספרים)?\s+(\d{1,6})\s*(?:מול|לבין|עם|ל)\s*(\d{1,6})$/u.exec(q);
+  const connectionPair = /^(?:(?:השווה|השווי|תשווה)(?: בין)?(?: המספרים)?\s+(\d{1,6})\s*(?:ו|ל|לבין|מול|עם)\s*(\d{1,6})|(?:מצא|מצאי|תמצא|תמצאי)(?: לי)?(?: את)? (?:הקשר|קשר|היחס|יחס) בין\s+(\d{1,6})\s*(?:ל|לבין|מול|עם)\s*(\d{1,6}))$/u.exec(q);
+  const pair = researchPair
+    ? [Number(researchPair[1]), Number(researchPair[2])]
+    : connectionPair
+      ? [Number(connectionPair[1] ?? connectionPair[3]), Number(connectionPair[2] ?? connectionPair[4])]
+      : null;
+  if (!pair || pair[0] !== numbers[0] || pair[1] !== numbers[1]) return null;
+  if (researchPair && requestedAction !== "research") return null;
+  if (connectionPair && requestedAction !== "connect") return null;
   return { numbers: numbers as [number] | [number, number], requestedAction };
 }
 
