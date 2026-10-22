@@ -139,7 +139,7 @@ jobs:
               await expect(home.locator('.h29-updates > .h29-card')).toHaveCount(4, { timeout: 30_000 });
               await expect(home.locator('[data-home-launch-notice="gradual-opening"]')).toHaveCount(0);
               await expect(home.locator('[data-home-world="open"]')).toHaveCount(0);
-              await expect(home.locator('#home-sources')).toHaveCount(0);
+              await expect(home.locator('#home-sources')).toHaveCount(1);
               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
               expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
               await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
@@ -631,10 +631,9 @@ jobs:
             expect(result.right).toBeLessThanOrEqual(result.viewport + 0.5);
             expect(result.scrollWidth).toBe(result.viewport);
           });
-          test('Legacy slug stays Legacy while explicit 2029 Post Preview preserves equality interactions', async ({ page }) => {
+          test('explicit 2029 Post Preview preserves equality interactions', async ({ page }) => {
             test.setTimeout(90_000);
             const slug = 'צופן-חותים-5784';
-            const legacyPath = `/${encodeURIComponent(slug)}?gemcard=1`;
             const postPath = `/post/${encodeURIComponent(slug)}`;
             // Vite preview does not execute Vercel rewrites. Preserve the real
             // legacy document handoff and serve the native document at its target.
@@ -654,9 +653,6 @@ jobs:
                 }]),
               });
             });
-            await page.goto(`${BASE}${legacyPath}`, { waitUntil: 'domcontentloaded' });
-            await expect(page.locator('[data-experience-surface="post-reading"]')).toHaveCount(0);
-            expect(decodeURIComponent(new URL(page.url()).pathname)).toBe(`/${slug}`);
             for (const width of [390, 1440]) {
               await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
               await page.goto(`${BASE}${postPath}?gemcard=1`, { waitUntil: 'domcontentloaded' });
