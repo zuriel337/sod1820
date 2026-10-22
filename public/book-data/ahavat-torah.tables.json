@@ -166,8 +166,8 @@
     "DS-13",
     "עשה / 248",
     "pp69–70",
-    "PARTIAL",
-    "author conclusion 248; specific sublayers closed, dual breakdown not fully closed overall — corrected 5.9.2026, was previously mislabeled OPEN here"
+    "CLOSED",
+    "268 root candidates − 14 Golden-Calf forms = 254 across five exact parasha rows; − 6 divine acts = 248"
    ]
   ],
   "families": [
@@ -237,7 +237,7 @@
   "open": [
    "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
-   "DS-02/06/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
+   "DS-02/06/11 דורשים closure ברמות שונות (ר' Datasets למטה)",
    "Exact-witness adjudication אינו שווה למיפוי מבני",
    "טענות גימטריה אחרות אינן Engine Verified בלי המנוע הקנוני; מילות-הקצה של ברכת כהנים אומתו בנפרד",
    "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"
@@ -311,7 +311,7 @@
     "label": "DS-13 · עשה 248",
     "page": 69,
     "family": "dataset",
-    "status": "open"
+    "status": "closed"
    }
   ]
  },
@@ -618,21 +618,21 @@
     "parasha"
    ],
    "metric": "root-occurrence count",
-   "scope": "Terumah-Pekudei observed (true start unread)",
-   "rows_description": "not extracted — only conclusion sentence seen",
-   "subtotals": null,
-   "total": "248 (=248 mitzvot, SOURCE CLAIM only)",
-   "ordering_rule": null,
-   "inclusion_rule": null,
-   "exclusion_rule": null,
-   "exceptions": null,
-   "checksum": null,
+   "scope": "Exodus 25:1–40:38, Terumah through Pekudei",
+   "rows_description": "five source/corpus rows: 62 / 48 / 24 / 84 / 36",
+   "subtotals": "254 after fourteen Golden-Calf exclusions",
+   "total": "248 after six further divine-action exclusions",
+   "ordering_rule": "Terumah / Tetzaveh / Ki Tisa / Vayakhel / Pekudei",
+   "inclusion_rule": "consonantal word forms from the lexical root עשה",
+   "exclusion_rule": "exclude עש״ר number/rich lexemes, fourteen Golden-Calf forms, then six explicitly non-human/divine acts",
+   "exceptions": "Golden-Calf set is Exodus 32 plus Ex 34:17; divine set is Ex 31:17, 33:5, 33:17 and three forms at 34:10",
+   "checksum": "268 raw root candidates − 14 = 254; 62+48+24+84+36 = 254; 254−6 = 248; surviving grammatical forms also sum to 248",
    "pdf_pages": [
     69,
     70
    ],
-   "confidence": "UNKNOWN — flagged, not investigated",
-   "status": "UNKNOWN"
+   "confidence": "VISUALLY_VERIFIED source rows + COMPUTATIONALLY_REPRODUCED corpus/exclusions",
+   "status": "CLOSED"
   }
  ],
  "calculations": [

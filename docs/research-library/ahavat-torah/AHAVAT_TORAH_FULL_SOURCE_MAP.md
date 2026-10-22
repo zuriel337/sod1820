@@ -35,7 +35,7 @@
 6. "אותיות חמש מגילות" letters-per-megillah (pp.42–43) — DS-09.
 7. "תיבות חמש מגילות" words-per-megillah (p.43) — DS-10.
 8. Roots-in-Torah list (pp.30/31–35) — DS-11.
-9. "עשה"-verb occurrence table, tail-visible top of p.70 — **candidate DS-13, new, not yet extracted** (see §B).
+9. "עשה"-verb occurrence table, pp.69–70 — **DS-13, CLOSED** (268−14−6=248).
 10. Moshe-name occurrence table (p.70) — DS-06, **counting contract CLOSED this dossier (Session 6)**.
 11. **Withdrawn ID DS-07:** p.78 says Sanhedrin daf 37 and three student rows, not 37 generations.
 12. **Withdrawn ID DS-08:** pp.89–90 and p.98 contain Tochecha prose, not a count table.
@@ -83,7 +83,7 @@
 | DS-10 | 43 | Word count per megillah (5 Megillot) | Word-occurrence counting | Source 3,045/1,250/1,294/1,541/2,987; Eicha 1,541/1,542 localized at `מן־בת` ketiv / `מִבַּת` qere (Lam 1:6) | **CLOSED WITH LOCALIZED BOUNDARY** |
 | DS-11 | 30/31–35 | Roots-in-Torah list (lexical units) | Root/lexical enumeration | **1,820** roots claimed (AUTHOR_COUNT); full list not transcribed; Horowitz's own root-identity rule not recovered | **OPEN** |
 | DS-12 | 99 | 1983-edition errata list | Editorial correction tracking (qualitative, page+word-anchored) | Existence + structure VISUALLY_VERIFIED; textual, not numeric — includes ≥1 explicit unresolved "צ״ע" | **CLOSED** (as a qualitative inventory — nothing further to numerically close) |
-| **DS-13** (candidate, new) | ~69–70 (tail visible top of p.70; true start unread) | "עשה"-verb occurrence count, per parasha (Terumah–Pekudei observed) | Word-root-occurrence counting | Only the CONCLUSION visible: "ותמצא מכוון רמ״ח" (=248, matched to the 248 positive commandments). No rows extracted. | **UNKNOWN** — flagged, not investigated, per this session's own prior STOP instruction (Session 6) |
+| **DS-13** | 69–70 | עשה-root occurrences across Exodus 25:1–40:38 | Word-root-occurrence counting | 268 candidates − 14 Golden-Calf forms = five exact rows 62/48/24/84/36 (subtotal 254); −6 divine acts = **248**; grammatical forms independently sum to 248 | **CLOSED** |
 
 **Inventory count: 11 active source-backed datasets + 2 withdrawn historical IDs.** DS-07 and DS-08 remain listed so the corrected provenance is not erased.
 
@@ -138,7 +138,7 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 | Total Torah words = 79,976 | 25–31 & 41–42 | — | VISUALLY_VERIFIED (2 independently-worded locations agree exactly) — CR-09 | None found |
 | Total Torah letters: source 304,812 / canonical 304,805 | 41–42 | — | VISUALLY_VERIFIED + COMPUTATIONALLY_REPRODUCED — CR-10 | +7 localized to 11 one-letter row deltas |
 | 1,820 roots exist in the Torah | 31–35 | — | AUTHOR_COUNT (SOURCE_LOCATED) | Full list not transcribed — can't independently check |
-| "עשה"-root count resolves to 248 (=248 mitzvot) | ~69–70 | — | SOURCE_LOCATED (conclusion only) | **Full row data not extracted — candidate DS-13, UNKNOWN** |
+| "עשה"-root count resolves to 248 (=248 mitzvot) | 69–70 | 268−14=254; 62+48+24+84+36=254; 254−6=248 | **CLOSED — SOURCE + CORPUS REPRODUCED** | No residual |
 | Name משה = 647 occurrences in the Torah | 70 | 614+13+13+4+2+1=647 (Session 6) | **CLOSED** — exact arithmetic closure at 2 levels (prefix-form; book-subtotal→Torah) | Parasha-row level does not close against its own book subtotal (4 unresolved gaps) |
 | Former “Sanhedrin chain = 37 generations” | 78 | — | **WITHDRAWN**: 37 is the daf citation; the source says three rows of students | Low-resolution map error, source fact preserved |
 | Zayin entirely absent from the 42-station Masei list | 82 | — | VISUALLY_VERIFIED (terse pass) | Not independently re-verified this dossier |
@@ -174,7 +174,7 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 
 ### E.4 Partial tables (existence confirmed, content not extracted)
 
-DS-05 (entity/attribution per-cell values), DS-11 (full 1,820-root list), DS-13 (עשה-table reconciliation). DS-07 and DS-08 are withdrawn; DS-09 and DS-10 are closed.
+DS-05 (entity/attribution per-cell values) and DS-11 (full 1,820-root list). DS-07 and DS-08 are withdrawn; DS-09, DS-10 and DS-13 are closed.
 
 ### E.5 Source ambiguities (the book's own, not this dossier's)
 
@@ -204,6 +204,7 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 - DS-06's counting contract (population, prefix-form treatment, Torah-level aggregation) — CLOSED.
 - DS-07/DS-08 low-resolution extractions — adjudicated and WITHDRAWN; corrected source material retained.
 - DS-09/DS-10 Five Megillot tables — CLOSED (27×5 source/corpus cells; Eicha boundary localized).
+- DS-13 עשה table — CLOSED (five rows and both exclusion layers reproduced to 248).
 - Two self-corrected drifts (D-01, D-02) and the GPT `v5`/`v5b` pointer question — RESOLVED.
 - Research Library / Source Dossier architecture — FOUNDATION SUFFICIENT, no schema/DB change needed.
 
@@ -214,7 +215,7 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 3. DS-06's parasha-row-level aggregation (why 4/4 books fail to reconcile even though their own subtotals are exact) — root cause undetermined.
 4. E-07 (Levite span 249 vs. 239) — a single, small, well-bounded arithmetic discrepancy, never revisited since Task 3.
 5. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
-6. DS-11 and DS-13 full mechanical reconciliation.
+6. DS-11 full-list/root-rule reconstruction.
 
 ### NEXT (recommended single best next step)
 
@@ -228,7 +229,6 @@ The former ל/מ/נ boundary is already closed by the later mechanical pass: כ�
 - The actual content of PDF pp.19–24 (GPT's declared territory — not Claude's to determine).
 - The actual content of GPT Checkpoints 7 and 8 (relayed by coordination brief only, never independently read this dossier).
 - Whether DS-05 and DS-06 are governed by genuinely different counting rules in the source's own words, or merely happen to look different from the metrics visible so far (Session 6's distinction-check was confirmatory but did not read Checkpoint 7 itself).
-- The full row-by-row content, total, and counting contract of candidate dataset DS-13 (the עשה-verb table) — only its concluding sentence has been seen.
 
 ---
 
