@@ -834,6 +834,14 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/beit-midrash",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/beit-midrash/(.*)",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/2029/journey",
       "destination": "/2029.html"
     },

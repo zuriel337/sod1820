@@ -54,9 +54,23 @@ test("learn, discover, participate hierarchy with one map CTA and gated destinat
   assert.doesNotMatch(ui, /lni-|LegacyNewsletterInvite|role="dialog"|aria-modal/);
 });
 
-test("App2029 route seam stays with the central owner", () => {
-  assert.doesNotMatch(app, /BeitMidrash2029Page/);
-  assert.doesNotMatch(app, /path="\/beit-midrash/);
+test("shared App2029 owns both canonical Beit Midrash routes without redirecting them to World", () => {
+  assert.match(
+    app,
+    /const BeitMidrash2029Page = lazy\(\s*\(\) => import\("\.\/pages\/BeitMidrash2029Page\.jsx"\)\s*\);/,
+  );
+  const routeElements = new Map(
+    [...app.matchAll(
+      /<Route\s+path="(\/beit-midrash(?:\/:method)?)"\s+element=\{([^}]+)\}\s*\/>/g,
+    )].map((match) => [match[1], match[2].trim()]),
+  );
+
+  assert.equal(routeElements.get("/beit-midrash"), "<BeitMidrash2029Page />");
+  assert.equal(routeElements.get("/beit-midrash/:method"), "<BeitMidrash2029Page />");
+  assert.equal(routeElements.size, 2);
+  for (const element of routeElements.values()) {
+    assert.doesNotMatch(element, /Navigate|World2029Page|\/world/);
+  }
 });
 
 test("CSS uses semantic roles, covers phone/desktop, targets, focus and reduced motion", () => {
