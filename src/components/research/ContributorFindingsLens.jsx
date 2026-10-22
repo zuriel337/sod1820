@@ -157,7 +157,7 @@ export default function ContributorFindingsLens({
   loading = false,
   error = null,
   recentDays = 7,
-  timeMode = "relative", // "relative" on Home/World, "bilingual" (Hebrew + Gregorian) everywhere else
+  timeMode = "bilingual", // Home opts into "relative"; World and every other surface stay Hebrew + Gregorian.
 }) {
   const P = use2029Palette();
   const S = useMemo(() => makeStyles(P), [P]);

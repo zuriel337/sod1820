@@ -68,7 +68,7 @@ import "./world2029-human.css";
 import "./worldComposition2029.css";
 import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
-import { relativeTimeLabel } from "../lib/relativeTime2029.js";
+import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -386,7 +386,7 @@ function contributionDisplay(row) {
 }
 
 function researchAddedDate(value) {
-  return relativeTimeLabel(value, "זמן הוספה לא ידוע");
+  return bilingualDateLabel(value, "זמן הוספה לא ידוע");
 }
 
 function humanTimelineLabel(item) {
@@ -399,9 +399,8 @@ function humanTimelineLabel(item) {
 }
 
 function mediaDate(item) {
-  // The event date of the media is content (kept as a date); the time it was added is a record time (relative).
-  if (item?.occurredAt) { try { return new Date(item.occurredAt).toLocaleDateString("he-IL"); } catch (_) { return null; } } // date-rule-exempt: event date
-  return relativeTimeLabel(item?.createdAt) || null;
+  // Inside World, event time and record time both use the compact Hebrew + Gregorian presentation.
+  return bilingualDateLabel(item?.occurredAt || item?.createdAt) || null;
 }
 
 function WorldCard({ card, onOpen }) {
@@ -914,8 +913,6 @@ function LiveWorldLanding({ research, shell, context }) {
       shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
     }
   };
-  const discoveryDate = (value) => relativeTimeLabel(value, "זמן לא צוין");
-
   const creatorLabel = (value) => {
     if (!value) return "מקור לא צוין";
     if (value === "ai") return "AI";
@@ -996,7 +993,8 @@ function LiveWorldLanding({ research, shell, context }) {
       <ContributorFindingsLens
         projection={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.projection : null}
         loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
-        error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null} />
+        error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null}
+        timeMode="bilingual" />
       {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
         <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
     </section> : null}

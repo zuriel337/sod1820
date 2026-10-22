@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { filterWorldAllResearchRows } from "../../lib/research/worldAllResearchProjection.js";
-import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE = 120;
@@ -120,7 +120,7 @@ function DuplicateOccurrences({ row }) {
         return <li key={occurrence.id || `${occurrence.sourceRef || "source"}:${index}`}>
           <div className="sod29-world-all-research-occurrence-head">
             <strong>{safeVisibleText(occurrence.sourceLabel, "מקור מחקר")}</strong>
-            {occurrence.createdAt ? <span>{relativeTimeLabel(occurrence.createdAt)}</span> : null}
+            {occurrence.createdAt ? <span>{bilingualDateLabel(occurrence.createdAt)}</span> : null}
           </div>
           <div className="sod29-world-all-research-occurrence-meta">
             <span>ייחוס · {contributorLabel(occurrence.contributor)}</span>
@@ -212,7 +212,7 @@ export default function WorldAllResearchTable({ state }) {
             <span>ייחוס · {contributorLabel(row.contributor)}</span>
             {row.value != null ? <span>ערך · {row.value}</span> : null}
             <span>מקור · {safeVisibleText(row.sourceLabel, "מקור מחקר")}</span>
-            {row.createdAt ? <span>נוסף למחקר · {relativeTimeLabel(row.createdAt)}</span> : null}
+            {row.createdAt ? <span>נוסף למחקר · {bilingualDateLabel(row.createdAt)}</span> : null}
           </div>
 
           <DuplicateOccurrences row={row} />
