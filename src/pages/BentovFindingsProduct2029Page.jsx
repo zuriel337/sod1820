@@ -323,7 +323,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
   </section>;
 }
 
-function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDecisions, onLocatorDecision, onToggleCheck, onReset }) {
+function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDecisions, onLocatorDecision, onApproveAllLocators, onResetAllLocators, onToggleCheck, onReset }) {
   const [queueFilter, setQueueFilter] = useState("all");
   const selected = findings.find(item => item.id === selectedId) || findings[0];
   const completed = progress[selected.id] || new Set();
@@ -346,7 +346,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
     { key: "applicability", label: "הכרעת תחולה", count: 18 },
   ];
 
-  return <section className="bentov29-review" aria-labelledby="bentov29-review-title" data-review-effect="local-only">
+  return <section className="bentov29-review" aria-labelledby="bentov29-review-title" data-review-effect="local-only" data-locator-approval="preview-test-only">
     <header>
       <div>
         <div className="bentov29-section-label">שלבים 02–05 · מעטפת עבודה פרטית</div>
@@ -358,6 +358,10 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
         <span>הכרעות איתור מקומיות</span>
         <small>{locallyCompleted} תיקים השלימו גם את כל מסלול הבדיקה</small>
         <small>אינם נשמרים ואינם משנים סטטוס אמת</small>
+        <div className="bentov29-review-local-actions">
+          <button type="button" onClick={onApproveAllLocators}>אשר את כל 33 בתצוגה</button>
+          <button type="button" onClick={onResetAllLocators}>אפס הכול</button>
+        </div>
       </div>
     </header>
 
@@ -505,8 +509,12 @@ export default function BentovFindingsProduct2029Page() {
   const [selectedSource, setSelectedSource] = useState(SOURCES[0].id);
   const [markedIds, setMarkedIds] = useState(() => new Set());
   const [fidelityLane, setFidelityLane] = useState("complex");
-  const [reviewProgress, setReviewProgress] = useState({});
-  const [locatorDecisions, setLocatorDecisions] = useState({});
+  const [reviewProgress, setReviewProgress] = useState(() => Object.fromEntries(
+    FINDINGS.map(finding => [finding.id, new Set(REVIEW_CHECKS.map(check => check.key))]),
+  ));
+  const [locatorDecisions, setLocatorDecisions] = useState(() => Object.fromEntries(
+    FINDINGS.map(finding => [finding.id, "accept"]),
+  ));
 
   useEffect(() => {
     applySeo({
@@ -515,6 +523,12 @@ export default function BentovFindingsProduct2029Page() {
       path: "/2029/control",
       noindex: true,
     });
+
+    if (window.location.hash === "#bentov29-review-title") {
+      window.requestAnimationFrame(() => {
+        document.getElementById("bentov29-review-title")?.scrollIntoView({ block: "start" });
+      });
+    }
   }, []);
 
   const visibleFindings = useMemo(
@@ -569,6 +583,18 @@ export default function BentovFindingsProduct2029Page() {
 
   const setLocatorDecision = (findingId, decision) => {
     setLocatorDecisions(current => ({ ...current, [findingId]: decision }));
+  };
+
+  const approveAllLocators = () => {
+    setLocatorDecisions(Object.fromEntries(FINDINGS.map(finding => [finding.id, "accept"])));
+    setReviewProgress(Object.fromEntries(
+      FINDINGS.map(finding => [finding.id, new Set(REVIEW_CHECKS.map(check => check.key))]),
+    ));
+  };
+
+  const resetAllLocators = () => {
+    setLocatorDecisions({});
+    setReviewProgress({});
   };
 
   return <Sod2029Shell
@@ -673,6 +699,8 @@ export default function BentovFindingsProduct2029Page() {
         progress={reviewProgress}
         locatorDecisions={locatorDecisions}
         onLocatorDecision={setLocatorDecision}
+        onApproveAllLocators={approveAllLocators}
+        onResetAllLocators={resetAllLocators}
         onToggleCheck={toggleReviewCheck}
         onReset={resetReview}
       />

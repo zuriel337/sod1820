@@ -96,6 +96,12 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /מחזיר לבדיקה נוספת/);
   assert.match(page, /משאיר פתוח/);
   assert.match(page, /locatorDecisions/);
+  assert.match(page, /FINDINGS\.map\(finding => \[finding\.id, "accept"\]\)/);
+  assert.match(page, /new Set\(REVIEW_CHECKS\.map\(check => check\.key\)\)/);
+  assert.match(page, /אשר את כל 33 בתצוגה/);
+  assert.match(page, /data-locator-approval="preview-test-only"/);
+  assert.match(page, /window\.location\.hash === "#bentov29-review-title"/);
+  assert.match(page, /scrollIntoView\(\{ block: "start" \}\)/);
   assert.match(page, /אינה מתקנת את האיתור הקנוני ואינה נשלחת למסד/);
   assert.match(page, /אינה קובעת `fidelity_status`/);
   assert.doesNotMatch(page, /finding_key|artifact_id|candidate_id|source_provenance_reconstructed_sections/i);
