@@ -66,6 +66,9 @@ test("learn, discover, participate hierarchy with one map CTA and gated destinat
   assert.match(parts["BeitMidrashParticipate.jsx"], /openIssueReport/);
   assert.match(parts["BeitMidrashParticipate.jsx"], /VITE_KINGDOM_PREVIEW/);
   assert.match(parts["BeitMidrashLearn.jsx"], /numberGuideConcepts/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /selectedNumberConcept/);
+  assert.match(parts["BeitMidrashLearn.jsx"], /className="bm-number-lesson"/);
+  assert.doesNotMatch(parts["BeitMidrashLearn.jsx"], /\/2029\/number\/1820/);
   assert.match(parts["BeitMidrashLearn.jsx"], /path\.steps\.map/);
 });
 

@@ -282,12 +282,16 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
 
     // Number lessons and paths resume at the exact teaching step without creating progress state.
     await page.goto(`${origin}/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci`);
-    await page.waitForSelector('#number-concept-fibonacci.is-focused');
+    await page.waitForSelector('#number-concept-fibonacci.bm-number-lesson');
     assert.match(await page.locator('#number-concept-fibonacci').innerText(), /F1=1, F2=1/);
+    assert.equal(await page.locator('.bm-number-lesson').count(), 1);
+    assert.equal(await page.locator('[data-number-concept-option]').count(), 14);
+    assert.equal(await page.locator('#numbers a[href^="/2029/number/"]').count(), 0);
     await page.goto(`${origin}/beit-midrash?section=paths&path=sod1820#path-sod1820`);
     await page.waitForSelector('#path-sod1820.is-focused');
     assert.equal(await page.locator('#path-sod1820 .bm-path-steps>li').count(), 6);
-    assert.equal(await page.locator('#path-sod1820 a[href="/2029/number/1820"]').count(), 1);
+    assert.equal(await page.locator('#path-sod1820 a[href*="concept=math-profile"]').count(), 1);
+    assert.equal(await page.locator('#path-sod1820 a[href^="/2029/number/"]').count(), 0);
 
     // Contribution uses the existing shell gateway; the game stays visibly gated without its Preview flag.
     await page.getByRole("button", { name: "לשתף רמז" }).click();

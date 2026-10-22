@@ -114,6 +114,7 @@
   background:linear-gradient(180deg,color-mix(in srgb,var(--bm-sapphire) 16%,var(--s29-page)),var(--s29-page));
 }
 [data-frame-theme-preset="dark"] .bm-lesson,
+[data-frame-theme-preset="dark"] .bm-number-lesson,
 [data-frame-theme-preset="dark"] .bm-example-card{
   background:color-mix(in srgb,var(--bm-sapphire) 12%,var(--s29-page));
 }
@@ -255,19 +256,39 @@
 .bm-concepts h4{margin:10px 0 0;font-family:var(--s29-font-display);font-weight:600;font-size:var(--s29-type-title);line-height:1.2;color:var(--s29-accent-text)}
 .bm-concepts p{margin:8px 0 0;color:var(--s29-muted);font-size:var(--s29-type-ui);line-height:1.7}
 
-.bm-number-guide{display:grid;gap:0;margin:20px 0 0;padding:0;list-style:none}
-.bm-number-guide>li{
+.bm-number-learning{display:grid;grid-template-columns:minmax(210px,260px) minmax(0,1fr);gap:20px;margin-top:20px;align-items:start}
+.bm-number-topics{display:grid;gap:6px;max-height:560px;overflow:auto;overscroll-behavior:contain;padding:2px}
+.bm-number-topics a{
+  min-height:48px;
   display:grid;
-  grid-template-columns:32px minmax(0,1fr);
-  gap:12px;
-  padding:18px 2px;
-  border-top:1px solid color-mix(in srgb,var(--bm-gold) 30%,var(--s29-line));
+  grid-template-columns:28px minmax(0,1fr);
+  align-items:center;
+  gap:9px;
+  padding:8px 10px;
+  border:1px solid var(--s29-line);
+  border-radius:10px;
+  color:var(--s29-ink);
+  font-family:var(--s29-font-ui);
+  font-size:var(--s29-type-ui);
+  text-decoration:none;
+}
+.bm-number-topics a>span{display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--bm-frame);border-radius:50%;color:var(--bm-gold);font-family:var(--s29-font-numeric);font-size:var(--s29-type-micro)}
+.bm-number-topics a>strong{min-width:0;font-weight:800;line-height:1.35}
+.bm-number-topics a.is-selected{border-color:var(--bm-frame);border-inline-start:3px solid var(--bm-gold);background:color-mix(in srgb,var(--bm-sapphire) 14%,var(--s29-panel))}
+.bm-number-lesson{
+  min-width:0;
+  padding:clamp(18px,3vw,30px);
+  border:1px solid var(--bm-frame);
+  border-radius:16px;
+  background:var(--s29-panel-soft);
   scroll-margin-top:92px;
 }
-.bm-number-guide>li.is-focused{background:color-mix(in srgb,var(--bm-gold) 8%,transparent)}
-.bm-number-guide h4{margin:0;font-family:var(--s29-font-display);font-weight:600;font-size:var(--s29-type-title);color:var(--s29-accent-text)}
-.bm-number-guide p{margin:7px 0 2px;color:var(--s29-muted);font-size:var(--s29-type-ui);line-height:1.75}
-.bm-number-guide .bm-link{justify-content:start;padding-inline:0}
+.bm-number-lesson>header>span{color:var(--s29-muted);font-family:var(--s29-font-ui);font-size:var(--s29-type-micro);font-weight:800}
+.bm-number-lesson h4{margin:5px 0 0;font-family:var(--s29-font-display);font-weight:600;font-size:clamp(var(--s29-type-title),4vw,var(--s29-type-display));line-height:1.2;color:var(--s29-accent-text)}
+.bm-number-lesson section,.bm-number-lesson aside{margin-top:20px;padding-top:16px;border-top:1px solid color-mix(in srgb,var(--bm-gold) 30%,var(--s29-line))}
+.bm-number-lesson h5,.bm-number-lesson aside>strong{margin:0;font-family:var(--s29-font-display);font-weight:600;font-size:var(--s29-type-lead);color:var(--s29-ink)}
+.bm-number-lesson p{margin:7px 0 0;color:var(--s29-muted);font-size:var(--s29-type-ui);line-height:1.75}
+.bm-number-lesson aside{border-top-color:var(--bm-frame)}
 
 .bm-paths{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}
 .bm-paths>li{
@@ -438,7 +459,9 @@
   .sod29-midrash{width:min(100% - 20px,760px)}
   .bm-concepts{grid-template-columns:repeat(2,minmax(0,1fr))}
   .bm-methods-layout{grid-template-columns:1fr}
+  .bm-number-learning{grid-template-columns:1fr}
   .bm-method-nav{max-height:none}
+  .bm-number-topics{grid-template-columns:repeat(2,minmax(0,1fr));max-height:260px}
   .bm-method-group>div{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:620px){
@@ -447,6 +470,7 @@
   .bm-seal-ring{width:76px;height:76px}
   .bm-pillars{grid-template-columns:1fr}
   .bm-concepts{grid-template-columns:1fr}
+  .bm-number-topics{grid-template-columns:1fr;max-height:240px}
   .bm-method-group>div{grid-template-columns:1fr}
   .bm-lesson-grid{grid-template-columns:1fr}
   .bm-section-head{gap:10px}
