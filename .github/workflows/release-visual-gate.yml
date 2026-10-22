@@ -124,7 +124,7 @@ jobs:
             });
           });
 
-          test('released Home keeps four post cards, the opening notice and one dock at phone and desktop widths', async ({ page }) => {
+          test('2029 Preview Home keeps four post cards and one dock without claiming a Production opening', async ({ page }) => {
             test.setTimeout(120_000);
             await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
               status: 200,
@@ -137,9 +137,9 @@ jobs:
               const home = page.locator('[data-experience-capability="home-composition"]');
               await expect(home).toBeVisible({ timeout: 30_000 });
               await expect(home.locator('.h29-updates > .h29-card')).toHaveCount(4, { timeout: 30_000 });
-              await expect(home.locator('[data-home-launch-notice="gradual-opening"]')).toBeVisible();
-              await expect(home.locator('[data-home-world="open"]')).toBeVisible();
-              await expect(home.locator('#home-sources')).toHaveCount(0);
+              await expect(home.locator('[data-home-launch-notice="gradual-opening"]')).toHaveCount(0);
+              await expect(home.locator('[data-home-world="open"]')).toHaveCount(0);
+              await expect(home.locator('#home-sources')).toHaveCount(1);
               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
               expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
               await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
@@ -631,10 +631,9 @@ jobs:
             expect(result.right).toBeLessThanOrEqual(result.viewport + 0.5);
             expect(result.scrollWidth).toBe(result.viewport);
           });
-          test('legacy Post equalities migrate to native 2029 with keyboard focus and exact contextual back at phone and desktop widths', async ({ page }) => {
+          test('explicit 2029 Post Preview preserves equality interactions', async ({ page }) => {
             test.setTimeout(90_000);
             const slug = 'צופן-חותים-5784';
-            const path = `/${encodeURIComponent(slug)}?gemcard=1`;
             const postPath = `/post/${encodeURIComponent(slug)}`;
             // Vite preview does not execute Vercel rewrites. Preserve the real
             // legacy document handoff and serve the native document at its target.
@@ -656,7 +655,7 @@ jobs:
             });
             for (const width of [390, 1440]) {
               await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
-              await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+              await page.goto(`${BASE}${postPath}?gemcard=1`, { waitUntil: 'domcontentloaded' });
               const post = page.locator('[data-experience-surface="post-reading"]');
               await expect(post).toBeVisible({ timeout: 30_000 });
               expect(decodeURIComponent(new URL(page.url()).pathname)).toBe(`/post/${slug}`);
