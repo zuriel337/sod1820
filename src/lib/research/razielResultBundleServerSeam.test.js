@@ -82,6 +82,28 @@ function numberBundle(number, sourceName = "ספר יצירה") {
 }
 
 function expressionCrossingBundle(expression, partner = "שלום") {
+  const regularValue = expression === "צוריאל" ? 337 : 358;
+  const calculation = makeUniversalFinding({
+    id: `uf:gematria:${expression}:ragil`,
+    kind: "gematria",
+    subject: { type: "phrase", key: expression, label: expression, value: regularValue, lang: "he" },
+    source: {
+      engine: "gematria",
+      adapter: "gematria-api-v1",
+      sourceRef: null,
+      method: "ragil",
+      lang: "he",
+    },
+    identity: { sourceIdentity: { methodKey: "ragil", normalizedSubject: expression, value: regularValue } },
+    verification: {
+      engine_method_tested: "ragil",
+      engine_result: regularValue,
+      verification_state: "not_tested",
+    },
+    evidence: { refs: [], facts: [{ type: "gematria-method-value", methodKey: "ragil", value: regularValue }] },
+    access: { tier: "public" },
+    provenance: { createdBy: "ENGINE:gematria", inputRef: "expression:fixture" },
+  });
   const finding = makeUniversalFinding({
     id: `uf:crossing:${expression}:${partner}`,
     kind: "gematria-crossing",
@@ -116,16 +138,28 @@ function expressionCrossingBundle(expression, partner = "שלום") {
       intent: "gematria_crossing",
       identities: [{ type: "phrase", label: expression, ref: `phrase:${expression}`, access: { tier: "public" } }],
     },
-    capabilities: [capabilityResult({
-      key: "crossings",
-      owner: "research_strategy_layer_law v17",
-      findings: [finding],
-      sourceRefs: ["rpc:strongest_crossings"],
-      versionRefs: ["gematria-corpus-crossing-w2-v1"],
-      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
-      semanticClass: "derivation",
-      cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0 },
-    })],
+    capabilities: [
+      capabilityResult({
+        key: "gematria",
+        owner: "research_strategy_layer_law v17",
+        findings: [calculation],
+        sourceRefs: [],
+        versionRefs: ["gematria-api-v1"],
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: "evidence",
+        cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0 },
+      }),
+      capabilityResult({
+        key: "crossings",
+        owner: "research_strategy_layer_law v17",
+        findings: [finding],
+        sourceRefs: ["rpc:strongest_crossings"],
+        versionRefs: ["gematria-corpus-crossing-w2-v1"],
+        accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+        semanticClass: "derivation",
+        cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0 },
+      }),
+    ],
   });
 }
 
@@ -198,7 +232,7 @@ test("2029 exact expression crossing consumes the same canonical Bundle without 
   assert.equal(researchCalls.length, 1);
   assert.equal(researchCalls[0].payload.contract, EXPRESSION_CONTRACT);
   assert.equal(researchCalls[0].payload.expression, expression);
-  assert.deepEqual(researchCalls[0].payload.requested_capabilities, ["crossings"]);
+  assert.deepEqual(researchCalls[0].payload.requested_capabilities, ["gematria", "crossings"]);
   assert.equal(researchCalls[0].payload.surface, "raziel");
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1);
@@ -209,6 +243,58 @@ test("2029 exact expression crossing consumes the same canonical Bundle without 
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "מאגר הביטויים", source_ref: "rpc:strongest_crossings", lang: "he" }]);
   assert.equal(JSON.stringify(run.traces).includes(expression), false, "expression must not enter operational trace");
+});
+
+test("combined Gematria and crossing wording resolves any explicit Hebrew expression", async () => {
+  const expression = "צוריאל";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה זה צוריאל בגימטריה ומה ההצלבות שיש",
+      visitor_id: "vcombinedexpression123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: expressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(researchCalls.length, 1);
+  assert.equal(researchCalls[0].payload.expression, expression);
+  assert.deepEqual(researchCalls[0].payload.requested_capabilities, ["gematria", "crossings"]);
+  assert.equal(run.models.length, 1);
+  assert.match(run.models[0].user, /צוריאל/);
+  assert.match(run.models[0].user, /337/);
+  assert.match(run.models[0].user, /צוריאל ↔ שלום/);
+  assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
+});
+
+test("missing name and open capability question are deterministic and spend no AI calls", async () => {
+  for (const [subject, answerPattern, kind] of [
+    ["תחשב לי את השם שלי", /מה השם המדויק/, "missing_name_expression"],
+    ["מה אתה יכול ללמד אותי", /מספר; מילה או ראשי תיבות; שם; מקום; מושג; ביטוי/, "research_menu"],
+  ]) {
+    const run = await runAiAnalyze({
+      answer: noMatchAnswer(),
+      allowed: true,
+      bearer: "synthetic-anon-key",
+      body: {
+        subject,
+        visitor_id: "vdeterministicguidance123",
+        intelligence_level: "fast",
+        research_contract: CONTRACT,
+      },
+    });
+    assert.match(run.result.raziel.answer, answerPattern, subject);
+    assert.equal(run.result.model, "none", subject);
+    assert.equal(run.models.length, 0, subject);
+    assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0, subject);
+    assert.equal(run.result.plan_meta.deterministic_guidance.kind, kind, subject);
+    assert.deepEqual(run.result.plan_meta.deterministic_guidance.cost, { ai_calls: 0, retry_count: 0 }, subject);
+  }
 });
 
 test("expression crossing keeps a deterministic evidence fallback when synthesis degrades", async () => {

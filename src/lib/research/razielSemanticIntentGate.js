@@ -13,6 +13,7 @@ import {
 
 export const RAZIEL_SEMANTIC_INTENT_VERSION = "raziel-semantic-intent-v1";
 export const RAZIEL_CONVERSATIONAL_ACT_VERSION = "raziel-conversational-act-v1";
+export const RAZIEL_DETERMINISTIC_GUIDANCE_VERSION = "raziel-deterministic-guidance-v1";
 
 const ACTIONS = new Set(["understand", "research", "connect", "continue"]);
 const TYPES = new Set(["number", "phrase", "word", "name", "topic"]);
@@ -59,6 +60,89 @@ export function resolveRazielConversationalAct(message) {
   return acknowledgement
     ? Object.freeze({ version: RAZIEL_CONVERSATIONAL_ACT_VERSION, act: "acknowledgement" })
     : null;
+}
+
+// Whole-turn input assistance belongs before planning and model selection. It never resolves a
+// missing subject from profile/history: a person who says "my name" is asked for the exact text,
+// while an open capability question receives a stable research menu instead of invented findings.
+export function resolveRazielDeterministicGuidance(message) {
+  const q = grammarText(message)
+    .replace(/[,،;:]+$/gu, "")
+    .replace(/\s+/gu, " ")
+    .trim();
+  if (!q || q.length > 100) return null;
+
+  if (/^(?:(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?(?:\s+את)?\s+)(?:השם\s+שלי|שמי)$/u.test(q)) {
+    return Object.freeze({
+      version: RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
+      kind: "missing_name_expression",
+    });
+  }
+
+  if (/^(?:מה|איזה\s+דברים)\s+אתה\s+יכול\s+(?:ללמד\s+אותי|לעשות|לחקור)(?:\s+איתי)?$/u.test(q)) {
+    return Object.freeze({
+      version: RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
+      kind: "research_menu",
+    });
+  }
+  return null;
+}
+
+function validExplicitHebrewExpression(value) {
+  const expression = clean(value, 120)
+    .replace(/^["'״׳]+|["'״׳]+$/gu, "")
+    .replace(/[?؟!.]+$/gu, "")
+    .trim();
+  if (!expression || /^\d+$/u.test(expression) || !/[\u0590-\u05ff]/u.test(expression)) return null;
+  if (/^(?:ה?שם(?:\s+שלי)?|שמי|שלי|ה?מילה|ה?ביטוי|זה|זאת|משהו)$/u.test(expression)) return null;
+  if (/^(?:שנת|שנה|עמוד|דף|פרק|פסוק|מקור(?:ות)?)\s+\d+$/u.test(expression)) return null;
+  return expression;
+}
+
+// High-confidence, single-expression grammar shared by the browser resolver and the server
+// re-authorization gate. This is structural, not a vocabulary list: any bounded Hebrew name,
+// word or phrase can occupy the explicit expression slot. Incidental prose and personal pronouns
+// are rejected, and this function never calculates or selects an executor.
+export function resolveExplicitHebrewExpressionResearchSubject(question) {
+  const q = grammarText(question);
+  if (!q) return null;
+
+  let match = /^(?:מצא|מצאי|חפש|חפשי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:(?:למילה|לביטוי|לשם|עבור)\s+)(.+)$/u.exec(q);
+  let requestedAction = "connect";
+
+  if (!match) {
+    match = /^מה\s+זה\s+(.+?)\s+בגימטרי[הא](?:\s+ו(?:מה|אילו)\s+(?:ההצלבות|הקשרים)(?:\s+(?:שיש|שלו|שלה|קיימים|קיימות))?)?$/u.exec(q);
+    requestedAction = /(?:הצלבות|קשרים)/u.test(q) ? "connect" : "research";
+  }
+  if (!match) {
+    match = /^מה\s+(?:הגימטרי[הא]|הערך)\s+של\s+(.+?)(?:\s+ו(?:מה|אילו)\s+(?:ההצלבות|הקשרים)(?:\s+(?:שיש|שלו|שלה|קיימים|קיימות))?)?$/u.exec(q);
+    requestedAction = /(?:הצלבות|קשרים)/u.test(q) ? "connect" : "research";
+  }
+  if (!match) {
+    match = /^(?:כמה\s+(?:זה|שווה)|מה\s+שווה)\s+(.+?)\s+בגימטרי[הא]$/u.exec(q);
+    requestedAction = "research";
+  }
+  if (!match) {
+    match = /^(?:בדוק|בדקי|תבדוק|תבדקי|תן|תני)(?:\s+לי)?(?:\s+את)?\s+(?:הגימטרי[הא]|הערך\s+הגימטרי)\s+(?:של\s+)?(.+?)(?:\s+(?:ומצא|וחפש|ובדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים))?$/u.exec(q);
+    requestedAction = /(?:הצלבות|קשרים)/u.test(q) ? "connect" : "research";
+  }
+  if (!match) {
+    match = /^(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?(?:\s+את)?(?:\s+(?:המילה|הביטוי|השם))?\s+(.+?)(?:\s+(?:ומצא|וחפש|ובדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים))?$/u.exec(q);
+    requestedAction = /(?:הצלבות|קשרים)/u.test(q) ? "connect" : "research";
+  }
+
+  const label = match ? validExplicitHebrewExpression(match[1]) : null;
+  if (!label) return null;
+  return Object.freeze({
+    type: "phrase",
+    label,
+    evidence_text: label,
+    identity_key: `phrase:${label}`,
+    source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
+    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    requested_action: requestedAction,
+    explicit_text_computation: true,
+  });
 }
 
 // High-confidence two-number subject grammar shared by the browser resolver and the server

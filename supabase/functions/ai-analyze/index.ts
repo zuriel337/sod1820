@@ -4,7 +4,7 @@ import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_sha
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer } from "../../../src/lib/research/razielGroundedSourceComposer.js";
-import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1262,10 +1262,8 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown): 
   const label = rzClean(identity.label, 120);
   if (!label || !/[\u0590-\u05ff]/u.test(label) || identity.identity_key !== `phrase:${label}`) return null;
 
-  const q = rzClean(originalQuestion, 300).replace(/[־–—-]/g, " ").replace(/[?؟!.]+$/g, "").replace(/\s+/g, " ").trim();
-  const match = /^(?:מצא|מצאי|חפש|חפשי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:למילה|לביטוי)\s+(.+)$/u.exec(q);
-  const textualExpression = match ? rzClean(match[1], 120) : "";
-  if (!textualExpression || textualExpression !== label) return null;
+  const structural = resolveExplicitHebrewExpressionResearchSubject(originalQuestion);
+  if (!structural || structural.requested_action !== "connect" || structural.label !== label) return null;
   return { expression: label, requestedAction: "connect" };
 }
 
@@ -1472,7 +1470,7 @@ async function runRazielCanonicalBundle({
           question: String(question || "").slice(0, 500),
           visitor_id: String(visitorId || "").slice(0, 80),
           interaction_id: String(interactionId || "").slice(0, 180),
-          requested_capabilities: numberContract ? ["numeric", "numeric_operators"] : ["crossings"],
+          requested_capabilities: numberContract ? ["numeric", "numeric_operators"] : ["gematria", "crossings"],
           surface: numberContract ? "number" : "raziel",
         }),
         signal: AbortSignal.timeout(15000),
@@ -2263,6 +2261,42 @@ Deno.serve(async (req: Request) => {
             conversation_act: {
               contract: rConversationAct.version,
               act: rConversationAct.act,
+              cost: { ai_calls: 0, retry_count: 0 },
+            },
+          },
+        });
+      }
+      const rDeterministicGuidance = rCanonicalResearchOptIn
+        ? resolveRazielDeterministicGuidance(rSubject)
+        : null;
+      if (rDeterministicGuidance) {
+        const missingName = rDeterministicGuidance.kind === "missing_name_expression";
+        return rzJson({
+          raziel: {
+            v: 1,
+            agent: "raziel",
+            context: null,
+            greeting: null,
+            answer: missingName
+              ? "בשמחה — מה השם המדויק שתרצה לחשב? כתוב למשל: ‘חשב את צוריאל ומצא הצלבות’."
+              : "אפשר להתחיל ממספר; מילה או ראשי תיבות; שם; מקום; מושג; ביטוי או צירוף קצר מפסוק; ושני נושאים להשוואה. למשל: ‘מה זה 776?’, ‘חשב את צוריאל ומצא הצלבות’, ‘מצא הצלבות למילה אלהים’, או ‘השווה בין 776 ל־1820’. כתוב את מוקד המחקר עצמו ואחזיר קודם עובדות חישוביות ומקורות; פרשנות תסומן בנפרד.",
+            facts: [],
+            suggested_paths: missingName ? [] : [
+              { id: "number", label: "בדיקת מספר", icon: "number", hint: "למשל: מה זה 776?" },
+              { id: "expression", label: "חישוב מילה או שם", icon: "text", hint: "למשל: חשב את צוריאל ומצא הצלבות" },
+              { id: "compare", label: "השוואה", icon: "compare", hint: "למשל: השווה בין 776 ל־1820" },
+            ],
+            follow_up_question: missingName ? "מה השם המדויק?" : "מה תרצה לחקור קודם?",
+            continue_wa: true,
+            deterministic: true,
+          },
+          engine: "deterministic",
+          model: "none",
+          intelligence_level: "deterministic",
+          plan_meta: {
+            deterministic_guidance: {
+              contract: rDeterministicGuidance.version,
+              kind: rDeterministicGuidance.kind,
               cost: { ai_calls: 0, retry_count: 0 },
             },
           },

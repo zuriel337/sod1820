@@ -189,7 +189,11 @@ async function main() {
       // Preserve the original primary field for release tooling compatibility; the explicit list is
       // the complete additive transport surface bundled at this SHA.
       contract: "public-number-research-run-v1",
-      contracts: ["public-number-research-run-v1", "personal-gematria-pair-run-v1"],
+      contracts: [
+        "public-number-research-run-v1",
+        "public-expression-crossing-run-v1",
+        "personal-gematria-pair-run-v1",
+      ],
       canonical_sources: bundledSources.filter((p) => p !== ENTRY.split("\\").join("/")),
       bundler: `esbuild@${ESBUILD_VERSION}`,
       git_head,

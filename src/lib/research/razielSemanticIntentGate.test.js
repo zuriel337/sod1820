@@ -3,9 +3,12 @@ import assert from "node:assert/strict";
 
 import {
   RAZIEL_CONVERSATIONAL_ACT_VERSION,
+  RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
   RAZIEL_SEMANTIC_INTENT_VERSION,
+  resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveRazielConversationalAct,
+  resolveRazielDeterministicGuidance,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
 import {
@@ -33,6 +36,55 @@ test("short whole-turn acknowledgement is deterministic conversation control", (
   for (const text of ["", "יפה מאוד, עכשיו השווה 776 ל-1820", "תודה על 3 המקורות", "נכון, בדוק שוב"]) {
     assert.equal(resolveRazielConversationalAct(text), null, text);
   }
+});
+
+test("missing personal input and open capability questions receive zero-model guidance", () => {
+  assert.deepEqual(resolveRazielDeterministicGuidance("תחשב לי את השם שלי"), {
+    version: RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
+    kind: "missing_name_expression",
+  });
+  assert.deepEqual(resolveRazielDeterministicGuidance("מה אתה יכול ללמד אותי"), {
+    version: RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
+    kind: "research_menu",
+  });
+  for (const text of ["", "תחשב לי את צוריאל", "מה אתה יכול ללמד אותי על 776"]) {
+    assert.equal(resolveRazielDeterministicGuidance(text), null, text);
+  }
+});
+
+test("explicit Hebrew expression grammar is structural rather than word-specific", () => {
+  for (const [question, label, action] of [
+    ["מה זה צוריאל בגימטריה ומה ההצלבות שיש", "צוריאל", "connect"],
+    ["מה הגימטריה של אור הגאולה ומה ההצלבות שלו", "אור הגאולה", "connect"],
+    ["מצא הצלבות למילה אלהים", "אלהים", "connect"],
+    ["בדוק לי קשרים עבור עולם הפוך", "עולם הפוך", "connect"],
+    ["כמה זה משה בגימטריה", "משה", "research"],
+    ["תן לי את הגימטריה של ראיתי דבר מתוך דבר ובדוק הצלבות", "ראיתי דבר מתוך דבר", "connect"],
+    ["חשב לי את הביטוי ראיתי דבר מתוך דבר ומצא הצלבות", "ראיתי דבר מתוך דבר", "connect"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.requested_action, action, question);
+    assert.equal(out?.explicit_text_computation, true, question);
+  }
+  for (const question of [
+    "תחשב לי את השם שלי",
+    "מה הגימטריה של השם",
+    "בדוק את שנת 2024",
+    "ספר לי משהו מעניין",
+  ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+});
+
+test("combined expression request reaches the canonical crossing projection", () => {
+  const question = "מה זה צוריאל בגימטריה ומה ההצלבות שיש";
+  const resolved = resolveRazielConversationTurn({ question });
+  const projected = projectRazielConversationResolution(resolved);
+
+  assert.deepEqual(resolved.identity_resolution.identities.map((identity) => identity.label), ["צוריאל"]);
+  assert.equal(resolved.identity_resolution.explicit_text_computation, true);
+  assert.equal(resolved.requested_action, "connect");
+  assert.equal(projected.identities[0].label, "צוריאל");
+  assert.equal(projected.requested_action, "connect");
 });
 
 test("natural two-number crossing language resolves structurally without a classifier", () => {

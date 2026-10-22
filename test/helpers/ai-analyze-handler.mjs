@@ -10,9 +10,11 @@ import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielRe
 import { buildRazielGroundedSourceComposer } from "../../src/lib/research/razielGroundedSourceComposer.js";
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
+  resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
   resolveRazielConversationalAct,
+  resolveRazielDeterministicGuidance,
   validateRazielSemanticIntent,
 } from "../../src/lib/research/razielSemanticIntentGate.js";
 
@@ -146,9 +148,11 @@ export async function runAiAnalyze({
   assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
   assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer }'));
   assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
+  assert.ok(imports[6].includes('resolveExplicitHebrewExpressionResearchSubject'));
   assert.ok(imports[6].includes('resolveExplicitNumericPairResearchSubject'));
   assert.ok(imports[6].includes('resolveExplicitNumericResearchSubject'));
   assert.ok(imports[6].includes('resolveRazielConversationalAct'));
+  assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
   assert.ok(imports[6].includes('validateRazielSemanticIntent'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
@@ -160,9 +164,11 @@ export async function runAiAnalyze({
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     RAZIEL_SEMANTIC_INTENT_VERSION,
+    resolveExplicitHebrewExpressionResearchSubject,
     resolveExplicitNumericPairResearchSubject,
     resolveExplicitNumericResearchSubject,
     resolveRazielConversationalAct,
+    resolveRazielDeterministicGuidance,
     validateRazielSemanticIntent,
     callClaudeReliable: async (options) => {
       models.push(options);

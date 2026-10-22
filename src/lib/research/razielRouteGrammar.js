@@ -98,7 +98,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   // "מה הקשר" contains "מה" too; relation language therefore wins over generic explanation.
   if (includesAny(q, [
     "מה הקשר", "ומה הקשר", "מה ההבדל", "ומה ההבדל", "מה מתחבר", "תחבר", "לחבר", "השווה", "השווי", "תשווה", "להשוות", "השוואה", "compare", "cross",
-    "קשר בין", "קשרים בין", "יחס בין", "הצלבה", "הצלבות", "מצא קשרים", "מצא לי קשרים", "relation",
+    "קשר בין", "קשרים בין", "יחס בין", "הצלבה", "הצלבות", "ההצלבה", "ההצלבות", "הקשרים", "מצא קשרים", "מצא לי קשרים", "relation",
   ])) return RAZIEL_ROUTE_ACTION.CONNECT;
 
   if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.CONNECT) return RAZIEL_ROUTE_ACTION.CONNECT;

@@ -7,11 +7,12 @@ import {runInNewContext} from 'node:vm';
 import {randomUUID} from 'node:crypto';
 import {composeResearchW2} from '../../src/lib/research/researchComposerW2.js';
 import {createCanonicalW2Executors as createPublicNumberW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
+import {createGematriaW2Executor} from '../../src/lib/research/gematriaW2Executor.js';
 import {createGematriaCorpusCrossingW2Executor} from '../../src/lib/research/gematriaCorpusCrossingW2Executor.js';
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
 import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
 import {mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT} from '../../src/lib/research/numberPhrasePresentationOrder.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,crossingRows=[],leadRows=[],leadReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -72,6 +73,10 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       independent_evidence:{edges:[],topic_cards:[],research_objects:[]},noise_flags:[],
       engine_signal_components:{effective_independent_group_count:1},
     });
+    if(name==='gematria_api')return response(gematriaResult ?? {
+      input:body.p_text,normalized:body.p_text,
+      methods:{ragil:358,siduri:52,atbash:112},
+    });
     if(name==='strongest_crossings')return response(crossingRows);
     unexpected.push(req.url);throw new Error(`Unknown RPC ${name}`);
   };
@@ -79,6 +84,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
   assert.deepEqual(imports,[
     'import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";',
     'import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";',
+    'import { createGematriaW2Executor } from "../../../src/lib/research/gematriaW2Executor.js";',
     'import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/research/gematriaCorpusCrossingW2Executor.js";',
     'import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";',
     'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
@@ -89,7 +95,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm,'')),{
     Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn;}},fetch:transport,
     composeResearchW2:composerFailure?()=>{throw new Error('Isolated composer failure');}:composeResearchW2,
-    createPublicNumberW2Executors,createGematriaCorpusCrossingW2Executor,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
+    createPublicNumberW2Executors,createGematriaW2Executor,createGematriaCorpusCrossingW2Executor,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
     PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
     mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT,
     Request,Response,Headers,URL,crypto:{randomUUID},

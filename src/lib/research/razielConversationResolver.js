@@ -5,6 +5,7 @@ import {
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
 import {
+  resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
   validateRazielSemanticIntent,
@@ -107,8 +108,8 @@ function explicitPhraseCandidates(question) {
     return pair.every(Boolean) ? pair : [];
   }
 
-  match = q.match(/^(?:מצא|מצאי|חפש|חפשי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:למילה|לביטוי)\s+(.+)$/u);
-  if (match) return [phraseCandidate(match[1])].filter(Boolean);
+  const expression = resolveExplicitHebrewExpressionResearchSubject(q);
+  if (expression) return [phraseCandidate(expression.label)].filter(Boolean);
 
   match = q.match(/^(?:ומה|מה)\s+הקשר\s+(?:שלו|שלה|שלהם|שלהן)\s+(?:ל|עם)\s+(.+)$/u);
   return match ? [phraseCandidate(match[1])].filter(Boolean) : [];

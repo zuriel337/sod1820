@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   PUBLIC_EXPRESSION_CROSSING_CAPABILITY,
   PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,
+  PUBLIC_EXPRESSION_RESEARCH_CAPABILITIES,
   normalizePublicExpressionCrossingResearchRunRequest,
   normalizeResearchRunRequest,
 } from './researchRunRequest.js';
@@ -24,7 +25,8 @@ test('public expression crossing request is exact, ephemeral and cannot be widen
   assert.equal(run.contract, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT);
   assert.equal(run.expression, 'משיח');
   assert.equal(run.question, 'חיפוש הצלבות קנוני במאגר הציבורי');
-  assert.deepEqual(run.requested_capabilities, [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]);
+  assert.deepEqual(run.requested_capabilities, PUBLIC_EXPRESSION_RESEARCH_CAPABILITIES);
+  assert.deepEqual(run.requested_capabilities, ["gematria", PUBLIC_EXPRESSION_CROSSING_CAPABILITY]);
   assert.equal(run.identity_candidates.length, 1);
   assert.equal(run.identity_candidates[0].type, 'phrase');
   assert.equal(run.identity_candidates[0].access.tier, 'public');

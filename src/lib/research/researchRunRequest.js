@@ -19,6 +19,10 @@ import { normalizeForCalc, onlyHeb } from "../gematria.js";
 export const PUBLIC_NUMBER_RESEARCH_RUN_CONTRACT = "public-number-research-run-v1";
 export const PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT = "public-expression-crossing-run-v1";
 export const PUBLIC_EXPRESSION_CROSSING_CAPABILITY = RESEARCH_CAPABILITY.CROSSINGS;
+export const PUBLIC_EXPRESSION_RESEARCH_CAPABILITIES = Object.freeze([
+  RESEARCH_CAPABILITY.GEMATRIA,
+  PUBLIC_EXPRESSION_CROSSING_CAPABILITY,
+]);
 export const PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT = "personal-gematria-pair-run-v1";
 export const PERSONAL_GEMATRIA_PAIR_CAPABILITY = RESEARCH_CAPABILITY.GEMATRIA_RELATIONS;
 export const PERSONAL_GEMATRIA_PAIR_MAX_CODEPOINTS = 160;
@@ -207,8 +211,9 @@ export function normalizePersonalGematriaPairResearchRunRequest(input = {}) {
  * Validate the public, ephemeral single-expression corpus-crossing contract.
  *
  * This contract is deliberately narrower than general Gematria research: it admits one bounded
- * Hebrew expression and one fixed capability. Caller-supplied capability, authority, publication,
- * persistence and ranking fields are ignored, so the request cannot widen the execution plan.
+ * Hebrew expression and one fixed calculation+crossing plan. Caller-supplied capability,
+ * authority, publication, persistence and ranking fields are ignored, so the request cannot widen
+ * the execution plan.
  */
 export function normalizePublicExpressionCrossingResearchRunRequest(input = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
@@ -229,7 +234,7 @@ export function normalizePublicExpressionCrossingResearchRunRequest(input = {}) 
     intent: "gematria_crossing",
     visitor_id: clean(input.visitor_id) || null,
     interaction_id: clean(input.interaction_id).slice(0, 180) || null,
-    requested_capabilities: Object.freeze([PUBLIC_EXPRESSION_CROSSING_CAPABILITY]),
+    requested_capabilities: PUBLIC_EXPRESSION_RESEARCH_CAPABILITIES,
     identity_candidates: Object.freeze([Object.freeze({
       type: "phrase",
       value: expression,
