@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
+import { FibonacciSpiral, PathTrail, SourceTrail } from "./BeitMidrashIllustrations.jsx";
 
 const sectionOf = (manifest, id) => manifest.sections.find((section) => section.id === id);
 
@@ -34,6 +35,7 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
     </BeitMidrashSection>
 
     <BeitMidrashSection id="sources" icon="posts" title={sources.title} description={sources.description} focused={isFocused("sources")}>
+      <SourceTrail />
       <p className="bm-note">{manifest.beginnerConcepts.find((concept) => concept.id === "source").body}</p>
     </BeitMidrashSection>
 
@@ -62,6 +64,7 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
           <header>
             <span>הנושא שבחרתם</span>
             <h4>{selectedNumberConcept.title}</h4>
+            {selectedNumberConcept.id === "fibonacci" ? <FibonacciSpiral /> : null}
           </header>
           <section>
             <h5>מה לומדים?</h5>
@@ -87,6 +90,7 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
           className={path.id === focusedPath ? "is-focused" : ""}
           data-path-id={path.id}
         >
+          <PathTrail steps={path.steps?.length} />
           <strong>{path.title}</strong>
           <span>{path.description}</span>
           <Link className="bm-path-open" to={path.href}>{path.id === focusedPath ? "המסלול פתוח" : "פתח מסלול"}</Link>

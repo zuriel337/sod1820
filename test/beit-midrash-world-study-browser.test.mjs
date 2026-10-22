@@ -99,7 +99,7 @@ function fixturePlugin() {
     ["virtual:bm-ratings.jsx", `import React from "react";export default function Ratings({quality,meterScore}){return React.createElement("div",{className:"k29-rate","data-quality":quality??"missing","data-meter":meterScore??"missing"},"איכות ",quality??"לא דורג"," · חוזק ",meterScore??"אין נתון")}`],
     ["virtual:bm-trace-component.jsx", `export default function Trace(){return null}`],
     ["virtual:bm-spatial-stage.jsx", `import React from "react";export default function Stage({methodKey}){return React.createElement("div",{"data-experience-capability":"spatial-method-stage","data-method-key":methodKey},"המחשת שיטה")}`],
-    ["virtual:bm-registry.js", `const m=(method_key,display_label,category)=>({method_key,display_label,category,active:true,registered:true,executable:true,engine_verified:true,scannable:true});export const fetchGematriaMethodStates=async()=>[m("standard","רגיל","base"),m("gadol","גדול","base"),m("katan","קטן","base"),m("kolel","כולל","composite"),m("milui","מילוי","depth"),m("atbash","אתב״ש","context")];`],
+    ["virtual:bm-registry.js", `const m=(method_key,display_label,category)=>({method_key,display_label,category,active:true,registered:true,executable:true,engine_verified:true,scannable:true});export const fetchGematriaMethodStates=async()=>{await new Promise((resolve)=>setTimeout(resolve,Number(new URLSearchParams(window.location.search).get("delay")||0)));return [m("standard","רגיל","base"),m("gadol","גדול","base"),m("katan","קטן","base"),m("kolel","כולל","composite"),m("milui","מילוי","depth"),m("atbash","אתב״ש","context")];};`],
     ["virtual:bm-number.js", `export const fetchNumberMethodProfile=async()=>[["standard","רגיל","base",73],["gadol","גדול","base",613],["katan","קטן","base",10],["kolel","כולל","composite",77],["milui","מילוי","depth",613],["atbash","אתב״ש","context",null]].map(([methodKey,displayLabel,category,computedValue])=>({methodKey,displayLabel,category,computedValue}));`],
     ["virtual:bm-trace.js", `export const fetchGematriaMethodTrace=async(method,input)=>({id:"trace-1",projection:{dimensions:{trace:{method_key:method,input,result:73,verification:{status:"verified"},steps:[]}}}});`],
     ["virtual:bm-definition.js", `export const methodMechanicalDefinition=()=>({what:"סוכמת את ערכי האותיות",structure:null,dependencies:[],interpretation:null});`],
@@ -404,7 +404,7 @@ test("lesson pages are centred, enriched and calm in nine theme/width combinatio
         assert.equal(m.tiles, 4, `${tag} four letter tiles`);
         assert.equal(m.result, "77", `${tag} result comes from the registry value`);
         assert.ok(m.chipHeights.every((h) => h >= 44), `${tag} rail touch targets`);
-        assert.ok(m.cls < 0.1, `${tag} layout shift ${m.cls} ${JSON.stringify(await page.evaluate(() => window.__shifts))}`);
+        assert.ok(m.cls < 0.05, `${tag} layout shift ${m.cls} ${JSON.stringify(await page.evaluate(() => window.__shifts))}`);
         if (shots) {
           await page.evaluate(() => window.scrollTo(0, document.querySelector("#methods").getBoundingClientRect().top + scrollY - 20));
           await page.screenshot({ path: `${shots}/lesson-${theme}-${width}.png` });
@@ -446,6 +446,138 @@ test("lesson pages are centred, enriched and calm in nine theme/width combinatio
     }
     assert.equal(await page.locator(".bm-tag", { hasText: "הצלבה" }).count() > 0, true, "crossing stays a small tag");
     assert.deepEqual(browserErrors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("loading skeleton keeps the lesson stable even when the registry is slow", { skip: !available, timeout: 120_000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath });
+    const page = await (await browser.newContext({ reducedMotion: "no-preference" })).newPage();
+    await page.addInitScript(() => {
+      window.__cls = 0;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) if (!entry.hadRecentInput) window.__cls += entry.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    for (const theme of ["day", "card", "night"]) {
+      for (const width of [320, 390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`${origin}/beit-midrash/kolel?delay=600`);
+        await page.waitForSelector(".bm-skeleton");
+        const skeleton = await page.evaluate(() => ({
+          status: document.querySelector(".bm-skeleton").getAttribute("role"),
+          busy: document.querySelector(".bm-skeleton").getAttribute("aria-busy"),
+          text: document.querySelector(".bm-skeleton .bm-sr").textContent,
+          hidden: [...document.querySelectorAll(".bm-skeleton .bm-lesson, .bm-skeleton .bm-method-nav")].every((el) => el.getAttribute("aria-hidden") === "true"),
+          top: Math.round(document.querySelector(".bm-skeleton .bm-lesson").getBoundingClientRect().top + scrollY),
+          height: Math.round(document.querySelector(".bm-skeleton .bm-lesson").getBoundingClientRect().height),
+        }));
+        assert.equal(skeleton.status, "status");
+        assert.equal(skeleton.busy, "true");
+        assert.match(skeleton.text, /פותח/);
+        assert.equal(skeleton.hidden, true);
+        await page.evaluate((next) => window.__setTheme(next), theme);
+        await page.waitForSelector('.bm-lesson[data-method-key="kolel"]');
+        await page.waitForTimeout(700);
+        const real = await page.evaluate(() => ({
+          top: Math.round(document.querySelector(".bm-lesson").getBoundingClientRect().top + scrollY),
+          height: Math.round(document.querySelector(".bm-lesson").getBoundingClientRect().height),
+          cls: window.__cls,
+        }));
+        assert.ok(Math.abs(real.top - skeleton.top) <= 60, `${theme} ${width}px lesson stays where the skeleton was (${skeleton.top} → ${real.top})`);
+        assert.ok(real.height >= skeleton.height - 2 && real.height - skeleton.height <= 140, `${theme} ${width}px skeleton height ${skeleton.height} vs lesson ${real.height}`);
+        assert.ok(real.cls < 0.05, `${theme} ${width}px slow-registry layout shift ${real.cls}`);
+      }
+    }
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("teaching illustrations are presentational, bounded, quiet and motion-safe", { skip: !available, timeout: 120_000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath });
+    const context = await browser.newContext({ reducedMotion: "no-preference" });
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) errors.push(message.text()); });
+    const shots = process.env.BM_SHOTS_DIR;
+    let requests = 0;
+    page.on("request", (request) => { if (/supabase|\/rest\/v1|\/rpc\//.test(request.url())) requests += 1; });
+
+    for (const theme of ["day", "card", "night"]) {
+      for (const width of [320, 390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`${origin}/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci`);
+        await page.waitForSelector('#number-concept-fibonacci [data-illustration="fibonacci-spiral"]');
+        await page.waitForSelector('[data-guided-concept="crossing"]');
+        await page.evaluate((next) => window.__setTheme(next), theme);
+        await page.waitForTimeout(900);
+        const tag = `${theme} ${width}px`;
+        const r = await page.evaluate(() => {
+          const rect = (el) => { const b = el.getBoundingClientRect(); return { l: b.left, r: b.right, t: b.top, b: b.bottom, w: b.width, h: b.height }; };
+          const within = (el, box) => { const a = rect(el), c = rect(box); return a.l >= c.l - 1 && a.r <= c.r + 1; };
+          const borders = (el) => parseFloat(getComputedStyle(el).borderTopWidth) + parseFloat(getComputedStyle(el).borderLeftWidth);
+          const spiral = document.querySelector('[data-illustration="fibonacci-spiral"]');
+          const lesson = document.querySelector(".bm-number-lesson");
+          const trail = document.querySelector('[data-illustration="source-trail"]');
+          const sources = document.querySelector("#sources");
+          const trails = [...document.querySelectorAll('[data-illustration="path-trail"]')];
+          const meetings = [...document.querySelectorAll('[data-illustration^="meeting-"]')];
+          return {
+            scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth,
+            spiral: { hidden: spiral.getAttribute("aria-hidden"), inside: within(spiral, lesson), h: rect(spiral).h, border: borders(spiral), centred: Math.abs((rect(spiral).l + rect(spiral).r) / 2 - (rect(lesson).l + rect(lesson).r) / 2) },
+            trail: { items: [...trail.querySelectorAll("li strong")].map((el) => el.textContent), inside: within(trail, sources), label: trail.getAttribute("aria-label"), border: borders(trail), ordered: trail.tagName },
+            paths: trails.map((el) => ({ hidden: el.getAttribute("aria-hidden"), dots: el.children.length, steps: Number(el.dataset.steps), inside: within(el, el.closest("li")), border: borders(el) })),
+            meetings: meetings.map((el) => ({ kind: el.dataset.illustration, svgHidden: el.querySelector("svg").getAttribute("aria-hidden"), caption: el.querySelector("small").textContent, inCard: Boolean(el.closest(".bm-example-card")), inside: within(el, el.closest(".bm-guided-group")), border: borders(el) })),
+            flowBorder: null,
+          };
+        });
+        assert.ok(r.scrollWidth <= r.viewport + 1, `${tag} overflow`);
+        assert.equal(r.spiral.hidden, "true");
+        assert.ok(r.spiral.inside && r.spiral.centred <= 2 && r.spiral.h > 60, `${tag} spiral bounded and centred`);
+        assert.equal(r.spiral.border, 0, `${tag} spiral is not boxed`);
+        assert.deepEqual(r.trail.items, ["מקור", "הקשר", "ציטוט", "בדיקה"], `${tag} source order`);
+        assert.equal(r.trail.ordered, "OL");
+        assert.ok(r.trail.inside && r.trail.border === 0, `${tag} source trail bounded, unboxed`);
+        assert.ok(r.paths.length >= 5, `${tag} path trails`);
+        for (const path of r.paths) assert.ok(path.hidden === "true" && path.dots === path.steps && path.inside && path.border === 0, `${tag} path trail ${JSON.stringify(path)}`);
+        assert.deepEqual(r.meetings.map((m) => m.kind).sort(), ["meeting-convergence", "meeting-crossing"]);
+        for (const meeting of r.meetings) {
+          assert.equal(meeting.svgHidden, "true");
+          assert.equal(meeting.caption, "המחשה בלבד", "illustration is labelled as illustration, not evidence");
+          assert.equal(meeting.inCard, false, "never inside a finding card");
+          assert.ok(meeting.inside && meeting.border === 0, `${tag} meeting bounded, unboxed`);
+        }
+        if (shots && theme !== "card") {
+          await page.locator("#number-concept-fibonacci").screenshot({ path: `${shots}/fibonacci-${theme}-${width}.png` });
+          await page.locator("#sources").screenshot({ path: `${shots}/sources-${theme}-${width}.png` });
+        }
+      }
+    }
+    // Reduced motion silences every illustration; the drawings stay fully visible.
+    const anim = () => page.evaluate(() => [".bm-spiral-path", ".bm-source-trail li", ".bm-path-trail i", ".bm-meeting-line"]
+      .map((selector) => getComputedStyle(document.querySelector(selector)).animationName));
+    assert.ok((await anim()).every((name) => name !== "none"), "motion plays when allowed");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    assert.deepEqual([...new Set(await anim())], ["none"]);
+    assert.equal(await page.locator(".bm-spiral-path").evaluate((el) => getComputedStyle(el).strokeDashoffset), "0px");
+    assert.equal(await page.locator(".bm-source-trail li").first().evaluate((el) => getComputedStyle(el).opacity), "1");
+    assert.equal(requests, 0, "illustrations add no reader or fetch");
+    assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
     await server.close();
