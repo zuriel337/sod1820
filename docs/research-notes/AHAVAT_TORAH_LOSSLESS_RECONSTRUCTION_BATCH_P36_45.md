@@ -1,5 +1,12 @@
 # אהבת תורה — Lossless Reconstruction Batch, PDF pp.36–45 (P36_45 parallel source batch)
 
+> **ADDENDUM / SUPERSEDED READING (2026-10-22):** this historical batch's
+> `110,976` reading on p.41 is corrected by
+> `AHAVAT_TORAH_DS03_WORD_COUNT_RECONCILIATION.md`. At 600dpi the abbreviation is
+> `ע״ט`, not final `ע״ם`; the value is **79,976**. Four additional direct witnesses
+> on pp.12, 25, 30 and 51 repeat 79,976. Keep the original text below as provenance,
+> but do not treat its DS-03 value as current.
+
 > **Role:** CLAUDE, P36_45_SOURCE_OWNER — a disjoint parallel source-batch writer, per coordination memo `work_log ac493139-86d8-46eb-bee4-fa7eedf61da5` (`AHAVAT_TORAH_P16_57_PARALLELIZATION_20260905`) and queued task `work_log 48c59fcf-386b-46e1-9d89-70a74d58c3b7` (`AHAVAT_TORAH_P36_45_PARALLEL_SOURCE_BATCH`). ACK recorded at `work_log d893618e-528d-4f99-9af5-fc5d5fa8c512`.
 > **Scope:** PDF pages 36–45 of `book:hebrewbooks:5635` ONLY. p.35 and p.46 read for boundary context only, not registered. **Not touching**: `DOSSIER_INDEX.md`, `CROSSWALK.md`, any UI/schema/engine/graph/merge/deploy, any file outside this batch's two new output files.
 > **Witness continuity confirmed:** downloaded `gallery/Book/Hebrewbooks_org_5635.pdf` this session; `sha256=895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b`, 2,078,469 bytes, 99 pages — **byte-identical** to the fingerprint already recorded in `AHAVAT_TORAH_LOSSLESS_PAGE_REGISTER_P91_99.json`. Same witness object, not a re-scan.

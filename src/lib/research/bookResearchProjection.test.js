@@ -14,6 +14,11 @@ import {
   DEFAULT_BOOK_INDEX_LIMIT,
   MAX_BOOK_INDEX_LIMIT,
   buildBookListQuery,
+  DEFAULT_BOOK_RESEARCH_LIMIT,
+  MAX_BOOK_RESEARCH_LIMIT,
+  PUBLIC_BOOK_RESEARCH_TABLE,
+  buildPublicBookResearchQuery,
+  applyPublicBookFocusRow,
   buildBookResearchPresentation,
   bookResearchNeedsReview,
   bookResearchVerificationLabel,
@@ -122,6 +127,52 @@ test("DEFAULT_BOOK_INDEX_LIMIT/MAX_BOOK_INDEX_LIMIT are sane and ordered", () =>
   // this is the backward-compatibility guarantee: fetchBookEntities() with no args still
   // returns every current Book.
   assert.ok(DEFAULT_BOOK_INDEX_LIMIT >= 3);
+});
+
+test("public Book research query is bound to the sanitized projection and exact Book identity", () => {
+  const query = buildPublicBookResearchQuery(SEFER_YETZIRAH_BOOK, { limit: 80 });
+  assert.equal(query.table, PUBLIC_BOOK_RESEARCH_TABLE);
+  assert.equal(query.table, "book_research_public_v1");
+  assert.equal(query.bookId, SEFER_YETZIRAH_BOOK.id);
+  assert.equal(query.limit, 80);
+});
+
+test("public Book research query fails closed without a Book and clamps its bounded read", () => {
+  assert.equal(buildPublicBookResearchQuery(null).bookId, null);
+  assert.equal(buildPublicBookResearchQuery({}, { limit: 0 }).limit, DEFAULT_BOOK_RESEARCH_LIMIT);
+  assert.equal(buildPublicBookResearchQuery(SEFER_YETZIRAH_BOOK, { limit: MAX_BOOK_RESEARCH_LIMIT + 500 }).limit, MAX_BOOK_RESEARCH_LIMIT);
+});
+
+test("public Book exact reopen admits only a public row from the same Book", () => {
+  const row = {
+    id: "public-row-2",
+    book_node_id: SEFER_YETZIRAH_BOOK.id,
+    privacy_scope: "public",
+  };
+  const folded = applyPublicBookFocusRow([], {
+    focusId: row.id,
+    bookId: SEFER_YETZIRAH_BOOK.id,
+    focusRow: row,
+  });
+  assert.equal(folded.focusIncluded, true);
+  assert.deepEqual(folded.rows, [row]);
+});
+
+test("public Book exact reopen rejects cross-Book and non-public focus rows", () => {
+  const foreign = applyPublicBookFocusRow([], {
+    focusId: "foreign-row",
+    bookId: SEFER_YETZIRAH_BOOK.id,
+    focusRow: { id: "foreign-row", book_node_id: AHAVAT_TORAH_BOOK_MIN.id, privacy_scope: "public" },
+  });
+  const candidate = applyPublicBookFocusRow([], {
+    focusId: "candidate-row",
+    bookId: SEFER_YETZIRAH_BOOK.id,
+    focusRow: { id: "candidate-row", book_node_id: SEFER_YETZIRAH_BOOK.id, privacy_scope: "public_candidate" },
+  });
+  assert.equal(foreign.focusIncluded, false);
+  assert.deepEqual(foreign.rows, []);
+  assert.equal(candidate.focusIncluded, false);
+  assert.deepEqual(candidate.rows, []);
 });
 
 // Mirrors the exact clamp expression inside fetchBookEntities(), kept in sync deliberately:

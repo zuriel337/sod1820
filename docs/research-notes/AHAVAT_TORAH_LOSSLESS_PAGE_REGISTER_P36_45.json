@@ -1,6 +1,7 @@
 {
   "source_id": "book:hebrewbooks:5635",
   "register_version": 1,
+  "superseded_reading_notice": "CORRECTION 2026-10-22: every p.41 DS-03 entry in this historical register that normalizes ע\"ם as 110,976 is superseded by AHAVAT_TORAH_DS03_WORD_COUNT_RECONCILIATION.md. Direct 600dpi inspection reads ע\"ט = 79,976, corroborated on pp.12, 25, 30 and 51. Preserve the original rows as provenance only; do not consume 110,976 as current truth.",
   "batch_scope": "PDF pp.36-45 ONLY -- disjoint parallel source batch, per work_log ACK d893618e-528d-4f99-9af5-fc5d5fa8c512 (task AHAVAT_TORAH_P36_45_PARALLEL_SOURCE_BATCH), queued at work_log 48c59fcf-386b-46e1-9d89-70a74d58c3b7 and coordination-partitioned at work_log ac493139-86d8-46eb-bee4-fa7eedf61da5 (AHAVAT_TORAH_P16_57_PARALLELIZATION_20260905). p.35 and p.46 read for boundary context only, NOT re-registered here (p.35 is already covered in depth by AHAVAT_TORAH_MECHANICAL_DATASET_CLOSURE_PASS.md; p.46 belongs to the disjoint P46_57 writer per work_log ac493139).",
   "status_dimensions": [
     "STRUCTURALLY_MAPPED",
@@ -248,7 +249,7 @@
       "pdf_page": 41,
       "printed_page": "36 (Arabic numeral header, directly observed)",
       "section": "letter_count_table_DS02_closes_then_DS03_DS04_summary_tables_open",
-      "parasha": "letter_range: ש (Shin, NEW) -> ת (Tav, NEW, FINAL letter of the 22-letter table) -- then NEW summary tables: תיבות התורה (Words of the Torah, candidate DS-03) and אותיות התורה (Letters of the Torah per-book summary, candidate DS-04, opens)",
+      "parasha": "letter_range: ש (Shin, NEW) -> ת (Tav, NEW, FINAL glyph of the 27-glyph table) -- then NEW summary tables: תיבות התורה (Words of the Torah, candidate DS-03) and אותיות התורה (Letters of the Torah per-book summary, candidate DS-04, opens)",
       "opening_anchor": "מ\"ז ולך ב\"ד האזינו כ\"ב ברכה ב\"ה",
       "closing_anchor": "תקי\"ב. ס\"ה ע\"ם אלף תתקע\"ו: [divider] אותיות התורה. בראשית ז' אלף רל\"ה נח...",
       "transcription_depth": "SOURCE_LOCATED for Shin/Tav (structure); VISUALLY_VERIFIED at 4x/600dpi zoom for the two closing grand-total lines (this batch's own major new finding)",
@@ -261,7 +262,7 @@
         {
           "block_id": "tav_dataset_DS02_final_letter",
           "source_ref": "book:hebrewbooks:5635#p41:tav_dataset_DS02_final_letter",
-          "text_note": "Left column: drop-cap ת (Tav) opens the table's FINAL letter-occurrence paragraph (\"בראשית שפ\"ח נח...\"), closing with its own Torah-wide total (\"ס\"ה [n\"] אלף תל\"ה:\"), and closing the entire 22-letter DS-02 table opened at p.35. This is the first time this dossier records the table's own alphabet-complete closing point.",
+          "text_note": "Left column: drop-cap ת (Tav) opens the table's FINAL glyph-occurrence paragraph (\"בראשית שפ\"ח נח...\"), closing with its own Torah-wide total (\"ס\"ה [n\"] אלף תל\"ה:\"), and closing the entire 27-glyph DS-02 table opened at p.35. Final forms ך/ם/ן/ף/ץ are independent printed rows, so the older 22-letter description is withdrawn.",
           "verbatim_numbers": [
             "ס\"ה נ' אלף תל\"ה -- RAW READING of Tav's own final total, not independently high-zoom re-verified this pass"
           ]
