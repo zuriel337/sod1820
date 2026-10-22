@@ -3,6 +3,7 @@
 // The signing secret is read from RESEND_WEBHOOK_SECRET when configured, otherwise retrieved/cached
 // from the authenticated Resend Webhooks API using the already-existing RESEND_API_KEY.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { normalizeReceivedEmail, resolveApprovedSender } from "../_shared/sourceEmail.mjs";
 
 const RESEND_KEY = (Deno.env.get("RESEND_READ_KEY") || Deno.env.get("RESEND_API_KEY") || "").trim();
 const WEBHOOK_ID = "d31ce68e-5f2f-481e-af12-6ac0256005c9"; // resource id, not a secret
@@ -24,10 +25,6 @@ function parseFrom(raw: string): { name: string; email: string } {
   if (m) return { name: m[1].trim(), email: m[2].trim().toLowerCase() };
   const em = s.match(/[^\s<>@]+@[^\s<>@]+/);
   return { name: "", email: em ? em[0].toLowerCase() : s.toLowerCase() };
-}
-async function sha(s: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return "in_" + Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 28);
 }
 async function getSigningSecret(): Promise<string> {
   if (signingSecretCache) return signingSecretCache;
@@ -90,41 +87,64 @@ Deno.serve(async (req: Request) => {
   if (!emailId) return j({ ok: false, error: "missing_email_id" }, 400);
 
   let from = String(data.from || ""), to = Array.isArray(data.to) ? data.to.join(", ") : String(data.to || "");
-  let subject = String(data.subject || ""), text = "", html = "", msgId = String(data.message_id || emailId), inReplyTo = "";
+  let subject = String(data.subject || ""), text = "", html = "", inReplyTo = "";
+  let fetched: any;
   try {
-    const rr = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, { headers: { Authorization: `Bearer ${RESEND_KEY}` } });
+    // Keep inline images as attachment references, not base64 repeated in every quote.
+    const rr = await fetch(`https://api.resend.com/emails/receiving/${encodeURIComponent(emailId)}?html_format=cid`, { headers: { Authorization: `Bearer ${RESEND_KEY}` } });
+    // Acknowledging metadata-only rows loses bodies/attachments permanently on transient failures.
+    if (!rr.ok) return j({ ok: false, error: "provider_unavailable" }, 502);
     if (rr.ok) {
       const f = await rr.json();
+      fetched = f;
       from = f.from || from;
       to = Array.isArray(f.to) ? f.to.join(", ") : (f.to || to);
       subject = f.subject || subject;
       text = f.text || "";
       html = f.html || "";
-      msgId = f.message_id || msgId;
       const hs = f.headers || {};
       if (Array.isArray(hs)) inReplyTo = String(hs.find((h: any) => String(h?.name || "").toLowerCase() === "in-reply-to")?.value || "");
       else if (hs && typeof hs === "object") inReplyTo = String(hs["in-reply-to"] || hs["In-Reply-To"] || "");
     }
-  } catch { /* metadata-only fallback is still safe after signed event */ }
+  } catch { return j({ ok: false, error: "provider_unavailable" }, 502); }
+
+  let source: any;
+  try {
+    source = await normalizeReceivedEmail(fetched, {
+      provider: "resend", providerId: emailId, receivedAt: new Date().toISOString(),
+    });
+  } catch { return j({ ok: false, error: "invalid_source" }, 422); }
+  let approvals: any[] = [];
+  try { approvals = JSON.parse(Deno.env.get("EMAIL_SOURCE_APPROVALS_JSON") || "[]"); }
+  catch { /* private inbox remains available; admission fails closed */ }
+  const author = resolveApprovedSender(fetched, approvals);
 
   const bodyText = text.trim() ? text.trim() : stripHtml(html);
   const parsed = parseFrom(from);
-  const dedupKey = msgId.trim() ? msgId.trim().replace(/[<>]/g, "").slice(0, 180) : await sha(parsed.email + "|" + subject + "|" + bodyText.slice(0, 120));
-  const { data: dup } = await sb.from("inbound_emails").select("id").eq("message_id", dedupKey).maybeSingle();
-  if (dup) return j({ ok: true, dup: true, id: dup.id });
+  const dedupKey = source.message_id || source.id;
+  const { data: dup, error: lookupError } = await sb.from("inbound_emails").select("id,meta").eq("message_id", dedupKey).maybeSingle();
+  if (lookupError) return j({ ok: false, error: "lookup_failed" }, 500);
+  if (dup?.meta?.source_email_v1) return j({ ok: true, dup: true, id: dup.id });
 
   // Inbox content is untrusted data only. This function stores it; it does not execute actions or feed an agent.
-  const { data: row, error } = await sb.from("inbound_emails").insert({
+  const payload = {
     from_email: parsed.email || null,
     from_name: parsed.name || null,
     to_email: to || null,
-    subject: subject.slice(0, 400) || null,
-    body_text: bodyText.slice(0, 20000) || null,
-    body_html: html.slice(0, 60000) || null,
+    subject: subject || null,
+    body_text: bodyText || null,
+    body_html: html || null,
     message_id: dedupKey,
-    in_reply_to: inReplyTo.replace(/[<>]/g, "").slice(0, 180) || null,
-    meta: { raw_from: from, raw_to: to, provider: "resend", verified_webhook: true },
-  }).select("id").maybeSingle();
+    in_reply_to: inReplyTo.replace(/^<|>$/g, "") || null,
+    meta: { ...(dup?.meta || {}), raw_from: from, raw_to: to, provider: "resend", verified_webhook: true,
+      source_email_v1: { ...source, author, admission: author ? "approved_source_candidate" : "unresolved",
+        publication_state: "private", media_state: "provider_references_only" } },
+  };
+  // Hydrate old metadata-only rows on provider replay without resetting read/reply state.
+  const write = dup ? sb.from("inbound_emails").update(payload).eq("id", dup.id)
+    : sb.from("inbound_emails").insert(payload);
+  const { data: row, error } = await write.select("id").maybeSingle();
+  if (error?.code === "23505") return j({ ok: true, dup: true });
   if (error) return j({ ok: false, error: "store_failed" }, 500);
   return j({ ok: true, id: row?.id });
 });
