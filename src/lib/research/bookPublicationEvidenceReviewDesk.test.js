@@ -43,6 +43,7 @@ test("admin verification runs before Book resolution and denial fails closed", a
   assert.equal(result.restriction, "admin");
   assert.equal(result.reviewPacket, null);
   assert.equal(result.evidencePacket, null);
+  assert.equal(result.evidencePresentation, null);
   assert.equal(result.publicationEffect, "none");
 });
 
@@ -63,6 +64,7 @@ test("missing Book identity stops before protected research", async () => {
   assert.equal(researchCalls, 0);
   assert.equal(result.phase, "unavailable");
   assert.equal(result.book, null);
+  assert.equal(result.evidencePresentation, null);
 });
 
 test("one bounded authorized snapshot feeds aligned review and evidence packets", async () => {
@@ -92,10 +94,16 @@ test("one bounded authorized snapshot feeds aligned review and evidence packets"
   assert.equal(result.book, BOOK);
   assert.deepEqual(result.reviewPacket.items.map(item => item.id), ["1", "2"]);
   assert.deepEqual(result.evidencePacket.packets.map(packet => packet.id), ["1", "2"]);
+  assert.deepEqual(result.evidencePresentation.packets.map(packet => packet.id), ["1", "2"]);
   assert.equal(result.reviewPacket.focusedItem.id, "2");
   assert.equal(result.evidencePacket.focusedPacket.id, "2");
+  assert.equal(result.evidencePresentation.focusedPacket.id, "2");
   assert.equal(result.source.focusIncluded, true);
   assert.equal(result.publicationEffect, "none");
+  assert.equal(result.evidencePresentation.publicationEffect, "none");
+  assert.equal(result.evidencePresentation.packets[0].readiness.labelHe, "חסרות ראיות להכרעה");
+  assert.equal("claim" in result.evidencePresentation.packets[0], false);
+  assert.equal("source" in result.evidencePresentation.packets[0], false);
   assert.equal("rows" in result, false);
   assert.equal("findings" in result, false);
   assert.equal(JSON.stringify(result).includes("must-not-leak"), false);
@@ -118,6 +126,7 @@ test("RLS restriction returns no Book identity or candidate material", async () 
   assert.equal(result.book, null);
   assert.equal(result.reviewPacket, null);
   assert.equal(result.evidencePacket, null);
+  assert.equal(result.evidencePresentation, null);
 });
 
 test("truncation remains explicit on the desk and both packets stay non-publishing", async () => {
@@ -132,6 +141,7 @@ test("truncation remains explicit on the desk and both packets stay non-publishi
   assert.equal(result.source.truncated, true);
   assert.equal(result.reviewPacket.publicationEffect, "none");
   assert.equal(result.evidencePacket.publicationEffect, "none");
+  assert.equal(result.evidencePresentation.publicationEffect, "none");
 });
 
 test("paging is shared without widening the bounded source read", async () => {
@@ -145,6 +155,7 @@ test("paging is shared without widening the bounded source read", async () => {
 
   assert.deepEqual(result.reviewPacket.items.map(item => item.id), ["2"]);
   assert.deepEqual(result.evidencePacket.packets.map(packet => packet.id), ["2"]);
+  assert.deepEqual(result.evidencePresentation.packets.map(packet => packet.id), ["2"]);
   assert.deepEqual(result.reviewPacket.page, result.evidencePacket.page);
 });
 
@@ -158,9 +169,14 @@ test("shared default paging keeps more than fifty authorized candidates aligned"
 
   assert.equal(result.reviewPacket.items.length, 50);
   assert.equal(result.evidencePacket.packets.length, 50);
+  assert.equal(result.evidencePresentation.packets.length, 50);
   assert.deepEqual(
     result.reviewPacket.items.map(item => item.id),
     result.evidencePacket.packets.map(packet => packet.id),
+  );
+  assert.deepEqual(
+    result.evidencePacket.packets.map(packet => packet.id),
+    result.evidencePresentation.packets.map(packet => packet.id),
   );
   assert.equal(result.reviewPacket.page.total, 60);
   assert.equal(result.evidencePacket.page.total, 60);

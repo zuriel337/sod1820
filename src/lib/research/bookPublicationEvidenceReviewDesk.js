@@ -17,6 +17,7 @@ import {
 } from "./bookPublicationReviewProjection.js";
 import { verifyBookPublicationReviewAdmin } from "./bookPublicationReviewReader.js";
 import { projectBookPrivateEvidencePackets } from "./bookPrivateEvidencePacketProjection.js";
+import { buildBookPrivateEvidenceCollectionPresentation } from "./bookPrivateEvidencePresentation.js";
 
 function clean(value) {
   return value == null ? "" : String(value).trim();
@@ -29,6 +30,7 @@ function restrictedState(restriction, adminVerified) {
     book: null,
     reviewPacket: null,
     evidencePacket: null,
+    evidencePresentation: null,
     partial: false,
     publicationEffect: "none",
     source: {
@@ -65,6 +67,7 @@ export async function loadBookPublicationEvidenceReviewDesk(slug, options = {}) 
       book: null,
       reviewPacket: null,
       evidencePacket: null,
+      evidencePresentation: null,
       partial: false,
       publicationEffect: "none",
       source: {
@@ -92,13 +95,18 @@ export async function loadBookPublicationEvidenceReviewDesk(slug, options = {}) 
   const rows = Array.isArray(source?.rows) ? source.rows : [];
   const reviewPacket = projectBookPublicationReview(rows, projectionOptions);
   const evidencePacket = projectBookPrivateEvidencePackets(rows, projectionOptions);
+  const evidencePresentation = buildBookPrivateEvidenceCollectionPresentation(evidencePacket);
   const reviewIds = reviewPacket.items.map(item => item.id);
   const evidenceIds = evidencePacket.packets.map(packet => packet.id);
+  const presentationIds = evidencePresentation.packets.map(packet => packet.id);
 
   // Both projections share candidate filtering and order. Any divergence is a
   // contract failure, never a reason to show a partially mismatched desk.
   if (reviewIds.length !== evidenceIds.length || reviewIds.some((id, index) => id !== evidenceIds[index])) {
     throw new Error("book_review_evidence_alignment_failed");
+  }
+  if (evidenceIds.length !== presentationIds.length || evidenceIds.some((id, index) => id !== presentationIds[index])) {
+    throw new Error("book_evidence_presentation_alignment_failed");
   }
 
   const truncated = source?.truncated === true;
@@ -108,6 +116,7 @@ export async function loadBookPublicationEvidenceReviewDesk(slug, options = {}) 
     book,
     reviewPacket,
     evidencePacket,
+    evidencePresentation,
     partial: truncated,
     publicationEffect: "none",
     source: {
