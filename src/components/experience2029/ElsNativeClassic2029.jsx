@@ -22,6 +22,8 @@ const clean = (value) => String(value ?? "").trim();
 const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה";
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const MOBILE_WORKSPACE_QUERY = "(max-width:980px), (pointer:coarse) and (hover:none)";
+const isMobileWorkspace = () => window.matchMedia(MOBILE_WORKSPACE_QUERY).matches;
 
 function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
@@ -524,7 +526,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 
   useLayoutEffect(() => {
     if (!selectionValid || !workspaceRef.current) return;
-    if (window.matchMedia("(max-width:980px)").matches) {
+    if (isMobileWorkspace()) {
       workspaceRef.current.scrollIntoView({ block: "start", behavior: "instant" });
       return;
     }
@@ -662,7 +664,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onDeleteSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user, isAdmin } = useAuth();
-  const compactMobile = useMediaQuery("(max-width:980px)");
+  const compactMobile = useMediaQuery(MOBILE_WORKSPACE_QUERY);
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
@@ -670,7 +672,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [engineState, setEngineState] = useState(null);
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
-  const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
+  const [activeTool, setActiveTool] = useState(() => isMobileWorkspace() ? null : "findings");
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
@@ -726,7 +728,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setClassicOpen(false);
     setActiveTool(tool);
     if (trigger) requestAnimationFrame(() => {
-      const mobile = window.matchMedia("(max-width:980px)").matches;
+      const mobile = isMobileWorkspace();
       if (mobile) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       if (!mobile) panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
     });
@@ -746,7 +748,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       }
     };
     const onOutside = (event) => {
-      if (window.matchMedia("(max-width:980px)").matches || event.target.closest?.(".sod29-command-island")) return;
+      if (isMobileWorkspace() || event.target.closest?.(".sod29-command-island")) return;
       if (panelPinned || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
       setActiveTool(null);
     };
@@ -863,7 +865,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (kind === "search" && ["done", "empty", "error", "cancelled"].includes(operation.status)) {
       openTool("results");
       requestAnimationFrame(() => {
-        if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+        if (isMobileWorkspace()) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       });
     }
   };
@@ -955,7 +957,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
     if (["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
       setActiveTool("findings");
-      if (window.matchMedia("(max-width:980px)").matches) cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      if (isMobileWorkspace()) cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   };
 

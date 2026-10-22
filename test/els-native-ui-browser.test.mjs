@@ -773,6 +773,38 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
   },{mobile:true});
  });
 
+test('native UI: a touch phone in desktop-site viewport still scrolls the research workspace with the page',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+  await withNative({width:1024,height:844},async page=>{
+   const panelWrap=page.locator('.els29-native-panel-wrap');
+   const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
+   await panel.waitFor({state:'visible'});
+   const layout=await page.evaluate(()=>({
+    coarse:matchMedia('(pointer:coarse) and (hover:none)').matches,
+    position:getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
+    panelHeight:getComputedStyle(document.querySelector('.els29-native-context-panel')).height,
+    railOverflow:getComputedStyle(document.querySelector('.els29-native-rail-scroll')).overflowY,
+    matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,
+    panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,
+   }));
+   assert.equal(layout.coarse,true,'fixture reproduces a touch phone requesting a desktop-sized viewport');
+   assert.equal(await panelWrap.getAttribute('data-mobile-inline-workspace'),'true');
+   assert.equal(layout.position,'relative');
+   assert.ok(layout.panelStart>=layout.matrixEnd,'research workspace follows the matrix instead of overlaying it');
+   assert.notEqual(layout.panelHeight,'620px','workspace height is owned by the page, not a capped inner sheet');
+   assert.equal(layout.railOverflow,'visible','findings do not create a second vertical scrollbar');
+   assert.equal(await button(page,'הצמד').count(),0,'desktop-site mode does not expose desktop pinning on a touch phone');
+   assert.equal(await button(page,'סגור כלי מטריצה').count(),0);
+   const movement=await panelWrap.evaluate(async element=>{
+    const before=element.getBoundingClientRect().top;
+    scrollTo(0,Math.min(500,document.documentElement.scrollHeight-innerHeight));
+    await new Promise(resolve=>requestAnimationFrame(resolve));
+    return {before,after:element.getBoundingClientRect().top,scrollY};
+   });
+   assert.ok(movement.scrollY>0&&movement.after<movement.before,'the whole workspace continues with normal page scrolling');
+  },{mobile:true});
+ });
+
 test('native UI: desktop local rail and mobile contextual workspace own ELS tools while the shared bottom bar stays out',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
