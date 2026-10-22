@@ -46,6 +46,7 @@ export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
   modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
+  researchBundleByExpression = {},
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
@@ -66,9 +67,12 @@ export async function runAiAnalyze({
     if (url.origin === "https://fixture.invalid") {
       if (url.pathname === "/functions/v1/research-run") {
         if (researchRunFailure) return response({ status: "error", error: researchRunFailure }, 200);
-        const bundle = researchBundleByNumber[payload?.number];
+        const expressionContract = payload?.contract === "public-expression-crossing-run-v1";
+        const bundle = expressionContract
+          ? researchBundleByExpression[payload?.expression]
+          : researchBundleByNumber[payload?.number];
         return bundle
-          ? response({ status: "ok", contract: "public-number-research-run-v1", trace_id: randomUUID(), bundle })
+          ? response({ status: "ok", contract: payload?.contract, trace_id: randomUUID(), bundle })
           : response({ status: "error", error: "research_fixture_missing" }, 200);
       }
       if (url.pathname === "/auth/v1/user") return response(verifiedUid ? { id: verifiedUid } : {}, verifiedUid ? 200 : 401);

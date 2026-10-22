@@ -1178,6 +1178,11 @@ type RazielConversationNumberHint = {
   requestedAction: "connect" | "research" | "understand" | "continue";
 };
 
+type RazielConversationExpressionHint = {
+  expression: string;
+  requestedAction: "connect";
+};
+
 // Client conversation state is never authority. W2 admits public decimal anchors from an exact
 // resolver version and a bounded anaphoric question. W3 also admits exact single-number
 // definition/research sentences and explicit two-number 2029 research sentences only when their
@@ -1247,6 +1252,27 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
   if (researchPair && requestedAction !== "research") return null;
   if (connectionPair && requestedAction !== "connect") return null;
   return { numbers: numbers as [number] | [number, number], requestedAction };
+}
+
+// The phrase envelope is a hint, never execution authority. It is admitted only when the current
+// question has one exact crossing-target slot and the projected phrase repeats that slot exactly.
+// Carried text, pairs, arbitrary prose and non-Hebrew inputs fail closed.
+function razielConversationExpressionHint(raw: any, originalQuestion: unknown): RazielConversationExpressionHint | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  if (raw.version !== "raziel-conversation-resolver-v1" || raw.requested_action !== "connect") return null;
+  if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
+  const identities = Array.isArray(raw.identities) ? raw.identities : [];
+  if (identities.length !== 1) return null;
+  const identity = identities[0];
+  if (!identity || typeof identity !== "object" || Array.isArray(identity) || identity.type !== "phrase") return null;
+  const label = rzClean(identity.label, 120);
+  if (!label || !/[\u0590-\u05ff]/u.test(label) || identity.identity_key !== `phrase:${label}`) return null;
+
+  const q = rzClean(originalQuestion, 300).replace(/[־–—-]/g, " ").replace(/[?؟!.]+$/g, "").replace(/\s+/g, " ").trim();
+  const match = /^(?:מצא|מצאי|חפש|חפשי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:למילה|לביטוי)\s+(.+)$/u.exec(q);
+  const textualExpression = match ? rzClean(match[1], 120) : "";
+  if (!textualExpression || textualExpression !== label) return null;
+  return { expression: label, requestedAction: "connect" };
 }
 
 function razielSurfaceNumberRoot(sc: any): number | null {
@@ -1393,9 +1419,12 @@ async function runRazielNumberContext(desc: { number: number; anchor: string; mo
 // does not execute an engine, make an access decision, persist, or call a model. Legacy callers send
 // no research_contract and therefore remain on the Phase-H adapter above unchanged.
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
+const RAZIEL_CANONICAL_EXPRESSION_CROSSING_CONTRACT = "public-expression-crossing-run-v1";
 type RazielCanonicalBundleRead = {
   ok: boolean;
-  number: number;
+  number: number | null;
+  expression: string | null;
+  contract: string;
   outcome: string;
   traceId: string | null;
   projection: any | null;
@@ -1407,10 +1436,12 @@ function razielCanonicalBundleOptedIn(body: any): boolean {
   return body?.research_contract === RAZIEL_CANONICAL_RESEARCH_CONTRACT;
 }
 
-async function runRazielCanonicalNumberBundle({
-  number, question, visitorId, interactionId, authorization, trace,
+async function runRazielCanonicalBundle({
+  contract, number = null, expression = null, question, visitorId, interactionId, authorization, trace,
 }: {
-  number: number;
+  contract: string;
+  number?: number | null;
+  expression?: string | null;
   question: string;
   visitorId: unknown;
   interactionId: unknown;
@@ -1421,27 +1452,34 @@ async function runRazielCanonicalNumberBundle({
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
   let out: RazielCanonicalBundleRead = {
-    ok: false, number, outcome: "failed_with_reason", traceId: null, projection: null,
+    ok: false, number, expression, contract, outcome: "failed_with_reason", traceId: null, projection: null,
     error: "research_run_unavailable", ms: 0,
   };
   try {
     const auth = String(authorization || "").trim();
+    const numberContract = contract === RAZIEL_CANONICAL_RESEARCH_CONTRACT;
+    const expressionContract = contract === RAZIEL_CANONICAL_EXPRESSION_CROSSING_CONTRACT;
+    const safeExpression = expressionContract ? rzClean(expression, 120) : "";
     if (!SB_URL || !SB_ANON || !/^Bearer\s+\S+$/i.test(auth)) {
       out.error = "caller_credentials_unavailable";
-    } else if (!Number.isInteger(number) || number < 1 || number > 999999) {
+    } else if (!numberContract && !expressionContract) {
+      out.error = "invalid_research_contract";
+    } else if (numberContract && (!Number.isInteger(number) || Number(number) < 1 || Number(number) > 999999)) {
       out.error = "invalid_number_anchor";
+    } else if (expressionContract && (!safeExpression || !/[\u0590-\u05ff]/u.test(safeExpression))) {
+      out.error = "invalid_expression_anchor";
     } else {
       const response = await fetch(`${SB_URL}/functions/v1/research-run`, {
         method: "POST",
         headers: { apikey: SB_ANON, Authorization: auth, "Content-Type": "application/json" },
         body: JSON.stringify({
-          contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
-          number,
+          contract,
+          ...(numberContract ? { number } : { expression: safeExpression }),
           question: String(question || "").slice(0, 500),
           visitor_id: String(visitorId || "").slice(0, 80),
           interaction_id: String(interactionId || "").slice(0, 180),
-          requested_capabilities: ["numeric", "numeric_operators"],
-          surface: "number",
+          requested_capabilities: numberContract ? ["numeric", "numeric_operators"] : ["crossings"],
+          surface: numberContract ? "number" : "raziel",
         }),
         signal: AbortSignal.timeout(15000),
       });
@@ -1449,7 +1487,7 @@ async function runRazielCanonicalNumberBundle({
       if (!response.ok) {
         out.outcome = response.status === 401 || response.status === 403 ? "access_filtered" : "failed_with_reason";
         out.error = `research_run_http_${response.status}`;
-      } else if (payload?.status !== "ok" || payload?.contract !== RAZIEL_CANONICAL_RESEARCH_CONTRACT || !payload?.bundle) {
+      } else if (payload?.status !== "ok" || payload?.contract !== contract || !payload?.bundle) {
         out.outcome = payload?.error === "access_filtered" ? "access_filtered" : "failed_with_reason";
         out.error = typeof payload?.error === "string" ? payload.error.slice(0, 80) : "invalid_research_run_response";
         out.traceId = safeTraceUuid(payload?.trace_id);
@@ -1458,6 +1496,8 @@ async function runRazielCanonicalNumberBundle({
         out = {
           ok: true,
           number,
+          expression: expressionContract ? safeExpression : null,
+          contract,
           outcome: projection?.model_input?.coverage?.partial === true ? "partial" : "success",
           traceId: safeTraceUuid(payload.trace_id),
           projection,
@@ -1480,7 +1520,9 @@ async function runRazielCanonicalNumberBundle({
     endedAt: new Date().toISOString(),
     outcome: out.outcome,
     detail: {
-      capability: "research-w2:public-number",
+      capability: contract === RAZIEL_CANONICAL_RESEARCH_CONTRACT
+        ? "research-w2:public-number"
+        : "research-w2:public-expression-crossings",
       owner_ref: "research_strategy_layer_law v17 + research_workspace_law v5",
       routing_reason: "explicit_2029_result_bundle_consumer",
       output_use: out.ok ? "used" : "rejected",
@@ -1493,9 +1535,9 @@ async function runRazielCanonicalNumberBundle({
       } : null,
       cost: { certainty: "not_billable" },
       replay: {
-        inputRef: `number:${number}`,
+        inputRef: contract === RAZIEL_CANONICAL_RESEARCH_CONTRACT ? `number:${number}` : "expression:ephemeral-public-query",
         ownerRuleRefs: ["research_strategy_layer_law v17", "research_workspace_law v5"],
-        parametersRef: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+        parametersRef: contract,
       },
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     },
@@ -1505,7 +1547,9 @@ async function runRazielCanonicalNumberBundle({
 
 function razielCanonicalBundlePrompt(reads: RazielCanonicalBundleRead[]): string {
   const bundles = reads.filter((read) => read.ok && read.projection).map((read) => ({
-    number: read.number,
+    subject: read.number != null
+      ? { type: "number", value: read.number }
+      : { type: "expression", value: read.expression },
     result: read.projection.model_input,
   }));
   if (!bundles.length) return "";
@@ -1518,16 +1562,36 @@ function razielCanonicalBundlePrompt(reads: RazielCanonicalBundleRead[]): string
 
 function razielCanonicalBundleFallback(reads: RazielCanonicalBundleRead[]): string {
   const sections = reads.filter((read) => read.ok && read.projection).map((read) => {
+    const subjectLabel = read.number != null ? String(read.number) : (read.expression || "הביטוי");
+    const findings = Array.isArray(read.projection?.model_input?.findings) ? read.projection.model_input.findings : [];
+    const crossingLines = findings
+      .filter((finding: any) => finding?.kind === "gematria-crossing")
+      .slice(0, 6)
+      .map((finding: any) => {
+        const label = ncText(finding?.subject?.label, 120) || subjectLabel;
+        const methods = Array.isArray(finding?.verification?.engine_result?.methods)
+          ? finding.verification.engine_result.methods.slice(0, 8).map((entry: any) => {
+              const method = ncText(entry?.method, 40);
+              const value = typeof entry?.value === "number" ? String(entry.value) : "";
+              return method && value ? `${method}=${value}` : "";
+            }).filter(Boolean)
+          : [];
+        return `• ${label}${methods.length ? ` · התאמה: ${methods.join(" · ")}` : ""}`;
+      });
+    if (crossingLines.length) {
+      return [`הצלבות קנוניות עבור ${subjectLabel}:`, ...crossingLines,
+        "ההתאמות הן התכנסות בין שיטות; עצמאות בין משפחות החישוב לא נטענה."].join("\n");
+    }
     const cards = Array.isArray(read.projection?.human_view?.cards) ? read.projection.human_view.cards : [];
     const lines = cards.slice(0, 6).map((card: any) => {
-      const label = ncText(card?.label, 100) || `מספר ${read.number}`;
+      const label = ncText(card?.label, 100) || subjectLabel;
       const method = ncText(card?.method, 50);
       const scalar = typeof card?.value === "number" || typeof card?.value === "string" ? ncText(String(card.value), 80) : "";
       const source = ncText(card?.source_name, 100);
       return `• ${label}${method ? ` · ${method}` : ""}${scalar ? ` · ${scalar}` : ""}${source ? ` · מקור: ${source}` : ""}`;
     });
-    if (!lines.length) return `למספר ${read.number} לא חזר ממצא חיובי בחיפוש הקנוני התחום. אין זו הוכחה שאין קשרים במקורות אחרים.`;
-    return [`ממצאים מאומתים עבור ${read.number}:`, ...lines].join("\n");
+    if (!lines.length) return `ל־${subjectLabel} לא חזר ממצא חיובי בחיפוש הקנוני התחום. אין זו הוכחה שאין קשרים במקורות אחרים.`;
+    return [`ממצאים קנוניים עבור ${subjectLabel}:`, ...lines].join("\n");
   });
   return sections.join("\n\n").slice(0, 3000);
 }
@@ -2251,6 +2315,9 @@ Deno.serve(async (req: Request) => {
       const rConversationHint = rTrusted
         ? null
         : razielConversationNumberHint(body?.conversation_resolution, rSubject);
+      const rExpressionCrossingHint = rTrusted
+        ? null
+        : razielConversationExpressionHint(body?.conversation_resolution, rSubject);
       let rSemanticHint: RazielConversationNumberHint | null = null;
       // Multimodal source stage FIRST (trusted internal path only). When a source is attached, caption/subject words never fall
       // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.
@@ -2376,7 +2443,7 @@ Deno.serve(async (req: Request) => {
       // admits only 1-2 public numeric subjects; Research Plan / research-run still own execution.
       // One FAST attempt, bounded output, separately traced and costed.
       const rSemanticEligible = rCanonicalResearchOptIn
-        && !rTrusted && body?.conversation_resolution == null && !rConversationHint
+        && !rTrusted && body?.conversation_resolution == null && !rConversationHint && !rExpressionCrossingHint
         && !!rSubject && /\d{1,6}/u.test(rSubject) && !rTrusted?.media
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
@@ -2489,7 +2556,7 @@ Deno.serve(async (req: Request) => {
       // route supplied evidence, fail closed instead of letting the generic model improvise around
       // an untrusted subject. Legacy callers are unchanged because they do not opt into this contract.
       const rRejectedConversationEnvelope = rCanonicalResearchOptIn
-        && body?.conversation_resolution != null && !rConversationHint
+        && body?.conversation_resolution != null && !rConversationHint && !rExpressionCrossingHint
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
       if (rRejectedConversationEnvelope) {
@@ -2596,8 +2663,44 @@ Deno.serve(async (req: Request) => {
       // signed-in users. Trusted internal/WhatsApp traffic is intentionally excluded from this site seam.
       const canonicalNumbers = rNcPairDesc?.numbers
         ?? (rNcDesc?.mode === "synthesis" ? [rNcDesc.number] : []);
-      if (rCanonicalResearchOptIn && canonicalNumbers.length) {
-        rCanonicalBundleReads = await Promise.all(canonicalNumbers.map((number) => runRazielCanonicalNumberBundle({
+      if (rCanonicalResearchOptIn && rExpressionCrossingHint) {
+        const expressionRead = await runRazielCanonicalBundle({
+          contract: RAZIEL_CANONICAL_EXPRESSION_CROSSING_CONTRACT,
+          expression: rExpressionCrossingHint.expression,
+          question: rSubject,
+          visitorId: body?.visitor_id,
+          interactionId: body?.interaction_id,
+          authorization: req.headers.get("authorization") || "",
+          trace: activeTrace,
+        });
+        rCanonicalBundleReads = [expressionRead];
+        if (expressionRead.ok && expressionRead.projection) {
+          rCanonicalBundlePack = razielCanonicalBundlePrompt(rCanonicalBundleReads);
+          rNcFallback = razielCanonicalBundleFallback(rCanonicalBundleReads);
+          rCanonicalBundleSources = razielCanonicalBundleSources(rCanonicalBundleReads);
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            canonical_result_bundle: {
+              contract: RAZIEL_CANONICAL_EXPRESSION_CROSSING_CONTRACT,
+              status: "ready",
+              subject_type: "expression",
+              trace_refs: [expressionRead.traceId].filter(Boolean),
+            },
+          };
+        } else {
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            canonical_result_bundle: {
+              contract: RAZIEL_CANONICAL_EXPRESSION_CROSSING_CONTRACT,
+              status: "fallback",
+              subject_type: "expression",
+              reasons: [expressionRead.error].filter(Boolean),
+            },
+          };
+        }
+      } else if (rCanonicalResearchOptIn && canonicalNumbers.length) {
+        rCanonicalBundleReads = await Promise.all(canonicalNumbers.map((number) => runRazielCanonicalBundle({
+          contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
           number,
           question: rSubject,
           visitorId: body?.visitor_id,
@@ -2825,7 +2928,10 @@ Deno.serve(async (req: Request) => {
       // The rewrite is independently guarded and logged; neither rejected draft can reach the user.
       let finalRel = rel;
       let finalTruthRejected = firstRazielTruthRejected;
-      let truthFallbackUsed = false;
+      // 2029 canonical-Bundle requests already hold a deterministic evidence fallback. If the
+      // provider itself degrades, return that evidence instead of an empty analysis. Legacy and
+      // trusted-channel behavior stays byte-for-byte on its existing guardian path.
+      let truthFallbackUsed = rel.degraded && rCanonicalResearchOptIn && !!rNcFallback;
       if (firstRazielTruthRejected) {
         const retrySpanId = crypto.randomUUID();
         const retryStartedAt = new Date().toISOString();

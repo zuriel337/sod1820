@@ -24,7 +24,8 @@ export const RAZIEL_RESULT_BUNDLE_LIMITS = Object.freeze({
 const SAFE_DETAIL_KEYS = new Set([
   "type", "kind", "label", "text", "value", "values", "result", "results",
   "expression", "expressions", "method", "method_key", "methodKey", "method_version",
-  "methodVersion", "engine", "corpus", "source", "source_ref", "sourceRef", "ref", "refs",
+  "methodVersion", "methods", "method_count", "minimum_required_methods", "partner",
+  "dependency_independence_claimed", "engine", "corpus", "source", "source_ref", "sourceRef", "ref", "refs",
   "locator", "relation", "relations", "left", "right", "number", "numbers", "count", "found",
   "status", "scope", "operation", "reason", "book", "chapter", "verse", "index", "start", "end",
   "length", "skip", "signedSkip", "dir", "direction", "occurrence", "coordinates", "matches",

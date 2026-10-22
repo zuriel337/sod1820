@@ -98,6 +98,43 @@ test("phrase pair preserves derivation, convergence and independent evidence wit
   assert.equal(out.model_input.findings[1].evidence_relations[0].expectedness_model, "fixture-v1");
 });
 
+test("crossing evidence keeps bounded methods and partner while free-form payload remains blocked", () => {
+  const f = makeUniversalFinding({
+    id: "uf:crossing:messiah:shalom",
+    kind: "gematria-crossing",
+    subject: { type: "relation", key: "crossing:messiah:shalom", label: "משיח ↔ שלום", lang: "he" },
+    source: { engine: "strongest_crossings", adapter: "gematria-corpus-crossing-w2-v1", sourceRef: "rpc:strongest_crossings", lang: "he" },
+    identity: { sourceIdentity: "crossing:messiah:shalom", relationRef: "crossing:messiah:shalom" },
+    verification: {
+      engine_method_tested: "strongest_crossings",
+      engine_result: {
+        method_count: 2,
+        methods: [{ method: "אתבש", value: 112 }, { method: "סידורי", value: 52 }],
+        dependency_independence_claimed: false,
+        arbitrary_commentary: "DROP",
+      },
+      verification_state: "not_tested",
+    },
+    evidence: {
+      refs: ["rpc:strongest_crossings"],
+      facts: [{ type: "gematria-multi-method-corpus-crossing", expression: "משיח", partner: "שלום", method_count: 2 }],
+    },
+    access: { tier: "public" },
+    provenance: { createdBy: "ENGINE:strongest_crossings" },
+  });
+  const out = buildRazielResultBundleConsumer(publicBundle({ findings: [f] }));
+  const projected = out.model_input.findings[0];
+
+  assert.deepEqual(projected.verification.engine_result.methods, [
+    { method: "אתבש", value: 112 },
+    { method: "סידורי", value: 52 },
+  ]);
+  assert.equal(projected.verification.engine_result.method_count, 2);
+  assert.equal(projected.verification.engine_result.dependency_independence_claimed, false);
+  assert.equal(projected.evidence.facts[0].partner, "שלום");
+  assert.doesNotMatch(JSON.stringify(out), /arbitrary_commentary|DROP/);
+});
+
 test("negative, failed and missing capabilities remain distinct and visible", () => {
   const bundle = publicBundle({
     capabilities: [

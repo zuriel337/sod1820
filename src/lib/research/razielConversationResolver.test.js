@@ -231,6 +231,16 @@ test("extracts an explicit phrase pair and a corpus-crossing target", () => {
   const corpus = resolveRazielConversationTurn({ question: "מצא לי קשרים למילה משיח" });
   assert.deepEqual(ids(corpus), ["משיח"]);
   assert.equal(corpus.requested_action, "connect");
+  assert.deepEqual(projectRazielConversationResolution(corpus), {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "connect",
+    referential_follow_up: false,
+    referent_source: "explicit_current_turn",
+    identities: [{ type: "phrase", label: "משיח", identity_key: "phrase:משיח" }],
+    pair: null,
+    guards: { semantic_hint_only: true, server_must_reauthorize: true },
+  });
+  assert.equal(projectRazielConversationResolution(pair), null, "phrase pairs stay on the separate authenticated pair contract");
 });
 
 test("supports every canonical identity kind from a prior resolved turn", () => {
@@ -268,7 +278,7 @@ test("rejects unsafe or out-of-range surface subjects", () => {
   }
 });
 
-test("transport projection is number-only and strips private owner fields", () => {
+test("transport projection strips private owner fields from numeric subjects", () => {
   const resolved = resolveRazielConversationTurn({
     question: "תבדוק את זה מול 1820",
     thread: [{

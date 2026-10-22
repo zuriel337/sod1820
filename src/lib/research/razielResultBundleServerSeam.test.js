@@ -10,6 +10,7 @@ import {
 } from "./researchResultBundle.js";
 
 const CONTRACT = "public-number-research-run-v1";
+const EXPRESSION_CONTRACT = "public-expression-crossing-run-v1";
 const PRIVATE = "RAW-PRIVATE-BUNDLE-SENTINEL";
 const LEGACY_MEMORY = "LEGACY-PERSISTENT-MEMORY-SENTINEL";
 
@@ -80,6 +81,54 @@ function numberBundle(number, sourceName = "ספר יצירה") {
   });
 }
 
+function expressionCrossingBundle(expression, partner = "שלום") {
+  const finding = makeUniversalFinding({
+    id: `uf:crossing:${expression}:${partner}`,
+    kind: "gematria-crossing",
+    subject: { type: "relation", key: `crossing:${expression}:${partner}`, label: `${expression} ↔ ${partner}`, lang: "he" },
+    source: {
+      engine: "strongest_crossings",
+      adapter: "gematria-corpus-crossing-w2-v1",
+      name: "מאגר הביטויים",
+      sourceRef: "rpc:strongest_crossings",
+      method: "strongest_crossings",
+      corpus: "gematria_words/bidim",
+      lang: "he",
+    },
+    identity: { sourceIdentity: `crossing:${expression}:${partner}`, relationRef: `crossing:${expression}:${partner}` },
+    verification: {
+      engine_method_tested: "strongest_crossings",
+      engine_result: {
+        relation_kind: "multi_method_corpus_convergence",
+        method_count: 2,
+        methods: [{ method: "אתבש", value: 112 }, { method: "סידורי", value: 52 }],
+        dependency_independence_claimed: false,
+      },
+      verification_state: "not_tested",
+    },
+    evidence: { refs: ["rpc:strongest_crossings"], facts: [{ type: "gematria-multi-method-corpus-crossing", expression, partner }] },
+    access: { tier: "public" },
+    provenance: { createdBy: "ENGINE:strongest_crossings", inputRef: "expression:fixture" },
+  });
+  return composeResearchResultBundle({
+    query: {
+      question: "חיפוש הצלבות קנוני במאגר הציבורי",
+      intent: "gematria_crossing",
+      identities: [{ type: "phrase", label: expression, ref: `phrase:${expression}`, access: { tier: "public" } }],
+    },
+    capabilities: [capabilityResult({
+      key: "crossings",
+      owner: "research_strategy_layer_law v17",
+      findings: [finding],
+      sourceRefs: ["rpc:strongest_crossings"],
+      versionRefs: ["gematria-corpus-crossing-w2-v1"],
+      accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
+      semanticClass: "derivation",
+      cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0 },
+    })],
+  });
+}
+
 function noMatchAnswer() {
   return {
     enabled: true,
@@ -118,6 +167,97 @@ function conversation(numbers, requestedAction = numbers.length === 2 ? "researc
     identities: numbers.map((value) => ({ type: "number", value, identity_key: `number:${value}` })),
   };
 }
+
+function expressionConversation(expression) {
+  return {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "connect",
+    referential_follow_up: false,
+    referent_source: "explicit_current_turn",
+    identities: [{ type: "phrase", label: expression, identity_key: `phrase:${expression}` }],
+  };
+}
+
+test("2029 exact expression crossing consumes the same canonical Bundle without a second engine", async () => {
+  const expression = "משיח";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: `מצא לי הצלבות למילה ${expression}`,
+      visitor_id: "vexpressioncrossing123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: expressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(researchCalls.length, 1);
+  assert.equal(researchCalls[0].payload.contract, EXPRESSION_CONTRACT);
+  assert.equal(researchCalls[0].payload.expression, expression);
+  assert.deepEqual(researchCalls[0].payload.requested_capabilities, ["crossings"]);
+  assert.equal(researchCalls[0].payload.surface, "raziel");
+  assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
+  assert.equal(run.models.length, 1);
+  assert.match(run.models[0].user, /gematria-crossing/);
+  assert.match(run.models[0].user, /משיח ↔ שלום/);
+  assert.match(run.models[0].user, /dependency_independence_claimed/);
+  assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.contract, EXPRESSION_CONTRACT);
+  assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
+  assert.deepEqual(run.result.raziel.sources, [{ original_name: "מאגר הביטויים", source_ref: "rpc:strongest_crossings", lang: "he" }]);
+  assert.equal(JSON.stringify(run.traces).includes(expression), false, "expression must not enter operational trace");
+});
+
+test("expression crossing keeps a deterministic evidence fallback when synthesis degrades", async () => {
+  const expression = "משיח";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    modelResult: {
+      text: "",
+      usage: { input_tokens: 7, output_tokens: 0 },
+      attempts: 1,
+      degraded: true,
+      reason: "synthetic_provider_error",
+    },
+    body: {
+      subject: `מצא לי הצלבות למילה ${expression}`,
+      visitor_id: "vexpressionfallback123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: expressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+  });
+
+  assert.equal(run.result.degraded, true);
+  assert.ok(run.result.raziel, JSON.stringify(run.result));
+  assert.match(run.result.raziel.answer, /משיח ↔ שלום/);
+  assert.match(run.result.raziel.answer, /אתבש=112/);
+  assert.match(run.result.raziel.answer, /עצמאות.*לא נטענה/);
+});
+
+test("crafted expression envelope cannot select a phrase absent from the exact question slot", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מצא לי הצלבות למילה משיח",
+      visitor_id: "vexpressionguard123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: expressionConversation("שלום"),
+    },
+  });
+
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
+  assert.equal(run.result.engine, "conversation_resolution_guard");
+});
 
 function numberContext(number) {
   return {

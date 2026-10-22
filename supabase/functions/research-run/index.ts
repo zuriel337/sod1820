@@ -13,6 +13,8 @@
 //
 // Bounded contracts:
 //   - public-number-research-run-v1 keeps its exact deterministic numeric/numeric_operators path;
+//   - public-expression-crossing-run-v1 admits one bounded Hebrew expression for one existing
+//     strongest_crossings public-corpus call;
 //   - personal-gematria-pair-run-v1 admits exactly two personal expressions for one canonical
 //     fn_relation_candidate call by an authenticated user.
 // Identity inference, private research_objects, graph/ELS dispatch, persistence and every
@@ -27,8 +29,9 @@
 
 import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";
 import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
+import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/research/gematriaCorpusCrossingW2Executor.js";
 import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";
-import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
+import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
 import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";
 
 const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") || "").trim();
@@ -188,6 +191,8 @@ Deno.serve(async (req: Request) => {
 
   const userId = await verifiedUserId(authHeader);
   const personalPair = run.contract === PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT;
+  const expressionCrossing = run.contract === PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT;
+  const publicNumber = !personalPair && !expressionCrossing;
   // Pair input is personal research. A visitor id is never an authentication substitute and the
   // rejection happens before trace/gate/relation I/O.
   if (personalPair && !userId) {
@@ -202,12 +207,22 @@ Deno.serve(async (req: Request) => {
   const identityClass = userId ? "authenticated_user" : "public_user";
   const executionCapability = personalPair
     ? "research-w2:gematria-relations"
-    : "research-w2:public-number";
-  const subjectRef = personalPair ? "expression-pair:ephemeral" : `number:${run.number}`;
+    : expressionCrossing
+      ? "research-w2:public-expression-crossings"
+      : "research-w2:public-number";
+  // Expression text is never copied into operational trace/replay. It exists only in the ephemeral
+  // caller-scoped composition input and the response returned to that caller.
+  const subjectRef = personalPair
+    ? "expression-pair:ephemeral"
+    : expressionCrossing
+      ? "expression:ephemeral-public-query"
+      : `number:${run.number}`;
   const routingReason = personalPair
     ? "explicit_authenticated_personal_gematria_pair_v1"
-    : "explicit_public_number_golden";
-  const replayInputRef = personalPair ? "expression-pair:ephemeral" : `number:${run.number}`;
+    : expressionCrossing
+      ? "explicit_public_expression_crossing_v1"
+      : "explicit_public_number_golden";
+  const replayInputRef = subjectRef;
 
   // ── Operational Trace: root ─────────────────────────────────────────────────────────────
   // Service role only. Fail CLOSED: if the root trace cannot begin, no gate/compose call runs.
@@ -303,7 +318,7 @@ Deno.serve(async (req: Request) => {
   });
   let presentationRanking: any[] = [];
   const numericExecutor = baseExecutors.numeric;
-  const publicExecutors = !personalPair && typeof numericExecutor === "function"
+  const publicExecutors = publicNumber && typeof numericExecutor === "function"
     ? Object.freeze({
         ...baseExecutors,
         numeric: async (args: any) => {
@@ -367,7 +382,14 @@ Deno.serve(async (req: Request) => {
           maxPairs: 1,
         }),
       })
-    : publicExecutors;
+    : expressionCrossing
+      ? Object.freeze({
+          [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]: createGematriaCorpusCrossingW2Executor({
+            supabase: callerRpc,
+            limit: 8,
+          }),
+        })
+      : publicExecutors;
 
   const capabilityEvents: any[] = [];
   const composeSpanId = crypto.randomUUID();
@@ -388,9 +410,9 @@ Deno.serve(async (req: Request) => {
       question: run.question,
       intent: run.intent,
       identityCandidates: run.identity_candidates,
-      rawInput: personalPair ? null : String(run.number),
+      rawInput: personalPair ? null : expressionCrossing ? run.expression : String(run.number),
       intake: personalPair ? run.intake : null,
-      explicitTextComputation: false,
+      explicitTextComputation: expressionCrossing,
       authorizationContext,
       contextType: identityClass,
       surfaceContext: run.surface_context,
@@ -398,9 +420,13 @@ Deno.serve(async (req: Request) => {
       // No identity/text inference ever widens this transport's execution plan beyond the exact
       // capabilities the validated request asked for — even if `question` free text mentions more.
       capabilityAllowlist: run.requested_capabilities,
-      requestedDepth: personalPair ? "personal_gematria_pair_v1" : "golden_public_number_v1",
+      requestedDepth: personalPair
+        ? "personal_gematria_pair_v1"
+        : expressionCrossing
+          ? "public_expression_crossing_v1"
+          : "golden_public_number_v1",
       executors,
-      rankingResolver: personalPair ? null : () => presentationRanking,
+      rankingResolver: publicNumber ? () => presentationRanking : null,
       // Timestamps/status/counts only — never raw Findings/content cross this boundary.
       executionObserver: (event: any) => capabilityEvents.push(event),
     });
@@ -418,7 +444,9 @@ Deno.serve(async (req: Request) => {
   const composeEndedAt = new Date().toISOString();
   const planRef = personalPair
     ? "research-plan-v2:personal-gematria-pair"
-    : `research-plan-v2:number:${run.number}`;
+    : expressionCrossing
+      ? "research-plan-v2:public-expression-crossing"
+      : `research-plan-v2:number:${run.number}`;
   const composeTraced = await serviceRpc("op_trace_record_span_v1", {
     p_trace_id: traceId,
     p_span_id: composeSpanId,

@@ -7,10 +7,11 @@ import {runInNewContext} from 'node:vm';
 import {randomUUID} from 'node:crypto';
 import {composeResearchW2} from '../../src/lib/research/researchComposerW2.js';
 import {createCanonicalW2Executors as createPublicNumberW2Executors} from '../../src/lib/research/researchW2ExecutorsBase.js';
+import {createGematriaCorpusCrossingW2Executor} from '../../src/lib/research/gematriaCorpusCrossingW2Executor.js';
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
-import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
+import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
 import {mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT} from '../../src/lib/research/numberPhrasePresentationOrder.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,leadRows=[],leadReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,crossingRows=[],leadRows=[],leadReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -71,14 +72,16 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       independent_evidence:{edges:[],topic_cards:[],research_objects:[]},noise_flags:[],
       engine_signal_components:{effective_independent_group_count:1},
     });
+    if(name==='strongest_crossings')return response(crossingRows);
     unexpected.push(req.url);throw new Error(`Unknown RPC ${name}`);
   };
   const imports=[...source.matchAll(/^import .*;$/gm)].map(([s])=>s);
   assert.deepEqual(imports,[
     'import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";',
     'import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";',
+    'import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/research/gematriaCorpusCrossingW2Executor.js";',
     'import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";',
-    'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
+    'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
     'import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";',
   ],'Review new Edge imports before executing them');
   let handler;
@@ -86,8 +89,8 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm,'')),{
     Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn;}},fetch:transport,
     composeResearchW2:composerFailure?()=>{throw new Error('Isolated composer failure');}:composeResearchW2,
-    createPublicNumberW2Executors,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
-    PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
+    createPublicNumberW2Executors,createGematriaCorpusCrossingW2Executor,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
+    PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
     mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT,
     Request,Response,Headers,URL,crypto:{randomUUID},
   },{filename:'research-run/index.ts',timeout:5000});

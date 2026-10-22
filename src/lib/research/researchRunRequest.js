@@ -17,6 +17,8 @@ import { buildResearchIntakeTransport } from "./researchIntakeTransport.js";
 import { normalizeForCalc, onlyHeb } from "../gematria.js";
 
 export const PUBLIC_NUMBER_RESEARCH_RUN_CONTRACT = "public-number-research-run-v1";
+export const PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT = "public-expression-crossing-run-v1";
+export const PUBLIC_EXPRESSION_CROSSING_CAPABILITY = RESEARCH_CAPABILITY.CROSSINGS;
 export const PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT = "personal-gematria-pair-run-v1";
 export const PERSONAL_GEMATRIA_PAIR_CAPABILITY = RESEARCH_CAPABILITY.GEMATRIA_RELATIONS;
 export const PERSONAL_GEMATRIA_PAIR_MAX_CODEPOINTS = 160;
@@ -30,6 +32,7 @@ export const PUBLIC_NUMBER_RESEARCH_CAPABILITIES = Object.freeze([
 const ALLOWED_CAPABILITIES = new Set(PUBLIC_NUMBER_RESEARCH_CAPABILITIES);
 const ALLOWED_SURFACES = new Set(["number", "heichal", "world", "system"]);
 const PAIR_ALLOWED_SURFACES = new Set([...ALLOWED_SURFACES, "raziel"]);
+const EXPRESSION_ALLOWED_SURFACES = PAIR_ALLOWED_SURFACES;
 const CONTROL_CHARACTER_RE = /[\u0000-\u001f\u007f-\u009f]/u;
 
 function clean(value) {
@@ -68,6 +71,11 @@ function exactPairExpression(value, index) {
     throw new TypeError(`research-run: expression ${index + 1} requires Hebrew text`);
   }
   return { expression, normalized };
+}
+
+function exactPublicCrossingExpression(value) {
+  const parsed = exactPairExpression(value, 0);
+  return parsed;
 }
 
 /**
@@ -196,6 +204,53 @@ export function normalizePersonalGematriaPairResearchRunRequest(input = {}) {
 }
 
 /**
+ * Validate the public, ephemeral single-expression corpus-crossing contract.
+ *
+ * This contract is deliberately narrower than general Gematria research: it admits one bounded
+ * Hebrew expression and one fixed capability. Caller-supplied capability, authority, publication,
+ * persistence and ranking fields are ignored, so the request cannot widen the execution plan.
+ */
+export function normalizePublicExpressionCrossingResearchRunRequest(input = {}) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new TypeError("research-run: object body required");
+  }
+
+  const { expression, normalized } = exactPublicCrossingExpression(input.expression);
+  const surface = clean(input.surface) || "raziel";
+  if (!EXPRESSION_ALLOWED_SURFACES.has(surface)) {
+    throw new TypeError("research-run: unsupported surface");
+  }
+
+  return Object.freeze({
+    contract: PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,
+    expression,
+    normalized_expression: normalized,
+    question: "חיפוש הצלבות קנוני במאגר הציבורי",
+    intent: "gematria_crossing",
+    visitor_id: clean(input.visitor_id) || null,
+    interaction_id: clean(input.interaction_id).slice(0, 180) || null,
+    requested_capabilities: Object.freeze([PUBLIC_EXPRESSION_CROSSING_CAPABILITY]),
+    identity_candidates: Object.freeze([Object.freeze({
+      type: "phrase",
+      value: expression,
+      label: expression,
+      ref: `phrase:${normalized}`,
+      source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
+      confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+      access: Object.freeze({ tier: "public" }),
+    })]),
+    surface_context: Object.freeze({
+      surface,
+      subject: Object.freeze({
+        type: "phrase",
+        id: `phrase:${normalized}`,
+        label: expression,
+      }),
+    }),
+  });
+}
+
+/**
  * Backward-compatible transport dispatcher. Requests without an explicit contract remain the
  * public Number v1 contract byte-for-byte; the personal pair path is opt-in only.
  */
@@ -203,6 +258,9 @@ export function normalizeResearchRunRequest(input = {}) {
   const contract = clean(input?.contract);
   if (!contract || contract === PUBLIC_NUMBER_RESEARCH_RUN_CONTRACT) {
     return normalizePublicNumberResearchRunRequest(input);
+  }
+  if (contract === PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT) {
+    return normalizePublicExpressionCrossingResearchRunRequest(input);
   }
   if (contract === PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT) {
     return normalizePersonalGematriaPairResearchRunRequest(input);

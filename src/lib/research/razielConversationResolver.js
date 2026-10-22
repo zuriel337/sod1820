@@ -311,8 +311,10 @@ export function resolveRazielConversationTurn({
   });
 }
 
-// Public-number-only projection across the client/server trust boundary. Rich in-memory identities
-// may carry owner access/provenance; those fields deliberately never leave the temporary session.
+// Bounded public research projection across the client/server trust boundary. Rich in-memory
+// identities may carry owner access/provenance; those fields deliberately never leave the temporary
+// session. The only text form admitted is one exact current-turn phrase for the contract-only
+// corpus-crossing adapter. Phrase pairs and carried/private text remain inside the temporary session.
 export function projectRazielConversationResolution(resolved) {
   if (!resolved || resolved.version !== RAZIEL_CONVERSATION_RESOLVER_VERSION) return null;
   const orderedCandidates = Array.isArray(resolved.pair) && resolved.pair.length === 2
@@ -323,6 +325,31 @@ export function projectRazielConversationResolution(resolved) {
     .map((identity) => Number(identity.value ?? identity.id ?? identity.label))
     .filter((value) => Number.isInteger(value) && value >= 1 && value <= 999999)
     .filter((value, index, values) => values.indexOf(value) === index);
+  const textIdentities = (resolved.identity_resolution?.identities || [])
+    .filter((identity) => identity?.type === "phrase" || identity?.type === "word");
+  if (!numbers.length && textIdentities.length === 1
+    && resolved.requested_action === "connect"
+    && resolved.referential_follow_up === false
+    && resolved.referent_source === "explicit_current_turn") {
+    const identity = textIdentities[0];
+    const label = clean(identity?.label ?? identity?.value, 120);
+    const expectedKey = `phrase:${label}`;
+    if (!label || !/[\u0590-\u05ff]/u.test(label) || /[\u0000-\u001f\u007f-\u009f]/u.test(label)) return null;
+    if (identity.identity_key !== expectedKey && identity.key !== expectedKey) return null;
+    return Object.freeze({
+      version: RAZIEL_CONVERSATION_RESOLVER_VERSION,
+      requested_action: "connect",
+      referential_follow_up: false,
+      referent_source: "explicit_current_turn",
+      identities: Object.freeze([Object.freeze({
+        type: "phrase",
+        label,
+        identity_key: expectedKey,
+      })]),
+      pair: null,
+      guards: Object.freeze({ semantic_hint_only: true, server_must_reauthorize: true }),
+    });
+  }
   // Ambiguous 3+-subject turns require clarification. Never silently discard a research subject.
   if (numbers.length < 1 || numbers.length > 2) return null;
   return Object.freeze({
