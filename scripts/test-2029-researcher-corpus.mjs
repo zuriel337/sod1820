@@ -21,7 +21,7 @@ assert.equal(app.includes('path="/researcher/:slug"'), true);
 assert.equal(page.includes("if (!isAdmin)"), true);
 assert.match(page, /מסך מנהל בלבד/);
 assert.equal(page.includes("fetchResearcherCorpusBySlug"), true);
-assert.equal(page.includes('shell.go("/world", { preserve: false })'), true);
+assert.equal(page.includes('shell.go("/world?focus=context", { preserve: false })'), true);
 assert.equal(page.includes("returnTo:"), true);
 assert.equal(page.includes("ContributorPage"), false);
 assert.equal(page.includes("BeitMidrash"), false);

@@ -49,6 +49,10 @@ const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const world = read("src/pages/World2029Page.jsx");
 const number2029Page = read("src/pages/Number2029Page.jsx");
+const home2029Page = read("src/pages/Home2029Page.jsx");
+const post2029Page = read("src/pages/Post2029Page.jsx");
+const researcher2029Page = read("src/pages/Researcher2029Page.jsx");
+const systemFrame2029 = read("src/components/experience2029/SystemFrame2029.jsx");
 const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
 const app = read("src/App2029.jsx");
 const legacyApp = read("src/App.jsx");
@@ -513,6 +517,22 @@ assert.match(world, /<WorldAllResearchTable state=\{allResearchState\}/);
 assert.match(world, /fetchWorldAllResearchProjection/);
 assert.match(world, /const \[adminToolsOpen, setAdminToolsOpen\] = useState\(false\)/);
 assert.match(world, /const controlMode = isAdmin && adminToolsOpen/);
+assert.match(world, /const explicitContext = new URLSearchParams\(location\.search\)\.get\("focus"\) === "context"/,
+  "plain World navigation must ignore stale cross-surface Research Context");
+assert.match(world, /if \(!explicitContext \|\|/,
+  "Anchored World must require an explicit open-in-World route intent");
+assert.match(world, /navigate\("\/world\?focus=context", \{ replace: true \}\)/,
+  "an explicit selection made inside World must retain anchored continuation");
+assert.match(home2029Page, /navigate\("\/world\?focus=context"\)/,
+  "Home search/temporal actions must declare their World context intent");
+assert.match(number2029Page, /navigate\("\/world\?focus=context"\)/,
+  "Number's explicit open-World action must declare its context intent");
+assert.match(post2029Page, /"\/world\?focus=context"/,
+  "Post's explicit open-World action must declare its context intent");
+assert.match(researcher2029Page, /shell\.go\("\/world\?focus=context"/,
+  "Researcher token actions must declare their World context intent");
+assert.match(systemFrame2029, /\{ to: "\/world", label: "העולם"/,
+  "global World navigation must remain a neutral destination without context intent");
 assert.match(world, /aria-controls="world-admin-tools"/);
 assert.match(world, /adminToolsOpen \? "סגור כלי מנהל" : "כלי מנהל"/);
 assert.match(world, /if \(!controlMode\)[\s\S]*setAllResearchState\(\{ enabled: false/);

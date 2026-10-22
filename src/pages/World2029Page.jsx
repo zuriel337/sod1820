@@ -612,6 +612,7 @@ function WorldSourceStory({ research, shell, compact = false }) {
 
 function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const palette = usePalette();
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const [adminToolsOpen, setAdminToolsOpen] = useState(false);
@@ -630,6 +631,10 @@ function LiveWorldLanding({ research, shell, context }) {
   const [writerFilter, setWriterFilter] = useState("all");
   const [discoveryCreator, setDiscoveryCreator] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
+  const openAnchoredContext = (nextContext) => {
+    research.setResearchContext?.(nextContext);
+    navigate("/world?focus=context", { replace: true });
+  };
   const [catalogExpanded, setCatalogExpanded] = useState(false);
   const [allQuery, setAllQuery] = useState("");
   const [allCreator, setAllCreator] = useState("all");
@@ -848,7 +853,7 @@ function LiveWorldLanding({ research, shell, context }) {
     }
 
     const selection = explorerCardSelection(card);
-    research.setResearchContext?.({
+    openAnchoredContext({
       subject: {
         id: String(card.refId),
         type: card.facet,
@@ -876,7 +881,7 @@ function LiveWorldLanding({ research, shell, context }) {
       return;
     }
     if (meeting.value == null) return;
-    research.setResearchContext?.({
+    openAnchoredContext({
       subject: { id: String(meeting.value), type: "number", label: String(meeting.value), href: "/world" },
       selection: { entityId: String(meeting.value), entityType: "number" },
       lens: "world",
@@ -894,7 +899,7 @@ function LiveWorldLanding({ research, shell, context }) {
       world: "world",
       msg: journey.id,
     });
-    research.setResearchContext?.({
+    openAnchoredContext({
       subject: { id: String(root), type: "number", label: String(root), href: "/world" },
       selection: { entityId: String(root), entityType: "number" },
       lens: "world",
@@ -919,7 +924,7 @@ function LiveWorldLanding({ research, shell, context }) {
       .filter(Number.isSafeInteger);
     const visited = [...new Set([root, ...pathValues])];
     const current = visited[visited.length - 1] || root;
-    research.setResearchContext?.({
+    openAnchoredContext({
       subject: { id: String(current), type: "number", label: String(current), href: "/world" },
       selection: { entityId: String(current), entityType: "number" },
       lens: "world",
@@ -946,7 +951,7 @@ function LiveWorldLanding({ research, shell, context }) {
   ), [topicDetail.finding]);
 
   const openTopicNumber = (value) => {
-    research.setResearchContext?.({
+    openAnchoredContext({
       subject: { id: String(value), type: "number", label: String(value), href: "/world" },
       selection: { entityId: String(value), entityType: "number" },
       lens: "world",
@@ -1007,7 +1012,7 @@ function LiveWorldLanding({ research, shell, context }) {
     if (item.kind === "finding") {
       if (Number.isFinite(item.value)) {
         const value = Number(item.value);
-        research.setResearchContext?.({
+        openAnchoredContext({
           subject: { id: String(value), type: "number", label: String(value), href: "/world" },
           selection: { entityId: String(value), entityType: "number" },
           lens: "world",
@@ -1047,7 +1052,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const openAnchorValue = (value) => {
     const numericValue = Number(value);
     if (!Number.isSafeInteger(numericValue)) return;
-    research.setResearchContext?.({
+    openAnchoredContext({
       subject: { id: String(numericValue), type: "number", label: String(numericValue), href: "/world" },
       selection: { entityId: String(numericValue), entityType: "number" },
       lens: "world",
@@ -2422,11 +2427,16 @@ function WorldBody() {
     research.updateResearchContext?.({ lens: "world" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Research Context follows the reader across routes. A Topic/Post subject can
-  // still be current when browser Back returns here; it is not a World node.
+  // Ordinary World navigation is a destination, not an implicit request to replay
+  // whichever subject happened to be active on the previous surface. Context is
+  // projected into Anchored World only after an explicit "open in World" action.
+  const explicitContext = new URLSearchParams(location.search).get("focus") === "context";
+  // Research Context still follows the reader for explicit continuation. A
+  // Topic/Post subject can be current when browser Back returns here; it is not
+  // an Entity Hub node unless a dedicated adapter says otherwise.
   const foreignSubject = subject?.href && !/^\/world(?:[/?#]|$)/.test(subject.href)
     && subject.type !== "number" && subject.type !== "phrase";
-  if (/^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type || foreignSubject) return <LiveWorldLanding research={research} shell={shell} context={context} />;
+  if (!explicitContext || /^#world-(source|direction|discovery)-/.test(location.hash) || [`#${WORLD_SOURCE_STORY_ANCHOR}`, "#world-plane-story"].includes(location.hash) || !subject?.id || !subject?.type || foreignSubject) return <LiveWorldLanding research={research} shell={shell} context={context} />;
   return <AnchoredWorld research={research} shell={shell} subject={subject} context={context} />;
 }
 
