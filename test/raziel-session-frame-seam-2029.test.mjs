@@ -102,7 +102,7 @@ test("personal pair is one shared deterministic action: explicit, authenticated,
   assert.match(provider, /researchEntitiesFromResultBundle\(pair\.bundle, \[findingId\]\)/);
   assert.equal((provider.match(/current\.addToResearch\?\.\(entity\)/g) || []).length, 1);
   assert.doesNotMatch(chat.slice(chat.indexOf("function RazielNativeChat"), chat.indexOf("const addPairFinding")), /addToResearch|saveItem/);
-  assert.match(mount, /personalResearchAvailable=\{!loading && Boolean\(user\?\.id\)\}/);
+  assert.match(mount, /personalResearchAvailable=\{fixturePreview \|\| \(!loading && Boolean\(user\?\.id\)\)\}/);
   assert.doesNotMatch(chat, /supabase\.functions|ai-analyze|\.rpc\s*\(/);
 });
 
@@ -111,6 +111,7 @@ test("hosted Preview labels its fixture, performs no live research and disables 
   assert.match(chat, /data-pair-preview-fixture="true"/);
   assert.match(chat, /דוגמת תצוגה בלבד/);
   assert.match(chat, /הדוגמה אינה ריצת מחקר ואינה נשמרת/);
+  assert.match(mount, /Outside that fixture the real personal action remains authenticated-only/);
   assert.match(chat, /disabled=\{pair\.previewFixture \|\| session\.personalPairFindingAdded\}/);
   assert.match(chat, /שמירה נעולה בפריוויו/);
 });

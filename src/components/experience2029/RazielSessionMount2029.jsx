@@ -50,7 +50,10 @@ export default function RazielSessionMount2029({ children }) {
     <RazielSessionProvider2029
       transport={transport}
       pairTransport={fixturePreview ? runPersonalGematriaPairPreviewFixture : runPersonalGematriaPair}
-      personalResearchAvailable={!loading && Boolean(user?.id)}
+      // The exact hosted fixture is a fixed, non-personal, zero-network sample so a reviewer can
+      // exercise it even though the read-only guard intentionally blocks creating an auth session.
+      // Outside that fixture the real personal action remains authenticated-only.
+      personalResearchAvailable={fixturePreview || (!loading && Boolean(user?.id))}
       personalResearchPreview={fixturePreview}
       personalPairPreviewExpressions={fixturePreview ? PERSONAL_PAIR_PREVIEW_EXPRESSIONS : NO_PREVIEW_EXPRESSIONS}
     >
