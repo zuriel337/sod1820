@@ -337,6 +337,8 @@ export default function Els2029Page() {
           }} onDeleteSaved={deleteSavedCipher} />
       </section>
 
+      {directSavedOpen ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
+
       {savedRecord.row ? <details className="els29-saved-record" aria-label="פרטי הצופן השמור">
         <summary>פרטי הצופן השמור</summary>
         <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>

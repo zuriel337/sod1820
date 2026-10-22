@@ -27,7 +27,9 @@ test("saved ciphers open directly through an on-screen canonical replay state", 
   assert.match(page, /const directSavedOpen = Boolean\(cipherSlug \|\| recordId\)/);
   assert.match(page, /introVariant=\{library \|\| directSavedOpen \? "none" : "compact"\}/);
   assert.match(page, /!directSavedOpen \? <ElsRecentCiphers2029/);
+  assert.match(page, /directSavedOpen \? <ElsRecentCiphers2029/);
   assert.match(page, /data-els-research-tools="explicit-open-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
+  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.lastIndexOf("<ElsRecentCiphers2029"), "the saved-cipher folder follows the matrix on a direct saved open");
   assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf('className="els29-saved-record"'), "saved metadata follows the matrix workspace");
   assert.doesNotMatch(nativeClassic, /עובדים על צופן שמור/);
   assert.match(nativeClassic, /data-els-saved-loading="true"/);
