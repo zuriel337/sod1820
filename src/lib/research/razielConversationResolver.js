@@ -3,7 +3,7 @@ import {
   RESEARCH_IDENTITY_SOURCE,
   resolveResearchIdentities,
 } from "./researchIdentityResolver.js";
-import { buildRazielRouteGrammar } from "./razielRouteGrammar.js";
+import { buildResearchPlanV2 } from "./researchPlanV2.js";
 
 // Bounded conversation continuity for the EXISTING identity resolver and route grammar.
 // This adapter carries canonical identities between turns. It does not define a second identity
@@ -238,12 +238,18 @@ export function resolveRazielConversationTurn({
     rawInput: currentQuestion || null,
     explicitTextComputation,
   });
-  const route = buildRazielRouteGrammar({
+  // One canonical plan: the conversation resolver contributes identities and current-turn
+  // continuity, then delegates action/capability planning to Research Plan V2. It does not keep a
+  // parallel Raziel-only planner. This object remains temporary and execution-neutral; the bounded
+  // transport projection below deliberately does not forward it as authority.
+  const researchPlan = buildResearchPlanV2({
     question: currentQuestion,
     intent,
     identityResolution: resolution,
     surfaceContext: surfaceSemantic,
+    contextType: "public_user",
   });
+  const route = researchPlan.route_grammar;
 
   return Object.freeze({
     version: RAZIEL_CONVERSATION_RESOLVER_VERSION,
@@ -258,10 +264,13 @@ export function resolveRazielConversationTurn({
       currentQuestion,
     )),
     identity_resolution: resolution,
+    research_plan: researchPlan,
     pair: orderedNumberPair(candidates) ?? numberPair(resolution),
     guards: Object.freeze({
       semantic_resolution_only: true,
       canonical_identity_resolver: true,
+      canonical_research_plan: true,
+      research_plan_is_not_execution_authority: true,
       no_tool_execution: true,
       no_model_inference: true,
       no_authorization_decision: true,
