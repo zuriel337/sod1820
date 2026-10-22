@@ -1,7 +1,6 @@
 # אהבת תורה — Full Source Mapping Pass (HebrewBooks #5635)
 
-> **Status:** Claude, Session 7 (branch `claude/ahavat-torah-letter-dataset-closure`). **Scope:** READ + MAPPING only, per the "AHAVAT TORAH FULL SOURCE MAPPING PASS" brief. No WRITE, no DB/schema change, no canonical promotion. This file synthesizes all 6 prior artifacts on this dossier (Coverage Map, Letter-Parasha Reconstruction, Full-Book-Inventory's 7 files, Research Library Foundation, P35 Letter-Closure, DS-06's two closure files) into one map. **It does not repeat their extraction work** — p.35 and DS-06 are cited at their CURRENT (already-closed/partially-closed) status only, per the task's explicit instruction not to redo them.
-> **Method:** pure synthesis of existing git-tracked artifacts, read via `git show <branch>:<path>` from their own branches (none merged, none edited). Zero new PDF pages rendered this pass.
+> **Current state (2026-10-22):** all ten page-register batches are merged into the public material projection: 99/99 pages, 303 content blocks and 11 explicitly marked page-level tables. Later corpus closures and corrected readings supersede the older session notes retained elsewhere for provenance. No DB/schema change or deployment is part of this dossier.
 
 ---
 
@@ -13,10 +12,10 @@
 |---|---|---|---|---|
 | 1–5 | — | Front matter | Title page, publisher ad, author statement (declines approbations) + 1983 reprint colophon, 2-part editorial preface (genealogy, Vav-dot masorah, miscitation history) | VISUALLY_VERIFIED |
 | 6–18 | 1–13 | חלק א׳ "מגדל עוז" | Tetragrammaton count opening, Mishkan/Temple gematria, letter-Tet count (withdrawn), Maaseh Merkava, דרש-דרש midpoint, Haggadah span, Erechin/Omer arithmetic, Serah bat Asher, tribal populations, Levite 239-word span | VISUALLY_VERIFIED |
-| 19–24 | 14–19 | מגדל עוז continued | **Deliberately content-free in every Claude artifact** — GPT's declared parallel-research territory (DO-NOT-TOUCH). Page existence/header only. | SOURCE_LOCATED (existence only) |
+| 19–24 | 14–19 | מגדל עוז continued | Additional 1,820 constructions, census comparisons, liturgical counts, calendar/square constructions and language rules; now present in the all-page register. | MAPPED / SELECTIVE EXACT WITNESS |
 | 25–31 | 20–26 | אוריין תליתאי | Entity/attribution table (פעמים+תיבות dual metric) for named persons/groups across the Torah | 5 pp. VISUALLY_VERIFIED, 2 pp. (27–29) SOURCE_LOCATED (OCR-era reading, not re-rendered) |
 | 30–35 | 25–30 | שרשים בתורה (+ **D-03 boundary, RESOLVED**) | Root-word list (1,820 roots); p.35 confirmed (Session 5) as the **true start** of the detailed letter table, not p.30 or p.36 | VISUALLY_VERIFIED (structure); root-list content UNCERTAIN |
-| 35–41 | 30–36 | אותיות התורה (detailed, per-letter) | 22-paragraph letter×parasha occurrence table — **DS-02** | See §B — PARTIAL |
+| 35–41 | 30–36 | אותיות התורה (detailed, per-glyph) | 27 printed glyphs (final forms separate) × 54 parashiot — **DS-02** | Corpus matrix closed; source cells partial |
 | 41–42 | 36–37 | Summary tables | "תיבות התורה" (54 word rows, 79,976) + 2nd "אותיות התורה" (54 letter rows, source 304,812 / canonical 304,805) — **DS-03/DS-04** | CLOSED; DS-04 source/corpus delta +7 preserved |
 | 42–43 | 37–38 | אותיות/תיבות חמש מגילות | 27-glyph letter matrix + word totals for the 5 Megillot — **DS-09/DS-10** | **CLOSED**; 135 source cells transcribed and Eicha boundary localized |
 | 44–45 | — | Part boundary | חלק ב׳ title page + blank leaf | VISUALLY_VERIFIED |
@@ -29,7 +28,7 @@
 
 1. Tetragrammaton-per-parasha table (p.6) — feeds DS-01.
 2. אוריין תליתאי entity/attribution table (pp.25–31) — DS-05.
-3. Detailed letter×parasha table, 22 paragraphs (pp.35–41) — DS-02.
+3. Detailed glyph×parasha table, 27 paragraphs including ך/ם/ן/ף/ץ (pp.35–41) — DS-02.
 4. "תיבות התורה" words-per-parasha summary (pp.41–42) — DS-03.
 5. Second "אותיות התורה" all-letters-per-parasha summary (pp.41–42) — DS-04. **Same title as table #3's running header — a confirmed same-name/different-table trap (A-04).**
 6. "אותיות חמש מגילות" letters-per-megillah (pp.42–43) — DS-09.
@@ -59,7 +58,7 @@
 
 - Tetragrammaton appears exactly **1,820** times in the Torah (p.6).
 - Samekh (as Adonai-linked) appears **1,830** times, after masoretic exclusion (p.8).
-- The "עשה" root's true count (after resolving a compositor dispute) is exactly **248** — matched to the 248 positive commandments (p.70, tail of a not-yet-extracted table, candidate DS-13).
+- The "עשה" root's true count is exactly **248** — matched to the 248 positive commandments and independently reproduced from the corpus (p.70, DS-13).
 - The name "משה" appears **647** times in the Torah, correcting two earlier authorities' counts of 795 and 642 (p.70, DS-06 — **this dossier's own re-verification confirms 647 via an independent, exact prefix-form decomposition**, Session 6).
 - Total Torah word count: **79,976** (pp.25–31 and pp.41–42, independently worded, digit-for-digit agreeing — CR-09).
 - Total Torah letter count (all 22 letters combined): **source 304,812; canonical corpus 304,805; Δ +7** (pp.41–42, fully localized).
@@ -72,16 +71,16 @@
 | ID | Pages | Subject | Method | Extracted values | Status |
 |---|---|---|---|---|---|
 | DS-01 | 6 | Tetragrammaton occurrences per parasha/book | Occurrence counting | 165+398+311+396+550=**1,820** (book subtotals only; per-parasha cells SOURCE_LOCATED, not re-verified) | **CLOSED** — arithmetic exact (CALC-01), cross-referenced nowhere contradicted |
-| DS-02 | 35–41 | Occurrences of each of 22 letters, per parasha/book | Letter-occurrence counting | 187 rows (Session 2) + p.35's א/ב/ג/opening-ד rows (Session 5). Gimel/Bereshit closes almost exactly (Δ+7/577). Aleph/Bet show order-of-magnitude gaps (numeral-scale hypothesis, unresolved). ט–נ interval partially resolved (Tet re-ID'd; ל/מ/נ boundary open). ה checksum substantially resolved (Δ+44 residual); ז checksum unresolved (Δ+117, glyph ambiguity). | **PARTIAL** — structure fully mapped p.35→41; most per-cell values UNCERTAIN or UNRESOLVED at arithmetic level |
-| DS-03 | 25–31, 41–42 | Total word count per parasha/book | Word-occurrence counting | Torah total **79,976**, independently cross-validated at 2 separately-worded locations (CR-09) | **CLOSED** (Torah-total level); per-parasha cells UNCERTAIN |
+| DS-02 | 35–41 | Occurrences of each of 27 printed glyphs, per parasha/book | Glyph-occurrence counting; final forms remain separate | Source structure 27×54 is closed; corpus matrix has 1,458 cells and totals 304,805. Common-glyph source-cell transcription and the א/ב/ז legacy checksum anomalies remain partial. | **CORPUS CLOSED · SOURCE STRUCTURE CLOSED · SOURCE CELLS PARTIAL** |
+| DS-03 | 25–31, 41–42 | Total word count per parasha/book | Word-occurrence counting | All 54 source rows and five cumulative checkpoints reproduce **79,976** against the clean corpus | **CLOSED** |
 | DS-04 | 41–42 | Total letter count (all 22 combined) per parasha/book | Letter-occurrence counting | 54 source rows total **304,812**; canonical corpus **304,805**; 11 one-letter row deltas, net +7 | **CLOSED WITH SOURCE/CORPUS MISMATCH** |
-| DS-05 | 25–31 | Attributed speech/mentions per named entity, per parasha (dual metric: פעמים + תיבות) | Entity-attribution counting | Structure confirmed (Yaakov, Lavan, Rachel, Leah, Moshe, Aharon, Miriam, Caleb, Bnot Tzlofchad rows); per-cell values not re-verified. **Confirmed distinct from DS-06** (Session 6 §7 — single-metric name-occurrence vs. this dataset's dual-metric attributed-speech) | **OPEN** — structure only, no cell-level closure attempted |
+| DS-05 | 25–31 | Attributed speech/mentions per named entity, per parasha (dual metric: פעמים + תיבות) | Entity-attribution counting | All seven source pages inventoried; structure confirmed (Yaakov, Lavan, Rachel, Leah, Moshe, Aharon, Miriam, Caleb, Bnot Tzlofchad rows). **Distinct from DS-06**: dual-metric attribution rather than name occurrence. | **SOURCE INVENTORIED** — cells not fully normalized |
 | DS-06 | 70 | Occurrences of the proper name משה, per parasha/book/Torah | Name-occurrence counting | All 39 rows reproduce 290/86/233/38; six forms give 614+13+13+4+2+1=647; Ex 12:4 and Deut 15:2 same-consonant non-name homographs excluded | **CLOSED** |
 | DS-07 | 78 | Withdrawn alleged transmission chain | Corrected source reading | `ל״ז` is Sanhedrin daf 37; `שלשת שורות` is three student rows. No generation chain exists. | **WITHDRAWN — LOW-RESOLUTION MISREAD** |
 | DS-08 | 89–90, 98 | Withdrawn alleged Tochecha count | Corrected source reading | Three exact passes found discursive commentary only; no blessing/curse count table exists. | **WITHDRAWN — LOW-RESOLUTION MISREAD** |
 | DS-09 | 42–43 | 27 printed glyphs × 5 Megillot | Letter-occurrence counting | 135 source cells and corpus cells closed separately; source totals 12,108/5,142/4,945/5,974/10,968, corpus totals 12,110/5,141/4,949/5,974/10,968 | **CLOSED WITH SOURCE/CORPUS MISMATCH** |
 | DS-10 | 43 | Word count per megillah (5 Megillot) | Word-occurrence counting | Source 3,045/1,250/1,294/1,541/2,987; Eicha 1,541/1,542 localized at `מן־בת` ketiv / `מִבַּת` qere (Lam 1:6) | **CLOSED WITH LOCALIZED BOUNDARY** |
-| DS-11 | 30/31–35 | Roots-in-Torah list (lexical units) | Root/lexical enumeration | **1,820** roots claimed (AUTHOR_COUNT); full list not transcribed; Horowitz's own root-identity rule not recovered | **OPEN** |
+| DS-11 | 30/31–35 | Roots-in-Torah list (lexical units) | Root/lexical enumeration | Continuous list located across the full source range; **1,820** units claimed (AUTHOR_COUNT). Horowitz's identity rule is not equivalent to a modern triliteral-root list and is not fully recovered. | **SOURCE INVENTORIED** — lexical normalization remains open |
 | DS-12 | 99 | 1983-edition errata list | Editorial correction tracking (qualitative, page+word-anchored) | Existence + structure VISUALLY_VERIFIED; textual, not numeric — includes ≥1 explicit unresolved "צ״ע" | **CLOSED** (as a qualitative inventory — nothing further to numerically close) |
 | **DS-13** | 69–70 | עשה-root occurrences across Exodus 25:1–40:38 | Word-root-occurrence counting | 268 candidates − 14 Golden-Calf forms = five exact rows 62/48/24/84/36 (subtotal 254); −6 divine acts = **248**; grammatical forms independently sum to 248 | **CLOSED** |
 
@@ -155,26 +154,25 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 | ID | What conflicts | Delta | Status |
 |---|---|---|---|
 | E-07/CALC-03 | Former Levite-span conflict: ר״ב was decoded as 212 instead of 202 | 0 | **RESOLVED — 202+37=239** |
-| A-01/E-08 | Letter Heh, Bereshit: transcribed Σ vs. printed cumulative | was +244, now **+44** after a found transcription-decode error (Session 5) | SUBSTANTIALLY RESOLVED, small residual |
-| A-02/E-09 | Letter Zayin, Torah-total: transcribed Σ vs. printed final | +117 (orig); re-verification attempt did not improve it | UNRESOLVED (glyph ambiguity, thousands-prefix) |
-| New (Session 5) | Letter Aleph/Bet, all 4 books each: per-parasha Σ vs. printed book subtotal | grows from ~−1,471 to ~−43,952 with book size | UNRESOLVED — numeral-scale/thousands-notation hypothesis, not confirmed |
+| A-01/E-08 | Letter Heh, Bereshit: old low-resolution component transcription | 0 at the book checkpoint: source 6,283 = corpus 6,283 | **RESOLVED — transcription correction** |
+| A-02/E-09 | Letter Zayin, Torah total: old component checksum | 0 at Torah-total level: source 2,198 = corpus 2,198 | **RESOLVED — transcription checksum** |
+| Former Aleph/Bet “impossible totals” | Low-resolution numeral decoding | not applicable | **WITHDRAWN** — corpus-guided rereading shows ordinary Hebrew numerals, not a thousands-scale convention |
 | Former DS-06 row gaps | low-resolution numerals vs. printed book subtotals | formerly +22/+112/+47/+94 | **RESOLVED** — corrected glyphs reproduce every subtotal; the “50” pattern is withdrawn |
 
 ### E.2 Missing rows / by-design gaps (not contradictions, but must not be mistaken for them)
 
-- **PDF pp.19–24**: zero content in every Claude artifact — deliberate DO-NOT-TOUCH (GPT's declared territory), not a coverage failure.
-- **Unit IDs U-026–U-031**: intentionally absent, same reason.
+- **PDF pp.19–24**: now included in the all-page material register; the former session partition is historical only.
 - **DS-06's Devarim list**: only non-zero proper-name parshiot are printed; the omitted rows are zero after the Deut 15:2 non-name homograph is excluded.
-- **ט–נ letter interval (pp.37–38)**: internally inconsistent drop-cap reads in the original pass; partially resolved Session 5 (Tet re-identified); **ל/מ/נ boundary still unresolved** (`ID_p38_LEFT.png` rendered, never examined).
+- **כ–ל–מ–נ letter interval (pp.37–38)**: resolved by the later high-zoom pass; the sequence is clean and appears once in alphabetic order.
 
 ### E.3 Unclear/duplicate labels
 
 - **A-04**: two separate tables (words-per-parasha vs. letters-per-parasha) share the exact running-header title "אותיות התורה" on pp.41–42 — a confirmed same-name/different-table trap.
 - **pp.94–99 "השמטות"**: one section title covers ~15–20 distinct correction-entries, currently collapsed into one unit-row per page — real content, low-resolution cataloguing only.
 
-### E.4 Partial tables (existence confirmed, content not extracted)
+### E.4 Source-inventoried tables (cell normalization incomplete)
 
-DS-05 (entity/attribution per-cell values) and DS-11 (full 1,820-root list). DS-07 and DS-08 are withdrawn; DS-09, DS-10 and DS-13 are closed.
+DS-02 (full 27×54 source matrix), DS-05 (entity/attribution cells) and DS-11 (1,820 lexical units under the author's own identity rule). DS-07 and DS-08 are withdrawn; DS-09, DS-10 and DS-13 are closed.
 
 ### E.5 Source ambiguities (the book's own, not this dossier's)
 
@@ -210,29 +208,26 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 
 ### OPEN (needs verification, in rough priority order)
 
-1. Letter-table (DS-02) per-parasha values for high-frequency letters (Aleph, Bet, and by extension every common letter ה–ת) — numeral-scale hypothesis unconfirmed.
-2. A-02 (letter Zayin checksum) — glyph ambiguity, needs a fresh high-zoom pass on the thousands-prefix digit specifically.
-3. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
+1. Letter-table (DS-02) — complete the visual source transcription of all 1,458 cells against the already-closed 27×54 corpus matrix.
+2. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
+3. DS-05 exact dual-metric cell normalization.
 4. DS-11 full-list/root-rule reconstruction.
 
 ### NEXT (recommended single best next step)
 
-**Re-verify the letter-table's high-frequency-letter numerals (item 1 above) with a dedicated high-zoom pass targeting thousands-scale marks** (geresh placement, compositor convention) on pp.35–41. This is the single highest-leverage open item: it is the root cause suspected behind DS-02's *entire* per-cell UNCERTAIN status for every common letter (not just Aleph/Bet) — resolving the notation convention once would very likely let dozens of already-transcribed cells across the whole letter-table snap into VISUALLY_VERIFIED status without any new page-reading, since the raw glyphs are already captured; only their numeral-scale interpretation is in question.
+**Transcribe DS-02 cell-by-cell against the fixed corpus matrix.** The population contract is now stable (27 printed glyphs, final forms separate), the 1,458-cell corpus matrix is reproducible, and several former “anomalies” have already collapsed into low-resolution numeral errors. The remaining work is source transcription, not discovery of a new notation system.
 
 The former ל/מ/נ boundary is already closed by the later mechanical pass: כ→ל→מ→נ is clean and ordered.
 
 ### UNKNOWN (cannot currently be determined from available evidence)
 
-- Whether Horowitz ever explicitly states his textual nusach/corpus anywhere in the book (not found in any pass across pp.6–43 or the read portions of pp.46–92).
-- The actual content of PDF pp.19–24 (GPT's declared territory — not Claude's to determine).
-- The actual content of GPT Checkpoints 7 and 8 (relayed by coordination brief only, never independently read this dossier).
-- Whether DS-05 and DS-06 are governed by genuinely different counting rules in the source's own words, or merely happen to look different from the metrics visible so far (Session 6's distinction-check was confirmatory but did not read Checkpoint 7 itself).
+- The exact textual corpus/nusach used by Horowitz for every count (not explicitly identified in the mapped source).
+- Whether every unit in DS-11 follows one recoverable lexical identity rule; the printed list is available, but the normalization contract is not explicit.
 
 ---
 
 ## Provenance
 
-- **Actor:** Claude, Session 7.
-- **Branch:** `claude/ahavat-torah-letter-dataset-closure`.
-- **Method:** synthesis of 6 prior artifacts (Coverage Map, Letter-Parasha Reconstruction ×3 files, Full-Book-Inventory ×8 files, Research Library Foundation, P35 Letter-Closure, DS-06 Occurrence Table ×2 files, DS-06 Counting-Contract Closure) via read-only `git show` across 4 branches. Zero new visual extraction performed this pass, per the task's explicit "do not repeat" instruction for p.35/DS-06.
-- **This file does not supersede or edit any prior artifact.** It is a new, additive cross-cutting index, cited from `DOSSIER_INDEX.md`/`CROSSWALK.md` (see those files for the row-by-row provenance this map summarizes).
+- The original Session-7 synthesis remains represented by the cited register and checkpoint files.
+- The 2026-10-22 consolidation incorporates all ten page-register batches, the later DS-03/04/06/09/10/13 corpus closures, the DS-07/08 withdrawals, the CALC-03 correction and the DS-02 27-glyph structure correction.
+- The public projection is generated from the tracked page registers; it does not promote private/DB material or alter the source text.

@@ -38,6 +38,7 @@ function unavailable(slug, reason) {
     metrics: [],
     coverage: [],
     findings: [],
+    sections: [],
     methods: [],
     connections: [],
     witnessClosures: [],
@@ -73,6 +74,21 @@ function normalizeFinding(row, index) {
     locus: clean(row[2]) || null,
     status: clean(row[3]) || null,
     note: clean(row[4]) || null,
+  };
+}
+
+function normalizeMaterialSection(row, index) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+  const title = clean(row.title);
+  const pages = clean(row.pages);
+  const material = clean(row.material || row.text || row.note);
+  if (!title && !material) return null;
+  return {
+    id: clean(row.id) || `material-section-${index + 1}`,
+    title: title || `חטיבה ${index + 1}`,
+    pages: pages || null,
+    material,
+    status: clean(row.status) || null,
   };
 }
 
@@ -177,6 +193,7 @@ export function buildBookMaterialMap(bundle, { expectedSlug } = {}) {
     metrics: compact((Array.isArray(hero.metrics) ? hero.metrics : []).map(normalizeMetric)),
     coverage: compact((Array.isArray(hero.coverage) ? hero.coverage : []).map(normalizeCoverage)),
     findings: compact((Array.isArray(hero.datasets) ? hero.datasets : []).map(normalizeFinding)),
+    sections: compact((Array.isArray(hero.sections) ? hero.sections : []).map(normalizeMaterialSection)),
     methods: compact((Array.isArray(hero.families) ? hero.families : []).map(normalizeMethod)),
     connections: relations.length ? relations : seeds,
     witnessClosures: compact((Array.isArray(hero.witness_closures) ? hero.witness_closures : []).map(normalizeWitnessClosure)),

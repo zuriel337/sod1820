@@ -151,6 +151,11 @@ function MaterialMap({ material }) {
     </div> : null}
 
     <div className="sod29-book-families">
+      {material.sections.length ? <details className="sod29-book-family" open>
+        <summary><span><strong>מה יש בספר</strong><small>מפת החומר לפי חטיבות ועמודים, לפני שאלות האימות והחישוב.</small></span><span className="sod29-chip">{material.sections.length}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-grid">{material.sections.map(item => <div className="sod29-card" key={item.id}><h3>{item.title}</h3><small>{[item.pages, item.status].filter(Boolean).join(" · ")}</small><p>{item.material}</p></div>)}</div></div>
+      </details> : null}
+
       <details className="sod29-book-family" open>
         <summary><span><strong>מבנה וכיסוי</strong><small>היקף החומר ומצב הכיסוי נשמרים כמדדים נפרדים.</small></span><span className="sod29-chip">{material.metrics.length + material.coverage.length}</span></summary>
         <div className="sod29-book-family-body">
@@ -187,9 +192,9 @@ function MaterialMap({ material }) {
 
     <div className="sod29-section-head"><div><div className="sod29-kicker">השלבים</div><h2>איפה אנחנו ומה הבא</h2></div></div>
     <div className="sod29-grid">
-      <div className="sod29-card"><h3>1 · החומר נמצא</h3><p>חבילת המקור הציבורית מחוברת, מזוהה וניתנת לפתיחה.</p></div>
-      <div className="sod29-card"><h3>2 · המפה פעילה</h3><p>{mappedUnits} יחידות חומר ו־{material.methods.length} משפחות/שיטות מסודרות לתצוגה אחת.</p></div>
-      <div className="sod29-card"><h3>3 · השלב הבא</h3><p>{resolvedWitnessCount ? `${resolvedWitnessCount} פערי־עדות נסגרו. עכשיו נשאר לסגור ${openCount} שאלות חישוב, קורפוס וקריאה מתועדות; אחר כך להרחיב קשרים בין ספרים.` : `לסגור תחילה ${openCount} שאלות מתועדות מול העדות ומראי־המקום; אחר כך להרחיב קשרים בין ספרים.`}</p></div>
+      <div className="sod29-card"><h3>1 · החומר נמצא</h3><p>כל 99 עמודי המקור רשומים במפת החומר הציבורית, וה־PDF המקורי מחובר לפתיחה.</p></div>
+      <div className="sod29-card"><h3>2 · הנתונים הופרדו</h3><p>{mappedUnits} יחידות חומר ו־{material.methods.length} משפחות/שיטות מסודרות לפי מקור, חישוב וקורפוס.</p></div>
+      <div className="sod29-card"><h3>3 · מה נשאר</h3><p>{openCount ? `${openCount} נקודות נשארו במפורש: טבלאות מקור גדולות שטרם נורמלו, פער קורפוס אחד ושאלת עורך מקורית. הן מוצגות כחומר פתוח — לא כמנעול.` : "כל הנקודות המתועדות נסגרו."}</p></div>
     </div>
   </section>;
 }

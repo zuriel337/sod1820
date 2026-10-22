@@ -249,7 +249,7 @@
       "pdf_page": 41,
       "printed_page": "36 (Arabic numeral header, directly observed)",
       "section": "letter_count_table_DS02_closes_then_DS03_DS04_summary_tables_open",
-      "parasha": "letter_range: ש (Shin, NEW) -> ת (Tav, NEW, FINAL letter of the 22-letter table) -- then NEW summary tables: תיבות התורה (Words of the Torah, candidate DS-03) and אותיות התורה (Letters of the Torah per-book summary, candidate DS-04, opens)",
+      "parasha": "letter_range: ש (Shin, NEW) -> ת (Tav, NEW, FINAL glyph of the 27-glyph table) -- then NEW summary tables: תיבות התורה (Words of the Torah, candidate DS-03) and אותיות התורה (Letters of the Torah per-book summary, candidate DS-04, opens)",
       "opening_anchor": "מ\"ז ולך ב\"ד האזינו כ\"ב ברכה ב\"ה",
       "closing_anchor": "תקי\"ב. ס\"ה ע\"ם אלף תתקע\"ו: [divider] אותיות התורה. בראשית ז' אלף רל\"ה נח...",
       "transcription_depth": "SOURCE_LOCATED for Shin/Tav (structure); VISUALLY_VERIFIED at 4x/600dpi zoom for the two closing grand-total lines (this batch's own major new finding)",
@@ -262,7 +262,7 @@
         {
           "block_id": "tav_dataset_DS02_final_letter",
           "source_ref": "book:hebrewbooks:5635#p41:tav_dataset_DS02_final_letter",
-          "text_note": "Left column: drop-cap ת (Tav) opens the table's FINAL letter-occurrence paragraph (\"בראשית שפ\"ח נח...\"), closing with its own Torah-wide total (\"ס\"ה [n\"] אלף תל\"ה:\"), and closing the entire 22-letter DS-02 table opened at p.35. This is the first time this dossier records the table's own alphabet-complete closing point.",
+          "text_note": "Left column: drop-cap ת (Tav) opens the table's FINAL glyph-occurrence paragraph (\"בראשית שפ\"ח נח...\"), closing with its own Torah-wide total (\"ס\"ה [n\"] אלף תל\"ה:\"), and closing the entire 27-glyph DS-02 table opened at p.35. Final forms ך/ם/ן/ף/ץ are independent printed rows, so the older 22-letter description is withdrawn.",
           "verbatim_numbers": [
             "ס\"ה נ' אלף תל\"ה -- RAW READING of Tav's own final total, not independently high-zoom re-verified this pass"
           ]

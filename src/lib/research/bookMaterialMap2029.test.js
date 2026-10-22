@@ -20,6 +20,7 @@ const SYNTHETIC_BUNDLE = {
     metrics: [["12", "עמודים", "synthetic"]],
     coverage: [{ label: "Research Map", value: "PARTIAL", note: "synthetic" }],
     datasets: [["DS-X", "ממצא סינתטי", "p1", "OPEN", "fixture only"]],
+    sections: [{ id: "SEC-X", title: "חטיבה סינתטית", pages: "pp1–2", material: "fixture material", status: "MAPPED" }],
     families: [{ title: "שיטה סינתטית", text: "fixture only" }],
     witness_closures: [{ id: "WG-X", title: "עדות סינתטית", locus: "p2", status: "VISUALLY_VERIFIED", note: "fixture only", source_ref: "book:synthetic:1#p2:witness" }],
     open: ["שאלה סינתטית פתוחה"],
@@ -46,6 +47,13 @@ test("public bundle is normalized into source, structure, findings, methods, con
   assert.equal(map.metrics[0].value, "12");
   assert.equal(map.coverage[0].value, "PARTIAL");
   assert.equal(map.findings[0].id, "DS-X");
+  assert.deepEqual(map.sections[0], {
+    id: "SEC-X",
+    title: "חטיבה סינתטית",
+    pages: "pp1–2",
+    material: "fixture material",
+    status: "MAPPED",
+  });
   assert.equal(map.methods[0].title, "שיטה סינתטית");
   assert.equal(map.connections[0].id, "CR-X");
   assert.deepEqual(map.witnessClosures[0], {
@@ -102,12 +110,21 @@ test("non-https source links are withheld from the presentation", () => {
   assert.equal(map.source.pdfUrl, null);
 });
 
-test("Ahavat Torah public snapshot exposes five witness closures and preserves the new corpus contradiction", async () => {
+test("Ahavat Torah public snapshot exposes the complete material map and preserves the corpus contradiction", async () => {
   const bundle = JSON.parse(await readFile(new URL("../../../public/book-data/ahavat-torah.tables.json", import.meta.url), "utf8"));
   const map = buildBookMaterialMap(bundle, { expectedSlug: "ahavat-torah" });
   assert.equal(map.available, true);
   assert.equal(map.witnessClosures.length, 5);
-  assert.equal(map.openQuestions.length, 7);
+  assert.equal(map.openQuestions.length, 5);
+  assert.equal(map.sections.length, 8);
+  assert.equal(map.sections[0].pages, "pp1–5");
+  assert.equal(map.sections.at(-1).pages, "pp94–99");
+  assert.deepEqual(map.inventory.find(item => item.key === "page_register"), {
+    key: "page_register",
+    label: "עמודים ברישום",
+    value: 99,
+  });
+  assert.equal(map.inventory.find(item => item.key === "content_blocks")?.value, 303);
   assert.equal(map.witnessClosures[1].status, "CORPUS_RECONSTRUCTED · CONTRADICTION_PRESERVED");
   assert.match(map.witnessClosures[1].note, /90.*89.*88/);
   assert.equal(map.witnessClosures[2].locus, "PDF p14");
@@ -116,4 +133,6 @@ test("Ahavat Torah public snapshot exposes five witness closures and preserves t
   assert.match(map.witnessClosures[4].note, /1,820/);
   assert.equal(map.findings.find(item => item.id === "DS-03")?.locus, "p41");
   assert.equal(map.findings.find(item => item.id === "DS-04")?.locus, "p42");
+  assert.equal(map.findings.find(item => item.id === "DS-05")?.status, "SOURCE INVENTORIED");
+  assert.equal(map.findings.find(item => item.id === "DS-11")?.status, "SOURCE INVENTORIED");
 });
