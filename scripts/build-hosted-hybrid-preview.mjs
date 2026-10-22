@@ -75,6 +75,9 @@ execFileSync(process.execPath, ["scripts/build-hybrid-preview.mjs"], {
   cwd: root,
   env: {
     ...process.env,
+    // Exact hosted Preview only: visual, non-live personal-pair fixture. The real client remains
+    // wired in source, but research-run is not admitted until its separate Edge canary gate.
+    VITE_RAZIEL_PAIR_PREVIEW_FIXTURE: "true",
     ...(sourceState.nodeModulesSymlinkOnly ? { SOD_HYBRID_ALLOW_DIRTY: "1" } : {}),
     ...(isShallow ? { SOD_HYBRID_HOSTED_SHALLOW: "1" } : {}),
   },
@@ -168,6 +171,7 @@ const hostedHybridReceipt = {
   hostedPreviewReady: true,
   hostedPreviewBlocker: null,
   readOnly: true,
+  personalPairFixture: true,
   workerScript,
   workerContentSha256,
   guardProtocol: PREVIEW_GUARD_PROTOCOL,
@@ -201,5 +205,6 @@ const { receipt, inventory } = await createPreviewArtifactInventory(output, {
   candidate2029RouteCount: policy.candidate2029Routes.length,
   explicitLegacyRouteCount: policy.explicitLegacyRoutes.length,
   readOnly: true,
+  personalPairFixture: true,
 });
 console.log(`Hosted Hybrid Preview built from clean ${receipt.commit}; ${inventory.artifacts.length} artifacts sealed; Legacy and 2029 wait for the exact read-only controller.`);

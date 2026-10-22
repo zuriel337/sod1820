@@ -115,9 +115,10 @@ test("only an exact Vercel Preview identity may compensate for unavailable shall
 });
 
 test("Vercel enables only the exact Hybrid integration branch and mirrors the route contract", async () => {
-  const [vercel, policy] = await Promise.all([
+  const [vercel, policy, hostedBuilder] = await Promise.all([
     readFile(resolve(root, "vercel.json"), "utf8").then(JSON.parse),
     loadHybridRoutePolicy(),
+    readFile(resolve(root, "scripts/build-hosted-hybrid-preview.mjs"), "utf8"),
   ]);
   assert.equal(vercel.buildCommand, "git checkout -- vercel.json && SOD_BUILD_TARGET=hybrid node scripts/build-hosted-hybrid-preview.mjs");
   assert.equal(vercel.outputDirectory, "hybrid-preview-dist");
@@ -129,6 +130,8 @@ test("Vercel enables only the exact Hybrid integration branch and mirrors the ro
   assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/2029.html").map((rule) => rule.source)), new Set(policy.candidate2029Routes));
   assert.deepEqual(new Set(documentRewrites.filter((rule) => rule.destination === "/legacy.html" && rule.source !== "/(.*)").map((rule) => rule.source)), new Set(policy.explicitLegacyRoutes));
   assert.deepEqual(documentRewrites.at(-1), { source: "/(.*)", destination: "/legacy.html" });
+  assert.match(hostedBuilder, /VITE_RAZIEL_PAIR_PREVIEW_FIXTURE: "true"/);
+  assert.match(hostedBuilder, /personalPairFixture: true/);
 });
 
 test("hosted artifact seals both runtimes, exact guard identity and complete inventory", { skip: !built }, async () => {
@@ -146,9 +149,11 @@ test("hosted artifact seals both runtimes, exact guard identity and complete inv
   assert.equal(receipt.vercelEnv, "preview");
   assert.equal(receipt.sourceClean, true);
   assert.equal(receipt.readOnly, true);
+  assert.equal(receipt.personalPairFixture, true);
   assert.equal(receipt.workerContentSha256, sha256(worker));
   assert.equal(receipt.workerSha256, sha256(worker));
   assert.equal(hybrid.hostedPreviewReady, true);
+  assert.equal(hybrid.personalPairFixture, true);
   assert.equal(hybrid.hostedPreviewBlocker, null);
   assert.equal(hybrid.guardIdentitySha256, receipt.guardIdentitySha256);
   assert.equal(hybrid.routePolicySha256, receipt.routePolicySha256);

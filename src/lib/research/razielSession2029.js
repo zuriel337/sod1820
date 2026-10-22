@@ -12,6 +12,7 @@ const LIMITS = Object.freeze({
   answer: 12000,
   threadMessages: 40,
   sourceNames: 8,
+  personalExpression: 160,
 });
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -295,6 +296,19 @@ export function createInitialRazielSessionState() {
     provenance: null,
     status: "idle",
     announcement: "",
+    personalPair: {
+      draft: { left: "", right: "" },
+      status: "idle",
+      outcome: null,
+      expressions: [],
+      bundle: null,
+      traceId: null,
+      contract: null,
+      cost: null,
+      error: null,
+      completedAt: null,
+      previewFixture: false,
+    },
   };
 }
 
@@ -304,6 +318,74 @@ function appendMessage(thread, message) {
 
 export function razielSessionReducer(state, action) {
   switch (action?.type) {
+    case "personal_pair_draft": {
+      if (!new Set(["left", "right"]).has(action.field) || state.busy) return state;
+      const value = String(action.value || "").slice(0, LIMITS.personalExpression);
+      if (state.personalPair?.draft?.[action.field] === value) return state;
+      return {
+        ...state,
+        personalPair: {
+          ...createInitialRazielSessionState().personalPair,
+          draft: { ...state.personalPair.draft, [action.field]: value },
+        },
+      };
+    }
+    case "personal_pair_started":
+      return {
+        ...state,
+        busy: true,
+        currentTurn: { ...action.turn, kind: "personal_gematria_pair", status: "running" },
+        status: "busy",
+        announcement: "רזיאל בודק קשר חישובי — ללא AI.",
+        personalPair: {
+          ...createInitialRazielSessionState().personalPair,
+          draft: state.personalPair.draft,
+          status: "busy",
+          expressions: action.expressions,
+        },
+      };
+    case "personal_pair_succeeded":
+      return {
+        ...state,
+        busy: false,
+        currentTurn: { ...state.currentTurn, status: "complete", completedAt: action.completedAt },
+        status: "ready",
+        announcement: action.result.outcome === "negative"
+          ? "הבדיקה הסתיימה ללא ראיה מהותית."
+          : "הבדיקה החישובית מוכנה.",
+        personalPair: {
+          ...state.personalPair,
+          status: action.result.outcome,
+          outcome: action.result.outcome,
+          bundle: action.result.bundle,
+          traceId: action.result.traceId || null,
+          contract: action.result.contract || null,
+          cost: action.result.cost || null,
+          error: null,
+          completedAt: action.completedAt,
+          previewFixture: action.result.previewFixture === true,
+        },
+      };
+    case "personal_pair_failed":
+      return {
+        ...state,
+        busy: false,
+        currentTurn: { ...state.currentTurn, status: "error", completedAt: action.completedAt, error: action.error },
+        status: "error",
+        announcement: "הבדיקה לא הושלמה. לא הוצגה מסקנת חוסר־קשר.",
+        personalPair: {
+          ...state.personalPair,
+          status: "error",
+          outcome: "error",
+          bundle: null,
+          traceId: action.traceId || null,
+          contract: null,
+          cost: null,
+          error: cleanInline(action.error, 80) || "research_unavailable",
+          completedAt: action.completedAt,
+          previewFixture: false,
+        },
+      };
     case "turn_started": {
       const { turn, contextSnapshot } = action;
       const thread = turn.again

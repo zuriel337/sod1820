@@ -40,7 +40,7 @@ test("one provider: mounted once in App2029 under ResearchProvider and above Rou
   assert.ok(app.indexOf("</Routes>") < app.indexOf("</RazielSessionMount2029>"));
   assert.doesNotMatch(legacyApp, /RazielSession/);
   // the mount consumes the Codex provider unchanged: one transport, no second session implementation
-  assert.match(mount, /<RazielSessionProvider2029 transport=\{transport\}>/);
+  assert.match(mount, /<RazielSessionProvider2029[\s\S]*transport=\{transport\}[\s\S]*pairTransport=\{fixturePreview \? runPersonalGematriaPairPreviewFixture : runPersonalGematriaPair\}/);
   assert.equal((mount.match(/askRaziel\s*\(/g) || []).length, 1);
   assert.doesNotMatch(mount + seam, /useReducer|createContext|razielSessionReducer/);
 });
@@ -83,7 +83,36 @@ test("zero AI on open, close, navigation and saved display: the only boundary is
   assert.doesNotMatch(reset, /submit|transport|askRaziel/);
   // provider (Codex, unchanged): one awaited transport inside submit, nothing before it
   assert.equal((provider.match(/await transport\(request\)/g) || []).length, 1);
+  assert.equal((provider.match(/await pairTransport\(/g) || []).length, 1);
   assert.doesNotMatch(provider.slice(0, provider.indexOf("const submit")), /transport\s*\(/);
+});
+
+test("personal pair is one shared deterministic action: explicit, authenticated, no AI, no retry and no auto-save", () => {
+  assert.match(chat, /data-raziel-personal-pair="true"/);
+  assert.match(chat, /<summary>השווה שני ביטויים<\/summary>/);
+  assert.equal((chat.match(/session\.runPersonalPair\(/g) || []).length, 1);
+  assert.match(chat, /disabled=\{busy \|\| !session\.personalResearchAvailable \|\| !pair\.draft\?\.left\?\.trim\(\) \|\| !pair\.draft\?\.right\?\.trim\(\)\}/);
+  assert.equal((chat.match(/maxLength=\{160\}/g) || []).length, 2);
+  assert.equal((chat.match(/lang="he"/g) || []).length, 2);
+  assert.ok((chat.match(/dir="auto"/g) || []).length >= 3);
+  assert.match(chat, /נמצא מועמד לקשר חישובי/);
+  assert.match(chat, /לא הוכחה לקשר רעיוני או היסטורי/);
+  assert.match(chat, /הבדיקה הושלמה ולא נמצאה ראיה מהותית/);
+  assert.match(chat, /הבדיקה לא הושלמה/);
+  assert.match(provider, /researchEntitiesFromResultBundle\(pair\.bundle, \[findingId\]\)/);
+  assert.equal((provider.match(/current\.addToResearch\?\.\(entity\)/g) || []).length, 1);
+  assert.doesNotMatch(chat.slice(chat.indexOf("function RazielNativeChat"), chat.indexOf("const addPairFinding")), /addToResearch|saveItem/);
+  assert.match(mount, /personalResearchAvailable=\{!loading && Boolean\(user\?\.id\)\}/);
+  assert.doesNotMatch(chat, /supabase\.functions|ai-analyze|\.rpc\s*\(/);
+});
+
+test("hosted Preview labels its fixture, performs no live research and disables persistence", () => {
+  assert.match(mount, /VITE_RAZIEL_PAIR_PREVIEW_FIXTURE === "true"/);
+  assert.match(chat, /data-pair-preview-fixture="true"/);
+  assert.match(chat, /דוגמת תצוגה בלבד/);
+  assert.match(chat, /הדוגמה אינה ריצת מחקר ואינה נשמרת/);
+  assert.match(chat, /disabled=\{pair\.previewFixture \|\| session\.personalPairFindingAdded\}/);
+  assert.match(chat, /שמירה נעולה בפריוויו/);
 });
 
 test("Hebrew context strip: human labels, original source names, never raw keys", () => {

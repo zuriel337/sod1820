@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
+  buildRazielTranscript,
   buildRazielSessionRequest,
   createInitialRazielSessionState,
   createRazielContextSnapshot,
@@ -88,7 +89,9 @@ test("cost: request is bounded and the provider has one explicit transport bound
   assert.ok(request.context.length <= 600);
   assert.ok(request.facts.length <= 1200);
   assert.equal((providerSource.match(/await transport\(request\)/g) || []).length, 1);
-  assert.doesNotMatch(providerSource, /localStorage|sessionStorage|saveItem|addToResearch|saveCurrentResearchPath/);
+  assert.equal((providerSource.match(/await pairTransport\(/g) || []).length, 1);
+  assert.doesNotMatch(providerSource, /localStorage|sessionStorage|saveItem|saveCurrentResearchPath/);
+  assert.equal((providerSource.match(/current\.addToResearch\?\.\(entity\)/g) || []).length, 1);
   const beforeSubmit = providerSource.slice(0, providerSource.indexOf("const submit"));
   assert.doesNotMatch(beforeSubmit, /transport\s*\(/);
 });
@@ -155,4 +158,60 @@ test("ResearchProvider preview is read-only and compact; it does not copy resear
   assert.equal(preview.cartCount, 1);
   assert.equal(preview.collectionsCount, 1);
   assert.equal("saveItem" in preview, false);
+});
+
+test("personal pair draft and result stay in the one session without entering the AI transcript", () => {
+  let state = createInitialRazielSessionState();
+  state = razielSessionReducer(state, { type: "personal_pair_draft", field: "left", value: "ירושלים" });
+  state = razielSessionReducer(state, { type: "personal_pair_draft", field: "right", value: "שומרים" });
+  state = razielSessionReducer(state, {
+    type: "personal_pair_started",
+    expressions: ["ירושלים", "שומרים"],
+    turn: { id: "pair-1", projection: "desktop", startedAt: "start" },
+  });
+  state = razielSessionReducer(state, {
+    type: "personal_pair_succeeded",
+    completedAt: "end",
+    result: {
+      outcome: "positive",
+      bundle: { findings: [{ id: "uf:pair", subject: { label: "ירושלים ↔ שומרים" } }] },
+      contract: "personal-gematria-pair-run-v1",
+      traceId: "trace-pair",
+      cost: { ai_calls: 0, rpc_calls: 1, retry_count: 0 },
+    },
+  });
+
+  assert.deepEqual(state.personalPair.draft, { left: "ירושלים", right: "שומרים" });
+  assert.equal(state.personalPair.status, "positive");
+  assert.equal(state.personalPair.traceId, "trace-pair");
+  assert.equal(state.thread.length, 0, "deterministic personal input is not copied into the AI thread");
+  assert.equal(buildRazielTranscript(state.thread), "");
+
+  const reset = razielSessionReducer(state, { type: "session_reset" });
+  assert.deepEqual(reset.personalPair.draft, { left: "", right: "" });
+  assert.equal(reset.personalPair.bundle, null);
+});
+
+test("personal pair negative and failed outcomes remain semantically distinct", () => {
+  const started = razielSessionReducer(createInitialRazielSessionState(), {
+    type: "personal_pair_started",
+    expressions: ["משיח", "מלך ישראל"],
+    turn: { id: "pair-2", projection: "mobile", startedAt: "start" },
+  });
+  const negative = razielSessionReducer(started, {
+    type: "personal_pair_succeeded",
+    completedAt: "end",
+    result: { outcome: "negative", bundle: { findings: [] } },
+  });
+  assert.equal(negative.personalPair.status, "negative");
+  assert.match(negative.announcement, /ללא ראיה/);
+
+  const failed = razielSessionReducer(started, {
+    type: "personal_pair_failed",
+    completedAt: "end",
+    error: "engine_failed",
+  });
+  assert.equal(failed.personalPair.status, "error");
+  assert.equal(failed.personalPair.bundle, null);
+  assert.match(failed.announcement, /לא הושלמה/);
 });

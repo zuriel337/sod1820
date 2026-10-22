@@ -755,6 +755,43 @@ function ToolsProjection({ surface, target, go, onCapability }) {
 }
 
 const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מהיר", deep: "עמוק" };
+const PERSONAL_PAIR_ERROR_LABEL = Object.freeze({
+  authentication_required: "יש להתחבר לחשבון לפני בדיקה אישית.",
+  expression_required: "יש להזין שני ביטויים.",
+  expressions_must_differ: "יש להזין שני ביטויים שונים.",
+  hebrew_required: "בשלב הזה הבדיקה מקבלת ביטויים בעברית.",
+  control_characters_not_allowed: "הביטוי כולל תו שאינו נתמך.",
+  expression_too_long: "כל ביטוי יכול להכיל עד 160 תווים.",
+  preview_fixture_only: "בפריוויו הבטוח זמינה כרגע רק דוגמת התצוגה המסומנת.",
+  authorization_required: "פג תוקף ההתחברות. יש להתחבר מחדש.",
+  authenticated_user_required: "יש להתחבר לחשבון לפני בדיקה אישית.",
+  access_filtered: "הבדיקה אינה זמינה בהרשאה הנוכחית.",
+  trace_unavailable: "הבדיקה לא התחילה משום שתיעוד הריצה אינו זמין.",
+  trace_incomplete: "הבדיקה נעצרה משום שתיעוד הריצה לא הושלם.",
+  engine_failed: "מנוע הקשרים לא השלים את הבדיקה.",
+  preview_read_only: "הריצה החיה נעולה בפריוויו עד לשער השרת הנפרד.",
+  transport_failed: "לא ניתן להגיע כרגע למנוע המחקר.",
+  invalid_response: "המנוע החזיר תשובה לא שלמה.",
+  research_unavailable: "הבדיקה אינה זמינה כרגע.",
+});
+
+function personalPairEvidenceSummary(finding) {
+  const result = finding?.verification?.engine_result || {};
+  const engineCount = Array.isArray(result.engine_evidence)
+    ? result.engine_evidence.length
+    : Number(result.engine_evidence_count || 0);
+  const compositeCount = Array.isArray(result.composite_evidence) ? result.composite_evidence.length : 0;
+  const independent = result.independent_evidence_counts || {};
+  const independentCount = Number(result.independent_evidence_count || 0)
+    + Number(independent.edges || 0)
+    + Number(independent.topic_cards || 0)
+    + Number(independent.research_objects || 0);
+  return [
+    engineCount > 0 ? `${engineCount} ראיות חישוביות` : null,
+    compositeCount > 0 ? `${compositeCount} ראיות מורכבות` : null,
+    independentCount > 0 ? `${independentCount} הפניות עצמאיות` : null,
+  ].filter(Boolean).join(" · ") || "נמצא אות מנוע המחייב עיון בפרטי הממצא.";
+}
 
 // רזיאל = שיחה זמנית אחת (#1142 · RazielSessionProvider2029, מותקן פעם אחת מעל Routes). ה-Companion בנייח והגיליון
 // במובייל מציגים את אותה הקרנה על אותו thread: אין thread מקומי ואין מופע שיחה שני. אפס קריאה בפתיחה/רינדור/סגירה/
@@ -764,11 +801,14 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   const [text, setText] = useState("");
   const [savedOpen, setSavedOpen] = useState(false);
   const [deepOpen, setDeepOpen] = useState(false);
+  const [pairSaveNotice, setPairSaveNotice] = useState("");
   const threadLength = session?.thread?.length || 0;
   // the newest turn is brought into view when it is added (and when a projection opens over an existing thread)
   const lastTurnRef = useCallback((node) => { node?.scrollIntoView?.({ block: "nearest" }); }, [threadLength]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!session) return <section className="sod29-raziel-chat" data-raziel-native-chat="unavailable"><b>רזיאל</b><small role="status">השיחה עם רזיאל אינה זמינה כאן כרגע.</small></section>;
   const { thread, busy, status, announcement, provenance, researchPreview } = session;
+  const pair = session.personalPair || {};
+  const pairFinding = pair.bundle?.findings?.[0] || null;
   const subjectLabel = context?.subject?.label || "";
   // חבילת עובדות חסומה מהקשר קיים בלבד: שורש/שיטה/קריאה — השאלה עצמה נשארת ה-subject.
   const buildFacts = () => [
@@ -783,6 +823,27 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     if (!q || busy) return;
     const result = await session.submit({ question: q, intelligenceLevel: level, again, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
     if (result?.ok && !again) setText("");
+  };
+  const runPersonalPair = async (event) => {
+    event?.preventDefault?.();
+    setPairSaveNotice("");
+    await session.runPersonalPair({ projection });
+  };
+  const updatePairDraft = (field, value) => {
+    setPairSaveNotice("");
+    session.updatePersonalPairDraft(field, value);
+  };
+  const loadPairPreviewExample = () => {
+    const [left, right] = session.personalPairPreviewExpressions || [];
+    if (!left || !right) return;
+    updatePairDraft("left", left);
+    updatePairDraft("right", right);
+  };
+  const addPairFinding = () => {
+    const result = session.addPersonalPairFinding(pairFinding?.id);
+    setPairSaveNotice(result?.ok
+      ? result.alreadyAdded ? "הממצא כבר נמצא במחקר שלך." : "הממצא נוסף למחקר שלך."
+      : "הממצא לא נוסף. אפשר לנסות שוב.");
   };
   // one small Hebrew strip: what Raziel will be given with the next question (same snapshot the session builds on send)
   const contextParts = razielContextParts(createRazielContextSnapshot(context, { numberFocus, readingFocus, elsFocus }));
@@ -799,6 +860,70 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         <p>{contextParts.length ? contextParts.map((part, i) => <React.Fragment key={part.key}>{i ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
         {contextAction ? <button type="button" className="sod29-raziel-context-action" data-raziel-context-action="true" onClick={contextAction.run}>{contextAction.label}</button> : null}
       </div>
+      <details className="sod29-raziel-pair" data-raziel-personal-pair="true">
+        <summary>השווה שני ביטויים</summary>
+        <div className="sod29-raziel-pair-body">
+          <p className="sod29-raziel-pair-intro">בדיקה קנונית ומוגבלת של קשר חישובי. היא מופעלת רק בלחיצה, ללא AI וללא שמירה אוטומטית.</p>
+          {session.personalResearchPreview ? <div className="sod29-raziel-pair-preview" role="note" data-pair-preview-fixture="true">
+            <strong>פריוויו בטוח · דוגמת תצוגה בלבד</strong>
+            <span>המנוע החי והשמירה בענן נעולים עד לשער שרת נפרד. הדוגמה אינה ריצת מחקר ואינה נשמרת.</span>
+            <button type="button" onClick={loadPairPreviewExample} disabled={busy}>טען דוגמה</button>
+          </div> : null}
+          {!session.personalResearchAvailable ? <p className="sod29-raziel-pair-auth" role="status">הבדיקה האישית זמינה לאחר כניסה לחשבון.</p> : null}
+          <form className="sod29-raziel-pair-form" onSubmit={runPersonalPair}>
+            <label htmlFor={`raziel-pair-left-${projection}`}>ביטוי ראשון</label>
+            <input
+              id={`raziel-pair-left-${projection}`}
+              value={pair.draft?.left || ""}
+              onChange={(event) => updatePairDraft("left", event.target.value)}
+              maxLength={160}
+              lang="he"
+              dir="auto"
+              autoComplete="off"
+              disabled={busy || !session.personalResearchAvailable}
+            />
+            <label htmlFor={`raziel-pair-right-${projection}`}>ביטוי שני</label>
+            <input
+              id={`raziel-pair-right-${projection}`}
+              value={pair.draft?.right || ""}
+              onChange={(event) => updatePairDraft("right", event.target.value)}
+              maxLength={160}
+              lang="he"
+              dir="auto"
+              autoComplete="off"
+              disabled={busy || !session.personalResearchAvailable}
+            />
+            <button className="sod29-action primary" type="submit" disabled={busy || !session.personalResearchAvailable || !pair.draft?.left?.trim() || !pair.draft?.right?.trim()}>
+              {pair.status === "busy" ? "בודק…" : session.personalResearchPreview ? "הצג דוגמה" : "בדוק קשר"}
+            </button>
+          </form>
+          {pair.status === "positive" || pair.status === "partial" ? <article className="sod29-raziel-pair-result is-positive" role="status" data-pair-outcome={pair.status}>
+            <small>{pair.status === "partial" ? "תוצאה חלקית" : "תוצאה חישובית"}</small>
+            <strong>נמצא מועמד לקשר חישובי</strong>
+            <bdi>{pairFinding?.subject?.label || pair.expressions?.join(" ↔ ")}</bdi>
+            <span>{personalPairEvidenceSummary(pairFinding)}</span>
+            <small>מועמד מחקרי בלבד — לא הוכחה לקשר רעיוני או היסטורי.</small>
+            <small>{pair.previewFixture ? "מקור: דוגמת תצוגה לא־חיה" : <>מקור חישובי: <bdi>{pairFinding?.source?.method || pairFinding?.source?.engine || "fn_relation_candidate"}</bdi></>}</small>
+            <small>{pair.previewFixture ? "דוגמה: אפס קריאות רשת" : `${Number(pair.cost?.ai_calls || 0)} AI · ${Number(pair.cost?.rpc_calls || 0)} RPC חישובי · ${Number(pair.cost?.retry_count || 0)} ניסיונות חוזרים`}</small>
+            <button
+              type="button"
+              className="sod29-action"
+              disabled={pair.previewFixture || session.personalPairFindingAdded}
+              aria-pressed={session.personalPairFindingAdded}
+              onClick={addPairFinding}
+            >{pair.previewFixture ? "שמירה נעולה בפריוויו" : session.personalPairFindingAdded ? "צורף למחקר שלי" : "צרף למחקר שלי"}</button>
+          </article> : null}
+          {pair.status === "negative" ? <div className="sod29-raziel-pair-result is-negative" role="status" data-pair-outcome="negative">
+            <strong>הבדיקה הושלמה ולא נמצאה ראיה מהותית</strong>
+            <span>זהו ממצא שלילי בבדיקה המוגבלת הזו — לא קביעה שאין קשר מסוג אחר.</span>
+          </div> : null}
+          {pair.status === "error" ? <div className="sod29-raziel-pair-result is-error" role="alert" data-pair-outcome="error">
+            <strong>הבדיקה לא הושלמה</strong>
+            <span>{PERSONAL_PAIR_ERROR_LABEL[pair.error] || "אירעה תקלה, ולכן לא מוצגת מסקנה לגבי הקשר."}</span>
+          </div> : null}
+          {pairSaveNotice ? <small className="sod29-raziel-pair-save-status" role="status">{pairSaveNotice}</small> : null}
+        </div>
+      </details>
       <div className="sod29-raziel-thread" role="log" aria-label="השיחה עם רזיאל">
         {thread.map((m, i) => (
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
