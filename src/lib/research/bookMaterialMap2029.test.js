@@ -19,6 +19,8 @@ const SYNTHETIC_BUNDLE = {
     pdf: "https://example.test/source.pdf",
     metrics: [["12", "עמודים", "synthetic"]],
     coverage: [{ label: "Research Map", value: "PARTIAL", note: "synthetic" }],
+    completion: { phase: "MATERIAL_MAP_COMPLETE", label: "מיפוי הושלם", summary: "fixture complete", blocking_open: 0, extraction_backlog: 1, source_native_questions: 1, next_phase: "SELECTIVE_RESEARCH_INTAKE" },
+    research_intake: { status: "READY_FOR_SELECTIVE_INTAKE", principle: "fixture intake", steps: [{ id: "RI-X", title: "שלב סינתטי", target: "research_items", status: "AVAILABLE", note: "fixture only" }] },
     datasets: [["DS-X", "ממצא סינתטי", "p1", "OPEN", "fixture only"]],
     sections: [{ id: "SEC-X", title: "חטיבה סינתטית", pages: "pp1–2", material: "fixture material", status: "MAPPED" }],
     families: [{ title: "שיטה סינתטית", text: "fixture only" }],
@@ -65,6 +67,9 @@ test("public bundle is normalized into source, structure, findings, methods, con
     sourceRef: "book:synthetic:1#p2:witness",
   });
   assert.equal(map.openQuestions[0].text, "שאלה סינתטית פתוחה");
+  assert.equal(map.completion.phase, "MATERIAL_MAP_COMPLETE");
+  assert.equal(map.completion.blockingOpen, 0);
+  assert.equal(map.researchIntake.steps[0].id, "RI-X");
   assert.deepEqual(map.inventory.map(item => [item.key, item.value]), [
     ["content_blocks", 1],
     ["datasets", 1],
@@ -116,6 +121,12 @@ test("Ahavat Torah public snapshot exposes the complete material map and preserv
   assert.equal(map.available, true);
   assert.equal(map.witnessClosures.length, 5);
   assert.equal(map.openQuestions.length, 5);
+  assert.equal(map.completion.phase, "MATERIAL_MAP_COMPLETE");
+  assert.equal(map.completion.blockingOpen, 0);
+  assert.equal(map.completion.extractionBacklog, 3);
+  assert.equal(map.completion.sourceNativeQuestions, 2);
+  assert.equal(map.researchIntake.status, "READY_FOR_SELECTIVE_INTAKE");
+  assert.equal(map.researchIntake.steps.length, 5);
   assert.equal(map.sections.length, 8);
   assert.equal(map.sections[0].pages, "pp1–5");
   assert.equal(map.sections.at(-1).pages, "pp94–99");

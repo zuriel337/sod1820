@@ -206,18 +206,20 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 - Two self-corrected drifts (D-01, D-02) and the GPT `v5`/`v5b` pointer question — RESOLVED.
 - Research Library / Source Dossier architecture — FOUNDATION SUFFICIENT, no schema/DB change needed.
 
-### OPEN (needs verification, in rough priority order)
+### CURRENT PHASE VERDICT
 
-1. Letter-table (DS-02) — complete the visual source transcription of all 1,458 cells against the already-closed 27×54 corpus matrix.
-2. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
-3. DS-05 exact dual-metric cell normalization.
-4. DS-11 full-list/root-rule reconstruction.
+**MATERIAL MAP COMPLETE.** The current phase is closed: all 99 PDF pages, 303 content blocks, 11 page-level tables, 13 dataset IDs (11 active + 2 withdrawn) and 18 methods are accounted for. There are **zero blocking gaps** for viewing the book as a complete material map.
 
-### NEXT (recommended single best next step)
+The five residuals are deliberately reclassified instead of being force-closed:
 
-**Transcribe DS-02 cell-by-cell against the fixed corpus matrix.** The population contract is now stable (27 printed glyphs, final forms separate), the 1,458-cell corpus matrix is reproducible, and several former “anomalies” have already collapsed into low-resolution numeral errors. The remaining work is source transcription, not discovery of a new notation system.
+- **three deep-extraction tasks:** DS-02 source-cell transcription, DS-05 dual-metric cell normalization and DS-11 lexical-rule/list normalization;
+- **two source-native research questions:** CP5-WG-02's counting contract and the 1983 editor's explicit צ״ע.
 
-The former ל/מ/נ boundary is already closed by the later mechanical pass: כ→ל→מ→נ is clean and ordered.
+These are future research units, not missing pages, hidden locks or evidence that the material map is incomplete. CR-04 remains interpretation-adjacent context and does not block the phase either. The former ל/מ/נ boundary is already closed: כ→ל→מ→נ is clean and ordered.
+
+### NEXT PHASE
+
+**Selective Research Intake**, using the existing Research OS. Keep one book/source identity, reference the 303 blocks as evidence, and prepare only the closed source-backed claims as candidate Research Objects. Do not bulk-promote every page, block or table cell. Exact routing and the live-state reconciliation are specified in `AHAVAT_TORAH_RESEARCH_INTAKE_MANIFEST.md`.
 
 ### UNKNOWN (cannot currently be determined from available evidence)
 

@@ -2,7 +2,7 @@
  "book_slug": "ahavat-torah",
  "source_identity": "book:hebrewbooks:5635",
  "generated_at": "2026-10-22",
- "schema_version": 1,
+ "schema_version": 2,
  "hero": {
   "eyebrow": "AHAVAT TORAH · HEBREWBOOKS 5635",
   "subtitle": "ר׳ פנחס זלמן הלוי סג״ל איש הורוויץ · תרס״ה / 1905",
@@ -45,9 +45,9 @@
     "preserved"
    ],
    [
-    "5",
-    "קריאות לא פתורות",
-    "current material map"
+    "3+2",
+    "משימות חילוץ + שאלות מקור",
+    "אינן חוסמות את מפת החומר"
    ]
   ],
   "coverage": [
@@ -74,9 +74,78 @@
    {
     "label": "Known-Corpus Exhaustion",
     "value": "PARTIAL",
-    "note": "הטבלאות שניתנות לשחזור קורפוס נסגרו בנפרד; טבלת 22 האותיות ושתי רשימות מקור גדולות נשארו ברמת מיפוי/תעתיק חלקי."
+    "note": "הטבלאות שניתנות לשחזור קורפוס נסגרו בנפרד; מטריצת 27 הגליפים ושתי רשימות מקור גדולות נשארו ברמת מיפוי/תעתיק חלקי."
    }
   ],
+  "completion": {
+   "phase": "MATERIAL_MAP_COMPLETE",
+   "label": "מיפוי החומר הושלם",
+   "summary": "כל 99 עמודי המקור, 303 בלוקי החומר, 11 הטבלאות, 13 מזהי ה-dataset ו-18 השיטות ממופים. שלוש עבודות חילוץ עמוק ושתי שאלות מקור נשמרות להמשך מחקר ואינן חוסמות את השלמת מפת החומר.",
+   "blocking_open": 0,
+   "extraction_backlog": 3,
+   "source_native_questions": 2,
+   "next_phase": "SELECTIVE_RESEARCH_INTAKE"
+  },
+  "research_intake": {
+   "status": "READY_FOR_SELECTIVE_INTAKE",
+   "principle": "עוגן מקור אחד, חומר-ראיה מקושר, וקידום סלקטיבי בלבד של טענות וממצאים; אין להפוך כל עמוד או בלוק ל-Research Object.",
+   "steps": [
+    {
+     "id": "RI-01",
+     "title": "זהות הספר והעדות",
+     "target": "Book/Source identity",
+     "status": "EXISTS",
+     "note": "הזהות book:ahavat-torah כבר קיימת; עדות HebrewBooks 5635 וה-PDF מחוברים אליה."
+    },
+    {
+     "id": "RI-02",
+     "title": "מרחב העבודה האישי",
+     "target": "research_items",
+     "status": "AVAILABLE",
+     "note": "הפעולה 'הוסף למחקר' מוסיפה את הספר למרחב המחקר; היא אינה מקדמת אמת ואינה יוצרת Research Objects."
+    },
+    {
+     "id": "RI-03",
+     "title": "מועמדי מחקר סגורים",
+     "target": "research_objects / owner-governed research pipeline",
+     "status": "HUMAN_REVIEW_REQUIRED",
+     "note": "DS-01, DS-03, DS-04, DS-06, DS-09, DS-10, DS-12 ו-DS-13, וכן חמש סגירות העדות, מוכנים להכנה כמועמדים עם source_ref מדויק."
+    },
+    {
+     "id": "RI-04",
+     "title": "חומר ראיה וחילוץ",
+     "target": "source/evidence references",
+     "status": "PRESERVE_AS_EVIDENCE",
+     "note": "303 הבלוקים, DS-02, DS-05 ו-DS-11 נשארים חומר מקור/חילוץ מקושר; אין לקדם אותם בכמות גדולה כאילו היו טענות סגורות."
+    },
+    {
+     "id": "RI-05",
+     "title": "שאלות מקור והכרעה",
+     "target": "Research Intake → Human Gate",
+     "status": "PRESERVE_OPEN",
+     "note": "CP5-WG-02 והצ״ע של עורך תשמ״ג נשמרים כשאלות פתוחות. DS-07 ו-DS-08 נשמרים כפרובננס withdrawn בלבד."
+    }
+   ],
+   "candidate_datasets": [
+    "DS-01",
+    "DS-03",
+    "DS-04",
+    "DS-06",
+    "DS-09",
+    "DS-10",
+    "DS-12",
+    "DS-13"
+   ],
+   "evidence_only_datasets": [
+    "DS-02",
+    "DS-05",
+    "DS-11"
+   ],
+   "withdrawn_provenance": [
+    "DS-07",
+    "DS-08"
+   ]
+  },
   "sections": [
    {
     "id": "SEC-01",

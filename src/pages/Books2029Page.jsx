@@ -127,6 +127,8 @@ function MaterialMap({ material }) {
   const mappedUnits = material.findings.length;
   const resolvedWitnessCount = material.witnessClosures.length;
   const openCount = material.openQuestions.length;
+  const completion = material.completion;
+  const intake = material.researchIntake;
 
   return <section className="sod29-section" id="book-material-map">
     <div className="sod29-section-head">
@@ -144,6 +146,7 @@ function MaterialMap({ material }) {
     <div className="sod29-grid">
       <div className="sod29-card wide"><h3>המקור</h3><p>{source.subtitle || "חבילת המקור מחוברת לספר."}</p>{source.promise ? <p>{source.promise}</p> : null}</div>
       <div className="sod29-card"><h3>זהות החבילה</h3><p>{source.identity || material.slug}</p><p>{source.generatedAt ? `צילום מצב: ${source.generatedAt}` : "צילום מצב מתועד"}</p></div>
+      {completion ? <div className="sod29-card wide"><h3>{completion.label}</h3><p>{completion.summary}</p><small>{[completion.blockingOpen != null ? `${completion.blockingOpen} חסמים` : null, completion.nextPhase ? `השלב הבא: ${completion.nextPhase}` : null].filter(Boolean).join(" · ")}</small></div> : null}
     </div>
 
     {material.inventory.length ? <div className="sod29-actions" aria-label="מלאי החומר המתועד">
@@ -185,16 +188,22 @@ function MaterialMap({ material }) {
       </details> : null}
 
       <details className="sod29-book-family" open>
-        <summary><span><strong>שאלות פתוחות</strong><small>מה עדיין דורש אימות, סגירה או קריאה מדויקת יותר.</small></span><span className="sod29-chip">{openCount}</span></summary>
+        <summary><span><strong>המשך מחקר — לא חוסם</strong><small>עבודות חילוץ ושאלות מקור נשמרות במפורש; הן אינן מבטלות את השלמת מפת החומר.</small></span><span className="sod29-chip">{openCount}</span></summary>
         <div className="sod29-book-family-body"><div className="sod29-list">{material.openQuestions.map((item, index) => <div className="sod29-row" key={item.id}><div><strong>{index + 1}</strong><small>{item.text}</small></div></div>)}</div></div>
       </details>
+
+      {intake?.steps.length ? <details className="sod29-book-family" open>
+        <summary><span><strong>מסלול הכנסה למחקר</strong><small>{intake.principle || "קליטה סלקטיבית אל Research OS הקיים."}</small></span><span className="sod29-chip">{intake.steps.length}</span></summary>
+        <div className="sod29-book-family-body"><div className="sod29-list">{intake.steps.map((item, index) => <div className="sod29-row" key={item.id}><div><strong>{index + 1} · {item.title}</strong><small>{[item.target, item.status].filter(Boolean).join(" · ")}</small>{item.note ? <p className="sod29-muted">{item.note}</p> : null}</div></div>)}</div></div>
+      </details> : null}
     </div>
 
     <div className="sod29-section-head"><div><div className="sod29-kicker">השלבים</div><h2>איפה אנחנו ומה הבא</h2></div></div>
     <div className="sod29-grid">
       <div className="sod29-card"><h3>1 · החומר נמצא</h3><p>כל 99 עמודי המקור רשומים במפת החומר הציבורית, וה־PDF המקורי מחובר לפתיחה.</p></div>
       <div className="sod29-card"><h3>2 · הנתונים הופרדו</h3><p>{mappedUnits} יחידות חומר ו־{material.methods.length} משפחות/שיטות מסודרות לפי מקור, חישוב וקורפוס.</p></div>
-      <div className="sod29-card"><h3>3 · מה נשאר</h3><p>{openCount ? `${openCount} נקודות נשארו במפורש: טבלאות מקור גדולות שטרם נורמלו, פער קורפוס אחד ושאלת עורך מקורית. הן מוצגות כחומר פתוח — לא כמנעול.` : "כל הנקודות המתועדות נסגרו."}</p></div>
+      <div className="sod29-card"><h3>3 · השלב הנוכחי נסגר</h3><p>{completion?.summary || (openCount ? `${openCount} נקודות נשמרו להמשך מחקר ואינן מוצגות כמנעול.` : "כל הנקודות המתועדות נסגרו.")}</p></div>
+      <div className="sod29-card"><h3>4 · הבא: קליטה סלקטיבית</h3><p>{intake?.principle || "מחברים את המקור פעם אחת ומקדמים רק ממצאים שנבדקו, בלי ליצור מערכת מחקר נוספת."}</p></div>
     </div>
   </section>;
 }

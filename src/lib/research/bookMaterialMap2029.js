@@ -43,6 +43,8 @@ function unavailable(slug, reason) {
     connections: [],
     witnessClosures: [],
     openQuestions: [],
+    completion: null,
+    researchIntake: null,
     inventory: [],
   };
 }
@@ -144,6 +146,44 @@ function normalizeWitnessClosure(row, index) {
   };
 }
 
+function normalizeCompletion(row) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+  const label = clean(row.label);
+  const summary = clean(row.summary);
+  if (!label && !summary) return null;
+  return {
+    phase: clean(row.phase) || null,
+    label: label || "מצב מפת החומר",
+    summary,
+    blockingOpen: Number.isFinite(row.blocking_open) ? row.blocking_open : null,
+    extractionBacklog: Number.isFinite(row.extraction_backlog) ? row.extraction_backlog : null,
+    sourceNativeQuestions: Number.isFinite(row.source_native_questions) ? row.source_native_questions : null,
+    nextPhase: clean(row.next_phase) || null,
+  };
+}
+
+function normalizeResearchIntakeStep(row, index) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+  const title = clean(row.title);
+  if (!title) return null;
+  return {
+    id: clean(row.id) || `research-intake-${index + 1}`,
+    title,
+    target: clean(row.target) || null,
+    status: clean(row.status) || null,
+    note: clean(row.note) || null,
+  };
+}
+
+function normalizeResearchIntake(row) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+  const steps = compact((Array.isArray(row.steps) ? row.steps : []).map(normalizeResearchIntakeStep));
+  const status = clean(row.status);
+  const principle = clean(row.principle);
+  if (!steps.length && !status && !principle) return null;
+  return { status: status || null, principle: principle || null, steps };
+}
+
 function compact(items) {
   return items.filter(Boolean);
 }
@@ -198,6 +238,8 @@ export function buildBookMaterialMap(bundle, { expectedSlug } = {}) {
     connections: relations.length ? relations : seeds,
     witnessClosures: compact((Array.isArray(hero.witness_closures) ? hero.witness_closures : []).map(normalizeWitnessClosure)),
     openQuestions: compact((Array.isArray(hero.open) ? hero.open : []).map(normalizeOpenQuestion)),
+    completion: normalizeCompletion(hero.completion),
+    researchIntake: normalizeResearchIntake(hero.research_intake),
     inventory,
   };
 }
