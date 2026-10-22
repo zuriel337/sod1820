@@ -193,3 +193,43 @@ Do not expand ELS into a parallel general Research Workspace. New shared capabil
 At approval time, `SOD1820_MASTER_ROADMAP.md` v5.1 has `LAST_RECONCILED=2026-08-22` while verified main/work_log activity is newer (#185/#186/#188). Per its own freshness law it is STALE for this workstream — a `v5.2` candidate section already exists on this branch, updated by this reconciliation pass to match §0–§12 above.
 
 This branch records the approved, reconciled contract; `SOD1820_MASTER_STATE.md`/`SOD1820_MASTER_ROADMAP.md` should be kept in sync with it before the architecture is treated as fully reflected by canonical docs. No existing historical work is deleted; prior plans remain provenance and are marked superseded/absorbed only where a direct approved replacement exists.
+
+
+## 14. Shared event sequences and update projection — branch candidate, 13 October 2026
+
+EXTEND_EXISTING: Reality Graph owns Event identities and typed relations; Publishing/Intake own source-native occurrence, meaningful revision and provenance; this Research OS baseline owns composition; Subscription/Person own explicit follow and authorized personal state. Design V2/System Frame/Experience own presentation. This section is a branch implementation candidate, not a live-law mutation, new owner, graph, store or approval to publish.
+
+### One object, multiple surfaces
+
+Home, World, the Companion/Command Island, contextual Projector and Raziel consume the same authorized owner bundle. The pure `buildEventSequences` adapter in `src/lib/research/eventSequenceProjection.js` composes it without I/O or persistent state. A sequence is a projection around an existing root Event identity; a Post, email thread or source representation does not automatically become an Event. No shared number, topic label or date establishes a parent relation. The PR1046 Elections/Bennett declared pilot is implementation provenance only; it is not an event registry and is not silently promoted here.
+
+Input events carry existing stable id, declared parentId, label, canonical owner-provided href, occurredAt and/or owner-proved chronological ordinal. Input updates carry source-native id, revisionId, eventId, sourceRef, exact target href, sanitized change summary, source/provider arrivalAt, explicit streamIds and independent verification state. Acquisition/admission readers must enforce authorization and sanitization BEFORE composition. Never pass raw privileged nodes, edges, private inbox or audience records. Bounded partial coverage is explicit; unresolved ancestors, cycles and conflicting identities are withheld without diagnostic content leakage. Oversized bundles fail explicitly; pagination must preserve complete ancestor closure.
+
+### Chronology, latest and unread are distinct
+
+Event occurrence time/order drives sibling chronology; parent is shown before children even with missing dates. Arrival/revision time drives what most recently changed. Missing times are not replaced with browser time. Removing dates from a compact tree does not remove underlying time/provenance or override the date-display owner when a date is displayed.
+
+Exactly one latest update per root carries `isLatest`. Only that update can pulse while unread, and reduced-motion disables the pulse without changing latest/unread meaning. This initial adapter does not emit per-ancestor unread aggregates; sequence/stream counts are available independently of pulse. Ancestors are not duplicate update occurrences. Reader state uses exact source occurrence + revision, shared across projections through the existing state owner. Version 2 of a read occurrence resurfaces; repeated replay of version 1 does not. Stream indicators aggregate those same keys. Matching text, date, number or image resemblance never proves cross-channel identity.
+
+### Navigation and follow
+
+Compact stream entries lead to the existing primary home/section (e.g. the existing Zvi Home updates area); an exact update opens its owner-provided source/fragment destination with existing Exact Return. No fabricated route or duplicate viewer. Source/thread chronology and event chronology remain distinct.
+
+The branch-only migration `20261013072000_event_follow_subject_projection_v1.sql` extends existing `canonical_follow_subject`: event and event_sequence share `event:<root Event UUID>`, preserving every existing case. The current live resolver does not yet support these inputs. No new Follow engine or notification table. Existing WatchButton + follow_subject_state/toggle remain clients. An authorized event reader must supply the subject; the pure resolver neither proves existence nor grants access. Dispatcher fanout for meaningful source revisions through declared ancestor relations still requires isolated SQL/ACL, dedup and release review before application. Following a stream does not auto-follow each event, and relevance/recommendation does not create a subscription.
+
+### Optional explanation/feedback infrastructure — no UI decision
+
+`presentationReason.js` carries bounded optional reason codes (followed_subject/current_context/recent_arrival/explicit_recommendation), subjectRef, occurrenceKey and evidenceRef. Recommendation reasons require provenance. No audience record, private profile or inferred sensitive trait is exported. Dismiss-once, not-interested and mute-subject are distinct intents; closing a window is never unsubscribe or deletion of source evidence. The module creates no persistence/telemetry or profiling pipeline; mute requires explicit user confirmation and existing preference ownership. No question-mark control/dialog is built or selected by this contract.
+
+Existing audience_cohort_v1 is a server-only behavioral read model for Core, Or-Geula and Dimension Five under Traffic Intelligence, not an entitlement, consent or public targeting field. Existing subscriber acquisition, explicit notification_prefs and research_contributions/community activity are separate evidence axes. Chat participation is not consent to notifications; Or-Geula viewing is not an inferred belief. Cohort definitions already exist; no parallel audience registry is introduced.
+
+### Implementation and integration boundary
+
+Pure projection/reason helpers are implemented and covered by 17 Node tests. This branch does not alter the active PR1072 reader/visual writer or PR1046 pilot, does not install SQL, and is not yet wired to Home/World/Raziel. Next integration: authorized graph/source bundle adapter, persistent revision identity/seen seam, existing notification dispatch, same shared frame reader, original Claude visual integration and responsive/reduced-motion acceptance. Mail public admission remains gated by PR1078's independent authentication/sanitization/lineage review. Synthetic mail records never become research events.
+
+
+Live carrier check (13 October 2026): 120 existing Event nodes; current Event-connected edges are 113 Post→Event documents and 113 Year→Event contains. No Event→Event parent edges were found in that bounded query. Thus generic sequences cannot yet be wired by inferring parenthood from dates or Post titles. The admitted author-declared parent relation/source revision adapter is a concrete integration gap; no graph admission was performed. Community activity already lives in research_contributions (including OpenWeb, community_2029, forum and WhatsApp origins), not a new chat-member/audience table. Counts are content/activity evidence, not unique audience sizes or consent.
+
+The same module includes provenPostUpdatesToEventUpdates, a bridge from the existing Publishing publicProvenPostSourceUpdates DTO to Event update occurrences. It requires an authorized declared source/fragment→Event binding, keeps exact fragment/revision/time, withholds ambiguous mappings and refuses raw posts.modified rows. It neither imports the branch-only pilot nor reads private revision snapshots. This closes the DTO conversion seam; actual author-declared parent/source bindings and the surface wiring remain open.
+
+Specialist corrections: one source occurrence may have several declared Event memberships; eventIds are preserved per sequence, with one row per occurrence/revision in that sequence and one shared read key across sequences/streams. Conflicting content remains withheld. Label/summary/href/identity lengths are bounded without truncation. Root Follow clients must pass sequence.rootId, never a child id; unreadCount/hasUnread remain meaningful when the latest update was already read. Original Claude reviewed fa5feb91 (13 tests), returned MINIMAL_FIXES; final implementation adds coverage for the fixes, not an assertion of final specialist/SQL/browser acceptance.
