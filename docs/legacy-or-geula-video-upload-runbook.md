@@ -35,6 +35,11 @@ or any schema, RLS, permission, Auth, or configuration change.
    - `expires_at = null` unless the approval specifies an expiry
    - `credit = 'אור הגאולה'`
    - `link_url = 'https://sod1820.co.il/or-geula/video/<row_uuid>'`
+   - for an explicitly Legacy-only publication with a final approved caption,
+     also set `seo_title = text`, `enrichment_status = 'enriched'`,
+     `enrichment_source = 'caption'`, and `enriched_at = now()`. This prevents
+     the scheduled enrichment worker from expanding the item into a semantic
+     research-map write outside the approved Legacy-only scope.
 7. Extract a representative JPEG frame locally without changing the MP4. Submit
    it to the existing `capture-video-thumb` function with the new row UUID. The
    function writes the canonical poster and fills `thumb_url` only when empty.
