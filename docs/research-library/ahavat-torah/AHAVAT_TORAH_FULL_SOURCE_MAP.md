@@ -49,7 +49,7 @@
 
 - Straight summation of book subtotals → Torah total (CALC-01, DS-01).
 - Raw count minus stated exclusion → adjusted count (CALC-02/07, samekh 1,833→1,830).
-- Bounded-span decomposition: sub-span + sub-span → combined total (CALC-03, Levite passage — **does not close**, see §E).
+- Bounded-span decomposition: sub-span + sub-span → combined total (CALC-03, Levite passage: ר״ב=202 and ל״ז=37, hence 239 exactly).
 - Multiplication (word-count × letters-per-word) (CALC-04, 30×2=60).
 - Triangular series 1+2+…+N (CALC-05: N=60→1,830; CALC-06: N=49→1,225).
 - Prefixed-form decomposition of a name-occurrence total (DS-06, Session 6: 614+13+13+4+2+1=647, **exact**).
@@ -131,7 +131,7 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 | Haggadah span = 1,820 words (הא לחמא→גאל ישראל) | 12 | — | SOURCE_LOCATED | None found this pass |
 | Erechin age-banded shekel arithmetic | 13 | — | SOURCE_LOCATED | None found |
 | Omer 1..49 = 1,225 (front-matter instance) | 13 | CALC-06: 49×50/2=1,225 | ARITHMETIC_VERIFIED (the sum itself); the onward day-50 bridge explicitly not completed in the source | **CR-04: same construction recurs at p.73 — relationship (same passage vs. independent) not established** |
-| Levite bounded span = 239 words | 18 | CALC-03: 212+37=249 | VISUALLY_VERIFIED (all 3 numbers); **arithmetic does NOT close** | **249≠239, delta −10, unresolved (E-07)** |
+| Levite bounded span = 239 words | 18 | CALC-03: ר״ב=202; ל״ז=37; 202+37=239 | **CLOSED — source numerals and arithmetic agree exactly** | None; the former 212 reading was a Hebrew-numeral decoding error |
 | 30 two-letter words → 60 letters → 1,830 (triangular) | 12 | CALC-04+CALC-05: 30×2=60; Σ1..60=1,830 | ARITHMETIC_VERIFIED (both steps) | None found |
 | אוריין תליתאי entity table exists, dual-metric | 25–31 | — | VISUALLY_VERIFIED (structure) | None found (per-cell not verified) |
 | Detailed letter table spans pp.35–41, not 36–41 | 35 | — | **RESOLVED** (D-03, Session 5, 6× zoom) | Previously open (2 competing readings); now closed |
@@ -154,7 +154,7 @@ The book's major standalone numeric/textual claims, each with source page, calcu
 
 | ID | What conflicts | Delta | Status |
 |---|---|---|---|
-| E-07/CALC-03 | Levite span: 212+37=249 vs. printed 239 | −10 | UNRESOLVED |
+| E-07/CALC-03 | Former Levite-span conflict: ר״ב was decoded as 212 instead of 202 | 0 | **RESOLVED — 202+37=239** |
 | A-01/E-08 | Letter Heh, Bereshit: transcribed Σ vs. printed cumulative | was +244, now **+44** after a found transcription-decode error (Session 5) | SUBSTANTIALLY RESOLVED, small residual |
 | A-02/E-09 | Letter Zayin, Torah-total: transcribed Σ vs. printed final | +117 (orig); re-verification attempt did not improve it | UNRESOLVED (glyph ambiguity, thousands-prefix) |
 | New (Session 5) | Letter Aleph/Bet, all 4 books each: per-parasha Σ vs. printed book subtotal | grows from ~−1,471 to ~−43,952 with book size | UNRESOLVED — numeral-scale/thousands-notation hypothesis, not confirmed |
@@ -212,9 +212,8 @@ GPT Checkpoint 7 (Attributed Expression Corpus) and Checkpoint 8 (Corpus→Cohor
 
 1. Letter-table (DS-02) per-parasha values for high-frequency letters (Aleph, Bet, and by extension every common letter ה–ת) — numeral-scale hypothesis unconfirmed.
 2. A-02 (letter Zayin checksum) — glyph ambiguity, needs a fresh high-zoom pass on the thousands-prefix digit specifically.
-3. E-07 (Levite span 249 vs. 239) — a single, small, well-bounded arithmetic discrepancy, never revisited since Task 3.
-4. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
-5. DS-11 full-list/root-rule reconstruction.
+3. CR-04 (Omer construction, one passage or two) — interpretation-adjacent.
+4. DS-11 full-list/root-rule reconstruction.
 
 ### NEXT (recommended single best next step)
 

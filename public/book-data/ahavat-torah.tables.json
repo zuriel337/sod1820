@@ -683,22 +683,22 @@
   {
    "calculation_id": "CALC-03",
    "inputs": [
-    "Levite passage word-count: 'from Take the Levites to the Sanctuary'=212",
+    "Levite passage word-count: 'from Take the Levites to the Sanctuary'=ר״ב=202",
     "'from this to their charge'=37"
    ],
    "operations": [
     "sum the two bounded sub-spans"
    ],
    "intermediate_values": [
-    "212+37=249... "
+    "202+37=239"
    ],
-   "output": "239 (as printed; NOTE: 212+37=249, a 10-unit ARITHMETIC MISMATCH against the printed 239)",
+   "output": "239 (as printed and arithmetically verified)",
    "why_exclusion_or_operation_performed": "Bounded-span decomposition; Horowitz gives both sub-spans and the combined total explicitly.",
    "pdf_pages": [
     18
    ],
-   "truth_class": "SOURCE_CLAIM for the two sub-span values and for the printed total; the combination itself does NOT arithmetically verify at face value -- flagged as an ANOMALY, not silently corrected (see EXCEPTIONS E-07)",
-   "confidence": "VISUALLY_VERIFIED (all three printed numbers directly read); ARITHMETIC_VERIFIED status explicitly WITHHELD due to the mismatch"
+   "truth_class": "SOURCE_CLAIM for the two sub-span values and printed total; ARITHMETIC_VERIFIED because ר״ב=202 and 202+37=239",
+   "confidence": "CLOSED_TRANSCRIPTION_CORRECTION (all three printed numbers directly read; former 212 decoding corrected to 202)"
   },
   {
    "calculation_id": "CALC-04",
@@ -1006,13 +1006,13 @@
   },
   {
    "exception_id": "E-07",
-   "kind": "arithmetic mismatch (component sum vs printed total)",
-   "description": "Levite bounded-span: two sub-spans printed as 212 and 37 words sum to 249, but the printed combined total is 239 -- a 10-unit mismatch. Preserved as-is, not silently corrected.",
+   "kind": "resolved transcription error",
+   "description": "Levite bounded-span: the first sub-span is printed ר״ב, which is 202 (not 212); 202+37=239 exactly. The former 10-unit mismatch was introduced by the research transcription, not by the source.",
    "pdf_pages": [
     18
    ],
-   "source_note": "VISUALLY_VERIFIED (all three source numbers read directly this pass)",
-   "confidence": "VISUALLY_VERIFIED"
+   "source_note": "CLOSED_TRANSCRIPTION_CORRECTION",
+   "confidence": "ARITHMETIC_VERIFIED"
   },
   {
    "exception_id": "E-08",
@@ -7955,9 +7955,9 @@
  "contradictions": [
   {
    "id": "E-07/CALC-03",
-   "conflict": "טווח לויים: 212+37=249 מול המודפס 239",
-   "delta": "-10",
-   "status": "UNRESOLVED",
+   "conflict": "טווח לויים: ר״ב=202, ולכן 202+37=239",
+   "delta": "0",
+   "status": "RESOLVED_TRANSCRIPTION_CORRECTION",
    "pdf_pages": [
     18
    ]
