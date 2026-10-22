@@ -1,6 +1,6 @@
 # Books 2029 — Stage 1 Public Admission Decision Pack
 
-Status: `HUMAN_GATE_REQUIRED`
+Status: `GATE_A_APPROVED · STAGE_2_IMPLEMENTED_BRANCH_ONLY · GATE_B_REQUIRED`
 Prepared: 2026-10-21
 Repository baseline: `a67245ed95ee3fa6b198d593fdc84c07c9e546fc` (`origin/main`)
 Execution boundary: branch-only; read-only production inspection; no live database write; no flag change
@@ -99,6 +99,8 @@ Stage 1 therefore does not:
 
 ## Human Gate A — required next decision
 
+Gate A was recorded from ZURIEL's instruction `המשך` on 2026-10-22. It authorizes the Stage 2 branch-only implementation described below. It does not authorize production publication, migration application, merge, deployment, or the Books unlock.
+
 Recommended decision:
 
 > Approve the exact 33-row Bentov cohort, checksum `0cb534ea389cd4dbb7b0a1aac598535d`, for **Stage 2 implementation and review on an isolated branch only**. This approval does not authorize production publication or unlock Books.
@@ -135,4 +137,27 @@ No gate inherits approval from an earlier gate.
 - [x] Candidate cohort bounded and drift-checksummed.
 - [x] Private and incomplete cohorts explicitly held.
 - [x] No production data, RLS, grants, flags, or routes changed.
-- [ ] Human Gate A recorded by ZURIEL.
+- [x] Human Gate A recorded by ZURIEL on 2026-10-22.
+
+## Stage 2 branch result
+
+Stage 2 implements a fail-closed public read boundary without publishing content:
+
+- `book_research_public_v1` is a physical, sanitized projection with RLS and an explicit safe-column grant.
+- The projection is empty by default. The migration contains no Bentov rows and no automatic `INSERT ... SELECT`.
+- `research_objects` receives no new grant or policy and remains inaccessible to browser roles.
+- Raw `meta`, `evidence`, and unrestricted `engine_detail` are not part of the public projection. `meta` is forced empty and `engine_detail` permits only `verification_state`.
+- Review rows can exist but RLS exposes only `publication_state = 'published'`.
+- The Books 2029 page reads only this projection and has no fallback to raw `research_objects`.
+- Exact deep links are constrained by both research-object ID and Book node ID.
+- `lock_books` remains enabled and the projection is not live.
+
+Gate B remains required before any cohort materialization or production migration.
+
+Stage 2 verification on 2026-10-22:
+
+- 65/65 focused Book projection and selection tests passed.
+- PostgreSQL 17.6 throwaway-schema assertions passed for RLS, safe-column grants, review-row denial, cross-Book filtering, and raw-field rejection.
+- 2029 server/crawler SEO + AI metadata parity passed.
+- The 2029 production build passed.
+- Live read-only recheck: Bentov cohort remains 33 rows with checksum `0cb534ea389cd4dbb7b0a1aac598535d`; `lock_books` remains enabled; the projection is not live.

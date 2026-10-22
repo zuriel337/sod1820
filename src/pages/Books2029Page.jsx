@@ -1,13 +1,13 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { use2029Palette } from "../lib/palette.js";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
   fetchBookEntities,
   fetchBookEntityBySlug,
-  fetchBookResearch,
+  fetchPublicBookResearch,
   bookContextPatch,
   bookToWorkspaceItem,
   researchRowToWorkspaceItem,
@@ -185,6 +185,8 @@ function LibraryView() {
 function BookDetail({ slug }) {
   const research = useResearch();
   const shell = use2029Shell();
+  const [searchParams] = useSearchParams();
+  const focusResearchId = searchParams.get("research") || null;
   const [state, setState] = useState({ loading: true, book: null, research: null, error: null });
   const currentContext = research.context || null;
 
@@ -194,7 +196,7 @@ function BookDetail({ slug }) {
     fetchBookEntityBySlug(slug)
       .then(async book => {
         if (!book) return { book: null, pack: null };
-        const pack = await fetchBookResearch(book, { limit: 80 });
+        const pack = await fetchPublicBookResearch(book, { limit: 80, focusId: focusResearchId });
         return { book, pack };
       })
       .then(({ book, pack }) => {
@@ -207,7 +209,7 @@ function BookDetail({ slug }) {
       })
       .catch(error => alive && setState({ loading: false, book: null, research: null, error }));
     return () => { alive = false; };
-  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [slug, focusResearchId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const book = state.book;
   const pack = state.research;
