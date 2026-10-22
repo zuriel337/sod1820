@@ -79,6 +79,7 @@ test('saved record projection preserves zero/backward anchors and marks historic
   assert.equal(hasExactSavedMatrix(row),true);
   const item=savedMatrixToItem(row);
   assert.equal(item.start,0);assert.equal(item.dir,-1);assert.equal(item.corpusId,'corpus');
+  assert.equal(item.savedReplayWindow,'compact-v1');
   assert.deepEqual(item.words,row.positions.findings);assert.deepEqual(item.view,row.positions.view);
   assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_0'}}),true);
   assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_1'}}),false);

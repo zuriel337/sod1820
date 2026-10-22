@@ -361,10 +361,10 @@ async function inspectAndScanPrimary(page, before) {
   await button(page, 'סרוק לאורך הציר הנבחר').evaluate((element) => { element.click(); element.click(); element.click(); });
   await button(page, 'סמן את תורה ברצף').waitFor();
   assert.equal(await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length), requests + 1, 'scan spam produces one pending lens request');
-  await expectStable(page, before, 'scan primary line', { ignorePageScroll: inlineFindings });
+  await expectStable(page, before, 'scan primary line', { ignorePageScroll: true });
   await activate(page, 'סמן את תורה ברצף');
   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"] .is-word').count(), 4);
-  await expectStable(page, before, 'highlight line word', { ignorePageScroll: inlineFindings });
+  await expectStable(page, before, 'highlight line word', { ignorePageScroll: true });
 }
 
 async function openPanel(page) {
@@ -388,11 +388,23 @@ async function radius(page, value) {
     await control.dispatchEvent('change');
   }
 }
-async function alignedPanel(page, label) {
+async function naturalDesktopInspector(page, label) {
   const stage = await page.locator('.els29-native-stage').boundingBox();
   const panel = await page.locator('.els29-native-context-panel').boundingBox();
   assert.ok(Math.abs(stage.y - panel.y) <= 1, `${label}: panel top matches the matrix`);
-  assert.ok(Math.abs(stage.y + stage.height - panel.y - panel.height) <= 1, `${label}: panel bottom matches the matrix`);
+  const layout = await page.evaluate(() => ({
+    panelPosition: getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
+    panelHeight: getComputedStyle(document.querySelector('.els29-native-context-panel')).height,
+    panelOverflow: getComputedStyle(document.querySelector('.els29-native-context-panel')).overflowY,
+    bodyOverflows: [...document.querySelectorAll('.els29-native-workrail:not([hidden]),.els29-native-rail-scroll:not([hidden])')].map((element) => getComputedStyle(element).overflowY),
+    workspacePosition: document.querySelector('.els29-native-finding-workspace') ? getComputedStyle(document.querySelector('.els29-native-finding-workspace')).position : null,
+  }));
+  assert.equal(layout.panelPosition, 'relative', `${label}: inspector participates in desktop page flow`);
+  assert.equal(layout.panelOverflow, 'visible', `${label}: inspector has no nested vertical scrollbar`);
+  assert.ok(layout.bodyOverflows.every((value) => value === 'visible'), `${label}: active tool body scrolls with the page`);
+  if (layout.workspacePosition) assert.equal(layout.workspacePosition, 'static', `${label}: finding workspace is not pinned`);
+  assert.equal(await button(page, 'הצמד').count(), 0, `${label}: obsolete pin action is absent`);
+  assert.equal(await button(page, 'בטל הצמדה').count(), 0, `${label}: obsolete unpin action is absent`);
 }
 async function injectToolMessage(page, message) {
   const frame = page.frames().find((item) => item.parentFrame());
@@ -452,10 +464,10 @@ test('Classic opens on unmarked Genesis letters, right aligned, with no sample c
 test('native UI: one unified rail scans exact primary and secondary targets without moving the matrix',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-   const url=page.url(),initial=await identity(page),before=await pan(page);
-   await alignedPanel(page,'initial pinned rail');
-   await activate(page,'סגור כלי מטריצה');await expectStable(page,before,'close unified rail');
-   await openPanel(page);await expectStable(page,before,'reopen unified rail');
+   const url=page.url(),initial=await identity(page);let before=await pan(page);
+   await naturalDesktopInspector(page,'initial desktop inspector');
+   await activate(page,'סגור כלי מטריצה');assert.deepEqual(await identity(page),initial,'closing the inspector changes layout only');
+   await openPanel(page);before=await pan(page);
    await inspectAndScanPrimary(page,before);
    assert.deepEqual(await identity(page),initial,'primary scan preserves verified identity');
    const primary=await page.evaluate(()=>window.__lens);
@@ -466,7 +478,7 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    await input.fill('דוד');const draft=await input.inputValue(),secondaryPan=await pan(page);
    await selectAxis(page,'התורה');await activate(page,'סרוק לאורך הציר הנבחר');
    await page.waitForFunction(id=>window.__lens?.lens==='line-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה'&&window.__lens?.scan,hit.hitId);
-   await expectStable(page,secondaryPan,'secondary scan');await expectNative(page,url,'secondary scan');
+   await expectStable(page,secondaryPan,'secondary scan',{ignorePageScroll:true});await expectNative(page,url,'secondary scan');
    assert.equal(await input.inputValue(),draft,'scan retains the secondary input');
    assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true,'scan retains the finding list');
    assert.equal(await button(page,'סרוק לאורך הציר הנבחר').count(),1,'still one shared scan action');
@@ -492,20 +504,18 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').innerText().then(text=>text.includes('לאורך הציר · התורה')),true);
    await activate(page,'מקור הממצא הנבחר');
    await page.waitForFunction(id=>window.__lens?.lens==='verse-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה',hit.hitId);
-   await expectStable(page,secondaryPan,'inline source');assert.equal(await input.isVisible(),true);
+   await expectStable(page,secondaryPan,'inline source',{ignorePageScroll:true});assert.equal(await input.isVisible(),true);
    assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true);
    // A delayed old primary completion must not replace the selected secondary result.
    await injectToolMessage(page,primary);
    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').count(),0,'stale primary scan cannot replace the newer inline source');
-   const body=page.locator('.els29-native-rail-scroll').filter({visible:true});
-   await body.evaluate(element=>element.scrollTop=element.scrollHeight);
-   await alignedPanel(page,'scrolled rail');
+   await naturalDesktopInspector(page,'expanded finding content');
    for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר']){
     const action=await button(page,label).boundingBox(),panel=await page.locator('.els29-native-context-panel').boundingBox();
-    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the pinned finding workspace');
+    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the page-flow finding workspace');
    }
-   await expectStable(page,secondaryPan,'internal rail scroll');
+   await expectStable(page,secondaryPan,'page-flow inspector',{ignorePageScroll:true});
   });
  });
 
@@ -684,17 +694,23 @@ test('Research v1 acceptance: verify → matrix → Finding → source → save 
   },{realHost:true,fullFrame:true});
  });
 
-test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls',
+test('native UI: desktop tools use one natural page-flow column and mobile tools remain inline',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:2560,height:1000},async page=>{
    const margins=await page.evaluate(()=>{const frame=document.querySelector('.sod29-main').getBoundingClientRect(),content=document.querySelector('.sod29-content').getBoundingClientRect();return{ratio:content.width/frame.width,left:content.left-frame.left,right:frame.right-content.right}});
    assert.ok(Math.abs(margins.ratio-.9)<=.001&&Math.abs(margins.left-margins.right)<=1);
-   assert.ok((await capture(page)).width>1450);await alignedPanel(page,'wide pinned rail');
-   const pinned=await pan(page);await activate(page,'בטל הצמדה');const overlay=await pan(page);assert.ok(overlay.width>pinned.width);
-   await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectStable(page,overlay,'overlay reopen');
-   await activate(page,'הצמד');const repinned=await pan(page);assert.ok(Math.abs(repinned.width-pinned.width)<=1);
-   const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
-   await activate(page,'חזור לגובה הרגיל');await alignedPanel(page,'restored pinned rail');
+   assert.ok((await capture(page)).width>1300);await naturalDesktopInspector(page,'wide findings inspector');
+   const withInspector=await pan(page);
+   for(const tool of ['תוצאות','שמירה','סריקה וממצאים']){
+    await activate(page,tool);await naturalDesktopInspector(page,`${tool} inspector`);
+    const width=await page.locator('.els29-native-context-panel').evaluate(element=>element.getBoundingClientRect().width);
+    assert.ok(width>=420&&width<=501,`${tool}: desktop column is wide enough without taking over the matrix`);
+   }
+   const desktopIdentity=await identity(page);
+   await activate(page,'סגור כלי מטריצה');const withoutInspector=await pan(page);assert.ok(withoutInspector.width>withInspector.width);assert.deepEqual(await identity(page),desktopIdentity,'closing a desktop tool preserves the ELS research state');
+   await openPanel(page);const reopened=await pan(page);assert.ok(Math.abs(reopened.width-withInspector.width)<=1);assert.deepEqual(await identity(page),desktopIdentity,'reopening a desktop tool preserves the ELS research state');
+   const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await naturalDesktopInspector(page,'expanded desktop inspector');
+   await activate(page,'חזור לגובה הרגיל');await naturalDesktopInspector(page,'restored desktop inspector');
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
    await page.setViewportSize({width:390,height:844});
    await page.waitForFunction(()=>document.querySelector('.els29-native-panel-wrap')?.dataset.mobileInlineFindings==='true');
@@ -1139,6 +1155,15 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,searchWindow:{ctxR:8,windowColumns:80,windowSize:'large',windowRequested:'large'}});
    await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='large');
    assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).inputValue(),'large','saved search size is reflected by the native control');
+   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,savedReplayWindow:'compact-v1',searchWindow:{ctxR:8,windowColumns:80,windowSize:'large',windowRequested:'large'}});
+   await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='small'&&window.__state?.geometry?.cw===40);
+   assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).inputValue(),'small','saved replay starts with the smallest sufficient window');
+   const farStart=[compact.axis.start+compact.axis.skip*40,compact.axis.start-compact.axis.skip*40].find(position=>position>=0&&position<letters.length);
+   assert.ok(Number.isInteger(farStart),'fixture has a real source cell forty rows from the saved axis');
+   const farFinding={t:letters[farStart],sourceShown:[`1_1_${farStart}`]};
+   await page.evaluate(({item,farFinding})=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item:{...item,words:[farFinding],savedReplayWindow:'compact-v1'}},location.origin),{item,farFinding});
+   await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='small'&&window.__state?.ui?.windowSize==='large');
+   assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'saved replay expands only when an explicit finding lies outside smaller windows');
    await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,searchWindow:null});
    await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='legacy');
    assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'older saves retain their original window');
@@ -1356,7 +1381,10 @@ test('native save: private retry, same-record update and exact restore preserve 
     await page.evaluate(row=>window.__openSavedMatrix(row),saved);
     await page.waitForFunction(id=>window.__state?.axis?.hitId===id&&window.__state?.findings?.[0]?.hits?.some(hit=>hit.verified),state.axis.hitId);
     const restored=await page.evaluate(()=>window.__state);
-    assert.deepEqual(restored.geometry,state.geometry);
+    assert.equal(restored.geometry.S,state.geometry.S,'compact replay keeps the exact axis stride');
+    assert.equal(restored.geometry.mainCol,state.geometry.mainCol,'compact replay keeps the exact axis column');
+    assert.equal(restored.ui.windowRequested,'small','a saved matrix reopens with the smallest requested window');
+    assert.ok(restored.geometry.cw<=state.geometry.cw,'replay presentation may shrink without changing saved evidence');
     assert.equal(restored.ui.findingRadius,5);
     assert.deepEqual(restored.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})),state.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})));
     assert.equal(restored.provenance.desc,note);

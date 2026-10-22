@@ -517,20 +517,13 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   }, [selected, selectionValid, onSelectTarget]);
 
   useLayoutEffect(() => {
-    if (!lensResult || !railScrollRef.current || !inspectionRef.current) return;
-    const rail = railScrollRef.current;
-    const box = rail.getBoundingClientRect();
-    const result = inspectionRef.current.getBoundingClientRect();
-    rail.scrollTop = clamp(rail.scrollTop + result.top - box.top - 8, 0, rail.scrollHeight - rail.clientHeight);
+    if (!lensResult || !inspectionRef.current) return;
+    inspectionRef.current.scrollIntoView({ block: "nearest", behavior: "instant" });
   }, [lensResult]);
 
   useLayoutEffect(() => {
     if (!selectionValid || !workspaceRef.current) return;
-    if (isMobileWorkspace()) {
-      workspaceRef.current.scrollIntoView({ block: "start", behavior: "instant" });
-      return;
-    }
-    railScrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
+    workspaceRef.current.scrollIntoView({ block: "nearest", behavior: "instant" });
   }, [selectionValid, selected?.term, selected?.hitId]);
 
   const selectTarget = (term, hitId) => {
@@ -673,7 +666,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const engineStateRef = useRef(null);
   const [classicOpen, setClassicOpen] = useState(false);
   const [activeTool, setActiveTool] = useState(() => isMobileWorkspace() ? null : "findings");
-  const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
   const [verseRead, setVerseRead] = useState(false);
@@ -720,7 +712,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     else if (lensResult?.ok && lensResult.lens === "letter-context") highlightVerse(lensResult.verse);
   };
   const [shortSkipView, setShortSkipView] = useState("reading");
-  const toolRailRef = useRef(null);
   const panelRef = useRef(null);
   const panelTriggerRef = useRef(null);
   const openTool = (tool, trigger) => {
@@ -747,18 +738,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         panelTriggerRef.current?.focus({ preventScroll: true });
       }
     };
-    const onOutside = (event) => {
-      if (isMobileWorkspace() || event.target.closest?.(".sod29-command-island")) return;
-      if (panelPinned || panelRef.current?.contains(event.target) || toolRailRef.current?.contains(event.target)) return;
-      setActiveTool(null);
-    };
     document.addEventListener("keydown", onKey);
-    document.addEventListener("pointerdown", onOutside);
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointerdown", onOutside);
     };
-  }, [active, activeTool, classicOpen, panelPinned]);
+  }, [active, activeTool, classicOpen]);
   const [notice, setNotice] = useState("");
   const [accountRequired, setAccountRequired] = useState(false);
   const [operations, setOperations] = useState({ search: null, findings: null });
@@ -1257,7 +1241,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       {deleteError ? <small role="alert">המחיקה לא הושלמה. הצופן נשאר שמור.</small> : null}
     </section> : null}
 
-    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}`}>
+    <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${visibleTool && !classicOpen && !savedLoadPending ? " has-inspector" : ""}`}>
       <>
         <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen || savedLoadPending}>
         <main className="els29-native-stage" hidden={classicOpen || savedLoadPending} aria-busy={searchPending}>
@@ -1330,7 +1314,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
         </div>
-        {!compactMobile ? <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || savedLoadPending} role="group" aria-label="כלי המטריצה">
+        {!compactMobile ? <div className="els29-native-toolstrip" hidden={classicOpen || savedLoadPending} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
@@ -1344,10 +1328,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
             <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            {!compactMobile ? <>
-              <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-              <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
-            </> : null}
+            {!compactMobile ? <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את החלונית">×</button> : null}
           </header>
           {compactMobile ? <nav className="els29-native-context-nav" aria-label="תצוגות סביבת המחקר">
             <button type="button" aria-label="סריקה וממצאים" aria-pressed={visibleTool === "findings"} onClick={() => openTool("findings")}>ממצאים</button>

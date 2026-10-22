@@ -1584,6 +1584,27 @@ __STANDALONE_ENGINE_DISPATCH__
     return {...NATIVE_WINDOWS[actual],ctxR,windowSize:actual,windowRequested:requested};
   }
   function searchWindowSnapshot(){return {ctxR:st.ctxR,windowColumns:st.windowColumns,windowSize:st.windowSize,windowRequested:st.windowRequested};}
+  // Saved records replay in the smallest canonical window that still contains every explicitly
+  // saved finding. This changes presentation only: the stored row, exact axis and finding hitIds
+  // remain untouched. Journey restores without this marker retain their exact captured geometry.
+  function compactSavedReplayWindow(item,axis){
+    const saved=[];
+    (item.words||[]).forEach(w=>{
+      if(!w||typeof w!=="object")return;
+      const term=norm(w.t),ids=[...(Array.isArray(w.sh)?w.sh:[]),...(Array.isArray(w.sourceShown)?w.sourceShown:[])];
+      ids.forEach(id=>{const m=/^(\d+)_(-?1)_(\d+)$/.exec(String(id||""));if(!m||!term.length)return;
+        const skip=Number(m[1]),dir=Number(m[2]),start=Number(m[3]);
+        if(Number.isSafeInteger(skip)&&skip>=1&&Number.isSafeInteger(start)&&start>=0)saved.push(Array.from(term,(_,k)=>start+k*skip*dir));
+      });
+    });
+    const S=Math.abs(axis.skip),mainCol=((axis.positions[0]%S)+S)%S,rows=axis.positions.map(p=>Math.floor(p/S)),mr=Math.round((Math.min(...rows)+Math.max(...rows))/2);
+    for(const size of ["small","medium","large"]){
+      const candidate={...NATIVE_WINDOWS[size],windowSize:size,windowRequested:"small",scopeLength:scopeN()};
+      const g=researchGeometry(S,mainCol,mr,candidate),inside=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=g.r0&&r<=g.r1&&c>=g.c0&&c<g.c0+g.cw;};
+      if(saved.every(positions=>positions.every(inside)))return candidate;
+    }
+    return {...NATIVE_WINDOWS.large,windowSize:"large",windowRequested:"small"};
+  }
   // Selected occurrences retain showN and explicit choices; radius is a reversible display filter only.
   function selectedHitsOf(w){
     if(!w.hits||!w.hits.length)return [];
@@ -3802,6 +3823,7 @@ __STANDALONE_ENGINE_DISPATCH__
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;
     }
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
+    if(item.savedReplayWindow==="compact-v1")Object.assign(st,compactSavedReplayWindow(item,occ()));
     st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
     const view=item.view||{};
     st.showN=Number.isInteger(view.showN)&&view.showN>=1&&view.showN<=15?view.showN:2;

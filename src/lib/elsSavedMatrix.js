@@ -55,6 +55,7 @@ export function savedMatrixToItem(row) {
     corpusId: row.corpus_id || null,
     words: Array.isArray(row.positions?.findings) ? row.positions.findings : [],
     searchWindow: row.positions?.searchWindow || null, view: row.positions?.view || null,
+    savedReplayWindow: "compact-v1",
     hideMain: !!row.positions?.hideMain,
     postUrl: row.positions?.postUrl || "", postTitle: row.positions?.postTitle || "",
     desc: row.description || "", image: row.image_url || "", author: row.author_name || "",
