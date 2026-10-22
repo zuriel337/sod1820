@@ -7,6 +7,7 @@ import {
 } from "../src/lib/research/beitMidrashLearningProjection.js";
 
 const page = readFileSync(new URL("../src/pages/Kingdom2029Page.jsx", import.meta.url), "utf8");
+const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
 
 test("kingdom discoveries continue to the one canonical method lesson", () => {
   assert.equal(
@@ -25,4 +26,9 @@ test("kingdom never sends learners to the locked Number surface", () => {
   assert.doesNotMatch(page, /numberExpressionFocusHref|\/2029\/number\//);
   assert.doesNotMatch(page, /פתיחה במחקר|לחקור את/);
   assert.match(page, /בבית המדרש אפשר ללמוד את דרך החישוב ואת גבולותיה/);
+});
+
+test("direct Preview entry serves Kingdom from the 2029 document", () => {
+  const rewrite = vercel.rewrites.find((row) => row.source === "/2029/kingdom");
+  assert.deepEqual(rewrite, { source: "/2029/kingdom", destination: "/2029.html" });
 });
