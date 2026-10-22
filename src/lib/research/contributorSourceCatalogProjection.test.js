@@ -75,6 +75,29 @@ test("writer catalog exposes 20-recent contract, exact World locators and stable
   assert.match(catalog.items[0].href, /^\/world\?view=sources&source=tzvi-opoc&sourceRef=/);
   assert.equal(catalog.items[0].exactLocator, true);
   assert.equal(catalog.researchState, "deferred_until_exact_occurrence");
+  assert.equal(catalog.items[0].researchFacets.availability, "deferred");
+  assert.equal(catalog.items[0].researchFacets.rowCount, null);
+});
+
+test("an exact occurrence carries its structured research facets without a second catalog", () => {
+  const exactProjection = {
+    ...baseProjection,
+    loadState: { researchObjectsDeferred: false },
+    sourceGroups: [{
+      ...baseProjection.sourceGroups[0],
+      rows: [{
+        value: 358,
+        status: "verified",
+        engine_verified: true,
+        meta: { ext: { gematria: { method_key: "standard" } } },
+      }],
+    }],
+  };
+  const catalog = buildContributorSourceCatalogProjection(exactProjection);
+
+  assert.equal(catalog.items[0].researchFacets.availability, "loaded");
+  assert.deepEqual(catalog.items[0].researchFacets.number.values, [358]);
+  assert.deepEqual(catalog.items[0].researchFacets.gematria.methodKeys, ["standard"]);
 });
 
 test("format, explicit category and catalog state remain separate evidence axes", () => {

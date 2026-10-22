@@ -3,6 +3,7 @@ import {
   fetchContributorFindingsProjection,
   readableSourceTitle,
 } from "./contributorFindingsProjection.js";
+import { buildContributorSourceResearchFacets } from "./contributorSourceResearchFacets.js";
 import { contributorSourceLocator } from "./worldContributorSourceLocator.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -51,7 +52,7 @@ function sourceMedia(source) {
   };
 }
 
-function sourceCatalogItem(group, slug) {
+function sourceCatalogItem(group, slug, { researchDeferred = false } = {}) {
   const occurrences = sourceOccurrences(group);
   const primary = group?.source || occurrences.find((source) => readableText(source)) || occurrences[0] || null;
   const text = readableText(primary) || occurrences.map(readableText).find(Boolean) || null;
@@ -98,6 +99,7 @@ function sourceCatalogItem(group, slug) {
       ...occurrences.map((source) => source?.sourceRef),
     ]),
     mediaPair: group?.mediaPair || null,
+    researchFacets: buildContributorSourceResearchFacets(group?.rows, { deferred: researchDeferred }),
     evidence: Object.freeze({
       categoryBasis: sourceTopics.length ? "channel_updates.topics" : null,
       mediaBasis: media ? (group?.mediaPair?.basis || "source_media_url") : null,
@@ -120,8 +122,9 @@ function compareNewestStable(left, right) {
  */
 export function buildContributorSourceCatalogProjection(sourceProjection, { recentLimit = 20 } = {}) {
   if (!sourceProjection?.contributor?.slug) return null;
+  const researchDeferred = sourceProjection?.loadState?.researchObjectsDeferred === true;
   const items = (Array.isArray(sourceProjection.sourceGroups) ? sourceProjection.sourceGroups : [])
-    .map((group) => sourceCatalogItem(group, sourceProjection.contributor.slug))
+    .map((group) => sourceCatalogItem(group, sourceProjection.contributor.slug, { researchDeferred }))
     .sort(compareNewestStable);
   const boundedRecentLimit = Math.max(0, Math.min(100, Number(recentLimit) || 20));
   const count = (predicate) => items.filter(predicate).length;
