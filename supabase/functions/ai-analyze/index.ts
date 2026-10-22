@@ -1136,9 +1136,10 @@ type RazielConversationNumberHint = {
 };
 
 // Client conversation state is never authority. W2 admits public decimal anchors from an exact
-// resolver version and a bounded anaphoric question. W3 also admits an explicit two-number 2029
-// research sentence only when its two textual subject slots exactly match the two projected
-// identities. Labels, access, provenance, metadata and every non-number identity are ignored.
+// resolver version and a bounded anaphoric question. W3 also admits exact single-number
+// definition/research sentences and explicit two-number 2029 research sentences only when their
+// textual subject slots exactly match the projected identities. Labels, access, provenance,
+// metadata and every non-number identity are ignored.
 // Phase H then re-reads the owner projections; the hint itself never supplies research facts.
 function razielConversationNumberHint(raw: any, originalQuestion: unknown): RazielConversationNumberHint | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
@@ -1173,9 +1174,19 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown): Razi
   }
 
   // This is deliberately narrower than the general planner grammar. It is a 2029-only recovery
-  // seam for planner no_match: exactly two decimal subjects, no surrounding prose, and an action
+  // seam for planner no_match: exact decimal subject slots, no surrounding prose, and an action
   // whose server-side meaning agrees with the projected action. Legacy callers send no envelope.
-  if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn" || numbers.length !== 2) return null;
+  if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
+  const definition = /^(?:(בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+)?(?:מה זה|מהו|מה הוא|ספר לי על|מה ידוע על)\s+(?:המספר\s+)?(\d{1,6})$/u.exec(q);
+  const singleResearch = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?(?:\s+את)?\s+(?:המספר\s+)?(\d{1,6})$/u.exec(q);
+  const singleValue = definition ? Number(definition[2]) : singleResearch ? Number(singleResearch[1]) : null;
+  if (singleValue != null) {
+    if (numbers.length !== 1 || numbers[0] !== singleValue) return null;
+    const expectedAction = (definition?.[1] || singleResearch) ? "research" : "understand";
+    if (requestedAction !== expectedAction) return null;
+    return { numbers: numbers as [number], requestedAction };
+  }
+  if (numbers.length !== 2) return null;
   const researchPair = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?: את)?(?: המספרים)?\s+(\d{1,6})\s*(?:מול|לבין|עם|ל)\s*(\d{1,6})$/u.exec(q);
   const connectionPair = /^(?:(?:השווה|השווי|תשווה)(?: בין)?(?: המספרים)?\s+(\d{1,6})\s*(?:ו|ל|לבין|מול|עם)\s*(\d{1,6})|(?:מצא|מצאי|תמצא|תמצאי)(?: לי)?(?: את)? (?:הקשר|קשר|היחס|יחס) בין\s+(\d{1,6})\s*(?:ל|לבין|מול|עם)\s*(\d{1,6}))$/u.exec(q);
   const pair = researchPair

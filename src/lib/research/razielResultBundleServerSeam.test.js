@@ -90,10 +90,10 @@ function numberContextAnswer(number) {
   };
 }
 
-function conversation(numbers) {
+function conversation(numbers, requestedAction = numbers.length === 2 ? "research" : "understand") {
   return {
     version: "raziel-conversation-resolver-v1",
-    requested_action: numbers.length === 2 ? "research" : "understand",
+    requested_action: requestedAction,
     referential_follow_up: false,
     referent_source: "explicit_current_turn",
     identities: numbers.map((value) => ({ type: "number", value, identity_key: `number:${value}` })),
@@ -194,6 +194,55 @@ test("two-number 2029 research consumes two bounded Bundles without the legacy p
   assert.equal(run.models.length, 1);
   assert.match(run.models[0].user, /uf:number:776/);
   assert.match(run.models[0].user, /uf:number:1820/);
+});
+
+test("observed natural number definition is reauthorized server-side and reaches the canonical Bundle", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: USER_JWT,
+    verifiedUid: UID,
+    body: {
+      subject: "בדוק לי מה זה 776",
+      visitor_id: "vdefinitionroute123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: conversation([776], "research"),
+    },
+    researchBundleByNumber: { 776: numberBundle(776) },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(researchCalls.length, 1);
+  assert.equal(researchCalls[0].payload.number, 776);
+  assert.equal(researchCalls[0].headers.authorization, `Bearer ${USER_JWT}`);
+  assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
+  assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
+});
+
+test("a crafted single-number envelope cannot turn counts, pages or years into research anchors", async () => {
+  for (const subject of [
+    "בדוק לי מה זה 3 מקורות על 776",
+    "בדוק לי את עמוד 33",
+    "חקור את שנת 2024",
+  ]) {
+    const run = await runAiAnalyze({
+      answer: noMatchAnswer(),
+      allowed: true,
+      bearer: USER_JWT,
+      verifiedUid: UID,
+      body: {
+        subject,
+        visitor_id: "vrejectnumericprose123",
+        intelligence_level: "fast",
+        research_contract: CONTRACT,
+        conversation_resolution: conversation([776], "research"),
+      },
+      researchBundleByNumber: { 776: numberBundle(776) },
+    });
+    assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0, subject);
+    assert.equal(run.result.raziel.plan_meta.canonical_result_bundle, undefined, subject);
+  }
 });
 
 test("canonical transport failure is honest and falls back to the existing Phase-H reads", async () => {

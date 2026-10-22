@@ -31,6 +31,36 @@ test("resolves explicit bounded number research without treating surrounding pro
   }
 });
 
+test("resolves natural single-number definition and research requests without scanning prose", () => {
+  for (const [question, number, action] of [
+    ["בדוק לי מה זה 776", 776, "research"],
+    ["תבדקי לי מה זה המספר 1820", 1820, "research"],
+    ["בדוק לי את המספר 358", 358, "research"],
+    ["חקור 787", 787, "research"],
+    ["מה ידוע על המספר 26", 26, "understand"],
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    assert.deepEqual(ids(out), [String(number)], question);
+    assert.equal(out.requested_action, action, question);
+    assert.equal(out.referential_follow_up, false, question);
+    assert.equal(out.referent_source, "explicit_current_turn", question);
+    assert.deepEqual(projectRazielConversationResolution(out).identities, [
+      { type: "number", value: number, identity_key: `number:${number}` },
+    ], question);
+  }
+
+  for (const question of [
+    "בדוק לי מה זה 3 מקורות על 776",
+    "בדוק לי את עמוד 33",
+    "חקור את שנת 2024",
+    "בדוק לי 2 שאלות על 776",
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    assert.deepEqual(ids(out), [], question);
+    assert.equal(projectRazielConversationResolution(out), null, question);
+  }
+});
+
 test("carries the last explicit pair into a bounded follow-up without model inference", () => {
   const out = resolveRazielConversationTurn({
     question: "אתה יכול לבדוק?",

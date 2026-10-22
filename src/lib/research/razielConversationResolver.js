@@ -59,14 +59,20 @@ function explicitNumberCandidates(question) {
     return [numberCandidate(left), numberCandidate(right)].filter(Boolean);
   }
 
-  const definition = q.match(/^(?:מה זה|מהו|מה הוא|ספר לי על|מה ידוע על)\s+(?:המספר\s+)?(\d{1,6})$/u);
+  // Keep the number in an exact grammatical subject slot even when a person naturally prefixes
+  // the definition with "בדוק לי". This is deliberately not a free numeric scan: counts, years,
+  // pages and numerals embedded in prose still cannot become research anchors.
+  const definition = q.match(/^(?:(?:בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+)?(?:מה זה|מהו|מה הוא|ספר לי על|מה ידוע על)\s+(?:המספר\s+)?(\d{1,6})$/u);
   if (definition) return [numberCandidate(definition[1])].filter(Boolean);
+
+  const singleResearch = q.match(/^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?(?:\s+את)?\s+(?:המספר\s+)?(\d{1,6})$/u);
+  if (singleResearch) return [numberCandidate(singleResearch[1])].filter(Boolean);
 
   const list = q.match(/^(?:(?:תן|תני|הצג|הציגי|הראה|הראי) לי .*?(?:גימטריות|ביטויים|מילים)|(?:איזה|אילו|מה) (?:ביטויים|מילים) (?:שווים|שוות) ל)\s*(?:המספר\s+)?(\d{1,6})$/u);
   if (list) return [numberCandidate(list[1])].filter(Boolean);
 
   // Mixed anaphor + one new number: "תבדוק את זה מול 1820" / "ומה הקשר ל־776?".
-  const mixed = q.match(/(?:זה|זאת|אותו|אותה|אותם|אותן|שלו|שלה|שלהם|שלהן).*?(?:מול|לבין|ל)\s*(\d{1,6})$/u)
+  const mixed = q.match(/(?:זה|זאת|אותו|אותה|אותם|אותן|שלו|שלה|שלהם|שלהן).*?(?:^|\s)(?:מול|לבין|ל)\s*(\d{1,6})$/u)
     || q.match(/^(?:ומה|מה)\s+(?:הקשר|ההבדל)\s+(?:ל|עם)\s*(\d{1,6})$/u);
   return mixed ? [numberCandidate(mixed[1])].filter(Boolean) : [];
 }
