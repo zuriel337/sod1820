@@ -943,10 +943,11 @@ assert.match(world, /למה כאן\?/);
 assert.match(world, /סינון קשרים/);
 assert.match(world, /מיון קשרים/);
 
-// Admin mode consumes the existing Auth owner and is visibility-only.
+// The old World admin entrance is retired; its dormant internals do not gain a public trigger.
 assert.match(world, /useAuth/);
 assert.match(world, /const \{ isAdmin \} = useAuth\(\)/);
-assert.match(world, /מצב מנהל/);
+assert.equal(world.includes("מצב מנהל"), false);
+assert.equal(world.includes("setAdminMode((value) => !value)"), false);
 assert.match(world, /מצב הניהול של העולם נפתח רק כשמנהל בוחר בו/);
 assert.match(world, /אינו עוקף הרשאות נתונים/);
 assert.match(world, /גישה ·/);

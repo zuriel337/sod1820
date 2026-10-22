@@ -1510,7 +1510,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
         <div className="sod29-actions">
           {data?.identity ? <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span> : null}
-          {isAdmin && data ? <button className={`sod29-action${adminMode ? " primary" : ""}`} type="button" aria-pressed={adminMode} onClick={() => setAdminMode((value) => !value)}>{adminMode ? "מצב מנהל פעיל" : "מצב מנהל"}</button> : null}
           <button className="sod29-action" type="button" onClick={backToWorld}>◌ חזרה לעולם</button>
         </div>
       </div>
