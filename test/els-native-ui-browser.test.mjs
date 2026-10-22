@@ -320,9 +320,12 @@ const capture = (page) => page.evaluate(() => {
   const rect = matrix.getBoundingClientRect();
   return { x: rect.x, width: rect.width, left: matrix.scrollLeft, top: matrix.scrollTop, pageX: scrollX, pageY: scrollY };
 });
-async function expectStable(page, before, label) {
+async function expectStable(page, before, label, { ignorePageScroll = false } = {}) {
   const after = await capture(page);
-  for (const key of Object.keys(before)) assert.ok(Math.abs(after[key] - before[key]) <= 1, `${label}: ${key} changed ${before[key]} → ${after[key]}`);
+  for (const key of Object.keys(before)) {
+    if (ignorePageScroll && key === 'pageY') continue;
+    assert.ok(Math.abs(after[key] - before[key]) <= 1, `${label}: ${key} changed ${before[key]} → ${after[key]}`);
+  }
 }
 async function pan(page) {
   await page.locator('.els29-native-matrix-scroll').evaluate((matrix) => { matrix.scrollLeft = 120; matrix.scrollTop = 90; });
@@ -336,17 +339,18 @@ async function changeRange(page, label, value) {
   }, value);
 }
 async function inspectAndScanPrimary(page, before) {
-  await openPanel(page);
+  const inlineFindings = await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings') === 'true';
+  if (!inlineFindings) await openPanel(page);
   await selectAxis(page, golden.term);
   assert.equal(await button(page, 'סרוק לאורך הציר הנבחר').count(), 1, 'one shared scan action');
   const requests = await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length);
   await button(page, 'סרוק לאורך הציר הנבחר').evaluate((element) => { element.click(); element.click(); element.click(); });
   await button(page, 'סמן את תורה ברצף').waitFor();
   assert.equal(await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length), requests + 1, 'scan spam produces one pending lens request');
-  await expectStable(page, before, 'scan primary line');
+  await expectStable(page, before, 'scan primary line', { ignorePageScroll: inlineFindings });
   await activate(page, 'סמן את תורה ברצף');
   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"] .is-word').count(), 4);
-  await expectStable(page, before, 'highlight line word');
+  await expectStable(page, before, 'highlight line word', { ignorePageScroll: inlineFindings });
 }
 
 async function openPanel(page) {
@@ -643,12 +647,13 @@ test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan 
    const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
    await activate(page,'חזור לגובה הרגיל');await alignedPanel(page,'restored pinned rail');
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
-   await page.setViewportSize({width:390,height:844});await openPanel(page);
+   await page.setViewportSize({width:390,height:844});
+   await page.waitForFunction(()=>document.querySelector('.els29-native-panel-wrap')?.dataset.mobileInlineFindings==='true');
    const before=await pan(page),sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
-   const bounds=await sheet.boundingBox();assert.ok(bounds.height<=844-200&&bounds.x>=0&&bounds.x+bounds.width<=390);
+   const bounds=await sheet.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=390);
    assert.equal(await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position),'relative');
    await inspectAndScanPrimary(page,before);
-   await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
+   assert.equal(await sheet.isVisible(),true,'verified mobile findings remain directly below the matrix');await expectHeightControl(page);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   });
  });
@@ -658,28 +663,32 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
   for(const width of [320,360,390])await withNative({width,height:844},async page=>{
    const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
    const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
-   await button(page,'סריקה וממצאים').tap();
+   await panel.waitFor({state:'visible'});
+   assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true',`${width}: verified matrix exposes findings without a menu action`);
+   assert.equal(await panel.locator('header strong').innerText(),'ממצאים במטריצה');
+   assert.equal(await button(page,'סגור כלי מטריצה').count(),0,'the permanent findings window has no misleading close action');
    const before=await identity(page);
-   const unobscured=async(label)=>{
-    const bounds=await panel.boundingBox(),bar=await dock.boundingBox();
-    assert.ok(bounds.y>=0&&bounds.y+bounds.height<=bar.y-1,`${width} ${label}: inline panel ${JSON.stringify(bounds)} clears dock ${JSON.stringify(bar)}`);
+   const inlineLayout=async(label)=>{
     const layout=await page.evaluate(()=>({
       position:getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
       matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,
       panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,
+      panelHeight:getComputedStyle(document.querySelector('.els29-native-context-panel')).height,
+      railOverflow:getComputedStyle(document.querySelector('.els29-native-rail-scroll')).overflowY,
       overflow:document.documentElement.scrollWidth>innerWidth,
     }));
     assert.equal(layout.position,'relative');assert.ok(layout.panelStart>=layout.matrixEnd);
+    assert.notEqual(layout.panelHeight,'620px',`${width} ${label}: findings use page height, not the old capped sheet`);
+    assert.equal(layout.railOverflow,'visible',`${width} ${label}: every finding stays in the page flow`);
     assert.equal(layout.overflow,false,`${width} ${label}: no horizontal overflow`);
     assert.equal(await button(page,'בטל הצמדה').count(),0,'mobile region is always in the page flow');
-    for(const name of ['סגור כלי מטריצה','סרוק לאורך הציר הנבחר']){
+    for(const name of ['חפש במטריצה','סרוק לאורך הציר הנבחר']){
      const target=button(page,name),rect=await target.boundingBox();
      assert.ok(rect.width>=44&&rect.height>=44,`${width} ${name}: touch target`);
-     assert.ok(await target.evaluate(element=>{const r=element.getBoundingClientRect();return element.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),`${width} ${name}: no overlay intercepts the control`);
     }
    };
-   await unobscured('open');
-   await page.setViewportSize({width,height:568});await unobscured('short viewport');
+   await inlineLayout('automatic');
+   await page.setViewportSize({width,height:568});await inlineLayout('short viewport');
    await page.setViewportSize({width,height:844});
    await page.context().grantPermissions(['clipboard-read','clipboard-write']);
    await page.evaluate(()=>navigator.clipboard.writeText('תורה'));
@@ -690,16 +699,20 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
    await page.waitForFunction(()=>window.__state?.findings?.some(f=>f.t==='תורה'));
    // Inline content follows page scroll; it is not pinned to viewport coordinates.
    await panel.evaluate(el=>el.scrollIntoView({block:'start'}));
-   await unobscured('after pasted search');
+   await inlineLayout('after pasted search');
+   assert.equal(await panel.getByText('תורה',{exact:true}).count()>0,true,`${width}: every added finding is listed directly below the matrix`);
    await dock.getByRole('button',{name:'רזיאל',exact:true}).tap();
    assert.equal(await page.evaluate(()=>window.__dockAction),'רזיאל');
    assert.equal(await panel.isVisible(),true,'an inline region does not compete with the global dock');
    await button(page,'סרוק לאורך הציר הנבחר').tap();
    await button(page,'סמן את תורה ברצף').waitFor();
-   await unobscured('after scan');
+   await inlineLayout('after scan');
    assert.deepEqual((await identity(page)).axis,before.axis,`${width}: tools preserve the axis`);
+   await button(page,'תוצאות').tap();
+   assert.equal(await panel.locator('header strong').innerText(),'תוצאות החיפוש');
    await button(page,'סגור כלי מטריצה').tap();
-   assert.equal(await panel.isVisible(),false);
+   assert.equal(await panel.isVisible(),true,'closing a temporary tool returns to the permanent findings window');
+   assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true');
   },{mobile:true});
  });
 
@@ -720,7 +733,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
    assert.equal(await page.locator('#els29-query input').first().evaluate(el=>el===document.activeElement),true);
    const panel=page.locator('#els29-context-panel');
-   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים',width<981?'ממצאים במטריצה':'סריקה וממצאים']]){
     await dock.getByRole('button',{name:label,exact:true}).click();
     assert.equal(await panel.locator('header strong').innerText(),title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
@@ -728,7 +741,8 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    }
    if(width<981){
     const position=await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position);assert.equal(position,'relative');
-    const bounds=await panel.boundingBox(),bar=await dock.boundingBox();assert.ok(bounds.y+bounds.height<bar.y,'inline tools clear the one dock');
+    const layout=await page.evaluate(()=>({matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,overflow:document.documentElement.scrollWidth>innerWidth}));
+    assert.ok(layout.panelStart>=layout.matrixEnd,'inline findings follow the matrix in page flow');assert.equal(layout.overflow,false);
    }
    await orb().click();
    if(width<981){
@@ -824,9 +838,9 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
      await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`matrix-${preset}-desktop.png`),fullPage:true});
     }
     await page.setViewportSize({width:390,height:844});
-    await activate(page,'סגור כלי מטריצה');
+    assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true');
     await page.locator('.els29-native-matrix-scroll').evaluate(el=>el.scrollIntoView({block:'start'}));
-    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: closing mobile panel retains the selected finding`);
+    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: permanent mobile findings retain the selected finding`);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`matrix-${preset}-mobile.png`)});
     await page.setViewportSize({width:1440,height:1000});
@@ -934,7 +948,8 @@ test('native UI: compact findings, vowels and classic letters retain exact base 
         await page.waitForFunction((index) => window.__lens?.lens === 'letter-context' && window.__lens?.index === index, mainIndex);
         assert.equal(await page.evaluate(() => window.__lens.letter), original.find((cell) => Number(cell.index) === mainIndex).text, `${label}: exact base letter source`);
         await expectNative(page, url, label);
-        await activate(page, 'סגור כלי מטריצה');
+        if (await button(page, 'סגור כלי מטריצה').count()) await activate(page, 'סגור כלי מטריצה');
+        else assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'), 'true');
       };
 
       await activate(page, 'ניקוד');
@@ -1921,7 +1936,8 @@ test('design integration: royal controls preserve matrix identity and stable tou
     }
     await page.waitForFunction(()=>document.querySelector('.els29-native-search-mode button:last-child')?.getAttribute('aria-pressed')==='true');
     await page.locator('.els29-native-search-mode button').first().click();
-    if(await page.locator('#els29-context-panel').isVisible())await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+    const closePanel=page.getByRole('button',{name:'סגור כלי מטריצה',exact:true});
+    if(await closePanel.count())await closePanel.click();
     await page.evaluate(()=>{
       window.__elsIconPressObserved=0;
       window.__elsOriginalAnimate=Element.prototype.animate;
@@ -1947,7 +1963,7 @@ test('design integration: royal controls preserve matrix identity and stable tou
     if(setting==='os')await page.emulateMedia({reducedMotion:'reduce'});
     else{await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('.sod29-root').evaluate(el=>el.dataset.frameReducedMotion='true');}
     const action=dock.getByRole('button',{name:'שמירה',exact:true});
-    if(await page.locator('#els29-context-panel').isVisible())await activate(page,'סגור כלי מטריצה');
+    if(await button(page,'סגור כלי מטריצה').count())await activate(page,'סגור כלי מטריצה');
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     await action.press('Enter');
     await page.waitForFunction(()=>document.querySelector('#els29-context-panel header strong')?.textContent==='שמירה והמשך מחקר');

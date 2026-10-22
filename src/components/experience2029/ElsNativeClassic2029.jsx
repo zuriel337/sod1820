@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette.js";
+import { useMediaQuery } from "../../lib/useMediaQuery.js";
 import {
   buildJourneyPromotion,
   buildJourneyRestore,
@@ -620,6 +621,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
+  const compactMobile = useMediaQuery("(max-width:980px)");
   const [query, setQuery] = useState(clean(initialSeed));
   // The iframe source stays stable after mount. User-initiated searches travel through native-search,
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
@@ -1037,6 +1039,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
+  // On phones, the canonical findings rail belongs directly below a verified matrix. The
+  // shared dock can still open Results or Save, and closing either returns to this rail.
+  const mobileInlineFindings = compactMobile && matrixActive && !classicOpen;
+  const visibleTool = activeTool || (mobileInlineFindings ? "findings" : null);
+  const inlineFindings = mobileInlineFindings && visibleTool === "findings";
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
@@ -1233,18 +1240,20 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
           ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
         </div>
-        <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
+        <div ref={panelRef} className="els29-native-panel-wrap" data-mobile-inline-findings={inlineFindings ? "true" : undefined} hidden={classicOpen || !visibleTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+            <strong>{inlineFindings ? "ממצאים במטריצה" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            {!inlineFindings ? <>
+              <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
+              <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+            </> : null}
           </header>
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
-          outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
-        <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
+          outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl} />
+        <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
-        <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
+        <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
@@ -1252,7 +1261,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           selected={selectedFinding}
           onCancel={() => cancelOperation("findings")}
-          activeTool={activeTool}
+          activeTool={visibleTool}
           state={engineState}
           lensResult={lensResult}
           lensPending={lensPending}

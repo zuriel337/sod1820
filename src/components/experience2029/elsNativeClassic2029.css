@@ -641,6 +641,19 @@
  .els29-native-panel-head strong{overflow-wrap:anywhere}
  .els29-native-panel-head button{flex-shrink:0}
  .els29-native-panel-head .els29-native-pin{display:none}
+ .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-context-panel{
+  height:auto;max-height:none;overflow:visible;overscroll-behavior:auto;
+ }
+ .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-panel-head{
+  padding:14px 12px;background:var(--s29-panel-soft);
+ }
+ .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-panel-head strong{
+  font-size:var(--s29-type-lead);text-align:center;
+ }
+ .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-unified-rail,
+ .els29-native-panel-wrap[data-mobile-inline-findings="true"] .els29-native-rail-scroll{
+  flex:none;min-height:0;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto;
+ }
 }
 
 /* Density stays behind the explicit finding colors and keeps source text legible. */
