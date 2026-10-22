@@ -7,6 +7,9 @@ import {
 } from "./razielConversationResolver.js";
 
 export const RAZIEL_SESSION_VERSION = 1;
+// Explicit 2029-only opt-in. Legacy callers do not send this field, so their server path remains
+// byte-for-byte on the existing adapters until they are deliberately migrated.
+export const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 
 const LIMITS = Object.freeze({
   question: 300,
@@ -242,6 +245,7 @@ export function buildRazielSessionRequest({
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
     surfaceSemantic,
     conversationResolution,
+    researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
   };
 }
 

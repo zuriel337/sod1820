@@ -6,6 +6,7 @@ import { runInNewContext } from "node:vm";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/functions/_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
+import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -43,7 +44,8 @@ export const personalSnapshot = () => ({
 export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
-  modelResult = null, modelResults = null, numberContextByNumber = {},
+  modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
+  researchRunFailure = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -55,6 +57,13 @@ export async function runAiAnalyze({
     const call = { name, url: url.href, method: init.method || "GET", headers: Object.fromEntries(new Headers(init.headers)), payload };
     calls.push(call);
     if (url.origin === "https://fixture.invalid") {
+      if (url.pathname === "/functions/v1/research-run") {
+        if (researchRunFailure) return response({ status: "error", error: researchRunFailure }, 200);
+        const bundle = researchBundleByNumber[payload?.number];
+        return bundle
+          ? response({ status: "ok", contract: "public-number-research-run-v1", trace_id: randomUUID(), bundle })
+          : response({ status: "error", error: "research_fixture_missing" }, 200);
+      }
       if (url.pathname === "/auth/v1/user") return response(verifiedUid ? { id: verifiedUid } : {}, verifiedUid ? 200 : 401);
       if (url.pathname === "/rest/v1/users") return response([{ role: "user" }]);
       if (url.pathname === "/rest/v1/ai_token_log") return response([{ id: 1 }]);
@@ -101,11 +110,12 @@ export async function runAiAnalyze({
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 4, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 5, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
   assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
+  assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -113,6 +123,7 @@ export async function runAiAnalyze({
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
+    buildRazielResultBundleConsumer,
     callClaudeReliable: async (options) => {
       models.push(options);
       const sequence = Array.isArray(modelResults) ? modelResults : null;

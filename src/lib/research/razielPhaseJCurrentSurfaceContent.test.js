@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
+import { supabaseServiceHeaders } from "../../../supabase/functions/_shared/supabaseServiceHeaders.js";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
@@ -11,7 +12,12 @@ const block = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Pha
 function load(fetchImpl, spans = []) {
   const code = stripTypeScriptTypes(`type OperationalTraceHandle = any;\nconst SB_URL = "https://x.supabase.co";\nconst SB_ANON = "anon-key";\n${block}\n`) +
     "\nreturn { razielCurrentContentDescriptor, razielCurrentPostProject, razielCurrentTopicProject, runRazielCurrentContent };";
-  return new Function("fetch", "recordOperationalSpan", "crypto", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" });
+  return new Function("fetch", "recordOperationalSpan", "crypto", "supabaseServiceHeaders", code)(
+    fetchImpl,
+    async (_t, s) => { spans.push(s); },
+    { randomUUID: () => "uuid" },
+    supabaseServiceHeaders,
+  );
 }
 const ok = (rows) => async () => ({ ok: true, status: 200, json: async () => rows });
 const sem = (type, extra = {}) => ({ surface: type, subject: { type, id: "x" }, ...extra });
@@ -56,7 +62,7 @@ test("J: post read via anon path, exact slug, selected columns only, one row; sa
   assert.equal(r.ok, true);
   assert.equal(calls.length, 1);
   assert.match(calls[0].url, /\/rest\/v1\/posts\?slug=eq\.my-post&select=id,slug,title,excerpt,categories,tags,date,modified,source,content&limit=1$/);
-  assert.equal(calls[0].init.headers.Authorization, "Bearer anon-key");
+  assert.equal(new Headers(calls[0].init.headers).get("authorization"), "Bearer anon-key");
   assert.ok(!/service/i.test(JSON.stringify(calls[0].init.headers)));
   assert.ok(!/SECRET_JS|LEAK|<|hid/.test(r.pack));
   assert.ok(!r.pack.includes("\u0000"));

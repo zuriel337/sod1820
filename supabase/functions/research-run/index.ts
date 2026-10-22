@@ -42,6 +42,10 @@ const CORS = {
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// The site's long-lived anonymous identity predates UUID visitor ids (`v` + bounded base36 text).
+// It is an opaque rate/trace key, not authentication. Keep accepting UUIDs while admitting only the
+// existing bounded browser form; arbitrary free text, whitespace and contact data remain rejected.
+const VISITOR_ID_RE = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|v[a-z0-9_-]{7,79})$/i;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -53,6 +57,11 @@ function json(body: unknown, status = 200) {
 function safeUuid(value: unknown): string | null {
   const text = String(value || "").trim();
   return UUID_RE.test(text) ? text : null;
+}
+
+function safeVisitorId(value: unknown): string | null {
+  const text = String(value || "").trim();
+  return VISITOR_ID_RE.test(text) ? text : null;
 }
 
 function cleanAuthHeader(req: Request): string | null {
@@ -154,7 +163,7 @@ Deno.serve(async (req: Request) => {
   if (personalPair && !userId) {
     return json({ status: "error", error: "authenticated_user_required" }, 401);
   }
-  const visitorId = userId ? null : safeUuid(run.visitor_id);
+  const visitorId = userId ? null : safeVisitorId(run.visitor_id);
   if (!userId && !visitorId) {
     return json({ status: "error", error: "visitor_identity_required" }, 400);
   }

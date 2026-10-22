@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { selectRazielIntelligence } from "../../../supabase/functions/_shared/razielIntelligence.js";
+import { supabaseServiceHeaders } from "../../../supabase/functions/_shared/supabaseServiceHeaders.js";
 
 // RAZIEL_INTELLIGENCE_CORE_V1_PHASE_M — cross-surface Golden (verification only: no production code is added by this phase).
 // Runs the REAL ai-analyze Raziel adapter region (Phase H..L + surface context) against a counting fetch and asserts, per natural-language row:
@@ -48,7 +49,13 @@ function load(log, scenario = {}) {
     `const SB_URL = "https://x.supabase.co"; const SB_ANON = "anon-key";\n${region}\n`) +
     "\nreturn { razielPersonalDescriptor, runRazielPersonal, razielOperatorDescriptor, razielCoordDescriptor, runRazielOperator, runRazielCoordination, razielNumberContextDescriptor, runRazielNumberContext, razielCurrentContentDescriptor, runRazielCurrentContent, razielSemanticSurfaceText };";
   const spans = [];
-  const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal);
+  const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", "supabaseServiceHeaders", code)(
+    fetchImpl,
+    async (_t, s) => { spans.push(s); },
+    { randomUUID: () => "uuid" },
+    AbortSignal,
+    supabaseServiceHeaders,
+  );
   return { m, spans };
 }
 

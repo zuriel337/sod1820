@@ -2,6 +2,7 @@ import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
+import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1326,6 +1327,170 @@ async function runRazielNumberContext(desc: { number: number; anchor: string; mo
   return { ok, number: desc.number, anchor: desc.anchor, mode: desc.mode, outcome: ok ? (failed ? "partial" : "success") : (failed ? failed.outcome : "failed_with_reason"), ...(proj || {}) };
 }
 
+// ── #1142 · 2029 canonical Result Bundle consumer seam ─────────────────────────────────────
+// Explicit opt-in only. The 2029 session asks the EXISTING research-run transport for its already
+// authorized canonical Bundle, then this function applies the pure shared consumer projection. It
+// does not execute an engine, make an access decision, persist, or call a model. Legacy callers send
+// no research_contract and therefore remain on the Phase-H adapter above unchanged.
+const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
+type RazielCanonicalBundleRead = {
+  ok: boolean;
+  number: number;
+  outcome: string;
+  traceId: string | null;
+  projection: any | null;
+  error: string | null;
+  ms: number;
+};
+
+function razielCanonicalBundleOptedIn(body: any): boolean {
+  return body?.research_contract === RAZIEL_CANONICAL_RESEARCH_CONTRACT;
+}
+
+async function runRazielCanonicalNumberBundle({
+  number, question, visitorId, interactionId, authorization, trace,
+}: {
+  number: number;
+  question: string;
+  visitorId: unknown;
+  interactionId: unknown;
+  authorization: string;
+  trace: OperationalTraceHandle | null;
+}): Promise<RazielCanonicalBundleRead> {
+  const spanId = crypto.randomUUID();
+  const startedAt = new Date().toISOString();
+  const t0 = Date.now();
+  let out: RazielCanonicalBundleRead = {
+    ok: false, number, outcome: "failed_with_reason", traceId: null, projection: null,
+    error: "research_run_unavailable", ms: 0,
+  };
+  try {
+    const auth = String(authorization || "").trim();
+    if (!SB_URL || !SB_ANON || !/^Bearer\s+\S+$/i.test(auth)) {
+      out.error = "caller_credentials_unavailable";
+    } else if (!Number.isInteger(number) || number < 1 || number > 999999) {
+      out.error = "invalid_number_anchor";
+    } else {
+      const response = await fetch(`${SB_URL}/functions/v1/research-run`, {
+        method: "POST",
+        headers: { apikey: SB_ANON, Authorization: auth, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+          number,
+          question: String(question || "").slice(0, 500),
+          visitor_id: String(visitorId || "").slice(0, 80),
+          interaction_id: String(interactionId || "").slice(0, 180),
+          requested_capabilities: ["numeric", "numeric_operators"],
+          surface: "number",
+        }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        out.outcome = response.status === 401 || response.status === 403 ? "access_filtered" : "failed_with_reason";
+        out.error = `research_run_http_${response.status}`;
+      } else if (payload?.status !== "ok" || payload?.contract !== RAZIEL_CANONICAL_RESEARCH_CONTRACT || !payload?.bundle) {
+        out.outcome = payload?.error === "access_filtered" ? "access_filtered" : "failed_with_reason";
+        out.error = typeof payload?.error === "string" ? payload.error.slice(0, 80) : "invalid_research_run_response";
+        out.traceId = safeTraceUuid(payload?.trace_id);
+      } else {
+        const projection = buildRazielResultBundleConsumer(payload.bundle);
+        out = {
+          ok: true,
+          number,
+          outcome: projection?.model_input?.coverage?.partial === true ? "partial" : "success",
+          traceId: safeTraceUuid(payload.trace_id),
+          projection,
+          error: null,
+          ms: 0,
+        };
+      }
+    }
+  } catch (error) {
+    const timedOut = (error as any)?.name === "TimeoutError" || (error as any)?.name === "AbortError";
+    out.outcome = timedOut ? "timeout" : "failed_with_reason";
+    out.error = timedOut ? "research_run_timeout" : "research_run_failed";
+  }
+  out.ms = Date.now() - t0;
+  await recordOperationalSpan(trace, {
+    spanId,
+    kind: "network",
+    name: "ai-analyze:raziel:research-run",
+    startedAt,
+    endedAt: new Date().toISOString(),
+    outcome: out.outcome,
+    detail: {
+      capability: "research-w2:public-number",
+      owner_ref: "research_strategy_layer_law v17 + research_workspace_law v5",
+      routing_reason: "explicit_2029_result_bundle_consumer",
+      output_use: out.ok ? "used" : "rejected",
+      stop_reason: out.error,
+      resources: { api_calls: 1, ai_calls: 0, latency_ms: out.ms },
+      result_refs: out.ok ? {
+        trace_ref: out.traceId,
+        finding_count: out.projection?.model_input?.findings?.length || 0,
+        coverage: out.projection?.model_input?.coverage || null,
+      } : null,
+      cost: { certainty: "not_billable" },
+      replay: {
+        inputRef: `number:${number}`,
+        ownerRuleRefs: ["research_strategy_layer_law v17", "research_workspace_law v5"],
+        parametersRef: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+      },
+      privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+    },
+  });
+  return out;
+}
+
+function razielCanonicalBundlePrompt(reads: RazielCanonicalBundleRead[]): string {
+  const bundles = reads.filter((read) => read.ok && read.projection).map((read) => ({
+    number: read.number,
+    result: read.projection.model_input,
+  }));
+  if (!bundles.length) return "";
+  return JSON.stringify({
+    contract: "raziel-canonical-result-bundle-input-v1",
+    bundles,
+    presentation_rule: "Answer in natural Hebrew. Never expose JSON, internal field names, trace ids or Finding ids. Separate verified finding, source claim and interpretation.",
+  });
+}
+
+function razielCanonicalBundleFallback(reads: RazielCanonicalBundleRead[]): string {
+  const sections = reads.filter((read) => read.ok && read.projection).map((read) => {
+    const cards = Array.isArray(read.projection?.human_view?.cards) ? read.projection.human_view.cards : [];
+    const lines = cards.slice(0, 6).map((card: any) => {
+      const label = ncText(card?.label, 100) || `מספר ${read.number}`;
+      const method = ncText(card?.method, 50);
+      const scalar = typeof card?.value === "number" || typeof card?.value === "string" ? ncText(String(card.value), 80) : "";
+      const source = ncText(card?.source_name, 100);
+      return `• ${label}${method ? ` · ${method}` : ""}${scalar ? ` · ${scalar}` : ""}${source ? ` · מקור: ${source}` : ""}`;
+    });
+    if (!lines.length) return `למספר ${read.number} לא חזר ממצא חיובי בחיפוש הקנוני התחום. אין זו הוכחה שאין קשרים במקורות אחרים.`;
+    return [`ממצאים מאומתים עבור ${read.number}:`, ...lines].join("\n");
+  });
+  return sections.join("\n\n").slice(0, 3000);
+}
+
+function razielCanonicalBundleSources(reads: RazielCanonicalBundleRead[]) {
+  const seen = new Set<string>();
+  const sources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
+  for (const read of reads) {
+    const cards = Array.isArray(read.projection?.human_view?.cards) ? read.projection.human_view.cards : [];
+    for (const card of cards) {
+      const name = ncText(card?.source_name, 120);
+      const ref = ncText(card?.source_ref, 200) || null;
+      const lang = ncText(card?.source_lang, 20) || null;
+      const key = `${name}|${ref || ""}|${lang || ""}`;
+      if (!name || seen.has(key)) continue;
+      seen.add(key);
+      sources.push({ original_name: name, source_ref: ref, lang });
+      if (sources.length >= 12) return sources;
+    }
+  }
+  return sources;
+}
+
 // ── Raziel Intelligence Core v1 Phase L — bounded READ-only external live-state verifier (verified admin only) ──────────────────────────────
 // Replaces the Phase K fixed "not connected" answer. Unauthenticated PUBLIC GitHub REST only for the public repo (no token, no Authorization header, no env
 // secret, never the caller JWT, no Vercel API). Evidence follows the post-deploy-canary workflow / deploy_on_request v3: a LIVE_VERIFIED claim needs the latest
@@ -2193,6 +2358,9 @@ Deno.serve(async (req: Request) => {
       //    L0 (listing/counts) answers straight from the owner projections (no model, no tokens); synthesis gets a bounded pack. Failure ⇒ ordinary synthesis, no claims.
       let rNcPack = "";
       let rNcFallback = "";
+      let rCanonicalBundlePack = "";
+      let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
+      let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
       const rConversationFallback = rConversationHint
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match")
@@ -2206,7 +2374,50 @@ Deno.serve(async (req: Request) => {
           ? { number: rConversationFallback.numbers[0], anchor: "conversation_resolution", mode: "synthesis" as const, focus: null }
           : null));
       if (rDet && rDet.availability === "number_context") rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: false };
-      if (rNcPairDesc) {
+      // 2029 opt-in only: consume the canonical Result Bundle first. The call forwards the original
+      // caller credential, so research-run applies the same RLS/entitlement boundary for guests and
+      // signed-in users. Trusted internal/WhatsApp traffic is intentionally excluded from this site seam.
+      const canonicalNumbers = rNcPairDesc?.numbers
+        ?? (rNcDesc?.mode === "synthesis" ? [rNcDesc.number] : []);
+      if (!rTrusted && razielCanonicalBundleOptedIn(body) && canonicalNumbers.length) {
+        rCanonicalBundleReads = await Promise.all(canonicalNumbers.map((number) => runRazielCanonicalNumberBundle({
+          number,
+          question: rSubject,
+          visitorId: body?.visitor_id,
+          interactionId: body?.interaction_id,
+          authorization: req.headers.get("authorization") || "",
+          trace: activeTrace,
+        })));
+        const canonicalReady = rCanonicalBundleReads.length === canonicalNumbers.length
+          && rCanonicalBundleReads.every((read) => read.ok && read.projection);
+        if (canonicalReady) {
+          rCanonicalBundlePack = razielCanonicalBundlePrompt(rCanonicalBundleReads);
+          rNcFallback = razielCanonicalBundleFallback(rCanonicalBundleReads);
+          rCanonicalBundleSources = razielCanonicalBundleSources(rCanonicalBundleReads);
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            number_context_executed: true,
+            canonical_result_bundle: {
+              contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+              status: "ready",
+              numbers: canonicalNumbers,
+              trace_refs: rCanonicalBundleReads.map((read) => read.traceId).filter(Boolean),
+            },
+          };
+        } else {
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            canonical_result_bundle: {
+              contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+              status: "fallback",
+              numbers: canonicalNumbers,
+              reasons: rCanonicalBundleReads.map((read) => read.error).filter(Boolean),
+            },
+          };
+        }
+      }
+      const canonicalBundleReady = !!rCanonicalBundlePack;
+      if (rNcPairDesc && !canonicalBundleReady) {
         const [leftNumber, rightNumber] = rNcPairDesc.numbers;
         const left = await runRazielNumberContext({ number: leftNumber, anchor: rNcPairDesc.anchor, mode: rNcPairDesc.mode, focus: rNcPairDesc.focus }, activeTrace);
         const right = await runRazielNumberContext({ number: rightNumber, anchor: rNcPairDesc.anchor, mode: rNcPairDesc.mode, focus: rNcPairDesc.focus }, activeTrace);
@@ -2221,7 +2432,7 @@ Deno.serve(async (req: Request) => {
             rNcFallback = `לא הצלחתי לנסח השוואה בטוחה, ולכן הנה הנתונים המאומתים לכל צד:\n\n${groundedSides.join("\n\n")}`.slice(0, 3000);
           }
         }
-      } else if (rNcDesc) {
+      } else if (rNcDesc && !canonicalBundleReady) {
         const nc = await runRazielNumberContext(rNcDesc, activeTrace);
         rPlanMeta = { ...(rPlanMeta || {}), number_context_executed: nc.ok, number_context: { number: nc.number, anchor: nc.anchor, focus: rNcDesc.focus, outcome: nc.outcome } };
         if (nc.ok && rNcDesc.mode === "deterministic" && !rToolRes && nc.answer) {
@@ -2288,6 +2499,8 @@ Deno.serve(async (req: Request) => {
 
       const toolText = (rToolRes ? rToolRes.text : "") + (rNcPack
         ? "\n\nהקשר-מספר באתר (קריאה-בלבד מ-number_map + number_dossier_json; נוכחות קשת = ראיית-קשר ולא פירוש; השתמש רק בפריטים כאן, אל תמציא פוסטים/טופיקים/מספרים, אל תחשב; ללא גוף-פוסט):\n" + rNcPack
+        : rCanonicalBundlePack
+        ? "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundlePack
         : "") + (rCcPack === "UNAVAILABLE"
         ? "\n\nתוכן הדף הנוכחי אינו זמין כרגע (אין זהות-משטח מדויקת או שהקריאה נכשלה) — אל תמציא ואל תנחש תוכן; אמור זאת בקצרה וענה כרגיל."
         : rCcPack
@@ -2330,7 +2543,7 @@ Deno.serve(async (req: Request) => {
       });
       const exactSurfaceNumber = razielSurfaceNumberRoot(body?.surface_semantic);
       const permittedRazielNumericTexts = [
-        rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rOpPack, rPersPack,
+        rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rCanonicalBundlePack, rOpPack, rPersPack,
         rCcPack === "UNAVAILABLE" ? "" : rCcPack,
         rSource?.ok ? rSource.text : "",
         exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),
@@ -2473,6 +2686,11 @@ Deno.serve(async (req: Request) => {
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
+        if (rCanonicalBundleSources.length) {
+          // Only the canonical consumer may attest source names for this path. Model-authored source
+          // labels are not evidence and must never be merged into the response provenance surface.
+          contract.sources = rCanonicalBundleSources;
+        }
         if (rTrusted?.media) contract.source_stage = { executed: true, ok: !!rSource?.ok, reason: rSource?.reason ?? null, derivative: true, moderation: "pending" };   // additive; numeric routing skipped for attached sources
         contract.intelligence_selection = rSelMeta;      // Phase D — additive: requested/selected/escalation_reason
         if (rPlanMeta) contract.plan_meta = rPlanMeta;   // additive — lets Explain-Why say why L0 vs L2

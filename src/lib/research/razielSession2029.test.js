@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
+  RAZIEL_CANONICAL_RESEARCH_CONTRACT,
   buildRazielTranscript,
   buildRazielSessionRequest,
   createInitialRazielSessionState,
@@ -74,6 +75,7 @@ test("privacy: absent numeric values do not become invented zeroes", () => {
 });
 
 test("cost: request is bounded and the provider has one explicit transport boundary only", () => {
+  const transportSource = readFileSync(new URL("../supabase.js", import.meta.url), "utf8");
   const state = {
     ...createInitialRazielSessionState(),
     thread: [
@@ -88,9 +90,12 @@ test("cost: request is bounded and the provider has one explicit transport bound
   assert.equal(request.subject.length, 300);
   assert.ok(request.context.length <= 600);
   assert.ok(request.facts.length <= 1200);
+  assert.equal(request.researchContract, RAZIEL_CANONICAL_RESEARCH_CONTRACT);
   assert.equal((providerSource.match(/await transport\(request\)/g) || []).length, 1);
   assert.equal((providerSource.match(/await pairTransport\(/g) || []).length, 1);
   assert.doesNotMatch(providerSource, /localStorage|sessionStorage|saveItem|saveCurrentResearchPath/);
+  assert.match(transportSource, /research_contract:\s*researchContract/);
+  assert.match(transportSource, /interaction_id:\s*interactionId/);
   assert.equal((providerSource.match(/current\.addToResearch\?\.\(entity\)/g) || []).length, 1);
   const beforeSubmit = providerSource.slice(0, providerSource.indexOf("const submit"));
   assert.doesNotMatch(beforeSubmit, /transport\s*\(/);

@@ -5,12 +5,12 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {isolatedResearchRun,assertSavedWitness} from './helpers/research-run-handler.mjs';
 
-async function invoke(runtime){
+async function invoke(runtime,{visitorId=randomUUID()}={}){
   const interactionId=randomUUID();
   try{
     const response=await runtime.fetch(`${runtime.origin}/functions/v1/research-run`,{
       method:'POST',headers:{authorization:`Bearer ${runtime.anon}`,'content-type':'application/json'},
-      body:JSON.stringify({number:'878',question:'878',visitor_id:randomUUID(),interaction_id:interactionId,
+      body:JSON.stringify({number:'878',question:'878',visitor_id:visitorId,interaction_id:interactionId,
         requested_capabilities:['numeric','numeric_operators'],surface:'heichal'}),
     });
     return {response,data:await response.json(),interactionId};
@@ -49,6 +49,26 @@ test('persisted completion still returns the actual nonempty Result and saved wi
   assert.ok(out.data.bundle.findings.length>0);
   assert.notEqual(out.data.trace_id,out.interactionId);
   assert.equal(assertSavedWitness(runtime,out.interactionId,out.data.trace_id).length,5);
+});
+
+test('existing bounded site visitor identity reaches the same public Result Bundle contract',async()=>{
+  const runtime=isolatedResearchRun(),visitorId='vsitevisitor1820';
+  const out=await invoke(runtime,{visitorId});
+  assert.equal(out.response.status,200);assert.equal(out.data.status,'ok');
+  const gate=runtime.calls.find(c=>c.name==='fn_capability_execution_gate_v1');
+  assert.equal(gate.body.p_visitor,visitorId);
+  assert.equal(gate.body.p_identity,`v:${visitorId}`);
+  assert.equal(out.data.contract,'public-number-research-run-v1');
+});
+
+test('arbitrary visitor text is rejected before trace, gate or research execution',async()=>{
+  const runtime=isolatedResearchRun();
+  const out=await invoke(runtime,{visitorId:'visitor@example.com'});
+  assert.equal(out.response.status,400);
+  assert.deepEqual(out.data,{status:'error',error:'visitor_identity_required'});
+  assert.equal(runtime.calls.some(c=>c.name==='op_trace_begin_v1'),false);
+  assert.equal(runtime.calls.some(c=>c.name==='fn_capability_execution_gate_v1'),false);
+  assert.equal(runtime.calls.some(c=>c.name==='fn_number_lookup'),false);
 });
 
 const earlierFailures=[
