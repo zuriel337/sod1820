@@ -617,6 +617,9 @@ function LiveWorldLanding({ research, shell, context }) {
   const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
   const [adminToolsOpen, setAdminToolsOpen] = useState(false);
   const controlMode = isAdmin && adminToolsOpen;
+  const adminReviewRequested = new URLSearchParams(location.search).get("admin") === "1";
+  const adminReviewHref = "/world?admin=1";
+  const adminLoginHref = `/login?returnTo=${encodeURIComponent(adminReviewHref)}`;
   const [landing, setLanding] = useState({
     loading: true,
     sections: {},
@@ -666,6 +669,20 @@ function LiveWorldLanding({ research, shell, context }) {
     const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
     return () => window.cancelAnimationFrame(frame);
   }, [landing.loading, location.search, writerFilter, corpusKey]);
+
+  // An explicit review link may open the tools only after AuthContext proves the
+  // current account is an administrator. The query string never grants access.
+  useEffect(() => {
+    if (isAdmin && adminReviewRequested) setAdminToolsOpen(true);
+  }, [adminReviewRequested, isAdmin]);
+
+  useEffect(() => {
+    if (!controlMode || !adminReviewRequested) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("world-admin-tools")?.scrollIntoView({ block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [adminReviewRequested, controlMode]);
 
 
   const load = async () => {
@@ -1208,7 +1225,7 @@ function LiveWorldLanding({ research, shell, context }) {
                 {isAdmin ? "מנהל" : "מחובר"} · {profile?.display_name || profile?.username || user.email}
               </span>
               {!isAdmin ? <button className="sod29-action" type="button" onClick={() => refreshProfile?.()}>רענן הרשאה</button> : null}
-            </> : <a className="sod29-action primary" href="/login">התחברות / מנהל</a>}
+            </> : <a className="sod29-action primary" href={adminLoginHref}>התחברות / מנהל</a>}
           </div>
           {isAdmin ? <button
             className="sod29-action"
