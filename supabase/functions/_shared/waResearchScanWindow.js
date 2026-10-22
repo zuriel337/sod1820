@@ -1,5 +1,6 @@
 const MODES = new Set(["incremental", "inventory", "backfill"]);
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const REPAIR_MODES = new Set(["truncated_json_v1", "engine_output_v2"]);
 
 export const HISTORICAL_DEFAULT_EXCLUDED_CHANNELS = Object.freeze(["or-geula"]);
 
@@ -42,8 +43,16 @@ export function parseResearchScanRequest(input, { now = Date.now() } = {}) {
   const mode = String(params.get("mode") || "incremental").trim().toLowerCase();
   if (!MODES.has(mode)) return { ok: false, error: "invalid_mode" };
   const repair = String(params.get("repair") || "").trim().toLowerCase() || null;
-  if (repair && repair !== "truncated_json_v1") return { ok: false, error: "invalid_repair" };
+  if (repair && !REPAIR_MODES.has(repair)) return { ok: false, error: "invalid_repair" };
   if (repair && mode === "incremental") return { ok: false, error: "repair_requires_historical_mode" };
+
+  const sourceIds = listParam(params, "source_id").map((value) => value.toLowerCase());
+  if (sourceIds.some((value) => !UUID_RE.test(value))) {
+    return { ok: false, error: "invalid_source_id" };
+  }
+  if (sourceIds.length && mode === "incremental") {
+    return { ok: false, error: "source_id_requires_historical_mode" };
+  }
 
   const after = isoParam(params, "after");
   if (after.error) return { ok: false, error: after.error };
@@ -72,6 +81,7 @@ export function parseResearchScanRequest(input, { now = Date.now() } = {}) {
     after: after.value,
     through,
     repair,
+    sourceIds,
     contributorId,
     includedChannels: listParam(params, "channel"),
     excludedChannels,

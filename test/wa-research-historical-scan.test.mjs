@@ -59,6 +59,26 @@ test("historical request rejects ambiguous boundaries and contributor ids", () =
     parseResearchScanRequest("https://example.test/?repair=truncated_json_v1"),
     { ok: false, error: "repair_requires_historical_mode" },
   );
+  assert.deepEqual(
+    parseResearchScanRequest("https://example.test/?mode=inventory&source_id=not-a-uuid"),
+    { ok: false, error: "invalid_source_id" },
+  );
+  assert.deepEqual(
+    parseResearchScanRequest("https://example.test/?source_id=00000000-0000-4000-8000-000000000001"),
+    { ok: false, error: "source_id_requires_historical_mode" },
+  );
+});
+
+test("engine output repair is explicit, targeted and historical-only", () => {
+  const scan = parseResearchScanRequest(
+    "https://example.test/?mode=inventory&repair=engine_output_v2&source_id=00000000-0000-4000-8000-000000000001,00000000-0000-4000-8000-000000000002",
+  );
+  assert.equal(scan.ok, true);
+  assert.equal(scan.repair, "engine_output_v2");
+  assert.deepEqual(scan.sourceIds, [
+    "00000000-0000-4000-8000-000000000001",
+    "00000000-0000-4000-8000-000000000002",
+  ]);
 });
 
 test("truncated JSON repair is explicit and historical-only", () => {
@@ -99,5 +119,7 @@ test("edge adapter exposes inventory before the processing loop", () => {
   assert.match(source, /source_scope: "channel_updates"/);
   assert.match(source, /buildResearchScanCursor/);
   assert.match(source, /excluded_channels/);
+  assert.match(source, /retry_engine_output_v2_ready/);
+  assert.match(source, /extraction_profile: repair === "engine_output_v2"/);
   assert.ok(source.indexOf('scan.mode === "inventory"') < source.indexOf("for (const row of selected)"));
 });

@@ -249,7 +249,7 @@ async function mediaForAnalysis(row: any): Promise<{ url: string; kind: "image" 
   return { url: data.signedUrl, kind };
 }
 
-async function processRow(row: any) {
+async function processRow(row: any, repair: string | null = null) {
   const ref = sourceRef(row.id);
   let ocrUsed = false;
   let ocrText = "";
@@ -294,6 +294,7 @@ async function processRow(row: any) {
       source_ref: ref,
       contributor: row.credit || null,
       content,
+      extraction_profile: repair === "engine_output_v2" ? "engine_output_v2" : null,
     });
 
     if (result?.error) {
@@ -419,6 +420,7 @@ Deno.serve(async (req) => {
     if (scan.after) sourceQuery = sourceQuery.gte("created_at", scan.after);
     if (scan.through) sourceQuery = sourceQuery.lte("created_at", scan.through);
     if (scan.contributorId) sourceQuery = sourceQuery.eq("contributor_id", scan.contributorId);
+    if (scan.sourceIds.length) sourceQuery = sourceQuery.in("id", scan.sourceIds);
     sourceQuery = sourceQuery
       .order("created_at", { ascending: true })
       .order("id", { ascending: true })
@@ -465,12 +467,13 @@ Deno.serve(async (req) => {
 
   const now = Date.now();
   const repairTruncatedJson = scan.repair === "truncated_json_v1";
+  const repairEngineOutput = scan.repair === "engine_output_v2";
   const eligibilityState = new Map<string, string>();
   const pending = eligible.filter((r: any) => {
     const rows = existing.get(sourceRef(r.id));
     if (!rows?.length) {
       eligibilityState.set(r.id, "pending_new");
-      return !repairTruncatedJson;
+      return !repairTruncatedJson && !repairEngineOutput;
     }
 
     let maxAttempts = 0;
@@ -492,6 +495,15 @@ Deno.serve(async (req) => {
     if (repairTruncatedJson) {
       if (maxAttempts === 3) {
         eligibilityState.set(r.id, "retry_exhausted_repair_ready");
+        return true;
+      }
+      eligibilityState.set(r.id, "retry_exhausted");
+      return false;
+    }
+    if (repairEngineOutput) {
+      const plainTextOnly = !r.image_url && String(r.text || "").trim().length >= 8;
+      if (plainTextOnly && (maxAttempts === 2 || maxAttempts === 4)) {
+        eligibilityState.set(r.id, "retry_engine_output_v2_ready");
         return true;
       }
       eligibilityState.set(r.id, "retry_exhausted");
@@ -559,7 +571,7 @@ Deno.serve(async (req) => {
   const results = [];
   for (const row of selected) {
     try {
-      results.push(await processRow(row));
+      results.push(await processRow(row, scan.repair));
     } catch {
       // One malformed/transient source must not abort the remaining bounded batch.
       // With no terminal Research Object recorded, this source remains eligible for a later retry.
