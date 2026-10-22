@@ -191,10 +191,18 @@ const realHostStubs = {
       (window.__updateCalls||=[]).push({name,...structuredClone(payload)});
       const row=(window.__savedRows||[]).find(row=>row.id===payload.p_id);
       const reanchor=name==='reanchor_els_matrix_v1';
-      if(!['update_els_matrix','reanchor_els_matrix_v1'].includes(name)||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published'&&!reanchor)))return {error:{message:'update denied'}};
+      const replace=name==='replace_els_matrix_axis_v1';
+      if(!['update_els_matrix','reanchor_els_matrix_v1','replace_els_matrix_axis_v1'].includes(name)||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published'&&!reanchor&&!replace)))return {error:{message:'update denied'}};
       if(reanchor){row.scope=payload.p_scope;row.skip_distance=payload.p_skip;row.direction=payload.p_direction;row.start_index=payload.p_start_index;
         row.corpus_id=payload.p_scope==='tanakh'?'0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b':'${ELS_GOLDEN_CORPUS_ID}';
         if(window.__fixtureTier!=='admin'&&row.status==='published'){row.status='pending';row.visibility='private';}}
+      if(replace){
+        const stale=row.search_term!==payload.p_expected_term||row.scope!==payload.p_expected_scope||row.skip_distance!==payload.p_expected_skip||row.direction!==payload.p_expected_direction||row.start_index!==payload.p_expected_start_index;
+        if(stale)return {error:{message:'saved_axis_changed'}};
+        row.search_term=payload.p_term;row.scope=payload.p_scope;row.skip_distance=payload.p_skip;row.direction=payload.p_direction;row.start_index=payload.p_start_index;
+        row.corpus_id=payload.p_scope==='tanakh'?'0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b':'${ELS_GOLDEN_CORPUS_ID}';
+        if(window.__fixtureTier!=='admin'&&row.status==='published'){row.status='pending';row.visibility='private';}
+      }
       row.positions=payload.p_positions;if(payload.p_image_url!=null)row.image_url=payload.p_image_url;
       row.description=payload.p_description;row.engine_detail=payload.p_engine_detail;return {error:null};
     },functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
@@ -586,6 +594,44 @@ test('Research v1 C02 promotes the exact Finding occurrence and returns to the e
    assert.deepEqual(restored.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})));
    assert.equal(await page.locator('[data-els-c02-journey="v1"]').count(),0,'the completed return consumes only its local breadcrumb');
   },{realHost:true});
+ });
+
+test('an owned saved cipher replaces its promoted primary axis in the same row and removes the old axis from persisted findings',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const row=await privacyRecord(page,{title:'בית ירד',description:'הצופן השמור לפני החלפת הציר הראשי'});
+   await page.evaluate(value=>window.__openSavedMatrix(value),row);
+   await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
+   const oldAxis=await page.evaluate(()=>({term:window.__state.term,hitId:window.__state.axis.hitId}));
+   await addSecondary(page,'התורה');
+   await selectAxis(page,'התורה');
+   const target=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='התורה').hits.find(hit=>hit.shown&&hit.verified).hitId);
+   await activate(page,'הפוך לציר ראשי');
+   await page.waitForFunction(hitId=>window.__state?.axis?.hitId===hitId,target);
+   assert.ok((await page.evaluate(term=>window.__state.findings.some(finding=>finding.t===term),oldAxis.term)),'Journey retains the old axis until the replacement is saved');
+   await activate(page,'שמירה');
+   assert.equal(await page.getByText('החלפת הציר הראשי',{exact:true}).count(),1);
+   assert.match(await page.locator('.els29-native-save').textContent(),/שם הצופן „בית ירד” יישאר/);
+   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).inputValue(),'בית ירד');
+   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).isDisabled(),true);
+   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('המילה התורה מחליפה את הציר הישן באותה רשומה.');
+   await activate(page,'החלף ציר ושמור');
+   await page.waitForFunction(()=>window.__updateCalls?.at(-1)?.name==='replace_els_matrix_axis_v1');
+   const update=await page.evaluate(()=>structuredClone(window.__updateCalls.at(-1)));
+   assert.equal(update.p_id,'privacy-record');
+   assert.equal(update.p_expected_term,oldAxis.term);
+   assert.equal(update.p_term,'התורה');
+   assert.equal(update.p_start_index,Number(target.split('_')[2]));
+   const saved=await page.evaluate(()=>structuredClone(window.__savedRows[0]));
+   assert.equal(saved.id,'privacy-record');
+   assert.equal(saved.title,'בית ירד');
+   assert.equal(saved.search_term,'התורה');
+   assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'axis replacement never creates a copy');
+   assert.equal(saved.positions.findings.some(finding=>finding.t===oldAxis.term),false,'old primary is deleted from persisted findings');
+   assert.equal(await page.evaluate(()=>window.__publicUploads||0),0,'private replacement does not publish a card image');
+   assert.equal(await page.locator('[data-els-saved-loading="true"]').count(),0,'same-row readback does not restart the saved-cipher loader');
+   assert.equal(await page.locator('.els29-native-matrix').isVisible(),true);
+  },{realHost:true,mobile:true,tier:'registered'});
  });
 
 test('Research v1 acceptance: verify → matrix → Finding → source → save → workspace → exact reopen/return → Raziel',

@@ -12,6 +12,8 @@ const MIG = '20260930123615_g3_els_verify_batch_v1.sql';
 const mig = read(`supabase/migrations/${MIG}`);
 const REANCHOR_MIG = '20261022131735_els_legacy_saved_matrix_in_place_reanchor_v1.sql';
 const reanchorMig = read(`supabase/migrations/${REANCHOR_MIG}`);
+const REPLACE_AXIS_MIG = '20261022151109_replace_els_matrix_axis_v1.sql';
+const replaceAxisMig = read(`supabase/migrations/${REPLACE_AXIS_MIG}`);
 const letters = read('tools/els/data/tk-letters.txt');
 const TORAH_LEN = 304805;
 const TANAKH_ID = '0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b';
@@ -52,6 +54,18 @@ test('static: legacy in-place re-anchor is atomic, canonically gated and does no
   assert.ok(reanchorMig.indexOf('els_publish_truth_gate_v1') < reanchorMig.indexOf('update public.els_records set'));
   assert.match(reanchorMig, /status\s*=\s*case when r\.status = 'published' and not v_admin then 'pending'/);
   assert.match(reanchorMig, /revoke all on function public\.reanchor_els_matrix_v1\([^)]*\) from public, anon;\s*grant execute[^;]*to authenticated;/s);
+});
+
+test('static: primary-axis replacement is same-row, stale-safe, canonically gated and changes no schema or RLS', () => {
+  assert.doesNotMatch(replaceAxisMig, /create\s+table|alter\s+table|create\s+policy|drop\s+policy/i);
+  assert.match(replaceAxisMig, /for update/);
+  assert.match(replaceAxisMig, /saved_axis_changed/);
+  assert.ok(replaceAxisMig.indexOf('els_publish_truth_gate_v1') < replaceAxisMig.indexOf('update public.els_records set'));
+  assert.match(replaceAxisMig, /jsonb_array_elements[\s\S]*fn_els_term_norm\(finding ->> 't'\)[\s\S]*v_old_term_norm/);
+  const update = replaceAxisMig.slice(replaceAxisMig.indexOf('update public.els_records set'), replaceAxisMig.indexOf('where id = p_id;', replaceAxisMig.indexOf('update public.els_records set')));
+  assert.doesNotMatch(update, /\btitle\s*=|\bslug\s*=/, 'record name and URL identity stay unchanged');
+  assert.match(replaceAxisMig, /status\s*=\s*case when r\.status = 'published' and not v_admin then 'pending'/);
+  assert.match(replaceAxisMig, /revoke all on function public\.replace_els_matrix_axis_v1\([^)]*\)\s*from public, anon, authenticated;\s*grant execute[^;]*to authenticated;/s);
 });
 
 const PG = ['/usr/lib/postgresql/17/bin', '/usr/lib/postgresql/16/bin', '/usr/lib/postgresql/15/bin', '/usr/lib/postgresql/14/bin']
@@ -329,6 +343,24 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
       ['33333333-3333-3333-3333-333333333333','pending','private',good1.start], 'owner keeps the same id and returns published evidence to review');
     fails(as(USER, `select public.reanchor_els_matrix_v1('44444444-4444-4444-4444-444444444444','torah',2,'${dname(good0.dir)}',${good0.start},null,null,null,null)`), /not authorized/);
     r = db(`select concat(has_function_privilege('anon','public.reanchor_els_matrix_v1(uuid,text,integer,text,integer,jsonb,text,text,jsonb)','execute'),has_function_privilege('authenticated','public.reanchor_els_matrix_v1(uuid,text,integer,text,integer,jsonb,text,text,jsonb)','execute'))`);
+    assert.equal(r.stdout.trim(), 'ft');
+
+    // (j) an opened saved record can replace its verified primary axis in place.
+    // The title/slug/id remain stable, the old primary is removed from persisted
+    // findings, and an owner change to published evidence returns to moderation.
+    r = file(`supabase/migrations/${REPLACE_AXIS_MIG}`); assert.equal(r.status, 0, r.stderr);
+    const replacement = oracle('בית', 2, 2, 0, TORAH_LEN - 1)[0];
+    db(`update public.els_records set title='בית ירד', positions='{"findings":[{"t":"שדי"},{"t":"אור"}]}'::jsonb where id='${pub1}'`);
+    fails(as(USER, `select public.replace_els_matrix_axis_v1('${pub1}','שדי','torah',2,'${dname(good1.dir)}',${good1.start + 1},'בית','torah',2,'${dname(replacement.dir)}',${replacement.start},null,null,null,null)`), /saved_axis_changed/);
+    assert.equal(J(`select search_term from public.els_records where id='${pub1}'`), 'שדי', 'stale expected identity leaves the row unchanged');
+    fails(as(USER, `select public.replace_els_matrix_axis_v1('${pub1}','שדי','torah',2,'${dname(tk[1].dir)}',${tk[1].start},'בית','torah',2,'${dname(replacement.dir)}',${replacement.start + 1},null,null,null,null)`), /els_publish_gate: REPLAY_MISMATCH/);
+    assert.equal(J(`select search_term from public.els_records where id='${pub1}'`), 'שדי', 'failed replacement gate is atomic');
+    r = as(USER, `select public.replace_els_matrix_axis_v1('${pub1}','שדי','torah',2,'${dname(tk[1].dir)}',${tk[1].start},'בית','torah',2,'${dname(replacement.dir)}',${replacement.start},'{"findings":[{"t":"שדי"},{"t":"אור"}]}'::jsonb,null,'axis replaced',null)`);
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(J(`select json_build_array(id::text,title,slug,search_term,status,visibility,positions->'findings',description)::text from public.els_records where id='${pub1}'`),
+      [pub1,'בית ירד','pend-1','בית','pending','private',[{t:'אור'}],'axis replaced']);
+    fails(as(USER, `select public.replace_els_matrix_axis_v1('11111111-1111-1111-1111-111111111111','שדי','torah',2,'${dname(good0.dir)}',${good0.start},'בית','torah',2,'${dname(replacement.dir)}',${replacement.start},null,null,null,null)`), /not authorized/);
+    r = db(`select concat(has_function_privilege('anon','public.replace_els_matrix_axis_v1(uuid,text,text,integer,text,integer,text,text,integer,text,integer,jsonb,text,text,jsonb)','execute'),has_function_privilege('authenticated','public.replace_els_matrix_axis_v1(uuid,text,text,integer,text,integer,text,text,integer,text,integer,jsonb,text,text,jsonb)','execute'))`);
     assert.equal(r.stdout.trim(), 'ft');
   } finally {
     run(join(PG, 'pg_ctl'), ['-D', data, '-m', 'immediate', 'stop']);

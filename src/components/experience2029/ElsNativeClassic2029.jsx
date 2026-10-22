@@ -13,6 +13,7 @@ import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { savedMatrixCanReanchor, savedMatrixMatchesAxis } from "../../lib/elsSavedMatrix.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -781,6 +782,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [journeyPending, setJourneyPending] = useState(null);
   const journeyPendingRef = useRef(null);
   const [journeyTrail, setJourneyTrail] = useState([]);
+  // UI-only compare-and-swap intent for the opened row. Canonical ELS identity
+  // still comes exclusively from the mounted engine and is re-verified server-side.
+  const [savedAxisReplacement, setSavedAxisReplacement] = useState(null);
   const [crossOpen, setCrossOpen] = useState(false);
   const [crossTerm, setCrossTerm] = useState("");
   const [crossRadius, setCrossRadius] = useState(18);
@@ -801,11 +805,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const view = matrix.positions?.view || {};
     setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
     setShortSkipView(view.shortSkipView === "columns" ? "columns" : "reading");
-    setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);
+    setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [matrix?.id]);
   useEffect(() => {
     if (!researchLoad) return;
-    setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);
+    setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [researchLoad]);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
@@ -829,6 +833,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setLoadError(null);
     setNotice("");
     setAccountRequired(false);
+    setSavedAxisReplacement(null);
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
@@ -982,7 +987,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (!draft) { setActiveTool("research"); return; }
     if (savePending) return;
     setSaveResult(null);setSavePending(true);
-    setSaveRequest({ ...draft, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
+    setSaveRequest({ ...draft, replaceSavedAxis: activeSavedAxisReplacement, seq: ++actionSeqRef.current, axisHitId: engineStateRef.current?.axis?.hitId,
       view: { classicGlyphs, heightExpanded, shortSkipView } });
   };
 
@@ -1018,6 +1023,26 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         hitId: promotion.snapshot.axis.hitId,
       },
     };
+    const ownsOpenedRecord = matrix?.id && (isAdmin || matrix.owner_user_id === user?.id);
+    const replacingOpenedAxis = ownsOpenedRecord && (
+      savedMatrixMatchesAxis(matrix, current)
+      || savedMatrixCanReanchor(matrix, current)
+      || (savedAxisReplacement?.recordId === matrix.id && journeyAnchorMatches(current, savedAxisReplacement.target))
+    );
+    setSavedAxisReplacement(replacingOpenedAxis ? {
+      recordId: matrix.id,
+      expected: {
+        term: matrix.search_term,
+        scope: matrix.scope || "torah",
+        skip: matrix.skip_distance ?? null,
+        direction: matrix.direction ?? null,
+        startIndex: matrix.start_index ?? null,
+      },
+      previousTerm: matrix.search_term,
+      target: promotion.target,
+      targetTerm: finding.t,
+      targetHitId: promotion.target.hitId,
+    } : null);
     journeyPendingRef.current = pending;
     setJourneyPending(pending);
     setJourneyLoad(promotion.loadItem);
@@ -1040,6 +1065,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       nextTrail: journeyTrail.slice(0, -1),
     };
     journeyPendingRef.current = pending;
+    setSavedAxisReplacement(null);
     setJourneyPending(pending);
     setJourneyLoad(restored.loadItem);
     setNotice(`חוזר לציר ${returnStep.label} ומאמת את העוגן המדויק…`);
@@ -1074,8 +1100,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
+  const activeSavedAxisReplacement = savedAxisReplacement && savedAxisReplacement.recordId === matrix?.id
+    && journeyAnchorMatches(engineState, savedAxisReplacement.target) ? savedAxisReplacement : null;
   const savedMatrixReady = Boolean(matrix?.id && matrixActive && engineState?.provenance?.editId === matrix.id);
-  const savedLoadPending = Boolean(matrix?.id && !savedMatrixReady && !loadError);
+  const [loadedSavedMatrixId, setLoadedSavedMatrixId] = useState(null);
+  useEffect(() => { setLoadedSavedMatrixId(null); }, [matrix?.id]);
+  useEffect(() => { if (savedMatrixReady) setLoadedSavedMatrixId(matrix.id); }, [savedMatrixReady, matrix?.id]);
+  const savedLoadPending = Boolean(matrix?.id && loadedSavedMatrixId !== matrix.id && !savedMatrixReady && !loadError);
   // On phones, one contextual research workspace belongs directly below a verified matrix.
   // Findings are its default view; Results and Save replace its content in the same page region.
   const mobileInlineWorkspace = compactMobile && matrixActive && !classicOpen;
@@ -1325,8 +1356,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
-        <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin}
-          pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
+        <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin} replacement={activeSavedAxisReplacement}
+          pending={savePending} busy={!!journeyPending || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />
         <FindingsRail
@@ -1381,7 +1412,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           findingControlRequest={findingControlRequest}
           contextRequest={contextRequest}
           saveRequest={saveRequest}
-          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) onSaved?.(result.row); }}
+          onSaveResult={(result) => { if (result.requestId !== saveRequest?.seq) return;setSavePending(false);setSaveResult(result);if (result.ok) { setSavedAxisReplacement(null);onSaved?.(result.row); } }}
           onLoadError={handleJourneyLoadError}
           workspaceRequest={workspaceRequest}
           onWorkspaceAdded={() => setNotice("הממצא נוסף לתיק המחקר שלך.")}
