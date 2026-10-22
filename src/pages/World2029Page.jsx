@@ -69,6 +69,11 @@ import "./worldComposition2029.css";
 import { levelNumbers } from "../lib/ratings2029.js";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import {
+  WORLD_LANDING_VIEW,
+  resolveWorldLandingView,
+  worldLandingViewLocation,
+} from "../lib/research/worldLandingNavigation.js";
 
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
 
@@ -80,6 +85,14 @@ const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const ALL_CONVERGENCES_PAGE_SIZE = 24;
 const WORLD_878_JOURNEY_LOCKED = GOLDEN_WORLD_JOURNEY_878.locked === true;
+
+const WORLD_LANDING_ENTRIES = Object.freeze([
+  { key: WORLD_LANDING_VIEW.START, label: "התחלה", description: "מעט מהעולם, במקום אחד" },
+  { key: WORLD_LANDING_VIEW.LIVE, label: "מה חדש", description: "העדכונים האחרונים לפי זמן" },
+  { key: WORLD_LANDING_VIEW.CONNECTIONS, label: "נושאים וחיבורים", description: "לראות מה נפגש סביב רעיון" },
+  { key: WORLD_LANDING_VIEW.SOURCES, label: "אנשים ומקורות", description: "לפתוח חומר לפי מי ומאיפה" },
+  { key: WORLD_LANDING_VIEW.JOURNEY, label: "מסעות", description: "להמשיך בדרך מחקר שמורה" },
+]);
 
 const FACET_LABELS = {
   topic: CONVERGENCE_LABEL,
@@ -562,6 +575,7 @@ function LiveWorldLanding({ research, shell, context }) {
   const navigate = useNavigate();
   const palette = usePalette();
   const { isAdmin, loading: authLoading } = useAuth();
+  const [activeView, setActiveView] = useState(() => resolveWorldLandingView(location));
   const [landing, setLanding] = useState({
     loading: true,
     contributors: null,
@@ -571,11 +585,16 @@ function LiveWorldLanding({ research, shell, context }) {
     discoveryError: null,
     journeyError: null,
   });
-  const [writerFilter, setWriterFilter] = useState("tzvi-opoc");
+  const [writerFilter, setWriterFilter] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
   const openAnchoredContext = (nextContext) => {
     research.setResearchContext?.(nextContext);
     navigate("/world?focus=context", { replace: true });
+  };
+  const openLandingView = (view) => {
+    setActiveView(view);
+    navigate(worldLandingViewLocation(view, location.search));
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   };
   const [catalogExpanded, setCatalogExpanded] = useState(false);
   const [allQuery, setAllQuery] = useState("");
@@ -587,25 +606,33 @@ function LiveWorldLanding({ research, shell, context }) {
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
   const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
 
+  useEffect(() => {
+    setActiveView(resolveWorldLandingView(location));
+  }, [location.hash, location.search]);
+
   // Deep links from the shared Companion use existing World source readers.
   // Query params only choose a PUBLIC display focus; they never grant read access.
   useEffect(() => {
-    const source = new URLSearchParams(location.search).get("source");
-    if (source === "tzvi-opoc") { setWriterFilter("tzvi-opoc"); setCorpusKey(null); }
-    else if (source === "sod-hashmal") { setCorpusKey("sod-hashmal"); setWriterFilter("all"); }
+    const params = new URLSearchParams(location.search);
+    const source = params.get("source");
+    const subjectSource = params.get("subjectSource");
+    if (source === "tzvi-opoc" || subjectSource === "zvi") { setWriterFilter("tzvi-opoc"); setCorpusKey(null); }
+    else if (source === "sod-hashmal" || subjectSource === "hashmal") { setCorpusKey("sod-hashmal"); setWriterFilter("all"); }
   }, [location.search]);
 
   useEffect(() => {
-    if (landing.loading) return;
-    const source = new URLSearchParams(location.search).get("source");
-    const target = source === "tzvi-opoc" && writerFilter === "tzvi-opoc"
+    if (landing.loading || activeView !== WORLD_LANDING_VIEW.SOURCES) return;
+    const params = new URLSearchParams(location.search);
+    const source = params.get("source");
+    const subjectSource = params.get("subjectSource");
+    const target = (source === "tzvi-opoc" || subjectSource === "zvi") && writerFilter === "tzvi-opoc"
       ? "world-contributor-material"
-      : source === "sod-hashmal" && corpusKey === "sod-hashmal"
+      : (source === "sod-hashmal" || subjectSource === "hashmal") && corpusKey === "sod-hashmal"
         ? "world-corpus-sod-hashmal" : null;
     if (!target) return;
     const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
     return () => window.cancelAnimationFrame(frame);
-  }, [landing.loading, location.search, writerFilter, corpusKey]);
+  }, [activeView, landing.loading, location.search, writerFilter, corpusKey]);
 
   const load = async () => {
     setLanding((prev) => ({
@@ -637,13 +664,13 @@ function LiveWorldLanding({ research, shell, context }) {
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (landing.loading) return;
+    if (landing.loading || ![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.LIVE].includes(activeView)) return;
     return watchWorldDiscoveryStream({
       limit: 24, publicPeople: landing.contributors?.people || [], includeResearch: true, immediate: false,
       onResult: (discovery) => setLanding((prev) => ({ ...prev, discovery, discoveryError: null })),
       onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
     });
-  }, [landing.loading, landing.contributors]);
+  }, [activeView, landing.loading, landing.contributors]);
 
 
 
@@ -653,7 +680,7 @@ function LiveWorldLanding({ research, shell, context }) {
   useEffect(() => {
     let alive = true;
     const slug = writerFilter === "all" ? null : writerFilter;
-    if (!slug) {
+    if (activeView !== WORLD_LANDING_VIEW.SOURCES || !slug) {
       setContributorFindingsState({ slug: null, mode: null, loading: false, projection: null, error: null });
       return () => { alive = false; };
     }
@@ -667,18 +694,20 @@ function LiveWorldLanding({ research, shell, context }) {
         if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection: null, error });
       });
     return () => { alive = false; };
-  }, [contributorReadMode, writerFilter]);
+  }, [activeView, contributorReadMode, writerFilter]);
 
   useEffect(() => {
     let alive = true;
+    if (![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.CONNECTIONS].includes(activeView)) return () => { alive = false; };
     fetchTopicCreatorOptions()
       .then((rows) => { if (alive) setAllCreatorOptions(Array.isArray(rows) ? rows : []); })
       .catch(() => { if (alive) setAllCreatorOptions([]); });
     return () => { alive = false; };
-  }, []);
+  }, [activeView]);
 
   useEffect(() => {
     let alive = true;
+    if (![WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.CONNECTIONS].includes(activeView)) return () => { alive = false; };
     const timer = setTimeout(async () => {
       setAllConvergences((prev) => ({ ...prev, loading: true, loadingMore: false, cards: [], error: null }));
       try {
@@ -703,7 +732,7 @@ function LiveWorldLanding({ research, shell, context }) {
       }
     }, allQuery ? 260 : 0);
     return () => { alive = false; clearTimeout(timer); };
-  }, [allQuery, allCreator]);
+  }, [activeView, allQuery, allCreator]);
 
   const loadMoreConvergences = async () => {
     if (allConvergences.loading || allConvergences.loadingMore || !allConvergences.hasMore) return;
@@ -860,6 +889,16 @@ function LiveWorldLanding({ research, shell, context }) {
     : null;
   const publicCreator = (creator) => landing.contributors?.people?.find((person) =>
     person.slug === creator || person.displayName === creatorLabel(creator));
+  const renderCatalogCards = (cards) => <div className="sod29-world-catalog-grid">{cards.map((card, cardIndex) =>
+    <div className="sod29-world-catalog-item" key={card.id}>
+      <Link className="sod29-world-catalog-card" to={card.href} data-world-topic={card.refId}>
+        <div className="sod29-world-catalog-meta"><span>{CONVERGENCE_LABEL}</span>{publicCreator(card.creator) ? <span>{publicCreator(card.creator).displayName}</span> : null}</div>
+        <strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}
+        {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
+        <small>לגלות את החיבורים ←</small>
+      </Link>
+      <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
+    </div>)}</div>;
 
   const discoveryItems = Array.isArray(landing.discovery?.items) ? landing.discovery.items : [];
   useEffect(() => {
@@ -959,114 +998,141 @@ function LiveWorldLanding({ research, shell, context }) {
     </section> : null);
 
   return <>
-    <section className="sod29-world-overview" aria-label="כיווני הגילוי בעולם">
-      <div><div className="sod29-kicker">SOD1820 · עולם של חיבורים</div><h2>סיפור חדש. עומק של שנים.</h2>
-        <p>מה שמגיע עכשיו פוגש את התמונות, האנשים והרמזים שכבר נאספו. בחרו מאיפה להיכנס.</p></div>
-      <nav aria-label="כניסות לעולם"><a href="#world-sources">מה מגיע עכשיו</a><a href="#world-connections">מה מתחבר</a>{isAdmin ? <a href="#world-all-research">ממצאים לבדיקה</a> : null}<a href="#world-all-convergences">עיון לפי נושאים</a><a href="#world-journey-entry">להמשיך למסע</a></nav>
-    </section>
-    <WorldFlightStory2029 research={research} shell={shell} />
-    <WorldSourceStory research={research} shell={shell} compact />
-    {location.hash.startsWith('#world-discovery-') ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
-    <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
-      availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
-    <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
-    {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
-
-    <section className="sod29-world-source-homes" id="world-source-homes" aria-label="המקורות והכותבים בעולם">
-      <header><div className="sod29-kicker">החומר שמאחורי החיבורים</div><h2>קולות ומקורות בעולם</h2>
-        <p>הזרם מציג את העדכונים האחרונים. מכאן אפשר לפתוח גם את החומר שכבר נאסף לאורך השנים.</p></header>
-      <div className="sod29-world-source-home-grid">
-        {WORLD_SOURCE_CORPORA.map((spec) => <button type="button" key={spec.key} aria-expanded={corpusKey === spec.key}
-          aria-controls={`world-corpus-${spec.key}`} onClick={() => { setCorpusKey(corpusKey === spec.key ? null : spec.key); setWriterFilter("all"); }}>
-          <span>ספריית המקורות</span><strong>{spec.label}</strong><small>לקרוא את החומר הציבורי המלא ←</small>
-        </button>)}
-        {(landing.contributors?.people || []).map((person) => <button type="button" key={person.slug}
-          aria-expanded={writerFilter === person.slug} aria-controls="world-contributor-material"
-          onClick={() => { setWriterFilter(writerFilter === person.slug ? "all" : person.slug); setCorpusKey(null); }}>
-          <span>{person.role || "חוקר וכותב"}</span><strong>{person.displayName}</strong><small>לגלות את החומר והחיבורים שלו ←</small>
-        </button>)}
+    <section className="sod29-world-overview sod29-world-entry" aria-label="כניסה לעולם">
+      <div className="sod29-world-entry-copy">
+        <div className="sod29-kicker">SOD1820 · עולם של חיבורים</div>
+        <h2>מתחילים ממה שמסקרן אותך.</h2>
+        <p>מספר, מילה, אדם, מקור או תמונה — העולם מחבר את הנקודה שבחרת למה שכבר נמצא סביבה.</p>
+        <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר, מילה או נושא</button>
       </div>
-      {landing.loading ? <p role="status">פותח את הכותבים והמקורות…</p> : null}
-      {landing.contributorError ? <p role="status">הכותבים אינם זמינים להצגה כרגע.</p> : null}
+      <nav className="sod29-world-entry-grid" aria-label="דרכים לגלות את העולם">
+        {WORLD_LANDING_ENTRIES.map((entry) => <button type="button" key={entry.key}
+          className={`sod29-world-entry-card${activeView === entry.key ? " is-active" : ""}`}
+          aria-pressed={activeView === entry.key} onClick={() => openLandingView(entry.key)}>
+          <strong>{entry.label}</strong><small>{entry.description}</small>
+        </button>)}
+        {isAdmin ? <button type="button" className={`sod29-world-entry-card is-admin${activeView === WORLD_LANDING_VIEW.ADMIN ? " is-active" : ""}`}
+          aria-pressed={activeView === WORLD_LANDING_VIEW.ADMIN} onClick={() => openLandingView(WORLD_LANDING_VIEW.ADMIN)}>
+          <strong>בקרת ממצאים</strong><small>דירוג, כפילויות ושיוך · למנהל בלבד</small>
+        </button> : null}
+      </nav>
     </section>
-    {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus key={spec.key} spec={spec}
-      recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? null} />)}
-    {selectedWriter ? <section className="sod29-section sod29-world-contributor-findings-section" id="world-contributor-material"
-      aria-label={`כל החומר של ${selectedWriter.displayName}`} data-experience-capability="world-contributor-findings-projection">
-      <ContributorFindingsLens
-        projection={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.projection : null}
-        loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
-        error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null}
-        timeMode="bilingual" />
-      {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
-        <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
-    </section> : null}
 
-    {isAdmin ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את הממצאים">טוען את כלי הסקירה בעולם.</FrameState></NativeStateSection>}>
-      <WorldAllResearchTable state={{ enabled: !authLoading && isAdmin }} />
-    </React.Suspense> : null}
+    {activeView === WORLD_LANDING_VIEW.START ? <>
+      <section className="sod29-world-start-guide" aria-label="מה אפשר למצוא בעולם">
+        <div><div className="sod29-kicker">נקודה אחת · הרבה דרכים</div><h2>לא צריך להכיר את המאגר כדי להתחיל.</h2></div>
+        <p>אפשר לפתוח עדכון חדש, לעבור לנושא שבו כמה מסלולים נפגשים, או להיכנס דרך אדם ומקור. כל מסך מחזיר למקור המדויק.</p>
+        <div className="sod29-world-start-facets" aria-label="סוגי ידע בעולם"><span>מספרים ומילים</span><span>נושאים וחיבורים</span><span>אנשים ומקורות</span><span>תמונות ומדיה</span><span>שפות וצפנים</span><span>אירועים וזמן</span></div>
+      </section>
+      <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={5}
+        availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+      {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">אפשר להמשיך לנושאים, למקורות או לחיפוש.</FrameState> : null}
+      <section className="sod29-section sod29-world-featured-connections" aria-label="חיבורים נבחרים">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">אפשר להתחיל מכאן</div><h2>נושאים וחיבורים נבחרים</h2>
+          <p className="sod29-muted">כרטיס הוא שער לממצאים, למספרים ולמקורות המחוברים אליו.</p></div></div>
+        {allConvergences.loading ? <p role="status">פותח כמה חיבורים להתחלה…</p> : renderCatalogCards(allConvergences.cards.slice(0, 4))}
+        <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}>לכל הנושאים והחיבורים</button>
+          <button className="sod29-action" type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.SOURCES)}>לאנשים ולמקורות</button></div>
+      </section>
+    </> : null}
 
-    <WorldDiscoveryDoors />
-    <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושאים">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושאים</div><h2>כל חיבור פותח עוד עולם.</h2>
-        <p className="sod29-muted">בחרו נושא קיים כדי לראות אילו ביטויים, מספרים ומקורות נפגשים בו.</p></div>
-        {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} התכנסויות ציבוריות</span> : null}</div>
+    {activeView === WORLD_LANDING_VIEW.LIVE ? <>
+      <SourceArrivalList2029 loading={landing.loading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
+        availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+      <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
+      {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
+    </> : null}
+
+    {activeView === WORLD_LANDING_VIEW.SOURCES ? <>
       <WorldPublicSourceSubjects2029 />
-      <div className="sod29-world-catalog-controls">
-        <label className="sod29-world-catalog-search"><span>מה מסקרן אותך?</span>
-          <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="מספר, שם או נושא…" aria-label="חיפוש בכל ההתכנסויות" /></label>
-        <div className="sod29-world-catalog-creators" role="group" aria-label="סינון כל ההתכנסויות לפי יוצר">
-          {["all", ...allCreatorOptions.filter(publicCreator)].map((creator) => <button key={creator} type="button"
-            className={`sod29-world-stream-filter${allCreator === creator ? " is-active" : ""}`} aria-pressed={allCreator === creator}
-            onClick={() => setAllCreator(creator)}>{creator === "all" ? "הכול" : creatorLabel(creator)}</button>)}
+      <section className="sod29-world-source-homes" id="world-source-homes" aria-label="אנשים ומקורות בעולם">
+        <header><div className="sod29-kicker">לפי מי ומאיפה</div><h2>אנשים ומקורות בעולם</h2>
+          <p>אדם, חוקר וספריית תוכן הם דרכי כניסה לחומר. הממצאים עצמם נשארים מחוברים לנושאים ולמקורות שלהם.</p></header>
+        <div className="sod29-world-source-home-grid">
+          {WORLD_SOURCE_CORPORA.map((spec) => <button type="button" key={spec.key} aria-expanded={corpusKey === spec.key}
+            aria-controls={`world-corpus-${spec.key}`} onClick={() => { setCorpusKey(corpusKey === spec.key ? null : spec.key); setWriterFilter("all"); }}>
+            <span>ספריית מקורות</span><strong>{spec.label}</strong><small>לקרוא את החומר הציבורי ←</small>
+          </button>)}
+          {(landing.contributors?.people || []).map((person) => <button type="button" key={person.slug}
+            aria-expanded={writerFilter === person.slug} aria-controls="world-contributor-material"
+            onClick={() => { setWriterFilter(writerFilter === person.slug ? "all" : person.slug); setCorpusKey(null); }}>
+            <span>{person.role || "חוקר וכותב"}</span><strong>{person.displayName}</strong><small>לגלות את החומר והחיבורים שלו ←</small>
+          </button>)}
         </div>
-      </div>
-      {allConvergences.loading ? <p role="status">פותח את הנושאים…</p> : null}
-      {allConvergences.error ? <p role="status">חלק מהנושאים לא נטענו כרגע. מה שכבר נפתח נשאר זמין.</p> : null}
-      {!allConvergences.loading && !allConvergences.error && !allConvergences.cards.length ? <p role="status">לא נמצאו נושאים במסנן הזה.</p> : null}
-      <div className="sod29-world-catalog-grid">{allConvergences.cards.slice(0, catalogExpanded ? undefined : 8).map((card, cardIndex) =>
-        <div className="sod29-world-catalog-item" key={card.id}>
-        <Link className="sod29-world-catalog-card" to={card.href} data-world-topic={card.refId}>
-          <div className="sod29-world-catalog-meta"><span>{CONVERGENCE_LABEL}</span>{publicCreator(card.creator) ? <span>{publicCreator(card.creator).displayName}</span> : null}</div>
-          <strong>{card.label}</strong>{card.sub ? <p>{card.sub}</p> : null}
-          {card.numbers?.length ? <div className="sod29-world-catalog-numbers" aria-label="מספרי הכרטיס: בולטים קודם">{levelNumbers(card.numbers, card.highlightNumbers, 5).map(({ n, level }) => <span key={n} className={`k29-num is-l${level}`}>{n}</span>)}</div> : null}
-          <small>לגלות את החיבורים ←</small>
-        </Link>
-        <ConvergenceRatings2029 quality={card.quality} meterScore={card.meterScore} highlightNumbers={card.highlightNumbers} numbers={card.numbers} autoTiers={cardIndex < 8} popover />
-        </div>)}</div>
-      <div className="sod29-actions">
-        {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}
-          onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות נושאים" : "עוד נושאים בעולם"}</button> : null}
-        {catalogExpanded && allConvergences.hasMore ? <button className="sod29-action" disabled={allConvergences.loadingMore}
-          onClick={loadMoreConvergences}>{allConvergences.loadingMore ? "טוען עוד…" : "טען עוד נושאים"}</button> : null}
-      </div>
-    </section>
+        {landing.loading ? <p role="status">פותח את הכותבים והמקורות…</p> : null}
+        {landing.contributorError ? <p role="status">הכותבים אינם זמינים להצגה כרגע.</p> : null}
+      </section>
+      {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus key={spec.key} spec={spec}
+        recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? null} />)}
+      {selectedWriter ? <section className="sod29-section sod29-world-contributor-findings-section" id="world-contributor-material"
+        aria-label={`כל החומר של ${selectedWriter.displayName}`} data-experience-capability="world-contributor-findings-projection">
+        <ContributorFindingsLens
+          projection={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.projection : null}
+          loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
+          error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null}
+          timeMode="bilingual" />
+        {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
+          <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
+      </section> : null}
+    </> : null}
+
+    {activeView === WORLD_LANDING_VIEW.CONNECTIONS ? <>
+      <WorldFlightStory2029 research={research} shell={shell} />
+      {/^#world-(?:direction|source)-/.test(location.hash) ? <WorldSourceStory research={research} shell={shell} compact /> : null}
+      {location.hash.startsWith("#world-discovery-") ? <WorldConnectedDiscovery research={research} shell={shell} /> : null}
+      <WorldDiscoveryDoors />
+      <section className="sod29-section sod29-world-all-convergences" id="world-all-convergences" aria-label="עיון לפי נושאים וחיבורים">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">עיון לפי נושא</div><h2>לראות מה נפגש סביב רעיון.</h2>
+          <p className="sod29-muted">נושא הוא תחום רחב. התכנסות מסמנת כמה מסלולים שנפגשים בתוכו; היא אינה ציון אמת.</p></div>
+          {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} כרטיסים ציבוריים</span> : null}</div>
+        <div className="sod29-world-catalog-controls">
+          <label className="sod29-world-catalog-search"><span>מה מסקרן אותך?</span>
+            <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="מספר, שם או נושא…" aria-label="חיפוש בנושאים ובחיבורים" /></label>
+          <div className="sod29-world-catalog-creators" role="group" aria-label="סינון נושאים וחיבורים לפי יוצר">
+            {["all", ...allCreatorOptions.filter(publicCreator)].map((creator) => <button key={creator} type="button"
+              className={`sod29-world-stream-filter${allCreator === creator ? " is-active" : ""}`} aria-pressed={allCreator === creator}
+              onClick={() => setAllCreator(creator)}>{creator === "all" ? "הכול" : creatorLabel(creator)}</button>)}
+          </div>
+        </div>
+        {allConvergences.loading ? <p role="status">פותח את הנושאים…</p> : null}
+        {allConvergences.error ? <p role="status">חלק מהנושאים לא נטענו כרגע. מה שכבר נפתח נשאר זמין.</p> : null}
+        {!allConvergences.loading && !allConvergences.error && !allConvergences.cards.length ? <p role="status">לא נמצאו נושאים במסנן הזה.</p> : null}
+        {renderCatalogCards(allConvergences.cards.slice(0, catalogExpanded ? undefined : 8))}
+        <div className="sod29-actions">
+          {allConvergences.cards.length > 8 ? <button className="sod29-action" aria-expanded={catalogExpanded}
+            onClick={() => setCatalogExpanded(!catalogExpanded)}>{catalogExpanded ? "הצג פחות" : "עוד נושאים וחיבורים"}</button> : null}
+          {catalogExpanded && allConvergences.hasMore ? <button className="sod29-action" disabled={allConvergences.loadingMore}
+            onClick={loadMoreConvergences}>{allConvergences.loadingMore ? "טוען עוד…" : "טען עוד"}</button> : null}
+        </div>
+      </section>
+    </> : null}
+
+    {activeView === WORLD_LANDING_VIEW.JOURNEY ? <>
+      {goldenJourneySection}
+      <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
+        <div className="sod29-kicker">מסע מחקר</div><h2>לשמור דרך ולחזור אליה.</h2>
+        <p>מסע מחקר שומר את הנקודות שפתחת ואת הדרך ביניהן. מסע החיים הוא מרחב אישי ופרטי נפרד.</p>
+        <div className="sod29-actions"><Link className="sod29-action primary"
+          to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>878 · לתוך המילוי של משיח</Link>
+          <button className="sod29-action" onClick={() => shell.openCommand()}>לבחור מספר או ביטוי אחר</button></div>
+        <p className="sod29-muted">התחלת מסע ושמירה הן פעולות לבחירתך; המסע הערוך המלא של 878 עדיין בבנייה.</p>
+      </section>
+    </> : null}
+
+    {activeView === WORLD_LANDING_VIEW.ADMIN ? (isAdmin ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את הממצאים">טוען את כלי הסקירה בעולם.</FrameState></NativeStateSection>}>
+      <WorldAllResearchTable state={{ enabled: !authLoading && isAdmin }} />
+    </React.Suspense> : <NativeStateSection><FrameState kind="unavailable" title="בקרת הממצאים זמינה למנהל מורשה">החומר הציבורי נשאר זמין דרך הכניסות האחרות לעולם.</FrameState></NativeStateSection>) : null}
 
     {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את ההתכנסות">טוען את מה שנמצא סביב ההתכנסות.</FrameState></NativeStateSection> : null}
     {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="ההתכנסות לא נטענה כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
-      <div className="sod29-section-head">
-        <div>
-          <div className="sod29-kicker">מה נפגש כאן</div>
-          <h2>{topicDetail.finding.subject?.label || topicDetail.card?.label}</h2>
-        </div>
-        <button className="sod29-action" type="button" onClick={() => setTopicDetail({ loading: false, card: null, finding: null, error: null })}>סגור</button>
-      </div>
+      <div className="sod29-section-head"><div><div className="sod29-kicker">מה נפגש כאן</div>
+        <h2>{topicDetail.finding.subject?.label || topicDetail.card?.label}</h2></div>
+        <button className="sod29-action" type="button" onClick={() => setTopicDetail({ loading: false, card: null, finding: null, error: null })}>סגור</button></div>
       {topicNumbers.length ? <div className="sod29-actions" style={{ marginBottom: 16 }}>
-        {topicNumbers.map((value) => <button key={value} className="sod29-action primary" type="button" onClick={() => openTopicNumber(value)}>פתח את {value} בעולם</button>)}
-      </div> : null}
+        {topicNumbers.map((value) => <button key={value} className="sod29-action primary" type="button" onClick={() => openTopicNumber(value)}>פתח את {value} בעולם</button>)}</div> : null}
       <TopicConvergenceContent finding={topicDetail.finding} palette={palette} />
     </section> : null}
-
-    {goldenJourneySection}
-    <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
-      <div className="sod29-kicker">לאן זה מוביל?</div><h2>להיכנס לאותיות. להמשיך לחיבור הבא.</h2>
-      <p>מכל חישוב שנפתח אפשר להמשיך למסע אישי באותה דרך: הביטוי, השיטה והמקור נשארים איתך.</p>
-      <div className="sod29-actions"><Link className="sod29-action primary"
-        to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>878 · לתוך המילוי של משיח</Link>
-        <button className="sod29-action" onClick={() => shell.openCommand()}>לבחור מספר או ביטוי אחר</button></div>
-      <p className="sod29-muted">כאן נפתח דף המספר עם הביטוי והשיטה. התחלת מסע ושמירה הן פעולות לבחירתך; המסע הערוך המלא של 878 עדיין בבנייה.</p>
-    </section>
   </>;
 
 }

@@ -113,7 +113,7 @@ assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}
 assert.match(world, /<SourceArrivalList2029/);
 assert.match(world, /<WorldSourceStory research=\{research\} shell=\{shell\} compact \/>/);
 assert.match(world, /<WorldDiscoveryDoors \/>/);
-assert.match(world, /קולות ומקורות בעולם/);
+assert.match(world, /אנשים ומקורות בעולם/);
 assert.equal(world.includes("world-auth-identity-bridge"), false, "the public World must not be hidden behind an account/admin bridge");
 assert.equal(world.includes("התחברות / מנהל"), false, "the public World must not present the retired admin entrance");
 assert.equal(world.includes("world-admin-tools"), false, "the retired separate admin-tools wrapper must stay removed");
@@ -122,7 +122,10 @@ assert.equal(world.includes("fetchWorldFindingReviewProjection"), false, "World 
 assert.match(world, /isAdmin \? <React\.Suspense/, "private findings review must render only after AuthContext proves admin identity");
 assert.match(world, /React\.lazy\(\(\) => import\("\.\.\/components\/research\/WorldAllResearchTable\.jsx"\)\)/,
   "the heavy review component must stay out of the ordinary public World bundle");
-assert.match(world, /const \[writerFilter, setWriterFilter\] = useState\("tzvi-opoc"\)/, "Zvi's public corpus opens by default");
+assert.match(world, /const \[writerFilter, setWriterFilter\] = useState\("all"\)/,
+  "the lightweight World entrance must not open a contributor corpus before the visitor chooses one");
+assert.match(world, /activeView !== WORLD_LANDING_VIEW\.SOURCES/,
+  "contributor material must load only inside the people-and-sources view");
 assert.match(authPage, /safeOAuthReturnPath/, "canonical login must validate local return targets");
 assert.match(authPage, /navigate\(returnTo, \{ replace: true \}\)/, "canonical login must return to the requested local surface");
 assert.match(authPage, /requestEmailOtp\(email, \{ shouldCreateUser: !preview \}\)/, "preview login must not create a new account");
@@ -140,17 +143,19 @@ assert.match(contributorFindingsSource, /mode === PROJECTOR_MODE\.ADMIN_ALL \? s
 assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
 assert.match(attributionAttentionMigration, /פער ייחוס למחקר אישי/, "Attribution gap must be visible in Hebrew");
 assert.match(world, /מסע 878/);
-assert.match(world, /כל חיבור פותח עוד עולם/);
+assert.match(world, /לראות מה נפגש סביב רעיון/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /המקורות והכותבים בעולם/);
+assert.match(world, /אנשים ומקורות בעולם/);
 assert.match(world, /לגלות את החומר והחיבורים שלו/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
-assert.match(world, /סיפור חדש\. עומק של שנים/);
+assert.match(world, /מתחילים ממה שמסקרן אותך/);
 assert.match(world, /sod29-world-overview/);
 assert.match(world, /sod29-world-source-homes/);
 assert.equal(world.includes("sod29-world-spatial-gateway"), false, "the retired legacy control landing is removed");
 assert.match(world, /sod29-world-all-convergences/);
-assert.match(world, /כל ההתכנסויות/);
+assert.match(world, /כל הנושאים והחיבורים/);
+assert.match(world, /WORLD_LANDING_VIEW\.CONNECTIONS/,
+  "the full convergence catalog must remain behind the explicit connections view");
 assert.match(world, /ALL_CONVERGENCES_PAGE_SIZE = 24/);
 assert.match(world, /fetchTopicCreatorOptions/);
 assert.match(world, /includeTotal: true/);
@@ -570,7 +575,7 @@ assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "ancho
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
 assert.match(world, /לגלות את החומר והחיבורים שלו/);
 assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
-assert.match(world, /כל ההתכנסויות/, "public World catalog must keep the reader-facing convergence heading");
+assert.match(world, /כל הנושאים והחיבורים/, "public World catalog must keep the reader-facing connections heading");
 assert.equal(world.includes("CONVERGENCE INDEX · PUBLIC PROJECTION"), false, "public World must not expose internal projection vocabulary");
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
 assert.match(world, /selectedWriter \? <section className="sod29-section sod29-world-contributor-findings-section"/);
@@ -1114,7 +1119,7 @@ for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים", "אין fallback שקט ל־Legacy", "World הוא projection",
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
-assert.match(world, /סיפור חדש\. עומק של שנים/);
+assert.match(world, /מתחילים ממה שמסקרן אותך/);
 assert.equal(world.includes("DISCOVERY WORLD"), false, "public World must not expose the old internal English surface label");
 assert.match(world, /עולם · גילוי/, "public World keeps the clean reader-facing status");
 
