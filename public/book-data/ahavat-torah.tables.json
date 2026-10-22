@@ -40,12 +40,12 @@
     "documented snapshot"
    ],
    [
-    "10",
+    "11",
     "סתירות",
     "preserved"
    ],
    [
-    "8",
+    "9",
     "קריאות לא פתורות",
     "current material map"
    ]
@@ -74,7 +74,7 @@
    {
     "label": "Known-Corpus Exhaustion",
     "value": "PARTIAL",
-    "note": "batch reconstruction (pp.16-99, כל הענפים) הושלמה; חמשת פערי-העדות של Checkpoint 5 נסגרו, אך סתירות ושחזורי-חישוב ספציפיים עדיין פתוחים (ר' Datasets למטה)."
+    "note": "batch reconstruction (pp.16-99, כל הענפים) הושלמה; חמשת פערי-העדות של Checkpoint 5 נסגרו. קורפוס התיבות הכפולות שוחזר אך חשף פער 89/45 מול 88/44 כאשר שתי ההחרגות המודפסות מוחלות."
    }
   ],
   "datasets": [
@@ -201,9 +201,9 @@
     "id": "CP5-WG-02",
     "title": "תת-הקורפוס של תיבות כפולות ו־דרש דרש באמצע",
     "locus": "PDF p71",
-    "status": "VISUALLY_VERIFIED",
+    "status": "CORPUS_RECONSTRUCTED · CONTRADICTION_PRESERVED",
     "source_ref": "book:hebrewbooks:5635#p71:repeated-word-subcorpus",
-    "note": "המחבר מונה פ״ט תיבות כפולות, מחריג לך לך ושם שם כשורשים נפרדים, ומציב את דרש דרש באמצע; ספירת הקורפוס טרם שוחזרה עצמאית."
+    "note": "בקורפוס התורה הקנוני נמצאו 90 זוגות זהים: הרמש ראשון, אני אחרון, ודרש במקום 46. החרגת לך לך בלבד נותנת 89/45 בדיוק; החלת שתי ההחרגות המודפסות (גם שם שם בשמות ט״ו:כ״ה) נותנת 88/44. הפער נשמר ולא הוכרע בכוח."
    },
    {
     "id": "CP5-WG-03",
@@ -225,19 +225,20 @@
     "id": "CP5-WG-05",
     "title": "מילות הקצה של ברכת כהנים",
     "locus": "PDF p14",
-    "status": "VISUALLY_VERIFIED",
+    "status": "ENGINE_VERIFIED",
     "source_ref": "book:hebrewbooks:5635#p14:birkat-kohanim-edge-tokens",
-    "note": "האסימונים המפורשים הם יברכך/וישמרך, יאר/ויחנך, ישא/שלום; המחבר טוען שסכומם 1,820."
+    "note": "המנוע הקנוני רגיל אימת: יברכך 252 + וישמרך 576 + יאר 211 + ויחנך 94 + ישא 311 + שלום 376 = 1,820."
    }
   ],
   "open": [
+   "CP5-WG-02: סריקה קנונית נותנת 90/46; החרגת לך לך בלבד נותנת 89/45, אך החלת שתי ההחרגות המודפסות נותנת 88/44 — חוזה ההחרגה לא-נפתר",
    "DS-03: סך-מקור נקרא חזותית 110,976 וסותר קריאה קודמת 79,976 — לא-נפתר",
    "DS-04: סך-כולל 304,812 מול 304,830 — קריאה אחרונה עמומה",
    "DS-08 (תוכחה) לא-נמצא ב-pp81–99 גם אחרי בדיקה-ממוקדת",
    "p99: לוח-התיקונים תשמ״ג שומר צ״ע-של-העורך עצמו — לא-נפתר",
    "DS-02/06/07/09/10/11/13 דורשים closure ברמות שונות (ר' Datasets למטה)",
    "Exact-witness adjudication אינו שווה למיפוי מבני",
-   "Gematria claims אינם Engine Verified בלי המנוע הקנוני",
+   "טענות גימטריה אחרות אינן Engine Verified בלי המנוע הקנוני; מילות-הקצה של ברכת כהנים אומתו בנפרד",
    "Final reconciliation צריך לשמר contradictions וקריאות לא פתורות"
   ],
   "seeds": [
@@ -779,6 +780,31 @@
    ],
    "truth_class": "ARITHMETIC_VERIFIED (sum); AUTHOR_COUNT for each addend; the underlying kri/ktiv classification is a MASORETIC_RULE, not a raw text count",
    "confidence": "SOURCE_LOCATED"
+  },
+  {
+   "calculation_id": "CALC-08",
+   "inputs": [
+    "יברכך = 252",
+    "וישמרך = 576",
+    "יאר = 211",
+    "ויחנך = 94",
+    "ישא = 311",
+    "שלום = 376"
+   ],
+   "operations": [
+    "canonical fn_method_value('רגיל', token)",
+    "sum the six engine results"
+   ],
+   "intermediate_values": [
+    "252+576+211+94+311+376=1820"
+   ],
+   "output": "1,820",
+   "why_exclusion_or_operation_performed": "The source explicitly selects the first and last token of each of the three Birkat Kohanim blessings.",
+   "pdf_pages": [
+    14
+   ],
+   "truth_class": "ENGINE_VERIFIED (canonical רגיל method); token selection VISUALLY_VERIFIED against source",
+   "confidence": "ENGINE_VERIFIED 2026-10-22"
   }
  ],
  "exceptions": [
@@ -5858,6 +5884,15 @@
    "status": "UNRESOLVED, חדש",
    "pdf_pages": [
     5
+   ]
+  },
+  {
+   "id": "CP5-WG-02-COUNTING-CONTRACT",
+   "conflict": "התיבות הכפולות: 90/46 בסריקה גולמית; 89/45 בהחרגת לך לך בלבד; 88/44 בהחלת גם שם שם כפי שנראה מן ההוראה המודפסת",
+   "delta": "-1 / -2",
+   "status": "CORPUS_RECONSTRUCTED · COUNTING_CONTRACT_UNRESOLVED",
+   "pdf_pages": [
+    71
    ]
   }
  ]

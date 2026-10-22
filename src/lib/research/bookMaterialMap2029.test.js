@@ -102,14 +102,18 @@ test("non-https source links are withheld from the presentation", () => {
   assert.equal(map.source.pdfUrl, null);
 });
 
-test("Ahavat Torah public snapshot exposes five closed witness gaps and eight remaining questions", async () => {
+test("Ahavat Torah public snapshot exposes five witness closures and preserves the new corpus contradiction", async () => {
   const bundle = JSON.parse(await readFile(new URL("../../../public/book-data/ahavat-torah.tables.json", import.meta.url), "utf8"));
   const map = buildBookMaterialMap(bundle, { expectedSlug: "ahavat-torah" });
   assert.equal(map.available, true);
   assert.equal(map.witnessClosures.length, 5);
-  assert.equal(map.openQuestions.length, 8);
+  assert.equal(map.openQuestions.length, 9);
+  assert.equal(map.witnessClosures[1].status, "CORPUS_RECONSTRUCTED · CONTRADICTION_PRESERVED");
+  assert.match(map.witnessClosures[1].note, /90.*89.*88/);
   assert.equal(map.witnessClosures[2].locus, "PDF p14");
   assert.match(map.witnessClosures[2].note, /364/);
+  assert.equal(map.witnessClosures[4].status, "ENGINE_VERIFIED");
+  assert.match(map.witnessClosures[4].note, /1,820/);
   assert.equal(map.findings.find(item => item.id === "DS-03")?.locus, "p41");
   assert.equal(map.findings.find(item => item.id === "DS-04")?.locus, "p42");
 });
