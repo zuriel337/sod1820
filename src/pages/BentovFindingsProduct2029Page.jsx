@@ -124,6 +124,13 @@ const REVIEW_CHECKS = Object.freeze([
   Object.freeze({ key: "humanGate", label: "שער אנושי", description: "המלצת הביקורת מוכנה להכרעת צוריאל." }),
 ]);
 
+const FIDELITY_VERDICT_META = Object.freeze({
+  complete: Object.freeze({ label: "מלא", description: "הנוסח, ההקשר והמבנה נתמכים במלואם בעד המקור." }),
+  partial: Object.freeze({ label: "חלקי", description: "חלק מן הממצא נתמך, אך נדרש צמצום או תיקון לפני ממשל." }),
+  not_applicable: Object.freeze({ label: "לא חל", description: "שער הנאמנות המובנית אינו חל על סוג הממצא הזה." }),
+  needs_evidence: Object.freeze({ label: "חסרות ראיות", description: "אין עדיין בסיס מספיק להכרעה; הממצא נשאר פתוח." }),
+});
+
 const FINDING_SOURCE_INDEXES = Object.freeze(SOURCE_WINDOWS.flatMap((source, sourceIndex) => (
   Array(source.findings).fill(sourceIndex)
 )));
@@ -323,7 +330,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
   </section>;
 }
 
-function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDecisions, onLocatorDecision, onApproveAllLocators, onResetAllLocators, onToggleCheck, onReset }) {
+function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDecisions, fidelityDecisions, onLocatorDecision, onFidelityDecision, onApproveAllLocators, onResetAllLocators, onToggleCheck, onReset }) {
   const [queueFilter, setQueueFilter] = useState("all");
   const selected = findings.find(item => item.id === selectedId) || findings[0];
   const completed = progress[selected.id] || new Set();
@@ -337,6 +344,12 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   const locallyCompleted = findings.filter(item => (progress[item.id]?.size || 0) === REVIEW_CHECKS.length).length;
   const resolvedLocators = findings.filter(item => locatorDecisions[item.id] && locatorDecisions[item.id] !== "pending").length;
   const locatorDecision = locatorDecisions[selected.id] || "pending";
+  const fidelityDecision = fidelityDecisions[selected.id] || "needs_evidence";
+  const fidelityTotals = Object.fromEntries(Object.keys(FIDELITY_VERDICT_META).map(key => [
+    key,
+    findings.filter(item => (fidelityDecisions[item.id] || "needs_evidence") === key).length,
+  ]));
+  const decidedFidelity = TOTAL_FINDINGS - fidelityTotals.needs_evidence;
   const filterOptions = [
     { key: "all", label: "הכול", count: 33 },
     { key: "correction", label: "תיקון", count: 22 },
@@ -356,7 +369,8 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
       <div className="bentov29-review-local">
         <strong>{resolvedLocators} / 33</strong>
         <span>הכרעות איתור מקומיות</span>
-        <small>{locallyCompleted} תיקים השלימו גם את כל מסלול הבדיקה</small>
+        <small>{decidedFidelity} / 33 הכרעות נאמנות מקומיות</small>
+        <small>{locallyCompleted} תיקים סומנו כהשלמת מסלול ההדגמה</small>
         <small>אינם נשמרים ואינם משנים סטטוס אמת</small>
         <div className="bentov29-review-local-actions">
           <button type="button" onClick={onApproveAllLocators}>אשר את כל 33 בתצוגה</button>
@@ -373,6 +387,13 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
         onClick={() => setQueueFilter(option.key)}
         aria-pressed={queueFilter === option.key}
       >{option.label} <b>{option.count}</b></button>)}
+    </div>
+
+    <div className="bentov29-fidelity-verdict-summary" aria-label="סיכום הכרעות נאמנות מקומיות">
+      {Object.entries(FIDELITY_VERDICT_META).map(([key, meta]) => <span key={key} className={`is-${key}`}>
+        <b>{fidelityTotals[key]}</b>
+        <small>{meta.label}</small>
+      </span>)}
     </div>
 
     <div className="bentov29-review-layout">
@@ -430,6 +451,22 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
               onClick={() => onLocatorDecision(selected.id, "pending")}
               aria-pressed={locatorDecision === "pending"}
             >משאיר פתוח</button>
+          </div>
+        </fieldset>
+        <fieldset className="bentov29-fidelity-decision" data-fidelity-decision-effect="local-only">
+          <legend>הכרעת נאמנות מקומית</legend>
+          <p>סימון שלב בדיקה אינו הכרעת נאמנות. בחר תוצאה רק לפי עד המקור; התאמת מנוע וסטטוס פרסום נשארים צירים נפרדים.</p>
+          <div role="group" aria-label={`הכרעת נאמנות לתיק B-${String(selected.number).padStart(2, "0")}`}>
+            {Object.entries(FIDELITY_VERDICT_META).map(([key, meta]) => <button
+              type="button"
+              key={key}
+              className={`${fidelityDecision === key ? "is-selected" : ""} is-${key}`}
+              onClick={() => onFidelityDecision(selected.id, key)}
+              aria-pressed={fidelityDecision === key}
+            >
+              <strong>{meta.label}</strong>
+              <small>{meta.description}</small>
+            </button>)}
           </div>
         </fieldset>
         <div className="bentov29-review-checks" role="group" aria-label={`מסלול בדיקה לתיק B-${String(selected.number).padStart(2, "0")}`}>
@@ -515,6 +552,9 @@ export default function BentovFindingsProduct2029Page() {
   const [locatorDecisions, setLocatorDecisions] = useState(() => Object.fromEntries(
     FINDINGS.map(finding => [finding.id, "accept"]),
   ));
+  const [fidelityDecisions, setFidelityDecisions] = useState(() => Object.fromEntries(
+    FINDINGS.map(finding => [finding.id, "needs_evidence"]),
+  ));
 
   useEffect(() => {
     applySeo({
@@ -579,10 +619,16 @@ export default function BentovFindingsProduct2029Page() {
   const resetReview = findingId => {
     setReviewProgress(current => ({ ...current, [findingId]: new Set() }));
     setLocatorDecisions(current => ({ ...current, [findingId]: "pending" }));
+    setFidelityDecisions(current => ({ ...current, [findingId]: "needs_evidence" }));
   };
 
   const setLocatorDecision = (findingId, decision) => {
     setLocatorDecisions(current => ({ ...current, [findingId]: decision }));
+  };
+
+  const setFidelityDecision = (findingId, decision) => {
+    if (!FIDELITY_VERDICT_META[decision]) return;
+    setFidelityDecisions(current => ({ ...current, [findingId]: decision }));
   };
 
   const approveAllLocators = () => {
@@ -594,6 +640,7 @@ export default function BentovFindingsProduct2029Page() {
 
   const resetAllLocators = () => {
     setLocatorDecisions({});
+    setFidelityDecisions({});
     setReviewProgress({});
   };
 
@@ -698,7 +745,9 @@ export default function BentovFindingsProduct2029Page() {
         onSelect={selectFinding}
         progress={reviewProgress}
         locatorDecisions={locatorDecisions}
+        fidelityDecisions={fidelityDecisions}
         onLocatorDecision={setLocatorDecision}
+        onFidelityDecision={setFidelityDecision}
         onApproveAllLocators={approveAllLocators}
         onResetAllLocators={resetAllLocators}
         onToggleCheck={toggleReviewCheck}

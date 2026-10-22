@@ -100,6 +100,11 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /new Set\(REVIEW_CHECKS\.map\(check => check\.key\)\)/);
   assert.match(page, /אשר את כל 33 בתצוגה/);
   assert.match(page, /data-locator-approval="preview-test-only"/);
+  assert.match(page, /const FIDELITY_VERDICT_META/);
+  for (const label of ["מלא", "חלקי", "לא חל", "חסרות ראיות"]) assert.match(page, new RegExp(label));
+  assert.match(page, /data-fidelity-decision-effect="local-only"/);
+  assert.match(page, /התאמת מנוע וסטטוס פרסום נשארים צירים נפרדים/);
+  assert.match(page, /FINDINGS\.map\(finding => \[finding\.id, "needs_evidence"\]\)/);
   assert.match(page, /window\.location\.hash === "#bentov29-review-title"/);
   assert.match(page, /scrollIntoView\(\{ block: "start" \}\)/);
   assert.match(page, /אינה מתקנת את האיתור הקנוני ואינה נשלחת למסד/);
