@@ -352,7 +352,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onHighlightVerse, verseHighlight }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
 
@@ -363,11 +363,24 @@ function SourceLens({ lensResult, findings, onAddLineFinding, addingFinding, onH
       <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. מילה שלא נשמרה עדיין היא מועמדת; הוספה מפעילה אימות קנוני לפני שהיא מוצגת כממצא.</small>
       <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="כל המילים שנמצאו במטריצה, מהקרוב לרחוק">
         {items.map((item) => {
-          const added = findings.some((finding) => finding.t === item.term);
+          const addedFinding = findings.find((finding) => finding.t === item.term);
+          const openHit = [...(addedFinding?.hits || []), ...(addedFinding?.sourceHits || [])]
+            .find((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
+          const added = Boolean(addedFinding);
+          const label = item.label || item.term;
           return <div key={item.term} className="els29-native-line-word">
-            <div className="els29-native-discovered-term"><b>{item.label || item.term}</b><small>מרחק {item.distance} תאים · {added ? "כבר ברשימה" : "מועמד נוסף"}</small></div>
-            <button type="button" disabled={addingFinding || added || findings.length >= 12} onClick={() => onAddLineFinding(item.term)}
-              aria-label={`הוסף את ${item.label || item.term} מהמטריצה לממצאים`}>{added ? "ברשימה" : "אמת והוסף"}</button>
+            {openHit ? <button type="button" className="els29-native-discovered-term"
+              onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
+              aria-label={`פתח את המשך הציר של ${label}`}>
+              <b>{label}</b><small>מרחק {item.distance} תאים · לחצו להמשך הציר</small>
+            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>מרחק {item.distance} תאים · {added ? "האימות עדיין נמשך" : "מועמד נוסף"}</small></div>}
+            <button type="button" disabled={addingFinding || (added ? !openHit : findings.length >= 12)}
+              onClick={() => openHit
+                ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
+                : onAddLineFinding(item.term)}
+              aria-label={openHit ? `הצג את המשך הציר של ${label}` : `הוסף את ${label} מהמטריצה לממצאים`}>
+              {openHit ? "המשך הציר" : added ? "מאמת…" : "אמת והוסף"}
+            </button>
           </div>;
         })}
       </div>
@@ -608,7 +621,8 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
         </div>
         {lensPending || lensResult ? <details key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
           <summary>{lensResult?.lens === "matrix-candidates" ? "כל מה שנמצא במטריצה" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
-          {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding} addingFinding={pending} />}
+          {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding}
+            onOpenFinding={(findingTarget) => { selectTarget(findingTarget.term, findingTarget.hitId);onScan(findingTarget); }} addingFinding={pending} />}
         </details> : null}
       </section>
       <div className="els29-native-rail-head"><strong>ממצאים במטריצה</strong><small>{findings.length}/12 משניים</small></div>

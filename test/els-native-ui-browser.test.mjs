@@ -541,6 +541,10 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    assert.ok(candidate,'fixture exposes an unsaved candidate');
    await activate(page,`הוסף את ${candidate.label||candidate.term} מהמטריצה לממצאים`);
    await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&finding.hits?.some(hit=>hit.verified)),candidate.term);
+   await page.getByRole('button',{name:`הצג את המשך הציר של ${candidate.label||candidate.term}`}).waitFor();
+   await activate(page,`הצג את המשך הציר של ${candidate.label||candidate.term}`);
+   await page.waitForFunction(term=>window.__lens?.lens==='line-context'&&window.__lens?.target?.term===term,candidate.term);
+   assert.match(await page.locator('[data-experience-capability="els-line-inspection"]').innerText(),new RegExp(`לאורך הציר · ${candidate.term}`));
    assert.equal((await identity(page)).axis.hitId,before.axis.hitId,'candidate verification keeps the saved primary axis');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'inspection and verification do not persist or edit the saved row');
   },{tier:'anon'});
