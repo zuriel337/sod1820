@@ -4,6 +4,7 @@ import {
   resolveResearchIdentities,
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
+import { validateRazielSemanticIntent } from "./razielSemanticIntentGate.js";
 
 // Bounded conversation continuity for the EXISTING identity resolver and route grammar.
 // This adapter carries canonical identities between turns. It does not define a second identity
@@ -210,14 +211,22 @@ export function resolveRazielConversationTurn({
   thread = [],
   surfaceSemantic = null,
   intent = "",
+  semanticIntent = null,
 } = {}) {
   const currentQuestion = clean(question, 500);
   const explicitNumbers = explicitNumberCandidates(currentQuestion);
   // Numeric grammar owns a turn once it has matched. This prevents its grammatical scaffolding
   // (for example "המספרים 337" or "את זה") from becoming a second phrase identity.
   const explicitPhrases = explicitNumbers.length ? [] : explicitPhraseCandidates(currentQuestion);
-  const explicitCandidates = [...explicitNumbers, ...explicitPhrases];
+  const deterministicCandidates = [...explicitNumbers, ...explicitPhrases];
   const referential = isReferentialFollowUp(currentQuestion);
+  // Semantic fallback is considered only after deterministic/current-turn and referential grammar
+  // had no answer. The gate itself is pure and exact-evidence-bound; it never calls a model.
+  const semantic = !deterministicCandidates.length && !referential
+    ? validateRazielSemanticIntent(semanticIntent, currentQuestion)
+    : null;
+  const semanticCandidates = semantic?.status === "resolved" ? semantic.candidates : [];
+  const explicitCandidates = deterministicCandidates.length ? deterministicCandidates : semanticCandidates;
   const previous = referential ? latestPriorContext(thread) : { candidates: [], explicitTextComputation: false };
   const surface = referential && !previous.candidates.length ? surfaceCandidate(surfaceSemantic) : null;
 
@@ -232,6 +241,7 @@ export function resolveRazielConversationTurn({
   }
 
   const explicitTextComputation = explicitPhrases.length > 0
+    || semantic?.text_computation_requested === true
     || (referential && previous.explicitTextComputation === true);
   const resolution = resolveResearchIdentities({
     candidates,
@@ -242,9 +252,15 @@ export function resolveRazielConversationTurn({
   // continuity, then delegates action/capability planning to Research Plan V2. It does not keep a
   // parallel Raziel-only planner. This object remains temporary and execution-neutral; the bounded
   // transport projection below deliberately does not forward it as authority.
+  const semanticPlanIntent = {
+    understand: "understand",
+    research: "deep_research",
+    connect: "relation",
+    continue: "continue",
+  }[semantic?.action] || intent;
   const researchPlan = buildResearchPlanV2({
     question: currentQuestion,
-    intent,
+    intent: semanticPlanIntent,
     identityResolution: resolution,
     surfaceContext: surfaceSemantic,
     contextType: "public_user",
@@ -265,6 +281,7 @@ export function resolveRazielConversationTurn({
     )),
     identity_resolution: resolution,
     research_plan: researchPlan,
+    semantic_intent: semantic,
     pair: orderedNumberPair(candidates) ?? numberPair(resolution),
     guards: Object.freeze({
       semantic_resolution_only: true,
@@ -272,7 +289,9 @@ export function resolveRazielConversationTurn({
       canonical_research_plan: true,
       research_plan_is_not_execution_authority: true,
       no_tool_execution: true,
-      no_model_inference: true,
+      no_model_call_in_resolver: true,
+      no_model_inference: semantic == null,
+      semantic_intent_is_candidate_only: true,
       no_authorization_decision: true,
       server_must_reauthorize: true,
       no_persistent_memory: true,
