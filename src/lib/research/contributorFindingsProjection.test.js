@@ -10,6 +10,10 @@ const RESEARCH_ROW = { id: "r1", created_at: "2026-10-02T10:00:00Z", kind: "equa
 // Minimal chainable fake: per-table result, records the client label so mode isolation can be asserted.
 function fakeClient(label, tables, calls) {
   return {
+    rpc(name, args) {
+      calls.push({ label, table: `rpc:${name}`, filters: [["args", args]] });
+      return Promise.resolve(tables[name] ?? tables.gematria_words ?? { data: [] });
+    },
     from(table) {
       const call = { label, table, filters: [] };
       calls.push(call);
@@ -142,6 +146,8 @@ test("PUBLIC mode never touches the session client; ADMIN mode uses it", async (
   const session = fakeClient("session", tables, calls);
   await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, sessionClient: session, topicsReader: noTopics });
   assert.ok(calls.length && calls.every((c) => c.label === "anon"));
+  assert.ok(calls.some((c) => c.table === "rpc:world_gematria_lexical_lookup_v1"));
+  assert.equal(calls.some((c) => c.table === "gematria_words"), false);
   calls.length = 0;
   const admin = await fetchContributorFindingsProjection("yaniv", { mode: PROJECTOR_MODE.ADMIN_ALL, publicClient: () => anon, sessionClient: session, topicsReader: noTopics });
   assert.ok(calls.length && calls.every((c) => c.label === "session"));

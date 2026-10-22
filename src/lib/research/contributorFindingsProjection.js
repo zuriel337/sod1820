@@ -6,8 +6,8 @@ import { normalizeWorldAllResearchRow } from "./worldAllResearchProjection.js";
 
 const PAGE = 500;
 const MAX = 5000;
+const RESEARCH_PAGE = 1000;
 export const MAX_CONTRIBUTOR_RESEARCH = 10000;
-const TERM_CHUNK = 75;
 const MAX_EXPLICIT_MEDIA_GAP_MS = 10 * 60 * 1000;
 const MAX_STRUCTURED_MEDIA_GAP_MS = 5 * 60 * 1000;
 const SOURCE_IMAGE_REFERENCE_RE = /\[Image\s+\d+\.(?:jpe?g|png|webp)\]/iu;
@@ -27,25 +27,40 @@ function safeDate(value) {
   return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
 }
 
-function chunk(values, size = TERM_CHUNK) {
-  const out = [];
-  for (let i = 0; i < values.length; i += size) out.push(values.slice(i, i + size));
-  return out;
-}
-
-async function paged(loader, { pageSize = PAGE, max = MAX } = {}) {
+async function paged(loader, { pageSize = PAGE, max = MAX, concurrency = 1 } = {}) {
   const rows = [];
-  let offset = 0;
-  let total = null;
-  while (offset < max) {
-    const end = Math.min(offset + pageSize - 1, max - 1);
-    const result = await loader(offset, end, offset === 0);
-    if (result?.error) throw result.error;
-    if (offset === 0 && result?.count != null) total = Number(result.count);
-    const page = Array.isArray(result?.data) ? result.data : [];
-    rows.push(...page);
-    if (page.length < pageSize) break;
-    offset += pageSize;
+  const firstEnd = Math.min(pageSize - 1, max - 1);
+  const first = await loader(0, firstEnd, true);
+  if (first?.error) throw first.error;
+  const total = first?.count == null ? null : Number(first.count);
+  const firstPage = Array.isArray(first?.data) ? first.data : [];
+  rows.push(...firstPage);
+
+  if (firstPage.length >= pageSize && pageSize < max) {
+    const ranges = [];
+    const boundedEnd = Number.isFinite(total) ? Math.min(total, max) : max;
+    for (let offset = pageSize; offset < boundedEnd; offset += pageSize) {
+      ranges.push([offset, Math.min(offset + pageSize - 1, max - 1)]);
+    }
+
+    if (Number.isFinite(total) && concurrency > 1) {
+      for (let index = 0; index < ranges.length; index += concurrency) {
+        const results = await Promise.all(ranges.slice(index, index + concurrency)
+          .map(([start, end]) => loader(start, end, false)));
+        for (const result of results) {
+          if (result?.error) throw result.error;
+          rows.push(...(Array.isArray(result?.data) ? result.data : []));
+        }
+      }
+    } else {
+      for (const [start, end] of ranges) {
+        const result = await loader(start, end, false);
+        if (result?.error) throw result.error;
+        const page = Array.isArray(result?.data) ? result.data : [];
+        rows.push(...page);
+        if (page.length < pageSize) break;
+      }
+    }
   }
   const knownTotal = Number.isFinite(total) ? total : rows.length;
   return { rows, total: knownTotal, truncated: knownTotal > rows.length };
@@ -409,7 +424,7 @@ async function fetchResearchObjects(client, contributorId, aliases) {
     .select(fields, first ? { count: "exact" } : undefined)
     .or(contributorFilter)
     .order("created_at", { ascending: false })
-    .range(start, end), { max: MAX_CONTRIBUTOR_RESEARCH });
+    .range(start, end), { pageSize: RESEARCH_PAGE, max: MAX_CONTRIBUTOR_RESEARCH, concurrency: 4 });
   return { rows: result.rows, total: result.total, truncated: result.truncated };
 }
 
@@ -437,8 +452,7 @@ async function fetchSourceMessages(client, contributor, aliases) {
     .select("id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id", first ? { count: "exact" } : undefined)
     .eq("contributor_id", contributor.id)
     .order("created_at", { ascending: false })
-    .range(start, end)
-  );
+    .range(start, end), { concurrency: 3 });
   truncated = canonical.truncated;
   for (const row of canonical.rows) byId.set(String(row.id), row);
 
@@ -474,16 +488,10 @@ async function fetchContributorTopics(aliases) {
 
 async function fetchLexicalRows(client, terms) {
   const safeTerms = uniq(terms).filter((term) => term.length <= 180);
-  const rows = [];
-  for (const batch of chunk(safeTerms)) {
-    const { data, error } = await client
-      .from("gematria_words")
-      .select("phrase,world,tags,is_verified,is_published")
-      .in("phrase", batch)
-      .eq("is_verified", true);
-    if (error) throw error;
-    rows.push(...(data || []));
-  }
+  if (!safeTerms.length) return [];
+  const { data, error } = await client.rpc("world_gematria_lexical_lookup_v1", { p_phrases: safeTerms });
+  if (error) throw error;
+  const rows = data || [];
   const byPhrase = new Map();
   for (const row of rows) {
     const phrase = clean(row.phrase);
