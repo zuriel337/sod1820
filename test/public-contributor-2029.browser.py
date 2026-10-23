@@ -1,3 +1,4 @@
+import os
 import json, os
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
@@ -12,7 +13,7 @@ out=Path(os.environ.get('CONTRIBUTOR_OUTPUT','work/evidence'))
 out.mkdir(parents=True,exist_ok=True)
 shots=out/'screenshots'
 shots.mkdir(exist_ok=True)
-base='http://127.0.0.1:5181/work/contributor-review.html'
+base='http://127.0.0.1:'+os.environ.get('CONTRIBUTOR_REVIEW_PORT','5181')+'/work/contributor-review.html'
 report={'captures':[],'states':[],'errors':[],'external_requests':[]}
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])

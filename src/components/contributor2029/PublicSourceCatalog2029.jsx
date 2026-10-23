@@ -4,6 +4,7 @@ import { use2029Palette } from "../../lib/palette.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { approvedReturnHref } from "./publicContributor2029Model.js";
 import { CATALOG_FORMATS, selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
+import PublicContributorRank2029 from "./ContributorRankSeal2029.jsx";
 
 const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו", external_link: "קישור" };
 
@@ -35,6 +36,7 @@ export default function PublicSourceCatalog2029({ view }) {
         {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
         <p className="pc-boundary">להכיר את הכתבים, לקרוא במקור ולהמשיך אל הממצאים והקשרים בעולם.</p>
       </div>
+      <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} previewRank={view.rankPreview} />
     </header>
     <nav className="pc-filters" aria-label="כניסות לדף הכתב">
       {[["recent", "כתבים אחרונים"], ["all", "כל הכתבים"], ["media", "תמונות וגלריה"], ["topics", "נושאים מפורשים"], ["community", "כתיבה בקהילה"]].map(([key, label]) =>

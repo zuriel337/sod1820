@@ -8,6 +8,7 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./publicContributor2029.css";
 import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
+import PublicContributorRank2029 from "../components/contributor2029/ContributorRankSeal2029.jsx";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
@@ -58,6 +59,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
           <p className="pc-boundary">החומרים של הכותב וההקשרים שנפתחו מהם. שיוך לכותב אינו אימות של תוכן.</p>
         </div>
+        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} previewRank={view.rankPreview} />
       </header>
       {view.partial ? <p className="pc-notice" role="status">חלק מהמידע אינו זמין כרגע. מוצגים רק החומרים שנקראו ושויכו בוודאות.</p> : null}
       {view.unattributed ? <p className="pc-notice" role="status">יש תוכן שלא שויך במדויק לכותב, ולכן אינו מופיע כאן.</p> : null}

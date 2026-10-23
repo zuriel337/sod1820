@@ -1,9 +1,10 @@
+import os
 import base64,json,subprocess,time
 from pathlib import Path
 from urllib.parse import urlencode,urlparse,parse_qs
 from playwright.sync_api import sync_playwright
 
-base='http://127.0.0.1:5181/work/contributor-review.html'
+base='http://127.0.0.1:'+os.environ.get('CONTRIBUTOR_REVIEW_PORT','5181')+'/work/contributor-review.html'
 output=Path('work/evidence/catalog');output.mkdir(parents=True,exist_ok=True)
 report={'captures':[],'loader':[],'external_requests':[],'errors':[]}
 fixture=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import*as m from'./src/components/contributor2029/publicSourceCatalog2029Fixtures.js';console.log(JSON.stringify({identity:{...m.catalogFixtureIdentity,public_visibility:'public'},sources:m.catalogFixtureSources()}))"],text=True))
@@ -59,6 +60,7 @@ with sync_playwright() as p:
   page=context.new_page();calls=[]
   def public_api(r):
    u=urlparse(r.request.url)
+   if u.hostname=='127.0.0.1' and u.path=='/api/public-contributor-rank':return r.fulfill(status=503,content_type='application/json',body='{"state":"unavailable"}')
    if u.hostname=='127.0.0.1':return r.continue_()
    assert u.hostname=='linswmnnkjxvweumprav.supabase.co'
    table=u.path.rsplit('/',1)[1]
