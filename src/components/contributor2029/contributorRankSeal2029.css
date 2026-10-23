@@ -25,10 +25,18 @@
 .pc-rank-label{font-size:var(--s29-type-lead,21px);line-height:1.35}
 .pc-rank-actions{display:flex;gap:4px;flex-wrap:wrap}
 .public-contributor-2029 .pc-rank-actions button{display:flex;align-items:center;gap:8px;background:transparent;border:0;color:var(--rank-accent);padding:0;min-height:44px;font-size:var(--s29-type-ui,16px);text-align:start}
+.pc-rank-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pc-rank-initial{padding-bottom:14px}
+.pc-rank-portrait~.pc-rank-lights{padding:2px 6px;border-radius:6px;background:color-mix(in srgb,var(--rank-card) 78%,transparent)}
+.pc-rank-detail{display:grid;gap:6px;padding:8px 10px;border:1px solid var(--rank-border);border-radius:10px;background:var(--rank-soft);font-size:var(--s29-type-small,16px)}
+.pc-rank-detail[hidden]{display:none}
+.pc-rank-bio{margin:0;line-height:1.6;color:var(--rank-ink);overflow-wrap:anywhere}
+.pc-rank-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 12px}
+.pc-rank-links a{display:inline-flex;align-items:center;min-height:44px;color:var(--rank-accent);text-decoration:underline;text-underline-offset:3px}
 .pc-rank-about{font-size:var(--s29-type-small,16px)}
 .pc-rank-about summary{cursor:pointer;min-height:44px;align-content:center;color:var(--rank-accent)}
 .pc-rank-about p{color:var(--rank-muted);font-size:var(--s29-type-small,16px);line-height:1.6;padding-block:6px}
-.pc-rank :is(button,summary):focus-visible{outline:2px solid var(--rank-focus);outline-offset:3px}
+.pc-rank :is(button,summary,a):focus-visible{outline:2px solid var(--rank-focus);outline-offset:3px}
 .pc-profile:has(.pc-rank){flex-wrap:wrap;align-items:center}
 .pc-profile:has(.pc-rank) .pc-profile-copy{flex:1 1 340px}
 @media(max-width:640px){.pc-rank{flex-basis:100%;grid-template-columns:156px minmax(0,1fr);padding:6px 8px}.pc-rank-scene{width:156px;height:166px;transform:scale(.92);transform-origin:center}.pc-profile:has(.pc-rank) .pc-profile-copy{flex-basis:210px}.pc-rank-label{font-size:var(--s29-type-ui,16px)}}
