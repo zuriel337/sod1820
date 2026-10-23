@@ -43,6 +43,7 @@ const FACETS = Object.freeze({
 const KIND_REQUEST_CACHE = new Map();
 const SpatialStructure3D = React.lazy(() => import("./SpatialStructure3D.jsx"));
 const SPATIAL_PAGE_SIZE = 6;
+const SEQUENCES_LESSON_HREF = "/beit-midrash?section=numbers&concept=sequences#number-concept-sequences";
 
 function publicationStateLabel(value) {
   if (value === "approved") return "מאושר";
@@ -91,7 +92,7 @@ async function fetchKind(kind, { isAdmin = false } = {}) {
       ? import("../../lib/research/zviMultiValueWorldProjection.js").then(({ fetchZviMultiValueWorldProjection }) => fetchZviMultiValueWorldProjection())
       : Promise.resolve(null),
     kind === WORLD_KNOWLEDGE_KIND.NUMBERS
-      ? import("../../lib/research/zviConstantsWorldProjection.js").then(({ fetchZviConstantsWorldProjection }) => fetchZviConstantsWorldProjection())
+      ? import("../../lib/research/zviConstantsWorldProjection.js").then(({ fetchZviConstantsWorldProjection }) => fetchZviConstantsWorldProjection({ includeAdmin: isAdmin }))
       : Promise.resolve(null),
   ]);
   const sections = pages.map(({ key, label, description, page }) => ({
@@ -179,7 +180,46 @@ function ConstantVisualDeck({ card, priority = false }) {
   </div>;
 }
 
-function ZviConstantsShelf({ projection }) {
+function ConstantReadingGuide() {
+  return <aside className="sod29-world-constant-guide" aria-labelledby="constant-reading-guide-title">
+    <header><div><small>איך קוראים את זה?</small><h4 id="constant-reading-guide-title">ארבעה דברים שכדאי לדעת לפני שמתחילים</h4></div>
+      <Link className="sod29-action" to={SEQUENCES_LESSON_HREF}>לשיעור המלא בבית המדרש</Link></header>
+    <dl>
+      <div><dt>קבוע</dt><dd>מספר מוגדר כמו π או e. הוא אינו גימטריה ואינו פירוש.</dd></div>
+      <div><dt>רצף</dt><dd>סדרה שבה גם המיקום והכלל חשובים; הופעה ברצף אינה יוצרת משמעות לבדה.</dd></div>
+      <div><dt>≈</dt><dd>קרוב, אבל לא שווה. הספרות והפער חייבים להישאר גלויים.</dd></div>
+      <div><dt>מאומת</dt><dd>החישוב חזר נכון במנוע. הקישור הרעיוני נבדק ומדורג בנפרד.</dd></div>
+    </dl>
+  </aside>;
+}
+
+function ConstantAdminQueue({ rows = [], access }) {
+  return <section className="sod29-world-constant-admin-queue" aria-label="תור קידום קבועים למנהל">
+    <header><div><small>למנהל בלבד</small><h4>מה אפשר לקדם ומה נשאר לבדיקה</h4>
+      <p>המלצה אינה שינוי סטטוס. החישוב, ניסוח המקור והפרשנות נבדקים בשלושה מסלולים נפרדים.</p></div><span>{access === "unavailable" ? "התור אינו זמין" : `${rows.length} אשכולות`}</span></header>
+    {access === "unavailable" ? <p role="status">הקורא המנהלי לא החזיר נתונים. אין להסיק שאין מועמדים.</p> : null}
+    {access !== "unavailable" && !rows.length ? <p className="sod29-muted">אין כרגע מועמדים זמינים דרך הקורא המורשה.</p> : null}
+    <div className="sod29-world-constant-admin-grid">{rows.map((row) => <article key={row.id} className="sod29-world-constant-admin-card" data-promotion-state={row.promotionState}>
+      <small>{row.promotionState === "hold" ? "עצירה לבדיקה" : "מועמד לקידום כחישוב בלבד"}</small>
+      <strong>{row.title}</strong>
+      <p className="sod29-world-constant-expression" dir="ltr">{row.expression} = {formatConstant(row.actual)}</p>
+      <dl>
+        <div><dt>טענת המקור</dt><dd dir="ltr">{row.claimedValue}</dd></div>
+        <div><dt>בעיגול רגיל</dt><dd dir="ltr">{row.displayedValue}</dd></div>
+        <div><dt>בדיקת החישוב</dt><dd>{row.calculationState}</dd></div>
+        <div><dt>סטטוס הרשומות</dt><dd>{publicationStateLabel(row.publicationState)}</dd></div>
+        <div><dt>אימות מנוע ברשומות</dt><dd>{row.engineVerifiedRows} עברו · {row.engineFailedRows} נכשלו · {Math.max(0, row.findingRows - row.engineVerifiedRows - row.engineFailedRows)} טרם דורגו</dd></div>
+        <div><dt>הופעות באשכול</dt><dd>{row.occurrenceCount}{row.duplicateOccurrenceCount ? ` · ${row.duplicateOccurrenceCount} חזרות` : ""}</dd></div>
+        <div><dt>מקורות עצמאיים</dt><dd>אין נתון</dd></div>
+      </dl>
+      <p><b>המלצה:</b> {row.recommendation}</p>
+      <p><b>מה לא הוכח:</b> {row.interpretationBoundary}</p>
+      <details><summary>נוסח ומיקומי המקור</summary><p>{row.statement}</p><div className="sod29-actions">{row.locators.map((locator, index) => <Link key={locator.ref} className="sod29-action" to={locator.href}>הופעה {index + 1}</Link>)}</div></details>
+    </article>)}</div>
+  </section>;
+}
+
+function ZviConstantsShelf({ projection, isAdmin = false }) {
   if (projection?.access?.available === false) return <section className="sod29-world-kind-section" aria-label="פאי וקבועים">
     <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div></header>
     <p role="status">סדרת הקבועים הציבורית אינה זמינה כרגע. לא מוצג ערך חלופי.</p>
@@ -187,6 +227,7 @@ function ZviConstantsShelf({ projection }) {
   return <section className="sod29-world-kind-section sod29-world-constants-shelf" aria-label="פאי וקבועים">
     <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.cases} מקרים · {projection.counts.approximations} קירובים</span></header>
     <p className="sod29-world-spatial-rule">הסדרה שייכת למספרים ורצפים. קירוב אינו שוויון, וחזרה על אותו מקור אינה ראיה עצמאית. אין כאן קישור למרחבים משום שבמקרים האלה לא הוכח קשר גיאומטרי.</p>
+    <ConstantReadingGuide />
     <div className="sod29-world-kind-card-grid">{projection.cards.map((card, index) => <article key={card.id} id={`constant-${card.id.split(":").pop()}`} className="sod29-world-kind-card sod29-world-constant-card">
       <small>{card.verification.label} · חוזק: {card.review.connectionStrength}</small>
       <strong dir="auto">{card.title}</strong>
@@ -199,6 +240,7 @@ function ZviConstantsShelf({ projection }) {
       <details><summary>טענת המקור מול האימות</summary><p>{card.statement}</p><p><b>פרשנות נפרדת:</b> {card.interpretation}</p></details>
       <div className="sod29-actions"><Link className="sod29-action primary" to={card.source.href}>להופעה המדויקת בספריית צבי</Link></div>
     </article>)}</div>
+    {isAdmin ? <ConstantAdminQueue rows={projection.adminQueue || []} access={projection.access?.adminQueue} /> : null}
   </section>;
 }
 
@@ -401,7 +443,7 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
     {state.loading || state.kind !== kind ? <p role="status">פותח את {option.label}…</p> : null}
     {state.error ? <p role="status">הפריטים אינם זמינים כרגע. שום חומר חלופי לא הומצא.</p> : null}
     {openingSections.map((section) => <EntitySection key={section.key} section={section} />)}
-    {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.constants ? <ZviConstantsShelf projection={data.constants} /> : null}
+    {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.constants ? <ZviConstantsShelf projection={data.constants} isAdmin={isAdmin} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
     {remainingSections.map((section) => <EntitySection key={section.key} section={section} />)}
     {kind === WORLD_KNOWLEDGE_KIND.CIPHERS && data ? <CipherShelf rows={data.ciphers} hasMore={data.hasMore} /> : null}

@@ -265,6 +265,32 @@
 .sod29-root.surface-world .sod29-world-constant-card dl div { display: flex; justify-content: space-between; gap: 8px; font: 400 11px/1.4 var(--s29-font-ui); }
 .sod29-root.surface-world .sod29-world-constant-card dt { color: var(--s29-muted); }
 .sod29-root.surface-world .sod29-world-constant-card dd { margin: 0; font-family: var(--s29-font-numeric); }
+.sod29-root.surface-world .sod29-world-constant-guide { margin: 12px 0 14px; padding: 13px; border: 1px solid var(--s29-line); border-radius: 14px; background: color-mix(in srgb, var(--s29-panel-soft) 90%, var(--s29-discovery) 10%); }
+.sod29-root.surface-world .sod29-world-constant-guide > header { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 10px; }
+.sod29-root.surface-world .sod29-world-constant-guide > header small { color: var(--s29-discovery); font: 600 11px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-guide h4 { margin: 2px 0 0; font: 600 16px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-guide dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.sod29-root.surface-world .sod29-world-constant-guide dl div { min-width: 0; padding: 9px; border: 1px solid var(--s29-line); border-radius: 10px; background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-constant-guide dt { color: var(--s29-brand-gold); font: 700 13px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-guide dd { margin: 3px 0 0; color: var(--s29-muted); font: 400 11px/1.55 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-queue { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--s29-line); }
+.sod29-root.surface-world .sod29-world-constant-admin-queue > header { display: flex; justify-content: space-between; gap: 14px; align-items: end; margin-bottom: 10px; }
+.sod29-root.surface-world .sod29-world-constant-admin-queue > header small { color: var(--s29-brand-gold); font: 600 11px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-queue h4 { margin: 2px 0 0; font: 600 17px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-queue header p { margin: 3px 0 0; color: var(--s29-muted); font: 400 12px/1.5 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-queue header span { color: var(--s29-muted); font: 500 12px var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.sod29-root.surface-world .sod29-world-constant-admin-card { min-width: 0; padding: 12px; border: 1px solid var(--s29-line); border-inline-start: 3px solid var(--s29-brand-gold); border-radius: 12px; background: var(--s29-panel); }
+.sod29-root.surface-world .sod29-world-constant-admin-card[data-promotion-state="hold"] { border-inline-start-color: var(--s29-alert, #b85545); }
+.sod29-root.surface-world .sod29-world-constant-admin-card > small { color: var(--s29-discovery); font: 600 11px/1.4 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-card > strong { display: block; margin-top: 3px; font: 600 15px/1.45 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-card > p { color: var(--s29-muted); font: 400 12px/1.55 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-card dl { display: grid; gap: 4px; margin: 9px 0; }
+.sod29-root.surface-world .sod29-world-constant-admin-card dl div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 1px solid color-mix(in srgb, var(--s29-line) 70%, transparent); padding-bottom: 3px; font: 400 11px/1.45 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-admin-card dt { color: var(--s29-muted); }
+.sod29-root.surface-world .sod29-world-constant-admin-card dd { margin: 0; text-align: end; }
+.sod29-root.surface-world .sod29-world-constant-admin-card details { margin-top: 8px; border-top: 1px solid var(--s29-line); padding-top: 7px; }
+.sod29-root.surface-world .sod29-world-constant-admin-card summary { cursor: pointer; font: 600 12px/1.5 var(--s29-font-ui); }
 .sod29-root.surface-world .sod29-world-multi-value-card { min-height: 270px; gap: 9px; }
 .sod29-root.surface-world .sod29-world-multi-value-card p {
   display: block;
@@ -403,6 +429,10 @@
   .sod29-root.surface-world .sod29-world-kind-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sod29-root.surface-world .sod29-world-kind-card-grid { grid-template-columns: minmax(0, 1fr); }
   .sod29-root.surface-world .sod29-world-spatial-grid { grid-template-columns: minmax(0, 1fr); }
+  .sod29-root.surface-world .sod29-world-constant-guide > header,
+  .sod29-root.surface-world .sod29-world-constant-admin-queue > header { align-items: flex-start; flex-direction: column; }
+  .sod29-root.surface-world .sod29-world-constant-guide dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sod29-root.surface-world .sod29-world-constant-admin-grid { grid-template-columns: minmax(0, 1fr); }
   .sod29-root.surface-world .sod29-world-spatial-visual,
   .sod29-root.surface-world .sod29-spatial-diagram,
   .sod29-root.surface-world .sod29-world-spatial-source-image { min-height: 220px; }
@@ -420,6 +450,7 @@
   .sod29-root.surface-world .sod29-world-spatial-visual-tabs button { padding-inline: 9px; }
   .sod29-root.surface-world .sod29-spatial-diagram figcaption small,
   .sod29-root.surface-world .sod29-world-spatial-source-image figcaption small { display: none; }
+  .sod29-root.surface-world .sod29-world-constant-guide dl { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ───────── Stage 2: the world around a point (AnchoredWorld) in the same composition ───────── */

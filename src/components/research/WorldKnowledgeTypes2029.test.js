@@ -37,6 +37,22 @@ test("spatial UI keeps calculation, structure, interpretation and publication se
 test("admin audit and queue are gated by isAdmin", () => {
   assert.match(source, /isAdmin \? <details className="sod29-world-spatial-admin-audit"/);
   assert.match(source, /isAdmin \? <SpatialAdminQueue/);
+  assert.match(source, /isAdmin \? <ConstantAdminQueue/);
+  assert.match(source, /fetchZviConstantsWorldProjection\(\{ includeAdmin: isAdmin \}\)/);
+});
+
+test("constants explain sequence reading in World and link to the canonical Beit Midrash lesson", () => {
+  assert.match(source, /\/beit-midrash\?section=numbers&concept=sequences#number-concept-sequences/);
+  for (const label of ["קבוע", "רצף", "≈", "מאומת", "החישוב חזר נכון במנוע"]) {
+    assert.ok(source.includes(label), label);
+  }
+  assert.match(source, /<ConstantReadingGuide \/>/);
+});
+
+test("manager constant queue keeps promotion, calculation and publication as separate fields", () => {
+  for (const label of ["מועמד לקידום כחישוב בלבד", "עצירה לבדיקה", "בדיקת החישוב", "סטטוס הרשומות", "מקורות עצמאיים", "מה לא הוכח"]) {
+    assert.ok(source.includes(label), label);
+  }
 });
 
 test("responsive contract covers 390px and 320px layouts without a second component", () => {
