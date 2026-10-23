@@ -11,7 +11,11 @@ import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistr
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
 import { fetchGematriaMethodTrace } from "../lib/research/gematriaTrace.js";
 import { fetchWorldAllResearchProjection } from "../lib/research/worldAllResearchProjection.js";
-import { buildBeitMidrashLearningProjection } from "../lib/research/beitMidrashLearningProjection.js";
+import {
+  buildBeitMidrashLearningProjection,
+  resolveBeitMidrashLearningLocation,
+} from "../lib/research/beitMidrashLearningProjection.js";
+import { fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { applySeo } from "../lib/seo.js";
 import "../components/gematria2029/spatialMethodStage2029.css";
 import "./beitMidrash2029.css";
@@ -108,11 +112,31 @@ export default function BeitMidrash2029Page() {
     return () => { live = false; };
   }, [worldRetry]);
 
+  // The shared diamonds reader runs only while the 1820 presentation is open.
+  const presentationOpen = useMemo(() => {
+    const where = resolveBeitMidrashLearningLocation({ methodKey: requestedMethod || null, search });
+    return where.pathId === "sod1820" && where.lessonId === "sod1820";
+  }, [requestedMethod, search]);
+  const [catalog, setCatalog] = useState({ loading: false, data: null, error: null });
+  const [catalogRetry, setCatalogRetry] = useState(0);
+  useEffect(() => {
+    if (!presentationOpen) return undefined;
+    let live = true;
+    setCatalog((current) => ({ loading: true, data: current.data, error: null }));
+    fetchCurationCatalog2029().then((data) => {
+      if (live) setCatalog({ loading: false, data, error: null });
+    }).catch((error) => {
+      if (live) setCatalog({ loading: false, data: null, error });
+    });
+    return () => { live = false; };
+  }, [presentationOpen, catalogRetry]);
+
   const learning = useMemo(() => buildBeitMidrashLearningProjection({
     worldProjection: world.projection,
+    curationCatalog: catalog.data,
     methodKey: requestedMethod || null,
     search,
-  }), [world.projection, requestedMethod, search]);
+  }), [world.projection, catalog.data, requestedMethod, search]);
   const { manifest, location: place, guidedExamples } = learning;
   const sectionOf = (id) => manifest.sections.find((section) => section.id === id);
 
@@ -127,6 +151,7 @@ export default function BeitMidrash2029Page() {
   // Resume an exact section / method / example from the URL, without redirecting.
   const target = place.methodKey && !methodState.loading
     ? "bm-lesson-title"
+    : presentationOpen ? "sod1820-presentation"
     : place.findingId && !world.loading ? `guided-${place.guidedKind === "convergence" ? "convergence" : "crossing"}-${place.findingId}`
       : place.guidedKind ? `guided-${place.guidedKind}`
         : place.conceptId ? `number-concept-${place.conceptId}`
@@ -177,6 +202,9 @@ export default function BeitMidrash2029Page() {
         focusedConcept={place.conceptId}
         focusedSourceStep={place.sourceStepId}
         focusedCipherStep={place.cipherStepId}
+        presentation={learning.sod1820Presentation}
+        presentationOpen={presentationOpen}
+        catalogState={{ ...catalog, retry: () => setCatalogRetry((value) => value + 1) }}
       >
         <BeitMidrashMethods
           section={sectionOf("methods")}
