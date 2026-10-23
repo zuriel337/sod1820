@@ -96,7 +96,7 @@ with sync_playwright() as p:
             page.get_by_role("link", name="התחברות לשליחת הודעה").wait_for()
             page.get_by_text("מוקד כתיבה ציבורי", exact=True).wait_for()
             assert "6 שנים בקהילה" in page.locator(".cx-overview").inner_text()
-            assert "חיבור אחרון אינו מוצג" in page.locator(".cx-overview").inner_text()
+            assert page.locator(".cx-facts dt").filter(has_text="חיבור אחרון").count() == 0, "unavailable presence must not become a displayed date"
             assert page.locator(".cx-card").count() == 3
             assert page.locator(".cx-card a[href='https://example.invalid/native-writing']").count() == 1
             assert page.locator("[data-catalog-source]").count() == 20

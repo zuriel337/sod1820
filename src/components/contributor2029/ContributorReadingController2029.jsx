@@ -70,7 +70,7 @@ export function useContributorReading2029(view, onRefresh) {
         : state.id === item.id && ["error", "login_required"].includes(state.state) ? "לא ניתן לאשר את העדכון. רעננו לפני ניסיון נוסף." : status.scope === scope && status.id === item.id ? status.text : ""} />;
   };
   const header = view ? <>
-    {!visitorPreview && (research.saveItem || projected.resume) ? <WriterReadingSummary2029 {...projected} onOpenWorkspace={shell.openWorkspace} /> : null}
+    {!visitorPreview && (projected.savedCount > 0 || projected.resume) ? <WriterReadingSummary2029 {...projected} onOpenWorkspace={shell.openWorkspace} /> : null}
     {featured.length ? <div onClickCapture={(event) => {
       const href = event.target.closest?.("a")?.getAttribute("href");
       const item = featured.find((item) => item.href === href);
