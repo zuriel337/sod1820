@@ -136,7 +136,13 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
   // is an actual active method. This keeps the grammar structural without maintaining a vocabulary
   // list of every present or future Gematria method.
   if (!match) {
-    const focused = /^(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על|ספר(?:י)?(?:\s+לי)?\s+על|(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את)\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
+    // Method-focused language is parsed by grammatical slots, never by a list of method names.
+    // The first slot is an arbitrary bounded lens/method (present or future); the second is the
+    // exact Hebrew expression to research. This admits natural variants such as "מה אומר...",
+    // "מה משמעות..." and "איך מפרשים..." without letting a verb or a method label become the
+    // research subject. The canonical method profile remains the authority that later decides
+    // whether the requested lens actually exists.
+    const focused = /^(?:(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על)|(?:מה\s+(?:אומר(?:ת)?|מראה|מלמד(?:ת)?|מגלה))|(?:מה\s+(?:ה?משמעות|ה?פירוש)(?:\s+של)?)|(?:איך\s+(?:מפרשים|מפרשות|לפרש)(?:\s+את)?)|(?:ספר(?:י)?(?:\s+לי)?\s+על)|(?:(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את))\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
     if (focused) {
       match = [focused[0], focused[2]];
       requestedMethod = clean(focused[1], 60);

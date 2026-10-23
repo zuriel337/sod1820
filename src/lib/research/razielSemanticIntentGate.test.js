@@ -77,10 +77,23 @@ test("explicit Hebrew expression grammar is structural rather than word-specific
 });
 
 test("method-focused expression grammar preserves expression, method and observed result", () => {
-  const hidden = resolveExplicitHebrewExpressionResearchSubject("מה יש לך על המסתתר של חכמה");
-  assert.equal(hidden?.label, "חכמה");
-  assert.equal(hidden?.requested_method, "מסתתר");
-  assert.equal(hidden?.requested_action, "research");
+  for (const question of [
+    "מה יש לך על המסתתר של חכמה",
+    "מה אומר המסתתר של חכמה?",
+    "מה המשמעות של המסתתר של חכמה",
+    "מה פירוש המסתתר של חכמה",
+    "איך מפרשים את המסתתר של חכמה",
+    "מה מלמד המסתתר של חכמה",
+  ]) {
+    const hidden = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(hidden?.label, "חכמה", question);
+    assert.equal(hidden?.requested_method, "מסתתר", question);
+    assert.equal(hidden?.requested_action, "research", question);
+  }
+
+  const futureMethod = resolveExplicitHebrewExpressionResearchSubject("מה אומר אור חוזר של בראשית ברא");
+  assert.equal(futureMethod?.label, "בראשית ברא");
+  assert.equal(futureMethod?.requested_method, "אור חוזר");
 
   const triangle = resolveExplicitHebrewExpressionResearchSubject("מה אתה אומר על 271 המשולש של חכמה");
   assert.equal(triangle?.label, "חכמה");

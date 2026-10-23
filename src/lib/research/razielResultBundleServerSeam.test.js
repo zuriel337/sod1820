@@ -13,6 +13,7 @@ const CONTRACT = "public-number-research-run-v1";
 const EXPRESSION_CONTRACT = "public-expression-crossing-run-v1";
 const PRIVATE = "RAW-PRIVATE-BUNDLE-SENTINEL";
 const LEGACY_MEMORY = "LEGACY-PERSISTENT-MEMORY-SENTINEL";
+const LEGACY_SEARCH_TERM = "LEGACY-PRIVATE-SEARCH-TERM-SENTINEL";
 
 function classifierResult({ action = "research", candidates = [{ type: "number", value: 776, evidence_text: "776", role: "subject" }], status = "resolved", confidence = "high", ambiguous = false } = {}) {
   return {
@@ -462,6 +463,31 @@ test("focused hidden method returns canonical 67↔67 relation with zero model c
   assert.equal(run.calls.filter((call) => call.name === "research-run").length, 2);
 });
 
+test("natural method wording reaches the same canonical 67↔67 answer without a classifier or model", async () => {
+  const expression = "חכמה";
+  const question = "מה אומר המסתתר של חכמה?";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: false,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: question,
+      visitor_id: "vnaturalhiddenwisdom123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: focusedExpressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+    researchBundleByNumber: { 67: numberBundle(67) },
+  });
+
+  assert.equal(run.models.length, 0);
+  assert.equal(run.spans.some((span) => span.p_name === "ai-analyze:raziel:semantic-intent"), false);
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 2);
+  assert.match(run.result.raziel.answer, /חכמה בשיטת מסתתר = 67/);
+  assert.match(run.result.raziel.answer, /בינה בשיטת רגיל = 67/);
+});
+
 test("exact expression pair returns the confirmed relation without model synthesis", async () => {
   const run = await runAiAnalyze({
     answer: noMatchAnswer(),
@@ -801,7 +827,7 @@ test("2029 canonical contract composes without legacy persistent memory read or 
     allowed: true,
     bearer: USER_JWT,
     verifiedUid: UID,
-    legacyContext: { user_context: { summary: LEGACY_MEMORY } },
+    legacyContext: { user_context: { summary: LEGACY_MEMORY, research_threads: [LEGACY_SEARCH_TERM] } },
     body: {
       subject: "מה זה 1820?",
       context: "המשך השיחה הנוכחית בלבד",
@@ -818,6 +844,7 @@ test("2029 canonical contract composes without legacy persistent memory read or 
   assert.equal(run.models.length, 1);
   assert.match(run.models[0].user, /המשך השיחה הנוכחית בלבד/);
   assert.doesNotMatch(run.models[0].user, new RegExp(LEGACY_MEMORY));
+  assert.doesNotMatch(run.models[0].user, new RegExp(LEGACY_SEARCH_TERM));
   assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
 });
 
