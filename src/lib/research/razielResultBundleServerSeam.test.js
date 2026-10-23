@@ -33,7 +33,32 @@ function classifierResult({ action = "research", candidates = [{ type: "number",
   };
 }
 
-function numberBundle(number, sourceName = "ספר יצירה") {
+function numberPhraseFinding({ id, phrase, value }) {
+  return makeUniversalFinding({
+    id,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", key: phrase, label: phrase, value, lang: "he" },
+    source: {
+      engine: "gematria",
+      adapter: "number-phrase-presentation-v1",
+      name: "מאגר הגימטריה המאומת",
+      sourceRef: `gematria_words:${id}`,
+      method: "רגיל",
+      lang: "he",
+    },
+    identity: { sourceIdentity: { wordId: id }, entityRef: `gematria-word:${id}` },
+    verification: { engine_method_tested: "רגיל", engine_result: value, verification_state: "match" },
+    evidence: {
+      refs: [`gematria_words:${id}`],
+      facts: [{ type: "published-gematria-phrase", phrase, method: "רגיל", value, status: "verified_published" }],
+    },
+    access: { tier: "public" },
+    provenance: { createdBy: "SOURCE:gematria_words", inputRef: `number:${value}` },
+  });
+}
+
+function numberBundle(number, sourceName = "ספר יצירה", { phraseFindings = [], ranking = [] } = {}) {
   const finding = makeUniversalFinding({
     id: `uf:number:${number}`,
     kind: "number-record",
@@ -63,7 +88,7 @@ function numberBundle(number, sourceName = "ספר יצירה") {
     access: { tier: "public" },
     provenance: { createdBy: "ENGINE:numeric-research", inputRef: `number:${number}` },
   });
-  const findings = [finding];
+  const findings = [finding, ...phraseFindings];
   if (number === 271) {
     findings.push(makeUniversalFinding({
       id: "uf:number:271:pregnancy",
@@ -93,6 +118,7 @@ function numberBundle(number, sourceName = "ספר יצירה") {
       semanticClass: "evidence",
       cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0 },
     })],
+    ranking,
   });
 }
 
@@ -486,6 +512,52 @@ test("natural method wording reaches the same canonical 67↔67 answer without a
   assert.equal(run.calls.filter((call) => call.name === "research-run").length, 2);
   assert.match(run.result.raziel.answer, /חכמה בשיטת מסתתר = 67/);
   assert.match(run.result.raziel.answer, /בינה בשיטת רגיל = 67/);
+});
+
+test("method value follows the Number-page Human-Gate hierarchy before composing Raziel crossings", async () => {
+  const expression = "חכמה";
+  const first = numberPhraseFinding({ id: "uf:number:67:first", phrase: "בינה", value: 67 });
+  const second = numberPhraseFinding({ id: "uf:number:67:second", phrase: "מילה משנית", value: 67 });
+  const number67 = numberBundle(67, "ספר יצירה", {
+    phraseFindings: [second, first],
+    ranking: [
+      {
+        finding_id: first.id,
+        rank: 1,
+        axes: { authority: "public.gematria_words.lead_rank", lead_rank: 1, presentation_scope: "regular-number-phrase" },
+        reasons: ["Human-Gate lead rank"],
+      },
+      {
+        finding_id: second.id,
+        rank: 2,
+        axes: { authority: "public.gematria_words.lead_rank", lead_rank: 2, presentation_scope: "regular-number-phrase" },
+        reasons: ["Human-Gate lead rank"],
+      },
+    ],
+  });
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: false,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה אומר המסתתר של חכמה?",
+      visitor_id: "vleadorderwisdom67",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: focusedExpressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+    researchBundleByNumber: { 67: number67 },
+  });
+
+  assert.equal(run.models.length, 0);
+  assert.match(run.result.raziel.answer, /בינה בשיטת רגיל = 67/);
+  assert.match(run.result.raziel.answer, /מילה משנית בשיטת רגיל = 67/);
+  assert.ok(
+    run.result.raziel.answer.indexOf("בינה בשיטת רגיל = 67")
+      < run.result.raziel.answer.indexOf("מילה משנית בשיטת רגיל = 67"),
+    "Raziel must preserve the Number-page Human-Gate order after opening the method value",
+  );
 });
 
 test("exact expression pair returns the confirmed relation without model synthesis", async () => {
