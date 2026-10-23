@@ -26,7 +26,7 @@ export function publicSourceCatalog2029(catalog, { profile, canonicalHref, commu
   const items = catalog.items.map(project).filter(Boolean);
   const byId = new Map(items.map((item) => [item.id, item]));
   return {
-    kind: "source_catalog", profile, canonicalHref,
+    kind: "source_catalog", profile, canonicalHref, communityAuthorKey: catalog.contributor.id,
     catalog: { items, recentItems: catalog.recentItems.slice(0, 20).map((item) => byId.get(item.id)).filter(Boolean),
       sourcesAvailable: catalog.availability?.sources === "ok",
       truncated: catalog.loadState?.sourceMessagesTruncated === true,

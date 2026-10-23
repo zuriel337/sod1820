@@ -1,5 +1,7 @@
 # Writer pages and personal-area connections — 23 October 2026
 
+Correction: the existing community already supplies author activity and per-message likes/reactions. Their writer-page integration was missed in this stage and is repaired in [the community reuse follow-up](writer-community-reuse-repair-20261023.md). The reported hosted Preview error remains separately open; this stage's local browser/HTTP checks are not a hosted browser pass.
+
 Branch: `claude/2029-writer-personal-chain-20261023`. Integration base: `d623215d2fa9c7ce5114b1fad8979f19d41758de`. Verified implementation commit: `3ed53f0c33aa9da0d6be0ca8ef39eca9d4907a80`. The delivery report is a subsequent documentation-only commit. Required World reader ancestor `cfa786c186b449c6a616566724666937d415d508` is preserved. Verified remote main: `e73687221aa2ab639930643e5cc8c99666adce88`.
 
 This completes the six personal modules connected to the public writer page, following the [Legacy parity review](writer-legacy-parity-and-identity-seal-20261023.md), [identity/actions delivery](writer-identity-actions-delivery-20261023.md) and [reading/curation delivery](writer-reading-curation-delivery-20261023.md). Other personal modules remain under their existing owners.
