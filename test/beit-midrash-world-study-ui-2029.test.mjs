@@ -200,3 +200,23 @@ test("reading lessons render manifest lessons without score, storage or copying"
   assert.match(css, /\.bm-reading-trail\{[^}]*overflow-x:auto/);
   assert.doesNotMatch(css, /\.bm-source-(?:lesson|step|trail|exercise)/, "reading lesson styles are shared");
 });
+
+test("1820 presentation is a pure view over the contract and one shared diamonds read", () => {
+  const view = parts["BeitMidrashSod1820Presentation.jsx"].replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(view, /presentation\.slides|const \{ slides/);
+  assert.match(view, /selectedSlide: slide/);
+  assert.match(view, /diamonds\.map/);
+  assert.doesNotMatch(view, /useState|fetch|supabase|curationProjection|Number\(|\.sort\(|\.filter\(|new Set|new Map|localStorage|sessionStorage/, "no reader, state, ranking or de-duplication in the view");
+  assert.doesNotMatch(view, /diamonds\s*=\s*\[|d-1|label: "/, "no hard-coded diamond list");
+  assert.doesNotMatch(view, /מקור אומת|ציון אמת|מצב אימות|איכות ראיות|ממצא מחקר/);
+  assert.match(view, /approvalPolicy\.label/);
+  assert.match(view, /ArrowLeft: nextSlide, ArrowRight: previousSlide/, "right-to-left arrows");
+  assert.match(view, /aria-current=\{item\.id === slide\.id \? "step"/);
+  assert.match(view, /aria-roledescription="מצגת"/);
+  assert.equal((page.match(/fetchCurationCatalog2029\(\)/g) || []).length, 1, "one diamonds read in the page");
+  assert.match(page, /if \(!presentationOpen\) return undefined;[\s\S]*fetchCurationCatalog2029\(\)/, "read only while the presentation is open");
+  assert.match(page, /curationCatalog: catalog\.data/);
+  assert.match(page, /where\.pathId === "sod1820" && where\.lessonId === "sod1820"/);
+  assert.match(css, /\.bm-presentation\{/);
+  assert.match(css, /\.bm-slide\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+});

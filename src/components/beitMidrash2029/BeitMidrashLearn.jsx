@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
+import BeitMidrashSod1820Presentation from "./BeitMidrashSod1820Presentation.jsx";
 import { FibonacciSpiral, PathTrail, ReadingStrip, SkipIllustration } from "./BeitMidrashIllustrations.jsx";
 
 const sectionOf = (manifest, id) => manifest.sections.find((section) => section.id === id);
@@ -74,7 +75,7 @@ function ReadingLesson({ lesson, kind, focusedId, illustration = null }) {
   </div>;
 }
 
-export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath, focusedConcept, focusedSourceStep, focusedCipherStep, children }) {
+export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath, focusedConcept, focusedSourceStep, focusedCipherStep, presentation = null, presentationOpen = false, catalogState = null, children }) {
   const start = sectionOf(manifest, "start");
   const ciphers = sectionOf(manifest, "ciphers");
   const sources = sectionOf(manifest, "sources");
@@ -169,6 +170,16 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
           </ol> : null}
         </li>)}
       </ul>
+      {presentation && focusedPath === "sod1820" ? (presentationOpen
+        ? <BeitMidrashSod1820Presentation
+          presentation={presentation}
+          catalogState={catalogState}
+          backHref={manifest.learningPaths.find((path) => path.id === "sod1820")?.href || "/beit-midrash?section=paths&path=sod1820"}
+        />
+        : <div className="bm-presentation-entry">
+          <p>{presentation.description}</p>
+          <Link className="bm-button is-primary" to={presentation.href} data-presentation-open="true">לפתיחת {presentation.title}</Link>
+        </div>) : null}
     </BeitMidrashSection>
   </div>;
 }
