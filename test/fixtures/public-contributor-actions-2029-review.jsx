@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../../src/lib/AuthContext.jsx";
+import ResearchProvider from "../../src/lib/research/ResearchProvider.jsx";
 import { PublicContributor2029View } from "../../src/pages/PublicContributor2029Page.jsx";
 import { sourceCatalogFixtureView } from "../../src/components/contributor2029/publicSourceCatalog2029Fixtures.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
@@ -16,4 +17,4 @@ function Review() {
   for (const [key, value] of Object.entries(TYPE_SCALE_V2)) style[`--s29-type-${key}`] = `${value.fontSize}px`;
   return <main style={style}><PublicContributor2029View view={view} /></main>;
 }
-createRoot(document.getElementById("root")).render(<BrowserRouter><AuthProvider><Review /></AuthProvider></BrowserRouter>);
+createRoot(document.getElementById("root")).render(<BrowserRouter><AuthProvider><ResearchProvider><Review /></ResearchProvider></AuthProvider></BrowserRouter>);

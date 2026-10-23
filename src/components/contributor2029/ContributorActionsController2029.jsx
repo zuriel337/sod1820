@@ -9,7 +9,7 @@ import { ContributorOverview2029, ContributorStudio2029, ContributorActionRow202
 
 // This controller only wires the existing public reader, subscription, inbox and private workspace.
 // Presentation belongs to the controlled Claude components above; no new account/content store.
-export default function ContributorActionsController2029({ view }) {
+export default function ContributorActionsController2029({ view, onPublicData, excludedStudioIds }) {
   const { user, loading } = useAuth();
   const shell = use2029Shell();
   const key = decodeURIComponent(view.canonicalHref?.split("/").filter(Boolean).pop() || "");
@@ -48,6 +48,10 @@ export default function ContributorActionsController2029({ view }) {
   const data = overview.key === key ? overview.value : { state: "loading" };
   const caps = capabilities.scope === scope ? capabilities : {};
   const modal = dialog.scope === scope ? dialog : { open: false, state: "idle" };
+  useEffect(() => {
+    onPublicData?.({ overview: overview.key === key ? overview.value : { state: "loading" },
+      owner: capabilities.scope === scope && capabilities.owner === true });
+  }, [onPublicData, overview, capabilities, key, scope]);
   const personalHref = (module) => `/profile?module=${module}&returnTo=${encodeURIComponent(view.canonicalHref)}`;
   async function send(body) {
     if (pendingSend.current || caps.message !== "ready" || !actor) return;
@@ -85,7 +89,7 @@ export default function ContributorActionsController2029({ view }) {
     </ContributorActionRow2029>
     {caps.state === "unavailable" ? <p className="pc-reason" role="status">פעולות הכותב אינן זמינות כרגע.</p> : null}
     {data.state === "ready" ? <>
-      <ContributorStudio2029 items={data.studio.items} available={data.studio.available} />
+      <ContributorStudio2029 items={data.studio.items.filter((item) => !excludedStudioIds?.has(item.id))} available={data.studio.available} />
       {data.studio.hasMore ? <button className="pc-more" type="button" disabled={more === "loading"} onClick={loadMore}>{more === "loading" ? "טוען חומרים…" : "עוד מהסטודיו של הכותב"}</button> : null}
       {more === "error" ? <p className="pc-notice" role="status">לא ניתן לטעון חומרים נוספים כרגע. אפשר לנסות שוב.</p> : null}
     </> : null}

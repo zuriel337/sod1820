@@ -6,11 +6,13 @@ import { approvedReturnHref } from "./publicContributor2029Model.js";
 import { CATALOG_FORMATS, selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
 import PublicContributorRank2029 from "./ContributorRankSeal2029.jsx";
 import ContributorActionsController2029 from "./ContributorActionsController2029.jsx";
+import { useContributorReading2029 } from "./ContributorReadingController2029.jsx";
 
 const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו", external_link: "קישור" };
 
 export default function PublicSourceCatalog2029({ view, onRetry }) {
   const P = use2029Palette();
+  const reading = useContributorReading2029(view, onRetry);
   const location = useLocation();
   const [params, setParams] = useSearchParams();
   const selection = selectSourceCatalog2029(view, location.search);
@@ -39,7 +41,8 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
       <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
         links={[{ href: view.worldHref, label: "הממצאים בעולם" }, { href: `${view.canonicalHref}?section=all`, label: "כל הכתבים" }]} previewRank={view.rankPreview} />
     </header>
-    <ContributorActionsController2029 view={view} />
+    <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
+    {reading.header}
     <nav className="pc-filters" aria-label="כניסות לדף הכתב">
       {[["recent", "כתבים אחרונים"], ["all", "כל הכתבים"], ["media", "תמונות וגלריה"], ["topics", "נושאים מפורשים"], ["community", "כתיבה בקהילה"]].map(([key, label]) =>
         <button type="button" key={key} aria-pressed={selection.section === key} onClick={() => change("section", key)}>{label}</button>)}
@@ -73,13 +76,14 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
         <div className="pc-item-meta"><span>{item.formats.filter((format) => FORMAT_LABEL[format]).map((format) => FORMAT_LABEL[format]).join(" · ") || "מקור"}</span>
           {item.publicationState ? <span>פורסם לציבור</span> : null}
           {bilingualDateLabel(item.createdAt) ? <time dateTime={item.createdAt}>{bilingualDateLabel(item.createdAt)}</time> : <span>תאריך לא זמין</span>}</div>
-        <h3>{item.href ? <Link to={item.href}>{item.title}</Link> : item.title}</h3>
+        <h3>{item.href ? <Link to={item.href} onClick={() => reading.recordOpen(item)}>{item.title}</Link> : item.title}</h3>
         {item.media ? item.media.type === "video" ? <video className="pc-catalog-media" src={item.media.url} poster={item.media.thumbUrl || undefined} controls preload="none" aria-label={item.title} />
-          : item.href ? <Link to={item.href}><img className="pc-catalog-media" src={item.media.thumbUrl || item.media.url} alt={item.title} loading="lazy" width="480" height="300" /></Link>
+          : item.href ? <Link to={item.href} onClick={() => reading.recordOpen(item)}><img className="pc-catalog-media" src={item.media.thumbUrl || item.media.url} alt={item.title} loading="lazy" width="480" height="300" /></Link>
             : <img className="pc-catalog-media" src={item.media.thumbUrl || item.media.url} alt={item.title} loading="lazy" width="480" height="300" /> : null}
         {item.paired ? <p className="pc-reason">תמונה וטקסט בפרסום אחד · הופעות המקור נשמרות.</p> : null}
         {item.sourceTopics.length ? <p className="pc-reason">נושאים שנרשמו במקור: {item.sourceTopics.join(" · ")}</p> : null}
-        {item.href ? <Link className="pc-open" to={item.href}>להופעה המדויקת בעולם ↗</Link> : <p className="pc-reason">הקישור להופעה המדויקת אינו זמין.</p>}
+        {item.href ? <Link className="pc-open" to={item.href} onClick={() => reading.recordOpen(item)}>להופעה המדויקת בעולם ↗</Link> : <p className="pc-reason">הקישור להופעה המדויקת אינו זמין.</p>}
+        {reading.actions(item)}
       </article>)}</div>
       {selection.section === "recent" && sourceCountKnown && view.catalog.items.length > view.catalog.recentItems.length ? <button className="pc-more" type="button" onClick={() => change("section", "all")}>לכל הכתבים</button> : null}
       {selection.pages > 1 ? <nav className="pc-pagination" aria-label="עמודי קטלוג המקורות">
