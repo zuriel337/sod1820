@@ -49,7 +49,7 @@ export async function writerSelfRequest({ action, payload, signal, userId, fetch
       ...(action ? { body: JSON.stringify({ action, ...payload }) } : {}),
     });
     const result = await response.json();
-    return response.ok ? result : { state: result.state === "login_required" ? "login_required" : "unavailable" };
+    return response.ok ? result : { state: ["login_required", "name_taken"].includes(result.state) ? result.state : "unavailable" };
   } catch { return { state: "unavailable" }; }
 }
 
