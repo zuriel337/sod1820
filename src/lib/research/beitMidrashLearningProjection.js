@@ -609,6 +609,67 @@ const DESTINATIONS = Object.freeze({
   }),
 });
 
+const PRACTICE_ACTIVITIES = freezeItems([
+  {
+    id: "source-independence",
+    title: "כמה מקורות יש כאן?",
+    description: "מתרגלים את ההבדל בין כמה הופעות של אותו מקום לבין מקורות עצמאיים.",
+    kind: "lesson-exercise",
+    href: sourceReadingStepHref("independence"),
+    actionLabel: "לתרגיל קריאת מקור",
+    feedbackMode: SOURCE_READING_LESSON.exercise.feedbackMode,
+    researchRating: false,
+  },
+  {
+    id: "cipher-comparison",
+    title: "מה צריך להשוות?",
+    description: "קוראים תוצאת דילוג לצד תנאי החיפוש והניסיונות שנבדקו.",
+    kind: "lesson-exercise",
+    href: cipherReadingStepHref("comparison"),
+    actionLabel: "לתרגיל קריאת דילוג",
+    feedbackMode: CIPHER_READING_LESSON.exercise.feedbackMode,
+    researchRating: false,
+  },
+  {
+    id: "calculation",
+    title: "חוזרים על חישוב",
+    description: "פותחים את כלי הגימטריה הקנוני ומנסים ביטוי ושיטה בלי ליצור מחשבון נוסף.",
+    kind: "canonical-tool",
+    href: DESTINATIONS.calculator.href,
+    actionLabel: DESTINATIONS.calculator.title,
+    feedbackMode: "tool-result",
+    researchRating: false,
+  },
+  {
+    id: "guided-discovery",
+    title: "קוראים נקודת מפגש",
+    description: "משתמשים בשאלות ההתבוננות על דוגמה ציבורית שנקראת מן העולם.",
+    kind: "guided-example",
+    href: "/beit-midrash?section=guided",
+    actionLabel: "לדוגמה מודרכת",
+    feedbackMode: "reflection-only",
+    researchRating: false,
+  },
+  {
+    id: "game",
+    title: "משחקים וזוכרים את הגבול",
+    description: "הניקוד שייך למשחק בלבד; הוא אינו מודד גילוי, מקור או אמת.",
+    kind: "preview-game",
+    href: DESTINATIONS.game.href,
+    actionLabel: DESTINATIONS.game.title,
+    status: DESTINATIONS.game.status,
+    feedbackMode: "game-only",
+    researchRating: false,
+  },
+]);
+
+const PRACTICE_ACTIVITY_VALUES = new Set(PRACTICE_ACTIVITIES.map((activity) => activity.id));
+
+function practiceActivityOf(activityId) {
+  const id = clean(activityId);
+  return PRACTICE_ACTIVITIES.find((activity) => activity.id === id) || null;
+}
+
 export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   identity: Object.freeze({
     eyebrow: "בית המדרש",
@@ -627,6 +688,12 @@ export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   sourceReadingLesson: SOURCE_READING_LESSON,
   numberGuideConcepts: NUMBER_GUIDE_CONCEPTS,
   learningPaths: LEARNING_PATHS,
+  practiceActivities: PRACTICE_ACTIVITIES,
+  practicePolicy: Object.freeze({
+    persistence: "url-only",
+    completionInferred: false,
+    gameScoreIsResearchRating: false,
+  }),
   destinations: DESTINATIONS,
   methodLesson: Object.freeze({
     source: "canonical-method-registry",
@@ -686,6 +753,7 @@ export function beitMidrashLearningHref(section, {
   findingId = null,
   pathId = null,
   pathStepId = null,
+  activityId = null,
   conceptId = null,
   sourceStepId = null,
   cipherStepId = null,
@@ -710,6 +778,12 @@ export function beitMidrashLearningHref(section, {
   const requestedPathStep = clean(pathStepId);
   const pathStep = learningPath?.steps.find((step) => step.id === requestedPathStep) || null;
   if (pathStep) params.set("pathStep", pathStep.id);
+  const requestedActivity = clean(activityId);
+  const practiceActivity = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.PRACTICE
+    && PRACTICE_ACTIVITY_VALUES.has(requestedActivity)
+    ? practiceActivityOf(requestedActivity)
+    : null;
+  if (practiceActivity) params.set("activity", practiceActivity.id);
   const concept = clean(conceptId);
   const numberConcept = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
     && NUMBER_GUIDE_CONCEPT_VALUES.has(concept);
@@ -741,7 +815,9 @@ export function beitMidrashLearningHref(section, {
           ? `cipher-step-${encodeURIComponent(cipherStep)}`
           : pathStep
             ? `path-${encodeURIComponent(safePathId)}-step-${encodeURIComponent(pathStep.id)}`
-            : safePathId ? `path-${encodeURIComponent(safePathId)}` : "";
+            : safePathId
+              ? `path-${encodeURIComponent(safePathId)}`
+              : practiceActivity ? `practice-${encodeURIComponent(practiceActivity.id)}` : "";
   return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${anchor ? `#${anchor}` : ""}`;
 }
 
@@ -777,6 +853,11 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
   const pathStepId = selectedPath?.steps.some((step) => step.id === requestedPathStep)
     ? requestedPathStep
     : null;
+  const requestedActivity = clean(params.get("activity"));
+  const activityId = section === BEIT_MIDRASH_LEARNING_SECTION.PRACTICE
+    && PRACTICE_ACTIVITY_VALUES.has(requestedActivity)
+    ? requestedActivity
+    : null;
   const requestedConcept = clean(params.get("concept"));
   const conceptId = section === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
     && NUMBER_GUIDE_CONCEPT_VALUES.has(requestedConcept)
@@ -802,6 +883,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     findingId,
     pathId,
     pathStepId,
+    activityId,
     conceptId,
     sourceStepId,
     cipherStepId,
@@ -820,6 +902,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       findingId,
       pathId,
       pathStepId,
+      activityId,
       conceptId,
       sourceStepId,
       cipherStepId,
@@ -953,6 +1036,7 @@ export function buildBeitMidrashLearningProjection({
     manifest: BEIT_MIDRASH_LEARNING_MANIFEST,
     location,
     learningPath: buildBeitMidrashLearningPath(location.pathId, location.pathStepId),
+    practiceActivity: practiceActivityOf(location.activityId),
     guidedExamples: buildBeitMidrashGuidedExamples(worldProjection, {
       limit: exampleLimit,
       findingId: location.findingId,
