@@ -7,6 +7,7 @@ import { use2029Palette } from "../lib/palette.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./publicContributor2029.css";
+import ContributorCommunityActivity2029 from "../components/contributor2029/ContributorCommunityActivity2029.jsx";
 import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
 import PublicContributorRank2029 from "../components/contributor2029/ContributorRankSeal2029.jsx";
 import ContributorActionsController2029 from "../components/contributor2029/ContributorActionsController2029.jsx";
@@ -72,13 +73,14 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
         {SECTIONS.map(([key, label]) => <button type="button" key={key} aria-pressed={key === context.section} onClick={() => change("section", key)}>{label}</button>)}
       </nav>
       <div className="pc-list-heading"><h2>{SECTIONS.find(([key]) => key === context.section)?.[1]}</h2>
-        <label>מיון <select value={selection.sort} onChange={(event) => change("sort", event.target.value)}>
+        {context.section !== "community" ? <label>מיון <select value={selection.sort} onChange={(event) => change("sort", event.target.value)}>
           <option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option>
           {selection.canDiscuss ? <option value="discussed">המדובר ביותר</option> : null}
           {selection.canStrength ? <option value="strength">החזקים תחילה</option> : null}
-        </select></label>
+        </select></label> : null}
       </div>
-      {!selection.rows.length ? <p className="pc-notice" role="status">{!view.items.length
+      {context.section === "community" ? <ContributorCommunityActivity2029 authorKey={view.communityAuthorKey} enabled /> : null}
+      {context.section === "community" ? null : !selection.rows.length ? <p className="pc-notice" role="status">{!view.items.length
         ? view.partial ? "המידע שנטען אינו כולל תוכן ציבורי זמין. אי אפשר לקבוע שאין תוכן נוסף." : "אין עדיין תוכן ציבורי משויך לכותב."
         : "אין תוכן זמין במדור הזה מתוך המידע שנטען."}</p> : <div className="pc-items">
         {shown.map((item) => {
@@ -111,8 +113,8 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           </article>;
         })}
       </div>}
-      {shown.length < selection.rows.length ? <button className="pc-more" type="button" onClick={() => setLimit((value) => value + 12)}>הצגת חומרים נוספים</button> : null}
-      {context.item && selectedIndex < 0 ? <p role="status" className="pc-notice">הפריט שבקישור אינו זמין במדור הזה.</p> : null}
+      {context.section !== "community" && shown.length < selection.rows.length ? <button className="pc-more" type="button" onClick={() => setLimit((value) => value + 12)}>הצגת חומרים נוספים</button> : null}
+      {context.section !== "community" && context.item && selectedIndex < 0 ? <p role="status" className="pc-notice">הפריט שבקישור אינו זמין במדור הזה.</p> : null}
     </>}
   </section>;
 }
