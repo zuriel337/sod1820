@@ -5,9 +5,9 @@ import test from "node:test";
 import {
   BEIT_MIDRASH_WORLD_AUDIENCE,
   buildBeitMidrashWorldSections,
-  canonicalWorldFindingHref,
   beitMidrashWorldSectionHref,
 } from "../src/lib/research/beitMidrashWorldSections.js";
+import { worldPublicResearchDto } from "../src/lib/research/worldAllResearchProjection.js";
 
 function finding(overrides = {}) {
   return {
@@ -34,7 +34,7 @@ function finding(overrides = {}) {
       { sourceId: "f-1", sourceRef: "channel_updates:source-1#a2" },
       { sourceId: "f-2", sourceRef: "channel_updates:source-1#a7" },
     ],
-    canonicalFindingHref: "/world?admin=1&finding=f-1#finding-f-1",
+    canonicalFindingHref: "/world?finding=f-1#finding-f-1",
     ...overrides,
   };
 }
@@ -54,7 +54,8 @@ test("public Beit Midrash lenses fail closed for private and candidate findings"
   assert.deepEqual(result.sections.atlas.map((row) => row.sourceId), ["f-1"]);
   assert.deepEqual(result.sections.convergence.map((row) => row.sourceId), ["f-1"]);
   assert.equal(result.sections.crosses[0].triage, undefined);
-  assert.equal(result.sections.crosses[0].canonicalFindingHref, null, "public DTO must not expose the admin review route");
+  assert.equal(result.sections.crosses[0].canonicalFindingHref, "/world?finding=f-1#finding-f-1");
+  assert.equal(result.sections.crosses[0].occurrenceCount, 2);
   assert.equal(result.nonDestructiveDedup, true);
 });
 
@@ -66,6 +67,7 @@ test("admin consumes the authorized review DTO without exposing triage to public
     access: "private",
     evidenceQuality: { score: null, band: "unrated", label: "אין נתון" },
     independentSourceCount: 1,
+    canonicalFindingHref: "/world?admin=1&finding=private-candidate#finding-private-candidate",
     triage: {
       rank: 7,
       strength: "בינוני",
@@ -116,7 +118,12 @@ test("only an upstream verified Web URL is carried as sourceHref", () => {
 });
 
 test("canonical World deep-link and exact Beit Midrash return remain separate", () => {
-  assert.equal(canonicalWorldFindingHref("abc/12"), "/world?admin=1&finding=abc%2F12#finding-abc%2F12");
+  const row = buildBeitMidrashWorldSections({ rows: [finding({
+    id: "research:abc/12",
+    sourceId: "abc/12",
+    canonicalFindingHref: "/world?finding=abc%2F12#finding-abc%2F12",
+  })] }).sections.crosses[0];
+  assert.equal(row.canonicalFindingHref, "/world?finding=abc%2F12#finding-abc%2F12");
   assert.equal(
     beitMidrashWorldSectionHref("atlas", "abc/12"),
     "/beit-midrash?tab=atlas&finding=abc%2F12#finding-abc%2F12",
@@ -129,5 +136,33 @@ test("adapter owns no fetch, store, Supabase reader, ranking or dedup implementa
   assert.doesNotMatch(source, /\bfetch\s*\(/);
   assert.doesNotMatch(source, /\.from\s*\(|\.rpc\s*\(|createClient\s*\(/);
   assert.doesNotMatch(source, /clusterWorldResearchRows|compareWorldResearchStrength|admin_convergence_candidates/);
+  assert.doesNotMatch(source, /admin=1/);
   assert.doesNotMatch(source, /search[_ ]?terms/i);
+});
+
+test("public lens rejects an admin or mismatched canonical route instead of inventing one", () => {
+  const result = buildBeitMidrashWorldSections({ rows: [
+    finding({ canonicalFindingHref: "/world?admin=1&finding=f-1#finding-f-1" }),
+    finding({
+      id: "research:f-2",
+      sourceId: "f-2",
+      canonicalFindingHref: "/world?finding=another#finding-another",
+    }),
+  ] });
+  assert.deepEqual(result.sections.crosses.map((row) => row.canonicalFindingHref), [null, null]);
+});
+
+test("Beit Midrash consumes the canonical public World DTO without widening it", () => {
+  const publicProjection = worldPublicResearchDto({
+    rows: [
+      finding({ triage: { recommendation: "manager-only" }, terms: ["private search term"] }),
+      finding({ id: "research:private", sourceId: "private", access: "private" }),
+      finding({ id: "research:candidate", sourceId: "candidate", status: "candidate" }),
+    ],
+  });
+  const result = buildBeitMidrashWorldSections(publicProjection);
+  assert.deepEqual(result.sections.crosses.map((row) => row.sourceId), ["f-1"]);
+  assert.equal(result.sections.crosses[0].canonicalFindingHref, "/world?finding=f-1#finding-f-1");
+  assert.equal(Object.hasOwn(result.sections.crosses[0], "triage"), false);
+  assert.equal(JSON.stringify(result).includes("private search term"), false);
 });

@@ -39,6 +39,22 @@ function verifiedSourceHref(value) {
   return HTTP_URL.test(href) ? href : null;
 }
 
+function verifiedWorldFindingHref(value, sourceId, { allowAdmin = false } = {}) {
+  const href = clean(value);
+  const id = sourceIdOf({ sourceId });
+  if (!href || !id || !href.startsWith("/world")) return null;
+  try {
+    const url = new URL(href, "https://sod1820.invalid");
+    if (url.origin !== "https://sod1820.invalid" || url.pathname !== "/world") return null;
+    if (!allowAdmin && url.searchParams.has("admin")) return null;
+    if (url.searchParams.get("finding") !== id) return null;
+    if (url.hash !== `#finding-${encodeURIComponent(id)}`) return null;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return null;
+  }
+}
+
 function sourceIdOf(row) {
   return clean(row?.sourceId || row?.id).replace(/^research:/, "");
 }
@@ -54,11 +70,6 @@ function projectAdminTriage(value) {
     recommendedKeepId: clean(value.recommendedKeepId) || null,
     duplicateIds: cloneArray(value.duplicateIds).map(clean).filter(Boolean),
   };
-}
-
-export function canonicalWorldFindingHref(sourceId) {
-  const id = encodeURIComponent(sourceIdOf({ sourceId }));
-  return id ? `/world?admin=1&finding=${id}#finding-${id}` : null;
 }
 
 export function beitMidrashWorldSectionHref(section, sourceId = null) {
@@ -109,10 +120,15 @@ function projectFinding(row, { admin }) {
     linkedTopicRating: row?.linkedTopicRating && typeof row.linkedTopicRating === "object"
       ? { ...row.linkedTopicRating }
       : null,
+    occurrenceCount: finiteOrNull(row?.occurrenceCount),
     occurrences: cloneArray(row?.occurrences),
-    // The canonical finding route is an authorized admin review surface. A
-    // public teaching DTO must never advertise it as a public destination.
-    canonicalFindingHref: admin ? canonicalWorldFindingHref(sourceId) : null,
+    // World owns the canonical route. Beit Midrash only preserves a verified
+    // upstream route and never constructs a finding URL from a locator or id.
+    canonicalFindingHref: verifiedWorldFindingHref(
+      row?.canonicalFindingHref,
+      sourceId,
+      { allowAdmin: admin },
+    ),
   };
 
   if (admin) {
