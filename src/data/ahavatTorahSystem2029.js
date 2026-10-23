@@ -6,8 +6,10 @@ export const AHAVAT_TORAH_SOURCE = Object.freeze({
   language: "עברית",
   pdfPages: 99,
   deepReadPages: 15,
+  machineTextPages: 98,
   datasetCount: 13,
   researchBundleUrl: "/book-data/ahavat-torah.tables.json",
+  pageTextBundleUrl: "/book-data/ahavat-torah.page-text.json",
   pdfUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf",
   catalogUrl: "https://hebrewbooks.org/5635",
 });
@@ -18,7 +20,29 @@ export const AHAVAT_TORAH_TRUTH_STATES = Object.freeze({
   structural_map: Object.freeze({ label: "מיפוי מבני", tone: "mapped", description: "טווח העמודים ותפקידו בספר ממופים; אין בכך אימות של כל טענה." }),
   candidate: Object.freeze({ label: "מועמד למחקר", tone: "candidate", description: "קריאה או ערך שדורשים הכרעה נוספת לפני שימוש כממצא." }),
   open: Object.freeze({ label: "פתוח", tone: "open", description: "השאלה נשמרת פתוחה ולא מוצגת כתוצאה." }),
+  machine_candidate: Object.freeze({ label: "תעתיק מכונה", tone: "machine", description: "טקסט שחולץ מן ה־PDF לצורכי חיפוש וקריאה, ועדיין דורש השוואה חזותית למקור." }),
 });
+
+export const AHAVAT_TORAH_READING_ARCS = Object.freeze([
+  Object.freeze({ range: [1, 5], title: "זהות הספר והקדמות", explanation: "עמודי השער, ההסכמות והקדמת המהדורה מגדירים את זהות החיבור, המחבר ותולדות ההדפסה. יש להבדיל בין דברי המחבר לבין חומר שנוסף במהדורות המאוחרות." }),
+  Object.freeze({ range: [6, 15], title: "פתיחת מגדל עוז", explanation: "המחבר מציג את מניין 1,820 מופעי שם ה׳ ומפתח סביבו מערכות של פסוקים, מניינים וגימטריות. בעמודים אלה קיימת כבר שכבת קריאת עומק מפורטת לצד המקור." }),
+  Object.freeze({ range: [16, 24], title: "המשך מגדל עוז", explanation: "הדיון ממשיך דרך ניסוך המים, מנייני אותיות ותיבות, שנות חיים, שבטים, מועדים ומבנים החוזרים אל משפחת המספר 1,820. ההסבר הוא מפת קריאה; כל חישוב דורש בדיקה מול השורה המקורית." }),
+  Object.freeze({ range: [25, 31], title: "אוריין תליתאי", explanation: "יחידה טבלאית המונה דוברים, אנשים וקבוצות בתורה ומבחינה בין מספר הופעות לבין מספר התיבות המיוחסות להם. סכום המחבר 79,976 נשמר כטענת מקור עד להשלמת כל השורות." }),
+  Object.freeze({ range: [32, 35], title: "שרשים בתורה", explanation: "רשימת שורשים וצורות לשון הערוכה בצפיפות. הקריאה המחקרית חייבת לשמור את כללי ההכללה של המחבר ולא להפוך רשימת מקור לקורפוס לשוני מודרני בלי הכרעה." }),
+  Object.freeze({ range: [36, 43], title: "אותיות, תיבות וחמש מגילות", explanation: "רצף טבלאות לפי פרשה, חומש ומגילה. זהו חומר מתאים לחילוץ מובנה, אך ספרה עמומה או סכום חלקי נשארים מועמדים ולא מקבלים מעמד מאומת מכוח התאמה משוערת." }),
+  Object.freeze({ range: [44, 45], title: "מעבר לחלק החידושים", explanation: "עמודי מעבר בין הטבלאות לבין חלק החידושים. גם עמוד דל־טקסט או ריק נשמר ברצף כדי שמספרי ה־PDF ומראי המקום לא יזוזו." }),
+  Object.freeze({ range: [46, 53], title: "בראשית עד ויצא", explanation: "תחילת החידושים על סדר הפרשות: בריאה, נח, האבות, העקדה, חיי שרה, תולדות ויצא. המחבר משלב פשט, מדרש וקשרים מספריים; המערכת אינה מאחדת אותם לטענה אחת." }),
+  Object.freeze({ range: [54, 60], title: "וישלח עד שמות", explanation: "חידושים על יעקב ובניו, יוסף וירידת מצרים, עד פתיחת ספר שמות. קשרים לשוניים ומספריים מוצגים כשיטת המחבר, לצד מקור העמוד המלא." }),
+  Object.freeze({ range: [61, 70], title: "וארא עד פקודי", explanation: "יציאת מצרים, מתן תורה, משפטים, המשכן ומנייני עשייה. באזור זה נמצאת גם טבלת מופעי הפועל ״עשה״, שמעמדה עדיין מועמד למחקר." }),
+  Object.freeze({ range: [71, 80], title: "ויקרא עד בלק", explanation: "קרבנות, טומאה וטהרה, מועדים, המדבר, המרגלים, קורח, חוקת ובלק. כמה יחידות כוללות מניינים צפופים ולכן התעתיק המכונתי משמש ניווט בלבד עד אימות חזותי." }),
+  Object.freeze({ range: [81, 92], title: "פנחס עד וזאת הברכה", explanation: "סיום חידושי התורה: מסעות, דברים, מצוות, תוכחה, הברית, האזינו והברכה. כאן מופיעים גם מאגרי מסירה ותוכחה שעדיין פתוחים להכרעה." }),
+  Object.freeze({ range: [93, 94], title: "מגילת אסתר", explanation: "יחידה עצמאית על אסתר ומרדכי, המשלבת קריאה לשונית, מדרשית ומספרית. הקשר לטבלאות חמש המגילות הוא קישור מחקרי ואינו מאחד את שני מוקדי המקור." }),
+  Object.freeze({ range: [95, 99], title: "השמטות ותיקונים", explanation: "השלמות, חידושים שנוספו ולוח תיקוני המהדורה. התיקונים נשמרים לצד המקום שאליו הם מפנים; הם אינם מוחקים את נוסח העמוד המקורי." }),
+]);
+
+export function readingArcForPage(page) {
+  return AHAVAT_TORAH_READING_ARCS.find(arc => page >= arc.range[0] && page <= arc.range[1]) || AHAVAT_TORAH_READING_ARCS[0];
+}
 
 export const AHAVAT_TORAH_SECTIONS = Object.freeze([
   Object.freeze({
@@ -174,8 +198,8 @@ export const AHAVAT_TORAH_FINDINGS = Object.freeze([
 
 export const AHAVAT_TORAH_PIPELINE = Object.freeze([
   Object.freeze({ index: "01", title: "מקור", value: "99", label: "עמודי PDF", state: "available" }),
-  Object.freeze({ index: "02", title: "קריאת עומק", value: "15", label: "עמודים זמינים בשכבה זו", state: "partial" }),
-  Object.freeze({ index: "03", title: "מפת מחקר", value: "13", label: "datasets במעמדים שונים", state: "mapped" }),
+  Object.freeze({ index: "02", title: "חיפוש ותעתיק", value: "98", label: "עמודי מכונה + עמוד ריק מתועד", state: "available" }),
+  Object.freeze({ index: "03", title: "קריאת עומק", value: "15", label: "עמודים מאומתים בשכבה זו", state: "partial" }),
   Object.freeze({ index: "04", title: "הכרעת אדם", value: "נדרש", label: "לכל מועמד פתוח", state: "gated" }),
   Object.freeze({ index: "05", title: "פרסום", value: "0", label: "ממצאים ציבוריים", state: "locked" }),
 ]);

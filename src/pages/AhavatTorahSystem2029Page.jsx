@@ -11,6 +11,7 @@ import {
   AHAVAT_TORAH_SOURCE,
   AHAVAT_TORAH_TRUTH_STATES,
   hebrewBlockKind,
+  readingArcForPage,
   sectionForPage,
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
@@ -172,23 +173,67 @@ function DatasetCatalog({ selectedId, onSelect }) {
   </section>;
 }
 
-function DeepReadingExplorer({ page, bundle, bundleState, onPage }) {
+function normalizeSearch(value = "") {
+  return value.normalize("NFKD").replace(/[\u0591-\u05c7]/g, "").replace(/\s+/g, " ").trim().toLocaleLowerCase("he");
+}
+
+function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextState, onPage }) {
+  const [query, setQuery] = useState("");
   const record = AHAVAT_TORAH_DEEP_PAGES.find(item => item.page === page) || null;
+  const machinePage = pageTextBundle?.pages?.find(item => Number(item.pdf_page) === page) || null;
+  const readingArc = readingArcForPage(page);
   const pageBlocks = useMemo(() => (bundle?.content_blocks || []).filter(block => Number(block.pdf_page) === page), [bundle, page]);
+  const pageSources = useMemo(() => (bundle?.sources || []).filter(source => (source.pdf_pages || []).map(Number).includes(page)), [bundle, page]);
+  const pageDatasets = AHAVAT_TORAH_DATASETS.filter(dataset => dataset.pages.includes(page));
+  const normalizedQuery = normalizeSearch(query);
+  const searchablePages = useMemo(() => (pageTextBundle?.pages || []).map(item => ({
+    ...item,
+    flatText: item.text.replace(/\s+/g, " ").trim(),
+    normalizedText: normalizeSearch(item.text),
+  })), [pageTextBundle]);
+  const searchResults = useMemo(() => {
+    if (normalizedQuery.length < 2) return [];
+    return searchablePages.flatMap(item => {
+      const position = item.normalizedText.indexOf(normalizedQuery);
+      if (position < 0) return [];
+      const start = Math.max(0, position - 72);
+      return [{ page: item.pdf_page, snippet: `${start ? "…" : ""}${item.flatText.slice(start, start + 210)}${item.flatText.length > start + 210 ? "…" : ""}` }];
+    }).slice(0, 24);
+  }, [normalizedQuery, searchablePages]);
+  const extractedPages = pageTextBundle?.pages?.filter(item => item.extraction_status === "machine_candidate").length || 0;
 
   return <section className="ahavat29-depth" aria-labelledby="ahavat29-depth-title">
     <header>
-      <div><span>שכבת הקריאה שכבר קיימת</span><h2 id="ahavat29-depth-title">15 דפי עומק · לצד כל 99 עמודי המקור</h2></div>
-      <p>בדפי העומק מוצגים תעתיק, פרפרזה או נתונים לפי המעמד שנשמר בקובץ המחקר. בשאר העמודים ה־PDF פתוח, בלי להמציא טקסט שלא נקרא.</p>
+      <div><span>הספר מתחילתו ועד סופו</span><h2 id="ahavat29-depth-title">99 עמודים · קורא מלא וחיפוש</h2></div>
+      <p>לכל עמוד יש מקור PDF והסבר ניווט עברי. {extractedPages || "כל"} עמודים זמינים גם כתעתיק מכונה לחיפוש; 15 עמודים קיבלו קריאת עומק אנושית־מחקרית.</p>
     </header>
-    <div className="ahavat29-depth-pages" aria-label="דפי עומק זמינים">
-      {AHAVAT_TORAH_DEEP_PAGES.map(item => <button type="button" key={item.page} className={item.page === page ? "is-active" : ""} aria-pressed={item.page === page} onClick={() => onPage(item.page)}>
-        <b>{item.page}</b><span>{item.section}</span><small>{item.blocks} יחידות · {item.tables} טבלאות</small>
-      </button>)}
+    <div className="ahavat29-search">
+      <label htmlFor="ahavat29-search-input"><span>חיפוש בכל הספר</span><input id="ahavat29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="לדוגמה: אברהם, אותיות, אלף תת״ך" /></label>
+      <small>החיפוש פועל על תעתיק מכונה מועמד. תמיד מאמתים את התוצאה בחלון ה־PDF.</small>
+      {normalizedQuery.length >= 2 ? <div className="ahavat29-search-results" aria-live="polite">
+        <strong>{searchResults.length ? `${searchResults.length} תוצאות ראשונות` : "לא נמצאה התאמה"}</strong>
+        {searchResults.map(result => <button type="button" key={`${result.page}-${result.snippet}`} onClick={() => onPage(result.page)}><b>PDF {result.page}</b><span>{result.snippet}</span></button>)}
+      </div> : null}
     </div>
+
+    <nav className="ahavat29-page-atlas" aria-label="כל 99 עמודי הספר">
+      {Array.from({ length: AHAVAT_TORAH_SOURCE.pdfPages }, (_, index) => index + 1).map(pageNumber => {
+        const deep = AHAVAT_TORAH_DEEP_PAGES.some(item => item.page === pageNumber);
+        const hasText = pageTextBundle?.pages?.some(item => item.pdf_page === pageNumber && item.extraction_status === "machine_candidate");
+        return <button type="button" key={pageNumber} className={`${pageNumber === page ? "is-active" : ""} ${deep ? "is-deep" : hasText ? "is-machine" : "is-source"}`} aria-pressed={pageNumber === page} onClick={() => onPage(pageNumber)} title={deep ? "קריאת עומק" : hasText ? "תעתיק מכונה" : "מקור בלבד"}>{pageNumber}</button>;
+      })}
+    </nav>
+    <div className="ahavat29-page-atlas-legend"><span className="is-deep">קריאת עומק</span><span className="is-machine">תעתיק מכונה</span><span className="is-source">מקור בלבד</span></div>
+
     <article className="ahavat29-depth-reader">
+      <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
+      <section className="ahavat29-ai-guide">
+        <span>הסבר AI בעברית · מפת קריאה מועמדת</span>
+        <p>{readingArc.explanation}</p>
+        <small>זהו הסבר מסייע לטווח עמודים {readingArc.range[0]}–{readingArc.range[1]}, לא ציטוט ולא הכרעת אמת. יש לקרוא אותו לצד עמוד המקור.</small>
+      </section>
+
       {record ? <>
-        <header><div><span>PDF {record.page}{record.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{record.section}</h3></div><b>{record.depth}</b></header>
         <dl>
           <div><dt>יחידות תוכן</dt><dd>{record.blocks}</dd></div>
           <div><dt>טבלאות</dt><dd>{record.tables}</dd></div>
@@ -205,7 +250,20 @@ function DeepReadingExplorer({ page, bundle, bundleState, onPage }) {
           </section>)}
           {!pageBlocks.length ? <p>אין יחידות טקסט להצגה בעמוד זה בשכבה הנוכחית.</p> : null}
         </div> : null}
-      </> : <div className="ahavat29-depth-empty"><span>PDF {page}</span><h3>עמוד מקור זמין · קריאת עומק טרם הוכנה</h3><p>המערכת אינה ממלאת את החסר בטקסט אוטומטי. אפשר לקרוא את העמוד במקור, ולצרף אותו בעתיד למסלול התעתוק וההסבר.</p></div>}
+      </> : <div className="ahavat29-depth-empty"><span>קריאת עומק טרם אומתה</span><h3>העמוד נגיש במלואו כמקור וכתעתיק מכונה</h3><p>התעתיק מאפשר חיפוש וקריאה ראשונית, אך שיבושי OCR אינם מתוקנים אוטומטית ואינם הופכים לממצא.</p></div>}
+
+      {(pageDatasets.length || pageSources.length) ? <section className="ahavat29-page-links" aria-label="קשרי מחקר לעמוד">
+        <span>קשרים שכבר אותרו בעמוד</span>
+        <div>{pageDatasets.map(dataset => <b key={dataset.id}>{dataset.id} · {dataset.title}</b>)}{pageSources.map((source, index) => <b key={`${source.source_as_printed}-${index}`}>מקור: {source.source_as_printed}</b>)}</div>
+      </section> : null}
+
+      {pageTextState === "loading" ? <p role="status">טוען את תעתיק הספר המלא…</p> : null}
+      {pageTextState === "error" ? <p role="alert">התעתיק לא נטען. ה־PDF המקורי נשאר זמין.</p> : null}
+      {pageTextState === "ready" ? <details className="ahavat29-machine-text" open={!record}>
+        <summary>תעתיק מכונה מלא לעמוד {page} · דורש אימות מול המקור</summary>
+        {machinePage?.text ? <pre>{machinePage.text}</pre> : <p>לא חולץ טקסט מן העמוד. ייתכן שזהו עמוד ריק או עמוד תמונה בלבד.</p>}
+      </details> : null}
+      <a className="ahavat29-page-source-link" href={`${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`} target="_blank" rel="noreferrer">פתח את עמוד {page} ב־PDF המקורי ↗</a>
     </article>
   </section>;
 }
@@ -218,6 +276,8 @@ export default function AhavatTorahSystem2029Page() {
   const [datasetId, setDatasetId] = useState(initialDataset);
   const [bundle, setBundle] = useState(null);
   const [bundleState, setBundleState] = useState("loading");
+  const [pageTextBundle, setPageTextBundle] = useState(null);
+  const [pageTextState, setPageTextState] = useState("loading");
   const selectedSection = useMemo(() => sectionForPage(page), [page]);
   const selectedFinding = AHAVAT_TORAH_FINDINGS.find(finding => finding.id === findingId) || null;
 
@@ -236,6 +296,25 @@ export default function AhavatTorahSystem2029Page() {
       .catch(() => {
         if (!active) return;
         setBundleState("error");
+      });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetch(AHAVAT_TORAH_SOURCE.pageTextBundleUrl, { credentials: "same-origin" })
+      .then(response => {
+        if (!response.ok) throw new Error(`page text bundle ${response.status}`);
+        return response.json();
+      })
+      .then(nextBundle => {
+        if (!active) return;
+        setPageTextBundle(nextBundle);
+        setPageTextState("ready");
+      })
+      .catch(() => {
+        if (!active) return;
+        setPageTextState("error");
       });
     return () => { active = false; };
   }, []);
@@ -302,12 +381,13 @@ export default function AhavatTorahSystem2029Page() {
           <h1 id="ahavat29-title">ספר עתיק הופך<br /><em>למרחב מחקר חי</em></h1>
           <p>לא רק PDF ולא רשימת מספרים: מקור קבוע, מפה של הספר, הסבר נפרד וממצאים שאפשר לבחון בעמוד שבו נולדו.</p>
         </div>
-        <aside><strong>שלב ראשון</strong><p>המערכת מציגה חלקים אמיתיים מן הספר. אין כאן פרסום ציבורי, שינוי אמת או כתיבה למסד.</p></aside>
+        <aside><strong>קורא מלא · Preview</strong><p>כל הספר זמין כעת לדפדוף ולחיפוש. תעתיק מכונה, קריאת עומק וממצא נשארים מעמדות נפרדים.</p></aside>
       </section>
 
       <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
         <article><strong>99</strong><span>עמודי מקור</span><small>PDF אחד וזהות מקור אחת</small></article>
-        <article><strong>8</strong><span>אזורי ספר</span><small>מפת קריאה רציפה</small></article>
+        <article><strong>98</strong><span>עמודי תעתיק</span><small>ועמוד ריק אחד מתועד</small></article>
+        <article><strong>15</strong><span>דפי עומק</span><small>תעתיק, פרפרזה ונתונים</small></article>
         <article><strong>13</strong><span>מאגרי בדיקה</span><small>סגורים, חלקיים ופתוחים</small></article>
         <article className="is-locked"><strong>0</strong><span>ממצאים ציבוריים</span><small>Preview בלבד</small></article>
       </section>
@@ -331,7 +411,7 @@ export default function AhavatTorahSystem2029Page() {
 
           <DatasetCatalog selectedId={datasetId} onSelect={selectDataset} />
 
-          <DeepReadingExplorer page={page} bundle={bundle} bundleState={bundleState} onPage={openPage} />
+          <FullBookReader page={page} bundle={bundle} bundleState={bundleState} pageTextBundle={pageTextBundle} pageTextState={pageTextState} onPage={openPage} />
 
           <section className="ahavat29-pipeline" aria-labelledby="ahavat29-pipeline-title">
             <header><span>המערכת שאנחנו בונים</span><h2 id="ahavat29-pipeline-title">מהמקור ועד מוצר שאפשר לסמוך עליו</h2></header>
