@@ -15,7 +15,8 @@ function GuidedCard({ example }) {
   const values = example.values.filter(primitive);
   const contributorHref = publicContributorHref(example.contributor);
   const worldHref = publicWorldSourceHref(example.contributor);
-  const rememberAndOpenWorld = (event) => {
+  const findingHref = example.canonicalFindingHref;
+  const rememberWorldContext = () => {
     const selection = {
       entityId: example.sourceId,
       entityType: "finding",
@@ -35,9 +36,12 @@ function GuidedCard({ example }) {
         lens: "beit-midrash",
       },
     });
+  };
+  const rememberAndOpenWorld = (event, href = worldHref) => {
+    rememberWorldContext();
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    shell.go(worldHref, { preserve: false });
+    shell.go(href, { preserve: false });
   };
   return <article
     id={`guided-${example.concept}-${example.sourceId}`}
@@ -66,7 +70,7 @@ function GuidedCard({ example }) {
         <dd>{example.sourceLabel ? <span>{example.sourceLabel} · </span> : null}<code dir="ltr">{example.sourceRef || "אין מזהה מקור"}</code></dd>
       </div>
       {example.contributor ? <div><dt>הובא על ידי</dt><dd>{contributorHref
-        ? <Link className="bm-contributor-link" to={contributorHref} onClick={rememberAndOpenWorld}>{example.contributor}</Link>
+        ? <Link className="bm-contributor-link" to={contributorHref} onClick={rememberWorldContext}>{example.contributor}</Link>
         : example.contributor}</dd></div> : null}
     </dl>
 
@@ -78,7 +82,8 @@ function GuidedCard({ example }) {
     </details> : null}
 
     <footer>
-      <a className="bm-button is-primary" href={worldHref} onClick={rememberAndOpenWorld}>לפתיחת הגילוי והמקור בעולם</a>
+      {findingHref ? <a className="bm-button is-primary" href={findingHref} data-world-finding-link="true" onClick={(event) => rememberAndOpenWorld(event, findingHref)}>לפתיחת הגילוי המלא בעולם</a> : null}
+      <a className={`bm-button${findingHref ? "" : " is-primary"}`} href={worldHref} data-world-source-link="true" onClick={(event) => rememberAndOpenWorld(event, worldHref)}>לעמוד המקור בעולם</a>
       {example.sourceHref ? <a className="bm-button" href={example.sourceHref} target="_blank" rel="noreferrer">לפתיחת המקור ↗</a> : null}
       <Link className="bm-link" to={example.returnHref}>קישור קבוע לדוגמה</Link>
     </footer>

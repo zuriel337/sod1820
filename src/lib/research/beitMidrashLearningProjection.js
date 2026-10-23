@@ -2,6 +2,12 @@ import {
   BEIT_MIDRASH_WORLD_SECTION,
   buildBeitMidrashWorldSections,
 } from "./beitMidrashWorldSections.js";
+import {
+  BEIT_MIDRASH_SOD1820_PRESENTATION,
+  BEIT_MIDRASH_SOD1820_PRESENTATION_ID,
+  buildBeitMidrashSod1820Presentation,
+  isBeitMidrashSod1820Slide,
+} from "./beitMidrashSod1820Presentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const DEFAULT_EXAMPLE_LIMIT = 2;
@@ -172,6 +178,108 @@ const SOURCE_READING_LESSON = Object.freeze({
   }),
 });
 
+const cipherReadingStepHref = (stepId) => {
+  const step = encodeURIComponent(clean(stepId));
+  return `/beit-midrash?section=ciphers&step=${step}#cipher-step-${step}`;
+};
+
+const CIPHER_READING_STEPS = freezeItems([
+  {
+    id: "text",
+    title: "קובעים את הטקסט ואת גבולותיו",
+    body: "מתחילים בטקסט הקנוני ובטווח מדויק. מציינים מאין מתחילים והיכן מסתיים החיפוש לפני שקוראים את התוצאה.",
+    check: "האם אפשר לפתוח את אותו טקסט ואת אותו טווח בלי לנחש למה התכוונו?",
+    boundary: "החלפת נוסח, ספר או טווח יוצרת חיפוש אחר ואינה המשך שקט של אותו חיפוש.",
+    href: cipherReadingStepHref("text"),
+  },
+  {
+    id: "parameters",
+    title: "רושמים את תנאי החיפוש",
+    body: "שומרים את נקודת ההתחלה, כיוון הקריאה וגודל הדילוג. התנאים הם חלק מן התוצאה, לא פרט טכני שאפשר להשמיט.",
+    check: "האם נקודת ההתחלה, הכיוון והדילוג מופיעים במפורש?",
+    boundary: "מילה שנמצאה בלי תנאי החיפוש שלה אינה תוצאה שאפשר לחזור עליה.",
+    href: cipherReadingStepHref("parameters"),
+  },
+  {
+    id: "letters",
+    title: "עוקבים אחר האותיות במקומן",
+    body: "בודקים שכל אות מגיעה מן המיקום שהמנוע מציג ובאותו דילוג. ההמחשה מסייעת לקריאה, אך המנוע הקנוני הוא שמחשב את המיקומים.",
+    check: "האם כל מעבר בין שתי אותיות שומר על אותו דילוג ועל אותו כיוון?",
+    boundary: "בית המדרש אינו מחשב דילוגים בעצמו ואינו מחליף את תוצאת המנוע.",
+    href: cipherReadingStepHref("letters"),
+  },
+  {
+    id: "repeat",
+    title: "מוודאים שאפשר לחזור על התוצאה",
+    body: "פותחים את אותם תנאים בכלי הצפנים ובודקים שמתקבלת אותה סדרת אותיות. כך מבדילים בין תוצאה שמורה לבין התרשמות חזותית.",
+    check: "האם אותם טקסט, טווח ותנאים מחזירים את אותה תוצאה?",
+    boundary: "חזרה מוצלחת מאמתת את החישוב בלבד; היא אינה מוכיחה את המשמעות שמציעים לו.",
+    href: cipherReadingStepHref("repeat"),
+  },
+  {
+    id: "comparison",
+    title: "משווים ולא בוחרים רק את מה שהתאים",
+    body: "בודקים כמה טווחים ודילוגים נוסו ומה מופיע גם בבדיקות השוואה. תוצאה נבחרת נקראת לצד מרחב החיפוש שממנו הגיעה.",
+    check: "האם מוצגים גם ניסיונות ההשוואה ולא רק ההתאמה שנבחרה?",
+    boundary: "ריבוי ניסיונות מגדיל את הסיכוי להתאמה מקרית ואסור להסתיר אותו.",
+    href: cipherReadingStepHref("comparison"),
+  },
+  {
+    id: "source",
+    title: "חוזרים למקור ולהקשר",
+    body: "לאחר קריאת הרצף חוזרים לפסוקים או ליחידה שבהם נמצאו האותיות. קוראים את לשון המקור בלי להפוך את הרצף לציטוט חדש.",
+    check: "האם מראה המקום וההקשר זמינים לצד רצף האותיות?",
+    boundary: "רצף אותיות אינו מחליף את הפסוקים שמהם נלקחו האותיות.",
+    href: cipherReadingStepHref("source"),
+  },
+  {
+    id: "interpretation",
+    title: "מפרידים בין תבנית לפירוש",
+    body: "מסיימים בהבחנה בין מה שהמנוע מצא, ההשוואות שנעשו והמשמעות שמציעים. הפירוש נשאר הזמנה להתבוננות.",
+    check: "מהי התוצאה המחושבת, מה נלמד מן ההשוואה ומה מוצע כפירוש?",
+    boundary: "התאמה בדילוג אותיות אינה לבדה הוכחה לכוונה, לנבואה או לקשר היסטורי.",
+    href: cipherReadingStepHref("interpretation"),
+  },
+]);
+
+const CIPHER_READING_STEP_VALUES = new Set(CIPHER_READING_STEPS.map((step) => step.id));
+
+const CIPHER_READING_LESSON = Object.freeze({
+  id: "cipher-reading",
+  title: "לומדים לקרוא דילוג אותיות",
+  description: "מן הטקסט והתנאים אל האותיות, ההשוואה והפירוש — בלי להפוך תבנית למסקנה.",
+  href: "/beit-midrash?section=ciphers#cipher-reading-lesson",
+  anchor: "cipher-reading-lesson",
+  objectives: Object.freeze([
+    "לזהות את הטקסט, הטווח ותנאי החיפוש.",
+    "לחזור על תוצאה דרך מנוע הצפנים הקנוני.",
+    "לקרוא התאמה לצד ניסיונות ההשוואה.",
+    "להפריד בין תבנית מחושבת לבין פירוש.",
+  ]),
+  steps: CIPHER_READING_STEPS,
+  exercise: Object.freeze({
+    id: "cipher-search-space",
+    title: "נסו לקרוא נכון",
+    prompt: "מילה הופיעה אחרי שנבדקו דילוגים וטווחים רבים, אבל מוצגת רק ההתאמה שנבחרה. מה עדיין חסר כדי לקרוא את התוצאה באחריות?",
+    options: freezeItems([
+      { id: "meaning", label: "רק פירוש מרגש יותר למילה" },
+      { id: "comparison", label: "תנאי החיפוש, מרחב הניסיונות ובדיקות השוואה" },
+      { id: "game-points", label: "ניקוד גבוה יותר למשחק" },
+    ]),
+    correctOptionId: "comparison",
+    explanation: "התאמה נקראת יחד עם התנאים ומרחב החיפוש. בלי ההשוואה אי אפשר להעריך אם היא ייחודית או צפויה בין ניסיונות רבים.",
+    feedbackMode: "explanation-only",
+  }),
+  continuation: Object.freeze({
+    title: "לפתיחת כלי הצפנים",
+    href: "/code",
+  }),
+  progress: Object.freeze({
+    persistence: "url-only",
+    storesPersonalData: false,
+  }),
+});
+
 const NUMBER_GUIDE_CONCEPTS = freezeItems([
   {
     id: "number-page",
@@ -274,7 +382,7 @@ const NUMBER_GUIDE_CONCEPTS = freezeItems([
 ]);
 const NUMBER_GUIDE_CONCEPT_VALUES = new Set(NUMBER_GUIDE_CONCEPTS.map((concept) => concept.id));
 
-const LEARNING_PATHS = freezeItems([
+const LEARNING_PATH_DEFINITIONS = freezeItems([
   {
     id: "first-steps",
     title: "צעדים ראשונים",
@@ -295,6 +403,17 @@ const LEARNING_PATHS = freezeItems([
       { title: "בוחרים שיטה מן הרישום הקנוני", href: "/beit-midrash?section=methods" },
       { title: "קוראים את שלבי החישוב והזהירות", href: "/beit-midrash?section=methods" },
       { title: "מנסים בכלי הגימטריה", href: "/2029/gematria" },
+    ]),
+  },
+  {
+    id: "ciphers",
+    title: "צפנים ודילוגי אותיות",
+    description: "לומדים לקרוא את תנאי החיפוש, לחזור על התוצאה ולהבדיל בין תבנית לפירוש.",
+    href: "/beit-midrash?section=paths&path=ciphers#path-ciphers",
+    steps: Object.freeze([
+      { title: "לומדים לקרוא דילוג צעד אחר צעד", href: CIPHER_READING_LESSON.href },
+      { title: "חוזרים על התנאים בכלי הצפנים", href: "/code" },
+      { title: "לומדים לבדוק מקור והקשר", href: SOURCE_READING_LESSON.href },
     ]),
   },
   {
@@ -336,6 +455,7 @@ const LEARNING_PATHS = freezeItems([
     description: "מסלול מדורג להכרת המספר 1820, המקורות והשיטות שסביבו.",
     href: "/beit-midrash?section=paths&path=sod1820#path-sod1820",
     steps: Object.freeze([
+      { title: "פותחים את מצגת מסע 1820", href: BEIT_MIDRASH_SOD1820_PRESENTATION.href },
       { title: "מכירים את שכבות דף המספר", href: "/beit-midrash?section=numbers" },
       { title: "לומדים לקרוא את הפרופיל המתמטי", href: "/beit-midrash?section=numbers&concept=math-profile#number-concept-math-profile" },
       { title: "לומדים דרך חישוב", href: "/beit-midrash?section=methods" },
@@ -345,6 +465,46 @@ const LEARNING_PATHS = freezeItems([
     ]),
   },
 ]);
+
+const LEARNING_PATH_STEP_IDS = Object.freeze({
+  "first-steps": Object.freeze(["foundations", "method", "guided-example"]),
+  gematria: Object.freeze(["choose-method", "read-method", "calculator"]),
+  ciphers: Object.freeze(["cipher-lesson", "cipher-tool", "source-reading"]),
+  "number-page": Object.freeze(["number-guide", "fibonacci", "calculator"]),
+  sources: Object.freeze(["source-lesson", "canonical-source", "guided-return"]),
+  meetings: Object.freeze(["crossing", "convergence", "world-map"]),
+  sod1820: Object.freeze(["presentation", "number-layers", "math-profile", "method", "guided-example", "world-map", "heichal"]),
+});
+
+const learningPathStepHref = (pathId, stepId) => {
+  const path = encodeURIComponent(clean(pathId));
+  const step = encodeURIComponent(clean(stepId));
+  return `/beit-midrash?section=paths&path=${path}&pathStep=${step}#path-${path}-step-${step}`;
+};
+
+const LEARNING_PATHS = Object.freeze(LEARNING_PATH_DEFINITIONS.map((path) => Object.freeze({
+  ...path,
+  steps: freezeItems(path.steps.map((step, index) => {
+    const id = LEARNING_PATH_STEP_IDS[path.id]?.[index] || `step-${index + 1}`;
+    return {
+      ...step,
+      id,
+      pathHref: learningPathStepHref(path.id, id),
+    };
+  })),
+  progress: Object.freeze({
+    persistence: "url-only",
+    storesPersonalData: false,
+    completionInferred: false,
+  }),
+})));
+
+const LEARNING_PATH_VALUES = new Set(LEARNING_PATHS.map((path) => path.id));
+
+function learningPathOf(pathId) {
+  const id = clean(pathId);
+  return LEARNING_PATHS.find((path) => path.id === id) || null;
+}
 
 const SECTIONS = freezeItems([
   {
@@ -456,6 +616,67 @@ const DESTINATIONS = Object.freeze({
   }),
 });
 
+const PRACTICE_ACTIVITIES = freezeItems([
+  {
+    id: "source-independence",
+    title: "כמה מקורות יש כאן?",
+    description: "מתרגלים את ההבדל בין כמה הופעות של אותו מקום לבין מקורות עצמאיים.",
+    kind: "lesson-exercise",
+    href: sourceReadingStepHref("independence"),
+    actionLabel: "לתרגיל קריאת מקור",
+    feedbackMode: SOURCE_READING_LESSON.exercise.feedbackMode,
+    researchRating: false,
+  },
+  {
+    id: "cipher-comparison",
+    title: "מה צריך להשוות?",
+    description: "קוראים תוצאת דילוג לצד תנאי החיפוש והניסיונות שנבדקו.",
+    kind: "lesson-exercise",
+    href: cipherReadingStepHref("comparison"),
+    actionLabel: "לתרגיל קריאת דילוג",
+    feedbackMode: CIPHER_READING_LESSON.exercise.feedbackMode,
+    researchRating: false,
+  },
+  {
+    id: "calculation",
+    title: "חוזרים על חישוב",
+    description: "פותחים את כלי הגימטריה הקנוני ומנסים ביטוי ושיטה בלי ליצור מחשבון נוסף.",
+    kind: "canonical-tool",
+    href: DESTINATIONS.calculator.href,
+    actionLabel: DESTINATIONS.calculator.title,
+    feedbackMode: "tool-result",
+    researchRating: false,
+  },
+  {
+    id: "guided-discovery",
+    title: "קוראים נקודת מפגש",
+    description: "משתמשים בשאלות ההתבוננות על דוגמה ציבורית שנקראת מן העולם.",
+    kind: "guided-example",
+    href: "/beit-midrash?section=guided",
+    actionLabel: "לדוגמה מודרכת",
+    feedbackMode: "reflection-only",
+    researchRating: false,
+  },
+  {
+    id: "game",
+    title: "משחקים וזוכרים את הגבול",
+    description: "הניקוד שייך למשחק בלבד; הוא אינו מודד גילוי, מקור או אמת.",
+    kind: "preview-game",
+    href: DESTINATIONS.game.href,
+    actionLabel: DESTINATIONS.game.title,
+    status: DESTINATIONS.game.status,
+    feedbackMode: "game-only",
+    researchRating: false,
+  },
+]);
+
+const PRACTICE_ACTIVITY_VALUES = new Set(PRACTICE_ACTIVITIES.map((activity) => activity.id));
+
+function practiceActivityOf(activityId) {
+  const id = clean(activityId);
+  return PRACTICE_ACTIVITIES.find((activity) => activity.id === id) || null;
+}
+
 export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   identity: Object.freeze({
     eyebrow: "בית המדרש",
@@ -470,9 +691,17 @@ export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   ]),
   sections: SECTIONS,
   beginnerConcepts: BEGINNER_CONCEPTS,
+  cipherReadingLesson: CIPHER_READING_LESSON,
   sourceReadingLesson: SOURCE_READING_LESSON,
   numberGuideConcepts: NUMBER_GUIDE_CONCEPTS,
   learningPaths: LEARNING_PATHS,
+  sod1820Presentation: BEIT_MIDRASH_SOD1820_PRESENTATION,
+  practiceActivities: PRACTICE_ACTIVITIES,
+  practicePolicy: Object.freeze({
+    persistence: "url-only",
+    completionInferred: false,
+    gameScoreIsResearchRating: false,
+  }),
   destinations: DESTINATIONS,
   methodLesson: Object.freeze({
     source: "canonical-method-registry",
@@ -531,8 +760,13 @@ export function beitMidrashLearningHref(section, {
   guidedKind = null,
   findingId = null,
   pathId = null,
+  pathStepId = null,
+  activityId = null,
   conceptId = null,
   sourceStepId = null,
+  cipherStepId = null,
+  lessonId = null,
+  slideId = null,
   destinationId = null,
 } = {}) {
   const resolvedSection = safeSection(section) || BEIT_MIDRASH_LEARNING_SECTION.START;
@@ -544,7 +778,31 @@ export function beitMidrashLearningHref(section, {
   const kind = safeGuidedKind(guidedKind);
   if (resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.GUIDED && kind) params.set("kind", kind);
   if (clean(findingId)) params.set("finding", clean(findingId));
-  if (clean(pathId)) params.set("path", clean(pathId));
+  const requestedPath = clean(pathId);
+  const learningPath = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.PATHS
+    && LEARNING_PATH_VALUES.has(requestedPath)
+    ? learningPathOf(requestedPath)
+    : null;
+  const safePathId = learningPath?.id || null;
+  if (safePathId) params.set("path", safePathId);
+  const requestedPathStep = clean(pathStepId);
+  const pathStep = learningPath?.steps.find((step) => step.id === requestedPathStep) || null;
+  if (pathStep) params.set("pathStep", pathStep.id);
+  const presentationLesson = safePathId === "sod1820"
+    && clean(lessonId) === BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    ? BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    : null;
+  if (presentationLesson) params.set("lesson", presentationLesson);
+  const presentationSlide = presentationLesson && isBeitMidrashSod1820Slide(slideId)
+    ? clean(slideId)
+    : null;
+  if (presentationSlide) params.set("slide", presentationSlide);
+  const requestedActivity = clean(activityId);
+  const practiceActivity = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.PRACTICE
+    && PRACTICE_ACTIVITY_VALUES.has(requestedActivity)
+    ? practiceActivityOf(requestedActivity)
+    : null;
+  if (practiceActivity) params.set("activity", practiceActivity.id);
   const concept = clean(conceptId);
   const numberConcept = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
     && NUMBER_GUIDE_CONCEPT_VALUES.has(concept);
@@ -557,16 +815,30 @@ export function beitMidrashLearningHref(section, {
     ? requestedSourceStep
     : null;
   if (sourceStep) params.set("step", sourceStep);
+  const requestedCipherStep = clean(cipherStepId);
+  const cipherStep = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.CIPHERS
+    && CIPHER_READING_STEP_VALUES.has(requestedCipherStep)
+    ? requestedCipherStep
+    : null;
+  if (cipherStep) params.set("step", cipherStep);
   if (clean(destinationId)) params.set("to", clean(destinationId));
   const query = params.toString();
   const finding = clean(findingId);
   const anchor = finding
     ? `finding-${encodeURIComponent(finding)}`
-    : numberConcept
+    : presentationSlide
+      ? `sod1820-slide-${encodeURIComponent(presentationSlide)}`
+      : numberConcept
       ? `number-concept-${encodeURIComponent(concept)}`
       : sourceStep
         ? `source-step-${encodeURIComponent(sourceStep)}`
-        : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
+        : cipherStep
+          ? `cipher-step-${encodeURIComponent(cipherStep)}`
+          : pathStep
+            ? `path-${encodeURIComponent(safePathId)}-step-${encodeURIComponent(pathStep.id)}`
+            : safePathId
+              ? `path-${encodeURIComponent(safePathId)}`
+              : practiceActivity ? `practice-${encodeURIComponent(practiceActivity.id)}` : "";
   return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${anchor ? `#${anchor}` : ""}`;
 }
 
@@ -592,7 +864,29 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     ? (explicitKind || legacy?.guidedKind || null)
     : null;
   const findingId = clean(params.get("finding")) || null;
-  const pathId = clean(params.get("path")) || legacy?.pathId || null;
+  const requestedPath = clean(params.get("path")) || clean(legacy?.pathId);
+  const pathId = section === BEIT_MIDRASH_LEARNING_SECTION.PATHS
+    && LEARNING_PATH_VALUES.has(requestedPath)
+    ? requestedPath
+    : null;
+  const selectedPath = learningPathOf(pathId);
+  const requestedPathStep = clean(params.get("pathStep"));
+  const pathStepId = selectedPath?.steps.some((step) => step.id === requestedPathStep)
+    ? requestedPathStep
+    : null;
+  const lessonId = pathId === "sod1820"
+    && clean(params.get("lesson")) === BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    ? BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    : null;
+  const requestedSlide = clean(params.get("slide"));
+  const presentationSlideId = lessonId && isBeitMidrashSod1820Slide(requestedSlide)
+    ? requestedSlide
+    : null;
+  const requestedActivity = clean(params.get("activity"));
+  const activityId = section === BEIT_MIDRASH_LEARNING_SECTION.PRACTICE
+    && PRACTICE_ACTIVITY_VALUES.has(requestedActivity)
+    ? requestedActivity
+    : null;
   const requestedConcept = clean(params.get("concept"));
   const conceptId = section === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
     && NUMBER_GUIDE_CONCEPT_VALUES.has(requestedConcept)
@@ -603,6 +897,11 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     && SOURCE_READING_STEP_VALUES.has(requestedSourceStep)
     ? requestedSourceStep
     : null;
+  const requestedCipherStep = clean(params.get("step"));
+  const cipherStepId = section === BEIT_MIDRASH_LEARNING_SECTION.CIPHERS
+    && CIPHER_READING_STEP_VALUES.has(requestedCipherStep)
+    ? requestedCipherStep
+    : null;
   const destinationId = clean(params.get("to")) || legacy?.destinationId || null;
   const toolCompatibility = clean(params.get("tool")).toLowerCase() === "midrash";
 
@@ -612,8 +911,13 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     methodKey: requestedMethod,
     findingId,
     pathId,
+    pathStepId,
+    lessonId,
+    presentationSlideId,
+    activityId,
     conceptId,
     sourceStepId,
+    cipherStepId,
     destinationId,
     adminOnly: legacy?.adminOnly === true,
     compatibilitySource: legacyAtlas
@@ -628,11 +932,30 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       guidedKind,
       findingId,
       pathId,
+      pathStepId,
+      lessonId,
+      slideId: presentationSlideId,
+      activityId,
       conceptId,
       sourceStepId,
+      cipherStepId,
       destinationId,
     }),
     shouldRedirect: false,
+  });
+}
+
+export function buildBeitMidrashLearningPath(pathId, pathStepId = null) {
+  const path = learningPathOf(pathId);
+  if (!path) return null;
+  const requestedIndex = path.steps.findIndex((step) => step.id === clean(pathStepId));
+  const selectedIndex = requestedIndex >= 0 ? requestedIndex : 0;
+  return Object.freeze({
+    path,
+    selectedStep: path.steps[selectedIndex],
+    selectedIndex,
+    previousStep: selectedIndex > 0 ? path.steps[selectedIndex - 1] : null,
+    nextStep: selectedIndex < path.steps.length - 1 ? path.steps[selectedIndex + 1] : null,
   });
 }
 
@@ -737,6 +1060,7 @@ export function buildBeitMidrashGuidedExamples(worldProjection, {
 
 export function buildBeitMidrashLearningProjection({
   worldProjection = { rows: [] },
+  curationCatalog = null,
   methodKey = null,
   search = "",
   exampleLimit = DEFAULT_EXAMPLE_LIMIT,
@@ -745,6 +1069,11 @@ export function buildBeitMidrashLearningProjection({
   return Object.freeze({
     manifest: BEIT_MIDRASH_LEARNING_MANIFEST,
     location,
+    learningPath: buildBeitMidrashLearningPath(location.pathId, location.pathStepId),
+    sod1820Presentation: location.pathId === "sod1820"
+      ? buildBeitMidrashSod1820Presentation(curationCatalog, location.presentationSlideId)
+      : null,
+    practiceActivity: practiceActivityOf(location.activityId),
     guidedExamples: buildBeitMidrashGuidedExamples(worldProjection, {
       limit: exampleLimit,
       findingId: location.findingId,
@@ -752,6 +1081,8 @@ export function buildBeitMidrashLearningProjection({
     sources: Object.freeze({
       methods: "canonical-method-registry",
       guidedExamples: "worldAllResearchProjection",
+      diamonds: "curationProjection2029",
+      book: "book:ahavat-torah",
     }),
   });
 }

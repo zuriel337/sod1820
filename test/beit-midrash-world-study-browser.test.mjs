@@ -24,6 +24,7 @@ const projection = {
     {
       id: "research:f-public",
       sourceId: "f-public",
+      canonicalFindingHref: "/world?finding=f-public#finding-f-public",
       family: "research_object",
       statement: "שתי דרכי חישוב נפגשות באותו ערך",
       secondary: "הממצא נשמר עם המקור והיעד המדויק.",
@@ -90,6 +91,16 @@ const projection = {
   duplicateProjection: { nonDestructive: true },
 };
 
+const CATALOG_DIAMONDS = [
+  { id: "d-1", label: "אור", value: 207, kind: "diamond_core", description: "חתימה ראשונה" },
+  { id: "d-2", label: "סוד", value: 70, kind: "diamond_core", description: null },
+  { id: "d-3", label: "יהוה", value: 26, kind: "diamond_core", description: "השם המפורש" },
+  { id: "d-4", label: "תכלית", value: 850, kind: "diamond_core", description: null },
+  { id: "d-5", label: "אדני", value: 65, kind: "diamond_core", description: "שם נוסף" },
+  { id: "d-6", label: "צבאות", value: 499, kind: "diamond_core", description: null },
+  { id: "d-7", label: "קדוש", value: 410, kind: "diamond_core", description: null },
+];
+
 function fixturePlugin() {
   const modules = new Map([
     ["virtual:bm-auth.jsx", `export const useAuth=()=>({isAdmin:new URLSearchParams(window.location.search).get("fixtureAdmin")==="1",loading:false});`],
@@ -110,6 +121,7 @@ function fixturePlugin() {
     ["virtual:bm-review.js", `export const fetchWorldFindingReviewPage=async()=>({projection:window.__projection});`],
     ["virtual:bm-mode.js", `export const isPublishedScope=value=>String(value||"").trim().toLowerCase()==="public";`],
     ["virtual:bm-seo.js", `export const applySeo=()=>{};`],
+    ["virtual:bm-curation.js", `export const fetchCurationCatalog2029=async()=>{window.__curationCalls=(window.__curationCalls||0)+1;const mode=window.__curationMode||{};await new Promise((resolve)=>setTimeout(resolve,mode.delay||0));if(mode.error==="always"||(mode.error==="once"&&window.__curationCalls===1))throw new Error("curation unavailable");return {diamonds:window.__catalogDiamonds};};`],
   ]);
   const aliases = new Map([
     ["AuthContext.jsx", "virtual:bm-auth.jsx"],
@@ -127,6 +139,7 @@ function fixturePlugin() {
     ["worldFindingReviewClient.js", "virtual:bm-review.js"],
     ["researchViewMode.js", "virtual:bm-mode.js"],
     ["seo.js", "virtual:bm-seo.js"],
+    ["curationProjection2029.js", "virtual:bm-curation.js"],
   ]);
   return {
     name: "beit-midrash-browser-fixture",
@@ -143,7 +156,7 @@ function fixturePlugin() {
       server.middlewares.use(async (request, response, next) => {
         if (!request.url?.startsWith("/beit-midrash")) return next();
         response.setHeader("Content-Type", "text/html; charset=utf-8");
-        const html = `<div id="root"></div><script>window.__projection=${JSON.stringify(projection)}</script><script type="module" src="/test/fixtures/beit-midrash-browser-entry.jsx"></script>`;
+        const html = `<div id="root"></div><script>window.__projection=${JSON.stringify(projection)};window.__catalogDiamonds=${JSON.stringify(CATALOG_DIAMONDS)}</script><script type="module" src="/test/fixtures/beit-midrash-browser-entry.jsx"></script>`;
         response.end(await server.transformIndexHtml(request.url, html));
       });
     },
@@ -246,8 +259,31 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     const guidedCard = page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"]');
     assert.equal(await guidedCard.locator(`a[href="${publicZviHref}"]`).count(), 2, "author and discovery open the same public source home");
     assert.equal(await guidedCard.locator('a[href*="admin=1"]').count(), 0);
-    await guidedCard.getByRole("link", { name: "לפתיחת הגילוי והמקור בעולם" }).click();
-    const handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    // The discovery opens its exact World finding; the source home stays a separate, working route.
+    const exactHref = "/world?finding=f-public#finding-f-public";
+    assert.equal(await guidedCard.locator("[data-world-finding-link]").getAttribute("href"), exactHref);
+    assert.equal(await guidedCard.locator("[data-world-source-link]").getAttribute("href"), publicZviHref);
+    assert.equal(await guidedCard.locator('a[href*="admin"]').count(), 0);
+    const unmatched = page.locator('[data-guided-concept="crossing"][data-finding-id="f-unmatched"]');
+    assert.equal(await unmatched.locator("[data-world-finding-link]").count(), 0, "no verified route, no invented finding link");
+
+    // Contributor identity records the same source context, but its Link owns navigation.
+    // It must never be intercepted and redirected through the separate World source action.
+    await page.evaluate(() => { delete window.__researchContext; delete window.__shellGo; });
+    await guidedCard.locator(".bm-contributor-link").click();
+    assert.equal(new URL(page.url()).pathname + new URL(page.url()).search + new URL(page.url()).hash, publicZviHref);
+    let contributorHandoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    assert.equal(contributorHandoff.navigation, undefined, "contributor Link must not call shell.go");
+    assert.equal(contributorHandoff.context.selection.findingId, "f-public");
+    await page.goto(`${origin}/beit-midrash?section=guided&kind=crossing&finding=f-public`);
+    await page.waitForSelector('[data-finding-id="f-public"]');
+
+    await guidedCard.getByRole("link", { name: "לפתיחת הגילוי המלא בעולם" }).click();
+    let handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    assert.equal(handoff.navigation.href, exactHref);
+    assert.equal(handoff.context.selection.findingId, "f-public");
+    await guidedCard.getByRole("link", { name: "לעמוד המקור בעולם" }).click();
+    handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
     assert.equal(handoff.navigation.href, publicZviHref);
     assert.equal(handoff.context.selection.findingId, "f-public");
     assert.equal(handoff.context.selection.sourceRef, "channel_updates:source-1#a2");
@@ -311,7 +347,7 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     assert.equal(await page.locator('#numbers a[href^="/2029/number/"]').count(), 0);
     await page.goto(`${origin}/beit-midrash?section=paths&path=sod1820#path-sod1820`);
     await page.waitForSelector('#path-sod1820.is-focused');
-    assert.equal(await page.locator('#path-sod1820 .bm-path-steps>li').count(), 6);
+    assert.equal(await page.locator('#path-sod1820 .bm-path-steps>li').count(), 7);
     assert.equal(await page.locator('#path-sod1820 a[href*="concept=math-profile"]').count(), 1);
     assert.equal(await page.locator('#path-sod1820 a[href^="/2029/number/"]').count(), 0);
 
@@ -533,14 +569,14 @@ test("teaching illustrations are presentational, bounded, quiet and motion-safe"
           const borders = (el) => parseFloat(getComputedStyle(el).borderTopWidth) + parseFloat(getComputedStyle(el).borderLeftWidth);
           const spiral = document.querySelector('[data-illustration="fibonacci-spiral"]');
           const lesson = document.querySelector(".bm-number-lesson");
-          const trail = document.querySelector('[data-illustration="source-trail"]');
+          const trail = document.querySelector("#sources .bm-reading-trail");
           const sources = document.querySelector("#sources");
           const trails = [...document.querySelectorAll('[data-illustration="path-trail"]')];
           const meetings = [...document.querySelectorAll('[data-illustration^="meeting-"]')];
           return {
             scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth,
             spiral: { hidden: spiral.getAttribute("aria-hidden"), inside: within(spiral, lesson), h: rect(spiral).h, border: borders(spiral), centred: Math.abs((rect(spiral).l + rect(spiral).r) / 2 - (rect(lesson).l + rect(lesson).r) / 2) },
-            trail: { items: [...trail.querySelectorAll("li strong")].map((el) => el.textContent), inside: within(trail, sources), label: trail.getAttribute("aria-label"), border: borders(trail), ordered: trail.tagName },
+            trail: { items: trail.querySelectorAll("li").length, inside: within(trail, sources), border: borders(trail), ordered: trail.tagName },
             paths: trails.map((el) => ({ hidden: el.getAttribute("aria-hidden"), dots: el.children.length, steps: Number(el.dataset.steps), inside: within(el, el.closest("li")), border: borders(el) })),
             meetings: meetings.map((el) => ({ kind: el.dataset.illustration, svgHidden: el.querySelector("svg").getAttribute("aria-hidden"), caption: el.querySelector("small").textContent, inCard: Boolean(el.closest(".bm-example-card")), inside: within(el, el.closest(".bm-guided-group")), border: borders(el) })),
             flowBorder: null,
@@ -550,7 +586,7 @@ test("teaching illustrations are presentational, bounded, quiet and motion-safe"
         assert.equal(r.spiral.hidden, "true");
         assert.ok(r.spiral.inside && r.spiral.centred <= 2 && r.spiral.h > 60, `${tag} spiral bounded and centred`);
         assert.equal(r.spiral.border, 0, `${tag} spiral is not boxed`);
-        assert.deepEqual(r.trail.items, ["מקור", "הקשר", "ציטוט", "בדיקה"], `${tag} source order`);
+        assert.equal(r.trail.items, 7, `${tag} seven source steps`);
         assert.equal(r.trail.ordered, "OL");
         assert.ok(r.trail.inside && r.trail.border === 0, `${tag} source trail bounded, unboxed`);
         assert.ok(r.paths.length >= 5, `${tag} path trails`);
@@ -569,17 +605,477 @@ test("teaching illustrations are presentational, bounded, quiet and motion-safe"
       }
     }
     // Reduced motion silences every illustration; the drawings stay fully visible.
-    const anim = () => page.evaluate(() => [".bm-spiral-path", ".bm-source-trail li", ".bm-path-trail i", ".bm-meeting-line"]
+    const anim = () => page.evaluate(() => [".bm-spiral-path", ".bm-reading-trail li", ".bm-path-trail i", ".bm-meeting-line"]
       .map((selector) => getComputedStyle(document.querySelector(selector)).animationName));
     assert.ok((await anim()).every((name) => name !== "none"), "motion plays when allowed");
     await page.emulateMedia({ reducedMotion: "reduce" });
     assert.deepEqual([...new Set(await anim())], ["none"]);
     assert.equal(await page.locator(".bm-spiral-path").evaluate((el) => getComputedStyle(el).strokeDashoffset), "0px");
-    assert.equal(await page.locator(".bm-source-trail li").first().evaluate((el) => getComputedStyle(el).opacity), "1");
+    assert.equal(await page.locator(".bm-reading-trail li").first().evaluate((el) => getComputedStyle(el).opacity), "1");
     assert.equal(requests, 0, "illustrations add no reader or fetch");
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
     await server.close();
+  }
+});
+
+const READING_LESSONS = [
+  {
+    kind: "source", section: "sources", pick: "independence", pickNo: 5, next: "interpretation",
+    stepIds: ["locator", "context", "quotation", "calculation", "independence", "interpretation", "return"],
+    texts: [/כמה הופעות שחוזרות לאותו מקום/, /האם כל הופעה חוזרת למקום אחר/, /מספר ההופעות אינו מספר המקורות העצמאיים/],
+    option: /שלושה מקורות עצמאיים/, explanation: /יש כאן שלוש הופעות של מקור אחד/, continuation: ["לתרגול בנקודת מפגש", "/beit-midrash?section=guided"],
+    strip: "שבעת שלבי קריאת המקור",
+  },
+  {
+    kind: "cipher", section: "ciphers", pick: "comparison", pickNo: 5, next: "source",
+    stepIds: ["text", "parameters", "letters", "repeat", "comparison", "source", "interpretation"],
+    texts: [/האם מוצגים גם ניסיונות ההשוואה ולא רק ההתאמה שנבחרה/, /ריבוי ניסיונות מגדיל את הסיכוי להתאמה מקרית/],
+    option: /רק פירוש מרגש יותר/, explanation: /התאמה נקראת יחד עם התנאים ומרחב החיפוש/, continuation: ["לפתיחת כלי הצפנים", "/code"],
+    strip: "שבעת שלבי קריאת הדילוג", illustration: true,
+  },
+];
+
+for (const spec of READING_LESSONS) {
+  test(`${spec.kind} reading lesson: seven-step strip, centred lesson, explained exercise, no stored progress`, { skip: !available, timeout: 120_000 }, async () => {
+    const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()], server: { host: "127.0.0.1", port: 0 } });
+    let browser;
+    try {
+      await server.listen();
+      const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+      browser = await playwright.chromium.launch({ headless: true, executablePath });
+      const page = await (await browser.newContext({ reducedMotion: "no-preference" })).newPage();
+      const errors = [];
+      let requests = 0;
+      page.on("pageerror", (error) => errors.push(error.message));
+      page.on("console", (message) => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) errors.push(message.text()); });
+      page.on("request", (request) => { if (/supabase|\/rest\/v1|\/rpc\//.test(request.url())) requests += 1; });
+      const shots = process.env.BM_SHOTS_DIR;
+      const root$ = `#${spec.section}`;
+      const stepSel = `${root$} .bm-reading-step`;
+      const deep = `${origin}/beit-midrash?section=${spec.section}&step=${spec.pick}#${spec.kind}-step-${spec.pick}`;
+
+      for (const theme of ["day", "card", "night"]) {
+        for (const width of [320, 390, 1280]) {
+          await page.setViewportSize({ width, height: 900 });
+          await page.goto(deep);
+          await page.waitForSelector(`#${spec.kind}-step-${spec.pick}[data-${spec.kind}-step="${spec.pick}"]`);
+          await page.evaluate((next) => window.__setTheme(next), theme);
+          await page.waitForTimeout(700);
+          const tag = `${theme} ${width}px`;
+          const m = await page.evaluate(({ rootSel, kind }) => {
+            const rect = (el) => { const b = el.getBoundingClientRect(); return { l: b.left, r: b.right }; };
+            const section = document.querySelector(rootSel);
+            const lesson = section.querySelector(".bm-reading-step");
+            const strip = section.querySelector(".bm-reading-trail");
+            const links = [...strip.querySelectorAll("a")];
+            const art = section.querySelector(".bm-skip");
+            return {
+              scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth,
+              stepLinks: links.map((a) => a.getAttribute(`data-${kind}-step-link`)),
+              current: links.filter((a) => a.getAttribute("aria-current") === "step").map((a) => a.getAttribute(`data-${kind}-step-link`)),
+              heights: links.map((a) => a.getBoundingClientRect().height),
+              stripInside: rect(strip).l >= rect(section).l - 1 && rect(strip).r <= rect(section).r + 1,
+              lessonInside: rect(lesson).l >= rect(section).l - 1 && rect(lesson).r <= rect(section).r + 1,
+              centred: Math.abs((rect(lesson).l + rect(lesson).r) / 2 - (rect(section).l + rect(section).r) / 2),
+              stripScrolls: strip.scrollWidth > strip.clientWidth,
+              headings: [...lesson.querySelectorAll("h5, aside>strong")].map((el) => el.textContent),
+              eyebrow: lesson.querySelector("header>span").textContent,
+              text: lesson.innerText,
+              radios: section.querySelectorAll('.bm-reading-exercise input[type="radio"]').length,
+              radioHeights: [...section.querySelectorAll(".bm-reading-exercise label")].map((el) => el.getBoundingClientRect().height),
+              fonts: { title: getComputedStyle(lesson.querySelector("h4")).fontFamily, body: getComputedStyle(lesson.querySelector("p")).fontFamily, link: getComputedStyle(links[0]).fontFamily },
+              art: art ? { hidden: art.querySelector("svg").getAttribute("aria-hidden"), caption: art.querySelector("small").textContent, inside: rect(art).l >= rect(section).l - 1 && rect(art).r <= rect(section).r + 1 } : null,
+              label: strip.closest("nav").getAttribute("aria-label"),
+            };
+          }, { rootSel: root$, kind: spec.kind });
+          assert.ok(m.scrollWidth <= m.viewport + 1, `${tag} overflow`);
+          assert.deepEqual(m.stepLinks, spec.stepIds, `${tag} seven steps in manifest order`);
+          assert.deepEqual(m.current, [spec.pick], `${tag} one current step`);
+          assert.equal(m.label, spec.strip);
+          assert.ok(m.heights.every((h) => h >= 44), `${tag} strip touch targets`);
+          assert.ok(m.stripInside && m.lessonInside, `${tag} strip and lesson stay inside the section`);
+          assert.ok(m.centred <= 2, `${tag} lesson centred (${m.centred})`);
+          if (width >= 1280) assert.equal(m.stripScrolls, false, `${tag} all seven steps visible on desktop`);
+          assert.deepEqual(m.headings, ["מה עושים?", "איך בודקים?", "הגבול שחשוב לזכור"]);
+          assert.equal(m.eyebrow, `שלב ${spec.pickNo} מתוך 7`);
+          for (const text of spec.texts) assert.match(m.text, text);
+          assert.equal(m.radios, 3);
+          assert.ok(m.radioHeights.every((h) => h >= 44), `${tag} option touch targets`);
+          assert.match(m.fonts.title, /^"?Rubik/);
+          assert.match(m.fonts.body, /^"?Noto Sans Hebrew/);
+          assert.match(m.fonts.link, /^"?Rubik/);
+          if (spec.illustration) {
+            assert.ok(m.art && m.art.hidden === "true" && m.art.caption === "המחשה בלבד" && m.art.inside, `${tag} skip illustration is decorative, labelled and bounded`);
+          } else assert.equal(m.art, null);
+          if (shots && theme !== "card") await page.locator(root$).screenshot({ path: `${shots}/${spec.kind}-lesson-${theme}-${width}.png` });
+        }
+      }
+
+      // Default step, fallback, keyboard, URL-only progress.
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.goto(`${origin}/beit-midrash?section=${spec.section}`);
+      await page.waitForSelector(stepSel);
+      assert.equal(await page.locator(stepSel).getAttribute(`data-${spec.kind}-step`), spec.stepIds[0]);
+      assert.match(await page.locator(`${stepSel} header>span`).innerText(), /שלב 1 מתוך 7/);
+      await page.goto(`${origin}/beit-midrash?section=${spec.section}&step=not-a-step`);
+      assert.equal(await page.locator(stepSel).getAttribute(`data-${spec.kind}-step`), spec.stepIds[0], "unknown step falls back without inventing one");
+      const second = page.locator(`${root$} [data-${spec.kind}-step-link="${spec.stepIds[1]}"]`);
+      await second.focus();
+      const ring = await second.evaluate((el) => ({ style: getComputedStyle(el).outlineStyle, width: parseFloat(getComputedStyle(el).outlineWidth) }));
+      assert.equal(ring.style, "solid");
+      assert.ok(ring.width >= 2);
+      await page.keyboard.press("Tab");
+      assert.equal(await page.evaluate((kind) => document.activeElement.getAttribute(`data-${kind}-step-link`), spec.kind), spec.stepIds[2], "keyboard order follows the steps");
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(({ sel, id, kind }) => document.querySelector(sel)?.getAttribute(`data-${kind}-step`) === id, { sel: stepSel, id: spec.stepIds[2], kind: spec.kind });
+      assert.match(page.url(), new RegExp(`step=${spec.stepIds[2]}`));
+      await page.locator(`${root$} .bm-reading-step footer a`).click();
+      await page.waitForFunction(({ sel, id, kind }) => document.querySelector(sel)?.getAttribute(`data-${kind}-step`) === id, { sel: stepSel, id: spec.stepIds[3], kind: spec.kind });
+      await page.goto(`${origin}/beit-midrash?section=${spec.section}&step=${spec.stepIds[6]}`);
+      await page.waitForSelector(`${stepSel}[data-${spec.kind}-step="${spec.stepIds[6]}"]`);
+      assert.equal(await page.locator(`${stepSel} footer`).count(), 0, "last step has no next link");
+
+      // Exercise: explanation only; no score, verdict wording, storage or network.
+      const form = page.locator(`${root$} .bm-reading-exercise`);
+      assert.equal(await form.locator("details").evaluate((el) => el.open), false);
+      await form.getByLabel(spec.option).check();
+      await form.locator("summary").click();
+      const explanation = await form.locator("details").innerText();
+      assert.match(explanation, spec.explanation);
+      // Option labels are manifest content (a distractor may mention points); the feedback itself carries no verdict.
+      for (const verdict of ["נכון!", "שגוי", "ניקוד", "ציון", "הצלחת", "טעית"]) assert.ok(!explanation.includes(verdict), `no verdict word ${verdict}`);
+      assert.equal(await form.locator('[role="status"], [role="alert"], [aria-live], .is-correct, .is-wrong, [data-correct]').count(), 0, "no marking of the chosen option");
+      assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0, "no stored progress");
+      assert.equal(await page.evaluate(() => document.cookie), "");
+      assert.equal(requests, 0, "the lesson adds no reader or fetch");
+      assert.equal(await page.locator(`${root$} .bm-reading-next`).getAttribute("href"), spec.continuation[1]);
+      assert.equal(await page.locator(`${root$} .bm-reading-next`).innerText(), spec.continuation[0]);
+
+      // Reduced motion silences the strip while every step stays visible.
+      const anim = () => page.evaluate((sel) => getComputedStyle(document.querySelector(`${sel} .bm-reading-trail li`)).animationName, root$);
+      assert.notEqual(await anim(), "none");
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      assert.equal(await anim(), "none");
+      assert.equal(await page.locator(`${root$} .bm-reading-trail li`).last().evaluate((el) => getComputedStyle(el).opacity), "1");
+      if (spec.illustration) {
+        assert.equal(await page.locator(`${root$} .bm-skip-hop`).first().evaluate((el) => getComputedStyle(el).animationName), "none");
+      }
+      assert.deepEqual(errors, []);
+    } finally {
+      await browser?.close();
+      await server.close();
+    }
+  });
+}
+
+test("learning paths keep exact manifest links and imply no saved completion", { skip: !available, timeout: 60_000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath });
+    const page = await browser.newPage();
+    for (const width of [320, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`${origin}/beit-midrash?section=paths&path=ciphers#path-ciphers`);
+      await page.waitForSelector("#path-ciphers.is-focused .bm-path-steps");
+      const steps = await page.locator("#path-ciphers .bm-path-steps a").evaluateAll((links) => links.map((a) => [a.textContent.trim(), a.getAttribute("href")]));
+      assert.deepEqual(steps, [
+        ["לומדים לקרוא דילוג צעד אחר צעד", "/beit-midrash?section=ciphers#cipher-reading-lesson"],
+        ["חוזרים על התנאים בכלי הצפנים", "/code"],
+        ["לומדים לבדוק מקור והקשר", "/beit-midrash?section=sources#source-reading-lesson"],
+      ]);
+      const text = await page.locator("#path-ciphers").innerText();
+      for (const done of ["הושלם", "הושלמו", "נשמר", "התקדמות", "%"]) assert.ok(!text.includes(done), `path implies no progress: ${done}`);
+      assert.ok((await page.evaluate(() => document.documentElement.scrollWidth)) <= width + 1);
+      assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0);
+      const heights = await page.locator("#path-ciphers a").evaluateAll((links) => links.map((a) => a.getBoundingClientRect().height));
+      assert.ok(heights.every((h) => h >= 44), "path links meet the touch target");
+    }
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+const PRESENTATION_SLIDES = ["opening", "five-books", "reading-boundary", "number-structures", "kedusha", "birkat-kohanim", "book-catalog", "historic-methods", "strong-1820", "bibi-examples", "diamonds"];
+const PRESENTATION_ENTRY = "/beit-midrash?section=paths&path=sod1820";
+const PRESENTATION_OPEN = `${PRESENTATION_ENTRY}&lesson=sod1820`;
+const FIXTURE_IMAGE = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><rect x="40" y="10" width="80" height="70" rx="8" fill="#888" opacity=".25"/></svg>');
+
+async function openBrowserForPresentation() {
+  const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()], server: { host: "127.0.0.1", port: 0 } });
+  await server.listen();
+  const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+  const browser = await playwright.chromium.launch({ headless: true, executablePath });
+  const context = await browser.newContext({ reducedMotion: "no-preference" });
+  const page = await context.newPage();
+  const seen = { errors: [], rest: 0, media: [], foreign: [] };
+  page.on("pageerror", (error) => seen.errors.push(error.message));
+  page.on("console", (message) => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) seen.errors.push(message.text()); });
+  await page.route(/sod1820\.co\.il|supabase\.co\/storage/, (route) => { seen.media.push(route.request().url()); return route.fulfill({ contentType: "image/svg+xml", body: FIXTURE_IMAGE }); });
+  page.on("request", (request) => {
+    const url = request.url();
+    if (/\/rest\/v1|\/rpc\//.test(url)) seen.rest += 1;
+    if (!url.startsWith(origin) && !/sod1820\.co\.il|supabase\.co\/storage/.test(url) && !url.startsWith("data:")) seen.foreign.push(url);
+  });
+  return { server, browser, page, origin, seen };
+}
+
+test("1820 presentation: opens only with its lesson, one shared diamonds read, exact slide order", { skip: !available, timeout: 120_000 }, async () => {
+  const env = await openBrowserForPresentation();
+  const { page, origin, seen } = env;
+  try {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    // Path open without the lesson: an invitation, no presentation, no catalogue read.
+    await page.goto(`${origin}${PRESENTATION_ENTRY}#path-sod1820`);
+    await page.waitForSelector('[data-presentation-open="true"]');
+    assert.equal(await page.locator(".bm-presentation").count(), 0);
+    assert.equal(await page.evaluate(() => window.__curationCalls || 0), 0, "no diamonds read before the lesson opens");
+    // Other paths never open it either.
+    await page.goto(`${origin}/beit-midrash?section=paths&path=ciphers&lesson=sod1820`);
+    await page.waitForSelector("#path-ciphers");
+    assert.equal(await page.locator(".bm-presentation").count(), 0);
+    assert.equal(await page.evaluate(() => window.__curationCalls || 0), 0);
+
+    await page.goto(`${origin}${PRESENTATION_OPEN}&slide=opening#sod1820-slide-opening`);
+    await page.waitForSelector('.bm-slide[data-slide="opening"]');
+    assert.equal(await page.locator(".bm-presentation").count(), 1);
+    assert.deepEqual(await page.locator("[data-slide-link]").evaluateAll((links) => links.map((a) => a.dataset.slideLink)), PRESENTATION_SLIDES);
+    assert.equal(await page.locator('[data-slide-link][aria-current="step"]').count(), 1);
+    assert.match(await page.locator(".bm-slide>header>span").innerText(), /פתיחה · תחנה 1 מתוך 11/);
+    assert.equal(await page.locator("a:has-text('→')").count(), 0, "no previous link on the first station");
+
+    // Walk every station through the Next link: one station at a time, URL-addressable.
+    const text = {};
+    for (let index = 0; index < PRESENTATION_SLIDES.length; index += 1) {
+      const id = PRESENTATION_SLIDES[index];
+      await page.waitForSelector(`.bm-slide[data-slide="${id}"]`);
+      assert.equal(await page.locator(".bm-slide").count(), 1, `${id}: one station at a time`);
+      assert.equal(await page.locator("img").count() <= 1, true);
+      text[id] = await page.locator(".bm-slide").innerText();
+      assert.match(page.url(), new RegExp(`slide=${id}`));
+      assert.equal(await page.locator('[data-slide-link][aria-current="step"]').getAttribute("data-slide-link"), id);
+      const next = page.locator('.bm-presentation-nav a[rel="next"]');
+      if (index < PRESENTATION_SLIDES.length - 1) { await next.click(); } else assert.equal(await next.count(), 0, "diamonds is the last station");
+    }
+
+    // Content rules.
+    assert.match(text["five-books"], /165/); for (const n of ["398", "311", "396", "550", "165 + 398 + 311 + 396 + 550 = 1820"]) assert.ok(text["five-books"].includes(n), n);
+    assert.match(text.birkatkohanim ?? text["birkat-kohanim"], /אושר על־ידי צוריאל · מראה מקום מדויק בבנייה/);
+    assert.ok(text["historic-methods"].includes("1820") && text["historic-methods"].includes("1829") && text["historic-methods"].includes("בראשית") && text["historic-methods"].includes("פער שיטה פתוח"));
+    assert.ok(text["bibi-examples"].includes("מחוץ לציר חישובי 1820"));
+    assert.ok(text["bibi-examples"].includes("683") && text["bibi-examples"].includes("386") && text["bibi-examples"].includes("631"));
+    assert.ok(!text["bibi-examples"].includes("= 1820"), "Bibi stays off the 1820 axis");
+    for (const [id, body] of Object.entries(text)) {
+      for (const banned of ["מקור אומת", "ציון אמת", "מצב אימות", "איכות ראיות", "ביטחון", "ממצא מחקר", "מאגר ממצאים"]) assert.ok(!body.includes(banned), `${id} must not say ${banned}`);
+    }
+    assert.ok(text["kedusha"].includes("אושר על־ידי צוריאל · מראה מקום מדויק בבנייה"));
+
+    // Diamonds: all of the shared catalogue, each exactly once, only one reader call for the whole walk.
+    const ids = await page.locator("[data-diamond-id]").evaluateAll((items) => items.map((li) => li.dataset.diamondId));
+    assert.deepEqual(ids, CATALOG_DIAMONDS.map((diamond) => diamond.id), "every diamond once, in catalogue order");
+    assert.equal(new Set(ids).size, ids.length);
+    assert.equal(await page.locator(".bm-diamonds").getAttribute("data-diamond-count"), String(CATALOG_DIAMONDS.length));
+    for (const diamond of CATALOG_DIAMONDS) assert.ok((text.diamonds ?? await page.locator(".bm-slide").innerText()).includes(diamond.label));
+    assert.equal(await page.evaluate(() => window.__curationCalls), 1, "one shared diamonds read");
+    assert.equal(await page.locator(`a[href^="/2029/gematria?q="]`).count() >= CATALOG_DIAMONDS.length, true);
+    assert.equal(seen.rest, 0, "no canonical read besides the shared diamonds reader");
+    assert.deepEqual(seen.foreign, [], "no request leaves the app except the presentation's own media");
+    assert.deepEqual(seen.errors, []);
+  } finally {
+    await env.browser.close();
+    await env.server.close();
+  }
+});
+
+test("1820 presentation: exact Ahavat Torah selections, honest source labels, media with alt text", { skip: !available, timeout: 90_000 }, async () => {
+  const env = await openBrowserForPresentation();
+  const { page, origin } = env;
+  try {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const slide = (id) => page.goto(`${origin}${PRESENTATION_OPEN}&slide=${id}#sod1820-slide-${id}`).then(() => page.waitForSelector(`.bm-slide[data-slide="${id}"]`));
+    await slide("five-books");
+    const links = await page.locator(".bm-slide-sources a").evaluateAll((anchors) => anchors.map((a) => [a.textContent.trim(), a.getAttribute("href"), a.target]));
+    assert.equal(links.length, 2);
+    for (const [, href] of links) {
+      assert.ok(href.startsWith("/book/ahavat-torah?"), href);
+      assert.ok(href.endsWith("#selection"));
+      const url = new URL(href, "https://x.invalid");
+      assert.equal(url.searchParams.get("tab"), "dossier");
+      assert.equal(url.searchParams.get("page"), "6");
+      assert.match(url.searchParams.get("selection"), /^book-selection:book:ahavat-torah:book:hebrewbooks:5635#p6:[a-z_]+:v1$/);
+    }
+    assert.match(links[0][1], /tetragrammaton_grand_total_restated/);
+    assert.match(links[1][1], /per_parasha_tetragrammaton_table/);
+    assert.equal(await page.locator(".bm-slide-sources small").first().innerText(), "מראה מקום מדויק");
+    assert.equal(await page.locator(".bm-slide-media img").getAttribute("alt"), "המחשת מניין שמות הוי״ה בתורה");
+    assert.equal(await page.locator(".bm-slide-media img").getAttribute("loading"), "lazy");
+
+    await slide("book-catalog");
+    const catalog = await page.locator(".bm-slide-list a").evaluateAll((anchors) => anchors.map((a) => a.getAttribute("href")));
+    assert.equal(catalog.length, 6);
+    assert.ok(catalog.every((href) => href.startsWith("/book/ahavat-torah?") && href.includes("tab=dossier")));
+    assert.equal(new Set(catalog).size, 6);
+    assert.match(await page.locator(".bm-slide .bm-note").innerText(), /דף הספר עדיין בבנייה/);
+    assert.match(await page.locator(".bm-slide .bm-note").innerText(), /אינם עוקפים את נעילתו/);
+    assert.equal(await page.locator(".bm-slide-list small", { hasText: "החילוץ חלקי" }).count() > 0, true);
+
+    await slide("opening");
+    const opening = await page.locator(".bm-slide-sources li").evaluateAll((items) => items.map((li) => [li.querySelector("a")?.getAttribute("href"), li.querySelector("a")?.target, li.querySelector("small")?.textContent]));
+    assert.equal(opening[0][0], "https://www.youtube.com/watch?v=DClJVGBMCs0");
+    assert.equal(opening[0][1], "_blank");
+    assert.equal(opening[1][0], "/post/סוד-1820");
+    assert.ok(opening[2][0].startsWith("/book/ahavat-torah?"));
+    assert.equal(opening[2][2], "מראה המקום אותר · החילוץ חלקי");
+    assert.match(await page.locator(".bm-facts").innerText(), /אושר על־ידי צוריאל · מראה מקום מדויק בבנייה/);
+    assert.equal(await page.locator(".bm-facts").innerText().then((t) => /מקור אומת|אומת/.test(t)), false, "approval is never verification");
+
+    await slide("strong-1820");
+    assert.equal(await page.locator(".bm-slide-list li").count(), 5);
+    assert.equal(await page.locator('.bm-slide-list a[href^="/2029/gematria?q="]').count(), 5);
+    assert.equal(await page.locator(".bm-slide-list b", { hasText: "1820" }).count(), 5);
+  } finally {
+    await env.browser.close();
+    await env.server.close();
+  }
+});
+
+test("1820 presentation: keyboard, deep links, error and retry", { skip: !available, timeout: 90_000 }, async () => {
+  const env = await openBrowserForPresentation();
+  const { page, origin, seen } = env;
+  try {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto(`${origin}${PRESENTATION_OPEN}&slide=strong-1820#sod1820-slide-strong-1820`);
+    await page.waitForSelector('.bm-slide[data-slide="strong-1820"]');
+    await page.goto(`${origin}${PRESENTATION_OPEN}&slide=not-a-slide`);
+    await page.waitForSelector('.bm-slide[data-slide="opening"]');
+
+    const current = () => page.locator(".bm-slide").getAttribute("data-slide");
+    await page.locator("#sod1820-presentation").focus();
+    // Right-to-left: the left arrow advances, the right arrow goes back.
+    await page.keyboard.press("ArrowLeft");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "five-books");
+    await page.keyboard.press("ArrowLeft");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "reading-boundary");
+    await page.keyboard.press("ArrowRight");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "five-books");
+    await page.keyboard.press("End");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "diamonds");
+    await page.keyboard.press("Home");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "opening");
+    assert.equal(await current(), "opening");
+    assert.match(page.url(), /slide=opening/);
+
+    // Tab order: strip links, then previous/next; focus is visible on every stop.
+    const link = page.locator('[data-slide-link="five-books"]');
+    await link.focus();
+    const ring = await link.evaluate((el) => ({ style: getComputedStyle(el).outlineStyle, width: parseFloat(getComputedStyle(el).outlineWidth) }));
+    assert.equal(ring.style, "solid");
+    assert.ok(ring.width >= 2);
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.slideLink), "reading-boundary");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "reading-boundary");
+    const nextHref = await page.locator('.bm-presentation-nav a[rel="next"]').getAttribute("href");
+    assert.match(nextHref, /slide=number-structures/);
+    const touch = await page.locator(".bm-presentation-nav a, [data-slide-link]").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+    assert.ok(touch.every((h) => h >= 44), "touch targets");
+
+    // Typing elsewhere never hijacks the keys: arrows inside a form control are ignored.
+    await page.evaluate(() => { const i = document.createElement("input"); i.id = "probe"; document.querySelector("#sod1820-presentation").append(i); });
+    await page.locator("#probe").focus();
+    await page.keyboard.press("ArrowLeft");
+    assert.equal(await current(), "reading-boundary");
+
+    // Reader failure: no invented list; retry succeeds.
+    await page.addInitScript(() => { window.__curationMode = { error: "once" }; });
+    await page.goto(`${origin}${PRESENTATION_OPEN}&slide=diamonds#sod1820-slide-diamonds`);
+    await page.waitForSelector('[data-frame-state="error"]');
+    assert.equal(await page.locator("[data-diamond-id]").count(), 0);
+    assert.match(await page.locator(".bm-slide").innerText(), /לא מוצגת רשימה חלופית/);
+    await page.getByRole("button", { name: "נסו שוב" }).click();
+    await page.waitForSelector("[data-diamond-id]");
+    assert.equal(await page.locator("[data-diamond-id]").count(), CATALOG_DIAMONDS.length);
+    assert.equal(await page.evaluate(() => window.__curationCalls), 2);
+    assert.equal(seen.rest, 0);
+    assert.deepEqual(seen.errors, []);
+  } finally {
+    await env.browser.close();
+    await env.server.close();
+  }
+});
+
+test("1820 presentation: nine theme/width combinations, centred, flat and motion-safe", { skip: !available, timeout: 180_000 }, async () => {
+  const env = await openBrowserForPresentation();
+  const { page, origin, seen } = env;
+  try {
+    const shots = process.env.BM_SHOTS_DIR;
+    for (const theme of ["day", "card", "night"]) {
+      for (const width of [320, 390, 1280]) {
+        for (const slideId of ["five-books", "historic-methods", "diamonds"]) {
+          await page.setViewportSize({ width, height: 900 });
+          await page.goto(`${origin}${PRESENTATION_OPEN}&slide=${slideId}#sod1820-slide-${slideId}`);
+          await page.waitForSelector(`.bm-slide[data-slide="${slideId}"]`);
+          if (slideId === "diamonds") await page.waitForSelector("[data-diamond-id]");
+          await page.evaluate((next) => window.__setTheme(next), theme);
+          await page.waitForTimeout(500);
+          const tag = `${theme} ${width}px ${slideId}`;
+          const m = await page.evaluate(() => {
+            const rect = (el) => { const b = el.getBoundingClientRect(); return { l: b.left, r: b.right, w: b.width }; };
+            const box = document.querySelector(".bm-presentation");
+            const main = document.querySelector(".sod29-midrash");
+            const slide = document.querySelector(".bm-slide");
+            const nested = [...box.querySelectorAll(".bm-slide *")].filter((el) => {
+              const style = getComputedStyle(el);
+              const boxed = parseFloat(style.borderTopWidth) > 0 && parseFloat(style.borderLeftWidth) > 0 && parseFloat(style.borderRightWidth) > 0 && parseFloat(style.borderBottomWidth) > 0;
+              return boxed && !["bm-tag"].some((cls) => el.classList.contains(cls)) && el.tagName !== "IMG" && el.tagName !== "B" && el.tagName !== "BUTTON" && el.tagName !== "A";
+            }).map((el) => `${el.tagName}.${el.className}`);
+            return {
+              scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth,
+              inside: rect(box).l >= rect(main).l - 1 && rect(box).r <= rect(main).r + 1,
+              centred: Math.abs((rect(box).l + rect(box).r) / 2 - (rect(main).l + rect(main).r) / 2),
+              stripHeights: [...box.querySelectorAll("[data-slide-link]")].map((a) => a.getBoundingClientRect().height),
+              navHeights: [...box.querySelectorAll(".bm-presentation-nav a")].map((a) => a.getBoundingClientRect().height),
+              overflowing: [...slide.querySelectorAll("*")].filter((el) => rect(el).r > rect(box).r + 1 || rect(el).l < rect(box).l - 1).map((el) => `${el.tagName}.${el.className}`).slice(0, 3),
+              nested,
+              fonts: { title: getComputedStyle(box.querySelector("h5")).fontFamily, body: getComputedStyle(slide.querySelector("header>p")).fontFamily, ui: getComputedStyle(box.querySelector("[data-slide-link]")).fontFamily, num: getComputedStyle(slide.querySelector("b, .bm-slide-equation, .bm-facts dd")).fontFamily },
+              hint: box.querySelector(".bm-presentation-hint").textContent,
+            };
+          });
+          assert.ok(m.scrollWidth <= m.viewport + 1, `${tag} overflow`);
+          assert.ok(m.inside && m.centred <= 2, `${tag} centred (${m.centred})`);
+          assert.ok(m.stripHeights.every((h) => h >= 44) && m.navHeights.every((h) => h >= 44), `${tag} touch targets`);
+          assert.deepEqual(m.overflowing, [], `${tag} nothing leaves the frame`);
+          assert.deepEqual(m.nested, [], `${tag} no nested boxes`);
+          assert.match(m.fonts.title, /^"?Rubik/, `${tag} title font`);
+          assert.match(m.fonts.body, /^"?Noto Sans Hebrew/, `${tag} body font`);
+          assert.match(m.fonts.ui, /^"?Rubik/, `${tag} ui font`);
+          if (slideId === "five-books") assert.match(m.fonts.num, /Plex Mono|Roboto Mono/, `${tag} numeric font`);
+          if (shots && theme !== "card" || (shots && width === 390)) await page.locator(".bm-presentation").screenshot({ path: `${shots}/presentation-${slideId}-${theme}-${width}.png` });
+        }
+      }
+    }
+    // Reduced motion silences motion without hiding content.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`${origin}${PRESENTATION_OPEN}&slide=five-books`);
+    await page.waitForSelector(".bm-slide");
+    const motion = () => page.evaluate(() => [getComputedStyle(document.querySelector(".bm-presentation-strip li")).animationName, getComputedStyle(document.querySelector(".bm-presentation-progress i")).transitionDuration]);
+    const allowed = await motion();
+    assert.notEqual(allowed[0], "none");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const reduced = await motion();
+    assert.equal(reduced[0], "none");
+    assert.match(reduced[1], /^0s$/);
+    assert.equal(await page.locator(".bm-presentation-strip li").last().evaluate((el) => getComputedStyle(el).opacity), "1");
+    assert.equal(await page.locator(".bm-slide-figures li").count(), 5);
+    assert.equal(seen.rest, 0);
+    assert.deepEqual(seen.errors, []);
+  } finally {
+    await env.browser.close();
+    await env.server.close();
   }
 });

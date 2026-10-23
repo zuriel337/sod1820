@@ -49,14 +49,21 @@ test("source fidelity: sourceRef, occurrences and verified links only", () => {
   assert.match(guided, /example\.occurrences\.length > 1/);
   assert.match(guided, /example\.occurrences\.map/);
   assert.match(guided, /example\.sourceHref \?/);
-  assert.doesNotMatch(guided, /example\.canonicalFindingHref|admin=1/);
+  assert.match(guided, /example\.canonicalFindingHref/);
+  assert.doesNotMatch(guided, /admin=1|\/world\?finding=/, "the finding route is only ever the verified one the contract returns");
   assert.match(guided, /publicWorldSourceHref\(example\.contributor\)/);
-  assert.match(guided, /לפתיחת הגילוי והמקור בעולם/);
+  assert.match(guided, /findingHref \? </, "no verified route, no finding link");
+  assert.match(guided, /לפתיחת הגילוי המלא בעולם/);
+  assert.match(guided, /לעמוד המקור בעולם/);
   assert.match(guided, /updateResearchContext/);
   assert.match(guided, /returnTo/);
   assert.match(guided, /findingId: example\.sourceId/);
   assert.match(guided, /sourceRef: example\.sourceRef/);
   assert.match(guided, /publicContributorHref\(example\.contributor\)/);
+  assert.match(guided, /to=\{contributorHref\}\s+onClick=\{rememberWorldContext\}/,
+    "the contributor link records context without replacing its own destination");
+  assert.doesNotMatch(guided, /to=\{contributorHref\}\s+onClick=\{rememberAndOpenWorld\}/,
+    "the contributor link must not be intercepted by World navigation");
   assert.match(guided, /to=\{example\.returnHref\}/);
   assert.match(guided, /mapCallout\.href/);
 });
@@ -154,10 +161,11 @@ test("lesson visual pass: centred rail, flat structure and calm motion", () => {
 
 test("illustrations are presentational: no data, reader or calculation, decorative ones hidden", () => {
   const illustrations = parts["BeitMidrashIllustrations.jsx"].replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-  assert.doesNotMatch(illustrations, /fetch|useEffect|useState|import .*lib\/|Number\(|parseInt|gematria/i);
+  // The strip may keep the chosen step in view (useEffect/useRef); nothing here may hold state, fetch or calculate.
+  assert.doesNotMatch(illustrations, /fetch|useState|localStorage|import .*lib\/|Number\(|parseInt|gematria/i);
   assert.match(illustrations, /data-illustration="fibonacci-spiral"/);
   assert.match(illustrations, /aria-hidden="true"/);
-  assert.match(illustrations, /<ol className="bm-source-trail"/);
+  assert.match(illustrations, /<ol ref=\{list\} className="bm-reading-trail"/);
   assert.match(illustrations, /המחשה בלבד/);
   assert.match(parts["BeitMidrashLearn.jsx"], /selectedNumberConcept\.id === "fibonacci"/);
   assert.match(parts["BeitMidrashLearn.jsx"], /<PathTrail steps=\{path\.steps\?\.length\}/);
@@ -168,4 +176,51 @@ test("loading uses a skeleton with the lesson's own minimum heights", () => {
   assert.match(parts["BeitMidrashMethods.jsx"], /role="status" aria-busy="true"/);
   assert.doesNotMatch(css, /data-pending|min-height:1\d{3}px/, "no giant reserved blank");
   assert.match(css, /\.bm-lesson>header\{min-height:294px/);
+});
+
+test("reading lessons render manifest lessons without score, storage or copying", () => {
+  const learn = parts["BeitMidrashLearn.jsx"];
+  assert.match(learn, /manifest\.sourceReadingLesson/);
+  assert.match(learn, /manifest\.cipherReadingLesson/);
+  assert.match(learn, /focusedSourceStep/);
+  assert.match(learn, /focusedCipherStep/);
+  assert.match(page, /focusedSourceStep=\{place\.sourceStepId\}/);
+  assert.match(page, /focusedCipherStep=\{place\.cipherStepId\}/);
+  for (const field of ["step.check", "step.boundary", "step.body", "lesson.exercise.prompt", "lesson.exercise.explanation", "lesson.continuation"]) {
+    assert.ok(learn.includes(field), field);
+  }
+  assert.equal((learn.match(/function ReadingLesson/g) || []).length, 1, "one shared reading lesson shape");
+  assert.match(learn, /איך בודקים\?/);
+  assert.match(learn, /הגבול שחשוב לזכור/);
+  assert.match(learn, /type="radio"/);
+  assert.match(learn, /<details>[\s\S]*להסבר/);
+  assert.doesNotMatch(learn, /useState|useEffect|localStorage|sessionStorage|fetch|correctOptionId|ניקוד|נכון!|שגוי/);
+  // Lesson copy is never duplicated into the component.
+  for (const copy of ["קובעים את הטקסט", "מוצאים את המקום המדויק", "ריבוי ניסיונות", "הופעות שחוזרות לאותו מקום"]) assert.ok(!learn.includes(copy), `no copied lesson text: ${copy}`);
+  assert.match(parts["BeitMidrashIllustrations.jsx"], /aria-current=\{step\.id === focusedId \? "step"/);
+  assert.match(parts["BeitMidrashIllustrations.jsx"], /data-illustration="skip-reading"/);
+  assert.doesNotMatch(parts["BeitMidrashIllustrations.jsx"].replace(/\/\/.*$/gm, ""), /\bels\b|search|letters\[|charAt|split\(/i, "the skip drawing never reads or computes ELS data");
+  assert.match(css, /\.bm-reading-step\{/);
+  assert.match(css, /\.bm-reading-trail\{[^}]*overflow-x:auto/);
+  assert.doesNotMatch(css, /\.bm-source-(?:lesson|step|trail|exercise)/, "reading lesson styles are shared");
+});
+
+test("1820 presentation is a pure view over the contract and one shared diamonds read", () => {
+  const view = parts["BeitMidrashSod1820Presentation.jsx"].replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(view, /presentation\.slides|const \{ slides/);
+  assert.match(view, /selectedSlide: slide/);
+  assert.match(view, /diamonds\.map/);
+  assert.doesNotMatch(view, /useState|fetch|supabase|curationProjection|Number\(|\.sort\(|\.filter\(|new Set|new Map|localStorage|sessionStorage/, "no reader, state, ranking or de-duplication in the view");
+  assert.doesNotMatch(view, /diamonds\s*=\s*\[|d-1|label: "/, "no hard-coded diamond list");
+  assert.doesNotMatch(view, /מקור אומת|ציון אמת|מצב אימות|איכות ראיות|ממצא מחקר/);
+  assert.match(view, /approvalPolicy\.label/);
+  assert.match(view, /ArrowLeft: nextSlide, ArrowRight: previousSlide/, "right-to-left arrows");
+  assert.match(view, /aria-current=\{item\.id === slide\.id \? "step"/);
+  assert.match(view, /aria-roledescription="מצגת"/);
+  assert.equal((page.match(/fetchCurationCatalog2029\(\)/g) || []).length, 1, "one diamonds read in the page");
+  assert.match(page, /if \(!presentationOpen\) return undefined;[\s\S]*fetchCurationCatalog2029\(\)/, "read only while the presentation is open");
+  assert.match(page, /curationCatalog: catalog\.data/);
+  assert.match(page, /where\.pathId === "sod1820" && where\.lessonId === "sod1820"/);
+  assert.match(css, /\.bm-presentation\{/);
+  assert.match(css, /\.bm-slide\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
 });
