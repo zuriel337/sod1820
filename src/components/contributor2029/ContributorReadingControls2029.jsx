@@ -33,7 +33,7 @@ export function WriterReadingSummary2029({ resume, savedCount, onOpenWorkspace, 
   return <section className="rc-summary" dir="rtl" style={scope} aria-label="הקריאה שלי">
     <span className="rc-kicker">פרטי, רק לך{localOnly ? " · נשמר במכשיר זה בלבד" : ""}</span>
     {href ? <a className="rc-link" href={href}>להמשיך לקרוא{title ? `: ${title}` : ""}</a> : null}
-    {count !== null ? <span className="rc-muted">נשמרו לקריאה: <bdi>{count}</bdi></span> : null}
+    {count !== null && (count > 0 || href) ? <span className="rc-muted">נשמרו לקריאה: <bdi>{count}</bdi></span> : null}
     {typeof onOpenWorkspace === "function" ? <button type="button" className="rc-btn" onClick={() => onOpenWorkspace()}>לאזור האישי</button> : null}
   </section>;
 }
