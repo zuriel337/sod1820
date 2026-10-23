@@ -172,6 +172,108 @@ const SOURCE_READING_LESSON = Object.freeze({
   }),
 });
 
+const cipherReadingStepHref = (stepId) => {
+  const step = encodeURIComponent(clean(stepId));
+  return `/beit-midrash?section=ciphers&step=${step}#cipher-step-${step}`;
+};
+
+const CIPHER_READING_STEPS = freezeItems([
+  {
+    id: "text",
+    title: "קובעים את הטקסט ואת גבולותיו",
+    body: "מתחילים בטקסט הקנוני ובטווח מדויק. מציינים מאין מתחילים והיכן מסתיים החיפוש לפני שקוראים את התוצאה.",
+    check: "האם אפשר לפתוח את אותו טקסט ואת אותו טווח בלי לנחש למה התכוונו?",
+    boundary: "החלפת נוסח, ספר או טווח יוצרת חיפוש אחר ואינה המשך שקט של אותו חיפוש.",
+    href: cipherReadingStepHref("text"),
+  },
+  {
+    id: "parameters",
+    title: "רושמים את תנאי החיפוש",
+    body: "שומרים את נקודת ההתחלה, כיוון הקריאה וגודל הדילוג. התנאים הם חלק מן התוצאה, לא פרט טכני שאפשר להשמיט.",
+    check: "האם נקודת ההתחלה, הכיוון והדילוג מופיעים במפורש?",
+    boundary: "מילה שנמצאה בלי תנאי החיפוש שלה אינה תוצאה שאפשר לחזור עליה.",
+    href: cipherReadingStepHref("parameters"),
+  },
+  {
+    id: "letters",
+    title: "עוקבים אחר האותיות במקומן",
+    body: "בודקים שכל אות מגיעה מן המיקום שהמנוע מציג ובאותו דילוג. ההמחשה מסייעת לקריאה, אך המנוע הקנוני הוא שמחשב את המיקומים.",
+    check: "האם כל מעבר בין שתי אותיות שומר על אותו דילוג ועל אותו כיוון?",
+    boundary: "בית המדרש אינו מחשב דילוגים בעצמו ואינו מחליף את תוצאת המנוע.",
+    href: cipherReadingStepHref("letters"),
+  },
+  {
+    id: "repeat",
+    title: "מוודאים שאפשר לחזור על התוצאה",
+    body: "פותחים את אותם תנאים בכלי הצפנים ובודקים שמתקבלת אותה סדרת אותיות. כך מבדילים בין תוצאה שמורה לבין התרשמות חזותית.",
+    check: "האם אותם טקסט, טווח ותנאים מחזירים את אותה תוצאה?",
+    boundary: "חזרה מוצלחת מאמתת את החישוב בלבד; היא אינה מוכיחה את המשמעות שמציעים לו.",
+    href: cipherReadingStepHref("repeat"),
+  },
+  {
+    id: "comparison",
+    title: "משווים ולא בוחרים רק את מה שהתאים",
+    body: "בודקים כמה טווחים ודילוגים נוסו ומה מופיע גם בבדיקות השוואה. תוצאה נבחרת נקראת לצד מרחב החיפוש שממנו הגיעה.",
+    check: "האם מוצגים גם ניסיונות ההשוואה ולא רק ההתאמה שנבחרה?",
+    boundary: "ריבוי ניסיונות מגדיל את הסיכוי להתאמה מקרית ואסור להסתיר אותו.",
+    href: cipherReadingStepHref("comparison"),
+  },
+  {
+    id: "source",
+    title: "חוזרים למקור ולהקשר",
+    body: "לאחר קריאת הרצף חוזרים לפסוקים או ליחידה שבהם נמצאו האותיות. קוראים את לשון המקור בלי להפוך את הרצף לציטוט חדש.",
+    check: "האם מראה המקום וההקשר זמינים לצד רצף האותיות?",
+    boundary: "רצף אותיות אינו מחליף את הפסוקים שמהם נלקחו האותיות.",
+    href: cipherReadingStepHref("source"),
+  },
+  {
+    id: "interpretation",
+    title: "מפרידים בין תבנית לפירוש",
+    body: "מסיימים בהבחנה בין מה שהמנוע מצא, ההשוואות שנעשו והמשמעות שמציעים. הפירוש נשאר הזמנה להתבוננות.",
+    check: "מהי התוצאה המחושבת, מה נלמד מן ההשוואה ומה מוצע כפירוש?",
+    boundary: "התאמה בדילוג אותיות אינה לבדה הוכחה לכוונה, לנבואה או לקשר היסטורי.",
+    href: cipherReadingStepHref("interpretation"),
+  },
+]);
+
+const CIPHER_READING_STEP_VALUES = new Set(CIPHER_READING_STEPS.map((step) => step.id));
+
+const CIPHER_READING_LESSON = Object.freeze({
+  id: "cipher-reading",
+  title: "לומדים לקרוא דילוג אותיות",
+  description: "מן הטקסט והתנאים אל האותיות, ההשוואה והפירוש — בלי להפוך תבנית למסקנה.",
+  href: "/beit-midrash?section=ciphers#cipher-reading-lesson",
+  anchor: "cipher-reading-lesson",
+  objectives: Object.freeze([
+    "לזהות את הטקסט, הטווח ותנאי החיפוש.",
+    "לחזור על תוצאה דרך מנוע הצפנים הקנוני.",
+    "לקרוא התאמה לצד ניסיונות ההשוואה.",
+    "להפריד בין תבנית מחושבת לבין פירוש.",
+  ]),
+  steps: CIPHER_READING_STEPS,
+  exercise: Object.freeze({
+    id: "cipher-search-space",
+    title: "נסו לקרוא נכון",
+    prompt: "מילה הופיעה אחרי שנבדקו דילוגים וטווחים רבים, אבל מוצגת רק ההתאמה שנבחרה. מה עדיין חסר כדי לקרוא את התוצאה באחריות?",
+    options: freezeItems([
+      { id: "meaning", label: "רק פירוש מרגש יותר למילה" },
+      { id: "comparison", label: "תנאי החיפוש, מרחב הניסיונות ובדיקות השוואה" },
+      { id: "game-points", label: "ניקוד גבוה יותר למשחק" },
+    ]),
+    correctOptionId: "comparison",
+    explanation: "התאמה נקראת יחד עם התנאים ומרחב החיפוש. בלי ההשוואה אי אפשר להעריך אם היא ייחודית או צפויה בין ניסיונות רבים.",
+    feedbackMode: "explanation-only",
+  }),
+  continuation: Object.freeze({
+    title: "לפתיחת כלי הצפנים",
+    href: "/code",
+  }),
+  progress: Object.freeze({
+    persistence: "url-only",
+    storesPersonalData: false,
+  }),
+});
+
 const NUMBER_GUIDE_CONCEPTS = freezeItems([
   {
     id: "number-page",
@@ -295,6 +397,17 @@ const LEARNING_PATHS = freezeItems([
       { title: "בוחרים שיטה מן הרישום הקנוני", href: "/beit-midrash?section=methods" },
       { title: "קוראים את שלבי החישוב והזהירות", href: "/beit-midrash?section=methods" },
       { title: "מנסים בכלי הגימטריה", href: "/2029/gematria" },
+    ]),
+  },
+  {
+    id: "ciphers",
+    title: "צפנים ודילוגי אותיות",
+    description: "לומדים לקרוא את תנאי החיפוש, לחזור על התוצאה ולהבדיל בין תבנית לפירוש.",
+    href: "/beit-midrash?section=paths&path=ciphers#path-ciphers",
+    steps: Object.freeze([
+      { title: "לומדים לקרוא דילוג צעד אחר צעד", href: CIPHER_READING_LESSON.href },
+      { title: "חוזרים על התנאים בכלי הצפנים", href: "/code" },
+      { title: "לומדים לבדוק מקור והקשר", href: SOURCE_READING_LESSON.href },
     ]),
   },
   {
@@ -470,6 +583,7 @@ export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   ]),
   sections: SECTIONS,
   beginnerConcepts: BEGINNER_CONCEPTS,
+  cipherReadingLesson: CIPHER_READING_LESSON,
   sourceReadingLesson: SOURCE_READING_LESSON,
   numberGuideConcepts: NUMBER_GUIDE_CONCEPTS,
   learningPaths: LEARNING_PATHS,
@@ -533,6 +647,7 @@ export function beitMidrashLearningHref(section, {
   pathId = null,
   conceptId = null,
   sourceStepId = null,
+  cipherStepId = null,
   destinationId = null,
 } = {}) {
   const resolvedSection = safeSection(section) || BEIT_MIDRASH_LEARNING_SECTION.START;
@@ -557,6 +672,12 @@ export function beitMidrashLearningHref(section, {
     ? requestedSourceStep
     : null;
   if (sourceStep) params.set("step", sourceStep);
+  const requestedCipherStep = clean(cipherStepId);
+  const cipherStep = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.CIPHERS
+    && CIPHER_READING_STEP_VALUES.has(requestedCipherStep)
+    ? requestedCipherStep
+    : null;
+  if (cipherStep) params.set("step", cipherStep);
   if (clean(destinationId)) params.set("to", clean(destinationId));
   const query = params.toString();
   const finding = clean(findingId);
@@ -566,7 +687,9 @@ export function beitMidrashLearningHref(section, {
       ? `number-concept-${encodeURIComponent(concept)}`
       : sourceStep
         ? `source-step-${encodeURIComponent(sourceStep)}`
-        : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
+        : cipherStep
+          ? `cipher-step-${encodeURIComponent(cipherStep)}`
+          : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
   return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${anchor ? `#${anchor}` : ""}`;
 }
 
@@ -603,6 +726,11 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     && SOURCE_READING_STEP_VALUES.has(requestedSourceStep)
     ? requestedSourceStep
     : null;
+  const requestedCipherStep = clean(params.get("step"));
+  const cipherStepId = section === BEIT_MIDRASH_LEARNING_SECTION.CIPHERS
+    && CIPHER_READING_STEP_VALUES.has(requestedCipherStep)
+    ? requestedCipherStep
+    : null;
   const destinationId = clean(params.get("to")) || legacy?.destinationId || null;
   const toolCompatibility = clean(params.get("tool")).toLowerCase() === "midrash";
 
@@ -614,6 +742,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     pathId,
     conceptId,
     sourceStepId,
+    cipherStepId,
     destinationId,
     adminOnly: legacy?.adminOnly === true,
     compatibilitySource: legacyAtlas
@@ -630,6 +759,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       pathId,
       conceptId,
       sourceStepId,
+      cipherStepId,
       destinationId,
     }),
     shouldRedirect: false,
