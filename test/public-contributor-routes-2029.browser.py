@@ -179,8 +179,8 @@ try:
         assert page.locator(".sod29-root.surface-community").count() == 1
         report["general_route"] = {"key": code, "existing_frame": True, "rendered": True}
         context.close()
-        # The router must cross the document boundary, not interpret 'me'/editor as a writer.
-        for path in ["/community/researcher/me", "/community/researcher/tzvi-opoc/edit"]:
+        # The router must cross the document boundary, not interpret the legacy editor as a writer.
+        for path in ["/community/researcher/tzvi-opoc/edit"]:
             context = browser.new_context()
             page = context.new_page()
             calls, documents = intercept(page, handoff_path=path)

@@ -5,6 +5,8 @@ import WatchButton from "../WatchButton.jsx";
 import ShareActions from "../ShareActions.jsx";
 import { fetchContributorOverview } from "./contributorOverview2029Model.js";
 import { contributorInteraction } from "./contributorInteractions2029.js";
+import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
+import { useLocation } from "react-router-dom";
 import { ContributorOverview2029, ContributorStudio2029, ContributorActionRow2029, ContributorMessageDialog2029 } from "./ContributorPublicExtras2029.jsx";
 
 // This controller only wires the existing public reader, subscription, inbox and private workspace.
@@ -14,7 +16,8 @@ export default function ContributorActionsController2029({ view, onPublicData, e
   const shell = use2029Shell();
   const key = decodeURIComponent(view.canonicalHref?.split("/").filter(Boolean).pop() || "");
   const actor = user?.id || null;
-  const scope = `${key}:${actor || "guest"}`;
+  const visitorPreview = new URLSearchParams(useLocation().search).get("view") === "public";
+  const scope = `${key}:${actor || "guest"}:${visitorPreview ? "visitor" : "viewer"}`;
   const [overview, setOverview] = useState({ key: null, value: { state: "loading" } });
   const [capabilities, setCapabilities] = useState({ scope: null });
   const [dialog, setDialog] = useState({ scope: null, open: false, state: "idle" });
@@ -38,13 +41,13 @@ export default function ContributorActionsController2029({ view, onPublicData, e
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 8000);
     setCapabilities({ scope }); setDialog({ scope, open: false, state: "idle" });
-    contributorInteraction(key, { signal: abort.signal, userId: actor }).then((value) => {
+    contributorInteraction(key, { signal: abort.signal, userId: visitorPreview ? null : actor }).then((value) => {
       if (!abort.signal.aborted) setCapabilities({ scope, ...value });
     }).finally(() => clearTimeout(timer));
     const timeout = () => setCapabilities({ scope, state: "unavailable" });
     abort.signal.addEventListener("abort", timeout, { once: true });
     return () => { abort.signal.removeEventListener("abort", timeout); abort.abort(); clearTimeout(timer); };
-  }, [key, scope, loading, actor]);
+  }, [key, scope, loading, actor, visitorPreview]);
   const data = overview.key === key ? overview.value : { state: "loading" };
   const caps = capabilities.scope === scope ? capabilities : {};
   const modal = dialog.scope === scope ? dialog : { open: false, state: "idle" };
@@ -52,7 +55,7 @@ export default function ContributorActionsController2029({ view, onPublicData, e
     onPublicData?.({ overview: overview.key === key ? overview.value : { state: "loading" },
       owner: capabilities.scope === scope && capabilities.owner === true });
   }, [onPublicData, overview, capabilities, key, scope]);
-  const personalHref = (module) => `/profile?module=${module}&returnTo=${encodeURIComponent(view.canonicalHref)}`;
+  const personalHref = (module) => writerPersonalHref(module, { returnTo: view.canonicalHref });
   async function send(body) {
     if (pendingSend.current || caps.message !== "ready" || !actor) return;
     pendingSend.current = true;
@@ -88,6 +91,7 @@ export default function ContributorActionsController2029({ view, onPublicData, e
         title={view.profile.name} image={view.profile.avatar} sourceSurface="public-contributor-2029" />
     </ContributorActionRow2029>
     {caps.state === "unavailable" ? <p className="pc-reason" role="status">פעולות הכותב אינן זמינות כרגע.</p> : null}
+    {modal.state === "sent" ? <a className="pc-open" href={writerPersonalHref("messages", { writer: key, returnTo: view.canonicalHref })}>להמשך השיחה בתיבה שלי</a> : null}
     {data.state === "ready" ? <>
       <ContributorStudio2029 items={data.studio.items.filter((item) => !excludedStudioIds?.has(item.id))} available={data.studio.available} />
       {data.studio.hasMore ? <button className="pc-more" type="button" disabled={more === "loading"} onClick={loadMore}>{more === "loading" ? "טוען חומרים…" : "עוד מהסטודיו של הכותב"}</button> : null}

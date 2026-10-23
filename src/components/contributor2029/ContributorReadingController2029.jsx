@@ -13,9 +13,10 @@ export function useContributorReading2029(view, onRefresh) {
   const { user } = useAuth();
   const shell = use2029Shell();
   const location = useLocation();
+  const visitorPreview = new URLSearchParams(location.search).get("view") === "public";
   const navigate = useNavigate();
   const key = view?.canonicalHref || "";
-  const scope = `${key}:${user?.id || "guest"}`;
+  const scope = `${key}:${user?.id || "guest"}:${visitorPreview ? "visitor" : "viewer"}`;
   const [publicData, setPublicData] = useState({ scope: null });
   const [edit, setEdit] = useState(false);
   const [mutation, setMutation] = useState({ scope: null, state: "idle", id: null });
@@ -58,23 +59,24 @@ export function useContributorReading2029(view, onRefresh) {
   const actions = (item) => {
     const entity = writerReadingEntity(item, key);
     if (!entity) return null;
-    const saved = (research.saved || []).some((saved) => saved.type === entity.type && String(saved.ref) === String(entity.ref));
+    const saved = !visitorPreview && (research.saved || []).some((saved) => saved.type === entity.type && String(saved.ref) === String(entity.ref));
     return <WriterReadingActions2029 saved={saved} onSave={research.saveItem ? () => {
+      if (visitorPreview) { setStatus({ scope, id: item.id, text: "זו תצוגה ציבורית. אפשר לחזור לאזור האישי כדי לשמור." }); return; }
       const ok = research.saveItem(entity);
       setStatus({ scope, id: item.id, text: ok ? "נשמר בספרייה האישית" : "השמירה אינה זמינה כרגע" });
-    } : undefined} onResume={() => { recordOpen(item); if (item.href.startsWith("/")) navigate(item.href); else window.location.assign(item.href); }} isOwner={current.owner === true}
+    } : undefined} onResume={() => { recordOpen(item); if (item.href.startsWith("/")) navigate(item.href); else window.location.assign(item.href); }} isOwner={!visitorPreview && current.owner === true}
       onFeature={() => mutate("feature", { itemId: item.id, enabled: !selected.has(item.id) }, item.id)} featured={selected.has(item.id)} busy={state.state === "saving"}
       status={state.id === item.id && state.state === "limit" ? "אפשר לבחור עד שלושה כתבים להצגה. בטלו בחירה קיימת כדי להחליף כתב."
         : state.id === item.id && ["error", "login_required"].includes(state.state) ? "לא ניתן לאשר את העדכון. רעננו לפני ניסיון נוסף." : status.scope === scope && status.id === item.id ? status.text : ""} />;
   };
   const header = view ? <>
-    {(research.saveItem || projected.resume) ? <WriterReadingSummary2029 {...projected} onOpenWorkspace={shell.openWorkspace} /> : null}
+    {!visitorPreview && (research.saveItem || projected.resume) ? <WriterReadingSummary2029 {...projected} onOpenWorkspace={shell.openWorkspace} /> : null}
     {featured.length ? <div onClickCapture={(event) => {
       const href = event.target.closest?.("a")?.getAttribute("href");
       const item = featured.find((item) => item.href === href);
       if (item) recordOpen(item);
     }}><WriterFeatured2029 items={featured} writerName={view.profile.name} /></div> : null}
-    {current.owner ? <>
+    {!visitorPreview && current.owner ? <>
       <button className="pc-more" type="button" onClick={() => setEdit((value) => !value)}>עריכת ההקדמה הציבורית</button>
       {edit ? <WriterIntroductionEditor2029 bio={view.profile.bio} state={state.id === null ? state.state : "idle"}
         onSave={(bio) => mutate("introduction", { bio })} onClose={() => { if (state.state !== "saving") setEdit(false); }} /> : null}

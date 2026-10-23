@@ -85,16 +85,17 @@ export function gatesToTopics(gateKeys = []) {
 // הערה: תגית-המנוע נשארת 'חידושי גולשים' כמפתח-סינון פנימי יציב (לא מוצג למשתמש).
 export const COMMUNITY_LABEL = "חידושי הקהילה";
 
-export async function getMyNotifications(limit = 30) {
+export async function getMyNotifications(limit = 30, { strict = false } = {}) {
   if (!supabase) return [];
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("user_notifications")
       .select("id,kind,title,body,link,read_at,created_at,source_topic")
       .order("created_at", { ascending: false })
       .limit(limit);
+    if (error) throw error;
     return data || [];
-  } catch { return []; }
+  } catch (error) { if (strict) throw error; return []; }
 }
 
 // ===== שכבת-הייצוג (label resolution) — ההופכי של resolve_topics שב-DB =====
