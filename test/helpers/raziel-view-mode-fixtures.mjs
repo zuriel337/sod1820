@@ -56,6 +56,19 @@ export function numberBundle(number, sourceName = "ספר יצירה") {
       provenance: { createdBy: "ENGINE:gematria", inputRef: "number:271" },
     }));
   }
+  if (number === 67) {
+    findings.push(makeUniversalFinding({
+      id: "uf:number:67:understanding",
+      kind: "gematria",
+      subject: { type: "phrase", key: "בינה", label: "בינה", value: 67, lang: "he" },
+      source: { engine: "gematria", adapter: "number-lookup-v1", name: "מנוע הגימטריה", sourceRef: "bidim:understanding", method: "רגיל", lang: "he" },
+      identity: { sourceIdentity: { bidId: "understanding" } },
+      verification: { engine_method_tested: "רגיל", engine_result: 67, verification_state: "not_tested" },
+      evidence: { refs: ["bidim:understanding"], facts: [{ type: "gematria-lookup-row", phrase: "בינה", method: "רגיל", value: 67 }] },
+      access: { tier: "public" },
+      provenance: { createdBy: "ENGINE:gematria", inputRef: "number:67" },
+    }));
+  }
   return composeResearchResultBundle({
     query: {
       question: `מה זה ${number}?`,
@@ -288,4 +301,3 @@ export function expressionPairConversation(left, right) {
     identities: [left, right].map((label) => ({ type: "phrase", label, identity_key: `phrase:${label}` })),
   };
 }
-

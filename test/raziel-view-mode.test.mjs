@@ -17,10 +17,9 @@ const MARKER = "[מצב התבוננות ניסיוני";
 
 const Q_PAIR = "מה הקשר בין חכמה לבינה?";
 const Q_271 = "מה אתה רואה ב־271?";
-// The user's wording "מה אומר המסתתר של חכמה?" is NOT resolved by the base grammar (see dedicated test below);
-// "מה יש לך על המסתתר של חכמה" is the resolvable form of the same question.
+// Both wordings resolve to the same expression + method hint (RAZIEL_METHOD_QUESTION_V1).
 const Q_HIDDEN = "מה יש לך על המסתתר של חכמה";
-const Q_HIDDEN_UNRESOLVED = "מה אומר המסתתר של חכמה?";
+const Q_HIDDEN_ASKS = "מה אומר המסתתר של חכמה?";
 
 // Built once: every run in this file reads byte-identical fixtures (finding timestamps included).
 const BUNDLES = Object.freeze({
@@ -112,7 +111,7 @@ test("2b) view_mode without the canonical 2029 Research Contract is ignored (Leg
 });
 
 // ── 3 + 7: same Result Bundle, same facts, one model call, no extra calculator ─────────────────────────────
-for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_271], ["hidden method של חכמה", Q_HIDDEN]]) {
+for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_271], ["hidden method של חכמה", Q_HIDDEN], ["hidden method — 'מה אומר …'", Q_HIDDEN_ASKS]]) {
   test(`3/7) ${name}: landscape and exploratory read the SAME canonical Bundle as general; only the system layer differs`, async () => {
     const general = await ask(question);
     const runs = {};
@@ -156,18 +155,15 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
   });
 }
 
-test("7b) the user's wording 'מה אומר המסתתר של חכמה?' does not resolve at this base: no Bundle in ANY mode (documented, not hidden)", async () => {
-  const req = buildRazielSessionRequest({ question: Q_HIDDEN_UNRESOLVED, state: createInitialRazielSessionState(), contextSnapshot: null });
-  assert.equal(req.conversationResolution, null);
-  const general = await ask(Q_HIDDEN_UNRESOLVED);
-  assert.equal(researchCalls(general).length, 0);
-  for (const mode of NON_GENERAL) {
-    const run = await ask(Q_HIDDEN_UNRESOLVED, { mode });
-    assert.equal(researchCalls(run).length, 0);
-    assert.equal(run.models.length, 0, "a view mode never guesses without a Bundle");
-    assert.equal(run.result.model, "none");
-    assert.equal(run.result.raziel.plan_meta.view_mode.applied, false);
-    assert.equal(run.result.raziel.plan_meta.view_mode.reason, "no_canonical_bundle");
+test("7b) 'מה אומר המסתתר של חכמה?' resolves like 'מה יש לך על המסתתר של חכמה': the same two canonical reads in every mode", async () => {
+  const req = buildRazielSessionRequest({ question: Q_HIDDEN_ASKS, state: createInitialRazielSessionState(), contextSnapshot: null });
+  assert.deepEqual(req.conversationResolution.identities.map((i) => i.identity_key), ["phrase:חכמה"]);
+  const strip = (calls) => calls.map(({ contract, expression, number }) => ({ contract, expression, number }));
+  const baseline = strip(researchCalls(await ask(Q_HIDDEN)).map((payload) => payload));
+  for (const mode of MODES) {
+    const run = await ask(Q_HIDDEN_ASKS, { mode: mode === "general" ? null : mode });
+    assert.deepEqual(strip(researchCalls(run)), baseline, mode);
+    assert.deepEqual(baseline.map((r) => r.expression ?? r.number), ["חכמה", 67]);
   }
 });
 

@@ -10,6 +10,7 @@ import {
   RESEARCH_IDENTITY_CONFIDENCE,
   RESEARCH_IDENTITY_SOURCE,
 } from "./researchIdentityResolver.js";
+import { METHODS, DEPTH_METHODS, methodLabel } from "../gematria.js";
 
 export const RAZIEL_SEMANTIC_INTENT_VERSION = "raziel-semantic-intent-v1";
 export const RAZIEL_CONVERSATIONAL_ACT_VERSION = "raziel-conversational-act-v1";
@@ -96,6 +97,68 @@ export function resolveRazielDeterministicGuidance(message) {
   return null;
 }
 
+// ── Method-name admission (RAZIEL_METHOD_QUESTION_V1) ──────────────────────────────────────────
+// A question such as "מה אומר המסתתר של X" / "מה האתבש של Y" is only a method question when the word in
+// the method slot IS a method. The vocabulary is derived from the canonical engine definitions that
+// mirror the Registry (gematria_engine_law / canonical_methods_registry_law: METHODS + DEPTH_METHODS,
+// with the public alias from methodLabel, e.g. קדמי ↔ משולש). It is never a hand-written word list
+// and it never names a particular expression. The Registry projection later validates the method
+// against the expression's real calculation profile; this only decides whether the grammar applies.
+const QUOTE_MARKS = /["'`׳״’‘“”]/gu;
+const methodComparable = (value) => clean(value, 80)
+  .replace(/[\u0591-\u05c7]/gu, "")
+  .replace(QUOTE_MARKS, "")
+  .replace(/[־–—\-\s]+/gu, "")
+  .trim();
+
+let methodVocabulary = null;
+export function canonicalMethodVocabulary() {
+  if (!methodVocabulary) {
+    const names = new Set();
+    for (const method of [...METHODS, ...DEPTH_METHODS]) {
+      for (const name of [method.key, methodLabel(method.key)]) {
+        const comparable = methodComparable(name);
+        if (comparable) names.add(comparable);
+      }
+    }
+    methodVocabulary = names;
+  }
+  return methodVocabulary;
+}
+
+// Returns the method token (article and quote marks removed) when it names a canonical method, else null.
+// requireArticle protects the verb "מסתתר" ("the one who hides"): as a noun in the method slot Hebrew
+// uses the definite article ("המסתתר של …"), so an article-less token in that slot is not a method name.
+function matchCanonicalMethodToken(raw, { requireArticle = false } = {}) {
+  const token = clean(raw, 60).replace(QUOTE_MARKS, "").replace(/^ה\s+(?=\S)/u, "ה");
+  if (!token) return null;
+  const hasArticle = token.startsWith("ה");
+  if (requireArticle && !hasArticle) return null;
+  const vocabulary = canonicalMethodVocabulary();
+  const candidates = hasArticle ? [token.slice(1), token] : [token];
+  return candidates.find((candidate) => vocabulary.has(methodComparable(candidate))) || null;
+}
+
+const METHOD_QUESTION_NOUN = "(?:המילה|הביטוי|השם)";
+// Whole-turn method-question grammar. Every form binds ONE expression slot and ONE method slot.
+function matchMethodQuestion(q) {
+  const forms = [
+    // מה אומר/פירוש/משמעות [של] ה<שיטה> של <ביטוי>
+    { re: new RegExp(`^מה\\s+(?:אומר|אומרת|פירוש|פירושו|הפירוש|משמעות|המשמעות)(?:\\s+של)?\\s+(.{2,60}?)\\s+של\\s+(?:${METHOD_QUESTION_NOUN}\\s+)?(.+)$`, "u"), method: 1, expression: 2, requireArticle: true },
+    // מה ה<שיטה> של <ביטוי>
+    { re: new RegExp(`^מה\\s+(.{2,60}?)\\s+של\\s+(?:${METHOD_QUESTION_NOUN}\\s+)?(.+)$`, "u"), method: 1, expression: 2, requireArticle: true },
+    // בדוק/חשב [את] <ביטוי> בשיטת <שיטה>
+    { re: new RegExp(`^(?:בדוק|בדקי|תבדוק|תבדקי|חשב|חשבי|תחשב|תחשבי|חקור|חקרי)(?:\\s+לי)?(?:\\s+את)?\\s+(?:${METHOD_QUESTION_NOUN}\\s+)?(.+?)\\s+(?:בשיטת|בשיטה\\s+של)\\s+(.{2,60})$`, "u"), method: 2, expression: 1, requireArticle: false },
+  ];
+  for (const form of forms) {
+    const found = form.re.exec(q);
+    if (!found) continue;
+    const method = matchCanonicalMethodToken(found[form.method], { requireArticle: form.requireArticle });
+    if (method) return { method, expression: found[form.expression] };
+  }
+  return null;
+}
+
 function validExplicitHebrewExpression(value) {
   const expression = clean(value, 120)
     .replace(/^["'״׳]+|["'״׳]+$/gu, "")
@@ -140,6 +203,16 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
     if (focused) {
       match = [focused[0], focused[2]];
       requestedMethod = clean(focused[1], 60);
+      requestedAction = "research";
+    }
+  }
+
+  // General method question (RAZIEL_METHOD_QUESTION_V1): the method slot must be a canonical method name.
+  if (!match) {
+    const methodQuestion = matchMethodQuestion(q);
+    if (methodQuestion) {
+      match = [q, methodQuestion.expression];
+      requestedMethod = clean(methodQuestion.method, 60);
       requestedAction = "research";
     }
   }
