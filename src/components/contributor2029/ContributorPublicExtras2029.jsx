@@ -32,7 +32,7 @@ export function ContributorOverview2029({ overview }) {
   const focus = ready ? text(overview.currentFocus) : "";
   const rows = [["חבר מאז", joined, joined ? tenure : ""], ["הדף פעיל מאז", since, ""], ["חיבור אחרון", lastSeenText, ""]].filter(([, value]) => value);
   return <section className="cx-overview" style={tokens(P)} aria-labelledby="cx-overview-title" data-state={ready ? "ready" : loading ? "loading" : "unavailable"}>
-    <h2 id="cx-overview-title" className="cx-title">סקירה</h2>
+    <h2 id="cx-overview-title" className="cx-title cx-sr">סקירה</h2>
     {!ready ? <p className="cx-muted" role="status">{loading ? "טוען את פרטי הסקירה…" : "פרטי הסקירה אינם זמינים כרגע."}</p> : <>
       {rows.length ? <dl className="cx-facts">{rows.map(([label, value, note]) => <div key={label}><dt>{label}</dt>
         <dd><bdi>{value}</bdi>{note ? <span className="cx-muted"> · {note}</span> : null}</dd></div>)}</dl>
@@ -46,16 +46,17 @@ export function ContributorOverview2029({ overview }) {
 export function ContributorStudio2029({ items, available }) {
   const P = use2029Palette();
   const list = Array.isArray(items) ? items.filter((item) => item && (text(item.title) || text(item.body) || safeUrl(item.imageUrl) || safeUrl(item.href) || hasValue(item.value) || mediaOf(item, "").length)) : [];
+  if (available !== false && !list.length) return null;
   return <section className="cx-studio" style={tokens(P)} aria-labelledby="cx-studio-title">
-    <h2 id="cx-studio-title" className="cx-title">סטודיו</h2>
+    <h2 id="cx-studio-title" className="cx-title">חומרים מהסטודיו</h2>
     {available === false ? <p className="cx-muted" role="status">הסטודיו אינו זמין כרגע.</p>
-      : !list.length ? <p className="cx-muted">אין פריטי סטודיו ציבוריים.</p>
       : <ul className="cx-cards">{list.map((item, index) => {
         const title = text(item.title), body = text(item.body), image = safeUrl(item.imageUrl), href = safeUrl(item.href);
         const date = bilingualDateLabel(item.createdAt);
         const media = mediaOf(item, image), kind = kindLabel(item.kind);
         return <li key={item.id ?? index} className="cx-card">
-          {kind ? <span className="cx-kind">{kind}</span> : null}
+          {kind || date ? <div className="cx-card-meta">{kind ? <span className="cx-kind">{kind}</span> : null}
+            {date ? <time dateTime={item.createdAt}>{date}</time> : null}</div> : null}
           {title ? <h3>{href ? <a href={href}>{title}</a> : title}</h3> : null}
           {image ? <img src={image} alt="" loading="lazy" decoding="async" /> : null}
           {body ? <p className="cx-body">{body}</p> : null}
@@ -63,7 +64,6 @@ export function ContributorStudio2029({ items, available }) {
             {m.caption ? <figcaption>{m.caption}</figcaption> : null}</figure>)}</div> : null}
           {href && !title ? <a className="cx-cta" href={href}>פתיחה</a> : null}
           {hasValue(item.value) ? <span className="cx-value"><bdi className="pc-number">{String(item.value)}</bdi></span> : null}
-          {date ? <time className="cx-muted" dateTime={item.createdAt}>{date}</time> : null}
         </li>;
       })}</ul>}
   </section>;
