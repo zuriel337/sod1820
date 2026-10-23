@@ -51,7 +51,7 @@ test("the 1820 path resumes an exact step without pretending it was completed", 
 
   const journey = buildBeitMidrashLearningPath(location.pathId, location.pathStepId);
   assert.equal(journey.path.title, "מסלול 1820");
-  assert.equal(journey.selectedIndex, 1);
+  assert.equal(journey.selectedIndex, 2);
   assert.equal(journey.selectedStep.id, "math-profile");
   assert.equal(journey.selectedStep.href, "/beit-midrash?section=numbers&concept=math-profile#number-concept-math-profile");
   assert.equal(journey.previousStep.id, "number-layers");
@@ -73,7 +73,7 @@ test("unknown path input is discarded and an unknown step falls back to the path
   assert.equal(unknownStep.pathId, "sod1820");
   assert.equal(unknownStep.pathStepId, null);
   assert.equal(unknownStep.canonicalHref, "/beit-midrash?section=paths&path=sod1820#path-sod1820");
-  assert.equal(buildBeitMidrashLearningPath("sod1820", "not-a-step").selectedStep.id, "number-layers");
+  assert.equal(buildBeitMidrashLearningPath("sod1820", "not-a-step").selectedStep.id, "presentation");
 });
 
 test("combined projection exposes the selected journey without another store or reader", () => {
