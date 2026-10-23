@@ -1,0 +1,78 @@
+[
+  {
+    "viewer": "anonymous",
+    "automatic_profile": false,
+    "all_data_requests_anonymous": true,
+    "private_marker_visible": false,
+    "request_count": 8,
+    "tables": [
+      "contributors",
+      "contributors",
+      "world_contributor_research_v1",
+      "channel_updates",
+      "research_contributions",
+      "channel_updates",
+      "channel_updates",
+      "world_gematria_lexical_lookup_v1"
+    ],
+    "canonical": "https://sod1820.co.il/community/researcher/2042",
+    "robots": "index, follow"
+  },
+  {
+    "viewer": "signed-in-admin",
+    "automatic_profile": false,
+    "all_data_requests_anonymous": true,
+    "private_marker_visible": false,
+    "request_count": 8,
+    "tables": [
+      "contributors",
+      "contributors",
+      "world_contributor_research_v1",
+      "channel_updates",
+      "research_contributions",
+      "channel_updates",
+      "channel_updates",
+      "world_gematria_lexical_lookup_v1"
+    ],
+    "canonical": "https://sod1820.co.il/community/researcher/2042",
+    "robots": "index, follow"
+  },
+  {
+    "viewer": "anonymous",
+    "automatic_profile": true,
+    "all_data_requests_anonymous": true,
+    "private_marker_visible": false,
+    "request_count": 8,
+    "tables": [
+      "contributors",
+      "contributors",
+      "world_contributor_research_v1",
+      "channel_updates",
+      "research_contributions",
+      "channel_updates",
+      "channel_updates",
+      "world_gematria_lexical_lookup_v1"
+    ],
+    "canonical": "https://sod1820.co.il/community/researcher/2042",
+    "robots": "noindex, nofollow"
+  },
+  {
+    "viewer": "signed-in-admin",
+    "automatic_profile": true,
+    "all_data_requests_anonymous": true,
+    "private_marker_visible": false,
+    "request_count": 8,
+    "tables": [
+      "contributors",
+      "contributors",
+      "world_contributor_research_v1",
+      "channel_updates",
+      "research_contributions",
+      "channel_updates",
+      "channel_updates",
+      "world_gematria_lexical_lookup_v1"
+    ],
+    "canonical": "https://sod1820.co.il/community/researcher/2042",
+    "robots": "noindex, nofollow"
+  }
+]
