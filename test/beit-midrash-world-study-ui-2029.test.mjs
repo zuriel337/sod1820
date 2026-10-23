@@ -161,7 +161,7 @@ test("illustrations are presentational: no data, reader or calculation, decorati
   assert.doesNotMatch(illustrations, /fetch|useState|localStorage|import .*lib\/|Number\(|parseInt|gematria/i);
   assert.match(illustrations, /data-illustration="fibonacci-spiral"/);
   assert.match(illustrations, /aria-hidden="true"/);
-  assert.match(illustrations, /<ol ref=\{list\} className="bm-source-trail"/);
+  assert.match(illustrations, /<ol ref=\{list\} className="bm-reading-trail"/);
   assert.match(illustrations, /המחשה בלבד/);
   assert.match(parts["BeitMidrashLearn.jsx"], /selectedNumberConcept\.id === "fibonacci"/);
   assert.match(parts["BeitMidrashLearn.jsx"], /<PathTrail steps=\{path\.steps\?\.length\}/);
@@ -174,20 +174,29 @@ test("loading uses a skeleton with the lesson's own minimum heights", () => {
   assert.match(css, /\.bm-lesson>header\{min-height:294px/);
 });
 
-test("source-reading lesson renders the manifest lesson without score, storage or copying", () => {
+test("reading lessons render manifest lessons without score, storage or copying", () => {
   const learn = parts["BeitMidrashLearn.jsx"];
   assert.match(learn, /manifest\.sourceReadingLesson/);
+  assert.match(learn, /manifest\.cipherReadingLesson/);
   assert.match(learn, /focusedSourceStep/);
+  assert.match(learn, /focusedCipherStep/);
   assert.match(page, /focusedSourceStep=\{place\.sourceStepId\}/);
-  for (const field of ["sourceStep.check", "sourceStep.boundary", "sourceStep.body", "sourceLesson.exercise.prompt", "sourceLesson.exercise.explanation", "sourceLesson.continuation"]) {
+  assert.match(page, /focusedCipherStep=\{place\.cipherStepId\}/);
+  for (const field of ["step.check", "step.boundary", "step.body", "lesson.exercise.prompt", "lesson.exercise.explanation", "lesson.continuation"]) {
     assert.ok(learn.includes(field), field);
   }
+  assert.equal((learn.match(/function ReadingLesson/g) || []).length, 1, "one shared reading lesson shape");
   assert.match(learn, /איך בודקים\?/);
   assert.match(learn, /הגבול שחשוב לזכור/);
   assert.match(learn, /type="radio"/);
   assert.match(learn, /<details>[\s\S]*להסבר/);
   assert.doesNotMatch(learn, /useState|useEffect|localStorage|sessionStorage|fetch|correctOptionId|ניקוד|נכון!|שגוי/);
+  // Lesson copy is never duplicated into the component.
+  for (const copy of ["קובעים את הטקסט", "מוצאים את המקום המדויק", "ריבוי ניסיונות", "הופעות שחוזרות לאותו מקום"]) assert.ok(!learn.includes(copy), `no copied lesson text: ${copy}`);
   assert.match(parts["BeitMidrashIllustrations.jsx"], /aria-current=\{step\.id === focusedId \? "step"/);
-  assert.match(css, /\.bm-source-step\{/);
-  assert.match(css, /\.bm-source-trail\{[^}]*overflow-x:auto/);
+  assert.match(parts["BeitMidrashIllustrations.jsx"], /data-illustration="skip-reading"/);
+  assert.doesNotMatch(parts["BeitMidrashIllustrations.jsx"].replace(/\/\/.*$/gm, ""), /\bels\b|search|letters\[|charAt|split\(/i, "the skip drawing never reads or computes ELS data");
+  assert.match(css, /\.bm-reading-step\{/);
+  assert.match(css, /\.bm-reading-trail\{[^}]*overflow-x:auto/);
+  assert.doesNotMatch(css, /\.bm-source-(?:lesson|step|trail|exercise)/, "reading lesson styles are shared");
 });

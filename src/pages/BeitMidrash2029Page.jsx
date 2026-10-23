@@ -176,6 +176,7 @@ export default function BeitMidrash2029Page() {
         focusedPath={place.pathId}
         focusedConcept={place.conceptId}
         focusedSourceStep={place.sourceStepId}
+        focusedCipherStep={place.cipherStepId}
       >
         <BeitMidrashMethods
           section={sectionOf("methods")}
