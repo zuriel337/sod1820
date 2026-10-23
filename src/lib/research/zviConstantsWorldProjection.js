@@ -94,26 +94,42 @@ export function buildZviConstantsWorldProjection(researchRows = [], sourceRows =
     title: "פאי וקבועים",
     description: "סדרה תחת מספרים ורצפים. קירובים מוצגים כקירובים; קשר למרחב יוצג רק אם קיימת גיאומטריה ממשית.",
     cards,
-    counts: { cases: cards.length, exact: cards.filter((card) => card.verification.relation === "exact").length, approximations: cards.filter((card) => card.verification.relation === "approximation").length },
+    adminQueue: [],
+    counts: { cases: cards.length, exact: cards.filter((card) => card.verification.relation === "exact").length, approximations: cards.filter((card) => card.verification.relation === "approximation").length, adminCandidates: null },
     rules: { approximationIsNotEquality: true, noGeometryLinkWithoutGeometry: true, occurrencesAreNotIndependentSources: true },
   };
 }
 
-export async function fetchZviConstantsWorldProjection({ publicClient = getPublicResearchClient } = {}) {
+export async function fetchZviConstantsWorldProjection({
+  publicClient = getPublicResearchClient,
+  adminClient = null,
+  includeAdmin = false,
+} = {}) {
   try {
     const client = publicClient();
-    const [researchResult, sourceResult] = await Promise.all([
+    const [researchResult, sourceResult, adminResult] = await Promise.all([
       client.from("world_contributor_research_v1")
         .select("id,statement,source_ref,engine_verified,status,privacy_scope")
         .in("id", ZVI_CONSTANT_CASES.map((item) => item.researchId)),
       client.from("channel_updates")
         .select("id,text,image_url,thumb_url,status,created_at")
         .in("id", ZVI_CONSTANT_CASES.flatMap((item) => [item.sourceRef, item.mediaRef]).map((ref) => ref.split(":")[1])),
+      includeAdmin
+        ? import("./zviConstantsAdminProjection.js")
+          .then(({ fetchConstantAdminQueue }) => fetchConstantAdminQueue(adminClient || undefined))
+          .catch(() => null)
+        : Promise.resolve([]),
     ]);
     if (researchResult.error) throw researchResult.error;
     if (sourceResult.error) throw sourceResult.error;
-    return { ...buildZviConstantsWorldProjection(researchResult.data, sourceResult.data), access: { available: true, reader: "public_rls" } };
+    const projection = buildZviConstantsWorldProjection(researchResult.data, sourceResult.data);
+    return {
+      ...projection,
+      adminQueue: Array.isArray(adminResult) ? adminResult : [],
+      counts: { ...projection.counts, adminCandidates: Array.isArray(adminResult) ? adminResult.length : null },
+      access: { available: true, reader: "public_rls", adminQueue: includeAdmin ? (Array.isArray(adminResult) ? "authorized" : "unavailable") : "not_requested" },
+    };
   } catch (_) {
-    return { ...buildZviConstantsWorldProjection(), counts: { cases: null, exact: null, approximations: null }, access: { available: false, reader: "public_rls" } };
+    return { ...buildZviConstantsWorldProjection(), counts: { cases: null, exact: null, approximations: null, adminCandidates: null }, access: { available: false, reader: "public_rls", adminQueue: includeAdmin ? "unavailable" : "not_requested" } };
   }
 }

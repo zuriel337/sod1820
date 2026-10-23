@@ -34,6 +34,18 @@ Strength, evidence quality, calculation state, publication state and source inde
 - `e-pi-minus-pi-20`: `e^π − π` is close to 20 but is not 20.
 - `pi45-e6-403`: `π⁴ + π⁵` is close to `e⁶` but is not equal to it.
 - Neither case is linked to the spatial section because the reviewed evidence does not establish a geometric relationship.
+- The World includes a short public reading guide and links to the canonical lesson at `/beit-midrash?section=numbers&concept=sequences#number-concept-sequences`. The lesson is not copied into a second curriculum or data source.
+
+### Manager promotion review
+
+| Candidate | Deterministic result | Recommendation | Interpretation boundary |
+| --- | --- | --- | --- |
+| `pi-power-pi` | `π^π = 36.4621596072079…` | Calculation only, after approval | 36 and 46 are not produced as exact results |
+| `e-power-e` | `e^e = 15.154262241479259…` | Calculation only, after approval | Moving the decimal to 151 is not established by the calculation |
+| `pi-power-e` | `π^e = 22.45915771836104…` | Hold | Ordinary two-decimal rounding is 22.46, not the source claim 22.45 |
+| `e-power-pi` | `e^π = 23.140692632779263…` | Calculation only, after approval | Any additional meaning needs a separate source and connection |
+
+The four candidate clusters stay behind the existing manager gate. Exact source occurrences and duplicate provenance are retained; occurrences are not counted as independent sources. This review does not change publication status or promote a finding automatically.
 
 ## Held for review
 
