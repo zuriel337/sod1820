@@ -42,6 +42,32 @@ test("public constants projection requires approved public live research and sou
   assert.equal(projection.rules.noGeometryLinkWithoutGeometry, true);
 });
 
+test("the three Human-Gate approved calculations enter the live public series without pi^e", () => {
+  const approvedIds = new Set([
+    "zvi-constant:pi-power-pi",
+    "zvi-constant:e-power-e",
+    "zvi-constant:e-power-pi",
+  ]);
+  const approved = ZVI_CONSTANT_CASES.filter((spec) => approvedIds.has(spec.id));
+  const research = approved.map((spec) => ({
+    id: spec.researchId,
+    statement: `live:${spec.expression}`,
+    status: "approved",
+    privacy_scope: "public",
+  }));
+  const sourceIds = [...new Set(approved.flatMap((spec) => [spec.sourceRef, spec.mediaRef]).map((ref) => ref.split(":")[1]))];
+  const projection = buildZviConstantsWorldProjection(
+    research,
+    sourceIds.map((id) => ({ id, text: `source:${id}`, image_url: null, thumb_url: null })),
+  );
+  assert.deepEqual(projection.cards.map((card) => card.id).sort(), [...approvedIds].sort());
+  assert.ok(projection.cards.every((card) => card.review.publicationState === "approved"));
+  assert.ok(projection.cards.every((card) => card.review.connectionStrength === "חזק לחישוב בלבד"));
+  assert.ok(projection.cards.every((card) => card.review.recommendation.startsWith("מאושר כחישוב")));
+  assert.ok(projection.cards.every((card) => card.geometryLink === null));
+  assert.ok(!projection.cards.some((card) => card.id.includes("pi-power-e")));
+});
+
 test("candidate or non-public constants never enter the public series", () => {
   const spec = ZVI_CONSTANT_CASES[0];
   const source = [{ id: spec.sourceRef.split(":")[1], text: "source" }];
@@ -119,6 +145,8 @@ test("guest makes no manager read while manager gets a separate candidate queue"
 
 test("candidate definitions live outside the public projection bundle", () => {
   assert.match(publicModuleSource, /import\("\.\/zviConstantsAdminProjection\.js"\)/);
-  assert.doesNotMatch(publicModuleSource, /e8fe432c-7a73-4120-a150-bc6c1f03acb6/);
+  assert.doesNotMatch(publicModuleSource, /a7f7e28d-2aa3-4460-a65a-196e15385953/);
+  assert.doesNotMatch(publicModuleSource, /53476dee-38f5-42a7-9788-accc813eedd1/);
+  assert.doesNotMatch(publicModuleSource, /22\.45/);
   assert.doesNotMatch(publicModuleSource, /לקדם את החישוב בלבד לאחר אישור/);
 });

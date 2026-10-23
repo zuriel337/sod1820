@@ -3,6 +3,7 @@ import { contributorSourceLocator } from "./worldContributorSourceLocator.js";
 
 const ZVI_SOURCE_SLUG = "tzvi-opoc";
 const clean = (value) => value == null ? "" : String(value).trim();
+const unique = (values) => [...new Set((values || []).filter(Boolean))];
 
 export const ZVI_CONSTANT_CASES = Object.freeze([
   Object.freeze({
@@ -31,6 +32,54 @@ export const ZVI_CONSTANT_CASES = Object.freeze([
     comparison: () => Math.exp(6),
     geometryLink: null,
     interpretation: "המקור קושר את החלק השלם 403 לביטויים בגימטריה. קרבת הקבועים אינה שוויון ואינה מקור עצמאי לערך 403.",
+  }),
+  Object.freeze({
+    id: "zvi-constant:pi-power-pi",
+    title: "π בחזקת π — 36.46 בקירוב",
+    sourceRef: "channel_updates:e8fe432c-7a73-4120-a150-bc6c1f03acb6",
+    mediaRef: "channel_updates:7d1ec3cc-46a7-4712-bd11-50e923b376ec",
+    researchId: "e4fce708-38cf-4322-8715-8acacfbe2e57",
+    expression: "π^π ≈ 36.46",
+    diagramKind: "powers-balance",
+    target: 36.46,
+    evaluate: () => Math.pow(Math.PI, Math.PI),
+    geometryLink: null,
+    connectionStrength: "חזק לחישוב בלבד",
+    evidenceQuality: "חישוב דטרמיניסטי ומקור ראשוני אחד",
+    recommendation: "מאושר כחישוב; הקישור ל־36 ול־46 נשאר פרשנות לבדיקה.",
+    interpretation: "המקור מקשר את הקירוב 36.46 לערכים 36 ו־46. החישוב מאומת, אך הקישור הרעיוני אינו נובע ממנו.",
+  }),
+  Object.freeze({
+    id: "zvi-constant:e-power-e",
+    title: "e בחזקת e — 15.15 בקירוב",
+    sourceRef: "channel_updates:b12444d5-3223-4c46-a4e0-37109561cd3e",
+    mediaRef: "channel_updates:b12444d5-3223-4c46-a4e0-37109561cd3e",
+    researchId: "3c92b703-2261-4fae-82c3-8f13a40ac3f4",
+    expression: "e^e ≈ 15.15",
+    diagramKind: "constant-orbit",
+    target: 15.15,
+    evaluate: () => Math.pow(Math.E, Math.E),
+    geometryLink: null,
+    connectionStrength: "חזק לחישוב בלבד",
+    evidenceQuality: "חישוב דטרמיניסטי ומקור ראשוני אחד",
+    recommendation: "מאושר כחישוב; המעבר מ־15.15 ל־151 נשאר פרשנות לבדיקה.",
+    interpretation: "המקור מציב את הקירוב לצד 151. הזזת הנקודה אינה שוויון מתמטי ואינה חלק מן החישוב המאושר.",
+  }),
+  Object.freeze({
+    id: "zvi-constant:e-power-pi",
+    title: "e בחזקת π — 23.14 בקירוב",
+    sourceRef: "channel_updates:c2a2d3de-f63e-470f-9819-e37cefcfb940",
+    mediaRef: "channel_updates:c2a2d3de-f63e-470f-9819-e37cefcfb940",
+    researchId: "61f313e4-ef6b-4bef-befd-4561c59bc3f9",
+    expression: "e^π ≈ 23.14",
+    diagramKind: "constant-orbit",
+    target: 23.14,
+    evaluate: () => Math.pow(Math.E, Math.PI),
+    geometryLink: null,
+    connectionStrength: "חזק לחישוב בלבד",
+    evidenceQuality: "חישוב דטרמיניסטי ומקור ראשוני אחד",
+    recommendation: "מאושר כחישוב; אין כרגע חיבור גיאומטרי או רעיוני מבוסס.",
+    interpretation: "הקירוב המספרי מאומת. משמעות נוספת או חיבור למרחב דורשים מקור וראיה נפרדים.",
   }),
 ]);
 
@@ -81,11 +130,11 @@ export function buildZviConstantsWorldProjection(researchRows = [], sourceRows =
       geometryLink: spec.geometryLink,
       interpretation: spec.interpretation,
       review: {
-        connectionStrength: "בינוני",
-        evidenceQuality: "חישוב דטרמיניסטי ומקור יחיד",
+        connectionStrength: spec.connectionStrength || "בינוני",
+        evidenceQuality: spec.evidenceQuality || "חישוב דטרמיניסטי ומקור יחיד",
         independentSourceCount: null,
         publicationState: research.status,
-        recommendation: "דורש בדיקה",
+        recommendation: spec.recommendation || "דורש בדיקה",
       },
     };
   }).filter(Boolean);
@@ -113,7 +162,7 @@ export async function fetchZviConstantsWorldProjection({
         .in("id", ZVI_CONSTANT_CASES.map((item) => item.researchId)),
       client.from("channel_updates")
         .select("id,text,image_url,thumb_url,status,created_at")
-        .in("id", ZVI_CONSTANT_CASES.flatMap((item) => [item.sourceRef, item.mediaRef]).map((ref) => ref.split(":")[1])),
+        .in("id", unique(ZVI_CONSTANT_CASES.flatMap((item) => [item.sourceRef, item.mediaRef]).map((ref) => ref.split(":")[1]))),
       includeAdmin
         ? import("./zviConstantsAdminProjection.js")
           .then(({ fetchConstantAdminQueue }) => fetchConstantAdminQueue(adminClient || undefined))
