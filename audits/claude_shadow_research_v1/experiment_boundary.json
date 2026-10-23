@@ -1,0 +1,29 @@
+{
+  "experiment_id": "claude-shadow-research-v1",
+  "status": "disabled_by_default",
+  "canonical": false,
+  "published": false,
+  "runtime_enabled": false,
+  "runtime_entrypoints": [],
+  "deployment_resources": [],
+  "database_resources_created": [],
+  "scheduled_jobs": [],
+  "feature_flags": [],
+  "owned_paths": [
+    "scripts/claude-shadow-research-core.mjs",
+    "scripts/claude-shadow-research-v1.mjs",
+    "test/claude-shadow-research-v1.test.mjs",
+    "test/claude-shadow-runtime-isolation.test.mjs",
+    "audits/claude_shadow_research_v1"
+  ],
+  "runtime_roots": [
+    "src",
+    "supabase/functions"
+  ],
+  "forbidden_runtime_tokens": [
+    "CLAUDE_SHADOW_RESEARCH_V1",
+    "claude-shadow-research",
+    "claude_shadow_research"
+  ],
+  "disable_action": "Stop invoking the two CLI scripts or leave this branch unmerged. No runtime, database, deployment, flag, secret, schedule, memory, Result Bundle, Raziel or Metatron rollback is required."
+}
