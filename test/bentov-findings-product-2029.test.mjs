@@ -36,9 +36,9 @@ test("status axes and actual inventory totals remain separate", () => {
   for (const total of ["33", "5", "28", "3", "8", "22"]) assert.match(page, new RegExp(`<strong>${total}</strong>`));
   assert.match(page, /data-live-inventory="aggregate-only"/);
   assert.match(page, /33 \/ 33/);
-  assert.match(page, /נאמנות אושרה בפריוויו/);
-  assert.match(page, /0 החלטות נכתבו למסד/);
-  assert.match(page, /האיתור השמור מוצג מול חלון ה־PDF שנמצא בביקורת/);
+  assert.match(page, /הכרעות שמורות/);
+  assert.match(page, /33\/33 במסד הקנוני/);
+  assert.match(page, /האיתור שלפני הביקורת מוצג מול העוגן הקנוני שנשמר/);
   assert.match(page, /\{ page: 109, findings: 1 \}/);
   const sourceWindows = [...page.matchAll(/\{ page: (\d+), findings: (\d+) \}/g)];
   assert.equal(sourceWindows.length, 18);
@@ -64,25 +64,27 @@ test("locator audit is aggregate-only, complete and keeps stored locators distin
   assert.equal(audits.reduce((total, match) => total + Number(match[4]), 0), 22);
 });
 
-test("fidelity review preserves overlap math and keeps Preview approval separate from canonical storage", () => {
+test("fidelity review preserves review cohorts and exposes the canonical aggregate separately", () => {
   assert.match(page, /const FIDELITY_WORK_QUEUE/);
   assert.match(page, /count:\s*15/);
   assert.match(page, /count:\s*18/);
-  assert.match(page, /5 מנוע \+ 12 הליך − 2 חופפים/);
   assert.equal(5 + 12 - 2, 15);
   assert.equal(15 + 18, 33);
+  assert.match(page, /const CANONICAL_FIDELITY_LANES/);
+  assert.match(page, /verifiedExact:\s*23/);
+  assert.match(page, /reconstructedMultiLocus:\s*10/);
   assert.match(page, /derivations:\s*0/);
-  assert.match(page, /mediaRefs:\s*0/);
-  assert.match(page, /recordedIntegrity:\s*0/);
-  assert.match(page, /אישור אנושי · ללא כתיבה למסד/);
+  assert.match(page, /mediaRefs:\s*33/);
+  assert.match(page, /recordedIntegrity:\s*33/);
+  assert.match(page, /23 מדויקות · 10 רב־מוקדיות/);
   assert.match(page, /fidelityApproved:\s*33/);
   assert.match(page, /humanApproved:\s*33/);
-  assert.match(page, /canonicalFidelityStored:\s*0/);
-  assert.match(page, /effect:\s*"preview_only"/);
+  assert.match(page, /canonicalFidelityStored:\s*33/);
+  assert.match(page, /effect:\s*"canonical_readonly_snapshot"/);
   assert.match(page, /ממצאי פרוזה והשוואת־מקורות אינם זקוקים למנוע/);
   assert.match(page, /מהי הכרעת נאמנות/);
   assert.match(page, /זו אינה בדיקת מנוע ואינה החלטת פרסום/);
-  assert.match(page, /data-fidelity-effect="assessment-only"/);
+  assert.match(page, /data-fidelity-effect="canonical-readonly-summary"/);
 });
 
 test("engine applicability and source fidelity are explicit independent axes", () => {
@@ -137,23 +139,24 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /setFidelityDecisions\(decisions => \(\{ \.\.\.decisions, \[findingId\]: "needs_evidence" \}\)\)/);
   assert.match(page, /window\.location\.hash === "#bentov29-review-title"/);
   assert.match(page, /scrollIntoView\(\{ block: "start" \}\)/);
-  assert.match(page, /אינה מתקנת את האיתור הקנוני ואינה נשלחת למסד/);
-  assert.match(page, /אינה קובעת `fidelity_status`/);
+  assert.match(page, /אינה משנה את תיקוני האיתור שכבר נשמרו/);
+  assert.match(page, /אינה משנה את `fidelity_status` הקנוני/);
   assert.doesNotMatch(page, /finding_key|artifact_id|candidate_id|source_provenance_reconstructed_sections/i);
 });
 
-test("publication readiness shows completed human review while canonical write and publication stay blocked", () => {
+test("publication readiness shows completed canonical write while publication stays blocked", () => {
   assert.match(page, /function PublicationReadiness/);
   assert.match(page, /data-publication-readiness="blocked"/);
-  assert.match(page, /ביקורת התוכן הושלמה—הכתיבה הקנונית והפרסום עדיין חסומים/);
-  assert.match(page, /שינוי הרשאות ופתיחה לציבור דורשים מסלול כתיבה קנוני נפרד/);
-  assert.match(page, /איתור מוכן", value: "3 \/ 33"/);
+  assert.match(page, /הכתיבה הקנונית הושלמה—הפרסום עדיין סגור/);
+  assert.match(page, /שינוי הרשאות ופתיחה לציבור לא בוצעו/);
+  assert.match(page, /איתור קנוני", value: "33 \/ 33"/);
   assert.match(page, /בדיקת מנוע", value: "5 \/ 5"/);
-  assert.match(page, /נאמנות בביקורת", value: "33 \/ 33"/);
-  assert.match(page, /נאמנות שמורה", value: "0 \/ 33"/);
+  assert.match(page, /נאמנות מדויקת", value: "23 \/ 33"/);
+  assert.match(page, /נאמנות רב־מוקדית", value: "10 \/ 33"/);
+  assert.match(page, /נאמנות שמורה", value: "33 \/ 33"/);
   assert.match(page, /הכרעה אנושית", value: "33 \/ 33"/);
   assert.match(page, /גישה ציבורית", value: "0 \/ 33"/);
-  assert.match(page, /BLOCKED · Canonical write/);
+  assert.match(page, /NEXT · Publication review/);
   assert.match(page, /data-publication-effect="none"/);
 });
 

@@ -35,7 +35,7 @@ const THEMES = Object.freeze([
   "תצפית פנימית ומדידה",
 ]);
 
-// Read-only aggregate inventory from the canonical candidate set (2026-10-22).
+// Read-only aggregate inventory from the canonical candidate set (2026-10-23).
 // It intentionally contains no statements, quotations, record ids or private metadata.
 const SOURCE_WINDOWS = Object.freeze([
   { page: 7, findings: 1 },
@@ -60,8 +60,8 @@ const SOURCE_WINDOWS = Object.freeze([
 
 // Private witness review, reduced to aggregate locator outcomes. No candidate
 // statement, quote, row id or finding key is embedded in the Preview bundle.
-// `verifiedPages` is the audited PDF window; `page` above remains the locator
-// currently stored in the protected research inventory.
+// `verifiedPages` is the audited PDF window that was written canonically;
+// `page` preserves the pre-write locator so the review delta remains visible.
 const LOCATOR_AUDIT_BY_STORED_PAGE = Object.freeze({
   7: { confirmed: 0, expanded: 0, correction: 1, verifiedPages: "8" },
   32: { confirmed: 0, expanded: 0, correction: 2, verifiedPages: "33–35" },
@@ -90,18 +90,46 @@ const LOCATOR_AUDIT_TOTALS = Object.freeze({
   correction: 22,
 });
 
-// ZURIEL's explicit 33/33 decision is represented in this isolated Preview as
-// a completed review packet. It is not a database write, canonical seal,
-// governance transition or publication action. The live inventory still has
-// zero recorded fidelity_status values and its stored locators remain intact.
+// Read-only canonical snapshot verified after the bounded metadata write on
+// 2026-10-23. The interactive controls below remain local Preview controls;
+// this aggregate does not publish, promote or change access for any finding.
 const PREVIEW_REVIEW_DECISION = Object.freeze({
   reviewed: 33,
   fidelityApproved: 33,
   humanApproved: 33,
-  canonicalFidelityStored: 0,
+  canonicalFidelityStored: 33,
+  verifiedExact: 23,
+  reconstructedMultiLocus: 10,
   publicFindings: 0,
   verdict: "complete",
-  effect: "preview_only",
+  effect: "canonical_readonly_snapshot",
+});
+
+const CANONICAL_FIDELITY_LANES = Object.freeze({
+  exact: Object.freeze({
+    count: 23,
+    title: "נאמנות מדויקת",
+    description: "הממצא נתמך בעוגן מקור מדויק שנבדק מול עד ה־PDF ונשמר במטא־דאטה הקנוני.",
+    action: "הכרעת הנאמנות שמורה. אין צורך בבדיקת מקור נוספת לפני החלטת הפרסום הנפרדת.",
+    summary: "עוגן יחיד ומדויק",
+    metrics: Object.freeze([
+      { value: 23, label: "מדויקים" },
+      { value: 23, label: "שמורים בקנוני" },
+      { value: 0, label: "ציבוריים" },
+    ]),
+  }),
+  multi_locus: Object.freeze({
+    count: 10,
+    title: "נאמנות רב־מוקדית",
+    description: "הממצא נשען על יותר ממוקד אחד בעד המקור, והחיבור ביניהם תועד עם טקסט PDF בר־חיפוש.",
+    action: "הכרעת הנאמנות שמורה. בשער הפרסום יש להציג לקורא את כל מוקדי המקור ולא לצמצם אותם לעמוד יחיד.",
+    summary: "כמה מוקדי מקור מתועדים",
+    metrics: Object.freeze([
+      { value: 10, label: "רב־מוקדיים" },
+      { value: 10, label: "שמורים בקנוני" },
+      { value: 0, label: "ציבוריים" },
+    ]),
+  }),
 });
 
 // Read-only structural cohort counts from the protected candidate inventory
@@ -112,37 +140,37 @@ const FIDELITY_WORK_QUEUE = Object.freeze({
     count: 15,
     title: "בדיקת נאמנות מורכבת",
     description: "ממצאים עם חישוב מנוע או מבנה הליכי צריכים בדיקה של האופרנדים, השלבים והקשר המקור — לא רק תוצאה נכונה.",
-    action: "ההשוואה הושלמה בחבילת הביקורת; לפני כתיבה קנונית יש להחיל את תיקוני האיתור המאושרים.",
+    action: "ההשוואה הושלמה ותיקוני האיתור והנאמנות נשמרו בקנוני; הפרסום נשאר מסלול נפרד.",
     metrics: Object.freeze([
       { value: 5, label: "עברו מנוע" },
       { value: 12, label: "מבני הליך" },
       { value: 2, label: "חפיפה" },
-      { value: 15, label: "אושרו בפריוויו" },
+      { value: 15, label: "חבילות ביקורת" },
     ]),
   }),
   textual: Object.freeze({
     count: 18,
     title: "בדיקת נאמנות טקסטואלית",
     description: "ממצאי פרוזה והשוואת־מקורות אינם זקוקים למנוע, אבל עדיין חייבים להיבדק מול הנוסח, ההקשר וגבולות הטענה במקור.",
-    action: "ההשוואה הטקסטואלית הושלמה ואושרה בחבילת הפריוויו; השמירה הקנונית עדיין חסומה.",
+    action: "ההשוואה הושלמה והכרעות הנאמנות נשמרו בקנוני; הפרסום נשאר מסלול נפרד.",
     metrics: Object.freeze([
       { value: 18, label: "בדיקות טקסטואליות" },
-      { value: 18, label: "אושרו בפריוויו" },
-      { value: 0, label: "החלטות שמורות במסד" },
+      { value: 18, label: "חבילות ביקורת" },
+      { value: 33, label: "החלטות שמורות במסד" },
     ]),
   }),
 });
 
 const FIDELITY_STRUCTURE_TOTALS = Object.freeze({
   derivations: 0,
-  mediaRefs: 0,
-  recordedIntegrity: 0,
+  mediaRefs: 33,
+  recordedIntegrity: 33,
 });
 
 const LOCATOR_STATUS_META = Object.freeze({
-  confirmed: Object.freeze({ label: "איתור מדויק", short: "מדויק", action: "להשוות את מלוא ההקשר לעד המקור" }),
-  expanded: Object.freeze({ label: "טווח מקור מורחב", short: "הרחבה", action: "לעדכן את טווח העמודים לפני הכרעת נאמנות" }),
-  correction: Object.freeze({ label: "איתור דורש תיקון", short: "תיקון", action: "לתקן את האיתור השמור לפני כל הכרעה" }),
+  confirmed: Object.freeze({ label: "איתור נשאר מדויק", short: "מדויק", action: "לא נדרש שינוי באיתור הקנוני" }),
+  expanded: Object.freeze({ label: "טווח המקור הורחב", short: "הורחב", action: "הטווח המורחב נשמר באיתור הקנוני" }),
+  correction: Object.freeze({ label: "האיתור תוקן", short: "תוקן", action: "האיתור המתוקן נשמר בקנוני" }),
 });
 
 const REVIEW_CHECKS = Object.freeze([
@@ -219,8 +247,8 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
     locatorStatus,
     reviewLane: index < FIDELITY_WORK_QUEUE.complex.count ? "complex" : "textual",
     engineStatus: index < 5 ? "verified" : "not_applicable",
-    fidelityStatus: "מלא · אושר בחבילת הפריוויו",
-    governance: "אושר להמשך טיפול קנוני",
+    fidelityStatus: "הכרעה שמורה בקנוני",
+    governance: "מועמד להחלטת פרסום",
     access: "לא ציבורי",
     x: 50 + Math.cos(angle) * radius,
     y: 50 + Math.sin(angle) * radius,
@@ -229,7 +257,7 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
 
 const SOURCES = Object.freeze(SOURCE_WINDOWS.map((source, index) => ({
   id: `source-${index + 1}`,
-  label: `איתור שמור ${source.page}`,
+  label: `איתור לפני ביקורת ${source.page}`,
   page: source.page,
   findings: source.findings,
   audit: LOCATOR_AUDIT_BY_STORED_PAGE[source.page],
@@ -284,8 +312,8 @@ function FindingDetail({ finding, marked, onToggleMark }) {
 
     <div className="bentov29-source-card">
       <span>חלון מקור מן המלאי המוגן</span>
-      <strong>{finding.source} · איתור שמור עמ׳ {finding.page}</strong>
-      <small>האיתור השמור עבר ביקורת PDF נפרדת ומוצג במסלול המקורות. הנוסח והשיוך לנקודת ההדגמה אינם ציטוט או הכרעה מאומתת.</small>
+      <strong>{finding.source} · עוגן קנוני PDF {finding.verifiedPages}</strong>
+      <small>עמ׳ {finding.page} הוא האיתור שלפני הביקורת; העוגן הקנוני שמעליו משקף את התיקון או ההרחבה שנשמרו. נוסח ההדגמה אינו ציטוט.</small>
     </div>
 
     <dl className="bentov29-axes">
@@ -314,7 +342,7 @@ function SourceRail({ selectedSource, onSelect }) {
   return <section className="bentov29-sources" aria-labelledby="bentov29-sources-title">
     <div className="bentov29-section-label">מסלול המקורות</div>
     <h2 id="bentov29-sources-title">18 נקודות עיגון</h2>
-    <p>האיתור השמור מוצג מול חלון ה־PDF שנמצא בביקורת. תוכן המועמדים נשאר מחוץ לחבילת ההדגמה.</p>
+    <p>האיתור שלפני הביקורת מוצג מול העוגן הקנוני שנשמר. תוכן המועמדים נשאר מחוץ לחבילת ההדגמה.</p>
     <div className="bentov29-source-list">
       {SOURCES.map((source, index) => <button
         type="button"
@@ -324,8 +352,8 @@ function SourceRail({ selectedSource, onSelect }) {
       >
         <span className="bentov29-source-index">{String(index + 1).padStart(2, "0")}</span>
         <span>
-          <strong>{source.label}</strong>
-          <small>בדיקת PDF: עמ׳ {source.audit.verifiedPages}</small>
+          <strong>עוגן קנוני {source.audit.verifiedPages}</strong>
+          <small>לפני הביקורת: עמ׳ {source.page}</small>
           <small>{locatorAuditLabel(source.audit)} · {source.findings} {source.findings === 1 ? "ממצא" : "ממצאים"}</small>
         </span>
       </button>)}
@@ -334,19 +362,19 @@ function SourceRail({ selectedSource, onSelect }) {
 }
 
 function FidelityWorkQueue({ selectedLane, onSelectLane }) {
-  const selected = FIDELITY_WORK_QUEUE[selectedLane];
-  return <section className="bentov29-fidelity" aria-labelledby="bentov29-fidelity-title" data-fidelity-effect="assessment-only">
+  const selected = CANONICAL_FIDELITY_LANES[selectedLane];
+  return <section className="bentov29-fidelity" aria-labelledby="bentov29-fidelity-title" data-fidelity-effect="canonical-readonly-summary">
     <header>
       <div>
-        <div className="bentov29-section-label">חבילת הכרעה · נתוני מבנה בלבד</div>
-        <h2 id="bentov29-fidelity-title">33 הכרעות נאמנות הושלמו בפריוויו</h2>
+        <div className="bentov29-section-label">מצב קנוני · נתוני מבנה בלבד</div>
+        <h2 id="bentov29-fidelity-title">33 הכרעות נאמנות שמורות</h2>
       </div>
-      <span>אישור אנושי · ללא כתיבה למסד</span>
+      <span>23 מדויקות · 10 רב־מוקדיות</span>
     </header>
 
     <div className="bentov29-fidelity-layout">
       <div className="bentov29-fidelity-lanes" role="group" aria-label="בחירת קבוצת עבודה לבדיקת נאמנות">
-        {Object.entries(FIDELITY_WORK_QUEUE).map(([key, lane], index) => <button
+        {Object.entries(CANONICAL_FIDELITY_LANES).map(([key, lane], index) => <button
           type="button"
           key={key}
           className={selectedLane === key ? "is-selected" : ""}
@@ -356,7 +384,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
           <span>{String(index + 1).padStart(2, "0")}</span>
           <strong>{lane.count}</strong>
           <b>{lane.title}</b>
-          <small>{key === "complex" ? "5 מנוע + 12 הליך − 2 חופפים" : "18 ממצאים שאינם זקוקים למנוע"}</small>
+          <small>{lane.summary}</small>
         </button>)}
       </div>
 
@@ -366,21 +394,21 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
         <div className="bentov29-fidelity-metrics">
           {selected.metrics.map(metric => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}
         </div>
-        <div className="bentov29-fidelity-action"><span>פעולה נדרשת</span><p>{selected.action}</p></div>
+        <div className="bentov29-fidelity-action"><span>השלב הבא</span><p>{selected.action}</p></div>
         <div className="bentov29-fidelity-action">
           <span>מהי הכרעת נאמנות?</span>
           <p>השוואה בין ניסוח הממצא לבין עד המקור: הנוסח, ההקשר, טווח העמודים וגבולות הטענה. זו אינה בדיקת מנוע ואינה החלטת פרסום.</p>
         </div>
       </article>
 
-      <aside className="bentov29-structure-gaps" aria-label="פערי מבנה נוכחיים">
-        <div className="bentov29-section-label">פערי תיעוד מבניים</div>
+      <aside className="bentov29-structure-gaps" aria-label="מצב התיעוד הקנוני">
+        <div className="bentov29-section-label">מה נשמר בקנוני</div>
         <dl>
           <div><dt>Derivation מובנה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.derivations}</dd></div>
-          <div><dt>עוגני מדיה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.mediaRefs}</dd></div>
+          <div><dt>עוגני עד PDF</dt><dd>{FIDELITY_STRUCTURE_TOTALS.mediaRefs}</dd></div>
           <div><dt>החלטת נאמנות שמורה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.recordedIntegrity}</dd></div>
         </dl>
-        <small>האפס כאן מתייחס למסד הקנוני בלבד. חבילת הפריוויו מכילה 33 החלטות מאושרות, ללא כתיבה חיה.</small>
+        <small>זהו צילום מצב מצרפי בקריאה בלבד. 33 הממצאים נשארו מועמדים מוגנים; שום ממצא לא פורסם.</small>
       </aside>
     </div>
   </section>;
@@ -595,13 +623,13 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
         <h3>מה ההדמיה אינה עושה</h3>
         <ul>
           <li><span>01</span>אינה קוראת נוסח פרטי או ציטוט.</li>
-          <li><span>02</span>אינה שומרת תיקון איתור.</li>
-          <li><span>03</span>אינה קובעת `fidelity_status`.</li>
+          <li><span>02</span>אינה משנה את תיקוני האיתור שכבר נשמרו.</li>
+          <li><span>03</span>אינה משנה את `fidelity_status` הקנוני.</li>
           <li><span>04</span>אינה מאשרת ממשל או גישה.</li>
           <li><span>05</span>אינה מפרסמת ממצא.</li>
         </ul>
         <strong>השלב האמיתי הבא</strong>
-        <p>ליישם את 22 תיקוני האיתור ו־8 הרחבות הטווח בכתיבה קנונית מאושרת; רק אחר כך ניתן לתכנן שער פרסום נפרד.</p>
+        <p>לבנות שער ביקורת פרסום נפרד שמציג את 33 ההכרעות הקנוניות, בלי לפתוח הרשאות ובלי להפוך מועמד לחומר ציבורי.</p>
       </aside>
     </div>
   </section>;
@@ -612,9 +640,10 @@ function PublicationReadiness() {
     { label: "קליטה", value: "33 / 33", detail: "המועמדים קיימים במאגר המוגן", state: "complete" },
     { label: "בדיקת מנוע", value: "5 / 5", detail: "כל הממצאים המתאימים למנוע עברו; ב־28 האחרים המנוע אינו חל", state: "complete" },
     { label: "ביקורת מקור", value: "33 / 33", detail: "כל האיתורים נבדקו מול ה־PDF", state: "complete" },
-    { label: "איתור מוכן", value: "3 / 33", detail: "30 דורשים תיקון או הרחבת טווח", state: "current" },
-    { label: "נאמנות בביקורת", value: "33 / 33", detail: "כל הממצאים הוכרעו כמלאים בחבילת הפריוויו", state: "complete" },
-    { label: "נאמנות שמורה", value: "0 / 33", detail: "ההחלטות טרם נכתבו למסד הקנוני", state: "closed" },
+    { label: "איתור קנוני", value: "33 / 33", detail: "22 תיקונים, 8 הרחבות ו־3 איתורים שלא דרשו שינוי נשמרו", state: "complete" },
+    { label: "נאמנות מדויקת", value: "23 / 33", detail: "עוגן מקור מדויק נשמר לכל אחד מהממצאים", state: "complete" },
+    { label: "נאמנות רב־מוקדית", value: "10 / 33", detail: "כל מוקדי המקור נשמרו עם עד PDF בר־חיפוש", state: "complete" },
+    { label: "נאמנות שמורה", value: "33 / 33", detail: "כל ההחלטות קיימות במסד הקנוני", state: "complete" },
     { label: "הכרעה אנושית", value: "33 / 33", detail: "אישור בעלים התקבל לכל חבילת הביקורת", state: "complete" },
     { label: "גישה ציבורית", value: "0 / 33", detail: "שער הפרסום והתשתית נשארים סגורים", state: "locked" },
   ];
@@ -624,7 +653,7 @@ function PublicationReadiness() {
         <div className="bentov29-section-label">תמונת מוכנות · ללא פרסום</div>
         <h2 id="bentov29-readiness-title">איפה המוצר עומד מול שער ציבורי</h2>
       </div>
-      <span>BLOCKED · Canonical write</span>
+      <span>NEXT · Publication review</span>
     </header>
     <div className="bentov29-readiness-grid">
       {gates.map((gate, index) => <article key={gate.label} className={`is-${gate.state}`}>
@@ -635,8 +664,8 @@ function PublicationReadiness() {
       </article>)}
     </div>
     <div className="bentov29-readiness-verdict">
-      <div><span>מסקנה</span><strong>ביקורת התוכן הושלמה—הכתיבה הקנונית והפרסום עדיין חסומים.</strong></div>
-      <p>33 ההחלטות קיימות בפריוויו. שמירת תיקוני האיתור והנאמנות, שינוי הרשאות ופתיחה לציבור דורשים מסלול כתיבה קנוני נפרד בסשן המרכזי.</p>
+      <div><span>מסקנה</span><strong>הכתיבה הקנונית הושלמה—הפרסום עדיין סגור.</strong></div>
+      <p>33 ההחלטות שמורות: 23 מדויקות ו־10 רב־מוקדיות. השלב הבא הוא ביקורת פרסום נפרדת; שינוי הרשאות ופתיחה לציבור לא בוצעו.</p>
     </div>
   </section>;
 }
@@ -646,7 +675,7 @@ export default function BentovFindingsProduct2029Page() {
   const [selectedId, setSelectedId] = useState(FINDINGS[0].id);
   const [selectedSource, setSelectedSource] = useState(SOURCES[0].id);
   const [markedIds, setMarkedIds] = useState(() => new Set());
-  const [fidelityLane, setFidelityLane] = useState("complex");
+  const [fidelityLane, setFidelityLane] = useState("exact");
   const [reviewProgress, setReviewProgress] = useState(() => Object.fromEntries(
     FINDINGS.map(finding => [finding.id, new Set(REVIEW_CHECKS.map(check => check.key))]),
   ));
@@ -798,10 +827,12 @@ export default function BentovFindingsProduct2029Page() {
         <article data-engine-status="verified"><strong>5</strong><span>עברו בדיקת מנוע</span><small>5 מתוך 5 שבהם מנוע רלוונטי</small></article>
         <article data-engine-status="not_applicable"><strong>28</strong><span>מנוע לא רלוונטי</span><small>לא כשל ולא חוסר אימות</small></article>
         <article><strong>33</strong><span>איתורים נבדקו</span><small>מול עד ה־PDF הפרטי</small></article>
-        <article className="is-confirmed"><strong>3</strong><span>מדויקים כפי שנשמרו</span><small>locator confirmed</small></article>
-        <article className="is-expanded"><strong>8</strong><span>דורשים טווח רחב</span><small>locator expanded</small></article>
-        <article className="is-correction"><strong>22</strong><span>דורשים תיקון</span><small>locator correction</small></article>
-        <article className="is-confirmed"><strong>33</strong><span>נאמנות אושרה בפריוויו</span><small>33/33 נבדקו; 0 החלטות נכתבו למסד</small></article>
+        <article className="is-confirmed"><strong>3</strong><span>נשארו מדויקים</span><small>לא נדרש שינוי איתור</small></article>
+        <article className="is-expanded"><strong>8</strong><span>טווחים הורחבו</span><small>נשמרו בקנוני</small></article>
+        <article className="is-correction"><strong>22</strong><span>איתורים תוקנו</span><small>נשמרו בקנוני</small></article>
+        <article className="is-confirmed"><strong>23</strong><span>נאמנות מדויקת</span><small>verified_exact</small></article>
+        <article className="is-expanded"><strong>10</strong><span>נאמנות רב־מוקדית</span><small>כל מוקדי המקור שמורים</small></article>
+        <article className="is-confirmed"><strong>33</strong><span>הכרעות שמורות</span><small>33/33 במסד הקנוני</small></article>
         <article className="is-locked"><strong>0</strong><span>ציבוריים</span><small>שער הפרסום נשאר סגור</small></article>
       </section>
 
@@ -845,19 +876,19 @@ export default function BentovFindingsProduct2029Page() {
         <div className="bentov29-verification-chain">
           <article className="is-complete" data-engine-status="summary"><span>01</span><strong>בדיקת מנוע</strong><b>5 / 5</b><small>כל הממצאים המתאימים למנוע עברו. ב־28 האחרים מנוע אינו חל.</small></article>
           <article className="is-complete"><span>02</span><strong>קליטת חומר</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה ואיתור שמור במאגר המוגן.</small></article>
-          <article className="is-complete"><span>03</span><strong>ביקורת איתור PDF</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 מדויקים, 8 דורשים הרחבת טווח ו־22 דורשים תיקון.</small></article>
-          <article className="is-complete"><span>04</span><strong>נאמנות למקור</strong><b>33 / 33</b><small>כל 33 ההכרעות הושלמו ואושרו בחבילת הפריוויו; 0 נשמרו במסד הקנוני.</small></article>
-          <article className="is-closed"><span>05</span><strong>ביקורת ופרסום</strong><b><span className="bentov29-numeric-value">0</span><span className="bentov29-value-label">ציבוריים</span></b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
+          <article className="is-complete"><span>03</span><strong>איתור PDF קנוני</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 נשארו מדויקים, 8 טווחים הורחבו ו־22 איתורים תוקנו.</small></article>
+          <article className="is-complete"><span>04</span><strong>נאמנות למקור</strong><b>33 / 33</b><small>23 מדויקות ו־10 רב־מוקדיות נשמרו במסד הקנוני.</small></article>
+          <article className="is-closed"><span>05</span><strong>ביקורת ופרסום</strong><b><span className="bentov29-numeric-value">0</span><span className="bentov29-value-label">ציבוריים</span></b><small>נשאר סגור עד החלטת פרסום, חוזה הרשאה ותשתית גישה נפרדת.</small></article>
         </div>
         <div className="bentov29-audit-summary" aria-label="סיכום ביקורת איתורי המקור">
-          <span className="is-confirmed"><b>{LOCATOR_AUDIT_TOTALS.confirmed}</b><small>איתורים מדויקים</small></span>
-          <span className="is-expanded"><b>{LOCATOR_AUDIT_TOTALS.expanded}</b><small>איתורים להרחבת טווח</small></span>
-          <span className="is-correction"><b>{LOCATOR_AUDIT_TOTALS.correction}</b><small>איתורים לתיקון</small></span>
+          <span className="is-confirmed"><b>{LOCATOR_AUDIT_TOTALS.confirmed}</b><small>נשארו מדויקים</small></span>
+          <span className="is-expanded"><b>{LOCATOR_AUDIT_TOTALS.expanded}</b><small>טווחים הורחבו</small></span>
+          <span className="is-correction"><b>{LOCATOR_AUDIT_TOTALS.correction}</b><small>איתורים תוקנו</small></span>
         </div>
-        <div className="bentov29-page-map" aria-label="מפת איתורים שמורים מול בדיקת PDF">
+        <div className="bentov29-page-map" aria-label="מפת איתורים לפני הכתיבה מול העוגנים הקנוניים">
           {SOURCES.map(source => <span key={source.id} className={source.audit.correction ? "is-correction" : source.audit.expanded ? "is-expanded" : "is-confirmed"}>
-            <b>שמור {source.page}</b>
-            <small>PDF {source.audit.verifiedPages}</small>
+            <b>לפני {source.page}</b>
+            <small>עוגן קנוני PDF {source.audit.verifiedPages}</small>
             <em>{locatorAuditLabel(source.audit)}</em>
           </span>)}
         </div>
@@ -892,8 +923,8 @@ export default function BentovFindingsProduct2029Page() {
         <ol>
           <li><span>01</span><strong>חבילת הכרעה פרטית</strong><small>הושלמה ל־33/33 ממצאים מול המקור והמקורות המשלימים</small></li>
           <li><span>02</span><strong>אישור אנושי</strong><small>התקבל ל־33/33 בתוך הפריוויו המבודד</small></li>
-          <li><span>03</span><strong>כתיבה קנונית</strong><small>להחיל 22 תיקוני איתור, 8 הרחבות ו־33 הכרעות נאמנות במסלול מאושר</small></li>
-          <li><span>04</span><strong>תכנון שער פרסום</strong><small>רק אחרי החלטת תוכן, חוזה הרשאה ו־RLS מאושרים</small></li>
+          <li><span>03</span><strong>כתיבה קנונית</strong><small>הושלמה ואומתה: 22 תיקונים, 8 הרחבות ו־33 הכרעות נאמנות</small></li>
+          <li><span>04</span><strong>ביקורת פרסום</strong><small>השלב הבא: להציג 23 מדויקים ו־10 רב־מוקדיים להחלטה, בלי לשנות הרשאות</small></li>
         </ol>
       </section>
     </main>
