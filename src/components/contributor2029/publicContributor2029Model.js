@@ -1,7 +1,7 @@
 // Page-local presentation over the canonical reader. No persistence or attribution inference.
 export const SECTIONS = Object.freeze([
   ["all", "הכול"], ["writings", "כתבים ומאמרים"], ["sources", "מקורות ועדכונים"],
-  ["findings", "ממצאים"], ["topics", "התכנסויות ונושאים"], ["media", "מדיה וגלריות"],
+  ["findings", "ממצאים"], ["topics", "התכנסויות ונושאים"], ["media", "מדיה וגלריות"], ["community", "הודעות, לייקים ותגובות"],
 ]);
 const text = (v) => typeof v === "string" ? v.trim() : "";
 const finite = (v) => v !== null && v !== "" && v !== undefined && Number.isFinite(Number(v)) ? Number(v) : null;
@@ -150,7 +150,7 @@ export function buildPublicContributorView(projection, identity) {
     profile: { name: text(identity.display_name) || "כותב", bio: text(identity.bio),
       avatar: publicContributorAvatar(identity), role: ({ researcher: "חוקר", writer: "כותב", rabbi: "רב" })[identity.role]
         || (/[א-ת]/.test(text(identity.role)) && !/בעל האתר|מנהל|triage|admin|@/i.test(identity.role) ? text(identity.role) : "") },
-    items: unique, sourceGroups, availability,
+    items: unique, sourceGroups, availability, communityAuthorKey: identity.id,
     partial: Object.values(availability).some((v) => v !== "ok")
       || Object.entries(projection.loadState || {}).some(([key, value]) => key.endsWith("Truncated") && value === true),
     unattributed,

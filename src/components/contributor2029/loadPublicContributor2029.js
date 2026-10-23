@@ -32,11 +32,11 @@ export async function loadPublicContributor2029(slug, {
     });
     if (!catalog || !publicProjection) return null;
     const publicData = buildPublicContributorView({ ...publicProjection, sourceGroups: [] }, identity);
-    return publicSourceCatalog2029(catalog, {
+    return { ...publicSourceCatalog2029(catalog, {
       profile: publicData.profile, canonicalHref: contributorHref(identity),
       community: publicData.items.filter((item) => item.type === "community"),
       communityAvailable: publicProjection.availability?.contributions === "ok",
-    });
+    }), communityAuthorKey: identity.id };
   }
   const projection = await projectionReader(identity.slug, {
     mode: PROJECTOR_MODE.PUBLIC_VIEW,
@@ -46,5 +46,5 @@ export async function loadPublicContributor2029(slug, {
     topicsReader: async () => { throw new Error("anonymous_topic_reader_unavailable"); },
   });
   if (!projection) return null;
-  return { ...buildPublicContributorView(projection, identity), canonicalHref: contributorHref(identity) };
+  return { ...buildPublicContributorView(projection, identity), canonicalHref: contributorHref(identity), communityAuthorKey: identity.id };
 }

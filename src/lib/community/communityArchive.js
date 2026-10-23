@@ -46,15 +46,15 @@ function filterByAuthor(query, identity) {
   return identity.contributorIds.length === 1 ? query.eq("author_contributor_id", identity.contributorIds[0]) : query.in("author_contributor_id", identity.contributorIds);
 }
 
-async function resolveCommunityAuthorIdentity(authorKey) {
+async function resolveCommunityAuthorIdentity(authorKey, client = supabase) {
   const identity = communityAuthorIdentity(authorKey);
   if (identity.verifiedOwner) return identity;
   if (authorKey.startsWith("user:")) {
-    const { data, error } = await supabase.from("contributors").select("id").eq("user_id", identity.accountIds[0]).limit(100);
+    const { data, error } = await client.from("contributors").select("id").eq("user_id", identity.accountIds[0]).limit(100);
     if (error) throw error;
     return { ...identity, contributorIds: (data || []).map((row) => row.id) };
   }
-  const { data, error } = await supabase.from("contributors").select("user_id").eq("id", identity.contributorIds[0]).maybeSingle();
+  const { data, error } = await client.from("contributors").select("user_id").eq("id", identity.contributorIds[0]).maybeSingle();
   if (error) throw error;
   return { ...identity, accountIds: data?.user_id ? [data.user_id] : [] };
 }
@@ -159,11 +159,11 @@ export async function fetchCommunityAuthorPage(authorKey, { offset = 0, limit = 
   return fetchPublicAuthorActivityPage(authorKey, { offset, limit, filter: "chat", sort });
 }
 
-export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, limit = COMMUNITY_PAGE_SIZE, filter = "all", sort = "newest" } = {}) {
-  const identity = await resolveCommunityAuthorIdentity(authorKey);
+export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, limit = COMMUNITY_PAGE_SIZE, filter = "all", sort = "newest", client = supabase } = {}) {
+  const identity = await resolveCommunityAuthorIdentity(authorKey, client);
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
-  let base = supabase
+  let base = client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,target_type,target_id,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
     .eq("status", "approved")
@@ -179,9 +179,9 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
   return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body), count: count ?? 0, nextOffset: safeOffset + (data || []).length };
 }
 
-export async function fetchCommunityAuthorSummary(authorKey) {
-  const identity = await resolveCommunityAuthorIdentity(authorKey);
-  const base = () => filterByAuthor(supabase.from("research_contributions")
+export async function fetchCommunityAuthorSummary(authorKey, { client = supabase } = {}) {
+  const identity = await resolveCommunityAuthorIdentity(authorKey, client);
+  const base = () => filterByAuthor(client.from("research_contributions")
     .select("created_at,reactions")
     .eq("status", "approved")
     .in("origin", ["openweb", "community_2029"]), identity);
