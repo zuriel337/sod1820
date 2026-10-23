@@ -189,6 +189,21 @@ const FIDELITY_VERDICT_META = Object.freeze({
   needs_evidence: Object.freeze({ label: "חסרות ראיות", description: "אין עדיין בסיס מספיק להכרעה; הממצא נשאר פתוח." }),
 });
 
+const PUBLICATION_CHECKS = Object.freeze([
+  Object.freeze({ key: "public_copy", label: "נוסח ציבורי", description: "הניסוח העברי ברור, מדויק ואינו חושף חומר עבודה פרטי." }),
+  Object.freeze({ key: "source_display", label: "הצגת מקור", description: "הקורא יקבל את כל עוגני המקור הנדרשים, ובממצא רב־מוקדי את כולם." }),
+  Object.freeze({ key: "attribution", label: "ייחוס", description: "הספר, המחבר וההבחנה בין דברי המקור לבין פרשנות מוצגים במפורש." }),
+  Object.freeze({ key: "privacy", label: "פרטיות", description: "אין בנוסח, בראיות או במטא־דאטה מידע פרטי שאסור להציג." }),
+  Object.freeze({ key: "accessibility", label: "נגישות", description: "הכותרת, התקציר, מבנה הקריאה והחלופה החזותית מוכנים לקורא." }),
+]);
+
+const PUBLICATION_DECISION_META = Object.freeze({
+  ready_for_publication: Object.freeze({ label: "מוכן להחלטת פרסום", description: "חבילת התצוגה עברה את חמש בדיקות הפרסום; עדיין לא פורסם דבר." }),
+  needs_public_copy: Object.freeze({ label: "נדרש ניסוח ציבורי", description: "המחקר תקין, אך הנוסח לקורא עדיין דורש עריכה." }),
+  hold: Object.freeze({ label: "בהשהיה", description: "הממצא נשמר כמועמד ואינו מתקדם כרגע." }),
+  exclude: Object.freeze({ label: "לא לפרסום", description: "הממצא יישאר בחומר המחקר ולא יוצג בספרייה הציבורית." }),
+});
+
 const EVIDENCE_REQUIREMENTS = Object.freeze({
   shared: Object.freeze([
     Object.freeze({ key: "witness_window", label: "חלון עד המקור", description: "העמודים שנבדקו כוללים את הקטע הרלוונטי במלואו." }),
@@ -246,6 +261,7 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
     verifiedPages: sourceAudit.verifiedPages,
     locatorStatus,
     reviewLane: index < FIDELITY_WORK_QUEUE.complex.count ? "complex" : "textual",
+    publicationFidelity: index < PREVIEW_REVIEW_DECISION.verifiedExact ? "exact" : "multi_locus",
     engineStatus: index < 5 ? "verified" : "not_applicable",
     fidelityStatus: "הכרעה שמורה בקנוני",
     governance: "מועמד להחלטת פרסום",
@@ -635,6 +651,136 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   </section>;
 }
 
+function PublicationDecisionGate({ findings, selectedId, onSelect, decisions, checks, onDecision, onToggleCheck, onModelComplete, onReset }) {
+  const selected = findings.find(item => item.id === selectedId) || findings[0];
+  const selectedChecks = checks[selected.id] || new Set();
+  const allChecksComplete = PUBLICATION_CHECKS.every(check => selectedChecks.has(check.key));
+  const decision = decisions[selected.id] || "hold";
+  const totals = Object.fromEntries(Object.keys(PUBLICATION_DECISION_META).map(key => [
+    key,
+    findings.filter(item => (decisions[item.id] || "hold") === key).length,
+  ]));
+  const fullyChecked = findings.filter(item => (
+    PUBLICATION_CHECKS.every(check => (checks[item.id] || new Set()).has(check.key))
+  )).length;
+  const exactReady = findings.filter(item => item.publicationFidelity === "exact" && decisions[item.id] === "ready_for_publication").length;
+  const multiReady = findings.filter(item => item.publicationFidelity === "multi_locus" && decisions[item.id] === "ready_for_publication").length;
+  const fidelityLane = CANONICAL_FIDELITY_LANES[selected.publicationFidelity];
+
+  return <section className="bentov29-publication-gate" aria-labelledby="bentov29-publication-gate-title" data-publication-decision-effect="local-only">
+    <header>
+      <div>
+        <div className="bentov29-section-label">שלב 06 · שער החלטת פרסום בפריוויו</div>
+        <h2 id="bentov29-publication-gate-title">כך 33 הממצאים הופכים לחבילת ספר לציבור</h2>
+        <p>המסך מדגים את החלטת העורך אחרי שהמקור והנאמנות כבר נשמרו. כל הסימונים כאן מקומיים בלבד: אין כתיבה למסד, אין שינוי הרשאות ואין פרסום.</p>
+      </div>
+      <div className="bentov29-publication-actions">
+        <strong>{totals.ready_for_publication} / 33</strong>
+        <span>מוכנים להחלטה בהדמיה</span>
+        <small>{fullyChecked} חבילות עם 5/5 בדיקות מקומיות</small>
+        <div>
+          <button type="button" onClick={onModelComplete}>הצג מוצר מלא 33/33</button>
+          <button type="button" onClick={onReset}>אפס הדמיה</button>
+        </div>
+      </div>
+    </header>
+
+    <div className="bentov29-publication-summary" aria-label="סיכום שער החלטת הפרסום">
+      <article><span>01</span><strong>נאמנות מדויקת</strong><b>{exactReady} / 23</b><small>עוגן יחיד מוצג לקורא</small></article>
+      <article><span>02</span><strong>נאמנות רב־מוקדית</strong><b>{multiReady} / 10</b><small>כל מוקדי המקור מוצגים לקורא</small></article>
+      <article><span>03</span><strong>נדרש ניסוח</strong><b>{totals.needs_public_copy}</b><small>נשאר במסלול העריכה</small></article>
+      <article className="is-locked"><span>04</span><strong>גישה ציבורית חיה</strong><b>0 / 33</b><small>לא נפתחה בפריוויו</small></article>
+    </div>
+
+    <div className="bentov29-publication-layout">
+      <div className="bentov29-publication-queue" aria-label="33 תיקי החלטת פרסום">
+        {findings.map(item => {
+          const itemDecision = decisions[item.id] || "hold";
+          const itemChecks = checks[item.id] || new Set();
+          return <button
+            type="button"
+            key={item.id}
+            className={`${selected.id === item.id ? "is-selected" : ""} is-${itemDecision}`}
+            onClick={() => onSelect(item.id)}
+            aria-pressed={selected.id === item.id}
+          >
+            <span>B-{String(item.number).padStart(2, "0")}</span>
+            <i>{item.publicationFidelity === "exact" ? "מדויק" : "רב־מוקדי"}</i>
+            <b>{itemChecks.size}/{PUBLICATION_CHECKS.length}</b>
+          </button>;
+        })}
+      </div>
+
+      <article className="bentov29-publication-card" aria-live="polite">
+        <div className="bentov29-publication-card-head">
+          <div><span>תיק תצוגה</span><strong>B-{String(selected.number).padStart(2, "0")}</strong></div>
+          <span>{fidelityLane.title}</span>
+        </div>
+        <div className="bentov29-publication-context">
+          <div><span>מצב אמת</span><strong>candidate / public_candidate</strong></div>
+          <div><span>נאמנות קנונית</span><strong>{selected.publicationFidelity === "exact" ? "verified_exact" : "רב־מוקדית מתועדת"}</strong></div>
+          <div><span>תצוגת מקור</span><strong>{selected.publicationFidelity === "exact" ? "עוגן מדויק" : "כל מוקדי המקור"}</strong></div>
+          <div><span>גישה</span><strong>לא ציבורי</strong></div>
+        </div>
+
+        <fieldset className="bentov29-publication-checks">
+          <legend>בדיקות חבילת הפרסום · {selectedChecks.size}/{PUBLICATION_CHECKS.length}</legend>
+          <p>הבדיקות שייכות להצגה לקורא, לא לאימות המחקר שכבר הושלם.</p>
+          <div role="group" aria-label={`בדיקות פרסום לתיק B-${String(selected.number).padStart(2, "0")}`}>
+            {PUBLICATION_CHECKS.map((check, index) => {
+              const checked = selectedChecks.has(check.key);
+              return <button
+                type="button"
+                key={check.key}
+                className={checked ? "is-complete" : ""}
+                onClick={() => onToggleCheck(selected.id, check.key)}
+                aria-pressed={checked}
+              >
+                <span>{checked ? "✓" : String(index + 1).padStart(2, "0")}</span>
+                <strong>{check.label}</strong>
+                <small>{check.description}</small>
+              </button>;
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset className="bentov29-publication-decision">
+          <legend>החלטת פרסום מקומית</legend>
+          <p>״מוכן להחלטת פרסום״ מתאר את החבילה בלבד. הוא אינו משנה מצב קנוני ואינו פותח גישה.</p>
+          <div role="group" aria-label={`החלטת פרסום לתיק B-${String(selected.number).padStart(2, "0")}`}>
+            {Object.entries(PUBLICATION_DECISION_META).map(([key, meta]) => <button
+              type="button"
+              key={key}
+              className={`${decision === key ? "is-selected" : ""} is-${key}`}
+              onClick={() => onDecision(selected.id, key)}
+              aria-pressed={decision === key}
+              disabled={key === "ready_for_publication" && !allChecksComplete}
+            >
+              <strong>{meta.label}</strong>
+              <small>{meta.description}</small>
+            </button>)}
+          </div>
+        </fieldset>
+      </article>
+
+      <aside className="bentov29-publication-boundary">
+        <div className="bentov29-section-label">מה רואים בסוף</div>
+        <h3>חבילת קריאה, לא שורת מסד</h3>
+        <ol>
+          <li><span>01</span><div><strong>כותרת ותקציר בעברית</strong><small>נוסח ציבורי נפרד מחומר העבודה.</small></div></li>
+          <li><span>02</span><div><strong>מפת תודעה מרחבית</strong><small>כניסה חזותית לנושאים ולקשרים.</small></div></li>
+          <li><span>03</span><div><strong>כרטיס ממצא עם מקור</strong><small>הבחנה בין מקור, ממצא ופרשנות.</small></div></li>
+          <li><span>04</span><div><strong>מסלול חקירה בספר</strong><small>מעבר בין 33 הממצאים בלי לחשוף מידע פרטי.</small></div></li>
+        </ol>
+        <div className="bentov29-publication-lock" role="status">
+          <strong>0 ממצאים ציבוריים</strong>
+          <small>הדגמת ההחלטה הושלמה בפריוויו בלבד. מעבר אמיתי דורש שער כתיבה והרשאה נפרד.</small>
+        </div>
+      </aside>
+    </div>
+  </section>;
+}
+
 function PublicationReadiness() {
   const gates = [
     { label: "קליטה", value: "33 / 33", detail: "המועמדים קיימים במאגר המוגן", state: "complete" },
@@ -645,6 +791,7 @@ function PublicationReadiness() {
     { label: "נאמנות רב־מוקדית", value: "10 / 33", detail: "כל מוקדי המקור נשמרו עם עד PDF בר־חיפוש", state: "complete" },
     { label: "נאמנות שמורה", value: "33 / 33", detail: "כל ההחלטות קיימות במסד הקנוני", state: "complete" },
     { label: "הכרעה אנושית", value: "33 / 33", detail: "אישור בעלים התקבל לכל חבילת הביקורת", state: "complete" },
+    { label: "ביקורת פרסום", value: "33 / 33", detail: "המסלול המלא מודגם מקומית; ההחלטות אינן נשמרות", state: "current" },
     { label: "גישה ציבורית", value: "0 / 33", detail: "שער הפרסום והתשתית נשארים סגורים", state: "locked" },
   ];
   return <section className="bentov29-readiness" aria-labelledby="bentov29-readiness-title" data-publication-readiness="blocked">
@@ -653,7 +800,7 @@ function PublicationReadiness() {
         <div className="bentov29-section-label">תמונת מוכנות · ללא פרסום</div>
         <h2 id="bentov29-readiness-title">איפה המוצר עומד מול שער ציבורי</h2>
       </div>
-      <span>NEXT · Publication review</span>
+      <span>NEXT · Access implementation</span>
     </header>
     <div className="bentov29-readiness-grid">
       {gates.map((gate, index) => <article key={gate.label} className={`is-${gate.state}`}>
@@ -665,7 +812,7 @@ function PublicationReadiness() {
     </div>
     <div className="bentov29-readiness-verdict">
       <div><span>מסקנה</span><strong>הכתיבה הקנונית הושלמה—הפרסום עדיין סגור.</strong></div>
-      <p>33 ההחלטות שמורות: 23 מדויקות ו־10 רב־מוקדיות. השלב הבא הוא ביקורת פרסום נפרדת; שינוי הרשאות ופתיחה לציבור לא בוצעו.</p>
+      <p>33 החלטות הנאמנות שמורות, ושער ביקורת הפרסום כבר מודגם כאן ל־23 מדויקות ול־10 רב־מוקדיות. השלב הבא האמיתי הוא תכנון כתיבה והרשאת קריאה ציבורית; שינוי הרשאות ופתיחה לציבור לא בוצעו.</p>
     </div>
   </section>;
 }
@@ -687,6 +834,12 @@ export default function BentovFindingsProduct2029Page() {
   ));
   const [evidenceProgress, setEvidenceProgress] = useState(() => Object.fromEntries(
     FINDINGS.map(finding => [finding.id, new Set(evidenceRequirementsFor(finding).map(requirement => requirement.key))]),
+  ));
+  const [publicationDecisions, setPublicationDecisions] = useState(() => Object.fromEntries(
+    FINDINGS.map(finding => [finding.id, "ready_for_publication"]),
+  ));
+  const [publicationChecks, setPublicationChecks] = useState(() => Object.fromEntries(
+    FINDINGS.map(finding => [finding.id, new Set(PUBLICATION_CHECKS.map(check => check.key))]),
   ));
 
   useEffect(() => {
@@ -796,6 +949,38 @@ export default function BentovFindingsProduct2029Page() {
     setFidelityDecisions({});
     setEvidenceProgress({});
     setReviewProgress({});
+  };
+
+  const setPublicationDecision = (findingId, decision) => {
+    if (!PUBLICATION_DECISION_META[decision]) return;
+    const recorded = publicationChecks[findingId] || new Set();
+    if (decision === "ready_for_publication" && !PUBLICATION_CHECKS.every(check => recorded.has(check.key))) return;
+    setPublicationDecisions(current => ({ ...current, [findingId]: decision }));
+  };
+
+  const togglePublicationCheck = (findingId, checkKey) => {
+    if (!PUBLICATION_CHECKS.some(check => check.key === checkKey)) return;
+    const next = new Set(publicationChecks[findingId] || []);
+    if (next.has(checkKey)) next.delete(checkKey);
+    else next.add(checkKey);
+    setPublicationChecks(current => ({ ...current, [findingId]: next }));
+    if (!PUBLICATION_CHECKS.every(check => next.has(check.key))) {
+      setPublicationDecisions(current => ({ ...current, [findingId]: "needs_public_copy" }));
+    }
+  };
+
+  const modelCompletePublicationReview = () => {
+    setPublicationChecks(Object.fromEntries(
+      FINDINGS.map(finding => [finding.id, new Set(PUBLICATION_CHECKS.map(check => check.key))]),
+    ));
+    setPublicationDecisions(Object.fromEntries(
+      FINDINGS.map(finding => [finding.id, "ready_for_publication"]),
+    ));
+  };
+
+  const resetPublicationReview = () => {
+    setPublicationChecks({});
+    setPublicationDecisions(Object.fromEntries(FINDINGS.map(finding => [finding.id, "hold"])));
   };
 
   return <Sod2029Shell
@@ -913,6 +1098,18 @@ export default function BentovFindingsProduct2029Page() {
         onReset={resetReview}
       />
 
+      <PublicationDecisionGate
+        findings={FINDINGS}
+        selectedId={selectedId}
+        onSelect={selectFinding}
+        decisions={publicationDecisions}
+        checks={publicationChecks}
+        onDecision={setPublicationDecision}
+        onToggleCheck={togglePublicationCheck}
+        onModelComplete={modelCompletePublicationReview}
+        onReset={resetPublicationReview}
+      />
+
       <PublicationReadiness />
 
       <section className="bentov29-next" aria-labelledby="bentov29-next-title">
@@ -924,7 +1121,7 @@ export default function BentovFindingsProduct2029Page() {
           <li><span>01</span><strong>חבילת הכרעה פרטית</strong><small>הושלמה ל־33/33 ממצאים מול המקור והמקורות המשלימים</small></li>
           <li><span>02</span><strong>אישור אנושי</strong><small>התקבל ל־33/33 בתוך הפריוויו המבודד</small></li>
           <li><span>03</span><strong>כתיבה קנונית</strong><small>הושלמה ואומתה: 22 תיקונים, 8 הרחבות ו־33 הכרעות נאמנות</small></li>
-          <li><span>04</span><strong>ביקורת פרסום</strong><small>השלב הבא: להציג 23 מדויקים ו־10 רב־מוקדיים להחלטה, בלי לשנות הרשאות</small></li>
+          <li><span>04</span><strong>ביקורת פרסום</strong><small>מודלה בפריוויו ל־23 מדויקים ול־10 רב־מוקדיים; עדיין 0 ציבוריים</small></li>
         </ol>
       </section>
     </main>

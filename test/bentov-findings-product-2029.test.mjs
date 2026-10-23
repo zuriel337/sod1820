@@ -155,9 +155,33 @@ test("publication readiness shows completed canonical write while publication st
   assert.match(page, /נאמנות רב־מוקדית", value: "10 \/ 33"/);
   assert.match(page, /נאמנות שמורה", value: "33 \/ 33"/);
   assert.match(page, /הכרעה אנושית", value: "33 \/ 33"/);
+  assert.match(page, /ביקורת פרסום", value: "33 \/ 33"/);
   assert.match(page, /גישה ציבורית", value: "0 \/ 33"/);
-  assert.match(page, /NEXT · Publication review/);
+  assert.match(page, /NEXT · Access implementation/);
   assert.match(page, /data-publication-effect="none"/);
+});
+
+test("publication decision gate models the complete reader package without publishing", () => {
+  assert.match(page, /function PublicationDecisionGate/);
+  assert.match(page, /data-publication-decision-effect="local-only"/);
+  assert.match(page, /כך 33 הממצאים הופכים לחבילת ספר לציבור/);
+  assert.match(page, /אין כתיבה למסד, אין שינוי הרשאות ואין פרסום/);
+  assert.match(page, /const PUBLICATION_CHECKS/);
+  for (const label of ["נוסח ציבורי", "הצגת מקור", "ייחוס", "פרטיות", "נגישות"]) {
+    assert.match(page, new RegExp(`label: "${label}"`));
+  }
+  assert.match(page, /const PUBLICATION_DECISION_META/);
+  for (const key of ["ready_for_publication", "needs_public_copy", "hold", "exclude"]) {
+    assert.match(page, new RegExp(key));
+  }
+  assert.match(page, /publicationFidelity: index < PREVIEW_REVIEW_DECISION\.verifiedExact \? "exact" : "multi_locus"/);
+  assert.match(page, /הצג מוצר מלא 33\/33/);
+  assert.match(page, /disabled=\{key === "ready_for_publication" && !allChecksComplete\}/);
+  assert.match(page, /setPublicationDecisions\(Object\.fromEntries/);
+  assert.match(page, /setPublicationChecks\(Object\.fromEntries/);
+  assert.match(page, /0 ממצאים ציבוריים/);
+  assert.match(page, /מעבר אמיתי דורש שער כתיבה והרשאה נפרד/);
+  assert.doesNotMatch(page, /publishFinding|publicationRpc|setPublicAccess/);
 });
 
 test("interactive controls are accessible and local-only", () => {
@@ -170,6 +194,8 @@ test("interactive controls are accessible and local-only", () => {
   assert.match(page, /הסימון זמני במכשיר ואינו נשמר, מאשר או מפרסם דבר/);
   assert.match(css, /\.bentov29-evidence-list button/);
   assert.match(css, /\.bentov29-fidelity-decision button:disabled/);
+  assert.match(css, /\.bentov29-publication-decision button:disabled/);
+  assert.match(css, /\.bentov29-publication-checks button/);
   assert.match(css, /min-height:44px/);
   assert.match(css, /@media\(max-width:390px\)/);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
