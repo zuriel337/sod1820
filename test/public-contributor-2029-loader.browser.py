@@ -1,3 +1,4 @@
+import os
 import base64,json,time
 from pathlib import Path
 from urllib.parse import urlparse
@@ -18,6 +19,7 @@ with sync_playwright() as p:
   page.on('pageerror',lambda e:errors.append(str(e)))
   def route(r):
    u=urlparse(r.request.url)
+   if u.hostname=='127.0.0.1' and u.path=='/api/public-contributor-rank':return r.fulfill(status=503,content_type='application/json',body='{"state":"unavailable"}')
    if u.hostname=='127.0.0.1':return r.continue_()
    assert u.hostname=='linswmnnkjxvweumprav.supabase.co',u.hostname
    assert '/rest/v1/' in u.path,u.path
@@ -30,7 +32,7 @@ with sync_playwright() as p:
     'channel_updates':[fixtures['source']],'research_contributions':[],'gematria_words':[],'world_gematria_lexical_lookup_v1':[]}[table]
    r.fulfill(status=200,content_type='application/json',headers={'access-control-allow-origin':'*','content-range':f'0-{max(0,len(data)-1)}/{len(data)}'},body=json.dumps(data))
   page.route('**/*',route)
-  page.goto('http://127.0.0.1:5181/work/contributor-review.html?scenario=loader')
+  page.goto('http://127.0.0.1:'+os.environ.get('CONTRIBUTOR_REVIEW_PORT','5181')+'/work/contributor-review.html?scenario=loader')
   page.get_by_role('heading',name=fixtures['identity']['display_name'],exact=True).wait_for()
   assert page.locator('.pc-item').count()==2
   assert 'PRIVATE_TEST_MARKER' not in page.locator('body').inner_text()

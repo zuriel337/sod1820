@@ -12,6 +12,8 @@ setThemePreset(params.get('theme')||'dark');
 if(params.get('scenario')?.startsWith('loader'))history.replaceState(null,'',('/community/researcher/'+(params.get('scenario')==='loader-tzvi'?'tzvi-opoc':'2042'))+location.search);
 function Review(){const P=use2029Palette();const scenario=params.get('scenario');
 const view=scenario==='catalog'?sourceCatalogFixtureView():fixtureView({research:scenario==='unavailable'?'unavailable':'ok',empty:scenario==='empty'});
+const rankChoice=params.get('rank');
+if(rankChoice!=='live') view.rankPreview=rankChoice==='ready'?{state:'ready',level:5,label:'חוקר היכל'}:{state:['loading','unlinked','not_found'].includes(rankChoice)?rankChoice:'unavailable'};
 if(scenario==='long') {view.profile.name='כותרת ארוכה במיוחד של כותב וחוקר שמחבר בין מקורות, מאמרים, מספרים וספרים ושומר על ההקשר המדויק בכל שלב';view.profile.bio='';view.items[0].title='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.repeat(12);}
 const vars={background:P.pageBg,minHeight:'100vh','--s29-font-ui':TYPEFACE.ui,'--s29-font-body':TYPEFACE.body,'--s29-font-numeric':TYPEFACE.numeric};
 for(const [key,value] of Object.entries(TYPE_SCALE_V2))vars['--s29-type-'+key]=value.fontSize+'px';
