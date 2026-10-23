@@ -753,6 +753,21 @@ export function worldPublicResearchDto(projection = {}) {
   };
 }
 
+/**
+ * Resolve one exact public finding from an already-authorized World DTO.
+ * This never falls back by text, source, contributor or duplicate similarity.
+ */
+export function findWorldPublicResearchFinding(projection = {}, sourceId = "") {
+  const wanted = clean(sourceId);
+  if (!wanted) return null;
+  const publicProjection = worldPublicResearchDto(projection);
+  return publicProjection.rows.find((row) => (
+    row?.family === "research_object"
+      && clean(row?.sourceId) === wanted
+      && isWorldPublicProjectionRow(row)
+  )) || null;
+}
+
 export async function fetchWorldAllResearchProjection() {
   const excludedChannelRows = await fetchAllRows(
     "channel_updates",
