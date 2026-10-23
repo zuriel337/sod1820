@@ -62,7 +62,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
           <p className="pc-boundary">החומרים של הכותב וההקשרים שנפתחו מהם. שיוך לכותב אינו אימות של תוכן.</p>
         </div>
-        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar}
+        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
           links={[{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} previewRank={view.rankPreview} />
       </header>
       <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
